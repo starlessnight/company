@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!--***************************************************************************************-->
+	<!--***************************************************************************************-->
+    <!--***************************************************************************************-->
+    <string name="smartrek">smartrek</string>
+    <string name="app_name">SmarTrek</string>
+    <!--***************************************************************************************-->
+    <!--***************************************************************************************-->
+    <!--***************************************************************************************-->
+    <string name="welcome">welcome to smartrek</string>
+    <string name="login">login</string>
+    <string name="new_user">create a new account</string>
+    <string name="failed_login">Sorry, the username or password you entered is not valid.</string>
+    <string name="username">username</string>
+    <string name="password">password</string>    
+    <!--***************************************************************************************-->
+    <!--***************************************************************************************-->
+    <!--***************************************************************************************-->
+    <string name="register">register</string> 
+    <string name="confirm_password">confirm password</string>
+    <string name="register_new_user">new user \n registration</string>
+    <string name="back">back</string>
+    <!--***************************************************************************************-->
+    <!--***************************************************************************************-->
+    <!--***************************************************************************************-->
+    <string name="whereTo">Where to?</string>
+    <string name="origin">enter starting address</string>
+    <string name="destination">enter destination</string>
+    <string name="date">enter date</string>
+    <string name="Go">    go    </string>
+    <string name="load">load trip</string>
+    <string name="here_and_now">here and now</string>
+    <!--***************************************************************************************-->
+    <!--***************************************************************************************-->
+    <!--***************************************************************************************-->
+    <string name="departTime">departure time</string>
+    <string name="arriveTime">arrival time</string>
+    <string name="travelTime">travel time</string>
+    <!--***************************************************************************************-->
+    <!--***************************************************************************************-->
+    <!--***************************************************************************************-->
+    <string name="about">About</string>
+    <string name="settings">settings</string>
+    <string name="my_coupons">my coupons</string>
+    <string name="my_network">my network</string>
+    <string name="reservations">reservations</string>
+    <string name="my_credits">my credits</string>
+    <string name="more">more</string>
+    <!--***************************************************************************************-->
+    <!--***************************************************************************************-->
+    <!--***************************************************************************************-->
+    <string name="map_mode">map mode</string>
+    <string name="map_view">map view</string>
+    <string name="logout">Log out</string>
+    <string name="satellite_view"> satellite view</string>
+    <!--***************************************************************************************-->
+    <!--***************************************************************************************-->
+    <!--***************************************************************************************-->
+    <string name="map_display_settings">map display settings</string>
+    <string name="map_display"> Display options </string>
+    <string name="time_display">Time display options</string>
+    <string name="display_arrival_time"> display arrival time</string>
+    <string name="display_travel_time"> display travel time </string>
+    <string name="display_departure_time"> display departure time </string>
+    <string name="adjust_time">Adjust time increment</string>
+    <string name="five">5 minutes</string>
+    <string name="fifteen">15 minutes</string>
+    <string name="sixty">60 minutes</string>
+    <!--***************************************************************************************-->
+    <!--***************************************************************************************-->
+    <!--***************************************************************************************-->
+    <string name="adjustCouponString">Select your coupon!</string>
+    	<!--***************************************************************************************-->
+	<!--***************************************************************************************-->
+    <!--***************************************************************************************-->
+    <string name="your_coupons">your coupons</string>
+    <string name="view">view</string>
+</resources>

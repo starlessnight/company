@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout 
+	xmlns:android="http://schemas.android.com/apk/res/android" 
+	android:layout_width="fill_parent" 
+    android:layout_height="fill_parent"
+    android:background="@drawable/background"
+    >
+    <TextView 
+		android:textColor="#FFFFFFFF"
+		android:textSize="30dp"
+		android:gravity="center_horizontal"
+   		android:layout_width="fill_parent" 
+   		android:layout_height="wrap_content" 
+    	android:text="@string/your_coupons"
+    	android:id="@+id/coupon_screen_lable">
+    	</TextView>
+	<GridView 
+    	android:id="@+id/coupon_grid_view"
+    	android:layout_below="@id/coupon_screen_lable"
+    	android:layout_width="fill_parent" 
+    	android:layout_height="wrap_content"
+    	android:columnWidth="90dp"
+    	android:numColumns="auto_fit"
+    	android:verticalSpacing="10dp"
+    	android:horizontalSpacing="10dp"
+    	android:stretchMode="columnWidth"
+    	android:gravity="center">
+    	</GridView>
+</RelativeLayout>

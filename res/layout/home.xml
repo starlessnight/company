@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+				android:id="@+id/MainLayout"
+                android:layout_width="fill_parent" 
+                android:layout_height="fill_parent"
+                android:padding="10px"
+                android:background="@drawable/background">              
+    <TextView 
+		android:id="@+id/whereTo"
+		android:textColor="#b39e69" 
+		android:textSize="22dp"
+		android:paddingTop="10dp"
+		android:gravity="center_horizontal|center_vertical"
+   		android:layout_width="fill_parent" 
+   		android:layout_height="wrap_content" 
+    	android:text="@string/whereTo"/>
+   	<ScrollView 
+   	  android:id="@+id/SV"
+      android:layout_width="fill_parent"
+      android:layout_height="fill_parent"
+      android:layout_below="@id/whereTo"
+      android:fillViewport="true">
+     <RelativeLayout 
+				android:id="@+id/RL2"
+                android:layout_width="fill_parent" 
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+	<RelativeLayout 
+     		android:id="@+id/Section1"
+            android:layout_width="fill_parent" 
+            android:layout_height="wrap_content">
+        <TextView 
+			android:textColor="#FFFFFFFF"
+			android:id="@+id/origin_text"
+   			android:layout_width="fill_parent" 
+   			android:layout_height="wrap_content" 
+   			android:paddingTop="15dp"
+   			android:paddingBottom="5dp"
+   			android:gravity="center"
+    		android:text="@string/origin"/>  
+        <Button
+			android:text="favs" 
+			android:id="@+id/Favs1" 
+			android:layout_height="40dp" 
+			android:layout_width="wrap_content" 
+			android:layout_below="@id/origin_text"
+			android:layout_alignParentRight="true"/>
+		<EditText 
+			android:id="@+id/origin_box" 
+			android:layout_below="@id/origin_text"
+			android:layout_width="170dp"
+			android:layout_height="40dp"  
+	    	android:layout_alignParentRight="true"
+	        android:layout_marginRight="50dp" 
+		    android:inputType="textPostalAddress">
+    		<requestFocus></requestFocus>
+		</EditText>
+	</RelativeLayout>
+
+<RelativeLayout 
+		android:id="@+id/Section2"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:layout_below="@id/Section1">
+    <Button 
+		android:text="favs" 
+		android:id="@+id/Favs2" 
+		android:layout_height="40dp" 
+		android:layout_width="wrap_content"
+		android:layout_alignParentRight="true"
+		android:layout_alignTop="@+id/destination_box"/>
+	<TextView 
+		android:textColor="#FFFFFFFF"
+		android:id="@+id/destination_text"
+   		android:layout_width="fill_parent" 
+   		android:layout_height="wrap_content" 
+   		android:paddingTop="15dp"
+   		android:paddingBottom="5dp"
+   		android:gravity="center"
+   		android:layout_alignParentRight="true"
+    	android:text="@string/destination"/>
+	<EditText 
+		android:id="@+id/destination_box" 
+		android:layout_below="@id/destination_text"
+		android:layout_width="170dp" 
+		android:layout_height="40dp" 
+		android:layout_alignParentRight="true"
+	    android:layout_marginRight="50dp" 
+		android:inputType="textPostalAddress"/>
+</RelativeLayout>
+
+<RelativeLayout 
+		android:id="@+id/Section3"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:layout_below="@id/Section2">
+	<TextView 
+		android:textColor="#FFFFFFFF"
+		android:id="@+id/date_text"
+   		android:layout_width="fill_parent" 
+   		android:layout_height="wrap_content" 
+   		android:paddingTop="15dp"
+   		android:gravity="center"
+   		android:paddingBottom="5dp"
+    	android:text="@string/date"/>
+	<EditText 
+		android:id="@+id/date_box" 
+		android:layout_below="@id/date_text"
+		android:layout_width="170dp" 
+		android:layout_height="40dp" 
+		android:layout_alignParentRight="true"
+	    android:layout_marginRight="50dp" 
+		android:inputType="date"/>
+</RelativeLayout>
+<RelativeLayout 	
+		android:id="@+id/Section4"
+        android:layout_width="fill_parent" 
+        android:layout_height="wrap_content"
+        android:layout_below="@id/Section3" 
+        android:layout_alignParentBottom="true">
+        
+      <Button  
+		android:id="@+id/hereAndNow" 
+		android:gravity="center" 
+		android:text="@string/here_and_now" 
+		android:layout_width="170dp" 
+		android:layout_height="40dp" 
+		android:layout_alignParentRight="true"
+		android:layout_marginRight="50dp" 
+		android:layout_marginTop="15dp"/>
+        
+        
+        
+	<Button  
+		android:id="@+id/Done" 
+		android:gravity="center" 
+		android:text="@string/Go" 
+		android:layout_height="40dp" 
+		android:layout_width="100dp"
+		android:layout_alignParentRight="true"
+		android:layout_marginRight="17dp" 
+		android:layout_marginTop="80dp"/>
+	<Button  
+		android:id="@+id/Load" 
+		android:gravity="center" 
+		android:text="@string/load" 
+		android:layout_height="40dp" 
+		android:layout_width="100dp"
+		android:layout_alignParentRight="true"
+		android:layout_marginRight="17dp" 
+		android:layout_marginTop="130dp"/>
+		
+		
+
+	
+	
+	</RelativeLayout>
+	</RelativeLayout>
+	</ScrollView>
+</RelativeLayout>

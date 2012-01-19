@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:background="@drawable/background">
+  <TextView
+  	android:id="@+id/map_mode_heading"
+  	android:layout_width="match_parent" 
+    android:orientation="vertical" 
+    android:textColor="#FFFFFFFF"
+    android:layout_height="wrap_content"
+    android:textSize="30dp"
+    android:gravity="center"
+    android:text="@string/map_mode">  
+  </TextView>
+  <RadioGroup 
+  	android:id="@+id/radioGroup1" 
+  	android:layout_height="wrap_content"
+  	android:layout_below="@id/map_mode_heading"
+  	android:layout_alignParentLeft="true"
+  	android:layout_width="wrap_content"
+  	android:paddingLeft="70dp"
+  	android:paddingTop="30dp">
+      <RadioButton 
+        android:textColor="#FFFFFFFF"
+      	android:textSize="25dp"
+      	android:text="@string/map_view" 
+      	android:id="@+id/radio0" 
+      	android:layout_height="wrap_content" 
+      	android:layout_width="wrap_content" >
+      </RadioButton>
+      <RadioButton 
+      	android:textColor="#FFFFFFFF"
+      	android:textSize="25dp"
+      	android:text="@string/satellite_view" 
+      	android:id="@+id/radio1" 
+      	android:layout_height="wrap_content" 
+      	android:layout_width="wrap_content">
+      </RadioButton>
+  </RadioGroup>
+</RelativeLayout>

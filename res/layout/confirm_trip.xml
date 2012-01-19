@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout 
+			  xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:id="@+id/layout_root"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:background="#3f3e40"
+              android:padding="10dp">
+<RelativeLayout 
+xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:id="@+id/coupon_root"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="100dp"
+              android:background="#3f3e40"
+              android:padding="10dp"/>
+               
+    <TextView android:id="@+id/coupon_text"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:layout_below="@id/coupon_root"
+              android:padding="15dp"
+              android:textSize="20dp"
+              android:textColor="#FFF"/>
+              
+	<Button   android:text="Confirm Trip" 
+			  android:id="@+id/confirm_button"
+			  android:layout_height="wrap_content" 
+			  android:gravity="center"
+			  android:layout_width="wrap_content" 
+			  android:layout_alignParentBottom="true"
+			  android:layout_centerHorizontal="true" 
+			  android:layout_marginBottom="42dp"/>
+              
+</RelativeLayout>
