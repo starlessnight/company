@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="SmarTrek.Android_Platform"
+      package="SmarTrek.AndroidPlatform"
       android:versionCode="1"
       android:versionName="1.0">
-    <uses-sdk android:minSdkVersion="9" />
+    <uses-sdk android:minSdkVersion="15" />
+    
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application android:icon="@drawable/icon" android:label="@string/app_name">
    		<uses-library android:name="com.google.android.maps" />
@@ -15,24 +17,23 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Login_Activity"
+        <activity android:name=".LoginActivity"
        			  android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name=".Home_Activity"
+        <activity android:name=".HomeActivity"
         		  android:theme="@android:style/Theme.NoTitleBar"/>
-       	<activity android:name=".My_Coupons_Activity"
+       	<activity android:name=".MyCouponsActivity"
         		  android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name=".Register_Activity"
+        <activity android:name=".RegisterActivity"
         		  android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".Map_Activity"
         		  android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name=".Map_Mode_Activity"
+        <activity android:name=".MapModeActivity"
         		  android:theme="@android:style/Theme.NoTitleBar"/> 
-        <activity android:name=".Map_Display_Activity"
+        <activity android:name=".MapDisplayActivity"
         		  android:theme="@android:style/Theme.NoTitleBar"/>   
-        <activity android:name=".Confirm_Trip_Activity"
+        <activity android:name=".ConfirmTripActivity"
         		  android:theme="@android:style/Theme.NoTitleBar"/> 
-        <activity android:name=".Confirmed_Map_Activity"
-        		  android:theme="@android:style/Theme.NoTitleBar"/>         		       		   
+        <activity android:name=".ConfirmedMapActivity"
+        		  android:theme="@android:style/Theme.NoTitleBar"/>		       		   
     </application>
-    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>
