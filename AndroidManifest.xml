@@ -34,6 +34,8 @@
         <activity android:name=".ConfirmTripActivity"
         		  android:theme="@android:style/Theme.NoTitleBar"/> 
         <activity android:name="smartrek.activities.ConfirmedMapActivity"
-        		  android:theme="@android:style/Theme.NoTitleBar"/>		       		   
+        		  android:theme="@android:style/Theme.NoTitleBar"/>
+        <activity android:name=".ReservationActivity"
+                  android:theme="@android:style/Theme.NoTitleBar"/>       		   
     </application>
 </manifest>

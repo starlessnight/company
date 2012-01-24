@@ -1,7 +1,7 @@
 package smartrek.activities;
 
 import smartrek.SeverCommunicator.Login_Communicator;
-import smartrek.util.User;
+import smartrek.models.User;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;

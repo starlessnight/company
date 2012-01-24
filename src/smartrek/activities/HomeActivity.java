@@ -328,13 +328,13 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 		Intent intent = null;
 		switch(item.getItemId()){
     	case R.id.mycoupons:
-    		intent = new Intent(this,MyCouponsActivity.class);
+    		intent = new Intent(this, MyCouponsActivity.class);
     		startActivity(intent);
     		return true;
     		
     	case R.id.reservation:
-//    		intent = new Intent(this, Map_Display_Activity.class);
-//    		startActivity(intent);
+    		intent = new Intent(this, ReservationActivity.class);
+    		startActivity(intent);
     		break;
     		
     	case R.id.logout_option:

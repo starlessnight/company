@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 import org.json.JSONException;
 
+import smartrek.models.User;
 import smartrek.util.Coupon;
 import smartrek.util.Route;
-import smartrek.util.User;
 
 
 /****************************************************************************************************
