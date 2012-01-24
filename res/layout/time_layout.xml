@@ -17,24 +17,24 @@
  		android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
 		
-		<SmarTrek.Android_Platform.AdjustableTimeDisplay.TimeLayout
+		<smartrek.AdjustableTimeDisplay.TimeLayout
 			android:id="@+id/timelayout"
 			android:layout_width="wrap_content"
 			android:layout_height="fill_parent">
-		</SmarTrek.Android_Platform.AdjustableTimeDisplay.TimeLayout>
+		</smartrek.AdjustableTimeDisplay.TimeLayout>
 
-		<SmarTrek.Android_Platform.AdjustableTimeDisplay.TimeLayout
+		<smartrek.AdjustableTimeDisplay.TimeLayout
 			android:id="@+id/arrivaltimelayout"
 			android:layout_width="wrap_content"
 			android:layout_height="fill_parent">
-		</SmarTrek.Android_Platform.AdjustableTimeDisplay.TimeLayout>
+		</smartrek.AdjustableTimeDisplay.TimeLayout>
 	
 
-		<SmarTrek.Android_Platform.AdjustableTimeDisplay.TimeLayout
+		<smartrek.AdjustableTimeDisplay.TimeLayout
 			android:id="@+id/traveltimelayout"
 			android:layout_width="wrap_content"
 			android:layout_height="fill_parent">
-		</SmarTrek.Android_Platform.AdjustableTimeDisplay.TimeLayout>
+		</smartrek.AdjustableTimeDisplay.TimeLayout>
 		</LinearLayout>
 	</HorizontalScrollView>
 </RelativeLayout>

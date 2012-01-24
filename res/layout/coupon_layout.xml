@@ -13,11 +13,11 @@
 		android:background="#3f3e40"
 		android:layout_alignParentBottom="true"  
  		android:id="@+id/scrollCoupon">
-   		<SmarTrek.Android_Platform.AdjustableCouponDisplay.CouponLayout
+   		<smartrek.AdjustableCouponDisplay.CouponLayout
 			android:id="@+id/couponlayout"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content">
-		</SmarTrek.Android_Platform.AdjustableCouponDisplay.CouponLayout>
+		</smartrek.AdjustableCouponDisplay.CouponLayout>
 	</HorizontalScrollView>
     
     <TextView 
