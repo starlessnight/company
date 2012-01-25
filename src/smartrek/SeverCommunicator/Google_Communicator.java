@@ -7,7 +7,7 @@ import android.util.Log;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 
-public class Google_Communicator extends Server_Communicator{
+public class Google_Communicator extends ServerCommunicator{
 
 	GeoPoint start;
 	GeoPoint end;
@@ -21,7 +21,7 @@ public class Google_Communicator extends Server_Communicator{
 	
 	public ArrayList<GeoPoint> getPoints(MapView mapView) {
 		String gurl = appendToUrl();
-		String google_response = DownloadText(gurl);
+		String google_response = downloadText(gurl);
 		Log.d("************",google_response);
 		
 		

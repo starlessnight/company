@@ -6,7 +6,7 @@ import java.io.InputStream;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-public class Image_Communicator extends Server_Communicator {
+public class Image_Communicator extends ServerCommunicator {
 
 	
 	public Image_Communicator(){
@@ -24,7 +24,7 @@ public class Image_Communicator extends Server_Communicator {
         Bitmap bitmap = null;
         InputStream in = null;        
         try {
-            in = OpenHttpConnection(URL);
+            in = openHttpConnection(URL);
             bitmap = BitmapFactory.decodeStream(in);
             in.close();
         } catch (IOException e1) {

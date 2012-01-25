@@ -29,7 +29,7 @@ import android.util.Log;
  * @author timothyolivas
  *
  ****************************************************************************************************/
-public class Route_Communicator extends Server_Communicator {
+public class Route_Communicator extends ServerCommunicator {
 	
 	private String loc1;
 	private String loc2;
@@ -60,7 +60,7 @@ public class Route_Communicator extends Server_Communicator {
 		// Querry the server for the routes
 		Log.d("Route_Communicator", "Querying Sever with");
 		Log.d("Route_Communicator",routeurl);
-		String route_response = DownloadText(routeurl);
+		String route_response = downloadText(routeurl);
 		Log.d("Route_Communicator", "Query Complete, Got Route Information");
 		
 		// Begin parsing the server response
@@ -77,7 +77,7 @@ public class Route_Communicator extends Server_Communicator {
 		Log.d("Route_Communicator", "Begin Downloading Associated Coupon info");
 		for (int i = 0; i < routes.size(); i++) {
 			Log.d("Route_Communicator","Downloading Coupon: " + i);
-			String coupon_response = DownloadText(coupon_url + routes.get(i).getRID());
+			String coupon_response = downloadText(coupon_url + routes.get(i).getRID());
 			ArrayList<Coupon> coupons = null;
 			try{
 				coupons = Parser.parse_Coupon_List(coupon_response);

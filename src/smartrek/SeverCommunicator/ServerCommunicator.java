@@ -13,7 +13,7 @@ import android.util.Log;
  * 
  *
  ******************************************************************************************************************/
-public abstract class Server_Communicator {
+public abstract class ServerCommunicator {
 
 	protected String sturl;
 	
@@ -23,7 +23,7 @@ public abstract class Server_Communicator {
 	 * 
 	 *
 	 ******************************************************************************************************************/
-	public Server_Communicator(){
+	public ServerCommunicator(){
 		this.sturl = "http://www.api.smartrekmobile.com";
 	}
 	
@@ -31,7 +31,7 @@ public abstract class Server_Communicator {
 	 * 
 	 *
 	 ******************************************************************************************************************/
-    protected InputStream OpenHttpConnection(String urlString) throws IOException {
+    protected InputStream openHttpConnection(String urlString) throws IOException {
         InputStream in = null;
         int response = -1;
                
@@ -62,12 +62,12 @@ public abstract class Server_Communicator {
 	 * 
 	 *
 	 ******************************************************************************************************************/
-    public String DownloadText(String URL)
+    public String downloadText(String URL)
     {
         int BUFFER_SIZE = 2000;
         InputStream in = null;
         try {
-            in = OpenHttpConnection(URL);
+            in = openHttpConnection(URL);
         } catch (IOException e1) {
             e1.printStackTrace();
             return "";

@@ -14,7 +14,7 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 
-public class Coupon_Communicator extends Server_Communicator {
+public class Coupon_Communicator extends ServerCommunicator {
 	
 	public Coupon_Communicator() {
 		
@@ -25,7 +25,7 @@ public class Coupon_Communicator extends Server_Communicator {
 		Log.d("Coupon_Communicator","In Coupon_Communicator");
 		Log.d("Coupon_Communicator","Begining Download");
 		
-		String route_response = DownloadText(sturl + appendToUrl());
+		String route_response = downloadText(sturl + appendToUrl());
 
 		ArrayList<Coupon> coupons = null;
 		
