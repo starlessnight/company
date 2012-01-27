@@ -2,7 +2,9 @@ package smartrek.models;
 
 import java.util.Date;
 
-// http://api.smartrekmobile.com/reservation?uid=1
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Reservation {
 	/**
 	 * Deal ID
@@ -23,7 +25,7 @@ public class Reservation {
 	private String destinationAddress;
 	
 	private int validatedFlag;
-
+	
 	public int getDid() {
 		return did;
 	}
@@ -78,5 +80,19 @@ public class Reservation {
 
 	public void setValidatedFlag(int validatedFlag) {
 		this.validatedFlag = validatedFlag;
+	}
+	
+	public static Reservation parse(JSONObject object) throws JSONException {
+		Reservation r = new Reservation();
+		
+		r.setDid(object.getInt("DID"));
+		r.setRid(object.getInt("RID"));
+		// START_DATETIME
+		// END_DATETIME
+		r.setOriginAddress(object.getString("ORIGIN_ADDRESS"));
+		r.setDestinationAddress(object.getString("DESTINATION_ADDRESS"));
+		r.setValidatedFlag(object.getInt("VALIDATED_FLAG"));
+		
+		return r;
 	}
 }

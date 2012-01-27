@@ -10,7 +10,6 @@ import smartrek.models.User;
 import smartrek.util.Coupon;
 import smartrek.util.Route;
 import smartrek.util.RouteNode;
-
 import android.util.Log;
 
 
