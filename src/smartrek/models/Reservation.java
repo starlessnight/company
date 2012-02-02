@@ -5,6 +5,9 @@ import java.util.Date;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * A model class representing a reservation
+ */
 public class Reservation {
 	/**
 	 * Deal ID
@@ -82,6 +85,13 @@ public class Reservation {
 		this.validatedFlag = validatedFlag;
 	}
 	
+	/**
+	 * Parses a JSON object into a reservation object
+	 * 
+	 * @param object A JSON object
+	 * @return An instance of Reservation
+	 * @throws JSONException
+	 */
 	public static Reservation parse(JSONObject object) throws JSONException {
 		Reservation r = new Reservation();
 		

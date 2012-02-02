@@ -85,11 +85,9 @@ public class ReservationActivity extends ListActivity {
 		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			//return super.getView(position, convertView, parent);
-			
 			Reservation r = objects.get(position);
 			
-			LayoutInflater inflater=getLayoutInflater();
+			LayoutInflater inflater = getLayoutInflater();
 			View view = inflater.inflate(textViewResourceId, parent, false);
 			
 			TextView textView1 = (TextView)view.findViewById(R.id.textViewOrigin);
