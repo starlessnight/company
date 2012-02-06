@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -94,6 +95,9 @@ public class LoginActivity extends Activity implements OnClickListener{
 			String password = pwd.getText().toString();
 			Log.d("Attempting Login", "User: " + username + "    Password: " + password);
 			
+			new LoginTask().execute(username, password);
+			
+			/*
 			User user = new Login_Communicator().login(username,password);
 			
 			if(user != null && user.getId() != -1){
@@ -121,12 +125,9 @@ public class LoginActivity extends Activity implements OnClickListener{
 				loginfail_text.setVisibility(View.VISIBLE);
 				pwd.setText("");
 			}
+			*/
 	}
-	
-	/******************************************************************************************************************
-	 * 
-	 *
-	 ******************************************************************************************************************/
+
 	Button.OnClickListener registerButtonClickListener = new Button.OnClickListener() {
 
 		@Override
@@ -137,4 +138,59 @@ public class LoginActivity extends Activity implements OnClickListener{
 			startActivity(intent);
 		}
 	};
+	
+	/**
+	 * Methods in this class will be executed asynchronously. 
+	 */
+	private class LoginTask extends AsyncTask<String, Object, User> {
+
+		@Override
+		protected User doInBackground(String... params) {
+			String username = params[0];
+			String password = params[1];
+			
+			User user = null;
+			try {
+				user = new Login_Communicator().login(username, password);
+			}
+			catch(Exception e) {
+				user = new User(-1, username);
+			}
+			
+			if(user == null) {
+				user = new User(-1, username);
+			}
+
+			return user;
+		}
+		
+		@Override
+		protected void onPostExecute(User user) {
+			if(user != null && user.getId() != -1) {
+				Log.d("Login_Activity","Successful Login");
+				Log.d("Login_Activity", "Saving Login Info to Shared Preferences");
+				
+				SharedPreferences sharedPreferences = getSharedPreferences(LOGIN_PREFS, MODE_PRIVATE);
+				SharedPreferences.Editor editor = sharedPreferences.edit();
+				editor.putString("user", user.getUsername());
+				editor.putInt("uid", user.getId());
+				editor.commit();
+				
+				Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+				
+				Log.d("Login_Activity","Finishing Login_Activity, Staring Home_Activity");
+				
+				startActivity(intent);
+				finish();
+				
+			}
+			else {
+				Log.d("Login_Activity", "Failed Login User: " + user.getUsername());
+				TextView loginfail_text = (TextView) findViewById(R.id.failed_login);
+				loginfail_text.setVisibility(View.VISIBLE);
+				pwd.setText("");
+			}
+		}
+		
+	}
 }

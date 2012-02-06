@@ -45,7 +45,13 @@ public class ReservationActivity extends ListActivity {
 		@Override
 		protected String doInBackground(Object... params) {
 			ReservationCommunicator comm = new ReservationCommunicator();
-			String response = comm.downloadText("http://api.smartrekmobile.com/reservation?uid=1");
+			String response = null;
+			try {
+				response = comm.downloadText("http://api.smartrekmobile.com/reservation?uid=1");
+			}
+			catch(Exception e) {
+				
+			}
 
 			try {
 				JSONArray array = new JSONArray(response);

@@ -24,7 +24,7 @@ public abstract class ServerCommunicator {
 	 *
 	 ******************************************************************************************************************/
 	public ServerCommunicator(){
-		this.sturl = "http://www.api.smartrekmobile.com";
+		this.sturl = "http://50.56.81.42:8080";
 	}
 	
 	/******************************************************************************************************************
@@ -38,8 +38,10 @@ public abstract class ServerCommunicator {
         URL url = new URL(urlString); 
         URLConnection conn = url.openConnection();
                  
-        if (!(conn instanceof HttpURLConnection))                     
-            throw new IOException("Not an HTTP connection");        
+        if (!(conn instanceof HttpURLConnection)) {
+            throw new IOException("Not an HTTP connection");
+        }
+        
         try{
             HttpURLConnection httpConn = (HttpURLConnection) conn;
             httpConn.setAllowUserInteraction(false);
@@ -58,10 +60,9 @@ public abstract class ServerCommunicator {
         return in;     
     }	
 	
-	/******************************************************************************************************************
-	 * 
-	 *
-	 ******************************************************************************************************************/
+	/*************************************************************************
+	 * TODO: Rewrite this function with StringBuffer 
+	 *************************************************************************/
     public String downloadText(String URL)
     {
         int BUFFER_SIZE = 2000;

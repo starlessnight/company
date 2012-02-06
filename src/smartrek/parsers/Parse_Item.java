@@ -73,8 +73,12 @@ public class Parse_Item {
 	 *
 	 *****************************************************************************************/
 	public static User parse_user(String name, String str) throws JSONException{	
-		JSONObject json = new JSONObject(str);  
-		int id = json.getInt("uid");
+		// FIXME: Server produces a JSON string like [{ ... }]. Is [] really necessary? 
+		JSONArray jsonArray = new JSONArray(str);
+		JSONObject json = (JSONObject) jsonArray.get(0);
+		
+		//JSONObject json = new JSONObject(str);
+		int id = json.getInt("UID");
 		return new User(id, name);
 	}
 		

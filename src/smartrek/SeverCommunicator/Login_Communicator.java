@@ -18,7 +18,7 @@ public class Login_Communicator extends ServerCommunicator {
 	private String name;
 	private String pwd;
 	
-	public Login_Communicator(){
+	public Login_Communicator() {
 		super();
 	}
 	
@@ -31,11 +31,12 @@ public class Login_Communicator extends ServerCommunicator {
 		this.name = name;
 		this.pwd = pwd;
 		String loginurl = sturl + appendToUrl();
+
 		Log.d("Login_Communicator", "Querrying Sever with");
 		Log.d("Login_Communicator", loginurl);
 		String login_response = downloadText(loginurl);
 		Log.d("Login_Communicator", "Got Response from Server");
-		Log.d("Login_Communicator", login_response);
+		Log.d("Login_Communicator", "response = " + login_response);
 
 		User user = null;
 		try {
@@ -43,9 +44,6 @@ public class Login_Communicator extends ServerCommunicator {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		
-		// FIXME: This is for bypassing the server side error
-		user = new User(123456, "bypass");
 		
 		return user;
 	}
@@ -55,6 +53,7 @@ public class Login_Communicator extends ServerCommunicator {
 	 *
 	 ****************************************************************************************************/
 	protected String appendToUrl() {
-		 return "/account/verify?username=" + name + "&password=" + pwd;
+		 //return "/account/verify?username=" + name + "&password=" + pwd;
+		return String.format("/account/%s%%20%s", name, pwd);
 	}
 }
