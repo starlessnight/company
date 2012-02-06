@@ -1,7 +1,7 @@
 package smartrek.AdjustableCouponDisplay;
 
 import smartrek.activities.R;
-import smartrek.util.Coupon;
+import smartrek.models.Coupon;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;

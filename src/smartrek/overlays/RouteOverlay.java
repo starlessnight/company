@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import smartrek.AdjustableCouponDisplay.CouponLayout;
 import smartrek.activities.ConfirmTripActivity;
 import smartrek.mapviewballon.BalloonItemizedOverlay;
-import smartrek.util.Coupon;
-import smartrek.util.Route;
+import smartrek.models.Coupon;
+import smartrek.models.Route;
 
 
 

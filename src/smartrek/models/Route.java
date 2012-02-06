@@ -1,6 +1,8 @@
-package smartrek.util;
+package smartrek.models;
 
 import java.util.ArrayList;
+
+import smartrek.util.RouteNode;
 
 import com.google.android.maps.GeoPoint;
 

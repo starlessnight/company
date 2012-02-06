@@ -14,9 +14,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 
+import smartrek.models.Coupon;
+import smartrek.models.Route;
 import smartrek.parsers.Parser;
-import smartrek.util.Coupon;
-import smartrek.util.Route;
 import smartrek.util.RouteNode;
 
 import android.text.format.Time;

@@ -1,4 +1,4 @@
-package smartrek.util;
+package smartrek.models;
 
 public class Trip {
 

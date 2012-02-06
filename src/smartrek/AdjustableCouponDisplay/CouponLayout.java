@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import smartrek.activities.MainActivity;
 import smartrek.activities.Map_Activity;
-import smartrek.util.Coupon;
-import smartrek.util.Route;
+import smartrek.models.Coupon;
+import smartrek.models.Route;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;

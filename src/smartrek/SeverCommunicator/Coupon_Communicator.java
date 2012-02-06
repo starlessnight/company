@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import org.json.JSONException;
 
 import smartrek.db.PicuteDataBase;
+import smartrek.models.Coupon;
 import smartrek.parsers.Parser;
-import smartrek.util.Coupon;
 
 import android.content.Context;
 import android.database.Cursor;

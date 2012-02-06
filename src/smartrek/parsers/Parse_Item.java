@@ -6,9 +6,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import smartrek.models.Coupon;
+import smartrek.models.Route;
 import smartrek.models.User;
-import smartrek.util.Coupon;
-import smartrek.util.Route;
 import smartrek.util.RouteNode;
 import android.util.Log;
 

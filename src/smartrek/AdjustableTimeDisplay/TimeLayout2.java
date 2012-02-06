@@ -3,7 +3,7 @@ package smartrek.AdjustableTimeDisplay;
 import java.util.ArrayList;
 
 import smartrek.activities.Map_Activity;
-import smartrek.util.Route;
+import smartrek.models.Route;
 
 
 

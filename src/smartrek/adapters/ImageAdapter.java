@@ -2,7 +2,7 @@ package smartrek.adapters;
 
 import java.util.ArrayList;
 
-import smartrek.util.Coupon;
+import smartrek.models.Coupon;
 
 import android.content.Context;
 import android.view.View;

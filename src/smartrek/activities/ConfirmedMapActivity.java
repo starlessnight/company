@@ -3,9 +3,9 @@ package smartrek.activities;
 import java.util.ArrayList;
 import java.util.List;
 
+import smartrek.models.Route;
 import smartrek.overlays.RouteOverlay;
 import smartrek.overlays.RouteSegmentOverlay;
-import smartrek.util.Route;
 import smartrek.util.RouteNode;
 import android.content.Intent;
 import android.os.Bundle;

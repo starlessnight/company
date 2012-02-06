@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import smartrek.SeverCommunicator.Coupon_Communicator;
 import smartrek.adapters.ImageAdapter;
-import smartrek.util.Coupon;
+import smartrek.models.Coupon;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -33,7 +33,7 @@ public class MyCouponsActivity extends Activity {
   	   	dialog.setMessage("Loading Coupons...");
   	   	dialog.setIndeterminate(true);
   	   	dialog.setCancelable(false);
-  	   	dialog.show();	
+  	   	dialog.show();
 	    
 	    new BackgroundDownloadImageTask().execute();
 	}
