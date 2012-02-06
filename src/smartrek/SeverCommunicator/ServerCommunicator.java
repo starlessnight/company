@@ -73,6 +73,11 @@ public abstract class ServerCommunicator {
             e1.printStackTrace();
             return "";
         }
+        
+        if(in == null) {
+        	return "";
+        }
+        
         Log.d("ServerCommunicator","Attempting to read response");
         InputStreamReader isr = new InputStreamReader(in);
         int charRead;

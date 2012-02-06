@@ -68,26 +68,26 @@ public class Route_Communicator extends ServerCommunicator {
 		try{
 			Log.d("Route_Communicator", "Call Parser for Route Information");
 			routes = Parser.parse_Routes(route_response);
+			
+			// Download the coupons associated with the route
+			Log.d("Route_Communicator", "Begin Downloading Associated Coupon info");
+			for (int i = 0; i < routes.size(); i++) {
+				Log.d("Route_Communicator","Downloading Coupon: " + i);
+				String coupon_response = downloadText(coupon_url + routes.get(i).getRID());
+				ArrayList<Coupon> coupons = null;
+				try{
+					coupons = Parser.parse_Coupon_List(coupon_response);
+				} catch (JSONException e) {
+						e.printStackTrace();
+					}		
+				routes.get(i).setAllCoupons(coupons);
+			}
+			
+			Log.d("Route_Communicator", "Query Complete, Got Route Information");
 		} catch (JSONException e) {
 				e.printStackTrace();
 				Log.d("Route_Communicator","Failed to Parse Route");
-		}	
-		
-		// Download the coupons associated with the route
-		Log.d("Route_Communicator", "Begin Downloading Associated Coupon info");
-		for (int i = 0; i < routes.size(); i++) {
-			Log.d("Route_Communicator","Downloading Coupon: " + i);
-			String coupon_response = downloadText(coupon_url + routes.get(i).getRID());
-			ArrayList<Coupon> coupons = null;
-			try{
-				coupons = Parser.parse_Coupon_List(coupon_response);
-			} catch (JSONException e) {
-					e.printStackTrace();
-				}		
-			routes.get(i).setAllCoupons(coupons);
 		}
-		
-		Log.d("Route_Communicator", "Query Complete, Got Route Information");
 		
 		return routes;
 	}

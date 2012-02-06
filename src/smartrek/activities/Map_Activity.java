@@ -183,6 +183,12 @@ public class Map_Activity extends MapActivity {
 		
 		/* Get the possible routes from the server */
 		ArrayList<Route> possible_Routes = rcomm.getPossibleRoutes(origin, destination, time);
+		
+		// FIXME:
+		if(possible_Routes == null) {
+			return;
+		}
+		
 		Log.d("Map_Activity","Got " + possible_Routes.size() + "Possible Routes from server");
 		
 		routes = possible_Routes;
