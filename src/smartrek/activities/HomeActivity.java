@@ -327,7 +327,7 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 		Log.d("Map_Activity", "Menu Open: Entering Map Mode Options");
 		Intent intent = null;
 		switch(item.getItemId()){
-		case R.id.mynetwork:
+		case R.id.contacts:
 			intent = new Intent(this, ContactsActivity.class);
 			startActivity(intent);
 			break;

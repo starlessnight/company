@@ -7,8 +7,8 @@
     	android:enabled="true" 
     	android:visible="true"/> 
        <item 
-    	android:title="@string/my_network" 
-    	android:id="@+id/mynetwork" 
+    	android:title="@string/my_contacts" 
+    	android:id="@+id/contacts" 
     	android:enabled="true" 
     	android:visible="true"/> 
        <item 
