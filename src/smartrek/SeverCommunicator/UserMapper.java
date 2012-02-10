@@ -13,7 +13,7 @@ import android.util.Log;
  * @author timothyolivas
  *
  ****************************************************************************************************/
-public class Login_Communicator extends ServerCommunicator {
+public class UserMapper extends ServerCommunicator {
 	
 	// values are database field names
 	public static final String UID = "UID";
@@ -22,7 +22,7 @@ public class Login_Communicator extends ServerCommunicator {
 	private String name;
 	private String pwd;
 	
-	public Login_Communicator() {
+	public UserMapper() {
 		super();
 	}
 	
