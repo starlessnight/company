@@ -18,6 +18,8 @@ public class UserMapper extends ServerCommunicator {
 	// values are database field names
 	public static final String UID = "UID";
 	public static final String USERNAME = "USERNAME";
+	public static final String FIRSTNAME = "FIRSTNAME";
+	public static final String LASTNAME = "LASTNAME";
 	
 	private String name;
 	private String pwd;

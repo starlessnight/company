@@ -327,6 +327,11 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 		Log.d("Map_Activity", "Menu Open: Entering Map Mode Options");
 		Intent intent = null;
 		switch(item.getItemId()){
+		case R.id.mynetwork:
+			intent = new Intent(this, ContactsActivity.class);
+			startActivity(intent);
+			break;
+
     	case R.id.mycoupons:
     		intent = new Intent(this, MyCouponsActivity.class);
     		startActivity(intent);
@@ -338,6 +343,7 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
     		break;
     		
     	case R.id.logout_option:
+    		// FIXME: Need to refactor
 			SharedPreferences sharedPreferences = getSharedPreferences(LOGIN_PREFS,MODE_PRIVATE);
 			SharedPreferences.Editor editor = sharedPreferences.edit();
 			editor.putString("user", "");

@@ -72,6 +72,8 @@ public class MyCouponsActivity extends Activity {
 //    	            Toast.makeText(My_Coupons_Activity.this, "" + position, Toast.LENGTH_SHORT).show();
 //    	        }
 //    	    });
+            
+            // FIXME: What the fuck is this?
         	try {
 				Thread.sleep(150);
 			} catch (InterruptedException e) {

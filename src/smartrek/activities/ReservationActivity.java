@@ -17,7 +17,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 public class ReservationActivity extends ListActivity {
@@ -27,11 +26,6 @@ public class ReservationActivity extends ListActivity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.reservation);
-        
-        //String[] items = new String[] { "alpha", "beta", "charlie" };
-        
-        //setListAdapter(new ArrayAdapter<String>(this, R.layout.list_item, items));
         
         reservations = new ArrayList<Reservation>();
         
@@ -68,11 +62,7 @@ public class ReservationActivity extends ListActivity {
 		
 		@Override
 		protected void onPostExecute(String result) {
-//			String[] items = new String[reservations.size()];
-//			for(int i = 0; i < reservations.size(); i++) {
-//				items[i] = reservations.get(i).getOriginAddress();
-//			}
-			setListAdapter(new ReservationItemAdapter(ReservationActivity.this, R.layout.list_item, reservations));
+			setListAdapter(new ReservationItemAdapter(ReservationActivity.this, R.layout.reservation_list_item, reservations));
 	    }
 	}
 	

@@ -94,6 +94,7 @@ public abstract class ServerCommunicator {
             }
             in.close();
         } catch (IOException e) {
+        	// FIXME: God damn it.
             e.printStackTrace();
             return "";
         }    

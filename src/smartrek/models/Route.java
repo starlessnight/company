@@ -34,7 +34,7 @@ public class Route {
 	 *
 	 *****************************************************************************************/
 	public Route (ArrayList<RouteNode> locs, int rid, Float time) {
-		this.cp = cp;
+		//this.cp = cp;
 		this.routeNodes = locs;
 		this.rid = rid;
 		this.validated = 0;

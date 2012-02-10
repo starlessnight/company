@@ -1,6 +1,6 @@
 package smartrek.activities;
 
-import smartrek.SeverCommunicator.Login_Communicator;
+import smartrek.SeverCommunicator.UserMapper;
 import smartrek.models.User;
 import android.app.Activity;
 import android.content.Context;
@@ -23,7 +23,7 @@ public class LoginActivity extends Activity implements OnClickListener{
 	
 	private EditText uname;
 	private EditText pwd;
-	private final String LOGIN_PREFS = "login_file";
+	public static final String LOGIN_PREFS = "login_file";
 	
 	private Context context;
 	
@@ -62,8 +62,8 @@ public class LoginActivity extends Activity implements OnClickListener{
 	 ******************************************************************************************************************/
     private void checkSharedPreferences() {
         SharedPreferences sharedPreferences = getSharedPreferences(LOGIN_PREFS,MODE_PRIVATE);
-        String user = sharedPreferences.getString("user", "");
-        int uid = sharedPreferences.getInt("uid", -1);
+        String user = sharedPreferences.getString(UserMapper.USERNAME, "");
+        int uid = sharedPreferences.getInt(UserMapper.UID, -1);
         
         if(!user.equals("") && uid !=- 1){
         	Log.d("Login_Activity","Got Login info from Shared Preferences");
@@ -96,36 +96,6 @@ public class LoginActivity extends Activity implements OnClickListener{
 			Log.d("Attempting Login", "User: " + username + "    Password: " + password);
 			
 			new LoginTask().execute(username, password);
-			
-			/*
-			User user = new Login_Communicator().login(username,password);
-			
-			if(user != null && user.getId() != -1){
-				
-				Log.d("Login_Activity","Successful Login");
-				Log.d("Login_Activity", "User: " + username + "    Password: " + password);
-				Log.d("Login_Activity", "Saving Login Info to Shared Preferences");
-				
-				SharedPreferences sharedPreferences = getSharedPreferences(LOGIN_PREFS,MODE_PRIVATE);
-				SharedPreferences.Editor editor = sharedPreferences.edit();
-				editor.putString("user", username);
-				editor.putInt("uid", user.getId());
-				editor.commit();
-				
-				Intent intent = new Intent(this,HomeActivity.class);
-				
-				Log.d("Login_Activity","Finishing Login_Activity, Staring Home_Activity");
-				
-				startActivity(intent);
-				finish();
-				
-			} else {
-				Log.d("Login_Activity", "Failed Login User: " + username + "    Password: " + password);
-				TextView loginfail_text = (TextView) findViewById(R.id.failed_login);
-				loginfail_text.setVisibility(View.VISIBLE);
-				pwd.setText("");
-			}
-			*/
 	}
 
 	Button.OnClickListener registerButtonClickListener = new Button.OnClickListener() {
@@ -151,7 +121,7 @@ public class LoginActivity extends Activity implements OnClickListener{
 			
 			User user = null;
 			try {
-				user = new Login_Communicator().login(username, password);
+				user = new UserMapper().login(username, password);
 			}
 			catch(Exception e) {
 				user = new User(-1, username);
@@ -172,8 +142,8 @@ public class LoginActivity extends Activity implements OnClickListener{
 				
 				SharedPreferences sharedPreferences = getSharedPreferences(LOGIN_PREFS, MODE_PRIVATE);
 				SharedPreferences.Editor editor = sharedPreferences.edit();
-				editor.putString("user", user.getUsername());
-				editor.putInt("uid", user.getId());
+				editor.putString(UserMapper.USERNAME, user.getUsername());
+				editor.putInt(UserMapper.UID, user.getId());
 				editor.commit();
 				
 				Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
