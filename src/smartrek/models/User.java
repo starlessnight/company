@@ -3,7 +3,7 @@ package smartrek.models;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import smartrek.SeverCommunicator.UserMapper;
+import smartrek.mappers.UserMapper;
 
 public class User {
 

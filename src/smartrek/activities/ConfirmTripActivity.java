@@ -1,6 +1,6 @@
 package smartrek.activities;
 
-import smartrek.SeverCommunicator.Route_Communicator;
+import smartrek.mappers.Route_Communicator;
 import smartrek.models.Route;
 import android.app.Activity;
 import android.content.Context;

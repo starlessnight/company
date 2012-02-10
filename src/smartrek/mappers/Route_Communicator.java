@@ -1,4 +1,4 @@
-package smartrek.SeverCommunicator;
+package smartrek.mappers;
 
 import java.io.IOException;
 import java.util.ArrayList;

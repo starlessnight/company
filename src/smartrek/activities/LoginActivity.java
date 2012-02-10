@@ -1,6 +1,6 @@
 package smartrek.activities;
 
-import smartrek.SeverCommunicator.UserMapper;
+import smartrek.mappers.UserMapper;
 import smartrek.models.User;
 import android.app.Activity;
 import android.content.Context;

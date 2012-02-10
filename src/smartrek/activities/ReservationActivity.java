@@ -7,7 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import smartrek.SeverCommunicator.ReservationCommunicator;
+import smartrek.mappers.ReservationCommunicator;
 import smartrek.models.Reservation;
 import android.app.ListActivity;
 import android.content.Context;

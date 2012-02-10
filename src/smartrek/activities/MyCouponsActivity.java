@@ -2,8 +2,8 @@ package smartrek.activities;
 
 import java.util.ArrayList;
 
-import smartrek.SeverCommunicator.Coupon_Communicator;
 import smartrek.adapters.ImageAdapter;
+import smartrek.mappers.Coupon_Communicator;
 import smartrek.models.Coupon;
 import android.app.Activity;
 import android.app.AlertDialog;

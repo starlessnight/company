@@ -2,8 +2,8 @@ package smartrek.activities;
 
 import java.util.List;
 
-import smartrek.SeverCommunicator.ContactsMapper;
-import smartrek.SeverCommunicator.UserMapper;
+import smartrek.mappers.ContactsMapper;
+import smartrek.mappers.UserMapper;
 import smartrek.models.User;
 import android.app.ListActivity;
 import android.content.Context;
