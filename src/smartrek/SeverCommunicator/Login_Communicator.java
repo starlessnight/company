@@ -15,6 +15,10 @@ import android.util.Log;
  ****************************************************************************************************/
 public class Login_Communicator extends ServerCommunicator {
 	
+	// values are database field names
+	public static final String UID = "UID";
+	public static final String USERNAME = "USERNAME";
+	
 	private String name;
 	private String pwd;
 	
