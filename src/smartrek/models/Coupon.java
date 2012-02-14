@@ -2,6 +2,7 @@ package smartrek.models;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -23,7 +24,7 @@ public class Coupon {
 	private String image_url;
 	private Bitmap image;
 	private boolean bitmapset;
-	private ArrayList<Integer> associatedRoutes;
+	private List<Integer> associatedRoutes;
 	
 	/****************************************************************************************************
 	 * public Coupon(String vname,String desc, String date, String url)
@@ -77,12 +78,13 @@ public class Coupon {
 //		this.image_url = url;
 //	}
 	
-	/****************************************************************************************************
+	/**************************************************************************
 	 * private Date parse_date(String date)
 	 * 
 	 *
-	 ****************************************************************************************************/
+	 **************************************************************************/
 	private Date parse_date(String date) {
+		// FIXME: Use StringBuffer instead of String concatenation
 		String temp = "";
 		int i = 0;
 		while(date.charAt(i) != '-'){
@@ -179,7 +181,7 @@ public class Coupon {
 	        float scaleWidth = ((float) newWidth) / width;
 	        float scaleHeight = ((float) newHeight) / height;
 	       
-	        // createa matrix for the manipulation
+	        // create matrix for the manipulation
 	        Matrix matrix = new Matrix();
 	        // resize the bit map
 	        matrix.postScale(scaleWidth, scaleHeight);
@@ -197,12 +199,14 @@ public class Coupon {
 	 *
 	 ****************************************************************************************************/
 	public String toString() {
-		String str = "";
-		str += "Vendor = " + vendor_name + "\n";
-		str += "Decription = " + description + "\n";
-		str += "Valid Date = " + valid_date.toLocaleString() + "\n";
-		str += "Image Url = " + image_url + "\n"; 
-		return str;
+		StringBuffer buf = new StringBuffer();
+
+		buf.append("Vendor = " + vendor_name + "\n");
+		buf.append("Decription = " + description + "\n");
+		buf.append("Valid Date = " + valid_date.toLocaleString() + "\n");
+		buf.append("Image Url = " + image_url + "\n");
+		
+		return new String(buf);
 	}
 
 	/****************************************************************************************************
