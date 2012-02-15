@@ -7,7 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import smartrek.mappers.ReservationCommunicator;
+import smartrek.mappers.ReservationMapper;
 import smartrek.models.Reservation;
 import android.app.ListActivity;
 import android.content.Context;
@@ -38,10 +38,10 @@ public class ReservationActivity extends ListActivity {
 	private class ReservationRetrivalTask extends AsyncTask<Object, Object, String> {
 		@Override
 		protected String doInBackground(Object... params) {
-			ReservationCommunicator comm = new ReservationCommunicator();
+			ReservationMapper comm = new ReservationMapper();
 			String response = null;
 			try {
-				response = comm.downloadText("http://api.smartrekmobile.com/reservation?uid=1");
+				response = comm.downloadText("http://50.56.81.42:8080/getreservations/18");
 			}
 			catch(Exception e) {
 				

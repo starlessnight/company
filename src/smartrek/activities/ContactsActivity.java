@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class ContactsActivity extends ListActivity {
@@ -32,6 +33,11 @@ public class ContactsActivity extends ListActivity {
         User user = new User(uid, username);
         
 		new ContactsFetchTask().execute(user);
+	}
+	
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		
 	}
 	
 	private class ContactsFetchTask extends AsyncTask <User, Object, Object> {
