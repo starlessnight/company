@@ -1,6 +1,6 @@
 package smartrek.activities;
 
-import smartrek.mappers.Route_Communicator;
+import smartrek.mappers.RouteMapper;
 import smartrek.models.Route;
 import android.app.Activity;
 import android.content.Context;
@@ -91,7 +91,7 @@ public class ConfirmTripActivity extends Activity implements OnClickListener {
     	 *
     	 ****************************************************************************************************************/ 
     	protected Void doInBackground(Void... url) {  
-    		Route_Communicator rc = new Route_Communicator();
+    		RouteMapper rc = new RouteMapper();
     		rc.reservation(route);
         	try {
 				Thread.sleep(100);

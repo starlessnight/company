@@ -7,7 +7,7 @@ import smartrek.AdjustableCouponDisplay.CouponLayout;
 import smartrek.AdjustableTimeDisplay.TimeButton;
 import smartrek.AdjustableTimeDisplay.TimeLayout;
 import smartrek.mappers.Coupon_Communicator;
-import smartrek.mappers.Route_Communicator;
+import smartrek.mappers.RouteMapper;
 import smartrek.models.Coupon;
 import smartrek.models.Route;
 import smartrek.overlays.RouteOverlay;
@@ -72,7 +72,7 @@ public class Map_Activity extends MapActivity {
 	private Route selectedRoute;
 	
     private ArrayList<Coupon> coupons;
-	private ArrayList<Route> routes;
+	private List<Route> routes;
 	private HorizontalScrollView couponScroll;
 	private CouponLayout couponLayout;
 	private TextView coupTitleBar;
@@ -179,10 +179,10 @@ public class Map_Activity extends MapActivity {
 	public void doRoute(Time time) {
 	   
 		/* Create an instance of Route_Communicator to handle route doownload */
-		Route_Communicator rcomm = new Route_Communicator();
+		RouteMapper rcomm = new RouteMapper();
 		
 		/* Get the possible routes from the server */
-		ArrayList<Route> possible_Routes = rcomm.getPossibleRoutes(origin, destination, time);
+		List<Route> possible_Routes = rcomm.getPossibleRoutes(origin, destination, time);
 		
 		// FIXME:
 		if(possible_Routes == null) {
@@ -193,35 +193,37 @@ public class Map_Activity extends MapActivity {
 		
 		routes = possible_Routes;
 		
-		/* Get a midpoint to center the view of  the routes */
-		GeoPoint mid = getMidPoint(possible_Routes.get(0).getPoints());
-		
-		/* range holds 2 points consisting of the lat/lon range to be displayed */
-		int[] range = null;
-		
-		/* Iterate through the routes to draw each to the screen */
-		for (int i = 0; i < possible_Routes.size(); i++) {
-			Route route = possible_Routes.get(i);
-		
-			/* Get all coupons associated with the route */
-			ArrayList<Coupon> coupons = route.getAllCoupons();
+		if(possible_Routes.size() > 0) {
+			/* Get a midpoint to center the view of  the routes */
+			GeoPoint mid = getMidPoint(possible_Routes.get(0).getPoints());
 			
-			/* If its the first route display that routes coupons */
-			if(i == 0) {
-				this.coupons = coupons;
+			/* range holds 2 points consisting of the lat/lon range to be displayed */
+			int[] range = null;
+			
+			/* Iterate through the routes to draw each to the screen */
+			for (int i = 0; i < possible_Routes.size(); i++) {
+				Route route = possible_Routes.get(i);
+			
+				/* Get all coupons associated with the route */
+				ArrayList<Coupon> coupons = route.getAllCoupons();
+				
+				/* If its the first route display that routes coupons */
+				if(i == 0) {
+					this.coupons = coupons;
+				}
+				
+				/* Draw the route to the screen and hold on to the range */
+				range = drawRoute(mapView, route, i);
 			}
 			
-			/* Draw the route to the screen and hold on to the range */
-			range = drawRoute(mapView, route, i);
+			/* Start the Thread to download the coupon images */
+	        new BackgroundDownloadImageTask().execute();
+			
+	        /* Get the MapController set the midpoint and range */
+			MapController mc = mapView.getController();
+			mc.animateTo(mid);
+			mc.zoomToSpan(range[0], range[1]);
 		}
-		
-		/* Start the Thread to download the coupon images */
-        new BackgroundDownloadImageTask().execute();
-		
-        /* Get the MapController set the midpoint and range */
-		MapController mc = mapView.getController();
-		mc.animateTo(mid);
-		mc.zoomToSpan(range[0], range[1]);
 	}
 
 	/****************************************************************************************************************
@@ -494,7 +496,7 @@ public class Map_Activity extends MapActivity {
     		time.setToNow();
     		doRoute(time);
     		
-    		
+    		// FIXME: Seriously, WTF?
         	try {
 				Thread.sleep(150);
 			} catch (InterruptedException e) {
@@ -531,6 +533,7 @@ public class Map_Activity extends MapActivity {
         		ccom.doCouponBitmapDownloads(routes.get(i).getAllCoupons(), context);
 			}
         	
+        	// FIXME: Fuck me...
         	try {
 				Thread.sleep(150);
 			} catch (InterruptedException e) {
@@ -550,14 +553,16 @@ public class Map_Activity extends MapActivity {
 
 			couponLayout.setRoutes(routes);
 
-			routeoverlay1.setRoute(routes.get(0), 0);
-			routeoverlay1.setCouponLayout(couponLayout,coupTitleBar);
+			// FIXME: Why would you assume routes.size() >= 3 ???
 			
-			routeoverlay2.setRoute(routes.get(1), 1);
-			routeoverlay2.setCouponLayout(couponLayout,coupTitleBar);
-			
-			routeoverlay3.setRoute(routes.get(2), 2);
-			routeoverlay3.setCouponLayout(couponLayout,coupTitleBar);
+//			routeoverlay1.setRoute(routes.get(0), 0);
+//			routeoverlay1.setCouponLayout(couponLayout,coupTitleBar);
+//			
+//			routeoverlay2.setRoute(routes.get(1), 1);
+//			routeoverlay2.setCouponLayout(couponLayout,coupTitleBar);
+//			
+//			routeoverlay3.setRoute(routes.get(2), 2);
+//			routeoverlay3.setCouponLayout(couponLayout,coupTitleBar);
 			
 			dialog.dismiss();
 		}

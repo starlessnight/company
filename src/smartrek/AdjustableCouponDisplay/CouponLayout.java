@@ -1,6 +1,7 @@
 package smartrek.AdjustableCouponDisplay;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import smartrek.activities.MainActivity;
 import smartrek.activities.Map_Activity;
@@ -22,7 +23,7 @@ public class CouponLayout extends LinearLayout implements OnLongClickListener {
 
 	private Map_Activity map_activity;
 	private ArrayList<Coupon> coupons;
-	private ArrayList<Route> routes;
+	private List<Route> routes;
 	
 	/*********************************************************************************************************
 	 * 
@@ -55,7 +56,7 @@ public class CouponLayout extends LinearLayout implements OnLongClickListener {
 	 * 
 	 * 
 	 *********************************************************************************************************/
-	public void setRoutes(ArrayList<Route> routes){
+	public void setRoutes(List<Route> routes){
 		this.routes = routes;
 		Log.d("CouponLayout","Setting " + routes.get(0).getAllCoupons().size() + " Coupons into Coupon Layout");
 		setCoupons(routes.get(0).getAllCoupons());
