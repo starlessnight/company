@@ -13,7 +13,7 @@ import android.util.Log;
  * 
  *
  ******************************************************************************************************************/
-public abstract class ServerCommunicator {
+public abstract class Mapper {
 
 	protected String sturl;
 	
@@ -23,7 +23,7 @@ public abstract class ServerCommunicator {
 	 * 
 	 *
 	 ******************************************************************************************************************/
-	public ServerCommunicator(){
+	public Mapper(){
 		this.sturl = "http://50.56.81.42:8080";
 	}
 	

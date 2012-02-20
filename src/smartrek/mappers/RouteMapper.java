@@ -28,7 +28,7 @@ import android.util.Log;
  * @author timothyolivas
  *
  ****************************************************************************************************/
-public class RouteMapper extends ServerCommunicator {
+public class RouteMapper extends Mapper {
 	
 	private String loc1;
 	private String loc2;

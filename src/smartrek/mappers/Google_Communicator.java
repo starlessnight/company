@@ -7,7 +7,7 @@ import android.util.Log;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 
-public class Google_Communicator extends ServerCommunicator{
+public class Google_Communicator extends Mapper{
 
 	GeoPoint start;
 	GeoPoint end;

@@ -13,7 +13,7 @@ import android.util.Log;
  * @author timothyolivas
  *
  ****************************************************************************************************/
-public class UserMapper extends ServerCommunicator {
+public class UserMapper extends Mapper {
 	
 	// values are database field names
 	public static final String UID = "UID";

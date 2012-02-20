@@ -14,7 +14,7 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 
-public class Coupon_Communicator extends ServerCommunicator {
+public class Coupon_Communicator extends Mapper {
 	
 	public Coupon_Communicator() {
 		

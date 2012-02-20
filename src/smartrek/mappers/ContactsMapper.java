@@ -10,7 +10,7 @@ import org.json.JSONObject;
 import smartrek.models.User;
 import android.util.Log;
 
-public class ContactsMapper extends ServerCommunicator {
+public class ContactsMapper extends Mapper {
 
 	@Override
 	protected String appendToUrl() {
