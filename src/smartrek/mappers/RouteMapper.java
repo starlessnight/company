@@ -68,7 +68,7 @@ public class RouteMapper extends ServerCommunicator {
 		
 		
 		// Begin parsing the server response
-		List<Route> routes = null;
+		List<Route> routes = new ArrayList<Route>();
 		
 		try {
 			JSONArray array = new JSONArray(route_response);
@@ -76,6 +76,17 @@ public class RouteMapper extends ServerCommunicator {
 				JSONObject object = (JSONObject) array.get(0);
 				JSONArray rts = (JSONArray) object.get("ROUTE");
 				
+				ArrayList<RouteNode> routeNodes = new ArrayList<RouteNode>();
+				for(int i = 0; i < rts.length(); i++) {
+					JSONObject ro = (JSONObject) rts.get(i);
+					
+					RouteNode node = new RouteNode((float)ro.getDouble("LATITUDE"),
+							(float)ro.getDouble("LONGITUDE"), 0, ro.getInt("NODEID"));
+					routeNodes.add(node);
+				}
+				
+				Route route = new Route(routeNodes, 0, 0.0f);
+				routes.add(route);
 			}
 		}
 		catch(JSONException e) {
