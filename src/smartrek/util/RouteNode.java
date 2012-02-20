@@ -1,11 +1,6 @@
 package smartrek.util;
 
-import java.text.DecimalFormat;
-import java.text.Format;
-import java.util.Formatter;
-
 import android.os.Bundle;
-import android.util.FloatMath;
 import android.util.Log;
 
 import com.google.android.maps.GeoPoint;

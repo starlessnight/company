@@ -217,7 +217,7 @@ public class Map_Activity extends MapActivity {
 			}
 			
 			/* Start the Thread to download the coupon images */
-	        new BackgroundDownloadImageTask().execute();
+	        //new BackgroundDownloadImageTask().execute();
 			
 	        /* Get the MapController set the midpoint and range */
 			MapController mc = mapView.getController();
@@ -388,6 +388,7 @@ public class Map_Activity extends MapActivity {
 //    		Intent intent = new Intent(this,Map_Menu_Activity.class);
 //    		startActivity(intent);
     		return true;
+    		
     	case R.id.map_display_options:
     		intent = new Intent(this,MapDisplayActivity.class);
     		int displayed = 0;
@@ -396,6 +397,7 @@ public class Map_Activity extends MapActivity {
     		
     		Log.d("Map_Activity","Returned " + displayed + "from map display options");
     		return true;
+    		
     	case R.id.map_mode:
     		intent = new Intent(this,MapModeActivity.class);
     		int val = 0;
@@ -403,10 +405,12 @@ public class Map_Activity extends MapActivity {
     		startActivityForResult(intent, val);
     		Log.d("Map_Activity","Returned " + val + "from map mode options");
     		return true;
+    		
     	case R.id.mycoupons:
     		intent = new Intent(this,MyCouponsActivity.class);
     		startActivity(intent);
     		return true;
+    		
     	case R.id.logout_option:
 			SharedPreferences sharedPreferences = getSharedPreferences(LOGIN_PREFS,MODE_PRIVATE);
 			SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -497,13 +501,17 @@ public class Map_Activity extends MapActivity {
     		doRoute(time);
     		
     		// FIXME: Seriously, WTF?
-        	try {
-				Thread.sleep(150);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-            return null;
-        }     
+//        	try {
+//				Thread.sleep(150);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+    		return null;
+        }
+    	
+    	protected void onPostExecute(Void v) {
+    		dialog.dismiss();
+    	}
 
 	}
 
