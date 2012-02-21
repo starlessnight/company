@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import smartrek.activities.MainActivity;
-import smartrek.activities.Map_Activity;
+import smartrek.activities.RouteActivity;
 import smartrek.models.Coupon;
 import smartrek.models.Route;
 import android.content.Context;
@@ -21,7 +21,7 @@ import android.widget.LinearLayout;
  *********************************************************************************************************/
 public class CouponLayout extends LinearLayout implements OnLongClickListener {
 
-	private Map_Activity map_activity;
+	private RouteActivity map_activity;
 	private ArrayList<Coupon> coupons;
 	private List<Route> routes;
 	
@@ -47,7 +47,7 @@ public class CouponLayout extends LinearLayout implements OnLongClickListener {
 	 * 
 	 * 
 	 *********************************************************************************************************/
-	public void setMapActivity(Map_Activity map_activity){
+	public void setMapActivity(RouteActivity map_activity){
 		this.map_activity = map_activity;
 	}
 	

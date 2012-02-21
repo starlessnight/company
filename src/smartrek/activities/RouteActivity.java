@@ -12,6 +12,7 @@ import smartrek.models.Coupon;
 import smartrek.models.Route;
 import smartrek.overlays.RouteOverlay;
 import smartrek.overlays.RouteSegmentOverlay;
+import smartrek.util.Geocoding;
 import smartrek.util.RouteNode;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -41,7 +42,7 @@ import com.google.android.maps.OverlayItem;
  * @author Tim Olivas
  *
  *******************************************************************************************************************/
-public class Map_Activity extends MapActivity {
+public class RouteActivity extends MapActivity {
 	
 	private RouteOverlay routeoverlay1;
 	private RouteOverlay routeoverlay2;
@@ -90,7 +91,7 @@ public class Map_Activity extends MapActivity {
 	    super.onCreate(savedInstanceState);
 	    setContentView(R.layout.pre_reservation_map);	
 	   
-	    Log.d("Map_Activity", "Starting Map_Activity");
+	    Log.d("RouteActivity", "Starting RouteActivity");
 	    
 	    mapView = (MapView) findViewById(R.id.mapview);
 	    
@@ -110,7 +111,7 @@ public class Map_Activity extends MapActivity {
         mc.setZoom(4); 
     	mc.animateTo(new GeoPoint(lat, lon));
 	    
-  	   	dialog = new ProgressDialog(Map_Activity.this);
+  	   	dialog = new ProgressDialog(RouteActivity.this);
   	   	dialog.setMessage("Computing Routes...");
   	   	dialog.setIndeterminate(true);
   	   	dialog.setCancelable(false);
@@ -125,13 +126,15 @@ public class Map_Activity extends MapActivity {
 		uid = sharedPreferences.getInt("uid", -1);
 	    
 	    
-	    Log.d("Map_Activity","Got user id " + uid);
+	    Log.d("RouteActivity","Got user id " + uid);
 	 
 	    origin = extras.getString("origin");
-	    Log.d("Map_Activity","Got origin " + origin);
+	    Log.d("RouteActivity","Got origin " + origin);
 	    
 	    destination = extras.getString("destination");
-	    Log.d("Map_Activity","Got destination " + destination);
+	    Log.d("RouteActivity","Got destination " + destination);
+	    
+	    new GeocodingTask().execute(origin, destination);
 	    
 	    /* Begin download of the route information */
 	    new BackgroundDownloadTask().execute();
@@ -148,7 +151,7 @@ public class Map_Activity extends MapActivity {
 	    couponLayout = (CouponLayout)couponScroll.getChildAt(0);
 	    coupTitleBar = (TextView) findViewById(R.id.adjustableCouponLable);
 	    coupTitleBar.setVisibility(View.GONE);
-  	   	Log.d("Map_Activity", "current selected time is " + selectedTime.toString());
+  	   	Log.d("RouteActivity", "current selected time is " + selectedTime.toString());
 	    
 	}
 	
@@ -189,7 +192,7 @@ public class Map_Activity extends MapActivity {
 			return;
 		}
 		
-		Log.d("Map_Activity","Got " + possible_Routes.size() + "Possible Routes from server");
+		Log.d("RouteActivity","Got " + possible_Routes.size() + "Possible Routes from server");
 		
 		routes = possible_Routes;
 		
@@ -324,15 +327,15 @@ public class Map_Activity extends MapActivity {
 	    }
 	    
 	    /* Log selected time to debug */
-	    Log.d("Map_Activity", "In Map_Activity setting route time");
-	    Log.d("Map_Activity", selectedTime.format3339(false));
+	    Log.d("RouteActivity", "In RouteActivity setting route time");
+	    Log.d("RouteActivity", selectedTime.format3339(false));
 	    
 	    /* Add offset of 1000 to range so that map displays extra space around route. */
 	    int [] range = {latMax - latMin + 1500 ,lonMax - lonMin + 1500};
 	    
 	    /* Log range values to debug */
-	    Log.d("Map_Activity", " Latitude Range:" + range[0]);
-	    Log.d("Map_Activity", " Longitude Range:" + range[1]);  
+	    Log.d("RouteActivity", " Latitude Range:" + range[0]);
+	    Log.d("RouteActivity", " Longitude Range:" + range[1]);  
 	    
 	    /* Return the range to doRoute so that map can be adjusted to range settings */
 	    return range;
@@ -367,7 +370,7 @@ public class Map_Activity extends MapActivity {
 	@Override
     public boolean onCreateOptionsMenu(Menu menu){
     	super.onCreateOptionsMenu(menu);
-    	Log.d("Map_Activity","Menu Opened from Map_Activity");
+    	Log.d("RouteActivity","Menu Opened from RouteActivity");
      	MenuInflater mi = getMenuInflater();
      	mi.inflate(R.menu.mapoptions, menu);
     	return true;
@@ -380,11 +383,11 @@ public class Map_Activity extends MapActivity {
 	 ****************************************************************************************************************/
 	@Override
     public boolean onMenuItemSelected(int featureId, MenuItem item){
-		Log.d("Map_Activity", "Menu Open: Entering Map Mode Options");
+		Log.d("RouteActivity", "Menu Open: Entering Map Mode Options");
 		Intent intent = null;
 		switch(item.getItemId()){
     	case R.id.menusettings:
-//    		Log.d("Map_Activity", "Menu Open: Settings Selected");
+//    		Log.d("RouteActivity", "Menu Open: Settings Selected");
 //    		Intent intent = new Intent(this,Map_Menu_Activity.class);
 //    		startActivity(intent);
     		return true;
@@ -395,7 +398,7 @@ public class Map_Activity extends MapActivity {
     		intent.putExtra("mapmode", CURRENTDISPLAY);
     		startActivityForResult(intent, displayed);
     		
-    		Log.d("Map_Activity","Returned " + displayed + "from map display options");
+    		Log.d("RouteActivity","Returned " + displayed + "from map display options");
     		return true;
     		
     	case R.id.map_mode:
@@ -403,7 +406,7 @@ public class Map_Activity extends MapActivity {
     		int val = 0;
     		intent.putExtra("mapmode", CURRENTMODE);
     		startActivityForResult(intent, val);
-    		Log.d("Map_Activity","Returned " + val + "from map mode options");
+    		Log.d("RouteActivity","Returned " + val + "from map mode options");
     		return true;
     		
     	case R.id.mycoupons:
@@ -440,7 +443,7 @@ public class Map_Activity extends MapActivity {
 		if (extras != null) {
 			if (0 != extras.getInt("mapmode")) {
 				int mapmode = extras.getInt("mapmode");
-				Log.d("Map_Activity", "Got result from menu " + mapmode);
+				Log.d("RouteActivity", "Got result from menu " + mapmode);
 				if (mapmode != CURRENTMODE) {
 					if (mapmode == SATELLITE) {
 						mapView.setSatellite(true);
@@ -452,7 +455,7 @@ public class Map_Activity extends MapActivity {
 				}
 			} else if (0 != extras.getInt("display")) {
 				int display = extras.getInt("display");
-				Log.d("Map_Activity", "Got result from menu " + display);
+				Log.d("RouteActivity", "Got result from menu " + display);
 				if (display != CURRENTDISPLAY) {				
 					if(display == DEPARTONLY){
 						travelTime.setVisibility(View.GONE);
@@ -474,6 +477,15 @@ public class Map_Activity extends MapActivity {
 				}
 			}
 		} 
+	}
+	
+	private class GeocodingTask extends AsyncTask<String, Void, Void> {
+		@Override
+		protected Void doInBackground(String... args) {
+			String address = args[0];
+			GeoPoint coord = Geocoding.lookup(address);
+			return null;
+		}
 	}
 
 /*=====================================================================================================================*/
@@ -533,7 +545,7 @@ public class Map_Activity extends MapActivity {
     	 ****************************************************************************************************************/ 
         protected Void doInBackground(Void... v) {   
         	
-        	Log.d("Map_Activity", "Starting AsyncTask BackgroundDownloadImageTask");
+        	Log.d("RouteActivity", "Starting AsyncTask BackgroundDownloadImageTask");
         	
         	Coupon_Communicator ccom = new Coupon_Communicator();
         	
@@ -557,7 +569,7 @@ public class Map_Activity extends MapActivity {
     	 *
     	 ****************************************************************************************************************/ 
 		protected void onPostExecute(Void v) {
-			Log.d("Map_Activity","Background Image Download complete, setting coupon bitmaps");
+			Log.d("RouteActivity", "Background Image Download complete, setting coupon bitmaps");
 
 			couponLayout.setRoutes(routes);
 

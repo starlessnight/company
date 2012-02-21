@@ -29,7 +29,7 @@ public abstract class Mapper {
 	
 	/******************************************************************************************************************
 	 * 
-	 *
+	 * @deprecated
 	 ******************************************************************************************************************/
     protected InputStream openHttpConnection(String urlString) throws IOException {
         InputStream in = null;
@@ -58,10 +58,10 @@ public abstract class Mapper {
             throw new IOException("Error connecting");            
         }
         return in;     
-    }	
+    }
 	
-	/*************************************************************************
-	 * TODO: Rewrite this function with StringBuffer 
+	/************************************************************************* 
+	 * @deprecated
 	 *************************************************************************/
     public String downloadText(String URL)
     {

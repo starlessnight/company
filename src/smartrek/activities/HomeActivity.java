@@ -298,7 +298,7 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 		
 		// Put in error checking for OD pair here // 
 		
-		Intent intent = new Intent(this,Map_Activity.class);
+		Intent intent = new Intent(this,RouteActivity.class);
 		
 		Bundle extras = new Bundle();
 		extras.putString("origin", origin);

@@ -1,6 +1,6 @@
 package smartrek.AdjustableTimeDisplay;
 
-import smartrek.activities.Map_Activity;
+import smartrek.activities.RouteActivity;
 import android.content.Context;
 import android.graphics.Color;
 import android.text.format.Time;
@@ -18,7 +18,7 @@ import android.widget.LinearLayout;
  *********************************************************************************************************/
 public class TimeLayout extends LinearLayout implements OnLongClickListener {
 	
-	private Map_Activity map_activity;
+	private RouteActivity map_activity;
 	private TimeLayout arriveScroll;
 	private TimeLayout travelScroll;
 	
@@ -80,7 +80,7 @@ public class TimeLayout extends LinearLayout implements OnLongClickListener {
 	 * 
 	 * 
 	 *********************************************************************************************************/
-	public void setMapActivity(Map_Activity map_activity){
+	public void setMapActivity(RouteActivity map_activity){
 		this.map_activity = map_activity;
 	}
 
