@@ -7,8 +7,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
-import android.util.Log;
-
 /**
  * Handles HTTP connections
  *
@@ -43,8 +41,7 @@ public final class HTTP {
         return in;     
     }
     
-    public static String downloadText(String URL)
-    {
+    public static String downloadText(String URL) {
         int BUFFER_SIZE = 4096;
         InputStream in = null;
         try {

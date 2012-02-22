@@ -134,10 +134,11 @@ public class RouteActivity extends MapActivity {
 	    destination = extras.getString("destination");
 	    Log.d("RouteActivity","Got destination " + destination);
 	    
+	    // Workflow:
+	    //   1. Geocoding (address to coordinate)
+	    //   2. Request for routes
+	    //   3. Draw routes on the map view
 	    new GeocodingTask().execute(origin, destination);
-	    
-	    /* Begin download of the route information */
-	    new BackgroundDownloadTask().execute();
 	    
 	    setupScrollTime(); 
 	    
@@ -179,13 +180,13 @@ public class RouteActivity extends MapActivity {
 	 *
 	 *
 	 ****************************************************************************************************************/
-	public void doRoute(Time time) {
+	public void doRoute(GeoPoint origin, GeoPoint destination, Time time) {
 	   
 		/* Create an instance of Route_Communicator to handle route doownload */
-		RouteMapper rcomm = new RouteMapper();
+		RouteMapper mapper = new RouteMapper();
 		
 		/* Get the possible routes from the server */
-		List<Route> possible_Routes = rcomm.getPossibleRoutes(origin, destination, time);
+		List<Route> possible_Routes = mapper.getPossibleRoutes(origin, destination, time);
 		
 		// FIXME:
 		if(possible_Routes == null) {
@@ -479,45 +480,51 @@ public class RouteActivity extends MapActivity {
 		} 
 	}
 	
+	/**
+	 * Finds routes
+	 * 
+	 * @param origin
+	 * @param destination
+	 */
+	private void findRoutes(GeoPoint origin, GeoPoint destination) {
+		/* Begin download of the route information */
+	    new BackgroundDownloadTask().execute(origin, destination);
+	}
+	
 	private class GeocodingTask extends AsyncTask<String, Void, Void> {
 		@Override
 		protected Void doInBackground(String... args) {
-			String address = args[0];
-			GeoPoint coord = Geocoding.lookup(address);
+			String origin = args[0];
+			String destination = args[1];
+			
+			GeoPoint originCoord = Geocoding.lookup(origin);
+			GeoPoint destCoord = Geocoding.lookup(destination);
+			
+			findRoutes(originCoord, destCoord);
+			
 			return null;
 		}
 	}
 
 /*=====================================================================================================================*/
 	
-	/****************************************************************************************************************
+	/**************************************************************************
 	 * 
 	 *
-	 *
-	 ****************************************************************************************************************/ 
-    protected class BackgroundDownloadTask extends AsyncTask<Void,Void,Void > {    	 
+	 **************************************************************************/ 
+    protected class BackgroundDownloadTask extends AsyncTask<GeoPoint, Void,Void > {    	 
     	
-    	/****************************************************************************************************************
-    	 * 
-    	 *
-    	 *
-    	 ****************************************************************************************************************/ 
-    	protected Void doInBackground(Void... url) {  
+    	@Override
+    	protected Void doInBackground(GeoPoint... args) {  
     		
-//   		    Coupon_Communicator cpc = new Coupon_Communicator();
-//		    coupons = cpc.discount();
+    		GeoPoint origin = args[0];
+    		GeoPoint destination = args[1];
     		
     		final Time time = new Time();
     		
     		time.setToNow();
-    		doRoute(time);
+    		doRoute(origin, destination, time);
     		
-    		// FIXME: Seriously, WTF?
-//        	try {
-//				Thread.sleep(150);
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
     		return null;
         }
     	

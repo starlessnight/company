@@ -103,7 +103,7 @@ public class TimeLayout extends LinearLayout implements OnLongClickListener {
 	@Override
 	public boolean onLongClick(View v) {
 		Time time = ((TimeButton) v).getTime();
-		map_activity.doRoute(time);
+		map_activity.doRoute(null, null, time);
 		Log.d("Time Button " + v.getId(), "OnLongClick Registered");
 		for (int i = 0; i < this.getChildCount(); i++) {
 			((TimeButton) getChildAt(i)).resetColor();

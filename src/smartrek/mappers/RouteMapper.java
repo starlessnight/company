@@ -17,9 +17,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import smartrek.models.Route;
+import smartrek.util.HTTP;
 import smartrek.util.RouteNode;
 import android.text.format.Time;
 import android.util.Log;
+
+import com.google.android.maps.GeoPoint;
 
 
 /****************************************************************************************************
@@ -43,26 +46,23 @@ public class RouteMapper extends Mapper {
 		super();
 		coupon_url = "http://www.api.smartrekmobile.com/finddiscount?routeid=";
 	}
-	
-	/****************************************************************************************************
-	 * 
-	 *
-	 ****************************************************************************************************/
-	public List<Route> getPossibleRoutes(String loc1, String loc2,Time time) {
+
+	public List<Route> getPossibleRoutes(GeoPoint origin, GeoPoint destination, Time time) {
 			
-		this.loc1 = loc1;
-		this.loc2 = loc2;
+//		this.loc1 = loc1;
+//		this.loc2 = loc2;
 		this.time = time;
 		// Set Up the request to the sever
 		//String routeurl = sturl + appendToUrl();
 		
 		// FIXME: Temporary...
-		String routeurl = "http://50.56.81.42:8080/getroutes/startlat=33.4163799%20startlon=-111.9380236%20endlat=33.480245%20endlon=-112.073651%20departtime=5:00"; 
+		String routeurl = String.format("http://50.56.81.42:8080/getroutes/startlat=%f%%20startlon=%f%%20endlat=%f%%20endlon=%f%%20departtime=5:00",
+				origin.getLatitudeE6()/1.0E6, origin.getLongitudeE6()/1.0E6, destination.getLatitudeE6()/1.0E6, destination.getLongitudeE6()/1.0E6); 
 		
 		// Querry the server for the routes
 		Log.d("Route_Communicator", "Querying Sever with");
 		Log.d("Route_Communicator",routeurl);
-		String route_response = downloadText(routeurl);
+		String route_response = HTTP.downloadText(routeurl);
 		Log.d("Route_Communicator", "Query Complete, Got Route Information");
 		
 		
@@ -72,13 +72,13 @@ public class RouteMapper extends Mapper {
 		
 		try {
 			JSONArray array = new JSONArray(route_response);
-			if(array.length() > 0) {
-				JSONObject object = (JSONObject) array.get(0);
+			for(int i = 0; i <array.length(); i++) {
+				JSONObject object = (JSONObject) array.get(i);
 				JSONArray rts = (JSONArray) object.get("ROUTE");
 				
 				ArrayList<RouteNode> routeNodes = new ArrayList<RouteNode>();
-				for(int i = 0; i < rts.length(); i++) {
-					JSONObject ro = (JSONObject) rts.get(i);
+				for(int j = 0; j < rts.length(); j++) {
+					JSONObject ro = (JSONObject) rts.get(j);
 					
 					RouteNode node = new RouteNode((float)ro.getDouble("LATITUDE"),
 							(float)ro.getDouble("LONGITUDE"), 0, ro.getInt("NODEID"));
