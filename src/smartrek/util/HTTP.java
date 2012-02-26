@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -12,10 +14,64 @@ import java.net.URLConnection;
  *
  */
 public final class HTTP {
-    public static InputStream openHttpConnection(String urlString) throws IOException {
-        InputStream in = null;
-        int response = -1;
-               
+	
+	private static final int BUF_SIZE = 4096;
+	
+	private HttpURLConnection httpConn;
+	
+	public HTTP(String urlString) throws IOException {
+		httpConn = openHttpConnection(urlString);
+	}
+	
+	public void connect() throws IOException {
+		if(httpConn != null) {
+			httpConn.setAllowUserInteraction(false);
+			httpConn.setInstanceFollowRedirects(true);
+			httpConn.setRequestMethod("GET");
+			httpConn.connect();
+		}
+	}
+	
+	public int getResponseCode() {
+		if(httpConn != null) {
+			try {
+				return httpConn.getResponseCode();
+			}
+			catch (IOException e) {
+				return -1;
+			}
+		}
+		else {
+			return -1;
+		}
+	}
+	
+	public String getResponseBody() throws IOException {
+		if(httpConn != null) {
+			InputStream in = httpConn.getInputStream();
+			InputStreamReader isr = new InputStreamReader(in);
+			
+			StringBuffer strBuf = new StringBuffer();
+			char[] buf = new char[BUF_SIZE];
+			
+	        try {
+	            while (isr.read(buf) > 0) {
+	                strBuf.append(buf);
+	            }
+	            in.close();
+	        }
+	        catch (IOException e) {
+	            e.printStackTrace();
+	            return "";
+	        }
+	        return new String(strBuf);
+		}
+		else {
+			return null;
+		}
+	}
+	
+	public static HttpURLConnection openHttpConnection(String urlString) throws IOException {
         URL url = new URL(urlString); 
         URLConnection conn = url.openConnection();
                  
@@ -23,29 +79,56 @@ public final class HTTP {
             throw new IOException("Not an HTTP connection");
         }
         
-        try{
-            HttpURLConnection httpConn = (HttpURLConnection) conn;
-            httpConn.setAllowUserInteraction(false);
-            httpConn.setInstanceFollowRedirects(true);
-            httpConn.setRequestMethod("GET");
-            httpConn.connect();
-            response = httpConn.getResponseCode();                 
-            if (response == HttpURLConnection.HTTP_OK) {
-                in = httpConn.getInputStream();                                 
-            }                     
-        }
-        catch (Exception ex)
-        {
-            throw new IOException("Error connecting");            
-        }
-        return in;     
+        return (HttpURLConnection) conn;     
     }
+	
+//    public static InputStream openHttpConnection(String urlString) throws IOException {
+//        InputStream in = null;
+//        int response = -1;
+//               
+//        URL url = new URL(urlString); 
+//        URLConnection conn = url.openConnection();
+//                 
+//        if (!(conn instanceof HttpURLConnection)) {
+//            throw new IOException("Not an HTTP connection");
+//        }
+//        
+//        try{
+//            HttpURLConnection httpConn = (HttpURLConnection) conn;
+//            httpConn.setAllowUserInteraction(false);
+//            httpConn.setInstanceFollowRedirects(true);
+//            httpConn.setRequestMethod("GET");
+//            httpConn.connect();
+//            response = httpConn.getResponseCode();                 
+//            if (response == HttpURLConnection.HTTP_OK) {
+//                in = httpConn.getInputStream();                                 
+//            }                     
+//        }
+//        catch (Exception ex)
+//        {
+//            throw new IOException("Error connecting");            
+//        }
+//        return in;     
+//    }
     
+	/**
+	 * @deprecated
+	 * @param URL
+	 * @return
+	 */
     public static String downloadText(String URL) {
         int BUFFER_SIZE = 4096;
         InputStream in = null;
         try {
-            in = openHttpConnection(URL);
+            HttpURLConnection httpConn = openHttpConnection(URL);
+			httpConn.setAllowUserInteraction(false);
+			httpConn.setInstanceFollowRedirects(true);
+			httpConn.setRequestMethod("GET");
+			httpConn.connect();
+			int response = httpConn.getResponseCode();                 
+			if (response == HttpURLConnection.HTTP_OK) {
+			    in = httpConn.getInputStream();                                 
+			}    
         } catch (IOException e1) {
             e1.printStackTrace();
             return "";
