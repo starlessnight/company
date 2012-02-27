@@ -127,8 +127,6 @@ public class RouteActivity extends MapActivity {
     	/* Get the extras from the bundle */
 	    Bundle extras = getIntent().getExtras();
 	    
-	 //   uid = extras.getInt("uid");
-	    
 		SharedPreferences sharedPreferences = getSharedPreferences(LOGIN_PREFS,MODE_PRIVATE);
 		uid = sharedPreferences.getInt("uid", -1);
 	    
@@ -523,7 +521,7 @@ public class RouteActivity extends MapActivity {
 	 * 
 	 *
 	 **************************************************************************/ 
-    protected class BackgroundDownloadTask extends AsyncTask<GeoPoint, Void,Void > {
+    protected class BackgroundDownloadTask extends AsyncTask<GeoPoint, Void, Void > {
     	
     	private Stack<Exception> exceptions = new Stack<Exception>();
     	
@@ -556,6 +554,10 @@ public class RouteActivity extends MapActivity {
     		return null;
         }
     	
+    	/**
+    	 * Dialogs must be handled in onPostExecute() because they have to
+    	 * reside in the main loop.
+    	 */
     	protected void onPostExecute(Void v) {
     		dialog.dismiss();
     		
@@ -624,17 +626,6 @@ public class RouteActivity extends MapActivity {
 
 			couponLayout.setRoutes(routes);
 
-			// FIXME: Why would you assume routes.size() >= 3 ???
-			
-//			routeoverlay1.setRoute(routes.get(0), 0);
-//			routeoverlay1.setCouponLayout(couponLayout,coupTitleBar);
-//			
-//			routeoverlay2.setRoute(routes.get(1), 1);
-//			routeoverlay2.setCouponLayout(couponLayout,coupTitleBar);
-//			
-//			routeoverlay3.setRoute(routes.get(2), 2);
-//			routeoverlay3.setCouponLayout(couponLayout,coupTitleBar);
-			
 			dialog.dismiss();
 		}
 	}
