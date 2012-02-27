@@ -2,6 +2,7 @@ package smartrek.activities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import smartrek.AdjustableCouponDisplay.CouponLayout;
 import smartrek.AdjustableTimeDisplay.TimeButton;
@@ -14,8 +15,12 @@ import smartrek.overlays.RouteOverlay;
 import smartrek.overlays.RouteSegmentOverlay;
 import smartrek.util.Geocoding;
 import smartrek.util.RouteNode;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
@@ -43,6 +48,8 @@ import com.google.android.maps.OverlayItem;
  *
  *******************************************************************************************************************/
 public class RouteActivity extends MapActivity {
+	
+	public static final int DIALOG_ROUTE_NOT_FOUND = 1;
 	
 	private RouteOverlay routeoverlay1;
 	private RouteOverlay routeoverlay2;
@@ -156,6 +163,21 @@ public class RouteActivity extends MapActivity {
 	    
 	}
 	
+	@Override
+	protected Dialog onCreateDialog (int id) {
+		Dialog dialog = null;
+		
+		switch(id) {
+		case DIALOG_ROUTE_NOT_FOUND:
+			dialog = new AlertDialog.Builder(this).create();
+			dialog.setTitle("Error");
+			((AlertDialog)dialog).setMessage("Could not found routes.");
+			break;
+		}
+		
+		return dialog;
+	}
+	
 	/*********************************************************************************************************
 	 * 
 	 * 
@@ -180,33 +202,22 @@ public class RouteActivity extends MapActivity {
 	 *
 	 *
 	 ****************************************************************************************************************/
-	public void doRoute(GeoPoint origin, GeoPoint destination, Time time) {
-	   
-		/* Create an instance of Route_Communicator to handle route doownload */
-		RouteMapper mapper = new RouteMapper();
+	public void doRoute(List<Route> possibleRoutes, /*GeoPoint origin, GeoPoint destination,*/ Time time) {
 		
-		/* Get the possible routes from the server */
-		List<Route> possible_Routes = mapper.getPossibleRoutes(origin, destination, time);
 		
-		// FIXME:
-		if(possible_Routes == null) {
-			return;
-		}
+		//routes = possibleRoutes;
+		//Log.d("RouteActivity","Got " + possibleRoutes.size() + "Possible Routes from server");
 		
-		Log.d("RouteActivity","Got " + possible_Routes.size() + "Possible Routes from server");
-		
-		routes = possible_Routes;
-		
-		if(possible_Routes.size() > 0) {
+		if(possibleRoutes.size() > 0) {
 			/* Get a midpoint to center the view of  the routes */
-			GeoPoint mid = getMidPoint(possible_Routes.get(0).getPoints());
+			GeoPoint mid = getMidPoint(possibleRoutes.get(0).getPoints());
 			
 			/* range holds 2 points consisting of the lat/lon range to be displayed */
 			int[] range = null;
 			
 			/* Iterate through the routes to draw each to the screen */
-			for (int i = 0; i < possible_Routes.size(); i++) {
-				Route route = possible_Routes.get(i);
+			for (int i = 0; i < possibleRoutes.size(); i++) {
+				Route route = possibleRoutes.get(i);
 			
 				/* Get all coupons associated with the route */
 				ArrayList<Coupon> coupons = route.getAllCoupons();
@@ -512,7 +523,9 @@ public class RouteActivity extends MapActivity {
 	 * 
 	 *
 	 **************************************************************************/ 
-    protected class BackgroundDownloadTask extends AsyncTask<GeoPoint, Void,Void > {    	 
+    protected class BackgroundDownloadTask extends AsyncTask<GeoPoint, Void,Void > {
+    	
+    	private Stack<Exception> exceptions = new Stack<Exception>();
     	
     	@Override
     	protected Void doInBackground(GeoPoint... args) {  
@@ -523,13 +536,44 @@ public class RouteActivity extends MapActivity {
     		final Time time = new Time();
     		
     		time.setToNow();
-    		doRoute(origin, destination, time);
+    		
+    		RouteMapper mapper = new RouteMapper();
+    		
+    		/* Get the possible routes from the server */
+    		List<Route> possibleRoutes = null;
+    		try {
+    			possibleRoutes = mapper.getPossibleRoutes(origin, destination, time);
+    		}
+    		catch(Exception e) {
+    			e.printStackTrace();
+    			exceptions.push(e);
+    		}
+    		
+    		if(possibleRoutes != null) {
+    			doRoute(possibleRoutes, time);
+    		}
     		
     		return null;
         }
     	
     	protected void onPostExecute(Void v) {
     		dialog.dismiss();
+    		
+    		while(!exceptions.isEmpty()) {
+    			Exception e = exceptions.pop();
+    			
+    			AlertDialog dialog = new AlertDialog.Builder(RouteActivity.this).create();
+    			dialog.setTitle("Exception");
+    			dialog.setMessage(e.getMessage());
+    			dialog.setButton("Dismiss", new OnClickListener() {
+
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();
+					}
+    			});
+    			dialog.show();
+    		}
     	}
 
 	}

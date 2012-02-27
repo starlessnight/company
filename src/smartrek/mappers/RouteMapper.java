@@ -16,9 +16,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import smartrek.activities.HomeActivity;
 import smartrek.models.Route;
 import smartrek.util.HTTP;
 import smartrek.util.RouteNode;
+import android.app.AlertDialog;
 import android.text.format.Time;
 import android.util.Log;
 
@@ -47,7 +49,7 @@ public class RouteMapper extends Mapper {
 		coupon_url = "http://www.api.smartrekmobile.com/finddiscount?routeid=";
 	}
 
-	public List<Route> getPossibleRoutes(GeoPoint origin, GeoPoint destination, Time time) {
+	public List<Route> getPossibleRoutes(GeoPoint origin, GeoPoint destination, Time time) throws JSONException {
 			
 //		this.loc1 = loc1;
 //		this.loc2 = loc2;
@@ -70,54 +72,25 @@ public class RouteMapper extends Mapper {
 		// Begin parsing the server response
 		List<Route> routes = new ArrayList<Route>();
 		
-		try {
-			JSONArray array = new JSONArray(route_response);
-			for(int i = 0; i <array.length(); i++) {
-				JSONObject object = (JSONObject) array.get(i);
-				JSONArray rts = (JSONArray) object.get("ROUTE");
+
+		JSONArray array = new JSONArray(route_response);
+		for(int i = 0; i <array.length(); i++) {
+			JSONObject object = (JSONObject) array.get(i);
+			JSONArray rts = (JSONArray) object.get("ROUTE");
+			
+			ArrayList<RouteNode> routeNodes = new ArrayList<RouteNode>();
+			for(int j = 0; j < rts.length(); j++) {
+				JSONObject ro = (JSONObject) rts.get(j);
 				
-				ArrayList<RouteNode> routeNodes = new ArrayList<RouteNode>();
-				for(int j = 0; j < rts.length(); j++) {
-					JSONObject ro = (JSONObject) rts.get(j);
-					
-					RouteNode node = new RouteNode((float)ro.getDouble("LATITUDE"),
-							(float)ro.getDouble("LONGITUDE"), 0, ro.getInt("NODEID"));
-					routeNodes.add(node);
-				}
-				
-				Route route = new Route(routeNodes, 0, 0.0f);
-				routes.add(route);
+				RouteNode node = new RouteNode((float)ro.getDouble("LATITUDE"),
+						(float)ro.getDouble("LONGITUDE"), 0, ro.getInt("NODEID"));
+				routeNodes.add(node);
 			}
+			
+			Route route = new Route(routeNodes, 0, 0.0f);
+			routes.add(route);
 		}
-		catch(JSONException e) {
-			e.printStackTrace();
-		}
-		
-		
-//		try{
-//			Log.d("Route_Communicator", "Call Parser for Route Information");
-//			routes = Parser.parse_Routes(route_response);
-//			
-//			// Download the coupons associated with the route
-//			Log.d("Route_Communicator", "Begin Downloading Associated Coupon info");
-//			for (int i = 0; i < routes.size(); i++) {
-//				Log.d("Route_Communicator","Downloading Coupon: " + i);
-//				String coupon_response = downloadText(coupon_url + routes.get(i).getRID());
-//				ArrayList<Coupon> coupons = null;
-//				try{
-//					coupons = Parser.parse_Coupon_List(coupon_response);
-//				} catch (JSONException e) {
-//						e.printStackTrace();
-//					}		
-//				routes.get(i).setAllCoupons(coupons);
-//			}
-//			
-//			Log.d("Route_Communicator", "Query Complete, Got Route Information");
-//		} catch (JSONException e) {
-//				e.printStackTrace();
-//				Log.d("Route_Communicator","Failed to Parse Route");
-//		}
-		
+
 		return routes;
 	}
 	

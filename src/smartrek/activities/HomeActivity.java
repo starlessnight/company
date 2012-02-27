@@ -289,16 +289,15 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 	 * 
 	 ****************************************************************************************************************/
 	private void startMapActivity() {
-//		 
-		//origin = originBox.getText().toString();
-		//destination = destBox.getText().toString();
+		origin = originBox.getText().toString();
+		destination = destBox.getText().toString();
 		
-		origin = "1905 W.Jefferson Street, Phoenix, AZ, 85007";
-		destination = "2825 N.Central Ave,Phoenix,AZ 85012";
+//		origin = "1905 W.Jefferson Street, Phoenix, AZ, 85007";
+//		destination = "2825 N.Central Ave,Phoenix,AZ 85012";
 		
 		// Put in error checking for OD pair here // 
 		
-		Intent intent = new Intent(this,RouteActivity.class);
+		Intent intent = new Intent(this, RouteActivity.class);
 		
 		Bundle extras = new Bundle();
 		extras.putString("origin", origin);
