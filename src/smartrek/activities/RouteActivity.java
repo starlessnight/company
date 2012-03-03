@@ -42,11 +42,10 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
 
-/******************************************************************************************************************
+/**
  * 
- * @author Tim Olivas
  *
- *******************************************************************************************************************/
+ */
 public class RouteActivity extends MapActivity {
 	
 	public static final int DIALOG_ROUTE_NOT_FOUND = 1;
@@ -500,6 +499,26 @@ public class RouteActivity extends MapActivity {
 	    new BackgroundDownloadTask().execute(origin, destination);
 	}
 	
+	private Stack<Exception> exceptions = new Stack<Exception>();
+	
+	private void reportExceptions() {
+		while(!exceptions.isEmpty()) {
+			Exception e = exceptions.pop();
+			
+			AlertDialog dialog = new AlertDialog.Builder(RouteActivity.this).create();
+			dialog.setTitle("Exception");
+			dialog.setMessage(e.getMessage());
+			dialog.setButton("Dismiss", new OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.cancel();
+				}
+			});
+			dialog.show();
+		}
+	}
+	
 	private class GeocodingTask extends AsyncTask<String, Void, Void> {
 		@Override
 		protected Void doInBackground(String... args) {
@@ -509,10 +528,27 @@ public class RouteActivity extends MapActivity {
 			GeoPoint originCoord = Geocoding.lookup(origin);
 			GeoPoint destCoord = Geocoding.lookup(destination);
 			
-			findRoutes(originCoord, destCoord);
+			boolean coordNotFound = false;
+			if(originCoord.getLatitudeE6() == 0 && originCoord.getLongitudeE6() == 0) {
+				coordNotFound = true;
+				exceptions.push(new Exception("Could not find a coordinate of the origin address."));
+			}
+			if(destCoord.getLatitudeE6() == 0 && destCoord.getLongitudeE6() == 0) {
+				coordNotFound = true;
+				exceptions.push(new Exception("Could not find a coordinate of the destination address."));
+			}
+			
+			if(!coordNotFound) {
+				findRoutes(originCoord, destCoord);
+			}
 			
 			return null;
 		}
+		
+		@Override
+    	protected void onPostExecute(Void v) {
+    		reportExceptions();
+    	}
 	}
 
 /*=====================================================================================================================*/
@@ -522,8 +558,6 @@ public class RouteActivity extends MapActivity {
 	 *
 	 **************************************************************************/ 
     protected class BackgroundDownloadTask extends AsyncTask<GeoPoint, Void, Void > {
-    	
-    	private Stack<Exception> exceptions = new Stack<Exception>();
     	
     	@Override
     	protected Void doInBackground(GeoPoint... args) {  
@@ -541,6 +575,10 @@ public class RouteActivity extends MapActivity {
     		List<Route> possibleRoutes = null;
     		try {
     			possibleRoutes = mapper.getPossibleRoutes(origin, destination, time);
+    			
+    			if(possibleRoutes == null || possibleRoutes.size() == 0) {
+    				exceptions.push(new Exception("Could not find a route."));
+    			}
     		}
     		catch(Exception e) {
     			e.printStackTrace();
@@ -558,24 +596,11 @@ public class RouteActivity extends MapActivity {
     	 * Dialogs must be handled in onPostExecute() because they have to
     	 * reside in the main loop.
     	 */
+    	@Override
     	protected void onPostExecute(Void v) {
     		dialog.dismiss();
     		
-    		while(!exceptions.isEmpty()) {
-    			Exception e = exceptions.pop();
-    			
-    			AlertDialog dialog = new AlertDialog.Builder(RouteActivity.this).create();
-    			dialog.setTitle("Exception");
-    			dialog.setMessage(e.getMessage());
-    			dialog.setButton("Dismiss", new OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.cancel();
-					}
-    			});
-    			dialog.show();
-    		}
+    		reportExceptions();
     	}
 
 	}
