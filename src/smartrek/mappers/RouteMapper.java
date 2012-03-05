@@ -16,23 +16,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import smartrek.activities.HomeActivity;
 import smartrek.models.Route;
 import smartrek.util.HTTP;
 import smartrek.util.RouteNode;
-import android.app.AlertDialog;
 import android.text.format.Time;
 import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 
 
-/****************************************************************************************************
+/**
  * 
- * 
- * @author timothyolivas
  *
- ****************************************************************************************************/
+ */
 public class RouteMapper extends Mapper {
 	
 	private String loc1;
@@ -48,6 +44,15 @@ public class RouteMapper extends Mapper {
 		coupon_url = "http://www.api.smartrekmobile.com/finddiscount?routeid=";
 	}
 
+	/**
+	 * Retrieves all possible routes from the server.
+	 * 
+	 * @param origin Coordinate of the origin address
+	 * @param destination Coordinate of the destinatino address
+	 * @param time Departure time
+	 * @return A list of all possible routes
+	 * @throws JSONException
+	 */
 	public List<Route> getPossibleRoutes(GeoPoint origin, GeoPoint destination, Time time) throws JSONException {
 			
 //		this.loc1 = loc1;
@@ -94,10 +99,9 @@ public class RouteMapper extends Mapper {
 		return routes;
 	}
 	
-	/****************************************************************************************************
+	/**
 	 * 
-	 *
-	 ****************************************************************************************************/
+	 */
 	protected String appendToUrl() {
 		
 		String toAppend = "/route.json?origin=";
