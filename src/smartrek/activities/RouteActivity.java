@@ -59,6 +59,9 @@ public class RouteActivity extends MapActivity {
 //	private String user;
 	private String origin;
 	private String destination;
+	private GeoPoint originCoord;
+	private GeoPoint destCoord;
+	
 	private ProgressDialog dialog;
 	private MapView mapView;
 	
@@ -87,6 +90,14 @@ public class RouteActivity extends MapActivity {
 	private Context context;
 	
 	private final String LOGIN_PREFS = "login_file";
+	
+	public GeoPoint getOriginCoord() {
+		return originCoord;
+	}
+	
+	public GeoPoint getDestCoord() {
+		return destCoord;
+	}
 	
 	/****************************************************************************************************************
 	 * ************************** onCreate(Bundle savedInstanceState) ***********************************************
@@ -122,14 +133,12 @@ public class RouteActivity extends MapActivity {
   	   	dialog.setMessage("Computing Routes...");
   	   	dialog.setIndeterminate(true);
   	   	dialog.setCancelable(false);
-  	   	dialog.show();	
   	   	
     	/* Get the extras from the bundle */
 	    Bundle extras = getIntent().getExtras();
 	    
 		SharedPreferences sharedPreferences = getSharedPreferences(LOGIN_PREFS,MODE_PRIVATE);
 		uid = sharedPreferences.getInt("uid", -1);
-	    
 	    
 	    Log.d("RouteActivity","Got user id " + uid);
 	 
@@ -138,7 +147,10 @@ public class RouteActivity extends MapActivity {
 	    
 	    destination = extras.getString("destination");
 	    Log.d("RouteActivity","Got destination " + destination);
-	    
+
+		origin = "1905 W.Jefferson Street, Phoenix, AZ, 85007";
+		destination = "2825 N.Central Ave,Phoenix,AZ 85012";
+		
 	    // Workflow:
 	    //   1. Geocoding (address to coordinate)
 	    //   2. Request for routes
@@ -161,27 +173,25 @@ public class RouteActivity extends MapActivity {
 	    
 	}
 	
-	@Override
-	protected Dialog onCreateDialog (int id) {
-		Dialog dialog = null;
-		
-		switch(id) {
-		case DIALOG_ROUTE_NOT_FOUND:
-			dialog = new AlertDialog.Builder(this).create();
-			dialog.setTitle("Error");
-			((AlertDialog)dialog).setMessage("Could not found routes.");
-			break;
-		}
-		
-		return dialog;
-	}
+//	@Override
+//	protected Dialog onCreateDialog(int id) {
+//		Dialog dialog = null;
+//		
+//		switch(id) {
+//		case DIALOG_ROUTE_NOT_FOUND:
+//			dialog = new AlertDialog.Builder(this).create();
+//			dialog.setTitle("Error");
+//			((AlertDialog)dialog).setMessage("Could not found routes.");
+//			break;
+//		}
+//		
+//		return dialog;
+//	}
 	
-	/*********************************************************************************************************
+	/**
 	 * 
-	 * 
-	 * 
-	 *********************************************************************************************************/
-	private void setupScrollTime(){
+	 */
+	private void setupScrollTime() {
 	    
 		arriveTime = (TimeLayout) findViewById(R.id.arrivaltimelayout);
 		travelTime = (TimeLayout) findViewById(R.id.traveltimelayout);
@@ -195,18 +205,27 @@ public class RouteActivity extends MapActivity {
 	    timelayout.setDependents(arriveTime,travelTime);
 	}
 		
-	/****************************************************************************************************************
+	/**
 	 * 
-	 *
-	 *
-	 ****************************************************************************************************************/
-	public void doRoute(List<Route> possibleRoutes, /*GeoPoint origin, GeoPoint destination,*/ Time time) {
+	 * @param origin
+	 * @param destination
+	 * @param time
+	 */
+	public void doRoute(GeoPoint origin, GeoPoint destination, Time time) {
+		dialog.show();
+		new BackgroundDownloadTask().execute(origin, destination, time);
+	}
+	
+	/**
+	 * This function will be called when BackgroundDownloadTask().execute()
+	 * succeeds.
+	 * 
+	 * @param possibleRoutes
+	 * @param time
+	 */
+	private void onRouteFound(List<Route> possibleRoutes, Time time) {
 		
-		
-		//routes = possibleRoutes;
-		//Log.d("RouteActivity","Got " + possibleRoutes.size() + "Possible Routes from server");
-		
-		if(possibleRoutes.size() > 0) {
+		if(possibleRoutes != null && possibleRoutes.size() > 0) {
 			/* Get a midpoint to center the view of  the routes */
 			GeoPoint mid = getMidPoint(possibleRoutes.get(0).getPoints());
 			
@@ -436,11 +455,25 @@ public class RouteActivity extends MapActivity {
 		return super.onMenuItemSelected(featureId, item);
 	}
 	
-	/****************************************************************************************************************
+	/**
+	 * This function will be called when GeocodingTask.execute() succeeds.
 	 * 
-	 *
-	 *
-	 ****************************************************************************************************************/
+	 * @param origin
+	 * @param destination
+	 */
+	private void onGeoLocationFound(GeoPoint origin, GeoPoint destination) {
+		originCoord = origin;
+		destCoord = destination;
+		
+		Time time = new Time();
+		time.setToNow();
+		
+		new BackgroundDownloadTask().execute(origin, destination, time);
+	}
+	
+	/**
+	 * 
+	 */
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode,Intent intent) {
 		super.onActivityResult(requestCode, resultCode, intent);
@@ -488,19 +521,14 @@ public class RouteActivity extends MapActivity {
 			}
 		} 
 	}
-	
-	/**
-	 * Finds routes
-	 * 
-	 * @param origin
-	 * @param destination
-	 */
-	private void findRoutes(GeoPoint origin, GeoPoint destination) {
-		/* Begin download of the route information */
-	    new BackgroundDownloadTask().execute(origin, destination);
-	}
-	
+
 	private class GeocodingTask extends AsyncTask<String, Void, Void> {
+		
+    	@Override
+    	protected void onPreExecute () {
+    		dialog.show();
+    	}
+		
 		@Override
 		protected Void doInBackground(String... args) {
 			String origin = args[0];
@@ -509,31 +537,39 @@ public class RouteActivity extends MapActivity {
 			GeoPoint originCoord = Geocoding.lookup(origin);
 			GeoPoint destCoord = Geocoding.lookup(destination);
 			
-			findRoutes(originCoord, destCoord);
+			onGeoLocationFound(originCoord, destCoord);
 			
 			return null;
 		}
+		
+//		@Override
+//		protected void onPostExecute(Void v) {
+//			
+//		}
 	}
 
-/*=====================================================================================================================*/
-	
-	/**************************************************************************
-	 * 
+	/**
+	 *  
 	 *
-	 **************************************************************************/ 
-    protected class BackgroundDownloadTask extends AsyncTask<GeoPoint, Void, Void > {
+	 */
+    protected class BackgroundDownloadTask extends AsyncTask<Object, Void, Void> {
     	
     	private Stack<Exception> exceptions = new Stack<Exception>();
     	
     	@Override
-    	protected Void doInBackground(GeoPoint... args) {  
+    	protected void onPreExecute () {
+    		dialog.show();
+    	}
+    	
+    	@Override
+    	protected Void doInBackground(Object... args) {  
     		
-    		GeoPoint origin = args[0];
-    		GeoPoint destination = args[1];
+    		GeoPoint origin = (GeoPoint)args[0];
+    		GeoPoint destination = (GeoPoint)args[1];
+    		Time time = (Time)args[2];
     		
-    		final Time time = new Time();
-    		
-    		time.setToNow();
+//    		time = new Time();
+//    		time.setToNow();
     		
     		RouteMapper mapper = new RouteMapper();
     		
@@ -548,7 +584,7 @@ public class RouteActivity extends MapActivity {
     		}
     		
     		if(possibleRoutes != null) {
-    			doRoute(possibleRoutes, time);
+    			onRouteFound(possibleRoutes, time);
     		}
     		
     		return null;

@@ -19,24 +19,29 @@ public class TimeButton extends TextView {
 	
 	private Time time;
 	
-	/*********************************************************************************************************
+	/**
 	 * 
-	 * 
-	 * 
-	 *********************************************************************************************************/
+	 * @param timelayout
+	 * @param time
+	 * @param btnum
+	 * @param before
+	 */
 	public TimeButton(TimeLayout timelayout, Time time, int btnum, TimeButton before) {
 		super(timelayout.getContext());
-		this.setOnLongClickListener(timelayout);
+		this.setOnClickListener(timelayout);
 		this.setId(btnum);
 		setParams(before);
 		setTime(time);
 	}
 	
-	/*********************************************************************************************************
+	/**
 	 * 
-	 * 
-	 * 
-	 *********************************************************************************************************/
+	 * @param timelayout
+	 * @param min
+	 * @param sec
+	 * @param btnum
+	 * @param before
+	 */
 	public TimeButton(TimeLayout2 timelayout, int min, int sec, int btnum, TimeButton before) {
 		super(timelayout.getContext());
 		this.setOnLongClickListener(timelayout);
@@ -100,11 +105,9 @@ public class TimeButton extends TextView {
 		return time;
 	}
 	
-	/*********************************************************************************************************
+	/**
 	 * 
-	 * 
-	 * 
-	 *********************************************************************************************************/
+	 */
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
