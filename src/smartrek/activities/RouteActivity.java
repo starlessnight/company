@@ -16,7 +16,6 @@ import smartrek.overlays.RouteSegmentOverlay;
 import smartrek.util.Geocoding;
 import smartrek.util.RouteNode;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -520,17 +519,6 @@ public class RouteActivity extends MapActivity {
 				}
 			}
 		} 
-	}
-
-	/**
-	 * Finds routes
-	 * 
-	 * @param origin
-	 * @param destination
-	 */
-	private void findRoutes(GeoPoint origin, GeoPoint destination) {
-		/* Begin download of the route information */
-	    new BackgroundDownloadTask().execute(origin, destination);
 	}
 	
 	private Stack<Exception> exceptions = new Stack<Exception>();
