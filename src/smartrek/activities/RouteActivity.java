@@ -126,7 +126,7 @@ public class RouteActivity extends MapActivity {
     	/* Get the extras from the bundle */
 	    Bundle extras = getIntent().getExtras();
 	    
-		SharedPreferences sharedPreferences = getSharedPreferences(LOGIN_PREFS,MODE_PRIVATE);
+		SharedPreferences sharedPreferences = getSharedPreferences(LOGIN_PREFS, MODE_PRIVATE);
 		uid = sharedPreferences.getInt("uid", -1);
 	    
 	    
@@ -137,6 +137,10 @@ public class RouteActivity extends MapActivity {
 	    
 	    destination = extras.getString("destination");
 	    Log.d("RouteActivity","Got destination " + destination);
+
+	    // FIXME: temporary
+		origin = "1905 W.Jefferson Street, Phoenix, AZ, 85007";
+		destination = "2825 N.Central Ave,Phoenix,AZ 85012";
 	    
 	    // Workflow:
 	    //   1. Geocoding (address to coordinate)
