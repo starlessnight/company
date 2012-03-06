@@ -16,23 +16,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import smartrek.activities.HomeActivity;
 import smartrek.models.Route;
 import smartrek.util.HTTP;
 import smartrek.util.RouteNode;
-import android.app.AlertDialog;
 import android.text.format.Time;
 import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 
 
-/****************************************************************************************************
+/**
  * 
- * 
- * @author timothyolivas
  *
- ****************************************************************************************************/
+ */
 public class RouteMapper extends Mapper {
 	
 	private String loc1;
@@ -40,15 +36,23 @@ public class RouteMapper extends Mapper {
 	private String coupon_url;
 	private Time time;
 	
-	/****************************************************************************************************
-	 * 
-	 *
-	 ****************************************************************************************************/
+	/**
+	 * Default constructor
+	 */
 	public RouteMapper(){
 		super();
 		coupon_url = "http://www.api.smartrekmobile.com/finddiscount?routeid=";
 	}
 
+	/**
+	 * Retrieves all possible routes from the server.
+	 * 
+	 * @param origin Coordinate of the origin address
+	 * @param destination Coordinate of the destinatino address
+	 * @param time Departure time
+	 * @return A list of all possible routes
+	 * @throws JSONException
+	 */
 	public List<Route> getPossibleRoutes(GeoPoint origin, GeoPoint destination, Time time) throws JSONException {
 			
 //		this.loc1 = loc1;
@@ -57,7 +61,6 @@ public class RouteMapper extends Mapper {
 		// Set Up the request to the sever
 		//String routeurl = sturl + appendToUrl();
 		
-		// FIXME: Temporary...
 		String routeurl = String.format("http://50.56.81.42:8080/getroutes/startlat=%f%%20startlon=%f%%20endlat=%f%%20endlon=%f%%20departtime=5:00",
 				origin.getLatitudeE6()/1.0E6, origin.getLongitudeE6()/1.0E6, destination.getLatitudeE6()/1.0E6, destination.getLongitudeE6()/1.0E6); 
 		
@@ -87,17 +90,18 @@ public class RouteMapper extends Mapper {
 				routeNodes.add(node);
 			}
 			
-			Route route = new Route(routeNodes, 0, 0.0f);
+			double ett = object.getDouble("ESTIMATED_TRAVEL_TIME");
+
+			Route route = new Route(routeNodes, 0, (float)ett);
 			routes.add(route);
 		}
 
 		return routes;
 	}
 	
-	/****************************************************************************************************
+	/**
 	 * 
-	 *
-	 ****************************************************************************************************/
+	 */
 	protected String appendToUrl() {
 		
 		String toAppend = "/route.json?origin=";
@@ -121,10 +125,11 @@ public class RouteMapper extends Mapper {
 		return toAppend;
 	}
 	
-	/***************************************************************************************************
+	/**
 	 * 
-	 * 
-	 ****************************************************************************************************/
+	 * @param route
+	 * @return
+	 */
 	public String reservation(Route route) {
 		logReservationPost(route);
 
@@ -165,10 +170,10 @@ public class RouteMapper extends Mapper {
 
 	}
 	
-	/***************************************************************************************************
+	/**
 	 * 
-	 * 
-	 ****************************************************************************************************/
+	 * @param route
+	 */
 	public void addroute(Route route) {
 		
 		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
@@ -200,10 +205,12 @@ public class RouteMapper extends Mapper {
 		}
 	}
 	
-	/***************************************************************************************************
+	/**
 	 * 
-	 * 
-	 ****************************************************************************************************/
+	 * @param i
+	 * @param p
+	 * @param lable
+	 */
 	private void logAddRoute(int i, RouteNode p, float lable){
 		Log.d("Route_Communicator", "In route communicator trying to add route");
 		Log.d("Route_Communicator", "ROUTE_NODE = " + i);
@@ -212,10 +219,10 @@ public class RouteMapper extends Mapper {
 		Log.d("Route_Communicator", "LONGITUDE = " + p.getFloatLon());
 	}
 
-	/***************************************************************************************************
+	/**
 	 * 
-	 * 
-	 ****************************************************************************************************/
+	 * @param route
+	 */
 	private void logReservationPost(Route route) {
 		Log.d("Route_Communicator", "In route communicator trying to reserve route");
 		Log.d("Route_Communicator", "START_DATETIME = " + route.timeToString());

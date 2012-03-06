@@ -6,19 +6,17 @@ import android.graphics.Color;
 import android.text.format.Time;
 import android.util.AttributeSet;
 import android.util.Log;
-
 import android.view.View;
-import android.view.View.OnLongClickListener;
+import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
 
-/*********************************************************************************************************
- * 
- * 
- * 
- *********************************************************************************************************/
-public class TimeLayout extends LinearLayout implements OnLongClickListener {
+/**
+ * This class is a container for multiple TimeButton's.
+ *
+ */
+public class TimeLayout extends LinearLayout implements OnClickListener {
 	
-	private RouteActivity map_activity;
+	private RouteActivity routeActivity;
 	private TimeLayout arriveScroll;
 	private TimeLayout travelScroll;
 	
@@ -81,7 +79,7 @@ public class TimeLayout extends LinearLayout implements OnLongClickListener {
 	 * 
 	 *********************************************************************************************************/
 	public void setMapActivity(RouteActivity map_activity){
-		this.map_activity = map_activity;
+		this.routeActivity = map_activity;
 	}
 
 	/*********************************************************************************************************
@@ -101,10 +99,9 @@ public class TimeLayout extends LinearLayout implements OnLongClickListener {
 	 * 
 	 *********************************************************************************************************/
 	@Override
-	public boolean onLongClick(View v) {
+	public void onClick(View v) {
 		Time time = ((TimeButton) v).getTime();
-		//map_activity.doRoute(null, null, time);
-		Log.d("Time Button " + v.getId(), "OnLongClick Registered");
+		Log.d("Time Button " + v.getId(), "OnClick Registered");
 		for (int i = 0; i < this.getChildCount(); i++) {
 			((TimeButton) getChildAt(i)).resetColor();
 			((TimeButton) travelScroll.getChildAt(i)).resetColor();
@@ -118,8 +115,8 @@ public class TimeLayout extends LinearLayout implements OnLongClickListener {
 			arriveScroll.getChildAt(v.getId()).setBackgroundColor(
 					Color.parseColor("#cea350"));
 		}
-		this.invalidate();
-		return true;
+		this.invalidate(); // TODO: What is this?
+		routeActivity.doRoute(routeActivity.getOriginCoord(), routeActivity.getDestCoord(), time);
 	}
 
 }

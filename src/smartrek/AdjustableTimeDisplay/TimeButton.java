@@ -28,7 +28,7 @@ public class TimeButton extends TextView {
 	 */
 	public TimeButton(TimeLayout timelayout, Time time, int btnum, TimeButton before) {
 		super(timelayout.getContext());
-		this.setOnLongClickListener(timelayout);
+		this.setOnClickListener(timelayout);
 		this.setId(btnum);
 		setParams(before);
 		setTime(time);
