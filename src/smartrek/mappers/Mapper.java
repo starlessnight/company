@@ -17,7 +17,9 @@ public abstract class Mapper {
 
 	protected String sturl;
 	
-	protected abstract String appendToUrl();
+	protected String appendToUrl() {
+		return "";
+	}
 	
 	/******************************************************************************************************************
 	 * 

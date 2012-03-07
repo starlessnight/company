@@ -1,8 +1,16 @@
 package smartrek.activities;
 
+import java.util.List;
+
+import org.json.JSONException;
+
+import smartrek.adapters.FavoriteAddressAdapter;
+import smartrek.mappers.FavoriteAddressMapper;
+import smartrek.models.Address;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
@@ -15,8 +23,11 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -58,9 +69,12 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 	private TextView destText;
 	private TextView dateText;
 	
+	private ListView originFavs;
+	private ListView destFavs;
+	
 	private Button doneButton;
-	private Button originFavs;
-	private Button destFavs;
+	private Button originFavButton;
+	private Button destFavButton;
 	private Button loadButton;
 	
 	private int Selected;
@@ -130,25 +144,43 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
         
         /***************End TextViews********************/
         
+        originFavs = (ListView) findViewById(R.id.originFavs);
+        //originFavs.setAdapter(new FavoriteAddressAdapter(HomeActivity.this, null));
+        
+        originFavs.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				FavoriteAddressAdapter adapter = (FavoriteAddressAdapter) parent.getAdapter();
+				Address item = (Address) adapter.getItem(position);
+				
+				originBox.setText(item.getAddress());
+			}
+		});
+        
+        // TODO: Need to implement lazy loading of favorite addresses
+		// FIXME: Temporary uid = 10
+		new FavoriteAddressFetchTask(originFavs).execute(10);
+        
         /***************Start Buttons********************/
         
         // Instantiate Buttons from file main.xml
-        originFavs = (Button) findViewById(R.id.Favs1);
-        destFavs = (Button) findViewById(R.id.Favs2);
+        originFavButton = (Button) findViewById(R.id.Favs1);
+        destFavButton = (Button) findViewById(R.id.Favs2);
         doneButton = (Button) findViewById(R.id.Done);
-        loadButton = (Button) findViewById(R.id.Load);
+        //loadButton = (Button) findViewById(R.id.Load);
         
         // Set Button OnClickListerners to be declared by
         // this class     
-        originFavs.setOnClickListener(this);
-        destFavs.setOnClickListener(this);
+        originFavButton.setOnClickListener(this);
+        destFavButton.setOnClickListener(this);
         doneButton.setOnClickListener(this);
-        loadButton.setOnClickListener(this);
+        //loadButton.setOnClickListener(this);
         
-        originFavs.setId(1);
-        destFavs.setId(2);
+        originFavButton.setId(1);
+        destFavButton.setId(2);
         doneButton.setId(3);
-        loadButton.setId(4);
+        //loadButton.setId(4);
         
         /***************End Buttons********************/
     }
@@ -168,34 +200,11 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 			Selected = v.getId();
 		}
 		
+		// Animation that will be fired when 'favs' button on the origin address
+		// side is clicked.
 		if(Selected == SELECT_O_FAVS){
 			if(Selected != prev) {
-	        Animation animation = new TranslateAnimation(0,0,-300,0);
-			animation.setDuration(1500);
-	        section1.layout(section1.getLeft(), 
-	        			    section1.getTop(), 
-    		                section1.getRight(), 
-    		                section1.getBottom()+300);
-	        section2.layout(section2.getLeft(), 
-	        		        section2.getTop()+300, 
-	        		        section2.getRight(), 
-	        		        section2.getBottom()+300);
-	        section3.layout(section3.getLeft(), 
-	        		        section3.getTop()+300, 
-	        		        section3.getRight(),
-	        		        section3.getBottom()+300);
-	        doneButton.layout(doneButton.getLeft(),
-	        		          doneButton.getTop()+300, 
-	        		          doneButton.getRight(), 
-	        		          doneButton.getBottom()+300);
-	        
-	        SV.layout(SV.getLeft(), 
-	        		  SV.getTop(), 
-	        		  SV.getRight(), 
-	        		  SV.getBottom()+500);
-	        section2.setAnimation(animation);
-	        section3.setAnimation(animation);
-	        doneButton.setAnimation(animation);
+				expandSection1();
 			} else {
 				resetAll();
 				Selected = -1;
@@ -257,16 +266,16 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 	 * will put elements back in their starting positions.
 	 * 
 	 ****************************************************************************************************************/
-	private void resetAll(){
+	private void resetAll() {
 		
 		if(Selected == 1){
-			Animation animation = new TranslateAnimation(0,0,300,0);
-			animation.setDuration(1500);
-			animation.setFillAfter(true);
-			
-			section2.setAnimation(animation);
-			section3.setAnimation(animation);
-			doneButton.setAnimation(animation);
+//			Animation animation = new TranslateAnimation(0,0,300,0);
+//			animation.setDuration(1500);
+//			animation.setFillAfter(true);
+//			
+//			section2.setAnimation(animation);
+//			section3.setAnimation(animation);
+//			doneButton.setAnimation(animation);
 			
 	        section1.layout(section1.getLeft(), 
     			    section1.getTop(), 
@@ -353,4 +362,90 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
     	}
 		return super.onMenuItemSelected(featureId, item);
 	}
+	
+	
+	private void expandSection1() {
+		
+//        Animation animation = new TranslateAnimation(0,0,-300,0);
+//        animation.setDuration(1500);
+		
+        section1.layout(section1.getLeft(), 
+        			    section1.getTop(), 
+		                section1.getRight(), 
+		                section1.getBottom()+300);
+        section2.layout(section2.getLeft(), 
+        		        section2.getTop()+300, 
+        		        section2.getRight(), 
+        		        section2.getBottom()+300);
+        section3.layout(section3.getLeft(), 
+        		        section3.getTop()+300, 
+        		        section3.getRight(),
+        		        section3.getBottom()+300);
+        doneButton.layout(doneButton.getLeft(),
+        		          doneButton.getTop()+300, 
+        		          doneButton.getRight(), 
+        		          doneButton.getBottom()+300);
+		originFavs.layout(originFavs.getLeft(),
+				originFavs.getTop(),
+				originFavs.getRight(),
+				originFavs.getBottom() + 200);
+        
+        SV.layout(SV.getLeft(), 
+        		  SV.getTop(), 
+        		  SV.getRight(), 
+        		  SV.getBottom()+500);
+        
+// FIXME: No animations for now
+//        section2.setAnimation(animation);
+//        section3.setAnimation(animation);
+//        originFavs.setAnimation(new TranslateAnimation(0, 0, -200, 0));
+//        doneButton.setAnimation(animation);
+	}
+	
+	private class FavoriteAddressFetchTask extends AsyncTask<Integer, Object, List<Address>> {
+		
+		/**
+		 * A list view to be updated when the fetch task is done.
+		 */
+		private ListView listView;
+		
+		/**
+		 * Default constructor
+		 * 
+		 * @param listView A list view to be updated when the fetch task is done.
+		 */
+		public FavoriteAddressFetchTask(ListView listView) {
+			super();
+			this.listView = listView;
+		}
+
+		@Override
+		protected List<Address> doInBackground(Integer... params) {
+
+			int uid = params[0];
+			
+			List<Address> items = null;
+			FavoriteAddressMapper mapper = new FavoriteAddressMapper();
+			try {
+				items = mapper.getAddresses(uid);
+			}
+			catch (JSONException e) {
+				e.printStackTrace();
+			}
+			
+			return items;
+		}
+		
+		@Override
+		protected void onPostExecute(List<Address> result) {
+			if(result != null) {
+				listView.setAdapter(new FavoriteAddressAdapter(HomeActivity.this, result));
+//				FavoriteAddressAdapter adapter = (FavoriteAddressAdapter) originFavs.getAdapter();
+//				adapter.setItems(result);
+
+			}
+		}
+
+	}
+
 }
