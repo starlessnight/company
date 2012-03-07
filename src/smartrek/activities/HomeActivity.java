@@ -58,6 +58,7 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 	private RelativeLayout section1;
 	private RelativeLayout section2;
 	private RelativeLayout section3;
+	private RelativeLayout section4;
 	
 	private ScrollView SV;
 	
@@ -113,6 +114,7 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
         section1 = (RelativeLayout) findViewById(R.id.Section1);
         section2 = (RelativeLayout) findViewById(R.id.Section2);
         section3 = (RelativeLayout) findViewById(R.id.Section3);
+        section4 = (RelativeLayout) findViewById(R.id.Section4);
         
         /***************Start EditText Fields********************/
         
@@ -284,7 +286,7 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 			
 			section2.layout(section2.getLeft(), section2.getTop()-300, section2.getRight(), section2.getBottom()-300);
 	        section3.layout(section3.getLeft(), section3.getTop()-300, section3.getRight(), section3.getBottom()-300);
-	        doneButton.layout(doneButton.getLeft(), doneButton.getTop()-300, doneButton.getRight(), doneButton.getBottom()-300);
+	        section4.layout(section4.getLeft(), section4.getTop()-300, section4.getRight(), section4.getBottom()-300);
 		}
 	}
 	
@@ -381,10 +383,11 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
         		        section3.getTop()+300, 
         		        section3.getRight(),
         		        section3.getBottom()+300);
-        doneButton.layout(doneButton.getLeft(),
-        		          doneButton.getTop()+300, 
-        		          doneButton.getRight(), 
-        		          doneButton.getBottom()+300);
+        section4.layout(section3.getLeft(), 
+		        section4.getTop()+300, 
+		        section4.getRight(),
+		        section4.getBottom()+300);
+
 		originFavs.layout(originFavs.getLeft(),
 				originFavs.getTop(),
 				originFavs.getRight(),
