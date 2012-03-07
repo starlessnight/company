@@ -72,7 +72,8 @@
                     android:layout_alignLeft="@+id/destination_box"
                     android:layout_alignParentRight="true"
                     android:layout_marginLeft="80dp"
-                    android:layout_marginTop="80dp" >
+                    android:layout_marginTop="80dp"
+                    android:padding="5dp" >
                 </ListView>
             </RelativeLayout>
 
@@ -164,7 +165,7 @@
                     android:gravity="center"
                     android:text="@string/Go" />
 
-                <!-- 
+                <!--
                 <Button
                     android:id="@+id/Load"
                     android:layout_width="100dp"
