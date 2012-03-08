@@ -55,8 +55,9 @@ public final class HTTP {
 			char[] buf = new char[BUF_SIZE];
 			
 	        try {
-	            while (isr.read(buf) > 0) {
-	                strBuf.append(buf);
+	        	int read = 0;
+	            while ((read = isr.read(buf)) > 0) {
+	                strBuf.append(buf,  0, read);
 	            }
 	            in.close();
 	        }
@@ -144,8 +145,9 @@ public final class HTTP {
         char[] buf = new char[BUFFER_SIZE];
         
         try {
-            while (isr.read(buf) > 0) {
-                strBuf.append(buf);
+        	int read = 0;
+            while ((read = isr.read(buf)) > 0) {
+                strBuf.append(buf, 0, read);
             }
             in.close();
         } catch (IOException e) {
