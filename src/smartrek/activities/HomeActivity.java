@@ -206,15 +206,22 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 		// side is clicked.
 		if(Selected == SELECT_O_FAVS){
 			if(Selected != prev) {
-				expandSection1();
-			} else {
+				expandSection1(300);
+			}
+			else {
 				resetAll();
 				Selected = -1;
 			}
 		}
 		
 		if(Selected == SELECT_D_FAVS){
-	      
+			if (Selected != prev) {
+				expandSection2(300);
+			}
+			else {
+				resetAll();
+				Selected = -1;
+			}
 		}
 		
 		if(Selected == SELECT_GO){
@@ -366,7 +373,21 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 	}
 	
 	
-	private void expandSection1() {
+	private void expandSection(RelativeLayout section, int delta) {
+		section.layout(section.getLeft(), 
+		        section.getTop(),
+		        section.getRight(), 
+		        section.getBottom() + delta);
+	}
+	
+	private void pushDownSection(RelativeLayout section, int delta) {
+		section.layout(section.getLeft(), 
+		        section.getTop() + delta, 
+		        section.getRight(), 
+		        section.getBottom() + delta);
+	}
+	
+	private void expandSection1(int delta) {
 		
 //        Animation animation = new TranslateAnimation(0,0,-300,0);
 //        animation.setDuration(1500);
@@ -374,35 +395,39 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
         section1.layout(section1.getLeft(), 
         			    section1.getTop(), 
 		                section1.getRight(), 
-		                section1.getBottom()+300);
+		                section1.getBottom() + delta);
         section2.layout(section2.getLeft(), 
-        		        section2.getTop()+300, 
+        		        section2.getTop() + delta, 
         		        section2.getRight(), 
-        		        section2.getBottom()+300);
+        		        section2.getBottom() + delta);
         section3.layout(section3.getLeft(), 
-        		        section3.getTop()+300, 
+        		        section3.getTop() + delta,
         		        section3.getRight(),
-        		        section3.getBottom()+300);
+        		        section3.getBottom() + delta);
         section4.layout(section3.getLeft(), 
-		        section4.getTop()+300, 
+		        section4.getTop() + delta,
 		        section4.getRight(),
-		        section4.getBottom()+300);
+		        section4.getBottom() + delta);
 
 		originFavs.layout(originFavs.getLeft(),
 				originFavs.getTop(),
 				originFavs.getRight(),
-				originFavs.getBottom() + 200);
+				originFavs.getBottom() + (delta - 100));
         
         SV.layout(SV.getLeft(), 
         		  SV.getTop(), 
         		  SV.getRight(), 
-        		  SV.getBottom()+500);
+        		  SV.getBottom() + (delta + 200));
         
 // FIXME: No animations for now
 //        section2.setAnimation(animation);
 //        section3.setAnimation(animation);
 //        originFavs.setAnimation(new TranslateAnimation(0, 0, -200, 0));
 //        doneButton.setAnimation(animation);
+	}
+	
+	private void expandSection2(int delta) {
+		
 	}
 	
 	private class FavoriteAddressFetchTask extends AsyncTask<Integer, Object, List<Address>> {
