@@ -69,9 +69,8 @@
                     android:id="@+id/originFavs"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_alignLeft="@+id/destination_box"
+                    android:layout_alignLeft="@+id/origin_box"
                     android:layout_alignParentRight="true"
-                    android:layout_marginLeft="80dp"
                     android:layout_marginTop="80dp"
                     android:padding="5dp" >
                 </ListView>
@@ -110,6 +109,16 @@
                     android:layout_below="@id/destination_text"
                     android:layout_marginRight="50dp"
                     android:inputType="textPostalAddress" />
+
+                <ListView
+                    android:id="@+id/destFavs"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_alignLeft="@+id/destination_box"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginTop="80dp"
+                    android:padding="5dp" >
+                </ListView>
             </RelativeLayout>
 
             <RelativeLayout

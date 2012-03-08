@@ -78,7 +78,7 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 	private Button destFavButton;
 	private Button loadButton;
 	
-	private int Selected;
+	private int selected;
 	private int SELECT_O_FAVS = 1;
 	private int SELECT_D_FAVS = 2;
 	private int SELECT_GO = 3;
@@ -104,7 +104,7 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
         
         Log.d("Home_Activity","OnCreate Home_Activity");
         
-        Selected = -1;
+        selected = -1;
         
         RL = (RelativeLayout) findViewById(R.id.RL2);
         RL.setOnTouchListener(this);
@@ -157,12 +157,26 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 				Address item = (Address) adapter.getItem(position);
 				
 				originBox.setText(item.getAddress());
+				resetAll();
 			}
 		});
         
+		destFavs = (ListView) findViewById(R.id.destFavs);
+		destFavs.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				FavoriteAddressAdapter adapter = (FavoriteAddressAdapter) parent.getAdapter();
+				Address item = (Address) adapter.getItem(position);
+				
+				destBox.setText(item.getAddress());
+				resetAll();
+			}
+		});
+		
         // TODO: Need to implement lazy loading of favorite addresses
 		// FIXME: Temporary uid = 10
-		new FavoriteAddressFetchTask(originFavs).execute(10);
+		new FavoriteAddressFetchTask().execute(10);
         
         /***************Start Buttons********************/
         
@@ -195,53 +209,38 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 	@Override
 	public void onClick(View v) {
 		
-		int prev = Selected;
+		int prev = selected;
 		
-		if(Selected != v.getId()){
+		if(selected != v.getId()){
 			resetAll();
-			Selected = v.getId();
+			selected = v.getId();
 		}
 		
 		// Animation that will be fired when 'favs' button on the origin address
 		// side is clicked.
-		if(Selected == SELECT_O_FAVS){
-			if(Selected != prev) {
+		if(selected == SELECT_O_FAVS){
+			if(selected != prev) {
 				expandSection1(300);
 			}
 			else {
 				resetAll();
-				Selected = -1;
 			}
 		}
 		
-		if(Selected == SELECT_D_FAVS){
-			if (Selected != prev) {
+		if(selected == SELECT_D_FAVS){
+			if (selected != prev) {
 				expandSection2(300);
 			}
 			else {
 				resetAll();
-				Selected = -1;
 			}
 		}
 		
-		if(Selected == SELECT_GO){
-//			origin = "2929 E 6th Street, Tucson, AZ";
-//			destination = "3289 E HEMISPHERE Loop, Tucson, AZ";
-//			
-			//
-			//
-			//
-			// left off here ready to add OD pair to shared preferences
-			// for Map Activity
-			//
-			
-//			origin = originBox.getText().toString();
-//			destination = destBox.getText().toString();
-			
+		if(selected == SELECT_GO){
 			startMapActivity();
 		}
 		
-		if(Selected == SELECT_LOAD) {
+		if(selected == SELECT_LOAD) {
 			
 		}
 	}
@@ -277,7 +276,7 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 	 ****************************************************************************************************************/
 	private void resetAll() {
 		
-		if(Selected == 1){
+		if(selected == SELECT_O_FAVS){
 //			Animation animation = new TranslateAnimation(0,0,300,0);
 //			animation.setDuration(1500);
 //			animation.setFillAfter(true);
@@ -286,15 +285,20 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 //			section3.setAnimation(animation);
 //			doneButton.setAnimation(animation);
 			
-	        section1.layout(section1.getLeft(), 
-    			    section1.getTop(), 
-	                section1.getRight(), 
-	                section1.getBottom()-300);
-			
-			section2.layout(section2.getLeft(), section2.getTop()-300, section2.getRight(), section2.getBottom()-300);
-	        section3.layout(section3.getLeft(), section3.getTop()-300, section3.getRight(), section3.getBottom()-300);
-	        section4.layout(section4.getLeft(), section4.getTop()-300, section4.getRight(), section4.getBottom()-300);
+			expandView(section1, -300);
+			pushDownView(section2, -300);
+	        pushDownView(section3, -300);
+			pushDownView(section4, -300);
 		}
+		else if(selected == SELECT_D_FAVS) {
+			expandView(section2, -300);
+			pushDownView(section3, -300);
+			pushDownView(section4, -300);
+			
+			expandView(destFavs, -200);
+			expandView(SV, -500);
+		}
+		selected = -1;
 	}
 	
 	/****************************************************************************************************************
@@ -309,9 +313,6 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 	private void startMapActivity() {
 		origin = originBox.getText().toString();
 		destination = destBox.getText().toString();
-		
-//		origin = "1905 W.Jefferson Street, Phoenix, AZ, 85007";
-//		destination = "2825 N.Central Ave,Phoenix,AZ 85012";
 		
 		// Put in error checking for OD pair here // 
 		
@@ -373,51 +374,31 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 	}
 	
 	
-	private void expandSection(RelativeLayout section, int delta) {
-		section.layout(section.getLeft(), 
-		        section.getTop(),
-		        section.getRight(), 
-		        section.getBottom() + delta);
+	private void expandView(View view, int delta) {
+		view.layout(view.getLeft(), 
+		        view.getTop(),
+		        view.getRight(), 
+		        view.getBottom() + delta);
 	}
 	
-	private void pushDownSection(RelativeLayout section, int delta) {
-		section.layout(section.getLeft(), 
-		        section.getTop() + delta, 
-		        section.getRight(), 
-		        section.getBottom() + delta);
+	private void pushDownView(View view, int delta) {
+		view.layout(view.getLeft(), 
+		        view.getTop() + delta, 
+		        view.getRight(), 
+		        view.getBottom() + delta);
 	}
 	
 	private void expandSection1(int delta) {
-		
 //        Animation animation = new TranslateAnimation(0,0,-300,0);
 //        animation.setDuration(1500);
 		
-        section1.layout(section1.getLeft(), 
-        			    section1.getTop(), 
-		                section1.getRight(), 
-		                section1.getBottom() + delta);
-        section2.layout(section2.getLeft(), 
-        		        section2.getTop() + delta, 
-        		        section2.getRight(), 
-        		        section2.getBottom() + delta);
-        section3.layout(section3.getLeft(), 
-        		        section3.getTop() + delta,
-        		        section3.getRight(),
-        		        section3.getBottom() + delta);
-        section4.layout(section3.getLeft(), 
-		        section4.getTop() + delta,
-		        section4.getRight(),
-		        section4.getBottom() + delta);
-
-		originFavs.layout(originFavs.getLeft(),
-				originFavs.getTop(),
-				originFavs.getRight(),
-				originFavs.getBottom() + (delta - 100));
+        expandView(section1, delta);
+        pushDownView(section2, delta);
+        pushDownView(section3, delta);
+        pushDownView(section4, delta);
         
-        SV.layout(SV.getLeft(), 
-        		  SV.getTop(), 
-        		  SV.getRight(), 
-        		  SV.getBottom() + (delta + 200));
+        expandView(originFavs, delta - 100);
+        expandView(SV, delta + 200);
         
 // FIXME: No animations for now
 //        section2.setAnimation(animation);
@@ -427,24 +408,21 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 	}
 	
 	private void expandSection2(int delta) {
-		
+        expandView(section2, delta);
+        pushDownView(section3, delta);
+        pushDownView(section4, delta);
+        
+        expandView(destFavs, delta - 100);        
+        expandView(SV, delta + 200);
 	}
 	
 	private class FavoriteAddressFetchTask extends AsyncTask<Integer, Object, List<Address>> {
 		
 		/**
-		 * A list view to be updated when the fetch task is done.
-		 */
-		private ListView listView;
-		
-		/**
 		 * Default constructor
-		 * 
-		 * @param listView A list view to be updated when the fetch task is done.
 		 */
-		public FavoriteAddressFetchTask(ListView listView) {
+		public FavoriteAddressFetchTask() {
 			super();
-			this.listView = listView;
 		}
 
 		@Override
@@ -467,7 +445,8 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 		@Override
 		protected void onPostExecute(List<Address> result) {
 			if(result != null) {
-				listView.setAdapter(new FavoriteAddressAdapter(HomeActivity.this, result));
+				originFavs.setAdapter(new FavoriteAddressAdapter(HomeActivity.this, result));
+				destFavs.setAdapter(new FavoriteAddressAdapter(HomeActivity.this, result));
 //				FavoriteAddressAdapter adapter = (FavoriteAddressAdapter) originFavs.getAdapter();
 //				adapter.setItems(result);
 
