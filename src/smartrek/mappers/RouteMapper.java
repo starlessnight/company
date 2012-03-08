@@ -61,8 +61,9 @@ public class RouteMapper extends Mapper {
 		// Set Up the request to the sever
 		//String routeurl = sturl + appendToUrl();
 		
-		String routeurl = String.format("http://50.56.81.42:8080/getroutes/startlat=%f%%20startlon=%f%%20endlat=%f%%20endlon=%f%%20departtime=5:00",
-				origin.getLatitudeE6()/1.0E6, origin.getLongitudeE6()/1.0E6, destination.getLatitudeE6()/1.0E6, destination.getLongitudeE6()/1.0E6); 
+		String routeurl = String.format("http://50.56.81.42:8080/getroutes/startlat=%f%%20startlon=%f%%20endlat=%f%%20endlon=%f%%20departtime=%d:%02d",
+				origin.getLatitudeE6()/1.0E6, origin.getLongitudeE6()/1.0E6, destination.getLatitudeE6()/1.0E6, destination.getLongitudeE6()/1.0E6,
+				time.hour, time.minute); 
 		
 		// Querry the server for the routes
 		Log.d("Route_Communicator", "Querying Sever with");

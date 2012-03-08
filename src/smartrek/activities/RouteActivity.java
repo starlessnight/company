@@ -147,8 +147,8 @@ public class RouteActivity extends MapActivity {
 	    Log.d("RouteActivity","Got destination " + destination);
 
 	    // FIXME: temporary
-		origin = "1905 W.Jefferson Street, Phoenix, AZ, 85007";
-		destination = "2825 N.Central Ave,Phoenix,AZ 85012";
+		//origin = "1905 W.Jefferson Street, Phoenix, AZ, 85007";
+		//destination = "2825 N.Central Ave,Phoenix,AZ 85012";
 
 		// Workflow:
 	    //   1. Geocoding (address to coordinate)

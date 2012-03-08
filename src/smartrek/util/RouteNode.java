@@ -28,16 +28,10 @@ public class RouteNode extends OverlayItem {
 				  "Route " + routeNum,
 				  "Node " + nodeNum );
 		
-		
+
+		// FIXME: Really???
 		lat = latitude + "";
 		lon = longitude + "";
-		
-		Log.d("RouteNode","Formatted Latitude " + getFloatLat());
-		Log.d("RouteNode","Formatted Longitude " + getFloatLon());
-//		Formatter myFormatter = new Formatter();
-//		lat = myFormatter.format("%.6f", latitude);
-//		Log.d("RouteNode","Formatted Latitude " + latitude%.6f);
-//		Log.d("RouteNode","Formatted Longitude " + longitude%.6f);
 	}
 	
 	public RouteNode(Bundle  bundle, int routeNum, int nodeNum) {
@@ -50,10 +44,6 @@ public class RouteNode extends OverlayItem {
 		
 		lat = bundle.getString("latitude" + nodeNum);
 		lon = bundle.getString("longitude" + nodeNum);
-		
-		Log.d("RouteNode","Formatted Latitude " + getFloatLat());
-		Log.d("RouteNode","Formatted Longitude " + getFloatLon());
-		
 	}
 	
 	public String getFloatLat(){
