@@ -5,21 +5,22 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.CheckBox;
+import android.widget.RadioButton;
 
 public class MapDisplayActivity extends Activity {
 
-	private CheckBox display_departure;
-	private CheckBox display_travel;
-	private CheckBox display_arrival;
+	private CheckBox displayDeparture;
+	private RadioButton displayTravel;
+	private RadioButton displayArrival;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    setContentView(R.layout.mapdisplayoptions);
 	    
-	    display_departure = (CheckBox) findViewById(R.id.mdoradio0);
-	    display_travel = (CheckBox) findViewById(R.id.mdoradio1);
-	    display_arrival = (CheckBox) findViewById(R.id.mdoradio2);
+	    displayDeparture = (CheckBox) findViewById(R.id.mdoradio0);
+	    displayTravel = (RadioButton) findViewById(R.id.mdoradio1);
+	    displayArrival = (RadioButton) findViewById(R.id.mdoradio2);
 	 
 //	    display_travel.setOnClickListener(this);
 //	    display_arrival.setOnClickListener(this);
@@ -46,13 +47,13 @@ public class MapDisplayActivity extends Activity {
 
 	private int getRetVal(){
 		int retVal = 1;
-		if(display_arrival.isChecked() && !display_travel.isChecked()){
+		if(displayArrival.isChecked() && !displayTravel.isChecked()){
 			retVal = 2;
 		}
-		if(display_travel.isChecked() && !display_arrival.isChecked()){
+		if(displayTravel.isChecked() && !displayArrival.isChecked()){
 			retVal = 3;
 		}
-		if(display_travel.isChecked() && display_arrival.isChecked()){
+		if(displayTravel.isChecked() && displayArrival.isChecked()){
 			retVal = 4;
 		}
 		return retVal;

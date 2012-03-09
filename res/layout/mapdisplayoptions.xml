@@ -1,113 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout 
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:orientation="vertical" 
-	android:layout_width="match_parent"
-	android:layout_height="match_parent" 
-	android:background="@drawable/background">
-	<TextView 
-		android:id="@+id/map_display_heading"
-		android:layout_width="match_parent" 
-		android:orientation="vertical"
-		android:textColor="#b39e69" 
-		android:layout_height="wrap_content"
-		android:textSize="20dp" 
-		android:paddingTop="10dp"
-		android:gravity="center" 
-		android:text="@string/map_display">
-	</TextView>
-	<TextView 
-		android:id="@+id/time_heading" 
-		android:layout_width="match_parent"
-		android:orientation="vertical" 
-		android:textColor="#FFFFFFFF"
-		android:layout_height="wrap_content" 
-		android:textSize="20dp"
-		android:layout_below="@id/map_display_heading" 
-		android:paddingTop="8dp"
-		android:gravity="center"
-		android:text="@string/time_display">
-	</TextView>
-	<RelativeLayout 
-		android:layout_height="wrap_content"
-		android:layout_width="fill_parent" 
-		android:paddingLeft="65dp"
-		android:id="@+id/group1" 
-		android:layout_below="@id/time_heading">
-		<CheckBox
-			android:textColor="#FFFFFFFF"
-			android:textSize="18dp" 
-			android:text="@string/display_departure_time"
-			android:id="@+id/mdoradio0" 
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content" 
-			android:checked="true"
-			android:enabled="false"
-			android:editable="false">
-		</CheckBox>
-		<CheckBox 
-			android:textColor="#FFFFFFFF"
-			android:textSize="18dp" 
-			android:text="@string/display_travel_time"
-			android:id="@+id/mdoradio1" 
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content" 
-			android:enabled="true"
-			android:layout_below="@id/mdoradio0">
-		</CheckBox>
-		<CheckBox 
-			android:textColor="#FFFFFFFF"
-			android:textSize="18dp" 
-			android:text="@string/display_arrival_time"
-			android:id="@+id/mdoradio2" 
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content" 
-			android:enabled="true"
-			android:layout_below="@id/mdoradio1">
-		</CheckBox>
-	</RelativeLayout>
-	<TextView 
-		android:id="@+id/adjust_time_heading"
-		android:layout_width="match_parent" 
-		android:orientation="vertical"
-		android:textColor="#FFFFFFFF"
-		android:layout_height="wrap_content"
-		android:layout_below="@id/group1" 
-		android:textSize="20dp"
-		android:gravity="center" 
-		android:text="@string/adjust_time">
-	</TextView>
-	<RelativeLayout 
-		android:layout_height="wrap_content"
-		android:layout_width="fill_parent" 
-		android:paddingLeft="65dp"
-		android:layout_below="@id/adjust_time_heading">
-		<CheckBox 
-			android:textColor="#FFFFFFFF"
-			android:textSize="18dp" 
-			android:text="@string/five" 
-			android:id="@+id/mdoradio3"
-			android:layout_below="@id/adjust_time_heading"
-			android:layout_height="wrap_content" 
-			android:layout_width="wrap_content">
-		</CheckBox>
-		<CheckBox 
-			android:textColor="#FFFFFFFF"
-			android:textSize="18dp" 
-			android:text="@string/fifteen" 
-			android:id="@+id/mdoradio4"
-			android:layout_below="@id/mdoradio3"
-			android:layout_height="wrap_content" 
-			android:layout_width="wrap_content">
-		</CheckBox>
-		<CheckBox 
-			android:textColor="#FFFFFFFF"
-			android:textSize="18dp" 
-			android:text="@string/sixty" 
-			android:id="@+id/mdoradio5"
-			android:layout_below="@id/mdoradio4"
-			android:layout_height="wrap_content" 
-			android:layout_width="wrap_content">
-		</CheckBox>
-	</RelativeLayout>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/map_display_heading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingTop="10dp"
+        android:text="@string/map_display"
+        android:textColor="#b39e69"
+        android:textSize="20dp" >
+    </TextView>
+
+    <TextView
+        android:id="@+id/time_heading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/map_display_heading"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingTop="8dp"
+        android:text="@string/time_display"
+        android:textColor="#FFFFFFFF"
+        android:textSize="20dp" >
+    </TextView>
+
+    <RelativeLayout
+        android:id="@+id/group1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/time_heading"
+        android:paddingLeft="65dp" >
+
+        <CheckBox
+            android:id="@+id/mdoradio0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:editable="false"
+            android:enabled="false"
+            android:text="@string/display_departure_time"
+            android:textColor="#FFFFFFFF"
+            android:textSize="18dp" >
+        </CheckBox>
+
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/mdoradio0" >
+
+            <RadioButton
+                android:id="@+id/mdoradio1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="true"
+                android:text="@string/display_travel_time"
+                android:textColor="#FFFFFFFF"
+                android:textSize="18dp" >
+            </RadioButton>
+
+            <RadioButton
+                android:id="@+id/mdoradio2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="true"
+                android:text="@string/display_arrival_time"
+                android:textColor="#FFFFFFFF"
+                android:textSize="18dp" >
+            </RadioButton>
+        </RadioGroup>
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/adjust_time_heading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/group1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:text="@string/adjust_time"
+        android:textColor="#FFFFFFFF"
+        android:textSize="20dp" >
+    </TextView>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/adjust_time_heading"
+        android:paddingLeft="65dp" >
+
+        <CheckBox
+            android:id="@+id/mdoradio3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/adjust_time_heading"
+            android:text="@string/five"
+            android:textColor="#FFFFFFFF"
+            android:textSize="18dp" >
+        </CheckBox>
+
+        <CheckBox
+            android:id="@+id/mdoradio4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/mdoradio3"
+            android:text="@string/fifteen"
+            android:textColor="#FFFFFFFF"
+            android:textSize="18dp" >
+        </CheckBox>
+
+        <CheckBox
+            android:id="@+id/mdoradio5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/mdoradio4"
+            android:text="@string/sixty"
+            android:textColor="#FFFFFFFF"
+            android:textSize="18dp" >
+        </CheckBox>
+    </RelativeLayout>
+
 </RelativeLayout>
