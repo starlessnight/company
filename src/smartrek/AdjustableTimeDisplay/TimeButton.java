@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.text.format.Time;
+import android.view.Gravity;
 import android.widget.TextView;
 
 /*********************************************************************************************************
@@ -17,7 +18,12 @@ import android.widget.TextView;
  *********************************************************************************************************/
 public class TimeButton extends TextView {
 	
+	public enum DisplayMode {
+		Time, Duration
+	}
+	
 	private Time time;
+	private DisplayMode displayMode;
 	
 	/**
 	 * 
@@ -26,12 +32,14 @@ public class TimeButton extends TextView {
 	 * @param btnum
 	 * @param before
 	 */
-	public TimeButton(TimeLayout timelayout, Time time, int btnum, TimeButton before) {
+	public TimeButton(TimeLayout timelayout, Time time, int btnum, TimeButton before, DisplayMode displayMode) {
 		super(timelayout.getContext());
+		this.displayMode = displayMode;
 		this.setOnClickListener(timelayout);
 		this.setId(btnum);
 		setParams(before);
 		setTime(time);
+		setGravity(Gravity.CENTER_HORIZONTAL);
 	}
 	
 	/**
@@ -42,12 +50,14 @@ public class TimeButton extends TextView {
 	 * @param btnum
 	 * @param before
 	 */
-	public TimeButton(TimeLayout2 timelayout, int min, int sec, int btnum, TimeButton before) {
+	public TimeButton(TimeLayout2 timelayout, int min, int sec, int btnum, TimeButton before, DisplayMode displayMode) {
 		super(timelayout.getContext());
+		this.displayMode = displayMode;
 		this.setOnLongClickListener(timelayout);
 		this.setId(btnum);
 		setParams(before);
-		this.setText(min + " min " + sec + "sec");	
+		setText(min + " min " + sec + "sec");
+		setGravity(Gravity.CENTER_HORIZONTAL);
 	}
 
 	/**
@@ -62,26 +72,34 @@ public class TimeButton extends TextView {
 	
 	/**
 	 * 
-	 * @param departtime
+	 * @param time
 	 */
-	private void setTime(Time departtime) {
-		time = new Time(departtime);
-		int hour = departtime.hour;
-		String AMPM = " AM ";
-		if(hour>12) {
-			hour = hour-12;
-			AMPM = " PM ";
-		}
-		if(hour == 0) {
-			hour = 12;
-		}
-		int min = departtime.minute;
-		String colon = " : ";
-		if(min < 10) {
-			colon += "0";
-		}
-		this.setText("  " + hour + colon + min + AMPM);	
+	private void setTime(Time time) {
+		this.time = new Time(time);
 		
+		if(DisplayMode.Time.equals(displayMode)) {
+			int hour = time.hour;
+			String AMPM = " AM ";
+			if(hour>12) {
+				hour = hour-12;
+				AMPM = " PM ";
+			}
+			if(hour == 0) {
+				hour = 12;
+			}
+			int min = time.minute;
+			String colon = " : ";
+			if(min < 10) {
+				colon += "0";
+			}
+			this.setText("  " + hour + colon + min + AMPM);
+		}
+		else if(DisplayMode.Duration.equals(displayMode)) {
+			setText("...");
+		}
+		else {
+			setText("Unknown");
+		}
 	}
 	
 	/**

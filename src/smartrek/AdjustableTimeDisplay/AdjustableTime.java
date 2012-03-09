@@ -24,7 +24,7 @@ public class AdjustableTime extends Time {
 	 * 
 	 * 
 	 *********************************************************************************************************/
-	public void incBy(int timeinterval) {
+	public void incrementBy(int timeinterval) {
 		int hour = this.hour;
 		int minute = this.minute;
 		if(this.minute % timeinterval == 0){

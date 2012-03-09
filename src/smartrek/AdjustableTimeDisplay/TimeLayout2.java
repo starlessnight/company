@@ -71,7 +71,7 @@ public class TimeLayout2 extends LinearLayout implements OnLongClickListener {
 		
 	    for (int i = 0; i < numBoxes; i++) {
 	    	 Route route = routes.get(i);
-	    	 TimeButton bt1 = new TimeButton(this, route.getMin(),route.getSec(), i, temp);
+	    	 TimeButton bt1 = new TimeButton(this, route.getMin(),route.getSec(), i, temp, null);
 	    	 if(i == 0) {
 	    		 bt1.setBackgroundColor(Color.parseColor("#cea350"));
 	    	 }

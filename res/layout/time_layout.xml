@@ -1,40 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:orientation="vertical"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
 
-	
-	<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-		android:layout_width="fill_parent"
-		android:layout_height="wrap_content"
-		android:scrollbars="horizontal"
-		android:background="#FFFFFFFF"
- 		android:id="@+id/scrollTime">
- 		<LinearLayout
- 		android:orientation="vertical"
- 		android:layout_width="fill_parent"
-		android:layout_height="wrap_content">
-		
-		<smartrek.AdjustableTimeDisplay.TimeLayout
-			android:id="@+id/timelayout"
-			android:layout_width="wrap_content"
-			android:layout_height="fill_parent">
-		</smartrek.AdjustableTimeDisplay.TimeLayout>
+    <HorizontalScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/scrollTime"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFFFF"
+        android:scrollbars="horizontal" >
 
-		<smartrek.AdjustableTimeDisplay.TimeLayout
-			android:id="@+id/arrivaltimelayout"
-			android:layout_width="wrap_content"
-			android:layout_height="fill_parent">
-		</smartrek.AdjustableTimeDisplay.TimeLayout>
-	
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
 
-		<smartrek.AdjustableTimeDisplay.TimeLayout
-			android:id="@+id/traveltimelayout"
-			android:layout_width="wrap_content"
-			android:layout_height="fill_parent">
-		</smartrek.AdjustableTimeDisplay.TimeLayout>
-		</LinearLayout>
-	</HorizontalScrollView>
+            <smartrek.AdjustableTimeDisplay.TimeLayout
+                android:id="@+id/timelayout"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                display="time" />
+
+            <smartrek.AdjustableTimeDisplay.TimeLayout
+                android:id="@+id/arrivaltimelayout"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                display="time" />
+
+            <smartrek.AdjustableTimeDisplay.TimeLayout
+                android:id="@+id/traveltimelayout"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
+                display="duration" />
+        </LinearLayout>
+    </HorizontalScrollView>
 </RelativeLayout>
