@@ -349,6 +349,15 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 			intent = new Intent(this, ContactsActivity.class);
 			startActivity(intent);
 			break;
+			
+    	case R.id.map_display_options:
+    		intent = new Intent(this,MapDisplayActivity.class);
+    		int displayed = 0;
+    		intent.putExtra("mapmode", 1);
+    		startActivityForResult(intent, displayed);
+    		
+    		Log.d("RouteActivity","Returned " + displayed + "from map display options");
+    		break;
 
     	case R.id.mycoupons:
     		intent = new Intent(this, MyCouponsActivity.class);

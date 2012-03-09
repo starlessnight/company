@@ -43,13 +43,14 @@
             android:layout_height="wrap_content"
             android:checked="true"
             android:editable="false"
-            android:enabled="false"
+            android:enabled="true"
             android:text="@string/display_departure_time"
             android:textColor="#FFFFFFFF"
             android:textSize="18dp" >
         </CheckBox>
 
         <RadioGroup
+            android:id="@+id/time_display_mode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/mdoradio0" >
@@ -95,35 +96,41 @@
         android:layout_below="@id/adjust_time_heading"
         android:paddingLeft="65dp" >
 
-        <CheckBox
-            android:id="@+id/mdoradio3"
+        <RadioGroup
+            android:id="@+id/time_increment"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/adjust_time_heading"
-            android:text="@string/five"
-            android:textColor="#FFFFFFFF"
-            android:textSize="18dp" >
-        </CheckBox>
+            android:layout_height="wrap_content" >
 
-        <CheckBox
-            android:id="@+id/mdoradio4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/mdoradio3"
-            android:text="@string/fifteen"
-            android:textColor="#FFFFFFFF"
-            android:textSize="18dp" >
-        </CheckBox>
+            <RadioButton
+                android:id="@+id/time_increment_5min"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/five"
+                android:textColor="#FFFFFFFF"
+                android:textSize="18dp"
+                android:tag="5" >
+            </RadioButton>
 
-        <CheckBox
-            android:id="@+id/mdoradio5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/mdoradio4"
-            android:text="@string/sixty"
-            android:textColor="#FFFFFFFF"
-            android:textSize="18dp" >
-        </CheckBox>
+            <RadioButton
+                android:id="@+id/time_increment_15min"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fifteen"
+                android:textColor="#FFFFFFFF"
+                android:textSize="18dp"
+                android:tag="15" >
+            </RadioButton>
+
+            <RadioButton
+                android:id="@+id/time_increment_60min"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sixty"
+                android:textColor="#FFFFFFFF"
+                android:textSize="18dp"
+                android:tag="60" >
+            </RadioButton>
+        </RadioGroup>
     </RelativeLayout>
 
 </RelativeLayout>

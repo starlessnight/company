@@ -67,10 +67,29 @@ public class RouteActivity extends MapActivity {
 	private int SATELLITE = 2;
 	private int CURRENTMODE = GENMAP;
 	
+	/**
+	 * @deprecated
+	 */
 	private int DEPARTONLY = 1;
+	
+	/**
+	 * @deprecated
+	 */
 	private int DEPART_AND_ARRIVE = 2;
+	
+	/**
+	 * @deprecated
+	 */
 	private int DEPART_AND_TRAVEL = 3;
+	
+	/**
+	 * @deprecated
+	 */
 	private int DEPART_ARRIVE_TRAVEL = 4;
+	
+	/**
+	 * @deprecated
+	 */
 	private int CURRENTDISPLAY = DEPARTONLY;
 	
 	private Time selectedTime;
