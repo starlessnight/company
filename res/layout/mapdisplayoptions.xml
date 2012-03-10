@@ -37,23 +37,10 @@
         android:layout_below="@id/time_heading"
         android:paddingLeft="65dp" >
 
-        <CheckBox
-            android:id="@+id/mdoradio0"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:editable="false"
-            android:enabled="true"
-            android:text="@string/display_departure_time"
-            android:textColor="#FFFFFFFF"
-            android:textSize="18dp" >
-        </CheckBox>
-
         <RadioGroup
             android:id="@+id/time_display_mode"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/mdoradio0" >
+            android:layout_height="wrap_content" >
 
             <RadioButton
                 android:id="@+id/mdoradio1"

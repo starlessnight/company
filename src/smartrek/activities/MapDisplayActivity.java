@@ -26,7 +26,6 @@ public class MapDisplayActivity extends Activity {
     public static final String TIME_INCREMENT = "TimeIncrement";
     public static final int TIME_INCREMENT_DEFAULT = 15;
 
-    private CheckBox displayDeparture;
     private RadioButton displayTravel;
     private RadioButton displayArrival;
     private RadioButton timeIncrement5;
@@ -38,7 +37,6 @@ public class MapDisplayActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mapdisplayoptions);
         
-        displayDeparture = (CheckBox) findViewById(R.id.mdoradio0);
         displayTravel = (RadioButton) findViewById(R.id.mdoradio1);
         displayArrival = (RadioButton) findViewById(R.id.mdoradio2);
 
