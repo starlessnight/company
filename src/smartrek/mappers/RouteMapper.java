@@ -91,9 +91,11 @@ public class RouteMapper extends Mapper {
 				routeNodes.add(node);
 			}
 			
+			// Web service returns the estimated travel time in minutes, but we
+			// internally store it as seconds.
 			double ett = object.getDouble("ESTIMATED_TRAVEL_TIME");
 
-			Route route = new Route(routeNodes, 0, (float)ett);
+			Route route = new Route(routeNodes, 0, (int)(ett * 60));
 			routes.add(route);
 		}
 

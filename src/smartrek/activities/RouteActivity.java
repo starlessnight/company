@@ -238,7 +238,7 @@ public class RouteActivity extends MapActivity {
      */
     public void doRoute(GeoPoint origin, GeoPoint destination, Time time) {
         dialog.show();
-        new BackgroundDownloadTask().execute(origin, destination, time);
+        new RouteTask().execute(origin, destination, time);
     }
     
     /**
@@ -488,7 +488,7 @@ public class RouteActivity extends MapActivity {
         Time time = new Time();
         time.setToNow();
         
-        new BackgroundDownloadTask().execute(origin, destination, time);
+        new RouteTask().execute(origin, destination, time);
     }
     
     /**
@@ -592,7 +592,7 @@ public class RouteActivity extends MapActivity {
      *  
      *
      */
-    protected class BackgroundDownloadTask extends AsyncTask<Object, Void, Void> {
+    protected class RouteTask extends AsyncTask<Object, Void, List<Route>> {
         
         @Override
         protected void onPreExecute () {
@@ -600,7 +600,7 @@ public class RouteActivity extends MapActivity {
         }
         
         @Override
-        protected Void doInBackground(Object... args) {  
+        protected List<Route> doInBackground(Object... args) {  
             
             GeoPoint origin = (GeoPoint)args[0];
             GeoPoint destination = (GeoPoint)args[1];
@@ -629,7 +629,7 @@ public class RouteActivity extends MapActivity {
                 onRouteFound(possibleRoutes, time);
             }
             
-            return null;
+            return possibleRoutes;
         }
         
         /**
@@ -637,10 +637,16 @@ public class RouteActivity extends MapActivity {
          * reside in the main loop.
          */
         @Override
-        protected void onPostExecute(Void v) {
+        protected void onPostExecute(List<Route> possibleRoutes) {
             dialog.dismiss();
             
             reportExceptions();
+            
+            // FIXME: Temporary
+            if(possibleRoutes != null && possibleRoutes.size() > 0) {
+            	Route firstRoute = possibleRoutes.get(0);
+            	timeLayout.setDurationForColumn(timeLayout.getSelectedColumn(), firstRoute.getDuration());
+            }
         }
 
     }

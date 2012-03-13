@@ -25,20 +25,20 @@ public class Route {
 	private ArrayList<RouteNode> routeNodes;
 	private int rid;
 	private int validated;
-	private Float time;
-	private Time time2 = null;
+	private int duration;
+	private Time time = null;
 	private int uid;
 	
 	/*****************************************************************************************
 	 * 
 	 *
 	 *****************************************************************************************/
-	public Route (ArrayList<RouteNode> locs, int rid, Float time) {
+	public Route (ArrayList<RouteNode> locs, int rid, int duration) {
 		//this.cp = cp;
 		this.routeNodes = locs;
 		this.rid = rid;
 		this.validated = 0;
-		this.time = time;
+		this.duration = duration;
 	}
 	
 	/*****************************************************************************************
@@ -53,7 +53,7 @@ public class Route {
 		this.routeNodes = getRouteNodesFromBundle(bundle);
 		this.rid = bundle.getInt("rid");
 		this.validated = bundle.getInt("validated");
-		this.time2 = getTimeFromBundle(bundle);
+		this.time = getTimeFromBundle(bundle);
 	}
 	
 	/*****************************************************************************************
@@ -165,7 +165,7 @@ public class Route {
 			i++;
 		}
 		str += "\n";
-		if(time2 != null) {
+		if(time != null) {
 			str += "Time = " + timeToString() + "\n";
 		}
 		if(cp != null)
@@ -178,7 +178,7 @@ public class Route {
 	 *
 	 *****************************************************************************************/
 	public String timeToString(){
-		String temp = time2.toString();
+		String temp = time.toString();
 		String formattedTime =  temp.substring(0, 4) + "-";
 		formattedTime += temp.substring(6, 8) + "-";
 		formattedTime += temp.substring(4, 6) + " ";
@@ -189,12 +189,16 @@ public class Route {
 		return formattedTime;
 	}
 	
+	public int getDuration() {
+		return duration;
+	}
+	
 	/*****************************************************************************************
 	 * 
 	 *
 	 *****************************************************************************************/
 	public int getMin() {
-		return (int) Math.floor(time);
+		return (int) Math.floor(duration);
 	}
 	
 	/*****************************************************************************************
@@ -202,7 +206,7 @@ public class Route {
 	 *
 	 *****************************************************************************************/
 	public int getSec() {
-		return Math.round((60*(time - getMin())));
+		return Math.round((60*(duration - getMin())));
 	}
 	
 	/*****************************************************************************************
@@ -218,7 +222,7 @@ public class Route {
 	 *
 	 *****************************************************************************************/
 	public void setTime(Time time) {
-		this.time2 = time;
+		this.time = time;
 	}
 	
 	/*****************************************************************************************

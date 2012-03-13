@@ -128,15 +128,12 @@ public class TimeButton extends TextView {
 				hour = 12;
 			}
 			int min = time.minute;
-			String colon = " : ";
-			if(min < 10) {
-				colon += "0";
-			}
 			setText(String.format("%d:%02d %s", hour, min, AMPM));
 		}
 		else if(DisplayMode.Duration.equals(displayMode)) {
+			// TODO: Need to consider cases where duration > 3600
 			if(duration >= 0) {
-				setText("duration");
+				setText(String.format("%d min", Math.round((float)duration/60)));
 			}
 			else {
 				setText("...");

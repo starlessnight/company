@@ -23,6 +23,8 @@ public class TimeLayout extends GridLayout implements OnClickListener {
      */
     private DisplayMode displayMode = DisplayMode.TravelTime;
     
+    private int selectedColumn = -1;
+    
 //    /**
 //     * 
 //     * @param context
@@ -98,6 +100,10 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     	}
     }
     
+    public int getSelectedColumn() {
+    	return selectedColumn;
+    }
+    
     private void setColumnState(int column, TimeButton.State state) {
     	int cc = getColumnCount();
     	
@@ -114,8 +120,21 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     	}
     }
     
+    /**
+     * 
+     * @param column Column number (zero-based)
+     * @param duration Duration in seconds
+     */
     public void setDurationForColumn(int column, int duration) {
     	// TODO: set duration, arrivalTime = departureTime + duration
+    	
+    	// Get the button on the second row
+    	TimeButton timeButton = (TimeButton) getChildAt(getColumnCount() + column);
+    	timeButton.setDuration(duration);
+    }
+    
+    public Time getSelectedTime() {
+    	return null;
     }
 
     @Override
@@ -131,6 +150,7 @@ public class TimeLayout extends GridLayout implements OnClickListener {
         this.invalidate(); // TODO: What is this?
         
         if(onSelectListener != null) {
+        	selectedColumn = column;
         	onSelectListener.onSelect(column, (TimeButton) v);
         }
     }
