@@ -94,8 +94,9 @@ public class RouteActivity extends MapActivity {
     
     private Time selectedTime;
     
-    private TimeLayout arriveTime;
-    private TimeLayout travelTime;
+    private TimeLayout timeLayout;
+//    private TimeLayout arriveTime;
+//    private TimeLayout travelTime;
     
     private Route selectedRoute;
     
@@ -159,10 +160,6 @@ public class RouteActivity extends MapActivity {
         
         destination = extras.getString("destination");
         Log.d("RouteActivity","Got destination " + destination);
-        
-        // FIXME: temporary
-        //origin = "1905 W.Jefferson Street, Phoenix, AZ, 85007";
-        //destination = "2825 N.Central Ave,Phoenix,AZ 85012";
 
         // Workflow:
         //   1. Geocoding (address to coordinate)
@@ -187,8 +184,8 @@ public class RouteActivity extends MapActivity {
 
         int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
         
-        travelTime.setVisibility((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? View.VISIBLE : View.GONE);
-        arriveTime.setVisibility((displayMode & MapDisplayActivity.TIME_DISPLAY_ARRIVAL) != 0 ? View.VISIBLE : View.GONE);
+//        travelTime.setVisibility((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? View.VISIBLE : View.GONE);
+//        arriveTime.setVisibility((displayMode & MapDisplayActivity.TIME_DISPLAY_ARRIVAL) != 0 ? View.VISIBLE : View.GONE);
     }
     
 //    @Override
@@ -211,16 +208,17 @@ public class RouteActivity extends MapActivity {
      */
     private void setupScrollTime() {
         
-        arriveTime = (TimeLayout) findViewById(R.id.arrivaltimelayout);
-        travelTime = (TimeLayout) findViewById(R.id.traveltimelayout);
+    	timeLayout = (TimeLayout) findViewById(R.id.timelayout);
+//        arriveTime = (TimeLayout) findViewById(R.id.arrivaltimelayout);
+//        travelTime = (TimeLayout) findViewById(R.id.traveltimelayout);
         
-        travelTime.setVisibility(View.GONE);
-        arriveTime.setVisibility(View.GONE);
+//        travelTime.setVisibility(View.GONE);
+//        arriveTime.setVisibility(View.GONE);
         
         TimeLayout timelayout = (TimeLayout) findViewById(R.id.timelayout);
         timelayout.setRouteActivity(this); 
 
-        timelayout.setDependents(arriveTime, travelTime);
+//        timelayout.setDependents(arriveTime, travelTime);
     }
         
     /**
@@ -514,8 +512,8 @@ public class RouteActivity extends MapActivity {
             } else if (0 != extras.getInt("display")) {
                 int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
                 
-                travelTime.setVisibility((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? View.VISIBLE : View.GONE);
-                arriveTime.setVisibility((displayMode & MapDisplayActivity.TIME_DISPLAY_ARRIVAL) != 0 ? View.VISIBLE : View.GONE);
+//                travelTime.setVisibility((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? View.VISIBLE : View.GONE);
+//                arriveTime.setVisibility((displayMode & MapDisplayActivity.TIME_DISPLAY_ARRIVAL) != 0 ? View.VISIBLE : View.GONE);
             }
         } 
     }

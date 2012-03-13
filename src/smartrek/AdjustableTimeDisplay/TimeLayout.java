@@ -8,17 +8,27 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.LinearLayout;
+import android.widget.GridLayout;
 
 /**
  * This class is a container for multiple TimeButton's.
  *
  */
-public class TimeLayout extends LinearLayout implements OnClickListener {
+public class TimeLayout extends GridLayout implements OnClickListener {
     
+	public enum DisplayMode {
+		TravelTime, ArrivalTime
+	}
+	
+	/**
+	 * @deprecated
+	 */
     private RouteActivity routeActivity;
-    private TimeLayout arriveScroll;
-    private TimeLayout travelScroll;
+    
+    /**
+     * Display mode. Default display mode is to show travel time.
+     */
+    private DisplayMode displayMode = DisplayMode.TravelTime;
     
 //    /**
 //     * 
@@ -56,23 +66,40 @@ public class TimeLayout extends LinearLayout implements OnClickListener {
         String display = attributes.getAttributeValue(null, "display");
         TimeButton.DisplayMode displayMode = display.equals("duration") ? TimeButton.DisplayMode.Duration : TimeButton.DisplayMode.Time;
         
-        AdjustableTime atime = new AdjustableTime();
-        atime.setToNow();
+        AdjustableTime adjustableTime = new AdjustableTime();
+        adjustableTime.setToNow();
         
-        int numboxes = atime.getNumTimeBoxes();
+        int numboxes = adjustableTime.getNumTimeBoxes();
         TimeButton temp = null;
         
-        for (int i = 0; i < numboxes; i++) {
-             TimeButton bt1 = new TimeButton(this, atime, i, temp, displayMode);
-             if(i == 0) {
-                 bt1.setBackgroundColor(Color.parseColor("#cea350"));
-             }
-             bt1.setWidth(120);
-             atime.incrementBy(15);
-             this.addView(bt1,i);
+        setColumnCount(numboxes);
+        
+        for (int i = 0; i < numboxes*2; i++) {
+             TimeButton bt1 = new TimeButton(this, adjustableTime, i, temp, displayMode);
+             bt1.setWidth(140);
+             adjustableTime.incrementBy(15);
+             addView(bt1,i);
              temp = bt1;
         }
         
+        setColumnState(0, TimeButton.State.Selected);
+    }
+    
+    public DisplayMode getDisplayMode() {
+    	return displayMode;
+    }
+    
+    public void setDisplayMode(DisplayMode displayMode) {
+    	this.displayMode = displayMode;
+    	
+    }
+    
+    public void setColumnState(int column, TimeButton.State state) {
+    	int cc = getColumnCount();
+    	
+    	int k = column % cc;
+    	((TimeButton) getChildAt(k)).setState(state);
+    	((TimeButton) getChildAt(k + cc)).setState(state);
     }
     
     /**
@@ -83,37 +110,24 @@ public class TimeLayout extends LinearLayout implements OnClickListener {
         this.routeActivity = routeActivity;
     }
 
-    /**
-     * 
-     * @param t1
-     * @param t2
-     */
-    public void setDependents(TimeLayout t1, TimeLayout t2){
-        arriveScroll = t1;
-        travelScroll = t2;
-    }
-    
 
     // FIXME: I think this should be in RrouteActivity
     @Override
     public void onClick(View v) {
+    	// FIXME: This is very hack-ish
+    	int column = v.getId() % getColumnCount();
+    	
         Time time = ((TimeButton) v).getTime();
         Log.d("Time Button " + v.getId(), "OnClick Registered");
+        
         for (int i = 0; i < this.getChildCount(); i++) {
-            ((TimeButton) getChildAt(i)).resetColor();
-            ((TimeButton) travelScroll.getChildAt(i)).resetColor();
-            ((TimeButton) arriveScroll.getChildAt(i)).resetColor();
+        	((TimeButton) getChildAt(i)).setState(TimeButton.State.None);
         }
 
-        v.setBackgroundColor(Color.parseColor("#cea350"));
-        if (travelScroll != null && arriveScroll != null) {
-            travelScroll.getChildAt(v.getId()).setBackgroundColor(
-                    Color.parseColor("#cea350"));
-            arriveScroll.getChildAt(v.getId()).setBackgroundColor(
-                    Color.parseColor("#cea350"));
-        }
+        setColumnState(column, TimeButton.State.Selected);
+        
         this.invalidate(); // TODO: What is this?
-        routeActivity.doRoute(routeActivity.getOriginCoord(), routeActivity.getDestCoord(), time);
+//        routeActivity.doRoute(routeActivity.getOriginCoord(), routeActivity.getDestCoord(), time);
     }
 
 }
