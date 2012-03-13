@@ -7,6 +7,7 @@ import java.util.Stack;
 import smartrek.AdjustableCouponDisplay.CouponLayout;
 import smartrek.AdjustableTimeDisplay.TimeButton;
 import smartrek.AdjustableTimeDisplay.TimeLayout;
+import smartrek.AdjustableTimeDisplay.TimeLayout.TimeLayoutOnSelectListener;
 import smartrek.mappers.Coupon_Communicator;
 import smartrek.mappers.RouteMapper;
 import smartrek.models.Coupon;
@@ -170,8 +171,10 @@ public class RouteActivity extends MapActivity {
         setupScrollTime(); 
         
         TimeLayout tl = (TimeLayout) findViewById(R.id.timelayout);
-        TimeButton tb = ((TimeButton) tl.getChildAt(0));
-        selectedTime = tb.getTime();
+        //selectedTime = tb.getTime();
+        // FIXME: Temporary solution
+        selectedTime = new Time();
+        selectedTime.setToNow();
         
         couponScroll = (HorizontalScrollView) findViewById(R.id.scrollCoupon);
         couponScroll.setScrollContainer(true);
@@ -179,13 +182,13 @@ public class RouteActivity extends MapActivity {
         couponLayout = (CouponLayout)couponScroll.getChildAt(0);
         coupTitleBar = (TextView) findViewById(R.id.adjustableCouponLable);
         coupTitleBar.setVisibility(View.GONE);
-        Log.d("RouteActivity", "current selected time is " + selectedTime.toString());
+        //Log.d("RouteActivity", "current selected time is " + selectedTime.toString());
         
 
         int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
         
-//        travelTime.setVisibility((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? View.VISIBLE : View.GONE);
-//        arriveTime.setVisibility((displayMode & MapDisplayActivity.TIME_DISPLAY_ARRIVAL) != 0 ? View.VISIBLE : View.GONE);
+        // FIXME: Sloppy
+        timeLayout.setDisplayMode((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? TimeLayout.DisplayMode.TravelTime : TimeLayout.DisplayMode.ArrivalTime);
     }
     
 //    @Override
@@ -216,7 +219,13 @@ public class RouteActivity extends MapActivity {
 //        arriveTime.setVisibility(View.GONE);
         
         TimeLayout timelayout = (TimeLayout) findViewById(R.id.timelayout);
-        timelayout.setRouteActivity(this); 
+        timelayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
+			@Override
+			public void onSelect(int column, TimeButton timeButton) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 
 //        timelayout.setDependents(arriveTime, travelTime);
     }
@@ -512,8 +521,8 @@ public class RouteActivity extends MapActivity {
             } else if (0 != extras.getInt("display")) {
                 int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
                 
-//                travelTime.setVisibility((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? View.VISIBLE : View.GONE);
-//                arriveTime.setVisibility((displayMode & MapDisplayActivity.TIME_DISPLAY_ARRIVAL) != 0 ? View.VISIBLE : View.GONE);
+                // FIXME: Sloppy
+                timeLayout.setDisplayMode((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? TimeLayout.DisplayMode.TravelTime : TimeLayout.DisplayMode.ArrivalTime);
             }
         } 
     }

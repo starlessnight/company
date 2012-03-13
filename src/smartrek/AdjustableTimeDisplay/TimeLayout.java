@@ -1,8 +1,6 @@
 package smartrek.AdjustableTimeDisplay;
 
-import smartrek.activities.RouteActivity;
 import android.content.Context;
-import android.graphics.Color;
 import android.text.format.Time;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -19,12 +17,7 @@ public class TimeLayout extends GridLayout implements OnClickListener {
 	public enum DisplayMode {
 		TravelTime, ArrivalTime
 	}
-	
-	/**
-	 * @deprecated
-	 */
-    private RouteActivity routeActivity;
-    
+
     /**
      * Display mode. Default display mode is to show travel time.
      */
@@ -62,26 +55,28 @@ public class TimeLayout extends GridLayout implements OnClickListener {
      */
     public TimeLayout(Context context, AttributeSet attributes) {
         super(context, attributes);
-        
-        String display = attributes.getAttributeValue(null, "display");
-        TimeButton.DisplayMode displayMode = display.equals("duration") ? TimeButton.DisplayMode.Duration : TimeButton.DisplayMode.Time;
-        
+
         AdjustableTime adjustableTime = new AdjustableTime();
         adjustableTime.setToNow();
         
         int numboxes = adjustableTime.getNumTimeBoxes();
-        TimeButton temp = null;
         
         setColumnCount(numboxes);
         
-        for (int i = 0; i < numboxes*2; i++) {
-             TimeButton bt1 = new TimeButton(this, adjustableTime, i, temp, displayMode);
-             bt1.setWidth(140);
+        for (int i = 0; i < numboxes; i++) {
+             TimeButton timeButton = new TimeButton(this, i);
+             timeButton.setTime(adjustableTime.initTime());
              adjustableTime.incrementBy(15);
-             addView(bt1,i);
-             temp = bt1;
+             timeButton.setWidth(150);
+             addView(timeButton, i);
         }
-        
+        for (int i = 0; i < numboxes; i++) {
+        	TimeButton timeButton = new TimeButton(this, numboxes+i);
+        	timeButton.setDuration(-1);
+        	timeButton.setWidth(150);
+        	addView(timeButton, numboxes+i);
+        }
+        setButtonDisplayModeInRow(0, TimeButton.DisplayMode.Time);
         setColumnState(0, TimeButton.State.Selected);
     }
     
@@ -92,9 +87,18 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     public void setDisplayMode(DisplayMode displayMode) {
     	this.displayMode = displayMode;
     	
+    	if(DisplayMode.TravelTime.equals(displayMode)) {
+    		setButtonDisplayModeInRow(1, TimeButton.DisplayMode.Duration);
+    	}
+    	else if(DisplayMode.ArrivalTime.equals(displayMode)) {
+    		setButtonDisplayModeInRow(1, TimeButton.DisplayMode.Time);
+    	}
+    	else {
+    		Log.d("TimeLayout", "Unknown display mode");
+    	}
     }
     
-    public void setColumnState(int column, TimeButton.State state) {
+    private void setColumnState(int column, TimeButton.State state) {
     	int cc = getColumnCount();
     	
     	int k = column % cc;
@@ -102,24 +106,22 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     	((TimeButton) getChildAt(k + cc)).setState(state);
     }
     
-    /**
-     * 
-     * @param routeActivity
-     */
-    public void setRouteActivity(RouteActivity routeActivity){
-        this.routeActivity = routeActivity;
+    private void setButtonDisplayModeInRow(int row, TimeButton.DisplayMode displayMode) {
+    	int cc = getColumnCount();
+    	for(int i = row * cc; i < (row + 1) * cc; i++) {
+    		TimeButton timeButton = (TimeButton) getChildAt(i);
+    		timeButton.setDisplayMode(displayMode);
+    	}
+    }
+    
+    public void setDurationForColumn(int column, int duration) {
+    	// TODO: set duration, arrivalTime = departureTime + duration
     }
 
-
-    // FIXME: I think this should be in RrouteActivity
     @Override
     public void onClick(View v) {
-    	// FIXME: This is very hack-ish
-    	int column = v.getId() % getColumnCount();
+    	int column = ((Integer) v.getTag()) % getColumnCount();
     	
-        Time time = ((TimeButton) v).getTime();
-        Log.d("Time Button " + v.getId(), "OnClick Registered");
-        
         for (int i = 0; i < this.getChildCount(); i++) {
         	((TimeButton) getChildAt(i)).setState(TimeButton.State.None);
         }
@@ -127,7 +129,26 @@ public class TimeLayout extends GridLayout implements OnClickListener {
         setColumnState(column, TimeButton.State.Selected);
         
         this.invalidate(); // TODO: What is this?
-//        routeActivity.doRoute(routeActivity.getOriginCoord(), routeActivity.getDestCoord(), time);
+        
+        if(onSelectListener != null) {
+        	onSelectListener.onSelect(column, (TimeButton) v);
+        }
     }
 
+    private TimeLayoutOnSelectListener onSelectListener;
+    
+    /**
+     * Unlike other common practices in Java, TimeLayout supports only one
+     * listener. And, thus, the method name is 'setListener' instead of
+     * 'addListener'.
+     * 
+     * @param listener
+     */
+    public void setOnSelectListener(TimeLayoutOnSelectListener listener) {
+    	onSelectListener = listener;
+    }
+    
+    public interface TimeLayoutOnSelectListener {
+    	public void onSelect(int column, TimeButton timeButton);
+    }
 }

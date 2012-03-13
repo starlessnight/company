@@ -51,8 +51,10 @@ public class TimeButton extends TextView {
 	}
 	
 	private Time time;
+	private int duration;
+	
 	private State state = State.None;
-	private DisplayMode displayMode;
+	private DisplayMode displayMode = DisplayMode.Time;
 	
 	/**
 	 * 
@@ -61,34 +63,14 @@ public class TimeButton extends TextView {
 	 * @param btnum
 	 * @param before
 	 */
-	public TimeButton(TimeLayout timelayout, Time time, int btnum, TimeButton before, DisplayMode displayMode) {
+	public TimeButton(TimeLayout timelayout, int btnum) {
 		super(timelayout.getContext());
-		this.displayMode = displayMode;
-		this.setOnClickListener(timelayout);
-		this.setId(btnum);
-		setParams(before);
-		setTime(time);
+		setOnClickListener(timelayout);
+		setTag(btnum);
 		setGravity(Gravity.CENTER_HORIZONTAL);
+		setState(State.None);
 	}
-	
-//	/**
-//	 * 
-//	 * @param timelayout
-//	 * @param min
-//	 * @param sec
-//	 * @param btnum
-//	 * @param before
-//	 */
-//	public TimeButton(TimeLayout2 timelayout, int min, int sec, int btnum, TimeButton before, DisplayMode displayMode) {
-//		super(timelayout.getContext());
-//		this.displayMode = displayMode;
-//		this.setOnLongClickListener(timelayout);
-//		this.setId(btnum);
-//		setParams(before);
-//		setText(min + " min " + sec + "sec");
-//		setGravity(Gravity.CENTER_HORIZONTAL);
-//	}
-	
+
 	public State getState() {
 		return state;
 	}
@@ -100,24 +82,42 @@ public class TimeButton extends TextView {
 		setBackgroundColor(state.getBackgroundColor());
 	}
 
-	/**
-	 * 
-	 * @param before
-	 */
-	private void setParams(TimeButton before) {
-		this.setPadding(3, 2, 3, 2);
-		this.setBackgroundColor(Color.parseColor("#3f3e40"));
-		this.setTextColor(Color.WHITE);
+	public void setDisplayMode(DisplayMode displayMode) {
+		this.displayMode = displayMode;
+		display();
 	}
-	
+
 	/**
 	 * 
 	 * @param time
 	 */
-	private void setTime(Time time) {
-		this.time = new Time(time);
-		
-		if(DisplayMode.Time.equals(displayMode)) {
+	public void setTime(Time time) {
+		this.time = time;
+		display();
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public Time getTime() {
+		return time;
+	}
+	
+	/**
+	 * 
+	 * @param duration Duration in seconds
+	 */
+	public void setDuration(int duration) {
+		this.duration = duration;
+		display();
+	}
+	
+	/**
+	 * Displays time or duration in a proper format depending on displayMode.
+	 */
+	private void display() {
+		if(DisplayMode.Time.equals(displayMode) && time != null) {
 			int hour = time.hour;
 			String AMPM = " AM ";
 			if(hour>12) {
@@ -132,22 +132,19 @@ public class TimeButton extends TextView {
 			if(min < 10) {
 				colon += "0";
 			}
-			this.setText("  " + hour + colon + min + AMPM);
+			setText(String.format("%d:%02d %s", hour, min, AMPM));
 		}
 		else if(DisplayMode.Duration.equals(displayMode)) {
-			setText("...");
+			if(duration >= 0) {
+				setText("duration");
+			}
+			else {
+				setText("...");
+			}
 		}
 		else {
 			setText("Unknown");
 		}
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public Time getTime() {
-		return time;
 	}
 	
 	/**

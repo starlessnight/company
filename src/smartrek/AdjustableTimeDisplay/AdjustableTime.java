@@ -19,6 +19,10 @@ public class AdjustableTime extends Time {
 		this.setToNow();
 	}
 	
+	public Time initTime() {
+		return new Time(this);
+	}
+	
 	/*********************************************************************************************************
 	 * 
 	 * 
