@@ -221,9 +221,9 @@ public class RouteActivity extends MapActivity {
         TimeLayout timelayout = (TimeLayout) findViewById(R.id.timelayout);
         timelayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
 			@Override
-			public void onSelect(int column, TimeButton timeButton) {
-				// TODO Auto-generated method stub
-				
+			public void onSelect(int column, TimeButton timeButton1, TimeButton timeButton2) {
+				Time departureTime = timeButton1.getTime();
+				doRoute(originCoord, destCoord, departureTime);
 			}
 		});
 
@@ -645,7 +645,7 @@ public class RouteActivity extends MapActivity {
             // FIXME: Temporary
             if(possibleRoutes != null && possibleRoutes.size() > 0) {
             	Route firstRoute = possibleRoutes.get(0);
-            	timeLayout.setDurationForColumn(timeLayout.getSelectedColumn(), firstRoute.getDuration());
+            	timeLayout.setModelForColumn(timeLayout.getSelectedColumn(), firstRoute);
             }
         }
 

@@ -26,7 +26,7 @@ public class Route {
 	private int rid;
 	private int validated;
 	private int duration;
-	private Time time = null;
+	private Time departureTime = null;
 	private int uid;
 	
 	/*****************************************************************************************
@@ -53,7 +53,7 @@ public class Route {
 		this.routeNodes = getRouteNodesFromBundle(bundle);
 		this.rid = bundle.getInt("rid");
 		this.validated = bundle.getInt("validated");
-		this.time = getTimeFromBundle(bundle);
+		this.departureTime = getTimeFromBundle(bundle);
 	}
 	
 	/*****************************************************************************************
@@ -165,7 +165,7 @@ public class Route {
 			i++;
 		}
 		str += "\n";
-		if(time != null) {
+		if(departureTime != null) {
 			str += "Time = " + timeToString() + "\n";
 		}
 		if(cp != null)
@@ -178,7 +178,7 @@ public class Route {
 	 *
 	 *****************************************************************************************/
 	public String timeToString(){
-		String temp = time.toString();
+		String temp = departureTime.toString();
 		String formattedTime =  temp.substring(0, 4) + "-";
 		formattedTime += temp.substring(6, 8) + "-";
 		formattedTime += temp.substring(4, 6) + " ";
@@ -189,8 +189,21 @@ public class Route {
 		return formattedTime;
 	}
 	
+	public Time getDepartureTime() {
+		return departureTime;
+	}
+	
 	public int getDuration() {
 		return duration;
+	}
+	
+	public Time getArrivalTime() {
+		long timestamp = departureTime.toMillis(false) + (duration * 1000);
+		
+		Time arrivalTime = new Time();
+		arrivalTime.set(timestamp);
+		
+		return arrivalTime;
 	}
 	
 	/*****************************************************************************************
@@ -222,7 +235,7 @@ public class Route {
 	 *
 	 *****************************************************************************************/
 	public void setTime(Time time) {
-		this.time = time;
+		this.departureTime = time;
 	}
 	
 	/*****************************************************************************************

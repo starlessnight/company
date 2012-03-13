@@ -8,14 +8,13 @@ import android.text.format.Time;
 import android.view.Gravity;
 import android.widget.TextView;
 
-/*********************************************************************************************************
- * ********************** TimeButton ********************************************
+/**
  * 
  * 
  * 
  * @author Tim Olivas
  * 
- *********************************************************************************************************/
+ */
 public class TimeButton extends TextView {
 	
 //	public static final int DEFAULT_BACKGROUND_COLOR = Color.parseColor("#3f3e40");

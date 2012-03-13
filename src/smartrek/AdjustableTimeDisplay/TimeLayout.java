@@ -1,5 +1,6 @@
 package smartrek.AdjustableTimeDisplay;
 
+import smartrek.models.Route;
 import android.content.Context;
 import android.text.format.Time;
 import android.util.AttributeSet;
@@ -23,7 +24,14 @@ public class TimeLayout extends GridLayout implements OnClickListener {
      */
     private DisplayMode displayMode = DisplayMode.TravelTime;
     
-    private int selectedColumn = -1;
+    /**
+     * We know tightly-coupled classes are a bad design, but we'll stick with
+     * this because we are under a tight time constraint. We'll revisit this
+     * issue later.
+     */
+    private Route[] models = new Route[128];
+    
+    private int selectedColumn = 0;
     
 //    /**
 //     * 
@@ -123,14 +131,17 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     /**
      * 
      * @param column Column number (zero-based)
-     * @param duration Duration in seconds
+     * @param model An instance of a model class
      */
-    public void setDurationForColumn(int column, int duration) {
-    	// TODO: set duration, arrivalTime = departureTime + duration
+    public void setModelForColumn(int column, Route model) {
+    	models[column] = model;
     	
     	// Get the button on the second row
     	TimeButton timeButton = (TimeButton) getChildAt(getColumnCount() + column);
-    	timeButton.setDuration(duration);
+    	timeButton.setTime(model.getArrivalTime());
+    	timeButton.setDuration(model.getDuration());
+    	
+    	Log.d("TimeLayout", "duration = " + model.getDuration());
     }
     
     public Time getSelectedTime() {
@@ -151,7 +162,8 @@ public class TimeLayout extends GridLayout implements OnClickListener {
         
         if(onSelectListener != null) {
         	selectedColumn = column;
-        	onSelectListener.onSelect(column, (TimeButton) v);
+        	onSelectListener.onSelect(column, (TimeButton) getChildAt(column),
+        			(TimeButton) getChildAt(getColumnCount() + column));
         }
     }
 
@@ -169,6 +181,12 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     }
     
     public interface TimeLayoutOnSelectListener {
-    	public void onSelect(int column, TimeButton timeButton);
+    	/**
+    	 * 
+    	 * @param column Selected column
+    	 * @param timeButton1 TimeButton on the first row
+    	 * @param timeButton2 TimeButton on the second row
+    	 */
+    	public void onSelect(int column, TimeButton timeButton1, TimeButton timeButton2);
     }
 }
