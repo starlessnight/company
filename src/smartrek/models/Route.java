@@ -193,6 +193,15 @@ public class Route {
 		return duration;
 	}
 	
+	public Time getArrivalTime() {
+		long timestamp = time.toMillis(false) + (duration * 1000);
+		
+		Time arrivalTime = new Time();
+		arrivalTime.set(timestamp);
+		
+		return arrivalTime;
+	}
+	
 	/*****************************************************************************************
 	 * 
 	 *

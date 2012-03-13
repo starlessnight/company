@@ -645,7 +645,7 @@ public class RouteActivity extends MapActivity {
             // FIXME: Temporary
             if(possibleRoutes != null && possibleRoutes.size() > 0) {
             	Route firstRoute = possibleRoutes.get(0);
-            	timeLayout.setDurationForColumn(timeLayout.getSelectedColumn(), firstRoute.getDuration());
+            	timeLayout.setModelForColumn(timeLayout.getSelectedColumn(), firstRoute);
             }
         }
 
