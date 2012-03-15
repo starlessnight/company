@@ -426,13 +426,6 @@ public class HomeActivity extends Activity implements OnClickListener, OnTouchLi
 	}
 	
 	private class FavoriteAddressFetchTask extends AsyncTask<Integer, Object, List<Address>> {
-		
-		/**
-		 * Default constructor
-		 */
-		public FavoriteAddressFetchTask() {
-			super();
-		}
 
 		@Override
 		protected List<Address> doInBackground(Integer... params) {

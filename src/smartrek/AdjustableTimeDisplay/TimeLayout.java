@@ -101,8 +101,10 @@ public class TimeLayout extends LinearLayout implements OnClickListener {
         Log.d("Time Button " + v.getId(), "OnClick Registered");
         for (int i = 0; i < this.getChildCount(); i++) {
             ((TimeButton) getChildAt(i)).resetColor();
-            ((TimeButton) travelScroll.getChildAt(i)).resetColor();
-            ((TimeButton) arriveScroll.getChildAt(i)).resetColor();
+            if(travelScroll != null)
+            	((TimeButton) travelScroll.getChildAt(i)).resetColor();
+            if(arriveScroll != null)
+            	((TimeButton) arriveScroll.getChildAt(i)).resetColor();
         }
 
         v.setBackgroundColor(Color.parseColor("#cea350"));
