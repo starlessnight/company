@@ -168,10 +168,20 @@ public class RouteActivity extends MapActivity {
         //   3. Draw routes on the map view
         new GeocodingTask().execute(origin, destination);
         
-        setupScrollTime(); 
+    	timeLayout = (TimeLayout) findViewById(R.id.timelayout);
+        timeLayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
+			@Override
+			public void onSelect(int column, TimeButton timeButton1, TimeButton timeButton2) {
+				Time departureTime = timeButton1.getTime();
+				doRoute(originCoord, destCoord, departureTime);
+			}
+		});
+
+        int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
         
-        TimeLayout tl = (TimeLayout) findViewById(R.id.timelayout);
-        //selectedTime = tb.getTime();
+        // FIXME: Sloppy
+        timeLayout.setDisplayMode((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? TimeLayout.DisplayMode.TravelTime : TimeLayout.DisplayMode.ArrivalTime);
+        
         // FIXME: Temporary solution
         selectedTime = new Time();
         selectedTime.setToNow();
@@ -183,53 +193,9 @@ public class RouteActivity extends MapActivity {
         coupTitleBar = (TextView) findViewById(R.id.adjustableCouponLable);
         coupTitleBar.setVisibility(View.GONE);
         //Log.d("RouteActivity", "current selected time is " + selectedTime.toString());
-        
 
-        int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
-        
-        // FIXME: Sloppy
-        timeLayout.setDisplayMode((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? TimeLayout.DisplayMode.TravelTime : TimeLayout.DisplayMode.ArrivalTime);
     }
-    
-//    @Override
-//    protected Dialog onCreateDialog(int id) {
-//        Dialog dialog = null;
-//        
-//        switch(id) {
-//        case DIALOG_ROUTE_NOT_FOUND:
-//            dialog = new AlertDialog.Builder(this).create();
-//            dialog.setTitle("Error");
-//            ((AlertDialog)dialog).setMessage("Could not found routes.");
-//            break;
-//        }
-//        
-//        return dialog;
-//    }
-    
-    /**
-     * 
-     */
-    private void setupScrollTime() {
-        
-    	timeLayout = (TimeLayout) findViewById(R.id.timelayout);
-//        arriveTime = (TimeLayout) findViewById(R.id.arrivaltimelayout);
-//        travelTime = (TimeLayout) findViewById(R.id.traveltimelayout);
-        
-//        travelTime.setVisibility(View.GONE);
-//        arriveTime.setVisibility(View.GONE);
-        
-        TimeLayout timelayout = (TimeLayout) findViewById(R.id.timelayout);
-        timelayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
-			@Override
-			public void onSelect(int column, TimeButton timeButton1, TimeButton timeButton2) {
-				Time departureTime = timeButton1.getTime();
-				doRoute(originCoord, destCoord, departureTime);
-			}
-		});
 
-//        timelayout.setDependents(arriveTime, travelTime);
-    }
-        
     /**
      * 
      * @param origin
