@@ -55,14 +55,20 @@ public final class Cache {
 		return instance;
 	}
 	
-	public boolean isValid(Data data) {
+	public synchronized boolean isCacheAvailable(String url) {
+		Data data = storage.get(url);
+		
+		return isValid(data);
+	}
+	
+	public synchronized boolean isValid(Data data) {
 		Time currentTime = new Time();
 		currentTime.setToNow();
 		
 		return data != null && Time.compare(data.expires, currentTime) > 0;
 	}
 	
-	public Object fetch(String url) throws IOException {
+	public synchronized Object fetch(String url) throws IOException {
 		if(storage.containsKey(url)) {
 			Data data = storage.get(url);
 			
@@ -70,7 +76,7 @@ public final class Cache {
 				return data.userdata;
 			}
 			else {
-				// TODO: Clear off old data
+				storage.remove(url);
 			}
 		}
 		else {
