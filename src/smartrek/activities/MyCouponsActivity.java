@@ -5,19 +5,19 @@ import java.util.ArrayList;
 import smartrek.adapters.ImageAdapter;
 import smartrek.mappers.Coupon_Communicator;
 import smartrek.models.Coupon;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 
-public class MyCouponsActivity extends Activity {
+public class MyCouponsActivity extends FragmentActivity {
 	
 	private Context context;
 	private ProgressDialog dialog;
