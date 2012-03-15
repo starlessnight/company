@@ -340,7 +340,6 @@ public class RouteActivity extends MapActivity {
         }
         
         /* Set values into route to be passed to next Activity */
-        route.setTime(selectedTime);
         route.setOD(origin, destination);
         route.setUserId(uid);
         
