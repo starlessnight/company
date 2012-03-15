@@ -8,22 +8,52 @@ import android.text.format.Time;
 import android.view.Gravity;
 import android.widget.TextView;
 
-/*********************************************************************************************************
- * ********************** TimeButton ********************************************
+/**
  * 
  * 
  * 
  * @author Tim Olivas
  * 
- *********************************************************************************************************/
+ */
 public class TimeButton extends TextView {
+	
+//	public static final int DEFAULT_BACKGROUND_COLOR = Color.parseColor("#3f3e40");
+//	public static final int BACKGROUND
+	
+	public enum State {
+		None, Selected, Disabled;
+		
+		public int getTextColor() {
+			if(Disabled.equals(this)) {
+				return Color.parseColor("#C0C0C0");
+			}
+			else {
+				return Color.parseColor("#FFFFFF");
+			}
+		}
+		
+		public int getBackgroundColor() {
+			if(None.equals(this)) {
+				return Color.parseColor("#3f3e40");
+			}
+			else if(Selected.equals(this)) {
+				return Color.parseColor("#cea350");
+			}
+			else {
+				return Color.parseColor("#3f3e40");
+			}
+		}
+	}
 	
 	public enum DisplayMode {
 		Time, Duration
 	}
 	
 	private Time time;
-	private DisplayMode displayMode;
+	private int duration;
+	
+	private State state = State.None;
+	private DisplayMode displayMode = DisplayMode.Time;
 	
 	/**
 	 * 
@@ -32,52 +62,61 @@ public class TimeButton extends TextView {
 	 * @param btnum
 	 * @param before
 	 */
-	public TimeButton(TimeLayout timelayout, Time time, int btnum, TimeButton before, DisplayMode displayMode) {
+	public TimeButton(TimeLayout timelayout, int btnum) {
 		super(timelayout.getContext());
-		this.displayMode = displayMode;
-		this.setOnClickListener(timelayout);
-		this.setId(btnum);
-		setParams(before);
-		setTime(time);
+		setOnClickListener(timelayout);
+		setTag(btnum);
 		setGravity(Gravity.CENTER_HORIZONTAL);
+		setState(State.None);
+	}
+
+	public State getState() {
+		return state;
 	}
 	
-	/**
-	 * 
-	 * @param timelayout
-	 * @param min
-	 * @param sec
-	 * @param btnum
-	 * @param before
-	 */
-	public TimeButton(TimeLayout2 timelayout, int min, int sec, int btnum, TimeButton before, DisplayMode displayMode) {
-		super(timelayout.getContext());
+	public void setState(State state) {
+		this.state = state;
+		
+		setTextColor(state.getTextColor());
+		setBackgroundColor(state.getBackgroundColor());
+	}
+
+	public void setDisplayMode(DisplayMode displayMode) {
 		this.displayMode = displayMode;
-		this.setOnLongClickListener(timelayout);
-		this.setId(btnum);
-		setParams(before);
-		setText(min + " min " + sec + "sec");
-		setGravity(Gravity.CENTER_HORIZONTAL);
+		display();
 	}
 
 	/**
 	 * 
-	 * @param before
+	 * @param time
 	 */
-	private void setParams(TimeButton before) {
-		this.setPadding(3, 2, 3, 2);
-		this.setBackgroundColor(Color.parseColor("#3f3e40"));
-		this.setTextColor(Color.WHITE);
+	public void setTime(Time time) {
+		this.time = time;
+		display();
 	}
 	
 	/**
 	 * 
-	 * @param time
+	 * @return
 	 */
-	private void setTime(Time time) {
-		this.time = new Time(time);
-		
-		if(DisplayMode.Time.equals(displayMode)) {
+	public Time getTime() {
+		return time;
+	}
+	
+	/**
+	 * 
+	 * @param duration Duration in seconds
+	 */
+	public void setDuration(int duration) {
+		this.duration = duration;
+		display();
+	}
+	
+	/**
+	 * Displays time or duration in a proper format depending on displayMode.
+	 */
+	private void display() {
+		if(DisplayMode.Time.equals(displayMode) && time != null) {
 			int hour = time.hour;
 			String AMPM = " AM ";
 			if(hour>12) {
@@ -88,34 +127,20 @@ public class TimeButton extends TextView {
 				hour = 12;
 			}
 			int min = time.minute;
-			String colon = " : ";
-			if(min < 10) {
-				colon += "0";
-			}
-			this.setText("  " + hour + colon + min + AMPM);
+			setText(String.format("%d:%02d %s", hour, min, AMPM));
 		}
 		else if(DisplayMode.Duration.equals(displayMode)) {
-			setText("...");
+			// TODO: Need to consider cases where duration > 3600
+			if(duration >= 0) {
+				setText(String.format("%d min", Math.round((float)duration/60)));
+			}
+			else {
+				setText("...");
+			}
 		}
 		else {
 			setText("Unknown");
 		}
-	}
-	
-	/**
-	 * 
-	 */
-	public void resetColor(){
-		this.setBackgroundColor(Color.parseColor("#3f3e40"));
-		this.setTextColor(Color.WHITE);
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public Time getTime() {
-		return time;
 	}
 	
 	/**

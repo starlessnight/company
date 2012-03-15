@@ -17,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import smartrek.models.Route;
+import smartrek.util.Cache;
 import smartrek.util.HTTP;
 import smartrek.util.RouteNode;
 import android.text.format.Time;
@@ -52,8 +53,9 @@ public class RouteMapper extends Mapper {
 	 * @param time Departure time
 	 * @return A list of all possible routes
 	 * @throws JSONException
+	 * @throws IOException 
 	 */
-	public List<Route> getPossibleRoutes(GeoPoint origin, GeoPoint destination, Time time) throws JSONException {
+	public List<Route> getPossibleRoutes(GeoPoint origin, GeoPoint destination, Time time) throws JSONException, IOException {
 			
 //		this.loc1 = loc1;
 //		this.loc2 = loc2;
@@ -68,7 +70,11 @@ public class RouteMapper extends Mapper {
 		// Querry the server for the routes
 		Log.d("Route_Communicator", "Querying Sever with");
 		Log.d("Route_Communicator",routeurl);
-		String route_response = HTTP.downloadText(routeurl);
+		//String routeResponse = HTTP.downloadText(routeurl);
+		
+		Cache cache = Cache.getInstance();
+		String routeResponse = (String) cache.fetch(routeurl);
+		
 		Log.d("Route_Communicator", "Query Complete, Got Route Information");
 		
 		
@@ -77,7 +83,7 @@ public class RouteMapper extends Mapper {
 		List<Route> routes = new ArrayList<Route>();
 		
 
-		JSONArray array = new JSONArray(route_response);
+		JSONArray array = new JSONArray(routeResponse);
 		for(int i = 0; i <array.length(); i++) {
 			JSONObject object = (JSONObject) array.get(i);
 			JSONArray rts = (JSONArray) object.get("ROUTE");
@@ -91,9 +97,11 @@ public class RouteMapper extends Mapper {
 				routeNodes.add(node);
 			}
 			
+			// Web service returns the estimated travel time in minutes, but we
+			// internally store it as seconds.
 			double ett = object.getDouble("ESTIMATED_TRAVEL_TIME");
 
-			Route route = new Route(routeNodes, 0, (float)ett);
+			Route route = new Route(routeNodes, 0, (int)(ett * 60));
 			routes.add(route);
 		}
 

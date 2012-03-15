@@ -7,6 +7,7 @@ import java.util.Stack;
 import smartrek.AdjustableCouponDisplay.CouponLayout;
 import smartrek.AdjustableTimeDisplay.TimeButton;
 import smartrek.AdjustableTimeDisplay.TimeLayout;
+import smartrek.AdjustableTimeDisplay.TimeLayout.TimeLayoutOnSelectListener;
 import smartrek.mappers.Coupon_Communicator;
 import smartrek.mappers.RouteMapper;
 import smartrek.models.Coupon;
@@ -94,8 +95,9 @@ public class RouteActivity extends MapActivity {
     
     private Time selectedTime;
     
-    private TimeLayout arriveTime;
-    private TimeLayout travelTime;
+    private TimeLayout timeLayout;
+//    private TimeLayout arriveTime;
+//    private TimeLayout travelTime;
     
     private Route selectedRoute;
     
@@ -159,10 +161,6 @@ public class RouteActivity extends MapActivity {
         
         destination = extras.getString("destination");
         Log.d("RouteActivity","Got destination " + destination);
-        
-        // FIXME: temporary
-        //origin = "1905 W.Jefferson Street, Phoenix, AZ, 85007";
-        //destination = "2825 N.Central Ave,Phoenix,AZ 85012";
 
         // Workflow:
         //   1. Geocoding (address to coordinate)
@@ -173,8 +171,10 @@ public class RouteActivity extends MapActivity {
         setupScrollTime(); 
         
         TimeLayout tl = (TimeLayout) findViewById(R.id.timelayout);
-        TimeButton tb = ((TimeButton) tl.getChildAt(0));
-        selectedTime = tb.getTime();
+        //selectedTime = tb.getTime();
+        // FIXME: Temporary solution
+        selectedTime = new Time();
+        selectedTime.setToNow();
         
         couponScroll = (HorizontalScrollView) findViewById(R.id.scrollCoupon);
         couponScroll.setScrollContainer(true);
@@ -182,13 +182,13 @@ public class RouteActivity extends MapActivity {
         couponLayout = (CouponLayout)couponScroll.getChildAt(0);
         coupTitleBar = (TextView) findViewById(R.id.adjustableCouponLable);
         coupTitleBar.setVisibility(View.GONE);
-        Log.d("RouteActivity", "current selected time is " + selectedTime.toString());
+        //Log.d("RouteActivity", "current selected time is " + selectedTime.toString());
         
 
         int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
         
-        travelTime.setVisibility((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? View.VISIBLE : View.GONE);
-        arriveTime.setVisibility((displayMode & MapDisplayActivity.TIME_DISPLAY_ARRIVAL) != 0 ? View.VISIBLE : View.GONE);
+        // FIXME: Sloppy
+        timeLayout.setDisplayMode((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? TimeLayout.DisplayMode.TravelTime : TimeLayout.DisplayMode.ArrivalTime);
     }
     
 //    @Override
@@ -211,16 +211,23 @@ public class RouteActivity extends MapActivity {
      */
     private void setupScrollTime() {
         
-        arriveTime = (TimeLayout) findViewById(R.id.arrivaltimelayout);
-        travelTime = (TimeLayout) findViewById(R.id.traveltimelayout);
+    	timeLayout = (TimeLayout) findViewById(R.id.timelayout);
+//        arriveTime = (TimeLayout) findViewById(R.id.arrivaltimelayout);
+//        travelTime = (TimeLayout) findViewById(R.id.traveltimelayout);
         
-        travelTime.setVisibility(View.GONE);
-        arriveTime.setVisibility(View.GONE);
+//        travelTime.setVisibility(View.GONE);
+//        arriveTime.setVisibility(View.GONE);
         
         TimeLayout timelayout = (TimeLayout) findViewById(R.id.timelayout);
-        timelayout.setRouteActivity(this); 
+        timelayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
+			@Override
+			public void onSelect(int column, TimeButton timeButton1, TimeButton timeButton2) {
+				Time departureTime = timeButton1.getTime();
+				doRoute(originCoord, destCoord, departureTime);
+			}
+		});
 
-        timelayout.setDependents(arriveTime, travelTime);
+//        timelayout.setDependents(arriveTime, travelTime);
     }
         
     /**
@@ -231,7 +238,7 @@ public class RouteActivity extends MapActivity {
      */
     public void doRoute(GeoPoint origin, GeoPoint destination, Time time) {
         dialog.show();
-        new BackgroundDownloadTask().execute(origin, destination, time);
+        new RouteTask().execute(origin, destination, time);
     }
     
     /**
@@ -481,7 +488,7 @@ public class RouteActivity extends MapActivity {
         Time time = new Time();
         time.setToNow();
         
-        new BackgroundDownloadTask().execute(origin, destination, time);
+        new RouteTask().execute(origin, destination, time);
     }
     
     /**
@@ -514,8 +521,8 @@ public class RouteActivity extends MapActivity {
             } else if (0 != extras.getInt("display")) {
                 int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
                 
-                travelTime.setVisibility((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? View.VISIBLE : View.GONE);
-                arriveTime.setVisibility((displayMode & MapDisplayActivity.TIME_DISPLAY_ARRIVAL) != 0 ? View.VISIBLE : View.GONE);
+                // FIXME: Sloppy
+                timeLayout.setDisplayMode((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? TimeLayout.DisplayMode.TravelTime : TimeLayout.DisplayMode.ArrivalTime);
             }
         } 
     }
@@ -585,7 +592,7 @@ public class RouteActivity extends MapActivity {
      *  
      *
      */
-    protected class BackgroundDownloadTask extends AsyncTask<Object, Void, Void> {
+    protected class RouteTask extends AsyncTask<Object, Void, List<Route>> {
         
         @Override
         protected void onPreExecute () {
@@ -593,7 +600,7 @@ public class RouteActivity extends MapActivity {
         }
         
         @Override
-        protected Void doInBackground(Object... args) {  
+        protected List<Route> doInBackground(Object... args) {  
             
             GeoPoint origin = (GeoPoint)args[0];
             GeoPoint destination = (GeoPoint)args[1];
@@ -622,7 +629,7 @@ public class RouteActivity extends MapActivity {
                 onRouteFound(possibleRoutes, time);
             }
             
-            return null;
+            return possibleRoutes;
         }
         
         /**
@@ -630,10 +637,16 @@ public class RouteActivity extends MapActivity {
          * reside in the main loop.
          */
         @Override
-        protected void onPostExecute(Void v) {
+        protected void onPostExecute(List<Route> possibleRoutes) {
             dialog.dismiss();
             
             reportExceptions();
+            
+            // FIXME: Temporary
+            if(possibleRoutes != null && possibleRoutes.size() > 0) {
+            	Route firstRoute = possibleRoutes.get(0);
+            	timeLayout.setModelForColumn(timeLayout.getSelectedColumn(), firstRoute);
+            }
         }
 
     }
