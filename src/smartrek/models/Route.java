@@ -33,11 +33,12 @@ public class Route {
 	 * 
 	 *
 	 *****************************************************************************************/
-	public Route (ArrayList<RouteNode> locs, int rid, int duration) {
+	public Route (ArrayList<RouteNode> locs, int rid, Time departureTime, int duration) {
 		//this.cp = cp;
 		this.routeNodes = locs;
 		this.rid = rid;
 		this.validated = 0;
+		this.departureTime = departureTime;
 		this.duration = duration;
 	}
 	
@@ -234,7 +235,7 @@ public class Route {
 	 * 
 	 *
 	 *****************************************************************************************/
-	public void setTime(Time time) {
+	public void setDepartureTime(Time time) {
 		this.departureTime = time;
 	}
 	

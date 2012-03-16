@@ -1,16 +1,14 @@
 package smartrek.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.CheckBox;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 
-public class MapDisplayActivity extends Activity {
+public class MapDisplayActivity extends FragmentActivity {
     
     /**
      * Name of the shared preference file

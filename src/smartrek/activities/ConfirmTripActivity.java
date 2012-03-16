@@ -2,12 +2,12 @@ package smartrek.activities;
 
 import smartrek.mappers.RouteMapper;
 import smartrek.models.Route;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -15,7 +15,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class ConfirmTripActivity extends Activity implements OnClickListener {
+public class ConfirmTripActivity extends FragmentActivity implements OnClickListener {
 
 	private Button confirmButton;
 	private Route route;

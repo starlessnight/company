@@ -1,15 +1,15 @@
 package smartrek.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 
-public class MainActivity extends Activity implements AnimationListener {
+public class MainActivity extends FragmentActivity implements AnimationListener {
 	
 	private ImageView logo;
 	

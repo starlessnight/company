@@ -1,9 +1,9 @@
 package smartrek.activities;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 
-public class RegisterActivity extends Activity {
+public class RegisterActivity extends FragmentActivity {
 	
     /** Called when the activity is first created. */
     @Override
