@@ -144,8 +144,13 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     	Log.d("TimeLayout", "duration = " + model.getDuration());
     }
     
-    public Time getSelectedTime() {
-    	return null;
+    public Time getDepartureTime(int column) {
+    	TimeButton timeButton = (TimeButton) getChildAt(column);
+    	return timeButton.getTime();
+    }
+    
+    public Time getSelectedDepartureTime() {
+    	return getDepartureTime(selectedColumn);
     }
 
     @Override

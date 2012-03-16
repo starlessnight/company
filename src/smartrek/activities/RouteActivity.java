@@ -169,8 +169,12 @@ public class RouteActivity extends MapActivity {
         GeocodingTaskCallback callback = new GeocodingTaskCallback() {
 			@Override
 			public void callback(GeoPoint origin, GeoPoint destination) {
-				// get five time slots from timeLayout
-				// make five route requests with these time slots
+				// TODO: Popup a dialog
+				for(int i = 0; i < 5; i++) {
+					Time departureTime = timeLayout.getDepartureTime(i);
+					new RouteTask().execute(origin, destination, departureTime);
+				}
+				// TODO: Close the dialog
 			}
 		};
         new GeocodingTask(callback).execute(origin, destination);
