@@ -108,7 +108,7 @@ public class RouteActivity extends MapActivity {
     private TextView coupTitleBar;
     private Context context;
     
-    private final String LOGIN_PREFS = "login_file";
+    public static final String LOGIN_PREFS = "login_file";
     
     public GeoPoint getOriginCoord() {
         return originCoord;
@@ -166,7 +166,14 @@ public class RouteActivity extends MapActivity {
         //   1. Geocoding (address to coordinate)
         //   2. Request for routes
         //   3. Draw routes on the map view
-        new GeocodingTask().execute(origin, destination);
+        GeocodingTaskCallback callback = new GeocodingTaskCallback() {
+			@Override
+			public void callback(GeoPoint origin, GeoPoint destination) {
+				// get five time slots from timeLayout
+				// make five route requests with these time slots
+			}
+		};
+        new GeocodingTask(callback).execute(origin, destination);
         
         setupScrollTime(); 
         
@@ -546,9 +553,26 @@ public class RouteActivity extends MapActivity {
             dialog.show();
         }
     }
-    
 
+    /**
+     * Defines an interface that is going to be called when GeocodingTask.execute()
+     * is completed.
+     */
+	interface GeocodingTaskCallback {
+		public void callback(GeoPoint origin, GeoPoint destination);
+	}
+
+	/**
+	 * Asynchronous task that converts a postal address to a geographic coordinate.
+	 */
     private class GeocodingTask extends AsyncTask<String, Void, Void> {
+    	
+    	GeocodingTaskCallback callback;
+    	
+    	public GeocodingTask(GeocodingTaskCallback callback) {
+    		super();
+    		this.callback = callback;
+    	}
         
         @Override
         protected void onPreExecute () {
@@ -574,8 +598,9 @@ public class RouteActivity extends MapActivity {
                 exceptions.push(new Exception("Could not find a coordinate of the destination address."));
             }
             
-            if(!coordNotFound) {
-                onGeoLocationFound(originCoord, destCoord);
+            if(!coordNotFound && callback != null) {
+            	callback.callback(originCoord, destCoord);
+                //onGeoLocationFound(originCoord, destCoord);
             }
             
             return null;
@@ -589,8 +614,7 @@ public class RouteActivity extends MapActivity {
     }
 
     /**
-     *  
-     *
+     * Asynchronous task to request for a route from the server. 
      */
     protected class RouteTask extends AsyncTask<Object, Void, List<Route>> {
         
@@ -605,9 +629,6 @@ public class RouteActivity extends MapActivity {
             GeoPoint origin = (GeoPoint)args[0];
             GeoPoint destination = (GeoPoint)args[1];
             Time time = (Time)args[2];
-            
-//            time = new Time();
-//            time.setToNow();
             
             RouteMapper mapper = new RouteMapper();
             
