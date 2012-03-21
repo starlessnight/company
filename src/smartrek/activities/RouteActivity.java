@@ -96,8 +96,6 @@ public class RouteActivity extends MapActivity {
     private Time selectedTime;
     
     private TimeLayout timeLayout;
-//    private TimeLayout arriveTime;
-//    private TimeLayout travelTime;
     
     private Route selectedRoute;
     
@@ -144,7 +142,7 @@ public class RouteActivity extends MapActivity {
         mc.animateTo(new GeoPoint(lat, lon));
         
         dialog = new ProgressDialog(RouteActivity.this);
-        dialog.setMessage("Computing Routes...");
+        dialog.setMessage("Geocoding...");
         dialog.setIndeterminate(true);
         dialog.setCancelable(false);
              
@@ -169,8 +167,12 @@ public class RouteActivity extends MapActivity {
         GeocodingTaskCallback callback = new GeocodingTaskCallback() {
 			@Override
 			public void callback(GeoPoint origin, GeoPoint destination) {
+				originCoord = origin;
+				destCoord = destination;
+				
 				// TODO: Popup a dialog
-				for(int i = 0; i < 5; i++) {
+				
+				for(int i = 0; i < 1; i++) {
 					Time departureTime = timeLayout.getDepartureTime(i);
 					new RouteTask().execute(origin, destination, departureTime);
 				}
@@ -589,6 +591,8 @@ public class RouteActivity extends MapActivity {
         
         @Override
         protected void onPreExecute () {
+        	// FIXME: This causes a threading exception
+        	//dialog.setMessage("Computing routes...");
             dialog.show();
         }
         
