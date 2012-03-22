@@ -97,8 +97,6 @@ public class RouteActivity extends MapActivity {
     
     private TimeLayout timeLayout;
     
-    private Route selectedRoute;
-    
     private ArrayList<Coupon> coupons;
     private List<Route> routes;
     private HorizontalScrollView couponScroll;
@@ -120,8 +118,10 @@ public class RouteActivity extends MapActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pre_reservation_map);    
-       
+        
         Log.d("RouteActivity", "Starting RouteActivity");
+
+        SharedPreferences prefs = getSharedPreferences(LOGIN_PREFS, MODE_PRIVATE);
         
         mapView = (MapView) findViewById(R.id.mapview);
         
@@ -145,48 +145,19 @@ public class RouteActivity extends MapActivity {
         dialog.setMessage("Geocoding...");
         dialog.setIndeterminate(true);
         dialog.setCancelable(false);
-             
-        /* Get the extras from the bundle */
-        Bundle extras = getIntent().getExtras();
         
-        SharedPreferences prefs = getSharedPreferences(LOGIN_PREFS, MODE_PRIVATE);
-        uid = prefs.getInt("uid", -1);
         
-        Log.d("RouteActivity","Got user id " + uid);
-     
-        origin = extras.getString("origin");
-        Log.d("RouteActivity","Got origin " + origin);
-        
-        destination = extras.getString("destination");
-        Log.d("RouteActivity","Got destination " + destination);
-
-        // Workflow:
-        //   1. Geocoding (address to coordinate)
-        //   2. Request for routes
-        //   3. Draw routes on the map view
-        GeocodingTaskCallback callback = new GeocodingTaskCallback() {
-			@Override
-			public void callback(GeoPoint origin, GeoPoint destination) {
-				originCoord = origin;
-				destCoord = destination;
-				
-				// TODO: Popup a dialog
-				
-				for(int i = 0; i < 1; i++) {
-					Time departureTime = timeLayout.getDepartureTime(i);
-					new RouteTask().execute(origin, destination, departureTime);
-				}
-				// TODO: Close the dialog
-			}
-		};
-        new GeocodingTask(callback).execute(origin, destination);
-        
+        //
+        // Set up time layout
+        //        
     	timeLayout = (TimeLayout) findViewById(R.id.timelayout);
         timeLayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
 			@Override
 			public void onSelect(int column, TimeButton timeButton1, TimeButton timeButton2) {
 				Time departureTime = timeButton1.getTime();
-				doRoute(originCoord, destCoord, departureTime);
+				//doRoute(originCoord, destCoord, departureTime);
+				dialog.show();
+		        new RouteTask().execute(originCoord, destCoord, departureTime, column, true);
 			}
 		});
 
@@ -198,6 +169,53 @@ public class RouteActivity extends MapActivity {
         // FIXME: Temporary solution
         selectedTime = new Time();
         selectedTime.setToNow();
+        
+        //
+        //
+             
+        /* Get the extras from the bundle */
+        Bundle extras = getIntent().getExtras();
+        
+        uid = prefs.getInt("uid", -1);
+        
+        Log.d("RouteActivity","Got user id " + uid);
+     
+        origin = extras.getString("origin");
+        Log.d("RouteActivity","Got origin " + origin);
+        
+        destination = extras.getString("destination");
+        Log.d("RouteActivity","Got destination " + destination);
+        
+        // Workflow:
+        //   1. Geocoding (address to coordinate)
+        //   2. Request for routes
+        //   3. Draw routes on the map view
+        GeocodingTaskCallback callback = new GeocodingTaskCallback() {
+			@Override
+			public void preCallback() {
+	            dialog.show();
+			}
+        	
+        	@Override
+			public void callback(GeoPoint origin, GeoPoint destination) {
+				originCoord = origin;
+				destCoord = destination;
+
+				for(int i = 0; i < 3; i++) {
+					Time departureTime = timeLayout.getDepartureTime(i);
+					
+					// `i` is going to be `selectedColumn` for the time layout
+					// Only updates maps for `i = 0`
+					new RouteTask().execute(origin, destination, departureTime, i, (i == 0));
+				}
+			}
+			
+			@Override
+			public void postCallback() {
+				dialog.setMessage("Computing routes...");
+			}
+		};
+        new GeocodingTask(callback).execute(origin, destination);
         
         couponScroll = (HorizontalScrollView) findViewById(R.id.scrollCoupon);
         couponScroll.setScrollContainer(true);
@@ -227,7 +245,7 @@ public class RouteActivity extends MapActivity {
      * @param possibleRoutes
      * @param time
      */
-    private void onRouteFound(List<Route> possibleRoutes, Time time) {
+    private void updateMap(List<Route> possibleRoutes, Time time) {
         
         if(possibleRoutes != null && possibleRoutes.size() > 0) {
             /* Get a midpoint to center the view of  the routes */
@@ -454,22 +472,6 @@ public class RouteActivity extends MapActivity {
     }
     
     /**
-     * This function will be called when GeocodingTask.execute() succeeds.
-     * 
-     * @param origin
-     * @param destination
-     */
-    private void onGeoLocationFound(GeoPoint origin, GeoPoint destination) {
-        originCoord = origin;
-        destCoord = destination;
-        
-        Time time = new Time();
-        time.setToNow();
-        
-        new RouteTask().execute(origin, destination, time);
-    }
-    
-    /**
      * 
      */
     @Override
@@ -530,7 +532,9 @@ public class RouteActivity extends MapActivity {
      * is completed.
      */
 	interface GeocodingTaskCallback {
+		public void preCallback();
 		public void callback(GeoPoint origin, GeoPoint destination);
+		public void postCallback();
 	}
 
 	/**
@@ -547,7 +551,9 @@ public class RouteActivity extends MapActivity {
         
         @Override
         protected void onPreExecute () {
-            dialog.show();
+        	if(callback != null) {
+        		callback.preCallback();
+        	}
         }
         
         @Override
@@ -580,8 +586,17 @@ public class RouteActivity extends MapActivity {
         @Override
         protected void onPostExecute(Void v) {
             reportExceptions();
+            if(callback != null) {
+            	callback.postCallback();
+            }
         }
 
+    }
+    
+    public interface RouteTaskCallback {
+    	public void preCallback();
+    	public void callback(List<Route> routes);
+    	public void postCallback();
     }
 
     /**
@@ -589,19 +604,23 @@ public class RouteActivity extends MapActivity {
      */
     protected class RouteTask extends AsyncTask<Object, Void, List<Route>> {
         
+    	private int selectedColumn;
+    	
         @Override
         protected void onPreExecute () {
-        	// FIXME: This causes a threading exception
-        	//dialog.setMessage("Computing routes...");
             dialog.show();
+            //timeLayout.setColumnState(selectedColumn, TimeButton.State.InProgress);
         }
         
         @Override
         protected List<Route> doInBackground(Object... args) {  
             
+        	// FIXME: Potential array out of boundary issues
             GeoPoint origin = (GeoPoint)args[0];
             GeoPoint destination = (GeoPoint)args[1];
             Time time = (Time)args[2];
+            selectedColumn = (Integer)args[3];
+            boolean updateMap = (Boolean)args[4];
             
             RouteMapper mapper = new RouteMapper();
             
@@ -619,8 +638,8 @@ public class RouteActivity extends MapActivity {
                 exceptions.push(e);
             }
             
-            if(possibleRoutes != null) {
-                onRouteFound(possibleRoutes, time);
+            if(possibleRoutes != null && updateMap) {
+                updateMap(possibleRoutes, time);
             }
             
             return possibleRoutes;
@@ -639,8 +658,10 @@ public class RouteActivity extends MapActivity {
             // FIXME: Temporary
             if(possibleRoutes != null && possibleRoutes.size() > 0) {
             	Route firstRoute = possibleRoutes.get(0);
-            	timeLayout.setModelForColumn(timeLayout.getSelectedColumn(), firstRoute);
+            	timeLayout.setModelForColumn(selectedColumn, firstRoute);
             }
+            
+            //timeLayout.setColumnState(selectedColumn, TimeButton.State.None);
         }
 
     }

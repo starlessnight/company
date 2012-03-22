@@ -21,7 +21,7 @@ public class TimeButton extends TextView {
 //	public static final int BACKGROUND
 	
 	public enum State {
-		None, Selected, Disabled;
+		None, InProgress, Selected, Disabled;
 		
 		public int getTextColor() {
 			if(Disabled.equals(this)) {
@@ -68,20 +68,28 @@ public class TimeButton extends TextView {
 		setTag(btnum);
 		setGravity(Gravity.CENTER_HORIZONTAL);
 		setState(State.None);
+		setText("Unknown");
 	}
 
 	public State getState() {
 		return state;
 	}
 	
-	public void setState(State state) {
+	public synchronized void setState(State state) {
 		this.state = state;
 		
 		setTextColor(state.getTextColor());
 		setBackgroundColor(state.getBackgroundColor());
+		
+		if(State.InProgress.equals(state)) {
+			setText("...");
+		}
+		else {
+			display();
+		}
 	}
 
-	public void setDisplayMode(DisplayMode displayMode) {
+	public synchronized void setDisplayMode(DisplayMode displayMode) {
 		this.displayMode = displayMode;
 		display();
 	}
@@ -90,7 +98,7 @@ public class TimeButton extends TextView {
 	 * 
 	 * @param time
 	 */
-	public void setTime(Time time) {
+	public synchronized void setTime(Time time) {
 		this.time = time;
 		display();
 	}
@@ -107,7 +115,7 @@ public class TimeButton extends TextView {
 	 * 
 	 * @param duration Duration in seconds
 	 */
-	public void setDuration(int duration) {
+	public synchronized void setDuration(int duration) {
 		this.duration = duration;
 		display();
 	}
@@ -115,7 +123,7 @@ public class TimeButton extends TextView {
 	/**
 	 * Displays time or duration in a proper format depending on displayMode.
 	 */
-	private void display() {
+	private synchronized void display() {
 		if(DisplayMode.Time.equals(displayMode) && time != null) {
 			int hour = time.hour;
 			String AMPM = " AM ";
@@ -133,9 +141,6 @@ public class TimeButton extends TextView {
 			// TODO: Need to consider cases where duration > 3600
 			if(duration >= 0) {
 				setText(String.format("%d min", Math.round((float)duration/60)));
-			}
-			else {
-				setText("...");
 			}
 		}
 		else {

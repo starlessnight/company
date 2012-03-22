@@ -94,7 +94,7 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     	return displayMode;
     }
     
-    public void setDisplayMode(DisplayMode displayMode) {
+    public synchronized void setDisplayMode(DisplayMode displayMode) {
     	this.displayMode = displayMode;
     	
     	if(DisplayMode.TravelTime.equals(displayMode)) {
@@ -108,11 +108,11 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     	}
     }
     
-    public int getSelectedColumn() {
+    public synchronized int getSelectedColumn() {
     	return selectedColumn;
     }
     
-    private void setColumnState(int column, TimeButton.State state) {
+    public synchronized void setColumnState(int column, TimeButton.State state) {
     	int cc = getColumnCount();
     	
     	int k = column % cc;
@@ -120,7 +120,7 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     	((TimeButton) getChildAt(k + cc)).setState(state);
     }
     
-    private void setButtonDisplayModeInRow(int row, TimeButton.DisplayMode displayMode) {
+    private synchronized void setButtonDisplayModeInRow(int row, TimeButton.DisplayMode displayMode) {
     	int cc = getColumnCount();
     	for(int i = row * cc; i < (row + 1) * cc; i++) {
     		TimeButton timeButton = (TimeButton) getChildAt(i);
@@ -133,7 +133,7 @@ public class TimeLayout extends GridLayout implements OnClickListener {
      * @param column Column number (zero-based)
      * @param model An instance of a model class
      */
-    public void setModelForColumn(int column, Route model) {
+    public synchronized void setModelForColumn(int column, Route model) {
     	models[column] = model;
     	
     	// Get the button on the second row
