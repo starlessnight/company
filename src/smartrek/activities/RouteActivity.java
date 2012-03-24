@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Stack;
 
 import smartrek.AdjustableCouponDisplay.CouponLayout;
+import smartrek.AdjustableTimeDisplay.ScrollableTimeLayout;
 import smartrek.AdjustableTimeDisplay.TimeButton;
 import smartrek.AdjustableTimeDisplay.TimeLayout;
 import smartrek.AdjustableTimeDisplay.TimeLayout.TimeLayoutOnSelectListener;
@@ -14,6 +15,8 @@ import smartrek.models.Coupon;
 import smartrek.models.Route;
 import smartrek.overlays.RouteOverlay;
 import smartrek.overlays.RouteSegmentOverlay;
+import smartrek.ui.ObservableScrollView;
+import smartrek.ui.ScrollViewListener;
 import smartrek.util.Geocoding;
 import smartrek.util.RouteNode;
 import android.app.AlertDialog;
@@ -28,6 +31,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -160,6 +164,11 @@ public class RouteActivity extends MapActivity {
 		        new RouteTask().execute(originCoord, destCoord, departureTime, column, true);
 			}
 		});
+        
+        ScrollableTimeLayout scrollView = (ScrollableTimeLayout) findViewById(R.id.scrollTime);
+        scrollView.setTimeLayout(timeLayout);
+        
+        Display display = getWindowManager().getDefaultDisplay();
 
         int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
         

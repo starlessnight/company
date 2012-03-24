@@ -5,6 +5,7 @@ import android.content.Context;
 import android.text.format.Time;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.GridLayout;
@@ -83,11 +84,12 @@ public class TimeLayout extends GridLayout implements OnClickListener {
         for (int i = 0; i < numboxes; i++) {
         	TimeButton timeButton = new TimeButton(this, numboxes+i);
         	timeButton.setDuration(-1);
-        	timeButton.setWidth(150);
+        	timeButton.setWidth(getColumnWidth());
         	addView(timeButton, numboxes+i);
         }
         setButtonDisplayModeInRow(0, TimeButton.DisplayMode.Time);
         setColumnState(0, TimeButton.State.Selected);
+
     }
     
     public DisplayMode getDisplayMode() {
@@ -112,6 +114,10 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     	return selectedColumn;
     }
     
+    public int getColumnWidth() {
+    	return 150;
+    }
+    
     public synchronized void setColumnState(int column, TimeButton.State state) {
     	int cc = getColumnCount();
     	
@@ -126,6 +132,12 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     		TimeButton timeButton = (TimeButton) getChildAt(i);
     		timeButton.setDisplayMode(displayMode);
     	}
+    }
+    
+    public void notifyColumn(int column, boolean visible) {
+    	Time departureTime = getDepartureTime(column);
+    	
+    	Log.d("visible DT", departureTime.toString());
     }
     
     /**
