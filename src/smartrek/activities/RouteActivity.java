@@ -215,7 +215,7 @@ public class RouteActivity extends MapActivity {
 					
 					// `i` is going to be `selectedColumn` for the time layout
 					// Only updates maps for `i = 0`
-					new RouteTask().execute(origin, destination, departureTime, i, (i == 0));
+					new RouteTask(i).execute(origin, destination, departureTime, i, (i == 0));
 				}
 			}
 			
@@ -615,10 +615,24 @@ public class RouteActivity extends MapActivity {
         
     	private int selectedColumn;
     	
+    	public RouteTask() {
+    		super();
+    	}
+    	
+    	/**
+    	 * 
+    	 * @param column Indicates a column in TimeLayout that this class is bound to
+    	 */
+    	public RouteTask(int column) {
+    		this.selectedColumn = column;
+    	}
+    	
         @Override
         protected void onPreExecute () {
             dialog.show();
-            //timeLayout.setColumnState(selectedColumn, TimeButton.State.InProgress);
+            timeLayout.setColumnState(selectedColumn, TimeButton.State.InProgress);
+            
+            Log.d("RouteTask", "selectedColumn = " + selectedColumn);
         }
         
         @Override
@@ -670,7 +684,7 @@ public class RouteActivity extends MapActivity {
             	timeLayout.setModelForColumn(selectedColumn, firstRoute);
             }
             
-            //timeLayout.setColumnState(selectedColumn, TimeButton.State.None);
+            timeLayout.setColumnState(selectedColumn, TimeButton.State.None);
         }
 
     }

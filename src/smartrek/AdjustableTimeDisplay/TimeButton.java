@@ -11,9 +11,6 @@ import android.widget.TextView;
 /**
  * 
  * 
- * 
- * @author Tim Olivas
- * 
  */
 public class TimeButton extends TextView {
 	
@@ -49,6 +46,8 @@ public class TimeButton extends TextView {
 		Time, Duration
 	}
 	
+	private boolean redraw = false;
+	
 	private Time time;
 	private int duration;
 	
@@ -78,20 +77,15 @@ public class TimeButton extends TextView {
 	public synchronized void setState(State state) {
 		this.state = state;
 		
-		setTextColor(state.getTextColor());
-		setBackgroundColor(state.getBackgroundColor());
-		
-		if(State.InProgress.equals(state)) {
-			setText("...");
-		}
-		else {
-			display();
-		}
+		// Cause onDraw() to be called at some point in the future
+		this.redraw = true;
+		postInvalidate();
 	}
 
 	public synchronized void setDisplayMode(DisplayMode displayMode) {
 		this.displayMode = displayMode;
-		display();
+		this.redraw = true;
+		postInvalidate();
 	}
 
 	/**
@@ -100,7 +94,8 @@ public class TimeButton extends TextView {
 	 */
 	public synchronized void setTime(Time time) {
 		this.time = time;
-		display();
+		this.redraw = true;
+		postInvalidate();
 	}
 	
 	/**
@@ -117,13 +112,21 @@ public class TimeButton extends TextView {
 	 */
 	public synchronized void setDuration(int duration) {
 		this.duration = duration;
-		display();
+		this.redraw = true;
+		postInvalidate();
 	}
 	
 	/**
 	 * Displays time or duration in a proper format depending on displayMode.
 	 */
 	private synchronized void display() {
+		setTextColor(state.getTextColor());
+		setBackgroundColor(state.getBackgroundColor());
+		
+		if(State.InProgress.equals(state)) {
+			setText("...");
+		}
+		
 		if(DisplayMode.Time.equals(displayMode) && time != null) {
 			int hour = time.hour;
 			String AMPM = " AM ";
@@ -146,6 +149,8 @@ public class TimeButton extends TextView {
 		else {
 			setText("Unknown");
 		}
+		
+		redraw = false;
 	}
 	
 	/**
@@ -160,6 +165,10 @@ public class TimeButton extends TextView {
         paint.setColor(Color.WHITE);
         paint.setStrokeWidth(3);
         getLocalVisibleRect(rect);
-        canvas.drawRect(rect, paint);       
+        canvas.drawRect(rect, paint);
+        
+        if(redraw) {
+        	display();
+        }
     }
 }
