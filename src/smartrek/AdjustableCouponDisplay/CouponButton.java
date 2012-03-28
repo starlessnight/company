@@ -79,7 +79,7 @@ public class CouponButton extends ImageView {
     public void setCoupon(Coupon coupon){
     	this.coupon = coupon;
     	Log.d("CouponButton","Setting New Coupon Button");
-    	Log.d("CouponButton","Coupon Button for " + coupon.getVendorName());
+    	Log.d("CouponButton","Coupon Button for " + coupon.getVendor());
     	if(coupon.bitmapSet()){
     		Log.d("CouponButton","Bitmapset");
     	} else {

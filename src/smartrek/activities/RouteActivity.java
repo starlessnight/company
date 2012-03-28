@@ -10,7 +10,7 @@ import smartrek.AdjustableTimeDisplay.TimeButton;
 import smartrek.AdjustableTimeDisplay.TimeLayout;
 import smartrek.AdjustableTimeDisplay.TimeLayout.TimeLayoutListener;
 import smartrek.AdjustableTimeDisplay.TimeLayout.TimeLayoutOnSelectListener;
-import smartrek.mappers.Coupon_Communicator;
+import smartrek.mappers.CouponMapper;
 import smartrek.mappers.RouteMapper;
 import smartrek.models.Coupon;
 import smartrek.models.Route;
@@ -715,7 +715,7 @@ public class RouteActivity extends MapActivity {
             
             Log.d("RouteActivity", "Starting AsyncTask BackgroundDownloadImageTask");
             
-            Coupon_Communicator ccom = new Coupon_Communicator();
+            CouponMapper ccom = new CouponMapper();
             
             for (int i = 0; i < routes.size(); i++) {
                 ccom.doCouponBitmapDownloads(routes.get(i).getAllCoupons(), context);

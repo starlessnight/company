@@ -72,7 +72,7 @@ public class CouponLayout extends LinearLayout implements OnLongClickListener {
 		this.coupons = coupons;
      	for (int i = 0; i < coupons.size(); i++) {
      		Log.d("CouponLayout","Adding View for Coupon " + i);
-     		Log.d("CouponLayout", "Coupon for " + coupons.get(i).getVendorName());
+     		Log.d("CouponLayout", "Coupon for " + coupons.get(i).getVendor());
      		CouponButton couponButton = new CouponButton(this, i);
     		couponButton.setCoupon(coupons.get(i));
 	    	this.addView(couponButton,i);

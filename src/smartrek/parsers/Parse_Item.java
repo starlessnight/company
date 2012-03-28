@@ -16,7 +16,8 @@ import android.util.Log;
 /*****************************************************************************************
  * 
  * @author Timothy Olivas
- *
+ * @deprecated
+ * 
  *****************************************************************************************/
 public class Parse_Item {
 
@@ -42,7 +43,7 @@ public class Parse_Item {
 //			String imageurl = couponInfo.getString("IMAGE_URL");
 //			coupon_array.add(new Coupon(did,vname,desc,vdate,imageurl));
 		    Coupon coupon = parse_coupon(couponInfo);
-		    if(!coupon.getVendorName().equals("Barnes & Noble")){
+		    if(!coupon.getVendor().equals("Barnes & Noble")){
 		    	coupon_array.add(coupon);
 		    }
 		}

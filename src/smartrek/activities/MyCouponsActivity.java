@@ -3,7 +3,7 @@ package smartrek.activities;
 import java.util.ArrayList;
 
 import smartrek.adapters.ImageAdapter;
-import smartrek.mappers.Coupon_Communicator;
+import smartrek.mappers.CouponMapper;
 import smartrek.models.Coupon;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -39,29 +39,14 @@ public class MyCouponsActivity extends FragmentActivity {
 	}
 	
 	
-	
-	
-	
-	
-/*=====================================================================================================================*/
-    
-	/****************************************************************************************************************
-	 * 
-	 *
-	 *
-	 ****************************************************************************************************************/ 
     private class BackgroundDownloadImageTask extends AsyncTask<Void, Void, Void> {
     	
-    	/****************************************************************************************************************
-    	 * 
-    	 *
-    	 *
-    	 ****************************************************************************************************************/ 
+    	@Override
         protected Void doInBackground(Void... v) {   
         	
-            Coupon_Communicator coupon_com = new Coupon_Communicator();
-            coupons = coupon_com.discount();
-            coupon_com.doCouponBitmapDownloads(coupons,MyCouponsActivity.this);
+            CouponMapper mapper = new CouponMapper();
+            coupons = mapper.getCoupons();
+            mapper.doCouponBitmapDownloads(coupons,MyCouponsActivity.this);
         	
         	
 //    	    GridView gridview = (GridView) findViewById(R.id.coupon_grid_view);
@@ -72,21 +57,10 @@ public class MyCouponsActivity extends FragmentActivity {
 //    	            Toast.makeText(My_Coupons_Activity.this, "" + position, Toast.LENGTH_SHORT).show();
 //    	        }
 //    	    });
-            
-            // FIXME: What the fuck is this?
-        	try {
-				Thread.sleep(150);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+
             return null;
         }       
         
-    	/****************************************************************************************************************
-    	 * 
-    	 *
-    	 *
-    	 ****************************************************************************************************************/ 
 		protected void onPostExecute(Void v) {
     	    GridView gridview = (GridView) findViewById(R.id.coupon_grid_view);
     	    gridview.setAdapter(new ImageAdapter(coupons,MyCouponsActivity.this));
@@ -115,5 +89,4 @@ public class MyCouponsActivity extends FragmentActivity {
 			dialog.dismiss();
 		}
 	}
-/*=====================================================================================================================*/
 }
