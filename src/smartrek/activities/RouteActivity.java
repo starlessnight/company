@@ -8,6 +8,7 @@ import smartrek.AdjustableCouponDisplay.CouponLayout;
 import smartrek.AdjustableTimeDisplay.ScrollableTimeLayout;
 import smartrek.AdjustableTimeDisplay.TimeButton;
 import smartrek.AdjustableTimeDisplay.TimeLayout;
+import smartrek.AdjustableTimeDisplay.TimeLayout.TimeLayoutListener;
 import smartrek.AdjustableTimeDisplay.TimeLayout.TimeLayoutOnSelectListener;
 import smartrek.mappers.Coupon_Communicator;
 import smartrek.mappers.RouteMapper;
@@ -164,7 +165,14 @@ public class RouteActivity extends MapActivity {
 		        new RouteTask().execute(originCoord, destCoord, departureTime, column, true);
 			}
 		});
-        
+        timeLayout.setTimeLayoutListener(new TimeLayoutListener() {
+			@Override
+			public void updateTimeLayout(TimeLayout timeLayout, int column) {
+				Time departureTime = timeLayout.getDepartureTime(column);
+				new RouteTask().execute(originCoord, destCoord, departureTime, column, false);
+			}
+        });
+
         ScrollableTimeLayout scrollView = (ScrollableTimeLayout) findViewById(R.id.scrollTime);
         scrollView.setTimeLayout(timeLayout);
         
@@ -629,10 +637,8 @@ public class RouteActivity extends MapActivity {
     	
         @Override
         protected void onPreExecute () {
-            dialog.show();
+            // FIXME: Should this be here?
             timeLayout.setColumnState(selectedColumn, TimeButton.State.InProgress);
-            
-            Log.d("RouteTask", "selectedColumn = " + selectedColumn);
         }
         
         @Override

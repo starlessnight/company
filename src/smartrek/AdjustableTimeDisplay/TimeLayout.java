@@ -34,6 +34,16 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     
     private int selectedColumn = 0;
     
+    private TimeLayoutListener timeLayoutListener;
+
+    public interface TimeLayoutListener {
+    	public void updateTimeLayout(TimeLayout timeLayout, int column);
+    }
+    
+    public void setTimeLayoutListener(TimeLayoutListener listener) {
+    	timeLayoutListener = listener;
+    }
+    
 //    /**
 //     * 
 //     * @param context
@@ -118,6 +128,11 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     	return 150;
     }
     
+    public synchronized TimeButton.State getColumnState(int column) {
+    	int cc = getColumnCount();
+    	return ((TimeButton) getChildAt(column + cc)).getState();
+    }
+    
     public synchronized void setColumnState(int column, TimeButton.State state) {
     	int cc = getColumnCount();
     	
@@ -137,7 +152,15 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     public void notifyColumn(int column, boolean visible) {
     	Time departureTime = getDepartureTime(column);
     	
-    	Log.d("visible DT", departureTime.toString());
+    	TimeButton.State state = getColumnState(column);
+    	if(!TimeButton.State.InProgress.equals(state)) {
+    		Log.d("TimeLayout", String.format("Setting column %d state to InProgress", column));
+    		setColumnState(column, TimeButton.State.InProgress);
+    		
+    		if(timeLayoutListener != null) {
+    			timeLayoutListener.updateTimeLayout(this, column);
+    		}
+    	}
     }
     
     /**

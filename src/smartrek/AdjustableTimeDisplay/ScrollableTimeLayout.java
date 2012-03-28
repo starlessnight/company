@@ -18,6 +18,12 @@ public class ScrollableTimeLayout extends ObservableScrollView implements Scroll
 	
 	private TimeLayout timeLayout;
 	
+	//private ScrollableTimeLayoutListener listener;
+	
+//	public interface ScrollableTimeLayoutListener {
+//		public void onScroll();
+//	}
+	
 	public ScrollableTimeLayout(Context context, AttributeSet attributes) {
 		super(context, attributes);
 		setScrollViewListener(this);
@@ -26,6 +32,10 @@ public class ScrollableTimeLayout extends ObservableScrollView implements Scroll
 	public void setTimeLayout(TimeLayout timeLayout) {
 		this.timeLayout = timeLayout;
 	}
+	
+//	public void setScrollableTimeLayoutListener(ScrollableTimeLayoutListener listener) {
+//		this.listener = listener;
+//	}
 
 	@Override
 	public void onScrollChanged(ObservableScrollView scrollView, int x, int y,	int oldx, int oldy) {
