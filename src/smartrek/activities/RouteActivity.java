@@ -8,6 +8,7 @@ import smartrek.AdjustableCouponDisplay.CouponLayout;
 import smartrek.AdjustableTimeDisplay.ScrollableTimeLayout;
 import smartrek.AdjustableTimeDisplay.TimeButton;
 import smartrek.AdjustableTimeDisplay.TimeLayout;
+import smartrek.AdjustableTimeDisplay.TimeButton.State;
 import smartrek.AdjustableTimeDisplay.TimeLayout.TimeLayoutListener;
 import smartrek.AdjustableTimeDisplay.TimeLayout.TimeLayoutOnSelectListener;
 import smartrek.mappers.CouponMapper;
@@ -622,6 +623,7 @@ public class RouteActivity extends MapActivity {
     protected class RouteTask extends AsyncTask<Object, Void, List<Route>> {
         
     	private int selectedColumn;
+    	private boolean updateMap;
     	
     	public RouteTask() {
     		super();
@@ -649,7 +651,7 @@ public class RouteActivity extends MapActivity {
             GeoPoint destination = (GeoPoint)args[1];
             Time time = (Time)args[2];
             selectedColumn = (Integer)args[3];
-            boolean updateMap = (Boolean)args[4];
+            updateMap = (Boolean)args[4];
             
             RouteMapper mapper = new RouteMapper();
             
@@ -690,7 +692,8 @@ public class RouteActivity extends MapActivity {
             	timeLayout.setModelForColumn(selectedColumn, firstRoute);
             }
             
-            timeLayout.setColumnState(selectedColumn, TimeButton.State.None);
+            // FIXME: Relying on updateMap is kind of hack-ish. Need to come up with more sophiscated way.
+            timeLayout.setColumnState(selectedColumn, updateMap ? TimeButton.State.Selected : TimeButton.State.None);
         }
 
     }
