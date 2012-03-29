@@ -15,7 +15,7 @@ import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.GridView;
+import android.widget.ListView;
 
 public class MyCouponsActivity extends FragmentActivity {
 	
@@ -62,8 +62,8 @@ public class MyCouponsActivity extends FragmentActivity {
         }       
         
 		protected void onPostExecute(Void v) {
-    	    GridView gridview = (GridView) findViewById(R.id.coupon_grid_view);
-    	    gridview.setAdapter(new ImageAdapter(coupons,MyCouponsActivity.this));
+    	    ListView gridview = (ListView) findViewById(R.id.coupon_grid_view);
+    	    gridview.setAdapter(new ImageAdapter(coupons, MyCouponsActivity.this));
 
     	    gridview.setOnItemClickListener(new OnItemClickListener() {
     	        public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
