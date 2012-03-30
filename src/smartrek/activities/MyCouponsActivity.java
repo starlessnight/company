@@ -2,7 +2,7 @@ package smartrek.activities;
 
 import java.util.ArrayList;
 
-import smartrek.adapters.ImageAdapter;
+import smartrek.adapters.CouponAdapter;
 import smartrek.mappers.CouponMapper;
 import smartrek.models.Coupon;
 import android.app.AlertDialog;
@@ -63,7 +63,7 @@ public class MyCouponsActivity extends FragmentActivity {
         
 		protected void onPostExecute(Void v) {
     	    ListView gridview = (ListView) findViewById(R.id.coupon_grid_view);
-    	    gridview.setAdapter(new ImageAdapter(coupons, MyCouponsActivity.this));
+    	    gridview.setAdapter(new CouponAdapter(MyCouponsActivity.this, coupons));
 
     	    gridview.setOnItemClickListener(new OnItemClickListener() {
     	        public void onItemClick(AdapterView<?> parent, View v, int position, long id) {

@@ -24,7 +24,6 @@ public class FavoriteAddressAdapter extends BaseAdapter {
 		if(items != null) {
 			this.items = items;
 		}
-		
 		inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 	
