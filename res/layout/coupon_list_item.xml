@@ -21,7 +21,7 @@
         android:layout_gravity="left"
         android:layout_row="0"
         android:text="Vendor"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
     
     <TextView
         android:id="@+id/textViewDescription"

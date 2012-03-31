@@ -35,6 +35,31 @@ public class MyCouponsActivity extends FragmentActivity {
   	   	dialog.setCancelable(false);
   	   	dialog.show();
 	    
+	    ListView gridview = (ListView) findViewById(R.id.coupon_grid_view);
+	    gridview.setAdapter(new CouponAdapter(MyCouponsActivity.this, coupons));
+
+	    gridview.setOnItemClickListener(new OnItemClickListener() {
+	        public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+	          //  Toast.makeText(My_Coupons_Activity.this, "" + position, Toast.LENGTH_SHORT).show();
+	        	final AlertDialog dialog = new AlertDialog.Builder(MyCouponsActivity.this).create();
+				dialog.setTitle("your coupon");
+				dialog.setButton("View", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface arg0, int arg1) {
+						dialog.dismiss();
+					}
+				});
+				dialog.setButton2("Share", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface arg0, int arg1) {
+						dialog.dismiss();
+					}
+				});					
+			//	dialog.setTitle(d);
+
+				dialog.show();
+	            
+	        }
+	    });
+  	   	
 	    new BackgroundDownloadImageTask().execute();
 	}
 	
@@ -62,30 +87,9 @@ public class MyCouponsActivity extends FragmentActivity {
         }       
         
 		protected void onPostExecute(Void v) {
-    	    ListView gridview = (ListView) findViewById(R.id.coupon_grid_view);
-    	    gridview.setAdapter(new CouponAdapter(MyCouponsActivity.this, coupons));
-
-    	    gridview.setOnItemClickListener(new OnItemClickListener() {
-    	        public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-    	          //  Toast.makeText(My_Coupons_Activity.this, "" + position, Toast.LENGTH_SHORT).show();
-    	        	final AlertDialog dialog = new AlertDialog.Builder(MyCouponsActivity.this).create();
-    				dialog.setTitle("your coupon");
-					dialog.setButton("View", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface arg0, int arg1) {
-							dialog.dismiss();
-						}
-					});
-					dialog.setButton2("Share", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface arg0, int arg1) {
-							dialog.dismiss();
-						}
-					});					
-    			//	dialog.setTitle(d);
-
-					dialog.show();
-    	            
-    	        }
-    	    });
+			ListView gridview = (ListView) findViewById(R.id.coupon_grid_view);
+		    gridview.setAdapter(new CouponAdapter(MyCouponsActivity.this, coupons));
+		    
 			dialog.dismiss();
 		}
 	}

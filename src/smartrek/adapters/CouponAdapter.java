@@ -65,6 +65,7 @@ public class CouponAdapter extends BaseAdapter {
 			
 			ImageView imageView = (ImageView) view.findViewById(R.id.imageView1);
 			imageView.setImageBitmap(coupon.getBitmap());
+			imageView.setPadding(8, 8, 8, 8);
 		}
 		return view;
 	}
