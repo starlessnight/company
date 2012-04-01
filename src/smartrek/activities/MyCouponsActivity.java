@@ -5,10 +5,9 @@ import java.util.ArrayList;
 import smartrek.adapters.CouponAdapter;
 import smartrek.mappers.CouponMapper;
 import smartrek.models.Coupon;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -19,7 +18,6 @@ import android.widget.ListView;
 
 public class MyCouponsActivity extends FragmentActivity {
 	
-	private Context context;
 	private ProgressDialog dialog;
 	ArrayList<Coupon> coupons;
 	
@@ -27,8 +25,6 @@ public class MyCouponsActivity extends FragmentActivity {
 	    super.onCreate(savedInstanceState);
 	    setContentView(R.layout.my_coupon_screen);
 	    
-	    context = this.getApplicationContext();
-
   	   	dialog = new ProgressDialog(MyCouponsActivity.this);
   	   	dialog.setMessage("Loading Coupons...");
   	   	dialog.setIndeterminate(true);
@@ -36,26 +32,14 @@ public class MyCouponsActivity extends FragmentActivity {
   	   	dialog.show();
 	    
 	    ListView gridview = (ListView) findViewById(R.id.coupon_grid_view);
-	    gridview.setAdapter(new CouponAdapter(MyCouponsActivity.this, coupons));
-
 	    gridview.setOnItemClickListener(new OnItemClickListener() {
 	        public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-	          //  Toast.makeText(My_Coupons_Activity.this, "" + position, Toast.LENGTH_SHORT).show();
-	        	final AlertDialog dialog = new AlertDialog.Builder(MyCouponsActivity.this).create();
-				dialog.setTitle("your coupon");
-				dialog.setButton("View", new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface arg0, int arg1) {
-						dialog.dismiss();
-					}
-				});
-				dialog.setButton2("Share", new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface arg0, int arg1) {
-						dialog.dismiss();
-					}
-				});					
-			//	dialog.setTitle(d);
+	    		Intent intent = new Intent(MyCouponsActivity.this, CouponDetailsActivity.class);
 
-				dialog.show();
+	    		Bundle extras = new Bundle();
+	    		extras.putParcelable("coupon", coupons.get(position));
+	    		intent.putExtras(extras);
+	    		startActivity(intent);
 	            
 	        }
 	    });

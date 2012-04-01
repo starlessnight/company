@@ -7,6 +7,8 @@ import java.util.List;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 /****************************************************************************************************
  * 
@@ -14,22 +16,41 @@ import android.os.Bundle;
  * @author timothyolivas
  *
  ****************************************************************************************************/
-public class Coupon {
-
+public class Coupon implements Parcelable {
 
 	private int tid;
 	private int cid;
 	private int did;
 	private String vendor;
 	private String description;
-	private Date valid_date;
+	private Date validDate;
 	private String imageUrl;
 	private Bitmap image;
 	private boolean bitmapset;
 	private List<Integer> associatedRoutes;
 	
+	public static final Parcelable.Creator<Coupon> CREATOR = new Parcelable.Creator<Coupon>() {
+		public Coupon createFromParcel(Parcel in) {
+			return new Coupon(in);
+		}
+
+		public Coupon[] newArray(int size) {
+			return new Coupon[size];
+		}
+	};
+	
 	public Coupon() {
 		
+	}
+	
+	public Coupon(Parcel in) {
+		cid = in.readInt();
+		did = in.readInt();
+		vendor = in.readString();
+		description = in.readString();
+		validDate = (Date) in.readValue(Date.class.getClassLoader());
+		imageUrl = in.readString();
+		image = (Bitmap) in.readValue(Bitmap.class.getClassLoader());
 	}
 	
 	/****************************************************************************************************
@@ -44,7 +65,7 @@ public class Coupon {
 		this.bitmapset = false;
 		this.vendor = vname;
 		this.description = desc;
-		this.valid_date = parse_date(date); 
+		this.validDate = parse_date(date); 
 		this.imageUrl = url;
 		this.associatedRoutes = new ArrayList<Integer>();
 	}
@@ -65,7 +86,7 @@ public class Coupon {
 		int month = bundle.getInt("valid_month");
 		int year = bundle.getInt("valid_year");
 		
-		this.valid_date = new Date(year, month, day);
+		this.validDate = new Date(year, month, day);
 		this.imageUrl = bundle.getString("image_url");	
 	}
 	
@@ -143,8 +164,12 @@ public class Coupon {
 		this.description = description;
 	}
 
-	public Date getDate() {
-		return valid_date;
+	public Date getValidDate() {
+		return validDate;
+	}
+	
+	public void setValidDate(Date date) {
+		this.validDate = date;
 	}
 
 	public int getDID() {
@@ -190,7 +215,7 @@ public class Coupon {
 
 		buf.append("Vendor = " + vendor + "\n");
 		buf.append("Decription = " + description + "\n");
-		buf.append("Valid Date = " + valid_date.toLocaleString() + "\n");
+		buf.append("Valid Date = " + validDate.toLocaleString() + "\n");
 		buf.append("Image Url = " + imageUrl + "\n");
 		
 		return new String(buf);
@@ -200,10 +225,27 @@ public class Coupon {
 		bundle.putInt("did", did);
 		bundle.putString("vendor_name", vendor);
 		bundle.putString("description", description);
-		bundle.putInt("valid_day", valid_date.getDay());
-		bundle.putInt("valid_month", valid_date.getMonth());
-		bundle.putInt("valid_year", valid_date.getYear());
+		bundle.putInt("valid_day", validDate.getDay());
+		bundle.putInt("valid_month", validDate.getMonth());
+		bundle.putInt("valid_year", validDate.getYear());
 		bundle.putString("image_url", imageUrl);
 		bundle.putParcelable("image", image);
+	}
+
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(cid);
+		dest.writeInt(did);
+		dest.writeString(vendor);
+		dest.writeString(description);
+		dest.writeValue(validDate);
+		dest.writeString(imageUrl);
+		dest.writeValue(image);
 	}
 }

@@ -112,7 +112,7 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 			Coupon cp = route.getDiscount();
 			extras.putString("Coupon Description", cp.getDescription());
 			extras.putString("Vendor Name", cp.getVendor());
-			extras.putString("Valid Date", cp.getDate().toGMTString());
+			extras.putString("Valid Date", cp.getValidDate().toGMTString());
 			extras.putInt("selected route", selectedRoute);
 			
 			route.putOntoBundle(extras);

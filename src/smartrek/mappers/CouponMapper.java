@@ -1,6 +1,9 @@
 package smartrek.mappers;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,6 +16,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.text.format.DateFormat;
 import android.util.Log;
 
 
@@ -41,15 +45,22 @@ public class CouponMapper extends Mapper {
 				Coupon coupon = new Coupon();
 				coupon.setTid(obj.getInt("TID"));
 				coupon.setVender(obj.getString("VENDOR"));
+				
+				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+				Date validDate = dateFormat.parse(obj.getString("VALID_DATE"));
+				
+				coupon.setValidDate(validDate);
 				coupon.setDescription(obj.getString("DESCRIPTION"));
 				coupon.setImageUrl(obj.getString("IMAGE_URL"));
-				
+
 				coupons.add(coupon);
 			}
 			
 		}
 		catch (JSONException e) {
-				e.printStackTrace();
+			e.printStackTrace();
+		} catch (ParseException e) {
+			e.printStackTrace();
 		}	
 		
 		Log.d("Coupon_Communicator","Got " + coupons.size() +" parsed Coupons");

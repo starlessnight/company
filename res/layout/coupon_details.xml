@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:columnCount="4" >
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_column="1"
+        android:layout_columnSpan="2"
+        android:layout_gravity="left"
+        android:layout_row="1"
+        android:layout_rowSpan="2"
+        android:src="@drawable/routetag" />
+
+    <TextView
+        android:id="@+id/textViewVendor"
+        android:layout_width="175dp"
+        android:layout_column="3"
+        android:layout_gravity="left"
+        android:layout_row="1"
+        android:text="Vendor"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/textViewValidDate"
+        android:layout_column="3"
+        android:layout_gravity="left"
+        android:layout_row="2"
+        android:text="Valid until"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/textViewDescription"
+        android:layout_width="274dp"
+        android:layout_height="176dp"
+        android:layout_column="1"
+        android:layout_columnSpan="3"
+        android:layout_row="3"
+        android:text="Description" />
+
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="100dp"
+        android:layout_column="3"
+        android:layout_row="4"
+        android:text="Share" />
+
+    <Space
+        android:layout_width="21dp"
+        android:layout_height="1dp"
+        android:layout_column="0"
+        android:layout_gravity="fill_horizontal"
+        android:layout_row="0" />
+
+    <Space
+        android:layout_width="1dp"
+        android:layout_height="21dp"
+        android:layout_column="0"
+        android:layout_gravity="fill_horizontal"
+        android:layout_row="0" />
+
+    <Space
+        android:layout_width="1dp"
+        android:layout_height="30dp"
+        android:layout_column="0"
+        android:layout_gravity="fill_horizontal"
+        android:layout_row="1" />
+
+    <Space
+        android:layout_width="1dp"
+        android:layout_height="70dp"
+        android:layout_column="0"
+        android:layout_gravity="fill_horizontal"
+        android:layout_row="2" />
+
+    <Space
+        android:layout_width="1dp"
+        android:layout_height="245dp"
+        android:layout_column="0"
+        android:layout_gravity="fill_horizontal"
+        android:layout_row="3" />
+
+    <Space
+        android:layout_width="81dp"
+        android:layout_height="1dp"
+        android:layout_column="1"
+        android:layout_row="0" />
+
+</GridLayout>
