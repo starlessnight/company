@@ -1,5 +1,7 @@
 package smartrek.activities;
 
+import java.text.SimpleDateFormat;
+
 import smartrek.models.Coupon;
 import android.app.Activity;
 import android.os.Bundle;
@@ -24,7 +26,8 @@ public final class CouponDetailsActivity extends Activity {
 		textViewVender.setText(coupon.getVendor());
 		
 		TextView textViewValidDate = (TextView) findViewById(R.id.textViewValidDate);
-		textViewValidDate.setText(String.format("Valid until %s", coupon.getValidDate()));
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		textViewValidDate.setText(String.format("Valid until %s", dateFormat.format(coupon.getValidDate())));
 		
 		TextView textViewDescription = (TextView) findViewById(R.id.textViewDescription);
 		textViewDescription.setText(coupon.getDescription());
