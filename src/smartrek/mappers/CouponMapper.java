@@ -16,7 +16,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.text.format.DateFormat;
 import android.util.Log;
 
 
@@ -26,13 +25,18 @@ public class CouponMapper extends Mapper {
 		
 	}
 	
-	public ArrayList<Coupon> getCoupons() {
+	/**
+	 * 
+	 * @param uid User ID
+	 * @return
+	 */
+	public ArrayList<Coupon> getCoupons(int uid) {
 		
 		Log.d("Coupon_Communicator","In Coupon_Communicator");
 		Log.d("Coupon_Communicator","Begining Download");
 		
 		// FIXME:
-		String response = HTTP.downloadText("http://50.56.81.42:8080/getusercoupons/10");
+		String response = HTTP.downloadText("http://50.56.81.42:8080/getusercoupons/" + uid);
 
 		ArrayList<Coupon> coupons = new ArrayList<Coupon>();
 		

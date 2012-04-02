@@ -4,10 +4,12 @@ import java.util.ArrayList;
 
 import smartrek.adapters.CouponAdapter;
 import smartrek.mappers.CouponMapper;
+import smartrek.mappers.UserMapper;
 import smartrek.models.Coupon;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -43,18 +45,24 @@ public class MyCouponsActivity extends FragmentActivity {
 	            
 	        }
 	    });
+	    
+        SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.LOGIN_PREFS, Context.MODE_PRIVATE);
+        int uid = sharedPreferences.getInt(UserMapper.UID, -1);
   	   	
-	    new BackgroundDownloadImageTask().execute();
+	    new BackgroundDownloadImageTask().execute(uid);
 	}
 	
 	
-    private class BackgroundDownloadImageTask extends AsyncTask<Void, Void, Void> {
+    private class BackgroundDownloadImageTask extends AsyncTask<Object, Void, Void> {
     	
     	@Override
-        protected Void doInBackground(Void... v) {   
+        protected Void doInBackground(Object... args) {
+    		
+    		// FIXME: Potential array out of boundary exception
+    		int uid = (Integer) args[0];
         	
             CouponMapper mapper = new CouponMapper();
-            coupons = mapper.getCoupons();
+            coupons = mapper.getCoupons(uid);
             mapper.doCouponBitmapDownloads(coupons,MyCouponsActivity.this);
         	
         	
