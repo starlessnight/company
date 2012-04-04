@@ -11,7 +11,7 @@
 		android:gravity="center_horizontal"
    		android:layout_width="fill_parent" 
    		android:layout_height="wrap_content" 
-    	android:text="@string/your_coupons"
+    	android:text="My Coupons"
     	android:id="@+id/coupon_screen_lable">
     	</TextView>
 	<ListView 
