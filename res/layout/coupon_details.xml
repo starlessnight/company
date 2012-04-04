@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.gridlayout.GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:columnCount="4" >
@@ -48,45 +48,45 @@
         android:layout_row="4"
         android:text="Share" />
 
-    <Space
+    <com.gridlayout.Space
         android:layout_width="21dp"
         android:layout_height="1dp"
         android:layout_column="0"
         android:layout_gravity="fill_horizontal"
         android:layout_row="0" />
 
-    <Space
+    <com.gridlayout.Space
         android:layout_width="1dp"
         android:layout_height="21dp"
         android:layout_column="0"
         android:layout_gravity="fill_horizontal"
         android:layout_row="0" />
 
-    <Space
+    <com.gridlayout.Space
         android:layout_width="1dp"
         android:layout_height="30dp"
         android:layout_column="0"
         android:layout_gravity="fill_horizontal"
         android:layout_row="1" />
 
-    <Space
+    <com.gridlayout.Space
         android:layout_width="1dp"
         android:layout_height="70dp"
         android:layout_column="0"
         android:layout_gravity="fill_horizontal"
         android:layout_row="2" />
 
-    <Space
+    <com.gridlayout.Space
         android:layout_width="1dp"
         android:layout_height="245dp"
         android:layout_column="0"
         android:layout_gravity="fill_horizontal"
         android:layout_row="3" />
 
-    <Space
+    <com.gridlayout.Space
         android:layout_width="81dp"
         android:layout_height="1dp"
         android:layout_column="1"
         android:layout_row="0" />
 
-</GridLayout>
+</com.gridlayout.GridLayout>
