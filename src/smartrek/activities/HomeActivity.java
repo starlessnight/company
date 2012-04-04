@@ -360,7 +360,7 @@ public class HomeActivity extends FragmentActivity implements OnClickListener, O
     		break;
 
     	case R.id.mycoupons:
-    		intent = new Intent(this, MyCouponsActivity.class);
+    		intent = new Intent(this, CouponsTabActivity.class);
     		startActivity(intent);
     		return true;
     		
