@@ -5,10 +5,11 @@ import android.content.Context;
 import android.text.format.Time;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.GridLayout;
+
+import com.gridlayout.GridLayout;
+
 
 /**
  * This class is a container for multiple TimeButton's.
