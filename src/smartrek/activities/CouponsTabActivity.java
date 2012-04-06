@@ -6,14 +6,22 @@ import smartrek.adapters.CouponAdapter;
 import smartrek.mappers.CouponMapper;
 import smartrek.models.Coupon;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TabHost;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabHost.TabSpec;
 
+/**
+ * Holds three tabs (all, received, sent coupons)
+ *
+ */
 public final class CouponsTabActivity extends Activity {
 	
 	public static final String TAB1 = "Tab1";
@@ -32,7 +40,6 @@ public final class CouponsTabActivity extends Activity {
 		tabHost.setup();
 		
 		tabHost.setOnTabChangedListener(new OnTabChangeListener() {
-
 			@Override
 			public void onTabChanged(String tabId) {
 				if(tabId.equals(TAB1)) {
@@ -48,7 +55,6 @@ public final class CouponsTabActivity extends Activity {
 					Log.d(this.getClass().toString(), "Unknown tabId = " + tabId);
 				}
 			}
-			
 		});
 
 		TabSpec spec1 = tabHost.newTabSpec(TAB1);
@@ -66,33 +72,74 @@ public final class CouponsTabActivity extends Activity {
 		tabHost.addTab(spec1);
 		tabHost.addTab(spec2);
 		tabHost.addTab(spec3);
-
+		
+		{
+			ListView listView = (ListView) findViewById(R.id.listViewCouponsAll);
+			listView.setOnItemClickListener(new OnItemClickListener() {
+		        public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+		    		Intent intent = new Intent(CouponsTabActivity.this, CouponDetailsActivity.class);
+	
+		    		Bundle extras = new Bundle();
+		    		extras.putParcelable("coupon", couponsAll.get(position));
+		    		extras.putBoolean("ownership", true);
+		    		intent.putExtras(extras);
+		    		startActivity(intent);
+		            
+		        }
+		    });
+		}
+		{
+			ListView listView = (ListView) findViewById(R.id.listViewCouponsReceived);
+			listView.setOnItemClickListener(new OnItemClickListener() {
+		        public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+		    		Intent intent = new Intent(CouponsTabActivity.this, CouponDetailsActivity.class);
+	
+		    		Bundle extras = new Bundle();
+		    		extras.putParcelable("coupon", couponsReceived.get(position));
+		    		intent.putExtras(extras);
+		    		startActivity(intent);
+		            
+		        }
+		    });
+		}
+		{
+			ListView listView = (ListView) findViewById(R.id.listViewCouponsSent);
+			listView.setOnItemClickListener(new OnItemClickListener() {
+		        public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+		    		Intent intent = new Intent(CouponsTabActivity.this, CouponDetailsActivity.class);
+	
+		    		Bundle extras = new Bundle();
+		    		extras.putParcelable("coupon", couponsSent.get(position));
+		    		intent.putExtras(extras);
+		    		startActivity(intent);
+		            
+		        }
+		    });
+		}
 	}
 	
 	private void onTab1() {
 		ListView listView = (ListView) findViewById(R.id.listViewCouponsAll);
-		new CouponsTask(couponsAll, listView).execute(10, CouponMapper.Flag.All);
+		new CouponsTask(listView).execute(10, CouponMapper.Flag.All);
 	}
 	
 	private void onTab2() {
 		ListView listView = (ListView) findViewById(R.id.listViewCouponsReceived);
-		new CouponsTask(couponsReceived, listView).execute(10, CouponMapper.Flag.Received);
+		new CouponsTask(listView).execute(10, CouponMapper.Flag.Received);
 	}
 	
 	private void onTab3() {
 		ListView listView = (ListView) findViewById(R.id.listViewCouponsSent);
-		new CouponsTask(couponsSent, listView).execute(10, CouponMapper.Flag.Sent);
+		new CouponsTask(listView).execute(10, CouponMapper.Flag.Sent);
 	}
 	
     private final class CouponsTask extends AsyncTask<Object, Void, List<Coupon>> {
     	
-    	private List<Coupon> coupons;
     	private ListView listView;
     	
-    	public CouponsTask(List<Coupon> coupons, ListView listView) {
+    	public CouponsTask(ListView listView) {
     		super();
     		
-    		this.coupons = coupons;
     		this.listView = listView;
     	}
     	
@@ -104,7 +151,19 @@ public final class CouponsTabActivity extends Activity {
     		CouponMapper.Flag flag = (CouponMapper.Flag) args[1]; 
         	
             CouponMapper mapper = new CouponMapper();
-            coupons = mapper.getCoupons(uid, flag);
+            List<Coupon> coupons = mapper.getCoupons(uid, flag);
+            
+            if(CouponMapper.Flag.All.equals(flag)) {
+            	couponsAll = coupons;
+            }
+            else if(CouponMapper.Flag.Received.equals(flag)) {
+            	couponsReceived = coupons;
+            }
+            else if(CouponMapper.Flag.Sent.equals(flag)) {
+            	couponsSent = coupons;
+            }
+            
+            // TODO: Load coupon images
             //mapper.doCouponBitmapDownloads(coupons, CouponsTabActivity.this);
         	
             return coupons;
