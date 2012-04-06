@@ -62,7 +62,7 @@ public class MyCouponsActivity extends FragmentActivity {
     		int uid = (Integer) args[0];
         	
             CouponMapper mapper = new CouponMapper();
-            coupons = mapper.getCoupons(uid);
+            coupons = mapper.getCoupons(uid, CouponMapper.Flag.All);
             mapper.doCouponBitmapDownloads(coupons,MyCouponsActivity.this);
         	
         	

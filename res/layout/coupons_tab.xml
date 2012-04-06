@@ -21,16 +21,10 @@
             android:orientation="vertical"
             android:paddingTop="60px" >
 
-            <TextView
-                android:id="@+id/txt1"
-                android:layout_width="fill_parent"
-                android:layout_height="100px"
-                android:text="This is tab1" />
-            
             <ListView 
-                android:id="@+id/listViewCoupons"
+                android:id="@+id/listViewCouponsAll"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"></ListView>
+                android:layout_height="fill_parent"/>
         </LinearLayout>
 
         <LinearLayout
@@ -40,11 +34,10 @@
             android:orientation="vertical"
             android:paddingTop="60px" >
 
-            <TextView
-                android:id="@+id/txt2"
+            <ListView 
+                android:id="@+id/listViewCouponsReceived"
                 android:layout_width="fill_parent"
-                android:layout_height="100px"
-                android:text="This is tab 2" />
+                android:layout_height="fill_parent"/>
         </LinearLayout>
 
         <LinearLayout
@@ -54,11 +47,10 @@
             android:orientation="vertical"
             android:paddingTop="60px" >
 
-            <TextView
-                android:id="@+id/txt3"
+            <ListView 
+                android:id="@+id/listViewCouponsSent"
                 android:layout_width="fill_parent"
-                android:layout_height="100px"
-                android:text="This is tab 3" />
+                android:layout_height="fill_parent"/>
         </LinearLayout>
     </FrameLayout>
 

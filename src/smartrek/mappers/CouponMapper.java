@@ -21,6 +21,10 @@ import android.util.Log;
 
 public class CouponMapper extends Mapper {
 	
+	public enum Flag {
+		All, Received, Sent
+	}
+	
 	public CouponMapper() {
 		
 	}
@@ -30,13 +34,24 @@ public class CouponMapper extends Mapper {
 	 * @param uid User ID
 	 * @return
 	 */
-	public ArrayList<Coupon> getCoupons(int uid) {
+	public ArrayList<Coupon> getCoupons(int uid, Flag flag) {
 		
 		Log.d("Coupon_Communicator","In Coupon_Communicator");
 		Log.d("Coupon_Communicator","Begining Download");
 		
+		String url = null;
+		if(Flag.All.equals(flag)) {
+			url = "http://50.56.81.42:8080/getusercoupons/" + uid;
+		}
+		else if(Flag.Received.equals(flag)) {
+			url = "http://50.56.81.42:8080/couponsharing-requestview/receiveruid=" + uid;
+		}
+		else if(Flag.Sent.equals(flag)) {
+			url = "http://50.56.81.42:8080/couponsharing-sendview/senderuid=" + uid;
+		}
+		
 		// FIXME:
-		String response = HTTP.downloadText("http://50.56.81.42:8080/getusercoupons/" + uid);
+		String response = HTTP.downloadText(url);
 
 		ArrayList<Coupon> coupons = new ArrayList<Coupon>();
 		

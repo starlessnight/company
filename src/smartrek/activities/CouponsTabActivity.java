@@ -70,19 +70,21 @@ public final class CouponsTabActivity extends Activity {
 	}
 	
 	private void onTab1() {
-		ListView listView = (ListView) findViewById(R.id.listViewCoupons);
-		new CouponsTask(couponsAll, listView).execute(10);
+		ListView listView = (ListView) findViewById(R.id.listViewCouponsAll);
+		new CouponsTask(couponsAll, listView).execute(10, CouponMapper.Flag.All);
 	}
 	
 	private void onTab2() {
-		
+		ListView listView = (ListView) findViewById(R.id.listViewCouponsReceived);
+		new CouponsTask(couponsReceived, listView).execute(10, CouponMapper.Flag.Received);
 	}
 	
 	private void onTab3() {
-		
+		ListView listView = (ListView) findViewById(R.id.listViewCouponsSent);
+		new CouponsTask(couponsSent, listView).execute(10, CouponMapper.Flag.Sent);
 	}
 	
-    private class CouponsTask extends AsyncTask<Object, Void, List<Coupon>> {
+    private final class CouponsTask extends AsyncTask<Object, Void, List<Coupon>> {
     	
     	private List<Coupon> coupons;
     	private ListView listView;
@@ -99,9 +101,10 @@ public final class CouponsTabActivity extends Activity {
     		
     		// FIXME: Potential array out of boundary exception
     		int uid = (Integer) args[0];
+    		CouponMapper.Flag flag = (CouponMapper.Flag) args[1]; 
         	
             CouponMapper mapper = new CouponMapper();
-            coupons = mapper.getCoupons(uid);
+            coupons = mapper.getCoupons(uid, flag);
             //mapper.doCouponBitmapDownloads(coupons, CouponsTabActivity.this);
         	
             return coupons;
