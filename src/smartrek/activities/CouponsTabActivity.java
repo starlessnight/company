@@ -4,19 +4,18 @@ import java.util.List;
 
 import smartrek.adapters.CouponAdapter;
 import smartrek.mappers.CouponMapper;
-import smartrek.mappers.UserMapper;
 import smartrek.models.Coupon;
+import smartrek.models.User;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TabHost;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabHost.TabSpec;
 
@@ -121,30 +120,24 @@ public final class CouponsTabActivity extends Activity {
 	}
 	
 	private void onTab1() {
-		// FIXME: Define a common interface to retrieve the current user
-		SharedPreferences sharedPref = getSharedPreferences(LoginActivity.LOGIN_PREFS, MODE_PRIVATE);
-        int uid = sharedPref.getInt(UserMapper.UID, -1);
+        User user = User.getCurrentUser(this);
         
 		ListView listView = (ListView) findViewById(R.id.listViewCouponsAll);
-		new CouponsTask(listView).execute(uid, CouponMapper.Flag.All);
+		new CouponsTask(listView).execute(user.getId(), CouponMapper.Flag.All);
 	}
 	
 	private void onTab2() {
-		// FIXME: Define a common interface to retrieve the current user
-		SharedPreferences sharedPref = getSharedPreferences(LoginActivity.LOGIN_PREFS, MODE_PRIVATE);
-        int uid = sharedPref.getInt(UserMapper.UID, -1);
+		User user = User.getCurrentUser(this);
         
 		ListView listView = (ListView) findViewById(R.id.listViewCouponsReceived);
-		new CouponsTask(listView).execute(uid, CouponMapper.Flag.Received);
+		new CouponsTask(listView).execute(user.getId(), CouponMapper.Flag.Received);
 	}
 	
 	private void onTab3() {
-		// FIXME: Define a common interface to retrieve the current user
-		SharedPreferences sharedPref = getSharedPreferences(LoginActivity.LOGIN_PREFS, MODE_PRIVATE);
-        int uid = sharedPref.getInt(UserMapper.UID, -1);
+		User user = User.getCurrentUser(this);
         
 		ListView listView = (ListView) findViewById(R.id.listViewCouponsSent);
-		new CouponsTask(listView).execute(uid, CouponMapper.Flag.Sent);
+		new CouponsTask(listView).execute(user.getId(), CouponMapper.Flag.Sent);
 	}
 	
     private final class CouponsTask extends AsyncTask<Object, Void, List<Coupon>> {

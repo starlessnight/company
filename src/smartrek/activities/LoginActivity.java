@@ -2,6 +2,7 @@ package smartrek.activities;
 
 import smartrek.mappers.UserMapper;
 import smartrek.models.User;
+import smartrek.util.Cache;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -145,6 +146,8 @@ public class LoginActivity extends FragmentActivity implements OnClickListener{
 				editor.putString(UserMapper.USERNAME, user.getUsername());
 				editor.putInt(UserMapper.UID, user.getId());
 				editor.commit();
+				
+				User.setCurrentUser(LoginActivity.this, user);
 				
 				Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
 				
