@@ -48,6 +48,7 @@ public final class CouponDetailsActivity extends Activity {
 	    		startActivity(intent);
 			}
 		});
+		shareButton.setVisibility((extras.containsKey("ownership") && extras.getBoolean("ownership")) ? View.VISIBLE : View.INVISIBLE);
 	}
 	
 	@Override 
