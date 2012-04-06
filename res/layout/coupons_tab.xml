@@ -19,7 +19,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="60px" >
+            android:paddingTop="60dp" >
 
             <ListView 
                 android:id="@+id/listViewCouponsAll"
@@ -32,7 +32,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:orientation="vertical"
-            android:paddingTop="60px" >
+            android:paddingTop="60dp" >
 
             <ListView 
                 android:id="@+id/listViewCouponsReceived"
@@ -45,7 +45,7 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:orientation="vertical"
-            android:paddingTop="60px" >
+            android:paddingTop="60dp" >
 
             <ListView 
                 android:id="@+id/listViewCouponsSent"
