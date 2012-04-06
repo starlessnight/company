@@ -26,6 +26,11 @@
                 android:layout_width="fill_parent"
                 android:layout_height="100px"
                 android:text="This is tab1" />
+            
+            <ListView 
+                android:id="@+id/listViewCoupons"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"></ListView>
         </LinearLayout>
 
         <LinearLayout
