@@ -7,6 +7,7 @@ import org.json.JSONException;
 import smartrek.adapters.FavoriteAddressAdapter;
 import smartrek.mappers.FavoriteAddressMapper;
 import smartrek.models.Address;
+import smartrek.models.User;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -362,7 +363,7 @@ public class HomeActivity extends FragmentActivity implements OnClickListener, O
     	case R.id.mycoupons:
     		intent = new Intent(this, CouponsTabActivity.class);
     		startActivity(intent);
-    		return true;
+    		break;
     		
     	case R.id.reservation:
     		intent = new Intent(this, ReservationActivity.class);
@@ -370,14 +371,13 @@ public class HomeActivity extends FragmentActivity implements OnClickListener, O
     		break;
     		
     	case R.id.logout_option:
-    		// FIXME: Need to refactor
-			SharedPreferences sharedPreferences = getSharedPreferences(LOGIN_PREFS,MODE_PRIVATE);
-			SharedPreferences.Editor editor = sharedPreferences.edit();
-			editor.putString("user", "");
-			editor.putInt("uid", -1);
-			editor.commit();
-			finish();
-    		return true;
+			User.setCurrentUser(this, null);
+			//finish();
+			
+			// TODO: Is this right way to do it?
+			intent = new Intent(this, LoginActivity.class);
+    		startActivity(intent);
+    		break;
     	}
 		return super.onMenuItemSelected(featureId, item);
 	}

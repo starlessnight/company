@@ -70,10 +70,10 @@ public final class User {
 	public static User getCurrentUser(Context context) {
 		if(currentUser == null) {
 			SharedPreferences prefs = context.getSharedPreferences(LoginActivity.LOGIN_PREFS, Context.MODE_PRIVATE);
-	        String jsonString = prefs.getString("CurrentUser", "{}");
+	        String jsonString = prefs.getString("CurrentUser", "");
 	        
 	        try {
-				User.currentUser = parse(jsonString);
+				currentUser = parse(jsonString);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -88,7 +88,12 @@ public final class User {
 		SharedPreferences prefs = context.getSharedPreferences(LoginActivity.LOGIN_PREFS, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = prefs.edit();
 		try {
-			editor.putString("CurrentUser", currentUser.toJSON());
+			if(currentUser == null) {
+				editor.putString("CurrentUser", "");
+			}
+			else {
+				editor.putString("CurrentUser", currentUser.toJSON());
+			}
 			editor.commit();
 		} catch (JSONException e) {
 			e.printStackTrace();

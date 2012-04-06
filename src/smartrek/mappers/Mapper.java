@@ -96,7 +96,6 @@ public abstract class Mapper {
             }
             in.close();
         } catch (IOException e) {
-        	// FIXME: God damn it.
             e.printStackTrace();
             return "";
         }    

@@ -62,14 +62,12 @@ public class LoginActivity extends FragmentActivity implements OnClickListener{
 	 *
 	 ******************************************************************************************************************/
     private void checkSharedPreferences() {
-        SharedPreferences sharedPreferences = getSharedPreferences(LOGIN_PREFS,MODE_PRIVATE);
-        String user = sharedPreferences.getString(UserMapper.USERNAME, "");
-        int uid = sharedPreferences.getInt(UserMapper.UID, -1);
+        User currentUser = User.getCurrentUser(this);
         
-        if(!user.equals("") && uid !=- 1){
+        if(currentUser != null){
         	Log.d("Login_Activity","Got Login info from Shared Preferences");
         	Log.d("Login_Activity","Finishing Login_Activity, Staring Home_Activity");
-        	Intent intent = new Intent(this,HomeActivity.class);
+        	Intent intent = new Intent(this, HomeActivity.class);
 			startActivity(intent);
 			finish();
         }

@@ -723,14 +723,6 @@ public class RouteActivity extends MapActivity {
             for (int i = 0; i < routes.size(); i++) {
                 ccom.doCouponBitmapDownloads(routes.get(i).getAllCoupons(), context);
             }
-            
-            // FIXME: Fuck me...
-            try {
-                Thread.sleep(150);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            
             return null;
         }       
         
