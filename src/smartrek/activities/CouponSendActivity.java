@@ -3,16 +3,24 @@ package smartrek.activities;
 import java.util.List;
 
 import smartrek.adapters.ContactItemAdapter;
+import smartrek.mappers.CouponMapper;
 import smartrek.mappers.UserMapper;
+import smartrek.models.Coupon;
 import smartrek.models.User;
 import smartrek.tasks.AsyncTaskCallback;
 import smartrek.tasks.ContactsFetchTask;
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-public class CouponSendActivity extends Activity {
+public final class CouponSendActivity extends Activity {
+	private Coupon coupon;
 	private List<User> contacts;
 	
 	@Override
@@ -20,7 +28,20 @@ public class CouponSendActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.coupon_send);
 		
+		Bundle extras = getIntent().getExtras();
+		coupon = (Coupon) extras.getParcelable("coupon");
 		
+		ListView listView = (ListView) findViewById(R.id.listViewContacts);
+		listView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				User user = contacts.get(position);
+				
+				sendCouponTo(user);
+			}
+			
+		});
 		
 		
         SharedPreferences sharedPref = getSharedPreferences(LoginActivity.LOGIN_PREFS, MODE_PRIVATE);
@@ -43,11 +64,38 @@ public class CouponSendActivity extends Activity {
 
 			@Override
 			public void onPostExecute(List<User> results) {
+				CouponSendActivity.this.contacts = results;
+				
 				ListView listView = (ListView) findViewById(R.id.listViewContacts);
 				listView.setAdapter(new ContactItemAdapter(CouponSendActivity.this, R.layout.contact_list_item, results));
 			}
         	
         });
         task.execute(uid);
+	}
+	
+	private void sendCouponTo(User receiver) {
+		//Log.d("CouponSendActivity", String.format("Sending coupon %s to %s ", coupon.getVendor(), user.getUsername()));
+		
+		SharedPreferences sharedPref = getSharedPreferences(LoginActivity.LOGIN_PREFS, MODE_PRIVATE);
+        int suid = sharedPref.getInt(UserMapper.UID, -1);
+		
+		new CouponSendTask().execute(coupon, suid, receiver.getId());
+	}
+	
+	private class CouponSendTask extends AsyncTask<Object, Object, Object> {
+
+		@Override
+		protected Object doInBackground(Object... params) {
+			Coupon coupon = (Coupon) params[0];
+			int suid = (Integer) params[1];
+			int ruid = (Integer) params[2];
+			
+			CouponMapper mapper = new CouponMapper();
+			mapper.sendCouponTo(coupon, suid, ruid);
+			
+			return null;
+		}
+		
 	}
 }

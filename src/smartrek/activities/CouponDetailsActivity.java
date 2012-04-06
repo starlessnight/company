@@ -42,9 +42,9 @@ public final class CouponDetailsActivity extends Activity {
 			public void onClick(View v) {
 	    		Intent intent = new Intent(CouponDetailsActivity.this, CouponSendActivity.class);
 
-//	    		Bundle extras = new Bundle();
-//	    		extras.putParcelable("coupon", coupons.get(position));
-//	    		intent.putExtras(extras);
+	    		Bundle extras = new Bundle();
+	    		extras.putParcelable("coupon", coupon);
+	    		intent.putExtras(extras);
 	    		startActivity(intent);
 			}
 		});

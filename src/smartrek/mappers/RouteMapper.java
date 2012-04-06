@@ -151,7 +151,7 @@ public class RouteMapper extends Mapper {
 		pairs.add(new BasicNameValuePair("END_DATETIME", route.timeToString()));
 
 		pairs.add(new BasicNameValuePair("UID", route.getUserId() + ""));
-		pairs.add(new BasicNameValuePair("DID", route.getDiscount().getDID() + ""));
+		pairs.add(new BasicNameValuePair("DID", route.getDiscount().getDid() + ""));
 		pairs.add(new BasicNameValuePair("RID", route.getRID() + ""));
 
 		pairs.add(new BasicNameValuePair("VALIDATED_FLAG", "0"));
@@ -238,7 +238,7 @@ public class RouteMapper extends Mapper {
 		Log.d("Route_Communicator", "START_DATETIME = " + route.timeToString());
 		Log.d("Route_Communicator", "END_DATETIME = " +  route.timeToString());
 		Log.d("Route_Communicator", "UID = " + route.getUserId());
-		Log.d("Route_Communicator", "DID = " + route.getDiscount().getDID());
+		Log.d("Route_Communicator", "DID = " + route.getDiscount().getDid());
 		Log.d("Route_Communicator", "RID = " + route.getRID() + "");
 		Log.d("Route_Communicator", "VALIDATED_FLAG = 0");
 		Log.d("Route_Communicator", "ORIGIN_ADDRESS = "+ route.getOrigin() );

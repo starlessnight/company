@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import smartrek.db.PicuteDataBase;
 import smartrek.models.Coupon;
+import smartrek.models.User;
 import smartrek.util.HTTP;
 import android.content.Context;
 import android.database.Cursor;
@@ -18,8 +19,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
-
-public class CouponMapper extends Mapper {
+public final class CouponMapper extends Mapper {
 	
 	public enum Flag {
 		All, Received, Sent
@@ -63,6 +63,7 @@ public class CouponMapper extends Mapper {
 				// FIXME: Need to parse all fields...
 				Coupon coupon = new Coupon();
 				coupon.setTid(obj.getInt("TID"));
+				coupon.setDid(obj.getInt("DID"));
 				coupon.setVender(obj.getString("VENDOR"));
 				
 				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -86,9 +87,12 @@ public class CouponMapper extends Mapper {
 		return coupons;
 	}
 	
-	@Override
-	protected String appendToUrl() {
-		return "/discount";
+	public void sendCouponTo(Coupon coupon, int senderUid, int receiverUid) {
+		String url = String.format("http://50.56.81.42:8080/couponsharing-send/senderuid=%d%%20receiveruid=%d%%20did=%d", senderUid, receiverUid, coupon.getDid());
+		
+		String response = HTTP.downloadText(url);
+		Log.d("CouponMapper", "url = " + url);
+		Log.d("CouponMapper", "sendCouponTo(): response = " + response);
 	}
 	
 	public void doCouponBitmapDownloads(ArrayList<Coupon> coupons, Context context) {

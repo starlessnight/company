@@ -249,7 +249,7 @@ public class Route {
 		bundle.putString("time", timeToString());
 		bundle.putInt("uid", uid);
 		bundle.putFloat("rid", rid);
-		bundle.putInt("did", cp.getDID());
+		bundle.putInt("did", cp.getDid());
 		bundle.putInt("validated", validated);
 		
 		bundle.putString("time", timeToString());

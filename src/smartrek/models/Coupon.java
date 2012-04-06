@@ -172,8 +172,12 @@ public class Coupon implements Parcelable {
 		this.validDate = date;
 	}
 
-	public int getDID() {
+	public int getDid() {
 		return did;
+	}
+	
+	public void setDid(int did) {
+		this.did = did;
 	}
 
 	public String getImageUrl() {
