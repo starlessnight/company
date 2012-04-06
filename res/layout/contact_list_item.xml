@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.gridlayout.GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/gridLayout1"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:columnCount="1" >
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/textViewName"
-        android:layout_column="0"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="left"
-        android:layout_row="1"
-        android:text=""
+        android:text="John Doe"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-</com.gridlayout.GridLayout>
+    <TextView
+        android:id="@+id/textViewUsername"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:text="johndoe"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+</LinearLayout>

@@ -5,6 +5,7 @@ import java.util.List;
 import smartrek.activities.R;
 import smartrek.models.User;
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,10 +32,19 @@ public class ContactItemAdapter extends ArrayAdapter<User> {
 		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View view = inflater.inflate(textViewResourceId, parent, false);
 		
-		TextView textView1 = (TextView)view.findViewById(R.id.textViewName);
+		TextView textViewName = (TextView)view.findViewById(R.id.textViewName);
 		// FIXME: Need to consider i18n
-		textView1.setText(String.format("%s %s (%s)", u.getFirstname(), u.getLastname(), u.getUsername()));
+		if(!"".equals(u.getFirstname()) && !"".equals(u.getLastname())) {
+			textViewName.setText(String.format("%s %s", u.getFirstname(), u.getLastname()));
+		}
+		else {
+			textViewName.setText("(Not available)");
+			textViewName.setTextColor(Color.GRAY);
+		}
 
+		TextView textViewUsername = (TextView)view.findViewById(R.id.textViewUsername);
+		textViewUsername.setText(u.getUsername());
+		
 		return view;
 	}
 }
