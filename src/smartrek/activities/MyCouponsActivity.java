@@ -48,7 +48,7 @@ public class MyCouponsActivity extends FragmentActivity {
 	    
         SharedPreferences sharedPreferences = getSharedPreferences(LoginActivity.LOGIN_PREFS, Context.MODE_PRIVATE);
         int uid = sharedPreferences.getInt(UserMapper.UID, -1);
-  	   	
+        
 	    new BackgroundDownloadImageTask().execute(uid);
 	}
 	

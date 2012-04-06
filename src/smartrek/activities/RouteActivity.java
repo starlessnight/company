@@ -56,6 +56,7 @@ public class RouteActivity extends MapActivity {
     
     public static final int DIALOG_ROUTE_NOT_FOUND = 1;
     
+    // FIXME: Fixed number of overlays...
     private RouteOverlay routeoverlay1;
     private RouteOverlay routeoverlay2;
     private RouteOverlay routeoverlay3;
@@ -179,6 +180,7 @@ public class RouteActivity extends MapActivity {
         
         Display display = getWindowManager().getDefaultDisplay();
 
+        // FIXME: Should store values in a different perference file
         int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
         
         // FIXME: Sloppy
@@ -187,17 +189,10 @@ public class RouteActivity extends MapActivity {
         // FIXME: Temporary solution
         selectedTime = new Time();
         selectedTime.setToNow();
-        
-        //
-        //
              
         /* Get the extras from the bundle */
         Bundle extras = getIntent().getExtras();
         
-        uid = prefs.getInt("uid", -1);
-        
-        Log.d("RouteActivity","Got user id " + uid);
-     
         origin = extras.getString("origin");
         Log.d("RouteActivity","Got origin " + origin);
         

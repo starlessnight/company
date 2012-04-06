@@ -430,6 +430,7 @@ public class HomeActivity extends FragmentActivity implements OnClickListener, O
 		@Override
 		protected List<Address> doInBackground(Integer... params) {
 
+			// FIXME: Potential array out of boundary exception
 			int uid = params[0];
 			
 			List<Address> items = null;

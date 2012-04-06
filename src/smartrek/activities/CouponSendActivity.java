@@ -77,16 +77,16 @@ public final class CouponSendActivity extends Activity {
 	private void sendCouponTo(User receiver) {
 		//Log.d("CouponSendActivity", String.format("Sending coupon %s to %s ", coupon.getVendor(), user.getUsername()));
 		
-		SharedPreferences sharedPref = getSharedPreferences(LoginActivity.LOGIN_PREFS, MODE_PRIVATE);
-        int suid = sharedPref.getInt(UserMapper.UID, -1);
+        User currentUser = User.getCurrentUser(this);
 		
-		new CouponSendTask().execute(coupon, suid, receiver.getId());
+		new CouponSendTask().execute(coupon, currentUser.getId(), receiver.getId());
 	}
 	
 	private class CouponSendTask extends AsyncTask<Object, Object, Object> {
 
 		@Override
 		protected Object doInBackground(Object... params) {
+			// FIXME: Potential array out of boundary exception
 			Coupon coupon = (Coupon) params[0];
 			int suid = (Integer) params[1];
 			int ruid = (Integer) params[2];
