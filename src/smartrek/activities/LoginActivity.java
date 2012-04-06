@@ -2,7 +2,6 @@ package smartrek.activities;
 
 import smartrek.mappers.UserMapper;
 import smartrek.models.User;
-import smartrek.util.Cache;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -138,12 +137,6 @@ public class LoginActivity extends FragmentActivity implements OnClickListener{
 			if(user != null && user.getId() != -1) {
 				Log.d("Login_Activity","Successful Login");
 				Log.d("Login_Activity", "Saving Login Info to Shared Preferences");
-				
-				SharedPreferences sharedPreferences = getSharedPreferences(LOGIN_PREFS, MODE_PRIVATE);
-				SharedPreferences.Editor editor = sharedPreferences.edit();
-				editor.putString(UserMapper.USERNAME, user.getUsername());
-				editor.putInt(UserMapper.UID, user.getId());
-				editor.commit();
 				
 				User.setCurrentUser(LoginActivity.this, user);
 				

@@ -61,8 +61,8 @@ public final class User {
 		User user = new User();
 		user.id = object.getInt(UserMapper.UID);
 		user.username = object.getString(UserMapper.USERNAME);
-		user.firstname = object.getString(UserMapper.FIRSTNAME);
-		user.lastname = object.getString(UserMapper.LASTNAME);
+		if(object.has(UserMapper.FIRSTNAME)) user.firstname = object.getString(UserMapper.FIRSTNAME);
+		if(object.has(UserMapper.LASTNAME)) user.lastname = object.getString(UserMapper.LASTNAME);
 		
 		return user;
 	}
@@ -71,6 +71,7 @@ public final class User {
 		if(currentUser == null) {
 			SharedPreferences prefs = context.getSharedPreferences(LoginActivity.LOGIN_PREFS, Context.MODE_PRIVATE);
 	        String jsonString = prefs.getString("CurrentUser", "");
+	        System.out.println(jsonString);
 	        
 	        try {
 				currentUser = parse(jsonString);
@@ -92,6 +93,7 @@ public final class User {
 				editor.putString("CurrentUser", "");
 			}
 			else {
+				System.out.println(currentUser.toJSON());
 				editor.putString("CurrentUser", currentUser.toJSON());
 			}
 			editor.commit();
