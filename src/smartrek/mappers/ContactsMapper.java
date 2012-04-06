@@ -18,9 +18,13 @@ public class ContactsMapper extends Mapper {
 	}
 	
 	public List<User> getContacts(User currentUser) {
+		return getContacts(currentUser.getId());
+	}
+	
+	public List<User> getContacts(int uid) {
 		List<User> contacts = new ArrayList<User>();
 		
-		String url = String.format("%s%s/%d", sturl, appendToUrl(), currentUser.getId());
+		String url = String.format("%s%s/%d", sturl, appendToUrl(), uid);
 		String jsonString = downloadText(url);
 		
 		try {

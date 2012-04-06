@@ -40,7 +40,7 @@ public final class CouponDetailsActivity extends Activity {
 		shareButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-	    		Intent intent = new Intent(CouponDetailsActivity.this, ContactsActivity.class);
+	    		Intent intent = new Intent(CouponDetailsActivity.this, CouponSendActivity.class);
 
 //	    		Bundle extras = new Bundle();
 //	    		extras.putParcelable("coupon", coupons.get(position));
