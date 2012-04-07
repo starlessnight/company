@@ -1,6 +1,11 @@
 package smartrek.activities;
 
+import java.io.IOException;
+import java.net.ConnectException;
+import java.text.ParseException;
 import java.util.ArrayList;
+
+import org.json.JSONException;
 
 import smartrek.adapters.CouponAdapter;
 import smartrek.mappers.CouponMapper;
@@ -62,8 +67,23 @@ public class MyCouponsActivity extends FragmentActivity {
     		int uid = (Integer) args[0];
         	
             CouponMapper mapper = new CouponMapper();
-            coupons = mapper.getCoupons(uid, CouponMapper.Flag.All);
-            mapper.doCouponBitmapDownloads(coupons,MyCouponsActivity.this);
+            try {
+				coupons = mapper.getCoupons(uid, CouponMapper.Flag.All);
+				mapper.doCouponBitmapDownloads(coupons,MyCouponsActivity.this);
+			} catch (ConnectException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            
         	
         	
 //    	    GridView gridview = (GridView) findViewById(R.id.coupon_grid_view);

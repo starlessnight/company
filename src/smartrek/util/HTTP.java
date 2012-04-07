@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -48,7 +46,13 @@ public final class HTTP {
 	
 	public String getResponseBody() throws IOException {
 		if(httpConn != null) {
-			InputStream in = httpConn.getInputStream();
+			InputStream in = null;
+			if(getResponseCode() >= 400) {
+				in = httpConn.getErrorStream();
+			}
+			else {
+				in = httpConn.getInputStream();
+			}
 			InputStreamReader isr = new InputStreamReader(in);
 			
 			StringBuffer strBuf = new StringBuffer();
