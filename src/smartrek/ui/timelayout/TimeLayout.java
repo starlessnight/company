@@ -1,4 +1,4 @@
-package smartrek.AdjustableTimeDisplay;
+package smartrek.ui.timelayout;
 
 import smartrek.models.Route;
 import android.content.Context;

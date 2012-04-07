@@ -1,4 +1,4 @@
-package smartrek.AdjustableTimeDisplay;
+package smartrek.ui.timelayout;
 
 import smartrek.ui.ObservableScrollView;
 import smartrek.ui.ScrollViewListener;

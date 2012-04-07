@@ -1,4 +1,4 @@
-package smartrek.AdjustableTimeDisplay;
+package smartrek.ui.timelayout;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
