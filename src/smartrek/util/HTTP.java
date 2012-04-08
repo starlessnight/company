@@ -15,12 +15,22 @@ public final class HTTP {
 	
 	private static final int BUF_SIZE = 4096;
 	
+	/**
+	 * Maximum content size that getResponseBody() can handle.
+	 */
+	public static final int MAX_CONTENT_SIZE = 1024*1024;
+	
 	private HttpURLConnection httpConn;
 	
 	public HTTP(String urlString) throws IOException {
 		httpConn = openHttpConnection(urlString);
 	}
 	
+	/**
+	 * Establishes an HTTP connection to a server.
+	 * 
+	 * @throws IOException
+	 */
 	public void connect() throws IOException {
 		if(httpConn != null) {
 			httpConn.setAllowUserInteraction(false);
@@ -30,6 +40,11 @@ public final class HTTP {
 		}
 	}
 	
+	/**
+	 * Returns an HTTP response code
+	 * 
+	 * @return An HTTP response code
+	 */
 	public int getResponseCode() {
 		if(httpConn != null) {
 			try {
@@ -44,6 +59,12 @@ public final class HTTP {
 		}
 	}
 	
+	/**
+	 * If Content-Length is larger than MAX_CONTENT_SIZE, use getInputStream().
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
 	public String getResponseBody() throws IOException {
 		if(httpConn != null) {
 			InputStream in = null;
@@ -67,6 +88,8 @@ public final class HTTP {
 	        }
 	        catch (IOException e) {
 	            e.printStackTrace();
+	            
+	            // FIXME: Should we return an empty string or null?
 	            return "";
 	        }
 	        return new String(strBuf);
@@ -74,6 +97,10 @@ public final class HTTP {
 		else {
 			return null;
 		}
+	}
+	
+	public InputStream getInputStream() throws IOException {
+		return httpConn.getInputStream();
 	}
 	
 	public static HttpURLConnection openHttpConnection(String urlString) throws IOException {

@@ -151,8 +151,6 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     }
     
     public void notifyColumn(int column, boolean visible) {
-    	Time departureTime = getDepartureTime(column);
-    	
     	TimeButton.State state = getColumnState(column);
     	if(!TimeButton.State.InProgress.equals(state)) {
     		Log.d("TimeLayout", String.format("Setting column %d state to InProgress", column));
