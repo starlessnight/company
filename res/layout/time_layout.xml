@@ -11,7 +11,7 @@
         android:background="#FFFFFFFF"
         android:scrollbars="horizontal" >
         
-        <smartrek.AdjustableTimeDisplay.TimeLayout
+        <smartrek.ui.timelayout.TimeLayout
             android:id="@+id/timelayout"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
