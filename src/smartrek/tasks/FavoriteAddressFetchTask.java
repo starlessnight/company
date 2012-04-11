@@ -1,5 +1,6 @@
 package smartrek.tasks;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.json.JSONException;
@@ -20,6 +21,8 @@ public class FavoriteAddressFetchTask extends AsyncTask<Integer, Object, Object>
 			List<Address> items = mapper.getAddresses(uid);
 		}
 		catch (JSONException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		

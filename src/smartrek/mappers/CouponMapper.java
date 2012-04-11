@@ -1,6 +1,5 @@
 package smartrek.mappers;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.text.ParseException;
@@ -22,8 +21,6 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 public final class CouponMapper extends Mapper {
-	
-	public static final String host = "http://50.56.81.42:8080";
 	
 	public enum Flag {
 		All, Received, Sent

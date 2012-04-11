@@ -1,5 +1,6 @@
 package smartrek.activities;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.json.JSONException;
@@ -439,6 +440,8 @@ public class HomeActivity extends FragmentActivity implements OnClickListener, O
 				items = mapper.getAddresses(uid);
 			}
 			catch (JSONException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
 			
