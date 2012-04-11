@@ -1,15 +1,20 @@
 package smartrek.activities;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 
+import smartrek.mappers.CouponMapper;
 import smartrek.models.Coupon;
+import smartrek.models.User;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public final class CouponDetailsActivity extends Activity {
@@ -49,10 +54,81 @@ public final class CouponDetailsActivity extends Activity {
 			}
 		});
 		shareButton.setVisibility((extras.containsKey("ownership") && extras.getBoolean("ownership")) ? View.VISIBLE : View.INVISIBLE);
+	
+		LinearLayout layoutAcceptReject = (LinearLayout) findViewById(R.id.layoutAcceptReject);
+		layoutAcceptReject.setVisibility((extras.containsKey("received") && extras.getBoolean("received")) ? View.VISIBLE : View.INVISIBLE);
+		
+		Button acceptButton = (Button) findViewById(R.id.buttonAccept);
+		acceptButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				User currentUser = User.getCurrentUser(CouponDetailsActivity.this);
+				new CouponAcceptTask().execute(coupon.getSenderUid(), currentUser.getId());
+			}
+		});
+		
+		Button rejectButton = (Button) findViewById(R.id.buttonReject);
+		rejectButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				User currentUser = User.getCurrentUser(CouponDetailsActivity.this);
+				new CouponRejectTask().execute(coupon.getSenderUid(), currentUser.getId());
+			}
+		});
 	}
 	
 	@Override 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		
+	}
+	
+	private class CouponAcceptTask extends AsyncTask<Object, Object, Object> {
+
+		@Override
+		protected Object doInBackground(Object... params) {
+			// FIXME: Potential array out of boundary exception
+			int suid = (Integer) params[0];
+			int ruid = (Integer) params[1];
+			
+			CouponMapper mapper = new CouponMapper();
+			try {
+				mapper.acceptCoupon(coupon, suid, ruid);
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Object result) {
+			finish();
+		}
+	}
+	
+	private class CouponRejectTask extends AsyncTask<Object, Object, Object> {
+
+		@Override
+		protected Object doInBackground(Object... params) {
+			// FIXME: Potential array out of boundary exception
+			int suid = (Integer) params[0];
+			int ruid = (Integer) params[1];
+			
+			CouponMapper mapper = new CouponMapper();
+			try {
+				mapper.rejectCoupon(coupon, suid, ruid);
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Object result) {
+			finish();
+		}
 	}
 }

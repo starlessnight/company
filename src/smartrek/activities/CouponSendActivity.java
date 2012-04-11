@@ -1,5 +1,6 @@
 package smartrek.activities;
 
+import java.io.IOException;
 import java.util.List;
 
 import smartrek.adapters.ContactItemAdapter;
@@ -90,7 +91,11 @@ public final class CouponSendActivity extends Activity {
 			int ruid = (Integer) params[2];
 			
 			CouponMapper mapper = new CouponMapper();
-			mapper.sendCouponTo(coupon, suid, ruid);
+			try {
+				mapper.sendCouponTo(coupon, suid, ruid);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			
 			return null;
 		}

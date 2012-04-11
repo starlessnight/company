@@ -29,6 +29,9 @@ public class Coupon implements Parcelable {
 	private boolean bitmapset;
 	private List<Integer> associatedRoutes;
 	
+	// FIXME:
+	private int senderUid;
+	
 	public static final Parcelable.Creator<Coupon> CREATOR = new Parcelable.Creator<Coupon>() {
 		public Coupon createFromParcel(Parcel in) {
 			return new Coupon(in);
@@ -51,6 +54,7 @@ public class Coupon implements Parcelable {
 		validDate = (Date) in.readValue(Date.class.getClassLoader());
 		imageUrl = in.readString();
 		image = (Bitmap) in.readValue(Bitmap.class.getClassLoader());
+		senderUid = in.readInt();
 	}
 	
 	/****************************************************************************************************
@@ -191,6 +195,14 @@ public class Coupon implements Parcelable {
 	public Bitmap getBitmap() {
 		return image;
 	}
+	
+	public int getSenderUid() {
+		return senderUid;
+	}
+	
+	public void setSenderUid(int uid) {
+		this.senderUid = uid;
+	}
 
 	public void setBitmap(Bitmap bitmap) {
 		   int width = bitmap.getWidth();
@@ -251,5 +263,6 @@ public class Coupon implements Parcelable {
 		dest.writeValue(validDate);
 		dest.writeString(imageUrl);
 		dest.writeValue(image);
+		dest.writeInt(senderUid);
 	}
 }

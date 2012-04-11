@@ -23,6 +23,8 @@ import android.util.Log;
 
 public final class CouponMapper extends Mapper {
 	
+	public static final String host = "http://50.56.81.42:8080";
+	
 	public enum Flag {
 		All, Received, Sent
 	}
@@ -76,6 +78,10 @@ public final class CouponMapper extends Mapper {
 				coupon.setDid(obj.getInt("DID"));
 				coupon.setVender(obj.getString("VENDOR"));
 				
+				if (Flag.Received.equals(flag) && obj.has("UID")) {
+					coupon.setSenderUid(obj.getInt("UID"));
+				}
+				
 				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 				Date validDate = dateFormat.parse(obj.getString("VALID_DATE"));
 				
@@ -86,22 +92,61 @@ public final class CouponMapper extends Mapper {
 				coupons.add(coupon);
 			}
 		}
-		else if(responseCode < 500) {
-			throw new FileNotFoundException("HTTP 404 - Page not found");
-		}
-		else if(responseCode < 600) {
-			throw new IOException(String.format("HTTP %d - Server side error", responseCode));
+		else {
+			throw new IOException(String.format("HTTP %d", responseCode));
 		}
 
 		return coupons;
 	}
 	
-	public void sendCouponTo(Coupon coupon, int senderUid, int receiverUid) {
-		String url = String.format("http://50.56.81.42:8080/couponsharing-send/senderuid=%d%%20receiveruid=%d%%20did=%d", senderUid, receiverUid, coupon.getDid());
+	public void sendCouponTo(Coupon coupon, int senderUid, int receiverUid) throws IOException {
+		String url = String.format("%s/couponsharing-send/senderuid=%d%%20receiveruid=%d%%20did=%d",
+				host, senderUid, receiverUid, coupon.getDid());
 		
-		String response = HTTP.downloadText(url);
+		HTTP http = new HTTP(url);
+		http.connect();
+		
+		int responseCode = http.getResponseCode();
+		if(responseCode == 200) {
+			Log.d("CouponMapper", "sendCouponTo - success");
+		}
+		else {
+			throw new IOException(String.format("HTTP %d - %s", responseCode, http.getResponseBody()));
+		}
+	}
+	
+	public void acceptCoupon(Coupon coupon, int senderUid, int receiverUid) throws IOException {
+		String url = String.format("%s/couponsharing-accept/senderuid=%d%%20receiveruid=%d%%20did=%d",
+				host, senderUid, receiverUid, coupon.getDid());
+		
+		HTTP http = new HTTP(url);
+		http.connect();
+		
 		Log.d("CouponMapper", "url = " + url);
-		Log.d("CouponMapper", "sendCouponTo(): response = " + response);
+		
+		int responseCode = http.getResponseCode();
+		if(responseCode == 200) {
+			Log.d("CouponMapper", "acceptCoupon - success");
+		}
+		else {
+			throw new IOException(String.format("HTTP %d - %s", responseCode, http.getResponseBody()));
+		}
+	}
+	
+	public void rejectCoupon(Coupon coupon, int senderUid, int receiverUid) throws IOException {
+		String url = String.format("%s/couponsharing-decline/senderuid=%d%%20receiveruid=%d%%20did=%d",
+				host, senderUid, receiverUid, coupon.getDid());
+		
+		HTTP http = new HTTP(url);
+		http.connect();
+		
+		int responseCode = http.getResponseCode();
+		if(responseCode == 200) {
+			Log.d("CouponMapper", "rejectCoupon - success");
+		}
+		else {
+			throw new IOException(String.format("HTTP %d - %s", responseCode, http.getResponseBody()));
+		}
 	}
 	
 	public void doCouponBitmapDownloads(ArrayList<Coupon> coupons, Context context) {
