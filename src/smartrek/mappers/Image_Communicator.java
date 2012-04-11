@@ -6,6 +6,10 @@ import java.io.InputStream;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+/**
+ * @deprecated
+ *
+ */
 public class Image_Communicator extends Mapper {
 
 	

@@ -1,13 +1,22 @@
 package smartrek.activities;
 
+import java.io.IOException;
+import java.net.ConnectException;
+import java.text.ParseException;
 import java.util.List;
+import java.util.Stack;
+
+import org.json.JSONException;
 
 import smartrek.adapters.CouponAdapter;
 import smartrek.mappers.CouponMapper;
 import smartrek.models.Coupon;
 import smartrek.models.User;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,6 +41,8 @@ public final class CouponsTabActivity extends Activity {
 	private List<Coupon> couponsAll;
 	private List<Coupon> couponsReceived;
 	private List<Coupon> couponsSent;
+	
+	private Stack<Exception> exceptions = new Stack<Exception>();
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -158,17 +169,36 @@ public final class CouponsTabActivity extends Activity {
     		CouponMapper.Flag flag = (CouponMapper.Flag) args[1]; 
         	
             CouponMapper mapper = new CouponMapper();
-            List<Coupon> coupons = mapper.getCoupons(uid, flag);
-            
-            if(CouponMapper.Flag.All.equals(flag)) {
-            	couponsAll = coupons;
-            }
-            else if(CouponMapper.Flag.Received.equals(flag)) {
-            	couponsReceived = coupons;
-            }
-            else if(CouponMapper.Flag.Sent.equals(flag)) {
-            	couponsSent = coupons;
-            }
+            List<Coupon> coupons = null;
+			try {
+				coupons = mapper.getCoupons(uid, flag);
+				
+	            if(CouponMapper.Flag.All.equals(flag)) {
+	            	couponsAll = coupons;
+	            }
+	            else if(CouponMapper.Flag.Received.equals(flag)) {
+	            	couponsReceived = coupons;
+	            }
+	            else if(CouponMapper.Flag.Sent.equals(flag)) {
+	            	couponsSent = coupons;
+	            }
+			}
+			catch (ConnectException e) {
+				e.printStackTrace();
+				exceptions.push(e);
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+				exceptions.push(e);
+			}
+			catch (JSONException e) {
+				e.printStackTrace();
+				exceptions.push(e);
+			}
+			catch (ParseException e) {
+				e.printStackTrace();
+				exceptions.push(e);
+			}
             
             // TODO: Load coupon images
             //mapper.doCouponBitmapDownloads(coupons, CouponsTabActivity.this);
@@ -177,7 +207,25 @@ public final class CouponsTabActivity extends Activity {
         }       
         
 		protected void onPostExecute(List<Coupon> coupons) {
-		    listView.setAdapter(new CouponAdapter(CouponsTabActivity.this, coupons));
+			if(!exceptions.isEmpty()) {
+				while(!exceptions.isEmpty()) {
+					Exception e = exceptions.pop();
+					
+		            AlertDialog dialog = new AlertDialog.Builder(CouponsTabActivity.this).create();
+		            dialog.setTitle(e.getClass().toString());
+		            dialog.setMessage(e.getMessage());
+		            dialog.setButton("Dismiss", new OnClickListener() {
+		                @Override
+		                public void onClick(DialogInterface dialog, int which) {
+		                    dialog.cancel();
+		                }
+		            });
+		            dialog.show();
+				}
+			}
+			else {
+				listView.setAdapter(new CouponAdapter(CouponsTabActivity.this, coupons));
+			}
 		}
     }
 }

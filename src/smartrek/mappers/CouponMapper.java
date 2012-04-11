@@ -1,5 +1,8 @@
 package smartrek.mappers;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.ConnectException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -11,7 +14,6 @@ import org.json.JSONObject;
 
 import smartrek.db.PicuteDataBase;
 import smartrek.models.Coupon;
-import smartrek.models.User;
 import smartrek.util.HTTP;
 import android.content.Context;
 import android.database.Cursor;
@@ -33,8 +35,10 @@ public final class CouponMapper extends Mapper {
 	 * 
 	 * @param uid User ID
 	 * @return
+	 * @throws JSONException 
+	 * @throws ParseException 
 	 */
-	public ArrayList<Coupon> getCoupons(int uid, Flag flag) {
+	public ArrayList<Coupon> getCoupons(int uid, Flag flag) throws ConnectException, IOException, JSONException, ParseException {
 		
 		Log.d("Coupon_Communicator","In Coupon_Communicator");
 		Log.d("Coupon_Communicator","Begining Download");
@@ -50,13 +54,19 @@ public final class CouponMapper extends Mapper {
 			url = "http://50.56.81.42:8080/couponsharing-sendview/senderuid=" + uid;
 		}
 		
-		// FIXME:
-		String response = HTTP.downloadText(url);
-
-		ArrayList<Coupon> coupons = new ArrayList<Coupon>();
+		HTTP http = new HTTP(url);
+		http.connect();
 		
-		try{
-			JSONArray array = new JSONArray(response);
+		ArrayList<Coupon> coupons = null;
+
+		int responseCode = http.getResponseCode();
+		if(responseCode == 200) {
+			String responseBody = http.getResponseBody();
+			
+			Log.d("CouponMapper", "response = " + responseBody);
+			
+			coupons = new ArrayList<Coupon>();			
+			JSONArray array = new JSONArray(responseBody);
 			for(int i = 0; i < array.length(); i++) {
 				JSONObject obj = (JSONObject) array.get(i);
 				
@@ -75,15 +85,14 @@ public final class CouponMapper extends Mapper {
 
 				coupons.add(coupon);
 			}
-			
 		}
-		catch (JSONException e) {
-			e.printStackTrace();
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}	
-		
-		Log.d("Coupon_Communicator","Got " + coupons.size() +" parsed Coupons");
+		else if(responseCode < 500) {
+			throw new FileNotFoundException("HTTP 404 - Page not found");
+		}
+		else if(responseCode < 600) {
+			throw new IOException(String.format("HTTP %d - Server side error", responseCode));
+		}
+
 		return coupons;
 	}
 	
