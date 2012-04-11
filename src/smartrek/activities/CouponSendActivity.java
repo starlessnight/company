@@ -44,9 +44,6 @@ public final class CouponSendActivity extends Activity {
 		});
 		
 		
-        SharedPreferences sharedPref = getSharedPreferences(LoginActivity.LOGIN_PREFS, MODE_PRIVATE);
-        int uid = sharedPref.getInt(UserMapper.UID, -1);
-        
         ContactsFetchTask task = new ContactsFetchTask();
         task.setCallback(new AsyncTaskCallback<List<User>> () {
 
@@ -71,7 +68,8 @@ public final class CouponSendActivity extends Activity {
 			}
         	
         });
-        task.execute(uid);
+        User user = User.getCurrentUser(this);
+        task.execute(user.getId());
 	}
 	
 	private void sendCouponTo(User receiver) {
@@ -95,6 +93,11 @@ public final class CouponSendActivity extends Activity {
 			mapper.sendCouponTo(coupon, suid, ruid);
 			
 			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Object result) {
+			
 		}
 		
 	}

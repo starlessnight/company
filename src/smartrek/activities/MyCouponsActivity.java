@@ -18,6 +18,10 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+/**
+ * @deprecated
+ *
+ */
 public class MyCouponsActivity extends FragmentActivity {
 	
 	private ProgressDialog dialog;
