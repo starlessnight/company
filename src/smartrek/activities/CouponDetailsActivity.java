@@ -2,6 +2,7 @@ package smartrek.activities;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Stack;
 
 import smartrek.mappers.CouponMapper;
 import smartrek.models.Coupon;
@@ -18,6 +19,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public final class CouponDetailsActivity extends Activity {
+	private Stack<Exception> exceptions = new Stack<Exception>();
 	private Coupon coupon;
 	
 	@Override
@@ -81,6 +83,7 @@ public final class CouponDetailsActivity extends Activity {
 		cancelButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				new SentCouponCancelTask().execute();
 			}
 		});
 		cancelButton.setVisibility((extras.containsKey("sent") && extras.getBoolean("sent")) ? View.VISIBLE : View.INVISIBLE);
@@ -112,7 +115,12 @@ public final class CouponDetailsActivity extends Activity {
 		
 		@Override
 		protected void onPostExecute(Object result) {
-			finish();
+			if (exceptions.isEmpty()) {
+				finish();
+			}
+			else {
+				
+			}
 		}
 	}
 	
@@ -137,24 +145,26 @@ public final class CouponDetailsActivity extends Activity {
 		
 		@Override
 		protected void onPostExecute(Object result) {
-			finish();
+			if (exceptions.isEmpty()) {
+				finish();
+			}
+			else {
+				
+			}
 		}
 	}
 	
-	private class CouponSendCancelTask extends AsyncTask<Object, Object, Object> {
+	private class SentCouponCancelTask extends AsyncTask<Object, Object, Object> {
 
 		@Override
 		protected Object doInBackground(Object... params) {
-			// FIXME: Potential array out of boundary exception
-			int suid = (Integer) params[0];
-			int ruid = (Integer) params[1];
-			
 			CouponMapper mapper = new CouponMapper();
 			try {
 				mapper.cancelSentCoupon(coupon);
 			}
 			catch (IOException e) {
 				e.printStackTrace();
+				exceptions.push(e);
 			}
 			
 			return null;
@@ -162,7 +172,12 @@ public final class CouponDetailsActivity extends Activity {
 		
 		@Override
 		protected void onPostExecute(Object result) {
-			finish();
+			if (exceptions.isEmpty()) {
+				finish();
+			}
+			else {
+				
+			}
 		}
 	}
 }

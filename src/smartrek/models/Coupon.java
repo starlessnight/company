@@ -1,8 +1,6 @@
 package smartrek.models;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -10,13 +8,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/****************************************************************************************************
- * 
- * 
- * @author timothyolivas
- *
- ****************************************************************************************************/
-public class Coupon implements Parcelable {
+public final class Coupon implements Parcelable {
 
 	private int tid;
 	private int cid;
@@ -27,9 +19,10 @@ public class Coupon implements Parcelable {
 	private String imageUrl;
 	private Bitmap image;
 	private boolean bitmapset;
-	private List<Integer> associatedRoutes;
+	//private List<Integer> associatedRoutes;
 	
 	// FIXME:
+	private int receiverUid;
 	private int senderUid;
 	
 	public static final Parcelable.Creator<Coupon> CREATOR = new Parcelable.Creator<Coupon>() {
@@ -54,6 +47,7 @@ public class Coupon implements Parcelable {
 		validDate = (Date) in.readValue(Date.class.getClassLoader());
 		imageUrl = in.readString();
 		image = (Bitmap) in.readValue(Bitmap.class.getClassLoader());
+		receiverUid = in.readInt();
 		senderUid = in.readInt();
 	}
 	
@@ -71,7 +65,7 @@ public class Coupon implements Parcelable {
 		this.description = desc;
 		this.validDate = parse_date(date); 
 		this.imageUrl = url;
-		this.associatedRoutes = new ArrayList<Integer>();
+		//this.associatedRoutes = new ArrayList<Integer>();
 	}
 	
 	/****************************************************************************************************
@@ -94,24 +88,22 @@ public class Coupon implements Parcelable {
 		this.imageUrl = bundle.getString("image_url");	
 	}
 	
-	/****************************************************************************************************
-	 * public Coupon(String vname,String desc, String date, String url)
-	 * 
-	 * 
-	 * 
-	 *
-	 ****************************************************************************************************/
-//	public Coupon(String vname,String desc, String date, String url) {
-//		this.vendor_name = vname;
-//		this.description = desc;
-//		if(!date.equals(""))
-//		this.valid_date = parse_date(date); 
-//		this.image_url = url;
-//	}
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(cid);
+		dest.writeInt(did);
+		dest.writeString(vendor);
+		dest.writeString(description);
+		dest.writeValue(validDate);
+		dest.writeString(imageUrl);
+		dest.writeValue(image);
+		dest.writeInt(receiverUid);
+		dest.writeInt(senderUid);
+	}
 	
 	/**************************************************************************
 	 * private Date parse_date(String date)
-	 * 
+	 * @deprecated
 	 *
 	 **************************************************************************/
 	private Date parse_date(String date) {
@@ -196,6 +188,14 @@ public class Coupon implements Parcelable {
 		return image;
 	}
 	
+	public int getReceiverUid() {
+		return receiverUid;
+	}
+	
+	public void setReceiverUid(int uid) {
+		this.receiverUid = uid;
+	}
+
 	public int getSenderUid() {
 		return senderUid;
 	}
@@ -203,6 +203,7 @@ public class Coupon implements Parcelable {
 	public void setSenderUid(int uid) {
 		this.senderUid = uid;
 	}
+	
 
 	public void setBitmap(Bitmap bitmap) {
 		   int width = bitmap.getWidth();
@@ -252,17 +253,5 @@ public class Coupon implements Parcelable {
 	public int describeContents() {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeInt(cid);
-		dest.writeInt(did);
-		dest.writeString(vendor);
-		dest.writeString(description);
-		dest.writeValue(validDate);
-		dest.writeString(imageUrl);
-		dest.writeValue(image);
-		dest.writeInt(senderUid);
 	}
 }

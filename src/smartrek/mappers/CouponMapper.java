@@ -53,6 +53,8 @@ public final class CouponMapper extends Mapper {
 			url = "http://50.56.81.42:8080/couponsharing-sendview/senderuid=" + uid;
 		}
 		
+		// FIXME: Handle a case where flag = null
+		
 		HTTP http = new HTTP(url);
 		http.connect();
 		
@@ -77,6 +79,11 @@ public final class CouponMapper extends Mapper {
 				
 				if (Flag.Received.equals(flag) && obj.has("UID")) {
 					coupon.setSenderUid(obj.getInt("UID"));
+					coupon.setReceiverUid(uid);
+				}
+				else if(Flag.Sent.equals(flag)) {
+					coupon.setSenderUid(uid);
+					coupon.setReceiverUid(obj.getInt("UID"));
 				}
 				
 				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -113,7 +120,19 @@ public final class CouponMapper extends Mapper {
 	}
 	
 	public void cancelSentCoupon(Coupon coupon) throws IOException {
-		String url = String.format("%s/couponsharingcancel/senderuid=%d%%20receiveruid=%d%%20did=%d");
+		String url = String.format("%s/couponsharing-cancel/senderuid=%d%%20receiveruid=%d%%20did=%d",
+				host, coupon.getSenderUid(), coupon.getReceiverUid(), coupon.getDid());
+		
+		HTTP http = new HTTP(url);
+		http.connect();
+		
+		int responseCode = http.getResponseCode();
+		if(responseCode == 200) {
+			Log.d("CouponMapper", "cancelSentCoupon - success");
+		}
+		else {
+			throw new IOException(String.format("HTTP %d - %s", responseCode, http.getResponseBody()));
+		}
 	}
 	
 	public void acceptCoupon(Coupon coupon, int senderUid, int receiverUid) throws IOException {
