@@ -74,4 +74,11 @@
             android:text="Reject" />
     </LinearLayout>
 
+    <Button
+        android:id="@+id/buttonCancel"
+        android:layout_width="100dp"
+        android:layout_height="38dp"
+        android:gravity="center"
+        android:text="Cancel" />
+
 </LinearLayout>

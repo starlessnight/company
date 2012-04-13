@@ -123,6 +123,7 @@ public final class CouponsTabActivity extends Activity {
 	
 		    		Bundle extras = new Bundle();
 		    		extras.putParcelable("coupon", couponsSent.get(position));
+		    		extras.putBoolean("sent", true);
 		    		intent.putExtras(extras);
 		    		startActivity(intent);
 		            

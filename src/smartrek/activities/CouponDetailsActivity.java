@@ -75,6 +75,15 @@ public final class CouponDetailsActivity extends Activity {
 				new CouponRejectTask().execute(coupon.getSenderUid(), currentUser.getId());
 			}
 		});
+		
+		
+		Button cancelButton = (Button) findViewById(R.id.buttonCancel);
+		cancelButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+			}
+		});
+		cancelButton.setVisibility((extras.containsKey("sent") && extras.getBoolean("sent")) ? View.VISIBLE : View.INVISIBLE);
 	}
 	
 	@Override 
@@ -118,6 +127,31 @@ public final class CouponDetailsActivity extends Activity {
 			CouponMapper mapper = new CouponMapper();
 			try {
 				mapper.rejectCoupon(coupon, suid, ruid);
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Object result) {
+			finish();
+		}
+	}
+	
+	private class CouponSendCancelTask extends AsyncTask<Object, Object, Object> {
+
+		@Override
+		protected Object doInBackground(Object... params) {
+			// FIXME: Potential array out of boundary exception
+			int suid = (Integer) params[0];
+			int ruid = (Integer) params[1];
+			
+			CouponMapper mapper = new CouponMapper();
+			try {
+				mapper.cancelSentCoupon(coupon);
 			}
 			catch (IOException e) {
 				e.printStackTrace();

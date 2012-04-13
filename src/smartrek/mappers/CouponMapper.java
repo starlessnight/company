@@ -112,6 +112,10 @@ public final class CouponMapper extends Mapper {
 		}
 	}
 	
+	public void cancelSentCoupon(Coupon coupon) throws IOException {
+		String url = String.format("%s/couponsharingcancel/senderuid=%d%%20receiveruid=%d%%20did=%d");
+	}
+	
 	public void acceptCoupon(Coupon coupon, int senderUid, int receiverUid) throws IOException {
 		String url = String.format("%s/couponsharing-accept/senderuid=%d%%20receiveruid=%d%%20did=%d",
 				host, senderUid, receiverUid, coupon.getDid());
