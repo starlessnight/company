@@ -188,42 +188,4 @@ public final class CouponMapper extends Mapper {
 			throw new IOException(String.format("HTTP %d - %s", responseCode, http.getResponseBody()));
 		}
 	}
-	
-	/**
-	 * @deprecated
-	 * @param coupons
-	 * @param context
-	 */
-	public void doCouponBitmapDownloads(ArrayList<Coupon> coupons, Context context) {
-    	Image_Communicator icom = new Image_Communicator();
-    	
-    	PicuteDataBase pDat = new PicuteDataBase(context);
-    	pDat.open();
-    	
-    	Cursor cursor = null;
-    	
-    	Log.d("Coupon_Communicator","Downloading Coupon Images");
-    	for (int i = 0; i < coupons.size(); i++) {
-    		Coupon coupon = coupons.get(i);
-    	
-    		cursor = pDat.getPictue(coupon.getImageUrl());
-    		
-    		if(cursor == null || cursor.getCount() == 0) {
-    			Log.d("Coupon_Communicator","Downloading image for " + coupon.getVendor());
-    			Bitmap bitmap = icom.DownloadImage(coupon.getImageUrl());
-    			coupon.setBitmap(bitmap);
-    			Log.d("Coupon_Communicator","Storing bitmap for " + coupon.getImageUrl() + " In Database");
-    			pDat.insertPicture(coupon.getImageUrl(), bitmap);
-    		} else if(cursor.getString(1).equals(coupon.getImageUrl())){
-    			Log.d("Coupon_Communicator","Image found in Database. Loading...");
-    			Bitmap bitmap = BitmapFactory.decodeByteArray(cursor.getBlob(2), 0,cursor.getBlob(2).length);
-    			coupon.setBitmap(bitmap);
-    		}
-    	}
-    	if(cursor != null)
-    		if(!cursor.isClosed())
-    			cursor.close();
-  
-    	pDat.close();		
-	}
 }

@@ -468,7 +468,7 @@ public class RouteActivity extends MapActivity {
             return true;
             
         case R.id.mycoupons:
-            intent = new Intent(this,MyCouponsActivity.class);
+            intent = new Intent(this, CouponsTabActivity.class);
             startActivity(intent);
             return true;
             
@@ -692,47 +692,4 @@ public class RouteActivity extends MapActivity {
         }
 
     }
-
-/*=====================================================================================================================*/
-    
-/*=====================================================================================================================*/
-    
-    /****************************************************************************************************************
-     * 
-     *
-     *
-     ****************************************************************************************************************/ 
-    private class BackgroundDownloadImageTask extends AsyncTask<Void, Void, Void> {
-        
-        /****************************************************************************************************************
-         * 
-         *
-         *
-         ****************************************************************************************************************/ 
-        protected Void doInBackground(Void... v) {   
-            
-            Log.d("RouteActivity", "Starting AsyncTask BackgroundDownloadImageTask");
-            
-            CouponMapper ccom = new CouponMapper();
-            
-            for (int i = 0; i < routes.size(); i++) {
-                ccom.doCouponBitmapDownloads(routes.get(i).getAllCoupons(), context);
-            }
-            return null;
-        }       
-        
-        /****************************************************************************************************************
-         * 
-         *
-         *
-         ****************************************************************************************************************/ 
-        protected void onPostExecute(Void v) {
-            Log.d("RouteActivity", "Background Image Download complete, setting coupon bitmaps");
-
-            couponLayout.setRoutes(routes);
-
-            dialog.dismiss();
-        }
-    }
-/*=====================================================================================================================*/
 }
