@@ -2,6 +2,7 @@ package smartrek.activities;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Stack;
 
 import smartrek.adapters.ContactItemAdapter;
 import smartrek.mappers.CouponMapper;
@@ -24,6 +25,7 @@ import android.widget.ListView;
 public final class CouponSendActivity extends Activity {
 	private Coupon coupon;
 	private List<User> contacts;
+	private Stack<Exception> exceptions = new Stack<Exception>();
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -36,6 +38,7 @@ public final class CouponSendActivity extends Activity {
 		ListView listView = (ListView) findViewById(R.id.listViewContacts);
 		listView.setOnItemClickListener(new OnItemClickListener() {
 
+			// FIXME: Revise this section for better readability
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				final User user = contacts.get(position);
@@ -112,6 +115,7 @@ public final class CouponSendActivity extends Activity {
 				mapper.sendCouponTo(coupon, suid, ruid);
 			} catch (IOException e) {
 				e.printStackTrace();
+				exceptions.push(e);
 			}
 			
 			return null;
@@ -119,7 +123,9 @@ public final class CouponSendActivity extends Activity {
 		
 		@Override
 		protected void onPostExecute(Object result) {
-			
+			if (exceptions.isEmpty()) {
+				finish();
+			}
 		}
 		
 	}
