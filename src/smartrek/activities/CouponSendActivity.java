@@ -5,16 +5,17 @@ import java.util.List;
 
 import smartrek.adapters.ContactItemAdapter;
 import smartrek.mappers.CouponMapper;
-import smartrek.mappers.UserMapper;
 import smartrek.models.Coupon;
 import smartrek.models.User;
 import smartrek.tasks.AsyncTaskCallback;
 import smartrek.tasks.ContactsFetchTask;
 import android.app.Activity;
-import android.content.SharedPreferences;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -37,9 +38,25 @@ public final class CouponSendActivity extends Activity {
 
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				User user = contacts.get(position);
+				final User user = contacts.get(position);
 				
-				sendCouponTo(user);
+				AlertDialog dialog = new AlertDialog.Builder(CouponSendActivity.this).create();
+				dialog.setTitle("Confirmation");
+				dialog.setMessage(String.format("You are about to sent %s coupon to %s. Do you want to proceed?", coupon.getVendor(), user.getFirstname()));
+				dialog.setButton(Dialog.BUTTON_POSITIVE, "Yes", new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						sendCouponTo(user);
+						dialog.dismiss();
+					}
+				});
+				dialog.setButton(Dialog.BUTTON_NEGATIVE, "No", new OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+				});
+				dialog.show();
 			}
 			
 		});

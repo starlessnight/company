@@ -201,9 +201,6 @@ public final class CouponsTabActivity extends Activity {
 				e.printStackTrace();
 				exceptions.push(e);
 			}
-            
-            // TODO: Load coupon images
-            //mapper.doCouponBitmapDownloads(coupons, CouponsTabActivity.this);
         	
             return coupons;
         }       
