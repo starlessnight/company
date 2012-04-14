@@ -88,19 +88,6 @@ public final class Coupon implements Parcelable {
 		this.imageUrl = bundle.getString("image_url");	
 	}
 	
-	@Override
-	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeInt(cid);
-		dest.writeInt(did);
-		dest.writeString(vendor);
-		dest.writeString(description);
-		dest.writeValue(validDate);
-		dest.writeString(imageUrl);
-		dest.writeValue(image);
-		dest.writeInt(receiverUid);
-		dest.writeInt(senderUid);
-	}
-	
 	/**************************************************************************
 	 * private Date parse_date(String date)
 	 * @deprecated
@@ -206,27 +193,27 @@ public final class Coupon implements Parcelable {
 	
 
 	public void setBitmap(Bitmap bitmap) {
-		   int width = bitmap.getWidth();
-	        int height = bitmap.getHeight();
-	        int newWidth = width/2;
-	        int newHeight = 95;
-	       
-	        // calculate the scale - in this case = 0.4f
-	        float scaleWidth = ((float) newWidth) / width;
-	        float scaleHeight = ((float) newHeight) / height;
-	       
-	        // create matrix for the manipulation
-	        Matrix matrix = new Matrix();
-	        // resize the bit map
-	        matrix.postScale(scaleWidth, scaleHeight);
-	 
-	        // recreate the new Bitmap
-	        Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0,
-	                          width, height, matrix, true);
-	        this.bitmapset = true;
-		    this.image = resizedBitmap;
+		int width = bitmap.getWidth();
+		int height = bitmap.getHeight();
+		int newWidth = width / 2;
+		int newHeight = 95;
+
+		// calculate the scale - in this case = 0.4f
+		float scaleWidth = ((float) newWidth) / width;
+		float scaleHeight = ((float) newHeight) / height;
+
+		// create matrix for the manipulation
+		Matrix matrix = new Matrix();
+		// resize the bit map
+		matrix.postScale(scaleWidth, scaleHeight);
+
+		// recreate the new Bitmap
+		Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0, width, height,
+				matrix, true);
+		this.bitmapset = true;
+		this.image = resizedBitmap;
 	}
-	
+
 	public String toString() {
 		StringBuffer buf = new StringBuffer();
 
@@ -247,6 +234,19 @@ public final class Coupon implements Parcelable {
 		bundle.putInt("valid_year", validDate.getYear());
 		bundle.putString("image_url", imageUrl);
 		bundle.putParcelable("image", image);
+	}
+	
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(cid);
+		dest.writeInt(did);
+		dest.writeString(vendor);
+		dest.writeString(description);
+		dest.writeValue(validDate);
+		dest.writeString(imageUrl);
+		dest.writeValue(image);
+		dest.writeInt(receiverUid);
+		dest.writeInt(senderUid);
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package smartrek.mappers;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ConnectException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -103,6 +104,25 @@ public final class CouponMapper extends Mapper {
 		return coupons;
 	}
 	
+	/**
+	 * Takes care of image download process for a coupon
+	 * 
+	 * @param coupon
+	 * @throws IOException 
+	 */
+	public void downloadImage(Coupon coupon) throws IOException {
+		HTTP http = new HTTP(coupon.getImageUrl());
+		http.connect();
+		
+		int responseCode = http.getResponseCode();
+		if (responseCode == 200) {
+			InputStream in = http.getInputStream();
+			Bitmap bitmap = BitmapFactory.decodeStream(in);
+			
+			coupon.setBitmap(bitmap);
+		}
+	}
+	
 	public void sendCouponTo(Coupon coupon, int senderUid, int receiverUid) throws IOException {
 		String url = String.format("%s/couponsharing-send/senderuid=%d%%20receiveruid=%d%%20did=%d",
 				host, senderUid, receiverUid, coupon.getDid());
@@ -169,6 +189,11 @@ public final class CouponMapper extends Mapper {
 		}
 	}
 	
+	/**
+	 * @deprecated
+	 * @param coupons
+	 * @param context
+	 */
 	public void doCouponBitmapDownloads(ArrayList<Coupon> coupons, Context context) {
     	Image_Communicator icom = new Image_Communicator();
     	

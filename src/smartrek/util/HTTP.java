@@ -41,6 +41,18 @@ public final class HTTP {
 	}
 	
 	/**
+	 * Retrieves an HTTP header. This must be called after connect() is called.
+	 * @param key
+	 * @return
+	 */
+	public String getHeaderField(String key) {
+		if (httpConn != null) {
+			return httpConn.getHeaderField(key);
+		}
+		return null;
+	}
+	
+	/**
 	 * Returns an HTTP response code
 	 * 
 	 * @return An HTTP response code

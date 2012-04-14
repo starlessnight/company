@@ -1,11 +1,15 @@
 package smartrek.adapters;
 
+import java.io.IOException;
 import java.util.List;
 
 import smartrek.activities.R;
+import smartrek.mappers.CouponMapper;
 import smartrek.models.Coupon;
 import android.app.Activity;
 import android.content.Context;
+import android.os.AsyncTask;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,10 +68,51 @@ public class CouponAdapter extends BaseAdapter {
 			textViewDescription.setText(coupon.getDescription());
 			
 			ImageView imageView = (ImageView) view.findViewById(R.id.imageView1);
-			imageView.setImageBitmap(coupon.getBitmap());
+			
+			if (coupon.getBitmap() != null) {
+				imageView.setImageBitmap(coupon.getBitmap());
+			}
+			else {
+				Log.d("CouponAdapter", "Downloading coupon image...");
+				new CouponImageTask(imageView, coupon).execute();
+			}
 			imageView.setPadding(8, 8, 8, 8);
 		}
 		return view;
 	}
+	
+    private final class CouponImageTask extends AsyncTask<Void, Void, Void> {
+    	
+    	private ImageView imageView;
+    	private Coupon coupon;
+    	
+    	/**
+    	 * 
+    	 * @param imageView An image view to be updated
+    	 */
+    	public CouponImageTask(ImageView imageView, Coupon coupon) {
+    		super();
+    		this.imageView = imageView;
+    		this.coupon = coupon;
+    	}
 
+		@Override
+		protected Void doInBackground(Void... params) {
+			CouponMapper mapper = new CouponMapper();
+			try {
+				mapper.downloadImage(coupon);
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Void v) {
+			imageView.setImageBitmap(coupon.getBitmap());
+		}
+    
+    }
 }
