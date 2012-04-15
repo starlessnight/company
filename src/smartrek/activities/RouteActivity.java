@@ -5,18 +5,14 @@ import java.util.List;
 import java.util.Stack;
 
 import smartrek.AdjustableCouponDisplay.CouponLayout;
-import smartrek.mappers.CouponMapper;
 import smartrek.mappers.RouteMapper;
 import smartrek.models.Coupon;
 import smartrek.models.Route;
 import smartrek.overlays.RouteOverlay;
 import smartrek.overlays.RouteSegmentOverlay;
-import smartrek.ui.ObservableScrollView;
-import smartrek.ui.ScrollViewListener;
 import smartrek.ui.timelayout.ScrollableTimeLayout;
 import smartrek.ui.timelayout.TimeButton;
 import smartrek.ui.timelayout.TimeLayout;
-import smartrek.ui.timelayout.TimeButton.State;
 import smartrek.ui.timelayout.TimeLayout.TimeLayoutListener;
 import smartrek.ui.timelayout.TimeLayout.TimeLayoutOnSelectListener;
 import smartrek.util.Geocoding;
@@ -161,17 +157,22 @@ public class RouteActivity extends MapActivity {
         timeLayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
 			@Override
 			public void onSelect(int column, TimeButton timeButton1, TimeButton timeButton2) {
-				Time departureTime = timeButton1.getTime();
-				//doRoute(originCoord, destCoord, departureTime);
-				dialog.show();
-		        new RouteTask().execute(originCoord, destCoord, departureTime, column, true);
+				if (!timeLayout.getColumnState(column).equals(TimeButton.State.InProgress)) {
+					Time departureTime = timeButton1.getTime();
+					//doRoute(originCoord, destCoord, departureTime);
+					dialog.show();
+					new RouteTask().execute(originCoord, destCoord, departureTime, column, true);
+				}
 			}
 		});
         timeLayout.setTimeLayoutListener(new TimeLayoutListener() {
 			@Override
 			public void updateTimeLayout(TimeLayout timeLayout, int column) {
-				Time departureTime = timeLayout.getDepartureTime(column);
-				new RouteTask().execute(originCoord, destCoord, departureTime, column, false);
+				if (timeLayout.getColumnState(column).equals(TimeButton.State.Unknown)) {
+					timeLayout.setColumnState(column, TimeButton.State.InProgress);
+					Time departureTime = timeLayout.getDepartureTime(column);
+					new RouteTask().execute(originCoord, destCoord, departureTime, column, false);
+				}
 			}
         });
 
@@ -258,7 +259,7 @@ public class RouteActivity extends MapActivity {
      * @param possibleRoutes
      * @param time
      */
-    private void updateMap(List<Route> possibleRoutes, Time time) {
+    private synchronized void updateMap(List<Route> possibleRoutes, Time time) {
         
         if(possibleRoutes != null && possibleRoutes.size() > 0) {
             /* Get a midpoint to center the view of  the routes */
@@ -312,7 +313,7 @@ public class RouteActivity extends MapActivity {
      * @param routeNum - 
      *
      ****************************************************************************************************************/
-    public int[] drawRoute (MapView mapView, Route route, int routeNum) {
+    public synchronized int[] drawRoute (MapView mapView, Route route, int routeNum) {
         mapOverlays = mapView.getOverlays();
         Drawable drawable;
         
@@ -385,15 +386,15 @@ public class RouteActivity extends MapActivity {
         }
         
         /* Log selected time to debug */
-        Log.d("RouteActivity", "In RouteActivity setting route time");
-        Log.d("RouteActivity", selectedTime.format3339(false));
+        //Log.d("RouteActivity", "In RouteActivity setting route time");
+        //Log.d("RouteActivity", selectedTime.format3339(false));
         
         /* Add offset of 1000 to range so that map displays extra space around route. */
         int [] range = {latMax - latMin + 1500 ,lonMax - lonMin + 1500};
         
         /* Log range values to debug */
-        Log.d("RouteActivity", " Latitude Range:" + range[0]);
-        Log.d("RouteActivity", " Longitude Range:" + range[1]);  
+        //Log.d("RouteActivity", " Latitude Range:" + range[0]);
+        //Log.d("RouteActivity", " Longitude Range:" + range[1]);  
         
         /* Return the range to doRoute so that map can be adjusted to range settings */
         return range;
@@ -688,7 +689,8 @@ public class RouteActivity extends MapActivity {
             }
             
             // FIXME: Relying on updateMap is kind of hack-ish. Need to come up with more sophiscated way.
-            timeLayout.setColumnState(selectedColumn, updateMap ? TimeButton.State.Selected : TimeButton.State.None);
+            //timeLayout.setColumnState(selectedColumn, updateMap ? TimeButton.State.Selected : TimeButton.State.None);
+            timeLayout.setColumnState(selectedColumn, TimeButton.State.None);
         }
 
     }

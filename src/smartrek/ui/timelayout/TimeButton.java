@@ -18,7 +18,7 @@ public class TimeButton extends TextView {
 //	public static final int BACKGROUND
 	
 	public enum State {
-		None, InProgress, Selected, Disabled;
+		None, Unknown, InProgress, Selected, Disabled;
 		
 		public int getTextColor() {
 			if(Disabled.equals(this)) {
@@ -51,7 +51,7 @@ public class TimeButton extends TextView {
 	private Time time;
 	private int duration;
 	
-	private State state = State.None;
+	private State state = State.Unknown;
 	private DisplayMode displayMode = DisplayMode.Time;
 	
 	/**
@@ -66,7 +66,6 @@ public class TimeButton extends TextView {
 		setOnClickListener(timelayout);
 		setTag(btnum);
 		setGravity(Gravity.CENTER_HORIZONTAL);
-		setState(State.None);
 		setText("Unknown");
 	}
 
@@ -157,7 +156,7 @@ public class TimeButton extends TextView {
 	 * 
 	 */
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected synchronized void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         Rect rect = new Rect();
         Paint paint = new Paint();
