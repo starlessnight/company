@@ -18,7 +18,6 @@ import org.json.JSONObject;
 
 import smartrek.models.Route;
 import smartrek.util.Cache;
-import smartrek.util.HTTP;
 import smartrek.util.RouteNode;
 import android.text.format.Time;
 import android.util.Log;
@@ -34,7 +33,6 @@ public class RouteMapper extends Mapper {
 	
 	private String loc1;
 	private String loc2;
-	private String coupon_url;
 	private Time time;
 	
 	/**
@@ -42,14 +40,13 @@ public class RouteMapper extends Mapper {
 	 */
 	public RouteMapper(){
 		super();
-		coupon_url = "http://www.api.smartrekmobile.com/finddiscount?routeid=";
 	}
 
 	/**
 	 * Retrieves all possible routes from the server.
 	 * 
 	 * @param origin Coordinate of the origin address
-	 * @param destination Coordinate of the destinatino address
+	 * @param destination Coordinate of the destination address
 	 * @param time Departure time
 	 * @return A list of all possible routes
 	 * @throws JSONException
@@ -57,31 +54,19 @@ public class RouteMapper extends Mapper {
 	 */
 	public List<Route> getPossibleRoutes(GeoPoint origin, GeoPoint destination, Time time) throws JSONException, IOException {
 			
-//		this.loc1 = loc1;
-//		this.loc2 = loc2;
 		this.time = time;
-		// Set Up the request to the sever
-		//String routeurl = sturl + appendToUrl();
 		
-		String routeurl = String.format("http://50.56.81.42:8080/getroutes/startlat=%f%%20startlon=%f%%20endlat=%f%%20endlon=%f%%20departtime=%d:%02d",
-				origin.getLatitudeE6()/1.0E6, origin.getLongitudeE6()/1.0E6, destination.getLatitudeE6()/1.0E6, destination.getLongitudeE6()/1.0E6,
+		String routeurl = String.format("%s/getroutes/startlat=%f%%20startlon=%f%%20endlat=%f%%20endlon=%f%%20departtime=%d:%02d",
+				host, origin.getLatitudeE6()/1.0E6, origin.getLongitudeE6()/1.0E6, destination.getLatitudeE6()/1.0E6, destination.getLongitudeE6()/1.0E6,
 				time.hour, time.minute); 
 		
-		// Querry the server for the routes
-		Log.d("Route_Communicator", "Querying Sever with");
-		Log.d("Route_Communicator",routeurl);
-		//String routeResponse = HTTP.downloadText(routeurl);
+		Log.d("RouteMapper", routeurl);
 		
 		Cache cache = Cache.getInstance();
 		String routeResponse = (String) cache.fetch(routeurl);
 		
-		Log.d("Route_Communicator", "Query Complete, Got Route Information");
-		
-		
-		
 		// Begin parsing the server response
 		List<Route> routes = new ArrayList<Route>();
-		
 
 		JSONArray array = new JSONArray(routeResponse);
 		for(int i = 0; i <array.length(); i++) {

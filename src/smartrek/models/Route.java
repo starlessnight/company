@@ -1,7 +1,6 @@
 package smartrek.models;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import smartrek.util.RouteNode;
 import android.os.Bundle;
