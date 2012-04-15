@@ -1,6 +1,7 @@
 package smartrek.ui.timelayout;
 
 import smartrek.models.Route;
+import smartrek.ui.timelayout.TimeButton.State;
 import android.content.Context;
 import android.text.format.Time;
 import android.util.AttributeSet;
@@ -97,11 +98,11 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     	return 150;
     }
     
-    public synchronized TimeColumn.State getColumnState(int column) {
+    public synchronized State getColumnState(int column) {
     	return ((TimeColumn) getChildAt(column)).getState();
     }
     
-    public synchronized void setColumnState(int column, TimeColumn.State state) {
+    public synchronized void setColumnState(int column, State state) {
     	((TimeColumn) getChildAt(column)).setState(state);
     }
     
@@ -114,8 +115,8 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
 //    }
     
     public synchronized void notifyColumn(int column, boolean visible) {
-    	TimeColumn.State state = getColumnState(column);
-    	if(!TimeColumn.State.InProgress.equals(state)) {
+    	State state = getColumnState(column);
+    	if(!State.InProgress.equals(state)) {
     		//Log.d("TimeLayout", String.format("Setting column %d state to InProgress", column));
     		//setColumnState(column, TimeButton.State.InProgress);
     		
@@ -152,17 +153,17 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     	
     	Log.d("TimeLayout", "Column state: " + getColumnState(column));
     	
-    	if (getColumnState(column).equals(TimeColumn.State.None)) {
+    	if (getColumnState(column).equals(State.None)) {
     	
 	        for (int i = 0; i < this.getChildCount(); i++) {
 	        	TimeColumn button = (TimeColumn) getChildAt(i);
-	        	if (button.getState().equals(TimeColumn.State.Selected)) {
-	        		button.setState(TimeColumn.State.None);
+	        	if (button.getState().equals(State.Selected)) {
+	        		button.setState(State.None);
 	        	}
 //	        	((TimeButton) getChildAt(i)).setState(TimeButton.State.None);
 	        }
 	
-	        setColumnState(column, TimeColumn.State.Selected);
+	        setColumnState(column, State.Selected);
 	        
 	        this.invalidate(); // TODO: What is this?
 	        

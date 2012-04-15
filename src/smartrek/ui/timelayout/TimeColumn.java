@@ -1,8 +1,6 @@
 package smartrek.ui.timelayout;
 
-import java.text.SimpleDateFormat;
-
-import android.graphics.Color;
+import smartrek.ui.timelayout.TimeButton.State;
 import android.text.format.Time;
 import android.widget.LinearLayout;
 
@@ -15,31 +13,7 @@ public final class TimeColumn extends LinearLayout {
 //	public static final int DEFAULT_BACKGROUND_COLOR = Color.parseColor("#3f3e40");
 //	public static final int BACKGROUND
 	
-	public enum State {
-		None, Unknown, InProgress, Selected, Disabled;
-		
-		public int getTextColor() {
-			if(Disabled.equals(this)) {
-				return Color.parseColor("#C0C0C0");
-			}
-			else {
-				return Color.parseColor("#FFFFFF");
-			}
-		}
-		
-		public int getBackgroundColor() {
-			if(None.equals(this)) {
-				return Color.parseColor("#3f3e40");
-			}
-			else if(Selected.equals(this)) {
-				return Color.parseColor("#cea350");
-			}
-			else {
-				return Color.parseColor("#3f3e40");
-			}
-		}
-	}
-	
+
 	public enum DisplayMode {
 		Time, Duration
 	}
@@ -79,6 +53,9 @@ public final class TimeColumn extends LinearLayout {
 	
 	public synchronized void setState(State state) {
 		this.state = state;
+		
+		departureTimeButton.setState(state);
+		arrivalTimeButton.setState(state);
 	}
 
 	public synchronized void setDisplayMode(DisplayMode displayMode) {

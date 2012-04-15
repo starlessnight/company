@@ -11,6 +11,8 @@ import smartrek.models.Route;
 import smartrek.overlays.RouteOverlay;
 import smartrek.overlays.RouteSegmentOverlay;
 import smartrek.ui.timelayout.ScrollableTimeLayout;
+import smartrek.ui.timelayout.TimeButton;
+import smartrek.ui.timelayout.TimeButton.State;
 import smartrek.ui.timelayout.TimeColumn;
 import smartrek.ui.timelayout.TimeLayout;
 import smartrek.ui.timelayout.TimeLayout.TimeLayoutListener;
@@ -132,7 +134,7 @@ public class RouteActivity extends MapActivity {
         timeLayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
 			@Override
 			public void onSelect(int column, TimeColumn timeButton) {
-				if (!timeLayout.getColumnState(column).equals(TimeColumn.State.InProgress)) {
+				if (!timeLayout.getColumnState(column).equals(State.InProgress)) {
 					Time departureTime = timeButton.getDepartureTime();
 					dialog.show();
 					new RouteTask().execute(originCoord, destCoord, departureTime, column, true);
@@ -142,8 +144,8 @@ public class RouteActivity extends MapActivity {
         timeLayout.setTimeLayoutListener(new TimeLayoutListener() {
 			@Override
 			public void updateTimeLayout(TimeLayout timeLayout, int column) {
-				if (timeLayout.getColumnState(column).equals(TimeColumn.State.Unknown)) {
-					timeLayout.setColumnState(column, TimeColumn.State.InProgress);
+				if (timeLayout.getColumnState(column).equals(State.Unknown)) {
+					timeLayout.setColumnState(column, State.InProgress);
 					Time departureTime = timeLayout.getDepartureTime(column);
 					new RouteTask().execute(originCoord, destCoord, departureTime, column, false);
 				}
@@ -610,7 +612,7 @@ public class RouteActivity extends MapActivity {
         @Override
         protected void onPreExecute () {
             // FIXME: Should this be here?
-            timeLayout.setColumnState(selectedColumn, TimeColumn.State.InProgress);
+            timeLayout.setColumnState(selectedColumn, TimeButton.State.InProgress);
         }
         
         @Override
@@ -664,7 +666,7 @@ public class RouteActivity extends MapActivity {
             
             // FIXME: Relying on updateMap is kind of hack-ish. Need to come up with more sophiscated way.
             //timeLayout.setColumnState(selectedColumn, updateMap ? TimeButton.State.Selected : TimeButton.State.None);
-            timeLayout.setColumnState(selectedColumn, TimeColumn.State.None);
+            timeLayout.setColumnState(selectedColumn, State.None);
         }
 
     }
