@@ -1,6 +1,7 @@
 package smartrek.ui.timelayout;
 
 import smartrek.models.Route;
+import smartrek.ui.timelayout.TimeButton.DisplayMode;
 import smartrek.ui.timelayout.TimeButton.State;
 import android.content.Context;
 import android.text.format.Time;
@@ -17,14 +18,10 @@ import android.widget.LinearLayout;
  */
 public final class TimeLayout extends LinearLayout implements OnClickListener {
     
-	public enum DisplayMode {
-		TravelTime, ArrivalTime
-	}
-
     /**
      * Display mode. Default display mode is to show travel time.
      */
-    private DisplayMode displayMode = DisplayMode.TravelTime;
+    private DisplayMode displayMode = DisplayMode.Time;
     
     /**
      * We know tightly-coupled classes are a bad design, but we'll stick with
@@ -79,14 +76,9 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     public synchronized void setDisplayMode(DisplayMode displayMode) {
     	this.displayMode = displayMode;
     	
-    	if(DisplayMode.TravelTime.equals(displayMode)) {
-    		//setButtonDisplayModeInRow(1, TimeButton.DisplayMode.Duration);
-    	}
-    	else if(DisplayMode.ArrivalTime.equals(displayMode)) {
-    		//setButtonDisplayModeInRow(1, TimeButton.DisplayMode.Time);
-    	}
-    	else {
-    		Log.d("TimeLayout", "Unknown display mode");
+    	for (int i = 0; i < getChildCount(); i++) {
+    		TimeColumn timeColumn = (TimeColumn) getChildAt(i);
+    		timeColumn.setDisplayMode(displayMode);
     	}
     }
     

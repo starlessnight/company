@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.view.Gravity;
 import android.widget.TextView;
 
 public final class TimeButton extends TextView {
@@ -38,13 +39,19 @@ public final class TimeButton extends TextView {
 		}
 	}
 	
+	public enum DisplayMode {
+		Time, Duration
+	}
+	
 	private State state = State.Unknown;
+	private DisplayMode displayMode = DisplayMode.Time;
 	
 	public TimeButton(Context context) {
 		super(context);
 		
 		setWidth(WIDTH);
 		setHeight(HEIGHT);
+		setGravity(Gravity.CENTER);
 	}
 	
 	public State getState() {

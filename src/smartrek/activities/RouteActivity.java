@@ -12,6 +12,7 @@ import smartrek.overlays.RouteOverlay;
 import smartrek.overlays.RouteSegmentOverlay;
 import smartrek.ui.timelayout.ScrollableTimeLayout;
 import smartrek.ui.timelayout.TimeButton;
+import smartrek.ui.timelayout.TimeButton.DisplayMode;
 import smartrek.ui.timelayout.TimeButton.State;
 import smartrek.ui.timelayout.TimeColumn;
 import smartrek.ui.timelayout.TimeLayout;
@@ -161,7 +162,7 @@ public class RouteActivity extends MapActivity {
         int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
         
         // FIXME: Sloppy
-        timeLayout.setDisplayMode((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? TimeLayout.DisplayMode.TravelTime : TimeLayout.DisplayMode.ArrivalTime);
+        timeLayout.setDisplayMode((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? DisplayMode.Duration : DisplayMode.Time);
         
         // FIXME: Temporary solution
         selectedTime = new Time();
@@ -492,7 +493,7 @@ public class RouteActivity extends MapActivity {
                 int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
                 
                 // FIXME: Sloppy
-                timeLayout.setDisplayMode((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? TimeLayout.DisplayMode.TravelTime : TimeLayout.DisplayMode.ArrivalTime);
+                timeLayout.setDisplayMode((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? DisplayMode.Duration : DisplayMode.Time);
             }
         } 
     }

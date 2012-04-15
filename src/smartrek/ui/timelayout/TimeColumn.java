@@ -1,5 +1,6 @@
 package smartrek.ui.timelayout;
 
+import smartrek.ui.timelayout.TimeButton.DisplayMode;
 import smartrek.ui.timelayout.TimeButton.State;
 import android.text.format.Time;
 import android.widget.LinearLayout;
@@ -9,14 +10,6 @@ import android.widget.LinearLayout;
  * 
  */
 public final class TimeColumn extends LinearLayout {
-	
-//	public static final int DEFAULT_BACKGROUND_COLOR = Color.parseColor("#3f3e40");
-//	public static final int BACKGROUND
-	
-
-	public enum DisplayMode {
-		Time, Duration
-	}
 	
 	private TimeButton departureTimeButton;
 	private TimeButton arrivalTimeButton;
@@ -79,8 +72,12 @@ public final class TimeColumn extends LinearLayout {
 	public void setArrivalTime(Time time) {
 		this.arrivalTime = time;
 		
-//		SimpleDateFormat format = new SimpleDateFormat("hh:mm aa");
-//		arrivalTimeButton.setText(format.format(time));
+		if (displayMode.equals(DisplayMode.Duration)) {
+			arrivalTimeButton.setText(String.format("%d min", getDuration()/60));
+		}
+		else {
+			arrivalTimeButton.setText(time.format("%l:%M%p"));
+		}
 	}
 	
 	/**
@@ -89,7 +86,6 @@ public final class TimeColumn extends LinearLayout {
 	 * @return Travel duration in seconds.
 	 */
 	public int getDuration() {
-		// FIXME: Not implemented yet
-		return 0;
+		return (int) ((arrivalTime.toMillis(false) - departureTime.toMillis(false)) / 1000);
 	}
 }
