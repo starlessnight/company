@@ -135,10 +135,18 @@ public class RouteActivity extends MapActivity {
         timeLayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
 			@Override
 			public void onSelect(int column, TimeColumn timeButton) {
+				Log.d("RouteActivity", "Column state: " + timeLayout.getColumnState(column));
 				if (!timeLayout.getColumnState(column).equals(State.InProgress)) {
-					Time departureTime = timeButton.getDepartureTime();
-					dialog.show();
-					new RouteTask().execute(originCoord, destCoord, departureTime, column, true);
+					
+//					if (timeLayout.getColumnState(column).equals(State.Unknown)) {
+						timeLayout.setColumnState(column, State.InProgress);
+						Time departureTime = timeButton.getDepartureTime();
+						dialog.show();
+						new RouteTask().execute(originCoord, destCoord, departureTime, column, true);
+//					}
+//					else {
+//						timeLayout.setColumnState(column, State.Selected);
+//					}
 				}
 			}
 		});
@@ -666,8 +674,8 @@ public class RouteActivity extends MapActivity {
             }
             
             // FIXME: Relying on updateMap is kind of hack-ish. Need to come up with more sophiscated way.
-            //timeLayout.setColumnState(selectedColumn, updateMap ? TimeButton.State.Selected : TimeButton.State.None);
-            timeLayout.setColumnState(selectedColumn, State.None);
+            timeLayout.setColumnState(selectedColumn, updateMap ? TimeButton.State.Selected : TimeButton.State.None);
+            //timeLayout.setColumnState(selectedColumn, State.None);
         }
 
     }

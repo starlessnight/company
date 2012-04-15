@@ -58,15 +58,15 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
         int numboxes = adjustableTime.getNumTimeBoxes();
         
         for (int i = 0; i < numboxes; i++) {
-             TimeColumn timeButton = new TimeColumn(this, i);
-             timeButton.setDepartureTime(adjustableTime.initTime());
+             TimeColumn timeColumn = new TimeColumn(this, i);
+             timeColumn.setDepartureTime(adjustableTime.initTime());
+             timeColumn.setOnClickListener(this);
              adjustableTime.incrementBy(15);
-             addView(timeButton, i);
+             addView(timeColumn, i);
         }
 
         //setButtonDisplayModeInRow(0, TimeButton.DisplayMode.Time);
         //setColumnState(0, TimeButton.State.Selected);
-
     }
     
     public DisplayMode getDisplayMode() {
@@ -97,15 +97,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     public synchronized void setColumnState(int column, State state) {
     	((TimeColumn) getChildAt(column)).setState(state);
     }
-    
-//    private synchronized void setButtonDisplayModeInRow(int row, TimeButton.DisplayMode displayMode) {
-//    	int cc = getColumnCount();
-//    	for(int i = row * cc; i < (row + 1) * cc; i++) {
-//    		TimeButton timeButton = (TimeButton) getChildAt(i);
-//    		timeButton.setDisplayMode(displayMode);
-//    	}
-//    }
-    
+
     public synchronized void notifyColumn(int column, boolean visible) {
     	State state = getColumnState(column);
     	if(!State.InProgress.equals(state)) {
@@ -148,9 +140,9 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     	if (getColumnState(column).equals(State.None)) {
     	
 	        for (int i = 0; i < this.getChildCount(); i++) {
-	        	TimeColumn button = (TimeColumn) getChildAt(i);
-	        	if (button.getState().equals(State.Selected)) {
-	        		button.setState(State.None);
+	        	TimeColumn timeColumn = (TimeColumn) getChildAt(i);
+	        	if (timeColumn.getState().equals(State.Selected)) {
+	        		timeColumn.setState(State.None);
 	        	}
 //	        	((TimeButton) getChildAt(i)).setState(TimeButton.State.None);
 	        }

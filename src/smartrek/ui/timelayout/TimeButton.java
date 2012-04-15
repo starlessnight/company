@@ -68,7 +68,7 @@ public final class TimeButton extends TextView {
 	 * 
 	 */
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected synchronized void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         Rect rect = new Rect();
         Paint paint = new Paint();
