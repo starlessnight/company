@@ -1,14 +1,14 @@
 package smartrek.models;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import smartrek.util.RouteNode;
-
-import com.google.android.maps.GeoPoint;
-
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
+
+import com.google.android.maps.GeoPoint;
 
 /****************************************************************************************************
  * 

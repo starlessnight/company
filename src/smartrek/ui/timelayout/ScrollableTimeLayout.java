@@ -11,7 +11,7 @@ import android.util.AttributeSet;
  * screen and notify `TimeLayout` which columns become visible as users scroll
  * this view.
  */
-public class ScrollableTimeLayout extends ObservableScrollView implements ScrollViewListener {
+public final class ScrollableTimeLayout extends ObservableScrollView implements ScrollViewListener {
 
 	// FIXME: This must be loaded dynamically
 	private int width = 450;

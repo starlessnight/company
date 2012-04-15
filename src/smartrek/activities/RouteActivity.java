@@ -11,7 +11,7 @@ import smartrek.models.Route;
 import smartrek.overlays.RouteOverlay;
 import smartrek.overlays.RouteSegmentOverlay;
 import smartrek.ui.timelayout.ScrollableTimeLayout;
-import smartrek.ui.timelayout.TimeButton;
+import smartrek.ui.timelayout.TimeColumn;
 import smartrek.ui.timelayout.TimeLayout;
 import smartrek.ui.timelayout.TimeLayout.TimeLayoutListener;
 import smartrek.ui.timelayout.TimeLayout.TimeLayoutOnSelectListener;
@@ -70,32 +70,7 @@ public class RouteActivity extends MapActivity {
     private int GENMAP = 1;
     private int SATELLITE = 2;
     private int CURRENTMODE = GENMAP;
-    
-    /**
-     * @deprecated
-     */
-    private int DEPARTONLY = 1;
-    
-    /**
-     * @deprecated
-     */
-    private int DEPART_AND_ARRIVE = 2;
-    
-    /**
-     * @deprecated
-     */
-    private int DEPART_AND_TRAVEL = 3;
-    
-    /**
-     * @deprecated
-     */
-    private int DEPART_ARRIVE_TRAVEL = 4;
-    
-    /**
-     * @deprecated
-     */
-    private int CURRENTDISPLAY = DEPARTONLY;
-    
+
     private Time selectedTime;
     
     private TimeLayout timeLayout;
@@ -156,10 +131,9 @@ public class RouteActivity extends MapActivity {
     	timeLayout = (TimeLayout) findViewById(R.id.timelayout);
         timeLayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
 			@Override
-			public void onSelect(int column, TimeButton timeButton1, TimeButton timeButton2) {
-				if (!timeLayout.getColumnState(column).equals(TimeButton.State.InProgress)) {
-					Time departureTime = timeButton1.getTime();
-					//doRoute(originCoord, destCoord, departureTime);
+			public void onSelect(int column, TimeColumn timeButton) {
+				if (!timeLayout.getColumnState(column).equals(TimeColumn.State.InProgress)) {
+					Time departureTime = timeButton.getDepartureTime();
 					dialog.show();
 					new RouteTask().execute(originCoord, destCoord, departureTime, column, true);
 				}
@@ -168,8 +142,8 @@ public class RouteActivity extends MapActivity {
         timeLayout.setTimeLayoutListener(new TimeLayoutListener() {
 			@Override
 			public void updateTimeLayout(TimeLayout timeLayout, int column) {
-				if (timeLayout.getColumnState(column).equals(TimeButton.State.Unknown)) {
-					timeLayout.setColumnState(column, TimeButton.State.InProgress);
+				if (timeLayout.getColumnState(column).equals(TimeColumn.State.Unknown)) {
+					timeLayout.setColumnState(column, TimeColumn.State.InProgress);
 					Time departureTime = timeLayout.getDepartureTime(column);
 					new RouteTask().execute(originCoord, destCoord, departureTime, column, false);
 				}
@@ -454,7 +428,7 @@ public class RouteActivity extends MapActivity {
         case R.id.map_display_options:
             intent = new Intent(this,MapDisplayActivity.class);
             int displayed = 0;
-            intent.putExtra("mapmode", CURRENTDISPLAY);
+            //intent.putExtra("mapmode", CURRENTDISPLAY);
             startActivityForResult(intent, displayed);
             
             Log.d("RouteActivity","Returned " + displayed + "from map display options");
@@ -636,7 +610,7 @@ public class RouteActivity extends MapActivity {
         @Override
         protected void onPreExecute () {
             // FIXME: Should this be here?
-            timeLayout.setColumnState(selectedColumn, TimeButton.State.InProgress);
+            timeLayout.setColumnState(selectedColumn, TimeColumn.State.InProgress);
         }
         
         @Override
@@ -690,7 +664,7 @@ public class RouteActivity extends MapActivity {
             
             // FIXME: Relying on updateMap is kind of hack-ish. Need to come up with more sophiscated way.
             //timeLayout.setColumnState(selectedColumn, updateMap ? TimeButton.State.Selected : TimeButton.State.None);
-            timeLayout.setColumnState(selectedColumn, TimeButton.State.None);
+            timeLayout.setColumnState(selectedColumn, TimeColumn.State.None);
         }
 
     }
