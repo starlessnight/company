@@ -9,11 +9,10 @@ import smartrek.adapters.FavoriteAddressAdapter;
 import smartrek.mappers.FavoriteAddressMapper;
 import smartrek.models.Address;
 import smartrek.models.User;
+import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.Menu;
@@ -54,7 +53,7 @@ import android.widget.TextView;
  * @version 1.0
  * 
  ****************************************************************************************************************/
-public class HomeActivity extends FragmentActivity implements OnClickListener, OnTouchListener {
+public final class HomeActivity extends Activity implements OnClickListener, OnTouchListener {
 	
 	private RelativeLayout RL;
 	private RelativeLayout section1;
