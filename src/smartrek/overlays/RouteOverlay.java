@@ -53,18 +53,18 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		this.selectedRoute = routeNum;
 	}
 	
-	public void addOverlay(OverlayItem overlay) {
+	public synchronized void addOverlay(OverlayItem overlay) {
 	    mOverlays.add(overlay);
 	    populate();
 	}
 
 	@Override
-	protected OverlayItem createItem(int i) {
+	protected synchronized OverlayItem createItem(int i) {
 	  return mOverlays.get(i);
 	}
 
 	@Override
-	public int size() {
+	public synchronized int size() {
 	  return mOverlays.size();
 	}
 	

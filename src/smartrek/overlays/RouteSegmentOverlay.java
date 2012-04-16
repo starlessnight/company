@@ -53,7 +53,7 @@ public class RouteSegmentOverlay extends Overlay {
 	 *
 	 ***************************************************************************************************************************/
 	@Override
-	public boolean draw (Canvas canvas, MapView mapView, boolean shadow, long when) {
+	public synchronized boolean draw (Canvas canvas, MapView mapView, boolean shadow, long when) {
 		Projection projection = mapView.getProjection();
 		Paint paint = new Paint();
 		paint.setAntiAlias(true);

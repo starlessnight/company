@@ -21,6 +21,9 @@ public final class TimeButton extends TextView {
 			if(Disabled.equals(this)) {
 				return Color.parseColor("#C0C0C0");
 			}
+			else if(InProgress.equals(this)) {
+				return Color.parseColor("#C0C0C0");
+			}
 			else {
 				return Color.parseColor("#FFFFFF");
 			}
@@ -32,6 +35,9 @@ public final class TimeButton extends TextView {
 			}
 			else if(Selected.equals(this)) {
 				return Color.parseColor("#cea350");
+			}
+			else if(InProgress.equals(this)) {
+				return Color.parseColor("#5f5e60");
 			}
 			else {
 				return Color.parseColor("#3f3e40");
