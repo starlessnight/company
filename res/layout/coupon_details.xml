@@ -14,6 +14,7 @@
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="left"
+            android:layout_margin="8dp"
             android:contentDescription="Coupon image"
             android:src="@drawable/routetag" />
 
