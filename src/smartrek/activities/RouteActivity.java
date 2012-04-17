@@ -8,6 +8,7 @@ import smartrek.AdjustableCouponDisplay.CouponLayout;
 import smartrek.mappers.RouteMapper;
 import smartrek.models.Coupon;
 import smartrek.models.Route;
+import smartrek.models.User;
 import smartrek.overlays.RouteOverlay;
 import smartrek.overlays.RouteSegmentOverlay;
 import smartrek.ui.CommonMenu;
@@ -23,7 +24,6 @@ import smartrek.util.Geocoding;
 import smartrek.util.RouteNode;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -38,7 +38,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 
 import com.google.android.maps.GeoPoint;
@@ -61,8 +60,6 @@ public class RouteActivity extends MapActivity {
     private RouteOverlay routeoverlay2;
     private RouteOverlay routeoverlay3;
     
-    private int uid;
-//    private String user;
     private String origin;
     private String destination;
     private GeoPoint originCoord;
@@ -79,12 +76,7 @@ public class RouteActivity extends MapActivity {
     
     private TimeLayout timeLayout;
     
-    private ArrayList<Coupon> coupons;
-    private List<Route> routes;
-    private HorizontalScrollView couponScroll;
-    private CouponLayout couponLayout;
     private TextView coupTitleBar;
-    private Context context;
     
     public static final String LOGIN_PREFS = "login_file";
     
@@ -114,8 +106,6 @@ public class RouteActivity extends MapActivity {
             mapView.setSatellite(false);
         }
     
-        context = this;
-        
         /* Set the map view for a view of North America before zooming in on route */
         MapController mc = mapView.getController();
         int lat = (int) Math.round(38.27268853598097f*1E6);
@@ -201,7 +191,7 @@ public class RouteActivity extends MapActivity {
 				originCoord = origin;
 				destCoord = destination;
 
-				for(int i = 0; i < 3; i++) {
+				for(int i = 0; i < 4; i++) {
 					Time departureTime = timeLayout.getDepartureTime(i);
 					
 					// `i` is going to be `selectedColumn` for the time layout
@@ -216,11 +206,8 @@ public class RouteActivity extends MapActivity {
 			}
 		};
         new GeocodingTask(callback).execute(origin, destination);
-        
-        couponScroll = (HorizontalScrollView) findViewById(R.id.scrollCoupon);
-        couponScroll.setScrollContainer(true);
-        
-        couponLayout = (CouponLayout)couponScroll.getChildAt(0);
+
+//        couponLayout = (CouponLayout)couponScroll.getChildAt(0);
         coupTitleBar = (TextView) findViewById(R.id.adjustableCouponLable);
         coupTitleBar.setVisibility(View.GONE);
         //Log.d("RouteActivity", "current selected time is " + selectedTime.toString());
@@ -262,9 +249,9 @@ public class RouteActivity extends MapActivity {
                 ArrayList<Coupon> coupons = route.getAllCoupons();
                 
                 /* If its the first route display that routes coupons */
-                if(i == 0) {
-                    this.coupons = coupons;
-                }
+//                if(i == 0) {
+//                    this.coupons = coupons;
+//                }
                 
                 /* Draw the route to the screen and hold on to the range */
                 range = drawRoute(mapView, route, i);
@@ -338,7 +325,9 @@ public class RouteActivity extends MapActivity {
         
         /* Set values into route to be passed to next Activity */
         route.setOD(origin, destination);
-        route.setUserId(uid);
+        
+        // FIXME:
+        route.setUserId(User.getCurrentUser(this).getId());
         
         drawable = this.getResources().getDrawable(R.drawable.routetag);
         
