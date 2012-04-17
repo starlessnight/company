@@ -1,30 +1,27 @@
 package smartrek.ui.timelayout;
 
 import smartrek.models.Route;
+import smartrek.ui.timelayout.TimeButton.DisplayMode;
+import smartrek.ui.timelayout.TimeButton.State;
 import android.content.Context;
 import android.text.format.Time;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-
-import com.gridlayout.GridLayout;
+import android.widget.LinearLayout;
 
 
 /**
  * This class is a container for multiple TimeButton's.
  *
  */
-public class TimeLayout extends GridLayout implements OnClickListener {
+public final class TimeLayout extends LinearLayout implements OnClickListener {
     
-	public enum DisplayMode {
-		TravelTime, ArrivalTime
-	}
-
     /**
      * Display mode. Default display mode is to show travel time.
      */
-    private DisplayMode displayMode = DisplayMode.TravelTime;
+    private DisplayMode displayMode = DisplayMode.Time;
     
     /**
      * We know tightly-coupled classes are a bad design, but we'll stick with
@@ -52,30 +49,24 @@ public class TimeLayout extends GridLayout implements OnClickListener {
      */
     public TimeLayout(Context context, AttributeSet attributes) {
         super(context, attributes);
+        
+        setOrientation(HORIZONTAL);
 
         AdjustableTime adjustableTime = new AdjustableTime();
         adjustableTime.setToNow();
         
         int numboxes = adjustableTime.getNumTimeBoxes();
         
-        setColumnCount(numboxes);
-        
         for (int i = 0; i < numboxes; i++) {
-             TimeButton timeButton = new TimeButton(this, i);
-             timeButton.setTime(adjustableTime.initTime());
+             TimeColumn timeColumn = new TimeColumn(this, i);
+             timeColumn.setDepartureTime(adjustableTime.initTime());
+             timeColumn.setOnClickListener(this);
              adjustableTime.incrementBy(15);
-             timeButton.setWidth(150);
-             addView(timeButton, i);
+             addView(timeColumn, i);
         }
-        for (int i = 0; i < numboxes; i++) {
-        	TimeButton timeButton = new TimeButton(this, numboxes+i);
-        	timeButton.setDuration(-1);
-        	timeButton.setWidth(getColumnWidth());
-        	addView(timeButton, numboxes+i);
-        }
-        setButtonDisplayModeInRow(0, TimeButton.DisplayMode.Time);
-        //setColumnState(0, TimeButton.State.Selected);
 
+        //setButtonDisplayModeInRow(0, TimeButton.DisplayMode.Time);
+        //setColumnState(0, TimeButton.State.Selected);
     }
     
     public DisplayMode getDisplayMode() {
@@ -85,14 +76,9 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     public synchronized void setDisplayMode(DisplayMode displayMode) {
     	this.displayMode = displayMode;
     	
-    	if(DisplayMode.TravelTime.equals(displayMode)) {
-    		setButtonDisplayModeInRow(1, TimeButton.DisplayMode.Duration);
-    	}
-    	else if(DisplayMode.ArrivalTime.equals(displayMode)) {
-    		setButtonDisplayModeInRow(1, TimeButton.DisplayMode.Time);
-    	}
-    	else {
-    		Log.d("TimeLayout", "Unknown display mode");
+    	for (int i = 0; i < getChildCount(); i++) {
+    		TimeColumn timeColumn = (TimeColumn) getChildAt(i);
+    		timeColumn.setDisplayMode(displayMode);
     	}
     }
     
@@ -104,30 +90,17 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     	return 150;
     }
     
-    public synchronized TimeButton.State getColumnState(int column) {
-    	int cc = getColumnCount();
-    	return ((TimeButton) getChildAt(column + cc)).getState();
+    public synchronized State getColumnState(int column) {
+    	return ((TimeColumn) getChildAt(column)).getState();
     }
     
-    public synchronized void setColumnState(int column, TimeButton.State state) {
-    	int cc = getColumnCount();
-    	
-    	int k = column % cc;
-    	((TimeButton) getChildAt(k)).setState(state);
-    	((TimeButton) getChildAt(k + cc)).setState(state);
+    public synchronized void setColumnState(int column, State state) {
+    	((TimeColumn) getChildAt(column)).setState(state);
     }
-    
-    private synchronized void setButtonDisplayModeInRow(int row, TimeButton.DisplayMode displayMode) {
-    	int cc = getColumnCount();
-    	for(int i = row * cc; i < (row + 1) * cc; i++) {
-    		TimeButton timeButton = (TimeButton) getChildAt(i);
-    		timeButton.setDisplayMode(displayMode);
-    	}
-    }
-    
+
     public synchronized void notifyColumn(int column, boolean visible) {
-    	TimeButton.State state = getColumnState(column);
-    	if(!TimeButton.State.InProgress.equals(state)) {
+    	State state = getColumnState(column);
+    	if(!State.InProgress.equals(state)) {
     		//Log.d("TimeLayout", String.format("Setting column %d state to InProgress", column));
     		//setColumnState(column, TimeButton.State.InProgress);
     		
@@ -145,15 +118,13 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     public synchronized void setModelForColumn(int column, Route model) {
     	models[column] = model;
     	
-    	// Get the button on the second row
-    	TimeButton timeButton = (TimeButton) getChildAt(getColumnCount() + column);
-    	timeButton.setTime(model.getArrivalTime());
-    	timeButton.setDuration(model.getDuration());
+    	TimeColumn timeButton = (TimeColumn) getChildAt(column);
+    	timeButton.setArrivalTime(model.getArrivalTime());
     }
     
     public Time getDepartureTime(int column) {
-    	TimeButton timeButton = (TimeButton) getChildAt(column);
-    	return timeButton.getTime();
+    	TimeColumn timeButton = (TimeColumn) getChildAt(column);
+    	return timeButton.getDepartureTime();
     }
     
     public Time getSelectedDepartureTime() {
@@ -162,28 +133,27 @@ public class TimeLayout extends GridLayout implements OnClickListener {
 
     @Override
     public void onClick(View v) {
-    	int column = ((Integer) v.getTag()) % getColumnCount();
+    	int column = ((Integer) v.getTag());
     	
     	Log.d("TimeLayout", "Column state: " + getColumnState(column));
     	
-    	if (getColumnState(column).equals(TimeButton.State.None)) {
+    	if (getColumnState(column).equals(State.None)) {
     	
 	        for (int i = 0; i < this.getChildCount(); i++) {
-	        	TimeButton button = (TimeButton) getChildAt(i);
-	        	if (button.getState().equals(TimeButton.State.Selected)) {
-	        		button.setState(TimeButton.State.None);
+	        	TimeColumn timeColumn = (TimeColumn) getChildAt(i);
+	        	if (timeColumn.getState().equals(State.Selected)) {
+	        		timeColumn.setState(State.None);
 	        	}
 //	        	((TimeButton) getChildAt(i)).setState(TimeButton.State.None);
 	        }
 	
-	        setColumnState(column, TimeButton.State.Selected);
+	        setColumnState(column, State.Selected);
 	        
 	        this.invalidate(); // TODO: What is this?
 	        
 	        if(onSelectListener != null) {
 	        	selectedColumn = column;
-	        	onSelectListener.onSelect(column, (TimeButton) getChildAt(column),
-	        			(TimeButton) getChildAt(getColumnCount() + column));
+	        	onSelectListener.onSelect(column, (TimeColumn) getChildAt(column));
 	        }
     	}
     }
@@ -208,6 +178,6 @@ public class TimeLayout extends GridLayout implements OnClickListener {
     	 * @param timeButton1 TimeButton on the first row
     	 * @param timeButton2 TimeButton on the second row
     	 */
-    	public void onSelect(int column, TimeButton timeButton1, TimeButton timeButton2);
+    	public void onSelect(int column, TimeColumn timeButton);
     }
 }

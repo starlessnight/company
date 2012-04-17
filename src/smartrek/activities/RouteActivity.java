@@ -8,10 +8,15 @@ import smartrek.AdjustableCouponDisplay.CouponLayout;
 import smartrek.mappers.RouteMapper;
 import smartrek.models.Coupon;
 import smartrek.models.Route;
+import smartrek.models.User;
 import smartrek.overlays.RouteOverlay;
 import smartrek.overlays.RouteSegmentOverlay;
+import smartrek.ui.CommonMenu;
 import smartrek.ui.timelayout.ScrollableTimeLayout;
 import smartrek.ui.timelayout.TimeButton;
+import smartrek.ui.timelayout.TimeButton.DisplayMode;
+import smartrek.ui.timelayout.TimeButton.State;
+import smartrek.ui.timelayout.TimeColumn;
 import smartrek.ui.timelayout.TimeLayout;
 import smartrek.ui.timelayout.TimeLayout.TimeLayoutListener;
 import smartrek.ui.timelayout.TimeLayout.TimeLayoutOnSelectListener;
@@ -19,7 +24,6 @@ import smartrek.util.Geocoding;
 import smartrek.util.RouteNode;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -34,7 +38,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.HorizontalScrollView;
 import android.widget.TextView;
 
 import com.google.android.maps.GeoPoint;
@@ -57,8 +60,6 @@ public class RouteActivity extends MapActivity {
     private RouteOverlay routeoverlay2;
     private RouteOverlay routeoverlay3;
     
-    private int uid;
-//    private String user;
     private String origin;
     private String destination;
     private GeoPoint originCoord;
@@ -70,42 +71,12 @@ public class RouteActivity extends MapActivity {
     private int GENMAP = 1;
     private int SATELLITE = 2;
     private int CURRENTMODE = GENMAP;
-    
-    /**
-     * @deprecated
-     */
-    private int DEPARTONLY = 1;
-    
-    /**
-     * @deprecated
-     */
-    private int DEPART_AND_ARRIVE = 2;
-    
-    /**
-     * @deprecated
-     */
-    private int DEPART_AND_TRAVEL = 3;
-    
-    /**
-     * @deprecated
-     */
-    private int DEPART_ARRIVE_TRAVEL = 4;
-    
-    /**
-     * @deprecated
-     */
-    private int CURRENTDISPLAY = DEPARTONLY;
-    
+
     private Time selectedTime;
     
     private TimeLayout timeLayout;
     
-    private ArrayList<Coupon> coupons;
-    private List<Route> routes;
-    private HorizontalScrollView couponScroll;
-    private CouponLayout couponLayout;
     private TextView coupTitleBar;
-    private Context context;
     
     public static final String LOGIN_PREFS = "login_file";
     
@@ -135,8 +106,6 @@ public class RouteActivity extends MapActivity {
             mapView.setSatellite(false);
         }
     
-        context = this;
-        
         /* Set the map view for a view of North America before zooming in on route */
         MapController mc = mapView.getController();
         int lat = (int) Math.round(38.27268853598097f*1E6);
@@ -156,20 +125,27 @@ public class RouteActivity extends MapActivity {
     	timeLayout = (TimeLayout) findViewById(R.id.timelayout);
         timeLayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
 			@Override
-			public void onSelect(int column, TimeButton timeButton1, TimeButton timeButton2) {
-				if (!timeLayout.getColumnState(column).equals(TimeButton.State.InProgress)) {
-					Time departureTime = timeButton1.getTime();
-					//doRoute(originCoord, destCoord, departureTime);
-					dialog.show();
-					new RouteTask().execute(originCoord, destCoord, departureTime, column, true);
+			public void onSelect(int column, TimeColumn timeButton) {
+				Log.d("RouteActivity", "Column state: " + timeLayout.getColumnState(column));
+				if (!timeLayout.getColumnState(column).equals(State.InProgress)) {
+					
+//					if (timeLayout.getColumnState(column).equals(State.Unknown)) {
+						timeLayout.setColumnState(column, State.InProgress);
+						Time departureTime = timeButton.getDepartureTime();
+						dialog.show();
+						new RouteTask().execute(originCoord, destCoord, departureTime, column, true);
+//					}
+//					else {
+//						timeLayout.setColumnState(column, State.Selected);
+//					}
 				}
 			}
 		});
         timeLayout.setTimeLayoutListener(new TimeLayoutListener() {
 			@Override
 			public void updateTimeLayout(TimeLayout timeLayout, int column) {
-				if (timeLayout.getColumnState(column).equals(TimeButton.State.Unknown)) {
-					timeLayout.setColumnState(column, TimeButton.State.InProgress);
+				if (timeLayout.getColumnState(column).equals(State.Unknown)) {
+					timeLayout.setColumnState(column, State.InProgress);
 					Time departureTime = timeLayout.getDepartureTime(column);
 					new RouteTask().execute(originCoord, destCoord, departureTime, column, false);
 				}
@@ -185,7 +161,7 @@ public class RouteActivity extends MapActivity {
         int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
         
         // FIXME: Sloppy
-        timeLayout.setDisplayMode((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? TimeLayout.DisplayMode.TravelTime : TimeLayout.DisplayMode.ArrivalTime);
+        timeLayout.setDisplayMode((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? DisplayMode.Duration : DisplayMode.Time);
         
         // FIXME: Temporary solution
         selectedTime = new Time();
@@ -215,7 +191,7 @@ public class RouteActivity extends MapActivity {
 				originCoord = origin;
 				destCoord = destination;
 
-				for(int i = 0; i < 3; i++) {
+				for(int i = 0; i < 4; i++) {
 					Time departureTime = timeLayout.getDepartureTime(i);
 					
 					// `i` is going to be `selectedColumn` for the time layout
@@ -230,11 +206,8 @@ public class RouteActivity extends MapActivity {
 			}
 		};
         new GeocodingTask(callback).execute(origin, destination);
-        
-        couponScroll = (HorizontalScrollView) findViewById(R.id.scrollCoupon);
-        couponScroll.setScrollContainer(true);
-        
-        couponLayout = (CouponLayout)couponScroll.getChildAt(0);
+
+//        couponLayout = (CouponLayout)couponScroll.getChildAt(0);
         coupTitleBar = (TextView) findViewById(R.id.adjustableCouponLable);
         coupTitleBar.setVisibility(View.GONE);
         //Log.d("RouteActivity", "current selected time is " + selectedTime.toString());
@@ -276,9 +249,9 @@ public class RouteActivity extends MapActivity {
                 ArrayList<Coupon> coupons = route.getAllCoupons();
                 
                 /* If its the first route display that routes coupons */
-                if(i == 0) {
-                    this.coupons = coupons;
-                }
+//                if(i == 0) {
+//                    this.coupons = coupons;
+//                }
                 
                 /* Draw the route to the screen and hold on to the range */
                 range = drawRoute(mapView, route, i);
@@ -352,7 +325,9 @@ public class RouteActivity extends MapActivity {
         
         /* Set values into route to be passed to next Activity */
         route.setOD(origin, destination);
-        route.setUserId(uid);
+        
+        // FIXME:
+        route.setUserId(User.getCurrentUser(this).getId());
         
         drawable = this.getResources().getDrawable(R.drawable.routetag);
         
@@ -435,53 +410,9 @@ public class RouteActivity extends MapActivity {
         return true;
     }
     
-    /****************************************************************************************************************
-     * 
-     *
-     *
-     ****************************************************************************************************************/
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item){
-        Log.d("RouteActivity", "Menu Open: Entering Map Mode Options");
-        Intent intent = null;
-        switch(item.getItemId()){
-        case R.id.menusettings:
-//            Log.d("RouteActivity", "Menu Open: Settings Selected");
-//            Intent intent = new Intent(this,Map_Menu_Activity.class);
-//            startActivity(intent);
-            return true;
-            
-        case R.id.map_display_options:
-            intent = new Intent(this,MapDisplayActivity.class);
-            int displayed = 0;
-            intent.putExtra("mapmode", CURRENTDISPLAY);
-            startActivityForResult(intent, displayed);
-            
-            Log.d("RouteActivity","Returned " + displayed + "from map display options");
-            return true;
-            
-        case R.id.map_mode:
-            intent = new Intent(this,MapModeActivity.class);
-            int val = 0;
-            intent.putExtra("mapmode", CURRENTMODE);
-            startActivityForResult(intent, val);
-            Log.d("RouteActivity","Returned " + val + "from map mode options");
-            return true;
-            
-        case R.id.mycoupons:
-            intent = new Intent(this, CouponsTabActivity.class);
-            startActivity(intent);
-            return true;
-            
-        case R.id.logout_option:
-            SharedPreferences sharedPreferences = getSharedPreferences(LOGIN_PREFS,MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("user", "");
-            editor.putInt("uid", -1);
-            editor.commit();
-            finish();
-            return true;
-        }
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        CommonMenu.onMenuItemSelected(this, featureId, item);
         return super.onMenuItemSelected(featureId, item);
     }
     
@@ -516,7 +447,7 @@ public class RouteActivity extends MapActivity {
                 int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
                 
                 // FIXME: Sloppy
-                timeLayout.setDisplayMode((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? TimeLayout.DisplayMode.TravelTime : TimeLayout.DisplayMode.ArrivalTime);
+                timeLayout.setDisplayMode((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? DisplayMode.Duration : DisplayMode.Time);
             }
         } 
     }
@@ -636,7 +567,7 @@ public class RouteActivity extends MapActivity {
         @Override
         protected void onPreExecute () {
             // FIXME: Should this be here?
-            timeLayout.setColumnState(selectedColumn, TimeButton.State.InProgress);
+            //timeLayout.setColumnState(selectedColumn, TimeButton.State.InProgress);
         }
         
         @Override
@@ -689,8 +620,8 @@ public class RouteActivity extends MapActivity {
             }
             
             // FIXME: Relying on updateMap is kind of hack-ish. Need to come up with more sophiscated way.
-            //timeLayout.setColumnState(selectedColumn, updateMap ? TimeButton.State.Selected : TimeButton.State.None);
-            timeLayout.setColumnState(selectedColumn, TimeButton.State.None);
+            timeLayout.setColumnState(selectedColumn, updateMap ? TimeButton.State.Selected : TimeButton.State.None);
+            //timeLayout.setColumnState(selectedColumn, State.None);
         }
 
     }
