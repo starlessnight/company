@@ -9,6 +9,7 @@ import smartrek.adapters.FavoriteAddressAdapter;
 import smartrek.mappers.FavoriteAddressMapper;
 import smartrek.models.Address;
 import smartrek.models.User;
+import smartrek.ui.CommonMenu;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -342,43 +343,8 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
     }
 	
 	@Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item){
-		Log.d("Map_Activity", "Menu Open: Entering Map Mode Options");
-		Intent intent = null;
-		switch(item.getItemId()){
-		case R.id.contacts:
-			intent = new Intent(this, ContactsActivity.class);
-			startActivity(intent);
-			break;
-			
-    	case R.id.map_display_options:
-    		intent = new Intent(this,MapDisplayActivity.class);
-    		int displayed = 0;
-    		intent.putExtra("mapmode", 1);
-    		startActivityForResult(intent, displayed);
-    		
-    		Log.d("RouteActivity","Returned " + displayed + "from map display options");
-    		break;
-
-    	case R.id.mycoupons:
-    		intent = new Intent(this, CouponsTabActivity.class);
-    		startActivity(intent);
-    		break;
-    		
-    	case R.id.reservation:
-    		intent = new Intent(this, ReservationActivity.class);
-    		startActivity(intent);
-    		break;
-    		
-    	case R.id.logout_option:
-			User.setCurrentUser(this, null);
-			//finish();
-			
-			// TODO: Is this right way to do it?
-			intent = new Intent(this, LoginActivity.class);
-    		startActivity(intent);
-    		break;
-    	}
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		CommonMenu.onMenuItemSelected(this, featureId, item);
 		return super.onMenuItemSelected(featureId, item);
 	}
 	

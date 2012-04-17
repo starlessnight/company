@@ -10,6 +10,7 @@ import smartrek.models.Coupon;
 import smartrek.models.Route;
 import smartrek.overlays.RouteOverlay;
 import smartrek.overlays.RouteSegmentOverlay;
+import smartrek.ui.CommonMenu;
 import smartrek.ui.timelayout.ScrollableTimeLayout;
 import smartrek.ui.timelayout.TimeButton;
 import smartrek.ui.timelayout.TimeButton.DisplayMode;
@@ -420,53 +421,9 @@ public class RouteActivity extends MapActivity {
         return true;
     }
     
-    /****************************************************************************************************************
-     * 
-     *
-     *
-     ****************************************************************************************************************/
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item){
-        Log.d("RouteActivity", "Menu Open: Entering Map Mode Options");
-        Intent intent = null;
-        switch(item.getItemId()){
-        case R.id.menusettings:
-//            Log.d("RouteActivity", "Menu Open: Settings Selected");
-//            Intent intent = new Intent(this,Map_Menu_Activity.class);
-//            startActivity(intent);
-            return true;
-            
-        case R.id.map_display_options:
-            intent = new Intent(this,MapDisplayActivity.class);
-            int displayed = 0;
-            //intent.putExtra("mapmode", CURRENTDISPLAY);
-            startActivityForResult(intent, displayed);
-            
-            Log.d("RouteActivity","Returned " + displayed + "from map display options");
-            return true;
-            
-        case R.id.map_mode:
-            intent = new Intent(this,MapModeActivity.class);
-            int val = 0;
-            intent.putExtra("mapmode", CURRENTMODE);
-            startActivityForResult(intent, val);
-            Log.d("RouteActivity","Returned " + val + "from map mode options");
-            return true;
-            
-        case R.id.mycoupons:
-            intent = new Intent(this, CouponsTabActivity.class);
-            startActivity(intent);
-            return true;
-            
-        case R.id.logout_option:
-            SharedPreferences sharedPreferences = getSharedPreferences(LOGIN_PREFS,MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putString("user", "");
-            editor.putInt("uid", -1);
-            editor.commit();
-            finish();
-            return true;
-        }
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        CommonMenu.onMenuItemSelected(this, featureId, item);
         return super.onMenuItemSelected(featureId, item);
     }
     
