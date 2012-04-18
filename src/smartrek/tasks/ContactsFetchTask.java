@@ -1,6 +1,9 @@
 package smartrek.tasks;
 
+import java.io.IOException;
 import java.util.List;
+
+import org.json.JSONException;
 
 import smartrek.mappers.ContactsMapper;
 import smartrek.models.User;
@@ -26,7 +29,16 @@ public final class ContactsFetchTask extends AsyncTask <Object, Object, List<Use
         ContactsMapper mapper = new ContactsMapper();
         
         int uid = (Integer) params[0];
-        List<User> contacts = mapper.getContacts(uid);
+        List<User> contacts = null;
+		try {
+			contacts = mapper.getContacts(uid);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         
         if(callback != null) {
         	callback.onExecute();
