@@ -38,6 +38,9 @@ public final class CouponsTabActivity extends Activity {
 	public static final String TAB2 = "Tab2";
 	public static final String TAB3 = "Tab3";
 	
+	public static final int TAB_ID2 = 2;
+	public static final int TAB_ID3 = 3;
+	
 	private List<Coupon> couponsAll;
 	private List<Coupon> couponsReceived;
 	private List<Coupon> couponsSent;
@@ -110,7 +113,7 @@ public final class CouponsTabActivity extends Activity {
 		    		extras.putParcelable("coupon", couponsReceived.get(position));
 		    		extras.putBoolean("received", true);
 		    		intent.putExtras(extras);
-		    		startActivity(intent);
+		    		startActivityForResult(intent, TAB_ID2);
 		            
 		        }
 		    });
@@ -125,7 +128,7 @@ public final class CouponsTabActivity extends Activity {
 		    		extras.putParcelable("coupon", couponsSent.get(position));
 		    		extras.putBoolean("sent", true);
 		    		intent.putExtras(extras);
-		    		startActivity(intent);
+		    		startActivityForResult(intent, TAB_ID3);
 		            
 		        }
 		    });
@@ -227,4 +230,17 @@ public final class CouponsTabActivity extends Activity {
 			}
 		}
     }
+    
+    @Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	Log.d("CouponsTabActivity", String.format("requestCode = %d, resultCode = %d", requestCode, resultCode));
+    	
+    	// TODO: Conditionally refresh the list view for better efficiency
+    	if (requestCode == TAB_ID2) {
+    		onTab2();
+    	}
+    	else if (requestCode == TAB_ID3) {
+    		onTab3();
+    	}
+	}
 }
