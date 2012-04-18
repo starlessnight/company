@@ -208,20 +208,26 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
         hereButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				originBox.setEnabled(false);
+				originBox.setText("Getting current location...");
+				hereButton.setEnabled(false);
+				
+				LocationService ls = LocationService.getInstance(HomeActivity.this);
+		        ls.requestCurrentLocation(new LocationServiceListener() {
+					@Override
+					public void locationUpdated(Location location) {
+						originBox.setText(String.format("%f, %f", location.getLatitude(), location.getLongitude()));						
+						originBox.setEnabled(true);
+						hereButton.setEnabled(true);
+					}
+		        });
 			}
         });
         
         
         /***************End Buttons********************/
         
-        LocationService ls = LocationService.getInstance(this);
-        ls.requestCurrentLocation(new LocationServiceListener() {
-			@Override
-			public void locationUpdated(Location location) {
-				Log.d("HomeActivity", String.format("Current location: (%f, %f)", location.getLatitude(), location.getLongitude()));
-				
-			}
-        });
+        
 
 		 
     }

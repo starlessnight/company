@@ -64,4 +64,12 @@ public final class LocationService {
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 	}
 
+	/**
+	 * WARNING: The value of currentLocation might be old.
+	 * 
+	 * @return
+	 */
+	public Location getCurrentLocation() {
+		return currentLocation;
+	}
 }
