@@ -7,9 +7,11 @@ import smartrek.activities.LoginActivity;
 import smartrek.mappers.UserMapper;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 
-public final class User implements JSONModel {
+public final class User implements JSONModel, Parcelable {
 	
 	private static User currentUser;
 
@@ -18,8 +20,23 @@ public final class User implements JSONModel {
 	private String firstname;
 	private String lastname;
 	
-	public User() {
-		
+	public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
+		public User createFromParcel(Parcel in) {
+			return new User(in);
+		}
+
+		public User[] newArray(int size) {
+			return new User[size];
+		}
+	};
+	
+	public User() {}
+	
+	public User(Parcel in) {
+		id = in.readInt();
+		username = in.readString();
+		firstname = in.readString();
+		lastname = in.readString();
 	}
 	
 	public User(int id, String username) {
@@ -41,6 +58,10 @@ public final class User implements JSONModel {
 	
 	public String getLastname() {
 		return lastname;
+	}
+	
+	public String getName() {
+		return String.format("%s %s", firstname, lastname);
 	}
 	
 	@Override
@@ -101,5 +122,19 @@ public final class User implements JSONModel {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(id);
+		dest.writeString(username);
+		dest.writeString(firstname);
+		dest.writeString(lastname);
 	}
 }
