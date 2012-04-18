@@ -8,10 +8,15 @@ import org.json.JSONException;
 import smartrek.adapters.FavoriteAddressAdapter;
 import smartrek.mappers.FavoriteAddressMapper;
 import smartrek.models.Address;
-import smartrek.models.User;
 import smartrek.ui.CommonMenu;
+import smartrek.util.LocationService;
+import smartrek.util.LocationService.LocationServiceListener;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
@@ -79,14 +84,13 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 	private Button originFavButton;
 	private Button destFavButton;
 	private Button loadButton;
+	private Button hereButton;
 	
 	private int selected;
 	private int SELECT_O_FAVS = 1;
 	private int SELECT_D_FAVS = 2;
 	private int SELECT_GO = 3;
 	private int SELECT_LOAD = 4;
-	
-	private final String LOGIN_PREFS = "login_file";
 	
 	private String origin = "";
 	private String destination = "";
@@ -200,7 +204,26 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
         doneButton.setId(3);
         //loadButton.setId(4);
         
+        hereButton = (Button) findViewById(R.id.hereAndNow);
+        hereButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+			}
+        });
+        
+        
         /***************End Buttons********************/
+        
+        LocationService ls = LocationService.getInstance(this);
+        ls.requestCurrentLocation(new LocationServiceListener() {
+			@Override
+			public void locationUpdated(Location location) {
+				Log.d("HomeActivity", String.format("Current location: (%f, %f)", location.getLatitude(), location.getLongitude()));
+				
+			}
+        });
+
+		 
     }
 
 	/****************************************************************************************************************
