@@ -9,7 +9,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 
-public final class User {
+public final class User implements JSONModel {
 	
 	private static User currentUser;
 
@@ -43,6 +43,7 @@ public final class User {
 		return lastname;
 	}
 	
+	@Override
 	public String toJSON() throws JSONException {
 		JSONObject obj = new JSONObject();
 		obj.put(UserMapper.UID, getId());
