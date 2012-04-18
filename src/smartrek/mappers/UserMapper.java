@@ -20,6 +20,7 @@ public class UserMapper extends Mapper {
 	public static final String USERNAME = "USERNAME";
 	public static final String FIRSTNAME = "FIRSTNAME";
 	public static final String LASTNAME = "LASTNAME";
+	public static final String EMAIL = "EMAIL";
 	
 	private String name;
 	private String pwd;

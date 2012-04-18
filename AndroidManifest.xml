@@ -44,6 +44,8 @@
                   android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".ContactsActivity"
                   android:theme="@android:style/Theme.NoTitleBar"/>
+        <activity android:name=".ContactDetailsActivity"
+                  android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".CouponDetailsActivity"
                   android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".CouponsTabActivity"

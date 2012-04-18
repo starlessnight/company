@@ -7,6 +7,7 @@ import smartrek.models.User;
 import smartrek.tasks.AsyncTaskCallback;
 import smartrek.tasks.ContactsFetchTask;
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
@@ -43,6 +44,11 @@ public class ContactsActivity extends ListActivity {
 	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
+		Intent intent = new Intent(this, ContactDetailsActivity.class);
 		
+		Bundle extras = new Bundle();
+		extras.putParcelable("user", contacts.get(position));
+		intent.putExtras(extras);
+		startActivity(intent);
 	}
 }

@@ -19,6 +19,7 @@ public final class User implements JSONModel, Parcelable {
 	private String username;
 	private String firstname;
 	private String lastname;
+	private String email;
 	
 	public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
 		public User createFromParcel(Parcel in) {
@@ -37,6 +38,7 @@ public final class User implements JSONModel, Parcelable {
 		username = in.readString();
 		firstname = in.readString();
 		lastname = in.readString();
+		email = in.readString();
 	}
 	
 	public User(int id, String username) {
@@ -64,6 +66,14 @@ public final class User implements JSONModel, Parcelable {
 		return String.format("%s %s", firstname, lastname);
 	}
 	
+	public String getEmail() {
+		return email;
+	}
+	
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	
 	@Override
 	public String toJSON() throws JSONException {
 		JSONObject obj = new JSONObject();
@@ -71,6 +81,7 @@ public final class User implements JSONModel, Parcelable {
 		obj.put(UserMapper.USERNAME, getUsername());
 		obj.put(UserMapper.FIRSTNAME, getFirstname());
 		obj.put(UserMapper.LASTNAME, getLastname());
+		obj.put(UserMapper.EMAIL, getEmail());
 		
 		return obj.toString();
 	}
@@ -85,6 +96,7 @@ public final class User implements JSONModel, Parcelable {
 		user.username = object.getString(UserMapper.USERNAME);
 		if(object.has(UserMapper.FIRSTNAME)) user.firstname = object.getString(UserMapper.FIRSTNAME);
 		if(object.has(UserMapper.LASTNAME)) user.lastname = object.getString(UserMapper.LASTNAME);
+		if(object.has(UserMapper.EMAIL)) user.email = object.getString(UserMapper.EMAIL);
 		
 		return user;
 	}
@@ -136,5 +148,6 @@ public final class User implements JSONModel, Parcelable {
 		dest.writeString(username);
 		dest.writeString(firstname);
 		dest.writeString(lastname);
+		dest.writeString(email);
 	}
 }
