@@ -1,5 +1,6 @@
 package smartrek.util;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 
 import org.json.JSONArray;
@@ -28,15 +29,22 @@ public final class Geocoding {
 	 * 
 	 * @param address A postal address
 	 * @return A geographic coordinate (latitude, longitude)
+	 * @throws IOException 
+	 * @throws JSONException 
 	 */
-	public static GeoPoint lookup(String address) {
+	public static GeoPoint lookup(String address) throws IOException, JSONException {
 		String url = String.format("%s?address=%s&sensor=false", URL, URLEncoder.encode(address));
-		String response = HTTP.downloadText(url);
 		
 		double lat = 0.0;
 		double lng = 0.0;
 		
-		try {
+		HTTP http = new HTTP(url);
+		http.connect();
+		
+		int responseCode = http.getResponseCode();
+		if (responseCode == 200) {
+			String response = http.getResponseBody();
+			
 			JSONObject object = new JSONObject(response);
 			
 			// if status == "OK"
@@ -52,9 +60,6 @@ public final class Geocoding {
 					lng = location.getDouble("lng");
 				}
 			}
-		}
-		catch (JSONException e) {
-			e.printStackTrace();
 		}
 		
 		return new GeoPoint((int)(lat * 1E6), (int)(lng * 1E6));

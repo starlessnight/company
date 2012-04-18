@@ -1,8 +1,11 @@
 package smartrek.activities;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
+
+import org.json.JSONException;
 
 import smartrek.AdjustableCouponDisplay.CouponLayout;
 import smartrek.mappers.RouteMapper;
@@ -506,8 +509,18 @@ public class RouteActivity extends MapActivity {
             String origin = args[0];
             String destination = args[1];
             
-            GeoPoint originCoord = Geocoding.lookup(origin);
-            GeoPoint destCoord = Geocoding.lookup(destination);
+            GeoPoint originCoord = null;
+            GeoPoint destCoord = null;
+			try {
+				originCoord = Geocoding.lookup(origin);
+				destCoord = Geocoding.lookup(destination);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
             
 
             boolean coordNotFound = false;
