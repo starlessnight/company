@@ -63,8 +63,8 @@ public class RouteActivity extends MapActivity {
     private RouteOverlay routeoverlay2;
     private RouteOverlay routeoverlay3;
     
-    private String origin;
-    private String destination;
+    private String originAddr;
+    private String destAddr;
     private GeoPoint originCoord;
     private GeoPoint destCoord;
     
@@ -173,11 +173,11 @@ public class RouteActivity extends MapActivity {
         /* Get the extras from the bundle */
         Bundle extras = getIntent().getExtras();
         
-        origin = extras.getString("origin");
-        Log.d("RouteActivity","Got origin " + origin);
+        originAddr = extras.getString("origin");
+        Log.d("RouteActivity","Got origin " + originAddr);
         
-        destination = extras.getString("destination");
-        Log.d("RouteActivity","Got destination " + destination);
+        destAddr = extras.getString("destination");
+        Log.d("RouteActivity","Got destination " + destAddr);
         
         // Workflow:
         //   1. Geocoding (address to coordinate)
@@ -208,7 +208,7 @@ public class RouteActivity extends MapActivity {
 				dialog.setMessage("Computing routes...");
 			}
 		};
-        new GeocodingTask(callback).execute(origin, destination);
+        new GeocodingTask(callback).execute(originAddr, destAddr);
 
 //        couponLayout = (CouponLayout)couponScroll.getChildAt(0);
         coupTitleBar = (TextView) findViewById(R.id.adjustableCouponLable);
@@ -327,7 +327,7 @@ public class RouteActivity extends MapActivity {
         }
         
         /* Set values into route to be passed to next Activity */
-        route.setOD(origin, destination);
+        route.setOD(originAddr, destAddr);
         
         // FIXME:
         route.setUserId(User.getCurrentUser(this).getId());
