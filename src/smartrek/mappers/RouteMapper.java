@@ -96,32 +96,6 @@ public class RouteMapper extends Mapper {
 	
 	/**
 	 * 
-	 */
-	protected String appendToUrl() {
-		
-		String toAppend = "/route.json?origin=";
-		String[] splitstr1 = loc1.split(" ");
-		String[] splitstr2 = loc2.split(" ");
-		int i = 0;
-		while(i < splitstr1.length) {
-			toAppend += splitstr1[i] + "%20";
-			i++;
-		}
-		toAppend += "&destination=";
-		i = 0;
-		while(i < splitstr2.length) {
-			toAppend += splitstr2[i] + "%20";
-			i++;	
-		}
-
-		toAppend += "&time_slot=%20" + time.hour + ":" + time.minute;
-		Log.d("Route_Communicator", "Got url: " + sturl + toAppend);
-		
-		return toAppend;
-	}
-	
-	/**
-	 * 
 	 * @param route
 	 * @return
 	 */
