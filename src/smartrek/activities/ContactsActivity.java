@@ -12,7 +12,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
 
-public class ContactsActivity extends ListActivity {
+public final class ContactsActivity extends ListActivity {
 	
 	private List<User> contacts;
 	

@@ -1,4 +1,4 @@
-package smartrek.mapviewballon;
+package smartrek.ui.mapviewballon;
 
 /***
  * Copyright (c) 2010 readyState Software Ltd
