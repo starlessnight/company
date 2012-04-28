@@ -19,7 +19,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class ReservationActivity extends ListActivity {
+/**
+ * Shows a list of reserved routes
+ *
+ */
+public final class ReservationListActivity extends ListActivity {
 	
 	private List<Reservation> reservations;
 	
@@ -62,7 +66,7 @@ public class ReservationActivity extends ListActivity {
 		
 		@Override
 		protected void onPostExecute(String result) {
-			setListAdapter(new ReservationItemAdapter(ReservationActivity.this, R.layout.reservation_list_item, reservations));
+			setListAdapter(new ReservationItemAdapter(ReservationListActivity.this, R.layout.reservation_list_item, reservations));
 	    }
 	}
 	

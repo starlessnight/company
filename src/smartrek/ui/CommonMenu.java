@@ -5,7 +5,7 @@ import smartrek.activities.CouponsTabActivity;
 import smartrek.activities.LoginActivity;
 import smartrek.activities.MapDisplayActivity;
 import smartrek.activities.R;
-import smartrek.activities.ReservationActivity;
+import smartrek.activities.ReservationListActivity;
 import smartrek.models.User;
 import android.app.Activity;
 import android.content.Intent;
@@ -37,7 +37,7 @@ public final class CommonMenu {
     		break;
     		
     	case R.id.reservation:
-    		intent = new Intent(activity, ReservationActivity.class);
+    		intent = new Intent(activity, ReservationListActivity.class);
     		activity.startActivity(intent);
     		break;
     		

@@ -7,7 +7,6 @@ import java.util.Stack;
 
 import org.json.JSONException;
 
-import smartrek.AdjustableCouponDisplay.CouponLayout;
 import smartrek.mappers.RouteMapper;
 import smartrek.models.Coupon;
 import smartrek.models.Route;
@@ -54,7 +53,7 @@ import com.google.android.maps.OverlayItem;
  * 
  *
  */
-public class RouteActivity extends MapActivity {
+public final class RouteActivity extends MapActivity {
     
     public static final int DIALOG_ROUTE_NOT_FOUND = 1;
     
@@ -335,13 +334,8 @@ public class RouteActivity extends MapActivity {
         drawable = this.getResources().getDrawable(R.drawable.routetag);
         
         if(routeNum == 0) {
-            routeoverlay1 = new RouteOverlay(drawable,mapView);
-            OverlayItem oi = new OverlayItem(new GeoPoint(lat,lon),
-                                             "Route " + (routeNum + 1),
-                                             "Origin: \n" + route.getOrigin()  + " \n\n" +
-                                             "Destination: \n" + route.getDestination() + "\n\n" + 
-                                             "Estimated Travel Time: \n" + route.getTimeString());
-            routeoverlay1.addOverlay(oi);
+            routeoverlay1 = new RouteOverlay(drawable, mapView, route, new GeoPoint(lat, lon));
+
             mapOverlays.add(routeoverlay1);
         } else if(routeNum == 1) {
             routeoverlay2 = new RouteOverlay(drawable,mapView);

@@ -4,13 +4,10 @@ import java.util.ArrayList;
 
 import smartrek.AdjustableCouponDisplay.CouponLayout;
 import smartrek.activities.ConfirmTripActivity;
+import smartrek.activities.ReservationListActivity;
 import smartrek.models.Coupon;
 import smartrek.models.Route;
 import smartrek.ui.mapviewballon.BalloonItemizedOverlay;
-
-
-
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -22,13 +19,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 
 public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 
 	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
-	private Context mContext;
+	private Context context;
 	private CouponLayout couponLayout;
 	private TextView titleBar;
 	private Route route;
@@ -39,7 +37,24 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	public RouteOverlay(Drawable defaultMarker, MapView mapview){ // Context context) {
 		  super(boundCenter(defaultMarker),mapview);
 		  enabled = false;
-		  mContext = mapview.getContext();
+		  context = mapview.getContext();
+	}
+	
+	public RouteOverlay(Drawable defaultMarker, MapView mapview, Route route, GeoPoint point) {
+		  super(boundCenter(defaultMarker),mapview);
+		  enabled = false;
+		  context = mapview.getContext();
+	
+		  OverlayItem item = new OverlayItem(point, "Title", "snippet");
+		  addOverlay(item);
+		  
+          OverlayItem oi = new OverlayItem(point,
+                  "Route " + (0 + 1),
+                  "Origin: \n" + route.getOrigin()  + " \n\n" +
+                  "Destination: \n" + route.getDestination() + "\n\n" + 
+                  "Estimated Travel Time: \n" + route.getTimeString() + "\n\n" +
+                  "(Tap to reserve this route)");
+          addOverlay(oi);
 	}
 	
 	public void setCouponLayout(CouponLayout couponlayout, TextView titleBar){
@@ -70,6 +85,7 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	
 	@Override
 	protected final boolean onTap(int index) {
+		Log.d("RouteOverlay", "onTab, index="+index);
 		
 		currentFocussedIndex = index;
 		currentFocussedItem = createItem(index);
@@ -102,27 +118,11 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	
 	@Override
 	protected boolean onBalloonTap(int index, OverlayItem item) {
-		if (enabled) {
-			Log.d("RouteOverlay","Bitmap for coupon set, Continuing to Confirm_Trip_Activity");
-			Intent intent = new Intent(mContext, ConfirmTripActivity.class);
-			
-			Bundle extras = new Bundle();
-			extras.putParcelable("image", route.getDiscount().getBitmap());
-
-			Coupon cp = route.getDiscount();
-			extras.putString("Coupon Description", cp.getDescription());
-			extras.putString("Vendor Name", cp.getVendor());
-			extras.putString("Valid Date", cp.getValidDate().toGMTString());
-			extras.putInt("selected route", selectedRoute);
-			
-			route.putOntoBundle(extras);
-			
-			intent.putExtras(extras);
-			mContext.startActivity(intent);
-			
-		} else {
-			Log.d("RouteOverlay","Bitmap for coupon not set, won't continue to next Activity");
-		}
-	  return true;
+		Log.d("RouteOverlay", String.format("index=%d, item=%s", index, item));
+		
+		Intent intent = new Intent(context, ReservationListActivity.class);
+		context.startActivity(intent);
+		
+		return true;
 	}
 }

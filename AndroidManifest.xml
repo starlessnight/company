@@ -40,7 +40,7 @@
         		  android:theme="@android:style/Theme.NoTitleBar"/> 
         <activity android:name=".ConfirmedMapActivity"
         		  android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name=".ReservationActivity"
+        <activity android:name=".ReservationListActivity"
                   android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".ContactsActivity"
                   android:theme="@android:style/Theme.NoTitleBar"/>
