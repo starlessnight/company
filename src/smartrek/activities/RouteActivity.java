@@ -173,22 +173,24 @@ public final class RouteActivity extends MapActivity {
         /* Get the extras from the bundle */
         Bundle extras = getIntent().getExtras();
         
+
         originAddr = extras.getString("originAddr");
         destAddr = extras.getString("destAddr");
         
         originCoord = new GeoPoint(extras.getInt("originLat"), extras.getInt("originLng"));
         destCoord = new GeoPoint(extras.getInt("destLat"), extras.getInt("destLng"));
-        
+
         dialog.setMessage("Computing routes...");
         dialog.show();
         
         for(int i = 0; i < 4; i++) {
 			Time departureTime = timeLayout.getDepartureTime(i);
-			
+
 			// `i` is going to be `selectedColumn` for the time layout
 			// Only updates maps for `i = 0`
 			new RouteTask(i).execute(originCoord, destCoord, departureTime, i, (i == 0));
 		}
+
 
 //        couponLayout = (CouponLayout)couponScroll.getChildAt(0);
         coupTitleBar = (TextView) findViewById(R.id.adjustableCouponLable);

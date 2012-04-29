@@ -3,15 +3,12 @@ package smartrek.overlays;
 import java.util.ArrayList;
 
 import smartrek.AdjustableCouponDisplay.CouponLayout;
-import smartrek.activities.ConfirmTripActivity;
 import smartrek.activities.ReservationListActivity;
-import smartrek.models.Coupon;
 import smartrek.models.Route;
 import smartrek.ui.mapviewballon.BalloonItemizedOverlay;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;

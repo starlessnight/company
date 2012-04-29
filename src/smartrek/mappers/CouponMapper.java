@@ -118,6 +118,9 @@ public final class CouponMapper extends Mapper {
 			
 			coupon.setBitmap(bitmap);
 		}
+		else {
+			throw new IOException(String.format("HTTP %d", responseCode));
+		}
 	}
 	
 	public void sendCouponTo(Coupon coupon, int senderUid, int receiverUid) throws IOException {

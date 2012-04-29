@@ -38,6 +38,7 @@ public final class CouponsTabActivity extends Activity {
 	public static final String TAB2 = "Tab2";
 	public static final String TAB3 = "Tab3";
 	
+	public static final int TAB_ID1 = 1;
 	public static final int TAB_ID2 = 2;
 	public static final int TAB_ID3 = 3;
 	
@@ -98,7 +99,7 @@ public final class CouponsTabActivity extends Activity {
 		    		extras.putParcelable("coupon", couponsAll.get(position));
 		    		extras.putBoolean("ownership", true);
 		    		intent.putExtras(extras);
-		    		startActivity(intent);
+		    		startActivityForResult(intent, TAB_ID1);
 		            
 		        }
 		    });
@@ -236,7 +237,10 @@ public final class CouponsTabActivity extends Activity {
     	Log.d("CouponsTabActivity", String.format("requestCode = %d, resultCode = %d", requestCode, resultCode));
     	
     	// TODO: Conditionally refresh the list view for better efficiency
-    	if (requestCode == TAB_ID2) {
+    	if (requestCode == TAB_ID1) {
+    		onTab1();
+    	}
+    	else if (requestCode == TAB_ID2) {
     		onTab2();
     	}
     	else if (requestCode == TAB_ID3) {

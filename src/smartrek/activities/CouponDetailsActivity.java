@@ -53,6 +53,7 @@ public final class CouponDetailsActivity extends Activity {
 	    		extras.putParcelable("coupon", coupon);
 	    		intent.putExtras(extras);
 	    		startActivity(intent);
+	    		finish();
 			}
 		});
 		shareButton.setVisibility((extras.containsKey("ownership") && extras.getBoolean("ownership")) ? View.VISIBLE : View.INVISIBLE);
