@@ -20,6 +20,7 @@ public final class GeocodingTask extends AsyncTask<String, Void, Void> {
 	
 	public GeocodingTask(Stack<Exception> exceptions, GeocodingTaskCallback callback) {
 		super();
+		this.exceptions = exceptions;
 		this.callback = callback;
 	}
     
