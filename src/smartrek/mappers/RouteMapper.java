@@ -158,8 +158,8 @@ public class RouteMapper extends Mapper {
 			
 			pairs.add(new BasicNameValuePair("RID", route.getRID() + ""));
 			pairs.add(new BasicNameValuePair("ROUTE_ORDER", (i+1) + ""));
-			pairs.add(new BasicNameValuePair("LATITUDE", rn.getFloatLat()));
-			pairs.add(new BasicNameValuePair("LONGITUDE", rn.getFloatLon()));
+			pairs.add(new BasicNameValuePair("LATITUDE", String.valueOf(rn.getLatitude())));
+			pairs.add(new BasicNameValuePair("LONGITUDE", String.valueOf(rn.getLongitude())));
 			
 			HttpResponse response = null;
 
@@ -184,8 +184,8 @@ public class RouteMapper extends Mapper {
 		Log.d("Route_Communicator", "In route communicator trying to add route");
 		Log.d("Route_Communicator", "ROUTE_NODE = " + i);
 		Log.d("Route_Communicator", "ROUTE_LABLE = " +  lable);
-		Log.d("Route_Communicator", "LATITUDE = " + p.getFloatLat());
-		Log.d("Route_Communicator", "LONGITUDE = " + p.getFloatLon());
+		Log.d("Route_Communicator", "LATITUDE = " + p.getLatitude());
+		Log.d("Route_Communicator", "LONGITUDE = " + p.getLongitude());
 	}
 
 	/**

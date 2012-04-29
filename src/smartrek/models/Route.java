@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import smartrek.util.RouteNode;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.format.Time;
 import android.util.Log;
 
@@ -15,7 +17,7 @@ import com.google.android.maps.GeoPoint;
  * @author timothyolivas
  *
  ****************************************************************************************************/
-public class Route {
+public final class Route implements Parcelable {
 
 	private Coupon cp;
 	private ArrayList<Coupon> coupons;
@@ -264,8 +266,8 @@ public class Route {
 		bundle.putInt("Node_ListSize", routeNodes.size());
 		for (int i = 0; i < routeNodes.size(); i++) {
 			RouteNode routenode = routeNodes.get(i);
-			bundle.putString("latitude" + i, routenode.getFloatLat());
-			bundle.putString("longitude" + i, routenode.getFloatLon());
+			bundle.putFloat("latitude" + i, routenode.getLatitude());
+			bundle.putFloat("longitude" + i, routenode.getLongitude());
 		}
 	}
 	
@@ -300,5 +302,18 @@ public class Route {
 		
 		return t;
 		
+	}
+
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int arg1) {
+		dest.writeString(origin);
+		dest.writeString(destination);
+		dest.writeTypedList(routeNodes);
 	}
 }

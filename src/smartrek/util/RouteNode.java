@@ -1,63 +1,88 @@
 package smartrek.util;
 
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.OverlayItem;
 
-/***************************************************************************************************************************
- * 
- *
- *
- ***************************************************************************************************************************/
-public class RouteNode extends OverlayItem {
+public final class RouteNode implements Parcelable {
 	
-	private String lat;
-	private String lon;
+	// FIXME: Why would you use strings for lat, long?
+	private float lat;
+	private float lng;
+	private int routeNum;
+	private int nodeNum;
 	
-	/***************************************************************************************************************************
-	 * 
-	 *
-	 *
-	 ***************************************************************************************************************************/
-	public RouteNode(float latitude, float longitude, int routeNum, int nodeNum) {
-		super(new GeoPoint(
-				  (int)Math.round(1E6*latitude),
-				  (int)Math.round(1E6*longitude)),
-				  "Route " + routeNum,
-				  "Node " + nodeNum );
-		
+	public static final Parcelable.Creator<RouteNode> CREATOR = new Parcelable.Creator<RouteNode>() {
+		public RouteNode createFromParcel(Parcel in) {
+			return new RouteNode(in);
+		}
 
-		// FIXME: Really???
-		lat = latitude + "";
-		lon = longitude + "";
+		public RouteNode[] newArray(int size) {
+			return new RouteNode[size];
+		}
+	};
+
+	private RouteNode(Parcel in) {
+		lat = in.readFloat();
+		lng = in.readFloat();
+		routeNum = in.readInt();
+		nodeNum = in.readInt();
+	}
+	
+	public RouteNode(float latitude, float longitude, int routeNum, int nodeNum) {
+//		super(new GeoPoint(
+//				  (int)Math.round(1E6*latitude),
+//				  (int)Math.round(1E6*longitude)),
+//				  "Route " + routeNum,
+//				  "Node " + nodeNum );
+
+		lat = latitude;
+		lng = longitude;
+		this.routeNum = routeNum;
+		this.nodeNum = nodeNum;
 	}
 	
 	public RouteNode(Bundle  bundle, int routeNum, int nodeNum) {
-		super(new GeoPoint(
-				  (int)Math.round(1E6*(Float.parseFloat(bundle.getString("latitude" + nodeNum)))),
-				  (int)Math.round(1E6*(Float.parseFloat(bundle.getString("longitude" + nodeNum))))),
-				  "Route " + routeNum,
-				  "Node " + nodeNum );
+//		super(new GeoPoint(
+//				  (int)Math.round(1E6*(Float.parseFloat(bundle.getString("latitude" + nodeNum)))),
+//				  (int)Math.round(1E6*(Float.parseFloat(bundle.getString("longitude" + nodeNum))))),
+//				  "Route " + routeNum,
+//				  "Node " + nodeNum );
 		
 		
-		lat = bundle.getString("latitude" + nodeNum);
-		lon = bundle.getString("longitude" + nodeNum);
+		lat = Float.parseFloat(bundle.getString("latitude" + nodeNum));
+		lng = Float.parseFloat(bundle.getString("longitude" + nodeNum));
+		this.routeNum = routeNum;
+		this.nodeNum = nodeNum;
 	}
 	
-	public String getFloatLat(){
+	public GeoPoint getPoint() {
+		return new GeoPoint((int)(lat * 1E6), (int)(lng * 1E6));
+	}
+	
+	public float getLatitude() {
 		return lat;
 	}
 	
-	public String getFloatLon(){
-		return lon;
+	public float getLongitude() {
+		return lng;
 	}
 	
-	public void adjustLatLonFormat(){
-		Log.d("RouteNode","Adjusting Format From " + lat);
-		Log.d("RouteNode","Adjusting Format From " + lon);
-		Log.d("RouteNode",lat.substring(lat.length()-2));
-		Log.d("RouteNode",lon.substring(lon.length()-2));	
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeFloat(lat);
+		dest.writeFloat(lng);
+		dest.writeInt(routeNum);
+		dest.writeInt(nodeNum);
 	}
 }
