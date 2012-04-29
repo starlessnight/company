@@ -30,6 +30,28 @@ public final class Route implements Parcelable {
 	private Time departureTime = null;
 	private int uid;
 	
+	
+	public static final Parcelable.Creator<Route> CREATOR = new Parcelable.Creator<Route>() {
+		public Route createFromParcel(Parcel in) {
+			return new Route(in);
+		}
+
+		public Route[] newArray(int size) {
+			return new Route[size];
+		}
+	};
+
+	private Route(Parcel in) {
+		origin = in.readString();
+		destination = in.readString();
+		in.readTypedList(routeNodes, RouteNode.CREATOR);
+		rid = in.readInt();
+		validated = in.readInt();
+		duration = in.readInt();
+		departureTime = (Time) in.readValue(Time.class.getClassLoader());
+		uid = in.readInt();
+	}
+	
 	/*****************************************************************************************
 	 * 
 	 *
@@ -311,9 +333,14 @@ public final class Route implements Parcelable {
 	}
 
 	@Override
-	public void writeToParcel(Parcel dest, int arg1) {
+	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeString(origin);
 		dest.writeString(destination);
 		dest.writeTypedList(routeNodes);
+		dest.writeInt(rid);
+		dest.writeInt(validated);
+		dest.writeInt(duration);
+		dest.writeValue(departureTime);
+		dest.writeInt(uid);
 	}
 }

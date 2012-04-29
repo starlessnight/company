@@ -3,12 +3,13 @@ package smartrek.overlays;
 import java.util.ArrayList;
 
 import smartrek.AdjustableCouponDisplay.CouponLayout;
-import smartrek.activities.ReservationListActivity;
+import smartrek.activities.RouteReserveActivity;
 import smartrek.models.Route;
 import smartrek.ui.mapviewballon.BalloonItemizedOverlay;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -117,7 +118,10 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	protected boolean onBalloonTap(int index, OverlayItem item) {
 		Log.d("RouteOverlay", String.format("index=%d, item=%s", index, item));
 		
-		Intent intent = new Intent(context, ReservationListActivity.class);
+		Intent intent = new Intent(context, RouteReserveActivity.class);
+		Bundle extras = new Bundle();
+		extras.putParcelable("route", route);
+		intent.putExtras(extras);
 		context.startActivity(intent);
 		
 		return true;

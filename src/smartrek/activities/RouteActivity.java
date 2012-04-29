@@ -1,11 +1,8 @@
 package smartrek.activities;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
-
-import org.json.JSONException;
 
 import smartrek.mappers.RouteMapper;
 import smartrek.models.Coupon;
@@ -22,7 +19,6 @@ import smartrek.ui.timelayout.TimeColumn;
 import smartrek.ui.timelayout.TimeLayout;
 import smartrek.ui.timelayout.TimeLayout.TimeLayoutListener;
 import smartrek.ui.timelayout.TimeLayout.TimeLayoutOnSelectListener;
-import smartrek.util.Geocoding;
 import smartrek.util.RouteNode;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
