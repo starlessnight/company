@@ -9,6 +9,7 @@ import org.json.JSONException;
 import smartrek.adapters.FavoriteAddressAdapter;
 import smartrek.mappers.FavoriteAddressMapper;
 import smartrek.models.Address;
+import smartrek.models.User;
 import smartrek.tasks.GeocodingTask;
 import smartrek.tasks.GeocodingTaskCallback;
 import smartrek.ui.CommonMenu;
@@ -192,9 +193,9 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 			}
 		});
 		
-        // TODO: Need to implement lazy loading of favorite addresses
-		// FIXME: Temporary uid = 10
-		new FavoriteAddressFetchTask().execute(10);
+		User currentUser = User.getCurrentUser(this);
+		
+		new FavoriteAddressFetchTask().execute(currentUser.getId());
         
         /***************Start Buttons********************/
         
