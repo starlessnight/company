@@ -32,6 +32,8 @@
         		  android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".RouteActivity"
         		  android:theme="@android:style/Theme.NoTitleBar"/>
+        <activity android:name=".RouteReserveActivity"
+                  android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".MapModeActivity"
         		  android:theme="@android:style/Theme.NoTitleBar"/> 
         <activity android:name=".MapDisplayActivity"

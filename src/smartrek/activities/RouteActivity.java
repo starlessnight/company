@@ -279,7 +279,7 @@ public final class RouteActivity extends MapActivity {
         int latMin = (int)(+81 * 1E6);
         int lonMin = (int)(+181 * 1E6);
          
-        ArrayList<RouteNode> route_nodes = route.getPoints();
+        List<RouteNode> route_nodes = route.getPoints();
         
         int lat = 0;
         int lon = 0;
@@ -317,7 +317,7 @@ public final class RouteActivity extends MapActivity {
 
             mapOverlays.add(routeoverlay1);
         } else if(routeNum == 1) {
-            routeoverlay2 = new RouteOverlay(drawable,mapView);
+            routeoverlay2 = new RouteOverlay(drawable,mapView, route);
             OverlayItem oi = new OverlayItem(new GeoPoint(lat,lon),
                                              "Route " + (routeNum + 1),
                                              "Origin: \n" + route.getOrigin()  + " \n\n" +
@@ -326,7 +326,7 @@ public final class RouteActivity extends MapActivity {
             routeoverlay2.addOverlay(oi);
             mapOverlays.add(routeoverlay2);
         } else {
-            routeoverlay3 = new RouteOverlay(drawable,mapView);
+            routeoverlay3 = new RouteOverlay(drawable,mapView, route);
             OverlayItem oi = new OverlayItem(new GeoPoint(lat,lon), 
                                              "Route " + (routeNum + 1),
                                              "Origin: \n" + route.getOrigin()  + " \n\n" +
@@ -364,7 +364,7 @@ public final class RouteActivity extends MapActivity {
      * @return A GeoPoint representing the mid point between the first and last node in the route.
      *
      ***************************************************************************************************************/
-    private GeoPoint getMidPoint (ArrayList<RouteNode> nodes) {
+    private GeoPoint getMidPoint (List<RouteNode> nodes) {
         GeoPoint p1 = nodes.get(0).getPoint(); 
         GeoPoint p2 = nodes.get(nodes.size()-1).getPoint();
         int midLat = (p1.getLatitudeE6() + p2.getLatitudeE6())/2;

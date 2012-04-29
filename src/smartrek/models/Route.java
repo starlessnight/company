@@ -1,6 +1,7 @@
 package smartrek.models;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import smartrek.util.RouteNode;
 import android.os.Bundle;
@@ -23,7 +24,7 @@ public final class Route implements Parcelable {
 	private ArrayList<Coupon> coupons;
 	private String origin;
 	private String destination;
-	private ArrayList<RouteNode> routeNodes;
+	private List<RouteNode> routeNodes = new ArrayList<RouteNode>();
 	private int rid;
 	private int validated;
 	private int duration;
@@ -48,7 +49,9 @@ public final class Route implements Parcelable {
 		rid = in.readInt();
 		validated = in.readInt();
 		duration = in.readInt();
-		departureTime = (Time) in.readValue(Time.class.getClassLoader());
+		//departureTime = (Time) in.readValue(Time.class.getClassLoader());
+		departureTime = new Time();
+		departureTime.parse(in.readString());
 		uid = in.readInt();
 	}
 	
@@ -158,7 +161,7 @@ public final class Route implements Parcelable {
 	 * 
 	 *
 	 *****************************************************************************************/
-	public ArrayList<RouteNode> getPoints() {
+	public List<RouteNode> getPoints() {
 		return routeNodes;
 	}
 	
@@ -340,7 +343,8 @@ public final class Route implements Parcelable {
 		dest.writeInt(rid);
 		dest.writeInt(validated);
 		dest.writeInt(duration);
-		dest.writeValue(departureTime);
+		//dest.writeValue(departureTime);
+		dest.writeString(departureTime.format2445());
 		dest.writeInt(uid);
 	}
 }

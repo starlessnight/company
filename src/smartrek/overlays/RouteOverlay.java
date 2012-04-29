@@ -32,16 +32,18 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private boolean enabled;
 	private int selectedRoute;
 	
-	public RouteOverlay(Drawable defaultMarker, MapView mapview){ // Context context) {
+	public RouteOverlay(Drawable defaultMarker, MapView mapview, Route route){ // Context context) {
 		  super(boundCenter(defaultMarker),mapview);
 		  enabled = false;
 		  context = mapview.getContext();
+		  this.route = route;
 	}
 	
 	public RouteOverlay(Drawable defaultMarker, MapView mapview, Route route, GeoPoint point) {
 		  super(boundCenter(defaultMarker),mapview);
 		  enabled = false;
 		  context = mapview.getContext();
+		  this.route = route;
 	
 		  OverlayItem item = new OverlayItem(point, "Title", "snippet");
 		  addOverlay(item);

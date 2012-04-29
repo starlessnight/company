@@ -146,7 +146,7 @@ public class RouteMapper extends Mapper {
 	public void addroute(Route route) {
 		
 		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-		ArrayList<RouteNode> nodes = route.getPoints();
+		List<RouteNode> nodes = route.getPoints();
 		HttpClient client = new DefaultHttpClient();
 		HttpPost post = new HttpPost(sturl + "/addroute");
 		
