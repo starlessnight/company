@@ -9,7 +9,11 @@ import android.os.Bundle;
 public final class LocationService {
 	
 	public interface LocationServiceListener {
-		public void locationUpdated(Location location);
+		/**
+		 * This will be called once (not repeatedly) when the current location is determined.
+		 * @param location
+		 */
+		public void locationAcquired(Location location);
 	}
 	
 	private static LocationService instance;
@@ -45,7 +49,7 @@ public final class LocationService {
 			public void onLocationChanged(Location location) {
 				currentLocation = location;
 				if (listener != null) {
-					listener.locationUpdated(location);
+					listener.locationAcquired(location);
 				}
 				locationManager.removeUpdates(this);
 			}

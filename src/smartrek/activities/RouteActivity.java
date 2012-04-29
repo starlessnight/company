@@ -62,8 +62,8 @@ public final class RouteActivity extends MapActivity {
     private RouteOverlay routeoverlay2;
     private RouteOverlay routeoverlay3;
     
-    private String origin;
-    private String destination;
+    private String originAddr;
+    private String destAddr;
     private GeoPoint originCoord;
     private GeoPoint destCoord;
     
@@ -104,7 +104,8 @@ public final class RouteActivity extends MapActivity {
         mapView.setBuiltInZoomControls(true);
         if(CURRENTMODE == SATELLITE){
             mapView.setSatellite(true);
-        } else if(CURRENTMODE == GENMAP){
+        }
+        else if(CURRENTMODE == GENMAP){
             mapView.setSatellite(false);
         }
     
@@ -172,42 +173,22 @@ public final class RouteActivity extends MapActivity {
         /* Get the extras from the bundle */
         Bundle extras = getIntent().getExtras();
         
-        origin = extras.getString("origin");
-        Log.d("RouteActivity","Got origin " + origin);
+        originAddr = extras.getString("originAddr");
+        destAddr = extras.getString("destAddr");
         
-        destination = extras.getString("destination");
-        Log.d("RouteActivity","Got destination " + destination);
+        originCoord = new GeoPoint(extras.getInt("originLat"), extras.getInt("originLng"));
+        destCoord = new GeoPoint(extras.getInt("destLat"), extras.getInt("destLng"));
         
-        // Workflow:
-        //   1. Geocoding (address to coordinate)
-        //   2. Request for routes
-        //   3. Draw routes on the map view
-        GeocodingTaskCallback callback = new GeocodingTaskCallback() {
-			@Override
-			public void preCallback() {
-	            dialog.show();
-			}
-        	
-        	@Override
-			public void callback(GeoPoint origin, GeoPoint destination) {
-				originCoord = origin;
-				destCoord = destination;
-
-				for(int i = 0; i < 4; i++) {
-					Time departureTime = timeLayout.getDepartureTime(i);
-					
-					// `i` is going to be `selectedColumn` for the time layout
-					// Only updates maps for `i = 0`
-					new RouteTask(i).execute(origin, destination, departureTime, i, (i == 0));
-				}
-			}
+        dialog.setMessage("Computing routes...");
+        dialog.show();
+        
+        for(int i = 0; i < 4; i++) {
+			Time departureTime = timeLayout.getDepartureTime(i);
 			
-			@Override
-			public void postCallback() {
-				dialog.setMessage("Computing routes...");
-			}
-		};
-        new GeocodingTask(callback).execute(origin, destination);
+			// `i` is going to be `selectedColumn` for the time layout
+			// Only updates maps for `i = 0`
+			new RouteTask(i).execute(originCoord, destCoord, departureTime, i, (i == 0));
+		}
 
 //        couponLayout = (CouponLayout)couponScroll.getChildAt(0);
         coupTitleBar = (TextView) findViewById(R.id.adjustableCouponLable);
@@ -326,7 +307,7 @@ public final class RouteActivity extends MapActivity {
         }
         
         /* Set values into route to be passed to next Activity */
-        route.setOD(origin, destination);
+        route.setOD(originAddr, destAddr);
         
         // FIXME:
         route.setUserId(User.getCurrentUser(this).getId());
@@ -467,82 +448,6 @@ public final class RouteActivity extends MapActivity {
             });
             dialog.show();
         }
-    }
-
-    /**
-     * Defines an interface that is going to be called when GeocodingTask.execute()
-     * is completed.
-     */
-	interface GeocodingTaskCallback {
-		public void preCallback();
-		public void callback(GeoPoint origin, GeoPoint destination);
-		public void postCallback();
-	}
-
-	/**
-	 * Asynchronous task that converts a postal address to a geographic coordinate.
-	 */
-    private class GeocodingTask extends AsyncTask<String, Void, Void> {
-    	
-    	GeocodingTaskCallback callback;
-    	
-    	public GeocodingTask(GeocodingTaskCallback callback) {
-    		super();
-    		this.callback = callback;
-    	}
-        
-        @Override
-        protected void onPreExecute () {
-        	if(callback != null) {
-        		callback.preCallback();
-        	}
-        }
-        
-        @Override
-        protected Void doInBackground(String... args) {
-            String origin = args[0];
-            String destination = args[1];
-            
-            GeoPoint originCoord = null;
-            GeoPoint destCoord = null;
-			try {
-				originCoord = Geocoding.lookup(origin);
-				destCoord = Geocoding.lookup(destination);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-            
-
-            boolean coordNotFound = false;
-            if(originCoord.getLatitudeE6() == 0 && originCoord.getLongitudeE6() == 0) {
-                coordNotFound = true;
-                exceptions.push(new Exception("Could not find a coordinate of the origin address."));
-            }
-            if(destCoord.getLatitudeE6() == 0 && destCoord.getLongitudeE6() == 0) {
-                coordNotFound = true;
-                exceptions.push(new Exception("Could not find a coordinate of the destination address."));
-            }
-            
-            if(!coordNotFound && callback != null) {
-            	callback.callback(originCoord, destCoord);
-                //onGeoLocationFound(originCoord, destCoord);
-            }
-            
-            return null;
-        }
-        
-        @Override
-        protected void onPostExecute(Void v) {
-            reportExceptions();
-            if(callback != null) {
-            	callback.postCallback();
-            }
-        }
-
     }
     
     public interface RouteTaskCallback {

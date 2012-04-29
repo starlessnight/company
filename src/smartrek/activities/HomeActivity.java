@@ -2,21 +2,23 @@ package smartrek.activities;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Stack;
 
 import org.json.JSONException;
 
 import smartrek.adapters.FavoriteAddressAdapter;
 import smartrek.mappers.FavoriteAddressMapper;
 import smartrek.models.Address;
+import smartrek.tasks.GeocodingTask;
+import smartrek.tasks.GeocodingTaskCallback;
 import smartrek.ui.CommonMenu;
+import smartrek.ui.EditAddress;
 import smartrek.util.LocationService;
 import smartrek.util.LocationService.LocationServiceListener;
 import android.app.Activity;
-import android.content.Context;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
@@ -38,6 +40,8 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import com.google.android.maps.GeoPoint;
 
 /****************************************************************************************************************
  * ******************************* public class Home_Activity ***************************************************
@@ -69,7 +73,7 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 	
 	private ScrollView SV;
 	
-	private EditText originBox;
+	private EditAddress originBox;
 	private EditText destBox;
 	private EditText dateBox;
 	
@@ -92,10 +96,16 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 	private int SELECT_GO = 3;
 	private int SELECT_LOAD = 4;
 	
-	private String origin = "";
-	private String destination = "";
+//	private String origin = "";
+//	private String destination = "";
+	
+	private GeoPoint originCoord;
+	private GeoPoint destCoord;
 	
 	private Time current;
+	
+	private Stack<Exception> exceptions;
+	
 	/****************************************************************************************************************
 	 * ***************************** public void onCreate(Bundle savedInstanceState) ********************************
 	 * 
@@ -124,7 +134,7 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
         
         /***************Start EditText Fields********************/
         
-        originBox = (EditText) findViewById(R.id.origin_box);
+        originBox = (EditAddress) findViewById(R.id.origin_box);
         destBox = (EditText) findViewById(R.id.destination_box);
         dateBox = (EditText) findViewById(R.id.date_box);
 
@@ -162,6 +172,7 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 				FavoriteAddressAdapter adapter = (FavoriteAddressAdapter) parent.getAdapter();
 				Address item = (Address) adapter.getItem(position);
 				
+				originBox.unsetAddress();
 				originBox.setText(item.getAddress());
 				resetAll();
 			}
@@ -208,19 +219,7 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
         hereButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				originBox.setEnabled(false);
-				originBox.setText("Getting current location...");
-				hereButton.setEnabled(false);
-				
-				LocationService ls = LocationService.getInstance(HomeActivity.this);
-		        ls.requestCurrentLocation(new LocationServiceListener() {
-					@Override
-					public void locationUpdated(Location location) {
-						originBox.setText(String.format("%f, %f", location.getLatitude(), location.getLongitude()));						
-						originBox.setEnabled(true);
-						hereButton.setEnabled(true);
-					}
-		        });
+				originBox.setAddressAsCurrentLocation();
 			}
         });
         
@@ -268,7 +267,7 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 		}
 		
 		if(selected == SELECT_GO){
-			startMapActivity();
+			prepareMapActivity();
 		}
 		
 		if(selected == SELECT_LOAD) {
@@ -332,6 +331,88 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 		selected = -1;
 	}
 	
+	
+	GeocodingTaskCallback originGeocodingTaskCallback = new GeocodingTaskCallback() {
+		
+		private ProgressDialog dialog;
+
+		@Override
+		public void preCallback() {
+			dialog = new ProgressDialog(HomeActivity.this);
+	        dialog.setMessage("Geocoding origin address...");
+	        dialog.setIndeterminate(true);
+	        dialog.setCancelable(false);
+	        dialog.show();
+		}
+
+		@Override
+		public void callback(GeoPoint coordinate) {
+			originCoord = coordinate;
+		}
+
+		@Override
+		public void postCallback() {
+			dialog.cancel();
+			
+			String dest = destBox.getText().toString();
+			new GeocodingTask(exceptions, destGeocodingTaskCallback).execute(dest);
+		}
+		
+	};
+	
+	GeocodingTaskCallback destGeocodingTaskCallback = new GeocodingTaskCallback() {
+
+		private ProgressDialog dialog;
+		
+		@Override
+		public void preCallback() {
+			dialog = new ProgressDialog(HomeActivity.this);
+	        dialog.setMessage("Geocoding destination address...");
+	        dialog.setIndeterminate(true);
+	        dialog.setCancelable(false);
+	        dialog.show();
+		}
+
+		@Override
+		public void callback(GeoPoint coordinate) {
+			destCoord = coordinate;
+		}
+
+		@Override
+		public void postCallback() {
+			dialog.cancel();
+			
+			startMapActivity();
+		}
+		
+	};
+	
+	private void prepareMapActivity() {
+		if (originBox.isCurrentLocationInUse()) {
+			final ProgressDialog dialog = new ProgressDialog(this);
+	        dialog.setMessage("Acquiring current location...");
+	        dialog.setIndeterminate(true);
+	        dialog.setCancelable(false);
+	        dialog.show();
+			
+			LocationService locationService = LocationService.getInstance(this);
+			locationService.requestCurrentLocation(new LocationServiceListener() {
+				@Override
+				public void locationAcquired(Location location) {
+					originCoord = new GeoPoint((int)(location.getLatitude() * 1E6), (int)(location.getLongitude() * 1E6));
+					dialog.cancel();
+					
+					String dest = destBox.getText().toString();
+					new GeocodingTask(exceptions, destGeocodingTaskCallback).execute(dest);
+				}
+			});
+		}
+		else {
+			String origin = originBox.getText().toString();
+			new GeocodingTask(exceptions, originGeocodingTaskCallback).execute(origin);
+		}
+	}
+	
 	/****************************************************************************************************************
 	 * ******************************** private void startMapActivity()**********************************************
 	 * 
@@ -342,16 +423,16 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 	 * 
 	 ****************************************************************************************************************/
 	private void startMapActivity() {
-		origin = originBox.getText().toString();
-		destination = destBox.getText().toString();
-		
-		// Put in error checking for OD pair here // 
-		
 		Intent intent = new Intent(this, RouteActivity.class);
 		
 		Bundle extras = new Bundle();
-		extras.putString("origin", origin);
-		extras.putString("destination", destination);
+		extras.putString("originAddr", originBox.getText().toString());
+		extras.putString("destAddr", destBox.getText().toString());
+		// TODO: Any better way to handle this?
+		extras.putInt("originLat", originCoord.getLatitudeE6());
+		extras.putInt("originLng", originCoord.getLongitudeE6());
+		extras.putInt("destLat", destCoord.getLatitudeE6());
+		extras.putInt("destLng", destCoord.getLongitudeE6());
 		intent.putExtras(extras);
 		startActivity(intent);
 	}

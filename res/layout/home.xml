@@ -52,7 +52,7 @@
                     android:layout_below="@id/origin_text"
                     android:text="favs" />
 
-                <EditText
+                <smartrek.ui.EditAddress
                     android:id="@+id/origin_box"
                     android:layout_width="170dp"
                     android:layout_height="40dp"
@@ -63,7 +63,7 @@
 
                     <requestFocus>
                     </requestFocus>
-                </EditText>
+                </smartrek.ui.EditAddress>
 
                 <ListView
                     android:id="@+id/originFavs"
