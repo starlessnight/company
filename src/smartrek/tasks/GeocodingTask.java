@@ -48,7 +48,7 @@ public final class GeocodingTask extends AsyncTask<String, Void, Void> {
 		}
         
         if(coordinate.getLatitudeE6() == 0 && coordinate.getLongitudeE6() == 0) {
-            exceptions.push(new Exception("Could not find a coordinate of the address."));
+            exceptions.push(new Exception(String.format("Could not find a coordinate of the address '%s'.", postalAddress)));
         }
         else {
         	callback.callback(coordinate);

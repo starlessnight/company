@@ -16,7 +16,10 @@ import smartrek.ui.EditAddress;
 import smartrek.util.LocationService;
 import smartrek.util.LocationService.LocationServiceListener;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -104,7 +107,7 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 	
 	private Time current;
 	
-	private Stack<Exception> exceptions;
+	private Stack<Exception> exceptions = new Stack<Exception>();
 	
 	/****************************************************************************************************************
 	 * ***************************** public void onCreate(Bundle savedInstanceState) ********************************
@@ -117,8 +120,6 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home);
-        
-        Log.d("Home_Activity","OnCreate Home_Activity");
         
         selected = -1;
         
@@ -354,8 +355,18 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 		public void postCallback() {
 			dialog.cancel();
 			
-			String dest = destBox.getText().toString();
-			new GeocodingTask(exceptions, destGeocodingTaskCallback).execute(dest);
+			if (exceptions.isEmpty()) {
+				String dest = destBox.getText().toString();
+				if (dest.trim().equals("")) {
+					reportException("Destination address cannot be empty.");
+				}
+				else {
+					new GeocodingTask(exceptions, destGeocodingTaskCallback).execute(dest);
+				}
+			}
+			else {
+				reportExceptions();
+			}
 		}
 		
 	};
@@ -382,7 +393,12 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 		public void postCallback() {
 			dialog.cancel();
 			
-			startMapActivity();
+			if (exceptions.isEmpty()) {
+				startMapActivity();
+			}
+			else {
+				reportExceptions();
+			}
 		}
 		
 	};
@@ -403,13 +419,23 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 					dialog.cancel();
 					
 					String dest = destBox.getText().toString();
-					new GeocodingTask(exceptions, destGeocodingTaskCallback).execute(dest);
+					if (dest.trim().equals("")) {
+						reportException("Destination address cannot be empty.");
+					}
+					else {
+						new GeocodingTask(exceptions, destGeocodingTaskCallback).execute(dest);
+					}
 				}
 			});
 		}
 		else {
 			String origin = originBox.getText().toString();
-			new GeocodingTask(exceptions, originGeocodingTaskCallback).execute(origin);
+			if (origin.trim().equals("")) {
+				reportException("Origin address cannot be empty.");
+			}
+			else {
+				new GeocodingTask(exceptions, originGeocodingTaskCallback).execute(origin);
+			}
 		}
 	}
 	
@@ -499,6 +525,27 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
         
         expandView(destFavs, delta - 100);        
         expandView(SV, delta + 200);
+	}
+	
+	private void reportException(String message) {
+		AlertDialog dialog = new AlertDialog.Builder(this).create();
+        dialog.setTitle("Exception");
+        dialog.setMessage(message);
+        dialog.setButton("Dismiss", new Dialog.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        dialog.show();
+	}
+	
+	private void reportExceptions() {
+		while (!exceptions.isEmpty()) {
+			Exception e = exceptions.pop();
+			
+            reportException(e.getMessage());
+		}
 	}
 	
 	private class FavoriteAddressFetchTask extends AsyncTask<Integer, Object, List<Address>> {
