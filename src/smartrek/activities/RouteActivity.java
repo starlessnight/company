@@ -179,13 +179,15 @@ public final class RouteActivity extends MapActivity {
         dialog.setMessage("Computing routes...");
         dialog.show();
         
-        for(int i = 0; i < 4; i++) {
-			Time departureTime = timeLayout.getDepartureTime(i);
-
-			// `i` is going to be `selectedColumn` for the time layout
-			// Only updates maps for `i = 0`
-			new RouteTask(i).execute(originCoord, destCoord, departureTime, i, (i == 0));
-		}
+        new RouteTask(0).execute(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
+        
+//        for(int i = 0; i < 4; i++) {
+//			Time departureTime = timeLayout.getDepartureTime(i);
+//
+//			// `i` is going to be `selectedColumn` for the time layout
+//			// Only updates maps for `i = 0`
+//			new RouteTask(i).execute(originCoord, destCoord, departureTime, i, (i == 0));
+//		}
 
 
 //        couponLayout = (CouponLayout)couponScroll.getChildAt(0);
@@ -521,17 +523,27 @@ public final class RouteActivity extends MapActivity {
         protected void onPostExecute(List<Route> possibleRoutes) {
             dialog.dismiss();
             
-            reportExceptions();
-            
-            // FIXME: Temporary
-            if(possibleRoutes != null && possibleRoutes.size() > 0) {
-            	Route firstRoute = possibleRoutes.get(0);
-            	timeLayout.setModelForColumn(selectedColumn, firstRoute);
+            if (!exceptions.isEmpty()) {
+            	reportExceptions();
             }
-            
-            // FIXME: Relying on updateMap is kind of hack-ish. Need to come up with more sophiscated way.
-            timeLayout.setColumnState(selectedColumn, updateMap ? TimeButton.State.Selected : TimeButton.State.None);
-            //timeLayout.setColumnState(selectedColumn, State.None);
+            else {
+	            // FIXME: Temporary
+	            if(possibleRoutes != null && possibleRoutes.size() > 0) {
+	            	Route firstRoute = possibleRoutes.get(0);
+	            	timeLayout.setModelForColumn(selectedColumn, firstRoute);
+	            }
+	            
+	            // FIXME: Relying on updateMap is kind of hack-ish. Need to come up with more sophiscated way.
+	            timeLayout.setColumnState(selectedColumn, updateMap ? TimeButton.State.Selected : TimeButton.State.None);
+	            //timeLayout.setColumnState(selectedColumn, State.None);
+	            
+	            if (selectedColumn == 0) {
+					for (int i = 1; i < 4; i++) {
+						Time departureTime = timeLayout.getDepartureTime(i);
+						new RouteTask(i).execute(originCoord, destCoord, departureTime, i, false);
+					}
+	            }
+            }
         }
 
     }

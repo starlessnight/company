@@ -29,11 +29,7 @@ import com.google.android.maps.GeoPoint;
  * 
  *
  */
-public class RouteMapper extends Mapper {
-	
-	private String loc1;
-	private String loc2;
-	private Time time;
+public final class RouteMapper extends Mapper {
 	
 	/**
 	 * Default constructor
@@ -53,8 +49,6 @@ public class RouteMapper extends Mapper {
 	 * @throws IOException 
 	 */
 	public List<Route> getPossibleRoutes(GeoPoint origin, GeoPoint destination, Time time) throws JSONException, IOException {
-			
-		this.time = time;
 		
 		String routeurl = String.format("%s/getroutes/startlat=%f%%20startlon=%f%%20endlat=%f%%20endlon=%f%%20departtime=%d:%02d",
 				host, origin.getLatitudeE6()/1.0E6, origin.getLongitudeE6()/1.0E6, destination.getLatitudeE6()/1.0E6, destination.getLongitudeE6()/1.0E6,
