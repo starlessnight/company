@@ -31,11 +31,14 @@ public final class ReservationDetailsActivity extends Activity {
         textViewDestination.setText(reservation.getDestinationAddress());
         
         textViewDepartureTime = (TextView) findViewById(R.id.textViewDepartureTime);
-        //textViewDepartureTime.setText(reservation.getStartDatetime());
+        // FIXME: Date/time format i18n
+        textViewDepartureTime.setText(reservation.getDepartureTime().format("%b %d, %G %l:%M%p"));
         
         textViewArrivalTime = (TextView) findViewById(R.id.textViewArrivalTime);
+        // FIXME: Date/time format i18n
+        textViewArrivalTime.setText(reservation.getArrivalTime().format("%b %d, %G %l:%M%p"));
         
         textViewCredits = (TextView) findViewById(R.id.textViewCredits);
-        textViewCredits.setText(reservation.getCredits());
+        //textViewCredits.setText(reservation.getCredits());
     }
 }

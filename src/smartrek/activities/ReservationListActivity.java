@@ -1,5 +1,6 @@
 package smartrek.activities;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,6 +78,9 @@ public final class ReservationListActivity extends ListActivity {
 					reservations.add(r);
 				}
 			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			catch (ParseException e) {
 				e.printStackTrace();
 			}
 			
