@@ -26,6 +26,8 @@ public final class Reservation implements Parcelable {
 	
 	private String destinationAddress;
 	
+	private int credits;
+	
 	private int validatedFlag;
 	
 	public static final Parcelable.Creator<Reservation> CREATOR = new Parcelable.Creator<Reservation>() {
@@ -48,6 +50,7 @@ public final class Reservation implements Parcelable {
 		endDatetime = (Date) in.readValue(Date.class.getClassLoader());
 		originAddress = in.readString();
 		destinationAddress = in.readString();
+		credits = in.readInt();
 		validatedFlag = in.readInt();
 	}
 
@@ -90,6 +93,14 @@ public final class Reservation implements Parcelable {
 	public void setDestinationAddress(String destinationAddress) {
 		this.destinationAddress = destinationAddress;
 	}
+	
+	public int getCredits() {
+		return credits;
+	}
+	
+	public void setCredits(int credits) {
+		this.credits = credits;
+	}
 
 	public int getValidatedFlag() {
 		return validatedFlag;
@@ -109,12 +120,12 @@ public final class Reservation implements Parcelable {
 	public static Reservation parse(JSONObject object) throws JSONException {
 		Reservation r = new Reservation();
 		
-		//r.setDid(object.getInt("DID"));
 		r.setRid(object.getInt("RID"));
-		// START_DATETIME
-		// END_DATETIME
+		// TODO: START_DATETIME
+		// TODO: END_DATETIME
 		r.setOriginAddress(object.getString("ORIGIN_ADDRESS"));
 		r.setDestinationAddress(object.getString("DESTINATION_ADDRESS"));
+		r.setCredits(object.getInt("CREDITS"));
 		r.setValidatedFlag(object.getInt("VALIDATED_FLAG"));
 		
 		return r;
@@ -133,6 +144,7 @@ public final class Reservation implements Parcelable {
 		dest.writeValue(endDatetime);
 		dest.writeString(originAddress);
 		dest.writeString(destinationAddress);
-		dest.writeInt(validatedFlag);		
+		dest.writeInt(credits);
+		dest.writeInt(validatedFlag);
 	}
 }

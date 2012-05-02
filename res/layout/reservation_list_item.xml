@@ -7,22 +7,30 @@
 
     <TextView
         android:id="@+id/textView1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:text="Origin" />
 
     <TextView
         android:id="@+id/textViewOrigin"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:text="Medium Text"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/textView3"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:text="Destination" />
 
     <TextView
         android:id="@+id/textViewDestination"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:text="Medium Text"
         android:textAppearance="?android:attr/textAppearanceMedium" />

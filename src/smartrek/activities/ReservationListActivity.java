@@ -9,14 +9,18 @@ import org.json.JSONObject;
 
 import smartrek.mappers.ReservationMapper;
 import smartrek.models.Reservation;
+import smartrek.models.User;
+import smartrek.util.HTTP;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 /**
@@ -33,7 +37,19 @@ public final class ReservationListActivity extends ListActivity {
         
         reservations = new ArrayList<Reservation>();
         
-        new ReservationRetrivalTask().execute();
+        User currentUser = User.getCurrentUser(this);
+        
+        new ReservationRetrivalTask().execute(currentUser.getId());
+	}
+	
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		Intent intent = new Intent(this, ReservationDetailsActivity.class);
+		
+		Bundle extras = new Bundle();
+		extras.putParcelable("reservation", reservations.get(position));
+		intent.putExtras(extras);
+		startActivity(intent);
 	}
 	
 	/**
@@ -42,13 +58,16 @@ public final class ReservationListActivity extends ListActivity {
 	private class ReservationRetrivalTask extends AsyncTask<Object, Object, String> {
 		@Override
 		protected String doInBackground(Object... params) {
-			ReservationMapper comm = new ReservationMapper();
+			int uid = (Integer) params[0];
+			
+			ReservationMapper mapper = new ReservationMapper();
 			String response = null;
 			try {
-				response = comm.downloadText("http://50.56.81.42:8080/getreservations/18");
+				// FIXME: Hard-coded UID
+				response = HTTP.downloadText("http://50.56.81.42:8080/getreservations/" + uid);
 			}
 			catch(Exception e) {
-				
+				e.printStackTrace();
 			}
 
 			try {
