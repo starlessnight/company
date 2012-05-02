@@ -5,15 +5,14 @@ import java.util.Date;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * A model class representing a reservation
  */
-public class Reservation {
-	/**
-	 * Deal ID
-	 */
-	private int did;
-	
+public final class Reservation implements Parcelable {
+
 	/**
 	 * Reservation ID
 	 */
@@ -29,12 +28,27 @@ public class Reservation {
 	
 	private int validatedFlag;
 	
-	public int getDid() {
-		return did;
-	}
+	public static final Parcelable.Creator<Reservation> CREATOR = new Parcelable.Creator<Reservation>() {
+		public Reservation createFromParcel(Parcel in) {
+			return new Reservation(in);
+		}
 
-	public void setDid(int did) {
-		this.did = did;
+		public Reservation[] newArray(int size) {
+			return new Reservation[size];
+		}
+	};
+	
+	public Reservation() {
+		
+	}
+	
+	private Reservation(Parcel in) {
+		rid = in.readInt();
+		startDatetime = (Date) in.readValue(Date.class.getClassLoader());
+		endDatetime = (Date) in.readValue(Date.class.getClassLoader());
+		originAddress = in.readString();
+		destinationAddress = in.readString();
+		validatedFlag = in.readInt();
 	}
 
 	public int getRid() {
@@ -95,7 +109,7 @@ public class Reservation {
 	public static Reservation parse(JSONObject object) throws JSONException {
 		Reservation r = new Reservation();
 		
-		r.setDid(object.getInt("DID"));
+		//r.setDid(object.getInt("DID"));
 		r.setRid(object.getInt("RID"));
 		// START_DATETIME
 		// END_DATETIME
@@ -104,5 +118,21 @@ public class Reservation {
 		r.setValidatedFlag(object.getInt("VALIDATED_FLAG"));
 		
 		return r;
+	}
+
+	@Override
+	public int describeContents() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(rid);
+		dest.writeValue(startDatetime);
+		dest.writeValue(endDatetime);
+		dest.writeString(originAddress);
+		dest.writeString(destinationAddress);
+		dest.writeInt(validatedFlag);		
 	}
 }
