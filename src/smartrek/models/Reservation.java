@@ -135,8 +135,7 @@ public final class Reservation implements Parcelable {
 		Time departureTime = new Time();
 		departureTime.set(dateFormat.parse(object.getString("START_TIME")).getTime());
 		r.setDepartureTime(departureTime);
-		
-		dateFormat = new SimpleDateFormat("HH:mm:ss");
+
 		Time arrivalTime = new Time();
 		arrivalTime.set(dateFormat.parse(object.getString("END_TIME")).getTime());
 		r.setArrivalTime(arrivalTime);
