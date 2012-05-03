@@ -5,6 +5,10 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.widget.TextView;
 
+/**
+ * Shows detailed information about a reservation.
+ *
+ */
 public final class ReservationDetailsActivity extends Activity {
 	private TextView textViewName;
 	private TextView textViewOrigin;
@@ -39,6 +43,6 @@ public final class ReservationDetailsActivity extends Activity {
         textViewArrivalTime.setText(reservation.getArrivalTime().format("%b %d, %G %l:%M%p"));
         
         textViewCredits = (TextView) findViewById(R.id.textViewCredits);
-        //textViewCredits.setText(reservation.getCredits());
+        textViewCredits.setText(String.valueOf(reservation.getCredits()));
     }
 }
