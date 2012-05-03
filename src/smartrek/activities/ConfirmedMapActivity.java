@@ -71,7 +71,7 @@ public class ConfirmedMapActivity extends MapActivity {
 	    long latitude = 0;
 	    long longitude = 0;
 	     
-	    List<RouteNode> route_nodes = route.getPoints();
+	    List<RouteNode> route_nodes = route.getNodes();
     	
 	    for(int i = 0; i < route_nodes.size()-1; i++) {	
 	    	GeoPoint point = route_nodes.get(i).getPoint();

@@ -219,7 +219,7 @@ public final class RouteActivity extends MapActivity {
         
         if(possibleRoutes != null && possibleRoutes.size() > 0) {
             /* Get a midpoint to center the view of  the routes */
-            GeoPoint mid = getMidPoint(possibleRoutes.get(0).getPoints());
+            GeoPoint mid = getMidPoint(possibleRoutes.get(0).getNodes());
             
             /* range holds 2 points consisting of the lat/lon range to be displayed */
             int[] range = null;
@@ -281,7 +281,7 @@ public final class RouteActivity extends MapActivity {
         int latMin = (int)(+81 * 1E6);
         int lonMin = (int)(+181 * 1E6);
          
-        List<RouteNode> route_nodes = route.getPoints();
+        List<RouteNode> route_nodes = route.getNodes();
         
         int lat = 0;
         int lon = 0;

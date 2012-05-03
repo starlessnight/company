@@ -3,6 +3,8 @@ package smartrek.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONException;
+
 import smartrek.util.RouteNode;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -30,6 +32,7 @@ public final class Route implements Parcelable {
 	private int duration;
 	private Time departureTime = null;
 	private int uid;
+	private int credits;
 	
 	
 	public static final Parcelable.Creator<Route> CREATOR = new Parcelable.Creator<Route>() {
@@ -53,6 +56,7 @@ public final class Route implements Parcelable {
 		departureTime = new Time();
 		departureTime.parse(in.readString());
 		uid = in.readInt();
+		credits = in.readInt();
 	}
 	
 	/*****************************************************************************************
@@ -161,7 +165,7 @@ public final class Route implements Parcelable {
 	 * 
 	 *
 	 *****************************************************************************************/
-	public List<RouteNode> getPoints() {
+	public List<RouteNode> getNodes() {
 		return routeNodes;
 	}
 	
@@ -265,6 +269,14 @@ public final class Route implements Parcelable {
 		this.departureTime = time;
 	}
 	
+	public int getCredits() {
+		return credits;
+	}
+	
+	public void setCredits(int credits) {
+		this.credits = credits;
+	}
+	
 	/*****************************************************************************************
 	 * 
 	 *
@@ -346,5 +358,28 @@ public final class Route implements Parcelable {
 		//dest.writeValue(departureTime);
 		dest.writeString(departureTime.format2445());
 		dest.writeInt(uid);
+		dest.writeInt(credits);
 	}
+
+//	/**
+//	 * The following code does not work because JSONArray puts surrounding
+//	 * double quotes on each element of its own.
+//	 * 
+//	 * new JSONObject(route.getPoints()).toString();
+//	 * 
+//	 * The result would be
+//	 * 
+//	 * ["{"key":"value"}", "{"key":"value"}", ... ]
+//	 */
+//	@Override
+//	public String toJSON() throws JSONException {
+//		StringBuffer buf = new StringBuffer();
+//		buf.append("[");
+//		
+//		
+//		
+//		buf.append("]");
+//		
+//		return new String(buf);
+//	}
 }

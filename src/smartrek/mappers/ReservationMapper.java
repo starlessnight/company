@@ -1,8 +1,13 @@
 package smartrek.mappers;
 
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.List;
 
 import smartrek.models.Route;
+import smartrek.util.HTTP;
+import smartrek.util.RouteNode;
+import android.util.Log;
 
 public final class ReservationMapper extends Mapper {
 
@@ -10,8 +15,42 @@ public final class ReservationMapper extends Mapper {
 		return null;
 	}
 	
-	public void reserveRoute(Route route) {
-		String url = String.format("%s/addreservations/rid=%d&credits=%d&uid=%d&start_datetime=%s&end_datetime=%s&origin_address=%s&destination_address=%s&route=%s&validated_flag=%d");
+	public void reserveRoute(Route route) throws IOException {
+		// TODO: Better way to handle this?
+		StringBuffer buf = new StringBuffer();
+		buf.append("[");
+		
+		List<RouteNode> nodes = route.getNodes();
+		for (RouteNode node : nodes) {
+			buf.append(node.toJSON());
+			buf.append(",");
+		}
+		buf.deleteCharAt(buf.length()-1);
+		buf.append("]");
+		
+		String url = String.format("%s/addreservations/?rid=%d&credits=%d&uid=%d&start_datetime=%s&end_datetime=%s&origin_address=%s&destination_address=%s&route=%s&validated_flag=%d",
+				host,
+				route.getRID(), route.getCredits(), route.getUserId(),
+				URLEncoder.encode(route.getDepartureTime().format("%Y-%m-%d %T")),
+				URLEncoder.encode(route.getArrivalTime().format("%Y-%m-%d %T")),
+				URLEncoder.encode(route.getOrigin()),
+				URLEncoder.encode(route.getDestination()),
+				URLEncoder.encode(new String(buf)),
+				0);
+		
+		Log.d("ReservationMapper", url);
+		
+		HTTP http = new HTTP(url);
+		http.connect();
+		
+		int responseCode = http.getResponseCode();
+		if (responseCode == 200) {
+			
+		}
+		else {
+			throw new IOException(String.format("HTTP %d - %s", responseCode, http.getResponseBody()));
+		}
+		
 	}
 
 }

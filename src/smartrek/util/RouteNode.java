@@ -1,12 +1,17 @@
 package smartrek.util;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import smartrek.models.JSONModel;
+
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.android.maps.GeoPoint;
 
-public final class RouteNode implements Parcelable {
+public final class RouteNode implements Parcelable, JSONModel {
 	
 	// FIXME: Why would you use strings for lat, long?
 	private float lat;
@@ -82,5 +87,14 @@ public final class RouteNode implements Parcelable {
 		dest.writeFloat(lng);
 		dest.writeInt(routeNum);
 		dest.writeInt(nodeNum);
+	}
+	
+	/**
+	 * Example output:
+	 * { "LATITUDE":37.797065,"LONGITUDE":-122.251991,"NODEID":14561}
+	 */
+	@Override
+	public String toJSON() {
+		return String.format("{\"LATITUDE\":%f,\"LONGITUDE\":%f,\"NODEID\":%d}", getLatitude(), getLongitude(), nodeNum);
 	}
 }

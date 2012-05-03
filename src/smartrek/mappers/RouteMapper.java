@@ -140,11 +140,11 @@ public final class RouteMapper extends Mapper {
 	public void addroute(Route route) {
 		
 		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
-		List<RouteNode> nodes = route.getPoints();
+		List<RouteNode> nodes = route.getNodes();
 		HttpClient client = new DefaultHttpClient();
 		HttpPost post = new HttpPost(sturl + "/addroute");
 		
-		for (int i = 0; i < route.getPoints().size(); i++) {
+		for (int i = 0; i < route.getNodes().size(); i++) {
 			
 			RouteNode rn = nodes.get(i);
 			

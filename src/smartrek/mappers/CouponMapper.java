@@ -95,7 +95,7 @@ public final class CouponMapper extends Mapper {
 			}
 		}
 		else {
-			throw new IOException(String.format("HTTP %d", responseCode));
+			throw new IOException(String.format("HTTP %d - %s", responseCode, http.getResponseBody()));
 		}
 
 		return coupons;
