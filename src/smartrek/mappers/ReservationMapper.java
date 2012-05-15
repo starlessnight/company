@@ -30,7 +30,7 @@ public final class ReservationMapper extends Mapper {
 		
 		String url = String.format("%s/addreservations/?rid=%d&credits=%d&uid=%d&start_datetime=%s&end_datetime=%s&origin_address=%s&destination_address=%s&route=%s&validated_flag=%d",
 				host,
-				route.getRID(), route.getCredits(), route.getUserId(),
+				route.getId(), route.getCredits(), route.getUserId(),
 				URLEncoder.encode(route.getDepartureTime().format("%Y-%m-%d %T")),
 				URLEncoder.encode(route.getArrivalTime().format("%Y-%m-%d %T")),
 				URLEncoder.encode(route.getOrigin()),
@@ -45,7 +45,7 @@ public final class ReservationMapper extends Mapper {
 		
 		int responseCode = http.getResponseCode();
 		if (responseCode == 200) {
-			
+			Log.d("ReservationMapper", "HTTP response: " + http.getResponseBody());
 		}
 		else {
 			throw new IOException(String.format("HTTP %d - %s", responseCode, http.getResponseBody()));

@@ -76,12 +76,15 @@ public final class RouteMapper extends Mapper {
 				routeNodes.add(node);
 			}
 			
+			// Route ID
+			int rid = object.getInt("RID");
+			
 			// Web service returns the estimated travel time in minutes, but we
 			// internally store it as seconds.
 			double ett = object.getDouble("ESTIMATED_TRAVEL_TIME");
 
 			// FIXME: Route ID
-			Route route = new Route(routeNodes, 0, time, (int)(ett * 60));
+			Route route = new Route(routeNodes, rid, time, (int)(ett * 60));
 			routes.add(route);
 		}
 
@@ -105,7 +108,7 @@ public final class RouteMapper extends Mapper {
 
 		pairs.add(new BasicNameValuePair("UID", route.getUserId() + ""));
 		pairs.add(new BasicNameValuePair("DID", route.getDiscount().getDid() + ""));
-		pairs.add(new BasicNameValuePair("RID", route.getRID() + ""));
+		pairs.add(new BasicNameValuePair("RID", route.getId() + ""));
 
 		pairs.add(new BasicNameValuePair("VALIDATED_FLAG", "0"));
 
@@ -148,9 +151,9 @@ public final class RouteMapper extends Mapper {
 			
 			RouteNode rn = nodes.get(i);
 			
-			logAddRoute(i,rn,route.getRID());
+			logAddRoute(i,rn,route.getId());
 			
-			pairs.add(new BasicNameValuePair("RID", route.getRID() + ""));
+			pairs.add(new BasicNameValuePair("RID", route.getId() + ""));
 			pairs.add(new BasicNameValuePair("ROUTE_ORDER", (i+1) + ""));
 			pairs.add(new BasicNameValuePair("LATITUDE", String.valueOf(rn.getLatitude())));
 			pairs.add(new BasicNameValuePair("LONGITUDE", String.valueOf(rn.getLongitude())));
@@ -192,7 +195,7 @@ public final class RouteMapper extends Mapper {
 		Log.d("Route_Communicator", "END_DATETIME = " +  route.timeToString());
 		Log.d("Route_Communicator", "UID = " + route.getUserId());
 		Log.d("Route_Communicator", "DID = " + route.getDiscount().getDid());
-		Log.d("Route_Communicator", "RID = " + route.getRID() + "");
+		Log.d("Route_Communicator", "RID = " + route.getId() + "");
 		Log.d("Route_Communicator", "VALIDATED_FLAG = 0");
 		Log.d("Route_Communicator", "ORIGIN_ADDRESS = "+ route.getOrigin() );
 		Log.d("Route_Communicator", "DESTINATION_ADRESS = " + route.getDestination() );

@@ -3,8 +3,6 @@ package smartrek.models;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONException;
-
 import smartrek.util.RouteNode;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -173,7 +171,7 @@ public final class Route implements Parcelable {
 	 * 
 	 *
 	 *****************************************************************************************/
-	public int getRID(){
+	public int getId(){
 		return rid;
 	}
 	

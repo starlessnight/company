@@ -5,12 +5,17 @@ import java.io.IOException;
 import smartrek.mappers.ReservationMapper;
 import smartrek.models.Route;
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+/**
+ * This will popup before a user makes a reservation for a route
+ *
+ */
 public final class ReservationConfirmationActivity extends Activity {
 	
 	private Route route;
@@ -50,15 +55,26 @@ public final class ReservationConfirmationActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				// TODO: This must be executed in a separate thread
-				ReservationMapper mapper = new ReservationMapper();
-				try {
-					mapper.reserveRoute(route);
-				}
-				catch (IOException e) {
-					e.printStackTrace();
-				}
+				new ReservationTask().execute();
 			}
         });
+	}
+	
+	private final class ReservationTask extends AsyncTask<Object, Object, Object> {
+
+		@Override
+		protected Object doInBackground(Object... params) {
+			ReservationMapper mapper = new ReservationMapper();
+			
+			try {
+				mapper.reserveRoute(route);
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			return null;
+		}
+		
 	}
 }
