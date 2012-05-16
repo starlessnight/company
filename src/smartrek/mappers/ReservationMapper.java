@@ -28,15 +28,14 @@ public final class ReservationMapper extends Mapper {
 		buf.deleteCharAt(buf.length()-1);
 		buf.append("]");
 		
-		String url = String.format("%s/addreservations/?rid=%d&credits=%d&uid=%d&start_datetime=%s&end_datetime=%s&origin_address=%s&destination_address=%s&route=%s&validated_flag=%d",
+		String url = String.format("%s/addreservations/?rid=%d&credits=%d&uid=%d&start_datetime=%s&end_datetime=%s&origin_address=%s&destination_address=%s&route=%s",
 				host,
 				route.getId(), route.getCredits(), route.getUserId(),
 				URLEncoder.encode(route.getDepartureTime().format("%Y-%m-%d %T")),
 				URLEncoder.encode(route.getArrivalTime().format("%Y-%m-%d %T")),
 				URLEncoder.encode(route.getOrigin()),
 				URLEncoder.encode(route.getDestination()),
-				URLEncoder.encode(new String(buf)),
-				0);
+				URLEncoder.encode(new String(buf)));
 		
 		Log.d("ReservationMapper", url);
 		
