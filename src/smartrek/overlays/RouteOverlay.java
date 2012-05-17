@@ -54,7 +54,9 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		  addOverlay(item);
 		  
           OverlayItem item2 = new OverlayItem(point,
-                  "Route " + (0 + 1),
+        		  // TODO: Showing a route ID is a temporary solution.
+        		  // Ultimately, we want to show "Route 1", "Route 2", ...
+                  "Route #" + route.getId(),
                   "Origin: \n" + route.getOrigin()  + " \n\n" +
                   "Destination: \n" + route.getDestination() + "\n\n" + 
                   "Estimated Travel Time: " + route.getMin() + " min\n" +
