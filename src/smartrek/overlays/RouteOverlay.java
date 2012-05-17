@@ -37,8 +37,6 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private boolean enabled;
 	private int selectedRoute;
 	
-	private OverlayItem infoOverlay;
-	
 	public RouteOverlay(Drawable defaultMarker, MapView mapview, Route route){ // Context context) {
 		  super(boundCenter(defaultMarker),mapview);
 		  enabled = false;
@@ -55,14 +53,14 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		  OverlayItem item = new OverlayItem(point, "Title", "snippet");
 		  addOverlay(item);
 		  
-          infoOverlay = new OverlayItem(point,
+          OverlayItem item2 = new OverlayItem(point,
                   "Route " + (0 + 1),
                   "Origin: \n" + route.getOrigin()  + " \n\n" +
                   "Destination: \n" + route.getDestination() + "\n\n" + 
                   "Estimated Travel Time: " + route.getMin() + " min\n" +
                   "Credits: " + route.getCredits() + "\n\n" +
                   "(Tap to reserve this route)");
-          addOverlay(infoOverlay);
+          addOverlay(item2);
 	}
 	
 	public void setCouponLayout(CouponLayout couponlayout, TextView titleBar){
@@ -135,33 +133,5 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		context.startActivity(intent);
 		
 		return true;
-	}
-	
-	private final class RouteCreditsFetchTask extends AsyncTask<Object, Object, Integer> {
-
-		@Override
-		protected Integer doInBackground(Object... params) {
-			int credits = 0;
-			RouteMapper mapper = new RouteMapper();
-			try {
-				credits = mapper.getRouteCredits(route.getId());
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-			catch (JSONException e) {
-				e.printStackTrace();
-			}
-			return credits;
-		}
-
-		@Override
-		protected void onPostExecute(Integer credits) {
-			Log.d("RouteOverlay", String.format("Route %d credits = %d", route.getId(), credits));
-			route.setCredits(credits);
-			
-			// TODO: Updating OverlayItem here is going to be trickier than I thought
-			// as OverlayItem does not provide any mechanism to update the snippet text.
-		}
 	}
 }
