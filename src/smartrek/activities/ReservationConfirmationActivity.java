@@ -1,10 +1,15 @@
 package smartrek.activities;
 
 import java.io.IOException;
+import java.util.Stack;
 
 import smartrek.mappers.ReservationMapper;
 import smartrek.models.Route;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -70,6 +75,29 @@ public final class ReservationConfirmationActivity extends Activity {
         });
 	}
 	
+	private Stack<Exception> exceptions = new Stack<Exception>();
+	
+	private void reportException(String message) {
+		AlertDialog dialog = new AlertDialog.Builder(this).create();
+        dialog.setTitle("Exception");
+        dialog.setMessage(message);
+        dialog.setButton("Dismiss", new Dialog.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        dialog.show();
+	}
+	
+	private void reportExceptions() {
+		while (!exceptions.isEmpty()) {
+			Exception e = exceptions.pop();
+			
+            reportException(e.getMessage());
+		}
+	}
+	
 	private final class ReservationTask extends AsyncTask<Object, Object, Object> {
 
 		@Override
@@ -81,10 +109,27 @@ public final class ReservationConfirmationActivity extends Activity {
 			}
 			catch (IOException e) {
 				e.printStackTrace();
+				exceptions.push(e);
 			}
 			
 			return null;
 		}
 		
+		@Override
+		protected void onPostExecute(Object result) {
+			if (exceptions.isEmpty()) {
+				
+				Intent intent = new Intent(ReservationConfirmationActivity.this, ReservationListActivity.class);
+//				Bundle extras = new Bundle();
+//				extras.putParcelable("route", route);
+//				intent.putExtras(extras);
+				startActivity(intent);
+				
+				finish();
+			}
+			else {
+				reportExceptions();
+			}
+		}
 	}
 }
