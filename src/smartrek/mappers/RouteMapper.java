@@ -100,7 +100,7 @@ public final class RouteMapper extends Mapper {
 	 * @throws JSONException 
 	 */
 	public int getRouteCredits(int rid) throws IOException, JSONException {
-		String url = String.format("%s/getroutecredits/%d", host);
+		String url = String.format("%s/getroutecredits/%d", host, rid);
 		HTTP http = new HTTP(url);
 		http.connect();
 		

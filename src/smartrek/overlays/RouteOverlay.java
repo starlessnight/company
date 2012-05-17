@@ -37,6 +37,8 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private boolean enabled;
 	private int selectedRoute;
 	
+	private OverlayItem infoOverlay;
+	
 	public RouteOverlay(Drawable defaultMarker, MapView mapview, Route route){ // Context context) {
 		  super(boundCenter(defaultMarker),mapview);
 		  enabled = false;
@@ -53,13 +55,13 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		  OverlayItem item = new OverlayItem(point, "Title", "snippet");
 		  addOverlay(item);
 		  
-          OverlayItem oi = new OverlayItem(point,
+          infoOverlay = new OverlayItem(point,
                   "Route " + (0 + 1),
                   "Origin: \n" + route.getOrigin()  + " \n\n" +
                   "Destination: \n" + route.getDestination() + "\n\n" + 
                   "Estimated Travel Time: \n" + route.getTimeString() + "\n\n" +
                   "(Tap to reserve this route)");
-          addOverlay(oi);
+          addOverlay(infoOverlay);
 	}
 	
 	public void setCouponLayout(CouponLayout couponlayout, TextView titleBar){
@@ -158,6 +160,9 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		protected void onPostExecute(Integer credits) {
 			Log.d("RouteOverlay", String.format("Route %d credits = %d", route.getId(), credits));
 			route.setCredits(credits);
+			
+			// TODO: Updating OverlayItem here is going to be trickier than I thought
+			// as OverlayItem does not provide any mechanism to update the snippet text.
 		}
 	}
 }
