@@ -316,25 +316,12 @@ public final class RouteActivity extends MapActivity {
         
         if(routeNum == 0) {
             routeoverlay1 = new RouteOverlay(drawable, mapView, route, new GeoPoint(lat, lon));
-
             mapOverlays.add(routeoverlay1);
         } else if(routeNum == 1) {
-            routeoverlay2 = new RouteOverlay(drawable,mapView, route);
-            OverlayItem oi = new OverlayItem(new GeoPoint(lat,lon),
-                                             "Route " + (routeNum + 1),
-                                             "Origin: \n" + route.getOrigin()  + " \n\n" +
-                                             "Destination: \n" + route.getDestination() + "\n\n" +
-                                             "Estimated Travel Time: \n" + route.getTimeString());
-            routeoverlay2.addOverlay(oi);
+            routeoverlay2 = new RouteOverlay(drawable, mapView, route, new GeoPoint(lat, lon));
             mapOverlays.add(routeoverlay2);
         } else {
-            routeoverlay3 = new RouteOverlay(drawable,mapView, route);
-            OverlayItem oi = new OverlayItem(new GeoPoint(lat,lon), 
-                                             "Route " + (routeNum + 1),
-                                             "Origin: \n" + route.getOrigin()  + " \n\n" +
-                                             "Destination: \n" + route.getDestination() + "\n\n" +
-                                             "Estimated Travel Time: \n" + route.getTimeString());
-            routeoverlay3.addOverlay(oi);
+            routeoverlay3 = new RouteOverlay(drawable, mapView, route, new GeoPoint(lat, lon));
             mapOverlays.add(routeoverlay3);
         }
         

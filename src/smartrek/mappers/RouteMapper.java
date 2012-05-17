@@ -84,8 +84,8 @@ public final class RouteMapper extends Mapper {
 			// internally store it as seconds.
 			double ett = object.getDouble("ESTIMATED_TRAVEL_TIME");
 
-			// FIXME: Route ID
 			Route route = new Route(routeNodes, rid, time, (int)(ett * 60));
+			route.setCredits(getRouteCredits(rid));
 			routes.add(route);
 		}
 

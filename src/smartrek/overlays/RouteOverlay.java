@@ -59,7 +59,8 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
                   "Route " + (0 + 1),
                   "Origin: \n" + route.getOrigin()  + " \n\n" +
                   "Destination: \n" + route.getDestination() + "\n\n" + 
-                  "Estimated Travel Time: \n" + route.getTimeString() + "\n\n" +
+                  "Estimated Travel Time: " + route.getMin() + " min\n" +
+                  "Credits: " + route.getCredits() + "\n\n" +
                   "(Tap to reserve this route)");
           addOverlay(infoOverlay);
 	}
@@ -119,8 +120,6 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 									}
 								});
 		}
-		
-		new RouteCreditsFetchTask().execute();
 		
 		return true;
 	}
