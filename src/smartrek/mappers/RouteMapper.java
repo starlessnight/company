@@ -18,6 +18,7 @@ import org.json.JSONObject;
 
 import smartrek.models.Route;
 import smartrek.util.Cache;
+import smartrek.util.HTTP;
 import smartrek.util.RouteNode;
 import android.text.format.Time;
 import android.util.Log;
@@ -89,6 +90,30 @@ public final class RouteMapper extends Mapper {
 		}
 
 		return routes;
+	}
+	
+	/**
+	 * 
+	 * @param rid Route ID
+	 * @return Credits associated with a specific route
+	 * @throws IOException 
+	 * @throws JSONException 
+	 */
+	public int getRouteCredits(int rid) throws IOException, JSONException {
+		String url = String.format("%s/getroutecredits/%d", host);
+		HTTP http = new HTTP(url);
+		http.connect();
+		
+		Cache cache = Cache.getInstance();
+		String response = (String) cache.fetch(url);
+		
+		int credits = 0;
+		JSONArray array = new JSONArray(response);
+		if (array.length() > 0) {
+			JSONObject object = array.getJSONObject(0);
+			credits = object.getInt("CREDIT");
+		}
+		return credits;
 	}
 	
 	/**

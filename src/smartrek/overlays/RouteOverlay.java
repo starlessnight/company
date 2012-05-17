@@ -1,14 +1,19 @@
 package smartrek.overlays;
 
+import java.io.IOException;
 import java.util.ArrayList;
+
+import org.json.JSONException;
 
 import smartrek.AdjustableCouponDisplay.CouponLayout;
 import smartrek.activities.ReservationConfirmationActivity;
+import smartrek.mappers.RouteMapper;
 import smartrek.models.Route;
 import smartrek.ui.mapviewballon.BalloonItemizedOverlay;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -113,6 +118,8 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 								});
 		}
 		
+		new RouteCreditsFetchTask().execute();
+		
 		return true;
 	}
 	
@@ -127,5 +134,30 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		context.startActivity(intent);
 		
 		return true;
+	}
+	
+	private final class RouteCreditsFetchTask extends AsyncTask<Object, Object, Integer> {
+
+		@Override
+		protected Integer doInBackground(Object... params) {
+			int credits = 0;
+			RouteMapper mapper = new RouteMapper();
+			try {
+				credits = mapper.getRouteCredits(route.getId());
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			catch (JSONException e) {
+				e.printStackTrace();
+			}
+			return credits;
+		}
+
+		@Override
+		protected void onPostExecute(Integer credits) {
+			Log.d("RouteOverlay", String.format("Route %d credits = %d", route.getId(), credits));
+			route.setCredits(credits);
+		}
 	}
 }
