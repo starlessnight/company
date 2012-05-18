@@ -40,6 +40,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -89,8 +90,8 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 	private ListView destFavs;
 	
 	private Button doneButton;
-	private Button originFavButton;
-	private Button destFavButton;
+	private ImageButton originFavButton;
+	private ImageButton destFavButton;
 	private Button loadButton;
 	private Button hereButton;
 	
@@ -200,8 +201,8 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
         /***************Start Buttons********************/
         
         // Instantiate Buttons from file main.xml
-        originFavButton = (Button) findViewById(R.id.Favs1);
-        destFavButton = (Button) findViewById(R.id.Favs2);
+        originFavButton = (ImageButton) findViewById(R.id.Favs1);
+        destFavButton = (ImageButton) findViewById(R.id.Favs2);
         doneButton = (Button) findViewById(R.id.Done);
         //loadButton = (Button) findViewById(R.id.Load);
         

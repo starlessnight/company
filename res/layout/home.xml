@@ -3,7 +3,6 @@
     android:id="@+id/MainLayout"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/background"
     android:padding="10px" >
 
     <TextView
@@ -38,19 +37,13 @@
                     android:id="@+id/origin_text"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
+                    android:layout_alignLeft="@+id/origin_box"
+                    android:layout_alignRight="@+id/origin_box"
+                    android:gravity="left"
                     android:paddingBottom="5dp"
                     android:paddingTop="15dp"
-                    android:text="@string/origin"
+                    android:text="Departure"
                     android:textColor="#FFFFFFFF" />
-
-                <Button
-                    android:id="@+id/Favs1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="40dp"
-                    android:layout_alignParentRight="true"
-                    android:layout_below="@id/origin_text"
-                    android:text="favs" />
 
                 <smartrek.ui.EditAddress
                     android:id="@+id/origin_box"
@@ -74,6 +67,17 @@
                     android:layout_marginTop="80dp"
                     android:padding="5dp" >
                 </ListView>
+
+                <ImageButton
+                    android:id="@+id/Favs1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_alignBottom="@+id/origin_box"
+                    android:layout_alignParentRight="true"
+                    android:layout_below="@+id/origin_text"
+                    android:layout_toRightOf="@+id/origin_text"
+                    android:src="@drawable/route_favorite"
+                    android:text="favs" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -82,23 +86,26 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/Section1" >
 
-                <Button
+                <ImageButton
                     android:id="@+id/Favs2"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:layout_alignParentRight="true"
                     android:layout_alignTop="@+id/destination_box"
+                    android:layout_toRightOf="@+id/destination_text"
+                    android:src="@drawable/route_favorite"
                     android:text="favs" />
 
                 <TextView
                     android:id="@+id/destination_text"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:gravity="center"
+                    android:layout_alignLeft="@+id/destination_box"
+                    android:layout_alignRight="@+id/destination_box"
+                    android:gravity="left"
                     android:paddingBottom="5dp"
                     android:paddingTop="15dp"
-                    android:text="@string/destination"
+                    android:text="Arrival"
                     android:textColor="#FFFFFFFF" />
 
                 <EditText
@@ -131,10 +138,12 @@
                     android:id="@+id/date_text"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
+                    android:layout_alignLeft="@+id/date_box"
+                    android:layout_alignRight="@+id/date_box"
+                    android:gravity="left"
                     android:paddingBottom="5dp"
                     android:paddingTop="15dp"
-                    android:text="@string/date"
+                    android:text="Departure Time"
                     android:textColor="#FFFFFFFF" />
 
                 <EditText
@@ -185,8 +194,16 @@
                     android:gravity="center"
                     android:text="@string/load" />
                 -->
+
             </RelativeLayout>
         </RelativeLayout>
     </ScrollView>
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="81dp"
+        android:layout_height="284dp"
+        android:layout_alignParentLeft="true"
+        android:src="@drawable/route_where_to" />
 
 </RelativeLayout>
