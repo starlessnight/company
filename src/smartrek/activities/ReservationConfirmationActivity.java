@@ -103,11 +103,10 @@ public final class ReservationConfirmationActivity extends Activity {
 		}
 	}
 	
-	private void scheduleEvent() {
-		// get a Calendar object with current time
-		Calendar cal = Calendar.getInstance();
-		// add 5 minutes to the calendar object
-		cal.add(Calendar.SECOND, 15);
+	private void scheduleEvent(Route route) {
+		
+		long departureTime = route.getDepartureTime().toMillis(false);
+		
 		Intent intent = new Intent(ReservationConfirmationActivity.this, ReservationReceiver.class);
 		intent.putExtra("alarm_message", "O'Doyle Rules!");
 		// In reality, you would want to have a static variable for the
@@ -117,9 +116,9 @@ public final class ReservationConfirmationActivity extends Activity {
 
 		// Get the AlarmManager service
 		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-		am.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), sender);
+		am.set(AlarmManager.RTC_WAKEUP, departureTime, sender);
 		
-		Log.d("ReservationConfirmationActivity", "Event has been scheduled. " + cal.getTimeInMillis());
+		Log.d("ReservationConfirmationActivity", "Event has been scheduled. " + departureTime);
 	}
 	
 	private final class ReservationTask extends AsyncTask<Object, Object, Object> {
@@ -143,7 +142,7 @@ public final class ReservationConfirmationActivity extends Activity {
 		protected void onPostExecute(Object result) {
 			if (exceptions.isEmpty()) {
 				
-				scheduleEvent();
+				scheduleEvent(route);
 				
 				Intent intent = new Intent(ReservationConfirmationActivity.this, ReservationListActivity.class);
 //				Bundle extras = new Bundle();

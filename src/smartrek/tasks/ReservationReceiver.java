@@ -12,8 +12,13 @@ import android.util.Log;
 public final class ReservationReceiver extends BroadcastReceiver {
 
 	@Override
-	public void onReceive(Context arg0, Intent arg1) {
+	public void onReceive(Context context, Intent intent) {
 		Log.d("ReservationReceiver", "Broadcast received.");
+		
+		// TODO: Validate departure time
+		// TODO: Trigger GPS receiver
+		
+		// TODO: What's going to happen when the app terminates in the middle of validation?
 	}
 
 }
