@@ -1,17 +1,22 @@
 package smartrek.activities;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Stack;
 
 import smartrek.mappers.ReservationMapper;
 import smartrek.models.Route;
+import smartrek.tasks.ReservationReceiver;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -98,6 +103,24 @@ public final class ReservationConfirmationActivity extends Activity {
 		}
 	}
 	
+	private void scheduleEvent(Route route) {
+		
+		long departureTime = route.getDepartureTime().toMillis(false);
+		
+		Intent intent = new Intent(ReservationConfirmationActivity.this, ReservationReceiver.class);
+		intent.putExtra("alarm_message", "O'Doyle Rules!");
+		// In reality, you would want to have a static variable for the
+		// request code instead of 192837
+		PendingIntent sender = PendingIntent.getBroadcast(ReservationConfirmationActivity.this, 192837,
+				intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+		// Get the AlarmManager service
+		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+		am.set(AlarmManager.RTC_WAKEUP, departureTime, sender);
+		
+		Log.d("ReservationConfirmationActivity", "Event has been scheduled. " + departureTime);
+	}
+	
 	private final class ReservationTask extends AsyncTask<Object, Object, Object> {
 
 		@Override
@@ -118,6 +141,8 @@ public final class ReservationConfirmationActivity extends Activity {
 		@Override
 		protected void onPostExecute(Object result) {
 			if (exceptions.isEmpty()) {
+				
+				scheduleEvent(route);
 				
 				Intent intent = new Intent(ReservationConfirmationActivity.this, ReservationListActivity.class);
 //				Bundle extras = new Bundle();

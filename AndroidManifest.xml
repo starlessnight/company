@@ -56,5 +56,6 @@
                   android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".CouponSendActivity"
                   android:theme="@android:style/Theme.NoTitleBar"/>
+        <receiver android:name="smartrek.tasks.ReservationReceiver"/>
     </application>
 </manifest>
