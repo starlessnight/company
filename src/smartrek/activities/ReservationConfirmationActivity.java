@@ -104,11 +104,10 @@ public final class ReservationConfirmationActivity extends Activity {
 	}
 	
 	private void scheduleEvent() {
-		// TODO: Set up an event with AlarmManager
 		// get a Calendar object with current time
 		Calendar cal = Calendar.getInstance();
 		// add 5 minutes to the calendar object
-		cal.add(Calendar.SECOND, 10);
+		cal.add(Calendar.SECOND, 15);
 		Intent intent = new Intent(ReservationConfirmationActivity.this, ReservationReceiver.class);
 		intent.putExtra("alarm_message", "O'Doyle Rules!");
 		// In reality, you would want to have a static variable for the
@@ -120,7 +119,7 @@ public final class ReservationConfirmationActivity extends Activity {
 		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
 		am.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), sender);
 		
-		Log.d("ReservationConfirmationActivity", "Event has been scheduled.");
+		Log.d("ReservationConfirmationActivity", "Event has been scheduled. " + cal.getTimeInMillis());
 	}
 	
 	private final class ReservationTask extends AsyncTask<Object, Object, Object> {
