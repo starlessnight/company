@@ -19,6 +19,7 @@ import smartrek.ui.timelayout.TimeColumn;
 import smartrek.ui.timelayout.TimeLayout;
 import smartrek.ui.timelayout.TimeLayout.TimeLayoutListener;
 import smartrek.ui.timelayout.TimeLayout.TimeLayoutOnSelectListener;
+import smartrek.util.KdTree;
 import smartrek.util.RouteNode;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -281,18 +282,18 @@ public final class RouteActivity extends MapActivity {
         int latMin = (int)(+81 * 1E6);
         int lonMin = (int)(+181 * 1E6);
          
-        List<RouteNode> route_nodes = route.getNodes();
+        List<RouteNode> routeNodes = route.getNodes();
         
         int lat = 0;
         int lon = 0;
         
-        for(int i = 0; i < route_nodes.size()-1; i++) {    
-            GeoPoint point = route_nodes.get(i).getPoint();
+        for(int i = 0; i < routeNodes.size()-1; i++) {    
+            GeoPoint point = routeNodes.get(i).getPoint();
             
             int curLat = point.getLatitudeE6();
             int curLon = point.getLongitudeE6();
             
-            if(i == route_nodes.size()/2){
+            if(i == routeNodes.size()/2){
                 lat = curLat + 500;
                 lon = curLon+ 150;
             }
@@ -302,7 +303,7 @@ public final class RouteActivity extends MapActivity {
             latMin = Math.min(latMin, curLat);
             lonMin = Math.min(lonMin, curLon);
             
-            Overlay overlayitem = new RouteSegmentOverlay(point, route_nodes.get(i+1).getPoint(), routeNum);
+            Overlay overlayitem = new RouteSegmentOverlay(point, routeNodes.get(i+1).getPoint(), routeNum);
             mapOverlays.add(overlayitem);
         }
         
@@ -334,8 +335,11 @@ public final class RouteActivity extends MapActivity {
         
         /* Log range values to debug */
         //Log.d("RouteActivity", " Latitude Range:" + range[0]);
-        //Log.d("RouteActivity", " Longitude Range:" + range[1]);  
+        //Log.d("RouteActivity", " Longitude Range:" + range[1]);
         
+        
+        KdTree.Node root = KdTree.build(routeNodes, 0, routeNodes.size(), 0);
+
         /* Return the range to doRoute so that map can be adjusted to range settings */
         return range;
     }
