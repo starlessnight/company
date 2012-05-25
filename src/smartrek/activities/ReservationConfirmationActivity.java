@@ -108,6 +108,7 @@ public final class ReservationConfirmationActivity extends Activity {
 		long departureTime = route.getDepartureTime().toMillis(false);
 		
 		Intent intent = new Intent(ReservationConfirmationActivity.this, ReservationReceiver.class);
+		intent.putExtra("route", route);
 		intent.putExtra("alarm_message", "O'Doyle Rules!");
 		// In reality, you would want to have a static variable for the
 		// request code instead of 192837
