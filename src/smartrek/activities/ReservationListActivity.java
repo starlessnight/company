@@ -39,7 +39,7 @@ public final class ReservationListActivity extends Activity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.reservation);
+        setContentView(R.layout.reservation_list);
         
         reservations = new ArrayList<Reservation>();
         listViewReservation = (ListView) findViewById(R.id.listViewReservation);
