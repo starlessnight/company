@@ -18,7 +18,7 @@ public class MainActivity extends Activity implements AnimationListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		logo = (ImageView) findViewById(R.id.logo);
+		logo = (ImageView) findViewById(R.id.imageViewLogo);
 		Animation fadeAnimation = AnimationUtils.loadAnimation(this, R.anim.fade);
 		fadeAnimation.setAnimationListener(this);
 		logo.startAnimation(fadeAnimation);
