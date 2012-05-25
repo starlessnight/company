@@ -37,7 +37,6 @@ public final class ReservationConfirmationActivity extends Activity {
 	private TextView textViewCredits;
 	
 	private Button buttonReserve;
-	private Button buttonCancel;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -70,14 +69,6 @@ public final class ReservationConfirmationActivity extends Activity {
 			}
         });
         
-        buttonCancel = (Button) findViewById(R.id.buttonCancel);
-        buttonCancel.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				ReservationConfirmationActivity.this.finish();
-			}
-        });
 	}
 	
 	private Stack<Exception> exceptions = new Stack<Exception>();
