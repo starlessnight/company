@@ -12,7 +12,7 @@ import smartrek.mappers.ReservationMapper;
 import smartrek.models.Reservation;
 import smartrek.models.User;
 import smartrek.util.HTTP;
-import android.app.ListActivity;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -20,38 +20,56 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemClickListener;
 
 /**
  * Shows a list of reserved routes
  *
  */
-public final class ReservationListActivity extends ListActivity {
+public final class ReservationListActivity extends Activity {
 	
 	private List<Reservation> reservations;
+	
+	private ListView listViewReservation;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.reservation_list);
         
         reservations = new ArrayList<Reservation>();
+        listViewReservation = (ListView) findViewById(R.id.listViewReservation);
+        listViewReservation.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Intent intent = new Intent(ReservationListActivity.this, ReservationDetailsActivity.class);
+				
+				Bundle extras = new Bundle();
+				extras.putParcelable("reservation", reservations.get(position));
+				intent.putExtras(extras);
+				startActivity(intent);
+			}
+        });
         
         User currentUser = User.getCurrentUser(this);
         
         new ReservationRetrivalTask().execute(currentUser.getId());
 	}
 	
-	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		Intent intent = new Intent(this, ReservationDetailsActivity.class);
-		
-		Bundle extras = new Bundle();
-		extras.putParcelable("reservation", reservations.get(position));
-		intent.putExtras(extras);
-		startActivity(intent);
-	}
+//	@Override
+//	protected void onListItemClick(ListView l, View v, int position, long id) {
+//		Intent intent = new Intent(this, ReservationDetailsActivity.class);
+//		
+//		Bundle extras = new Bundle();
+//		extras.putParcelable("reservation", reservations.get(position));
+//		intent.putExtras(extras);
+//		startActivity(intent);
+//	}
 	
 	/**
 	 * Inner class for an asynchronous task.
@@ -89,7 +107,7 @@ public final class ReservationListActivity extends ListActivity {
 		
 		@Override
 		protected void onPostExecute(String result) {
-			setListAdapter(new ReservationItemAdapter(ReservationListActivity.this, R.layout.reservation_list_item, reservations));
+			listViewReservation.setAdapter(new ReservationItemAdapter(ReservationListActivity.this, R.layout.reservation_list_item, reservations));
 	    }
 	}
 	
