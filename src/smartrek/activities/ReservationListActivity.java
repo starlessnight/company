@@ -137,6 +137,9 @@ public final class ReservationListActivity extends Activity {
 			TextView textView2 = (TextView)view.findViewById(R.id.textViewDestination);
 			textView2.setText(r.getDestinationAddress());
 			
+			TextView textViewCredits = (TextView) view.findViewById(R.id.textViewCredits);
+			textViewCredits.setText(String.format("%d", r.getCredits()));
+			
 			return view;
 		}
 	}
