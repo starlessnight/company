@@ -37,18 +37,15 @@ public final class CouponMapper extends Mapper {
 	 */
 	public ArrayList<Coupon> getCoupons(int uid, Flag flag) throws ConnectException, IOException, JSONException, ParseException {
 		
-		Log.d("Coupon_Communicator","In Coupon_Communicator");
-		Log.d("Coupon_Communicator","Begining Download");
-		
 		String url = null;
 		if(Flag.All.equals(flag)) {
-			url = "http://50.56.81.42:8080/getusercoupons/" + uid;
+			url = String.format("%s/getusercoupons/%d", host, uid);
 		}
 		else if(Flag.Received.equals(flag)) {
-			url = "http://50.56.81.42:8080/couponsharing-requestview/receiveruid=" + uid;
+			url = String.format("%s/couponsharing-requestview/receiveruid=%d", host, uid);
 		}
 		else if(Flag.Sent.equals(flag)) {
-			url = "http://50.56.81.42:8080/couponsharing-sendview/senderuid=" + uid;
+			url = String.format("%s/couponsharing-sendview/senderuid=%d", host, uid);
 		}
 		
 		// FIXME: Handle a case where flag = null
