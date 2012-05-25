@@ -338,7 +338,7 @@ public final class RouteActivity extends MapActivity {
         //Log.d("RouteActivity", " Longitude Range:" + range[1]);
         
         
-        KdTree.Node root = KdTree.build(routeNodes, 0, routeNodes.size(), 0);
+        //KdTree.Node root = KdTree.build(routeNodes, 0, routeNodes.size(), 0);
 
         /* Return the range to doRoute so that map can be adjusted to range settings */
         return range;
