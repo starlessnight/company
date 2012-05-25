@@ -10,7 +10,7 @@ import smartrek.models.Route;
 import smartrek.models.User;
 import smartrek.overlays.RouteOverlay;
 import smartrek.overlays.RouteSegmentOverlay;
-import smartrek.ui.CommonMenu;
+import smartrek.ui.MainMenu;
 import smartrek.ui.timelayout.ScrollableTimeLayout;
 import smartrek.ui.timelayout.TimeButton;
 import smartrek.ui.timelayout.TimeButton.DisplayMode;
@@ -375,13 +375,13 @@ public final class RouteActivity extends MapActivity {
         super.onCreateOptionsMenu(menu);
         Log.d("RouteActivity","Menu Opened from RouteActivity");
          MenuInflater mi = getMenuInflater();
-         mi.inflate(R.menu.mapoptions, menu);
+         mi.inflate(R.menu.main, menu);
         return true;
     }
     
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        CommonMenu.onMenuItemSelected(this, featureId, item);
+        MainMenu.onMenuItemSelected(this, featureId, item);
         return super.onMenuItemSelected(featureId, item);
     }
     

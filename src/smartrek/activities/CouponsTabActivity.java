@@ -12,6 +12,7 @@ import smartrek.adapters.CouponAdapter;
 import smartrek.mappers.CouponMapper;
 import smartrek.models.Coupon;
 import smartrek.models.User;
+import smartrek.ui.MainMenu;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -20,6 +21,9 @@ import android.content.DialogInterface.OnClickListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -231,6 +235,20 @@ public final class CouponsTabActivity extends Activity {
 			}
 		}
     }
+    
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		MenuInflater mi = getMenuInflater();
+		mi.inflate(R.menu.main, menu);
+		return true;
+	}
+	
+	@Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		MainMenu.onMenuItemSelected(this, featureId, item);
+		return super.onMenuItemSelected(featureId, item);
+	}
     
     @Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {

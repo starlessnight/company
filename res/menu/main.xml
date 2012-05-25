@@ -2,6 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/menu_route"
+        android:enabled="true"
+        android:icon="@drawable/route"
+        android:title="Route"
+        android:visible="true"/>
+    <item
+        android:id="@+id/reservation"
+        android:enabled="true"
+        android:icon="@drawable/reservation"
+        android:title="@string/reservations"
+        android:visible="true"/>
+    <item
         android:id="@+id/mycoupons"
         android:enabled="true"
         android:icon="@drawable/coupon"
@@ -14,22 +26,11 @@
         android:title="@string/my_contacts"
         android:visible="true"/>
     <item
-        android:id="@+id/my_credits"
-        android:enabled="true"
-        android:title="@string/my_credits"
-        android:visible="true"/>
-    <item
-        android:id="@+id/reservation"
-        android:enabled="true"
-        android:icon="@drawable/reservation"
-        android:title="@string/reservations"
-        android:visible="true"/>
-    <item
         android:id="@+id/menusettings"
         android:enabled="true"
+        android:icon="@drawable/settings"
         android:title="@string/settings"
-        android:visible="true"
-        android:icon="@drawable/settings">
+        android:visible="true">
         <menu>
             <item
                 android:id="@+id/map_display_options"

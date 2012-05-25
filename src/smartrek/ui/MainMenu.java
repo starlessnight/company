@@ -15,7 +15,7 @@ import android.view.MenuItem;
  * A common interface to bring up the application menu
  *
  */
-public final class CommonMenu {
+public final class MainMenu {
     public static void onMenuItemSelected(Activity activity, int featureId, MenuItem item) {
 		Intent intent = null;
 		switch(item.getItemId()){

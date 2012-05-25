@@ -12,7 +12,7 @@ import smartrek.models.Address;
 import smartrek.models.User;
 import smartrek.tasks.GeocodingTask;
 import smartrek.tasks.GeocodingTaskCallback;
-import smartrek.ui.CommonMenu;
+import smartrek.ui.MainMenu;
 import smartrek.ui.EditAddress;
 import smartrek.util.LocationService;
 import smartrek.util.LocationService.LocationServiceListener;
@@ -474,15 +474,14 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 	@Override
     public boolean onCreateOptionsMenu(Menu menu){
     	super.onCreateOptionsMenu(menu);
-    	Log.d("Home_Activity","Menu Opened from Map_Activity");
      	MenuInflater mi = getMenuInflater();
-     	mi.inflate(R.menu.mapoptions, menu);
+     	mi.inflate(R.menu.main, menu);
     	return true;
     }
 	
 	@Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		CommonMenu.onMenuItemSelected(this, featureId, item);
+		MainMenu.onMenuItemSelected(this, featureId, item);
 		return super.onMenuItemSelected(featureId, item);
 	}
 	

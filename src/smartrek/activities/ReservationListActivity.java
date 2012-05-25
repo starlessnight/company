@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import smartrek.mappers.ReservationMapper;
 import smartrek.models.Reservation;
 import smartrek.models.User;
+import smartrek.ui.MainMenu;
 import smartrek.util.HTTP;
 import android.app.Activity;
 import android.content.Context;
@@ -18,6 +19,9 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -59,6 +63,20 @@ public final class ReservationListActivity extends Activity {
         User currentUser = User.getCurrentUser(this);
         
         new ReservationRetrivalTask().execute(currentUser.getId());
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		MenuInflater mi = getMenuInflater();
+		mi.inflate(R.menu.main, menu);
+		return true;
+	}
+	
+	@Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		MainMenu.onMenuItemSelected(this, featureId, item);
+		return super.onMenuItemSelected(featureId, item);
 	}
 	
 	/**

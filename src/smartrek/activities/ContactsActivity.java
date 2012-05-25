@@ -6,9 +6,13 @@ import smartrek.adapters.ContactItemAdapter;
 import smartrek.models.User;
 import smartrek.tasks.AsyncTaskCallback;
 import smartrek.tasks.ContactsFetchTask;
+import smartrek.ui.MainMenu;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 
@@ -50,5 +54,19 @@ public final class ContactsActivity extends ListActivity {
 		extras.putParcelable("user", contacts.get(position));
 		intent.putExtras(extras);
 		startActivity(intent);
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		MenuInflater mi = getMenuInflater();
+		mi.inflate(R.menu.main, menu);
+		return true;
+	}
+	
+	@Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		MainMenu.onMenuItemSelected(this, featureId, item);
+		return super.onMenuItemSelected(featureId, item);
 	}
 }
