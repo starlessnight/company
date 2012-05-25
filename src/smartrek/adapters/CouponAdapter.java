@@ -1,6 +1,8 @@
 package smartrek.adapters;
 
 import java.io.IOException;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import smartrek.activities.R;
@@ -9,6 +11,7 @@ import smartrek.models.Coupon;
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,13 +64,19 @@ public class CouponAdapter extends BaseAdapter {
 			
 			Coupon coupon = (Coupon) getItem(position);
 			
-			TextView textViewVendor = (TextView) view.findViewById(R.id.textViewVendor);
-			textViewVendor.setText(coupon.getVendor());
+//			TextView textViewVendor = (TextView) view.findViewById(R.id.textViewVendor);
+//			textViewVendor.setText(coupon.getVendor());
 			
 			TextView textViewDescription = (TextView) view.findViewById(R.id.textViewDescription);
 			textViewDescription.setText(coupon.getDescription());
 			
-			ImageView imageView = (ImageView) view.findViewById(R.id.imageView1);
+			// TODO: Date format localization
+			SimpleDateFormat df = new SimpleDateFormat("MMMM dd, yyyy");
+			
+			TextView textViewExpiration = (TextView) view.findViewById(R.id.textViewExpiration);
+			textViewExpiration.setText(String.format("Expires on %s", df.format(coupon.getValidDate())));
+			
+			ImageView imageView = (ImageView) view.findViewById(R.id.imageViewLogo);
 			
 			if (coupon.getBitmap() != null) {
 				imageView.setImageBitmap(coupon.getBitmap());
@@ -76,7 +85,6 @@ public class CouponAdapter extends BaseAdapter {
 				Log.d("CouponAdapter", "Downloading coupon image...");
 				new CouponImageTask(imageView, coupon).execute();
 			}
-			imageView.setPadding(8, 8, 8, 8);
 		}
 		return view;
 	}

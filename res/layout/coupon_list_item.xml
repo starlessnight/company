@@ -2,13 +2,16 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/couponListItem"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent"
+    android:padding="4dp" >
 
     <ImageView
-        android:id="@+id/imageView1"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:id="@+id/imageViewLogo"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_gravity="left"
+        android:contentDescription="Company logo"
+        android:padding="8dp"
         android:src="@drawable/routetag" />
 
     <LinearLayout
@@ -16,6 +19,7 @@
         android:layout_height="fill_parent"
         android:orientation="vertical" >
 
+        <!--
         <TextView
             android:id="@+id/textViewVendor"
             android:layout_width="fill_parent"
@@ -23,6 +27,7 @@
             android:layout_gravity="left"
             android:text="Vendor"
             android:textAppearance="?android:attr/textAppearanceMedium" />
+        -->
 
         <TextView
             android:id="@+id/textViewDescription"
@@ -30,7 +35,16 @@
             android:layout_height="20dp"
             android:layout_gravity="left"
             android:text="Description"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#F3E123" />
+
+        <TextView
+            android:id="@+id/textViewExpiration"
+            android:layout_width="fill_parent"
+            android:layout_height="20dp"
+            android:layout_gravity="left"
+            android:text="Expires: "
+            android:textSize="12dp" />
     </LinearLayout>
 
 </LinearLayout>
