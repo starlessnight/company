@@ -61,16 +61,6 @@ public final class ReservationListActivity extends Activity {
         new ReservationRetrivalTask().execute(currentUser.getId());
 	}
 	
-//	@Override
-//	protected void onListItemClick(ListView l, View v, int position, long id) {
-//		Intent intent = new Intent(this, ReservationDetailsActivity.class);
-//		
-//		Bundle extras = new Bundle();
-//		extras.putParcelable("reservation", reservations.get(position));
-//		intent.putExtras(extras);
-//		startActivity(intent);
-//	}
-	
 	/**
 	 * Inner class for an asynchronous task.
 	 */
