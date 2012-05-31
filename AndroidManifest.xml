@@ -1,18 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="smartrek.activities"
+      package="com.smartrek.activities"
       android:versionCode="1"
       android:versionName="1.0">
     <uses-sdk android:minSdkVersion="4"
         android:targetSdkVersion="10" />
-    
-    <instrumentation android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="smartrek.util"
-        android:label="LABEL" />
-    <uses-library android:name="android.test.runner" />
-    
+    <uses-library android:name="android.test.runner"/>
+        
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <instrumentation android:targetPackage="com.smartrek.util" android:name="android.test.InstrumentationTestRunner"/>
 
     <application android:icon="@drawable/icon" android:label="@string/app_name">
    		<uses-library android:name="com.google.android.maps" />
@@ -56,6 +53,6 @@
                   android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".CouponSendActivity"
                   android:theme="@android:style/Theme.NoTitleBar"/>
-        <receiver android:name="smartrek.tasks.ReservationReceiver"/>
+        <receiver android:name="com.smartrek.tasks.ReservationReceiver"/>
     </application>
 </manifest>
