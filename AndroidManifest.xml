@@ -5,12 +5,8 @@
       android:versionName="1.0">
     <uses-sdk android:minSdkVersion="4"
         android:targetSdkVersion="10" />
-    
-    <instrumentation android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="smartrek.util"
-        android:label="LABEL" />
-    <uses-library android:name="android.test.runner" />
-    
+    <uses-library android:name="android.test.runner"/>
+        
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 

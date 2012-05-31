@@ -1,16 +1,58 @@
-package smartrek.tasks;
+package smartrek.util;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.List;
+
+import org.json.JSONObject;
 import org.junit.Test;
 
-import smartrek.util.KdTree;
+import smartrek.mappers.RouteMapper;
+import smartrek.models.Route;
+import smartrek.util.KdTree.Node;
+import android.test.AndroidTestCase;
+import android.text.format.Time;
+import android.util.Log;
 
-public class KdTreeTest {
+public class KdTreeTest extends AndroidTestCase {
 
-	@Test
-	public void test() {
-		
-		//KdTree tree = KdTree.build(nodes, 0, r, 0);
-	}
+    private String readFile(String path) {
+        String content = null;
+        try {
+            FileInputStream in = new FileInputStream(path);
+            
+            byte buf[] = new byte[4096];
+            int len = in.read(buf);
+            
+            content = new String(buf, 0, len);
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        return content;
+    }
+
+    @Test
+    public void test() throws Exception {
+        
+        String raw = readFile("/home/sumin/Downloads/routenodes.txt");
+        
+        Time departureTime = new Time();
+        departureTime.setToNow();
+        
+        RouteMapper mapper = new RouteMapper();
+        Route route = mapper.parseRoute(new JSONObject(raw), departureTime);
+
+        List<RouteNode> nodes = route.getNodes();
+        Node tree = KdTree.build(nodes, 0, nodes.size(), 0);
+        
+        assertEquals(true, true);
+    }
 
 }
 

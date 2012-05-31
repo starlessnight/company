@@ -38,6 +38,31 @@ public final class RouteMapper extends Mapper {
 	public RouteMapper(){
 		super();
 	}
+	
+	public Route parseRoute(JSONObject routeObject, Time departureTime) throws JSONException, IOException {
+	    JSONArray rts = (JSONArray) routeObject.get("ROUTE");
+	    
+	    ArrayList<RouteNode> routeNodes = new ArrayList<RouteNode>();
+        for(int j = 0; j < rts.length(); j++) {
+            JSONObject ro = (JSONObject) rts.get(j);
+            
+            RouteNode node = new RouteNode((float)ro.getDouble("LATITUDE"),
+                    (float)ro.getDouble("LONGITUDE"), 0, ro.getInt("NODEID"));
+            routeNodes.add(node);
+        }
+        
+        // Route ID
+        int rid = routeObject.getInt("RID");
+        
+        // Web service returns the estimated travel time in minutes, but we
+        // internally store it as seconds.
+        double ett = routeObject.getDouble("ESTIMATED_TRAVEL_TIME");
+
+        Route route = new Route(routeNodes, rid, departureTime, (int)(ett * 60));
+        route.setCredits(getRouteCredits(rid));
+        
+        return route;
+	}
 
 	/**
 	 * Retrieves all possible routes from the server.
@@ -65,27 +90,7 @@ public final class RouteMapper extends Mapper {
 
 		JSONArray array = new JSONArray(routeResponse);
 		for(int i = 0; i <array.length(); i++) {
-			JSONObject object = (JSONObject) array.get(i);
-			JSONArray rts = (JSONArray) object.get("ROUTE");
-			
-			ArrayList<RouteNode> routeNodes = new ArrayList<RouteNode>();
-			for(int j = 0; j < rts.length(); j++) {
-				JSONObject ro = (JSONObject) rts.get(j);
-				
-				RouteNode node = new RouteNode((float)ro.getDouble("LATITUDE"),
-						(float)ro.getDouble("LONGITUDE"), 0, ro.getInt("NODEID"));
-				routeNodes.add(node);
-			}
-			
-			// Route ID
-			int rid = object.getInt("RID");
-			
-			// Web service returns the estimated travel time in minutes, but we
-			// internally store it as seconds.
-			double ett = object.getDouble("ESTIMATED_TRAVEL_TIME");
-
-			Route route = new Route(routeNodes, rid, time, (int)(ett * 60));
-			route.setCredits(getRouteCredits(rid));
+			Route route = parseRoute((JSONObject) array.get(i), time);
 			routes.add(route);
 		}
 
