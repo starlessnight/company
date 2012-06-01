@@ -2,6 +2,8 @@ package com.smartrek.utils;
 
 import java.util.List;
 
+import com.google.android.maps.GeoPoint;
+
 import android.util.Log;
 
 /**
@@ -16,6 +18,10 @@ public class KdTree {
 		public RouteNode routeNode;
 		public Node left;
 		public Node right;
+		
+		public Node lookup(GeoPoint point) {
+		    return null;
+		}
 	}
 	
 	/**
@@ -76,4 +82,5 @@ public class KdTree {
 	public KdTree() {
 		
 	}
+	
 }
