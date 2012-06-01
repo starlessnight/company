@@ -1,9 +1,5 @@
 package com.smartrek.utils;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -13,7 +9,6 @@ import com.smartrek.models.JSONModel;
 
 public final class RouteNode implements Parcelable, JSONModel {
 	
-	// FIXME: Why would you use strings for lat, long?
 	private float lat;
 	private float lng;
 	private int routeNum;
@@ -87,6 +82,11 @@ public final class RouteNode implements Parcelable, JSONModel {
 		dest.writeFloat(lng);
 		dest.writeInt(routeNum);
 		dest.writeInt(nodeNum);
+	}
+	
+	@Override
+	public String toString() {
+	    return String.format("RouteNode (%f, %f)", lat, lng);
 	}
 	
 	/**

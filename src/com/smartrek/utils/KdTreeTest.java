@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import android.test.AndroidTestCase;
 import android.text.format.Time;
+import android.util.Log;
 
 import com.smartrek.mappers.RouteMapper;
 import com.smartrek.models.Route;
@@ -24,11 +25,15 @@ public class KdTreeTest extends AndroidTestCase {
         Route route = mapper.parseRoute(new JSONObject(raw), departureTime);
 
         List<RouteNode> nodes = route.getNodes();
-        Node root = KdTree.build(nodes, 0, nodes.size()-1, 0);
-
-        KdTree.print(root, 0);
+//        Node root = KdTree.build(nodes, 0, nodes.size()-1, 0);
+//
+//        KdTree.print(root, 0);
+//        
+//        Node q = root.lookup(33, 113.5f, 0);
+//        Log.d("KdTreeTest", "Closest node = " + q);
         
-        assertEquals(true, true);
+        RouteNode q = NaiveNNS.findClosestNode(nodes, 35, 113.5f);
+        Log.d("KdTreeTest", "Closest node = " + q);
     }
 
 }

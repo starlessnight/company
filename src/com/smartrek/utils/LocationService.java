@@ -76,4 +76,10 @@ public final class LocationService {
 	public Location getCurrentLocation() {
 		return currentLocation;
 	}
+	
+	public static float distanceBetween(float lat1, float lng1, float lat2, float lng2) {
+	    float[] results = new float[3];
+	    Location.distanceBetween(lat1, lng1, lat2, lng2, results);
+	    return results[0];
+	}
 }

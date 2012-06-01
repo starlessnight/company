@@ -22,6 +22,36 @@ public class KdTree {
 		public Node lookup(GeoPoint point) {
 		    return null;
 		}
+		
+		public Node lookup(float lat, float lng, int depth) {
+		    if (routeNode.getLatitude() == lat && routeNode.getLongitude() == lng) {
+		        return this;
+		    }
+		    else {
+		        
+		        if (depth % 2 == 0) { // divided by y-axis
+		            if (lng < routeNode.getLongitude()) {
+	                    return left != null ? left.lookup(lat, lng, depth+1) : this;
+		            }
+		            else {
+		                return right != null ? right.lookup(lat, lng, depth+1) : this;
+		            }
+		        }
+		        else { // divided by x-axis
+		            if (lat < routeNode.getLatitude()) {
+                        return left != null ? left.lookup(lat, lng, depth+1) : this;
+                    }
+                    else {
+                        return right != null ? right.lookup(lat, lng, depth+1) : this;
+                    }
+		        }
+		    }
+		}
+		
+		@Override
+		public String toString() {
+		    return String.format("KdTree.Node (%f, %f)", routeNode.getLatitude(), routeNode.getLongitude());
+		}
 	}
 	
 	/**
