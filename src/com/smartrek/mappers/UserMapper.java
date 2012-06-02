@@ -23,22 +23,12 @@ public class UserMapper extends Mapper {
 	public static final String LASTNAME = "LASTNAME";
 	public static final String EMAIL = "EMAIL";
 	
-	private String name;
-	private String pwd;
-	
 	public UserMapper() {
 		super();
 	}
 	
-	/**
-	 * @throws JSONException **************************************************************************************************
-	 * 
-	 *
-	 ****************************************************************************************************/	
-	public User login(String name, String pwd) {
-		this.name = name;
-		this.pwd = pwd;
-		String loginurl = sturl + appendToUrl();
+	public User login(String name, String pwd) throws JSONException {
+		String loginurl = String.format("%s/account/%s%%20%s", host, name, pwd);
 
 		Log.d("Login_Communicator", "Querrying Sever with");
 		Log.d("Login_Communicator", loginurl);
@@ -46,22 +36,8 @@ public class UserMapper extends Mapper {
 		Log.d("Login_Communicator", "Got Response from Server");
 		Log.d("Login_Communicator", "response = " + login_response);
 
-		User user = null;
-		try {
-			user = Parser.parse_User(name, login_response);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
+        User user = Parser.parse_User(name, login_response);
 		
 		return user;
-	}
-	
-	/****************************************************************************************************
-	 * 
-	 *
-	 ****************************************************************************************************/
-	protected String appendToUrl() {
-		 //return "/account/verify?username=" + name + "&password=" + pwd;
-		return String.format("/account/%s%%20%s", name, pwd);
 	}
 }

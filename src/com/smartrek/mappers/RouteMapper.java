@@ -136,7 +136,7 @@ public final class RouteMapper extends Mapper {
 		logReservationPost(route);
 
 		HttpClient client = new DefaultHttpClient();
-		HttpPost post = new HttpPost(sturl + "/reservation");
+		HttpPost post = new HttpPost(host + "/reservation");
 
 		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
 		pairs.add(new BasicNameValuePair("START_DATETIME", route.timeToString()));
@@ -181,7 +181,7 @@ public final class RouteMapper extends Mapper {
 		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
 		List<RouteNode> nodes = route.getNodes();
 		HttpClient client = new DefaultHttpClient();
-		HttpPost post = new HttpPost(sturl + "/addroute");
+		HttpPost post = new HttpPost(host + "/addroute");
 		
 		for (int i = 0; i < route.getNodes().size(); i++) {
 			
