@@ -4,17 +4,17 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <smartrek.ui.timelayout.ScrollableTimeLayout
+    <com.smartrek.ui.timelayout.ScrollableTimeLayout
         android:id="@+id/scrollTime"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="#FFFFFFFF"
         android:scrollbars="horizontal" >
         
-        <smartrek.ui.timelayout.TimeLayout
+        <com.smartrek.ui.timelayout.TimeLayout
             android:id="@+id/timelayout"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             display="time" />
-    </smartrek.ui.timelayout.ScrollableTimeLayout>
+    </com.smartrek.ui.timelayout.ScrollableTimeLayout>
 </RelativeLayout>
