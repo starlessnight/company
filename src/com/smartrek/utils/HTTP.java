@@ -91,19 +91,12 @@ public final class HTTP {
 			StringBuffer strBuf = new StringBuffer();
 			char[] buf = new char[BUF_SIZE];
 			
-	        try {
-	        	int read = 0;
-	            while ((read = isr.read(buf)) > 0) {
-	                strBuf.append(buf,  0, read);
-	            }
-	            in.close();
-	        }
-	        catch (IOException e) {
-	            e.printStackTrace();
-	            
-	            // FIXME: Should we return an empty string or null?
-	            return "";
-	        }
+        	int read = 0;
+            while ((read = isr.read(buf)) > 0) {
+                strBuf.append(buf,  0, read);
+            }
+            in.close();
+            
 	        return new String(strBuf);
 		}
 		else {

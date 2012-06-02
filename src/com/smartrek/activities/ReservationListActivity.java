@@ -1,5 +1,6 @@
 package com.smartrek.activities;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.smartrek.mappers.Mapper;
 import com.smartrek.mappers.ReservationMapper;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
@@ -89,29 +91,20 @@ public final class ReservationListActivity extends Activity {
 			int uid = (Integer) params[0];
 			
 			ReservationMapper mapper = new ReservationMapper();
-			String response = null;
 			try {
-				// FIXME: Hard-coded UID
-				response = HTTP.downloadText("http://50.56.81.42:8080/getreservations/" + uid);
-			}
-			catch(Exception e) {
-				e.printStackTrace();
-			}
-
-			try {
-				JSONArray array = new JSONArray(response);
-				for(int i = 0; i < array.length(); i++) {
-					Reservation r = Reservation.parse(new JSONObject(array.get(i).toString()));
-					reservations.add(r);
-				}
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-			catch (ParseException e) {
-				e.printStackTrace();
-			}
+                reservations = mapper.getReservations(uid);
+            }
+            catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            catch (JSONException e1) {
+                e1.printStackTrace();
+            }
+            catch (ParseException e1) {
+                e1.printStackTrace();
+            }
 			
-			return response;
+			return null;
 		}
 		
 		@Override
