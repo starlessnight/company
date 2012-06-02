@@ -32,8 +32,11 @@ public class KdTreeTest extends AndroidTestCase {
 //        Node q = root.lookup(33, 113.5f, 0);
 //        Log.d("KdTreeTest", "Closest node = " + q);
         
-        RouteNode q = NaiveNNS.findClosestNode(nodes, 35, 113.5f);
-        Log.d("KdTreeTest", "Closest node = " + q);
+        RouteNode cn = NaiveNNS.findClosestNode(nodes, 32, 111.5f);
+        Log.d("KdTreeTest", "Closest node = " + cn);
+        
+        Log.d("KdTreeTest", "Prev node = " + cn.getPrevNode());
+        Log.d("KdTreeTest", "Next node = " + cn.getNextNode());
     }
 
 }

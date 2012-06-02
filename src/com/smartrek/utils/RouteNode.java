@@ -14,6 +14,17 @@ public final class RouteNode implements Parcelable, JSONModel {
 	private int routeNum;
 	private int nodeNum;
 	
+    /**
+     * A reference to the previous node. A link consists of two route nodes. A
+     * route node belongs to at least one link, at most two links.
+     */
+    private RouteNode prevNode;
+	
+	/**
+	 * A reference to the next node;
+	 */
+	private RouteNode nextNode;
+	
 	public static final Parcelable.Creator<RouteNode> CREATOR = new Parcelable.Creator<RouteNode>() {
 		public RouteNode createFromParcel(Parcel in) {
 			return new RouteNode(in);
@@ -70,7 +81,23 @@ public final class RouteNode implements Parcelable, JSONModel {
 		return lng;
 	}
 	
-	@Override
+	public RouteNode getPrevNode() {
+        return prevNode;
+    }
+
+    public void setPrevNode(RouteNode prevNode) {
+        this.prevNode = prevNode;
+    }
+
+    public RouteNode getNextNode() {
+        return nextNode;
+    }
+
+    public void setNextNode(RouteNode nextNode) {
+        this.nextNode = nextNode;
+    }
+
+    @Override
 	public int describeContents() {
 		// TODO Auto-generated method stub
 		return 0;

@@ -49,6 +49,12 @@ public final class RouteMapper extends Mapper {
             RouteNode node = new RouteNode((float)ro.getDouble("LATITUDE"),
                     (float)ro.getDouble("LONGITUDE"), 0, ro.getInt("NODEID"));
             routeNodes.add(node);
+            
+            if (j > 0) {
+                RouteNode prevNode = routeNodes.get(j - 1);
+                prevNode.setNextNode(node);
+                node.setPrevNode(prevNode);
+            }
         }
         
         // Route ID
