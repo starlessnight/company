@@ -2,18 +2,47 @@ package com.smartrek.mappers;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.util.Log;
+
+import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.utils.HTTP;
 import com.smartrek.utils.RouteNode;
 
-import android.util.Log;
-
 public final class ReservationMapper extends Mapper {
 
-	public List<Route> getReservations(int uid) {
-		return null;
+	public List<Reservation> getReservations(int uid) throws IOException, JSONException, ParseException {
+	    
+	    List<Reservation> reservations = new ArrayList<Reservation>();
+	    
+	    String url = String.format("%s/getreservations/%d", Mapper.host, uid);
+	    HTTP http = new HTTP(url);
+        http.connect();
+        
+        int responseCode = http.getResponseCode();
+        if (responseCode == 200) {
+            String responseBody = http.getResponseBody();
+            Log.d("ReservationMapper", "HTTP response: " + responseBody);
+            
+            JSONArray array = new JSONArray(responseBody);
+            for(int i = 0; i < array.length(); i++) {
+                Reservation r = Reservation.parse(new JSONObject(array.get(i).toString()));
+                reservations.add(r);
+            }
+        }
+        else {
+            throw new IOException(String.format("HTTP %d - %s", responseCode, http.getResponseBody()));
+        }
+	    
+		return reservations;
 	}
 	
 	public void reserveRoute(Route route) throws IOException {

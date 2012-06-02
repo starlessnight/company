@@ -3,17 +3,16 @@ package com.smartrek.AdjustableCouponDisplay;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.smartrek.activities.MainActivity;
-import com.smartrek.activities.RouteActivity;
-import com.smartrek.models.Coupon;
-import com.smartrek.models.Route;
-
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.widget.LinearLayout;
+
+import com.smartrek.activities.RouteActivity;
+import com.smartrek.models.Coupon;
+import com.smartrek.models.Route;
 
 /*********************************************************************************************************
  * 

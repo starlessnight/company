@@ -6,12 +6,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 import com.smartrek.models.Coupon;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
-import com.smartrek.utils.RouteNode;
-
-import android.util.Log;
 
 
 /*****************************************************************************************

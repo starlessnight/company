@@ -1,6 +1,5 @@
 package com.smartrek.models;
 
-import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 

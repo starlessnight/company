@@ -1,6 +1,5 @@
 package com.smartrek.activities;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -28,7 +27,6 @@ import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.smartrek.mappers.RouteMapper;
-import com.smartrek.models.Coupon;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
 import com.smartrek.overlays.RouteOverlay;
@@ -227,20 +225,9 @@ public final class RouteActivity extends MapActivity {
             for (int i = 0; i < possibleRoutes.size(); i++) {
                 Route route = possibleRoutes.get(i);
             
-                /* Get all coupons associated with the route */
-                ArrayList<Coupon> coupons = route.getAllCoupons();
-                
-                /* If its the first route display that routes coupons */
-//                if(i == 0) {
-//                    this.coupons = coupons;
-//                }
-                
                 /* Draw the route to the screen and hold on to the range */
                 range = drawRoute(mapView, route, i);
             }
-            
-            /* Start the Thread to download the coupon images */
-            //new BackgroundDownloadImageTask().execute();
             
             /* Get the MapController set the midpoint and range */
             MapController mc = mapView.getController();

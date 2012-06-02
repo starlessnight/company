@@ -1,14 +1,10 @@
 package com.smartrek.overlays;
 
-import java.io.IOException;
 import java.util.ArrayList;
-
-import org.json.JSONException;
 
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -22,7 +18,6 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 import com.smartrek.AdjustableCouponDisplay.CouponLayout;
 import com.smartrek.activities.ReservationConfirmationActivity;
-import com.smartrek.mappers.RouteMapper;
 import com.smartrek.models.Route;
 import com.smartrek.ui.mapviewballon.BalloonItemizedOverlay;
 
