@@ -1,4 +1,4 @@
-package com.smartrek.tasks;
+package com.smartrek.receivers;
 
 import com.smartrek.models.Route;
 import com.smartrek.utils.TimeRange;

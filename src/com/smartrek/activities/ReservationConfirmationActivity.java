@@ -20,7 +20,7 @@ import android.widget.TextView;
 
 import com.smartrek.mappers.ReservationMapper;
 import com.smartrek.models.Route;
-import com.smartrek.tasks.ReservationReceiver;
+import com.smartrek.receivers.ReservationReceiver;
 
 /**
  * This will popup before a user makes a reservation for a route
