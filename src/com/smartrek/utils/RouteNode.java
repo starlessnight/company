@@ -92,9 +92,38 @@ public final class RouteNode implements Parcelable, JSONModel {
     public RouteNode getNextNode() {
         return nextNode;
     }
-
+    
     public void setNextNode(RouteNode nextNode) {
         this.nextNode = nextNode;
+    }
+    
+    /**
+     * Calculates the distance from this route node to a geocoordinate.
+     * 
+     * @param lat
+     * @param lng
+     * @return Distance to a geocoordinate. Unit is in meters.
+     */
+    public float distanceTo(float lat, float lng) {
+        double earthRadius = 6378.137;
+
+        double radLat1 = this.lat * Math.PI / 180.0;
+
+        double radLat2 = lat * Math.PI / 180.0;
+
+        double radLat = (this.lat-lat) * Math.PI / 180.0;
+
+        double radLng = (this.lng-lng) * Math.PI / 180.0;
+
+        double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(radLat / 2.0), 2) +
+
+         Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(radLng / 2.0), 2)));
+
+        s = s * earthRadius;
+
+        //s = Math.round(s * 10000) / 10000.0;
+
+        return (float) s * 1000;
     }
 
     @Override
