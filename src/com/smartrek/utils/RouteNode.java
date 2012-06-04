@@ -125,6 +125,16 @@ public final class RouteNode implements Parcelable, JSONModel {
 
         return (float) s * 1000;
     }
+    
+    /**
+     * Calculates the distance from this route node to another node.
+     * 
+     * @param node
+     * @return
+     */
+    public float distanceTo(RouteNode node) {
+        return distanceTo(node.lat, node.lng);
+    }
 
     @Override
 	public int describeContents() {
