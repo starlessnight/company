@@ -105,27 +105,7 @@ public final class RouteNode implements Parcelable, JSONModel {
      * @return Distance to a geocoordinate. Unit is in meters.
      */
     public float distanceTo(float lat, float lng) {
-        // TODO: Replace Math to FloatMath
-        // TODO: Replace double to float
-        double earthRadius = 6378.137;
-
-        double radLat1 = this.lat * Math.PI / 180.0;
-
-        double radLat2 = lat * Math.PI / 180.0;
-
-        double radLat = (this.lat-lat) * Math.PI / 180.0;
-
-        double radLng = (this.lng-lng) * Math.PI / 180.0;
-
-        double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(radLat / 2.0), 2) +
-
-         Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(radLng / 2.0), 2)));
-
-        s = s * earthRadius;
-
-        //s = Math.round(s * 10000) / 10000.0;
-
-        return (float) s * 1000;
+        return distanceBetween(getLatitude(), getLongitude(), lat, lng);
     }
     
     /**
@@ -135,7 +115,7 @@ public final class RouteNode implements Parcelable, JSONModel {
      * @return
      */
     public float distanceTo(RouteNode node) {
-        return distanceTo(node.lat, node.lng);
+        return distanceBetween(getLatitude(), getLongitude(), node.getLatitude(), node.getLongitude());
     }
 
     @Override
@@ -164,5 +144,29 @@ public final class RouteNode implements Parcelable, JSONModel {
 	@Override
 	public String toJSON() {
 		return String.format("{\"LATITUDE\":%f,\"LONGITUDE\":%f,\"NODEID\":%d}", getLatitude(), getLongitude(), nodeNum);
+	}
+	
+	public static float distanceBetween(RouteNode node1, RouteNode node2) {
+		return distanceBetween(node1.getLatitude(), node1.getLongitude(), node2.getLatitude(), node2.getLongitude());
+	}
+	
+	public static float distanceBetween(float lat1, float lng1, float lat2, float lng2) {
+        float earthRadius = 6378.137f;
+
+        float radLat1 = lat1 * (float) Math.PI / 180.0f;
+
+        float radLat2 = lat1 * (float) Math.PI / 180.0f;
+
+        float radLat = (lat1-lat2) * (float) Math.PI / 180.0f;
+
+        float radLng = (lng1-lng2) * (float) Math.PI / 180.0f;
+
+        double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(radLat / 2.0), 2) +
+
+         Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(radLng / 2.0), 2)));
+
+        s = s * earthRadius;
+
+        return (float) s * 1000;
 	}
 }
