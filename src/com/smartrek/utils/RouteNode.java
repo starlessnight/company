@@ -105,6 +105,8 @@ public final class RouteNode implements Parcelable, JSONModel {
      * @return Distance to a geocoordinate. Unit is in meters.
      */
     public float distanceTo(float lat, float lng) {
+        // TODO: Replace Math to FloatMath
+        // TODO: Replace double to float
         double earthRadius = 6378.137;
 
         double radLat1 = this.lat * Math.PI / 180.0;
