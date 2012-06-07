@@ -1,6 +1,10 @@
 package com.smartrek.activities;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -53,7 +57,8 @@ public class ValidationActivity extends MapActivity {
         LocationListener locationListener = new ValidationLocationListener();
 
         // Register the listener with the Location Manager to receive location updates
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 1, locationListener);
+        //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 1, locationListener);
+        FakeLocationService fls = new FakeLocationService(locationListener);
     }
 
     @Override
@@ -132,9 +137,21 @@ public class ValidationActivity extends MapActivity {
         	}
         }
         
-        if (nearestNodeIndex >= 0) {
+        if (nearestNodeIndex == routeNodes.size() - 1) {
+        	Log.d("ValidationActivity", "Arriving at the destination. Terminating validation process.");
+        	
+        	for (Overlay overlay : mapOverlays) {
+        		((RouteSegmentOverlay) overlay).setColorNum(2);
+        	}
+        	mapView.postInvalidate();
+        }
+        else if (nearestNodeIndex >= 0) {
+        	// FIXME: There's gotta be a better solution
+        	for (Overlay overlay : mapOverlays) {
+        		((RouteSegmentOverlay) overlay).setColorNum(0);
+        	}
         	RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(nearestNodeIndex);
-        	overlay.setColorNum(2);
+        	overlay.setColorNum(1);
         	mapView.postInvalidate();
         }
     }
@@ -164,5 +181,42 @@ public class ValidationActivity extends MapActivity {
         public void onProviderDisabled(String provider) {
             Log.d(this.getClass().toString(), String.format("onProviderDisabled: %s", provider));
         }
+    }
+    
+    private class FakeLocationService extends TimerTask {
+    	private Timer timer;
+    	private LocationListener listener;
+    	private Queue<RouteNode> nodes;
+    	
+    	public FakeLocationService(LocationListener listener) {
+    		this.listener = listener;
+    		
+    		timer = new Timer();
+    		timer.schedule(this, 1000, 2000);
+    		
+    		nodes = new LinkedList<RouteNode>();
+    		nodes.add(new RouteNode(32.2361f,-110.959468f, 0, 0));
+    		nodes.add(new RouteNode(32.242997f,-110.959532f, 0, 0));
+    		nodes.add(new RouteNode(32.248777f,-110.960712f, 0, 0));
+    		nodes.add(new RouteNode(32.254039f,-110.958899f, 0, 0));
+    		nodes.add(new RouteNode(32.257578f,-110.959811f, 0, 0));
+    		nodes.add(new RouteNode(32.26128f,-110.960938f, 0, 0));
+    		nodes.add(new RouteNode(32.264791f,-110.953245f, 0, 0));
+    		//nodes.add(new RouteNode(, 0, 0));
+    	}
+
+		@Override
+		public void run() {
+			if (nodes.isEmpty()) {
+				timer.cancel();
+			}
+			else {
+				RouteNode node = nodes.poll();
+				Location location = new Location("");
+				location.setLatitude(node.getLatitude());
+				location.setLongitude(node.getLongitude());
+				listener.onLocationChanged(location);
+			}
+		}
     }
 }
