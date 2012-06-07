@@ -16,15 +16,22 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
-import com.smartrek.overlays.RouteOverlay;
 import com.smartrek.overlays.RouteSegmentOverlay;
+import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
+import com.smartrek.utils.ValidationService;
 
 public class ValidationActivity extends MapActivity {
 
     private MapView mapView;
     private Route route;
     private List<Overlay> mapOverlays;
+    
+    // FIXME: Temporary
+    private RouteNode nearestNode;
+    
+    // FIXME: Temporary
+    private RouteLink nearestLink;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,7 +53,7 @@ public class ValidationActivity extends MapActivity {
         LocationListener locationListener = new ValidationLocationListener();
 
         // Register the listener with the Location Manager to receive location updates
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5, 1, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 1, locationListener);
     }
 
     @Override
@@ -56,6 +63,7 @@ public class ValidationActivity extends MapActivity {
     
     public synchronized int[] drawRoute (MapView mapView, Route route, int routeNum) {
         mapOverlays = mapView.getOverlays();
+        Log.d("ValidationActivity", String.format("mapOverlays has %d items", mapOverlays.size()));
         Drawable drawable;
         
         if(routeNum == 0)
@@ -71,7 +79,7 @@ public class ValidationActivity extends MapActivity {
         int lat = 0;
         int lon = 0;
         
-        for(int i = 0; i < routeNodes.size()-1; i++) {    
+        for(int i = 0; i < routeNodes.size()-1; i++) {
             GeoPoint point = routeNodes.get(i).getPoint();
             
             int curLat = point.getLatitudeE6();
@@ -114,9 +122,35 @@ public class ValidationActivity extends MapActivity {
         return range;
     }
     
+    private void locationChanged(Location location) {
+    	int nearestNodeIndex = -1;
+    	List<RouteNode> routeNodes = route.getNodes();
+        for(int i = 0; i < routeNodes.size(); i++) {
+        	if (routeNodes.get(i).equals(nearestNode)) {
+        		Log.d("ValidationActivity", "nearest node index = " + i);
+        		nearestNodeIndex = i;
+        	}
+        }
+        
+        if (nearestNodeIndex >= 0) {
+        	RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(nearestNodeIndex);
+        	overlay.setColorNum(2);
+        	mapView.postInvalidate();
+        }
+    }
+    
     private class ValidationLocationListener implements LocationListener {
         public void onLocationChanged(Location location) {
             Log.d(this.getClass().toString(), String.format("onLocationChanged: %s", location));
+            
+            float lat = (float) location.getLatitude();
+            float lng = (float) location.getLongitude();
+            nearestNode = ValidationService.getNearestNode(route.getNodes(), lat, lng);
+            nearestLink = ValidationService.getNearestLink(nearestNode, lat, lng);
+            
+            Log.d("ValidationActivity", "nearest node = " + nearestNode);
+            
+            locationChanged(location);
         }
 
         public void onStatusChanged(String provider, int status, Bundle extras) {

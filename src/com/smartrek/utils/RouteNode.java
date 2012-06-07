@@ -146,6 +146,10 @@ public final class RouteNode implements Parcelable, JSONModel {
 		return String.format("{\"LATITUDE\":%f,\"LONGITUDE\":%f,\"NODEID\":%d}", getLatitude(), getLongitude(), nodeNum);
 	}
 	
+	public boolean equals(RouteNode node) {
+		return node != null && lat == node.lat && lng == node.lng && nodeNum == node.nodeNum;
+	}
+	
 	public static float distanceBetween(RouteNode node1, RouteNode node2) {
 		return distanceBetween(node1.getLatitude(), node1.getLongitude(), node2.getLatitude(), node2.getLongitude());
 	}

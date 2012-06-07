@@ -32,9 +32,16 @@ public class RouteSegmentOverlay extends Overlay {
 	public RouteSegmentOverlay(GeoPoint gp1,GeoPoint gp2, int colorNum) { // GeoPoint is a int. (6E)
     	this.gp1 = gp1;
     	this.gp2 = gp2;
-    	this.colorNum = colorNum;
+    	this.setColorNum(colorNum);
+	}
+	
+	public int getColorNum() {
+		return colorNum;
 	}
 
+	public void setColorNum(int colorNum) {
+		this.colorNum = colorNum;
+	}
 
 	/***************************************************************************************************************************
 	 * ********************** draw (Canvas canvas, MapView mapView, boolean shadow, long when) *********************************
@@ -59,9 +66,9 @@ public class RouteSegmentOverlay extends Overlay {
 		paint.setAntiAlias(true);
 		Point point = new Point();
 		projection.toPixels(gp1, point);
-		if(colorNum == 0){
+		if(getColorNum() == 0){
 			paint.setColor(Color.RED);
-		} else if (colorNum == 1){
+		} else if (getColorNum() == 1){
 			paint.setColor(Color.BLUE);
 		} else {
 			paint.setColor(Color.BLACK);
