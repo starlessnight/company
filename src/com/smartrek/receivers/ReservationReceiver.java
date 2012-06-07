@@ -1,18 +1,17 @@
 package com.smartrek.receivers;
 
-import com.smartrek.models.Route;
-import com.smartrek.utils.TimeRange;
-import com.smartrek.utils.ValidationParameters;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
+
+import com.smartrek.activities.ValidationActivity;
+import com.smartrek.models.Route;
+import com.smartrek.utils.TimeRange;
+import com.smartrek.utils.ValidationParameters;
 
 /**
  * Route validation happens here
@@ -51,6 +50,17 @@ public final class ReservationReceiver extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		Log.d("ReservationReceiver", "Validation has started.");
 		
+		
+        // TODO: We probably want to ask user if she wants to open up
+        // ValidatinoActivity
+		// TODO: Pass 'route' instance to ValidationActivity
+		Intent intent2 = new Intent(context, ValidationActivity.class);
+		intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		intent2.putExtra("route", intent.getExtras().getParcelable("route"));
+		context.startActivity(intent2);
+		
+		/*
+		
 		Bundle extras = intent.getExtras();
 		Route route = (Route) extras.get("route");
 		
@@ -68,32 +78,9 @@ public final class ReservationReceiver extends BroadcastReceiver {
 			Log.d(getClass().toString(), "departureTimeValidated = " + departureTimeValidated);
 		}
 		
-		// Acquire a reference to the system Location Manager
-		LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-		
-		// Define a listener that responds to location updates
-		LocationListener locationListener = new LocationListener() {
-			public void onLocationChanged(Location location) {
-				validateRoute(location);
-			}
-
-			public void onStatusChanged(String provider, int status, Bundle extras) {
-				Log.d(this.getClass().toString(), String.format("onStatusChanged: %s, %d, %s", provider, status, extras));
-			}
-
-			public void onProviderEnabled(String provider) {
-				Log.d(this.getClass().toString(), String.format("onProviderEnabled: %s", provider));
-			}
-
-			public void onProviderDisabled(String provider) {
-				Log.d(this.getClass().toString(), String.format("onProviderDisabled: %s", provider));
-			}
-		};
-
-		// Register the listener with the Location Manager to receive location updates
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 1, locationListener);
 		
 		// TODO: What's going to happen when the app terminates in the middle of validation?
+		 */
 	}
 
 }
