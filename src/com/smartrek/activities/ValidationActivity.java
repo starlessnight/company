@@ -20,6 +20,7 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
+import com.smartrek.overlays.PointOverlay;
 import com.smartrek.overlays.RouteSegmentOverlay;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
@@ -30,6 +31,10 @@ public class ValidationActivity extends MapActivity {
     private MapView mapView;
     private Route route;
     private List<Overlay> mapOverlays;
+    private int mapOverlayOffset = 1;
+    
+    private PointOverlay pointOverlay;
+    
     
     // FIXME: Temporary
     private RouteNode nearestNode;
@@ -59,6 +64,7 @@ public class ValidationActivity extends MapActivity {
         // Register the listener with the Location Manager to receive location updates
         //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 1, locationListener);
         FakeLocationService fls = new FakeLocationService(locationListener);
+        
     }
 
     @Override
@@ -104,6 +110,9 @@ public class ValidationActivity extends MapActivity {
             mapOverlays.add(overlayitem);
         }
         
+        pointOverlay = new PointOverlay(0, 0);
+        mapOverlays.add(pointOverlay);
+        
         // FIXME:
         route.setUserId(User.getCurrentUser(this).getId());
         
@@ -127,10 +136,10 @@ public class ValidationActivity extends MapActivity {
         return range;
     }
     
-    private void locationChanged(Location location) {
+    private synchronized void locationChanged(Location location) {
     	int nearestNodeIndex = -1;
     	List<RouteNode> routeNodes = route.getNodes();
-        for(int i = 0; i < routeNodes.size(); i++) {
+        for (int i = 0; i < routeNodes.size(); i++) {
         	if (routeNodes.get(i).equals(nearestNode)) {
         		Log.d("ValidationActivity", "nearest node index = " + i);
         		nearestNodeIndex = i;
@@ -140,15 +149,17 @@ public class ValidationActivity extends MapActivity {
         if (nearestNodeIndex == routeNodes.size() - 1) {
         	Log.d("ValidationActivity", "Arriving at the destination. Terminating validation process.");
         	
-        	for (Overlay overlay : mapOverlays) {
-        		((RouteSegmentOverlay) overlay).setColorNum(2);
+        	for (int i = 0; i < routeNodes.size() - mapOverlayOffset; i++) {
+        		RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(i);
+        		overlay.setColorNum(2);
         	}
         	mapView.postInvalidate();
         }
         else if (nearestNodeIndex >= 0) {
         	// FIXME: There's gotta be a better solution
-        	for (Overlay overlay : mapOverlays) {
-        		((RouteSegmentOverlay) overlay).setColorNum(0);
+        	for (int i = 0; i < routeNodes.size() - mapOverlayOffset; i++) {
+        		RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(i);
+        		overlay.setColorNum(0);
         	}
         	RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(nearestNodeIndex);
         	overlay.setColorNum(1);
@@ -162,6 +173,9 @@ public class ValidationActivity extends MapActivity {
             
             float lat = (float) location.getLatitude();
             float lng = (float) location.getLongitude();
+            
+            pointOverlay.setLocation(lat, lng);
+            
             nearestNode = ValidationService.getNearestNode(route.getNodes(), lat, lng);
             nearestLink = ValidationService.getNearestLink(nearestNode, lat, lng);
             
@@ -192,7 +206,7 @@ public class ValidationActivity extends MapActivity {
     		this.listener = listener;
     		
     		timer = new Timer();
-    		timer.schedule(this, 1000, 2000);
+    		timer.schedule(this, 1000, 3000);
     		
     		nodes = new LinkedList<RouteNode>();
     		nodes.add(new RouteNode(32.2361f,-110.959468f, 0, 0));
