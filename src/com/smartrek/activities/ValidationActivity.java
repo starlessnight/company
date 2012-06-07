@@ -35,7 +35,6 @@ public class ValidationActivity extends MapActivity {
     
     private PointOverlay pointOverlay;
     
-    
     // FIXME: Temporary
     private RouteNode nearestNode;
     
@@ -113,25 +112,13 @@ public class ValidationActivity extends MapActivity {
         pointOverlay = new PointOverlay(0, 0);
         mapOverlays.add(pointOverlay);
         
-        // FIXME:
         route.setUserId(User.getCurrentUser(this).getId());
         
         drawable = this.getResources().getDrawable(R.drawable.routetag);
         
-        /* Log selected time to debug */
-        //Log.d("RouteActivity", "In RouteActivity setting route time");
-        //Log.d("RouteActivity", selectedTime.format3339(false));
-        
         /* Add offset of 1000 to range so that map displays extra space around route. */
         int [] range = {latMax - latMin + 1500 ,lonMax - lonMin + 1500};
         
-        /* Log range values to debug */
-        //Log.d("RouteActivity", " Latitude Range:" + range[0]);
-        //Log.d("RouteActivity", " Longitude Range:" + range[1]);
-        
-        
-        //KdTree.Node root = KdTree.build(routeNodes, 0, routeNodes.size(), 0);
-
         /* Return the range to doRoute so that map can be adjusted to range settings */
         return range;
     }
@@ -197,6 +184,9 @@ public class ValidationActivity extends MapActivity {
         }
     }
     
+    /**
+     * Fake data player
+     */
     private class FakeLocationService extends TimerTask {
     	private Timer timer;
     	private LocationListener listener;
