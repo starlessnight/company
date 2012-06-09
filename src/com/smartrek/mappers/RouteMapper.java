@@ -39,22 +39,31 @@ public final class RouteMapper extends Mapper {
 		super();
 	}
 	
+	public static void buildRouteNodeReferenceChain(List<RouteNode> nodes) {
+		RouteNode prevNode = null;
+		for(int i = 0; i < nodes.size(); i++) {
+			RouteNode node = nodes.get(i);
+			node.setPrevNode(prevNode);
+			node.setNodeIndex(i);
+			
+			if (prevNode != null) {
+				prevNode.setNextNode(node);
+			}
+			
+			prevNode = node;
+		}
+	}
+	
 	public Route parseRoute(JSONObject routeObject, Time departureTime) throws JSONException, IOException {
 	    JSONArray rts = (JSONArray) routeObject.get("ROUTE");
 	    
 	    ArrayList<RouteNode> routeNodes = new ArrayList<RouteNode>();
-        for(int j = 0; j < rts.length(); j++) {
-            JSONObject ro = (JSONObject) rts.get(j);
+        for (int i = 0; i < rts.length(); i++) {
+            JSONObject ro = (JSONObject) rts.get(i);
             
             RouteNode node = new RouteNode((float)ro.getDouble("LATITUDE"),
                     (float)ro.getDouble("LONGITUDE"), 0, ro.getInt("NODEID"));
             routeNodes.add(node);
-            
-            if (j > 0) {
-                RouteNode prevNode = routeNodes.get(j - 1);
-                prevNode.setNextNode(node);
-                node.setPrevNode(prevNode);
-            }
         }
         
         // Route ID

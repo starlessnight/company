@@ -18,12 +18,17 @@ public final class RouteNode implements Parcelable, JSONModel {
      * A reference to the previous node. A link consists of two route nodes. A
      * route node belongs to at least one link, at most two links.
      */
-    private RouteNode prevNode;
+    private transient RouteNode prevNode;
 	
 	/**
 	 * A reference to the next node;
 	 */
-	private RouteNode nextNode;
+	private transient RouteNode nextNode;
+	
+	/**
+	 * RouteNode index in List<RouteNode>
+	 */
+	private transient int nodeIndex;
 	
 	public static final Parcelable.Creator<RouteNode> CREATOR = new Parcelable.Creator<RouteNode>() {
 		public RouteNode createFromParcel(Parcel in) {
@@ -97,7 +102,15 @@ public final class RouteNode implements Parcelable, JSONModel {
         this.nextNode = nextNode;
     }
     
-    /**
+    public int getNodeIndex() {
+		return nodeIndex;
+	}
+
+	public void setNodeIndex(int nodeIndex) {
+		this.nodeIndex = nodeIndex;
+	}
+
+	/**
      * Calculates the distance from this route node to a geocoordinate.
      * 
      * @param lat

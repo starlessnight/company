@@ -7,6 +7,10 @@ package com.smartrek.utils;
 public class ValidationParameters {
 
 	/**
+	 * Unit is in meters
+	 */
+	private float distanceThreshold = 100;
+	/**
 	 * Users may depart after (departure time) - (threshold). Unit is in seconds.
 	 */
 	private int departureTimeNegativeThreshold = 60*5;
@@ -28,8 +32,24 @@ public class ValidationParameters {
 	 */
 	private float arrivalDistanceThreshold = 160.9344f;
 	
-	public ValidationParameters() {
+	/**
+	 * Singleton instance
+	 */
+	private static ValidationParameters instance;
+	
+	private ValidationParameters() {
 		
+	}
+	
+	public static ValidationParameters getInstance() {
+		if (instance == null) {
+			instance = new ValidationParameters();
+		}
+		return instance;
+	}
+	
+	public float getDistanceThreshold() {
+		return distanceThreshold;
 	}
 
 	public int getDepartureTimeNegativeThreshold() {

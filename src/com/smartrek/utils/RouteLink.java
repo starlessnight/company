@@ -8,21 +8,34 @@ import android.util.Log;
  *
  */
 public class RouteLink {
-    public RouteNode node1;
-    public RouteNode node2;
+    private RouteNode node1;
+    private RouteNode node2;
     
     public RouteLink(RouteNode node1, RouteNode node2) {
         this.node1 = node1;
         this.node2 = node2;
     }
     
+    public RouteNode getStartNode() {
+    	return node1;
+    }
+    
+    public RouteNode getEndNode() {
+    	return node2;
+    }
+    
+    /**
+     * Unit is in meter
+     * @param lat
+     * @param lng
+     * @return
+     */
     public float distanceTo(float lat, float lng) {
         
         float cosAngle1 = FloatMath.cos(angle1(lat, lng));
         float cosAngle2 = FloatMath.cos(angle2(lat, lng));
         
         if (cosAngle1 > 0.0f && cosAngle2 > 0.0f) {
-        	Log.d("RouteLink", "Case 1");
             // case 1 (distance between the link and a point)
         	
         	// Equations are taken from http://mathworld.wolfram.com/Point-LineDistance2-Dimensional.html
@@ -38,14 +51,18 @@ public class RouteLink {
         	float dr = RouteNode.distanceBetween(node1.getLatitude(), node1.getLongitude(), lat, lng);
         	float d = dr * FloatMath.sin(angle1(lat, lng));
         	
+        	Log.d("RouteLink", String.format("Case 1, distance = %f", d));
+        	
         	return d;
         }
         else if (cosAngle1 <= 0.0f && cosAngle2 > 0.0f) {
             // case 2 (distance between node1 and a point)
+        	Log.d("RouteLink", String.format("Case 2, distance = %f", node1.distanceTo(lat, lng)));
         	return node1.distanceTo(lat, lng);
         }
         else if (cosAngle1 > 0.0f && cosAngle2 <= 0.0f) {
             // case 3 (distance between node2 and a point)
+        	Log.d("RouteLink", String.format("Case 3, distance = %f", node2.distanceTo(lat, lng)));
         	return node2.distanceTo(lat, lng);
         }
         else {

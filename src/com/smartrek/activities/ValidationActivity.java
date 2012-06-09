@@ -7,6 +7,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
@@ -18,12 +19,14 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
+import com.smartrek.mappers.RouteMapper;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
 import com.smartrek.overlays.PointOverlay;
 import com.smartrek.overlays.RouteSegmentOverlay;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
+import com.smartrek.utils.ValidationParameters;
 import com.smartrek.utils.ValidationService;
 
 public class ValidationActivity extends MapActivity {
@@ -34,6 +37,12 @@ public class ValidationActivity extends MapActivity {
     private int mapOverlayOffset = 1;
     
     private PointOverlay pointOverlay;
+    
+    private PointOverlay startNodeOverlay;
+    private PointOverlay endNodeOverlay;
+    
+    private int numberOfLocationChanges = 0;
+    private int numberOfInRoute = 0;
     
     // FIXME: Temporary
     private RouteNode nearestNode;
@@ -48,6 +57,8 @@ public class ValidationActivity extends MapActivity {
         
         Bundle extras = getIntent().getExtras();
         route = extras.getParcelable("route");
+        
+        RouteMapper.buildRouteNodeReferenceChain(route.getNodes());
         
         mapView = (MapView) findViewById(R.id.mapview);
         drawRoute(mapView, route, 0);
@@ -112,6 +123,15 @@ public class ValidationActivity extends MapActivity {
         pointOverlay = new PointOverlay(0, 0);
         mapOverlays.add(pointOverlay);
         
+        
+        startNodeOverlay = new PointOverlay(0, 0);
+        startNodeOverlay.setColor(Color.GRAY);
+        mapOverlays.add(startNodeOverlay);
+        
+        endNodeOverlay = new PointOverlay(0, 0);
+        endNodeOverlay.setColor(Color.MAGENTA);
+        mapOverlays.add(endNodeOverlay);
+        
         route.setUserId(User.getCurrentUser(this).getId());
         
         drawable = this.getResources().getDrawable(R.drawable.routetag);
@@ -123,7 +143,22 @@ public class ValidationActivity extends MapActivity {
         return range;
     }
     
+    private void checkDistance(Location location) {
+    	ValidationParameters params = ValidationParameters.getInstance();
+        
+        float distanceToLink = nearestLink.distanceTo((float) location.getLatitude(), (float) location.getLongitude());
+        if (distanceToLink <= params.getDistanceThreshold()) {
+        	numberOfInRoute += 1;
+        	Log.d("ValidationActivity", String.format("In route, score = %d/%d = %.2f", numberOfInRoute, numberOfLocationChanges, numberOfInRoute/(float)numberOfLocationChanges));
+        }
+        else {
+        	Log.d("ValidationActivity", String.format("Out of route, score = %d/%d = %.2f", numberOfInRoute, numberOfLocationChanges, numberOfInRoute/(float)numberOfLocationChanges));
+        }
+    }
+    
     private synchronized void locationChanged(Location location) {
+    	numberOfLocationChanges += 1;
+    	
     	int nearestNodeIndex = -1;
     	List<RouteNode> routeNodes = route.getNodes();
         for (int i = 0; i < routeNodes.size(); i++) {
@@ -132,6 +167,8 @@ public class ValidationActivity extends MapActivity {
         		nearestNodeIndex = i;
         	}
         }
+        
+        checkDistance(location);
         
         if (nearestNodeIndex == routeNodes.size() - 1) {
         	Log.d("ValidationActivity", "Arriving at the destination. Terminating validation process.");
@@ -148,10 +185,18 @@ public class ValidationActivity extends MapActivity {
         		RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(i);
         		overlay.setColorNum(0);
         	}
-        	RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(nearestNodeIndex);
+        	RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(nearestLink.getStartNode().getNodeIndex());
+        	
+        	RouteNode startNode = nearestLink.getStartNode();
+        	startNodeOverlay.setLocation(startNode.getLatitude(), startNode.getLongitude());
+        	
+        	RouteNode endNode = nearestLink.getEndNode();
+        	endNodeOverlay.setLocation(endNode.getLatitude(), endNode.getLongitude());
+        	
         	overlay.setColorNum(1);
         	mapView.postInvalidate();
         }
+        Log.d("ValidationActivity", "End of locationChanged");
     }
     
     private class ValidationLocationListener implements LocationListener {

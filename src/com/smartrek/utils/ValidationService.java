@@ -4,8 +4,6 @@ import java.util.List;
 
 import android.util.Log;
 
-import com.smartrek.models.Route;
-
 /**
  * This class provides functionalities related to the route validation. 
  *
@@ -19,15 +17,22 @@ public final class ValidationService {
     }
     
     /**
-     * FIXME: This is not fully implemented.
-     * 
      * @param node
      * @param lat
      * @param lng
      * @return
      */
     public static RouteLink getNearestLink(RouteNode node, float lat, float lng) {
-        if (node.getPrevNode() != null) {
+    	RouteNode prevNode = node.getPrevNode();
+    	RouteNode nextNode = node.getNextNode();
+    	
+    	if (prevNode != null && nextNode != null) {
+    		float distanceToPrev = prevNode.distanceTo(lat, lng);
+    		float distanceToNext = nextNode.distanceTo(lat, lng);
+    		
+    		return distanceToPrev < distanceToNext ? new RouteLink(prevNode, node) : new RouteLink(node, nextNode);
+    	}
+    	else if (node.getPrevNode() != null) {
             return new RouteLink(node.getPrevNode(), node);
         }
         else if (node.getNextNode() != null) {
@@ -37,18 +42,6 @@ public final class ValidationService {
             Log.d("ValidationService", "Should not reach here. A route link must have at least one of prevNode and nextNode.");
             return null;
         }
-    }
-    
-//    public float distanceBetween(RouteLink link, float lat, float lng) {
-//        return 0.0f;
-//    }
-    
-    public static boolean isInRoute(Route route, float lat, float lng) {
-        RouteNode nearestNode = getNearestNode(route.getNodes(), lat, lng);
-        RouteLink nearestLink = getNearestLink(nearestNode, lat, lng);
-        
-        ValidationParameters params = new ValidationParameters();
-        return nearestLink.distanceTo(lat, lng) < params.getArrivalDistanceThreshold();
     }
     
 }

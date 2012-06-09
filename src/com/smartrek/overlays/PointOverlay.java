@@ -16,6 +16,7 @@ import com.google.android.maps.Projection;
  */
 public class PointOverlay extends Overlay {
 	private GeoPoint geoPoint;
+	private int color = Color.GREEN;
 	
 	public PointOverlay(float lat, float lng) {
 		setLocation(lat, lng);
@@ -24,13 +25,17 @@ public class PointOverlay extends Overlay {
 	public void setLocation(float lat, float lng) {
 		geoPoint = new GeoPoint((int)(lat * 1E6), (int)(lng * 1E6));
 	}
+	
+	public void setColor(int color) {
+		this.color = color;
+	}
 
 	@Override
 	public synchronized boolean draw (Canvas canvas, MapView mapView, boolean shadow, long when) {
 		Projection projection = mapView.getProjection();
 		Paint paint = new Paint();
 		paint.setAntiAlias(true);
-		paint.setColor(Color.GREEN);
+		paint.setColor(color);
 		
 		Point point = new Point();
 		projection.toPixels(geoPoint, point);
