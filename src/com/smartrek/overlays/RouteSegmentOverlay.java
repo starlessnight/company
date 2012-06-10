@@ -22,6 +22,7 @@ public class RouteSegmentOverlay extends Overlay {
 	private GeoPoint gp1;
 	private GeoPoint gp2;
 	private int colorNum;
+	private int color = -1;
 
 	/***************************************************************************************************************************
 	 * ********************** RouteSegmentOverlay(GeoPoint gp1,GeoPoint gp2, int colorNum) *************************************
@@ -29,7 +30,7 @@ public class RouteSegmentOverlay extends Overlay {
 	 * 
 	 *
 	 ***************************************************************************************************************************/
-	public RouteSegmentOverlay(GeoPoint gp1,GeoPoint gp2, int colorNum) { // GeoPoint is a int. (6E)
+	public RouteSegmentOverlay(GeoPoint gp1, GeoPoint gp2, int colorNum) { // GeoPoint is a int. (6E)
     	this.gp1 = gp1;
     	this.gp2 = gp2;
     	this.setColorNum(colorNum);
@@ -41,6 +42,10 @@ public class RouteSegmentOverlay extends Overlay {
 
 	public void setColorNum(int colorNum) {
 		this.colorNum = colorNum;
+	}
+	
+	public void setColor(int color) {
+		this.color = color;
 	}
 
 	/***************************************************************************************************************************
@@ -66,13 +71,22 @@ public class RouteSegmentOverlay extends Overlay {
 		paint.setAntiAlias(true);
 		Point point = new Point();
 		projection.toPixels(gp1, point);
-		if(getColorNum() == 0){
-			paint.setColor(Color.RED);
-		} else if (getColorNum() == 1){
-			paint.setColor(Color.BLUE);
-		} else {
-			paint.setColor(Color.BLACK);
+		
+		// if color != -1 then colorNum will be ignored 
+		if (color == -1) {
+			
+			if(getColorNum() == 0){
+				paint.setColor(Color.RED);
+			} else if (getColorNum() == 1){
+				paint.setColor(Color.BLUE);
+			} else {
+				paint.setColor(Color.BLACK);
+			}
 		}
+		else {
+			paint.setColor(color);
+		}
+		
 		Point point2 = new Point();
 		projection.toPixels(gp2, point2);
 		paint.setStrokeWidth(7);

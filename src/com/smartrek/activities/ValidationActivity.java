@@ -116,13 +116,14 @@ public class ValidationActivity extends MapActivity {
             latMin = Math.min(latMin, curLat);
             lonMin = Math.min(lonMin, curLon);
             
-            Overlay overlayitem = new RouteSegmentOverlay(point, routeNodes.get(i+1).getPoint(), routeNum);
-            mapOverlays.add(overlayitem);
+            RouteSegmentOverlay overlay = new RouteSegmentOverlay(point, routeNodes.get(i+1).getPoint(), routeNum);
+            overlay.setColor(Color.DKGRAY);
+            mapOverlays.add(overlay);
         }
         
         pointOverlay = new PointOverlay(0, 0);
+        pointOverlay.setColor(Color.BLUE);
         mapOverlays.add(pointOverlay);
-        
         
         startNodeOverlay = new PointOverlay(0, 0);
         startNodeOverlay.setColor(Color.GRAY);
@@ -143,29 +144,15 @@ public class ValidationActivity extends MapActivity {
         return range;
     }
     
-    private void checkDistance(Location location) {
-    	ValidationParameters params = ValidationParameters.getInstance();
-        
-        float distanceToLink = nearestLink.distanceTo((float) location.getLatitude(), (float) location.getLongitude());
-        if (distanceToLink <= params.getDistanceThreshold()) {
-        	numberOfInRoute += 1;
-        	Log.d("ValidationActivity", String.format("In route, score = %d/%d = %.2f", numberOfInRoute, numberOfLocationChanges, numberOfInRoute/(float)numberOfLocationChanges));
-        }
-        else {
-        	Log.d("ValidationActivity", String.format("Out of route, score = %d/%d = %.2f", numberOfInRoute, numberOfLocationChanges, numberOfInRoute/(float)numberOfLocationChanges));
-        }
-    }
-    
     private synchronized void locationChanged(Location location) {
     	numberOfLocationChanges += 1;
     	
     	List<RouteNode> routeNodes = route.getNodes();
-        checkDistance(location);
         
     	// FIXME: There's gotta be a better solution
     	for (int i = 0; i < routeNodes.size() - mapOverlayOffset; i++) {
     		RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(i);
-    		overlay.setColorNum(0);
+    		overlay.setColor(Color.DKGRAY);
     	}
     	RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(nearestLink.getStartNode().getNodeIndex());
     	
@@ -175,7 +162,19 @@ public class ValidationActivity extends MapActivity {
 //    	RouteNode endNode = nearestLink.getEndNode();
 //    	endNodeOverlay.setLocation(endNode.getLatitude(), endNode.getLongitude());
     	
-    	overlay.setColorNum(1);
+    	ValidationParameters params = ValidationParameters.getInstance();
+        
+        float distanceToLink = nearestLink.distanceTo((float) location.getLatitude(), (float) location.getLongitude());
+        if (distanceToLink <= params.getDistanceThreshold()) {
+        	numberOfInRoute += 1;
+        	overlay.setColor(Color.GREEN);
+        	Log.d("ValidationActivity", String.format("In route, score = %d/%d = %.2f", numberOfInRoute, numberOfLocationChanges, numberOfInRoute/(float)numberOfLocationChanges));
+        }
+        else {
+        	overlay.setColor(Color.RED);
+        	Log.d("ValidationActivity", String.format("Out of route, score = %d/%d = %.2f", numberOfInRoute, numberOfLocationChanges, numberOfInRoute/(float)numberOfLocationChanges));
+        }
+    	
     	mapView.postInvalidate();
         
         if (route.hasArrivedAtDestination((float) location.getLatitude(), (float) location.getLongitude())) {
