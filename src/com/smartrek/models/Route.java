@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 import com.smartrek.utils.RouteNode;
+import com.smartrek.utils.ValidationParameters;
 
 /****************************************************************************************************
  * 
@@ -274,6 +275,29 @@ public final class Route implements Parcelable {
 	public void setCredits(int credits) {
 		this.credits = credits;
 	}
+	
+	///////////////////////////////////////////////////////////////////////////
+	
+	public boolean isNearOrigin(float lat, float lng) {
+		return false;
+	}
+	
+	/**
+	 * Determines whether a geocoordinate is close enough to the destination of the route
+	 * 
+	 * @param lat
+	 * @param lng
+	 * @return
+	 */
+	public boolean hasArrivedAtDestination(float lat, float lng) {
+		RouteNode lastNode = routeNodes.get(routeNodes.size() - 1);
+		ValidationParameters params = ValidationParameters.getInstance();
+		
+		return lastNode.distanceTo(lat, lng) <= params.getArrivalDistanceThreshold();
+	}
+	
+	///////////////////////////////////////////////////////////////////////////
+	
 	
 	/*****************************************************************************************
 	 * 

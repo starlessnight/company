@@ -73,7 +73,7 @@ public class ValidationActivity extends MapActivity {
 
         // Register the listener with the Location Manager to receive location updates
         //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 1, locationListener);
-        FakeLocationService fls = new FakeLocationService(locationListener);
+        FakeLocationService faceLocationService = new FakeLocationService(locationListener);
         
     }
 
@@ -159,44 +159,32 @@ public class ValidationActivity extends MapActivity {
     private synchronized void locationChanged(Location location) {
     	numberOfLocationChanges += 1;
     	
-    	int nearestNodeIndex = -1;
     	List<RouteNode> routeNodes = route.getNodes();
-        for (int i = 0; i < routeNodes.size(); i++) {
-        	if (routeNodes.get(i).equals(nearestNode)) {
-        		Log.d("ValidationActivity", "nearest node index = " + i);
-        		nearestNodeIndex = i;
-        	}
-        }
-        
         checkDistance(location);
         
-        if (nearestNodeIndex == routeNodes.size() - 1) {
-        	Log.d("ValidationActivity", "Arriving at the destination. Terminating validation process.");
-        	
-        	for (int i = 0; i < routeNodes.size() - mapOverlayOffset; i++) {
-        		RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(i);
-        		overlay.setColorNum(2);
-        	}
-        	mapView.postInvalidate();
+    	// FIXME: There's gotta be a better solution
+    	for (int i = 0; i < routeNodes.size() - mapOverlayOffset; i++) {
+    		RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(i);
+    		overlay.setColorNum(0);
+    	}
+    	RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(nearestLink.getStartNode().getNodeIndex());
+    	
+//    	RouteNode startNode = nearestLink.getStartNode();
+//    	startNodeOverlay.setLocation(startNode.getLatitude(), startNode.getLongitude());
+//    	
+//    	RouteNode endNode = nearestLink.getEndNode();
+//    	endNodeOverlay.setLocation(endNode.getLatitude(), endNode.getLongitude());
+    	
+    	overlay.setColorNum(1);
+    	mapView.postInvalidate();
+        
+        if (route.hasArrivedAtDestination((float) location.getLatitude(), (float) location.getLongitude())) {
+        	deactivateLocationService();
+        	Log.d("ValidationActivity", "Arriving at destination");
         }
-        else if (nearestNodeIndex >= 0) {
-        	// FIXME: There's gotta be a better solution
-        	for (int i = 0; i < routeNodes.size() - mapOverlayOffset; i++) {
-        		RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(i);
-        		overlay.setColorNum(0);
-        	}
-        	RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(nearestLink.getStartNode().getNodeIndex());
-        	
-        	RouteNode startNode = nearestLink.getStartNode();
-        	startNodeOverlay.setLocation(startNode.getLatitude(), startNode.getLongitude());
-        	
-        	RouteNode endNode = nearestLink.getEndNode();
-        	endNodeOverlay.setLocation(endNode.getLatitude(), endNode.getLongitude());
-        	
-        	overlay.setColorNum(1);
-        	mapView.postInvalidate();
-        }
-        Log.d("ValidationActivity", "End of locationChanged");
+    }
+    
+    private void deactivateLocationService() {
     }
     
     private class ValidationLocationListener implements LocationListener {

@@ -65,8 +65,7 @@ public class ValidationParameters {
 		return departureTimePositiveThreshold;
 	}
 
-	public void setDepartureTimePositiveThreshold(
-			int departureTimePositiveThreshold) {
+	public void setDepartureTimePositiveThreshold(int departureTimePositiveThreshold) {
 		this.departureTimePositiveThreshold = departureTimePositiveThreshold;
 	}
 
