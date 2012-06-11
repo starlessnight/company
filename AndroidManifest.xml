@@ -56,6 +56,8 @@
                   android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".ValidationActivity"
                   android:theme="@android:style/Theme.NoTitleBar"/>
+        <activity android:name=".ValidationReportActivity"
+                  android:theme="@android:style/Theme.NoTitleBar"/>
         <receiver android:name="com.smartrek.receivers.ReservationReceiver"/>
     </application>
 </manifest>

@@ -84,4 +84,8 @@ public class ValidationParameters {
 	public void setArrivalDistanceThreshold(float arrivalDistanceThreshold) {
 		this.arrivalDistanceThreshold = arrivalDistanceThreshold;
 	}
+	
+	public float getScoreThreshold() {
+		return .75f;
+	}
 }

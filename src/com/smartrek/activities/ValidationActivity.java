@@ -7,12 +7,14 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.text.format.Time;
 import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
@@ -44,6 +46,9 @@ public class ValidationActivity extends MapActivity {
     private int numberOfLocationChanges = 0;
     private int numberOfInRoute = 0;
     
+    private Time startTime;
+    private Time endTime;
+    
     // FIXME: Temporary
     private RouteNode nearestNode;
     
@@ -74,7 +79,9 @@ public class ValidationActivity extends MapActivity {
         // Register the listener with the Location Manager to receive location updates
         //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 1, locationListener);
         FakeLocationService faceLocationService = new FakeLocationService(locationListener);
-        
+
+        startTime = new Time();
+        startTime.setToNow();
     }
 
     @Override
@@ -179,11 +186,26 @@ public class ValidationActivity extends MapActivity {
         
         if (route.hasArrivedAtDestination((float) location.getLatitude(), (float) location.getLongitude())) {
         	deactivateLocationService();
+        	arriveAtDestination();
         	Log.d("ValidationActivity", "Arriving at destination");
         }
     }
     
+    private void arriveAtDestination() {
+    	endTime = new Time();
+    	endTime.setToNow();
+    	
+    	Intent intent = new Intent(this, ValidationReportActivity.class);
+    	intent.putExtra("route", route);
+    	intent.putExtra("numberOfLocationChanges", numberOfLocationChanges);
+    	intent.putExtra("numberOfInRoute", numberOfInRoute);
+    	intent.putExtra("startTime", startTime.toMillis(false));
+    	intent.putExtra("endTime", endTime.toMillis(false));
+    	startActivity(intent);
+    }
+    
     private void deactivateLocationService() {
+    	
     }
     
     private class ValidationLocationListener implements LocationListener {
@@ -228,15 +250,20 @@ public class ValidationActivity extends MapActivity {
     		this.listener = listener;
     		
     		timer = new Timer();
-    		timer.schedule(this, 1000, 3000);
+    		timer.schedule(this, 1000, 2100);
     		
     		nodes = new LinkedList<RouteNode>();
+    		nodes.add(new RouteNode(32.234294f, -110.956807f, 0, 0));
     		nodes.add(new RouteNode(32.2361f,-110.959468f, 0, 0));
+    		nodes.add(new RouteNode(32.240356f, -110.959425f, 0, 0));
     		nodes.add(new RouteNode(32.242997f,-110.959532f, 0, 0));
     		nodes.add(new RouteNode(32.248777f,-110.960712f, 0, 0));
     		nodes.add(new RouteNode(32.254039f,-110.958899f, 0, 0));
+    		nodes.add(new RouteNode(32.259411f, -110.961571f, 0, 0));
     		nodes.add(new RouteNode(32.257578f,-110.959811f, 0, 0));
     		nodes.add(new RouteNode(32.26128f,-110.960938f, 0, 0));
+    		nodes.add(new RouteNode(32.264927f, -110.962343f, 0, 0));
+    		nodes.add(new RouteNode(32.26489f, -110.958095f, 0, 0));
     		nodes.add(new RouteNode(32.264791f,-110.953245f, 0, 0));
     		//nodes.add(new RouteNode(, 0, 0));
     	}
