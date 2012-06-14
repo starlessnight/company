@@ -1,6 +1,7 @@
 package com.smartrek.mappers;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -250,10 +251,19 @@ public final class RouteMapper extends Mapper {
 		Log.d("Route_Communicator", "DESTINATION_ADRESS = " + route.getDestination() );
 	}
 	
-	public void sendTrajectory(int uid, int rid, Trajectory trajectory) throws JSONException {
-		String points = trajectory.toJSON().toString();
-		String url = String.format("%s/sendtrajectory/?seq=%d&uid=%d&rid=%d&GPSPoints=%s", host, uid, rid, points);
+	public void sendTrajectory(int uid, int rid, Trajectory trajectory) throws JSONException, ClientProtocolException, IOException {
+		//String url = String.format("%s/sendtrajectory/?seq=%d&uid=%d&rid=%d&GPSPoints=%s", host, uid, rid, points);
+		String url = String.format("%s/sendtrajectory/", host);
 		// http://50.56.81.42:8080/sendtrajectory/?seq= & uid= & rid= & GPSPoints=[[],[],[]]
 		// GPS Points (Lat/ Lon / Altitude (ft) / Heading / Timestamp / Speed (mph)
+		
+		HttpPost httpPost = new HttpPost(url);
+		List<NameValuePair> params = new ArrayList<NameValuePair>(4);
+		params.add(new BasicNameValuePair("uid", String.valueOf(uid)));
+		params.add(new BasicNameValuePair("rid", String.valueOf(rid)));
+		params.add(new BasicNameValuePair("GPSPoints", trajectory.toJSON().toString()));
+		
+		HttpClient httpClient = new DefaultHttpClient();
+		HttpResponse response = httpClient.execute(httpPost);
 	}
 }

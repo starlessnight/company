@@ -6,6 +6,8 @@ import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.json.JSONException;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -203,6 +205,12 @@ public class ValidationActivity extends MapActivity {
         	deactivateLocationService();
         	arriveAtDestination();
         	Log.d("ValidationActivity", "Arriving at destination");
+        	
+        	try {
+				Log.d("ValidationActivity", "trajectory = " + trajectory.toJSON().toString());
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
         }
     }
     
