@@ -32,7 +32,7 @@ public class Trajectory {
 		private float speed;
 		
 		/**
-		 * Angle between the headed direction and the North
+		 * Angle in degrees between the headed direction and the North
 		 */
 		private float heading;
 		
@@ -88,9 +88,17 @@ public class Trajectory {
 			return heading;
 		}
 
+		/**
+		 * The value of heading stays between 0 (inclusive) and 360 (exclusive)
+		 * 
+		 * @param heading
+		 */
 		public void setHeading(float heading) {
-			while (heading < 0.0f) {
-				heading += (float) Math.PI;
+			while (heading < 0) {
+				heading += 360;
+			}
+			while (heading >= 360) {
+				heading -= 360;
 			}
 			
 			this.heading = heading;
