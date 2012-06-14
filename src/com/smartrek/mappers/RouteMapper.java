@@ -21,6 +21,7 @@ import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
 import com.smartrek.models.Route;
+import com.smartrek.models.Trajectory;
 import com.smartrek.utils.Cache;
 import com.smartrek.utils.HTTP;
 import com.smartrek.utils.RouteNode;
@@ -247,5 +248,12 @@ public final class RouteMapper extends Mapper {
 		Log.d("Route_Communicator", "VALIDATED_FLAG = 0");
 		Log.d("Route_Communicator", "ORIGIN_ADDRESS = "+ route.getOrigin() );
 		Log.d("Route_Communicator", "DESTINATION_ADRESS = " + route.getDestination() );
+	}
+	
+	public void sendTrajectory(int uid, int rid, Trajectory trajectory) throws JSONException {
+		String points = trajectory.toJSON().toString();
+		String url = String.format("%s/sendtrajectory/?seq=%d&uid=%d&rid=%d&GPSPoints=%s", host, uid, rid, points);
+		// http://50.56.81.42:8080/sendtrajectory/?seq= & uid= & rid= & GPSPoints=[[],[],[]]
+		// GPS Points (Lat/ Lon / Altitude (ft) / Heading / Timestamp / Speed (mph)
 	}
 }
