@@ -6,6 +6,8 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import android.location.Location;
+
 public class Trajectory {
 	
 	public class Record {
@@ -138,6 +140,15 @@ public class Trajectory {
 	 */
 	public void accumulate(float lat, float lng, float altitude, float speed, float heading, long time) {
 		records.add(new Record(lat, lng, altitude, speed, heading, time));
+	}
+	
+	public void accumulate(Location location) {
+		accumulate((float) location.getLatitude(),
+				(float) location.getLongitude(),
+				(float) location.getAltitude(),
+				location.getSpeed(),
+				location.getBearing(),
+				location.getTime());
 	}
 	
 	public void clear() {

@@ -23,6 +23,7 @@ import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.smartrek.mappers.RouteMapper;
 import com.smartrek.models.Route;
+import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.overlays.PointOverlay;
 import com.smartrek.overlays.RouteSegmentOverlay;
@@ -54,6 +55,8 @@ public class ValidationActivity extends MapActivity {
     
     // FIXME: Temporary
     private RouteLink nearestLink;
+    
+    private Trajectory trajectory = new Trajectory();
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -154,6 +157,18 @@ public class ValidationActivity extends MapActivity {
     private synchronized void locationChanged(Location location) {
     	numberOfLocationChanges += 1;
     	
+    	trajectory.accumulate(location);
+    	
+        float lat = (float) location.getLatitude();
+        float lng = (float) location.getLongitude();
+        
+        pointOverlay.setLocation(lat, lng);
+        
+        nearestNode = ValidationService.getNearestNode(route.getNodes(), lat, lng);
+        nearestLink = ValidationService.getNearestLink(nearestNode, lat, lng);
+        
+        Log.d("ValidationActivity", "nearest node = " + nearestNode);
+    	
     	List<RouteNode> routeNodes = route.getNodes();
         
     	// FIXME: There's gotta be a better solution
@@ -171,7 +186,7 @@ public class ValidationActivity extends MapActivity {
     	
     	ValidationParameters params = ValidationParameters.getInstance();
         
-        float distanceToLink = nearestLink.distanceTo((float) location.getLatitude(), (float) location.getLongitude());
+        float distanceToLink = nearestLink.distanceTo(lat, lng);
         if (distanceToLink <= params.getDistanceThreshold()) {
         	numberOfInRoute += 1;
         	overlay.setColor(Color.GREEN);
@@ -184,7 +199,7 @@ public class ValidationActivity extends MapActivity {
     	
     	mapView.postInvalidate();
         
-        if (route.hasArrivedAtDestination((float) location.getLatitude(), (float) location.getLongitude())) {
+        if (route.hasArrivedAtDestination(lat, lng)) {
         	deactivateLocationService();
         	arriveAtDestination();
         	Log.d("ValidationActivity", "Arriving at destination");
@@ -211,16 +226,6 @@ public class ValidationActivity extends MapActivity {
     private class ValidationLocationListener implements LocationListener {
         public void onLocationChanged(Location location) {
             Log.d(this.getClass().toString(), String.format("onLocationChanged: %s", location));
-            
-            float lat = (float) location.getLatitude();
-            float lng = (float) location.getLongitude();
-            
-            pointOverlay.setLocation(lat, lng);
-            
-            nearestNode = ValidationService.getNearestNode(route.getNodes(), lat, lng);
-            nearestLink = ValidationService.getNearestLink(nearestNode, lat, lng);
-            
-            Log.d("ValidationActivity", "nearest node = " + nearestNode);
             
             locationChanged(location);
         }
