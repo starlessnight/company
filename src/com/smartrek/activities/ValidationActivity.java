@@ -1,11 +1,13 @@
 package com.smartrek.activities;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 
 import android.content.Context;
@@ -219,6 +221,21 @@ public class ValidationActivity extends MapActivity {
     	endTime = new Time();
     	endTime.setToNow();
     	
+    	// TODO: Should this be here?
+    	RouteMapper mapper = new RouteMapper();
+    	try {
+			mapper.sendTrajectory(User.getCurrentUser(this).getId(), route.getId(), trajectory);
+		}
+    	catch (ClientProtocolException e) {
+			e.printStackTrace();
+		}
+    	catch (JSONException e) {
+			e.printStackTrace();
+		}
+    	catch (IOException e) {
+			e.printStackTrace();
+		}
+    	
     	Intent intent = new Intent(this, ValidationReportActivity.class);
     	intent.putExtra("route", route);
     	intent.putExtra("numberOfLocationChanges", numberOfLocationChanges);
@@ -264,7 +281,7 @@ public class ValidationActivity extends MapActivity {
     		this.listener = listener;
     		
     		timer = new Timer();
-    		timer.schedule(this, 1000, 2100);
+    		timer.schedule(this, 1000, 100);
     		
     		nodes = new LinkedList<RouteNode>();
     		nodes.add(new RouteNode(32.234294f, -110.956807f, 0, 0));
@@ -292,6 +309,7 @@ public class ValidationActivity extends MapActivity {
 				Location location = new Location("");
 				location.setLatitude(node.getLatitude());
 				location.setLongitude(node.getLongitude());
+				location.setTime(System.currentTimeMillis());
 				listener.onLocationChanged(location);
 			}
 		}
