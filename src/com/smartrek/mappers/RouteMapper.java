@@ -1,16 +1,17 @@
 package com.smartrek.mappers;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -252,9 +253,8 @@ public final class RouteMapper extends Mapper {
 	}
 	
 	public void sendTrajectory(int uid, int rid, Trajectory trajectory) throws JSONException, ClientProtocolException, IOException {
-		//String url = String.format("%s/sendtrajectory/?seq=%d&uid=%d&rid=%d&GPSPoints=%s", host, uid, rid, points);
 		String url = String.format("%s/sendtrajectory/", host);
-		// http://50.56.81.42:8080/sendtrajectory/?seq= & uid= & rid= & GPSPoints=[[],[],[]]
+		//String url = "http://192.168.0.21:7787/";
 		// GPS Points (Lat/ Lon / Altitude (ft) / Heading / Timestamp / Speed (mph)
 		
 		HttpPost httpPost = new HttpPost(url);
@@ -263,7 +263,21 @@ public final class RouteMapper extends Mapper {
 		params.add(new BasicNameValuePair("rid", String.valueOf(rid)));
 		params.add(new BasicNameValuePair("GPSPoints", trajectory.toJSON().toString()));
 		
+		// FIXME: This is a temporary solution. Web service won't accept encoded string.
+		String entity = String.format("seq=%d&uid=%d&rid=%d&GPSPoints=%s", 0, uid, rid, trajectory.toJSON().toString());
+		
+		httpPost.setEntity(new StringEntity(entity));
+		
 		HttpClient httpClient = new DefaultHttpClient();
 		HttpResponse response = httpClient.execute(httpPost);
+		
+		StatusLine responseLine = response.getStatusLine();
+		int statusCode = responseLine.getStatusCode();
+		if (statusCode == 200) {
+			trajectory.clear();
+		}
+		else {
+			throw new IOException(String.format("HTTP %d: %s", statusCode, responseLine.getReasonPhrase()));
+		}
 	}
 }
