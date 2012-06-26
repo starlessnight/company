@@ -1,11 +1,15 @@
 package com.smartrek.mappers;
 
-import org.json.JSONException;
+import java.io.IOException;
+import java.net.URLEncoder;
 
-import com.smartrek.models.User;
+import org.json.JSONException;
 
 import smartrek.parsers.Parser;
 import android.util.Log;
+
+import com.smartrek.models.User;
+import com.smartrek.utils.HTTP;
 
 
 /****************************************************************************************************
@@ -39,5 +43,26 @@ public class UserMapper extends Mapper {
         User user = Parser.parse_User(name, login_response);
 		
 		return user;
+	}
+	
+	public void register(User user) throws IOException {
+		String url = String.format("%s/adduser/username=%s&password=%s&email=%s&firstname=%s&lastname=%s",
+				host,
+				URLEncoder.encode(user.getUsername()),
+				URLEncoder.encode(user.getPassword()),
+				URLEncoder.encode(user.getEmail()),
+				URLEncoder.encode(user.getFirstname()),
+				URLEncoder.encode(user.getLastname()));
+		
+		HTTP http = new HTTP(url);
+		http.connect();
+		
+		int responseCode = http.getResponseCode();
+		if (responseCode == 200) {
+			
+		}
+		else {
+			throw new IOException(String.format("HTTP %d: %s", responseCode, http.getResponseBody()));
+		}
 	}
 }

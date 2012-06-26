@@ -102,7 +102,7 @@ public final class LoginActivity extends Activity implements OnClickListener{
 		public void onClick(View arg0) {
 			Log.d("Login_Activity","Register New user clicked");
 			Log.d("Login_Activity","Starting Register Activity");
-			Intent intent = new Intent(context,RegisterActivity.class);
+			Intent intent = new Intent(context,UserRegistrationActivity.class);
 			startActivity(intent);
 		}
 	};
