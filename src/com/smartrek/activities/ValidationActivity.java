@@ -159,6 +159,24 @@ public class ValidationActivity extends MapActivity {
         return range;
     }
     
+    // FIXME: This function must be called asynchronously
+    private void sendTrajectory() {
+    	Log.d("ValidationActivity", "sendTrajectory()");
+    	RouteMapper mapper = new RouteMapper();
+    	try {
+			mapper.sendTrajectory(User.getCurrentUser(this).getId(), route.getId(), trajectory);
+		}
+    	catch (ClientProtocolException e) {
+			e.printStackTrace();
+		}
+    	catch (JSONException e) {
+			e.printStackTrace();
+		}
+    	catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
+    
     private synchronized void locationChanged(Location location) {
     	numberOfLocationChanges += 1;
     	
@@ -172,7 +190,7 @@ public class ValidationActivity extends MapActivity {
         nearestNode = ValidationService.getNearestNode(route.getNodes(), lat, lng);
         nearestLink = ValidationService.getNearestLink(nearestNode, lat, lng);
         
-        Log.d("ValidationActivity", "nearest node = " + nearestNode);
+        //Log.d("ValidationActivity", "nearest node = " + nearestNode);
     	
     	List<RouteNode> routeNodes = route.getNodes();
         
@@ -195,14 +213,18 @@ public class ValidationActivity extends MapActivity {
         if (distanceToLink <= params.getDistanceThreshold()) {
         	numberOfInRoute += 1;
         	overlay.setColor(Color.GREEN);
-        	Log.d("ValidationActivity", String.format("In route, score = %d/%d = %.2f", numberOfInRoute, numberOfLocationChanges, numberOfInRoute/(float)numberOfLocationChanges));
+        	//Log.d("ValidationActivity", String.format("In route, score = %d/%d = %.2f", numberOfInRoute, numberOfLocationChanges, numberOfInRoute/(float)numberOfLocationChanges));
         }
         else {
         	overlay.setColor(Color.RED);
-        	Log.d("ValidationActivity", String.format("Out of route, score = %d/%d = %.2f", numberOfInRoute, numberOfLocationChanges, numberOfInRoute/(float)numberOfLocationChanges));
+        	//Log.d("ValidationActivity", String.format("Out of route, score = %d/%d = %.2f", numberOfInRoute, numberOfLocationChanges, numberOfInRoute/(float)numberOfLocationChanges));
         }
     	
     	mapView.postInvalidate();
+    	
+    	if (trajectory.size() >= 3) {
+    		sendTrajectory();
+    	}
         
         if (route.hasArrivedAtDestination(lat, lng)) {
         	deactivateLocationService();
@@ -221,20 +243,7 @@ public class ValidationActivity extends MapActivity {
     	endTime = new Time();
     	endTime.setToNow();
     	
-    	// TODO: Should this be here?
-    	RouteMapper mapper = new RouteMapper();
-    	try {
-			mapper.sendTrajectory(User.getCurrentUser(this).getId(), route.getId(), trajectory);
-		}
-    	catch (ClientProtocolException e) {
-			e.printStackTrace();
-		}
-    	catch (JSONException e) {
-			e.printStackTrace();
-		}
-    	catch (IOException e) {
-			e.printStackTrace();
-		}
+    	sendTrajectory();
     	
     	Intent intent = new Intent(this, ValidationReportActivity.class);
     	intent.putExtra("route", route);

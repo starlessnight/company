@@ -163,6 +163,10 @@ public class Trajectory {
 		records.clear();
 	}
 	
+	public int size() {
+		return records.size();
+	}
+	
 	public JSONArray toJSON() throws JSONException {
 		JSONArray array = new JSONArray();
 		for (Record record : records) {
