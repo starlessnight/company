@@ -59,7 +59,7 @@ public class UserMapper extends Mapper {
 		
 		int responseCode = http.getResponseCode();
 		if (responseCode == 200) {
-			
+			Log.d("UserMapper", http.getResponseBody());
 		}
 		else {
 			throw new IOException(String.format("HTTP %d: %s", responseCode, http.getResponseBody()));

@@ -1,11 +1,14 @@
 package com.smartrek.activities;
 
 import java.io.IOException;
+import java.util.Stack;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.sax.TextElementListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -24,6 +27,8 @@ public class UserRegistrationActivity extends Activity {
 	private EditText editTextPassword;
 	private EditText editTextPasswordConfirm;
 	private Button buttonRegister;
+	
+	private Stack<Exception> exceptions = new Stack<Exception>();
 	
     /** Called when the activity is first created. */
     @Override
@@ -98,10 +103,46 @@ public class UserRegistrationActivity extends Activity {
 			}
 			catch (IOException e) {
 				e.printStackTrace();
+				exceptions.push(e);
 			}
 			
-			return null;
+			return user;
 		}
     	
+		@Override
+		protected void onPostExecute(Object result) {
+			if (exceptions.isEmpty()) {
+				AlertDialog dialog = new AlertDialog.Builder(UserRegistrationActivity.this).create();
+				// TODO: Text localization
+				dialog.setTitle("Info");
+				dialog.setMessage("Successfully registered.");
+				dialog.setButton("Dismiss", new DialogInterface.OnClickListener() {
+					
+					public void onClick(DialogInterface dialog, int which) {
+						UserRegistrationActivity.this.finish();
+					}
+					
+				});
+				dialog.show();
+			}
+			else {
+				while (!exceptions.isEmpty()) {
+		            Exception e = exceptions.pop();
+		            
+		            AlertDialog dialog = new AlertDialog.Builder(UserRegistrationActivity.this).create();
+		            dialog.setTitle("Exception");
+		            dialog.setMessage(e.getMessage());
+		            dialog.setButton("Dismiss", new OnClickListener() {
+
+		            	@Override
+		                public void onClick(DialogInterface dialog, int which) {
+		                    dialog.cancel();
+		                }
+		            	
+		            });
+		            dialog.show();
+		        }
+			}
+		}
     }
 }
