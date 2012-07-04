@@ -63,6 +63,10 @@ public class ValidationActivity extends MapActivity {
     
     private Trajectory trajectory = new Trajectory();
     
+    private LocationManager locationManager;
+
+    private LocationListener locationListener;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,16 +83,16 @@ public class ValidationActivity extends MapActivity {
         Log.d(getClass().toString(), String.format("route = %s", route));
         
         // Acquire a reference to the system Location Manager
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         
         // Define a listener that responds to location updates
-        LocationListener locationListener = new ValidationLocationListener();
+        locationListener = new ValidationLocationListener();
 
         // Register the listener with the Location Manager to receive location updates
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5, 25, locationListener);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 1, locationListener);
         //FakeLocationService faceLocationService = new FakeLocationService(locationListener);
-
+        
         startTime = new Time();
         startTime.setToNow();
     }
@@ -228,6 +232,8 @@ public class ValidationActivity extends MapActivity {
     }
     
     private void arriveAtDestination() {
+    	locationManager.removeUpdates(locationListener);
+    	
     	endTime = new Time();
     	endTime.setToNow();
     	
