@@ -17,6 +17,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
@@ -84,9 +85,9 @@ public class ValidationActivity extends MapActivity {
         LocationListener locationListener = new ValidationLocationListener();
 
         // Register the listener with the Location Manager to receive location updates
-        //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5, 25, locationListener);
-        //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 1, locationListener);
-        FakeLocationService faceLocationService = new FakeLocationService(locationListener);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5, 25, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 1, locationListener);
+        //FakeLocationService faceLocationService = new FakeLocationService(locationListener);
 
         startTime = new Time();
         startTime.setToNow();
@@ -161,20 +162,7 @@ public class ValidationActivity extends MapActivity {
     
     // FIXME: This function must be called asynchronously
     private void sendTrajectory() {
-    	Log.d("ValidationActivity", "sendTrajectory()");
-    	RouteMapper mapper = new RouteMapper();
-    	try {
-			mapper.sendTrajectory(User.getCurrentUser(this).getId(), route.getId(), trajectory);
-		}
-    	catch (ClientProtocolException e) {
-			e.printStackTrace();
-		}
-    	catch (JSONException e) {
-			e.printStackTrace();
-		}
-    	catch (IOException e) {
-			e.printStackTrace();
-		}
+    	new SendTrajectoryTask().execute(User.getCurrentUser(this).getId());
     }
     
     private synchronized void locationChanged(Location location) {
@@ -322,5 +310,31 @@ public class ValidationActivity extends MapActivity {
 				listener.onLocationChanged(location);
 			}
 		}
+    }
+    
+    private class SendTrajectoryTask extends AsyncTask<Object, Object, Object> {
+
+		@Override
+		protected Object doInBackground(Object... params) {
+			int uid = (Integer) params[0];
+			
+			Log.d("ValidationActivity", "sendTrajectory()");
+	    	RouteMapper mapper = new RouteMapper();
+	    	try {
+				mapper.sendTrajectory(uid, route.getId(), trajectory);
+			}
+	    	catch (ClientProtocolException e) {
+				e.printStackTrace();
+			}
+	    	catch (JSONException e) {
+				e.printStackTrace();
+			}
+	    	catch (IOException e) {
+				e.printStackTrace();
+			}
+	    	
+			return null;
+		}
+    	
     }
 }
