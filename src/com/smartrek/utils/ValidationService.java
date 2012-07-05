@@ -29,9 +29,7 @@ public final class ValidationService {
     	if (prevNode != null && nextNode != null) {
     		RouteLink prevLink = new RouteLink(node.getPrevNode(), node);
     		RouteLink nextLink = new RouteLink(node, node.getNextNode()); 
-    		
-    		//float distanceToPrev = prevNode.distanceTo(lat, lng);
-    		//float distanceToNext = nextNode.distanceTo(lat, lng);
+
     		float distanceToPrev = prevLink.distanceTo(lat, lng);
     		float distanceToNext = nextLink.distanceTo(lat, lng);
     		
