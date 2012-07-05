@@ -89,8 +89,8 @@ public class ValidationActivity extends MapActivity {
         locationListener = new ValidationLocationListener();
 
         // Register the listener with the Location Manager to receive location updates
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 5, 25, locationListener);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5, 1, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 25, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 10, locationListener);
         //FakeLocationService faceLocationService = new FakeLocationService(locationListener);
         
         startTime = new Time();

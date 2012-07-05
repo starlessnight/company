@@ -97,7 +97,6 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 
 		mc.animateTo(currentFocussedItem.getPoint());
 		if(enabled) {
-			couponLayout.setCoupons(route.getAllCoupons());
 			couponLayout.setVisibility(View.VISIBLE);
 			titleBar.setVisibility(View.VISIBLE);
 			

@@ -93,11 +93,12 @@ public final class RouteMapper extends Mapper {
 	 * @throws IOException 
 	 */
 	public List<Route> getPossibleRoutes(GeoPoint origin, GeoPoint destination, Time time) throws JSONException, IOException {
-		
+		/*
 		String routeurl = String.format("%s/getroutes/startlat=%f%%20startlon=%f%%20endlat=%f%%20endlon=%f%%20departtime=%d:%02d",
 				host, origin.getLatitudeE6()/1.0E6, origin.getLongitudeE6()/1.0E6, destination.getLatitudeE6()/1.0E6, destination.getLongitudeE6()/1.0E6,
 				time.hour, time.minute);
-		//String routeurl = "http://50.56.81.42:8080/getroutesTucson/fake";
+		*/
+		String routeurl = "http://50.56.81.42:8080/getroutesTucson/fake";
 		
 		Log.d("RouteMapper", routeurl);
 		
@@ -156,7 +157,6 @@ public final class RouteMapper extends Mapper {
 		pairs.add(new BasicNameValuePair("END_DATETIME", route.timeToString()));
 
 		pairs.add(new BasicNameValuePair("UID", route.getUserId() + ""));
-		pairs.add(new BasicNameValuePair("DID", route.getDiscount().getDid() + ""));
 		pairs.add(new BasicNameValuePair("RID", route.getId() + ""));
 
 		pairs.add(new BasicNameValuePair("VALIDATED_FLAG", "0"));
@@ -243,7 +243,6 @@ public final class RouteMapper extends Mapper {
 		Log.d("Route_Communicator", "START_DATETIME = " + route.timeToString());
 		Log.d("Route_Communicator", "END_DATETIME = " +  route.timeToString());
 		Log.d("Route_Communicator", "UID = " + route.getUserId());
-		Log.d("Route_Communicator", "DID = " + route.getDiscount().getDid());
 		Log.d("Route_Communicator", "RID = " + route.getId() + "");
 		Log.d("Route_Communicator", "VALIDATED_FLAG = 0");
 		Log.d("Route_Communicator", "ORIGIN_ADDRESS = "+ route.getOrigin() );

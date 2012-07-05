@@ -21,8 +21,6 @@ import com.smartrek.utils.ValidationParameters;
  ****************************************************************************************************/
 public final class Route implements Parcelable {
 
-	private Coupon cp;
-	private ArrayList<Coupon> coupons;
 	private String origin;
 	private String destination;
 	private List<RouteNode> routeNodes = new ArrayList<RouteNode>();
@@ -76,7 +74,6 @@ public final class Route implements Parcelable {
 	 *
 	 *****************************************************************************************/
 	public Route (Bundle bundle) {
-		this.cp = new Coupon(bundle);
 		this.origin = bundle.getString("origin");
 		this.destination = bundle.getString("destination");
 		this.uid = bundle.getInt("uid");
@@ -84,39 +81,6 @@ public final class Route implements Parcelable {
 		this.rid = bundle.getInt("rid");
 		this.validated = bundle.getInt("validated");
 		this.departureTime = getTimeFromBundle(bundle);
-	}
-	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/
-	public Coupon getDiscount(){
-		return cp;
-	}
-	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/
-	public void setCoupon(Coupon coupon){
-		this.cp = coupon;
-	}
-	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/
-	public void setAllCoupons(ArrayList<Coupon> coupons) {
-		this.coupons = coupons;
-		this.cp = coupons.get(0);
-	}
-	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/
-	public ArrayList<Coupon> getAllCoupons() {
-		return coupons;
 	}
 	
 	/*****************************************************************************************
@@ -198,8 +162,6 @@ public final class Route implements Parcelable {
 		if(departureTime != null) {
 			str += "Time = " + timeToString() + "\n";
 		}
-		if(cp != null)
-			str += cp.toString();
 		return str;
 	}
 	
@@ -309,14 +271,12 @@ public final class Route implements Parcelable {
 		bundle.putString("time", timeToString());
 		bundle.putInt("uid", uid);
 		bundle.putFloat("rid", rid);
-		bundle.putInt("did", cp.getDid());
 		bundle.putInt("validated", validated);
 		
 		bundle.putString("time", timeToString());
 //		bundle.putInt("valid_month", valid_date.getMonth());
 //		bundle.putInt("valid_year", valid_date.getYear());
 		
-		cp.putOntoBundle(bundle);
 		putRouteNodeListOnToBundle(bundle);
 		
 	}

@@ -58,8 +58,6 @@ public class CouponLayout extends LinearLayout implements OnLongClickListener {
 	 *********************************************************************************************************/
 	public void setRoutes(List<Route> routes){
 		this.routes = routes;
-		Log.d("CouponLayout","Setting " + routes.get(0).getAllCoupons().size() + " Coupons into Coupon Layout");
-		setCoupons(routes.get(0).getAllCoupons());
 	}
 	
 	/*********************************************************************************************************
@@ -95,10 +93,6 @@ public class CouponLayout extends LinearLayout implements OnLongClickListener {
 				((CouponButton) getChildAt(i)).setA(120);
 			}
 			couponButton.setA(255);
-			
-			for (int i = 0; i < routes.size(); i++) {
-				routes.get(i).setCoupon(coupons.get(v.getId()));
-			}
 		}
 		return false;
 	}
