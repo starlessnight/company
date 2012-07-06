@@ -77,5 +77,12 @@ public class ValidationReportActivity extends ExceptionSafeActivity {
 			return null;
 		}
 		
+		@Override
+		protected void onPostExecute(Object result) {
+		    if (!exceptions.isEmpty()) {
+		        reportExceptions();
+		    }
+		}
+		
 	}
 }
