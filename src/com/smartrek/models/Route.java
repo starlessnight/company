@@ -95,9 +95,9 @@ public final class Route implements Parcelable {
 	 * 
 	 *
 	 *****************************************************************************************/
-	public void setOD(String loc1, String loc2) {
-		this.origin = loc1;
-		this.destination = loc2;
+	public void setAddresses(String origin, String destination) {
+		this.origin = origin;
+		this.destination = destination;
 	}
 	
 	public String getOrigin(){

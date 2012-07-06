@@ -293,7 +293,7 @@ public final class RouteActivity extends MapActivity {
         }
         
         /* Set values into route to be passed to next Activity */
-        route.setOD(originAddr, destAddr);
+        route.setAddresses(originAddr, destAddr);
         
         // FIXME:
         route.setUserId(User.getCurrentUser(this).getId());
