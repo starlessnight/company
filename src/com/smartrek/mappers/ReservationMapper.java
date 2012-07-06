@@ -45,7 +45,7 @@ public final class ReservationMapper extends Mapper {
 		return reservations;
 	}
 	
-	public void reserveRoute(Route route) throws IOException {
+	public void reserveRoute(Route route) throws IOException, JSONException {
 		// TODO: Better way to handle this?
 		StringBuffer buf = new StringBuffer();
 		buf.append("[");
@@ -58,11 +58,11 @@ public final class ReservationMapper extends Mapper {
 		buf.deleteCharAt(buf.length()-1);
 		buf.append("]");
 		
-		String url = String.format("%s/addreservations/?rid=%d&credits=%d&uid=%d&start_datetime=%s&end_datetime=%s&origin_address=%s&destination_address=%s&route=%s",
+		String url = String.format("%s/addreservations/?rid=%d&credits=%d&uid=%d&start_datetime=%s&estimatedTT=%d&origin_address=%s&destination_address=%s&route=%s",
 				host,
 				route.getId(), route.getCredits(), route.getUserId(),
 				URLEncoder.encode(route.getDepartureTime().format("%Y-%m-%d %T")),
-				URLEncoder.encode(route.getArrivalTime().format("%Y-%m-%d %T")),
+				route.getDuration(),
 				URLEncoder.encode(route.getOrigin()),
 				URLEncoder.encode(route.getDestination()),
 				URLEncoder.encode(new String(buf)));
@@ -73,11 +73,23 @@ public final class ReservationMapper extends Mapper {
 		http.connect();
 		
 		int responseCode = http.getResponseCode();
+		String responseBody = http.getResponseBody();
 		if (responseCode == 200) {
-			Log.d("ReservationMapper", "reserveRoute: HTTP response: " + http.getResponseBody());
+			Log.d("ReservationMapper", "reserveRoute: HTTP response: " + responseBody);
+			
+			// FIXME: This won't be necessary as long as server returns sensible HTTP status code
+			if (responseBody.startsWith("[") && responseBody.endsWith("]")) {
+			    JSONObject obj = new JSONObject(responseBody.substring(1, responseBody.length()-1));
+			    String status = obj.getString("STATUS");
+			    
+			    if (status.equals("fail")) {
+			        throw new IOException("Server side error (db989d9f)");
+			    }
+			}
+			
 		}
 		else {
-			throw new IOException(String.format("HTTP %d - %s", responseCode, http.getResponseBody()));
+			throw new IOException(String.format("HTTP %d - %s", responseCode, responseBody));
 		}
 		
 	}
