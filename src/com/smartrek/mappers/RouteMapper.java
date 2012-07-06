@@ -57,6 +57,22 @@ public final class RouteMapper extends Mapper {
 		}
 	}
 	
+	public static List<RouteNode> buildRouteNodes(JSONArray array) throws JSONException {
+	    List<RouteNode> nodes = new ArrayList<RouteNode>();
+	    
+	    for (int i = 0; i < array.length(); i++) {
+	        JSONObject obj = (JSONObject) array.get(i);
+	        float latitude = (float) obj.getDouble("LATITUDE");
+	        float longitude = (float) obj.getDouble("LONGITUDE");
+	        int nodeId = obj.getInt("NODEID");
+	        RouteNode node = new RouteNode(latitude, longitude, 0, nodeId);
+	        
+	        nodes.add(node);
+	    }
+	    
+	    return nodes;
+	}
+	
 	public Route parseRoute(JSONObject routeObject, Time departureTime) throws JSONException, IOException {
 	    JSONArray rts = (JSONArray) routeObject.get("ROUTE");
 	    

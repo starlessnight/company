@@ -3,6 +3,7 @@ package com.smartrek.models;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,6 +20,8 @@ public final class Reservation implements Parcelable {
 	 * Reservation ID
 	 */
 	private int rid;
+	
+	private Route route;
 	
 	private Time departureTime;
 	
@@ -51,6 +54,7 @@ public final class Reservation implements Parcelable {
 	
 	private Reservation(Parcel in) {
 		rid = in.readInt();
+		route = in.readParcelable(Route.class.getClassLoader());
 		departureTime = new Time();
 		departureTime.parse(in.readString());
 		arrivalTime = new Time();
@@ -69,7 +73,15 @@ public final class Reservation implements Parcelable {
 		this.rid = rid;
 	}
 
-	public Time getDepartureTime() {
+	public Route getRoute() {
+        return route;
+    }
+
+    public void setRoute(Route route) {
+        this.route = route;
+    }
+
+    public Time getDepartureTime() {
 		return departureTime;
 	}
 
@@ -144,6 +156,16 @@ public final class Reservation implements Parcelable {
 		r.setCredits(object.getInt("CREDITS"));
 		r.setValidatedFlag(object.getInt("VALIDATED_FLAG"));
 		
+        Route route = new Route();
+        route.setId(r.getRid());
+        route.setOrigin(r.getOriginAddress());
+        route.setDestination(r.getDestinationAddress());
+        route.setDepartureTime(r.getDepartureTime());
+        route.setCredits(r.getCredits());
+        route.setNodes(object.getJSONArray("ROUTE"));
+        
+        r.setRoute(route);
+		
 		return r;
 	}
 
@@ -156,6 +178,7 @@ public final class Reservation implements Parcelable {
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeInt(rid);
+		dest.writeParcelable(route, 0);
 		dest.writeString(departureTime.format2445());
 		dest.writeString(arrivalTime.format2445());
 		dest.writeString(originAddress);

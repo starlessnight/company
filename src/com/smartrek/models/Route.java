@@ -3,6 +3,9 @@ package com.smartrek.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -10,6 +13,7 @@ import android.text.format.Time;
 import android.util.Log;
 
 import com.google.android.maps.GeoPoint;
+import com.smartrek.mappers.RouteMapper;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.ValidationParameters;
 
@@ -41,6 +45,10 @@ public final class Route implements Parcelable {
 			return new Route[size];
 		}
 	};
+	
+	public Route() {
+	    
+	}
 
 	private Route(Parcel in) {
 		origin = in.readString();
@@ -92,20 +100,20 @@ public final class Route implements Parcelable {
 		this.destination = loc2;
 	}
 	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/
 	public String getOrigin(){
 		return origin;
 	}
 	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/
+	public void setOrigin(String origin) {
+	    this.origin = origin;
+	}
+	
 	public String getDestination(){
 		return destination;
+	}
+	
+	public void setDestination(String destination) {
+	    this.destination = destination;
 	}
 	
 	/*****************************************************************************************
@@ -132,12 +140,16 @@ public final class Route implements Parcelable {
 		return routeNodes;
 	}
 	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/
+	public void setNodes(JSONArray nodes) throws JSONException {
+	    routeNodes = RouteMapper.buildRouteNodes(nodes);
+	}
+	
 	public int getId(){
 		return rid;
+	}
+	
+	public void setId(int rid) {
+	    this.rid = rid;
 	}
 	
 	/*****************************************************************************************

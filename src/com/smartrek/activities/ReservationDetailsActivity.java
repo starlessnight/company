@@ -59,7 +59,7 @@ public final class ReservationDetailsActivity extends Activity {
             @Override
             public void onClick(View arg0) {
                 Intent intent = new Intent(ReservationDetailsActivity.this, ValidationActivity.class);
-                intent.putExtra("route", reservation);
+                intent.putExtra("route", reservation.getRoute());
                 startActivity(intent);
             }
             
