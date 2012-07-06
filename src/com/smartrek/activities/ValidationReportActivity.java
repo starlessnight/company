@@ -1,12 +1,17 @@
 package com.smartrek.activities;
 
+import java.io.IOException;
+
 import android.app.Activity;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.widget.TextView;
 
+import com.smartrek.mappers.ReservationMapper;
 import com.smartrek.models.Route;
+import com.smartrek.models.User;
 import com.smartrek.utils.ValidationParameters;
 
 public class ValidationReportActivity extends Activity {
@@ -40,6 +45,10 @@ public class ValidationReportActivity extends Activity {
         ValidationParameters params = ValidationParameters.getInstance();
         boolean validated = score >= params.getScoreThreshold();
         
+        if (validated) {
+        	new ValidationReportTask().execute(User.getCurrentUser(this).getId(), route.getId());
+        }
+        
         textViewScore = (TextView) findViewById(R.id.textViewValidationScore);
         textViewScore.setText(String.format("%d/%d = %.01f%%", numberOfInRoute, numberOfLocationChanges, score*100));
         textViewScore.setTextColor(validated ? Color.GREEN : Color.RED);
@@ -50,5 +59,24 @@ public class ValidationReportActivity extends Activity {
         
         textViewPoints = (TextView) findViewById(R.id.textViewPoints);
         textViewPoints.setText(String.format("%d", validated ? route.getCredits() : 0));
+	}
+	
+	private class ValidationReportTask extends AsyncTask<Object, Object, Object> {
+
+		@Override
+		protected Object doInBackground(Object... params) {
+			int uid = (Integer) params[0];
+			int rid = (Integer) params[1];
+			
+			ReservationMapper mapper = new ReservationMapper();
+			try {
+				mapper.reportValidation(uid, rid);
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+		
 	}
 }

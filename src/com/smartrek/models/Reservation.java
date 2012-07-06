@@ -38,6 +38,9 @@ public final class Reservation implements Parcelable {
 	
 	private int validatedFlag;
 	
+	public static int COMPLETED = 0x0001;
+	public static int VALIDATED = 0x0002;
+	
 	public static final Parcelable.Creator<Reservation> CREATOR = new Parcelable.Creator<Reservation>() {
 		public Reservation createFromParcel(Parcel in) {
 			return new Reservation(in);

@@ -67,19 +67,34 @@ public final class ReservationMapper extends Mapper {
 				URLEncoder.encode(route.getDestination()),
 				URLEncoder.encode(new String(buf)));
 		
-		Log.d("ReservationMapper", url);
+		Log.d("ReservationMapper", "reserveRoute: " + url);
 		
 		HTTP http = new HTTP(url);
 		http.connect();
 		
 		int responseCode = http.getResponseCode();
 		if (responseCode == 200) {
-			Log.d("ReservationMapper", "HTTP response: " + http.getResponseBody());
+			Log.d("ReservationMapper", "reserveRoute: HTTP response: " + http.getResponseBody());
 		}
 		else {
 			throw new IOException(String.format("HTTP %d - %s", responseCode, http.getResponseBody()));
 		}
 		
+	}
+	
+	public void reportValidation(int uid, int rid) throws IOException {
+		String url = String.format("%s/validationdone/?uid=%d&rid=%d", host, uid, rid);
+		
+		HTTP http = new HTTP(url);
+		http.connect();
+		
+		int responseCode = http.getResponseCode();
+		if (responseCode == 200) {
+			Log.d("ReservationMapper", "finishValidation: HTTP response: " + http.getResponseBody());
+		}
+		else {
+			throw new IOException(String.format("HTTP %d - %s", responseCode, http.getResponseBody()));
+		}
 	}
 
 }
