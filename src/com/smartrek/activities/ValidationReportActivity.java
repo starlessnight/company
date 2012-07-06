@@ -2,7 +2,6 @@ package com.smartrek.activities;
 
 import java.io.IOException;
 
-import android.app.Activity;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,7 +13,7 @@ import com.smartrek.models.Route;
 import com.smartrek.models.User;
 import com.smartrek.utils.ValidationParameters;
 
-public class ValidationReportActivity extends Activity {
+public class ValidationReportActivity extends ExceptionSafeActivity {
 	private Route route;
 	
 	private int numberOfLocationChanges;
@@ -73,7 +72,7 @@ public class ValidationReportActivity extends Activity {
 				mapper.reportValidation(uid, rid);
 			}
 			catch (IOException e) {
-				e.printStackTrace();
+				registerException(e);
 			}
 			return null;
 		}

@@ -5,11 +5,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -26,18 +23,16 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.smartrek.mappers.Mapper;
 import com.smartrek.mappers.ReservationMapper;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
 import com.smartrek.ui.MainMenu;
-import com.smartrek.utils.HTTP;
 
 /**
  * Shows a list of reserved routes
  *
  */
-public final class ReservationListActivity extends Activity {
+public final class ReservationListActivity extends ExceptionSafeActivity {
 	
 	private List<Reservation> reservations;
 	
@@ -94,14 +89,14 @@ public final class ReservationListActivity extends Activity {
 			try {
                 reservations = mapper.getReservations(uid);
             }
-            catch (IOException e1) {
-                e1.printStackTrace();
+            catch (IOException e) {
+                registerException(e);
             }
-            catch (JSONException e1) {
-                e1.printStackTrace();
+            catch (JSONException e) {
+                registerException(e);
             }
-            catch (ParseException e1) {
-                e1.printStackTrace();
+            catch (ParseException e) {
+                registerException(e);
             }
 			
 			return null;
@@ -109,7 +104,12 @@ public final class ReservationListActivity extends Activity {
 		
 		@Override
 		protected void onPostExecute(String result) {
-			listViewReservation.setAdapter(new ReservationItemAdapter(ReservationListActivity.this, R.layout.reservation_list_item, reservations));
+		    if (exceptions.isEmpty()) {
+		        listViewReservation.setAdapter(new ReservationItemAdapter(ReservationListActivity.this, R.layout.reservation_list_item, reservations));
+		    }
+		    else {
+		        reportExceptions();
+		    }
 	    }
 	}
 	

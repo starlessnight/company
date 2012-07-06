@@ -3,6 +3,8 @@ package com.smartrek.activities;
 import java.io.IOException;
 import java.util.Stack;
 
+import org.json.JSONException;
+
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
@@ -126,6 +128,10 @@ public final class ReservationConfirmationActivity extends Activity {
 				e.printStackTrace();
 				exceptions.push(e);
 			}
+            catch (JSONException e) {
+                e.printStackTrace();
+                exceptions.push(e);
+            }
 			
 			return null;
 		}

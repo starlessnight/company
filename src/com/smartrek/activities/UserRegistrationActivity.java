@@ -3,10 +3,8 @@ package com.smartrek.activities;
 import java.io.IOException;
 import java.util.Stack;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.MotionEvent;
@@ -18,7 +16,7 @@ import android.widget.EditText;
 import com.smartrek.mappers.UserMapper;
 import com.smartrek.models.User;
 
-public class UserRegistrationActivity extends Activity {
+public class UserRegistrationActivity extends ExceptionSafeActivity {
 	
 	private EditText editTextUsername;
 	private EditText editTextFirstname;
@@ -102,8 +100,7 @@ public class UserRegistrationActivity extends Activity {
 				mapper.register(user);
 			}
 			catch (IOException e) {
-				e.printStackTrace();
-				exceptions.push(e);
+				registerException(e);
 			}
 			
 			return user;
@@ -126,22 +123,7 @@ public class UserRegistrationActivity extends Activity {
 				dialog.show();
 			}
 			else {
-				while (!exceptions.isEmpty()) {
-		            Exception e = exceptions.pop();
-		            
-		            AlertDialog dialog = new AlertDialog.Builder(UserRegistrationActivity.this).create();
-		            dialog.setTitle("Exception");
-		            dialog.setMessage(e.getMessage());
-		            dialog.setButton("Dismiss", new OnClickListener() {
-
-		            	@Override
-		                public void onClick(DialogInterface dialog, int which) {
-		                    dialog.cancel();
-		                }
-		            	
-		            });
-		            dialog.show();
-		        }
+				reportExceptions();
 			}
 		}
     }

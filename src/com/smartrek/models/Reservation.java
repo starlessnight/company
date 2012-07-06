@@ -3,7 +3,6 @@ package com.smartrek.models;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,7 +25,13 @@ public final class Reservation implements Parcelable {
 	private Time departureTime;
 	
 	/**
+	 * Estimated travel time
+	 */
+	private int duration;
+	
+	/**
 	 * Estimated arrival time
+	 * @deprecated
 	 */
 	private Time arrivalTime;
 	
@@ -60,8 +65,7 @@ public final class Reservation implements Parcelable {
 		route = in.readParcelable(Route.class.getClassLoader());
 		departureTime = new Time();
 		departureTime.parse(in.readString());
-		arrivalTime = new Time();
-		arrivalTime.parse(in.readString());
+		duration = in.readInt();
 		originAddress = in.readString();
 		destinationAddress = in.readString();
 		credits = in.readInt();
@@ -92,12 +96,19 @@ public final class Reservation implements Parcelable {
 		this.departureTime = departureTime;
 	}
 
-	public Time getArrivalTime() {
-		return arrivalTime;
-	}
+	public int getDuration() {
+        return duration;
+    }
 
-	public void setArrivalTime(Time arrivalTime) {
-		this.arrivalTime = arrivalTime;
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public Time getArrivalTime() {
+        Time time = new Time();
+        time.set(departureTime.toMillis(false) + duration*1000);
+        
+		return time;
 	}
 
 	public String getOriginAddress() {
@@ -150,9 +161,8 @@ public final class Reservation implements Parcelable {
 		departureTime.set(dateFormat.parse(object.getString("START_TIME")).getTime());
 		r.setDepartureTime(departureTime);
 
-		Time arrivalTime = new Time();
-		arrivalTime.set(dateFormat.parse(object.getString("END_TIME")).getTime());
-		r.setArrivalTime(arrivalTime);
+		// travel duration
+		r.setDuration(object.getInt("END_TIME"));
 		
 		r.setOriginAddress(object.getString("ORIGIN_ADDRESS"));
 		r.setDestinationAddress(object.getString("DESTINATION_ADDRESS"));
@@ -183,7 +193,7 @@ public final class Reservation implements Parcelable {
 		dest.writeInt(rid);
 		dest.writeParcelable(route, 0);
 		dest.writeString(departureTime.format2445());
-		dest.writeString(arrivalTime.format2445());
+		dest.writeInt(duration);
 		dest.writeString(originAddress);
 		dest.writeString(destinationAddress);
 		dest.writeInt(credits);

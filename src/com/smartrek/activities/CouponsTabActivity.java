@@ -8,10 +8,6 @@ import java.util.Stack;
 
 import org.json.JSONException;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -37,7 +33,7 @@ import com.smartrek.ui.MainMenu;
  * Holds three tabs (all, received, sent coupons)
  *
  */
-public final class CouponsTabActivity extends Activity {
+public final class CouponsTabActivity extends ExceptionSafeActivity {
 	
 	public static final String TAB1 = "Tab1";
 	public static final String TAB2 = "Tab2";
@@ -195,44 +191,27 @@ public final class CouponsTabActivity extends Activity {
 	            }
 			}
 			catch (ConnectException e) {
-				e.printStackTrace();
-				exceptions.push(e);
+				registerException(e);
 			}
 			catch (IOException e) {
-				e.printStackTrace();
-				exceptions.push(e);
+			    registerException(e);
 			}
 			catch (JSONException e) {
-				e.printStackTrace();
-				exceptions.push(e);
+			    registerException(e);
 			}
 			catch (ParseException e) {
-				e.printStackTrace();
-				exceptions.push(e);
+			    registerException(e);
 			}
         	
             return coupons;
         }       
         
 		protected void onPostExecute(List<Coupon> coupons) {
-			if(!exceptions.isEmpty()) {
-				while(!exceptions.isEmpty()) {
-					Exception e = exceptions.pop();
-					
-		            AlertDialog dialog = new AlertDialog.Builder(CouponsTabActivity.this).create();
-		            dialog.setTitle(e.getClass().toString());
-		            dialog.setMessage(e.getMessage());
-		            dialog.setButton("Dismiss", new OnClickListener() {
-		                @Override
-		                public void onClick(DialogInterface dialog, int which) {
-		                    dialog.cancel();
-		                }
-		            });
-		            dialog.show();
-				}
+			if(exceptions.isEmpty()) {
+				listView.setAdapter(new CouponAdapter(CouponsTabActivity.this, coupons));
 			}
 			else {
-				listView.setAdapter(new CouponAdapter(CouponsTabActivity.this, coupons));
+			    reportExceptions();
 			}
 		}
     }
