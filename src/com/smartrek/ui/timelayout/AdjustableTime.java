@@ -44,7 +44,7 @@ public class AdjustableTime extends Time {
 				hour += 1;
 			}
 		}
-		this.set(this.second, minute, hour, this.monthDay, this.month, this.year);
+		this.set(0, minute, hour, this.monthDay, this.month, this.year);
 	}
 
 	/*********************************************************************************************************
