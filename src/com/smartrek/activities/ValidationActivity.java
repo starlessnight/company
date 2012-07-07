@@ -97,16 +97,16 @@ public class ValidationActivity extends MapActivity {
         locationListener = new ValidationLocationListener();
 
         // Register the listener with the Location Manager to receive location updates
-        //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 25, locationListener);
-        //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 10, locationListener);
-        FakeLocationService faceLocationService = new FakeLocationService(locationListener);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 10, locationListener);
+        //FakeLocationService faceLocationService = new FakeLocationService(locationListener);
 
         startTime = new Time();
         startTime.setToNow();
         
         validationTimeoutNotifier = new ValidationTimeoutNotifier();
         validationTimeoutHandler = new Handler();
-        validationTimeoutHandler.postDelayed(validationTimeoutNotifier, 5000);
+        validationTimeoutHandler.postDelayed(validationTimeoutNotifier, 5000000);
     }
 
     @Override
@@ -176,8 +176,10 @@ public class ValidationActivity extends MapActivity {
         return range;
     }
     
+    private int seq = 1;
+    
     private void sendTrajectory() {
-    	new SendTrajectoryTask().execute(User.getCurrentUser(this).getId());
+        new SendTrajectoryTask().execute(seq++, User.getCurrentUser(this).getId());
     }
     
     private synchronized void locationChanged(Location location) {
@@ -337,14 +339,16 @@ public class ValidationActivity extends MapActivity {
     
     private class SendTrajectoryTask extends AsyncTask<Object, Object, Object> {
 
+        private RouteMapper mapper = new RouteMapper();
+        
 		@Override
 		protected Object doInBackground(Object... params) {
-			int uid = (Integer) params[0];
+		    int seq = (Integer) params[0];
+			int uid = (Integer) params[1];
 			
 			Log.d("ValidationActivity", "sendTrajectory()");
-	    	RouteMapper mapper = new RouteMapper();
 	    	try {
-				mapper.sendTrajectory(uid, route.getId(), trajectory);
+				mapper.sendTrajectory(seq, uid, route.getId(), trajectory);
 			}
 	    	catch (ClientProtocolException e) {
 				ehs.registerException(e);

@@ -264,8 +264,9 @@ public final class RouteMapper extends Mapper {
 		Log.d("Route_Communicator", "ORIGIN_ADDRESS = "+ route.getOrigin() );
 		Log.d("Route_Communicator", "DESTINATION_ADRESS = " + route.getDestination() );
 	}
-	
-	public void sendTrajectory(int uid, int rid, Trajectory trajectory) throws JSONException, ClientProtocolException, IOException {
+
+	public void sendTrajectory(int seq, int uid, int rid, Trajectory trajectory) throws JSONException, ClientProtocolException, IOException {
+  
 		String url = String.format("%s/sendtrajectory/", host);
 		//String url = "http://192.168.0.21:7787/";
 		// GPS Points (Lat/ Lon / Altitude (ft) / Heading / Timestamp / Speed (mph)
@@ -277,7 +278,7 @@ public final class RouteMapper extends Mapper {
 		params.add(new BasicNameValuePair("GPSPoints", trajectory.toJSON().toString()));
 		
 		// FIXME: This is a temporary solution. Web service won't accept encoded string.
-		String entity = String.format("seq=%d&uid=%d&rid=%d&GPSPoints=%s", 0, uid, rid, trajectory.toJSON().toString());
+		String entity = String.format("seq=%d&uid=%d&rid=%d&GPSPoints=%s", seq, uid, rid, trajectory.toJSON().toString());
 		
 		httpPost.setEntity(new StringEntity(entity));
 		
