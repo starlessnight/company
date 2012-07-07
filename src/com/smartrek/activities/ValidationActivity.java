@@ -106,7 +106,7 @@ public class ValidationActivity extends MapActivity {
         
         validationTimeoutNotifier = new ValidationTimeoutNotifier();
         validationTimeoutHandler = new Handler();
-        validationTimeoutHandler.postDelayed(validationTimeoutNotifier, 5000000);
+        validationTimeoutHandler.postDelayed(validationTimeoutNotifier, route.getDuration() * 3 * 1000);
     }
 
     @Override
