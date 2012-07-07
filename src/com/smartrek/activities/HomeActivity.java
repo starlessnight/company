@@ -44,6 +44,7 @@ import com.smartrek.tasks.GeocodingTask;
 import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.MainMenu;
+import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.LocationService;
 import com.smartrek.utils.LocationService.LocationServiceListener;
 
@@ -68,6 +69,8 @@ import com.smartrek.utils.LocationService.LocationServiceListener;
  * 
  ****************************************************************************************************************/
 public final class HomeActivity extends Activity implements OnClickListener, OnTouchListener {
+    
+    private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
 	private RelativeLayout RL;
 	private RelativeLayout section1;

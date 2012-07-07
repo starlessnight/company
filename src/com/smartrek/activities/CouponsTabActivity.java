@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.text.ParseException;
 import java.util.List;
-import java.util.Stack;
 
 import org.json.JSONException;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -28,12 +28,15 @@ import com.smartrek.mappers.CouponMapper;
 import com.smartrek.models.Coupon;
 import com.smartrek.models.User;
 import com.smartrek.ui.MainMenu;
+import com.smartrek.utils.ExceptionHandlingService;
 
 /**
  * Holds three tabs (all, received, sent coupons)
  *
  */
-public final class CouponsTabActivity extends ExceptionSafeActivity {
+public final class CouponsTabActivity extends Activity {
+    
+    private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
 	public static final String TAB1 = "Tab1";
 	public static final String TAB2 = "Tab2";
@@ -46,8 +49,6 @@ public final class CouponsTabActivity extends ExceptionSafeActivity {
 	private List<Coupon> couponsAll;
 	private List<Coupon> couponsReceived;
 	private List<Coupon> couponsSent;
-	
-	private Stack<Exception> exceptions = new Stack<Exception>();
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -191,27 +192,28 @@ public final class CouponsTabActivity extends ExceptionSafeActivity {
 	            }
 			}
 			catch (ConnectException e) {
-				registerException(e);
+				ehs.registerException(e);
 			}
 			catch (IOException e) {
-			    registerException(e);
+			    ehs.registerException(e);
 			}
 			catch (JSONException e) {
-			    registerException(e);
+			    ehs.registerException(e);
 			}
 			catch (ParseException e) {
-			    registerException(e);
+			    ehs.registerException(e);
 			}
         	
             return coupons;
         }       
         
+    	@Override
 		protected void onPostExecute(List<Coupon> coupons) {
-			if(exceptions.isEmpty()) {
+		    if (ehs.hasExceptions()) {
+		        ehs.reportExceptions();
+		    }
+		    else {
 				listView.setAdapter(new CouponAdapter(CouponsTabActivity.this, coupons));
-			}
-			else {
-			    reportExceptions();
 			}
 		}
     }

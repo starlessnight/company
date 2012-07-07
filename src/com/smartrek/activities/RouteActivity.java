@@ -40,6 +40,7 @@ import com.smartrek.ui.timelayout.TimeColumn;
 import com.smartrek.ui.timelayout.TimeLayout;
 import com.smartrek.ui.timelayout.TimeLayout.TimeLayoutListener;
 import com.smartrek.ui.timelayout.TimeLayout.TimeLayoutOnSelectListener;
+import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.RouteNode;
 
 /**
@@ -49,6 +50,8 @@ import com.smartrek.utils.RouteNode;
 public final class RouteActivity extends MapActivity {
     
     public static final int DIALOG_ROUTE_NOT_FOUND = 1;
+    
+    private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
     // FIXME: Fixed number of overlays...
     private RouteOverlay routeoverlay1;

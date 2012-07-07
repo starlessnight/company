@@ -12,6 +12,7 @@ import com.google.android.maps.Overlay;
 import com.smartrek.models.Route;
 import com.smartrek.overlays.RouteOverlay;
 import com.smartrek.overlays.RouteSegmentOverlay;
+import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.RouteNode;
 
 /******************************************************************************************************************
@@ -20,6 +21,8 @@ import com.smartrek.utils.RouteNode;
  *
  ******************************************************************************************************************/
 public class ConfirmedMapActivity extends MapActivity {
+    
+    private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 
 	private Route route;
 	

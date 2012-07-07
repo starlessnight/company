@@ -1,8 +1,8 @@
 package com.smartrek.activities;
 
 import java.io.IOException;
-import java.util.Stack;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
@@ -15,8 +15,11 @@ import android.widget.EditText;
 
 import com.smartrek.mappers.UserMapper;
 import com.smartrek.models.User;
+import com.smartrek.utils.ExceptionHandlingService;
 
-public class UserRegistrationActivity extends ExceptionSafeActivity {
+public final class UserRegistrationActivity extends Activity {
+    
+    private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
 	private EditText editTextUsername;
 	private EditText editTextFirstname;
@@ -25,8 +28,6 @@ public class UserRegistrationActivity extends ExceptionSafeActivity {
 	private EditText editTextPassword;
 	private EditText editTextPasswordConfirm;
 	private Button buttonRegister;
-	
-	private Stack<Exception> exceptions = new Stack<Exception>();
 	
     /** Called when the activity is first created. */
     @Override
@@ -100,7 +101,7 @@ public class UserRegistrationActivity extends ExceptionSafeActivity {
 				mapper.register(user);
 			}
 			catch (IOException e) {
-				registerException(e);
+				ehs.registerException(e);
 			}
 			
 			return user;
@@ -108,7 +109,10 @@ public class UserRegistrationActivity extends ExceptionSafeActivity {
     	
 		@Override
 		protected void onPostExecute(Object result) {
-			if (exceptions.isEmpty()) {
+		    if (ehs.hasExceptions()) {
+		        ehs.reportExceptions();
+		    }
+		    else {
 				AlertDialog dialog = new AlertDialog.Builder(UserRegistrationActivity.this).create();
 				// TODO: Text localization
 				dialog.setTitle("Info");
@@ -121,9 +125,6 @@ public class UserRegistrationActivity extends ExceptionSafeActivity {
 					
 				});
 				dialog.show();
-			}
-			else {
-				reportExceptions();
 			}
 		}
     }

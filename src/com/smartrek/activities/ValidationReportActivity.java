@@ -2,6 +2,7 @@ package com.smartrek.activities;
 
 import java.io.IOException;
 
+import android.app.Activity;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,9 +12,12 @@ import android.widget.TextView;
 import com.smartrek.mappers.ReservationMapper;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
+import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.ValidationParameters;
 
-public class ValidationReportActivity extends ExceptionSafeActivity {
+public class ValidationReportActivity extends Activity {
+    private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
+    
 	private Route route;
 	
 	private int numberOfLocationChanges;
@@ -72,15 +76,15 @@ public class ValidationReportActivity extends ExceptionSafeActivity {
 				mapper.reportValidation(uid, rid);
 			}
 			catch (IOException e) {
-				registerException(e);
+				ehs.registerException(e);
 			}
 			return null;
 		}
 		
 		@Override
 		protected void onPostExecute(Object result) {
-		    if (!exceptions.isEmpty()) {
-		        reportExceptions();
+		    if (ehs.hasExceptions()) {
+		        ehs.reportExceptions();
 		    }
 		}
 		

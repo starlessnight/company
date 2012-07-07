@@ -14,12 +14,15 @@ import android.widget.TextView;
 
 import com.smartrek.mappers.UserMapper;
 import com.smartrek.models.User;
+import com.smartrek.utils.ExceptionHandlingService;
 
 /******************************************************************************************************************
  * 
  *
  ******************************************************************************************************************/
-public final class LoginActivity extends Activity implements OnClickListener{
+public final class LoginActivity extends Activity implements OnClickListener {
+    
+    private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
 	private EditText uname;
 	private EditText pwd;

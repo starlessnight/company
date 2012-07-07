@@ -2,7 +2,6 @@ package com.smartrek.activities;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Stack;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -22,11 +21,14 @@ import com.smartrek.models.Coupon;
 import com.smartrek.models.User;
 import com.smartrek.tasks.AsyncTaskCallback;
 import com.smartrek.tasks.ContactsFetchTask;
+import com.smartrek.utils.ExceptionHandlingService;
 
 public final class CouponSendActivity extends Activity {
+    
+    private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
+    
 	private Coupon coupon;
 	private List<User> contacts;
-	private Stack<Exception> exceptions = new Stack<Exception>();
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -114,9 +116,9 @@ public final class CouponSendActivity extends Activity {
 			CouponMapper mapper = new CouponMapper();
 			try {
 				mapper.sendCouponTo(coupon, suid, ruid);
-			} catch (IOException e) {
-				e.printStackTrace();
-				exceptions.push(e);
+			}
+			catch (IOException e) {
+				ehs.registerException(e);
 			}
 			
 			return null;
@@ -124,8 +126,11 @@ public final class CouponSendActivity extends Activity {
 		
 		@Override
 		protected void onPostExecute(Object result) {
-			if (exceptions.isEmpty()) {
-				finish();
+			if (ehs.hasExceptions()) {
+			    ehs.reportExceptions();
+			}
+			else {
+			    finish();
 			}
 		}
 		

@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.json.JSONException;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -27,12 +28,15 @@ import com.smartrek.mappers.ReservationMapper;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
 import com.smartrek.ui.MainMenu;
+import com.smartrek.utils.ExceptionHandlingService;
 
 /**
  * Shows a list of reserved routes
  *
  */
-public final class ReservationListActivity extends ExceptionSafeActivity {
+public final class ReservationListActivity extends Activity {
+    
+    private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
 	private List<Reservation> reservations;
 	
@@ -90,13 +94,13 @@ public final class ReservationListActivity extends ExceptionSafeActivity {
                 reservations = mapper.getReservations(uid);
             }
             catch (IOException e) {
-                registerException(e);
+                ehs.registerException(e);
             }
             catch (JSONException e) {
-                registerException(e);
+                ehs.registerException(e);
             }
             catch (ParseException e) {
-                registerException(e);
+                ehs.registerException(e);
             }
 			
 			return null;
@@ -104,11 +108,11 @@ public final class ReservationListActivity extends ExceptionSafeActivity {
 		
 		@Override
 		protected void onPostExecute(String result) {
-		    if (exceptions.isEmpty()) {
-		        listViewReservation.setAdapter(new ReservationItemAdapter(ReservationListActivity.this, R.layout.reservation_list_item, reservations));
+		    if (ehs.hasExceptions()) {
+		        ehs.reportExceptions();
 		    }
 		    else {
-		        reportExceptions();
+		        listViewReservation.setAdapter(new ReservationItemAdapter(ReservationListActivity.this, R.layout.reservation_list_item, reservations));
 		    }
 	    }
 	}

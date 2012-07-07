@@ -1,16 +1,12 @@
 package com.smartrek.activities;
 
 import java.io.IOException;
-import java.util.Stack;
 
 import org.json.JSONException;
 
 import android.app.Activity;
 import android.app.AlarmManager;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.PendingIntent;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,12 +19,15 @@ import android.widget.TextView;
 import com.smartrek.mappers.ReservationMapper;
 import com.smartrek.models.Route;
 import com.smartrek.receivers.ReservationReceiver;
+import com.smartrek.utils.ExceptionHandlingService;
 
 /**
  * This will popup before a user makes a reservation for a route
  *
  */
 public final class ReservationConfirmationActivity extends Activity {
+    
+    private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
 	private Route route;
 	
@@ -73,29 +72,6 @@ public final class ReservationConfirmationActivity extends Activity {
         
 	}
 	
-	private Stack<Exception> exceptions = new Stack<Exception>();
-	
-	private void reportException(String message) {
-		AlertDialog dialog = new AlertDialog.Builder(this).create();
-        dialog.setTitle("Exception");
-        dialog.setMessage(message);
-        dialog.setButton("Dismiss", new Dialog.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        dialog.show();
-	}
-	
-	private void reportExceptions() {
-		while (!exceptions.isEmpty()) {
-			Exception e = exceptions.pop();
-			
-            reportException(e.getMessage());
-		}
-	}
-	
 	private void scheduleEvent(Route route) {
 		
 		long departureTime = route.getDepartureTime().toMillis(false);
@@ -125,12 +101,10 @@ public final class ReservationConfirmationActivity extends Activity {
 				mapper.reserveRoute(route);
 			}
 			catch (IOException e) {
-				e.printStackTrace();
-				exceptions.push(e);
+				ehs.registerException(e);
 			}
             catch (JSONException e) {
-                e.printStackTrace();
-                exceptions.push(e);
+                ehs.registerException(e);
             }
 			
 			return null;
@@ -138,8 +112,10 @@ public final class ReservationConfirmationActivity extends Activity {
 		
 		@Override
 		protected void onPostExecute(Object result) {
-			if (exceptions.isEmpty()) {
-				
+		    if (ehs.hasExceptions()) {
+		        ehs.reportExceptions();
+		    }
+		    else {
 				scheduleEvent(route);
 				
 				Intent intent = new Intent(ReservationConfirmationActivity.this, ReservationListActivity.class);
@@ -149,9 +125,6 @@ public final class ReservationConfirmationActivity extends Activity {
 				startActivity(intent);
 				
 				finish();
-			}
-			else {
-				reportExceptions();
 			}
 		}
 	}
