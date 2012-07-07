@@ -19,6 +19,8 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.format.Time;
 import android.util.Log;
 
@@ -32,12 +34,15 @@ import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.overlays.PointOverlay;
 import com.smartrek.overlays.RouteSegmentOverlay;
+import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.ValidationParameters;
 import com.smartrek.utils.ValidationService;
 
 public class ValidationActivity extends MapActivity {
+    
+    private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 
     private MapView mapView;
     private Route route;
@@ -67,6 +72,10 @@ public class ValidationActivity extends MapActivity {
 
     private LocationListener locationListener;
     
+    private ValidationTimeoutNotifier validationTimeoutNotifier;
+    
+    private Handler validationTimeoutHandler;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,9 +101,13 @@ public class ValidationActivity extends MapActivity {
         //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 10000, 25, locationListener);
         //locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 10, locationListener);
         FakeLocationService faceLocationService = new FakeLocationService(locationListener);
-        
+
         startTime = new Time();
         startTime.setToNow();
+        
+        validationTimeoutNotifier = new ValidationTimeoutNotifier();
+        validationTimeoutHandler = new Handler();
+        validationTimeoutHandler.postDelayed(validationTimeoutNotifier, 5000);
     }
 
     @Override
@@ -164,7 +177,6 @@ public class ValidationActivity extends MapActivity {
         return range;
     }
     
-    // FIXME: This function must be called asynchronously
     private void sendTrajectory() {
     	new SendTrajectoryTask().execute(User.getCurrentUser(this).getId());
     }
@@ -182,8 +194,6 @@ public class ValidationActivity extends MapActivity {
         nearestNode = ValidationService.getNearestNode(route.getNodes(), lat, lng);
         nearestLink = ValidationService.getNearestLink(nearestNode, lat, lng);
         
-        //Log.d("ValidationActivity", "nearest node = " + nearestNode);
-    	
     	List<RouteNode> routeNodes = route.getNodes();
         
     	// FIXME: There's gotta be a better solution
@@ -233,6 +243,7 @@ public class ValidationActivity extends MapActivity {
     
     private void arriveAtDestination() {
     	locationManager.removeUpdates(locationListener);
+    	validationTimeoutHandler.removeCallbacks(validationTimeoutNotifier);
     	
     	endTime = new Time();
     	endTime.setToNow();
@@ -269,6 +280,13 @@ public class ValidationActivity extends MapActivity {
 
         public void onProviderDisabled(String provider) {
             Log.d(this.getClass().toString(), String.format("onProviderDisabled: %s", provider));
+        }
+    }
+    
+    private class ValidationTimeoutNotifier extends Thread {
+        @Override
+        public void run() {
+            ehs.reportException("Validation timeout");
         }
     }
     
@@ -330,17 +348,23 @@ public class ValidationActivity extends MapActivity {
 				mapper.sendTrajectory(uid, route.getId(), trajectory);
 			}
 	    	catch (ClientProtocolException e) {
-				e.printStackTrace();
+				ehs.registerException(e);
 			}
 	    	catch (JSONException e) {
-				e.printStackTrace();
+	    	    ehs.registerException(e);
 			}
 	    	catch (IOException e) {
-				e.printStackTrace();
+	    	    ehs.registerException(e);
 			}
 	    	
 			return null;
 		}
     	
+		@Override
+		protected void onPostExecute(Object result) {
+		    if (ehs.hasExceptions()) {
+		        ehs.reportExceptions();
+		    }
+		}
     }
 }
