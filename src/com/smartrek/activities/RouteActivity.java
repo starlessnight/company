@@ -1,12 +1,8 @@
 package com.smartrek.activities;
 
 import java.util.List;
-import java.util.Stack;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
@@ -409,26 +405,6 @@ public final class RouteActivity extends MapActivity {
         } 
     }
     
-    private Stack<Exception> exceptions = new Stack<Exception>();
-    
-    private void reportExceptions() {
-        while(!exceptions.isEmpty()) {
-            Exception e = exceptions.pop();
-            
-            AlertDialog dialog = new AlertDialog.Builder(RouteActivity.this).create();
-            dialog.setTitle("Exception");
-            dialog.setMessage(e.getMessage());
-            dialog.setButton("Dismiss", new OnClickListener() {
-
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                }
-            });
-            dialog.show();
-        }
-    }
-    
     public interface RouteTaskCallback {
     	public void preCallback();
     	public void callback(List<Route> routes);
@@ -479,12 +455,11 @@ public final class RouteActivity extends MapActivity {
                 possibleRoutes = mapper.getPossibleRoutes(origin, destination, time);
                 
                 if(possibleRoutes == null || possibleRoutes.size() == 0) {
-                    exceptions.push(new Exception("Could not find a route."));
+                    ehs.registerException(new Exception("Could not find a route."));
                 }
             }
             catch(Exception e) {
-                e.printStackTrace();
-                exceptions.push(e);
+                ehs.registerException(e);
             }
             
             if(possibleRoutes != null && updateMap) {
@@ -502,8 +477,8 @@ public final class RouteActivity extends MapActivity {
         protected void onPostExecute(List<Route> possibleRoutes) {
             dialog.dismiss();
             
-            if (!exceptions.isEmpty()) {
-            	reportExceptions();
+            if (ehs.hasExceptions()) {
+            	ehs.reportExceptions();
             }
             else {
 	            // FIXME: Temporary
