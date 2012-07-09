@@ -9,7 +9,7 @@ public class ValidationParameters {
 	/**
 	 * Unit is in meters
 	 */
-	private float distanceThreshold = 100;
+	private float distanceThreshold = 457.2f; // 1500 ft
 	/**
 	 * Users may depart after (departure time) - (threshold). Unit is in seconds.
 	 */
@@ -31,6 +31,11 @@ public class ValidationParameters {
 	 * Unit is in meters.
 	 */
 	private float arrivalDistanceThreshold = 160.9344f;
+	
+	/**
+	 * Unit is in seconds
+	 */
+	private float outOfRouteTimeout = 20*60;
 	
 	/**
 	 * Singleton instance
@@ -87,5 +92,13 @@ public class ValidationParameters {
 	
 	public float getScoreThreshold() {
 		return .75f;
+	}
+
+	public float getOutOfRouteTimeout() {
+		return outOfRouteTimeout;
+	}
+
+	public void setOutOfRouteTimeout(float outOfRouteTimeout) {
+		this.outOfRouteTimeout = outOfRouteTimeout;
 	}
 }

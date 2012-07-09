@@ -97,9 +97,14 @@ public class ValidationActivity extends MapActivity {
         locationListener = new ValidationLocationListener();
 
         // Register the listener with the Location Manager to receive location updates
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 10, locationListener);
-        //FakeLocationService faceLocationService = new FakeLocationService(locationListener);
+        boolean useRealData = true;
+        if (useRealData) {
+        	locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
+        	locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 10, locationListener);
+        }
+        else {
+        	FakeLocationService faceLocationService = new FakeLocationService(locationListener);
+        }
 
         startTime = new Time();
         startTime.setToNow();
@@ -258,6 +263,8 @@ public class ValidationActivity extends MapActivity {
     	intent.putExtra("startTime", startTime.toMillis(false));
     	intent.putExtra("endTime", endTime.toMillis(false));
     	startActivity(intent);
+    	
+    	finish();
     }
     
     private void deactivateLocationService() {
