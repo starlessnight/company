@@ -4,11 +4,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
-import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
 
-import com.smartrek.activities.ValidationActivity;
+import com.smartrek.activities.ReservationConfirmationActivity;
 import com.smartrek.models.Route;
 import com.smartrek.utils.TimeRange;
 import com.smartrek.utils.ValidationParameters;
@@ -54,7 +53,7 @@ public final class ReservationReceiver extends BroadcastReceiver {
         // TODO: We probably want to ask user if she wants to open up
         // ValidatinoActivity
 		// TODO: Pass 'route' instance to ValidationActivity
-		Intent intent2 = new Intent(context, ValidationActivity.class);
+		Intent intent2 = new Intent(context, ReservationConfirmationActivity.class);
 		intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		intent2.putExtra("route", intent.getExtras().getParcelable("route"));
 		context.startActivity(intent2);
