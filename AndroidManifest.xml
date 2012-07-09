@@ -29,7 +29,8 @@
         <activity android:name=".UserRegistrationActivity"
         		  android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".RouteActivity"
-        		  android:theme="@android:style/Theme.NoTitleBar"/>
+        		  android:theme="@android:style/Theme.NoTitleBar"
+        		  android:configChanges="keyboardHidden|orientation"/>
         <activity android:name=".ReservationConfirmationActivity"
                   android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".ReservationDetailsActivity"
@@ -55,7 +56,8 @@
         <activity android:name=".CouponSendActivity"
                   android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".ValidationActivity"
-                  android:theme="@android:style/Theme.NoTitleBar"/>
+                  android:theme="@android:style/Theme.NoTitleBar"
+                  android:configChanges="keyboardHidden|orientation"/>
         <activity android:name=".ValidationReportActivity"
                   android:theme="@android:style/Theme.NoTitleBar"/>
         <receiver android:name="com.smartrek.receivers.ReservationReceiver"/>

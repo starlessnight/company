@@ -77,6 +77,8 @@ public class ValidationActivity extends MapActivity {
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	Log.d("ValidationActivity", "onCreate");
+    	
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_reservation_map);
         
