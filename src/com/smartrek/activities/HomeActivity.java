@@ -530,10 +530,16 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 	
 	private class FavoriteAddressFetchTask extends AsyncTask<Integer, Object, List<Address>> {
 
-	    @Override
-	    protected void onPreExecute() {
-	        
-	    }
+	    private ProgressDialog dialog;
+	    
+        @Override
+        protected void onPreExecute() {
+            dialog = new ProgressDialog(HomeActivity.this);
+            dialog.setMessage("Fetching favorite addresses...");
+            dialog.setIndeterminate(true);
+            dialog.setCancelable(true);
+            dialog.show();
+        }
 	    
 		@Override
 		protected List<Address> doInBackground(Integer... params) {
@@ -558,6 +564,12 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 		
 		@Override
 		protected void onPostExecute(List<Address> result) {
+		    dialog.cancel();
+		    
+		    if (ehs.hasExceptions()) {
+		        ehs.reportExceptions();
+		    }
+		    
 			if(result != null) {
 				originFavs.setAdapter(new FavoriteAddressAdapter(HomeActivity.this, result));
 				destFavs.setAdapter(new FavoriteAddressAdapter(HomeActivity.this, result));
