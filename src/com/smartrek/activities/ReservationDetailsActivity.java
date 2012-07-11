@@ -64,10 +64,11 @@ public final class ReservationDetailsActivity extends Activity {
         buttonStartTrip.setOnClickListener(new OnClickListener() {
 
             @Override
-            public void onClick(View arg0) {
+            public void onClick(View view) {
                 Intent intent = new Intent(ReservationDetailsActivity.this, ValidationActivity.class);
                 intent.putExtra("route", route);
                 startActivity(intent);
+                finish();
             }
             
         });
