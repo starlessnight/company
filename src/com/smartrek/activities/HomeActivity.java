@@ -111,8 +111,6 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 	
 	private Time current;
 	
-	private Stack<Exception> exceptions = new Stack<Exception>();
-	
 	/****************************************************************************************************************
 	 * ***************************** public void onCreate(Bundle savedInstanceState) ********************************
 	 * 
@@ -359,17 +357,17 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 		public void postCallback() {
 			dialog.cancel();
 			
-			if (exceptions.isEmpty()) {
-				String dest = destBox.getText().toString();
-				if (dest.trim().equals("")) {
-					reportException("Destination address cannot be empty.");
-				}
-				else {
-					new GeocodingTask(exceptions, destGeocodingTaskCallback).execute(dest);
-				}
+			if (ehs.hasExceptions()) {
+			    ehs.reportExceptions();
 			}
 			else {
-				reportExceptions();
+				String dest = destBox.getText().toString();
+				if (dest.trim().equals("")) {
+					ehs.reportException("Destination address cannot be empty.");
+				}
+				else {
+					new GeocodingTask(ehs, destGeocodingTaskCallback).execute(dest);
+				}
 			}
 		}
 		
@@ -397,11 +395,11 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 		public void postCallback() {
 			dialog.cancel();
 			
-			if (exceptions.isEmpty()) {
-				startMapActivity();
+			if (ehs.hasExceptions()) {
+			    ehs.reportExceptions();
 			}
 			else {
-				reportExceptions();
+				startMapActivity();
 			}
 		}
 		
@@ -424,10 +422,10 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 					
 					String dest = destBox.getText().toString();
 					if (dest.trim().equals("")) {
-						reportException("Destination address cannot be empty.");
+						ehs.reportException("Destination address cannot be empty.");
 					}
 					else {
-						new GeocodingTask(exceptions, destGeocodingTaskCallback).execute(dest);
+						new GeocodingTask(ehs, destGeocodingTaskCallback).execute(dest);
 					}
 				}
 			});
@@ -435,10 +433,10 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 		else {
 			String origin = originBox.getText().toString();
 			if (origin.trim().equals("")) {
-				reportException("Origin address cannot be empty.");
+				ehs.reportException("Origin address cannot be empty.");
 			}
 			else {
-				new GeocodingTask(exceptions, originGeocodingTaskCallback).execute(origin);
+				new GeocodingTask(ehs, originGeocodingTaskCallback).execute(origin);
 			}
 		}
 	}
@@ -530,29 +528,19 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
         expandView(SV, delta + 200);
 	}
 	
-	private void reportException(String message) {
-		AlertDialog dialog = new AlertDialog.Builder(this).create();
-        dialog.setTitle("Exception");
-        dialog.setMessage(message);
-        dialog.setButton("Dismiss", new Dialog.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        dialog.show();
-	}
-	
-	private void reportExceptions() {
-		while (!exceptions.isEmpty()) {
-			Exception e = exceptions.pop();
-			
-            reportException(e.getMessage());
-		}
-	}
-	
 	private class FavoriteAddressFetchTask extends AsyncTask<Integer, Object, List<Address>> {
 
+	    private ProgressDialog dialog;
+	    
+        @Override
+        protected void onPreExecute() {
+            dialog = new ProgressDialog(HomeActivity.this);
+            dialog.setMessage("Fetching favorite addresses...");
+            dialog.setIndeterminate(true);
+            dialog.setCancelable(true);
+            dialog.show();
+        }
+	    
 		@Override
 		protected List<Address> doInBackground(Integer... params) {
 
@@ -565,9 +553,10 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 				items = mapper.getAddresses(uid);
 			}
 			catch (JSONException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+				ehs.registerException(e);
+			}
+			catch (IOException e) {
+			    ehs.registerException(e);
 			}
 			
 			return items;
@@ -575,6 +564,12 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 		
 		@Override
 		protected void onPostExecute(List<Address> result) {
+		    dialog.cancel();
+		    
+		    if (ehs.hasExceptions()) {
+		        ehs.reportExceptions();
+		    }
+		    
 			if(result != null) {
 				originFavs.setAdapter(new FavoriteAddressAdapter(HomeActivity.this, result));
 				destFavs.setAdapter(new FavoriteAddressAdapter(HomeActivity.this, result));

@@ -1,13 +1,13 @@
 package com.smartrek.tasks;
 
 import java.io.IOException;
-import java.util.Stack;
 
 import org.json.JSONException;
 
 import android.os.AsyncTask;
 
 import com.google.android.maps.GeoPoint;
+import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Geocoding;
 
 /**
@@ -15,12 +15,12 @@ import com.smartrek.utils.Geocoding;
  */
 public final class GeocodingTask extends AsyncTask<String, Void, Void> {
 	
-	private Stack<Exception> exceptions;
+	private ExceptionHandlingService ehs;
 	private GeocodingTaskCallback callback;
 	
-	public GeocodingTask(Stack<Exception> exceptions, GeocodingTaskCallback callback) {
+	public GeocodingTask(ExceptionHandlingService ehs, GeocodingTaskCallback callback) {
 		super();
-		this.exceptions = exceptions;
+		this.ehs = ehs;
 		this.callback = callback;
 	}
     
@@ -39,16 +39,14 @@ public final class GeocodingTask extends AsyncTask<String, Void, Void> {
 			coordinate = Geocoding.lookup(postalAddress);
 		}
 		catch (IOException e) {
-			e.printStackTrace();
-			exceptions.push(e);
+			ehs.registerException(e);
 		}
 		catch (JSONException e) {
-			e.printStackTrace();
-			exceptions.push(e);
+			ehs.registerException(e);
 		}
         
         if(coordinate.getLatitudeE6() == 0 && coordinate.getLongitudeE6() == 0) {
-            exceptions.push(new Exception(String.format("Could not find a coordinate of the address '%s'.", postalAddress)));
+            ehs.registerException(new Exception(String.format("Could not find a coordinate of the address '%s'.", postalAddress)));
         }
         else {
         	callback.callback(coordinate);

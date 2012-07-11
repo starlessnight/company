@@ -43,18 +43,25 @@ public class ValidationReportActivity extends Activity {
         startTime.set(extras.getLong("startTime"));
         endTime = new Time();
         endTime.set(extras.getLong("endTime"));
-
-        float score = numberOfInRoute / (float)numberOfLocationChanges;
-        ValidationParameters params = ValidationParameters.getInstance();
-        boolean validated = score >= params.getScoreThreshold();
         
-        if (validated) {
-        	new ValidationReportTask().execute(User.getCurrentUser(this).getId(), route.getId());
+        boolean validated = false;
+        if (extras.getBoolean("timedout")) {
+            textViewScore = (TextView) findViewById(R.id.textViewValidationScore);
+            textViewScore.setText("Timed out");
         }
-        
-        textViewScore = (TextView) findViewById(R.id.textViewValidationScore);
-        textViewScore.setText(String.format("%d/%d = %.01f%%", numberOfInRoute, numberOfLocationChanges, score*100));
-        textViewScore.setTextColor(validated ? Color.GREEN : Color.RED);
+        else {
+            float score = numberOfInRoute / (float)numberOfLocationChanges;
+            ValidationParameters params = ValidationParameters.getInstance();
+            validated = score >= params.getScoreThreshold();
+            
+            if (validated) {
+            	new ValidationReportTask().execute(User.getCurrentUser(this).getId(), route.getId());
+            }
+            
+            textViewScore = (TextView) findViewById(R.id.textViewValidationScore);
+            textViewScore.setText(String.format("%d/%d = %.01f%%", numberOfInRoute, numberOfLocationChanges, score*100));
+            textViewScore.setTextColor(validated ? Color.GREEN : Color.RED);
+        }
         
         long duration = (endTime.toMillis(false) - startTime.toMillis(false)) / 1000;
         textViewDuration = (TextView) findViewById(R.id.textViewTripDuration);

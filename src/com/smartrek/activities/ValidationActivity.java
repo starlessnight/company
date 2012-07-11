@@ -296,7 +296,16 @@ public class ValidationActivity extends MapActivity {
     private class ValidationTimeoutNotifier extends Thread {
         @Override
         public void run() {
-            ehs.reportException("Validation timeout");
+            Intent intent = new Intent(ValidationActivity.this, ValidationReportActivity.class);
+            intent.putExtra("route", route);
+            intent.putExtra("timedout", true);
+            intent.putExtra("numberOfLocationChanges", numberOfLocationChanges);
+            intent.putExtra("numberOfInRoute", numberOfInRoute);
+            intent.putExtra("startTime", startTime.toMillis(false));
+            intent.putExtra("endTime", endTime.toMillis(false));
+            startActivity(intent);
+            
+            finish();
         }
     }
     
