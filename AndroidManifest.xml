@@ -30,7 +30,7 @@
         		  android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".RouteActivity"
         		  android:theme="@android:style/Theme.NoTitleBar"
-        		  android:configChanges="keyboardHidden|orientation"/>
+        		  android:configChanges="keyboardHidden|orientation|screenLayout"/>
         <activity android:name=".ReservationConfirmationActivity"
                   android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".ReservationDetailsActivity"
@@ -57,7 +57,7 @@
                   android:theme="@android:style/Theme.NoTitleBar"/>
         <activity android:name=".ValidationActivity"
                   android:theme="@android:style/Theme.NoTitleBar"
-                  android:configChanges="keyboardHidden|orientation"/>
+                  android:configChanges="keyboardHidden|orientation|screenLayout"/>
         <activity android:name=".ValidationReportActivity"
                   android:theme="@android:style/Theme.NoTitleBar"/>
         <receiver android:name="com.smartrek.receivers.ReservationReceiver"/>
