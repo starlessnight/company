@@ -36,8 +36,8 @@ public final class HTTP {
 			httpConn.setAllowUserInteraction(false);
 			httpConn.setInstanceFollowRedirects(true);
 			httpConn.setRequestMethod("GET");
-			httpConn.setConnectTimeout(10000);
-			httpConn.setReadTimeout(10000);
+			httpConn.setConnectTimeout(15000);
+			//httpConn.setReadTimeout(60000);
 			httpConn.connect();
 		}
 	}

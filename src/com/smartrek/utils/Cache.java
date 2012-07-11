@@ -103,7 +103,7 @@ public final class Cache {
 				return data.userdata;
 			}
 			else {
-				// TODO: Deal with error
+				throw new IOException(String.format("HTTP %d: %s", code, http.getResponseBody()));
 			}
 		}
 		

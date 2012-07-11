@@ -139,11 +139,11 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
         
         originBox = (EditAddress) findViewById(R.id.origin_box);
         destBox = (EditText) findViewById(R.id.destination_box);
-        dateBox = (EditText) findViewById(R.id.date_box);
+        //dateBox = (EditText) findViewById(R.id.date_box);
 
 		current = new Time();
 		current.setToNow();
-		dateBox.setText(current.month + " / " + current.monthDay + " / " + current.year);
+		//dateBox.setText(current.month + " / " + current.monthDay + " / " + current.year);
         
         /***************End EditText Fields********************/
         
@@ -152,7 +152,7 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
         // Instantiate TextViews from file main.xml
         originText = (TextView) findViewById(R.id.origin_text);
         destText = (TextView) findViewById(R.id.destination_text);
-        dateText = (TextView) findViewById(R.id.date_text);
+        //dateText = (TextView) findViewById(R.id.date_text);
         
         // Declare a tiny animation to be used on startup.
         Animation animation = new TranslateAnimation(-400,0,0,0);
@@ -161,7 +161,7 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 		// Set animation to be used by TextViews.
         destText.setAnimation(animation);
         originText.setAnimation(animation);
-        dateText.setAnimation(animation);  
+        //dateText.setAnimation(animation);  
         
         /***************End TextViews********************/
         

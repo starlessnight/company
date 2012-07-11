@@ -86,7 +86,7 @@ public final class ReservationConfirmationActivity extends Activity {
 
 		// Get the AlarmManager service
 		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-		am.set(AlarmManager.RTC_WAKEUP, departureTime, sender);
+		am.set(AlarmManager.RTC_WAKEUP, departureTime - 60000*5, sender); // 5 min earlier than departure time
 		
 		Log.d("ReservationConfirmationActivity", "Event has been scheduled. " + departureTime);
 	}

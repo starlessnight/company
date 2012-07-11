@@ -16,6 +16,7 @@ import android.util.Log;
 public abstract class Mapper {
 	
 	public static final String host = "http://50.56.81.42:8080";
+	//public static final String host = "http://10.0.0.234:8080";
 
 	/**
 	 * @deprecated
