@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 
 import android.text.format.Time;
+import android.util.Log;
 
 /**
  * This class contains key-value pairs where key is a remote URL and a value
@@ -69,18 +70,22 @@ public final class Cache {
 	}
 	
 	public synchronized Object fetch(String url) throws IOException {
+		Log.d("Cache", "url = " + url);
 		if(storage.containsKey(url)) {
 			Data data = storage.get(url);
 			
 			if(isValid(data)) {
+				Log.d("Cache", "Fetching from cache (valid)");
 				return data.userdata;
 			}
 			else {
+				Log.d("Cache", "Removing from cache");
 				storage.remove(url);
 			}
 		}
 		else {
 			// TODO: Fetch and cache
+			Log.d("Cache", "Fetching from remote site");
 			
 			HTTP http = new HTTP(url);
 			http.connect();

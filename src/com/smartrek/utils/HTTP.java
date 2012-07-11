@@ -18,7 +18,7 @@ public final class HTTP {
 	/**
 	 * Maximum content size that getResponseBody() can handle.
 	 */
-	public static final int MAX_CONTENT_SIZE = 1024*1024;
+	public static final int MAX_CONTENT_SIZE = 8*1024*1024;
 	
 	private HttpURLConnection httpConn;
 	

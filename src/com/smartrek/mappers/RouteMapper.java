@@ -109,7 +109,7 @@ public final class RouteMapper extends Mapper {
 	 * @throws IOException 
 	 */
 	public List<Route> getPossibleRoutes(GeoPoint origin, GeoPoint destination, Time time) throws JSONException, IOException {
-		boolean useRealRoute = false;
+		boolean useRealRoute = true;
 		String routeurl = null;
 		if (useRealRoute) {
 			routeurl = String.format("%s/getroutes/startlat=%f%%20startlon=%f%%20endlat=%f%%20endlon=%f%%20departtime=%d:%02d",
