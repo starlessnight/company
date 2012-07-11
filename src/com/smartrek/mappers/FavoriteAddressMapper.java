@@ -9,38 +9,31 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.smartrek.models.Address;
-import com.smartrek.utils.HTTP;
+import com.smartrek.utils.Cache;
 
-
-public class FavoriteAddressMapper extends Mapper {
+public final class FavoriteAddressMapper extends Mapper {
 
 	private List<Address> addresses = new ArrayList<Address>();
 	
 	public List<Address> getAddresses(int uid) throws JSONException, IOException {
 		String url = String.format("%s/getfavadd/%d", host, uid);
 		
-		HTTP http = new HTTP(url);
-		http.connect();
+		Cache cache = Cache.getInstance();
+		String response = (String) cache.fetch(url);
 		
-		int responseCode = http.getResponseCode();
-		if(responseCode == 200) {
-			JSONArray array = new JSONArray(http.getResponseBody());
-			addresses.clear();
+		JSONArray array = new JSONArray(response);
+		addresses.clear();
+		
+		for(int i = 0; i < array.length(); i++) {
+			JSONObject object = (JSONObject) array.get(i);
 			
-			for(int i = 0; i < array.length(); i++) {
-				JSONObject object = (JSONObject) array.get(i);
-				
-				Address address = new Address();
-				address.setAid(object.getInt("FID"));
-				address.setUid(object.getInt("UID"));
-				address.setName(object.getString("NAME"));
-				address.setAddress(object.getString("ADDRESS"));
-				
-				addresses.add(address);
-			}
-		}
-		else {
-			throw new IOException(String.format("HTTP %d - %s", responseCode, http.getResponseBody()));
+			Address address = new Address();
+			address.setAid(object.getInt("FID"));
+			address.setUid(object.getInt("UID"));
+			address.setName(object.getString("NAME"));
+			address.setAddress(object.getString("ADDRESS"));
+			
+			addresses.add(address);
 		}
 		
 		return addresses;
