@@ -1,65 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="com.smartrek.activities"
-      android:versionCode="1"
-      android:versionName="1.0">
-    <uses-sdk android:minSdkVersion="4"
+    package="com.smartrek.activities"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="4"
         android:targetSdkVersion="10" />
-        
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
-    <instrumentation android:targetPackage="com.smartrek.activities" android:name="android.test.InstrumentationTestRunner"/>
+    <instrumentation
+        android:name="android.test.InstrumentationTestRunner"
+        android:targetPackage="com.smartrek.activities" />
 
-    <application android:icon="@drawable/icon" android:label="@string/app_name">
-   		<uses-library android:name="com.google.android.maps" />
-   		<uses-library android:name="android.test.runner" />
-        <activity android:name=".MainActivity"
-                  android:label="@string/app_name"
-                  android:theme="@android:style/Theme.NoTitleBar">
+    <application
+        android:icon="@drawable/icon"
+        android:label="@string/app_name" >
+        <uses-library android:name="com.google.android.maps" />
+        <uses-library android:name="android.test.runner" />
+
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.NoTitleBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".LoginActivity"
-       			  android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name=".HomeActivity"
-        		  android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name=".UserRegistrationActivity"
-        		  android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name=".RouteActivity"
-        		  android:theme="@android:style/Theme.NoTitleBar"
-        		  android:configChanges="keyboardHidden|orientation|screenLayout"/>
-        <activity android:name=".ReservationConfirmationActivity"
-                  android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name=".ReservationDetailsActivity"
-                  android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name=".MapModeActivity"
-        		  android:theme="@android:style/Theme.NoTitleBar"/> 
-        <activity android:name=".MapDisplayActivity"
-        		  android:theme="@android:style/Theme.NoTitleBar"/>   
-        <activity android:name=".ConfirmTripActivity"
-        		  android:theme="@android:style/Theme.NoTitleBar"/> 
-        <activity android:name=".ConfirmedMapActivity"
-        		  android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name=".ReservationListActivity"
-                  android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name=".ContactsActivity"
-                  android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name=".ContactDetailsActivity"
-                  android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name=".CouponDetailsActivity"
-                  android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name=".CouponsTabActivity"
-                  android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name=".CouponSendActivity"
-                  android:theme="@android:style/Theme.NoTitleBar"/>
-        <activity android:name=".ValidationActivity"
-                  android:theme="@android:style/Theme.NoTitleBar"
-                  android:configChanges="keyboardHidden|orientation|screenLayout"/>
-        <activity android:name=".ValidationReportActivity"
-                  android:theme="@android:style/Theme.NoTitleBar"/>
-        <receiver android:name="com.smartrek.receivers.ReservationReceiver"/>
+        <activity
+            android:name=".LoginActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".HomeActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".UserRegistrationActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".RouteActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".ReservationConfirmationActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".ReservationDetailsActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".MapModeActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".MapDisplayActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".ConfirmTripActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".ConfirmedMapActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".ReservationListActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".ContactsActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".ContactDetailsActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".CouponDetailsActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".CouponsTabActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".CouponSendActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".ValidationActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".ValidationReportActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".FavoriteAddressListActivity"
+            android:theme="@android:style/Theme.NoTitleBar" />
+
+        <receiver android:name="com.smartrek.receivers.ReservationReceiver" />
     </application>
+
 </manifest>

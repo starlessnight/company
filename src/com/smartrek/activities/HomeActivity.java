@@ -70,6 +70,9 @@ import com.smartrek.utils.LocationService.LocationServiceListener;
  ****************************************************************************************************************/
 public final class HomeActivity extends Activity implements OnClickListener, OnTouchListener {
     
+	private static final int FAV_ADDR_ORIGIN = 1;
+	private static final int FAV_ADDR_DEST = 2;
+	
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
 	private RelativeLayout RL;
@@ -196,8 +199,6 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 		
 		User currentUser = User.getCurrentUser(this);
 		
-		new FavoriteAddressFetchTask().execute(currentUser.getId());
-        
         /***************Start Buttons********************/
         
         // Instantiate Buttons from file main.xml
@@ -208,8 +209,22 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
         
         // Set Button OnClickListerners to be declared by
         // this class     
-        originFavButton.setOnClickListener(this);
-        destFavButton.setOnClickListener(this);
+        originFavButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
+				startActivityForResult(intent, FAV_ADDR_ORIGIN);
+			}
+		});
+        destFavButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
+				startActivityForResult(intent, FAV_ADDR_DEST);
+			}
+		});
         doneButton.setOnClickListener(this);
         //loadButton.setOnClickListener(this);
         
@@ -485,6 +500,33 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 		return super.onMenuItemSelected(featureId, item);
 	}
 	
+	@Override 
+	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		super.onActivityResult(requestCode, resultCode, intent);
+		switch (requestCode) {
+		case FAV_ADDR_ORIGIN:
+			if (resultCode == Activity.RESULT_OK) {
+				String address = intent.getStringExtra("address");
+				setOriginAddress(address);
+			}
+			break;
+			
+		case FAV_ADDR_DEST:
+			if (resultCode == Activity.RESULT_OK) {
+				String address = intent.getStringExtra("address");
+				setDestinationAddress(address);
+			}
+			break;
+		}
+	}
+	
+	private void setOriginAddress(String address) {
+		originBox.setText(address);
+	}
+	
+	private void setDestinationAddress(String address) {
+		destBox.setText(address);
+	}
 	
 	private void expandView(View view, int delta) {
 		view.layout(view.getLeft(), 
@@ -526,59 +568,6 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
         
         expandView(destFavs, delta - 100);        
         expandView(SV, delta + 200);
-	}
-	
-	private class FavoriteAddressFetchTask extends AsyncTask<Integer, Object, List<Address>> {
-
-	    private ProgressDialog dialog;
-	    
-        @Override
-        protected void onPreExecute() {
-            dialog = new ProgressDialog(HomeActivity.this);
-            dialog.setMessage("Fetching favorite addresses...");
-            dialog.setIndeterminate(true);
-            dialog.setCancelable(true);
-            dialog.show();
-        }
-	    
-		@Override
-		protected List<Address> doInBackground(Integer... params) {
-
-			// FIXME: Potential array out of boundary exception
-			int uid = params[0];
-			
-			List<Address> items = null;
-			FavoriteAddressMapper mapper = new FavoriteAddressMapper();
-			try {
-				items = mapper.getAddresses(uid);
-			}
-			catch (JSONException e) {
-				ehs.registerException(e);
-			}
-			catch (IOException e) {
-			    ehs.registerException(e);
-			}
-			
-			return items;
-		}
-		
-		@Override
-		protected void onPostExecute(List<Address> result) {
-		    dialog.cancel();
-		    
-		    if (ehs.hasExceptions()) {
-		        ehs.reportExceptions();
-		    }
-		    
-			if(result != null) {
-				originFavs.setAdapter(new FavoriteAddressAdapter(HomeActivity.this, result));
-				destFavs.setAdapter(new FavoriteAddressAdapter(HomeActivity.this, result));
-//				FavoriteAddressAdapter adapter = (FavoriteAddressAdapter) originFavs.getAdapter();
-//				adapter.setItems(result);
-
-			}
-		}
-
 	}
 
 }

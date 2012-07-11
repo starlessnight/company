@@ -5,6 +5,7 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,6 +58,11 @@ public class FavoriteAddressAdapter extends BaseAdapter {
 			view = inflater.inflate(R.layout.favorite_address_list_item, null);
 			
 			Address item = (Address) getItem(position);
+			
+			TextView textViewName = (TextView) view.findViewById(R.id.textViewName);
+			textViewName.setText(item.getName());
+			
+			Log.d("FavoriteAddressAdapter", "address = " + item.getAddress());
 			
 			TextView textViewAddress = (TextView) view.findViewById(R.id.textViewAddress);
 			textViewAddress.setText(item.getAddress());
