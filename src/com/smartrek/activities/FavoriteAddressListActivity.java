@@ -87,7 +87,7 @@ public class FavoriteAddressListActivity extends Activity {
 			dialog = new ProgressDialog(FavoriteAddressListActivity.this);
 			dialog.setMessage("Fetching favorite addresses...");
 			dialog.setIndeterminate(true);
-			dialog.setCancelable(true);
+			dialog.setCancelable(false);
 			dialog.show();
 		}
 

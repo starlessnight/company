@@ -7,6 +7,7 @@ import org.json.JSONException;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -92,6 +93,17 @@ public final class ReservationConfirmationActivity extends Activity {
 	}
 	
 	private final class ReservationTask extends AsyncTask<Object, Object, Object> {
+		
+		private ProgressDialog dialog;
+
+		@Override
+		protected void onPreExecute() {
+			dialog = new ProgressDialog(ReservationConfirmationActivity.this);
+			dialog.setMessage("Making reservation...");
+			dialog.setIndeterminate(true);
+			dialog.setCancelable(false);
+			dialog.show();
+		}
 
 		@Override
 		protected Object doInBackground(Object... params) {
@@ -112,6 +124,8 @@ public final class ReservationConfirmationActivity extends Activity {
 		
 		@Override
 		protected void onPostExecute(Object result) {
+			dialog.cancel();
+			
 		    if (ehs.hasExceptions()) {
 		        ehs.reportExceptions();
 		    }
