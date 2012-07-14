@@ -15,6 +15,8 @@ import com.google.android.maps.Projection;
  * @author Sumin Byeon
  */
 public class PointOverlay extends Overlay {
+	public static final float RADIUS = 7.0f;
+	
 	private GeoPoint geoPoint;
 	private int color = Color.GREEN;
 	
@@ -40,7 +42,7 @@ public class PointOverlay extends Overlay {
 		Point point = new Point();
 		projection.toPixels(geoPoint, point);
 		
-		canvas.drawCircle(point.x, point.y, 4.0f, paint);
+		canvas.drawCircle(point.x, point.y, RADIUS, paint);
 		
 		return super.draw(canvas, mapView, shadow, when);
 	}
