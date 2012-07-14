@@ -8,7 +8,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 
 /**
@@ -24,10 +23,6 @@ public final class ReservationDetailsActivity extends Activity {
 	private TextView textViewCredits;
 	private Button buttonStartTrip;
 	
-	/**
-	 * @deprecated
-	 */
-	private Reservation reservation;
 	private Route route;
 	
 	
@@ -37,7 +32,6 @@ public final class ReservationDetailsActivity extends Activity {
         setContentView(R.layout.reservation_details);
         
         Bundle extras = getIntent().getExtras();
-        //reservation = extras.getParcelable("reservation");
         route = extras.getParcelable("route");
         
         textViewName = (TextView) findViewById(R.id.textViewReservationName);
