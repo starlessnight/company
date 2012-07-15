@@ -10,7 +10,9 @@ import java.util.TimerTask;
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -22,6 +24,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.format.Time;
 import android.util.Log;
+import android.view.KeyEvent;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -115,6 +118,36 @@ public class ValidationActivity extends MapActivity {
         validationTimeoutNotifier = new ValidationTimeoutNotifier();
         validationTimeoutHandler = new Handler();
         validationTimeoutHandler.postDelayed(validationTimeoutNotifier, route.getDuration() * 3 * 1000);
+    }
+    
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        //Handle the back button
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            //Ask the user if they want to quit
+            new AlertDialog.Builder(this)
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .setTitle("Confirm")
+            .setMessage("Are you sure?")
+            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    //Stop the activity
+                    ValidationActivity.this.finish();    
+                }
+
+            })
+            .setNegativeButton("No", null)
+            .show();
+
+            return true;
+        }
+        else {
+            return super.onKeyDown(keyCode, event);
+        }
+
     }
 
     @Override
