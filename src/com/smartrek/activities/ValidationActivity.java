@@ -101,6 +101,7 @@ public class ValidationActivity extends MapActivity {
         // Register the listener with the Location Manager to receive location updates
         boolean useRealData = true;
         if (useRealData) {
+        	// TODO: Turn on GSP early
         	locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
         	locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 10, locationListener);
         }
@@ -296,6 +297,11 @@ public class ValidationActivity extends MapActivity {
     private class ValidationTimeoutNotifier extends Thread {
         @Override
         public void run() {
+        	if (endTime == null) {
+        		endTime = new Time();
+        		endTime.setToNow();
+        	}
+        	
             Intent intent = new Intent(ValidationActivity.this, ValidationReportActivity.class);
             intent.putExtra("route", route);
             intent.putExtra("timedout", true);
