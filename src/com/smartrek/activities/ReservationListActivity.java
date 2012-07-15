@@ -8,6 +8,7 @@ import java.util.List;
 import org.json.JSONException;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -85,6 +86,18 @@ public final class ReservationListActivity extends Activity {
 	 * Inner class for an asynchronous task.
 	 */
 	private class ReservationRetrivalTask extends AsyncTask<Object, Object, String> {
+		
+		private ProgressDialog dialog;
+
+		@Override
+		protected void onPreExecute() {
+			dialog = new ProgressDialog(ReservationListActivity.this);
+			dialog.setMessage("Loading reservations...");
+			dialog.setIndeterminate(true);
+			dialog.setCancelable(false);
+			dialog.show();
+		}
+		
 		@Override
 		protected String doInBackground(Object... params) {
 			int uid = (Integer) params[0];
@@ -108,6 +121,8 @@ public final class ReservationListActivity extends Activity {
 		
 		@Override
 		protected void onPostExecute(String result) {
+			dialog.cancel();
+			
 		    if (ehs.hasExceptions()) {
 		        ehs.reportExceptions();
 		    }
