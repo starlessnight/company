@@ -11,9 +11,5 @@
 	<include 
 		layout="@layout/time_layout">
 	</include>
-	
-	<include
-		layout="@layout/coupon_layout">
-	</include>
-	
+
 </RelativeLayout>
