@@ -6,6 +6,7 @@ import java.util.List;
 import org.json.JSONException;
 
 import android.app.Activity;
+import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -32,17 +33,14 @@ public class FavoriteAddressListActivity extends Activity {
 		setContentView(R.layout.favorite_address_list);
 
 		listViewFavoriteAddresses = (ListView) findViewById(R.id.listViewFavoriteAddresses);
-		listViewFavoriteAddresses
-				.setOnItemClickListener(new OnItemClickListener() {
+		listViewFavoriteAddresses.setOnItemClickListener(new OnItemClickListener() {
 
 					@Override
-					public void onItemClick(AdapterView<?> parent, View view,
-							int position, long id) {
+					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 						Intent resultIntent = new Intent();
 						// TODO: Maybe we want to return Address instance
 						// instead of String value
-						resultIntent.putExtra("address", addresses
-								.get(position).getAddress());
+						resultIntent.putExtra("address", addresses.get(position).getAddress());
 						setResult(Activity.RESULT_OK, resultIntent);
 						finish();
 					}
@@ -120,9 +118,7 @@ public class FavoriteAddressListActivity extends Activity {
 			}
 
 			if (result != null) {
-				listViewFavoriteAddresses
-						.setAdapter(new FavoriteAddressAdapter(
-								FavoriteAddressListActivity.this, result));
+				listViewFavoriteAddresses.setAdapter(new FavoriteAddressAdapter(FavoriteAddressListActivity.this, result));
 			}
 		}
 	}
