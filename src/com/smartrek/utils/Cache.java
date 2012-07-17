@@ -20,6 +20,7 @@ public final class Cache {
 		/**
 		 * The local cache expires on this date/time
 		 */
+		// TODO: Use 'long' instead of 'Time'
 		public Time expires;
 		
 		public Object userdata;
@@ -56,20 +57,20 @@ public final class Cache {
 		return instance;
 	}
 	
-	public synchronized boolean isCacheAvailable(String url) {
+	public boolean isCacheAvailable(String url) {
 		Data data = storage.get(url);
 		
 		return isValid(data);
 	}
 	
-	public synchronized boolean isValid(Data data) {
+	public boolean isValid(Data data) {
 		Time currentTime = new Time();
 		currentTime.setToNow();
 		
 		return data != null && Time.compare(data.expires, currentTime) > 0;
 	}
 	
-	public synchronized Object fetch(String url) throws IOException {
+	public Object fetch(String url) throws IOException {
 		Log.d("Cache", "url = " + url);
 		if(storage.containsKey(url)) {
 			Data data = storage.get(url);
@@ -84,7 +85,6 @@ public final class Cache {
 			}
 		}
 		
-		// TODO: Fetch and cache
 		Log.d("Cache", "Fetching from remote site");
 		
 		HTTP http = new HTTP(url);
