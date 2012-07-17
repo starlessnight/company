@@ -70,8 +70,6 @@ public final class RouteActivity extends MapActivity {
     
     private TimeLayout timeLayout;
     
-    private TextView coupTitleBar;
-    
     public static final String LOGIN_PREFS = "login_file";
     
     public GeoPoint getOriginCoord() {
@@ -118,6 +116,8 @@ public final class RouteActivity extends MapActivity {
         // Set up time layout
         //        
     	timeLayout = (TimeLayout) findViewById(R.id.timelayout);
+    	
+    	// What happens when user selects a specific time
         timeLayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
 			@Override
 			public void onSelect(int column, TimeColumn timeButton) {
@@ -136,6 +136,8 @@ public final class RouteActivity extends MapActivity {
 				}
 			}
 		});
+        
+        // What happens when user scrolls time layout
         timeLayout.setTimeLayoutListener(new TimeLayoutListener() {
 			@Override
 			public void updateTimeLayout(TimeLayout timeLayout, int column) {
@@ -152,7 +154,7 @@ public final class RouteActivity extends MapActivity {
         
         Display display = getWindowManager().getDefaultDisplay();
 
-        // FIXME: Should store values in a different perference file
+        // FIXME: Should store values in a different preference file
         int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
         
         // FIXME: Sloppy
@@ -176,34 +178,9 @@ public final class RouteActivity extends MapActivity {
         dialog.show();
         
         new RouteTask(0).execute(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
-        
-//        for(int i = 0; i < 4; i++) {
-//			Time departureTime = timeLayout.getDepartureTime(i);
-//
-//			// `i` is going to be `selectedColumn` for the time layout
-//			// Only updates maps for `i = 0`
-//			new RouteTask(i).execute(originCoord, destCoord, departureTime, i, (i == 0));
-//		}
-
-
-//        couponLayout = (CouponLayout)couponScroll.getChildAt(0);
-        coupTitleBar = (TextView) findViewById(R.id.adjustableCouponLable);
-        coupTitleBar.setVisibility(View.GONE);
-        //Log.d("RouteActivity", "current selected time is " + selectedTime.toString());
 
     }
 
-    /**
-     * 
-     * @param origin
-     * @param destination
-     * @param time
-     */
-    public void doRoute(GeoPoint origin, GeoPoint destination, Time time) {
-        dialog.show();
-        new RouteTask().execute(origin, destination, time);
-    }
-    
     /**
      * This function will be called when BackgroundDownloadTask().execute()
      * succeeds.
@@ -349,19 +326,14 @@ public final class RouteActivity extends MapActivity {
         return new GeoPoint(midLat,midLong);
     }
     
-    /****************************************************************************************************************
-     * 
-     *
-     *
-     ****************************************************************************************************************/
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu){
-        super.onCreateOptionsMenu(menu);
-        Log.d("RouteActivity","Menu Opened from RouteActivity");
-         MenuInflater mi = getMenuInflater();
-         mi.inflate(R.menu.main, menu);
-        return true;
-    }
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+
+		MenuInflater mi = getMenuInflater();
+		mi.inflate(R.menu.main, menu);
+		return true;
+	}
     
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
@@ -455,7 +427,7 @@ public final class RouteActivity extends MapActivity {
                 possibleRoutes = mapper.getPossibleRoutes(origin, destination, time);
                 
                 if(possibleRoutes == null || possibleRoutes.size() == 0) {
-                    ehs.registerException(new Exception("Could not find a route."));
+                    ehs.registerException(new Exception("Could not find a route (b615)"));
                 }
             }
             catch(Exception e) {
