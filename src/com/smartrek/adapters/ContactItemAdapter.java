@@ -16,22 +16,24 @@ import com.smartrek.models.User;
 public class ContactItemAdapter extends ArrayAdapter<User> {
 	
 	private int textViewResourceId;
-	private List<User> objects;
 	
 	public ContactItemAdapter(Context context, int textViewResourceId,
 			List<User> objects) {
 		super(context, textViewResourceId, objects);
 		
 		this.textViewResourceId = textViewResourceId;
-		this.objects = objects;
 	}
 	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		User u = objects.get(position);
+		View view = convertView;
 		
-		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View view = inflater.inflate(textViewResourceId, parent, false);
+		if (view == null) {
+			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			view = inflater.inflate(textViewResourceId, parent, false);
+		}
+
+		User u = getItem(position);
 		
 		TextView textViewName = (TextView)view.findViewById(R.id.textViewName);
 		// FIXME: Need to consider i18n

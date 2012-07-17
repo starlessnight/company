@@ -136,22 +136,24 @@ public final class ReservationListActivity extends Activity {
 	private class ReservationItemAdapter extends ArrayAdapter<Reservation> {
 		
 		private int textViewResourceId;
-		private List<Reservation> objects;
 
 		public ReservationItemAdapter(Context context, int textViewResourceId,
 				List<Reservation> objects) {
 			super(context, textViewResourceId, objects);
 			
 			this.textViewResourceId = textViewResourceId;
-			this.objects = objects;
 		}
 		
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			Reservation r = objects.get(position);
+			View view = convertView;
 			
-			LayoutInflater inflater = getLayoutInflater();
-			View view = inflater.inflate(textViewResourceId, parent, false);
+			if (view == null) {
+				LayoutInflater inflater = getLayoutInflater();
+				view = inflater.inflate(textViewResourceId, parent, false);
+			}
+			
+			Reservation r = getItem(position);
 			
 			TextView textView1 = (TextView)view.findViewById(R.id.textViewOrigin);
 			textView1.setText(r.getOriginAddress());

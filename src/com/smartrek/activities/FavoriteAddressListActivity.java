@@ -51,30 +51,6 @@ public class FavoriteAddressListActivity extends Activity {
 				.getId());
 	}
 
-	// private class FavoriteAddressAdapter extends ArrayAdapter<Address> {
-	//
-	// private int textViewResourceId;
-	// private List<Address> objects;
-	//
-	// public ReservationItemAdapter(Context context, int textViewResourceId,
-	// List<Address> objects) {
-	// super(context, textViewResourceId, objects);
-	//
-	// this.textViewResourceId = textViewResourceId;
-	// this.objects = objects;
-	// }
-	//
-	// @Override
-	// public View getView(int position, View convertView, ViewGroup parent) {
-	// Address address = objects.get(position);
-	//
-	// LayoutInflater inflater = getLayoutInflater();
-	// View view = inflater.inflate(textViewResourceId, parent, false);
-	//
-	// return view;
-	// }
-	// }
-
 	private class FavoriteAddressFetchTask extends
 			AsyncTask<Integer, Object, List<Address>> {
 
