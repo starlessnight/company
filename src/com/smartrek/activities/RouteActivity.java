@@ -14,8 +14,6 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -186,9 +184,8 @@ public final class RouteActivity extends MapActivity {
      * succeeds.
      * 
      * @param possibleRoutes
-     * @param time
      */
-    private synchronized void updateMap(List<Route> possibleRoutes, Time time) {
+    private synchronized void updateMap(List<Route> possibleRoutes) {
         
         if(possibleRoutes != null && possibleRoutes.size() > 0) {
             /* Get a midpoint to center the view of  the routes */
@@ -279,10 +276,12 @@ public final class RouteActivity extends MapActivity {
         if(routeNum == 0) {
             routeoverlay1 = new RouteOverlay(drawable, mapView, route, new GeoPoint(lat, lon));
             mapOverlays.add(routeoverlay1);
-        } else if(routeNum == 1) {
+        }
+        else if(routeNum == 1) {
             routeoverlay2 = new RouteOverlay(drawable, mapView, route, new GeoPoint(lat, lon));
             mapOverlays.add(routeoverlay2);
-        } else {
+        }
+        else {
             routeoverlay3 = new RouteOverlay(drawable, mapView, route, new GeoPoint(lat, lon));
             mapOverlays.add(routeoverlay3);
         }
@@ -434,10 +433,6 @@ public final class RouteActivity extends MapActivity {
                 ehs.registerException(e);
             }
             
-            if(possibleRoutes != null && updateMap) {
-                updateMap(possibleRoutes, time);
-            }
-            
             return possibleRoutes;
         }
         
@@ -453,6 +448,10 @@ public final class RouteActivity extends MapActivity {
             	ehs.reportExceptions();
             }
             else {
+                if(possibleRoutes != null && updateMap) {
+                    updateMap(possibleRoutes);
+                }
+                
 	            // FIXME: Temporary
 	            if(possibleRoutes != null && possibleRoutes.size() > 0) {
 	            	Route firstRoute = possibleRoutes.get(0);

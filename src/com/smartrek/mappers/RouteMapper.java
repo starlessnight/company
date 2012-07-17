@@ -123,12 +123,16 @@ public final class RouteMapper extends Mapper {
 		Log.d("RouteMapper", routeurl);
 		
 		Cache cache = Cache.getInstance();
-		String routeResponse = (String) cache.fetch(routeurl);
+		String response = (String) cache.fetch(routeurl);
+		
+		if (response == null) {
+			throw new IOException("Cached route could not be fetched.");
+		}
 		
 		// Begin parsing the server response
 		List<Route> routes = new ArrayList<Route>();
 
-		JSONArray array = new JSONArray(routeResponse);
+		JSONArray array = new JSONArray(response);
 		for(int i = 0; i <array.length(); i++) {
 			Route route = parseRoute((JSONObject) array.get(i), time);
 			routes.add(route);
