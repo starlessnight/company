@@ -83,35 +83,32 @@ public final class Cache {
 				storage.remove(url);
 			}
 		}
-		else {
-			// TODO: Fetch and cache
-			Log.d("Cache", "Fetching from remote site");
-			
-			HTTP http = new HTTP(url);
-			http.connect();
-			
-			int code = http.getResponseCode();
-			if(code == 200) {
-				// HTTP OK
-				
-				String body = http.getResponseBody();
-				
-				Data data = new Data();
-				Time expire = new Time();
-				expire.setToNow();
-				expire.set(expire.toMillis(false) + TTL*1000);
-				data.expires = expire;
-				data.userdata = body;
-				
-				storage.put(url, data);
-				
-				return data.userdata;
-			}
-			else {
-				throw new IOException(String.format("HTTP %d: %s", code, http.getResponseBody()));
-			}
-		}
 		
-		return null;
+		// TODO: Fetch and cache
+		Log.d("Cache", "Fetching from remote site");
+		
+		HTTP http = new HTTP(url);
+		http.connect();
+		
+		int code = http.getResponseCode();
+		if(code == 200) {
+			// HTTP OK
+			
+			String body = http.getResponseBody();
+			
+			Data data = new Data();
+			Time expire = new Time();
+			expire.setToNow();
+			expire.set(expire.toMillis(false) + TTL*1000);
+			data.expires = expire;
+			data.userdata = body;
+			
+			storage.put(url, data);
+			
+			return data.userdata;
+		}
+		else {
+			throw new IOException(String.format("HTTP %d: %s", code, http.getResponseBody()));
+		}
 	}
 }
