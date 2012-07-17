@@ -126,7 +126,7 @@ public final class RouteMapper extends Mapper {
 		String response = (String) cache.fetch(routeurl);
 		
 		if (response == null) {
-			throw new IOException("Cached route could not be fetched.");
+			throw new IOException("Cached route could not be fetched (c68f)");
 		}
 		
 		// Begin parsing the server response
