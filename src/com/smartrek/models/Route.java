@@ -165,7 +165,7 @@ public final class Route implements Parcelable {
 		int i = 0;
 		while(i < routeNodes.size()){
 			str += "Node " + (i + 1) + "\n";
-			GeoPoint loc = routeNodes.get(i).getPoint();
+			GeoPoint loc = routeNodes.get(i).getGeoPoint();
 			str += "	Lattitude = " + loc.getLatitudeE6() + "\n";
 			str += "	Longitude = " + loc.getLongitudeE6() + "\n";
 			i++;

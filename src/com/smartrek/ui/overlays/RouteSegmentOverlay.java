@@ -1,4 +1,4 @@
-package com.smartrek.overlays;
+package com.smartrek.ui.overlays;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -74,12 +74,14 @@ public class RouteSegmentOverlay extends Overlay {
 		
 		// if color != -1 then colorNum will be ignored 
 		if (color == -1) {
-			
-			if(getColorNum() == 0){
+
+			if (getColorNum() == 0) {
 				paint.setColor(Color.RED);
-			} else if (getColorNum() == 1){
+			}
+			else if (getColorNum() == 1) {
 				paint.setColor(Color.BLUE);
-			} else {
+			}
+			else {
 				paint.setColor(Color.BLACK);
 			}
 		}

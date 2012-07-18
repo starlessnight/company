@@ -10,8 +10,8 @@ import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
 import com.smartrek.models.Route;
-import com.smartrek.overlays.RouteOverlay;
-import com.smartrek.overlays.RouteSegmentOverlay;
+import com.smartrek.ui.overlays.RouteOverlay;
+import com.smartrek.ui.overlays.RouteSegmentOverlay;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.RouteNode;
 
@@ -76,7 +76,7 @@ public class ConfirmedMapActivity extends MapActivity {
 	    List<RouteNode> route_nodes = route.getNodes();
     	
 	    for(int i = 0; i < route_nodes.size()-1; i++) {	
-	    	GeoPoint point = route_nodes.get(i).getPoint();
+	    	GeoPoint point = route_nodes.get(i).getGeoPoint();
 	    	
 	    	int curLat = point.getLatitudeE6();
 	    	int curLon = point.getLongitudeE6();
@@ -89,7 +89,7 @@ public class ConfirmedMapActivity extends MapActivity {
 		    latMin = Math.min(latMin, curLat);
 		    lonMin = Math.min(lonMin, curLon);
 	    	
-		    Overlay overlayitem = new RouteSegmentOverlay(point, route_nodes.get(i+1).getPoint(), selectedRoute);
+		    Overlay overlayitem = new RouteSegmentOverlay(point, route_nodes.get(i+1).getGeoPoint(), selectedRoute);
 		    mapOverlays.add(overlayitem);
 	    }
     	

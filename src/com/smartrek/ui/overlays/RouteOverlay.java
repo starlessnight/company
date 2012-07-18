@@ -1,4 +1,4 @@
-package com.smartrek.overlays;
+package com.smartrek.ui.overlays;
 
 import java.util.ArrayList;
 
@@ -23,7 +23,7 @@ import com.smartrek.ui.mapviewballon.BalloonItemizedOverlay;
 
 public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 
-	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
+	private ArrayList<OverlayItem> overlays = new ArrayList<OverlayItem>();
 	private Context context;
 	private CouponLayout couponLayout;
 	private TextView titleBar;
@@ -31,6 +31,8 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 //	private Bitmap bitmap;
 	private boolean enabled;
 	private int selectedRoute;
+	
+	private boolean highlighted = true;
 	
 	public RouteOverlay(Drawable defaultMarker, MapView mapview, Route route){ // Context context) {
 		  super(boundCenter(defaultMarker),mapview);
@@ -60,6 +62,19 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
           addOverlay(item2);
 	}
 	
+	public boolean isHighlighted() {
+		return highlighted;
+	}
+	
+	public void setHighlighted(boolean highlighted) {
+		this.highlighted = highlighted;
+		
+		if (highlighted) {
+			for (OverlayItem overlay : overlays) {
+			}
+		}
+	}
+	
 	public void setCouponLayout(CouponLayout couponlayout, TextView titleBar){
 		this.couponLayout = couponlayout;
 		this.titleBar = titleBar;
@@ -72,20 +87,20 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	}
 	
 	public synchronized void addOverlay(OverlayItem overlay) {
-	    mOverlays.add(overlay);
-	    populate();
+		overlays.add(overlay);
+		populate();
 	}
 
 	@Override
 	protected synchronized OverlayItem createItem(int i) {
-	  return mOverlays.get(i);
+		return overlays.get(i);
 	}
 
 	@Override
 	public synchronized int size() {
-	  return mOverlays.size();
+		return overlays.size();
 	}
-	
+
 	@Override
 	protected final boolean onTap(int index) {
 		Log.d("RouteOverlay", "onTab, index="+index);

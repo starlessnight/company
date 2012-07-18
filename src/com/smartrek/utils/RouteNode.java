@@ -74,7 +74,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		this.nodeNum = nodeNum;
 	}
 	
-	public GeoPoint getPoint() {
+	public GeoPoint getGeoPoint() {
 		return new GeoPoint((int)(lat * 1E6), (int)(lng * 1E6));
 	}
 	

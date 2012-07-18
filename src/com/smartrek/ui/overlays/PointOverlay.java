@@ -1,4 +1,4 @@
-package com.smartrek.overlays;
+package com.smartrek.ui.overlays;
 
 import android.graphics.Canvas;
 import android.graphics.Color;

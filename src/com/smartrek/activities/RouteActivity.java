@@ -5,6 +5,7 @@ import java.util.List;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -23,9 +24,10 @@ import com.google.android.maps.Overlay;
 import com.smartrek.mappers.RouteMapper;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
-import com.smartrek.overlays.RouteOverlay;
-import com.smartrek.overlays.RouteSegmentOverlay;
 import com.smartrek.ui.MainMenu;
+import com.smartrek.ui.overlays.RouteOverlay;
+import com.smartrek.ui.overlays.RoutePathOverlay;
+import com.smartrek.ui.overlays.RouteSegmentOverlay;
 import com.smartrek.ui.timelayout.ScrollableTimeLayout;
 import com.smartrek.ui.timelayout.TimeButton;
 import com.smartrek.ui.timelayout.TimeButton.DisplayMode;
@@ -42,8 +44,6 @@ import com.smartrek.utils.RouteNode;
  *
  */
 public final class RouteActivity extends MapActivity {
-    
-    public static final int DIALOG_ROUTE_NOT_FOUND = 1;
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
@@ -172,7 +172,7 @@ public final class RouteActivity extends MapActivity {
         originCoord = new GeoPoint(extras.getInt("originLat"), extras.getInt("originLng"));
         destCoord = new GeoPoint(extras.getInt("destLat"), extras.getInt("destLng"));
 
-        dialog.setMessage("Computing routes...");
+        dialog.setMessage("Finding routes...");
         dialog.show();
         
         new RouteTask(0).execute(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
@@ -246,7 +246,7 @@ public final class RouteActivity extends MapActivity {
         int lon = 0;
         
         for(int i = 0; i < routeNodes.size()-1; i++) {    
-            GeoPoint point = routeNodes.get(i).getPoint();
+            GeoPoint point = routeNodes.get(i).getGeoPoint();
             
             int curLat = point.getLatitudeE6();
             int curLon = point.getLongitudeE6();
@@ -261,9 +261,14 @@ public final class RouteActivity extends MapActivity {
             latMin = Math.min(latMin, curLat);
             lonMin = Math.min(lonMin, curLon);
             
-            Overlay overlayitem = new RouteSegmentOverlay(point, routeNodes.get(i+1).getPoint(), routeNum);
-            mapOverlays.add(overlayitem);
+            //Overlay overlayitem = new RouteSegmentOverlay(point, routeNodes.get(i+1).getPoint(), routeNum);
+            //mapOverlays.add(overlayitem);
         }
+        
+        int pathColors[] = {Color.RED, Color.BLUE, Color.BLACK};
+        
+       	RoutePathOverlay routePathOverlay = new RoutePathOverlay(route, pathColors[routeNum]);
+       	mapOverlays.add(routePathOverlay);
         
         /* Set values into route to be passed to next Activity */
         route.setAddresses(originAddr, destAddr);
@@ -318,8 +323,8 @@ public final class RouteActivity extends MapActivity {
      *
      ***************************************************************************************************************/
     private GeoPoint getMidPoint (List<RouteNode> nodes) {
-        GeoPoint p1 = nodes.get(0).getPoint(); 
-        GeoPoint p2 = nodes.get(nodes.size()-1).getPoint();
+        GeoPoint p1 = nodes.get(0).getGeoPoint(); 
+        GeoPoint p2 = nodes.get(nodes.size()-1).getGeoPoint();
         int midLat = (p1.getLatitudeE6() + p2.getLatitudeE6())/2;
         int midLong = (p1.getLongitudeE6() + p2.getLongitudeE6())/2;
         return new GeoPoint(midLat,midLong);

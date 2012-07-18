@@ -34,8 +34,8 @@ import com.smartrek.mappers.RouteMapper;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
-import com.smartrek.overlays.PointOverlay;
-import com.smartrek.overlays.RouteSegmentOverlay;
+import com.smartrek.ui.overlays.PointOverlay;
+import com.smartrek.ui.overlays.RouteSegmentOverlay;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
@@ -174,7 +174,7 @@ public class ValidationActivity extends MapActivity {
         int lon = 0;
         
         for(int i = 0; i < routeNodes.size()-1; i++) {
-            GeoPoint point = routeNodes.get(i).getPoint();
+            GeoPoint point = routeNodes.get(i).getGeoPoint();
             
             int curLat = point.getLatitudeE6();
             int curLon = point.getLongitudeE6();
@@ -189,7 +189,7 @@ public class ValidationActivity extends MapActivity {
             latMin = Math.min(latMin, curLat);
             lonMin = Math.min(lonMin, curLon);
             
-            RouteSegmentOverlay overlay = new RouteSegmentOverlay(point, routeNodes.get(i+1).getPoint(), routeNum);
+            RouteSegmentOverlay overlay = new RouteSegmentOverlay(point, routeNodes.get(i+1).getGeoPoint(), routeNum);
             overlay.setColor(Color.DKGRAY);
             mapOverlays.add(overlay);
         }
