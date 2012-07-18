@@ -1,6 +1,7 @@
 package com.smartrek.activities;
 
 import java.util.List;
+import java.util.Vector;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -27,7 +28,6 @@ import com.smartrek.models.User;
 import com.smartrek.ui.MainMenu;
 import com.smartrek.ui.overlays.RouteOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
-import com.smartrek.ui.overlays.RouteSegmentOverlay;
 import com.smartrek.ui.timelayout.ScrollableTimeLayout;
 import com.smartrek.ui.timelayout.TimeButton;
 import com.smartrek.ui.timelayout.TimeButton.DisplayMode;
@@ -68,6 +68,8 @@ public final class RouteActivity extends MapActivity {
     
     private TimeLayout timeLayout;
     
+    private List<RouteTask> routeTasks = new Vector<RouteTask>();
+    
     public static final String LOGIN_PREFS = "login_file";
     
     public GeoPoint getOriginCoord() {
@@ -83,8 +85,6 @@ public final class RouteActivity extends MapActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pre_reservation_map);    
         
-        Log.d("RouteActivity", "Starting RouteActivity");
-
         SharedPreferences prefs = getSharedPreferences(LOGIN_PREFS, MODE_PRIVATE);
         
         mapView = (MapView) findViewById(R.id.mapview);
@@ -104,11 +104,22 @@ public final class RouteActivity extends MapActivity {
         mc.setZoom(4); 
         mc.animateTo(new GeoPoint(lat, lon));
         
-        dialog = new ProgressDialog(RouteActivity.this);
+        dialog = new ProgressDialog(RouteActivity.this) {
+        	@Override
+        	public void onBackPressed() {
+        		// TODO: Should we confirm with the user?
+        		
+        		// Cancel all pending tasks
+        		for (RouteTask task : routeTasks) {
+        			task.cancel(true);
+        		}
+        		
+        		finish();
+        	}
+        };
         dialog.setMessage("Geocoding...");
         dialog.setIndeterminate(true);
         dialog.setCancelable(false);
-        
         
         //
         // Set up time layout
@@ -126,7 +137,10 @@ public final class RouteActivity extends MapActivity {
 						timeLayout.setColumnState(column, State.InProgress);
 						Time departureTime = timeButton.getDepartureTime();
 						dialog.show();
-						new RouteTask().execute(originCoord, destCoord, departureTime, column, true);
+						
+						RouteTask routeTask = new RouteTask();
+						routeTasks.add(routeTask);
+				        routeTask.execute(originCoord, destCoord, departureTime, column, true);
 //					}
 //					else {
 //						timeLayout.setColumnState(column, State.Selected);
@@ -142,7 +156,10 @@ public final class RouteActivity extends MapActivity {
 				if (timeLayout.getColumnState(column).equals(State.Unknown)) {
 					timeLayout.setColumnState(column, State.InProgress);
 					Time departureTime = timeLayout.getDepartureTime(column);
-					new RouteTask().execute(originCoord, destCoord, departureTime, column, false);
+					
+					RouteTask routeTask = new RouteTask();
+					routeTasks.add(routeTask);
+			        routeTask.execute(originCoord, destCoord, departureTime, column, false);
 				}
 			}
         });
@@ -175,7 +192,9 @@ public final class RouteActivity extends MapActivity {
         dialog.setMessage("Finding routes...");
         dialog.show();
         
-        new RouteTask(0).execute(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
+        RouteTask routeTask = new RouteTask(0);
+        routeTasks.add(routeTask);
+        routeTask.execute(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
 
     }
 
