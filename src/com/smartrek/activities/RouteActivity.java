@@ -117,9 +117,6 @@ public final class RouteActivity extends MapActivity {
         		finish();
         	}
         };
-        dialog.setMessage("Geocoding...");
-        dialog.setIndeterminate(true);
-        dialog.setCancelable(false);
         
         //
         // Set up time layout

@@ -35,7 +35,7 @@ import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.ui.overlays.PointOverlay;
-import com.smartrek.ui.overlays.RouteSegmentOverlay;
+import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
@@ -188,11 +188,10 @@ public class ValidationActivity extends MapActivity {
             lonMax = Math.max(lonMax, curLon);
             latMin = Math.min(latMin, curLat);
             lonMin = Math.min(lonMin, curLon);
-            
-            RouteSegmentOverlay overlay = new RouteSegmentOverlay(point, routeNodes.get(i+1).getGeoPoint(), routeNum);
-            overlay.setColor(Color.DKGRAY);
-            mapOverlays.add(overlay);
         }
+        
+        RoutePathOverlay pathOverlay = new RoutePathOverlay(route, Color.DKGRAY);
+        mapOverlays.add(pathOverlay);
         
         pointOverlay = new PointOverlay(0, 0);
         pointOverlay.setColor(Color.BLUE);
@@ -238,12 +237,12 @@ public class ValidationActivity extends MapActivity {
         
     	List<RouteNode> routeNodes = route.getNodes();
         
-    	// FIXME: There's gotta be a better solution
-    	for (int i = 0; i < routeNodes.size() - mapOverlayOffset; i++) {
-    		RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(i);
-    		overlay.setColor(Color.DKGRAY);
-    	}
-    	RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(nearestLink.getStartNode().getNodeIndex());
+//    	// FIXME: There's gotta be a better solution
+//    	for (int i = 0; i < routeNodes.size() - mapOverlayOffset; i++) {
+//    		RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(i);
+//    		overlay.setColor(Color.DKGRAY);
+//    	}
+//    	RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(nearestLink.getStartNode().getNodeIndex());
     	
 //    	RouteNode startNode = nearestLink.getStartNode();
 //    	startNodeOverlay.setLocation(startNode.getLatitude(), startNode.getLongitude());
@@ -253,16 +252,16 @@ public class ValidationActivity extends MapActivity {
     	
     	ValidationParameters params = ValidationParameters.getInstance();
         
-        float distanceToLink = nearestLink.distanceTo(lat, lng);
-        if (distanceToLink <= params.getDistanceThreshold()) {
-        	numberOfInRoute += 1;
-        	overlay.setColor(Color.GREEN);
-        	//Log.d("ValidationActivity", String.format("In route, score = %d/%d = %.2f", numberOfInRoute, numberOfLocationChanges, numberOfInRoute/(float)numberOfLocationChanges));
-        }
-        else {
-        	overlay.setColor(Color.RED);
-        	//Log.d("ValidationActivity", String.format("Out of route, score = %d/%d = %.2f", numberOfInRoute, numberOfLocationChanges, numberOfInRoute/(float)numberOfLocationChanges));
-        }
+//        float distanceToLink = nearestLink.distanceTo(lat, lng);
+//        if (distanceToLink <= params.getDistanceThreshold()) {
+//        	numberOfInRoute += 1;
+//        	overlay.setColor(Color.GREEN);
+//        	//Log.d("ValidationActivity", String.format("In route, score = %d/%d = %.2f", numberOfInRoute, numberOfLocationChanges, numberOfInRoute/(float)numberOfLocationChanges));
+//        }
+//        else {
+//        	overlay.setColor(Color.RED);
+//        	//Log.d("ValidationActivity", String.format("Out of route, score = %d/%d = %.2f", numberOfInRoute, numberOfLocationChanges, numberOfInRoute/(float)numberOfLocationChanges));
+//        }
     	
     	mapView.postInvalidate();
     	
@@ -277,8 +276,9 @@ public class ValidationActivity extends MapActivity {
         	
         	try {
 				Log.d("ValidationActivity", "trajectory = " + trajectory.toJSON().toString());
-			} catch (JSONException e) {
-				e.printStackTrace();
+			}
+        	catch (JSONException e) {
+        		ehs.registerException(e);
 			}
         }
     }
