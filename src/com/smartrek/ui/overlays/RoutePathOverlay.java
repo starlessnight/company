@@ -17,10 +17,19 @@ public class RoutePathOverlay extends Overlay {
 	
 	private Route route;
 	private int color;
+	private boolean highlighted = true;
 	
 	public RoutePathOverlay(Route route, int color) {
 		this.route = route;
 		this.color = color;
+	}
+	
+	public boolean isHighlighted() {
+		return highlighted;
+	}
+	
+	public void setHighlighted(boolean highlighted) {
+		this.highlighted = highlighted;
 	}
 
 	@Override
@@ -31,8 +40,11 @@ public class RoutePathOverlay extends Overlay {
 		paint.setAntiAlias(true);
 		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeWidth(6);
-		paint.setAlpha(90);
-		paint.setColor(color);
+		//paint.setAlpha(90);
+		
+		// Seems like Paint.setAlpha has no effect
+		int alphaMask = highlighted ? 0x66000000 : 0x2F000000;
+		paint.setColor((color & 0x00FFFFFF) | alphaMask);
 		
 		Point point = new Point();
 		Path path = new Path();

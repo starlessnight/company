@@ -22,11 +22,13 @@ import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
+import com.google.android.maps.OverlayItem;
 import com.smartrek.mappers.RouteMapper;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
 import com.smartrek.ui.MainMenu;
 import com.smartrek.ui.overlays.RouteOverlay;
+import com.smartrek.ui.overlays.RouteOverlayCallback;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.ui.timelayout.ScrollableTimeLayout;
 import com.smartrek.ui.timelayout.TimeButton;
@@ -296,14 +298,17 @@ public final class RouteActivity extends MapActivity {
         
         if(routeNum == 0) {
             routeoverlay1 = new RouteOverlay(drawable, mapView, route, new GeoPoint(lat, lon));
+            routeoverlay1.setCallback(new RouteOverlayCallbackImpl(route));
             mapOverlays.add(routeoverlay1);
         }
         else if(routeNum == 1) {
             routeoverlay2 = new RouteOverlay(drawable, mapView, route, new GeoPoint(lat, lon));
+            routeoverlay2.setCallback(new RouteOverlayCallbackImpl(route));
             mapOverlays.add(routeoverlay2);
         }
         else {
             routeoverlay3 = new RouteOverlay(drawable, mapView, route, new GeoPoint(lat, lon));
+            routeoverlay3.setCallback(new RouteOverlayCallbackImpl(route));
             mapOverlays.add(routeoverlay3);
         }
         
@@ -491,6 +496,32 @@ public final class RouteActivity extends MapActivity {
 	            }
             }
         }
+    }
+    
+    private class RouteOverlayCallbackImpl implements RouteOverlayCallback {
 
+    	private Route route;
+    	
+    	public RouteOverlayCallbackImpl(Route route) {
+    		this.route = route;
+    	}
+    	
+		@Override
+		public boolean onBalloonTap(int index, OverlayItem item) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean onTap(int index) {
+			Intent intent = new Intent(RouteActivity.this, ReservationConfirmationActivity.class);
+			Bundle extras = new Bundle();
+			extras.putParcelable("route", route);
+			intent.putExtras(extras);
+			startActivity(intent);
+			
+			return true;
+		}
+    	
     }
 }

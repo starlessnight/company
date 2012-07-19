@@ -22,6 +22,8 @@ import com.smartrek.models.Route;
 import com.smartrek.ui.mapviewballon.BalloonItemizedOverlay;
 
 public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
+	
+	private RouteOverlayCallback callback;
 
 	private ArrayList<OverlayItem> overlays = new ArrayList<OverlayItem>();
 	private Context context;
@@ -30,9 +32,6 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private Route route;
 //	private Bitmap bitmap;
 	private boolean enabled;
-	private int selectedRoute;
-	
-	private boolean highlighted = true;
 	
 	public RouteOverlay(Drawable defaultMarker, MapView mapview, Route route){ // Context context) {
 		  super(boundCenter(defaultMarker),mapview);
@@ -62,17 +61,14 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
           addOverlay(item2);
 	}
 	
-	public boolean isHighlighted() {
-		return highlighted;
-	}
-	
-	public void setHighlighted(boolean highlighted) {
-		this.highlighted = highlighted;
-		
-		if (highlighted) {
-			for (OverlayItem overlay : overlays) {
-			}
-		}
+	/**
+	 * Currently supports only one callback instance. The name of this method
+	 * would have been 'addCallback' otherwise.
+	 * 
+	 * @param callback
+	 */
+	public void setCallback(RouteOverlayCallback callback) {
+		this.callback = callback;
 	}
 	
 	public void setCouponLayout(CouponLayout couponlayout, TextView titleBar){
@@ -81,9 +77,8 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		enabled = true;
 	}
 	
-	public void setRoute(Route route,int routeNum){
+	public void setRoute(Route route, int routeNum) {
 		this.route = route;
-		this.selectedRoute = routeNum;
 	}
 	
 	public synchronized void addOverlay(OverlayItem overlay) {
@@ -135,14 +130,11 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	
 	@Override
 	protected boolean onBalloonTap(int index, OverlayItem item) {
-		Log.d("RouteOverlay", String.format("index=%d, item=%s", index, item));
-		
-		Intent intent = new Intent(context, ReservationConfirmationActivity.class);
-		Bundle extras = new Bundle();
-		extras.putParcelable("route", route);
-		intent.putExtras(extras);
-		context.startActivity(intent);
-		
-		return true;
+		if (callback != null) {
+			return callback.onBalloonTap(index, item);
+		}
+		else {
+			return super.onBalloonTap(index, item);
+		}
 	}
 }
