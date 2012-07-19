@@ -50,6 +50,7 @@ public final class RouteActivity extends MapActivity {
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
     private RouteOverlay[] routeOverlays = new RouteOverlay[3];
+    private RoutePathOverlay[] routePathOverlays = new RoutePathOverlay[3];
     
     private String originAddr;
     private String destAddr;
@@ -282,8 +283,8 @@ public final class RouteActivity extends MapActivity {
         
         int pathColors[] = {Color.RED, Color.BLUE, Color.BLACK};
         
-       	RoutePathOverlay routePathOverlay = new RoutePathOverlay(route, pathColors[routeNum]);
-       	mapOverlays.add(routePathOverlay);
+       	routePathOverlays[routeNum] = new RoutePathOverlay(route, pathColors[routeNum]);
+       	mapOverlays.add(routePathOverlays[routeNum]);
         
         /* Set values into route to be passed to next Activity */
         route.setAddresses(originAddr, destAddr);
@@ -294,7 +295,7 @@ public final class RouteActivity extends MapActivity {
         drawable = this.getResources().getDrawable(R.drawable.routetag);
         
         routeOverlays[routeNum] = new RouteOverlay(drawable, mapView, route, new GeoPoint(lat, lon));
-        routeOverlays[routeNum].setCallback(new RouteOverlayCallbackImpl(route));
+        routeOverlays[routeNum].setCallback(new RouteOverlayCallbackImpl(route, routeNum));
         mapOverlays.add(routeOverlays[routeNum]);
         
         /* Log selected time to debug */
@@ -486,24 +487,35 @@ public final class RouteActivity extends MapActivity {
     private class RouteOverlayCallbackImpl implements RouteOverlayCallback {
 
     	private Route route;
+    	private int routeNum;
     	
-    	public RouteOverlayCallbackImpl(Route route) {
+    	public RouteOverlayCallbackImpl(Route route, int routeNum) {
     		this.route = route;
+    		this.routeNum = routeNum;
     	}
     	
 		@Override
 		public boolean onBalloonTap(int index, OverlayItem item) {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public boolean onTap(int index) {
 			Intent intent = new Intent(RouteActivity.this, ReservationConfirmationActivity.class);
 			Bundle extras = new Bundle();
 			extras.putParcelable("route", route);
 			intent.putExtras(extras);
 			startActivity(intent);
+			
+			return true;
+		}
+
+		@Override
+		public boolean onTap(int index) {
+			// Highlight selected route path
+			for (int i = 0; i < routeOverlays.length; i++) {
+				RoutePathOverlay overlay = routePathOverlays[i];
+				
+				if (overlay != null) {
+					overlay.setHighlighted(false);
+				}
+			}
+			routePathOverlays[routeNum].setHighlighted(true);
 			
 			return true;
 		}

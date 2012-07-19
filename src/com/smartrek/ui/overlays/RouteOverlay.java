@@ -2,10 +2,7 @@ package com.smartrek.ui.overlays;
 
 import java.util.ArrayList;
 
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -17,7 +14,6 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 import com.smartrek.AdjustableCouponDisplay.CouponLayout;
-import com.smartrek.activities.ReservationConfirmationActivity;
 import com.smartrek.models.Route;
 import com.smartrek.ui.mapviewballon.BalloonItemizedOverlay;
 
@@ -26,29 +22,22 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private RouteOverlayCallback callback;
 
 	private ArrayList<OverlayItem> overlays = new ArrayList<OverlayItem>();
-	private Context context;
 	private CouponLayout couponLayout;
 	private TextView titleBar;
 	private Route route;
-//	private Bitmap bitmap;
 	private boolean enabled;
 	
 	public RouteOverlay(Drawable defaultMarker, MapView mapview, Route route){ // Context context) {
 		  super(boundCenter(defaultMarker),mapview);
 		  enabled = false;
-		  context = mapview.getContext();
 		  this.route = route;
 	}
 	
 	public RouteOverlay(Drawable defaultMarker, MapView mapview, Route route, GeoPoint point) {
 		  super(boundCenter(defaultMarker),mapview);
 		  enabled = false;
-		  context = mapview.getContext();
 		  this.route = route;
 	
-		  OverlayItem item = new OverlayItem(point, "Title", "snippet");
-		  addOverlay(item);
-		  
           OverlayItem item2 = new OverlayItem(point,
         		  // TODO: Showing a route ID is a temporary solution.
         		  // Ultimately, we want to show "Route 1", "Route 2", ...
@@ -98,7 +87,9 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 
 	@Override
 	protected final boolean onTap(int index) {
-		Log.d("RouteOverlay", "onTab, index="+index);
+		Log.d("RouteOverlay", "onTap, index=" + index);
+		
+		// FIXME: Move the following code to RouteActivity
 		
 		currentFocussedIndex = index;
 		currentFocussedItem = createItem(index);
@@ -125,7 +116,12 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 								});
 		}
 		
-		return true;
+		if (callback != null) {
+			return callback.onTap(index);
+		}
+		else {
+			return super.onTap(index);
+		}
 	}
 	
 	@Override

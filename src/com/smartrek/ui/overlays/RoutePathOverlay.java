@@ -43,7 +43,7 @@ public class RoutePathOverlay extends Overlay {
 		//paint.setAlpha(90);
 		
 		// Seems like Paint.setAlpha has no effect
-		int alphaMask = highlighted ? 0x66000000 : 0x2F000000;
+		int alphaMask = highlighted ? 0x6F000000 : 0x2F000000;
 		paint.setColor((color & 0x00FFFFFF) | alphaMask);
 		
 		Point point = new Point();
