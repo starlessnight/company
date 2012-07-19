@@ -1,7 +1,7 @@
 package com.smartrek.models;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -131,7 +131,7 @@ public class Trajectory {
 		}
 	}
 	
-	private List<Record> records = new ArrayList<Record>();
+	private List<Record> records = new Vector<Record>();
 	
 	public Trajectory() {
 		
