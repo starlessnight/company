@@ -49,10 +49,7 @@ public final class RouteActivity extends MapActivity {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
-    // FIXME: Fixed number of overlays...
-    private RouteOverlay routeoverlay1;
-    private RouteOverlay routeoverlay2;
-    private RouteOverlay routeoverlay3;
+    private RouteOverlay[] routeOverlays = new RouteOverlay[3];
     
     private String originAddr;
     private String destAddr;
@@ -296,21 +293,9 @@ public final class RouteActivity extends MapActivity {
         
         drawable = this.getResources().getDrawable(R.drawable.routetag);
         
-        if(routeNum == 0) {
-            routeoverlay1 = new RouteOverlay(drawable, mapView, route, new GeoPoint(lat, lon));
-            routeoverlay1.setCallback(new RouteOverlayCallbackImpl(route));
-            mapOverlays.add(routeoverlay1);
-        }
-        else if(routeNum == 1) {
-            routeoverlay2 = new RouteOverlay(drawable, mapView, route, new GeoPoint(lat, lon));
-            routeoverlay2.setCallback(new RouteOverlayCallbackImpl(route));
-            mapOverlays.add(routeoverlay2);
-        }
-        else {
-            routeoverlay3 = new RouteOverlay(drawable, mapView, route, new GeoPoint(lat, lon));
-            routeoverlay3.setCallback(new RouteOverlayCallbackImpl(route));
-            mapOverlays.add(routeoverlay3);
-        }
+        routeOverlays[routeNum] = new RouteOverlay(drawable, mapView, route, new GeoPoint(lat, lon));
+        routeOverlays[routeNum].setCallback(new RouteOverlayCallbackImpl(route));
+        mapOverlays.add(routeOverlays[routeNum]);
         
         /* Log selected time to debug */
         //Log.d("RouteActivity", "In RouteActivity setting route time");
