@@ -149,49 +149,4 @@ public final class HTTP {
 //        }
 //        return in;     
 //    }
-    
-	/**
-	 * @deprecated
-	 * @param URL
-	 * @return
-	 */
-    public static String downloadText(String URL) {
-        int BUFFER_SIZE = 4096;
-        InputStream in = null;
-        try {
-            HttpURLConnection httpConn = openHttpConnection(URL);
-			httpConn.setAllowUserInteraction(false);
-			httpConn.setInstanceFollowRedirects(true);
-			httpConn.setRequestMethod("GET");
-			httpConn.connect();
-			int response = httpConn.getResponseCode();                 
-			if (response == HttpURLConnection.HTTP_OK) {
-			    in = httpConn.getInputStream();                                 
-			}    
-        } catch (IOException e1) {
-            e1.printStackTrace();
-            return "";
-        }
-        
-        if(in == null) {
-        	return "";
-        }
-
-        InputStreamReader isr = new InputStreamReader(in);
-
-        StringBuffer strBuf = new StringBuffer();
-        char[] buf = new char[BUFFER_SIZE];
-        
-        try {
-        	int read = 0;
-            while ((read = isr.read(buf)) > 0) {
-                strBuf.append(buf, 0, read);
-            }
-            in.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "";
-        }    
-        return new String(strBuf);
-    }
 }
