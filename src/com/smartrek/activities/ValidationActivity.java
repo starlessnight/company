@@ -122,9 +122,9 @@ public class ValidationActivity extends MapActivity {
     
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        //Handle the back button
+        // Handle the back button
         if(keyCode == KeyEvent.KEYCODE_BACK) {
-            //Ask the user if they want to quit
+            // Ask the user if they want to quit
             new AlertDialog.Builder(this)
             .setIcon(android.R.drawable.ic_dialog_alert)
             .setTitle("Confirm")

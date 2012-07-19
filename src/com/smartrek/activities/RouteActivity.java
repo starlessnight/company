@@ -3,7 +3,9 @@ package com.smartrek.activities;
 import java.util.List;
 import java.util.Vector;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -13,6 +15,7 @@ import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -107,14 +110,7 @@ public final class RouteActivity extends MapActivity {
         dialog = new ProgressDialog(RouteActivity.this) {
         	@Override
         	public void onBackPressed() {
-        		// TODO: Should we confirm with the user?
-        		
-        		// Cancel all pending tasks
-        		for (RouteTask task : routeTasks) {
-        			task.cancel(true);
-        		}
-        		
-        		finish();
+        		RouteActivity.this.onBackPressed();
         	}
         };
         
@@ -192,9 +188,31 @@ public final class RouteActivity extends MapActivity {
         RouteTask routeTask = new RouteTask(0);
         routeTasks.add(routeTask);
         routeTask.execute(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
-
     }
+    
+    @Override
+    public void onBackPressed() {
+		// Ask the user if they want to quit
+		new AlertDialog.Builder(this)
+				.setIcon(android.R.drawable.ic_dialog_alert)
+				.setTitle("Confirm")
+				.setMessage("Are you sure you want to go back to main screen?")
+				.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog,	int which) {
+						
+		        		// Cancel all pending tasks
+		        		for (RouteTask task : routeTasks) {
+		        			task.cancel(true);
+		        		}
+		        		
+						// Stop the activity
+						RouteActivity.this.finish();
+					}
 
+				}).setNegativeButton("No", null).show();
+	}
+    
     /**
      * This function will be called when BackgroundDownloadTask().execute()
      * succeeds.
