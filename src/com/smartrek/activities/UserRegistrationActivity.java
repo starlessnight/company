@@ -59,8 +59,11 @@ public final class UserRegistrationActivity extends Activity {
      * @return False if it fails, true otherwise.
      */
     private boolean checkUserInput() {
+    	// TODO: Define a common interface to validate your input
+    	
     	String username = editTextUsername.getText().toString().trim();
     	if (username.equals("")) {
+    		ehs.reportException("Please enter your username.");
     		return false;
     	}
     	
@@ -68,13 +71,27 @@ public final class UserRegistrationActivity extends Activity {
     	String lastname = editTextLastname.getText().toString().trim();
     	// TODO: Check firstname and lastname
     	
+    	if (firstname.equals("")) {
+    		ehs.reportException("Please enter your first name.");
+    		return false;
+    	}
+    	if (lastname.equals("")) {
+    		ehs.reportException("Please enter your last name.");
+    		return false;
+    	}
+    	
     	String email = editTextEmail.getText().toString().trim();
+    	if (email.equals("")) {
+    		ehs.reportException("Please enter your email address.");
+    		return false;
+    	}
     	// TODO: Validate email address
     	
     	String password = editTextPassword.getText().toString().trim();
     	String passwordConfirm = editTextPasswordConfirm.getText().toString().trim();
     	
     	if (!password.equals(passwordConfirm)) {
+    		ehs.reportException("The two passwords you entered do not match.");
     		return false;
     	}
     	
