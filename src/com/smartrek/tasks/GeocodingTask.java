@@ -3,10 +3,10 @@ package com.smartrek.tasks;
 import java.io.IOException;
 
 import org.json.JSONException;
+import org.osmdroid.util.GeoPoint;
 
 import android.os.AsyncTask;
 
-import com.google.android.maps.GeoPoint;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Geocoding;
 

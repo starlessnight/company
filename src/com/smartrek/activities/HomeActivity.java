@@ -1,15 +1,13 @@
 package com.smartrek.activities;
 
+import org.osmdroid.util.GeoPoint;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.format.Time;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -17,7 +15,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
@@ -26,12 +23,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.google.android.maps.GeoPoint;
 import com.smartrek.adapters.FavoriteAddressAdapter;
 import com.smartrek.models.Address;
 import com.smartrek.models.User;
@@ -248,9 +243,8 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
         
         /***************End Buttons********************/
         
-        
-
-		 
+        originBox.setText("origin");
+        destBox.setText("destination");		 
     }
 
 	/****************************************************************************************************************

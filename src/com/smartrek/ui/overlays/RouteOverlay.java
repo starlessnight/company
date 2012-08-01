@@ -2,6 +2,12 @@ package com.smartrek.ui.overlays;
 
 import java.util.ArrayList;
 
+import org.osmdroid.api.IMapView;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.OverlayItem;
+
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.View;
@@ -10,9 +16,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapView;
-import com.google.android.maps.OverlayItem;
 import com.smartrek.AdjustableCouponDisplay.CouponLayout;
 import com.smartrek.models.Route;
 import com.smartrek.ui.mapviewballon.BalloonItemizedOverlay;
@@ -27,27 +30,22 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private Route route;
 	private boolean enabled;
 	
-	public RouteOverlay(Drawable defaultMarker, MapView mapview, Route route){ // Context context) {
-		  super(boundCenter(defaultMarker),mapview);
-		  enabled = false;
-		  this.route = route;
-	}
-	
 	public RouteOverlay(Drawable defaultMarker, MapView mapview, Route route, GeoPoint point) {
-		  super(boundCenter(defaultMarker),mapview);
-		  enabled = false;
-		  this.route = route;
-	
-          OverlayItem item2 = new OverlayItem(point,
-        		  // TODO: Showing a route ID is a temporary solution.
-        		  // Ultimately, we want to show "Route 1", "Route 2", ...
-                  "Route #" + route.getId(),
-                  "Origin: \n" + route.getOrigin()  + " \n\n" +
-                  "Destination: \n" + route.getDestination() + "\n\n" + 
-                  "Estimated Travel Time: " + route.getMin() + " min\n" +
-                  "Credits: " + route.getCredits() + "\n\n" +
-                  "(Tap to reserve this route)");
-          addOverlay(item2);
+		super(defaultMarker, mapview);
+		enabled = false;
+		this.route = route;
+
+		OverlayItem item2 = new OverlayItem(
+		// TODO: Showing a route ID is a temporary solution.
+		// Ultimately, we want to show "Route 1", "Route 2", ...
+				"Route #" + route.getId(),
+				"Origin: \n" + route.getOrigin()
+						+ " \n\n" + "Destination: \n" + route.getDestination()
+						+ "\n\n" + "Estimated Travel Time: " + route.getMin()
+						+ " min\n" + "Credits: " + route.getCredits() + "\n\n"
+						+ "(Tap to reserve this route)",
+				point);
+		addOverlay(item2);
 	}
 	
 	/**
@@ -110,7 +108,7 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 											layout.setVisibility(View.GONE);
 											couponLayout.setVisibility(View.GONE);
 											titleBar.setVisibility(View.GONE);
-											mapView.getZoomButtonsController().setVisible(true);
+											//mapView.getZoomButtonsController().setVisible(true);
 											mapView.invalidate();
 									}
 								});
@@ -127,10 +125,17 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	@Override
 	protected boolean onBalloonTap(int index, OverlayItem item) {
 		if (callback != null) {
-			return callback.onBalloonTap(index, item);
+			//return callback.onBalloonTap(index, item);
+			return false;
 		}
 		else {
 			return super.onBalloonTap(index, item);
 		}
+	}
+
+	@Override
+	public boolean onSnapToItem(int arg0, int arg1, Point arg2, IMapView arg3) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

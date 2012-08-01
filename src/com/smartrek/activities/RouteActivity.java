@@ -3,6 +3,13 @@ package com.smartrek.activities;
 import java.util.List;
 import java.util.Vector;
 
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapController;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Overlay;
+import org.osmdroid.views.overlay.OverlayItem;
+
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -15,17 +22,10 @@ import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.Display;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
-import com.google.android.maps.Overlay;
-import com.google.android.maps.OverlayItem;
 import com.smartrek.mappers.RouteMapper;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
@@ -48,7 +48,7 @@ import com.smartrek.utils.RouteNode;
  * 
  *
  */
-public final class RouteActivity extends MapActivity {
+public final class RouteActivity extends Activity {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
@@ -93,12 +93,6 @@ public final class RouteActivity extends MapActivity {
         mapView = (MapView) findViewById(R.id.mapview);
         
         mapView.setBuiltInZoomControls(true);
-        if(CURRENTMODE == SATELLITE){
-            mapView.setSatellite(true);
-        }
-        else if(CURRENTMODE == GENMAP){
-            mapView.setSatellite(false);
-        }
     
         /* Set the map view for a view of North America before zooming in on route */
         MapController mc = mapView.getController();
@@ -219,7 +213,7 @@ public final class RouteActivity extends MapActivity {
      * 
      * @param possibleRoutes
      */
-    private synchronized void updateMap(List<Route> possibleRoutes) {
+    private void updateMap(List<Route> possibleRoutes) {
         
         if(possibleRoutes != null && possibleRoutes.size() > 0) {
             /* Get a midpoint to center the view of  the routes */
@@ -243,11 +237,6 @@ public final class RouteActivity extends MapActivity {
         }
     }
 
-    @Override
-    protected boolean isRouteDisplayed() {
-        return true;
-    }
-    
     private List<Overlay> mapOverlays;
     
     /*****************************************************************************************************************
@@ -301,7 +290,7 @@ public final class RouteActivity extends MapActivity {
         
         int pathColors[] = {Color.RED, Color.BLUE, Color.BLACK};
         
-       	routePathOverlays[routeNum] = new RoutePathOverlay(route, pathColors[routeNum]);
+       	routePathOverlays[routeNum] = new RoutePathOverlay(this, route, pathColors[routeNum]);
        	mapOverlays.add(routePathOverlays[routeNum]);
         
         /* Set values into route to be passed to next Activity */
@@ -388,15 +377,6 @@ public final class RouteActivity extends MapActivity {
             if (0 != extras.getInt("mapmode")) {
                 int mapmode = extras.getInt("mapmode");
                 Log.d("RouteActivity", "Got result from menu " + mapmode);
-                if (mapmode != CURRENTMODE) {
-                    if (mapmode == SATELLITE) {
-                        mapView.setSatellite(true);
-                    } else if (mapmode == GENMAP) {
-                        mapView.setSatellite(false);
-                    }
-                    CURRENTMODE = mapmode;
-                    mapView.invalidate();
-                }
             } else if (0 != extras.getInt("display")) {
                 int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
                 
@@ -537,6 +517,5 @@ public final class RouteActivity extends MapActivity {
 			
 			return true;
 		}
-    	
     }
 }

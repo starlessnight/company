@@ -17,11 +17,11 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.osmdroid.util.GeoPoint;
 
 import android.text.format.Time;
 import android.util.Log;
 
-import com.google.android.maps.GeoPoint;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.utils.Cache;
@@ -109,7 +109,7 @@ public final class RouteMapper extends Mapper {
 	 * @throws IOException 
 	 */
 	public List<Route> getPossibleRoutes(GeoPoint origin, GeoPoint destination, Time time) throws JSONException, IOException {
-		boolean useRealRoute = true;
+		boolean useRealRoute = false;
 		String routeurl = null;
 		if (useRealRoute) {
 			routeurl = String.format("%s/getroutes/startlat=%f%%20startlon=%f%%20endlat=%f%%20endlon=%f%%20departtime=%d:%02d",

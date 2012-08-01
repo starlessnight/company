@@ -15,6 +15,8 @@ package com.smartrek.ui.mapviewballon;
  * 
  */
 
+import org.osmdroid.views.overlay.OverlayItem;
+
 import android.content.Context;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -24,7 +26,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.android.maps.OverlayItem;
 import com.smartrek.activities.R;
 
 /**

@@ -9,7 +9,11 @@ import java.util.TimerTask;
 
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Overlay;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -26,10 +30,6 @@ import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapActivity;
-import com.google.android.maps.MapView;
-import com.google.android.maps.Overlay;
 import com.smartrek.mappers.RouteMapper;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
@@ -42,7 +42,7 @@ import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.ValidationParameters;
 import com.smartrek.utils.ValidationService;
 
-public class ValidationActivity extends MapActivity {
+public class ValidationActivity extends Activity {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 
@@ -150,11 +150,6 @@ public class ValidationActivity extends MapActivity {
 
     }
 
-    @Override
-    protected boolean isRouteDisplayed() {
-        return true;
-    }
-    
     public synchronized int[] drawRoute (MapView mapView, Route route, int routeNum) {
         mapOverlays = mapView.getOverlays();
         Log.d("ValidationActivity", String.format("mapOverlays has %d items", mapOverlays.size()));
@@ -190,20 +185,20 @@ public class ValidationActivity extends MapActivity {
             lonMin = Math.min(lonMin, curLon);
         }
         
-        RoutePathOverlay pathOverlay = new RoutePathOverlay(route, Color.DKGRAY);
-        mapOverlays.add(pathOverlay);
+        //RoutePathOverlay pathOverlay = new RoutePathOverlay(route, Color.DKGRAY);
+        //mapOverlays.add(pathOverlay);
         
-        pointOverlay = new PointOverlay(0, 0);
-        pointOverlay.setColor(Color.BLUE);
-        mapOverlays.add(pointOverlay);
+        //pointOverlay = new PointOverlay(0, 0);
+        //pointOverlay.setColor(Color.BLUE);
+        //mapOverlays.add(pointOverlay);
         
-        startNodeOverlay = new PointOverlay(0, 0);
-        startNodeOverlay.setColor(Color.GRAY);
-        mapOverlays.add(startNodeOverlay);
+        //startNodeOverlay = new PointOverlay(0, 0);
+        //startNodeOverlay.setColor(Color.GRAY);
+        //mapOverlays.add(startNodeOverlay);
         
-        endNodeOverlay = new PointOverlay(0, 0);
-        endNodeOverlay.setColor(Color.MAGENTA);
-        mapOverlays.add(endNodeOverlay);
+        //endNodeOverlay = new PointOverlay(0, 0);
+        //endNodeOverlay.setColor(Color.MAGENTA);
+        //mapOverlays.add(endNodeOverlay);
         
         route.setUserId(User.getCurrentUser(this).getId());
         

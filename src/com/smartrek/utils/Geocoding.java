@@ -6,8 +6,8 @@ import java.net.URLEncoder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.osmdroid.util.GeoPoint;
 
-import com.google.android.maps.GeoPoint;
 
 /**
  * Geocoding is the process of converting addresses

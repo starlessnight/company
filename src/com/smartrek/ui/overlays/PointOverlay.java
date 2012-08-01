@@ -1,14 +1,15 @@
 package com.smartrek.ui.overlays;
 
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.MapView.Projection;
+import org.osmdroid.views.overlay.Overlay;
+
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
-
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.MapView;
-import com.google.android.maps.Overlay;
-import com.google.android.maps.Projection;
 
 /**
  * Draws a point on a map
@@ -20,7 +21,8 @@ public class PointOverlay extends Overlay {
 	private GeoPoint geoPoint;
 	private int color = Color.GREEN;
 	
-	public PointOverlay(float lat, float lng) {
+	public PointOverlay(Context context, float lat, float lng) {
+		super(context);
 		setLocation(lat, lng);
 	}
 	
@@ -33,7 +35,7 @@ public class PointOverlay extends Overlay {
 	}
 
 	@Override
-	public synchronized boolean draw (Canvas canvas, MapView mapView, boolean shadow, long when) {
+	protected void draw(Canvas canvas, MapView mapView, boolean shadow) {
 		Projection projection = mapView.getProjection();
 		Paint paint = new Paint();
 		paint.setAntiAlias(true);
@@ -43,7 +45,5 @@ public class PointOverlay extends Overlay {
 		projection.toPixels(geoPoint, point);
 		
 		canvas.drawCircle(point.x, point.y, RADIUS, paint);
-		
-		return super.draw(canvas, mapView, shadow, when);
 	}
 }

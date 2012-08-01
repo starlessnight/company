@@ -2,14 +2,16 @@ package com.smartrek.ui.overlays;
 
 import java.util.List;
 
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.MapView.Projection;
+import org.osmdroid.views.overlay.Overlay;
+
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 
-import com.google.android.maps.MapView;
-import com.google.android.maps.Overlay;
-import com.google.android.maps.Projection;
 import com.smartrek.models.Route;
 import com.smartrek.utils.RouteNode;
 
@@ -19,7 +21,8 @@ public class RoutePathOverlay extends Overlay {
 	private int color;
 	private boolean highlighted = true;
 	
-	public RoutePathOverlay(Route route, int color) {
+	public RoutePathOverlay(Context context, Route route, int color) {
+		super(context);
 		this.route = route;
 		this.color = color;
 	}
@@ -33,7 +36,7 @@ public class RoutePathOverlay extends Overlay {
 	}
 
 	@Override
-	public boolean draw(Canvas canvas, MapView mapView, boolean shadow, long when) {
+	protected void draw(Canvas canvas, MapView mapView, boolean shadow) {
 		Projection projection = mapView.getProjection();
 		
 		Paint paint = new Paint();
@@ -64,7 +67,5 @@ public class RoutePathOverlay extends Overlay {
 		
 		canvas.drawPath(path, paint);
 		canvas.drawCircle(point.x, point.y, 10, paint);
-		
-		return super.draw(canvas, mapView, shadow, when);
 	}
 }

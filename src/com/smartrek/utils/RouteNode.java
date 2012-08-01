@@ -1,10 +1,11 @@
 package com.smartrek.utils;
 
+import org.osmdroid.util.GeoPoint;
+
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.android.maps.GeoPoint;
 import com.smartrek.models.JSONModel;
 
 public final class RouteNode implements Parcelable, JSONModel {

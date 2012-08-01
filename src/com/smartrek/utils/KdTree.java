@@ -2,7 +2,7 @@ package com.smartrek.utils;
 
 import java.util.List;
 
-import com.google.android.maps.GeoPoint;
+import org.osmdroid.util.GeoPoint;
 
 import android.util.Log;
 

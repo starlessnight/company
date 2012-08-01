@@ -17,18 +17,20 @@ package com.smartrek.ui.mapviewballon;
 
 import java.util.List;
 
+import org.osmdroid.DefaultResourceProxyImpl;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapController;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.ItemizedOverlay;
+import org.osmdroid.views.overlay.Overlay;
+import org.osmdroid.views.overlay.OverlayItem;
+
 import android.graphics.drawable.Drawable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
 
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.ItemizedOverlay;
-import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
-import com.google.android.maps.Overlay;
-import com.google.android.maps.OverlayItem;
 import com.smartrek.activities.R;
 
 /**
@@ -54,7 +56,7 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 	 * @param mapView - The view upon which the overlay items are to be drawn.
 	 */
 	public BalloonItemizedOverlay(Drawable defaultMarker, MapView mapView) {
-		super(defaultMarker);
+		super(defaultMarker, new DefaultResourceProxyImpl(mapView.getContext()));
 		this.mapView = mapView;
 		viewOffset = 0;
 		mc = mapView.getController();
@@ -91,7 +93,6 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 	/* (non-Javadoc)
 	 * @see com.google.android.maps.ItemizedOverlay#onTap(int)
 	 */
-	@Override
 	protected boolean onTap(int index) {
 
 		currentFocussedIndex = index;
@@ -244,8 +245,8 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 		GeoPoint point = currentFocussedItem.getPoint();
 		MapView.LayoutParams params = new MapView.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, point,
-				MapView.LayoutParams.BOTTOM_CENTER);
-		params.mode = MapView.LayoutParams.MODE_MAP;
+				MapView.LayoutParams.BOTTOM_CENTER, 0, 0);
+		//params.mode = MapView.LayoutParams.MODE_MAP;
 
 		balloonView.setVisibility(View.VISIBLE);
 
