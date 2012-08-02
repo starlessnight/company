@@ -98,8 +98,9 @@ public final class RouteActivity extends Activity {
         MapController mc = mapView.getController();
         int lat = (int) Math.round(38.27268853598097f*1E6);
         int lon = (int) Math.round(-99.1406250000000f*1E6);
-        mc.setZoom(4); 
-        mc.animateTo(new GeoPoint(lat, lon));
+        mc.setZoom(14); 
+        //mc.animateTo(lat, lon);
+        mc.setCenter(new GeoPoint(lat, lon));
         
         dialog = new ProgressDialog(RouteActivity.this) {
         	@Override
@@ -253,7 +254,6 @@ public final class RouteActivity extends Activity {
      ****************************************************************************************************************/
     public synchronized int[] drawRoute (MapView mapView, Route route, int routeNum) {
         mapOverlays = mapView.getOverlays();
-        Drawable drawable;
         
         if(routeNum == 0)
             mapOverlays.clear();
@@ -283,9 +283,6 @@ public final class RouteActivity extends Activity {
             lonMax = Math.max(lonMax, curLon);
             latMin = Math.min(latMin, curLat);
             lonMin = Math.min(lonMin, curLon);
-            
-            //Overlay overlayitem = new RouteSegmentOverlay(point, routeNodes.get(i+1).getPoint(), routeNum);
-            //mapOverlays.add(overlayitem);
         }
         
         int pathColors[] = {Color.RED, Color.BLUE, Color.BLACK};

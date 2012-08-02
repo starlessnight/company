@@ -3,7 +3,6 @@ package com.smartrek.ui.overlays;
 import org.osmdroid.api.IMapView;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.ItemizedIconOverlay.OnItemGestureListener;
 import org.osmdroid.views.overlay.OverlayItem;
 
 import android.graphics.Point;
@@ -59,6 +58,11 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 			@Override
 			public boolean onItemSingleTapUp(int index, OverlayItem item) {
 				createAndDisplayBalloonOverlay();
+				
+				if (callback != null) {
+					return callback.onTap(index);
+				}
+				
 				return false;
 			}
 		};
@@ -143,26 +147,10 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	@Override
 	protected boolean onBalloonTap(int index, OverlayItem item) {
 		if (callback != null) {
-			//return callback.onBalloonTap(index, item);
-			return false;
+			return callback.onBalloonTap(index, item);
 		}
 		else {
 			return super.onBalloonTap(index, item);
 		}
 	}
-
-	@Override
-	public boolean onSnapToItem(int arg0, int arg1, Point arg2, IMapView arg3) {
-		// TODO Auto-generated method stub
-		Log.d("RouteInfoOverlay", "onSnapToItem");
-		return false;
-	}
-	
-//	@Override
-//	public boolean onSingleTapUp(final MotionEvent event, final MapView mapView) {
-//		Log.d("RouteInfoOverlay", "onSingleTapUp");
-//		createAndDisplayBalloonOverlay();
-//
-//		return true;
-//	}
 }
