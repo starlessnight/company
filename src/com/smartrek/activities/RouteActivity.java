@@ -16,7 +16,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
@@ -63,10 +62,6 @@ public final class RouteActivity extends Activity {
     private ProgressDialog dialog;
     private MapView mapView;
     
-    private int GENMAP = 1;
-    private int SATELLITE = 2;
-    private int CURRENTMODE = GENMAP;
-
     private Time selectedTime;
     
     private TimeLayout timeLayout;
@@ -98,7 +93,6 @@ public final class RouteActivity extends Activity {
         int lat = (int) Math.round(38.27268853598097f*1E6);
         int lon = (int) Math.round(-99.1406250000000f*1E6);
         mc.setZoom(14); 
-        //mc.animateTo(lat, lon);
         mc.setCenter(new GeoPoint(lat, lon));
         
         dialog = new ProgressDialog(RouteActivity.this) {

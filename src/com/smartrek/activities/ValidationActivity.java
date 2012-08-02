@@ -53,9 +53,6 @@ public class ValidationActivity extends Activity {
     
     private PointOverlay pointOverlay;
     
-    private PointOverlay startNodeOverlay;
-    private PointOverlay endNodeOverlay;
-    
     private int numberOfLocationChanges = 0;
     private int numberOfInRoute = 0;
     
