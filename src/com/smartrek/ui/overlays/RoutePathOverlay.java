@@ -64,7 +64,10 @@ public class RoutePathOverlay extends Overlay {
 			path.lineTo(point.x, point.y);
 		}
 		
+		int zoom = mapView.getZoomLevel();
+		int radius = 2 + zoom/3;
+		
 		canvas.drawPath(path, paint);
-		canvas.drawCircle(point.x, point.y, 10, paint);
+		canvas.drawCircle(point.x, point.y, radius, paint);
 	}
 }
