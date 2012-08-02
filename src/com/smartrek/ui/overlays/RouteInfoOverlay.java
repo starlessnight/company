@@ -14,7 +14,6 @@ import android.widget.TextView;
 import com.smartrek.AdjustableCouponDisplay.CouponLayout;
 import com.smartrek.activities.R;
 import com.smartrek.models.Route;
-import com.smartrek.ui.mapviewballon.BalloonItemizedOverlay;
 
 public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	

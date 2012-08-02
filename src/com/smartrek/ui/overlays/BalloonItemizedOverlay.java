@@ -13,7 +13,7 @@
  * 
  */
 
-package com.smartrek.ui.mapviewballon;
+package com.smartrek.ui.overlays;
 
 import java.util.ArrayList;
 import java.util.List;
