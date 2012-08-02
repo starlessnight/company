@@ -91,7 +91,6 @@ public final class RouteActivity extends Activity {
         SharedPreferences prefs = getSharedPreferences(LOGIN_PREFS, MODE_PRIVATE);
         
         mapView = (MapView) findViewById(R.id.mapview);
-        
         mapView.setBuiltInZoomControls(true);
     
         /* Set the map view for a view of North America before zooming in on route */

@@ -10,6 +10,7 @@ import java.util.TimerTask;
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 
@@ -19,7 +20,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -80,8 +80,6 @@ public class ValidationActivity extends Activity {
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	Log.d("ValidationActivity", "onCreate");
-    	
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_reservation_map);
         
@@ -91,9 +89,16 @@ public class ValidationActivity extends Activity {
         RouteMapper.buildRouteNodeReferenceChain(route.getNodes());
         
         mapView = (MapView) findViewById(R.id.mapview);
-        drawRoute(mapView, route, 0);
+        mapView.setBuiltInZoomControls(true);
+
+        MapController mc = mapView.getController();
+        mc.setZoom(14);
         
-        Log.d(getClass().toString(), String.format("route = %s", route));
+        if (route.getFirstNode() != null) {
+        	mc.setCenter(route.getFirstNode().getGeoPoint());
+        }
+        
+        drawRoute(mapView, route, 0);
         
         // Acquire a reference to the system Location Manager
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
@@ -153,7 +158,6 @@ public class ValidationActivity extends Activity {
     public synchronized int[] drawRoute (MapView mapView, Route route, int routeNum) {
         mapOverlays = mapView.getOverlays();
         Log.d("ValidationActivity", String.format("mapOverlays has %d items", mapOverlays.size()));
-        Drawable drawable;
         
         if(routeNum == 0)
             mapOverlays.clear();
@@ -185,24 +189,14 @@ public class ValidationActivity extends Activity {
             lonMin = Math.min(lonMin, curLon);
         }
         
-        //RoutePathOverlay pathOverlay = new RoutePathOverlay(route, Color.DKGRAY);
-        //mapOverlays.add(pathOverlay);
+        RoutePathOverlay pathOverlay = new RoutePathOverlay(this, route, Color.DKGRAY);
+        mapOverlays.add(pathOverlay);
         
-        //pointOverlay = new PointOverlay(0, 0);
-        //pointOverlay.setColor(Color.BLUE);
-        //mapOverlays.add(pointOverlay);
-        
-        //startNodeOverlay = new PointOverlay(0, 0);
-        //startNodeOverlay.setColor(Color.GRAY);
-        //mapOverlays.add(startNodeOverlay);
-        
-        //endNodeOverlay = new PointOverlay(0, 0);
-        //endNodeOverlay.setColor(Color.MAGENTA);
-        //mapOverlays.add(endNodeOverlay);
+        pointOverlay = new PointOverlay(this, 0, 0);
+        pointOverlay.setColor(Color.BLUE);
+        mapOverlays.add(pointOverlay);
         
         route.setUserId(User.getCurrentUser(this).getId());
-        
-        drawable = this.getResources().getDrawable(R.drawable.routetag);
         
         /* Add offset of 1000 to range so that map displays extra space around route. */
         int [] range = {latMax - latMin + 1500 ,lonMax - lonMin + 1500};

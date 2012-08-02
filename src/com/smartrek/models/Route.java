@@ -132,12 +132,22 @@ public final class Route implements Parcelable {
 		return uid;
 	}
 	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/
 	public List<RouteNode> getNodes() {
 		return routeNodes;
+	}
+	
+	public RouteNode getFirstNode() {
+		if (routeNodes != null && routeNodes.size() > 0) {
+			return routeNodes.get(0);
+		}
+		return null;
+	}
+	
+	public RouteNode getLastNode() {
+		if (routeNodes != null && routeNodes.size() > 0) {
+			return routeNodes.get(routeNodes.size() - 1);
+		}
+		return null;
 	}
 	
 	public void setNodes(JSONArray nodes) throws JSONException {
