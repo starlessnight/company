@@ -110,20 +110,20 @@ public final class RouteMapper extends Mapper {
 	 */
 	public List<Route> getPossibleRoutes(GeoPoint origin, GeoPoint destination, Time time) throws JSONException, IOException {
 		boolean useRealRoute = true;
-		String routeurl = null;
+		String url = null;
 		if (useRealRoute) {
-			routeurl = String.format("%s/getroutes/startlat=%f%%20startlon=%f%%20endlat=%f%%20endlon=%f%%20departtime=%d:%02d",
+			url = String.format("%s/getroutes/startlat=%f%%20startlon=%f%%20endlat=%f%%20endlon=%f%%20departtime=%d:%02d",
 				host, origin.getLatitudeE6()/1.0E6, origin.getLongitudeE6()/1.0E6, destination.getLatitudeE6()/1.0E6, destination.getLongitudeE6()/1.0E6,
 				time.hour, time.minute);
 		}
 		else {
-			routeurl = host + "/getroutesTucson/fake";
+			url = host + "/getroutesTucson/fake";
 		}
 		
-		Log.d("RouteMapper", routeurl);
+		Log.d("RouteMapper", "url = " + url);
 		
 		Cache cache = Cache.getInstance();
-		String response = (String) cache.fetch(routeurl);
+		String response = (String) cache.fetch(url);
 		
 		if (response == null) {
 			throw new IOException("Cached route could not be fetched (c68f)");
@@ -198,10 +198,6 @@ public final class RouteMapper extends Mapper {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		Log.d("Route_Communicator", response.toString());
-		Log.d("Route_Communicator", response.getEntity().toString());
-		Log.d("Route_Communicator", response.getHeaders("uid").toString());
 
 		addroute(route);
 		
