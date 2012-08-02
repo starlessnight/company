@@ -1,5 +1,3 @@
-package com.smartrek.ui.mapviewballon;
-
 /***
  * Copyright (c) 2010 readyState Software Ltd
  * 
@@ -15,13 +13,16 @@ package com.smartrek.ui.mapviewballon;
  * 
  */
 
+package com.smartrek.ui.mapviewballon;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import org.osmdroid.DefaultResourceProxyImpl;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.ItemizedOverlay;
+import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
 
@@ -39,7 +40,7 @@ import com.smartrek.activities.R;
  * 
  * @author Jeff Gilfelt
  */
-public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends ItemizedOverlay<Item> {
+public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends ItemizedIconOverlay<Item> {
 
 	protected MapView mapView;
 	protected BalloonOverlayView<Item> balloonView;
@@ -55,8 +56,12 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 	 * @param defaultMarker - A bounded Drawable to be drawn on the map for each item in the overlay.
 	 * @param mapView - The view upon which the overlay items are to be drawn.
 	 */
-	public BalloonItemizedOverlay(Drawable defaultMarker, MapView mapView) {
-		super(defaultMarker, new DefaultResourceProxyImpl(mapView.getContext()));
+	public BalloonItemizedOverlay(Drawable defaultMarker, MapView mapView,
+			OnItemGestureListener<Item> itemGestureListener) {
+		//super(defaultMarker, new DefaultResourceProxyImpl(mapView.getContext()));
+		super(new ArrayList<Item>(), defaultMarker, itemGestureListener,
+				new DefaultResourceProxyImpl(mapView.getContext()));
+		
 		this.mapView = mapView;
 		viewOffset = 0;
 		mc = mapView.getController();
@@ -136,14 +141,26 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 	 * 
 	 * @param overlays - list of overlays (including this) on the MapView.
 	 */
+//	private void hideOtherBalloons(List<Overlay> overlays) {
+//
+//		for (Overlay overlay : overlays) {
+//			if (overlay instanceof BalloonItemizedOverlay<?> && overlay != this) {
+//				((BalloonItemizedOverlay<?>) overlay).hideBalloon();
+//			}
+//		}
+//
+//	}
 	private void hideOtherBalloons(List<Overlay> overlays) {
-
-		for (Overlay overlay : overlays) {
-			if (overlay instanceof BalloonItemizedOverlay<?> && overlay != this) {
-				((BalloonItemizedOverlay<?>) overlay).hideBalloon();
+		for (int i = 0; i < overlays.size(); i++) {
+			if (overlays.get(i) instanceof BalloonItemizedOverlay<?>
+					&& overlays.get(i) != this) {
+				((BalloonItemizedOverlay<?>) overlays.get(i)).hideBalloon();
+			}
+			else {
+				currentFocussedIndex = i;
+				currentFocussedItem = getItem(0);
 			}
 		}
-
 	}
 
 	/**
@@ -259,5 +276,15 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 		return isRecycled;
 	}
 	
+//	@Override
+//	public boolean onSingleTapUp(final MotionEvent event, final MapView mapView) {
+//		Log.d("BalloonItemizedOverlay", "onSingleTapUp " + this);
+//		if (super.onSingleTapConfirmed(event, mapView)) {
+//			createAndDisplayBalloonOverlay();
+//			return true;
+//		}
+//
+//		return false;
+//	}
 
 }

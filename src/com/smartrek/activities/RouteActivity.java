@@ -30,7 +30,7 @@ import com.smartrek.mappers.RouteMapper;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
 import com.smartrek.ui.MainMenu;
-import com.smartrek.ui.overlays.RouteOverlay;
+import com.smartrek.ui.overlays.RouteInfoOverlay;
 import com.smartrek.ui.overlays.RouteOverlayCallback;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.ui.timelayout.ScrollableTimeLayout;
@@ -52,7 +52,7 @@ public final class RouteActivity extends Activity {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
-    private RouteOverlay[] routeOverlays = new RouteOverlay[3];
+    private RouteInfoOverlay[] routeOverlays = new RouteInfoOverlay[3];
     private RoutePathOverlay[] routePathOverlays = new RoutePathOverlay[3];
     
     private String originAddr;
@@ -299,26 +299,13 @@ public final class RouteActivity extends Activity {
         // FIXME:
         route.setUserId(User.getCurrentUser(this).getId());
         
-        drawable = this.getResources().getDrawable(R.drawable.routetag);
-        
-        routeOverlays[routeNum] = new RouteOverlay(drawable, mapView, route, new GeoPoint(lat, lon));
+        routeOverlays[routeNum] = new RouteInfoOverlay(mapView, route, new GeoPoint(lat, lon));
         routeOverlays[routeNum].setCallback(new RouteOverlayCallbackImpl(route, routeNum));
         mapOverlays.add(routeOverlays[routeNum]);
-        
-        /* Log selected time to debug */
-        //Log.d("RouteActivity", "In RouteActivity setting route time");
-        //Log.d("RouteActivity", selectedTime.format3339(false));
         
         /* Add offset of 1000 to range so that map displays extra space around route. */
         int [] range = {latMax - latMin + 1500 ,lonMax - lonMin + 1500};
         
-        /* Log range values to debug */
-        //Log.d("RouteActivity", " Latitude Range:" + range[0]);
-        //Log.d("RouteActivity", " Longitude Range:" + range[1]);
-        
-        
-        //KdTree.Node root = KdTree.build(routeNodes, 0, routeNodes.size(), 0);
-
         /* Return the range to doRoute so that map can be adjusted to range settings */
         return range;
     }

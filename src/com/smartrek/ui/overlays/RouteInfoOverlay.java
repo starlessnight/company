@@ -1,14 +1,12 @@
 package com.smartrek.ui.overlays;
 
-import java.util.ArrayList;
-
 import org.osmdroid.api.IMapView;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.ItemizedIconOverlay.OnItemGestureListener;
 import org.osmdroid.views.overlay.OverlayItem;
 
 import android.graphics.Point;
-import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -17,25 +15,25 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.smartrek.AdjustableCouponDisplay.CouponLayout;
+import com.smartrek.activities.R;
 import com.smartrek.models.Route;
 import com.smartrek.ui.mapviewballon.BalloonItemizedOverlay;
 
-public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
+public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	
 	private RouteOverlayCallback callback;
 
-	private ArrayList<OverlayItem> overlays = new ArrayList<OverlayItem>();
 	private CouponLayout couponLayout;
 	private TextView titleBar;
 	private Route route;
 	private boolean enabled;
 	
-	public RouteOverlay(Drawable defaultMarker, MapView mapview, Route route, GeoPoint point) {
-		super(defaultMarker, mapview);
-		enabled = false;
+	public RouteInfoOverlay(MapView mapview, Route route, GeoPoint point) {
+		super(mapview.getResources().getDrawable(R.drawable.routetag), mapview, null);
+		this.enabled = false;
 		this.route = route;
 
-		OverlayItem item2 = new OverlayItem(
+		OverlayItem item = new OverlayItem(
 		// TODO: Showing a route ID is a temporary solution.
 		// Ultimately, we want to show "Route 1", "Route 2", ...
 				"Route #" + route.getId(),
@@ -45,7 +43,25 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 						+ " min\n" + "Credits: " + route.getCredits() + "\n\n"
 						+ "(Tap to reserve this route)",
 				point);
-		addOverlay(item2);
+		addItem(item);
+		
+		OverlayItem item2 = new OverlayItem("TEST", "TEST", point);
+		addItem(item2);
+		
+		mOnItemGestureListener = new OnItemGestureListener<OverlayItem>() {
+
+			@Override
+			public boolean onItemLongPress(int index, OverlayItem item) {
+				// TODO Auto-generated method stub
+				return false;
+			}
+
+			@Override
+			public boolean onItemSingleTapUp(int index, OverlayItem item) {
+				createAndDisplayBalloonOverlay();
+				return false;
+			}
+		};
 	}
 	
 	/**
@@ -68,20 +84,22 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		this.route = route;
 	}
 	
-	public synchronized void addOverlay(OverlayItem overlay) {
-		overlays.add(overlay);
-		populate();
-	}
+//	public void addOverlay(OverlayItem overlay) {
+//		synchronized(overlays) {
+//			overlays.add(overlay);
+//			populate();	
+//		}
+//	}
 
-	@Override
-	protected synchronized OverlayItem createItem(int i) {
-		return overlays.get(i);
-	}
-
-	@Override
-	public synchronized int size() {
-		return overlays.size();
-	}
+//	@Override
+//	protected synchronized OverlayItem createItem(int i) {
+//		return overlays.get(i);
+//	}
+//
+//	@Override
+//	public synchronized int size() {
+//		return overlays.size();
+//	}
 
 	@Override
 	protected final boolean onTap(int index) {
@@ -136,6 +154,15 @@ public class RouteOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	@Override
 	public boolean onSnapToItem(int arg0, int arg1, Point arg2, IMapView arg3) {
 		// TODO Auto-generated method stub
+		Log.d("RouteInfoOverlay", "onSnapToItem");
 		return false;
 	}
+	
+//	@Override
+//	public boolean onSingleTapUp(final MotionEvent event, final MapView mapView) {
+//		Log.d("RouteInfoOverlay", "onSingleTapUp");
+//		createAndDisplayBalloonOverlay();
+//
+//		return true;
+//	}
 }
