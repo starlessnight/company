@@ -226,7 +226,8 @@ public final class RouteActivity extends Activity {
             
             /* Get the MapController set the midpoint and range */
             MapController mc = mapView.getController();
-            mc.animateTo(mid);
+            //mc.animateTo(mid);
+            mc.setCenter(mid);
             mc.zoomToSpan(range[0], range[1]);
         }
     }
