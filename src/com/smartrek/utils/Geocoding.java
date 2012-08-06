@@ -62,6 +62,6 @@ public final class Geocoding {
 			}
 		}
 		
-		return new GeoPoint((int)(lat * 1E6), (int)(lng * 1E6));
+		return new GeoPoint(lat, lng);
 	}
 }
