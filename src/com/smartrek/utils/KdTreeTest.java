@@ -10,7 +10,6 @@ import android.util.Log;
 
 import com.smartrek.mappers.RouteMapper;
 import com.smartrek.models.Route;
-import com.smartrek.utils.KdTree.Node;
 
 public class KdTreeTest extends AndroidTestCase {
 

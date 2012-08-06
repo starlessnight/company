@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.json.JSONException;
 
+import android.os.AsyncTask;
+
 import com.smartrek.mappers.FavoriteAddressMapper;
 import com.smartrek.models.Address;
-
-import android.os.AsyncTask;
 
 public class FavoriteAddressFetchTask extends AsyncTask<Integer, Object, Object> {
 

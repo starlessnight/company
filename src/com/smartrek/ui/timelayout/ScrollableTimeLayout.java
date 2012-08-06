@@ -1,10 +1,10 @@
 package com.smartrek.ui.timelayout;
 
-import com.smartrek.ui.ObservableScrollView;
-import com.smartrek.ui.ScrollViewListener;
-
 import android.content.Context;
 import android.util.AttributeSet;
+
+import com.smartrek.ui.ObservableScrollView;
+import com.smartrek.ui.ScrollViewListener;
 
 /**
  * This is a wrapper around `TimeLayout`. The primary responsibility of this

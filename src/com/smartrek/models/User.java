@@ -3,13 +3,13 @@ package com.smartrek.models;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.smartrek.activities.LoginActivity;
-import com.smartrek.mappers.UserMapper;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.smartrek.activities.LoginActivity;
+import com.smartrek.mappers.UserMapper;
 
 
 public final class User implements JSONModel, Parcelable {

@@ -12,12 +12,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.smartrek.models.Coupon;
-import com.smartrek.utils.HTTP;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
+
+import com.smartrek.models.Coupon;
+import com.smartrek.utils.HTTP;
 
 public final class CouponMapper extends Mapper {
 	

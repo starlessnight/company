@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.json.JSONException;
 
+import android.os.AsyncTask;
+
 import com.smartrek.mappers.ContactsMapper;
 import com.smartrek.models.User;
-
-import android.os.AsyncTask;
 
 public final class ContactsFetchTask extends AsyncTask <Object, Object, List<User>> {
 	

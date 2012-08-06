@@ -1,9 +1,5 @@
 package com.smartrek.ui.timelayout;
 
-import com.smartrek.models.Route;
-import com.smartrek.ui.timelayout.TimeButton.DisplayMode;
-import com.smartrek.ui.timelayout.TimeButton.State;
-
 import android.content.Context;
 import android.text.format.Time;
 import android.util.AttributeSet;
@@ -11,6 +7,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
+
+import com.smartrek.models.Route;
+import com.smartrek.ui.timelayout.TimeButton.DisplayMode;
+import com.smartrek.ui.timelayout.TimeButton.State;
 
 
 /**

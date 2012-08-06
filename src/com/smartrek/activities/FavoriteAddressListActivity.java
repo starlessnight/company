@@ -6,7 +6,6 @@ import java.util.List;
 import org.json.JSONException;
 
 import android.app.Activity;
-import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;

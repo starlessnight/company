@@ -96,53 +96,53 @@ public final class RouteActivity extends Activity {
         mc.setCenter(new GeoPoint(lat, lon));
         
         dialog = new ProgressDialog(RouteActivity.this) {
-        	@Override
-        	public void onBackPressed() {
-        		RouteActivity.this.onBackPressed();
-        	}
+            @Override
+            public void onBackPressed() {
+                RouteActivity.this.onBackPressed();
+            }
         };
         
         //
         // Set up time layout
         //        
-    	timeLayout = (TimeLayout) findViewById(R.id.timelayout);
-    	
-    	// What happens when user selects a specific time
+        timeLayout = (TimeLayout) findViewById(R.id.timelayout);
+        
+        // What happens when user selects a specific time
         timeLayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
-			@Override
-			public void onSelect(int column, TimeColumn timeButton) {
-				Log.d("RouteActivity", "Column state: " + timeLayout.getColumnState(column));
-				if (!timeLayout.getColumnState(column).equals(State.InProgress)) {
-					
-//					if (timeLayout.getColumnState(column).equals(State.Unknown)) {
-						timeLayout.setColumnState(column, State.InProgress);
-						Time departureTime = timeButton.getDepartureTime();
-						dialog.show();
-						
-						RouteTask routeTask = new RouteTask();
-						routeTasks.add(routeTask);
-				        routeTask.execute(originCoord, destCoord, departureTime, column, true);
-//					}
-//					else {
-//						timeLayout.setColumnState(column, State.Selected);
-//					}
-				}
-			}
-		});
+            @Override
+            public void onSelect(int column, TimeColumn timeButton) {
+                Log.d("RouteActivity", "Column state: " + timeLayout.getColumnState(column));
+                if (!timeLayout.getColumnState(column).equals(State.InProgress)) {
+                    
+//                  if (timeLayout.getColumnState(column).equals(State.Unknown)) {
+                        timeLayout.setColumnState(column, State.InProgress);
+                        Time departureTime = timeButton.getDepartureTime();
+                        dialog.show();
+                        
+                        RouteTask routeTask = new RouteTask();
+                        routeTasks.add(routeTask);
+                        routeTask.execute(originCoord, destCoord, departureTime, column, true);
+//                  }
+//                  else {
+//                      timeLayout.setColumnState(column, State.Selected);
+//                  }
+                }
+            }
+        });
         
         // What happens when user scrolls time layout
         timeLayout.setTimeLayoutListener(new TimeLayoutListener() {
-			@Override
-			public void updateTimeLayout(TimeLayout timeLayout, int column) {
-				if (timeLayout.getColumnState(column).equals(State.Unknown)) {
-					timeLayout.setColumnState(column, State.InProgress);
-					Time departureTime = timeLayout.getDepartureTime(column);
-					
-					RouteTask routeTask = new RouteTask();
-					routeTasks.add(routeTask);
-			        routeTask.execute(originCoord, destCoord, departureTime, column, false);
-				}
-			}
+            @Override
+            public void updateTimeLayout(TimeLayout timeLayout, int column) {
+                if (timeLayout.getColumnState(column).equals(State.Unknown)) {
+                    timeLayout.setColumnState(column, State.InProgress);
+                    Time departureTime = timeLayout.getDepartureTime(column);
+                    
+                    RouteTask routeTask = new RouteTask();
+                    routeTasks.add(routeTask);
+                    routeTask.execute(originCoord, destCoord, departureTime, column, false);
+                }
+            }
         });
 
         ScrollableTimeLayout scrollView = (ScrollableTimeLayout) findViewById(R.id.scrollTime);
@@ -180,26 +180,26 @@ public final class RouteActivity extends Activity {
     
     @Override
     public void onBackPressed() {
-		// Ask the user if they want to quit
-		new AlertDialog.Builder(this)
-				.setIcon(android.R.drawable.ic_dialog_alert)
-				.setTitle("Confirm")
-				.setMessage("Are you sure you want to go back to main screen?")
-				.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog,	int which) {
-						
-		        		// Cancel all pending tasks
-		        		for (RouteTask task : routeTasks) {
-		        			task.cancel(true);
-		        		}
-		        		
-						// Stop the activity
-						RouteActivity.this.finish();
-					}
+        // Ask the user if they want to quit
+        new AlertDialog.Builder(this)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setTitle("Confirm")
+                .setMessage("Are you sure you want to go back to main screen?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        
+                        // Cancel all pending tasks
+                        for (RouteTask task : routeTasks) {
+                            task.cancel(true);
+                        }
+                        
+                        // Stop the activity
+                        RouteActivity.this.finish();
+                    }
 
-				}).setNegativeButton("No", null).show();
-	}
+                }).setNegativeButton("No", null).show();
+    }
     
     /**
      * This function will be called when BackgroundDownloadTask().execute()
@@ -280,8 +280,8 @@ public final class RouteActivity extends Activity {
         
         int pathColors[] = {Color.RED, Color.BLUE, Color.BLACK};
         
-       	routePathOverlays[routeNum] = new RoutePathOverlay(this, route, pathColors[routeNum]);
-       	mapOverlays.add(routePathOverlays[routeNum]);
+        routePathOverlays[routeNum] = new RoutePathOverlay(this, route, pathColors[routeNum]);
+        mapOverlays.add(routePathOverlays[routeNum]);
         
         /* Set values into route to be passed to next Activity */
         route.setAddresses(originAddr, destAddr);
@@ -321,14 +321,14 @@ public final class RouteActivity extends Activity {
         return new GeoPoint(midLat,midLong);
     }
     
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
 
-		MenuInflater mi = getMenuInflater();
-		mi.inflate(R.menu.main, menu);
-		return true;
-	}
+        MenuInflater mi = getMenuInflater();
+        mi.inflate(R.menu.main, menu);
+        return true;
+    }
     
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
@@ -364,9 +364,9 @@ public final class RouteActivity extends Activity {
     }
     
     public interface RouteTaskCallback {
-    	public void preCallback();
-    	public void callback(List<Route> routes);
-    	public void postCallback();
+        public void preCallback();
+        public void callback(List<Route> routes);
+        public void postCallback();
     }
 
     /**
@@ -374,21 +374,21 @@ public final class RouteActivity extends Activity {
      */
     protected class RouteTask extends AsyncTask<Object, Void, List<Route>> {
         
-    	private int selectedColumn;
-    	private boolean updateMap;
-    	
-    	public RouteTask() {
-    		super();
-    	}
-    	
-    	/**
-    	 * 
-    	 * @param column Indicates a column in TimeLayout that this class is bound to
-    	 */
-    	public RouteTask(int column) {
-    		this.selectedColumn = column;
-    	}
-    	
+        private int selectedColumn;
+        private boolean updateMap;
+        
+        public RouteTask() {
+            super();
+        }
+        
+        /**
+         * 
+         * @param column Indicates a column in TimeLayout that this class is bound to
+         */
+        public RouteTask(int column) {
+            this.selectedColumn = column;
+        }
+        
         @Override
         protected void onPreExecute () {
             // FIXME: Should this be here?
@@ -398,7 +398,7 @@ public final class RouteActivity extends Activity {
         @Override
         protected List<Route> doInBackground(Object... args) {  
             
-        	// FIXME: Potential array out of boundary issues
+            // FIXME: Potential array out of boundary issues
             GeoPoint origin = (GeoPoint)args[0];
             GeoPoint destination = (GeoPoint)args[1];
             Time time = (Time)args[2];
@@ -432,67 +432,67 @@ public final class RouteActivity extends Activity {
             dialog.dismiss();
             
             if (ehs.hasExceptions()) {
-            	ehs.reportExceptions();
+                ehs.reportExceptions();
             }
             else {
                 if(possibleRoutes != null && updateMap) {
                     updateMap(possibleRoutes);
                 }
                 
-	            // FIXME: Temporary
-	            if(possibleRoutes != null && possibleRoutes.size() > 0) {
-	            	Route firstRoute = possibleRoutes.get(0);
-	            	timeLayout.setModelForColumn(selectedColumn, firstRoute);
-	            }
-	            
-	            // FIXME: Relying on updateMap is kind of hack-ish. Need to come up with more sophiscated way.
-	            timeLayout.setColumnState(selectedColumn, updateMap ? TimeButton.State.Selected : TimeButton.State.None);
-	            //timeLayout.setColumnState(selectedColumn, State.None);
-	            
-	            if (selectedColumn == 0) {
-					for (int i = 1; i < 4; i++) {
-						Time departureTime = timeLayout.getDepartureTime(i);
-						new RouteTask(i).execute(originCoord, destCoord, departureTime, i, false);
-					}
-	            }
+                // FIXME: Temporary
+                if(possibleRoutes != null && possibleRoutes.size() > 0) {
+                    Route firstRoute = possibleRoutes.get(0);
+                    timeLayout.setModelForColumn(selectedColumn, firstRoute);
+                }
+                
+                // FIXME: Relying on updateMap is kind of hack-ish. Need to come up with more sophiscated way.
+                timeLayout.setColumnState(selectedColumn, updateMap ? TimeButton.State.Selected : TimeButton.State.None);
+                //timeLayout.setColumnState(selectedColumn, State.None);
+                
+                if (selectedColumn == 0) {
+                    for (int i = 1; i < 4; i++) {
+                        Time departureTime = timeLayout.getDepartureTime(i);
+                        new RouteTask(i).execute(originCoord, destCoord, departureTime, i, false);
+                    }
+                }
             }
         }
     }
     
     private class RouteOverlayCallbackImpl implements RouteOverlayCallback {
 
-    	private Route route;
-    	private int routeNum;
-    	
-    	public RouteOverlayCallbackImpl(Route route, int routeNum) {
-    		this.route = route;
-    		this.routeNum = routeNum;
-    	}
-    	
-		@Override
-		public boolean onBalloonTap(int index, OverlayItem item) {
-			Intent intent = new Intent(RouteActivity.this, ReservationConfirmationActivity.class);
-			Bundle extras = new Bundle();
-			extras.putParcelable("route", route);
-			intent.putExtras(extras);
-			startActivity(intent);
-			
-			return true;
-		}
+        private Route route;
+        private int routeNum;
+        
+        public RouteOverlayCallbackImpl(Route route, int routeNum) {
+            this.route = route;
+            this.routeNum = routeNum;
+        }
+        
+        @Override
+        public boolean onBalloonTap(int index, OverlayItem item) {
+            Intent intent = new Intent(RouteActivity.this, ReservationConfirmationActivity.class);
+            Bundle extras = new Bundle();
+            extras.putParcelable("route", route);
+            intent.putExtras(extras);
+            startActivity(intent);
+            
+            return true;
+        }
 
-		@Override
-		public boolean onTap(int index) {
-			// Highlight selected route path
-			for (int i = 0; i < routeOverlays.length; i++) {
-				RoutePathOverlay overlay = routePathOverlays[i];
-				
-				if (overlay != null) {
-					overlay.setHighlighted(false);
-				}
-			}
-			routePathOverlays[routeNum].setHighlighted(true);
-			
-			return true;
-		}
+        @Override
+        public boolean onTap(int index) {
+            // Highlight selected route path
+            for (int i = 0; i < routeOverlays.length; i++) {
+                RoutePathOverlay overlay = routePathOverlays[i];
+                
+                if (overlay != null) {
+                    overlay.setHighlighted(false);
+                }
+            }
+            routePathOverlays[routeNum].setHighlighted(true);
+            
+            return true;
+        }
     }
 }

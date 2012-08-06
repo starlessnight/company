@@ -1,10 +1,10 @@
 package com.smartrek.ui.timelayout;
 
-import com.smartrek.ui.timelayout.TimeButton.DisplayMode;
-import com.smartrek.ui.timelayout.TimeButton.State;
-
 import android.text.format.Time;
 import android.widget.LinearLayout;
+
+import com.smartrek.ui.timelayout.TimeButton.DisplayMode;
+import com.smartrek.ui.timelayout.TimeButton.State;
 
 /**
  * 
