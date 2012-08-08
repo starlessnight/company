@@ -1,7 +1,5 @@
 package com.smartrek.activities;
 
-import org.osmdroid.util.GeoPoint;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -11,11 +9,9 @@ import android.text.format.Time;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
-import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
@@ -36,6 +32,7 @@ import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.LocationService;
 import com.smartrek.utils.LocationService.LocationServiceListener;
 

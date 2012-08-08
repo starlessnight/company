@@ -3,7 +3,6 @@ package com.smartrek.activities;
 import java.util.List;
 import java.util.Vector;
 
-import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
@@ -41,6 +40,7 @@ import com.smartrek.ui.timelayout.TimeLayout;
 import com.smartrek.ui.timelayout.TimeLayout.TimeLayoutListener;
 import com.smartrek.ui.timelayout.TimeLayout.TimeLayoutOnSelectListener;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.RouteNode;
 
 /**

@@ -3,7 +3,7 @@ package com.smartrek.tasks;
 import java.io.IOException;
 
 import org.json.JSONException;
-import org.osmdroid.util.GeoPoint;
+import com.smartrek.utils.GeoPoint;
 
 import android.os.AsyncTask;
 

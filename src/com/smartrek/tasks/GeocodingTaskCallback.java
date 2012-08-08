@@ -1,6 +1,6 @@
 package com.smartrek.tasks;
 
-import org.osmdroid.util.GeoPoint;
+import com.smartrek.utils.GeoPoint;
 
 /**
  * Defines an interface that is going to be called when GeocodingTask.execute()

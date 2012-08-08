@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.osmdroid.DefaultResourceProxyImpl;
-import org.osmdroid.util.GeoPoint;
+import com.smartrek.utils.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
@@ -259,7 +259,7 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 		if (currentFocussedItem != null)
 			balloonView.setData(currentFocussedItem);
 
-		GeoPoint point = currentFocussedItem.getPoint();
+		GeoPoint point = (GeoPoint) currentFocussedItem.getPoint();
 		MapView.LayoutParams params = new MapView.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, point,
 				MapView.LayoutParams.BOTTOM_CENTER, 0, 0);

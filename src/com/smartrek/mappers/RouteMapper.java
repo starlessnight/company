@@ -17,7 +17,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.osmdroid.util.GeoPoint;
+import com.smartrek.utils.GeoPoint;
 
 import android.text.format.Time;
 import android.util.Log;

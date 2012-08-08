@@ -1,6 +1,6 @@
 package com.smartrek.ui.overlays;
 
-import org.osmdroid.util.GeoPoint;
+import com.smartrek.utils.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.OverlayItem;
 

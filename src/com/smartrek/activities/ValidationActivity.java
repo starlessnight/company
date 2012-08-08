@@ -9,7 +9,7 @@ import java.util.TimerTask;
 
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
-import org.osmdroid.util.GeoPoint;
+import com.smartrek.utils.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;

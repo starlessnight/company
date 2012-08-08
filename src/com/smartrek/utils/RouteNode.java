@@ -1,7 +1,5 @@
 package com.smartrek.utils;
 
-import org.osmdroid.util.GeoPoint;
-
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;

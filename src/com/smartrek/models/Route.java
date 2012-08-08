@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.osmdroid.util.GeoPoint;
+import com.smartrek.utils.GeoPoint;
 
 import android.os.Bundle;
 import android.os.Parcel;

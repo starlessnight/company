@@ -6,7 +6,7 @@ import java.net.URLEncoder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.osmdroid.util.GeoPoint;
+import com.smartrek.utils.GeoPoint;
 
 
 /**
