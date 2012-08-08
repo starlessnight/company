@@ -227,6 +227,10 @@ public final class HomeActivity extends Activity {
 			@Override
 			public boolean onLongClick(View v) {
 				debugMode = true;
+				if (originBox.getText().toString().equals(""))
+					originBox.setText("origin");
+				if (destBox.getText().toString().equals(""))
+					destBox.setText("destination");
 				prepareMapActivity();
 				return true;
 			}
@@ -249,9 +253,6 @@ public final class HomeActivity extends Activity {
         
         
         /***************End Buttons********************/
-        
-        originBox.setText("origin");
-        destBox.setText("destination");		 
     }
 	
 	/**

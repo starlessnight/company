@@ -109,16 +109,9 @@ public final class RouteMapper extends Mapper {
 	 * @throws IOException 
 	 */
 	public List<Route> getPossibleRoutes(GeoPoint origin, GeoPoint destination, Time time) throws JSONException, IOException {
-		boolean useRealRoute = false;
-		String url = null;
-		if (useRealRoute) {
-			url = String.format("%s/getroutes/startlat=%f%%20startlon=%f%%20endlat=%f%%20endlon=%f%%20departtime=%d:%02d",
+		String url = String.format("%s/getroutes/startlat=%f%%20startlon=%f%%20endlat=%f%%20endlon=%f%%20departtime=%d:%02d",
 				host, origin.getLatitudeE6()/1.0E6, origin.getLongitudeE6()/1.0E6, destination.getLatitudeE6()/1.0E6, destination.getLongitudeE6()/1.0E6,
 				time.hour, time.minute);
-		}
-		else {
-			url = host + "/getroutesTucson/fake";
-		}
 		
 		Log.d("RouteMapper", "url = " + url);
 		
@@ -135,6 +128,28 @@ public final class RouteMapper extends Mapper {
 		JSONArray array = new JSONArray(response);
 		for(int i = 0; i <array.length(); i++) {
 			Route route = parseRoute((JSONObject) array.get(i), time);
+			routes.add(route);
+		}
+
+		return routes;
+	}
+	
+	public List<Route> getFakeRoutes(Time departureTime) throws IOException, JSONException {
+		String url = host + "/getroutesTucson/fake";
+		
+		Cache cache = Cache.getInstance();
+		String response = (String) cache.fetch(url);
+		
+		if (response == null) {
+			throw new IOException("Cached route could not be fetched (c68f)");
+		}
+		
+		// Begin parsing the server response
+		List<Route> routes = new ArrayList<Route>();
+
+		JSONArray array = new JSONArray(response);
+		for(int i = 0; i <array.length(); i++) {
+			Route route = parseRoute((JSONObject) array.get(i), departureTime);
 			routes.add(route);
 		}
 

@@ -68,6 +68,8 @@ public final class RouteActivity extends Activity {
     
     private List<RouteTask> routeTasks = new Vector<RouteTask>();
     
+    private boolean debugMode;
+    
     public static final String LOGIN_PREFS = "login_file";
     
     public GeoPoint getOriginCoord() {
@@ -163,6 +165,7 @@ public final class RouteActivity extends Activity {
         /* Get the extras from the bundle */
         Bundle extras = getIntent().getExtras();
         
+        debugMode = extras.getBoolean("debugMode");
 
         originAddr = extras.getString("originAddr");
         destAddr = extras.getString("destAddr");
@@ -411,7 +414,12 @@ public final class RouteActivity extends Activity {
             /* Get the possible routes from the server */
             List<Route> possibleRoutes = null;
             try {
-                possibleRoutes = mapper.getPossibleRoutes(origin, destination, time);
+            	if (debugMode) {
+            		possibleRoutes = mapper.getFakeRoutes(time);
+            	}
+            	else {
+            		possibleRoutes = mapper.getPossibleRoutes(origin, destination, time);
+            	}
                 
                 if(possibleRoutes == null || possibleRoutes.size() == 0) {
                     ehs.registerException(new Exception("Could not find a route (b615)"));
