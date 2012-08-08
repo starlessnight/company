@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
@@ -38,18 +39,18 @@ import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.LocationService;
 import com.smartrek.utils.LocationService.LocationServiceListener;
 
-/****************************************************************************************************************
- * ******************************* public class Home_Activity ***************************************************
- * This Activity is the home screen for the Smartrek Application. From this screen the user can enter their
- * origin, destination, and trip date. Or the user can access their favorite locations or load a previously 
- * reserved trip. 
+/**
+ * This Activity is the home screen for the Smartrek Application. From this
+ * screen the user can enter their origin, destination, and trip date. Or the
+ * user can access their favorite locations or load a previously reserved trip.
  * 
- * This class will communicate with the Smartrek server to down load user favorites and previously reserved
- * trips. Also this class will query the server for Route information given the user input.
+ * This class will communicate with the Smartrek server to down load user
+ * favorites and previously reserved trips. Also this class will query the
+ * server for Route information given the user input.
  * 
  * The layout used for this class is in res/layout.home.xml.
  * 
- * This class is responsible for handling the functionality described above. 
+ * This class is responsible for handling the functionality described above.
  * 
  * @author Tim Olivas
  * 
@@ -57,8 +58,8 @@ import com.smartrek.utils.LocationService.LocationServiceListener;
  * 
  * @version 1.0
  * 
- ****************************************************************************************************************/
-public final class HomeActivity extends Activity implements OnClickListener, OnTouchListener {
+ */
+public final class HomeActivity extends Activity {
     
 	private static final int FAV_ADDR_ORIGIN = 1;
 	private static final int FAV_ADDR_DEST = 2;
@@ -91,26 +92,17 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 	private Button hereButton;
 	
 	private int selected;
-	private int SELECT_O_FAVS = 1;
-	private int SELECT_D_FAVS = 2;
-	private int SELECT_GO = 3;
-	private int SELECT_LOAD = 4;
-	
-//	private String origin = "";
-//	private String destination = "";
 	
 	private GeoPoint originCoord;
 	private GeoPoint destCoord;
 	
 	private Time current;
 	
-	/****************************************************************************************************************
-	 * ***************************** public void onCreate(Bundle savedInstanceState) ********************************
-	 * 
-	 * Called when the activity is first created.
-	 * 
-	 * 
-	 ****************************************************************************************************************/
+	/**
+	 * Indicates if we want to start {@code RouteActivity} in a debug mode.
+	 */
+	private boolean debugMode;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,7 +111,6 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
         selected = -1;
         
         RL = (RelativeLayout) findViewById(R.id.RL2);
-        RL.setOnTouchListener(this);
         
         SV = (ScrollView) findViewById(R.id.SV);
         
@@ -170,7 +161,6 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 				
 				originBox.unsetAddress();
 				originBox.setText(item.getAddress());
-				resetAll();
 			}
 		});
         
@@ -183,7 +173,6 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 				Address item = (Address) adapter.getItem(position);
 				
 				destBox.setText(item.getAddress());
-				resetAll();
 			}
 		});
 		
@@ -224,7 +213,25 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 				startActivityForResult(intent, FAV_ADDR_DEST);
 			}
 		});
-        doneButton.setOnClickListener(this);
+        doneButton.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				debugMode = false;
+				prepareMapActivity();
+			}
+        	
+        });
+        doneButton.setOnLongClickListener(new OnLongClickListener() {
+			
+			@Override
+			public boolean onLongClick(View v) {
+				debugMode = true;
+				prepareMapActivity();
+				return true;
+			}
+			
+		});
         //loadButton.setOnClickListener(this);
         
         originFavButton.setId(1);
@@ -246,108 +253,18 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
         originBox.setText("origin");
         destBox.setText("destination");		 
     }
-
-	/****************************************************************************************************************
-	 * ******************************* public void onClick(View v) ***********************************************
-	 * 
-	 * 
-	 ****************************************************************************************************************/
-	@Override
-	public void onClick(View v) {
-		
-		int prev = selected;
-		
-		if(selected != v.getId()){
-			resetAll();
-			selected = v.getId();
-		}
-		
-		// Animation that will be fired when 'favs' button on the origin address
-		// side is clicked.
-		if(selected == SELECT_O_FAVS){
-			if(selected != prev) {
-				expandSection1(300);
-			}
-			else {
-				resetAll();
-			}
-		}
-		
-		if(selected == SELECT_D_FAVS){
-			if (selected != prev) {
-				expandSection2(300);
-			}
-			else {
-				resetAll();
-			}
-		}
-		
-		if(selected == SELECT_GO){
-			prepareMapActivity();
-		}
-		
-		if(selected == SELECT_LOAD) {
-			
-		}
-	}
-
-	/******************************************************************************************************************
-	 * 
-	 *
-	 ******************************************************************************************************************/
-	@Override
-	public boolean onTouch(View v, MotionEvent event) {
-		
-		return false;
-	}
 	
-	/****************************************************************************************************************
-	 * ******************************** public void onBackedPressed() ***********************************************
+	/**
+	 * Override the onBackPressed() method so the user does not return to the
+	 * Login_Activity after a successful login. Pressing back from the
+	 * Home_Activity will quit the application.
 	 * 
-	 * Override the onBackPressed() method so the user does not return to the Login_Activity after a successful
-	 * login. Pressing back from the Home_Activity will quit the application.
-	 * 
-	 ****************************************************************************************************************/
+	 */
 	@Override
 	public void onBackPressed() {
 		finish();
 	}
 
-	/****************************************************************************************************************
-	 * ************************************* private void resetAll() ************************************************
-	 * 
-	 * Selecting one of the favorites buttons will cause animations to re-shape the layout on the screen. This method
-	 * will put elements back in their starting positions.
-	 * 
-	 ****************************************************************************************************************/
-	private void resetAll() {
-		
-		if(selected == SELECT_O_FAVS){
-//			Animation animation = new TranslateAnimation(0,0,300,0);
-//			animation.setDuration(1500);
-//			animation.setFillAfter(true);
-//			
-//			section2.setAnimation(animation);
-//			section3.setAnimation(animation);
-//			doneButton.setAnimation(animation);
-			
-			expandView(section1, -300);
-			pushDownView(section2, -300);
-	        pushDownView(section3, -300);
-			pushDownView(section4, -300);
-		}
-		else if(selected == SELECT_D_FAVS) {
-			expandView(section2, -300);
-			pushDownView(section3, -300);
-			pushDownView(section4, -300);
-			
-			expandView(destFavs, -200);
-			expandView(SV, -500);
-		}
-		selected = -1;
-	}
-	
-	
 	GeocodingTaskCallback originGeocodingTaskCallback = new GeocodingTaskCallback() {
 		
 		private ProgressDialog dialog;
@@ -474,16 +391,11 @@ public final class HomeActivity extends Activity implements OnClickListener, OnT
 		extras.putInt("originLng", originCoord.getLongitudeE6());
 		extras.putInt("destLat", destCoord.getLatitudeE6());
 		extras.putInt("destLng", destCoord.getLongitudeE6());
+		extras.putBoolean("debugMode", debugMode);
 		intent.putExtras(extras);
 		startActivity(intent);
 	}
 	
-	
-	/****************************************************************************************************************
-	 * 
-	 *
-	 *
-	 ****************************************************************************************************************/
 	@Override
     public boolean onCreateOptionsMenu(Menu menu){
     	super.onCreateOptionsMenu(menu);
