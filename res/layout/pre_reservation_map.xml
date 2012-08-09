@@ -5,7 +5,7 @@
     	android:layout_height="fill_parent">
    
 	<include
-		layout="@layout/googlemap">
+		layout="@layout/mapview">
 	</include>
 	
 	<include 
