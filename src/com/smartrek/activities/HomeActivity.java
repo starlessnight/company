@@ -106,12 +106,6 @@ public final class HomeActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home);
         
-        selected = -1;
-        
-        RL = (RelativeLayout) findViewById(R.id.RL2);
-        
-        SV = (ScrollView) findViewById(R.id.SV);
-        
         section1 = (RelativeLayout) findViewById(R.id.Section1);
         section2 = (RelativeLayout) findViewById(R.id.Section2);
         section3 = (RelativeLayout) findViewById(R.id.Section3);
