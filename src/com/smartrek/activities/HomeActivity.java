@@ -189,14 +189,14 @@ public final class HomeActivity extends Activity {
         buttonFavAddrOrigin.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				buttonFavAddrOriginOnClick(v);
+				onClickButtonFavAddrOrigin(v);
 			}
 		});
         destFavButton.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				buttonFavAddrDestOnClick(v);				
+				onClickButtonFavAddrDest(v);				
 			}
 		});
         doneButton.setOnClickListener(new OnClickListener() {
@@ -337,30 +337,63 @@ public final class HomeActivity extends Activity {
 		return destBox.getText().toString().trim();
 	}
 	
-	private void buttonFavAddrOriginOnClick(View view) {
+	private void onClickButtonFavAddrOrigin(View view) {
 		String origin = getOriginAddress();
 		
 		if (origin.equals("")) {
-			Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
-			startActivityForResult(intent, FAV_ADDR_ORIGIN);
+			showFavAddrListForOrigin();
 		}
 		else {
-			FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(this, origin);
+			FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(this);
+			dialog.setAddress(origin);
+			dialog.setOnClickListener(new FavoriteAddressAddDialog.OnClickListener() {
+				
+				@Override
+				public void onClickPositiveButton() {
+				}
+				
+				@Override
+				public void onClickNegativeButton() {
+					showFavAddrListForOrigin();
+				}
+			});
 			dialog.show();
-			
-			
-//			Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
-//			intent.putExtra("address", getOriginAddress());
-//			startActivityForResult(intent, FAV_ADDR_ORIGIN);
 		}
 		
 	}
 	
-	private void buttonFavAddrDestOnClick(View view) {
-		Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
-		intent.putExtra("address", getDestinationAddress());
-		startActivityForResult(intent, FAV_ADDR_DEST);
+	private void onClickButtonFavAddrDest(View view) {
+		String destination = getDestinationAddress();
 		
+		if (destination.equals("")) {
+			showFavAddrListForDest();
+		}
+		else {
+			FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(this);
+			dialog.setAddress(destination);
+			dialog.setOnClickListener(new FavoriteAddressAddDialog.OnClickListener() {
+				
+				@Override
+				public void onClickPositiveButton() {
+				}
+				
+				@Override
+				public void onClickNegativeButton() {
+					showFavAddrListForDest();
+				}
+			});
+			dialog.show();
+		}
+	}
+	
+	private void showFavAddrListForOrigin() {
+		Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
+		startActivityForResult(intent, FAV_ADDR_ORIGIN);
+	}
+	
+	private void showFavAddrListForDest() {
+		Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
+		startActivityForResult(intent, FAV_ADDR_DEST);
 	}
 	
 	private void prepareMapActivity() {
@@ -465,47 +498,4 @@ public final class HomeActivity extends Activity {
 	private void setDestinationAddress(String address) {
 		destBox.setText(address);
 	}
-	
-	private void expandView(View view, int delta) {
-		view.layout(view.getLeft(), 
-		        view.getTop(),
-		        view.getRight(), 
-		        view.getBottom() + delta);
-	}
-	
-	private void pushDownView(View view, int delta) {
-		view.layout(view.getLeft(), 
-		        view.getTop() + delta, 
-		        view.getRight(), 
-		        view.getBottom() + delta);
-	}
-	
-	private void expandSection1(int delta) {
-//        Animation animation = new TranslateAnimation(0,0,-300,0);
-//        animation.setDuration(1500);
-		
-        expandView(section1, delta);
-        pushDownView(section2, delta);
-        pushDownView(section3, delta);
-        pushDownView(section4, delta);
-        
-        expandView(originFavs, delta - 100);
-        expandView(SV, delta + 200);
-        
-// FIXME: No animations for now
-//        section2.setAnimation(animation);
-//        section3.setAnimation(animation);
-//        originFavs.setAnimation(new TranslateAnimation(0, 0, -200, 0));
-//        doneButton.setAnimation(animation);
-	}
-	
-	private void expandSection2(int delta) {
-        expandView(section2, delta);
-        pushDownView(section3, delta);
-        pushDownView(section4, delta);
-        
-        expandView(destFavs, delta - 100);        
-        expandView(SV, delta + 200);
-	}
-
 }

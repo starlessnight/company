@@ -17,13 +17,13 @@ import com.smartrek.models.Route;
 import com.smartrek.utils.HTTP;
 import com.smartrek.utils.RouteNode;
 
-public final class ReservationMapper extends Mapper {
+public final class ReservationMapper extends FetchRequest {
 
 	public List<Reservation> getReservations(int uid) throws IOException, JSONException, ParseException {
 	    
 	    List<Reservation> reservations = new ArrayList<Reservation>();
 	    
-	    String url = String.format("%s/getreservations/%d", Mapper.host, uid);
+	    String url = String.format("%s/getreservations/%d", FetchRequest.HOST, uid);
 	    HTTP http = new HTTP(url);
         http.connect();
         
@@ -59,7 +59,7 @@ public final class ReservationMapper extends Mapper {
 		buf.append("]");
 		
 		String url = String.format("%s/addreservations/?rid=%d&credits=%d&uid=%d&start_datetime=%s&estimatedTT=%d&origin_address=%s&destination_address=%s&route=%s",
-				host,
+				HOST,
 				route.getId(), route.getCredits(), route.getUserId(),
 				URLEncoder.encode(route.getDepartureTime().format("%Y-%m-%d %T")),
 				route.getDuration(),
@@ -95,7 +95,7 @@ public final class ReservationMapper extends Mapper {
 	}
 	
 	public void reportValidation(int uid, int rid) throws IOException {
-		String url = String.format("%s/validationdone/?uid=%d&rid=%d", host, uid, rid);
+		String url = String.format("%s/validationdone/?uid=%d&rid=%d", HOST, uid, rid);
 		
 		HTTP http = new HTTP(url);
 		http.connect();

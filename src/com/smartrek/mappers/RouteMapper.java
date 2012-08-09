@@ -33,7 +33,7 @@ import com.smartrek.utils.RouteNode;
  * 
  *
  */
-public final class RouteMapper extends Mapper {
+public final class RouteMapper extends FetchRequest {
 	
 	/**
 	 * Default constructor
@@ -110,7 +110,7 @@ public final class RouteMapper extends Mapper {
 	 */
 	public List<Route> getPossibleRoutes(GeoPoint origin, GeoPoint destination, Time time) throws JSONException, IOException {
 		String url = String.format("%s/getroutes/startlat=%f%%20startlon=%f%%20endlat=%f%%20endlon=%f%%20departtime=%d:%02d",
-				host, origin.getLatitudeE6()/1.0E6, origin.getLongitudeE6()/1.0E6, destination.getLatitudeE6()/1.0E6, destination.getLongitudeE6()/1.0E6,
+				HOST, origin.getLatitudeE6()/1.0E6, origin.getLongitudeE6()/1.0E6, destination.getLatitudeE6()/1.0E6, destination.getLongitudeE6()/1.0E6,
 				time.hour, time.minute);
 		
 		Log.d("RouteMapper", "url = " + url);
@@ -135,7 +135,7 @@ public final class RouteMapper extends Mapper {
 	}
 	
 	public List<Route> getFakeRoutes(Time departureTime) throws IOException, JSONException {
-		String url = host + "/getroutesTucson/fake";
+		String url = HOST + "/getroutesTucson/fake";
 		
 		Cache cache = Cache.getInstance();
 		String response = (String) cache.fetch(url);
@@ -164,7 +164,7 @@ public final class RouteMapper extends Mapper {
 	 * @throws JSONException 
 	 */
 	public int getRouteCredits(int rid) throws IOException, JSONException {
-		String url = String.format("%s/getroutecredits/%d", host, rid);
+		String url = String.format("%s/getroutecredits/%d", HOST, rid);
 		HTTP http = new HTTP(url);
 		http.connect();
 		
@@ -189,7 +189,7 @@ public final class RouteMapper extends Mapper {
 		logReservationPost(route);
 
 		HttpClient client = new DefaultHttpClient();
-		HttpPost post = new HttpPost(host + "/reservation");
+		HttpPost post = new HttpPost(HOST + "/reservation");
 
 		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
 		pairs.add(new BasicNameValuePair("START_DATETIME", route.timeToString()));
@@ -229,7 +229,7 @@ public final class RouteMapper extends Mapper {
 		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
 		List<RouteNode> nodes = route.getNodes();
 		HttpClient client = new DefaultHttpClient();
-		HttpPost post = new HttpPost(host + "/addroute");
+		HttpPost post = new HttpPost(HOST + "/addroute");
 		
 		for (int i = 0; i < route.getNodes().size(); i++) {
 			
@@ -286,7 +286,7 @@ public final class RouteMapper extends Mapper {
 
 	public void sendTrajectory(int seq, int uid, int rid, Trajectory trajectory) throws JSONException, ClientProtocolException, IOException {
   
-		String url = String.format("%s/sendtrajectory/", host);
+		String url = String.format("%s/sendtrajectory/", HOST);
 		//String url = "http://192.168.0.21:7787/";
 		// GPS Points (Lat/ Lon / Altitude (ft) / Heading / Timestamp / Speed (mph)
 		

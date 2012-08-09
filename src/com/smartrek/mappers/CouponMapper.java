@@ -19,7 +19,7 @@ import android.util.Log;
 import com.smartrek.models.Coupon;
 import com.smartrek.utils.HTTP;
 
-public final class CouponMapper extends Mapper {
+public final class CouponMapper extends FetchRequest {
 	
 	public enum Flag {
 		All, Received, Sent
@@ -40,13 +40,13 @@ public final class CouponMapper extends Mapper {
 		
 		String url = null;
 		if(Flag.All.equals(flag)) {
-			url = String.format("%s/getusercoupons/%d", host, uid);
+			url = String.format("%s/getusercoupons/%d", HOST, uid);
 		}
 		else if(Flag.Received.equals(flag)) {
-			url = String.format("%s/couponsharing-requestview/receiveruid=%d", host, uid);
+			url = String.format("%s/couponsharing-requestview/receiveruid=%d", HOST, uid);
 		}
 		else if(Flag.Sent.equals(flag)) {
-			url = String.format("%s/couponsharing-sendview/senderuid=%d", host, uid);
+			url = String.format("%s/couponsharing-sendview/senderuid=%d", HOST, uid);
 		}
 		
 		// FIXME: Handle a case where flag = null
@@ -123,7 +123,7 @@ public final class CouponMapper extends Mapper {
 	
 	public void sendCouponTo(Coupon coupon, int senderUid, int receiverUid) throws IOException {
 		String url = String.format("%s/couponsharing-send/senderuid=%d%%20receiveruid=%d%%20did=%d",
-				host, senderUid, receiverUid, coupon.getDid());
+				HOST, senderUid, receiverUid, coupon.getDid());
 		
 		HTTP http = new HTTP(url);
 		http.connect();
@@ -139,7 +139,7 @@ public final class CouponMapper extends Mapper {
 	
 	public void cancelSentCoupon(Coupon coupon) throws IOException {
 		String url = String.format("%s/couponsharing-cancel/senderuid=%d%%20receiveruid=%d%%20did=%d",
-				host, coupon.getSenderUid(), coupon.getReceiverUid(), coupon.getDid());
+				HOST, coupon.getSenderUid(), coupon.getReceiverUid(), coupon.getDid());
 		
 		HTTP http = new HTTP(url);
 		http.connect();
@@ -155,7 +155,7 @@ public final class CouponMapper extends Mapper {
 	
 	public void acceptCoupon(Coupon coupon, int senderUid, int receiverUid) throws IOException {
 		String url = String.format("%s/couponsharing-accept/senderuid=%d%%20receiveruid=%d%%20did=%d",
-				host, senderUid, receiverUid, coupon.getDid());
+				HOST, senderUid, receiverUid, coupon.getDid());
 		
 		HTTP http = new HTTP(url);
 		http.connect();
@@ -173,7 +173,7 @@ public final class CouponMapper extends Mapper {
 	
 	public void rejectCoupon(Coupon coupon, int senderUid, int receiverUid) throws IOException {
 		String url = String.format("%s/couponsharing-decline/senderuid=%d%%20receiveruid=%d%%20did=%d",
-				host, senderUid, receiverUid, coupon.getDid());
+				HOST, senderUid, receiverUid, coupon.getDid());
 		
 		HTTP http = new HTTP(url);
 		http.connect();

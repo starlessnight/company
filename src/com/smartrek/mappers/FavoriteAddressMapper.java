@@ -11,12 +11,12 @@ import org.json.JSONObject;
 import com.smartrek.models.Address;
 import com.smartrek.utils.Cache;
 
-public final class FavoriteAddressMapper extends Mapper {
+public final class FavoriteAddressMapper extends FetchRequest {
 
 	private List<Address> addresses = new ArrayList<Address>();
 	
 	public List<Address> getAddresses(int uid) throws JSONException, IOException {
-		String url = String.format("%s/getfavadd/%d", host, uid);
+		String url = String.format("%s/getfavadd/%d", HOST, uid);
 		
 		Cache cache = Cache.getInstance();
 		String response = (String) cache.fetch(url);

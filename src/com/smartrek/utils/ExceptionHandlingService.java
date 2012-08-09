@@ -20,6 +20,11 @@ public class ExceptionHandlingService {
         return !exceptions.isEmpty();
     }
     
+    /**
+     * Reports an exception when {@code reportExceptions()} is called.
+     * 
+     * @param e
+     */
     public synchronized void registerException(Exception e) {
         registerException(e, System.err);
     }
@@ -31,6 +36,11 @@ public class ExceptionHandlingService {
         exceptions.push(e);
     }
     
+    /**
+     * Reports an exception immediately.
+     * 
+     * @param message
+     */
     public synchronized void reportException(String message) {
         AlertDialog dialog = new AlertDialog.Builder(context).create();
         dialog.setTitle("Exception");
@@ -42,6 +52,10 @@ public class ExceptionHandlingService {
             }
         });
         dialog.show();
+    }
+    
+    public synchronized void reportException(Exception e) {
+    	reportException(e.getMessage());
     }
     
     public synchronized void reportExceptions() {

@@ -1,8 +1,11 @@
 package com.smartrek.dialogs;
 
+import java.io.IOException;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,7 +14,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import com.smartrek.activities.FavoriteAddressListActivity;
+import com.smartrek.activities.HomeActivity;
 import com.smartrek.activities.R;
+import com.smartrek.mappers.FavoriteAddressAddRequest;
+import com.smartrek.models.User;
+import com.smartrek.utils.ExceptionHandlingService;
 
 /**
  * The purpose of this dialog is to provide an interface to add a favorite
@@ -22,6 +30,11 @@ import com.smartrek.activities.R;
  */
 public class FavoriteAddressAddDialog extends AlertDialog {
 	
+	public interface OnClickListener {
+		void onClickPositiveButton();
+		void onClickNegativeButton();
+	}
+	
 	private OnClickListener listener;
 	private String address;
 	private ViewGroup dialogView;
@@ -29,11 +42,10 @@ public class FavoriteAddressAddDialog extends AlertDialog {
 	private EditText editTextAddress;
 	private ProgressBar progressBar;
 	
-	public FavoriteAddressAddDialog(Context context, String address) {
+	public FavoriteAddressAddDialog(Context context) {
 		super(context);
-		this.address = address;
 	}
-
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		
@@ -60,6 +72,9 @@ public class FavoriteAddressAddDialog extends AlertDialog {
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
+				if (listener != null) {
+					listener.onClickNegativeButton();
+				}
 			}
 			
 		});
@@ -80,9 +95,42 @@ public class FavoriteAddressAddDialog extends AlertDialog {
 		});
 	}
 	
+	private String getName() {
+		return editTextName.getText().toString().trim();
+	}
+	
+	private String getAddress() {
+		return editTextAddress.getText().toString().trim();
+	}
+	
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	
+	public void setOnClickListener(OnClickListener listener) {
+		this.listener = listener;
+	}
+	
 	private void onClickPositiveButton() {
 		editTextName.setEnabled(false);
 		editTextAddress.setEnabled(false);
 		progressBar.setVisibility(View.VISIBLE);
+		
+		FavoriteAddressAddRequest request = new FavoriteAddressAddRequest();
+		ExceptionHandlingService ehs = new ExceptionHandlingService(getContext());
+		User currentUser = User.getCurrentUser(getContext());
+		
+		try {
+			request.execute(currentUser.getId(), getName(), getAddress());
+		}
+		catch (IOException e) {
+			ehs.reportException(e);
+		}
+		
+		if (listener != null) {
+			listener.onClickPositiveButton();
+		}
+		
+		dismiss();
 	}
 }

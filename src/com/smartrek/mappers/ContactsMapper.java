@@ -12,7 +12,7 @@ import com.smartrek.models.User;
 import com.smartrek.utils.HTTP;
 
 
-public final class ContactsMapper extends Mapper {
+public final class ContactsMapper extends FetchRequest {
 
 	public List<User> getContacts(User currentUser) throws JSONException, IOException {
 		return getContacts(currentUser.getId());
@@ -21,7 +21,7 @@ public final class ContactsMapper extends Mapper {
 	public List<User> getContacts(int uid) throws JSONException, IOException {
 		List<User> contacts = new ArrayList<User>();
 		
-		String url = String.format("%s/getcontacts/%d", host, uid);
+		String url = String.format("%s/getcontacts/%d", HOST, uid);
 		
 		HTTP http = new HTTP(url);
 		http.connect();

@@ -18,7 +18,7 @@ import com.smartrek.utils.HTTP;
  * @author timothyolivas
  *
  ****************************************************************************************************/
-public class UserMapper extends Mapper {
+public class UserMapper extends FetchRequest {
 	
 	// values are database field names
 	public static final String UID = "UID";
@@ -31,23 +31,27 @@ public class UserMapper extends Mapper {
 		super();
 	}
 	
-	public User login(String name, String pwd) throws JSONException {
-		String loginurl = String.format("%s/account/%s%%20%s", host, name, pwd);
+	public User login(String name, String pwd) throws JSONException, IOException {
+		String loginurl = String.format("%s/account/%s%%20%s", HOST, name, pwd);
 
-		Log.d("Login_Communicator", "Querrying Sever with");
-		Log.d("Login_Communicator", loginurl);
-		String login_response = downloadText(loginurl);
-		Log.d("Login_Communicator", "Got Response from Server");
-		Log.d("Login_Communicator", "response = " + login_response);
-
-        User user = Parser.parse_User(name, login_response);
+		HTTP http = new HTTP(loginurl);
+		http.connect();
 		
-		return user;
+		int responseCode = http.getResponseCode();
+		if (responseCode == 200) {
+			String jsonString = http.getResponseBody();
+			User user = Parser.parse_User(name, jsonString);
+			
+			return user;
+		}
+		else {
+			throw new IOException(String.format("HTTP %d: %s", responseCode, http.getResponseBody()));
+		}
 	}
 	
 	public void register(User user) throws IOException {
 		String url = String.format("%s/adduser/username=%s&password=%s&email=%s&firstname=%s&lastname=%s",
-				host,
+				HOST,
 				URLEncoder.encode(user.getUsername()),
 				URLEncoder.encode(user.getPassword()),
 				URLEncoder.encode(user.getEmail()),
