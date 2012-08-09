@@ -83,7 +83,7 @@ public final class HomeActivity extends Activity {
 	private ListView destFavs;
 	
 	private Button doneButton;
-	private ImageButton originFavButton;
+	private ImageButton buttonFavAddrOrigin;
 	private ImageButton destFavButton;
 	private Button loadButton;
 	private Button hereButton;
@@ -178,36 +178,24 @@ public final class HomeActivity extends Activity {
         /***************Start Buttons********************/
         
         // Instantiate Buttons from file main.xml
-        originFavButton = (ImageButton) findViewById(R.id.Favs1);
+        buttonFavAddrOrigin = (ImageButton) findViewById(R.id.Favs1);
         destFavButton = (ImageButton) findViewById(R.id.Favs2);
         doneButton = (Button) findViewById(R.id.Done);
         //loadButton = (Button) findViewById(R.id.Load);
         
         // Set Button OnClickListerners to be declared by
         // this class     
-        originFavButton.setOnClickListener(new OnClickListener() {
-			
+        buttonFavAddrOrigin.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
-				startActivityForResult(intent, FAV_ADDR_ORIGIN);
+				buttonFavAddrOriginOnClick((Button) v);
 			}
 		});
         destFavButton.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-//				LayoutInflater inflater = (LayoutInflater) HomeActivity.this
-//		                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//				View layout = inflater.inflate(R.layout.favorite_address_list, (ViewGroup) findViewById(R.id.favoriteAddressLayout));
-//				
-//				Log.d("HomeActivity", "layout=" + layout);
-//				
-//				PopupWindow popup = new PopupWindow(layout, 370, 480, true);
-//				popup.showAtLocation(layout, Gravity.CENTER, 0, 0);
-				
-				Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
-				startActivityForResult(intent, FAV_ADDR_DEST);
+				buttonFavAddrDestOnClick((Button) v);				
 			}
 		});
         doneButton.setOnClickListener(new OnClickListener() {
@@ -235,7 +223,7 @@ public final class HomeActivity extends Activity {
 		});
         //loadButton.setOnClickListener(this);
         
-        originFavButton.setId(1);
+        buttonFavAddrOrigin.setId(1);
         destFavButton.setId(2);
         doneButton.setId(3);
         //loadButton.setId(4);
@@ -330,8 +318,36 @@ public final class HomeActivity extends Activity {
 				startMapActivity();
 			}
 		}
-		
 	};
+	
+	/**
+	 * 
+	 * @return Origin address that user has entered
+	 */
+	private String getOriginAddress() {
+		return originBox.getText().toString();
+	}
+	
+	/**
+	 * 
+	 * @return Destination address that user has entered
+	 */
+	private String getDestinationAddress() {
+		return destBox.getText().toString();
+	}
+	
+	private void buttonFavAddrOriginOnClick(Button button) {
+		Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
+		intent.putExtra("address", getOriginAddress());
+		startActivityForResult(intent, FAV_ADDR_ORIGIN);
+	}
+	
+	private void buttonFavAddrDestOnClick(Button button) {
+		Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
+		intent.putExtra("address", getDestinationAddress());
+		startActivityForResult(intent, FAV_ADDR_DEST);
+		
+	}
 	
 	private void prepareMapActivity() {
 		if (originBox.isCurrentLocationInUse()) {
@@ -348,7 +364,7 @@ public final class HomeActivity extends Activity {
 					originCoord = new GeoPoint((int)(location.getLatitude() * 1E6), (int)(location.getLongitude() * 1E6));
 					dialog.cancel();
 					
-					String dest = destBox.getText().toString();
+					String dest = getDestinationAddress();
 					if (dest.trim().equals("")) {
 						ehs.reportException("Destination address cannot be empty.");
 					}
@@ -359,7 +375,7 @@ public final class HomeActivity extends Activity {
 			});
 		}
 		else {
-			String origin = originBox.getText().toString();
+			String origin = getOriginAddress();
 			if (origin.trim().equals("")) {
 				ehs.reportException("Origin address cannot be empty.");
 			}
