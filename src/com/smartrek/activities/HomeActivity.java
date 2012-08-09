@@ -25,6 +25,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.smartrek.adapters.FavoriteAddressAdapter;
+import com.smartrek.dialogs.FavoriteAddressAddDialog;
 import com.smartrek.models.Address;
 import com.smartrek.models.User;
 import com.smartrek.tasks.GeocodingTask;
@@ -188,14 +189,14 @@ public final class HomeActivity extends Activity {
         buttonFavAddrOrigin.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				buttonFavAddrOriginOnClick((Button) v);
+				buttonFavAddrOriginOnClick(v);
 			}
 		});
         destFavButton.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				buttonFavAddrDestOnClick((Button) v);				
+				buttonFavAddrDestOnClick(v);				
 			}
 		});
         doneButton.setOnClickListener(new OnClickListener() {
@@ -325,7 +326,7 @@ public final class HomeActivity extends Activity {
 	 * @return Origin address that user has entered
 	 */
 	private String getOriginAddress() {
-		return originBox.getText().toString();
+		return originBox.getText().toString().trim();
 	}
 	
 	/**
@@ -333,16 +334,29 @@ public final class HomeActivity extends Activity {
 	 * @return Destination address that user has entered
 	 */
 	private String getDestinationAddress() {
-		return destBox.getText().toString();
+		return destBox.getText().toString().trim();
 	}
 	
-	private void buttonFavAddrOriginOnClick(Button button) {
-		Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
-		intent.putExtra("address", getOriginAddress());
-		startActivityForResult(intent, FAV_ADDR_ORIGIN);
+	private void buttonFavAddrOriginOnClick(View view) {
+		String origin = getOriginAddress();
+		
+		if (origin.equals("")) {
+			Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
+			startActivityForResult(intent, FAV_ADDR_ORIGIN);
+		}
+		else {
+			FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(this, origin);
+			dialog.show();
+			
+			
+//			Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
+//			intent.putExtra("address", getOriginAddress());
+//			startActivityForResult(intent, FAV_ADDR_ORIGIN);
+		}
+		
 	}
 	
-	private void buttonFavAddrDestOnClick(Button button) {
+	private void buttonFavAddrDestOnClick(View view) {
 		Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
 		intent.putExtra("address", getDestinationAddress());
 		startActivityForResult(intent, FAV_ADDR_DEST);
