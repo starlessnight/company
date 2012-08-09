@@ -278,13 +278,7 @@ public final class HomeActivity extends Activity {
 			    ehs.reportExceptions();
 			}
 			else {
-				String dest = destBox.getText().toString();
-				if (dest.trim().equals("")) {
-					ehs.reportException("Destination address cannot be empty.");
-				}
-				else {
-					new GeocodingTask(ehs, destGeocodingTaskCallback).execute(dest);
-				}
+				new GeocodingTask(ehs, destGeocodingTaskCallback).execute(getDestinationAddress());
 			}
 		}
 		
@@ -340,7 +334,7 @@ public final class HomeActivity extends Activity {
 	private void onClickButtonFavAddrOrigin(View view) {
 		String origin = getOriginAddress();
 		
-		if (origin.equals("")) {
+		if (origin.equals("") || originBox.isCurrentLocationInUse()) {
 			showFavAddrListForOrigin();
 		}
 		else {
@@ -412,7 +406,7 @@ public final class HomeActivity extends Activity {
 					dialog.cancel();
 					
 					String dest = getDestinationAddress();
-					if (dest.trim().equals("")) {
+					if (dest.equals("")) {
 						ehs.reportException("Destination address cannot be empty.");
 					}
 					else {
@@ -423,8 +417,13 @@ public final class HomeActivity extends Activity {
 		}
 		else {
 			String origin = getOriginAddress();
-			if (origin.trim().equals("")) {
+			String destination = getDestinationAddress();
+			
+			if (origin.equals("")) {
 				ehs.reportException("Origin address cannot be empty.");
+			}
+			else if (destination.equals("")) {
+				ehs.reportException("Destination address cannot be empty.");
 			}
 			else {
 				new GeocodingTask(ehs, originGeocodingTaskCallback).execute(origin);
@@ -492,6 +491,7 @@ public final class HomeActivity extends Activity {
 	}
 	
 	private void setOriginAddress(String address) {
+		originBox.unsetAddress();
 		originBox.setText(address);
 	}
 	
