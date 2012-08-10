@@ -454,7 +454,7 @@ public final class HomeActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu){
     	super.onCreateOptionsMenu(menu);
      	MenuInflater mi = getMenuInflater();
-     	mi.inflate(R.menu.main, menu);
+     	mi.inflate(R.menu.home, menu);
     	return true;
     }
 	

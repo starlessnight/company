@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_load_trip"
+        android:enabled="true"
+        android:title="Load Trip"
+        android:visible="true"/>
+    <item
+        android:id="@+id/menu_route"
+        android:enabled="true"
+        android:icon="@drawable/route"
+        android:title="Route"
+        android:visible="true"/>
+    <item
+        android:id="@+id/reservation"
+        android:enabled="true"
+        android:icon="@drawable/reservation"
+        android:title="@string/reservations"
+        android:visible="true"/>
+    <item
+        android:id="@+id/mycoupons"
+        android:enabled="true"
+        android:icon="@drawable/coupon"
+        android:title="@string/my_coupons"
+        android:visible="true"/>
+    <item
+        android:id="@+id/contacts"
+        android:enabled="true"
+        android:icon="@drawable/contacts"
+        android:title="@string/my_contacts"
+        android:visible="true"/>
+    <item
+        android:id="@+id/menusettings"
+        android:enabled="true"
+        android:icon="@drawable/settings"
+        android:title="@string/settings"
+        android:visible="true">
+        <menu>
+            <item
+                android:id="@+id/map_display_options"
+                android:title="@string/map_display_settings"/>
+            <item
+                android:id="@+id/map_mode"
+                android:title="@string/map_mode"/>
+        </menu>
+    </item>
+    <item
+        android:id="@+id/more"
+        android:enabled="true"
+        android:title="@string/more"
+        android:visible="true">
+        <menu>
+            <item
+                android:id="@+id/about_option"
+                android:title="@string/about"/>
+            <item
+                android:id="@+id/logout_option"
+                android:title="@string/logout"/>
+        </menu>
+    </item>
+
+</menu>
