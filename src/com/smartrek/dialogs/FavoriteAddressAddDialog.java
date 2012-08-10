@@ -5,7 +5,7 @@ import java.io.IOException;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,8 +14,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
-import com.smartrek.activities.FavoriteAddressListActivity;
-import com.smartrek.activities.HomeActivity;
 import com.smartrek.activities.R;
 import com.smartrek.mappers.FavoriteAddressAddRequest;
 import com.smartrek.models.User;
@@ -34,6 +32,8 @@ public class FavoriteAddressAddDialog extends AlertDialog {
 		void onClickPositiveButton();
 		void onClickNegativeButton();
 	}
+	
+	private ExceptionHandlingService ehs = new ExceptionHandlingService(getContext());
 	
 	private OnClickListener listener;
 	private String address;
@@ -116,21 +116,42 @@ public class FavoriteAddressAddDialog extends AlertDialog {
 		editTextAddress.setEnabled(false);
 		progressBar.setVisibility(View.VISIBLE);
 		
-		FavoriteAddressAddRequest request = new FavoriteAddressAddRequest();
-		ExceptionHandlingService ehs = new ExceptionHandlingService(getContext());
 		User currentUser = User.getCurrentUser(getContext());
-		
-		try {
-			request.execute(currentUser.getId(), getName(), getAddress());
-		}
-		catch (IOException e) {
-			ehs.reportException(e);
-		}
+		new FavoriteAddressAddTask().execute(currentUser.getId(), getName(), getAddress());
 		
 		if (listener != null) {
 			listener.onClickPositiveButton();
 		}
+	}
+	
+	private class FavoriteAddressAddTask extends AsyncTask<Object, Object, Object> {
+
+		@Override
+		protected Object doInBackground(Object... params) {
+			int uid = (Integer) params[0];
+			String name = (String) params[1];
+			String address = (String) params[2];
+			
+			FavoriteAddressAddRequest request = new FavoriteAddressAddRequest();
+			try {
+				request.execute(uid, name, address);
+			}
+			catch (IOException e) {
+				ehs.registerException(e);
+			}
+			
+			return null;
+		}
 		
-		dismiss();
+		@Override
+		protected void onPostExecute(Object result) {
+			if (ehs.hasExceptions()) {
+				ehs.reportExceptions();
+			}
+			else {
+				dismiss();
+			}
+		}
+		
 	}
 }
