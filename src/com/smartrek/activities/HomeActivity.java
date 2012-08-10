@@ -20,8 +20,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.smartrek.adapters.FavoriteAddressAdapter;
@@ -53,8 +51,7 @@ import com.smartrek.utils.LocationService.LocationServiceListener;
  * This class is responsible for handling the functionality described above.
  * 
  * @author Tim Olivas
- * 
- * @category Smartrek Activity
+ * @author Sumin Byeon
  * 
  * @version 1.0
  * 
@@ -80,7 +77,6 @@ public final class HomeActivity extends Activity {
 	private Button doneButton;
 	private ImageButton buttonFavAddrOrigin;
 	private ImageButton destFavButton;
-	private Button loadButton;
 	private Button hereButton;
 	
 	private GeoPoint originCoord;
@@ -163,10 +159,8 @@ public final class HomeActivity extends Activity {
         buttonFavAddrOrigin = (ImageButton) findViewById(R.id.Favs1);
         destFavButton = (ImageButton) findViewById(R.id.Favs2);
         doneButton = (Button) findViewById(R.id.Done);
-        //loadButton = (Button) findViewById(R.id.Load);
         
-        // Set Button OnClickListerners to be declared by
-        // this class     
+		// Set Button OnClickListerners to be declared by this class
         buttonFavAddrOrigin.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -203,12 +197,10 @@ public final class HomeActivity extends Activity {
 			}
 			
 		});
-        //loadButton.setOnClickListener(this);
         
         buttonFavAddrOrigin.setId(1);
         destFavButton.setId(2);
         doneButton.setId(3);
-        //loadButton.setId(4);
         
         hereButton = (Button) findViewById(R.id.hereAndNow);
         hereButton.setOnClickListener(new OnClickListener() {
@@ -470,6 +462,11 @@ public final class HomeActivity extends Activity {
 			
 			@Override
 			public void onClickListItem(Trip trip) {
+				
+			}
+
+			@Override
+			public void onClickAddTripButton() {
 				
 			}
 		});

@@ -60,14 +60,13 @@
         <ImageButton
             android:id="@+id/Favs1"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_alignBottom="@+id/origin_box"
             android:layout_alignParentRight="true"
             android:layout_below="@+id/origin_text"
             android:layout_toRightOf="@+id/origin_text"
             android:background="@null"
-            android:src="@drawable/route_favorite"
-            android:text="favs" />
+            android:src="@drawable/route_favorite" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -79,13 +78,12 @@
         <ImageButton
             android:id="@+id/Favs2"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_alignTop="@+id/destination_box"
             android:layout_toRightOf="@+id/destination_text"
             android:background="@null"
-            android:src="@drawable/route_favorite"
-            android:text="favs" />
+            android:src="@drawable/route_favorite" />
 
         <TextView
             android:id="@+id/destination_text"
@@ -159,33 +157,23 @@
         <Button
             android:id="@+id/hereAndNow"
             android:layout_width="160dp"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_marginRight="50dp"
             android:layout_marginTop="15dp"
             android:gravity="center"
+            android:padding="4dp"
             android:text="@string/here_and_now" />
-
-        <!--
-                <Button
-                    android:id="@+id/Load"
-                    android:layout_width="100dp"
-                    android:layout_height="40dp"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginRight="17dp"
-                    android:layout_marginTop="130dp"
-                    android:gravity="center"
-                    android:text="@string/load" />
-        -->
 
         <Button
             android:id="@+id/Done"
             android:layout_width="160dp"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_below="@+id/hereAndNow"
             android:layout_marginRight="50dp"
             android:gravity="center"
+            android:padding="4dp"
             android:text="@string/Go"
             android:textStyle="bold" />
     </RelativeLayout>

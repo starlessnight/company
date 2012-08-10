@@ -22,6 +22,7 @@ public class TripListDialog extends AlertDialog {
 	 *
 	 */
 	public interface ActionListener {
+		void onClickAddTripButton();
 		void onClickNegativeButton();
 		void onClickListItem(Trip trip);
 	}
@@ -78,6 +79,15 @@ public class TripListDialog extends AlertDialog {
 		listViewTrip.setVisibility(View.INVISIBLE);
 		textViewEmpty.setVisibility(View.VISIBLE);
 		setButton(DialogInterface.BUTTON_NEGATIVE, "Dismiss", onClickListener);
+		setButton(DialogInterface.BUTTON_POSITIVE, "Add Trip", new DialogInterface.OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (listener != null) {
+					listener.onClickAddTripButton();
+				}
+			}
+		});
 	}
 
 }
