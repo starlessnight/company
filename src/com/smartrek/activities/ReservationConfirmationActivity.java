@@ -39,6 +39,7 @@ public final class ReservationConfirmationActivity extends Activity {
 	private TextView textViewCredits;
 	
 	private Button buttonReserve;
+	private Button buttonSaveTrip;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,12 +63,21 @@ public final class ReservationConfirmationActivity extends Activity {
 
         textViewCredits = (TextView) findViewById(R.id.textViewCredits);
         
-        buttonReserve = (Button) findViewById(R.id.buttonReserve);
+        buttonReserve = (Button) findViewById(R.id.button_reserve);
         buttonReserve.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				new ReservationTask().execute();
+			}
+        });
+        
+        buttonSaveTrip = (Button) findViewById(R.id.button_save_trip);
+        buttonReserve.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				new TripSaveTask().execute();
 			}
         });
         
@@ -141,5 +151,38 @@ public final class ReservationConfirmationActivity extends Activity {
 				finish();
 			}
 		}
+	}
+	
+	private class TripSaveTask extends AsyncTask<Object, Object, Object> {
+
+		private ProgressDialog dialog;
+		
+		@Override
+		protected void onPreExecute() {
+			dialog = new ProgressDialog(ReservationConfirmationActivity.this);
+			dialog.setMessage("Saving trip...");
+			dialog.setIndeterminate(true);
+			dialog.setCancelable(false);
+			dialog.show();
+		}
+		
+		@Override
+		protected Object doInBackground(Object... params) {
+			
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Object result) {
+			dialog.cancel();
+			
+		    if (ehs.hasExceptions()) {
+		        ehs.reportExceptions();
+		    }
+		    else {
+		    	
+		    }
+		}
+		
 	}
 }
