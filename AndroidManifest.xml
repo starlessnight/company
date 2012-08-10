@@ -6,7 +6,7 @@
 
     <uses-sdk
         android:minSdkVersion="4"
-        android:targetSdkVersion="10" />
+        android:targetSdkVersion="11" />
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -37,81 +37,57 @@
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:configChanges="keyboardHidden|orientation|screenLayout" />
         <activity
             android:name=".HomeActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:configChanges="keyboardHidden|orientation|screenLayout" />
         <activity
             android:name=".UserRegistrationActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:configChanges="keyboardHidden|orientation|screenLayout" />
         <activity
             android:name=".RouteActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
             android:name=".ReservationConfirmationActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:configChanges="keyboardHidden|orientation|screenLayout" />
         <activity
             android:name=".ReservationDetailsActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:configChanges="keyboardHidden|orientation|screenLayout" />
         <activity
             android:name=".MapModeActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:configChanges="keyboardHidden|orientation|screenLayout" />
         <activity
             android:name=".MapDisplayActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:theme="@android:style/Theme.NoTitleBar" />
-        <activity
-            android:name=".ConfirmTripActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:theme="@android:style/Theme.NoTitleBar" />
-        <activity
-            android:name=".ConfirmedMapActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:configChanges="keyboardHidden|orientation|screenLayout" />
         <activity
             android:name=".ReservationListActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:configChanges="keyboardHidden|orientation|screenLayout" />
         <activity
             android:name=".ContactsActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:configChanges="keyboardHidden|orientation|screenLayout" />
         <activity
             android:name=".ContactDetailsActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:configChanges="keyboardHidden|orientation|screenLayout" />
         <activity
             android:name=".CouponDetailsActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:configChanges="keyboardHidden|orientation|screenLayout" />
         <activity
             android:name=".CouponsTabActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:configChanges="keyboardHidden|orientation|screenLayout" />
         <activity
             android:name=".CouponSendActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:configChanges="keyboardHidden|orientation|screenLayout" />
         <activity
             android:name=".ValidationActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:keepScreenOn="true"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:keepScreenOn="true" />
         <activity
             android:name=".ValidationReportActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:configChanges="keyboardHidden|orientation|screenLayout" />
         <activity
             android:name=".FavoriteAddressListActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:configChanges="keyboardHidden|orientation|screenLayout" />
 
         <receiver android:name="com.smartrek.receivers.ReservationReceiver" />
     </application>
