@@ -64,14 +64,6 @@ public final class HomeActivity extends Activity {
 	
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
-	private RelativeLayout RL;
-	private RelativeLayout section1;
-	private RelativeLayout section2;
-	private RelativeLayout section3;
-	private RelativeLayout section4;
-	
-	private ScrollView SV;
-	
 	private EditAddress originBox;
 	private EditText destBox;
 	private EditText dateBox;
@@ -89,8 +81,6 @@ public final class HomeActivity extends Activity {
 	private Button loadButton;
 	private Button hereButton;
 	
-	private int selected;
-	
 	private GeoPoint originCoord;
 	private GeoPoint destCoord;
 	
@@ -105,11 +95,6 @@ public final class HomeActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home);
-        
-        section1 = (RelativeLayout) findViewById(R.id.Section1);
-        section2 = (RelativeLayout) findViewById(R.id.Section2);
-        section3 = (RelativeLayout) findViewById(R.id.Section3);
-        section4 = (RelativeLayout) findViewById(R.id.Section4);
         
         /***************Start EditText Fields********************/
         
@@ -334,7 +319,7 @@ public final class HomeActivity extends Activity {
 		else {
 			FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(this);
 			dialog.setAddress(origin);
-			dialog.setOnClickListener(new FavoriteAddressAddDialog.OnClickListener() {
+			dialog.setActionListener(new FavoriteAddressAddDialog.ActionListener() {
 				
 				@Override
 				public void onClickPositiveButton() {
@@ -359,7 +344,7 @@ public final class HomeActivity extends Activity {
 		else {
 			FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(this);
 			dialog.setAddress(destination);
-			dialog.setOnClickListener(new FavoriteAddressAddDialog.OnClickListener() {
+			dialog.setActionListener(new FavoriteAddressAddDialog.ActionListener() {
 				
 				@Override
 				public void onClickPositiveButton() {
