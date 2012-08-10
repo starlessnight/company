@@ -15,7 +15,7 @@ import com.smartrek.adapters.ContactItemAdapter;
 import com.smartrek.models.User;
 import com.smartrek.tasks.AsyncTaskCallback;
 import com.smartrek.tasks.ContactsFetchTask;
-import com.smartrek.ui.MainMenu;
+import com.smartrek.ui.menu.MainMenu;
 
 public final class ContactsActivity extends ListActivity {
 	

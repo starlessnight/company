@@ -28,7 +28,7 @@ import android.widget.TextView;
 import com.smartrek.mappers.ReservationMapper;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
-import com.smartrek.ui.MainMenu;
+import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 
 /**

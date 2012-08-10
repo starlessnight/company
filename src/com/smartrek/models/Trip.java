@@ -1,38 +1,27 @@
 package com.smartrek.models;
 
+/**
+ * Simply defines an origin and a destination addresses. No association with a
+ * specific departure time, route, etc.
+ * 
+ * @author Sumin Byeon
+ * 
+ */
 public class Trip {
 
 	private String origin;
 	private String destination;
-	private Route route;
-	private Coupon coupon;
-	private boolean validated;
-	
-	public Trip(String origin, String destination, Route route, Coupon coupon){
+
+	public Trip(String origin, String destination, Route route) {
 		this.origin = origin;
 		this.destination = destination;
-		this.route = route;
-		this.coupon = coupon;
-		this.validated = false;
 	}
-	
-	public String getOrigin(){
+
+	public String getOrigin() {
 		return origin;
 	}
-	
-	public String getDestination(){
+
+	public String getDestination() {
 		return destination;
 	}
-	
-	public Route getRoute(){
-		return route;
-	}
-	
-	public Coupon getCoupon(){
-		return coupon;
-	}
-	
-	public boolean isValidated(){
-		return validated;
-	}	
 }

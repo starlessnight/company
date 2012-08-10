@@ -28,14 +28,14 @@ import com.smartrek.utils.ExceptionHandlingService;
  */
 public class FavoriteAddressAddDialog extends AlertDialog {
 	
-	public interface OnClickListener {
+	public interface ActionListener {
 		void onClickPositiveButton();
 		void onClickNegativeButton();
 	}
 	
 	private ExceptionHandlingService ehs = new ExceptionHandlingService(getContext());
 	
-	private OnClickListener listener;
+	private ActionListener listener;
 	private String address;
 	private ViewGroup dialogView;
 	private EditText editTextName;
@@ -107,7 +107,7 @@ public class FavoriteAddressAddDialog extends AlertDialog {
 		this.address = address;
 	}
 	
-	public void setOnClickListener(OnClickListener listener) {
+	public void setActionListener(ActionListener listener) {
 		this.listener = listener;
 	}
 	

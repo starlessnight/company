@@ -27,7 +27,7 @@ import android.view.MenuItem;
 import com.smartrek.mappers.RouteMapper;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
-import com.smartrek.ui.MainMenu;
+import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.RouteInfoOverlay;
 import com.smartrek.ui.overlays.RouteOverlayCallback;
 import com.smartrek.ui.overlays.RoutePathOverlay;

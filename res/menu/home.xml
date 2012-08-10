@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/menu_load_trip"
+        android:id="@+id/menu_trip_list"
         android:enabled="true"
         android:title="Load Trip"
         android:visible="true"/>

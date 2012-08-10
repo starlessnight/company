@@ -26,12 +26,14 @@ import android.widget.TextView;
 
 import com.smartrek.adapters.FavoriteAddressAdapter;
 import com.smartrek.dialogs.FavoriteAddressAddDialog;
+import com.smartrek.dialogs.TripListDialog;
 import com.smartrek.models.Address;
+import com.smartrek.models.Trip;
 import com.smartrek.models.User;
 import com.smartrek.tasks.GeocodingTask;
 import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
-import com.smartrek.ui.MainMenu;
+import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.LocationService;
@@ -410,15 +412,16 @@ public final class HomeActivity extends Activity {
 		}
 	}
 	
-	/****************************************************************************************************************
-	 * ******************************** private void startMapActivity()**********************************************
+	/**
+	 * This private helper method will bundle the possible routes as well as the
+	 * user information to be be passed to the Map_Activity. The Route are
+	 * placed in the bundle individually because I was having some trouble
+	 * placing The entire array of Routes on the bundle and reading the in the
+	 * Map_Activity. Each Route's toString method is called to log all of the
+	 * Route's information to the Debug screen.
 	 * 
-	 * This private helper method will bundle the possible routes as well as the user information to be be passed
-	 * to the Map_Activity. The Route are placed in the bundle individually because I was having some trouble placing
-	 * The entire array of Routes on the bundle and reading the in the Map_Activity. Each Route's toString method is
-	 * called to log all of the Route's information to the Debug screen.
-	 * 
-	 ****************************************************************************************************************/
+	 * @author Tim
+	 */
 	private void startMapActivity() {
 		Intent intent = new Intent(this, RouteActivity.class);
 		
@@ -446,7 +449,31 @@ public final class HomeActivity extends Activity {
 	@Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		MainMenu.onMenuItemSelected(this, featureId, item);
+		
+		switch (item.getItemId()) {
+		case R.id.menu_trip_list:
+			onMenuItemTripList();
+			break;
+		}
+		
 		return super.onMenuItemSelected(featureId, item);
+	}
+	
+	private void onMenuItemTripList() {
+		TripListDialog dialog = new TripListDialog(this);
+		dialog.setActionListener(new TripListDialog.ActionListener() {
+			
+			@Override
+			public void onClickNegativeButton() {
+				
+			}
+			
+			@Override
+			public void onClickListItem(Trip trip) {
+				
+			}
+		});
+		dialog.show();
 	}
 	
 	@Override 

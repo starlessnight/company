@@ -27,7 +27,7 @@ import com.smartrek.adapters.CouponAdapter;
 import com.smartrek.mappers.CouponMapper;
 import com.smartrek.models.Coupon;
 import com.smartrek.models.User;
-import com.smartrek.ui.MainMenu;
+import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 
 /**
