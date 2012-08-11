@@ -9,9 +9,9 @@ import android.os.Bundle;
 import android.text.format.Time;
 import android.widget.TextView;
 
-import com.smartrek.mappers.ReservationMapper;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
+import com.smartrek.requests.ReservationMapper;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.ValidationParameters;
 

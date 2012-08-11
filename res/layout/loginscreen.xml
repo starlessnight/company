@@ -26,7 +26,9 @@
             android:layout_width="190dp"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
+            android:layout_marginBottom="8dp"
             android:layout_marginRight="20dp"
+            android:layout_marginTop="8dp"
             android:hint="Username" >
 
             <requestFocus>
@@ -45,45 +47,48 @@
             android:layout_width="190dp"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
+            android:layout_marginBottom="8dp"
             android:layout_marginRight="20dp"
+            android:layout_marginTop="8dp"
             android:hint="Password"
             android:inputType="textPassword" />
     </RelativeLayout>
-
-    <Button
-        android:id="@+id/login_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@id/Section2"
-        android:layout_marginRight="17dp"
-        android:layout_marginTop="30dp"
-        android:gravity="center"
-        android:padding="8dp"
-        android:text="@string/login" />
-
-    <Button
-        android:id="@+id/new_user_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/Section2"
-        android:layout_marginRight="17dp"
-        android:layout_marginTop="80dp"
-        android:gravity="center"
-        android:padding="8dp"
-        android:text="Sign up" />
 
     <TextView
         android:id="@+id/failed_login"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/Section2"
-        android:layout_toLeftOf="@+id/login_button"
         android:gravity="center_horizontal|center_vertical"
         android:text="@string/failed_login"
         android:textColor="#FFFFFFFF"
         android:textSize="15dp"
         android:visibility="invisible" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/failed_login"
+        android:layout_marginRight="20dp"
+        android:gravity="right"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/new_user_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="Sign up" />
+
+        <Button
+            android:id="@+id/login_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="Login" />
+    </LinearLayout>
 
 </RelativeLayout>

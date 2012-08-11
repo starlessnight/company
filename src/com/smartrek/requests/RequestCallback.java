@@ -1,4 +1,4 @@
-package com.smartrek.mappers;
+package com.smartrek.requests;
 
 public interface RequestCallback {
 	/**

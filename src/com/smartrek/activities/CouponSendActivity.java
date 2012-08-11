@@ -16,9 +16,9 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import com.smartrek.adapters.ContactItemAdapter;
-import com.smartrek.mappers.CouponMapper;
 import com.smartrek.models.Coupon;
 import com.smartrek.models.User;
+import com.smartrek.requests.CouponMapper;
 import com.smartrek.tasks.AsyncTaskCallback;
 import com.smartrek.tasks.ContactsFetchTask;
 import com.smartrek.utils.ExceptionHandlingService;

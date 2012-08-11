@@ -13,8 +13,8 @@ import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.smartrek.mappers.UserMapper;
 import com.smartrek.models.User;
+import com.smartrek.requests.UserMapper;
 import com.smartrek.utils.ExceptionHandlingService;
 
 public final class UserRegistrationActivity extends Activity {

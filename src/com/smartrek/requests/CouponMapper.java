@@ -1,4 +1,4 @@
-package com.smartrek.mappers;
+package com.smartrek.requests;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -9,6 +9,8 @@ import java.util.TimerTask;
 
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
+
+import com.smartrek.requests.RouteMapper;
 import com.smartrek.utils.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
@@ -30,7 +32,6 @@ import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
 
-import com.smartrek.mappers.RouteMapper;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;

@@ -9,7 +9,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.smartrek.activities.LoginActivity;
-import com.smartrek.mappers.UserMapper;
+import com.smartrek.requests.UserMapper;
 
 
 public final class User implements JSONModel, Parcelable {

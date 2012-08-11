@@ -7,8 +7,8 @@ import org.json.JSONException;
 
 import android.os.AsyncTask;
 
-import com.smartrek.mappers.ContactsMapper;
 import com.smartrek.models.User;
+import com.smartrek.requests.ContactsMapper;
 
 public final class ContactsFetchTask extends AsyncTask <Object, Object, List<User>> {
 	

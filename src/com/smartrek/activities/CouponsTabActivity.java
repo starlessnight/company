@@ -24,9 +24,9 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabHost.TabSpec;
 
 import com.smartrek.adapters.CouponAdapter;
-import com.smartrek.mappers.CouponMapper;
 import com.smartrek.models.Coupon;
 import com.smartrek.models.User;
+import com.smartrek.requests.CouponMapper;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 

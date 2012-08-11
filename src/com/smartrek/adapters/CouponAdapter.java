@@ -16,8 +16,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.smartrek.activities.R;
-import com.smartrek.mappers.CouponMapper;
 import com.smartrek.models.Coupon;
+import com.smartrek.requests.CouponMapper;
 
 public class CouponAdapter extends BaseAdapter {
 	private LayoutInflater inflater;

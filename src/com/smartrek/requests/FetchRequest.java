@@ -1,4 +1,4 @@
-package com.smartrek.mappers;
+package com.smartrek.requests;
 
 public abstract class FetchRequest<ReturnType> extends Request {
 	

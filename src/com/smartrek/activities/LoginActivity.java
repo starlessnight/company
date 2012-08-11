@@ -12,8 +12,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.smartrek.mappers.UserMapper;
 import com.smartrek.models.User;
+import com.smartrek.requests.UserMapper;
 import com.smartrek.utils.ExceptionHandlingService;
 
 public final class LoginActivity extends Activity implements OnClickListener {

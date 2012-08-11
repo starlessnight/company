@@ -15,8 +15,8 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.smartrek.activities.R;
-import com.smartrek.mappers.FavoriteAddressAddRequest;
 import com.smartrek.models.User;
+import com.smartrek.requests.FavoriteAddressAddRequest;
 import com.smartrek.utils.ExceptionHandlingService;
 
 /**

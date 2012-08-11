@@ -16,9 +16,9 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
 import com.smartrek.adapters.FavoriteAddressAdapter;
-import com.smartrek.mappers.FavoriteAddressMapper;
 import com.smartrek.models.Address;
 import com.smartrek.models.User;
+import com.smartrek.requests.FavoriteAddressMapper;
 import com.smartrek.utils.ExceptionHandlingService;
 
 public class FavoriteAddressListActivity extends Activity {

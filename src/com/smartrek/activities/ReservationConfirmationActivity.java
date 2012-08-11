@@ -17,9 +17,9 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.smartrek.mappers.ReservationMapper;
 import com.smartrek.models.Route;
 import com.smartrek.receivers.ReservationReceiver;
+import com.smartrek.requests.ReservationMapper;
 import com.smartrek.utils.ExceptionHandlingService;
 
 /**

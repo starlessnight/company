@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+
+import com.smartrek.requests.RouteMapper;
 import com.smartrek.utils.GeoPoint;
 
 import android.os.Bundle;
@@ -13,7 +15,6 @@ import android.os.Parcelable;
 import android.text.format.Time;
 import android.util.Log;
 
-import com.smartrek.mappers.RouteMapper;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.ValidationParameters;
 

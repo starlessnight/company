@@ -8,8 +8,8 @@ import android.test.AndroidTestCase;
 import android.text.format.Time;
 import android.util.Log;
 
-import com.smartrek.mappers.RouteMapper;
 import com.smartrek.models.Route;
+import com.smartrek.requests.RouteMapper;
 
 public class KdTreeTest extends AndroidTestCase {
 

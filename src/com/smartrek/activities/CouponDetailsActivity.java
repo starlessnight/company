@@ -15,9 +15,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.smartrek.mappers.CouponMapper;
 import com.smartrek.models.Coupon;
 import com.smartrek.models.User;
+import com.smartrek.requests.CouponMapper;
 
 public final class CouponDetailsActivity extends Activity {
 	private Stack<Exception> exceptions = new Stack<Exception>();
