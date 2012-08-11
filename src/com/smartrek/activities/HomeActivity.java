@@ -81,6 +81,8 @@ public final class HomeActivity extends Activity {
 	
 	private Time current;
 	
+	private TripListDialog tripListDialog;
+	
 	/**
 	 * Indicates if we want to start {@code RouteActivity} in a debug mode.
 	 */
@@ -215,26 +217,28 @@ public final class HomeActivity extends Activity {
 	}
 	
 	private void onMenuItemTripList() {
-		TripListDialog dialog = new TripListDialog(this);
-		dialog.setActionListener(new TripListDialog.ActionListener() {
-			
-			@Override
-			public void onClickNegativeButton() {
+		if (tripListDialog == null) {
+			tripListDialog = new TripListDialog(this);
+			tripListDialog.setActionListener(new TripListDialog.ActionListener() {
 				
-			}
-			
-			@Override
-			public void onClickListItem(Trip trip, int position) {
-				setOriginAddress(trip.getOrigin());
-				setDestinationAddress(trip.getDestination());
-			}
-
-			@Override
-			public void onClickAddTripButton() {
+				@Override
+				public void onClickNegativeButton() {
+					
+				}
 				
-			}
-		});
-		dialog.show();
+				@Override
+				public void onClickListItem(Trip trip, int position) {
+					setOriginAddress(trip.getOrigin());
+					setDestinationAddress(trip.getDestination());
+				}
+	
+				@Override
+				public void onClickAddTripButton() {
+					
+				}
+			});
+		}
+		tripListDialog.show();
 	}
 	
 	@Override 

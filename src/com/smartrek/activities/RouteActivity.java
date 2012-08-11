@@ -24,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.smartrek.dialogs.TripSaveDialog;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
 import com.smartrek.requests.RouteMapper;
@@ -330,14 +331,8 @@ public final class RouteActivity extends Activity {
         super.onCreateOptionsMenu(menu);
 
         MenuInflater mi = getMenuInflater();
-        mi.inflate(R.menu.main, menu);
+        mi.inflate(R.menu.route, menu);
         return true;
-    }
-    
-    @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-        MainMenu.onMenuItemSelected(this, featureId, item);
-        return super.onMenuItemSelected(featureId, item);
     }
     
     /**
@@ -367,6 +362,40 @@ public final class RouteActivity extends Activity {
         } 
     }
     
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        MainMenu.onMenuItemSelected(this, featureId, item);
+        
+		switch (item.getItemId()) {
+		case R.id.menu_save_trip:
+			onMenuItemSaveTrip();
+			break;
+		}
+        
+        return super.onMenuItemSelected(featureId, item);
+    }
+    
+    private void onMenuItemSaveTrip() {
+    	TripSaveDialog dialog = new TripSaveDialog(this, originAddr, destAddr);
+    	dialog.setActionListener(new TripSaveDialog.ActionListener() {
+			
+			@Override
+			public void onClickPositiveButton(String name, String origin,
+					String destination) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onClickNegativeButton() {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+    	dialog.show();
+    }
+    
+    // FIXME: This should be an inner interface of RouteTask. Probably want to name it 'Listener'.
     public interface RouteTaskCallback {
         public void preCallback();
         public void callback(List<Route> routes);
