@@ -16,10 +16,6 @@ import com.smartrek.mappers.UserMapper;
 import com.smartrek.models.User;
 import com.smartrek.utils.ExceptionHandlingService;
 
-/******************************************************************************************************************
- * 
- *
- ******************************************************************************************************************/
 public final class LoginActivity extends Activity implements OnClickListener {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
@@ -30,10 +26,6 @@ public final class LoginActivity extends Activity implements OnClickListener {
 	
 	private Context context;
 	
-	/******************************************************************************************************************
-	 * 
-	 *
-	 ******************************************************************************************************************/
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,10 +51,6 @@ public final class LoginActivity extends Activity implements OnClickListener {
        
     }
     
-	/******************************************************************************************************************
-	 * 
-	 *
-	 ******************************************************************************************************************/
     private void checkSharedPreferences() {
         User currentUser = User.getCurrentUser(this);
         
@@ -76,19 +64,11 @@ public final class LoginActivity extends Activity implements OnClickListener {
     	
     }
     
-	/******************************************************************************************************************
-	 * 
-	 *
-	 ******************************************************************************************************************/
     @Override
     public void onBackPressed(){
     	finish();
     }
 
-	/******************************************************************************************************************
-	 * 
-	 *
-	 ******************************************************************************************************************/
 	@Override
 	public void onClick(View v) {
 		
@@ -105,7 +85,7 @@ public final class LoginActivity extends Activity implements OnClickListener {
 		public void onClick(View arg0) {
 			Log.d("Login_Activity","Register New user clicked");
 			Log.d("Login_Activity","Starting Register Activity");
-			Intent intent = new Intent(context,UserRegistrationActivity.class);
+			Intent intent = new Intent(context, UserRegistrationActivity.class);
 			startActivity(intent);
 		}
 	};
