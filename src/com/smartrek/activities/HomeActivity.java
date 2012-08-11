@@ -71,9 +71,6 @@ public final class HomeActivity extends Activity {
 	private TextView destText;
 	private TextView dateText;
 	
-	private ListView originFavs;
-	private ListView destFavs;
-	
 	private Button doneButton;
 	private ImageButton buttonFavAddrOrigin;
 	private ImageButton destFavButton;
@@ -124,35 +121,6 @@ public final class HomeActivity extends Activity {
         
         /***************End TextViews********************/
         
-        originFavs = (ListView) findViewById(R.id.originFavs);
-        //originFavs.setAdapter(new FavoriteAddressAdapter(HomeActivity.this, null));
-        
-        originFavs.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				FavoriteAddressAdapter adapter = (FavoriteAddressAdapter) parent.getAdapter();
-				Address item = (Address) adapter.getItem(position);
-				
-				originBox.unsetAddress();
-				originBox.setText(item.getAddress());
-			}
-		});
-        
-		destFavs = (ListView) findViewById(R.id.destFavs);
-		destFavs.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				FavoriteAddressAdapter adapter = (FavoriteAddressAdapter) parent.getAdapter();
-				Address item = (Address) adapter.getItem(position);
-				
-				destBox.setText(item.getAddress());
-			}
-		});
-		
-		User currentUser = User.getCurrentUser(this);
-		
         /***************Start Buttons********************/
         
         // Instantiate Buttons from file main.xml
