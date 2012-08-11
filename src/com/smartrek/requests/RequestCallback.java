@@ -2,7 +2,7 @@ package com.smartrek.requests;
 
 public interface RequestCallback {
 	/**
-	 * Called when mapper task is completed
+	 * Called when request is completed
 	 */
 	void onFinish();
 	

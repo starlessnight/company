@@ -97,4 +97,5 @@ public class FavoriteAddressListActivity extends Activity {
 			}
 		}
 	}
+	
 }

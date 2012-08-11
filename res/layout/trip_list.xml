@@ -4,20 +4,20 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
+    <TextView
+        android:id="@+id/text_view_empty"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:gravity="center"
+        android:padding="8dp"
+        android:text="You don&apos;t have any saved trip."
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:visibility="invisible" />
+
     <ListView
         android:id="@+id/list_view_trip"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
     </ListView>
-
-    <TextView
-        android:id="@+id/text_view_empty"
-        android:padding="8dp"
-        android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:gravity="center"
-        android:text="You don't have any saved trip. Would you like to add one?"
-        android:textAppearance="?android:attr/textAppearanceMedium" 
-        android:visibility="invisible"/>
 
 </FrameLayout>

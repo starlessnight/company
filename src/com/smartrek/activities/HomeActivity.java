@@ -192,6 +192,70 @@ public final class HomeActivity extends Activity {
 	public void onBackPressed() {
 		finish();
 	}
+	
+	@Override
+    public boolean onCreateOptionsMenu(Menu menu){
+    	super.onCreateOptionsMenu(menu);
+     	MenuInflater mi = getMenuInflater();
+     	mi.inflate(R.menu.home, menu);
+    	return true;
+    }
+	
+	@Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		MainMenu.onMenuItemSelected(this, featureId, item);
+		
+		switch (item.getItemId()) {
+		case R.id.menu_trip_list:
+			onMenuItemTripList();
+			break;
+		}
+		
+		return super.onMenuItemSelected(featureId, item);
+	}
+	
+	private void onMenuItemTripList() {
+		TripListDialog dialog = new TripListDialog(this);
+		dialog.setActionListener(new TripListDialog.ActionListener() {
+			
+			@Override
+			public void onClickNegativeButton() {
+				
+			}
+			
+			@Override
+			public void onClickListItem(Trip trip, int position) {
+				setOriginAddress(trip.getOrigin());
+				setDestinationAddress(trip.getDestination());
+			}
+
+			@Override
+			public void onClickAddTripButton() {
+				
+			}
+		});
+		dialog.show();
+	}
+	
+	@Override 
+	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		super.onActivityResult(requestCode, resultCode, intent);
+		switch (requestCode) {
+		case FAV_ADDR_ORIGIN:
+			if (resultCode == Activity.RESULT_OK) {
+				String address = intent.getStringExtra("address");
+				setOriginAddress(address);
+			}
+			break;
+			
+		case FAV_ADDR_DEST:
+			if (resultCode == Activity.RESULT_OK) {
+				String address = intent.getStringExtra("address");
+				setDestinationAddress(address);
+			}
+			break;
+		}
+	}
 
 	GeocodingTaskCallback originGeocodingTaskCallback = new GeocodingTaskCallback() {
 		
@@ -396,69 +460,6 @@ public final class HomeActivity extends Activity {
 		extras.putBoolean("debugMode", debugMode);
 		intent.putExtras(extras);
 		startActivity(intent);
-	}
-	
-	@Override
-    public boolean onCreateOptionsMenu(Menu menu){
-    	super.onCreateOptionsMenu(menu);
-     	MenuInflater mi = getMenuInflater();
-     	mi.inflate(R.menu.home, menu);
-    	return true;
-    }
-	
-	@Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		MainMenu.onMenuItemSelected(this, featureId, item);
-		
-		switch (item.getItemId()) {
-		case R.id.menu_trip_list:
-			onMenuItemTripList();
-			break;
-		}
-		
-		return super.onMenuItemSelected(featureId, item);
-	}
-	
-	private void onMenuItemTripList() {
-		TripListDialog dialog = new TripListDialog(this);
-		dialog.setActionListener(new TripListDialog.ActionListener() {
-			
-			@Override
-			public void onClickNegativeButton() {
-				
-			}
-			
-			@Override
-			public void onClickListItem(Trip trip) {
-				
-			}
-
-			@Override
-			public void onClickAddTripButton() {
-				
-			}
-		});
-		dialog.show();
-	}
-	
-	@Override 
-	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		super.onActivityResult(requestCode, resultCode, intent);
-		switch (requestCode) {
-		case FAV_ADDR_ORIGIN:
-			if (resultCode == Activity.RESULT_OK) {
-				String address = intent.getStringExtra("address");
-				setOriginAddress(address);
-			}
-			break;
-			
-		case FAV_ADDR_DEST:
-			if (resultCode == Activity.RESULT_OK) {
-				String address = intent.getStringExtra("address");
-				setDestinationAddress(address);
-			}
-			break;
-		}
 	}
 	
 	private void setOriginAddress(String address) {

@@ -9,12 +9,24 @@ package com.smartrek.models;
  */
 public class Trip {
 
+	private int id;
+	private String name;
 	private String origin;
 	private String destination;
 
-	public Trip(String origin, String destination, Route route) {
+	public Trip(int id, String name, String origin, String destination) {
+		this.id = id;
+		this.name = name;
 		this.origin = origin;
 		this.destination = destination;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public String getOrigin() {
