@@ -1,9 +1,15 @@
 package com.smartrek.activities;
 
+import java.io.IOException;
+import java.util.List;
+
+import org.json.JSONException;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.view.Menu;
@@ -19,10 +25,15 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.smartrek.adapters.FavoriteAddressAdapter;
 import com.smartrek.dialogs.FavoriteAddressAddDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
+import com.smartrek.dialogs.GenericListDialog;
 import com.smartrek.dialogs.TripListDialog;
+import com.smartrek.models.Address;
 import com.smartrek.models.Trip;
+import com.smartrek.models.User;
+import com.smartrek.requests.FavoriteAddressMapper;
 import com.smartrek.tasks.GeocodingTask;
 import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
@@ -75,6 +86,8 @@ public final class HomeActivity extends Activity {
 	private GeoPoint destCoord;
 	
 	private Time current;
+	
+	private List<Address> favoriteAddresses;
 	
 	private TripListDialog tripListDialog;
 	
@@ -339,8 +352,12 @@ public final class HomeActivity extends Activity {
 		String origin = getOriginAddress();
 		
 		if (origin.equals("") || originBox.isCurrentLocationInUse()) {
-			FavoriteAddressListDialog dialog = new FavoriteAddressListDialog(this, null);
-			dialog.show();
+			
+			if (favoriteAddresses == null) {
+				User currentUser = User.getCurrentUser(this);
+				new FavoriteAddressFetchTask().execute(currentUser.getId());
+			}
+			
 		}
 		else {
 			FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(this);
@@ -353,7 +370,7 @@ public final class HomeActivity extends Activity {
 				
 				@Override
 				public void onClickNegativeButton() {
-					showFavAddrListForOrigin();
+					//showFavAddrListForOrigin();
 				}
 			});
 			dialog.show();
@@ -365,7 +382,7 @@ public final class HomeActivity extends Activity {
 		String destination = getDestinationAddress();
 		
 		if (destination.equals("")) {
-			showFavAddrListForDest();
+//			showFavAddrListForDest();
 		}
 		else {
 			FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(this);
@@ -378,21 +395,46 @@ public final class HomeActivity extends Activity {
 				
 				@Override
 				public void onClickNegativeButton() {
-					showFavAddrListForDest();
+//					showFavAddrListForDest();
 				}
 			});
 			dialog.show();
 		}
 	}
 	
-	private void showFavAddrListForOrigin() {
-		Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
-		startActivityForResult(intent, FAV_ADDR_ORIGIN);
+	private void showFavAddrListForOrigin(List<Address> listItems) {
+//		Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
+//		startActivityForResult(intent, FAV_ADDR_ORIGIN);
+		FavoriteAddressListDialog dialog = new FavoriteAddressListDialog(HomeActivity.this, listItems);
+		dialog.setActionListener(new FavoriteAddressListDialog.ActionListener() {
+			
+			@Override
+			public void onClickNegativeButton() {
+			}
+			
+			@Override
+			public void onClickListItem(Address item, int position) {
+				setOriginAddress(item.getAddress());
+			}
+		});
+		dialog.show();
 	}
 	
-	private void showFavAddrListForDest() {
-		Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
-		startActivityForResult(intent, FAV_ADDR_DEST);
+	private void showFavAddrListForDest(List<Address> listItems) {
+//		Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
+//		startActivityForResult(intent, FAV_ADDR_DEST);
+		FavoriteAddressListDialog dialog = new FavoriteAddressListDialog(HomeActivity.this, listItems);
+		dialog.setActionListener(new FavoriteAddressListDialog.ActionListener() {
+			
+			@Override
+			public void onClickNegativeButton() {
+			}
+			
+			@Override
+			public void onClickListItem(Address item, int position) {
+				setDestinationAddress(item.getAddress());
+			}
+		});
 	}
 	
 	private void prepareMapActivity() {
@@ -469,5 +511,51 @@ public final class HomeActivity extends Activity {
 	
 	private void setDestinationAddress(String address) {
 		destBox.setText(address);
+	}
+	
+	private class FavoriteAddressFetchTask extends AsyncTask<Integer, Object, List<Address>> {
+
+		private ProgressDialog dialog;
+		
+		@Override
+		protected void onPreExecute() {
+			dialog = new ProgressDialog(HomeActivity.this);
+			dialog.setMessage("Fetching favorite addresses...");
+			dialog.setIndeterminate(true);
+			dialog.setCancelable(false);
+			dialog.show();
+		}
+
+		@Override
+		protected List<Address> doInBackground(Integer... params) {
+
+			// FIXME: Potential array out of boundary exception
+			int uid = params[0];
+
+			FavoriteAddressMapper mapper = new FavoriteAddressMapper();
+			try {
+				favoriteAddresses = mapper.getAddresses(uid);
+			}
+			catch (JSONException e) {
+				ehs.registerException(e);
+			}
+			catch (IOException e) {
+				ehs.registerException(e);
+			}
+
+			return favoriteAddresses;
+		}
+
+		@Override
+		protected void onPostExecute(List<Address> result) {
+			dialog.cancel();
+
+			if (ehs.hasExceptions()) {
+				ehs.reportExceptions();
+			}
+			else {
+				showFavAddrListForOrigin(result);
+			}
+		}
 	}
 }

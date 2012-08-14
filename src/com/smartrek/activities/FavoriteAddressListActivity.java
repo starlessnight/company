@@ -21,6 +21,10 @@ import com.smartrek.models.User;
 import com.smartrek.requests.FavoriteAddressMapper;
 import com.smartrek.utils.ExceptionHandlingService;
 
+/**
+ * @deprecated
+ *
+ */
 public class FavoriteAddressListActivity extends Activity {
 	private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	private List<Address> addresses;

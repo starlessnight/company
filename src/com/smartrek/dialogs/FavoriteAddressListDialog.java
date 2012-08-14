@@ -3,6 +3,7 @@ package com.smartrek.dialogs;
 import java.util.List;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,11 +14,18 @@ import com.smartrek.activities.R;
 import com.smartrek.models.Address;
 
 public class FavoriteAddressListDialog extends GenericListDialog<Address> {
+	
+	public interface ActionListener extends GenericListDialog.ActionListener<Address> {}
 
 	public FavoriteAddressListDialog(Context context, List<Address> listItems) {
 		super(context, listItems);
 		setAdapter(new FavoriteAddressListAdapter(context, listItems));
 		setTitle("Favorite addresses");
+	}
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 		textViewGeneric.setText("You don't have any favorite address");
 	}
 
