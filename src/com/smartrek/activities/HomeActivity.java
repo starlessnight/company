@@ -14,20 +14,15 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.TextView;
 
-import com.smartrek.adapters.FavoriteAddressAdapter;
 import com.smartrek.dialogs.FavoriteAddressAddDialog;
+import com.smartrek.dialogs.FavoriteAddressListDialog;
 import com.smartrek.dialogs.TripListDialog;
-import com.smartrek.models.Address;
 import com.smartrek.models.Trip;
-import com.smartrek.models.User;
 import com.smartrek.tasks.GeocodingTask;
 import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
@@ -344,7 +339,8 @@ public final class HomeActivity extends Activity {
 		String origin = getOriginAddress();
 		
 		if (origin.equals("") || originBox.isCurrentLocationInUse()) {
-			showFavAddrListForOrigin();
+			FavoriteAddressListDialog dialog = new FavoriteAddressListDialog(this, null);
+			dialog.show();
 		}
 		else {
 			FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(this);
