@@ -29,7 +29,7 @@ public final class LoginActivity extends Activity implements OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.loginscreen);
+        setContentView(R.layout.user_login);
         
         context = this;
         
