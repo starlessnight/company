@@ -24,7 +24,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
-            android:text="Medium Text"
+            android:text="@string/placeholder"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="#F7FFED" />
 
@@ -41,7 +41,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
-            android:text="Medium Text"
+            android:text="@string/placeholder"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="#F7FFED" />
     </LinearLayout>

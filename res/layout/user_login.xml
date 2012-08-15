@@ -61,7 +61,7 @@
             android:layout_marginRight="8dp"
             android:gravity="center"
             android:padding="8dp"
-            android:text="Sign up" />
+            android:text="@string/signup" />
 
         <Button
             android:id="@+id/login_button"

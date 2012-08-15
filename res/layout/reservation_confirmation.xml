@@ -22,7 +22,7 @@
         android:id="@+id/textViewOrigin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Medium Text"
+        android:text="@string/placeholder"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -36,7 +36,7 @@
         android:id="@+id/textViewDestination"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Medium Text"
+        android:text="@string/placeholder"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -50,7 +50,7 @@
         android:id="@+id/textViewDepartureTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Medium Text"
+        android:text="@string/placeholder"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -64,7 +64,7 @@
         android:id="@+id/textViewArrivalTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Medium Text"
+        android:text="@string/placeholder"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -78,7 +78,7 @@
         android:id="@+id/textViewCredits"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Medium Text"
+        android:text="@string/placeholder"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <LinearLayout
