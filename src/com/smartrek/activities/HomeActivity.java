@@ -87,81 +87,72 @@ public final class HomeActivity extends Activity {
 	
 	private Time current;
 	
-	private List<Address> favoriteAddresses;
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+	    super.onCreate(savedInstanceState);
+	    setContentView(R.layout.home);
+	    
+	    /***************Start EditText Fields********************/
+	    
+	    originBox = (EditAddress) findViewById(R.id.origin_box);
+	    destBox = (EditText) findViewById(R.id.destination_box);
+	    //dateBox = (EditText) findViewById(R.id.date_box);
 	
-	private TripListDialog tripListDialog;
-	
-	/**
-	 * Indicates if we want to start {@code RouteActivity} in a debug mode.
-	 */
-	private boolean debugMode;
-	
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.home);
-        
-        /***************Start EditText Fields********************/
-        
-        originBox = (EditAddress) findViewById(R.id.origin_box);
-        destBox = (EditText) findViewById(R.id.destination_box);
-        //dateBox = (EditText) findViewById(R.id.date_box);
-
 		current = new Time();
 		current.setToNow();
 		//dateBox.setText(current.month + " / " + current.monthDay + " / " + current.year);
-        
-        /***************End EditText Fields********************/
-        
-        /***************Start TextViews********************/
-        
-        // Instantiate TextViews from file main.xml
-        originText = (TextView) findViewById(R.id.origin_text);
-        destText = (TextView) findViewById(R.id.destination_text);
-        //dateText = (TextView) findViewById(R.id.date_text);
-        
-        // Declare a tiny animation to be used on startup.
-        Animation animation = new TranslateAnimation(-400,0,0,0);
+	    
+	    /***************End EditText Fields********************/
+	    
+	    /***************Start TextViews********************/
+	    
+	    // Instantiate TextViews from file main.xml
+	    originText = (TextView) findViewById(R.id.origin_text);
+	    destText = (TextView) findViewById(R.id.destination_text);
+	    //dateText = (TextView) findViewById(R.id.date_text);
+	    
+	    // Declare a tiny animation to be used on startup.
+	    Animation animation = new TranslateAnimation(-400,0,0,0);
 		animation.setDuration(1500);
 		
 		// Set animation to be used by TextViews.
-        destText.setAnimation(animation);
-        originText.setAnimation(animation);
-        //dateText.setAnimation(animation);  
-        
-        /***************End TextViews********************/
-        
-        /***************Start Buttons********************/
-        
-        // Instantiate Buttons from file main.xml
-        buttonFavAddrOrigin = (ImageButton) findViewById(R.id.Favs1);
-        destFavButton = (ImageButton) findViewById(R.id.Favs2);
-        doneButton = (Button) findViewById(R.id.Done);
-        
+	    destText.setAnimation(animation);
+	    originText.setAnimation(animation);
+	    //dateText.setAnimation(animation);  
+	    
+	    /***************End TextViews********************/
+	    
+	    /***************Start Buttons********************/
+	    
+	    // Instantiate Buttons from file main.xml
+	    buttonFavAddrOrigin = (ImageButton) findViewById(R.id.Favs1);
+	    destFavButton = (ImageButton) findViewById(R.id.Favs2);
+	    doneButton = (Button) findViewById(R.id.Done);
+	    
 		// Set Button OnClickListerners to be declared by this class
-        buttonFavAddrOrigin.setOnClickListener(new OnClickListener() {
+	    buttonFavAddrOrigin.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				onClickButtonFavAddrOrigin(v);
 			}
 		});
-        destFavButton.setOnClickListener(new OnClickListener() {
+	    destFavButton.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
 				onClickButtonFavAddrDest(v);				
 			}
 		});
-        doneButton.setOnClickListener(new OnClickListener() {
-
+	    doneButton.setOnClickListener(new OnClickListener() {
+	
 			@Override
 			public void onClick(View v) {
 				debugMode = false;
 				prepareMapActivity();
 			}
-        	
-        });
-        doneButton.setOnLongClickListener(new OnLongClickListener() {
+	    	
+	    });
+	    doneButton.setOnLongClickListener(new OnLongClickListener() {
 			
 			@Override
 			public boolean onLongClick(View v) {
@@ -175,24 +166,33 @@ public final class HomeActivity extends Activity {
 			}
 			
 		});
-        
-        buttonFavAddrOrigin.setId(1);
-        destFavButton.setId(2);
-        doneButton.setId(3);
-        
-        hereButton = (Button) findViewById(R.id.hereAndNow);
-        hereButton.setOnClickListener(new OnClickListener() {
+	    
+	    buttonFavAddrOrigin.setId(1);
+	    destFavButton.setId(2);
+	    doneButton.setId(3);
+	    
+	    hereButton = (Button) findViewById(R.id.hereAndNow);
+	    hereButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				originBox.setAddressAsCurrentLocation();
 			}
-        });
-        
-        
-        /***************End Buttons********************/
-    }
+	    });
+	    
+	    
+	    /***************End Buttons********************/
+	}
+
+	private List<Address> favoriteAddresses;
+	
+	private TripListDialog tripListDialog;
 	
 	/**
+	 * Indicates if we want to start {@code RouteActivity} in a debug mode.
+	 */
+	private boolean debugMode;
+	
+    /**
 	 * Override the onBackPressed() method so the user does not return to the
 	 * Login_Activity after a successful login. Pressing back from the
 	 * Home_Activity will quit the application.
