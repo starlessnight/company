@@ -353,10 +353,8 @@ public final class HomeActivity extends Activity {
 		
 		if (origin.equals("") || originBox.isCurrentLocationInUse()) {
 			
-			if (favoriteAddresses == null) {
-				User currentUser = User.getCurrentUser(this);
-				new FavoriteAddressFetchTask().execute(currentUser.getId());
-			}
+			User currentUser = User.getCurrentUser(this);
+			new FavoriteAddressFetchTask(true).execute(currentUser.getId());
 			
 		}
 		else {
@@ -382,7 +380,9 @@ public final class HomeActivity extends Activity {
 		String destination = getDestinationAddress();
 		
 		if (destination.equals("")) {
-//			showFavAddrListForDest();
+			//showFavAddrListForDest();
+			User currentUser = User.getCurrentUser(this);
+			new FavoriteAddressFetchTask(false).execute(currentUser.getId());
 		}
 		else {
 			FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(this);
@@ -435,6 +435,7 @@ public final class HomeActivity extends Activity {
 				setDestinationAddress(item.getAddress());
 			}
 		});
+		dialog.show();
 	}
 	
 	private void prepareMapActivity() {
@@ -514,8 +515,24 @@ public final class HomeActivity extends Activity {
 	}
 	
 	private class FavoriteAddressFetchTask extends AsyncTask<Integer, Object, List<Address>> {
-
+		
 		private ProgressDialog dialog;
+		
+		/**
+		 * Temporary
+		 */
+		private boolean isForOrigin;
+		
+		/**
+		 * If isForOrigin is true, {@code showFavAddrListForOrigin()} will be
+		 * called. Otherwise, {@code showFavAddrListForDest()} will be called.
+		 * 
+		 * @param isForOrigin
+		 */
+		public FavoriteAddressFetchTask(boolean isForOrigin) {
+			super();
+			this.isForOrigin = isForOrigin;
+		}
 		
 		@Override
 		protected void onPreExecute() {
@@ -554,7 +571,12 @@ public final class HomeActivity extends Activity {
 				ehs.reportExceptions();
 			}
 			else {
-				showFavAddrListForOrigin(result);
+				if (isForOrigin) {
+					showFavAddrListForOrigin(result);
+				}
+				else {
+					showFavAddrListForDest(result);
+				}
 			}
 		}
 	}

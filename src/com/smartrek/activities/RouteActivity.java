@@ -26,8 +26,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.RelativeLayout.LayoutParams;
 
 import com.smartrek.dialogs.TripSaveDialog;
 import com.smartrek.models.Route;
@@ -126,6 +124,7 @@ public final class RouteActivity extends Activity {
                 RouteActivity.this.onBackPressed();
             }
         };
+        dialog.setCancelable(false);
         
         //
         // Set up time layout
