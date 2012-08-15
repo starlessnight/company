@@ -519,16 +519,13 @@ public final class HomeActivity extends Activity {
 		private ProgressDialog dialog;
 		
 		/**
-		 * Temporary
+		 * If isForOrigin is true, {@code showFavAddrListForOrigin()} will be
+		 * called. Otherwise, {@code showFavAddrListForDest()} will be called.
+		 * However, this is a temporary solution and must be replace with more
+		 * robust solution in the near future.
 		 */
 		private boolean isForOrigin;
 		
-		/**
-		 * If isForOrigin is true, {@code showFavAddrListForOrigin()} will be
-		 * called. Otherwise, {@code showFavAddrListForDest()} will be called.
-		 * 
-		 * @param isForOrigin
-		 */
 		public FavoriteAddressFetchTask(boolean isForOrigin) {
 			super();
 			this.isForOrigin = isForOrigin;
