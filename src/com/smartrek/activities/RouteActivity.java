@@ -23,6 +23,11 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 
 import com.smartrek.dialogs.TripSaveDialog;
 import com.smartrek.models.Route;
@@ -89,7 +94,24 @@ public final class RouteActivity extends Activity {
         SharedPreferences prefs = getSharedPreferences(LOGIN_PREFS, MODE_PRIVATE);
         
         mapView = (MapView) findViewById(R.id.mapview);
-        mapView.setBuiltInZoomControls(true);
+        mapView.setBuiltInZoomControls(false);
+        
+        /* Create a ImageView with a zoomIn-Icon. */
+        final ImageView imageViewZoomIn = (ImageView) findViewById(R.id.image_view_zoom_in);
+        imageViewZoomIn.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(final View v) {
+                        mapView.getController().zoomIn();
+                }
+        });
+        
+        final ImageView imageViewZoomOut = (ImageView) findViewById(R.id.image_view_zoom_out);
+        imageViewZoomOut.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(final View v) {
+                        mapView.getController().zoomOut();
+                }
+        });
     
         /* Set the map view for a view of North America before zooming in on route */
         MapController mc = mapView.getController();
