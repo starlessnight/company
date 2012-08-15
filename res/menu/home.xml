@@ -46,18 +46,10 @@
         </menu>
     </item>
     <item
-        android:id="@+id/more"
-        android:enabled="true"
-        android:title="@string/more"
-        android:visible="true">
-        <menu>
-            <item
-                android:id="@+id/about_option"
-                android:title="@string/about"/>
-            <item
-                android:id="@+id/logout_option"
-                android:title="@string/logout"/>
-        </menu>
-    </item>
+        android:id="@+id/about_option"
+        android:title="@string/about"/>
+    <item
+        android:id="@+id/logout_option"
+        android:title="@string/logout"/>
 
 </menu>
