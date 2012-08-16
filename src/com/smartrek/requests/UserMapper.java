@@ -32,7 +32,7 @@ public class UserMapper extends Request {
 	}
 	
 	public User login(String name, String pwd) throws JSONException, IOException {
-		String loginurl = String.format("%s/account/%s%%20%s", HOST, name, pwd);
+		String loginurl = String.format("%s/verifyaccount/username=%s&password=%s", HOST, URLEncoder.encode(name), URLEncoder.encode(pwd));
 
 		HTTP http = new HTTP(loginurl);
 		http.connect();
