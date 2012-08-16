@@ -7,9 +7,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -43,14 +42,13 @@ public final class UserRegistrationActivity extends Activity {
         editTextPasswordConfirm = (EditText) findViewById(R.id.editTextPasswordConfirm);
         
         buttonRegister = (Button) findViewById(R.id.buttonRegister);
-        buttonRegister.setOnTouchListener(new OnTouchListener() {
+        buttonRegister.setOnClickListener(new OnClickListener() {
 
 			@Override
-			public boolean onTouch(View arg0, MotionEvent arg1) {
+			public void onClick(View view) {
 				checkUserInput();
-				return false;
 			}
-        	
+
         });
     }
     

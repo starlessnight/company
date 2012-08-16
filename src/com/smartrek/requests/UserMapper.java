@@ -18,7 +18,7 @@ import com.smartrek.utils.HTTP;
  * @author timothyolivas
  *
  ****************************************************************************************************/
-public class UserMapper extends FetchRequest {
+public class UserMapper extends Request {
 	
 	// values are database field names
 	public static final String UID = "UID";
