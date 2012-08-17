@@ -1,132 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/MainLayout"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@drawable/background_gradient"
     android:orientation="vertical"
     android:padding="10dp" >
 
     <TextView
-        android:id="@+id/whereTo"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal|center_vertical"
+        android:gravity="center"
         android:paddingTop="10dp"
         android:text="@string/whereTo"
         android:textColor="#b39e69"
         android:textSize="22dp" />
 
-    <RelativeLayout
-        android:id="@+id/Section1"
-        android:layout_width="fill_parent"
+    <TableLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <TextView
-            android:id="@+id/origin_text"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/origin_box"
-            android:layout_alignRight="@+id/origin_box"
-            android:gravity="left"
-            android:paddingBottom="5dp"
-            android:paddingTop="15dp"
-            android:text="Departure"
-            android:textColor="#FFFFFFFF" />
-
-        <com.smartrek.ui.EditAddress
-            android:id="@+id/origin_box"
-            android:layout_width="fill_parent"
-            android:layout_height="40dp"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/origin_text"
-            android:layout_marginRight="50dp"
-            android:inputType="textPostalAddress" >
-
-            <requestFocus>
-            </requestFocus>
-        </com.smartrek.ui.EditAddress>
-
-        <ListView
-            android:id="@+id/originFavs"
+        <TableRow
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_alignLeft="@+id/origin_box"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="80dp"
-            android:padding="5dp" >
-        </ListView>
+            android:layout_height="wrap_content" >
 
-        <ImageButton
-            android:id="@+id/Favs1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/origin_box"
-            android:layout_alignParentRight="true"
-            android:layout_below="@+id/origin_text"
-            android:layout_toRightOf="@+id/origin_text"
-            android:background="@null"
-            android:src="@drawable/route_favorite" />
-    </RelativeLayout>
+            <TextView
+                android:id="@+id/origin_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:gravity="left"
+                android:paddingBottom="5dp"
+                android:paddingTop="15dp"
+                android:text="Departure"
+                android:textColor="#FFFFFFFF" />
+        </TableRow>
 
-    <RelativeLayout
-        android:id="@+id/Section2"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/Section1" >
-
-        <ImageButton
-            android:id="@+id/Favs2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignTop="@+id/destination_box"
-            android:layout_toRightOf="@+id/destination_text"
-            android:background="@null"
-            android:src="@drawable/route_favorite" />
-
-        <TextView
-            android:id="@+id/destination_text"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/destination_box"
-            android:layout_alignRight="@+id/destination_box"
-            android:gravity="left"
-            android:paddingBottom="5dp"
-            android:paddingTop="15dp"
-            android:text="Arrival"
-            android:textColor="#FFFFFFFF" />
-
-        <EditText
-            android:id="@+id/destination_box"
-            android:layout_width="fill_parent"
-            android:layout_height="40dp"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/destination_text"
-            android:layout_marginRight="50dp"
-            android:inputType="textPostalAddress" />
-
-        <ListView
-            android:id="@+id/destFavs"
+        <TableRow
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_alignLeft="@+id/destination_box"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="80dp"
-            android:padding="5dp" >
-        </ListView>
-    </RelativeLayout>
+            android:layout_height="wrap_content" >
 
-    <RelativeLayout
-        android:id="@+id/Section3"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/Section2" >
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/my_location" 
+                android:layout_margin="4dp"/>
 
-        <!--
+            <com.smartrek.ui.EditAddress
+                android:id="@+id/origin_box"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:inputType="textPostalAddress" >
+
+                <requestFocus>
+                </requestFocus>
+            </com.smartrek.ui.EditAddress>
+
+            <ImageButton
+                android:id="@+id/Favs1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:layout_margin="4dp"
+                android:src="@drawable/route_favorite" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/destination_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:gravity="left"
+                android:paddingBottom="5dp"
+                android:paddingTop="15dp"
+                android:text="Arrival"
+                android:textColor="#FFFFFFFF" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <EditText
+                android:id="@+id/destination_box"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_column="1"
+                android:inputType="textPostalAddress" />
+
+            <ImageButton
+                android:id="@+id/Favs2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="2"
+                android:background="@null"
+                android:layout_margin="4dp"
+                android:src="@drawable/route_favorite" />
+        </TableRow>
+    </TableLayout>
+
+    <!--
                 <TextView
                     android:id="@+id/date_text"
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignLeft="@+id/date_box"
                     android:layout_alignRight="@+id/date_box"
@@ -144,38 +124,16 @@
                     android:layout_below="@id/date_text"
                     android:layout_marginRight="50dp"
                     android:inputType="date" />
-        -->
-    </RelativeLayout>
+    -->
 
-    <RelativeLayout
-        android:id="@+id/Section4"
-        android:layout_width="fill_parent"
+    <Button
+        android:id="@+id/Done"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_below="@id/Section3" >
-
-        <Button
-            android:id="@+id/hereAndNow"
-            android:layout_width="160dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="50dp"
-            android:layout_marginTop="15dp"
-            android:gravity="center"
-            android:padding="4dp"
-            android:text="@string/here_and_now" />
-
-        <Button
-            android:id="@+id/Done"
-            android:layout_width="160dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_below="@+id/hereAndNow"
-            android:layout_marginRight="50dp"
-            android:gravity="center"
-            android:padding="4dp"
-            android:text="@string/Go"
-            android:textStyle="bold" />
-    </RelativeLayout>
+        android:layout_column="1"
+        android:gravity="center"
+        android:padding="4dp"
+        android:text="@string/Go"
+        android:textStyle="bold" />
 
 </LinearLayout>
