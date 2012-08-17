@@ -25,7 +25,7 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private boolean enabled;
 	
 	public RouteInfoOverlay(MapView mapview, Route route, GeoPoint point) {
-		super(mapview.getResources().getDrawable(R.drawable.routetag), mapview, null);
+		super(mapview.getResources().getDrawable(R.drawable.marker_default), mapview, null);
 		this.enabled = false;
 		this.route = route;
 
@@ -40,9 +40,6 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 						+ "(Tap to reserve this route)",
 				point);
 		addItem(item);
-		
-		OverlayItem item2 = new OverlayItem("TEST", "TEST", point);
-		addItem(item2);
 		
 		mOnItemGestureListener = new OnItemGestureListener<OverlayItem>() {
 
