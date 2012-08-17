@@ -168,13 +168,13 @@ public final class HomeActivity extends Activity {
 	    destFavButton.setId(2);
 	    doneButton.setId(3);
 	    
-	    hereButton = (Button) findViewById(R.id.hereAndNow);
-	    hereButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				originBox.setAddressAsCurrentLocation();
-			}
-	    });
+//	    hereButton = (Button) findViewById(R.id.hereAndNow);
+//	    hereButton.setOnClickListener(new OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				originBox.setAddressAsCurrentLocation();
+//			}
+//	    });
 	    
 	    
 	    /***************End Buttons********************/
