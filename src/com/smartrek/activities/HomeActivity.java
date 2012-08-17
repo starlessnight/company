@@ -64,9 +64,6 @@ import com.smartrek.utils.LocationService.LocationServiceListener;
  */
 public final class HomeActivity extends Activity {
     
-	private static final int FAV_ADDR_ORIGIN = 1;
-	private static final int FAV_ADDR_DEST = 2;
-	
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
 	private EditAddress originBox;
@@ -253,19 +250,6 @@ public final class HomeActivity extends Activity {
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		super.onActivityResult(requestCode, resultCode, intent);
 		switch (requestCode) {
-		case FAV_ADDR_ORIGIN:
-			if (resultCode == Activity.RESULT_OK) {
-				String address = intent.getStringExtra("address");
-				setOriginAddress(address);
-			}
-			break;
-			
-		case FAV_ADDR_DEST:
-			if (resultCode == Activity.RESULT_OK) {
-				String address = intent.getStringExtra("address");
-				setDestinationAddress(address);
-			}
-			break;
 		}
 	}
 
@@ -403,8 +387,6 @@ public final class HomeActivity extends Activity {
 	}
 	
 	private void showFavAddrListForOrigin(List<Address> listItems) {
-//		Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
-//		startActivityForResult(intent, FAV_ADDR_ORIGIN);
 		FavoriteAddressListDialog dialog = new FavoriteAddressListDialog(HomeActivity.this, listItems);
 		dialog.setActionListener(new FavoriteAddressListDialog.ActionListener() {
 			
@@ -421,8 +403,6 @@ public final class HomeActivity extends Activity {
 	}
 	
 	private void showFavAddrListForDest(List<Address> listItems) {
-//		Intent intent = new Intent(HomeActivity.this, FavoriteAddressListActivity.class);
-//		startActivityForResult(intent, FAV_ADDR_DEST);
 		FavoriteAddressListDialog dialog = new FavoriteAddressListDialog(HomeActivity.this, listItems);
 		dialog.setActionListener(new FavoriteAddressListDialog.ActionListener() {
 			

@@ -17,14 +17,15 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.smartrek.utils.GeoPoint;
 
 import android.text.format.Time;
 import android.util.Log;
 
+import com.smartrek.exceptions.RouteNotFoundException;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.utils.Cache;
+import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.HTTP;
 import com.smartrek.utils.RouteNode;
 
@@ -107,8 +108,9 @@ public final class RouteMapper extends FetchRequest {
 	 * @return A list of all possible routes
 	 * @throws JSONException
 	 * @throws IOException 
+	 * @throws RouteNotFoundException 
 	 */
-	public List<Route> getPossibleRoutes(GeoPoint origin, GeoPoint destination, Time time) throws JSONException, IOException {
+	public List<Route> getPossibleRoutes(GeoPoint origin, GeoPoint destination, Time time) throws JSONException, IOException, RouteNotFoundException {
 		String url = String.format("%s/getroutes/startlat=%f%%20startlon=%f%%20endlat=%f%%20endlon=%f%%20departtime=%d:%02d",
 				HOST, origin.getLatitudeE6()/1.0E6, origin.getLongitudeE6()/1.0E6, destination.getLatitudeE6()/1.0E6, destination.getLongitudeE6()/1.0E6,
 				time.hour, time.minute);
@@ -119,7 +121,7 @@ public final class RouteMapper extends FetchRequest {
 		String response = (String) cache.fetch(url);
 		
 		if (response == null) {
-			throw new IOException("Cached route could not be fetched (c68f)");
+			throw new IOException("Cached route could not be fetched (0xc68f)");
 		}
 		
 		// Begin parsing the server response
@@ -129,6 +131,10 @@ public final class RouteMapper extends FetchRequest {
 		for(int i = 0; i <array.length(); i++) {
 			Route route = parseRoute((JSONObject) array.get(i), time);
 			routes.add(route);
+		}
+		
+		if (routes.size() == 0) {
+			throw new RouteNotFoundException("Could not find a route (0xb615)");
 		}
 
 		return routes;

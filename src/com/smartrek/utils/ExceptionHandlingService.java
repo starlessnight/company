@@ -3,10 +3,15 @@ package com.smartrek.utils;
 import java.io.PrintStream;
 import java.util.Stack;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+
+import com.smartrek.dialogs.ExceptionDialog;
+import com.smartrek.exceptions.RouteNotFoundException;
 
 public class ExceptionHandlingService {
     private Stack<Exception> exceptions = new Stack<Exception>();
@@ -55,14 +60,29 @@ public class ExceptionHandlingService {
     }
     
     public synchronized void reportException(Exception e) {
-    	reportException(e.getMessage());
+    	// TODO: Is there any better way to handle this?
+    	if (e instanceof RouteNotFoundException) {
+    		ExceptionDialog dialog = new ExceptionDialog(context, e.getMessage());
+    		dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Dismiss", new OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					// TODO: Is this safe to do?
+					((Activity) context).finish();
+				}
+			});
+    		dialog.show();
+    	}
+    	else {
+    		reportException(e.getMessage());
+    	}
     }
     
     public synchronized void reportExceptions() {
         while (!exceptions.isEmpty()) {
             Exception e = exceptions.pop();
             
-            reportException(e.getMessage());
+            reportException(e);
         }
     }
 }

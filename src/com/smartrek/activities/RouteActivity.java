@@ -480,10 +480,6 @@ public final class RouteActivity extends Activity {
             	else {
             		possibleRoutes = mapper.getPossibleRoutes(origin, destination, time);
             	}
-                
-                if(possibleRoutes == null || possibleRoutes.size() == 0) {
-                    ehs.registerException(new Exception("Could not find a route (b615)"));
-                }
             }
             catch(Exception e) {
                 ehs.registerException(e);
