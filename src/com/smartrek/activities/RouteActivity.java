@@ -63,7 +63,9 @@ public final class RouteActivity extends Activity {
     private GeoPoint originCoord;
     private GeoPoint destCoord;
     
+    // TODO: 'dialog' isn't really meaningful. Rename this variable.
     private ProgressDialog dialog;
+    
     private MapView mapView;
     
     private Time selectedTime;
@@ -196,6 +198,14 @@ public final class RouteActivity extends Activity {
         destCoord = new GeoPoint(extras.getInt("destLat"), extras.getInt("destLng"));
 
         dialog.setMessage("Finding routes...");
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				finish();
+			}
+        
+        });
         dialog.show();
         
         RouteTask routeTask = new RouteTask(0);
