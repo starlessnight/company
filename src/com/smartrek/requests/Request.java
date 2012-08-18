@@ -29,11 +29,11 @@ public abstract class Request {
 		
 	}
 	
-	public String executeGetRequest(String url) throws IOException {
-		return executeGetRequest(url, null);
+	protected String executeHttpGetRequest(String url) throws IOException {
+		return executeHttpGetRequest(url, null);
 	}
 	
-	public String executeGetRequest(String url, Map<String, Object> params) throws IOException {
+	protected String executeHttpGetRequest(String url, Map<String, Object> params) throws IOException {
 		HTTP http = new HTTP(url);
 		http.connect();
 		
@@ -47,5 +47,9 @@ public abstract class Request {
 			throw new IOException(String.format("HTTP %d: %s", responseCode, responseBody));
 		}
 		
+	}
+	
+	public String executeHttpPostRequest(String url, Map<String, Object> params) {
+		return null;
 	}
 }

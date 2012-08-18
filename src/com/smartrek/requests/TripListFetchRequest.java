@@ -15,7 +15,7 @@ public final class TripListFetchRequest extends FetchRequest<Trip> {
 	public List<Trip> execute(int uid) throws IOException, JSONException {
 		String url = String.format("%s/favroutes-list/?userid=%d", HOST, uid);
 		
-		String response = executeGetRequest(url);
+		String response = executeHttpGetRequest(url);
 		
 		JSONArray array = new JSONArray(response);
 		List<Trip> trips = new ArrayList<Trip>();

@@ -32,12 +32,12 @@ import com.smartrek.utils.RouteNode;
 
 /**
  * 
- *
+ * @deprecated
  */
-public final class RouteMapper extends FetchRequest {
+public final class RouteMapper extends FetchRequest<List<Route>> {
 	
 	/**
-	 * Default constructor
+	 * @deprecated
 	 */
 	public RouteMapper(){
 		super();
@@ -98,6 +98,10 @@ public final class RouteMapper extends FetchRequest {
         
         return route;
 	}
+	
+	public List<Route> execute() {
+		return null;
+	}
 
 	/**
 	 * Retrieves all possible routes from the server.
@@ -109,6 +113,8 @@ public final class RouteMapper extends FetchRequest {
 	 * @throws JSONException
 	 * @throws IOException 
 	 * @throws RouteNotFoundException 
+	 * 
+	 * @deprecated
 	 */
 	public List<Route> getPossibleRoutes(GeoPoint origin, GeoPoint destination, Time time) throws JSONException, IOException, RouteNotFoundException {
 		String url = String.format("%s/getroutes/startlat=%f%%20startlon=%f%%20endlat=%f%%20endlon=%f%%20departtime=%d:%02d",

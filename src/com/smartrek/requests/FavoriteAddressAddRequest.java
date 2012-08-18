@@ -9,7 +9,7 @@ public class FavoriteAddressAddRequest extends Request {
 		String url = String.format("%s/addfavadd/?UID=%d&NAME=%s&ADDRESS=%s",
 				HOST, uid, URLEncoder.encode(name), URLEncoder.encode(address));
 		
-		executeGetRequest(url);
+		executeHttpGetRequest(url);
 	}
 	
 }
