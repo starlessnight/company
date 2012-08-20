@@ -1,9 +1,7 @@
 package com.smartrek.utils;
 
-import java.io.IOException;
 import java.util.Hashtable;
 
-import android.text.format.Time;
 import android.util.Log;
 
 /**
@@ -71,6 +69,15 @@ public final class Cache {
 		storage.put(key, data);
 	}
 	
+	/**
+	 * Marks a cache entry as invalid (removes the entry)
+	 * 
+	 * @param key
+	 */
+	public void invalidate(String key) {
+		storage.remove(key);
+	}
+	
 	public Object fetch(String key) {
 		Log.d("Cache", "url = " + key);
 		if(storage.containsKey(key)) {
@@ -87,31 +94,5 @@ public final class Cache {
 		}
 		
 		return null;
-		
-//		Log.d("Cache", "Fetching from remote site");
-//		
-//		HTTP http = new HTTP(url);
-//		http.connect();
-//		
-//		int code = http.getResponseCode();
-//		if(code == 200) {
-//			// HTTP OK
-//			
-//			String body = http.getResponseBody();
-//			
-//			Data data = new Data();
-//			Time expire = new Time();
-//			expire.setToNow();
-//			expire.set(expire.toMillis(false) + TTL*1000);
-//			data.expires = expire;
-//			data.userdata = body;
-//			
-//			storage.put(url, data);
-//			
-//			return data.userdata;
-//		}
-//		else {
-//			throw new IOException(String.format("HTTP %d: %s", code, http.getResponseBody()));
-//		}
 	}
 }
