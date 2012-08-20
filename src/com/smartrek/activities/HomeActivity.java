@@ -25,10 +25,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.smartrek.adapters.FavoriteAddressAdapter;
 import com.smartrek.dialogs.FavoriteAddressAddDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
-import com.smartrek.dialogs.GenericListDialog;
 import com.smartrek.dialogs.TripListDialog;
 import com.smartrek.models.Address;
 import com.smartrek.models.Trip;
@@ -67,7 +65,7 @@ public final class HomeActivity extends Activity {
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
 	private EditAddress originBox;
-	private EditText destBox;
+	private EditAddress destBox;
 	private EditText dateBox;
 	
 	private TextView originText;
@@ -92,7 +90,7 @@ public final class HomeActivity extends Activity {
 	    /***************Start EditText Fields********************/
 	    
 	    originBox = (EditAddress) findViewById(R.id.origin_box);
-	    destBox = (EditText) findViewById(R.id.destination_box);
+	    destBox = (EditAddress) findViewById(R.id.destination_box);
 	    //dateBox = (EditText) findViewById(R.id.date_box);
 	
 		current = new Time();
@@ -333,7 +331,6 @@ public final class HomeActivity extends Activity {
 	}
 	
 	private void onClickButtonFavAddrOrigin(View view) {
-		
 		if (originBox.hasAddress()) {
 			showFavAddrListForOrigin();
 		}
@@ -363,28 +360,31 @@ public final class HomeActivity extends Activity {
 	}
 	
 	private void onClickButtonFavAddrDest(View view) {
-		String destination = getDestinationAddress();
-		
-		if (destination.equals("")) {
-			//showFavAddrListForDest();
-			User currentUser = User.getCurrentUser(this);
-			new FavoriteAddressFetchTask(false).execute(currentUser.getId());
+		if (destBox.hasAddress()) {
+			showFavAddrListForDest();
 		}
 		else {
-			FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(this);
-			dialog.setAddress(destination);
-			dialog.setActionListener(new FavoriteAddressAddDialog.ActionListener() {
-				
-				@Override
-				public void onClickPositiveButton() {
-				}
-				
-				@Override
-				public void onClickNegativeButton() {
-//					showFavAddrListForDest();
-				}
-			});
-			dialog.show();
+			String destination = getDestinationAddress();
+			
+			if (destination.equals("")) {
+				showFavAddrListForDest();
+			}
+			else {
+				FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(this);
+				dialog.setAddress(destination);
+				dialog.setActionListener(new FavoriteAddressAddDialog.ActionListener() {
+					
+					@Override
+					public void onClickPositiveButton() {
+					}
+					
+					@Override
+					public void onClickNegativeButton() {
+						showFavAddrListForDest();
+					}
+				});
+				dialog.show();
+			}
 		}
 	}
 	
@@ -427,6 +427,15 @@ public final class HomeActivity extends Activity {
 			}
 		});
 		dialog.show();
+	}
+	
+	private void showFavAddrListForDest() {
+		if (favoriteAddresses == null) {
+			fetchFavAddrListForDest();
+		}
+		else {
+			showFavAddrListForDest(favoriteAddresses);
+		}
 	}
 	
 	private void showFavAddrListForDest(List<Address> listItems) {
@@ -523,11 +532,13 @@ public final class HomeActivity extends Activity {
 	}
 	
 	private void setDestinationAddress(String address) {
+		destBox.unsetAddress();
 		destBox.setText(address);
 	}
 	
 	private void setDestinationAddress(Address address) {
-		destBox.setText(address.getAddress());
+		destBox.unsetAddress();
+		destBox.setAddress(address);
 	}
 	
 	private class FavoriteAddressFetchTask extends AsyncTask<Integer, Object, List<Address>> {

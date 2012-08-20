@@ -75,7 +75,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
-        <EditText
+        <com.smartrek.ui.EditAddress
             android:id="@+id/destination_box"
             android:layout_width="match_parent"
             android:layout_height="40dp"
