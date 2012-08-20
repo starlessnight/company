@@ -34,7 +34,6 @@ import com.smartrek.exceptions.RouteNotFoundException;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
 import com.smartrek.requests.RouteFetchRequest;
-import com.smartrek.requests.RouteMapper;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.RouteInfoOverlay;
 import com.smartrek.ui.overlays.RouteOverlayCallback;
@@ -47,7 +46,6 @@ import com.smartrek.ui.timelayout.TimeColumn;
 import com.smartrek.ui.timelayout.TimeLayout;
 import com.smartrek.ui.timelayout.TimeLayout.TimeLayoutListener;
 import com.smartrek.ui.timelayout.TimeLayout.TimeLayoutOnSelectListener;
-import com.smartrek.utils.Cache;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.RouteNode;
@@ -122,7 +120,7 @@ public final class RouteActivity extends Activity {
         MapController mc = mapView.getController();
         int lat = (int) Math.round(38.27268853598097f*1E6);
         int lon = (int) Math.round(-99.1406250000000f*1E6);
-        mc.setZoom(14); 
+        mc.setZoom(4); 
         mc.setCenter(new GeoPoint(lat, lon));
         
         dialog = new ProgressDialog(RouteActivity.this) {
