@@ -17,11 +17,11 @@ import com.smartrek.utils.RouteNode;
 
 public class RouteFetchRequest extends FetchRequest<List<Route>> {
 	
-	private long time;
+	private long departureTime;
 	
-	public static String buildUrl(GeoPoint origin, GeoPoint destination, long time) {
+	public static String buildUrl(GeoPoint origin, GeoPoint destination, long departureTime) {
 		Time t = new Time();
-		t.set(time);
+		t.set(departureTime);
 		
 		return String.format("%s/getroutes/startlat=%f%%20startlon=%f%%20endlat=%f%%20endlon=%f%%20departtime=%d:%02d",
 				HOST, origin.getLatitude(), origin.getLongitude(),
@@ -29,8 +29,9 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 				t.hour, t.minute);
 	}
 
-	public RouteFetchRequest(GeoPoint origin, GeoPoint destination, long time) {
-		super(buildUrl(origin, destination, time));
+	public RouteFetchRequest(GeoPoint origin, GeoPoint destination, long departureTime) {
+		super(buildUrl(origin, destination, departureTime));
+		this.departureTime = departureTime;
 	}
 	
 	public List<Route> execute() throws IOException, JSONException, RouteNotFoundException {
@@ -41,7 +42,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 
 		JSONArray array = new JSONArray(response);
 		for(int i = 0; i <array.length(); i++) {
-			Route route = parseRoute((JSONObject) array.get(i), time);
+			Route route = parseRoute((JSONObject) array.get(i), departureTime);
 			routes.add(route);
 		}
 		
@@ -71,11 +72,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
         // internally store it as seconds.
         double ett = routeObject.getDouble("ESTIMATED_TRAVEL_TIME");
         
-        // FIXME: User long instead of Time
-        Time dTime = new Time();
-        dTime.set(departureTime);
-
-        Route route = new Route(routeNodes, rid, dTime, (int)(ett * 60));
+        Route route = new Route(routeNodes, rid, departureTime, (int)(ett * 60));
         // FIXME: Implement getRouteCredits()
         //route.setCredits(getRouteCredits(rid));
         

@@ -247,6 +247,8 @@ public final class RouteActivity extends Activity {
      * @param possibleRoutes
      */
     private void updateMap(List<Route> possibleRoutes) {
+    	
+    	Log.d("RouteActivity", "updateMap()");
         
         if(possibleRoutes != null && possibleRoutes.size() > 0) {
             /* Get a midpoint to center the view of  the routes */
@@ -503,7 +505,6 @@ public final class RouteActivity extends Activity {
             		//possibleRoutes = mapper.getFakeRoutes(departureTime);
             	}
             	else {
-            		//possibleRoutes = mapper.getPossibleRoutes(origin, destination, time);
             		possibleRoutes = getData();
             	}
             }

@@ -173,7 +173,7 @@ public final class Reservation implements Parcelable {
         route.setId(r.getRid());
         route.setOrigin(r.getOriginAddress());
         route.setDestination(r.getDestinationAddress());
-        route.setDepartureTime(r.getDepartureTime());
+        route.setDepartureTime(r.getDepartureTime().toMillis(false));
         route.setCredits(r.getCredits());
         route.setNodes(object.getJSONArray("ROUTE"));
         

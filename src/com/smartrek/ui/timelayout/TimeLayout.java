@@ -119,8 +119,11 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     public synchronized void setModelForColumn(int column, Route model) {
     	models[column] = model;
     	
+    	Time t = new Time();
+    	t.set(model.getArrivalTime());
+    	
     	TimeColumn timeButton = (TimeColumn) getChildAt(column);
-    	timeButton.setArrivalTime(model.getArrivalTime());
+    	timeButton.setArrivalTime(t);
     }
     
     public Time getDepartureTime(int column) {

@@ -5,12 +5,15 @@ import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.SimpleFormatter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.text.format.Time;
 import android.util.Log;
+import android.util.TimeFormatException;
 
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
@@ -57,11 +60,14 @@ public final class ReservationMapper extends FetchRequest {
 		}
 		buf.deleteCharAt(buf.length()-1);
 		buf.append("]");
+
+		Time t = new Time();
+		t.set(route.getDepartureTime());
 		
 		String url = String.format("%s/addreservations/?rid=%d&credits=%d&uid=%d&start_datetime=%s&estimatedTT=%d&origin_address=%s&destination_address=%s&route=%s",
 				HOST,
 				route.getId(), route.getCredits(), route.getUserId(),
-				URLEncoder.encode(route.getDepartureTime().format("%Y-%m-%d %T")),
+				URLEncoder.encode(t.format("%Y-%m-%d %T")),
 				route.getDuration(),
 				URLEncoder.encode(route.getOrigin()),
 				URLEncoder.encode(route.getDestination()),

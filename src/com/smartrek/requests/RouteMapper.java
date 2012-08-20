@@ -93,7 +93,7 @@ public final class RouteMapper extends FetchRequest<List<Route>> {
         // internally store it as seconds.
         double ett = routeObject.getDouble("ESTIMATED_TRAVEL_TIME");
 
-        Route route = new Route(routeNodes, rid, departureTime, (int)(ett * 60));
+        Route route = new Route(routeNodes, rid, departureTime.toMillis(false), (int)(ett * 60));
         route.setCredits(getRouteCredits(rid));
         
         return route;

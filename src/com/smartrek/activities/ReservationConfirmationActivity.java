@@ -11,6 +11,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -56,10 +57,16 @@ public final class ReservationConfirmationActivity extends Activity {
         textViewDestination.setText(route.getDestination());
         
         textViewDepartureTime = (TextView) findViewById(R.id.textViewDepartureTime);
-        textViewDepartureTime.setText(route.getDepartureTime().format2445());
+        // FIXME: Date/time format i18n
+        Time dt = new Time();
+        dt.set(route.getDepartureTime());
+        textViewDepartureTime.setText(dt.format("%b %d, %G %l:%M%p"));
         
         textViewArrivalTime = (TextView) findViewById(R.id.textViewArrivalTime);
-        textViewArrivalTime.setText(route.getArrivalTime().format2445());
+        // FIXME: Date/time format i18n
+        Time at = new Time();
+        at.set(route.getArrivalTime());
+        textViewArrivalTime.setText(at.format("%b %d, %G %l:%M%p"));
 
         textViewCredits = (TextView) findViewById(R.id.textViewCredits);
         
@@ -85,7 +92,7 @@ public final class ReservationConfirmationActivity extends Activity {
 	
 	private void scheduleEvent(Route route) {
 		
-		long departureTime = route.getDepartureTime().toMillis(false);
+		long departureTime = route.getDepartureTime();
 		
 		Intent intent = new Intent(ReservationConfirmationActivity.this, ReservationReceiver.class);
 		intent.putExtra("route", route);

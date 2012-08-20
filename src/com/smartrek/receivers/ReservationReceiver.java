@@ -29,7 +29,7 @@ public final class ReservationReceiver extends BroadcastReceiver {
 	 * @return
 	 */
 	private boolean validateDepartureTime(Route route, Time actualDeptTime) {
-		long d = route.getDepartureTime().toMillis(false);
+		long d = route.getDepartureTime();
 		long n = parameters.getDepartureTimeNegativeThreshold() * 1000;
 		long p = parameters.getDepartureTimePositiveThreshold() * 1000;
 		

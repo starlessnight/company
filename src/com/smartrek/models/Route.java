@@ -6,15 +6,14 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import com.smartrek.requests.RouteMapper;
-import com.smartrek.utils.GeoPoint;
-
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.format.Time;
 import android.util.Log;
 
+import com.smartrek.requests.RouteMapper;
+import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.ValidationParameters;
 
@@ -32,7 +31,7 @@ public final class Route implements Parcelable {
 	private int rid;
 	private int validated;
 	private int duration;
-	private Time departureTime = null;
+	private long departureTime;
 	private int uid;
 	private int credits;
 	
@@ -58,9 +57,7 @@ public final class Route implements Parcelable {
 		rid = in.readInt();
 		validated = in.readInt();
 		duration = in.readInt();
-		//departureTime = (Time) in.readValue(Time.class.getClassLoader());
-		departureTime = new Time();
-		departureTime.parse(in.readString());
+		departureTime = in.readLong();
 		uid = in.readInt();
 		credits = in.readInt();
 	}
@@ -69,8 +66,7 @@ public final class Route implements Parcelable {
 	 * 
 	 *
 	 *****************************************************************************************/
-	public Route (ArrayList<RouteNode> locs, int rid, Time departureTime, int duration) {
-		//this.cp = cp;
+	public Route (ArrayList<RouteNode> locs, int rid, long departureTime, int duration) {
 		this.routeNodes = locs;
 		this.rid = rid;
 		this.validated = 0;
@@ -89,7 +85,7 @@ public final class Route implements Parcelable {
 		this.routeNodes = getRouteNodesFromBundle(bundle);
 		this.rid = bundle.getInt("rid");
 		this.validated = bundle.getInt("validated");
-		this.departureTime = getTimeFromBundle(bundle);
+		this.departureTime = bundle.getLong("departureTime");
 	}
 	
 	/*****************************************************************************************
@@ -182,7 +178,7 @@ public final class Route implements Parcelable {
 			i++;
 		}
 		str += "\n";
-		if(departureTime != null) {
+		if(departureTime != 0) {
 			str += "Time = " + timeToString() + "\n";
 		}
 		return str;
@@ -193,7 +189,9 @@ public final class Route implements Parcelable {
 	 *
 	 *****************************************************************************************/
 	public String timeToString(){
-		String temp = departureTime.toString();
+		Time t = new Time();
+		t.set(departureTime);
+		String temp = t.toString();
 		String formattedTime =  temp.substring(0, 4) + "-";
 		formattedTime += temp.substring(6, 8) + "-";
 		formattedTime += temp.substring(4, 6) + " ";
@@ -204,7 +202,7 @@ public final class Route implements Parcelable {
 		return formattedTime;
 	}
 	
-	public Time getDepartureTime() {
+	public long getDepartureTime() {
 		return departureTime;
 	}
 	
@@ -212,13 +210,8 @@ public final class Route implements Parcelable {
 		return duration;
 	}
 	
-	public Time getArrivalTime() {
-		long timestamp = departureTime.toMillis(false) + (duration * 1000);
-		
-		Time arrivalTime = new Time();
-		arrivalTime.set(timestamp);
-		
-		return arrivalTime;
+	public long getArrivalTime() {
+		return departureTime + (duration * 1000);
 	}
 	
 	/*****************************************************************************************
@@ -249,7 +242,7 @@ public final class Route implements Parcelable {
 	 * 
 	 *
 	 *****************************************************************************************/
-	public void setDepartureTime(Time time) {
+	public void setDepartureTime(long time) {
 		this.departureTime = time;
 	}
 	
@@ -361,7 +354,7 @@ public final class Route implements Parcelable {
 		dest.writeInt(validated);
 		dest.writeInt(duration);
 		//dest.writeValue(departureTime);
-		dest.writeString(departureTime.format2445());
+		dest.writeLong(departureTime);
 		dest.writeInt(uid);
 		dest.writeInt(credits);
 	}

@@ -3,6 +3,7 @@ package com.smartrek.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.format.Time;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -53,11 +54,15 @@ public final class ReservationDetailsActivity extends Activity {
 	        
 	        textViewDepartureTime = (TextView) findViewById(R.id.textViewDepartureTime);
 	        // FIXME: Date/time format i18n
-	        textViewDepartureTime.setText(route.getDepartureTime().format("%b %d, %G %l:%M%p"));
+	        Time dt = new Time();
+	        dt.set(route.getDepartureTime());
+	        textViewDepartureTime.setText(dt.format("%b %d, %G %l:%M%p"));
 	        
 	        textViewArrivalTime = (TextView) findViewById(R.id.textViewArrivalTime);
 	        // FIXME: Date/time format i18n
-	        textViewArrivalTime.setText(route.getArrivalTime().format("%b %d, %G %l:%M%p"));
+	        Time at = new Time();
+	        at.set(route.getArrivalTime());
+	        textViewArrivalTime.setText(at.format("%b %d, %G %l:%M%p"));
 	        
 	        textViewCredits = (TextView) findViewById(R.id.textViewCredits);
 	        textViewCredits.setText(String.valueOf(route.getCredits()));
