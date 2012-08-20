@@ -333,31 +333,45 @@ public final class HomeActivity extends Activity {
 	}
 	
 	private void onClickButtonFavAddrOrigin(View view) {
-		String origin = getOriginAddress();
 		
-		if (origin.equals("") || originBox.isCurrentLocationInUse()) {
-			
-			User currentUser = User.getCurrentUser(this);
-			new FavoriteAddressFetchTask(true).execute(currentUser.getId());
-			
+		if (originBox.hasAddress()) {
+			if (favoriteAddresses == null) {
+				User currentUser = User.getCurrentUser(this);
+				new FavoriteAddressFetchTask(true).execute(currentUser.getId());
+			}
+			else {
+				showFavAddrListForOrigin(favoriteAddresses);
+			}
 		}
 		else {
-			FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(this);
-			dialog.setAddress(origin);
-			dialog.setActionListener(new FavoriteAddressAddDialog.ActionListener() {
-				
-				@Override
-				public void onClickPositiveButton() {
+			String origin = getOriginAddress();
+			
+			if (origin.equals("")) {
+				if (favoriteAddresses == null) {
+					User currentUser = User.getCurrentUser(this);
+					new FavoriteAddressFetchTask(true).execute(currentUser.getId());
 				}
-				
-				@Override
-				public void onClickNegativeButton() {
-					//showFavAddrListForOrigin();
+				else {
+					showFavAddrListForOrigin(favoriteAddresses);
 				}
-			});
-			dialog.show();
+			}
+			else {
+				FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(this);
+				dialog.setAddress(origin);
+				dialog.setActionListener(new FavoriteAddressAddDialog.ActionListener() {
+					
+					@Override
+					public void onClickPositiveButton() {
+					}
+					
+					@Override
+					public void onClickNegativeButton() {
+						//showFavAddrListForOrigin();
+					}
+				});
+				dialog.show();
+			}
 		}
-		
 	}
 	
 	private void onClickButtonFavAddrDest(View view) {
@@ -396,7 +410,7 @@ public final class HomeActivity extends Activity {
 			
 			@Override
 			public void onClickListItem(Address item, int position) {
-				setOriginAddress(item.getAddress());
+				setOriginAddress(item);
 			}
 		});
 		dialog.show();
@@ -412,7 +426,7 @@ public final class HomeActivity extends Activity {
 			
 			@Override
 			public void onClickListItem(Address item, int position) {
-				setDestinationAddress(item.getAddress());
+				setDestinationAddress(item);
 			}
 		});
 		dialog.show();
@@ -490,8 +504,17 @@ public final class HomeActivity extends Activity {
 		originBox.setText(address);
 	}
 	
+	private void setOriginAddress(Address address) {
+		originBox.unsetAddress();
+		originBox.setAddress(address);
+	}
+	
 	private void setDestinationAddress(String address) {
 		destBox.setText(address);
+	}
+	
+	private void setDestinationAddress(Address address) {
+		destBox.setText(address.getAddress());
 	}
 	
 	private class FavoriteAddressFetchTask extends AsyncTask<Integer, Object, List<Address>> {
