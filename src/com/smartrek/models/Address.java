@@ -7,6 +7,17 @@ public final class Address {
 	private String name;
 	private String address;
 	
+	public Address() {
+		
+	}
+	
+	public Address(int id, int uid, String name, String address) {
+		this.aid = id;
+		this.uid = uid;
+		this.name = name;
+		this.address = address;
+	}
+	
 	public int getAid() {
 		return aid;
 	}
