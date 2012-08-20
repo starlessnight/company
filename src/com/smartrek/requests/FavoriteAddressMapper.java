@@ -18,8 +18,7 @@ public final class FavoriteAddressMapper extends FetchRequest {
 	public List<Address> getAddresses(int uid) throws JSONException, IOException {
 		String url = String.format("%s/getfavadd/%d", HOST, uid);
 		
-		Cache cache = Cache.getInstance();
-		String response = (String) cache.fetch(url);
+		String response = executeFetchRequest(url);
 		
 		JSONArray array = new JSONArray(response);
 		addresses.clear();

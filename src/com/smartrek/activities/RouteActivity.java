@@ -1,8 +1,10 @@
 package com.smartrek.activities;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
+import org.json.JSONException;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
@@ -28,8 +30,10 @@ import android.view.View.OnClickListener;
 import android.widget.ImageView;
 
 import com.smartrek.dialogs.TripSaveDialog;
+import com.smartrek.exceptions.RouteNotFoundException;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
+import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.requests.RouteMapper;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.RouteInfoOverlay;
@@ -43,6 +47,7 @@ import com.smartrek.ui.timelayout.TimeColumn;
 import com.smartrek.ui.timelayout.TimeLayout;
 import com.smartrek.ui.timelayout.TimeLayout.TimeLayoutListener;
 import com.smartrek.ui.timelayout.TimeLayout.TimeLayoutOnSelectListener;
+import com.smartrek.utils.Cache;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.RouteNode;
@@ -143,11 +148,10 @@ public final class RouteActivity extends Activity {
 //                  if (timeLayout.getColumnState(column).equals(State.Unknown)) {
                         timeLayout.setColumnState(column, State.InProgress);
                         Time departureTime = timeButton.getDepartureTime();
-                        dialog.show();
                         
-                        RouteTask routeTask = new RouteTask();
+                        RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime.toMillis(false), column);
                         routeTasks.add(routeTask);
-                        routeTask.execute(originCoord, destCoord, departureTime, column, true);
+                        routeTask.execute(true);
 //                  }
 //                  else {
 //                      timeLayout.setColumnState(column, State.Selected);
@@ -164,9 +168,9 @@ public final class RouteActivity extends Activity {
                     timeLayout.setColumnState(column, State.InProgress);
                     Time departureTime = timeLayout.getDepartureTime(column);
                     
-                    RouteTask routeTask = new RouteTask();
+                    RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime.toMillis(false), column);
                     routeTasks.add(routeTask);
-                    routeTask.execute(originCoord, destCoord, departureTime, column, false);
+                    routeTask.execute(false);
                 }
             }
         });
@@ -208,9 +212,9 @@ public final class RouteActivity extends Activity {
         });
         dialog.show();
         
-        RouteTask routeTask = new RouteTask(0);
+        RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0).toMillis(false), 0);
         routeTasks.add(routeTask);
-        routeTask.execute(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
+        routeTask.execute(true);
     }
     
     @Override
@@ -281,7 +285,7 @@ public final class RouteActivity extends Activity {
      * @param routeNum - 
      *
      ****************************************************************************************************************/
-    public synchronized int[] drawRoute (MapView mapView, Route route, int routeNum) {
+    public int[] drawRoute (MapView mapView, Route route, int routeNum) {
         mapOverlays = mapView.getOverlays();
         
         if(routeNum == 0)
@@ -440,45 +444,67 @@ public final class RouteActivity extends Activity {
         
         private int selectedColumn;
         private boolean updateMap;
+        private GeoPoint origin;
+        private GeoPoint destination;
+        private long departureTime;
         
-        public RouteTask() {
-            super();
+//        public RouteTask() {
+//            super();
+//        }
+        
+        public RouteTask(GeoPoint origin, GeoPoint destination, long departureTime, int column) {
+        	super();
+        	
+        	this.origin = origin;
+        	this.destination = destination;
+        	this.departureTime = departureTime;
+        	this.selectedColumn = column;
         }
         
-        /**
-         * 
-         * @param column Indicates a column in TimeLayout that this class is bound to
-         */
-        public RouteTask(int column) {
-            this.selectedColumn = column;
+//        /**
+//         * 
+//         * @param column Indicates a column in TimeLayout that this class is bound to
+//         */
+//        public RouteTask(int column) {
+//            this.selectedColumn = column;
+//        }
+        
+        public boolean isCached() {
+        	RouteFetchRequest request = new RouteFetchRequest(origin, destination, departureTime);
+        	return request.isCached();
+        }
+        
+        public List<Route> getData() throws RouteNotFoundException, IOException, JSONException {
+        	RouteFetchRequest request = new RouteFetchRequest(origin, destination, departureTime);
+        	return request.execute();
         }
         
         @Override
-        protected void onPreExecute () {
+        protected void onPreExecute() {
             // FIXME: Should this be here?
             //timeLayout.setColumnState(selectedColumn, TimeButton.State.InProgress);
+        	
+        	if (isCached()) {
+        		
+        	}
+        	else {
+        		dialog.show();
+        	}
         }
         
         @Override
         protected List<Route> doInBackground(Object... args) {  
-            
-            // FIXME: Potential array out of boundary issues
-            GeoPoint origin = (GeoPoint)args[0];
-            GeoPoint destination = (GeoPoint)args[1];
-            Time time = (Time)args[2];
-            selectedColumn = (Integer)args[3];
-            updateMap = (Boolean)args[4];
-            
-            RouteMapper mapper = new RouteMapper();
+            updateMap = (Boolean) args[0];
             
             /* Get the possible routes from the server */
             List<Route> possibleRoutes = null;
             try {
             	if (debugMode) {
-            		possibleRoutes = mapper.getFakeRoutes(time);
+            		//possibleRoutes = mapper.getFakeRoutes(departureTime);
             	}
             	else {
-            		possibleRoutes = mapper.getPossibleRoutes(origin, destination, time);
+            		//possibleRoutes = mapper.getPossibleRoutes(origin, destination, time);
+            		possibleRoutes = getData();
             	}
             }
             catch(Exception e) {
@@ -510,14 +536,14 @@ public final class RouteActivity extends Activity {
                     timeLayout.setModelForColumn(selectedColumn, firstRoute);
                 }
                 
-                // FIXME: Relying on updateMap is kind of hack-ish. Need to come up with more sophiscated way.
+                // FIXME: Relying on updateMap is kind of hack-ish. Need to come up with more sophisticated way.
                 timeLayout.setColumnState(selectedColumn, updateMap ? TimeButton.State.Selected : TimeButton.State.None);
                 //timeLayout.setColumnState(selectedColumn, State.None);
                 
                 if (selectedColumn == 0) {
                     for (int i = 1; i < 4; i++) {
                         Time departureTime = timeLayout.getDepartureTime(i);
-                        new RouteTask(i).execute(originCoord, destCoord, departureTime, i, false);
+                        new RouteTask(originCoord, destCoord, departureTime.toMillis(false), i).execute(false);
                     }
                 }
             }

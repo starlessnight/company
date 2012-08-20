@@ -20,8 +20,7 @@ public final class Cache {
 		/**
 		 * The local cache expires on this date/time
 		 */
-		// TODO: Use 'long' instead of 'Time'
-		public Time expires;
+		public long expires;
 		
 		public Object userdata;
 	}
@@ -57,23 +56,25 @@ public final class Cache {
 		return instance;
 	}
 	
-	public boolean isCacheAvailable(String url) {
-		Data data = storage.get(url);
-		
-		return isValid(data);
+	public boolean isCacheAvailable(String key) {
+		return storage.containsKey(key) && isValid(storage.get(key));
 	}
 	
 	public boolean isValid(Data data) {
-		Time currentTime = new Time();
-		currentTime.setToNow();
-		
-		return data != null && Time.compare(data.expires, currentTime) > 0;
+		return data != null && data.expires > System.currentTimeMillis();
 	}
 	
-	public Object fetch(String url) throws IOException {
-		Log.d("Cache", "url = " + url);
-		if(storage.containsKey(url)) {
-			Data data = storage.get(url);
+	public void put(String key, Object value) {
+		Data data = new Data();
+		data.expires = System.currentTimeMillis() + TTL*1000;
+		data.userdata = value;
+		storage.put(key, data);
+	}
+	
+	public Object fetch(String key) {
+		Log.d("Cache", "url = " + key);
+		if(storage.containsKey(key)) {
+			Data data = storage.get(key);
 			
 			if(isValid(data)) {
 				Log.d("Cache", "Fetching from cache (valid)");
@@ -81,34 +82,36 @@ public final class Cache {
 			}
 			else {
 				Log.d("Cache", "Removing from cache");
-				storage.remove(url);
+				storage.remove(key);
 			}
 		}
 		
-		Log.d("Cache", "Fetching from remote site");
+		return null;
 		
-		HTTP http = new HTTP(url);
-		http.connect();
-		
-		int code = http.getResponseCode();
-		if(code == 200) {
-			// HTTP OK
-			
-			String body = http.getResponseBody();
-			
-			Data data = new Data();
-			Time expire = new Time();
-			expire.setToNow();
-			expire.set(expire.toMillis(false) + TTL*1000);
-			data.expires = expire;
-			data.userdata = body;
-			
-			storage.put(url, data);
-			
-			return data.userdata;
-		}
-		else {
-			throw new IOException(String.format("HTTP %d: %s", code, http.getResponseBody()));
-		}
+//		Log.d("Cache", "Fetching from remote site");
+//		
+//		HTTP http = new HTTP(url);
+//		http.connect();
+//		
+//		int code = http.getResponseCode();
+//		if(code == 200) {
+//			// HTTP OK
+//			
+//			String body = http.getResponseBody();
+//			
+//			Data data = new Data();
+//			Time expire = new Time();
+//			expire.setToNow();
+//			expire.set(expire.toMillis(false) + TTL*1000);
+//			data.expires = expire;
+//			data.userdata = body;
+//			
+//			storage.put(url, data);
+//			
+//			return data.userdata;
+//		}
+//		else {
+//			throw new IOException(String.format("HTTP %d: %s", code, http.getResponseBody()));
+//		}
 	}
 }

@@ -1,5 +1,7 @@
 package com.smartrek.requests;
 
+import java.io.IOException;
+
 import com.smartrek.utils.Cache;
 
 
@@ -28,20 +30,21 @@ public abstract class FetchRequest<ReturnType> extends Request {
 		this.listener = listener;
 	}
 	
-	public ReturnType execute() {
+	public ReturnType execute() throws Exception {
 		return null;
 	}
 	
-	protected String executeFetchRequest(String url) {
+	protected String executeFetchRequest(String url) throws IOException {
 		Cache cache = Cache.getInstance();
 		if (cache.isCacheAvailable(url)) {
-			
+			return (String) cache.fetch(url);
 		}
 		else {
+			String response = executeHttpGetRequest(url);
+			cache.put(url, response);
 			
+			return response;
 		}
-		
-		return null;
 	}
 	
 	/**
@@ -50,6 +53,6 @@ public abstract class FetchRequest<ReturnType> extends Request {
 	 * @return
 	 */
 	public boolean isCached() {
-		return false;
+		return Cache.getInstance().isCacheAvailable(url);
 	}
 }
