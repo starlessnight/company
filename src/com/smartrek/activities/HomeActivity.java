@@ -335,25 +335,13 @@ public final class HomeActivity extends Activity {
 	private void onClickButtonFavAddrOrigin(View view) {
 		
 		if (originBox.hasAddress()) {
-			if (favoriteAddresses == null) {
-				User currentUser = User.getCurrentUser(this);
-				new FavoriteAddressFetchTask(true).execute(currentUser.getId());
-			}
-			else {
-				showFavAddrListForOrigin(favoriteAddresses);
-			}
+			showFavAddrListForOrigin();
 		}
 		else {
 			String origin = getOriginAddress();
 			
 			if (origin.equals("")) {
-				if (favoriteAddresses == null) {
-					User currentUser = User.getCurrentUser(this);
-					new FavoriteAddressFetchTask(true).execute(currentUser.getId());
-				}
-				else {
-					showFavAddrListForOrigin(favoriteAddresses);
-				}
+				showFavAddrListForOrigin();
 			}
 			else {
 				FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(this);
@@ -366,7 +354,7 @@ public final class HomeActivity extends Activity {
 					
 					@Override
 					public void onClickNegativeButton() {
-						//showFavAddrListForOrigin();
+						showFavAddrListForOrigin();
 					}
 				});
 				dialog.show();
@@ -397,6 +385,31 @@ public final class HomeActivity extends Activity {
 				}
 			});
 			dialog.show();
+		}
+	}
+	
+	/**
+	 * Fetches favorite address list and shows a dialog to select the origin address
+	 */
+	private void fetchFavAddrListForOrigin() {
+		User currentUser = User.getCurrentUser(this);
+		new FavoriteAddressFetchTask(true).execute(currentUser.getId());
+	}
+	
+	/**
+	 * Fetches favorite address list and shows a dialog to select the destination address
+	 */
+	private void fetchFavAddrListForDest() {
+		User currentUser = User.getCurrentUser(this);
+		new FavoriteAddressFetchTask(false).execute(currentUser.getId());
+	}
+	
+	private void showFavAddrListForOrigin() {
+		if (favoriteAddresses == null) {
+			fetchFavAddrListForOrigin();
+		}
+		else {
+			showFavAddrListForOrigin(favoriteAddresses);
 		}
 	}
 	
