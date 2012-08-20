@@ -149,9 +149,9 @@ public final class RouteActivity extends Activity {
                         timeLayout.setColumnState(column, State.InProgress);
                         Time departureTime = timeButton.getDepartureTime();
                         
-                        RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime.toMillis(false), column);
+                        RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime.toMillis(false), column, true);
                         routeTasks.add(routeTask);
-                        routeTask.execute(true);
+                        routeTask.execute();
 //                  }
 //                  else {
 //                      timeLayout.setColumnState(column, State.Selected);
@@ -168,9 +168,9 @@ public final class RouteActivity extends Activity {
                     timeLayout.setColumnState(column, State.InProgress);
                     Time departureTime = timeLayout.getDepartureTime(column);
                     
-                    RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime.toMillis(false), column);
+                    RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime.toMillis(false), column, false);
                     routeTasks.add(routeTask);
-                    routeTask.execute(false);
+                    routeTask.execute();
                 }
             }
         });
@@ -212,9 +212,9 @@ public final class RouteActivity extends Activity {
         });
         dialog.show();
         
-        RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0).toMillis(false), 0);
+        RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0).toMillis(false), 0, true);
         routeTasks.add(routeTask);
-        routeTask.execute(true);
+        routeTask.execute();
     }
     
     @Override
@@ -270,6 +270,8 @@ public final class RouteActivity extends Activity {
             //mc.animateTo(mid);
             mc.setCenter(mid);
             mc.zoomToSpan(range[0], range[1]);
+            
+            mapView.invalidate();
         }
     }
 
@@ -450,26 +452,15 @@ public final class RouteActivity extends Activity {
         private GeoPoint destination;
         private long departureTime;
         
-//        public RouteTask() {
-//            super();
-//        }
-        
-        public RouteTask(GeoPoint origin, GeoPoint destination, long departureTime, int column) {
+        public RouteTask(GeoPoint origin, GeoPoint destination, long departureTime, int column, boolean updateMap) {
         	super();
         	
         	this.origin = origin;
         	this.destination = destination;
         	this.departureTime = departureTime;
         	this.selectedColumn = column;
+        	this.updateMap = updateMap;
         }
-        
-//        /**
-//         * 
-//         * @param column Indicates a column in TimeLayout that this class is bound to
-//         */
-//        public RouteTask(int column) {
-//            this.selectedColumn = column;
-//        }
         
         public boolean isCached() {
         	RouteFetchRequest request = new RouteFetchRequest(origin, destination, departureTime);
@@ -490,14 +481,14 @@ public final class RouteActivity extends Activity {
         		
         	}
         	else {
-        		dialog.show();
+        		if (updateMap) {
+        			dialog.show();
+        		}
         	}
         }
         
         @Override
         protected List<Route> doInBackground(Object... args) {  
-            updateMap = (Boolean) args[0];
-            
             /* Get the possible routes from the server */
             List<Route> possibleRoutes = null;
             try {
@@ -544,7 +535,7 @@ public final class RouteActivity extends Activity {
                 if (selectedColumn == 0) {
                     for (int i = 1; i < 4; i++) {
                         Time departureTime = timeLayout.getDepartureTime(i);
-                        new RouteTask(originCoord, destCoord, departureTime.toMillis(false), i).execute(false);
+                        new RouteTask(originCoord, destCoord, departureTime.toMillis(false), i, false).execute();
                     }
                 }
             }
