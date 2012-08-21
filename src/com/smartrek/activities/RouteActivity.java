@@ -572,6 +572,7 @@ public final class RouteActivity extends Activity {
                 }
             }
             routePathOverlays[routeNum].setHighlighted(true);
+            mapView.getController().setCenter(routeOverlays[routeNum].getGeoPoint());
             
             return true;
         }

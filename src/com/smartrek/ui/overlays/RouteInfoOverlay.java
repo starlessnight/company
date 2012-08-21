@@ -23,11 +23,13 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private TextView titleBar;
 	private Route route;
 	private boolean enabled;
+	private GeoPoint geoPoint;
 	
 	public RouteInfoOverlay(MapView mapview, Route route, GeoPoint point) {
 		super(mapview.getResources().getDrawable(R.drawable.marker_default), mapview, null);
 		this.enabled = false;
 		this.route = route;
+		this.geoPoint = geoPoint;
 
 		OverlayItem item = new OverlayItem(
 		// TODO: Showing a route ID is a temporary solution.
@@ -80,6 +82,10 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	
 	public void setRoute(Route route, int routeNum) {
 		this.route = route;
+	}
+	
+	public GeoPoint getGeoPoint() {
+		return geoPoint;
 	}
 	
 //	public void addOverlay(OverlayItem overlay) {
