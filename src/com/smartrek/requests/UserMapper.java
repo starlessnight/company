@@ -3,9 +3,6 @@ package com.smartrek.requests;
 import java.io.IOException;
 import java.net.URLEncoder;
 
-import org.json.JSONException;
-
-import smartrek.parsers.Parser;
 import android.util.Log;
 
 import com.smartrek.models.User;

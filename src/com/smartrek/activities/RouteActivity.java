@@ -363,6 +363,16 @@ public final class RouteActivity extends Activity {
         return new GeoPoint(midLat,midLong);
     }
     
+    private void setHighlightedRoutePathOverlays(boolean highlighted) {
+        for (int i = 0; i < routeOverlays.length; i++) {
+            RoutePathOverlay overlay = routePathOverlays[i];
+            
+            if (overlay != null) {
+                overlay.setHighlighted(highlighted);
+            }
+        }
+    }
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
@@ -475,6 +485,8 @@ public final class RouteActivity extends Activity {
             // FIXME: Should this be here?
             //timeLayout.setColumnState(selectedColumn, TimeButton.State.InProgress);
         	
+        	setHighlightedRoutePathOverlays(false);
+        	
         	if (isCached()) {
         		
         	}
@@ -564,13 +576,7 @@ public final class RouteActivity extends Activity {
         @Override
         public boolean onTap(int index) {
             // Highlight selected route path
-            for (int i = 0; i < routeOverlays.length; i++) {
-                RoutePathOverlay overlay = routePathOverlays[i];
-                
-                if (overlay != null) {
-                    overlay.setHighlighted(false);
-                }
-            }
+        	setHighlightedRoutePathOverlays(false);
             routePathOverlays[routeNum].setHighlighted(true);
             
             return true;
