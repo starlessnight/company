@@ -31,4 +31,10 @@ public final class TripListFetchRequest extends FetchRequest<Trip> {
 		
 		return trips;
 	}
+
+	@Override
+	public Trip execute() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

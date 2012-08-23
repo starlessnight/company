@@ -5,13 +5,11 @@ import java.util.ArrayList;
 import org.json.JSONException;
 
 import com.smartrek.models.Coupon;
-import com.smartrek.models.Route;
-import com.smartrek.models.User;
 
 
 /****************************************************************************************************
  * 
- * 
+ * @deprecated
  * @author timothyolivas
  *
  ****************************************************************************************************/
@@ -34,22 +32,6 @@ public class Parser {
 //      }
 //      return cp_array;    
         return Parse_Item.parse_coupons(str);
-    }
-    
-    /*****************************************************************************************
-     * 
-     *
-     *****************************************************************************************/
-    public static ArrayList<Route> parse_Routes(String str) throws JSONException {
-        return Parse_Item.parse_routes(str);
-    }
-    
-    /*****************************************************************************************
-     * 
-     *
-     *****************************************************************************************/
-    public static User parse_User(String name, String str) throws JSONException {
-        return Parse_Item.parse_user(name,str);
     }
     
 }

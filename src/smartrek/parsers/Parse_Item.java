@@ -73,21 +73,6 @@ public class Parse_Item {
 	 * 
 	 *
 	 *****************************************************************************************/
-	public static User parse_user(String name, String str) throws JSONException{	
-		// FIXME: Server produces a JSON string like [{ ... }]. Is [] really necessary? 
-		JSONArray jsonArray = new JSONArray(str);
-		JSONObject json = (JSONObject) jsonArray.get(0);
-		
-		//JSONObject json = new JSONObject(str);
-		int id = json.getInt("UID");
-		return new User(id, name);
-	}
-		
-	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/
 	public static ArrayList<Route> parse_routes(String str) throws JSONException{		
 		Log.d("Parse_Item","Begin Parsing Routes");
 		ArrayList<Route> routearray = new ArrayList<Route>();

@@ -115,4 +115,10 @@ public final class ReservationMapper extends FetchRequest {
 		}
 	}
 
+	@Override
+	public Object execute() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

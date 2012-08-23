@@ -186,4 +186,10 @@ public final class CouponMapper extends FetchRequest {
 			throw new IOException(String.format("HTTP %d - %s", responseCode, http.getResponseBody()));
 		}
 	}
+
+	@Override
+	public Object execute() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -16,6 +16,7 @@ import com.smartrek.utils.HTTP;
  * 
  * 
  * @author timothyolivas
+ * @deprecated
  *
  ****************************************************************************************************/
 public class UserMapper extends Request {
@@ -29,24 +30,6 @@ public class UserMapper extends Request {
 	
 	public UserMapper() {
 		super();
-	}
-	
-	public User login(String name, String pwd) throws JSONException, IOException {
-		String loginurl = String.format("%s/verifyaccount/username=%s&password=%s", HOST, URLEncoder.encode(name), URLEncoder.encode(pwd));
-
-		HTTP http = new HTTP(loginurl);
-		http.connect();
-		
-		int responseCode = http.getResponseCode();
-		if (responseCode == 200) {
-			String jsonString = http.getResponseBody();
-			User user = Parser.parse_User(name, jsonString);
-			
-			return user;
-		}
-		else {
-			throw new IOException(String.format("HTTP %d: %s", responseCode, http.getResponseBody()));
-		}
 	}
 	
 	public void register(User user) throws IOException {
