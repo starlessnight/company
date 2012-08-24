@@ -15,8 +15,8 @@ public final class TimeColumn extends LinearLayout {
 	private TimeButton departureTimeButton;
 	private TimeButton arrivalTimeButton;
 	
-	private Time departureTime;
-	private Time arrivalTime;
+	private long departureTime;
+	private long arrivalTime;
 	
 	private State state = State.Unknown;
 	private DisplayMode displayMode = DisplayMode.Time;
@@ -56,28 +56,32 @@ public final class TimeColumn extends LinearLayout {
 		this.displayMode = displayMode;
 	}
 
-	public Time getDepartureTime() {
+	public long getDepartureTime() {
 		return departureTime;
 	}
 	
-	public void setDepartureTime(Time time) {
+	public void setDepartureTime(long time) {
 		this.departureTime = time;
 		
-		departureTimeButton.setText(time.format("%l:%M%p"));
+		Time t = new Time();
+		t.set(time);
+		departureTimeButton.setText(t.format("%l:%M%p"));
 	}
 	
-	public Time getArrivalTime() {
+	public long getArrivalTime() {
 		return arrivalTime;
 	}
 	
-	public void setArrivalTime(Time time) {
+	public void setArrivalTime(long time) {
 		this.arrivalTime = time;
 		
 		if (displayMode.equals(DisplayMode.Duration)) {
 			arrivalTimeButton.setText(String.format("%d min", getDuration()/60));
 		}
 		else {
-			arrivalTimeButton.setText(time.format("%l:%M%p"));
+			Time t = new Time();
+			t.set(time);
+			arrivalTimeButton.setText(t.format("%l:%M%p"));
 		}
 	}
 	
@@ -87,6 +91,6 @@ public final class TimeColumn extends LinearLayout {
 	 * @return Travel duration in seconds.
 	 */
 	public int getDuration() {
-		return (int) ((arrivalTime.toMillis(false) - departureTime.toMillis(false)) / 1000);
+		return (int) ((arrivalTime - departureTime) / 1000);
 	}
 }

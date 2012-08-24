@@ -145,9 +145,9 @@ public final class RouteActivity extends Activity {
                     
 //                  if (timeLayout.getColumnState(column).equals(State.Unknown)) {
                         timeLayout.setColumnState(column, State.InProgress);
-                        Time departureTime = timeButton.getDepartureTime();
+                        long departureTime = timeButton.getDepartureTime();
                         
-                        RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime.toMillis(false), column, true);
+                        RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime, column, true);
                         routeTasks.add(routeTask);
                         routeTask.execute();
 //                  }
@@ -164,9 +164,9 @@ public final class RouteActivity extends Activity {
             public void updateTimeLayout(TimeLayout timeLayout, int column) {
                 if (timeLayout.getColumnState(column).equals(State.Unknown)) {
                     timeLayout.setColumnState(column, State.InProgress);
-                    Time departureTime = timeLayout.getDepartureTime(column);
+                    long departureTime = timeLayout.getDepartureTime(column);
                     
-                    RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime.toMillis(false), column, false);
+                    RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime, column, false);
                     routeTasks.add(routeTask);
                     routeTask.execute();
                 }
@@ -210,7 +210,7 @@ public final class RouteActivity extends Activity {
         });
         dialog.show();
         
-        RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0).toMillis(false), 0, true);
+        RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
         routeTasks.add(routeTask);
         routeTask.execute();
     }
@@ -545,8 +545,8 @@ public final class RouteActivity extends Activity {
                 
                 if (selectedColumn == 0) {
                     for (int i = 1; i < 4; i++) {
-                        Time departureTime = timeLayout.getDepartureTime(i);
-                        new RouteTask(originCoord, destCoord, departureTime.toMillis(false), i, false).execute();
+                        long departureTime = timeLayout.getDepartureTime(i);
+                        new RouteTask(originCoord, destCoord, departureTime, i, false).execute();
                     }
                 }
             }

@@ -60,7 +60,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
         
         for (int i = 0; i < numboxes; i++) {
              TimeColumn timeColumn = new TimeColumn(this, i);
-             timeColumn.setDepartureTime(adjustableTime.initTime());
+             timeColumn.setDepartureTime(adjustableTime.initTime().toMillis(false));
              timeColumn.setOnClickListener(this);
              adjustableTime.incrementBy(15);
              addView(timeColumn, i);
@@ -119,19 +119,16 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     public synchronized void setModelForColumn(int column, Route model) {
     	models[column] = model;
     	
-    	Time t = new Time();
-    	t.set(model.getArrivalTime());
-    	
     	TimeColumn timeButton = (TimeColumn) getChildAt(column);
-    	timeButton.setArrivalTime(t);
+    	timeButton.setArrivalTime(model.getArrivalTime());
     }
     
-    public Time getDepartureTime(int column) {
+    public long getDepartureTime(int column) {
     	TimeColumn timeButton = (TimeColumn) getChildAt(column);
     	return timeButton.getDepartureTime();
     }
     
-    public Time getSelectedDepartureTime() {
+    public long getSelectedDepartureTime() {
     	return getDepartureTime(selectedColumn);
     }
 
