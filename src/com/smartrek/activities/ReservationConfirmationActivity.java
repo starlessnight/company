@@ -18,6 +18,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.smartrek.dialogs.TripSaveDialog;
 import com.smartrek.models.Route;
 import com.smartrek.receivers.ReservationReceiver;
 import com.smartrek.requests.ReservationMapper;
@@ -80,15 +81,34 @@ public final class ReservationConfirmationActivity extends Activity {
         });
         
         buttonSaveTrip = (Button) findViewById(R.id.button_save_trip);
-        buttonReserve.setOnClickListener(new OnClickListener() {
+        buttonSaveTrip.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				new TripSaveTask().execute();
+				onClickSaveTrip();
 			}
         });
         
 	}
+	
+    private void onClickSaveTrip() {
+    	TripSaveDialog dialog = new TripSaveDialog(this, route.getOrigin(), route.getDestination());
+    	dialog.setActionListener(new TripSaveDialog.ActionListener() {
+			
+			@Override
+			public void onClickPositiveButton(String name, String origin,
+					String destination) {
+				new TripSaveTask().execute();
+				
+			}
+			
+			@Override
+			public void onClickNegativeButton() {
+			}
+			
+		});
+    	dialog.show();
+    }
 	
 	private void scheduleEvent(Route route) {
 		
