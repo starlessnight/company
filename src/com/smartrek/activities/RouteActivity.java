@@ -583,5 +583,11 @@ public final class RouteActivity extends Activity {
             
             return true;
         }
+
+		@Override
+		public boolean onClose() {
+			setHighlightedRoutePathOverlays(true);
+			return false;
+		}
     }
 }

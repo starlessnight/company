@@ -29,7 +29,7 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		super(mapview.getResources().getDrawable(R.drawable.marker_default), mapview, null);
 		this.enabled = false;
 		this.route = route;
-		this.geoPoint = geoPoint;
+		this.geoPoint = point;
 
 		OverlayItem item = new OverlayItem(
 		// TODO: Showing a route ID is a temporary solution.
@@ -132,6 +132,10 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 											titleBar.setVisibility(View.GONE);
 											//mapView.getZoomButtonsController().setVisible(true);
 											mapView.invalidate();
+											
+											if (callback != null) {
+												callback.onClose();
+											}
 									}
 								});
 		}
