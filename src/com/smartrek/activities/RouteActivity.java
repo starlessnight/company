@@ -529,14 +529,14 @@ public final class RouteActivity extends Activity {
                 ehs.reportExceptions();
             }
             else {
+            	// FIXME: Temporary
+            	if(possibleRoutes != null && possibleRoutes.size() > 0) {
+            		Route firstRoute = possibleRoutes.get(0);
+            		timeLayout.setModelForColumn(selectedColumn, firstRoute);
+            	}
+            	
                 if(possibleRoutes != null && updateMap) {
                     updateMap(possibleRoutes);
-                }
-                
-                // FIXME: Temporary
-                if(possibleRoutes != null && possibleRoutes.size() > 0) {
-                    Route firstRoute = possibleRoutes.get(0);
-                    timeLayout.setModelForColumn(selectedColumn, firstRoute);
                 }
                 
                 // FIXME: Relying on updateMap is kind of hack-ish. Need to come up with more sophisticated way.
@@ -544,7 +544,7 @@ public final class RouteActivity extends Activity {
                 //timeLayout.setColumnState(selectedColumn, State.None);
                 
                 if (selectedColumn == 0) {
-                    for (int i = 1; i < 4; i++) {
+                    for (int i = 1; i < 0; i++) {
                         long departureTime = timeLayout.getDepartureTime(i);
                         new RouteTask(originCoord, destCoord, departureTime, i, false).execute();
                     }
@@ -565,6 +565,7 @@ public final class RouteActivity extends Activity {
         
         @Override
         public boolean onBalloonTap(int index, OverlayItem item) {
+        	Log.d("RouteActivity.RouteOverlayCallbackImpl", "onBalloonTap()");
             Intent intent = new Intent(RouteActivity.this, ReservationConfirmationActivity.class);
             Bundle extras = new Bundle();
             extras.putParcelable("route", route);
@@ -576,6 +577,7 @@ public final class RouteActivity extends Activity {
 
         @Override
         public boolean onTap(int index) {
+        	Log.d("RouteActivity.RouteOverlayCallbackImpl", "onTap()");
             // Highlight selected route path
         	setHighlightedRoutePathOverlays(false);
             routePathOverlays[routeNum].setHighlighted(true);
@@ -586,8 +588,11 @@ public final class RouteActivity extends Activity {
 
 		@Override
 		public boolean onClose() {
+			Log.d("RouteActivity.RouteOverlayCallbackImpl", "onClose()");
 			setHighlightedRoutePathOverlays(true);
-			return false;
+			mapView.invalidate();
+			
+			return true;
 		}
     }
 }

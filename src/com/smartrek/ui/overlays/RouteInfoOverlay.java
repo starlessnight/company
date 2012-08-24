@@ -19,15 +19,11 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	
 	private RouteOverlayCallback callback;
 
-	private CouponLayout couponLayout;
-	private TextView titleBar;
 	private Route route;
-	private boolean enabled;
 	private GeoPoint geoPoint;
 	
 	public RouteInfoOverlay(MapView mapview, Route route, GeoPoint point) {
 		super(mapview.getResources().getDrawable(R.drawable.marker_default), mapview, null);
-		this.enabled = false;
 		this.route = route;
 		this.geoPoint = point;
 
@@ -53,7 +49,7 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 
 			@Override
 			public boolean onItemSingleTapUp(int index, OverlayItem item) {
-				createAndDisplayBalloonOverlay();
+				onTap(index);
 				
 				if (callback != null) {
 					return callback.onTap(index);
@@ -72,12 +68,6 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	 */
 	public void setCallback(RouteOverlayCallback callback) {
 		this.callback = callback;
-	}
-	
-	public void setCouponLayout(CouponLayout couponlayout, TextView titleBar){
-		this.couponLayout = couponlayout;
-		this.titleBar = titleBar;
-		enabled = true;
 	}
 	
 	public void setRoute(Route route, int routeNum) {
@@ -117,9 +107,6 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		createAndDisplayBalloonOverlay();
 
 		mc.animateTo(currentFocussedItem.getPoint());
-		if(enabled) {
-			couponLayout.setVisibility(View.VISIBLE);
-			titleBar.setVisibility(View.VISIBLE);
 			
 		ImageView close = balloonView.getCloseView();
 		
@@ -127,10 +114,8 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		  
 		close.setOnClickListener(new OnClickListener() {
 									public void onClick(View v) {
+										Log.d("RouteInfoOverlay", "onClick() on closeView");
 											layout.setVisibility(View.GONE);
-											couponLayout.setVisibility(View.GONE);
-											titleBar.setVisibility(View.GONE);
-											//mapView.getZoomButtonsController().setVisible(true);
 											mapView.invalidate();
 											
 											if (callback != null) {
@@ -138,7 +123,6 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 											}
 									}
 								});
-		}
 		
 		if (callback != null) {
 			return callback.onTap(index);
