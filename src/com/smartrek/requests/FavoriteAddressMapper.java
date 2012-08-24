@@ -38,4 +38,10 @@ public final class FavoriteAddressMapper extends FetchRequest {
 		return addresses;
 	}
 
+	@Override
+	public Object execute() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

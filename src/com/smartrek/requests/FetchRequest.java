@@ -30,9 +30,7 @@ public abstract class FetchRequest<ReturnType> extends Request {
 		this.listener = listener;
 	}
 	
-	public ReturnType execute() throws Exception {
-		return null;
-	}
+	public abstract ReturnType execute() throws Exception;
 	
 	protected String executeFetchRequest(String url) throws IOException {
 		Cache cache = Cache.getInstance();

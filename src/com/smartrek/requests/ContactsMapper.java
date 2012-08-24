@@ -43,4 +43,10 @@ public final class ContactsMapper extends FetchRequest {
 		return contacts;
 	}
 
+	@Override
+	public Object execute() throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

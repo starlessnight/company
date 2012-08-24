@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.smartrek.models.User;
+import com.smartrek.requests.UserLoginRequest;
 import com.smartrek.requests.UserMapper;
 import com.smartrek.utils.ExceptionHandlingService;
 
@@ -102,7 +103,8 @@ public final class LoginActivity extends Activity implements OnClickListener {
 			
 			User user = null;
 			try {
-				user = new UserMapper().login(username, password);
+				UserLoginRequest request = new UserLoginRequest(username, password);
+				user = request.execute();
 			}
 			catch(Exception e) {
 				user = new User(-1, username);
