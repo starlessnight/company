@@ -1,6 +1,5 @@
 package com.smartrek.ui.overlays;
 
-import com.smartrek.utils.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.OverlayItem;
 
@@ -8,12 +7,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import com.smartrek.AdjustableCouponDisplay.CouponLayout;
 import com.smartrek.activities.R;
 import com.smartrek.models.Route;
+import com.smartrek.utils.GeoPoint;
 
 public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	
@@ -94,6 +91,10 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 //	public synchronized int size() {
 //		return overlays.size();
 //	}
+	
+	public void hide() {
+		hideBalloon();
+	}
 
 	@Override
 	protected final boolean onTap(int index) {
@@ -108,14 +109,12 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 
 		mc.animateTo(currentFocussedItem.getPoint());
 			
-		ImageView close = balloonView.getCloseView();
+		ImageView imageViewClose = balloonView.getCloseView();
 		
-		final LinearLayout layout = balloonView.getLayout();
-		  
-		close.setOnClickListener(new OnClickListener() {
+		imageViewClose.setOnClickListener(new OnClickListener() {
 									public void onClick(View v) {
 										Log.d("RouteInfoOverlay", "onClick() on closeView");
-											layout.setVisibility(View.GONE);
+											hide();
 											mapView.invalidate();
 											
 											if (callback != null) {

@@ -141,6 +141,16 @@ public final class RouteActivity extends Activity {
             @Override
             public void onSelect(int column, TimeColumn timeButton) {
                 Log.d("RouteActivity", "Column state: " + timeLayout.getColumnState(column));
+                
+                // FIXME: Refactor this. (Close all route info overlays)
+                for (int i = 0; i < routeOverlays.length; i++) {
+                	RouteInfoOverlay routeInfoOverlay = routeOverlays[i];
+                	
+                	if (routeInfoOverlay != null) {
+                		routeInfoOverlay.hide();
+                	}
+                }
+                
                 if (!timeLayout.getColumnState(column).equals(State.InProgress)) {
                     
 //                  if (timeLayout.getColumnState(column).equals(State.Unknown)) {
@@ -544,7 +554,7 @@ public final class RouteActivity extends Activity {
                 //timeLayout.setColumnState(selectedColumn, State.None);
                 
                 if (selectedColumn == 0) {
-                    for (int i = 1; i < 0; i++) {
+                    for (int i = 1; i < 4; i++) {
                         long departureTime = timeLayout.getDepartureTime(i);
                         new RouteTask(originCoord, destCoord, departureTime, i, false).execute();
                     }
