@@ -5,6 +5,9 @@ import java.net.URLEncoder;
 
 public class FavoriteAddressAddRequest extends Request {
 	
+	public FavoriteAddressAddRequest() {
+	}
+	
 	public FavoriteAddressAddRequest(int uid, String name, String address) {
 		// TODO: Implement this		
 	}

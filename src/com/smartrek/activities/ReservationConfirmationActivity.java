@@ -20,8 +20,10 @@ import android.widget.TextView;
 
 import com.smartrek.dialogs.TripSaveDialog;
 import com.smartrek.models.Route;
+import com.smartrek.models.User;
 import com.smartrek.receivers.ReservationReceiver;
 import com.smartrek.requests.ReservationMapper;
+import com.smartrek.requests.TripAddRequest;
 import com.smartrek.utils.ExceptionHandlingService;
 
 /**
@@ -98,7 +100,8 @@ public final class ReservationConfirmationActivity extends Activity {
 			@Override
 			public void onClickPositiveButton(String name, String origin,
 					String destination) {
-				new TripSaveTask().execute();
+				User currentUser = User.getCurrentUser(ReservationConfirmationActivity.this);
+				new TripSaveTask(currentUser.getId(), name, origin, destination).execute();
 				
 			}
 			
@@ -184,6 +187,18 @@ public final class ReservationConfirmationActivity extends Activity {
 
 		private ProgressDialog dialog;
 		
+		private int uid;
+		private String name;
+		private String origin;
+		private String destination;
+		
+		public TripSaveTask(int uid, String name, String origin, String destination) {
+			this.uid = uid;
+			this.name = name;
+			this.origin = origin;
+			this.destination = destination;
+		}
+		
 		@Override
 		protected void onPreExecute() {
 			dialog = new ProgressDialog(ReservationConfirmationActivity.this);
@@ -195,6 +210,13 @@ public final class ReservationConfirmationActivity extends Activity {
 		
 		@Override
 		protected Object doInBackground(Object... params) {
+			TripAddRequest request = new TripAddRequest(uid, name, origin, destination);
+			try {
+				request.execute();
+			}
+			catch (IOException e) {
+				ehs.registerException(e);
+			}
 			
 			return null;
 		}
