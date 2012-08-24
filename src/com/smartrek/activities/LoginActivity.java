@@ -107,7 +107,7 @@ public final class LoginActivity extends Activity implements OnClickListener {
 				user = request.execute();
 			}
 			catch(Exception e) {
-				user = new User(-1, username);
+				ehs.registerException(e);
 			}
 			
 			if(user == null) {

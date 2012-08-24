@@ -16,8 +16,9 @@ public class UserLoginRequest extends FetchRequest<User> {
 	}
 	
 	public User execute() throws IOException, JSONException {
-		String response = executeFetchRequest(url);
+		String response = executeFetchRequest(url).trim();
 		
-		return User.parse(response);
+		// Since the server returns a JSON array for no apparent reason...
+		return User.parse(response.substring(1, response.length()-1));
 	}
 }
