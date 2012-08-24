@@ -29,7 +29,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 
-import com.smartrek.dialogs.TripSaveDialog;
 import com.smartrek.exceptions.RouteNotFoundException;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
@@ -423,33 +422,7 @@ public final class RouteActivity extends Activity {
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         MainMenu.onMenuItemSelected(this, featureId, item);
         
-		switch (item.getItemId()) {
-		case R.id.menu_save_trip:
-			onMenuItemSaveTrip();
-			break;
-		}
-        
         return super.onMenuItemSelected(featureId, item);
-    }
-    
-    private void onMenuItemSaveTrip() {
-    	TripSaveDialog dialog = new TripSaveDialog(this, originAddr, destAddr);
-    	dialog.setActionListener(new TripSaveDialog.ActionListener() {
-			
-			@Override
-			public void onClickPositiveButton(String name, String origin,
-					String destination) {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void onClickNegativeButton() {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-    	dialog.show();
     }
     
     // FIXME: This should be an inner interface of RouteTask. Probably want to name it 'Listener'.
