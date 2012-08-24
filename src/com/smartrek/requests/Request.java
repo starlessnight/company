@@ -3,7 +3,8 @@ package com.smartrek.requests;
 import java.io.IOException;
 import java.util.Map;
 
-import com.smartrek.utils.ExceptionHandlingService;
+import android.util.Log;
+
 import com.smartrek.utils.HTTP;
 
 /**
@@ -34,6 +35,8 @@ public abstract class Request {
 	}
 	
 	protected String executeHttpGetRequest(String url, Map<String, Object> params) throws IOException {
+		Log.d("Request", "executeHttpGetRequest(): url="+url);
+		
 		HTTP http = new HTTP(url);
 		http.connect();
 		

@@ -28,9 +28,19 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 				destination.getLatitude(), destination.getLongitude(),
 				t.hour, t.minute);
 	}
-
+	
 	public RouteFetchRequest(GeoPoint origin, GeoPoint destination, long departureTime) {
 		super(buildUrl(origin, destination, departureTime));
+		this.departureTime = departureTime;
+	}
+	
+	/**
+	 * Enables debug mode
+	 * 
+	 * @param departureTime
+	 */
+	public RouteFetchRequest(long departureTime) {
+		super(HOST + "/getroutesTucson/fake");
 		this.departureTime = departureTime;
 	}
 	

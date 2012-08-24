@@ -503,7 +503,8 @@ public final class RouteActivity extends Activity {
             List<Route> possibleRoutes = null;
             try {
             	if (debugMode) {
-            		//possibleRoutes = mapper.getFakeRoutes(departureTime);
+            		RouteFetchRequest request = new RouteFetchRequest(departureTime);
+            		possibleRoutes = request.execute();
             	}
             	else {
             		possibleRoutes = getData();
