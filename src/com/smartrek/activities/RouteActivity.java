@@ -468,8 +468,6 @@ public final class RouteActivity extends Activity {
             // FIXME: Should this be here?
             //timeLayout.setColumnState(selectedColumn, TimeButton.State.InProgress);
         	
-        	setHighlightedRoutePathOverlays(false);
-        	
         	if (isCached()) {
         		
         	}
@@ -507,6 +505,9 @@ public final class RouteActivity extends Activity {
         @Override
         protected void onPostExecute(List<Route> possibleRoutes) {
             dialog.dismiss();
+            
+            setHighlightedRoutePathOverlays(true);
+            mapView.invalidate();
             
             if (ehs.hasExceptions()) {
                 ehs.reportExceptions();
