@@ -17,7 +17,7 @@ public final class TripAddRequest extends Request {
 	}
 	
 	public void execute() throws IOException {
-		String url = String.format("%s/favroutes-add/?uid=%d&name=%sorigin_address=%s&destination_address=%s", HOST, uid, name, origin, destination);
+		String url = String.format("%s/favroutes-add/?uid=%d&name=%s&origin_address=%s&destination_address=%s", HOST, uid, name, origin, destination);
 		executeHttpGetRequest(url);
 	}
 }
