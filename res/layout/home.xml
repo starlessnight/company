@@ -4,98 +4,107 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background_gradient"
-    android:orientation="vertical"
-    android:padding="10dp" >
+    android:orientation="vertical" >
 
-    <TextView
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_marginTop="12dp"
-        android:text="@string/whereTo"
-        android:textColor="#b39e69"
-        android:textSize="22dp" />
+        android:layout_height="match_parent" >
 
-    <TextView
-        android:id="@+id/origin_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="40dp"
-        android:gravity="left"
-        android:text="Departure"
-        android:textColor="#FFFFFFFF" />
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <ImageView
-            android:scaleType="fitXY"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:padding="2dp"
-            android:src="@drawable/my_location" />
-
-        <com.smartrek.ui.EditAddress
-            android:id="@+id/origin_box"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_gravity="center"
-            android:layout_height="40dp"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="40dp"
-            android:inputType="textPostalAddress" >
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp" >
 
-            <requestFocus>
-            </requestFocus>
-        </com.smartrek.ui.EditAddress>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:text="@string/whereTo"
+                android:textColor="#b39e69"
+                android:textSize="22dp" />
 
-        <ImageButton
-            android:id="@+id/Favs1"
-            android:scaleType="fitXY"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:padding="2dp"
-            android:layout_gravity="right"
-            android:background="@null"
-            android:src="@drawable/route_favorite" />
-    </FrameLayout>
+            <TextView
+                android:id="@+id/origin_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:layout_marginTop="20dp"
+                android:gravity="left"
+                android:text="Departure"
+                android:textColor="#FFFFFFFF" />
 
-    <TextView
-        android:id="@+id/destination_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="40dp"
-        android:gravity="left"
-        android:text="Arrival"
-        android:textColor="#FFFFFFFF" />
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+                <ImageView
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:padding="2dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/my_location" />
 
-        <com.smartrek.ui.EditAddress
-            android:id="@+id/destination_box"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="40dp"
-            android:layout_gravity="center"
-            android:inputType="textPostalAddress" />
+                <com.smartrek.ui.EditAddress
+                    android:id="@+id/origin_box"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="40dp"
+                    android:layout_marginRight="40dp"
+                    android:inputType="textPostalAddress" >
 
-        <ImageButton
-            android:id="@+id/Favs2"
-            android:scaleType="fitXY"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:padding="2dp"
-            android:layout_gravity="right"
-            android:background="@null"
-            android:src="@drawable/route_favorite" />
-    </FrameLayout>
+                    <requestFocus>
+                    </requestFocus>
+                </com.smartrek.ui.EditAddress>
 
-    <!--
+                <ImageButton
+                    android:id="@+id/Favs1"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="right"
+                    android:background="@null"
+                    android:padding="2dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/route_favorite" />
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/destination_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:layout_marginTop="20dp"
+                android:gravity="left"
+                android:text="Arrival"
+                android:textColor="#FFFFFFFF" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <com.smartrek.ui.EditAddress
+                    android:id="@+id/destination_box"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="40dp"
+                    android:layout_marginRight="40dp"
+                    android:inputType="textPostalAddress" />
+
+                <ImageButton
+                    android:id="@+id/Favs2"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_gravity="right"
+                    android:background="@null"
+                    android:padding="2dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/route_favorite" />
+            </FrameLayout>
+
+            <!--
                 <TextView
                     android:id="@+id/date_text"
                     android:layout_width="match_parent"
@@ -116,16 +125,18 @@
                     android:layout_below="@id/date_text"
                     android:layout_marginRight="50dp"
                     android:inputType="date" />
-    -->
+            -->
 
-    <Button
-        android:id="@+id/Done"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="40dp"
-        android:gravity="center"
-        android:padding="4dp"
-        android:text="@string/Go"
-        android:textStyle="bold" />
+            <Button
+                android:id="@+id/Done"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="40dp"
+                android:gravity="center"
+                android:padding="4dp"
+                android:text="@string/Go"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>
