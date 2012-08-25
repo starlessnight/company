@@ -39,8 +39,8 @@
     <!-- *************************************************************************************** -->
     <string name="whereTo">Where to?</string>
     <string name="date">enter date</string>
-    <string name="Go">    go    </string>
-    <string name="load">load trip</string>
+    <string name="Go">Go!</string>
+    <string name="load_trip">Load trip</string>
     <string name="here_and_now">here and now</string>
     <!-- *************************************************************************************** -->
     <!-- *************************************************************************************** -->

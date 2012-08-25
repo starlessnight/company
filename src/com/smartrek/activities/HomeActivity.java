@@ -72,7 +72,8 @@ public final class HomeActivity extends Activity {
 	private TextView destText;
 	private TextView dateText;
 	
-	private Button doneButton;
+	private Button buttonLoadTrip;
+	private Button buttonDone;
 	private ImageButton buttonFavAddrOrigin;
 	private ImageButton destFavButton;
 	private Button hereButton;
@@ -122,7 +123,8 @@ public final class HomeActivity extends Activity {
 	    // Instantiate Buttons from file main.xml
 	    buttonFavAddrOrigin = (ImageButton) findViewById(R.id.Favs1);
 	    destFavButton = (ImageButton) findViewById(R.id.Favs2);
-	    doneButton = (Button) findViewById(R.id.Done);
+	    buttonLoadTrip = (Button) findViewById(R.id.button_load_trip);
+	    buttonDone = (Button) findViewById(R.id.Done);
 	    
 		// Set Button OnClickListerners to be declared by this class
 	    buttonFavAddrOrigin.setOnClickListener(new OnClickListener() {
@@ -138,7 +140,17 @@ public final class HomeActivity extends Activity {
 				onClickButtonFavAddrDest(v);				
 			}
 		});
-	    doneButton.setOnClickListener(new OnClickListener() {
+	    
+	    buttonLoadTrip.setOnClickListener(new OnClickListener() {
+	
+			@Override
+			public void onClick(View v) {
+				onMenuItemTripList();
+			}
+	    	
+	    });
+	    
+	    buttonDone.setOnClickListener(new OnClickListener() {
 	
 			@Override
 			public void onClick(View v) {
@@ -147,7 +159,7 @@ public final class HomeActivity extends Activity {
 			}
 	    	
 	    });
-	    doneButton.setOnLongClickListener(new OnLongClickListener() {
+	    buttonDone.setOnLongClickListener(new OnLongClickListener() {
 			
 			@Override
 			public boolean onLongClick(View v) {
@@ -164,7 +176,7 @@ public final class HomeActivity extends Activity {
 	    
 	    buttonFavAddrOrigin.setId(1);
 	    destFavButton.setId(2);
-	    doneButton.setId(3);
+	    buttonDone.setId(3);
 	    
 //	    hereButton = (Button) findViewById(R.id.hereAndNow);
 //	    hereButton.setOnClickListener(new OnClickListener() {
