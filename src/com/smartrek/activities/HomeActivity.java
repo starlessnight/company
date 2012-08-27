@@ -28,6 +28,7 @@ import android.widget.TextView;
 import com.smartrek.dialogs.FavoriteAddressAddDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
 import com.smartrek.dialogs.TripListDialog;
+import com.smartrek.dialogs.TripSaveDialog;
 import com.smartrek.models.Address;
 import com.smartrek.models.Trip;
 import com.smartrek.models.User;
@@ -73,6 +74,7 @@ public final class HomeActivity extends Activity {
 	private TextView dateText;
 	
 	private Button buttonLoadTrip;
+	private Button buttonSaveTrip;
 	private Button buttonDone;
 	private ImageButton buttonFavAddrOrigin;
 	private ImageButton destFavButton;
@@ -124,6 +126,7 @@ public final class HomeActivity extends Activity {
 	    buttonFavAddrOrigin = (ImageButton) findViewById(R.id.Favs1);
 	    destFavButton = (ImageButton) findViewById(R.id.Favs2);
 	    buttonLoadTrip = (Button) findViewById(R.id.button_load_trip);
+	    buttonSaveTrip = (Button) findViewById(R.id.button_save_trip);
 	    buttonDone = (Button) findViewById(R.id.Done);
 	    
 		// Set Button OnClickListerners to be declared by this class
@@ -140,16 +143,25 @@ public final class HomeActivity extends Activity {
 				onClickButtonFavAddrDest(v);				
 			}
 		});
-	    
-	    buttonLoadTrip.setOnClickListener(new OnClickListener() {
-	
-			@Override
-			public void onClick(View v) {
-				onMenuItemTripList();
-			}
-	    	
-	    });
-	    
+
+        buttonLoadTrip.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                onClickLoadTrip();
+            }
+
+        });
+
+        buttonSaveTrip.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                onClickSaveTrip();
+            }
+
+        });
+
 	    buttonDone.setOnClickListener(new OnClickListener() {
 	
 			@Override
@@ -224,14 +236,14 @@ public final class HomeActivity extends Activity {
 		
 		switch (item.getItemId()) {
 		case R.id.menu_trip_list:
-			onMenuItemTripList();
+			onClickLoadTrip();
 			break;
 		}
 		
 		return super.onMenuItemSelected(featureId, item);
 	}
 	
-	private void onMenuItemTripList() {
+	private void onClickLoadTrip() {
 		if (tripListDialog == null) {
 			tripListDialog = new TripListDialog(this);
 			tripListDialog.setActionListener(new TripListDialog.ActionListener() {
@@ -341,6 +353,26 @@ public final class HomeActivity extends Activity {
 	private String getDestinationAddress() {
 		return destBox.getText().toString().trim();
 	}
+	
+    private void onClickSaveTrip() {
+        TripSaveDialog dialog = new TripSaveDialog(this, getOriginAddress(), getDestinationAddress());
+        dialog.setActionListener(new TripSaveDialog.ActionListener() {
+            
+            @Override
+            public void onClickPositiveButton(String name, String origin,
+                    String destination) {
+//                User currentUser = User.getCurrentUser(ReservationConfirmationActivity.this);
+//                new TripSaveTask(currentUser.getId(), name, origin, destination).execute();
+                
+            }
+            
+            @Override
+            public void onClickNegativeButton() {
+            }
+            
+        });
+        dialog.show();
+    }
 	
 	private void onClickButtonFavAddrOrigin(View view) {
 		if (originBox.hasAddress()) {
