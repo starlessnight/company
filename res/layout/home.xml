@@ -53,11 +53,9 @@
                     android:layout_gravity="center"
                     android:layout_marginLeft="40dp"
                     android:layout_marginRight="40dp"
-                    android:inputType="textPostalAddress"
-                    android:visibility="invisible" >
+                    android:inputType="textPostalAddress" >
 
                     <requestFocus android:layout_width="match_parent" >
-
                     </requestFocus>
                 </com.smartrek.ui.EditAddress>
 
@@ -93,8 +91,7 @@
                     android:layout_gravity="center"
                     android:layout_marginLeft="40dp"
                     android:layout_marginRight="40dp"
-                    android:inputType="textPostalAddress"
-                    android:visibility="invisible" />
+                    android:inputType="textPostalAddress" />
 
                 <ImageButton
                     android:id="@+id/Favs2"
@@ -140,18 +137,18 @@
 
                 <Button
                     android:id="@+id/button_load_trip"
+                    android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight=".5"
-                    android:layout_width="0dip"
                     android:gravity="center"
                     android:padding="4dp"
                     android:text="@string/load_trip" />
 
                 <Button
                     android:id="@+id/button_save_trip"
+                    android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight=".5"
-                    android:layout_width="0dip"
                     android:gravity="center"
                     android:padding="4dp"
                     android:text="@string/save_trip" />

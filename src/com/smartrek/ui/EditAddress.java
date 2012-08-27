@@ -21,7 +21,7 @@ public final class EditAddress extends EditText {
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		super.onKeyUp(keyCode, event);
 		address = null;
-		return true;
+		return false;
 	}
 
 	public void setAddressAsCurrentLocation() {
