@@ -3,6 +3,7 @@ package com.smartrek.dialogs;
 import java.util.List;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +26,17 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		setButton(DialogInterface.BUTTON_NEUTRAL, "Add", new OnClickListener() {
+			
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (actionListener != null) {
+					actionListener.onClickNeutralButton();
+				}
+			}
+			
+		});
+		
 		super.onCreate(savedInstanceState);
 		textViewGeneric.setText("You don't have any favorite address");
 	}

@@ -1,14 +1,21 @@
 package com.smartrek.dialogs;
 
+import java.io.IOException;
+
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.smartrek.activities.R;
+import com.smartrek.models.User;
+import com.smartrek.requests.TripAddRequest;
+import com.smartrek.utils.ExceptionHandlingService;
 
 public final class TripSaveDialog extends AlertDialog {
 	
@@ -79,6 +86,9 @@ public final class TripSaveDialog extends AlertDialog {
 				if (actionListener != null) {
 					actionListener.onClickPositiveButton(getName(), getOrigin(), getDestination());
 				}
+				
+				User currentUser = User.getCurrentUser(getContext());
+				new TripSaveTask(getContext(), currentUser.getId(), getName(), getOrigin(), getDestination()).execute();
 			}
 		});
 		
@@ -112,5 +122,63 @@ public final class TripSaveDialog extends AlertDialog {
 	private String getDestination() {
 		return editTextDestination.getText().toString().trim();
 	}
+	
+	private class TripSaveTask extends AsyncTask<Object, Object, Object> {
 
+		private ProgressDialog progressDialog;
+		
+		private Context context;
+		private int uid;
+		private String name;
+		private String origin;
+		private String destination;
+		
+		private ExceptionHandlingService ehs;
+		
+		public TripSaveTask(Context context, int uid, String name, String origin, String destination) {
+			this.context = context;
+			this.uid = uid;
+			this.name = name;
+			this.origin = origin;
+			this.destination = destination;
+			this.ehs = new ExceptionHandlingService(context);
+		}
+		
+		@Override
+		protected void onPreExecute() {
+			progressDialog = new ProgressDialog(context);
+			progressDialog.setMessage("Saving trip...");
+			progressDialog.setIndeterminate(true);
+			progressDialog.setCancelable(false);
+			progressDialog.show();
+		}
+		
+		@Override
+		protected Object doInBackground(Object... params) {
+			TripAddRequest request = new TripAddRequest(uid, name, origin, destination);
+			try {
+				request.execute();
+			}
+			catch (IOException e) {
+				ehs.registerException(e);
+			}
+			
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Object result) {
+			progressDialog.cancel();
+			
+		    if (ehs.hasExceptions()) {
+		        ehs.reportExceptions();
+		    }
+		    else {
+		    	String message = (name != null && !name.equals("")) ?
+		    			String.format("Trip '%s' has been saved.", name) : "Trip has been saved";
+		    	NotificationDialog notificationDialog = new NotificationDialog(getContext(), message);
+		    	notificationDialog.show();
+		    }
+		}
+	}
 }

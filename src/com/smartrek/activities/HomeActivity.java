@@ -414,11 +414,30 @@ public final class HomeActivity extends Activity {
 			@Override
 			public void onClickNegativeButton() {
 			}
+
+			@Override
+			public void onClickNeutralButton() {
+				FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(HomeActivity.this);
+				dialog.setAddress(getOriginAddress());
+				dialog.setActionListener(new FavoriteAddressAddDialog.ActionListener() {
+					
+					@Override
+					public void onClickPositiveButton() {
+						updateAddress(originBox, getOriginAddress());
+					}
+					
+					@Override
+					public void onClickNegativeButton() {
+					}
+				});
+				dialog.show();
+			}
 			
 			@Override
 			public void onClickListItem(Address item, int position) {
 				setOriginAddress(item);
 			}
+
 		});
 		dialog.show();
 	}
@@ -441,11 +460,33 @@ public final class HomeActivity extends Activity {
 			}
 			
 			@Override
+			public void onClickNeutralButton() {
+				FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(HomeActivity.this);
+				dialog.setAddress(getDestinationAddress());
+				dialog.setActionListener(new FavoriteAddressAddDialog.ActionListener() {
+					
+					@Override
+					public void onClickPositiveButton() {
+						updateAddress(destBox, getOriginAddress());
+					}
+					
+					@Override
+					public void onClickNegativeButton() {
+					}
+				});
+				dialog.show();
+			}
+			
+			@Override
 			public void onClickListItem(Address item, int position) {
 				setDestinationAddress(item);
 			}
 		});
 		dialog.show();
+	}
+	
+	private void updateAddress(EditAddress editAddress, String address) {
+		editAddress.setAddress(new Address(0, 0, "", address));
 	}
 	
 	private void prepareMapActivity() {

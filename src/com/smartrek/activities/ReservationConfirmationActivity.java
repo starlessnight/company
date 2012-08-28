@@ -98,11 +98,7 @@ public final class ReservationConfirmationActivity extends Activity {
     	dialog.setActionListener(new TripSaveDialog.ActionListener() {
 			
 			@Override
-			public void onClickPositiveButton(String name, String origin,
-					String destination) {
-				User currentUser = User.getCurrentUser(ReservationConfirmationActivity.this);
-				new TripSaveTask(currentUser.getId(), name, origin, destination).execute();
-				
+			public void onClickPositiveButton(String name, String origin, String destination) {
 			}
 			
 			@Override
@@ -181,57 +177,5 @@ public final class ReservationConfirmationActivity extends Activity {
 				finish();
 			}
 		}
-	}
-	
-	private class TripSaveTask extends AsyncTask<Object, Object, Object> {
-
-		private ProgressDialog dialog;
-		
-		private int uid;
-		private String name;
-		private String origin;
-		private String destination;
-		
-		public TripSaveTask(int uid, String name, String origin, String destination) {
-			this.uid = uid;
-			this.name = name;
-			this.origin = origin;
-			this.destination = destination;
-		}
-		
-		@Override
-		protected void onPreExecute() {
-			dialog = new ProgressDialog(ReservationConfirmationActivity.this);
-			dialog.setMessage("Saving trip...");
-			dialog.setIndeterminate(true);
-			dialog.setCancelable(false);
-			dialog.show();
-		}
-		
-		@Override
-		protected Object doInBackground(Object... params) {
-			TripAddRequest request = new TripAddRequest(uid, name, origin, destination);
-			try {
-				request.execute();
-			}
-			catch (IOException e) {
-				ehs.registerException(e);
-			}
-			
-			return null;
-		}
-		
-		@Override
-		protected void onPostExecute(Object result) {
-			dialog.cancel();
-			
-		    if (ehs.hasExceptions()) {
-		        ehs.reportExceptions();
-		    }
-		    else {
-		    	
-		    }
-		}
-		
 	}
 }

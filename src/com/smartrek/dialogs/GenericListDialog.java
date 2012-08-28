@@ -25,6 +25,7 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 	 */
 	public interface ActionListener<ItemType> {
 		void onClickNegativeButton();
+		void onClickNeutralButton();
 		void onClickListItem(ItemType item, int position);
 	}
 	
