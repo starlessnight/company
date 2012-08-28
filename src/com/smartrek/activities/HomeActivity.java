@@ -375,65 +375,11 @@ public final class HomeActivity extends Activity {
     }
 	
 	private void onClickButtonFavAddrOrigin(View view) {
-		if (originBox.hasAddress()) {
-			showFavAddrListForOrigin();
-		}
-		else {
-			String origin = getOriginAddress();
-			
-			if (origin.equals("")) {
-				showFavAddrListForOrigin();
-			}
-			else {
-				FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(this);
-				dialog.setAddress(origin);
-				dialog.setActionListener(new FavoriteAddressAddDialog.ActionListener() {
-					
-					@Override
-					public void onClickPositiveButton() {
-						// FIXME: Temporary solution
-						originBox.setAddress(new Address(0, 0, "", getOriginAddress()));
-					}
-					
-					@Override
-					public void onClickNegativeButton() {
-						showFavAddrListForOrigin();
-					}
-				});
-				dialog.show();
-			}
-		}
+		showFavAddrListForOrigin();
 	}
 	
 	private void onClickButtonFavAddrDest(View view) {
-		if (destBox.hasAddress()) {
-			showFavAddrListForDest();
-		}
-		else {
-			String destination = getDestinationAddress();
-			
-			if (destination.equals("")) {
-				showFavAddrListForDest();
-			}
-			else {
-				FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(this);
-				dialog.setAddress(destination);
-				dialog.setActionListener(new FavoriteAddressAddDialog.ActionListener() {
-					
-					@Override
-					public void onClickPositiveButton() {
-						// FIXME: Temporary solution
-						destBox.setAddress(new Address(0, 0, "", getDestinationAddress()));
-					}
-					
-					@Override
-					public void onClickNegativeButton() {
-						showFavAddrListForDest();
-					}
-				});
-				dialog.show();
-			}
-		}
+		showFavAddrListForDest();
 	}
 	
 	/**
