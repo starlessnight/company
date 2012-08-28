@@ -78,6 +78,13 @@ public final class Cache {
 		storage.remove(key);
 	}
 	
+	/**
+	 * Clears all cache
+	 */
+	public void clear() {
+		storage.clear();
+	}
+	
 	public Object fetch(String key) {
 		Log.d("Cache", "url = " + key);
 		if(storage.containsKey(key)) {
