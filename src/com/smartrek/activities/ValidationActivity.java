@@ -9,9 +9,6 @@ import java.util.TimerTask;
 
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
-
-import com.smartrek.requests.RouteMapper;
-import com.smartrek.utils.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
@@ -35,9 +32,11 @@ import android.view.KeyEvent;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
+import com.smartrek.requests.RouteMapper;
 import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.ValidationParameters;
@@ -87,7 +86,7 @@ public class ValidationActivity extends Activity {
         RouteMapper.buildRouteNodeReferenceChain(route.getNodes());
         
         mapView = (MapView) findViewById(R.id.mapview);
-        mapView.setBuiltInZoomControls(true);
+        mapView.setBuiltInZoomControls(false);
 
         MapController mc = mapView.getController();
         mc.setZoom(14);
