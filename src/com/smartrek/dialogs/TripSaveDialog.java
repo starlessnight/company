@@ -2,6 +2,8 @@ package com.smartrek.dialogs;
 
 import java.io.IOException;
 
+import org.json.JSONException;
+
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -160,6 +162,9 @@ public final class TripSaveDialog extends AlertDialog {
 				request.execute();
 			}
 			catch (IOException e) {
+				ehs.registerException(e);
+			}
+			catch (JSONException e) {
 				ehs.registerException(e);
 			}
 			

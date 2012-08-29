@@ -3,7 +3,9 @@ package com.smartrek.requests;
 import java.io.IOException;
 import java.net.URLEncoder;
 
-public final class TripAddRequest extends Request {
+import org.json.JSONException;
+
+public final class TripAddRequest extends AddRequest {
 
 	private int uid;
 	private String name;
@@ -17,9 +19,9 @@ public final class TripAddRequest extends Request {
 		this.destination = destination;
 	}
 	
-	public void execute() throws IOException {
+	public void execute() throws IOException, JSONException {
 		String url = String.format("%s/favroutes-add/?uid=%d&name=%s&origin_address=%s&destination_address=%s",
 				HOST, uid, URLEncoder.encode(name), URLEncoder.encode(origin), URLEncoder.encode(destination));
-		executeHttpGetRequest(url);
+		executeAddRequest(url);
 	}
 }
