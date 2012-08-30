@@ -52,7 +52,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 		List<Route> routes = new ArrayList<Route>();
 
 		JSONArray array = new JSONArray(response);
-		for(int i = 0; i <array.length(); i++) {
+		for(int i = 0; i < array.length(); i++) {
 			Route route = parseRoute((JSONObject) array.get(i), departureTime);
 			routes.add(route);
 		}
