@@ -1,11 +1,7 @@
 package com.smartrek.activities;
 
-import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.json.JSONException;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -27,7 +23,7 @@ import android.widget.TextView;
 
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
-import com.smartrek.requests.ReservationMapper;
+import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 
@@ -103,17 +99,11 @@ public final class ReservationListActivity extends Activity {
 		protected String doInBackground(Object... params) {
 			int uid = (Integer) params[0];
 			
-			ReservationMapper mapper = new ReservationMapper();
+			ReservationListFetchRequest request = new ReservationListFetchRequest(uid);
 			try {
-                reservations = mapper.getReservations(uid);
+                reservations = request.execute();
             }
-            catch (IOException e) {
-                ehs.registerException(e);
-            }
-            catch (JSONException e) {
-                ehs.registerException(e);
-            }
-            catch (ParseException e) {
+            catch (Exception e) {
                 ehs.registerException(e);
             }
 			

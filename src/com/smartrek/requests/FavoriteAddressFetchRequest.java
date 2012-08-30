@@ -1,27 +1,25 @@
 package com.smartrek.requests;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.smartrek.models.Address;
-import com.smartrek.utils.Cache;
 
-public final class FavoriteAddressMapper extends FetchRequest {
+public final class FavoriteAddressFetchRequest extends FetchRequest<List<Address>> {
 
-	private List<Address> addresses = new ArrayList<Address>();
+	public FavoriteAddressFetchRequest(int uid) {
+		super(String.format("%s/getfavadd/%d", HOST, uid));
+	}
 	
-	public List<Address> getAddresses(int uid) throws JSONException, IOException {
-		String url = String.format("%s/getfavadd/%d", HOST, uid);
+	@Override
+	public List<Address> execute() throws Exception {
+		List<Address> addresses = new ArrayList<Address>();
 		
-		String response = executeFetchRequest(url);
-		
+		String response = executeFetchRequest(getURL());
 		JSONArray array = new JSONArray(response);
-		addresses.clear();
 		
 		for(int i = 0; i < array.length(); i++) {
 			JSONObject object = (JSONObject) array.get(i);
@@ -36,12 +34,6 @@ public final class FavoriteAddressMapper extends FetchRequest {
 		}
 		
 		return addresses;
-	}
-
-	@Override
-	public Object execute() throws Exception {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }

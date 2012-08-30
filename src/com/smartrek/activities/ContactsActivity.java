@@ -26,7 +26,7 @@ public final class ContactsActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
         
         User user = User.getCurrentUser(this);
-        ContactsFetchTask task = new ContactsFetchTask();
+        ContactsFetchTask task = new ContactsFetchTask(this);
         task.setCallback(new AsyncTaskCallback<List<User>> () {
 
 			@Override

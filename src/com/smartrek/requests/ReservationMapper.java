@@ -21,32 +21,6 @@ import com.smartrek.utils.HTTP;
 import com.smartrek.utils.RouteNode;
 
 public final class ReservationMapper extends FetchRequest {
-
-	public List<Reservation> getReservations(int uid) throws IOException, JSONException, ParseException {
-	    
-	    List<Reservation> reservations = new ArrayList<Reservation>();
-	    
-	    String url = String.format("%s/getreservations/%d", FetchRequest.HOST, uid);
-	    HTTP http = new HTTP(url);
-        http.connect();
-        
-        int responseCode = http.getResponseCode();
-        if (responseCode == 200) {
-            String responseBody = http.getResponseBody();
-            Log.d("ReservationMapper", "HTTP response: " + responseBody);
-            
-            JSONArray array = new JSONArray(responseBody);
-            for(int i = 0; i < array.length(); i++) {
-                Reservation r = Reservation.parse(new JSONObject(array.get(i).toString()));
-                reservations.add(r);
-            }
-        }
-        else {
-            throw new IOException(String.format("HTTP %d - %s", responseCode, http.getResponseBody()));
-        }
-	    
-		return reservations;
-	}
 	
 	public void reserveRoute(Route route) throws IOException, JSONException {
 		// TODO: Better way to handle this?

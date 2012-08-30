@@ -67,8 +67,7 @@ public final class CouponSendActivity extends Activity {
 			
 		});
 		
-		
-        ContactsFetchTask task = new ContactsFetchTask();
+        ContactsFetchTask task = new ContactsFetchTask(this);
         task.setCallback(new AsyncTaskCallback<List<User>> () {
 
 			@Override

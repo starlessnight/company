@@ -30,6 +30,10 @@ public abstract class FetchRequest<ReturnType> extends Request {
 		this.listener = listener;
 	}
 	
+	public String getURL() {
+		return url;
+	}
+	
 	public abstract ReturnType execute() throws Exception;
 	
 	protected String executeFetchRequest(String url) throws IOException {

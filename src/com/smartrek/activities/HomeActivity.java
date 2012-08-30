@@ -1,9 +1,6 @@
 package com.smartrek.activities;
 
-import java.io.IOException;
 import java.util.List;
-
-import org.json.JSONException;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -32,7 +29,7 @@ import com.smartrek.dialogs.TripSaveDialog;
 import com.smartrek.models.Address;
 import com.smartrek.models.Trip;
 import com.smartrek.models.User;
-import com.smartrek.requests.FavoriteAddressMapper;
+import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.tasks.GeocodingTask;
 import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
@@ -608,14 +605,11 @@ public final class HomeActivity extends Activity {
 			// FIXME: Potential array out of boundary exception
 			int uid = params[0];
 
-			FavoriteAddressMapper mapper = new FavoriteAddressMapper();
+			FavoriteAddressFetchRequest request = new FavoriteAddressFetchRequest(uid);
 			try {
-				favoriteAddresses = mapper.getAddresses(uid);
+				favoriteAddresses = request.execute();
 			}
-			catch (JSONException e) {
-				ehs.registerException(e);
-			}
-			catch (IOException e) {
+			catch (Exception e) {
 				ehs.registerException(e);
 			}
 
