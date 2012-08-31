@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.RadioButton;
@@ -16,10 +17,6 @@ public class MapDisplayActivity extends Activity {
     public static final String MAP_DISPLAY_PREFS = "map_display";
     
     public static final String TIME_DISPLAY_MODE = "TimeDisplayMode";
-    /**
-     * @deprecated
-     */
-    public static final int TIME_DISPLAY_DEPARTURE = 1;
     
     public static final int TIME_DISPLAY_TRAVEL = 2;
     public static final int TIME_DISPLAY_ARRIVAL = 4;
@@ -48,6 +45,8 @@ public class MapDisplayActivity extends Activity {
         
         final SharedPreferences prefs = getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE);
         int timeDisplayMode = prefs.getInt(TIME_DISPLAY_MODE, TIME_DISPLAY_DEFAULT);
+        
+        Log.d("MapDisplayActivity", "displayMode = " + timeDisplayMode);
 
         displayTravel.setChecked((timeDisplayMode & TIME_DISPLAY_TRAVEL) != 0);
         displayArrival.setChecked(!displayTravel.isChecked());
@@ -101,25 +100,8 @@ public class MapDisplayActivity extends Activity {
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();
-        intent.putExtra("display", getRetVal());
         setResult(RESULT_OK, intent);
         
-        //close this Activity...
         finish();
     }
-
-    private int getRetVal(){
-        int retVal = 1;
-        if(displayArrival.isChecked() && !displayTravel.isChecked()){
-            retVal = 2;
-        }
-        if(displayTravel.isChecked() && !displayArrival.isChecked()){
-            retVal = 3;
-        }
-        if(displayTravel.isChecked() && displayArrival.isChecked()){
-            retVal = 4;
-        }
-        return retVal;
-    }
-    
 }

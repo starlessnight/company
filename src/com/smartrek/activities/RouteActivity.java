@@ -187,11 +187,11 @@ public final class RouteActivity extends Activity {
         //Display display = getWindowManager().getDefaultDisplay();
 
         // FIXME: Should store values in a different preference file
-        int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
+        int timeDisplayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
         
         // FIXME: Sloppy
-        timeLayout.setDisplayMode((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? DisplayMode.Duration : DisplayMode.Time);
-        Log.d("RouteActivity", "displayMode = " + displayMode);
+        timeLayout.setDisplayMode((timeDisplayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? DisplayMode.Duration : DisplayMode.Time);
+        Log.d("RouteActivity", "displayMode = " + timeDisplayMode);
         Log.d("RouteActivity", "timelayout.displayMode = " + timeLayout.getDisplayMode());
         
         // FIXME: Temporary solution
