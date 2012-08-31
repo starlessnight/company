@@ -16,10 +16,14 @@ public class MapDisplayActivity extends Activity {
     public static final String MAP_DISPLAY_PREFS = "map_display";
     
     public static final String TIME_DISPLAY_MODE = "TimeDisplayMode";
+    /**
+     * @deprecated
+     */
     public static final int TIME_DISPLAY_DEPARTURE = 1;
+    
     public static final int TIME_DISPLAY_TRAVEL = 2;
     public static final int TIME_DISPLAY_ARRIVAL = 4;
-    public static final int TIME_DISPLAY_DEFAULT = TIME_DISPLAY_DEPARTURE | TIME_DISPLAY_TRAVEL;
+    public static final int TIME_DISPLAY_DEFAULT = TIME_DISPLAY_TRAVEL;
     
     public static final String TIME_INCREMENT = "TimeIncrement";
     public static final int TIME_INCREMENT_DEFAULT = 15;
@@ -43,10 +47,8 @@ public class MapDisplayActivity extends Activity {
         timeIncrement60 = (RadioButton) findViewById(R.id.time_increment_60min);
         
         final SharedPreferences prefs = getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE);
-        int defaultTimeDisplayMode = TIME_DISPLAY_DEFAULT;
-        int timeDisplayMode = prefs.getInt(TIME_DISPLAY_MODE, defaultTimeDisplayMode);
+        int timeDisplayMode = prefs.getInt(TIME_DISPLAY_MODE, TIME_DISPLAY_DEFAULT);
 
-        //displayDeparture.setChecked((timeDisplayMode & TIME_DISPLAY_DEPARTURE) != 0);
         displayTravel.setChecked((timeDisplayMode & TIME_DISPLAY_TRAVEL) != 0);
         displayArrival.setChecked(!displayTravel.isChecked());
         
@@ -100,7 +102,7 @@ public class MapDisplayActivity extends Activity {
     public void onBackPressed() {
         Intent intent = new Intent();
         intent.putExtra("display", getRetVal());
-        setResult(RESULT_OK,intent);
+        setResult(RESULT_OK, intent);
         
         //close this Activity...
         finish();
