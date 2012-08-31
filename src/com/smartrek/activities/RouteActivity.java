@@ -21,7 +21,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -185,13 +184,15 @@ public final class RouteActivity extends Activity {
         ScrollableTimeLayout scrollView = (ScrollableTimeLayout) findViewById(R.id.scrollTime);
         scrollView.setTimeLayout(timeLayout);
         
-        Display display = getWindowManager().getDefaultDisplay();
+        //Display display = getWindowManager().getDefaultDisplay();
 
         // FIXME: Should store values in a different preference file
         int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
         
         // FIXME: Sloppy
         timeLayout.setDisplayMode((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? DisplayMode.Duration : DisplayMode.Time);
+        Log.d("RouteActivity", "displayMode = " + displayMode);
+        Log.d("RouteActivity", "timelayout.displayMode = " + timeLayout.getDisplayMode());
         
         // FIXME: Temporary solution
         selectedTime = new Time();
@@ -409,7 +410,8 @@ public final class RouteActivity extends Activity {
             if (0 != extras.getInt("mapmode")) {
                 int mapmode = extras.getInt("mapmode");
                 Log.d("RouteActivity", "Got result from menu " + mapmode);
-            } else if (0 != extras.getInt("display")) {
+            }
+            else if (0 != extras.getInt("display")) {
                 int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
                 
                 // FIXME: Sloppy

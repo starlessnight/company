@@ -73,7 +73,8 @@
         android:orientation="vertical"
         android:text="@string/adjust_time"
         android:textColor="#FFFFFFFF"
-        android:textSize="20dp" >
+        android:textSize="20dp"
+        android:visibility="invisible" >
     </TextView>
 
     <RelativeLayout
@@ -81,7 +82,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/adjust_time_heading"
-        android:paddingLeft="65dp" >
+        android:paddingLeft="65dp"
+        android:visibility="invisible" >
 
         <RadioGroup
             android:id="@+id/time_increment"
@@ -92,30 +94,30 @@
                 android:id="@+id/time_increment_5min"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:tag="5"
                 android:text="@string/five"
                 android:textColor="#FFFFFFFF"
-                android:textSize="18dp"
-                android:tag="5" >
+                android:textSize="18dp" >
             </RadioButton>
 
             <RadioButton
                 android:id="@+id/time_increment_15min"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:tag="15"
                 android:text="@string/fifteen"
                 android:textColor="#FFFFFFFF"
-                android:textSize="18dp"
-                android:tag="15" >
+                android:textSize="18dp" >
             </RadioButton>
 
             <RadioButton
                 android:id="@+id/time_increment_60min"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:tag="60"
                 android:text="@string/sixty"
                 android:textColor="#FFFFFFFF"
-                android:textSize="18dp"
-                android:tag="60" >
+                android:textSize="18dp" >
             </RadioButton>
         </RadioGroup>
     </RelativeLayout>

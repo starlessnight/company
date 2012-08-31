@@ -52,8 +52,10 @@ public final class TimeColumn extends LinearLayout {
 		arrivalTimeButton.setState(state);
 	}
 
-	public synchronized void setDisplayMode(DisplayMode displayMode) {
+	public void setDisplayMode(DisplayMode displayMode) {
 		this.displayMode = displayMode;
+
+		setArrivalTime(arrivalTime);
 	}
 
 	public long getDepartureTime() {
@@ -66,6 +68,8 @@ public final class TimeColumn extends LinearLayout {
 		Time t = new Time();
 		t.set(time);
 		departureTimeButton.setText(t.format("%l:%M%p"));
+		
+		postInvalidate();
 	}
 	
 	public long getArrivalTime() {
@@ -75,13 +79,17 @@ public final class TimeColumn extends LinearLayout {
 	public void setArrivalTime(long time) {
 		this.arrivalTime = time;
 		
-		if (displayMode.equals(DisplayMode.Duration)) {
-			arrivalTimeButton.setText(String.format("%d min", getDuration()/60));
-		}
-		else {
-			Time t = new Time();
-			t.set(time);
-			arrivalTimeButton.setText(t.format("%l:%M%p"));
+		if (time != 0) {
+    		if (displayMode.equals(DisplayMode.Duration)) {
+    			arrivalTimeButton.setText(String.format("%d min", getDuration()/60));
+    		}
+    		else {
+    			Time t = new Time();
+    			t.set(time);
+    			arrivalTimeButton.setText(t.format("%l:%M%p"));
+    		}
+    		
+    		postInvalidate();
 		}
 	}
 	
