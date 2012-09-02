@@ -46,8 +46,6 @@ public class MapDisplayActivity extends Activity {
         final SharedPreferences prefs = getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE);
         int timeDisplayMode = prefs.getInt(TIME_DISPLAY_MODE, TIME_DISPLAY_DEFAULT);
         
-        Log.d("MapDisplayActivity", "displayMode = " + timeDisplayMode);
-
         displayTravel.setChecked((timeDisplayMode & TIME_DISPLAY_TRAVEL) != 0);
         displayArrival.setChecked(!displayTravel.isChecked());
         

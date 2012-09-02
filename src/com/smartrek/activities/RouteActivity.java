@@ -189,8 +189,6 @@ public final class RouteActivity extends Activity {
         
         // FIXME: Sloppy
         timeLayout.setDisplayMode((timeDisplayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? DisplayMode.Duration : DisplayMode.Time);
-        Log.d("RouteActivity", "displayMode = " + timeDisplayMode);
-        Log.d("RouteActivity", "timelayout.displayMode = " + timeLayout.getDisplayMode());
         
         // FIXME: Temporary solution
         selectedTime = new Time();
