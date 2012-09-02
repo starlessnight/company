@@ -326,9 +326,7 @@ public final class RouteActivity extends Activity {
             lonMin = Math.min(lonMin, curLon);
         }
         
-        int pathColors[] = {Color.RED, Color.BLUE, Color.BLACK};
-        
-        routePathOverlays[routeNum] = new RoutePathOverlay(this, route, pathColors[routeNum]);
+        routePathOverlays[routeNum] = new RoutePathOverlay(this, route, RoutePathOverlay.COLORS[routeNum]);
         mapOverlays.add(routePathOverlays[routeNum]);
         
         /* Set values into route to be passed to next Activity */

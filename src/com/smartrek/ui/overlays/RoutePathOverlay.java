@@ -17,6 +17,8 @@ import com.smartrek.utils.RouteNode;
 
 public class RoutePathOverlay extends Overlay {
 	
+	public static final int COLORS[] = {0xFF98D419, 0xFF1E8BD9, 0xFF232A2E};
+	
 	private Route route;
 	private int color;
 	private boolean highlighted = true;
