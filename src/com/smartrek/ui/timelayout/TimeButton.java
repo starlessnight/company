@@ -34,7 +34,7 @@ public final class TimeButton extends TextView {
 				return Color.parseColor("#3f3e40");
 			}
 			else if(Selected.equals(this)) {
-				return Color.parseColor("#cea350");
+				return 0xFF79BA14;
 			}
 			else if(InProgress.equals(this)) {
 				return Color.parseColor("#5f5e60");
