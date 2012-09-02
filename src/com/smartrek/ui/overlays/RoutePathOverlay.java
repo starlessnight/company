@@ -17,7 +17,7 @@ import com.smartrek.utils.RouteNode;
 
 public class RoutePathOverlay extends Overlay {
 	
-	public static final int COLORS[] = {0xFF98D419, 0xFF1E8BD9, 0xFF232A2E};
+	public static final int COLORS[] = {0xFF79BA14, 0xFF1E8BD9, 0xFF232A2E};
 	
 	private Route route;
 	private int color;
@@ -47,7 +47,7 @@ public class RoutePathOverlay extends Overlay {
 		paint.setStrokeWidth(6);
 		
 		// Seems like Paint.setAlpha has no effect
-		int alphaMask = highlighted ? 0xAF000000 : 0x4F000000;
+		int alphaMask = highlighted ? 0xCF000000 : 0x7F000000;
 		paint.setColor((color & 0x00FFFFFF) | alphaMask);
 		
 		Point point = new Point();
