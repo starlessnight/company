@@ -143,6 +143,11 @@ public final class Reservation implements Parcelable {
 		this.validatedFlag = validatedFlag;
 	}
 	
+	public boolean isPast() {
+		long currentTime = System.currentTimeMillis();
+		return getArrivalTime().toMillis(false) < currentTime;
+	}
+	
 	/**
 	 * Parses a JSON object into a reservation object
 	 * 

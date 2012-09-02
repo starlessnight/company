@@ -98,6 +98,7 @@ public class MapDisplayActivity extends Activity {
     @Override
     public void onBackPressed() {
         Intent intent = new Intent();
+        intent.putExtra("display", 1);
         setResult(RESULT_OK, intent);
         
         finish();

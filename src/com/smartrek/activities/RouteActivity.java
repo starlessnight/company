@@ -16,7 +16,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
@@ -401,11 +400,7 @@ public final class RouteActivity extends Activity {
         SharedPreferences prefs = getSharedPreferences(MapDisplayActivity.MAP_DISPLAY_PREFS, MODE_PRIVATE);
         
         if (extras != null) {
-            if (0 != extras.getInt("mapmode")) {
-                int mapmode = extras.getInt("mapmode");
-                Log.d("RouteActivity", "Got result from menu " + mapmode);
-            }
-            else if (0 != extras.getInt("display")) {
+            if (extras.getInt("display") != 0) {
                 int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
                 
                 // FIXME: Sloppy
