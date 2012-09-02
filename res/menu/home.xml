@@ -26,7 +26,7 @@
         android:visible="true"/>
     <item
         android:id="@+id/map_display_options"
-        android:title="@string/map_display_settings"/>
+        android:title="@string/settings"/>
     <item
         android:id="@+id/about_option"
         android:title="@string/about"/>

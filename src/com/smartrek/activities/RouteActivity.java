@@ -77,8 +77,6 @@ public final class RouteActivity extends Activity {
     
     private boolean debugMode;
     
-    public static final String LOGIN_PREFS = "login_file";
-    
     public GeoPoint getOriginCoord() {
         return originCoord;
     }
@@ -92,7 +90,7 @@ public final class RouteActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pre_reservation_map);    
         
-        SharedPreferences prefs = getSharedPreferences(LOGIN_PREFS, MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences(MapDisplayActivity.MAP_DISPLAY_PREFS, MODE_PRIVATE);
         
         mapView = (MapView) findViewById(R.id.mapview);
         mapView.setBuiltInZoomControls(false);
