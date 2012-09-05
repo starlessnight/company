@@ -93,7 +93,7 @@ public final class ReservationListActivity extends ListActivity {
 	public boolean onContextItemSelected(MenuItem item) {
 	    AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 	    switch (item.getItemId()) {
-	        case R.id.menu_delete:
+	        case R.id.delete:
 	            return true;
 	            
 	        default:

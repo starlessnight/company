@@ -4,20 +4,27 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.smartrek.activities.R;
 import com.smartrek.models.Address;
+import com.smartrek.requests.FavoriteAddressDeleteRequest;
+import com.smartrek.utils.ExceptionHandlingService;
 
 public class FavoriteAddressListDialog extends GenericListDialog<Address> {
+	
+	private ExceptionHandlingService ehs = new ExceptionHandlingService(getContext());
 	
 	public interface ActionListener extends GenericListDialog.ActionListener<Address> {}
 
@@ -43,7 +50,9 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 		super.onCreate(savedInstanceState);
 		textViewGeneric.setText("You don't have any favorite address");
 		
+		// enables context menu
 		registerForContextMenu(listViewGeneric);
+		listViewGeneric.setOnCreateContextMenuListener(this);
 	}
 	
 	@Override
@@ -51,6 +60,60 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 	    super.onCreateContextMenu(menu, v, menuInfo);
 	    MenuInflater inflater = getOwnerActivity().getMenuInflater();
 	    inflater.inflate(R.menu.context, menu);
+	}
+	
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem menuItem) {
+	    AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuItem.getMenuInfo();
+	    
+	    Address listItem = listItems.get(info.position);
+	    
+	    switch (menuItem.getItemId()) {
+	        case R.id.delete:
+	        	new FavoriteAddressDeleteTask(info.position).execute(listItem.getUid(), listItem.getAid());
+	            return true;
+	            
+	        default:
+	            return super.onMenuItemSelected(featureId, menuItem);
+	    }
+	}
+	
+	private class FavoriteAddressDeleteTask extends AsyncTask<Object, Object, Object> {
+
+		private int listItemIndex;
+		
+		public FavoriteAddressDeleteTask(int listItemIndex) {
+			this.listItemIndex = listItemIndex;
+		}
+		
+		@Override
+		protected Object doInBackground(Object... params) {
+			int uid = (Integer) params[0];
+			int aid = (Integer) params[1];
+			
+			FavoriteAddressDeleteRequest request = new FavoriteAddressDeleteRequest(uid, aid);
+			try {
+				request.execute();
+			}
+			catch (Exception e) {
+				ehs.registerException(e);
+			}
+			
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Object result) {
+		    if (ehs.hasExceptions()) {
+		        ehs.reportExceptions();
+		    }
+		    else {
+		    	listItems.remove(listItemIndex);
+		    	listViewGeneric.setAdapter(new FavoriteAddressListAdapter(getContext(), listItems));
+		    	listViewGeneric.postInvalidate();
+		    }
+		}
+		
 	}
 
 	private class FavoriteAddressListAdapter extends ArrayAdapter<Address> {
