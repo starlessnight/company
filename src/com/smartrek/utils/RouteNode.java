@@ -64,9 +64,13 @@ public final class RouteNode implements Parcelable, JSONModel {
 		lng = in.readDouble();
 		routeNum = in.readInt();
 		nodeNum = in.readInt();
+		flag = in.readInt();
+		distance = in.readDouble();
+		message = in.readString();
+		roadName = in.readString();
 	}
 	
-	public RouteNode(float latitude, float longitude, int routeNum, int nodeNum) {
+	public RouteNode(double latitude, double longitude, int routeNum, int nodeNum) {
 		lat = latitude;
 		lng = longitude;
 		this.routeNum = routeNum;
@@ -74,8 +78,8 @@ public final class RouteNode implements Parcelable, JSONModel {
 	}
 	
 	public RouteNode(Bundle  bundle, int routeNum, int nodeNum) {
-		lat = Float.parseFloat(bundle.getString("latitude" + nodeNum));
-		lng = Float.parseFloat(bundle.getString("longitude" + nodeNum));
+		lat = Double.parseDouble(bundle.getString("latitude" + nodeNum));
+		lng = Double.parseDouble(bundle.getString("longitude" + nodeNum));
 		this.routeNum = routeNum;
 		this.nodeNum = nodeNum;
 	}
@@ -116,6 +120,30 @@ public final class RouteNode implements Parcelable, JSONModel {
 		this.nodeIndex = nodeIndex;
 	}
 
+	public int getFlag() {
+		return flag;
+	}
+
+	public void setFlag(int flag) {
+		this.flag = flag;
+	}
+
+	public double getDistance() {
+		return distance;
+	}
+
+	public void setDistance(double distance) {
+		this.distance = distance;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
 	/**
      * Calculates the distance from this route node to a geocoordinate.
      * 
@@ -137,7 +165,15 @@ public final class RouteNode implements Parcelable, JSONModel {
         return distanceBetween(getLatitude(), getLongitude(), node.getLatitude(), node.getLongitude());
     }
 
-    @Override
+    public String getRoadName() {
+		return roadName;
+	}
+
+	public void setRoadName(String roadName) {
+		this.roadName = roadName;
+	}
+
+	@Override
 	public int describeContents() {
 		// TODO Auto-generated method stub
 		return 0;
@@ -149,6 +185,10 @@ public final class RouteNode implements Parcelable, JSONModel {
 		dest.writeDouble(lng);
 		dest.writeInt(routeNum);
 		dest.writeInt(nodeNum);
+		dest.writeInt(flag);
+		dest.writeDouble(distance);
+		dest.writeString(message);
+		dest.writeString(roadName);
 	}
 	
 	@Override
