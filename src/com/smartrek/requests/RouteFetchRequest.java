@@ -73,8 +73,22 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
         for (int i = 0; i < rts.length(); i++) {
             JSONObject ro = (JSONObject) rts.get(i);
             
-            RouteNode node = new RouteNode((float)ro.getDouble("LATITUDE"),
-                    (float)ro.getDouble("LONGITUDE"), 0, ro.getInt("NODEID"));
+            RouteNode node = new RouteNode(ro.getDouble("LATITUDE"),
+                    ro.getDouble("LONGITUDE"), 0, ro.getInt("NODEID"));
+            
+            if (ro.has("FLAG")) {
+            	node.setFlag(ro.getInt("FLAG"));
+            }
+            if (ro.has("MESSAGE")) {
+            	node.setMessage(ro.getString("MESSAGE"));
+            }
+            if (ro.has("DISTANCE")) {
+            	node.setDistance(ro.getDouble("DISTANCE"));
+            }
+            if (ro.has("ROADNAME")) {
+            	node.setRoadName(ro.getString("ROADNAME"));
+            }
+            
             routeNodes.add(node);
         }
         

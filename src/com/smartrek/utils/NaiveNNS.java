@@ -2,8 +2,6 @@ package com.smartrek.utils;
 
 import java.util.List;
 
-import android.util.Log;
-
 /**
  * Naive nearest neighbor search. This class provides utility functions to find
  * the nearest route node for a given GPS coordinate.
@@ -25,8 +23,6 @@ public class NaiveNNS {
                 cloestNode = node;
             }
         }
-        
-        Log.d("NaiveNNS (KdTree)", "Cloest node = " + cloestNode);
         
         return cloestNode;
     }
