@@ -2,6 +2,7 @@ package com.smartrek.dialogs;
 
 import java.util.List;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -49,6 +50,10 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 	protected GenericListDialog(Context context, List<ItemType> listItems) {
 		super(context);
 		this.listItems = listItems;
+		
+		if (context instanceof Activity) {
+			setOwnerActivity((Activity) context);
+		}
 	}
 	
 	@Override
