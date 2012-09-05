@@ -3,7 +3,8 @@
     android:id="@+id/gridLayout1"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal" >
+    android:orientation="horizontal" 
+    android:padding="4dp">
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -47,11 +48,11 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginLeft="-50dp"
-        android:orientation="vertical" 
-        android:layout_gravity="center_vertical">
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="-80dp"
+        android:orientation="vertical" >
 
         <TextView
             android:id="@+id/textViewCredits"
@@ -70,4 +71,14 @@
             android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
 
+    <!-- 
+    <ImageButton
+        android:id="@+id/button_delete"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_gravity="center"
+        android:background="@null"
+        android:scaleType="fitXY"
+        android:src="@drawable/delete" />
+    -->
 </LinearLayout>

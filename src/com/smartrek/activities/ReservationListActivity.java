@@ -3,20 +3,21 @@ package com.smartrek.activities;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.Activity;
+import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -31,38 +32,39 @@ import com.smartrek.utils.ExceptionHandlingService;
  * Shows a list of reserved routes
  *
  */
-public final class ReservationListActivity extends Activity {
+public final class ReservationListActivity extends ListActivity {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
 	private List<Reservation> reservations;
 	
-	private ListView listViewReservation;
-	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.reservation_list);
+        //setContentView(R.layout.reservation_list);
+        
+        setTitle("Reservations");
+        
+        getListView().setBackgroundDrawable(getResources().getDrawable(R.drawable.background_gradient));
+        
+        //registerForContextMenu(getListView());
         
         reservations = new ArrayList<Reservation>();
-        listViewReservation = (ListView) findViewById(R.id.listViewReservation);
-        listViewReservation.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				Intent intent = new Intent(ReservationListActivity.this, ReservationDetailsActivity.class);
-				
-				Bundle extras = new Bundle();
-				// FIXME: Reservation.getRoute() is a temporary solution
-				extras.putParcelable("route", reservations.get(position).getRoute());
-				intent.putExtras(extras);
-				startActivity(intent);
-			}
-        });
         
         User currentUser = User.getCurrentUser(this);
         
         new ReservationRetrivalTask().execute(currentUser.getId());
+	}
+	
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		Intent intent = new Intent(ReservationListActivity.this, ReservationDetailsActivity.class);
+		
+		Bundle extras = new Bundle();
+		// FIXME: Reservation.getRoute() is a temporary solution
+		extras.putParcelable("route", reservations.get(position).getRoute());
+		intent.putExtras(extras);
+		startActivity(intent);
 	}
 	
 	@Override
@@ -77,6 +79,26 @@ public final class ReservationListActivity extends Activity {
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		MainMenu.onMenuItemSelected(this, featureId, item);
 		return super.onMenuItemSelected(featureId, item);
+	}
+	
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+	                                ContextMenuInfo menuInfo) {
+	    super.onCreateContextMenu(menu, v, menuInfo);
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.context, menu);
+	}
+	
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+	    AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+	    switch (item.getItemId()) {
+	        case R.id.menu_delete:
+	            return true;
+	            
+	        default:
+	            return super.onContextItemSelected(item);
+	    }
 	}
 	
 	/**
@@ -118,9 +140,19 @@ public final class ReservationListActivity extends Activity {
 		        ehs.reportExceptions();
 		    }
 		    else {
-		        listViewReservation.setAdapter(new ReservationItemAdapter(ReservationListActivity.this, R.layout.reservation_list_item, reservations));
+		        //listViewReservation.setAdapter(new ReservationItemAdapter(ReservationListActivity.this, R.layout.reservation_list_item, reservations));
+		    	setListAdapter(new ReservationItemAdapter(ReservationListActivity.this, R.layout.reservation_list_item, reservations));
 		    }
 	    }
+	}
+	
+	private class ReservationDeleteTask extends AsyncTask<Object, Object, String> {
+		@Override
+		protected String doInBackground(Object... params) {
+			
+			
+			return null;
+		}
 	}
 	
 	private class ReservationItemAdapter extends ArrayAdapter<Reservation> {
