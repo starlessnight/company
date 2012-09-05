@@ -22,18 +22,12 @@ public final class Reservation implements Parcelable {
 	
 	private Route route;
 	
-	private Time departureTime;
+	private long departureTime;
 	
 	/**
 	 * Estimated travel time
 	 */
 	private int duration;
-	
-	/**
-	 * Estimated arrival time
-	 * @deprecated
-	 */
-	private Time arrivalTime;
 	
 	private String originAddress;
 	
@@ -63,8 +57,7 @@ public final class Reservation implements Parcelable {
 	private Reservation(Parcel in) {
 		rid = in.readInt();
 		route = in.readParcelable(Route.class.getClassLoader());
-		departureTime = new Time();
-		departureTime.parse(in.readString());
+		departureTime = in.readLong();
 		duration = in.readInt();
 		originAddress = in.readString();
 		destinationAddress = in.readString();
@@ -88,11 +81,11 @@ public final class Reservation implements Parcelable {
         this.route = route;
     }
 
-    public Time getDepartureTime() {
+    public long getDepartureTime() {
 		return departureTime;
 	}
 
-	public void setDepartureTime(Time departureTime) {
+	public void setDepartureTime(long departureTime) {
 		this.departureTime = departureTime;
 	}
 
@@ -104,11 +97,8 @@ public final class Reservation implements Parcelable {
         this.duration = duration;
     }
 
-    public Time getArrivalTime() {
-        Time time = new Time();
-        time.set(departureTime.toMillis(false) + duration*1000);
-        
-		return time;
+    public long getArrivalTime() {
+        return departureTime + duration*1000;
 	}
 
 	public String getOriginAddress() {
@@ -145,7 +135,7 @@ public final class Reservation implements Parcelable {
 	
 	public boolean isPast() {
 		long currentTime = System.currentTimeMillis();
-		return getArrivalTime().toMillis(false) < currentTime;
+		return getArrivalTime() < currentTime;
 	}
 	
 	/**
@@ -162,8 +152,7 @@ public final class Reservation implements Parcelable {
 		r.setRid(object.getInt("RID"));
 		
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-		Time departureTime = new Time();
-		departureTime.set(dateFormat.parse(object.getString("START_TIME")).getTime());
+		long departureTime = dateFormat.parse(object.getString("START_TIME")).getTime();
 		r.setDepartureTime(departureTime);
 
 		// travel duration
@@ -178,7 +167,7 @@ public final class Reservation implements Parcelable {
         route.setId(r.getRid());
         route.setOrigin(r.getOriginAddress());
         route.setDestination(r.getDestinationAddress());
-        route.setDepartureTime(r.getDepartureTime().toMillis(false));
+        route.setDepartureTime(r.getDepartureTime());
         route.setCredits(r.getCredits());
         route.setNodes(object.getJSONArray("ROUTE"));
         
@@ -197,7 +186,7 @@ public final class Reservation implements Parcelable {
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeInt(rid);
 		dest.writeParcelable(route, 0);
-		dest.writeString(departureTime.format2445());
+		dest.writeLong(departureTime);
 		dest.writeInt(duration);
 		dest.writeString(originAddress);
 		dest.writeString(destinationAddress);
