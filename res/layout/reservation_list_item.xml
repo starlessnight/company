@@ -16,7 +16,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
-            android:text="Origin"
+            android:text="@string/origin"
             android:textColor="#F3E123" />
 
         <TextView
@@ -33,7 +33,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
-            android:text="Destination"
+            android:text="@string/destination"
             android:textColor="#F3E123" />
 
         <TextView
@@ -66,7 +66,7 @@
             android:layout_width="fill_parent"
             android:layout_height="20dp"
             android:gravity="center"
-            android:text="points"
+            android:text="@string/trekpoints"
             android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
 
