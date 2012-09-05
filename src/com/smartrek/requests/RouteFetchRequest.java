@@ -41,7 +41,9 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 	 */
 	public RouteFetchRequest(long departureTime) {
 		//super(HOST + "/getroutesTucson/fake");
-		super("http://static.suminb.com/smartrek/fake-routes.html");
+		super("http://50.56.81.42:8080/getroutesTucsonNavigation");
+		//super("http://static.suminb.com/smartrek/fake-routes.html");
+		
 		this.departureTime = departureTime;
 	}
 	

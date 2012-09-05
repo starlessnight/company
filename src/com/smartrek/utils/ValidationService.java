@@ -10,7 +10,7 @@ import android.util.Log;
  */
 public final class ValidationService {
 
-    public static RouteNode getNearestNode(List<RouteNode> nodes, float lat, float lng) {
+    public static RouteNode getNearestNode(List<RouteNode> nodes, double lat, double lng) {
         RouteNode nearestNode = NaiveNNS.findClosestNode(nodes, lat, lng);
         
         return nearestNode;
@@ -22,7 +22,7 @@ public final class ValidationService {
      * @param lng
      * @return
      */
-    public static RouteLink getNearestLink(RouteNode node, float lat, float lng) {
+    public static RouteLink getNearestLink(RouteNode node, double lat, double lng) {
     	RouteNode prevNode = node.getPrevNode();
     	RouteNode nextNode = node.getNextNode();
     	
@@ -30,8 +30,8 @@ public final class ValidationService {
     		RouteLink prevLink = new RouteLink(node.getPrevNode(), node);
     		RouteLink nextLink = new RouteLink(node, node.getNextNode()); 
 
-    		float distanceToPrev = prevLink.distanceTo(lat, lng);
-    		float distanceToNext = nextLink.distanceTo(lat, lng);
+    		double distanceToPrev = prevLink.distanceTo(lat, lng);
+    		double distanceToNext = nextLink.distanceTo(lat, lng);
     		
     		return distanceToPrev < distanceToNext ? new RouteLink(prevNode, node) : new RouteLink(node, nextNode);
     	}

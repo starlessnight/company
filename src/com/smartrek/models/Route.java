@@ -301,8 +301,8 @@ public final class Route implements Parcelable {
 		bundle.putInt("Node_ListSize", routeNodes.size());
 		for (int i = 0; i < routeNodes.size(); i++) {
 			RouteNode routenode = routeNodes.get(i);
-			bundle.putFloat("latitude" + i, routenode.getLatitude());
-			bundle.putFloat("longitude" + i, routenode.getLongitude());
+			bundle.putDouble("latitude" + i, routenode.getLatitude());
+			bundle.putDouble("longitude" + i, routenode.getLongitude());
 		}
 	}
 	

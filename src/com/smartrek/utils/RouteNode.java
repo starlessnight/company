@@ -8,10 +8,30 @@ import com.smartrek.models.JSONModel;
 
 public final class RouteNode implements Parcelable, JSONModel {
 	
-	private float lat;
-	private float lng;
+	private double lat;
+	private double lng;
 	private int routeNum;
 	private int nodeNum;
+	
+	/**
+	 * Navigation metadata. Non-zero value indicates change of navigation information.
+	 */
+	private int flag;
+	
+	/**
+	 * Navigation metadata. Distance to the next node.
+	 */
+	private double distance;
+	
+	/**
+	 * Navigation message
+	 */
+	private String message;
+	
+	/**
+	 * Navigation metadata
+	 */
+	private String roadName;
 	
     /**
      * A reference to the previous node. A link consists of two route nodes. A
@@ -40,19 +60,13 @@ public final class RouteNode implements Parcelable, JSONModel {
 	};
 
 	private RouteNode(Parcel in) {
-		lat = in.readFloat();
-		lng = in.readFloat();
+		lat = in.readDouble();
+		lng = in.readDouble();
 		routeNum = in.readInt();
 		nodeNum = in.readInt();
 	}
 	
 	public RouteNode(float latitude, float longitude, int routeNum, int nodeNum) {
-//		super(new GeoPoint(
-//				  (int)Math.round(1E6*latitude),
-//				  (int)Math.round(1E6*longitude)),
-//				  "Route " + routeNum,
-//				  "Node " + nodeNum );
-
 		lat = latitude;
 		lng = longitude;
 		this.routeNum = routeNum;
@@ -60,13 +74,6 @@ public final class RouteNode implements Parcelable, JSONModel {
 	}
 	
 	public RouteNode(Bundle  bundle, int routeNum, int nodeNum) {
-//		super(new GeoPoint(
-//				  (int)Math.round(1E6*(Float.parseFloat(bundle.getString("latitude" + nodeNum)))),
-//				  (int)Math.round(1E6*(Float.parseFloat(bundle.getString("longitude" + nodeNum))))),
-//				  "Route " + routeNum,
-//				  "Node " + nodeNum );
-		
-		
 		lat = Float.parseFloat(bundle.getString("latitude" + nodeNum));
 		lng = Float.parseFloat(bundle.getString("longitude" + nodeNum));
 		this.routeNum = routeNum;
@@ -77,11 +84,11 @@ public final class RouteNode implements Parcelable, JSONModel {
 		return new GeoPoint((int)(lat * 1E6), (int)(lng * 1E6));
 	}
 	
-	public float getLatitude() {
+	public double getLatitude() {
 		return lat;
 	}
 	
-	public float getLongitude() {
+	public double getLongitude() {
 		return lng;
 	}
 	
@@ -116,7 +123,7 @@ public final class RouteNode implements Parcelable, JSONModel {
      * @param lng
      * @return Distance to a geocoordinate. Unit is in meters.
      */
-    public float distanceTo(float lat, float lng) {
+    public double distanceTo(double lat, double lng) {
         return distanceBetween(getLatitude(), getLongitude(), lat, lng);
     }
     
@@ -126,7 +133,7 @@ public final class RouteNode implements Parcelable, JSONModel {
      * @param node
      * @return
      */
-    public float distanceTo(RouteNode node) {
+    public double distanceTo(RouteNode node) {
         return distanceBetween(getLatitude(), getLongitude(), node.getLatitude(), node.getLongitude());
     }
 
@@ -138,8 +145,8 @@ public final class RouteNode implements Parcelable, JSONModel {
 
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeFloat(lat);
-		dest.writeFloat(lng);
+		dest.writeDouble(lat);
+		dest.writeDouble(lng);
 		dest.writeInt(routeNum);
 		dest.writeInt(nodeNum);
 	}
@@ -162,20 +169,16 @@ public final class RouteNode implements Parcelable, JSONModel {
 		return node != null && lat == node.lat && lng == node.lng && nodeNum == node.nodeNum;
 	}
 	
-	public static float distanceBetween(RouteNode node1, RouteNode node2) {
+	public static double distanceBetween(RouteNode node1, RouteNode node2) {
 		return distanceBetween(node1.getLatitude(), node1.getLongitude(), node2.getLatitude(), node2.getLongitude());
 	}
 	
-	public static float distanceBetween(float lat1, float lng1, float lat2, float lng2) {
-        float earthRadius = 6378.137f;
-
-        float radLat1 = lat1 * (float) Math.PI / 180.0f;
-
-        float radLat2 = lat1 * (float) Math.PI / 180.0f;
-
-        float radLat = (lat1-lat2) * (float) Math.PI / 180.0f;
-
-        float radLng = (lng1-lng2) * (float) Math.PI / 180.0f;
+	public static double distanceBetween(double lat1, double lng1, double lat2, double lng2) {
+		double earthRadius = 6378.137;
+        double radLat1 = lat1 * Math.PI / 180.0;
+        double radLat2 = lat1 * Math.PI / 180.0;
+        double radLat = (lat1-lat2) * Math.PI / 180.0;
+        double radLng = (lng1-lng2) * Math.PI / 180.0;
 
         double s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(radLat / 2.0), 2) +
 
@@ -183,6 +186,6 @@ public final class RouteNode implements Parcelable, JSONModel {
 
         s = s * earthRadius;
 
-        return (float) s * 1000;
+        return s * 1000;
 	}
 }

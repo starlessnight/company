@@ -1,6 +1,5 @@
 package com.smartrek.utils;
 
-import android.util.FloatMath;
 import android.util.Log;
 
 /**
@@ -30,26 +29,26 @@ public class RouteLink {
      * @param lng
      * @return
      */
-    public float distanceTo(float lat, float lng) {
+    public double distanceTo(double lat, double lng) {
         
-        float cosAngle1 = FloatMath.cos(angle1(lat, lng));
-        float cosAngle2 = FloatMath.cos(angle2(lat, lng));
+    	double cosAngle1 = Math.cos(angle1(lat, lng));
+    	double cosAngle2 = Math.cos(angle2(lat, lng));
         
         if (cosAngle1 > 0.0f && cosAngle2 > 0.0f) {
             // case 1 (distance between the link and a point)
         	
         	// Equations are taken from http://mathworld.wolfram.com/Point-LineDistance2-Dimensional.html
-        	float rx = lng - node1.getLongitude();
-        	float ry = lat - node1.getLatitude();
+        	double rx = lng - node1.getLongitude();
+        	double ry = lat - node1.getLatitude();
         	Vector2D r = new Vector2D(rx, ry);
         	
-        	float ux = node1.getLongitude() - node2.getLongitude();
-        	float uy = node1.getLatitude() - node2.getLatitude();
+        	double ux = node1.getLongitude() - node2.getLongitude();
+        	double uy = node1.getLatitude() - node2.getLatitude();
         	Vector2D v = new Vector2D(uy, ux); // normal vector of (ux, uy)
         	
-        	float dv = RouteNode.distanceBetween(node1, node2);
-        	float dr = RouteNode.distanceBetween(node1.getLatitude(), node1.getLongitude(), lat, lng);
-        	float d = dr * FloatMath.sin(angle1(lat, lng));
+        	double dv = RouteNode.distanceBetween(node1, node2);
+        	double dr = RouteNode.distanceBetween(node1.getLatitude(), node1.getLongitude(), lat, lng);
+        	double d = dr * Math.sin(angle1(lat, lng));
         	
         	Log.d("RouteLink", String.format("Case 1, distance = %f", d));
         	
@@ -79,12 +78,12 @@ public class RouteLink {
      * @param lng
      * @return
      */
-    public float angle1(float lat, float lng) {
-        float ax = node2.getLongitude() - node1.getLongitude();
-        float ay = node2.getLatitude() - node1.getLatitude();
+    public double angle1(double lat, double lng) {
+        double ax = node2.getLongitude() - node1.getLongitude();
+        double ay = node2.getLatitude() - node1.getLatitude();
         
-        float bx = lng - node1.getLongitude();
-        float by = lat - node1.getLatitude();
+        double bx = lng - node1.getLongitude();
+        double by = lat - node1.getLatitude();
         
         Vector2D u = new Vector2D(ax, ay);
         Vector2D v = new Vector2D(bx, by);
@@ -92,12 +91,12 @@ public class RouteLink {
         return Vector2D.angleBetween(u, v);
     }
     
-    public float angle2(float lat, float lng) {
-        float ax = node1.getLongitude() - node2.getLongitude();
-        float ay = node1.getLatitude() - node2.getLatitude();
+    public double angle2(double lat, double lng) {
+        double ax = node1.getLongitude() - node2.getLongitude();
+        double ay = node1.getLatitude() - node2.getLatitude();
         
-        float bx = lng - node2.getLongitude();
-        float by = lat - node2.getLatitude();
+        double bx = lng - node2.getLongitude();
+        double by = lat - node2.getLatitude();
         
         Vector2D u = new Vector2D(ax, ay);
         Vector2D v = new Vector2D(bx, by);

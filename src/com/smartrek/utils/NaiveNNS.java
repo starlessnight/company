@@ -13,12 +13,12 @@ import android.util.Log;
  */
 public class NaiveNNS {
 
-    public static RouteNode findClosestNode(List<RouteNode> nodes, float lat, float lng) {
-        float minDistance = Float.MAX_VALUE;
+    public static RouteNode findClosestNode(List<RouteNode> nodes, double lat, double lng) {
+    	double minDistance = Double.MAX_VALUE;
         RouteNode cloestNode = nodes.get(0);
         
         for (RouteNode node : nodes) {
-            float distance = LocationService.distanceBetween(node.getLatitude(), node.getLongitude(), lat, lng);
+            double distance = LocationService.distanceBetween(node.getLatitude(), node.getLongitude(), lat, lng);
             
             if (distance < minDistance) {
                 minDistance = distance;
