@@ -472,21 +472,21 @@ public final class RouteActivity extends Activity {
         @Override
         protected List<Route> doInBackground(Object... args) {  
             /* Get the possible routes from the server */
-            List<Route> possibleRoutes = null;
+            List<Route> routes = null;
             try {
             	if (debugMode) {
             		RouteFetchRequest request = new RouteFetchRequest(departureTime);
-            		possibleRoutes = request.execute();
+            		routes = request.execute();
             	}
             	else {
-            		possibleRoutes = getData();
+            		routes = getData();
             	}
             }
             catch(Exception e) {
                 ehs.registerException(e);
             }
             
-            return possibleRoutes;
+            return routes;
         }
         
         /**
@@ -494,7 +494,7 @@ public final class RouteActivity extends Activity {
          * reside in the main loop.
          */
         @Override
-        protected void onPostExecute(List<Route> possibleRoutes) {
+        protected void onPostExecute(List<Route> routes) {
             dialog.dismiss();
             
             setHighlightedRoutePathOverlays(true);
@@ -505,13 +505,13 @@ public final class RouteActivity extends Activity {
             }
             else {
             	// FIXME: Temporary
-            	if(possibleRoutes != null && possibleRoutes.size() > 0) {
-            		Route firstRoute = possibleRoutes.get(0);
+            	if(routes != null && routes.size() > 0) {
+            		Route firstRoute = routes.get(0);
             		timeLayout.setModelForColumn(selectedColumn, firstRoute);
             	}
             	
-                if(possibleRoutes != null && updateMap) {
-                    updateMap(possibleRoutes);
+                if(routes != null && updateMap) {
+                    updateMap(routes);
                 }
                 
                 // FIXME: Relying on updateMap is kind of hack-ish. Need to come up with more sophisticated way.

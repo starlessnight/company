@@ -256,7 +256,7 @@ public final class Route implements Parcelable {
 	
 	///////////////////////////////////////////////////////////////////////////
 	
-	public boolean isNearOrigin(float lat, float lng) {
+	public boolean isNearOrigin(double lat, double lng) {
 		return false;
 	}
 	
@@ -267,7 +267,7 @@ public final class Route implements Parcelable {
 	 * @param lng
 	 * @return
 	 */
-	public boolean hasArrivedAtDestination(float lat, float lng) {
+	public boolean hasArrivedAtDestination(double lat, double lng) {
 		RouteNode lastNode = routeNodes.get(routeNodes.size() - 1);
 		ValidationParameters params = ValidationParameters.getInstance();
 		
@@ -301,8 +301,8 @@ public final class Route implements Parcelable {
 		bundle.putInt("Node_ListSize", routeNodes.size());
 		for (int i = 0; i < routeNodes.size(); i++) {
 			RouteNode routenode = routeNodes.get(i);
-			bundle.putFloat("latitude" + i, routenode.getLatitude());
-			bundle.putFloat("longitude" + i, routenode.getLongitude());
+			bundle.putDouble("latitude" + i, routenode.getLatitude());
+			bundle.putDouble("longitude" + i, routenode.getLongitude());
 		}
 	}
 	

@@ -28,6 +28,7 @@ import android.os.Handler;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.TextView;
 
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
@@ -47,6 +48,8 @@ public class ValidationActivity extends Activity {
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 
     private MapView mapView;
+    private TextView textViewNavigation;
+    
     private Route route;
     private List<Overlay> mapOverlays;
     private int mapOverlayOffset = 1;
@@ -87,6 +90,8 @@ public class ValidationActivity extends Activity {
         
         mapView = (MapView) findViewById(R.id.mapview);
         mapView.setBuiltInZoomControls(false);
+        
+        textViewNavigation = (TextView) findViewById(R.id.text_view_navigation);
 
         MapController mc = mapView.getController();
         mc.setZoom(14);
@@ -104,7 +109,7 @@ public class ValidationActivity extends Activity {
         locationListener = new ValidationLocationListener();
 
         // Register the listener with the Location Manager to receive location updates
-        boolean useRealData = true;
+        boolean useRealData = false;
         if (useRealData) {
         	// TODO: Turn on GSP early
         	locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
@@ -208,15 +213,24 @@ public class ValidationActivity extends Activity {
         new SendTrajectoryTask().execute(seq++, User.getCurrentUser(this).getId());
     }
     
+    private void showNavigationInformation(final RouteNode node) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				String message = String.format("%s on %s", node.getMessage(), node.getRoadName());
+				textViewNavigation.setText(message);
+			}
+		});
+    }
+    
     private synchronized void locationChanged(Location location) {
     	numberOfLocationChanges += 1;
     	
     	trajectory.accumulate(location);
     	
-        float lat = (float) location.getLatitude();
-        float lng = (float) location.getLongitude();
+        double lat = location.getLatitude();
+        double lng = location.getLongitude();
         
-        pointOverlay.setLocation(lat, lng);
+        pointOverlay.setLocation((float)lat, (float)lng);
         
         nearestNode = ValidationService.getNearestNode(route.getNodes(), lat, lng);
         nearestLink = ValidationService.getNearestLink(nearestNode, lat, lng);
@@ -238,16 +252,36 @@ public class ValidationActivity extends Activity {
     	
     	ValidationParameters params = ValidationParameters.getInstance();
         
-//        float distanceToLink = nearestLink.distanceTo(lat, lng);
-//        if (distanceToLink <= params.getDistanceThreshold()) {
-//        	numberOfInRoute += 1;
+        double distanceToLink = nearestLink.distanceTo(lat, lng);
+        if (distanceToLink <= params.getDistanceThreshold()) {
+        	numberOfInRoute += 1;
 //        	overlay.setColor(Color.GREEN);
 //        	//Log.d("ValidationActivity", String.format("In route, score = %d/%d = %.2f", numberOfInRoute, numberOfLocationChanges, numberOfInRoute/(float)numberOfLocationChanges));
 //        }
 //        else {
 //        	overlay.setColor(Color.RED);
 //        	//Log.d("ValidationActivity", String.format("Out of route, score = %d/%d = %.2f", numberOfInRoute, numberOfLocationChanges, numberOfInRoute/(float)numberOfLocationChanges));
-//        }
+        }
+    	
+    	Log.d("ValidationActivity", "distance = " + nearestNode.getDistance());
+    	Log.d("ValidationActivity", "roadname = " + nearestNode.getRoadName());
+    	
+		if (nearestNode.getFlag() != 0) {
+			showNavigationInformation(nearestNode);
+		}
+		else {
+			// find the closest RouteNode with a non-zero flag
+			RouteNode node = nearestNode;
+			while (node.getNextNode() != null) {
+				node = node.getNextNode();
+				if (node.getFlag() != 0) {
+					showNavigationInformation(node);
+					
+					break;
+				}
+			}
+		}
+    	
     	
     	mapView.postInvalidate();
     	
@@ -346,21 +380,21 @@ public class ValidationActivity extends Activity {
     		this.listener = listener;
     		
     		timer = new Timer();
-    		timer.schedule(this, 1000, 100);
+    		timer.schedule(this, 1000, 2000);
     		
     		nodes = new LinkedList<RouteNode>();
-    		nodes.add(new RouteNode(32.234294f, -110.956807f, 0, 0));
-    		nodes.add(new RouteNode(32.2361f,-110.959468f, 0, 0));
-    		nodes.add(new RouteNode(32.240356f, -110.959425f, 0, 0));
-    		nodes.add(new RouteNode(32.242997f,-110.959532f, 0, 0));
-    		nodes.add(new RouteNode(32.248777f,-110.960712f, 0, 0));
-    		nodes.add(new RouteNode(32.254039f,-110.958899f, 0, 0));
-    		nodes.add(new RouteNode(32.259411f, -110.961571f, 0, 0));
-    		nodes.add(new RouteNode(32.257578f,-110.959811f, 0, 0));
-    		nodes.add(new RouteNode(32.26128f,-110.960938f, 0, 0));
-    		nodes.add(new RouteNode(32.264927f, -110.962343f, 0, 0));
-    		nodes.add(new RouteNode(32.26489f, -110.958095f, 0, 0));
-    		nodes.add(new RouteNode(32.264791f,-110.953245f, 0, 0));
+    		nodes.add(new RouteNode(32.236054,-110.952562, 0, 0));
+    		nodes.add(new RouteNode(32.239448,-110.952476, 0, 0));
+    		nodes.add(new RouteNode(32.243314,-110.952519, 0, 0));
+    		nodes.add(new RouteNode(32.247833,-110.952476, 0, 0));
+    		nodes.add(new RouteNode(32.249902,-110.950673, 0, 0));
+    		nodes.add(new RouteNode(32.250011,-110.945159, 0, 0));
+    		nodes.add(new RouteNode(32.25021,-110.944107, 0, 0));
+    		nodes.add(new RouteNode(32.256126,-110.94385, 0, 0));
+    		nodes.add(new RouteNode(32.257632,-110.945459, 0, 0));
+    		nodes.add(new RouteNode(32.257632,-110.951854, 0, 0));
+    		nodes.add(new RouteNode(32.258195,-110.95239, 0, 0));
+    		nodes.add(new RouteNode(32.263965,-110.952454, 0, 0));
     		//nodes.add(new RouteNode(, 0, 0));
     	}
 
@@ -393,13 +427,7 @@ public class ValidationActivity extends Activity {
 	    	try {
 				mapper.sendTrajectory(seq, uid, route.getId(), trajectory);
 			}
-	    	catch (ClientProtocolException e) {
-				ehs.registerException(e);
-			}
-	    	catch (JSONException e) {
-	    	    ehs.registerException(e);
-			}
-	    	catch (IOException e) {
+	    	catch (Exception e) {
 	    	    ehs.registerException(e);
 			}
 	    	
