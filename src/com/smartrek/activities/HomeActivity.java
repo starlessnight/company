@@ -22,6 +22,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.FavoriteAddressAddDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
 import com.smartrek.dialogs.TripListDialog;
@@ -75,7 +76,7 @@ public final class HomeActivity extends Activity {
 	private Button buttonDone;
 	private ImageButton buttonFavAddrOrigin;
 	private ImageButton destFavButton;
-	private Button hereButton;
+	private ImageButton buttonOriginMyLocation;
 	
 	private GeoPoint originCoord;
 	private GeoPoint destCoord;
@@ -187,13 +188,13 @@ public final class HomeActivity extends Activity {
 	    destFavButton.setId(2);
 	    buttonDone.setId(3);
 	    
-//	    hereButton = (Button) findViewById(R.id.hereAndNow);
-//	    hereButton.setOnClickListener(new OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				originBox.setAddressAsCurrentLocation();
-//			}
-//	    });
+	    buttonOriginMyLocation = (ImageButton) findViewById(R.id.origin_my_location);
+	    buttonOriginMyLocation.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				originBox.setAddressAsCurrentLocation();
+			}
+	    });
 	    
 	    
 	    /***************End Buttons********************/
@@ -278,10 +279,7 @@ public final class HomeActivity extends Activity {
 
 		@Override
 		public void preCallback() {
-			dialog = new ProgressDialog(HomeActivity.this);
-	        dialog.setMessage("Geocoding origin address...");
-	        dialog.setIndeterminate(true);
-	        dialog.setCancelable(false);
+			dialog = new CancelableProgressDialog(HomeActivity.this, "Geocoding origin address...");
 	        dialog.show();
 		}
 
@@ -310,10 +308,7 @@ public final class HomeActivity extends Activity {
 		
 		@Override
 		public void preCallback() {
-			dialog = new ProgressDialog(HomeActivity.this);
-	        dialog.setMessage("Geocoding destination address...");
-	        dialog.setIndeterminate(true);
-	        dialog.setCancelable(false);
+			dialog = new CancelableProgressDialog(HomeActivity.this, "Geocoding destination address...");
 	        dialog.show();
 		}
 
@@ -488,12 +483,10 @@ public final class HomeActivity extends Activity {
 	
 	private void prepareMapActivity() {
 		if (originBox.isCurrentLocationInUse()) {
-			final ProgressDialog dialog = new ProgressDialog(this);
-	        dialog.setMessage("Acquiring current location...");
-	        dialog.setIndeterminate(true);
-	        dialog.setCancelable(false);
+			final CancelableProgressDialog dialog = new CancelableProgressDialog(this, "Acquiring current location...");
 	        dialog.show();
 			
+	        // FIXME: When dialog gets canceled, requestCurrentLocation() must be canceled as well.
 			LocationService locationService = LocationService.getInstance(this);
 			locationService.requestCurrentLocation(new LocationServiceListener() {
 				@Override
