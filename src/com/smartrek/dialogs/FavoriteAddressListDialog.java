@@ -149,9 +149,14 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 				ehs.reportExceptions();
 			}
 			else {
-				setListVisibility(true);
-				setAdapter(new FavoriteAddressListAdapter(getContext(), result));
-				initGenericList();
+				if (result != null && result.size() > 0) {
+					setListVisibility(true);
+					setAdapter(new FavoriteAddressListAdapter(getContext(), result));
+					initGenericList();
+				}
+				else {
+					initEmptyList();
+				}
 			}
 		}
 	}

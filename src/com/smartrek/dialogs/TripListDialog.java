@@ -1,9 +1,6 @@
 package com.smartrek.dialogs;
 
-import java.io.IOException;
 import java.util.List;
-
-import org.json.JSONException;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -132,10 +129,7 @@ public class TripListDialog extends AlertDialog {
 			try {
 				trips = request.execute(uid);
 			}
-			catch (IOException e) {
-				ehs.registerException(e);
-			}
-			catch (JSONException e) {
+			catch (Exception e) {
 				ehs.registerException(e);
 			}
 
