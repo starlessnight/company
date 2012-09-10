@@ -67,14 +67,18 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 		setView(dialogView);
 		setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", defaultNegativeButtonListener);
 		
+		super.onCreate(savedInstanceState);
+	}
+	
+	@Override
+	protected void onStart() {
 		if (listItems != null && listItems.size() > 0) {
 			initGenericList();
 		}
 		else {
 			initEmptyList();
 		}
-		
-		super.onCreate(savedInstanceState);
+		super.onStart();
 	}
 	
 	/**
@@ -100,8 +104,7 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 	 * This gets called when {@code listItem} is null or has no item
 	 */
 	protected void initEmptyList() {
-		listViewGeneric.setVisibility(View.INVISIBLE);
-		textViewGeneric.setVisibility(View.VISIBLE);
+		setListVisibility(false);
 		setButton(DialogInterface.BUTTON_NEGATIVE, "Dismiss", defaultNegativeButtonListener);	
 	}
 	
@@ -113,4 +116,14 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 		this.adapter = adapter;
 	}
 
+	public void setListVisibility(boolean visible) {
+		if (visible) {
+			listViewGeneric.setVisibility(View.VISIBLE);
+			textViewGeneric.setVisibility(View.INVISIBLE);
+		}
+		else {
+			listViewGeneric.setVisibility(View.INVISIBLE);
+			textViewGeneric.setVisibility(View.VISIBLE);
+		}
+	}
 }

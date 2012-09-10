@@ -19,7 +19,9 @@ import android.widget.TextView;
 
 import com.smartrek.activities.R;
 import com.smartrek.models.Address;
+import com.smartrek.models.User;
 import com.smartrek.requests.FavoriteAddressDeleteRequest;
+import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.utils.ExceptionHandlingService;
 
 public class FavoriteAddressListDialog extends GenericListDialog<Address> {
@@ -28,9 +30,8 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 	
 	public interface ActionListener extends GenericListDialog.ActionListener<Address> {}
 
-	public FavoriteAddressListDialog(Context context, List<Address> listItems) {
-		super(context, listItems);
-		setAdapter(new FavoriteAddressListAdapter(context, listItems));
+	public FavoriteAddressListDialog(Context context) {
+		super(context, null);
 		setTitle("Favorite addresses");
 	}
 	
@@ -53,6 +54,12 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 		// enables context menu
 		registerForContextMenu(listViewGeneric);
 		listViewGeneric.setOnCreateContextMenuListener(this);
+	}
+	
+	@Override
+	public void onStart() {
+		User currentUser = User.getCurrentUser(getContext());
+		new FavoriteAddressListFetchTask().execute(currentUser.getId());
 	}
 	
 	@Override
@@ -113,7 +120,40 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 		    	listViewGeneric.postInvalidate();
 		    }
 		}
+	}
+	
+	private class FavoriteAddressListFetchTask extends AsyncTask<Object, Object, List<Address>> {
 		
+		private List<Address> favoriteAddresses;
+		
+		@Override
+		protected List<Address> doInBackground(Object... params) {
+
+			int uid = (Integer) params[0];
+
+			FavoriteAddressFetchRequest request = new FavoriteAddressFetchRequest(uid);
+			try {
+				favoriteAddresses = request.execute();
+			}
+			catch (Exception e) {
+				ehs.registerException(e);
+			}
+
+			return favoriteAddresses;
+		}
+		
+		@Override
+		protected void onPostExecute(List<Address> result) {
+			listItems = result;
+			if (ehs.hasExceptions()) {
+				ehs.reportExceptions();
+			}
+			else {
+				setListVisibility(true);
+				setAdapter(new FavoriteAddressListAdapter(getContext(), result));
+				initGenericList();
+			}
+		}
 	}
 
 	private class FavoriteAddressListAdapter extends ArrayAdapter<Address> {

@@ -200,8 +200,6 @@ public final class HomeActivity extends Activity {
 	    /***************End Buttons********************/
 	}
 
-	private List<Address> favoriteAddresses;
-	
 	private TripListDialog tripListDialog;
 	
 	/**
@@ -375,32 +373,16 @@ public final class HomeActivity extends Activity {
 	}
 	
 	/**
-	 * Fetches favorite address list and shows a dialog to select the origin address
-	 */
-	private void fetchFavAddrListForOrigin() {
-		User currentUser = User.getCurrentUser(this);
-		new FavoriteAddressFetchTask(true).execute(currentUser.getId());
-	}
-	
-	/**
 	 * Fetches favorite address list and shows a dialog to select the destination address
 	 */
 	private void fetchFavAddrListForDest() {
 		User currentUser = User.getCurrentUser(this);
-		new FavoriteAddressFetchTask(false).execute(currentUser.getId());
+		//new FavoriteAddressFetchTask(false).execute(currentUser.getId());
 	}
 	
 	private void showFavAddrListForOrigin() {
-		if (favoriteAddresses == null) {
-			fetchFavAddrListForOrigin();
-		}
-		else {
-			showFavAddrListForOrigin(favoriteAddresses);
-		}
-	}
-	
-	private void showFavAddrListForOrigin(List<Address> listItems) {
-		FavoriteAddressListDialog dialog = new FavoriteAddressListDialog(HomeActivity.this, listItems);
+
+		FavoriteAddressListDialog dialog = new FavoriteAddressListDialog(HomeActivity.this);
 		dialog.setActionListener(new FavoriteAddressListDialog.ActionListener() {
 			
 			@Override
@@ -435,16 +417,7 @@ public final class HomeActivity extends Activity {
 	}
 	
 	private void showFavAddrListForDest() {
-		if (favoriteAddresses == null) {
-			fetchFavAddrListForDest();
-		}
-		else {
-			showFavAddrListForDest(favoriteAddresses);
-		}
-	}
-	
-	private void showFavAddrListForDest(List<Address> listItems) {
-		FavoriteAddressListDialog dialog = new FavoriteAddressListDialog(HomeActivity.this, listItems);
+		FavoriteAddressListDialog dialog = new FavoriteAddressListDialog(HomeActivity.this);
 		dialog.setActionListener(new FavoriteAddressListDialog.ActionListener() {
 			
 			@Override
@@ -566,64 +539,64 @@ public final class HomeActivity extends Activity {
 		destBox.setAddress(address);
 	}
 	
-	private class FavoriteAddressFetchTask extends AsyncTask<Integer, Object, List<Address>> {
-		
-		private ProgressDialog dialog;
-		
-		/**
-		 * If isForOrigin is true, {@code showFavAddrListForOrigin()} will be
-		 * called. Otherwise, {@code showFavAddrListForDest()} will be called.
-		 * However, this is a temporary solution and must be replace with more
-		 * robust solution in the near future.
-		 */
-		private boolean isForOrigin;
-		
-		public FavoriteAddressFetchTask(boolean isForOrigin) {
-			super();
-			this.isForOrigin = isForOrigin;
-		}
-		
-		@Override
-		protected void onPreExecute() {
-			dialog = new ProgressDialog(HomeActivity.this);
-			dialog.setMessage("Fetching favorite addresses...");
-			dialog.setIndeterminate(true);
-			dialog.setCancelable(false);
-			dialog.show();
-		}
-
-		@Override
-		protected List<Address> doInBackground(Integer... params) {
-
-			// FIXME: Potential array out of boundary exception
-			int uid = params[0];
-
-			FavoriteAddressFetchRequest request = new FavoriteAddressFetchRequest(uid);
-			try {
-				favoriteAddresses = request.execute();
-			}
-			catch (Exception e) {
-				ehs.registerException(e);
-			}
-
-			return favoriteAddresses;
-		}
-
-		@Override
-		protected void onPostExecute(List<Address> result) {
-			dialog.cancel();
-
-			if (ehs.hasExceptions()) {
-				ehs.reportExceptions();
-			}
-			else {
-				if (isForOrigin) {
-					showFavAddrListForOrigin(result);
-				}
-				else {
-					showFavAddrListForDest(result);
-				}
-			}
-		}
-	}
+//	private class FavoriteAddressFetchTask extends AsyncTask<Integer, Object, List<Address>> {
+//		
+//		private ProgressDialog dialog;
+//		
+//		/**
+//		 * If isForOrigin is true, {@code showFavAddrListForOrigin()} will be
+//		 * called. Otherwise, {@code showFavAddrListForDest()} will be called.
+//		 * However, this is a temporary solution and must be replace with more
+//		 * robust solution in the near future.
+//		 */
+//		private boolean isForOrigin;
+//		
+//		public FavoriteAddressFetchTask(boolean isForOrigin) {
+//			super();
+//			this.isForOrigin = isForOrigin;
+//		}
+//		
+//		@Override
+//		protected void onPreExecute() {
+//			dialog = new ProgressDialog(HomeActivity.this);
+//			dialog.setMessage("Fetching favorite addresses...");
+//			dialog.setIndeterminate(true);
+//			dialog.setCancelable(false);
+//			dialog.show();
+//		}
+//
+//		@Override
+//		protected List<Address> doInBackground(Integer... params) {
+//
+//			// FIXME: Potential array out of boundary exception
+//			int uid = params[0];
+//
+//			FavoriteAddressFetchRequest request = new FavoriteAddressFetchRequest(uid);
+//			try {
+//				favoriteAddresses = request.execute();
+//			}
+//			catch (Exception e) {
+//				ehs.registerException(e);
+//			}
+//
+//			return favoriteAddresses;
+//		}
+//
+//		@Override
+//		protected void onPostExecute(List<Address> result) {
+//			dialog.cancel();
+//
+//			if (ehs.hasExceptions()) {
+//				ehs.reportExceptions();
+//			}
+//			else {
+//				if (isForOrigin) {
+//					showFavAddrListForOrigin(result);
+//				}
+//				else {
+//					showFavAddrListForDest(result);
+//				}
+//			}
+//		}
+//	}
 }
