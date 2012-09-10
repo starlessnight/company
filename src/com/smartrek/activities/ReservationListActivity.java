@@ -17,7 +17,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -91,7 +90,7 @@ public final class ReservationListActivity extends ListActivity {
 	
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-	    AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+	    //AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 	    switch (item.getItemId()) {
 	        case R.id.delete:
 	            return true;
@@ -104,7 +103,7 @@ public final class ReservationListActivity extends ListActivity {
 	/**
 	 * Inner class for an asynchronous task.
 	 */
-	private class ReservationRetrivalTask extends AsyncTask<Object, Object, String> {
+	private class ReservationRetrivalTask extends AsyncTask<Object, Object, List<Reservation>> {
 		
 		private ProgressDialog dialog;
 
@@ -118,30 +117,39 @@ public final class ReservationListActivity extends ListActivity {
 		}
 		
 		@Override
-		protected String doInBackground(Object... params) {
+		protected List<Reservation> doInBackground(Object... params) {
 			int uid = (Integer) params[0];
 			
 			ReservationListFetchRequest request = new ReservationListFetchRequest(uid);
 			try {
-                reservations = request.execute();
+				reservations = new ArrayList<Reservation>();
+                for (Reservation resv : request.execute()) {
+                	if (!resv.isPast()) {
+                		reservations.add(resv);
+                	}
+                }
             }
             catch (Exception e) {
                 ehs.registerException(e);
             }
 			
-			return null;
+			return reservations;
 		}
 		
 		@Override
-		protected void onPostExecute(String result) {
+		protected void onPostExecute(List<Reservation> result) {
 			dialog.cancel();
 			
 		    if (ehs.hasExceptions()) {
 		        ehs.reportExceptions();
 		    }
 		    else {
-		        //listViewReservation.setAdapter(new ReservationItemAdapter(ReservationListActivity.this, R.layout.reservation_list_item, reservations));
-		    	setListAdapter(new ReservationItemAdapter(ReservationListActivity.this, R.layout.reservation_list_item, reservations));
+		    	if (reservations != null && reservations.size() > 0) {
+		    		setListAdapter(new ReservationItemAdapter(ReservationListActivity.this, R.layout.reservation_list_item, reservations));
+		    	}
+		    	else {
+		    		
+		    	}
 		    }
 	    }
 	}

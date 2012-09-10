@@ -134,7 +134,7 @@ public final class Reservation implements Parcelable {
 	
 	public boolean isPast() {
 		long currentTime = System.currentTimeMillis();
-		return getArrivalTime() < currentTime;
+		return getDepartureTime() < currentTime;
 	}
 	
 	/**
