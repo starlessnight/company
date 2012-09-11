@@ -255,7 +255,7 @@ public final class HomeActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu){
     	super.onCreateOptionsMenu(menu);
      	MenuInflater mi = getMenuInflater();
-     	mi.inflate(R.menu.home, menu);
+     	mi.inflate(R.menu.main, menu);
     	return true;
     }
 	
@@ -264,8 +264,12 @@ public final class HomeActivity extends Activity {
 		MainMenu.onMenuItemSelected(this, featureId, item);
 		
 		switch (item.getItemId()) {
-		case R.id.menu_trip_list:
-			onClickLoadTrip();
+//		case R.id.menu_trip_list:
+//			onClickLoadTrip();
+//			break;
+		
+		case R.id.crash:
+			((HomeActivity) null).getApplication();
 			break;
 		}
 		
