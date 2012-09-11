@@ -18,12 +18,17 @@ public final class EditAddress extends EditText {
 	}
 	
 	@Override
-	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		super.onKeyUp(keyCode, event);
-		address = null;
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		super.onKeyDown(keyCode, event);
+		// if address has been altered
+		if (address != null) {
+			if (!getText().toString().trim().equals(address.getAddress())) {
+				address = null;
+			}
+		}
 		return false;
 	}
-
+	
 	public void setAddressAsCurrentLocation() {
 		currentLocationInUse = true;
 		address = null;
@@ -38,7 +43,7 @@ public final class EditAddress extends EditText {
 		address = null;
 		
 		setText("");
-		setTextColor(Color.BLACK);
+		setTextColor(Color.WHITE);
 		setEnabled(true);
 	}
 	
@@ -47,7 +52,11 @@ public final class EditAddress extends EditText {
 	}
 	
 	public boolean hasAddress() {
-		return address != null;
+		return address != null && address.getId() != 0;
+	}
+	
+	public Address getAddress() {
+		return address;
 	}
 	
 	public void setAddress(Address address) {

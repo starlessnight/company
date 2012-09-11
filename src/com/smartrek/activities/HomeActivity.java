@@ -1,19 +1,19 @@
 package com.smartrek.activities;
 
-import java.util.List;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
 import android.view.View.OnLongClickListener;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
@@ -25,12 +25,12 @@ import android.widget.TextView;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.FavoriteAddressAddDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
+import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.dialogs.TripListDialog;
 import com.smartrek.dialogs.TripSaveDialog;
 import com.smartrek.models.Address;
 import com.smartrek.models.Trip;
 import com.smartrek.models.User;
-import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.tasks.GeocodingTask;
 import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
@@ -63,8 +63,8 @@ public final class HomeActivity extends Activity {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
-	private EditAddress originBox;
-	private EditAddress destBox;
+	private EditAddress editAddressOrigin;
+	private EditAddress editAddressDest;
 	private EditText dateBox;
 	
 	private TextView originText;
@@ -74,6 +74,7 @@ public final class HomeActivity extends Activity {
 	private Button buttonLoadTrip;
 	private Button buttonSaveTrip;
 	private Button buttonDone;
+	private ImageButton buttonSaveTripHelp;
 	private ImageButton buttonFavAddrOrigin;
 	private ImageButton destFavButton;
 	private ImageButton buttonOriginMyLocation;
@@ -90,8 +91,28 @@ public final class HomeActivity extends Activity {
 	    
 	    /***************Start EditText Fields********************/
 	    
-	    originBox = (EditAddress) findViewById(R.id.origin_box);
-	    destBox = (EditAddress) findViewById(R.id.destination_box);
+	    editAddressOrigin = (EditAddress) findViewById(R.id.origin_box);
+	    editAddressOrigin.setOnKeyListener(new OnKeyListener() {
+
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				updateSaveTripButtonState();
+				return false;
+			}
+	    	
+	    });
+	    
+	    editAddressDest = (EditAddress) findViewById(R.id.destination_box);
+	    editAddressDest.setOnKeyListener(new OnKeyListener() {
+
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				updateSaveTripButtonState();
+				return false;
+			}
+	    	
+	    });
+	    
 	    //dateBox = (EditText) findViewById(R.id.date_box);
 	
 		current = new Time();
@@ -121,11 +142,23 @@ public final class HomeActivity extends Activity {
 	    /***************Start Buttons********************/
 	    
 	    // Instantiate Buttons from file main.xml
+	    buttonSaveTripHelp = (ImageButton) findViewById(R.id.button_save_trip_help);
 	    buttonFavAddrOrigin = (ImageButton) findViewById(R.id.Favs1);
 	    destFavButton = (ImageButton) findViewById(R.id.Favs2);
 	    buttonLoadTrip = (Button) findViewById(R.id.button_load_trip);
 	    buttonSaveTrip = (Button) findViewById(R.id.button_save_trip);
 	    buttonDone = (Button) findViewById(R.id.Done);
+	    
+	    buttonSaveTripHelp.setOnClickListener(new OnClickListener() {
+	    	
+			@Override
+			public void onClick(View v) {
+				Context context = HomeActivity.this;
+				NotificationDialog dialog = new NotificationDialog(context, context.getResources().getString(R.string.save_trip_help_message));
+				dialog.show();
+			}
+			
+		});
 	    
 		// Set Button OnClickListerners to be declared by this class
 	    buttonFavAddrOrigin.setOnClickListener(new OnClickListener() {
@@ -174,10 +207,10 @@ public final class HomeActivity extends Activity {
 			@Override
 			public boolean onLongClick(View v) {
 				debugMode = true;
-				if (originBox.getText().toString().equals(""))
-					originBox.setText("origin");
-				if (destBox.getText().toString().equals(""))
-					destBox.setText("destination");
+				if (editAddressOrigin.getText().toString().equals(""))
+					editAddressOrigin.setText("origin");
+				if (editAddressDest.getText().toString().equals(""))
+					editAddressDest.setText("destination");
 				prepareMapActivity();
 				return true;
 			}
@@ -192,7 +225,7 @@ public final class HomeActivity extends Activity {
 	    buttonOriginMyLocation.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				originBox.setAddressAsCurrentLocation();
+				editAddressOrigin.setAddressAsCurrentLocation();
 			}
 	    });
 	    
@@ -294,7 +327,7 @@ public final class HomeActivity extends Activity {
 			    ehs.reportExceptions();
 			}
 			else {
-				new GeocodingTask(ehs, destGeocodingTaskCallback).execute(getDestinationAddress());
+				new GeocodingTask(ehs, destGeocodingTaskCallback).execute(getDestinationAddress().getAddress());
 			}
 		}
 		
@@ -332,16 +365,26 @@ public final class HomeActivity extends Activity {
 	 * 
 	 * @return Origin address that user has entered
 	 */
-	private String getOriginAddress() {
-		return originBox.getText().toString().trim();
+	private Address getOriginAddress() {
+		if (editAddressOrigin.hasAddress()) {
+			return editAddressOrigin.getAddress();
+		}
+		else {
+			return new Address(0, User.getCurrentUser(this).getId(), "", editAddressOrigin.getText().toString().trim());
+		}
 	}
 	
 	/**
 	 * 
 	 * @return Destination address that user has entered
 	 */
-	private String getDestinationAddress() {
-		return destBox.getText().toString().trim();
+	private Address getDestinationAddress() {
+		if (editAddressDest.hasAddress()) {
+			return editAddressDest.getAddress();
+		}
+		else {
+			return new Address(0, User.getCurrentUser(this).getId(), "", editAddressDest.getText().toString().trim());
+		}
 	}
 	
     private void onClickSaveTrip() {
@@ -349,11 +392,7 @@ public final class HomeActivity extends Activity {
         dialog.setActionListener(new TripSaveDialog.ActionListener() {
             
             @Override
-            public void onClickPositiveButton(String name, String origin,
-                    String destination) {
-//                User currentUser = User.getCurrentUser(ReservationConfirmationActivity.this);
-//                new TripSaveTask(currentUser.getId(), name, origin, destination).execute();
-                
+            public void onClickPositiveButton(String name, Address origin, Address destination) {
             }
             
             @Override
@@ -370,14 +409,6 @@ public final class HomeActivity extends Activity {
 	
 	private void onClickButtonFavAddrDest(View view) {
 		showFavAddrListForDest();
-	}
-	
-	/**
-	 * Fetches favorite address list and shows a dialog to select the destination address
-	 */
-	private void fetchFavAddrListForDest() {
-		User currentUser = User.getCurrentUser(this);
-		//new FavoriteAddressFetchTask(false).execute(currentUser.getId());
 	}
 	
 	private void showFavAddrListForOrigin() {
@@ -397,7 +428,7 @@ public final class HomeActivity extends Activity {
 					
 					@Override
 					public void onClickPositiveButton() {
-						updateAddress(originBox, getOriginAddress());
+						updateAddress(editAddressOrigin, getOriginAddress());
 					}
 					
 					@Override
@@ -410,6 +441,7 @@ public final class HomeActivity extends Activity {
 			@Override
 			public void onClickListItem(Address item, int position) {
 				setOriginAddress(item);
+				updateSaveTripButtonState();
 			}
 
 		});
@@ -432,7 +464,7 @@ public final class HomeActivity extends Activity {
 					
 					@Override
 					public void onClickPositiveButton() {
-						updateAddress(destBox, getOriginAddress());
+						updateAddress(editAddressDest, getOriginAddress());
 					}
 					
 					@Override
@@ -445,17 +477,25 @@ public final class HomeActivity extends Activity {
 			@Override
 			public void onClickListItem(Address item, int position) {
 				setDestinationAddress(item);
+				updateSaveTripButtonState();
 			}
 		});
 		dialog.show();
 	}
 	
-	private void updateAddress(EditAddress editAddress, String address) {
-		editAddress.setAddress(new Address(0, 0, "", address));
+	private void updateAddress(EditAddress editAddress, Address address) {
+		editAddress.setAddress(address);
+	}
+	
+	private void updateSaveTripButtonState() {
+		boolean isReadyToSave = editAddressOrigin.hasAddress() && editAddressDest.hasAddress();
+		
+		buttonSaveTrip.setEnabled(isReadyToSave);
+		buttonSaveTripHelp.setVisibility(isReadyToSave ? View.INVISIBLE : View.VISIBLE);
 	}
 	
 	private void prepareMapActivity() {
-		if (originBox.isCurrentLocationInUse()) {
+		if (editAddressOrigin.isCurrentLocationInUse()) {
 			final CancelableProgressDialog dialog = new CancelableProgressDialog(this, "Acquiring current location...");
 	        dialog.show();
 			
@@ -467,7 +507,7 @@ public final class HomeActivity extends Activity {
 					originCoord = new GeoPoint((int)(location.getLatitude() * 1E6), (int)(location.getLongitude() * 1E6));
 					dialog.cancel();
 					
-					String dest = getDestinationAddress();
+					String dest = getDestinationAddress().getAddress();
 					if (dest.equals("")) {
 						ehs.reportException("Destination address cannot be empty.");
 					}
@@ -478,8 +518,8 @@ public final class HomeActivity extends Activity {
 			});
 		}
 		else {
-			String origin = getOriginAddress();
-			String destination = getDestinationAddress();
+			String origin = getOriginAddress().getAddress();
+			String destination = getDestinationAddress().getAddress();
 			
 			if (origin.equals("")) {
 				ehs.reportException("Origin address cannot be empty.");
@@ -507,8 +547,8 @@ public final class HomeActivity extends Activity {
 		Intent intent = new Intent(this, RouteActivity.class);
 		
 		Bundle extras = new Bundle();
-		extras.putString("originAddr", originBox.getText().toString());
-		extras.putString("destAddr", destBox.getText().toString());
+		extras.putString("originAddr", editAddressOrigin.getText().toString());
+		extras.putString("destAddr", editAddressDest.getText().toString());
 		// TODO: Any better way to handle this?
 		extras.putInt("originLat", originCoord.getLatitudeE6());
 		extras.putInt("originLng", originCoord.getLongitudeE6());
@@ -520,23 +560,23 @@ public final class HomeActivity extends Activity {
 	}
 	
 	private void setOriginAddress(String address) {
-		originBox.unsetAddress();
-		originBox.setText(address);
+		editAddressOrigin.unsetAddress();
+		editAddressOrigin.setText(address);
 	}
 	
 	private void setOriginAddress(Address address) {
-		originBox.unsetAddress();
-		originBox.setAddress(address);
+		editAddressOrigin.unsetAddress();
+		editAddressOrigin.setAddress(address);
 	}
 	
 	private void setDestinationAddress(String address) {
-		destBox.unsetAddress();
-		destBox.setText(address);
+		editAddressDest.unsetAddress();
+		editAddressDest.setText(address);
 	}
 	
 	private void setDestinationAddress(Address address) {
-		destBox.unsetAddress();
-		destBox.setAddress(address);
+		editAddressDest.unsetAddress();
+		editAddressDest.setAddress(address);
 	}
 	
 //	private class FavoriteAddressFetchTask extends AsyncTask<Integer, Object, List<Address>> {

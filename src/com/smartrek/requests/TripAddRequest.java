@@ -9,19 +9,19 @@ public final class TripAddRequest extends AddRequest {
 
 	private int uid;
 	private String name;
-	private String origin;
-	private String destination;
+	private int oid;
+	private int did;
 	
-	public TripAddRequest(int uid, String name, String origin, String destination) {
+	public TripAddRequest(int uid, String name, int oid, int did) {
 		this.uid = uid;
 		this.name = name;
-		this.origin = origin;
-		this.destination = destination;
+		this.oid = oid;
+		this.did = did;
 	}
 	
 	public void execute() throws IOException, JSONException {
-		String url = String.format("%s/favroutes-add/?uid=%d&name=%s&origin_address=%s&destination_address=%s",
-				HOST, uid, URLEncoder.encode(name), URLEncoder.encode(origin), URLEncoder.encode(destination));
+		String url = String.format("%s/favroutes-add/?uid=%d&name=%s&oid=%d&did=%d",
+				HOST, uid, URLEncoder.encode(name), oid, did);
 		executeAddRequest(url);
 	}
 }

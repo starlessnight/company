@@ -94,19 +94,19 @@ public final class ReservationConfirmationActivity extends Activity {
 	}
 	
     private void onClickSaveTrip() {
-    	TripSaveDialog dialog = new TripSaveDialog(this, route.getOrigin(), route.getDestination());
-    	dialog.setActionListener(new TripSaveDialog.ActionListener() {
-			
-			@Override
-			public void onClickPositiveButton(String name, String origin, String destination) {
-			}
-			
-			@Override
-			public void onClickNegativeButton() {
-			}
-			
-		});
-    	dialog.show();
+//    	TripSaveDialog dialog = new TripSaveDialog(this, route.getOrigin(), route.getDestination());
+//    	dialog.setActionListener(new TripSaveDialog.ActionListener() {
+//			
+//			@Override
+//			public void onClickPositiveButton(String name, String origin, String destination) {
+//			}
+//			
+//			@Override
+//			public void onClickNegativeButton() {
+//			}
+//			
+//		});
+//    	dialog.show();
     }
 	
 	private void scheduleEvent(Route route) {

@@ -77,7 +77,7 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 	    
 	    switch (menuItem.getItemId()) {
 	        case R.id.delete:
-	        	new FavoriteAddressDeleteTask(info.position).execute(listItem.getUid(), listItem.getAid());
+	        	new FavoriteAddressDeleteTask(info.position).execute(listItem.getUid(), listItem.getId());
 	            return true;
 	            
 	        default:
