@@ -32,11 +32,11 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 
 	public FavoriteAddressListDialog(Context context) {
 		super(context, null);
-		setTitle("Favorite addresses");
 	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		setTitle("Favorite addresses");
 		setButton(DialogInterface.BUTTON_NEUTRAL, "Add", new OnClickListener() {
 			
 			@Override
@@ -58,6 +58,8 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 	
 	@Override
 	public void onStart() {
+		super.onStart();
+		
 		User currentUser = User.getCurrentUser(getContext());
 		new FavoriteAddressListFetchTask().execute(currentUser.getId());
 	}
@@ -147,13 +149,12 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 		
 		@Override
 		protected void onPostExecute(List<Address> result) {
-			listItems = result;
 			if (ehs.hasExceptions()) {
 				ehs.reportExceptions();
 			}
 			else {
+				setListItems(result);
 				if (result != null && result.size() > 0) {
-					setListVisibility(true);
 					setAdapter(new FavoriteAddressListAdapter(getContext(), result));
 					initGenericList();
 				}

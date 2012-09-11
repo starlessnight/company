@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.json.JSONException;
 
-public class FavoriteAddressDeleteRequest extends DeleteRequest {
+public final class FavoriteAddressDeleteRequest extends DeleteRequest {
 	
 	/**
 	 * User ID

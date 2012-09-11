@@ -85,6 +85,7 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 	 * This gets called when {@code listItems} has at least one item
 	 */
 	protected void initGenericList() {
+		setListVisibility(true);
 		listViewGeneric.setAdapter(adapter);
 		listViewGeneric.setOnItemClickListener(new OnItemClickListener() {
 
@@ -125,5 +126,13 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 			listViewGeneric.setVisibility(View.INVISIBLE);
 			textViewGeneric.setVisibility(View.VISIBLE);
 		}
+	}
+	
+	protected List<ItemType> getListItmes() {
+		return listItems;
+	}
+	
+	protected void setListItems(List<ItemType> listItems) {
+		this.listItems = listItems;
 	}
 }

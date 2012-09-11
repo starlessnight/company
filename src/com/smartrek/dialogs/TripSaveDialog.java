@@ -14,6 +14,7 @@ import com.smartrek.activities.R;
 import com.smartrek.models.Address;
 import com.smartrek.models.User;
 import com.smartrek.requests.TripAddRequest;
+import com.smartrek.requests.TripListFetchRequest;
 import com.smartrek.utils.ExceptionHandlingService;
 
 public final class TripSaveDialog extends AlertDialog {
@@ -159,6 +160,8 @@ public final class TripSaveDialog extends AlertDialog {
 			TripAddRequest request = new TripAddRequest(uid, name, origin.getId(), destination.getId());
 			try {
 				request.execute();
+				
+				new TripListFetchRequest(uid).invalidateCache();
 			}
 			catch (Exception e) {
 				ehs.registerException(e);

@@ -1,22 +1,29 @@
 package com.smartrek.requests;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.smartrek.models.Trip;
 
-public final class TripListFetchRequest extends FetchRequest<Trip> {
+public final class TripListFetchRequest extends FetchRequest<List<Trip>> {
 	
-	public List<Trip> execute(int uid) throws IOException, JSONException {
-		String url = String.format("%s/favroutes-list/?userid=%d", HOST, uid);
-		
-		String response = executeHttpGetRequest(url);
-		
+	/**
+	 * User ID
+	 */
+	private int uid;
+	
+	public TripListFetchRequest(int uid) {
+		super(String.format("%s/favroutes-list/?userid=%d", HOST, uid));
+		this.uid = uid;
+	}
+	
+	@Override
+	public List<Trip> execute() throws Exception {
+		String response = executeFetchRequest(getURL());
+
 		JSONArray array = new JSONArray(response);
 		List<Trip> trips = new ArrayList<Trip>();
 		for (int i = 0; i < array.length(); i++) {
@@ -30,11 +37,5 @@ public final class TripListFetchRequest extends FetchRequest<Trip> {
 		}
 		
 		return trips;
-	}
-
-	@Override
-	public Trip execute() throws Exception {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }
