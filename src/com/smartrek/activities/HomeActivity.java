@@ -2,21 +2,19 @@ package com.smartrek.activities;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.format.Time;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnLongClickListener;
-import android.view.View.OnTouchListener;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
@@ -27,6 +25,7 @@ import android.widget.TextView;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.FavoriteAddressAddDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
+import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.dialogs.TripListDialog;
 import com.smartrek.dialogs.TripSaveDialog;
 import com.smartrek.models.Address;
@@ -74,6 +73,7 @@ public final class HomeActivity extends Activity {
 	private Button buttonLoadTrip;
 	private Button buttonSaveTrip;
 	private Button buttonDone;
+	private ImageButton buttonSaveTripHelp;
 	private ImageButton buttonFavAddrOrigin;
 	private ImageButton destFavButton;
 	private ImageButton buttonOriginMyLocation;
@@ -141,11 +141,23 @@ public final class HomeActivity extends Activity {
 	    /***************Start Buttons********************/
 	    
 	    // Instantiate Buttons from file main.xml
+	    buttonSaveTripHelp = (ImageButton) findViewById(R.id.button_save_trip_help);
 	    buttonFavAddrOrigin = (ImageButton) findViewById(R.id.Favs1);
 	    destFavButton = (ImageButton) findViewById(R.id.Favs2);
 	    buttonLoadTrip = (Button) findViewById(R.id.button_load_trip);
 	    buttonSaveTrip = (Button) findViewById(R.id.button_save_trip);
 	    buttonDone = (Button) findViewById(R.id.Done);
+	    
+	    buttonSaveTripHelp.setOnClickListener(new OnClickListener() {
+	    	
+			@Override
+			public void onClick(View v) {
+				Context context = HomeActivity.this;
+				NotificationDialog dialog = new NotificationDialog(context, context.getResources().getString(R.string.save_trip_help_message));
+				dialog.show();
+			}
+			
+		});
 	    
 		// Set Button OnClickListerners to be declared by this class
 	    buttonFavAddrOrigin.setOnClickListener(new OnClickListener() {
@@ -469,7 +481,10 @@ public final class HomeActivity extends Activity {
 	}
 	
 	private void updateSaveTripButtonState() {
-		buttonSaveTrip.setEnabled(editAddressOrigin.hasAddress() && editAddressDest.hasAddress());
+		boolean isReadyToSave = editAddressOrigin.hasAddress() && editAddressDest.hasAddress();
+		
+		buttonSaveTrip.setEnabled(isReadyToSave);
+		buttonSaveTripHelp.setVisibility(isReadyToSave ? View.INVISIBLE : View.VISIBLE);
 	}
 	
 	private void prepareMapActivity() {
