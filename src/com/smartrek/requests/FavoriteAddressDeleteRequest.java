@@ -2,7 +2,9 @@ package com.smartrek.requests;
 
 import java.io.IOException;
 
-public class FavoriteAddressDeleteRequest extends Request {
+import org.json.JSONException;
+
+public class FavoriteAddressDeleteRequest extends DeleteRequest {
 	
 	/**
 	 * User ID
@@ -19,10 +21,10 @@ public class FavoriteAddressDeleteRequest extends Request {
 		this.aid = aid;
 	}
 	
-	public void execute() throws IOException {
+	public void execute() throws IOException, JSONException {
 		String url = String.format("%s/deletefavadd/%d%%20%d", HOST, aid, uid);
 		
-		executeHttpGetRequest(url);
+		executeDeleteRequest(url);
 	}
 
 }
