@@ -91,13 +91,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Reserve" />
-        
+
         <Button
             android:id="@+id/button_save_trip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Save Trip" />
-
+            android:text="Save Trip"
+            android:visibility="invisible" />
     </LinearLayout>
 
 </LinearLayout>

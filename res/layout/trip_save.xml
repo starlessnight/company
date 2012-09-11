@@ -19,6 +19,7 @@
         android:id="@+id/edit_text_origin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:editable="false"
         android:ems="10"
         android:hint="Origin address"
         android:singleLine="true" />
@@ -27,6 +28,7 @@
         android:id="@+id/edit_text_destination"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:editable="false"
         android:ems="10"
         android:hint="Destination address"
         android:singleLine="true" />

@@ -30,6 +30,7 @@ import com.smartrek.dialogs.TripListDialog;
 import com.smartrek.dialogs.TripSaveDialog;
 import com.smartrek.models.Address;
 import com.smartrek.models.Trip;
+import com.smartrek.models.User;
 import com.smartrek.tasks.GeocodingTask;
 import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
@@ -326,7 +327,7 @@ public final class HomeActivity extends Activity {
 			    ehs.reportExceptions();
 			}
 			else {
-				new GeocodingTask(ehs, destGeocodingTaskCallback).execute(getDestinationAddress());
+				new GeocodingTask(ehs, destGeocodingTaskCallback).execute(getDestinationAddress().getAddress());
 			}
 		}
 		
@@ -364,16 +365,26 @@ public final class HomeActivity extends Activity {
 	 * 
 	 * @return Origin address that user has entered
 	 */
-	private String getOriginAddress() {
-		return editAddressOrigin.getText().toString().trim();
+	private Address getOriginAddress() {
+		if (editAddressOrigin.hasAddress()) {
+			return editAddressOrigin.getAddress();
+		}
+		else {
+			return new Address(0, User.getCurrentUser(this).getId(), "", editAddressOrigin.getText().toString().trim());
+		}
 	}
 	
 	/**
 	 * 
 	 * @return Destination address that user has entered
 	 */
-	private String getDestinationAddress() {
-		return editAddressDest.getText().toString().trim();
+	private Address getDestinationAddress() {
+		if (editAddressDest.hasAddress()) {
+			return editAddressDest.getAddress();
+		}
+		else {
+			return new Address(0, User.getCurrentUser(this).getId(), "", editAddressDest.getText().toString().trim());
+		}
 	}
 	
     private void onClickSaveTrip() {
@@ -381,11 +392,7 @@ public final class HomeActivity extends Activity {
         dialog.setActionListener(new TripSaveDialog.ActionListener() {
             
             @Override
-            public void onClickPositiveButton(String name, String origin,
-                    String destination) {
-//                User currentUser = User.getCurrentUser(ReservationConfirmationActivity.this);
-//                new TripSaveTask(currentUser.getId(), name, origin, destination).execute();
-                
+            public void onClickPositiveButton(String name, Address origin, Address destination) {
             }
             
             @Override
@@ -476,8 +483,8 @@ public final class HomeActivity extends Activity {
 		dialog.show();
 	}
 	
-	private void updateAddress(EditAddress editAddress, String address) {
-		editAddress.setAddress(new Address(0, 0, "", address));
+	private void updateAddress(EditAddress editAddress, Address address) {
+		editAddress.setAddress(address);
 	}
 	
 	private void updateSaveTripButtonState() {
@@ -500,7 +507,7 @@ public final class HomeActivity extends Activity {
 					originCoord = new GeoPoint((int)(location.getLatitude() * 1E6), (int)(location.getLongitude() * 1E6));
 					dialog.cancel();
 					
-					String dest = getDestinationAddress();
+					String dest = getDestinationAddress().getAddress();
 					if (dest.equals("")) {
 						ehs.reportException("Destination address cannot be empty.");
 					}
@@ -511,8 +518,8 @@ public final class HomeActivity extends Activity {
 			});
 		}
 		else {
-			String origin = getOriginAddress();
-			String destination = getDestinationAddress();
+			String origin = getOriginAddress().getAddress();
+			String destination = getDestinationAddress().getAddress();
 			
 			if (origin.equals("")) {
 				ehs.reportException("Origin address cannot be empty.");

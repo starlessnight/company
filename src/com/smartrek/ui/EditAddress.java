@@ -47,7 +47,11 @@ public final class EditAddress extends EditText {
 	}
 	
 	public boolean hasAddress() {
-		return address != null && address.getAid() != 0;
+		return address != null && address.getId() != 0;
+	}
+	
+	public Address getAddress() {
+		return address;
 	}
 	
 	public void setAddress(Address address) {
