@@ -42,8 +42,6 @@ public final class ReservationListActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.reservation_list);
         
-        setTitle("Reservations");
-        
         getListView().setBackgroundDrawable(getResources().getDrawable(R.drawable.background_gradient));
         
         //registerForContextMenu(getListView());

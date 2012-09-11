@@ -24,7 +24,9 @@ public final class ContactsActivity extends ListActivity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-        
+		
+		getListView().setBackgroundDrawable(getResources().getDrawable(R.drawable.background_gradient));
+		
         User user = User.getCurrentUser(this);
         ContactsFetchTask task = new ContactsFetchTask(this);
         task.setCallback(new AsyncTaskCallback<List<User>> () {
