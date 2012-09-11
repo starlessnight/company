@@ -57,4 +57,8 @@ public abstract class FetchRequest<ReturnType> extends Request {
 	public boolean isCached() {
 		return Cache.getInstance().isCacheAvailable(url);
 	}
+	
+	public void invalidateCache() {
+		Cache.getInstance().invalidate(url);
+	}
 }

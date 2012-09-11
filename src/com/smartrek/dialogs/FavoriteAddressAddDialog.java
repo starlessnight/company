@@ -18,6 +18,7 @@ import com.smartrek.activities.R;
 import com.smartrek.models.Address;
 import com.smartrek.models.User;
 import com.smartrek.requests.FavoriteAddressAddRequest;
+import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.utils.ExceptionHandlingService;
 
 /**
@@ -136,6 +137,9 @@ public class FavoriteAddressAddDialog extends AlertDialog {
 			FavoriteAddressAddRequest request = new FavoriteAddressAddRequest();
 			try {
 				request.execute(uid, name, address);
+				
+				// clear cache
+				new FavoriteAddressFetchRequest(uid).invalidateCache();
 			}
 			catch (IOException e) {
 				ehs.registerException(e);

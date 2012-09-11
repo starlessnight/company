@@ -101,6 +101,9 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 			FavoriteAddressDeleteRequest request = new FavoriteAddressDeleteRequest(uid, aid);
 			try {
 				request.execute();
+				
+				// clear cache
+				new FavoriteAddressFetchRequest(uid).invalidateCache();
 			}
 			catch (Exception e) {
 				ehs.registerException(e);
