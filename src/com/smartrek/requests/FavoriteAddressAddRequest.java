@@ -5,25 +5,21 @@ import java.net.URLEncoder;
 
 public class FavoriteAddressAddRequest extends Request {
 	
-	public FavoriteAddressAddRequest() {
-	}
+	private int uid;
+	private String name;
+	private String address;
 	
 	public FavoriteAddressAddRequest(int uid, String name, String address) {
-		// TODO: Implement this		
+		this.uid = uid;
+		this.name = name;
+		this.address = address;
 	}
 	
-	/**
-	 * @deprecated
-	 */
-	public void execute(int uid, String name, String address) throws IOException {
+	public void execute() throws IOException {
 		String url = String.format("%s/addfavadd/?UID=%d&NAME=%s&ADDRESS=%s",
 				HOST, uid, URLEncoder.encode(name), URLEncoder.encode(address));
 		
 		executeHttpGetRequest(url);
-	}
-	
-	public void execute() {
-		// TODO: Implement this
 	}
 	
 }

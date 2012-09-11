@@ -134,9 +134,9 @@ public class FavoriteAddressAddDialog extends AlertDialog {
 			String name = (String) params[1];
 			String address = (String) params[2];
 			
-			FavoriteAddressAddRequest request = new FavoriteAddressAddRequest();
+			FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(uid, name, address);
 			try {
-				request.execute(uid, name, address);
+				request.execute();
 				
 				// clear cache
 				new FavoriteAddressFetchRequest(uid).invalidateCache();
