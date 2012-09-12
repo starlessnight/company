@@ -26,15 +26,7 @@ import com.smartrek.utils.ExceptionHandlingService;
 
 public class TripListDialog extends GenericListDialog<Trip> {
 	
-	/**
-	 * Dialog action listener
-	 *
-	 */
-	public interface ActionListener {
-		void onClickAddTripButton();
-		void onClickNegativeButton();
-		void onClickListItem(Trip trip, int position);
-	}
+	public interface ActionListener extends GenericListDialog.ActionListener<Trip> {}
 	
 	private ExceptionHandlingService ehs = new ExceptionHandlingService(getContext());
 	
@@ -42,15 +34,15 @@ public class TripListDialog extends GenericListDialog<Trip> {
 
 		@Override
 		public void onClick(DialogInterface dialog, int which) {
-			if (listener != null) {
-				listener.onClickNegativeButton();
+			if (actionListener != null) {
+				actionListener.onClickNegativeButton();
 			}
 		}
 		
 	};
 	
-	private ActionListener listener;
-	private ViewGroup dialogView;
+//	private ActionListener listener;
+//	private ViewGroup dialogView;
 //	private ListView listViewTrip;
 //	private TextView textViewEmpty;
 	
@@ -109,9 +101,9 @@ public class TripListDialog extends GenericListDialog<Trip> {
 	    }
 	}
 	
-	public void setActionListener(ActionListener listener) {
-		this.listener = listener;
-	}
+//	public void setActionListener(ActionListener listener) {
+//		this.listener = listener;
+//	}
 	
 	private void prepareTripList() {
 //		listViewTrip = (ListView) dialogView.findViewById(R.id.list_view_trip);

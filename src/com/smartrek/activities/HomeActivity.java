@@ -282,8 +282,11 @@ public final class HomeActivity extends Activity {
 			tripListDialog.setActionListener(new TripListDialog.ActionListener() {
 				
 				@Override
+				public void onClickNeutralButton() {
+				}
+				
+				@Override
 				public void onClickNegativeButton() {
-					
 				}
 				
 				@Override
@@ -291,11 +294,7 @@ public final class HomeActivity extends Activity {
 					setOriginAddress(trip.getOrigin());
 					setDestinationAddress(trip.getDestination());
 				}
-	
-				@Override
-				public void onClickAddTripButton() {
-					
-				}
+
 			});
 		}
 		tripListDialog.show();
