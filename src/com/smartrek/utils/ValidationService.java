@@ -10,18 +10,18 @@ import android.util.Log;
  */
 public final class ValidationService {
 
+	/**
+	 * @deprecated
+	 */
     public static RouteNode getNearestNode(List<RouteNode> nodes, double lat, double lng) {
         RouteNode nearestNode = NaiveNNS.findClosestNode(nodes, lat, lng);
         
         return nearestNode;
     }
     
-    /**
-     * @param node
-     * @param lat
-     * @param lng
-     * @return
-     */
+	/**
+	 * @deprecated This will be replaced by Route.getNearestLink(lat, lng)
+	 */
     public static RouteLink getNearestLink(RouteNode node, double lat, double lng) {
     	RouteNode prevNode = node.getPrevNode();
     	RouteNode nextNode = node.getNextNode();

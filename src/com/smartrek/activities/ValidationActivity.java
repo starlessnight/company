@@ -232,7 +232,8 @@ public class ValidationActivity extends Activity {
         
         pointOverlay.setLocation((float)lat, (float)lng);
         
-        nearestNode = ValidationService.getNearestNode(route.getNodes(), lat, lng);
+        //nearestNode = ValidationService.getNearestNode(route.getNodes(), lat, lng);
+        nearestNode = route.getNearestNode(lat, lng);
         nearestLink = ValidationService.getNearestLink(nearestNode, lat, lng);
         
     	List<RouteNode> routeNodes = route.getNodes();
