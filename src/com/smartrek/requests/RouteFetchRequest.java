@@ -83,7 +83,8 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
             	node.setMessage(ro.getString("MESSAGE"));
             }
             if (ro.has("DISTANCE")) {
-            	node.setDistance(ro.getDouble("DISTANCE"));
+            	// conversion from mile to meter
+            	node.setDistance(ro.getDouble("DISTANCE") * 1609.34);
             }
             if (ro.has("ROADNAME")) {
             	node.setRoadName(ro.getString("ROADNAME"));

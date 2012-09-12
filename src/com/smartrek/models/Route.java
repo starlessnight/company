@@ -254,6 +254,21 @@ public final class Route implements Parcelable {
 		this.credits = credits;
 	}
 	
+	/**
+	 * Calculates the total length of the route.
+	 * NOTE: This haven't tested
+	 * 
+	 * @return Length of the route in meters.
+	 */
+	public double getLength() {
+		double length = 0.0;
+		for (RouteNode node : routeNodes) {
+			length += node.getDistance();
+		}
+		
+		return length;
+	}
+	
 	///////////////////////////////////////////////////////////////////////////
 	
 	public boolean isNearOrigin(double lat, double lng) {
