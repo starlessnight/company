@@ -1,13 +1,11 @@
 package com.smartrek.activities;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
@@ -28,6 +26,7 @@ import android.os.Handler;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.TextView;
 
 import com.smartrek.models.Route;
@@ -48,7 +47,8 @@ public class ValidationActivity extends Activity {
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 
     private MapView mapView;
-    private TextView textViewNavigation;
+    private TextView textViewMessage;
+    private TextView textViewRoadname;
     
     private Route route;
     private List<Overlay> mapOverlays;
@@ -91,7 +91,10 @@ public class ValidationActivity extends Activity {
         mapView = (MapView) findViewById(R.id.mapview);
         mapView.setBuiltInZoomControls(false);
         
-        textViewNavigation = (TextView) findViewById(R.id.text_view_navigation);
+        textViewMessage = (TextView) findViewById(R.id.text_view_message);
+        textViewRoadname = (TextView) findViewById(R.id.text_view_roadname);
+        
+        ((View)textViewMessage.getParent()).getBackground().setAlpha(220);
 
         MapController mc = mapView.getController();
         mc.setZoom(14);
@@ -216,8 +219,9 @@ public class ValidationActivity extends Activity {
     private void showNavigationInformation(final RouteNode node) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				String message = String.format("%s on %s", node.getMessage(), node.getRoadName());
-				textViewNavigation.setText(message);
+				//String message = String.format("%s on %s", node.getMessage(), node.getRoadName());
+				textViewMessage.setText(node.getMessage());
+				textViewRoadname.setText(node.getRoadName());
 			}
 		});
     }
