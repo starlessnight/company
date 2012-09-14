@@ -131,7 +131,7 @@ public class ValidationActivity extends Activity {
         locationListener = new ValidationLocationListener();
 
         // Register the listener with the Location Manager to receive location updates
-        boolean useRealData = true;
+        boolean useRealData = false;
         if (useRealData) {
         	// TODO: Turn on GSP early
         	locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
@@ -252,6 +252,8 @@ public class ValidationActivity extends Activity {
     	
         double lat = location.getLatitude();
         double lng = location.getLongitude();
+        
+        mapView.getController().animateTo(lat, lng);
         
         pointOverlay.setLocation((float)lat, (float)lng);
         
