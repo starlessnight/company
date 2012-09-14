@@ -27,6 +27,8 @@ import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.smartrek.models.Route;
@@ -91,6 +93,23 @@ public class ValidationActivity extends Activity {
         mapView = (MapView) findViewById(R.id.mapview);
         mapView.setBuiltInZoomControls(false);
         
+        /* Create a ImageView with a zoomIn-Icon. */
+        final ImageView imageViewZoomIn = (ImageView) findViewById(R.id.image_view_zoom_in);
+        imageViewZoomIn.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(final View v) {
+                        mapView.getController().zoomIn();
+                }
+        });
+        
+        final ImageView imageViewZoomOut = (ImageView) findViewById(R.id.image_view_zoom_out);
+        imageViewZoomOut.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(final View v) {
+                        mapView.getController().zoomOut();
+                }
+        });
+        
         textViewMessage = (TextView) findViewById(R.id.text_view_message);
         textViewRoadname = (TextView) findViewById(R.id.text_view_roadname);
         
@@ -112,7 +131,7 @@ public class ValidationActivity extends Activity {
         locationListener = new ValidationLocationListener();
 
         // Register the listener with the Location Manager to receive location updates
-        boolean useRealData = false;
+        boolean useRealData = true;
         if (useRealData) {
         	// TODO: Turn on GSP early
         	locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
