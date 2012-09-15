@@ -85,4 +85,8 @@ public class ExceptionHandlingService {
             reportException(e);
         }
     }
+    
+    public Exception popException() {
+    	return exceptions.pop();
+    }
 }

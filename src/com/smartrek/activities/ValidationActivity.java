@@ -462,8 +462,9 @@ public class ValidationActivity extends Activity {
     	
 		@Override
 		protected void onPostExecute(Object result) {
-		    if (ehs.hasExceptions()) {
-		        ehs.reportExceptions();
+			// Silently report exceptions
+		    while (ehs.hasExceptions()) {
+		    	System.err.print(ehs.popException());
 		    }
 		}
     }
