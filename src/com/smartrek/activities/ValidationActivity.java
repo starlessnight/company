@@ -23,6 +23,8 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -131,7 +133,7 @@ public class ValidationActivity extends Activity {
         locationListener = new ValidationLocationListener();
 
         // Register the listener with the Location Manager to receive location updates
-        boolean useRealData = false;
+        boolean useRealData = true;
         if (useRealData) {
         	// TODO: Turn on GSP early
         	locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
