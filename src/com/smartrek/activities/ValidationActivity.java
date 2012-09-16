@@ -133,7 +133,7 @@ public class ValidationActivity extends Activity {
         locationListener = new ValidationLocationListener();
 
         // Register the listener with the Location Manager to receive location updates
-        boolean useRealData = true;
+        boolean useRealData = false;
         if (useRealData) {
         	// TODO: Turn on GSP early
         	locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
@@ -237,11 +237,26 @@ public class ValidationActivity extends Activity {
         new SendTrajectoryTask().execute(seq++, User.getCurrentUser(this).getId());
     }
     
-    private void showNavigationInformation(final RouteNode node) {
+    private void showNavigationInformation(final Location location, final RouteNode node) {
+    	final double latitude = location.getLatitude();
+    	final double longitude = location.getLongitude();
+    	
 		runOnUiThread(new Runnable() {
 			public void run() {
-				//String message = String.format("%s on %s", node.getMessage(), node.getRoadName());
-				textViewMessage.setText(node.getMessage());
+				double distance = route.getDistanceToNextTurn(latitude, longitude);
+				double distanceInMile = distance * 0.000621371;
+				double distanceInFoot = distance * 3.28084;
+				
+				String distancePresentation = null;
+				if (distanceInFoot < 1000) {
+					distancePresentation = String.format("%.0f ft", distanceInFoot);
+				}
+				else {
+					distancePresentation = String.format("%.1f mi", distanceInMile);
+				}
+				
+				String message = String.format("%s in %s", node.getMessage(), distancePresentation);
+				textViewMessage.setText(message);
 				textViewRoadname.setText(node.getRoadName());
 			}
 		});
@@ -259,7 +274,6 @@ public class ValidationActivity extends Activity {
         
         pointOverlay.setLocation((float)lat, (float)lng);
         
-        //nearestNode = ValidationService.getNearestNode(route.getNodes(), lat, lng);
         nearestNode = route.getNearestNode(lat, lng);
         nearestLink = ValidationService.getNearestLink(nearestNode, lat, lng);
         
@@ -283,19 +297,10 @@ public class ValidationActivity extends Activity {
         double distanceToLink = nearestLink.distanceTo(lat, lng);
         if (distanceToLink <= params.getDistanceThreshold()) {
         	numberOfInRoute += 1;
-//        	overlay.setColor(Color.GREEN);
-//        	//Log.d("ValidationActivity", String.format("In route, score = %d/%d = %.2f", numberOfInRoute, numberOfLocationChanges, numberOfInRoute/(float)numberOfLocationChanges));
-//        }
-//        else {
-//        	overlay.setColor(Color.RED);
-//        	//Log.d("ValidationActivity", String.format("Out of route, score = %d/%d = %.2f", numberOfInRoute, numberOfLocationChanges, numberOfInRoute/(float)numberOfLocationChanges));
         }
     	
-    	Log.d("ValidationActivity", "distance = " + nearestNode.getDistance());
-    	Log.d("ValidationActivity", "roadname = " + nearestNode.getRoadName());
-    	
 		if (nearestNode.getFlag() != 0) {
-			showNavigationInformation(nearestNode);
+			showNavigationInformation(location, nearestNode);
 		}
 		else {
 			// find the closest RouteNode with a non-zero flag
@@ -303,7 +308,7 @@ public class ValidationActivity extends Activity {
 			while (node.getNextNode() != null) {
 				node = node.getNextNode();
 				if (node.getFlag() != 0) {
-					showNavigationInformation(node);
+					showNavigationInformation(location, node);
 					
 					break;
 				}

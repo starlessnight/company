@@ -227,8 +227,28 @@ public final class Route implements Parcelable {
 		return length;
 	}
 	
-	public double getDistanceToNextTurn() {
-		return 0;
+	/**
+	 * This might not be accurate. Need to consider forward nodes only.
+	 * 
+	 * @param latitude
+	 * @param longitude
+	 * @return Distance from the given geocoordinate to the next turn.
+	 */
+	public double getDistanceToNextTurn(double latitude, double longitude) {
+		double distance = 0.0;
+		RouteNode nearestNode = getNearestNode(latitude, longitude);
+		
+		if (nearestNode != null) {
+			distance = nearestNode.distanceTo(latitude, longitude);
+			
+			RouteNode nextNode = nearestNode.getNextNode();
+			while (nextNode != null && nextNode.getFlag() == 0) {
+				distance += nextNode.getDistance();
+				
+				nextNode = nextNode.getNextNode();
+			}
+		}
+		return distance;
 	}
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -253,11 +273,6 @@ public final class Route implements Parcelable {
 	
 	///////////////////////////////////////////////////////////////////////////
 	
-	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/	
 	public void putOntoBundle(Bundle bundle) {
 		bundle.putString("origin", origin);
 		bundle.putString("destination", destination);
