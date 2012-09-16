@@ -41,7 +41,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 	 */
 	public RouteFetchRequest(long departureTime) {
 		//super(HOST + "/getroutesTucson/fake");
-		super("http://50.56.81.42:8080/getroutesTucsonNavigation");
+		super(HOST + "/getroutesTucsonNavigation");
 		//super("http://static.suminb.com/smartrek/fake-routes.html");
 		
 		this.departureTime = departureTime;
@@ -66,6 +66,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 		return routes;
 	}
 	
+	// FIXME: This should be under Route class
 	public Route parseRoute(JSONObject routeObject, long departureTime) throws JSONException, IOException {
 	    JSONArray rts = (JSONArray) routeObject.get("ROUTE");
 	    
@@ -101,8 +102,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
         double ett = routeObject.getDouble("ESTIMATED_TRAVEL_TIME");
         
         Route route = new Route(routeNodes, rid, departureTime, (int)(ett * 60));
-        // FIXME: Implement getRouteCredits()
-        //route.setCredits(getRouteCredits(rid));
+        route.setCredits(routeObject.getInt("CREDITS"));
         
         return route;
 	}
