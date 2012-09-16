@@ -43,7 +43,7 @@ public final class EditAddress extends EditText {
 		address = null;
 		
 		setText("");
-		setTextColor(Color.WHITE);
+		setTextColor(getTextColors().getDefaultColor());
 		setEnabled(true);
 	}
 	
