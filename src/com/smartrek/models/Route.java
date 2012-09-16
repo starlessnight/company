@@ -18,12 +18,10 @@ import com.smartrek.utils.NaiveNNS;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.ValidationParameters;
 
-/****************************************************************************************************
- * 
- * 
+/**
  * @author timothyolivas
- *
- ****************************************************************************************************/
+ * @author Sumin Byeon
+ */
 public final class Route implements Parcelable {
 
 	private String origin;
@@ -63,10 +61,6 @@ public final class Route implements Parcelable {
 		credits = in.readInt();
 	}
 	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/
 	public Route (ArrayList<RouteNode> locs, int rid, long departureTime, int duration) {
 		this.routeNodes = locs;
 		this.rid = rid;
@@ -75,10 +69,6 @@ public final class Route implements Parcelable {
 		this.duration = duration;
 	}
 	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/
 	public Route (Bundle bundle) {
 		this.origin = bundle.getString("origin");
 		this.destination = bundle.getString("destination");
@@ -89,10 +79,6 @@ public final class Route implements Parcelable {
 		this.departureTime = bundle.getLong("departureTime");
 	}
 	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/
 	public void setAddresses(String origin, String destination) {
 		this.origin = origin;
 		this.destination = destination;
@@ -114,18 +100,10 @@ public final class Route implements Parcelable {
 	    this.destination = destination;
 	}
 	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/
 	public void setUserId(int uid) {
 		this.uid = uid;
 	}
 	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/
 	public int getUserId() {
 		return uid;
 	}
@@ -169,10 +147,6 @@ public final class Route implements Parcelable {
 	    this.rid = rid;
 	}
 	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/
 	@Override
 	public String toString(){
 		String str = "";
@@ -195,8 +169,7 @@ public final class Route implements Parcelable {
 	}
 	
 	/*****************************************************************************************
-	 * 
-	 *
+	 * What the fuck is this?
 	 *****************************************************************************************/
 	public String timeToString(){
 		Time t = new Time();
@@ -216,6 +189,9 @@ public final class Route implements Parcelable {
 		return departureTime;
 	}
 	
+	/**
+	 * @return Duration of this route in seconds.
+	 */
 	public int getDuration() {
 		return duration;
 	}
@@ -224,34 +200,6 @@ public final class Route implements Parcelable {
 		return departureTime + (duration * 1000);
 	}
 	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/
-	public int getMin() {
-		return (int) Math.floor(duration/60);
-	}
-	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/
-	public int getSec() {
-		return Math.round(duration%60);
-	}
-	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/
-	public String getTimeString(){
-		return getMin() + " Minutes and " + getSec() + " Seconds";
-	}
-	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/
 	public void setDepartureTime(long time) {
 		this.departureTime = time;
 	}
@@ -279,8 +227,28 @@ public final class Route implements Parcelable {
 		return length;
 	}
 	
-	public double getDistanceToNextTurn() {
-		return 0;
+	/**
+	 * This might not be accurate. Need to consider forward nodes only.
+	 * 
+	 * @param latitude
+	 * @param longitude
+	 * @return Distance from the given geocoordinate to the next turn.
+	 */
+	public double getDistanceToNextTurn(double latitude, double longitude) {
+		double distance = 0.0;
+		RouteNode nearestNode = getNearestNode(latitude, longitude);
+		
+		if (nearestNode != null) {
+			distance = nearestNode.distanceTo(latitude, longitude);
+			
+			RouteNode nextNode = nearestNode.getNextNode();
+			while (nextNode != null && nextNode.getFlag() == 0) {
+				distance += nextNode.getDistance();
+				
+				nextNode = nextNode.getNextNode();
+			}
+		}
+		return distance;
 	}
 	
 	///////////////////////////////////////////////////////////////////////////
@@ -305,11 +273,6 @@ public final class Route implements Parcelable {
 	
 	///////////////////////////////////////////////////////////////////////////
 	
-	
-	/*****************************************************************************************
-	 * 
-	 *
-	 *****************************************************************************************/	
 	public void putOntoBundle(Bundle bundle) {
 		bundle.putString("origin", origin);
 		bundle.putString("destination", destination);
