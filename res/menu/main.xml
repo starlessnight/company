@@ -5,7 +5,7 @@
         android:id="@+id/menu_route"
         android:enabled="true"
         android:icon="@drawable/route"
-        android:title="Route"
+        android:title="Where to"
         android:visible="true"/>
     <item
         android:id="@+id/reservation"
@@ -13,20 +13,14 @@
         android:icon="@drawable/reservation"
         android:title="@string/reservations"
         android:visible="true"/>
-    <!--
-    <item
-        android:id="@+id/mycoupons"
-        android:enabled="true"
-        android:icon="@drawable/coupon"
-        android:title="@string/my_coupons"
-        android:visible="true"/>
-    -->
+    <!-- 
     <item
         android:id="@+id/contacts"
         android:enabled="true"
         android:icon="@drawable/contacts"
         android:title="@string/my_contacts"
         android:visible="true"/>
+    -->
     <item
         android:id="@+id/map_display_options"
         android:title="@string/settings"/>

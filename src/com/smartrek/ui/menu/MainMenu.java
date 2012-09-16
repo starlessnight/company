@@ -21,10 +21,10 @@ public final class MainMenu {
 		Intent intent = null;
 		switch (item.getItemId()) {
 			
-		case R.id.contacts:
-			intent = new Intent(activity, ContactsActivity.class);
-			activity.startActivity(intent);
-			break;
+//		case R.id.contacts:
+//			intent = new Intent(activity, ContactsActivity.class);
+//			activity.startActivity(intent);
+//			break;
 
 		case R.id.map_display_options:
 			intent = new Intent(activity, MapDisplayActivity.class);
