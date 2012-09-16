@@ -2,6 +2,7 @@ package com.smartrek.activities;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -122,12 +123,8 @@ public final class ReservationListActivity extends ListActivity {
 			
 			ReservationListFetchRequest request = new ReservationListFetchRequest(uid);
 			try {
-				reservations = new ArrayList<Reservation>();
-                for (Reservation resv : request.execute()) {
-                	if (!resv.isPast()) {
-                		reservations.add(resv);
-                	}
-                }
+				reservations = request.execute();
+				Collections.reverse(reservations);
             }
             catch (Exception e) {
                 ehs.registerException(e);
