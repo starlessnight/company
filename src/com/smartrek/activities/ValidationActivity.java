@@ -23,8 +23,6 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -119,7 +117,7 @@ public class ValidationActivity extends Activity {
         ((View)textViewMessage.getParent()).getBackground().setAlpha(220);
 
         MapController mc = mapView.getController();
-        mc.setZoom(14);
+        mc.setZoom(18);
         
         if (route.getFirstNode() != null) {
         	mc.setCenter(route.getFirstNode().getGeoPoint());
@@ -220,7 +218,7 @@ public class ValidationActivity extends Activity {
         mapOverlays.add(pathOverlay);
         
         pointOverlay = new PointOverlay(this, 0, 0);
-        pointOverlay.setColor(Color.BLUE);
+        pointOverlay.setColor(0xCC2020DF);
         mapOverlays.add(pointOverlay);
         
         route.setUserId(User.getCurrentUser(this).getId());

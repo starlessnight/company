@@ -16,7 +16,7 @@ import android.graphics.Point;
  * @author Sumin Byeon
  */
 public class PointOverlay extends Overlay {
-	public static final float RADIUS = 7.0f;
+	public static final float RADIUS = 12.0f;
 	
 	private GeoPoint geoPoint;
 	private int color = Color.GREEN;

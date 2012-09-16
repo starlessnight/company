@@ -40,11 +40,14 @@ public class RoutePathOverlay extends Overlay {
 	@Override
 	protected void draw(Canvas canvas, MapView mapView, boolean shadow) {
 		Projection projection = mapView.getProjection();
+		int zoom = mapView.getZoomLevel();
 		
 		Paint paint = new Paint();
 		paint.setAntiAlias(true);
 		paint.setStyle(Paint.Style.STROKE);
-		paint.setStrokeWidth(6);
+		
+		int thickness = 2 + zoom/2;
+		paint.setStrokeWidth(thickness);
 		
 		// Seems like Paint.setAlpha has no effect
 		int alphaMask = highlighted ? 0xCF000000 : 0x7F000000;
@@ -66,8 +69,7 @@ public class RoutePathOverlay extends Overlay {
 			path.lineTo(point.x, point.y);
 		}
 		
-		int zoom = mapView.getZoomLevel();
-		int radius = 2 + zoom/3;
+		int radius = 4 + zoom/3;
 		
 		canvas.drawPath(path, paint);
 		canvas.drawCircle(point.x, point.y, radius, paint);
