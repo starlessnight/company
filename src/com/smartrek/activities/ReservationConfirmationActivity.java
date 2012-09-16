@@ -72,6 +72,7 @@ public final class ReservationConfirmationActivity extends Activity {
         textViewArrivalTime.setText(at.format("%b %d, %G %l:%M%p"));
 
         textViewCredits = (TextView) findViewById(R.id.textViewCredits);
+        textViewCredits.setText(String.valueOf(route.getCredits()));
         
         buttonReserve = (Button) findViewById(R.id.button_reserve);
         buttonReserve.setOnClickListener(new OnClickListener() {
