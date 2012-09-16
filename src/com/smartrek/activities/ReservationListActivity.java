@@ -1,6 +1,8 @@
 package com.smartrek.activities;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import android.app.ListActivity;
@@ -188,6 +190,10 @@ public final class ReservationListActivity extends ListActivity {
 			
 			TextView textView2 = (TextView)view.findViewById(R.id.textViewDestination);
 			textView2.setText(r.getDestinationAddress());
+			
+			TextView textViewDepartureTime = (TextView)view.findViewById(R.id.textViewDepartureTime);
+			SimpleDateFormat formatter = new SimpleDateFormat(getResources().getString(R.string.common_datetime_format));
+			textViewDepartureTime.setText(formatter.format(new Date(r.getDepartureTime())));
 			
 			TextView textViewCredits = (TextView) view.findViewById(R.id.textViewCredits);
 			textViewCredits.setText(String.format("%d", r.getCredits()));

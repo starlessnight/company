@@ -3,8 +3,8 @@
     android:id="@+id/gridLayout1"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal" 
-    android:padding="4dp">
+    android:orientation="horizontal"
+    android:padding="4dp" >
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -45,6 +45,22 @@
             android:text="@string/placeholder"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="#F7FFED" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:text="Departure time"
+            android:textColor="#F3E123" />
+
+        <TextView
+            android:id="@+id/textViewDepartureTime"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:text="@string/placeholder"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#F7FFED" />
     </LinearLayout>
 
     <LinearLayout
@@ -71,7 +87,7 @@
             android:textAppearance="?android:attr/textAppearanceSmall" />
     </LinearLayout>
 
-    <!-- 
+    <!--
     <ImageButton
         android:id="@+id/button_delete"
         android:layout_width="16dp"
@@ -81,4 +97,5 @@
         android:scaleType="fitXY"
         android:src="@drawable/delete" />
     -->
+
 </LinearLayout>

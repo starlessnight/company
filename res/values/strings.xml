@@ -24,6 +24,8 @@
     <string name="cancel">Cancel</string>
     <string name="reserve">Reserve</string>
     <string name="trekpoints">Trekpoints</string>
+    
+    <string name="common_datetime_format">MMM dd, yyyy (E) HH:mm:ss</string>
 
     <!-- *************************************************************************************** -->
     <!-- *************************************************************************************** -->
