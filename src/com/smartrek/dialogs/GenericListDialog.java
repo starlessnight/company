@@ -2,6 +2,7 @@ package com.smartrek.dialogs;
 
 import java.util.List;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -49,6 +50,10 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 	protected GenericListDialog(Context context, List<ItemType> listItems) {
 		super(context);
 		this.listItems = listItems;
+		
+		if (context instanceof Activity) {
+			setOwnerActivity((Activity) context);
+		}
 	}
 	
 	@Override
@@ -62,20 +67,25 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 		setView(dialogView);
 		setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", defaultNegativeButtonListener);
 		
+		super.onCreate(savedInstanceState);
+	}
+	
+	@Override
+	protected void onStart() {
 		if (listItems != null && listItems.size() > 0) {
 			initGenericList();
 		}
 		else {
 			initEmptyList();
 		}
-		
-		super.onCreate(savedInstanceState);
+		super.onStart();
 	}
 	
 	/**
 	 * This gets called when {@code listItems} has at least one item
 	 */
 	protected void initGenericList() {
+		setListVisibility(true);
 		listViewGeneric.setAdapter(adapter);
 		listViewGeneric.setOnItemClickListener(new OnItemClickListener() {
 
@@ -95,8 +105,7 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 	 * This gets called when {@code listItem} is null or has no item
 	 */
 	protected void initEmptyList() {
-		listViewGeneric.setVisibility(View.INVISIBLE);
-		textViewGeneric.setVisibility(View.VISIBLE);
+		setListVisibility(false);
 		setButton(DialogInterface.BUTTON_NEGATIVE, "Dismiss", defaultNegativeButtonListener);	
 	}
 	
@@ -108,4 +117,22 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 		this.adapter = adapter;
 	}
 
+	public void setListVisibility(boolean visible) {
+		if (visible) {
+			listViewGeneric.setVisibility(View.VISIBLE);
+			textViewGeneric.setVisibility(View.INVISIBLE);
+		}
+		else {
+			listViewGeneric.setVisibility(View.INVISIBLE);
+			textViewGeneric.setVisibility(View.VISIBLE);
+		}
+	}
+	
+	protected List<ItemType> getListItmes() {
+		return listItems;
+	}
+	
+	protected void setListItems(List<ItemType> listItems) {
+		this.listItems = listItems;
+	}
 }

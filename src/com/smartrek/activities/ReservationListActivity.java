@@ -1,22 +1,25 @@
 package com.smartrek.activities;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
-import android.app.Activity;
+import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -31,38 +34,37 @@ import com.smartrek.utils.ExceptionHandlingService;
  * Shows a list of reserved routes
  *
  */
-public final class ReservationListActivity extends Activity {
+public final class ReservationListActivity extends ListActivity {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
 	private List<Reservation> reservations;
 	
-	private ListView listViewReservation;
-	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.reservation_list);
+        //setContentView(R.layout.reservation_list);
+        
+        getListView().setBackgroundDrawable(getResources().getDrawable(R.drawable.background_gradient));
+        
+        //registerForContextMenu(getListView());
         
         reservations = new ArrayList<Reservation>();
-        listViewReservation = (ListView) findViewById(R.id.listViewReservation);
-        listViewReservation.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				Intent intent = new Intent(ReservationListActivity.this, ReservationDetailsActivity.class);
-				
-				Bundle extras = new Bundle();
-				// FIXME: Reservation.getRoute() is a temporary solution
-				extras.putParcelable("route", reservations.get(position).getRoute());
-				intent.putExtras(extras);
-				startActivity(intent);
-			}
-        });
         
         User currentUser = User.getCurrentUser(this);
         
         new ReservationRetrivalTask().execute(currentUser.getId());
+	}
+	
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		Intent intent = new Intent(ReservationListActivity.this, ReservationDetailsActivity.class);
+		
+		Bundle extras = new Bundle();
+		// FIXME: Reservation.getRoute() is a temporary solution
+		extras.putParcelable("route", reservations.get(position).getRoute());
+		intent.putExtras(extras);
+		startActivity(intent);
 	}
 	
 	@Override
@@ -79,10 +81,30 @@ public final class ReservationListActivity extends Activity {
 		return super.onMenuItemSelected(featureId, item);
 	}
 	
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+	                                ContextMenuInfo menuInfo) {
+	    super.onCreateContextMenu(menu, v, menuInfo);
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.context, menu);
+	}
+	
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+	    //AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+	    switch (item.getItemId()) {
+	        case R.id.delete:
+	            return true;
+	            
+	        default:
+	            return super.onContextItemSelected(item);
+	    }
+	}
+	
 	/**
 	 * Inner class for an asynchronous task.
 	 */
-	private class ReservationRetrivalTask extends AsyncTask<Object, Object, String> {
+	private class ReservationRetrivalTask extends AsyncTask<Object, Object, List<Reservation>> {
 		
 		private ProgressDialog dialog;
 
@@ -96,31 +118,46 @@ public final class ReservationListActivity extends Activity {
 		}
 		
 		@Override
-		protected String doInBackground(Object... params) {
+		protected List<Reservation> doInBackground(Object... params) {
 			int uid = (Integer) params[0];
 			
 			ReservationListFetchRequest request = new ReservationListFetchRequest(uid);
 			try {
-                reservations = request.execute();
+				reservations = request.execute();
+				Collections.reverse(reservations);
             }
             catch (Exception e) {
                 ehs.registerException(e);
             }
 			
-			return null;
+			return reservations;
 		}
 		
 		@Override
-		protected void onPostExecute(String result) {
+		protected void onPostExecute(List<Reservation> result) {
 			dialog.cancel();
 			
 		    if (ehs.hasExceptions()) {
 		        ehs.reportExceptions();
 		    }
 		    else {
-		        listViewReservation.setAdapter(new ReservationItemAdapter(ReservationListActivity.this, R.layout.reservation_list_item, reservations));
+		    	if (reservations != null && reservations.size() > 0) {
+		    		setListAdapter(new ReservationItemAdapter(ReservationListActivity.this, R.layout.reservation_list_item, reservations));
+		    	}
+		    	else {
+		    		
+		    	}
 		    }
 	    }
+	}
+	
+	private class ReservationDeleteTask extends AsyncTask<Object, Object, String> {
+		@Override
+		protected String doInBackground(Object... params) {
+			
+			
+			return null;
+		}
 	}
 	
 	private class ReservationItemAdapter extends ArrayAdapter<Reservation> {
@@ -150,6 +187,10 @@ public final class ReservationListActivity extends Activity {
 			
 			TextView textView2 = (TextView)view.findViewById(R.id.textViewDestination);
 			textView2.setText(r.getDestinationAddress());
+			
+			TextView textViewDepartureTime = (TextView)view.findViewById(R.id.textViewDepartureTime);
+			SimpleDateFormat formatter = new SimpleDateFormat(getResources().getString(R.string.common_datetime_format));
+			textViewDepartureTime.setText(formatter.format(new Date(r.getDepartureTime())));
 			
 			TextView textViewCredits = (TextView) view.findViewById(R.id.textViewCredits);
 			textViewCredits.setText(String.format("%d", r.getCredits()));

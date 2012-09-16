@@ -1,9 +1,5 @@
 package com.smartrek.dialogs;
 
-import java.io.IOException;
-
-import org.json.JSONException;
-
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -15,8 +11,10 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import com.smartrek.activities.R;
+import com.smartrek.models.Address;
 import com.smartrek.models.User;
 import com.smartrek.requests.TripAddRequest;
+import com.smartrek.requests.TripListFetchRequest;
 import com.smartrek.utils.ExceptionHandlingService;
 
 public final class TripSaveDialog extends AlertDialog {
@@ -32,7 +30,7 @@ public final class TripSaveDialog extends AlertDialog {
 		 * @param origin A postal address of origin
 		 * @param destination A postal address of destination
 		 */
-		void onClickPositiveButton(String name, String origin, String destination);
+		void onClickPositiveButton(String name, Address origin, Address destination);
 		void onClickNegativeButton();
 	}
 	
@@ -42,8 +40,8 @@ public final class TripSaveDialog extends AlertDialog {
 	private EditText editTextOrigin;
 	private EditText editTextDestination;
 	
-	private String origin;
-	private String destination;
+	private Address origin;
+	private Address destination;
 	
 	/**
 	 * I decided to force the caller to set the origin and the destination
@@ -55,7 +53,7 @@ public final class TripSaveDialog extends AlertDialog {
 	 * @param origin
 	 * @param destination
 	 */
-	public TripSaveDialog(Context context, String origin, String destination) {
+	public TripSaveDialog(Context context, Address origin, Address destination) {
 		super(context);
 		this.origin = origin;
 		this.destination = destination;
@@ -72,10 +70,10 @@ public final class TripSaveDialog extends AlertDialog {
 		editTextDestination = (EditText) dialogView.findViewById(R.id.edit_text_destination);
 		
 		if (origin != null) {
-			editTextOrigin.setText(origin);
+			editTextOrigin.setText(origin.getAddress());
 		}
 		if (destination != null) {
-			editTextDestination.setText(destination);
+			editTextDestination.setText(destination.getAddress());
 		}
 		
 		setView(dialogView);
@@ -117,12 +115,14 @@ public final class TripSaveDialog extends AlertDialog {
 		return editTextName.getText().toString().trim();
 	}
 	
-	private String getOrigin() {
-		return editTextOrigin.getText().toString().trim();
+	private Address getOrigin() {
+		//return new Address(0, User.getCurrentUser(getContext()).getId(), "", editTextOrigin.getText().toString().trim());
+		return origin;
 	}
 	
-	private String getDestination() {
-		return editTextDestination.getText().toString().trim();
+	private Address getDestination() {
+		//return new Address(0, User.getCurrentUser(getContext()).getId(), "", editTextDestination.getText().toString().trim());
+		return destination;
 	}
 	
 	private class TripSaveTask extends AsyncTask<Object, Object, Object> {
@@ -132,12 +132,12 @@ public final class TripSaveDialog extends AlertDialog {
 		private Context context;
 		private int uid;
 		private String name;
-		private String origin;
-		private String destination;
+		private Address origin;
+		private Address destination;
 		
 		private ExceptionHandlingService ehs;
 		
-		public TripSaveTask(Context context, int uid, String name, String origin, String destination) {
+		public TripSaveTask(Context context, int uid, String name, Address origin, Address destination) {
 			this.context = context;
 			this.uid = uid;
 			this.name = name;
@@ -157,14 +157,13 @@ public final class TripSaveDialog extends AlertDialog {
 		
 		@Override
 		protected Object doInBackground(Object... params) {
-			TripAddRequest request = new TripAddRequest(uid, name, origin, destination);
+			TripAddRequest request = new TripAddRequest(uid, name, origin.getId(), destination.getId());
 			try {
 				request.execute();
+				
+				new TripListFetchRequest(uid).invalidateCache();
 			}
-			catch (IOException e) {
-				ehs.registerException(e);
-			}
-			catch (JSONException e) {
+			catch (Exception e) {
 				ehs.registerException(e);
 			}
 			

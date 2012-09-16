@@ -1,41 +1,32 @@
 package com.smartrek.dialogs;
 
-import java.io.IOException;
 import java.util.List;
 
-import org.json.JSONException;
-
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.smartrek.activities.R;
 import com.smartrek.models.Trip;
 import com.smartrek.models.User;
+import com.smartrek.requests.TripDeleteRequest;
 import com.smartrek.requests.TripListFetchRequest;
 import com.smartrek.utils.ExceptionHandlingService;
 
-public class TripListDialog extends AlertDialog {
+public class TripListDialog extends GenericListDialog<Trip> {
 	
-	/**
-	 * Dialog action listener
-	 *
-	 */
-	public interface ActionListener {
-		void onClickAddTripButton();
-		void onClickNegativeButton();
-		void onClickListItem(Trip trip, int position);
-	}
+	public interface ActionListener extends GenericListDialog.ActionListener<Trip> {}
 	
 	private ExceptionHandlingService ehs = new ExceptionHandlingService(getContext());
 	
@@ -43,20 +34,20 @@ public class TripListDialog extends AlertDialog {
 
 		@Override
 		public void onClick(DialogInterface dialog, int which) {
-			if (listener != null) {
-				listener.onClickNegativeButton();
+			if (actionListener != null) {
+				actionListener.onClickNegativeButton();
 			}
 		}
 		
 	};
 	
-	private ActionListener listener;
-	private ViewGroup dialogView;
-	private ListView listViewTrip;
-	private TextView textViewEmpty;
+//	private ActionListener listener;
+//	private ViewGroup dialogView;
+//	private ListView listViewTrip;
+//	private TextView textViewEmpty;
 	
 	public TripListDialog(Context context) {
-		super(context);
+		super(context, null);
 	}
 	
 	@Override
@@ -70,55 +61,127 @@ public class TripListDialog extends AlertDialog {
 		
 		setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", onClickListener);
 		
-		prepareTripList();
-		
 		// This has to be called after all overriding code, otherwise it won't
 		// look like a dialog.
 		super.onCreate(savedInstanceState);
+		textViewGeneric.setText("You don't have any saved trip");
+		
+		// enables context menu
+		registerForContextMenu(listViewGeneric);
+		listViewGeneric.setOnCreateContextMenuListener(this);
 	}
 	
-	public void setActionListener(ActionListener listener) {
-		this.listener = listener;
+	@Override
+	public void onStart() {
+		super.onStart();
+		
+		prepareTripList();		
 	}
+	
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+	    super.onCreateContextMenu(menu, v, menuInfo);
+	    MenuInflater inflater = getOwnerActivity().getMenuInflater();
+	    inflater.inflate(R.menu.context, menu);
+	}
+	
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem menuItem) {
+	    AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuItem.getMenuInfo();
+	    
+	    Trip listItem = listItems.get(info.position);
+	    
+	    switch (menuItem.getItemId()) {
+	        case R.id.delete:
+	        	new TripDeleteTask(info.position).execute(listItem.getId());
+	            return true;
+	            
+	        default:
+	            return super.onMenuItemSelected(featureId, menuItem);
+	    }
+	}
+	
+//	public void setActionListener(ActionListener listener) {
+//		this.listener = listener;
+//	}
 	
 	private void prepareTripList() {
-		listViewTrip = (ListView) dialogView.findViewById(R.id.list_view_trip);
-		textViewEmpty = (TextView) dialogView.findViewById(R.id.text_view_empty);
+//		listViewTrip = (ListView) dialogView.findViewById(R.id.list_view_trip);
+//		textViewEmpty = (TextView) dialogView.findViewById(R.id.text_view_empty);
 		
 		User currentUser = User.getCurrentUser(getContext());
 		new TripListFetchTask().execute(currentUser.getId());
 	}
 	
-	private void initTripList(final List<Trip> trips) {
-		listViewTrip.setAdapter(new TripListAdapter(getContext(), trips));
-		listViewTrip.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				if (listener != null) {
-					Trip trip = trips.get(position);
-					listener.onClickListItem(trip, position);
-				}
-				dismiss();
-			}
-			
-		});
-	}
+//	private void initTripList(final List<Trip> trips) {
+//		listViewTrip.setAdapter(new TripListAdapter(getContext(), trips));
+//		listViewTrip.setOnItemClickListener(new OnItemClickListener() {
+//
+//			@Override
+//			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//				if (listener != null) {
+//					Trip trip = trips.get(position);
+//					listener.onClickListItem(trip, position);
+//				}
+//				dismiss();
+//			}
+//			
+//		});
+//	}
+//	
+//	private void initEmptyTripList() {
+//		// FIXME: Temporary
+//		listViewTrip.setVisibility(View.INVISIBLE);
+//		textViewEmpty.setVisibility(View.VISIBLE);
+//		setButton(DialogInterface.BUTTON_NEGATIVE, "Dismiss", onClickListener);
+//		setButton(DialogInterface.BUTTON_POSITIVE, "Add Trip", new DialogInterface.OnClickListener() {
+//			
+//			@Override
+//			public void onClick(DialogInterface dialog, int which) {
+//				if (listener != null) {
+//					listener.onClickAddTripButton();
+//				}
+//			}
+//		});
+//	}
 	
-	private void initEmptyTripList() {
-		// FIXME: Temporary
-		listViewTrip.setVisibility(View.INVISIBLE);
-		textViewEmpty.setVisibility(View.VISIBLE);
-		setButton(DialogInterface.BUTTON_NEGATIVE, "Dismiss", onClickListener);
-		setButton(DialogInterface.BUTTON_POSITIVE, "Add Trip", new DialogInterface.OnClickListener() {
+	private class TripDeleteTask extends AsyncTask<Object, Object, Object> {
+
+		private int listItemIndex;
+		
+		public TripDeleteTask(int listItemIndex) {
+			this.listItemIndex = listItemIndex;
+		}
+		
+		@Override
+		protected Object doInBackground(Object... params) {
+			int fid = (Integer) params[0];
 			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if (listener != null) {
-					listener.onClickAddTripButton();
-				}
+			TripDeleteRequest request = new TripDeleteRequest(fid);
+			try {
+				request.execute();
+				
+				// clear cache
+				new TripListFetchRequest(User.getCurrentUser(getContext()).getId()).invalidateCache();
 			}
-		});
+			catch (Exception e) {
+				ehs.registerException(e);
+			}
+			
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Object result) {
+		    if (ehs.hasExceptions()) {
+		        ehs.reportExceptions();
+		    }
+		    else {
+		    	listItems.remove(listItemIndex);
+		    	listViewGeneric.setAdapter(new TripListAdapter(getContext(), listItems));
+		    	listViewGeneric.postInvalidate();
+		    }
+		}
 	}
 	
 	private class TripListFetchTask extends AsyncTask<Object, Object, List<Trip>> {
@@ -127,15 +190,12 @@ public class TripListDialog extends AlertDialog {
 		protected List<Trip> doInBackground(Object... params) {
 			int uid = (Integer) params[0];
 			
-			TripListFetchRequest request = new TripListFetchRequest();
+			TripListFetchRequest request = new TripListFetchRequest(uid);
 			List<Trip> trips = null;
 			try {
-				trips = request.execute(uid);
+				trips = request.execute();
 			}
-			catch (IOException e) {
-				ehs.registerException(e);
-			}
-			catch (JSONException e) {
+			catch (Exception e) {
 				ehs.registerException(e);
 			}
 
@@ -148,11 +208,14 @@ public class TripListDialog extends AlertDialog {
 				ehs.reportExceptions();
 			}
 			else {
+				setListItems(result);
 				if (result != null && result.size() > 0) {
-					initTripList(result);
+					//initTripList(result);
+					setAdapter(new TripListAdapter(getContext(), result));
+					initGenericList();
 				}
 				else {
-					initEmptyTripList();
+					initEmptyList();
 				}
 			}
 		}

@@ -18,11 +18,11 @@ public final class Address {
 		this.address = address;
 	}
 	
-	public int getAid() {
+	public int getId() {
 		return aid;
 	}
 	
-	public void setAid(int aid) {
+	public void setId(int aid) {
 		this.aid = aid;
 	}
 	

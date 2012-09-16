@@ -14,6 +14,7 @@ import android.util.Log;
 
 import com.smartrek.requests.RouteMapper;
 import com.smartrek.utils.GeoPoint;
+import com.smartrek.utils.NaiveNNS;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.ValidationParameters;
 
@@ -147,6 +148,15 @@ public final class Route implements Parcelable {
 		return null;
 	}
 	
+	public RouteNode getNearestNode(double lat, double lng) {
+		return NaiveNNS.findClosestNode(routeNodes, lat, lng);
+	}
+	
+	public RouteNode getNextTurnNode(RouteNode currentNode, int indexOffset) {
+		// TODO: Implement this
+		return null;
+	}
+	
 	public void setNodes(JSONArray nodes) throws JSONException {
 	    routeNodes = RouteMapper.buildRouteNodes(nodes);
 	}
@@ -252,6 +262,25 @@ public final class Route implements Parcelable {
 	
 	public void setCredits(int credits) {
 		this.credits = credits;
+	}
+	
+	/**
+	 * Calculates the total length of the route.
+	 * NOTE: This haven't tested
+	 * 
+	 * @return Length of the route in meters.
+	 */
+	public double getLength() {
+		double length = 0.0;
+		for (RouteNode node : routeNodes) {
+			length += node.getDistance();
+		}
+		
+		return length;
+	}
+	
+	public double getDistanceToNextTurn() {
+		return 0;
 	}
 	
 	///////////////////////////////////////////////////////////////////////////

@@ -5,17 +5,10 @@
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Reserve route"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Origin"
+        android:text="@string/origin"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
@@ -29,7 +22,7 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Destination"
+        android:text="@string/destination"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
@@ -71,7 +64,7 @@
         android:id="@+id/textView6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Credits"
+        android:text="@string/trekpoints"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
@@ -90,14 +83,14 @@
             android:id="@+id/button_reserve"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Reserve" />
-        
+            android:text="@string/reserve" />
+
         <Button
             android:id="@+id/button_save_trip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Save Trip" />
-
+            android:text="@string/save_trip"
+            android:visibility="invisible" />
     </LinearLayout>
 
 </LinearLayout>

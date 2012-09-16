@@ -20,6 +20,8 @@ public final class RouteNode implements Parcelable, JSONModel {
 	
 	/**
 	 * Navigation metadata. Distance to the next node.
+	 * I think we're getting this from the server in terms of miles but
+	 * we only use meters internally.
 	 */
 	private double distance;
 	

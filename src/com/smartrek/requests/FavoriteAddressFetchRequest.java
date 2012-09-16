@@ -25,7 +25,7 @@ public final class FavoriteAddressFetchRequest extends FetchRequest<List<Address
 			JSONObject object = (JSONObject) array.get(i);
 			
 			Address address = new Address();
-			address.setAid(object.getInt("FID"));
+			address.setId(object.getInt("FID"));
 			address.setUid(object.getInt("UID"));
 			address.setName(object.getString("NAME"));
 			address.setAddress(object.getString("ADDRESS"));

@@ -15,8 +15,10 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.smartrek.activities.R;
+import com.smartrek.models.Address;
 import com.smartrek.models.User;
 import com.smartrek.requests.FavoriteAddressAddRequest;
+import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.utils.ExceptionHandlingService;
 
 /**
@@ -36,7 +38,7 @@ public class FavoriteAddressAddDialog extends AlertDialog {
 	private ExceptionHandlingService ehs = new ExceptionHandlingService(getContext());
 	
 	private ActionListener listener;
-	private String address;
+	private Address address;
 	private ViewGroup dialogView;
 	private EditText editTextName;
 	private EditText editTextAddress;
@@ -54,7 +56,7 @@ public class FavoriteAddressAddDialog extends AlertDialog {
 		
 		editTextName = (EditText) dialogView.findViewById(R.id.editTextName);
 		editTextAddress = (EditText) dialogView.findViewById(R.id.editTextAddress);
-		editTextAddress.setText(address);
+		editTextAddress.setText(address.getAddress());
 		progressBar = (ProgressBar) dialogView.findViewById(R.id.progressBar);
 		
 		setView(dialogView);
@@ -103,7 +105,7 @@ public class FavoriteAddressAddDialog extends AlertDialog {
 		return editTextAddress.getText().toString().trim();
 	}
 	
-	public void setAddress(String address) {
+	public void setAddress(Address address) {
 		this.address = address;
 	}
 	
@@ -132,9 +134,12 @@ public class FavoriteAddressAddDialog extends AlertDialog {
 			String name = (String) params[1];
 			String address = (String) params[2];
 			
-			FavoriteAddressAddRequest request = new FavoriteAddressAddRequest();
+			FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(uid, name, address);
 			try {
-				request.execute(uid, name, address);
+				request.execute();
+				
+				// clear cache
+				new FavoriteAddressFetchRequest(uid).invalidateCache();
 			}
 			catch (IOException e) {
 				ehs.registerException(e);
