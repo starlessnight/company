@@ -43,6 +43,7 @@ import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
+import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.ValidationParameters;
 import com.smartrek.utils.ValidationService;
 
@@ -255,7 +256,7 @@ public class ValidationActivity extends Activity {
 					distancePresentation = String.format("%.1f mi", distanceInMile);
 				}
 				
-				String message = String.format("%s in %s", node.getMessage(), distancePresentation);
+				String message = String.format("%s in %s", StringUtil.capitalizeFirstLetter(node.getMessage()), distancePresentation);
 				textViewMessage.setText(message);
 				textViewRoadname.setText(node.getRoadName());
 			}
