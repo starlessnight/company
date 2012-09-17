@@ -6,11 +6,14 @@ import android.view.MenuItem;
 
 import com.smartrek.activities.ContactsActivity;
 import com.smartrek.activities.CouponsTabActivity;
+import com.smartrek.activities.DebugOptionsActivity;
+import com.smartrek.activities.HomeActivity;
 import com.smartrek.activities.LoginActivity;
 import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.activities.R;
 import com.smartrek.activities.ReservationListActivity;
 import com.smartrek.models.User;
+import com.smartrek.utils.Cache;
 
 /**
  * A common interface to bring up the application menu
@@ -51,6 +54,19 @@ public final class MainMenu {
 			intent = new Intent(activity, LoginActivity.class);
 			activity.startActivity(intent);
 			break;
+			
+        case R.id.crash:
+            ((HomeActivity) null).getApplication();
+            break;
+
+        case R.id.clear_cache:
+            Cache.getInstance().clear();
+            break;
+
+        case R.id.debug_options:
+            intent = new Intent(activity, DebugOptionsActivity.class);
+            activity.startActivity(intent);
+            break;
 		}
 	}
 }

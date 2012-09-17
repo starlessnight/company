@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_gradient"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/time_heading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingTop="8dp"
+        android:text="GPS options"
+        android:textColor="#FFFFFFFF"
+        android:textSize="20dp" >
+    </TextView>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="65dp" >
+
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <RadioButton
+                android:id="@+id/radio_real_gps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="true"
+                android:text="Real GPS data"
+                android:textColor="#FFFFFFFF"
+                android:textSize="18dp" >
+            </RadioButton>
+
+            <RadioButton
+                android:id="@+id/radio_prerecorded_gps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="true"
+                android:text="Pre-recorded data"
+                android:textColor="#FFFFFFFF"
+                android:textSize="18dp" >
+            </RadioButton>
+        </RadioGroup>
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/adjust_time_heading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:text="@string/adjust_time"
+        android:textColor="#FFFFFFFF"
+        android:textSize="20dp"
+        android:visibility="invisible" >
+    </TextView>
+
+</LinearLayout>

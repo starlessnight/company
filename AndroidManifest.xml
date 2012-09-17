@@ -64,6 +64,10 @@
             android:name=".ReservationDetailsActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout" />
         <activity
+            android:name=".DebugOptionsActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout"
+            android:label="Debug options" />
+        <activity
             android:name=".MapModeActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout" />
         <activity

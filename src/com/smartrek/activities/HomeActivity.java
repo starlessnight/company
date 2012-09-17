@@ -269,13 +269,6 @@ public final class HomeActivity extends Activity {
 //			onClickLoadTrip();
 //			break;
 		
-		case R.id.crash:
-			((HomeActivity) null).getApplication();
-			break;
-			
-		case R.id.clear_cache:
-		    Cache.getInstance().clear();
-		    break;
 		}
 		
 		return super.onMenuItemSelected(featureId, item);
