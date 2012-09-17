@@ -51,6 +51,7 @@ public class ValidationActivity extends Activity {
 
     private MapView mapView;
     private TextView textViewMessage;
+    private TextView textViewDistance;
     private TextView textViewRoadname;
     
     private Route route;
@@ -112,9 +113,10 @@ public class ValidationActivity extends Activity {
         });
         
         textViewMessage = (TextView) findViewById(R.id.text_view_message);
+        textViewDistance = (TextView) findViewById(R.id.text_view_distance);
         textViewRoadname = (TextView) findViewById(R.id.text_view_roadname);
         
-        ((View)textViewMessage.getParent()).getBackground().setAlpha(220);
+        ((View) findViewById(R.id.text_view_navigation)).getBackground().setAlpha(220);
 
         MapController mc = mapView.getController();
         mc.setZoom(18);
@@ -254,8 +256,9 @@ public class ValidationActivity extends Activity {
 					distancePresentation = String.format("%.1f mi", distanceInMile);
 				}
 				
-				String message = String.format("%s in %s", StringUtil.capitalizeFirstLetter(node.getMessage()), distancePresentation);
-				textViewMessage.setText(message);
+				//String message = String.format("%s in %s", StringUtil.capitalizeFirstLetter(node.getMessage()), distancePresentation);
+				textViewMessage.setText(StringUtil.capitalizeFirstLetter(node.getMessage()));
+				textViewDistance.setText(distancePresentation);
 				textViewRoadname.setText(node.getRoadName());
 			}
 		});
