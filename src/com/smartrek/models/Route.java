@@ -15,6 +15,7 @@ import android.util.Log;
 import com.smartrek.requests.RouteMapper;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.NaiveNNS;
+import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.ValidationParameters;
 
@@ -126,8 +127,35 @@ public final class Route implements Parcelable {
 		return null;
 	}
 	
-	public RouteNode getNearestNode(double lat, double lng) {
-		return NaiveNNS.findClosestNode(routeNodes, lat, lng);
+	public RouteNode getNearestNode(double latitude, double longitude) {
+		return NaiveNNS.findClosestNode(routeNodes, latitude, longitude);
+	}
+	
+	public RouteLink getNearestLink(double latitude, double longitude) {
+	    RouteNode node = getNearestNode(latitude, longitude);
+	    
+	    RouteNode prevNode = node.getPrevNode();
+        RouteNode nextNode = node.getNextNode();
+        
+        if (prevNode != null && nextNode != null) {
+            RouteLink prevLink = new RouteLink(node.getPrevNode(), node);
+            RouteLink nextLink = new RouteLink(node, node.getNextNode()); 
+
+            double distanceToPrev = prevLink.distanceTo(latitude, longitude);
+            double distanceToNext = nextLink.distanceTo(latitude, longitude);
+            
+            return distanceToPrev < distanceToNext ? new RouteLink(prevNode, node) : new RouteLink(node, nextNode);
+        }
+        else if (node.getPrevNode() != null) {
+            return new RouteLink(node.getPrevNode(), node);
+        }
+        else if (node.getNextNode() != null) {
+            return new RouteLink(node, node.getNextNode());
+        }
+        else {
+            Log.e("Route", "Should not reach here. A route link must have at least one of prevNode and nextNode.");
+        }
+        return null;
 	}
 	
 	public RouteNode getNextTurnNode(RouteNode currentNode, int indexOffset) {
@@ -236,7 +264,10 @@ public final class Route implements Parcelable {
 	 */
 	public double getDistanceToNextTurn(double latitude, double longitude) {
 		double distance = 0.0;
-		RouteNode nearestNode = getNearestNode(latitude, longitude);
+		RouteLink nearestLink = getNearestLink(latitude, longitude);
+		
+		// nearest downstream node
+		RouteNode nearestNode = nearestLink.getEndNode();
 		
 		if (nearestNode != null) {
 			distance = nearestNode.distanceTo(latitude, longitude);
