@@ -35,6 +35,7 @@ import com.smartrek.tasks.GeocodingTask;
 import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
+import com.smartrek.utils.Cache;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.LocationService;
@@ -271,6 +272,10 @@ public final class HomeActivity extends Activity {
 		case R.id.crash:
 			((HomeActivity) null).getApplication();
 			break;
+			
+		case R.id.clear_cache:
+		    Cache.getInstance().clear();
+		    break;
 		}
 		
 		return super.onMenuItemSelected(featureId, item);

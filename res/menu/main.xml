@@ -37,6 +37,9 @@
             <item
                 android:id="@+id/crash"
                 android:title="Crash the app (!)"/>
+            <item
+                android:id="@+id/clear_cache"
+                android:title="Clear cache"/>
         </menu>
     </item>
 

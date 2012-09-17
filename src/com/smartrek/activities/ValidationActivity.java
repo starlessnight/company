@@ -132,11 +132,11 @@ public class ValidationActivity extends Activity {
         locationListener = new ValidationLocationListener();
 
         // Register the listener with the Location Manager to receive location updates
-        boolean useRealData = false;
+        boolean useRealData = true;
         if (useRealData) {
         	// TODO: Turn on GSP early
         	locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
-        	locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 10, locationListener);
+        	locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 5, locationListener);
         }
         else {
         	FakeLocationService faceLocationService = new FakeLocationService(locationListener);
@@ -147,7 +147,7 @@ public class ValidationActivity extends Activity {
         
         validationTimeoutNotifier = new ValidationTimeoutNotifier();
         validationTimeoutHandler = new Handler();
-        validationTimeoutHandler.postDelayed(validationTimeoutNotifier, route.getDuration() * 3 * 1000);
+        validationTimeoutHandler.postDelayed(validationTimeoutNotifier, (900 + route.getDuration()*3) * 1000);
     }
     
     @Override
@@ -419,6 +419,8 @@ public class ValidationActivity extends Activity {
     		nodes.add(new RouteNode(32.239448,-110.952476, 0, 0));
     		nodes.add(new RouteNode(32.243314,-110.952519, 0, 0));
     		nodes.add(new RouteNode(32.247833,-110.952476, 0, 0));
+    		nodes.add(new RouteNode(32.249752,-110.952543, 0, 0));
+    		nodes.add(new RouteNode(32.249843,-110.952543, 0, 0));
     		nodes.add(new RouteNode(32.249902,-110.950673, 0, 0));
     		nodes.add(new RouteNode(32.250011,-110.945159, 0, 0));
     		nodes.add(new RouteNode(32.25021,-110.944107, 0, 0));
