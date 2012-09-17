@@ -1,11 +1,15 @@
 package com.smartrek.activities;
 
+import com.smartrek.dialogs.NotificationDialog;
+import com.smartrek.utils.Cache;
+
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.RadioButton;
 
 public final class DebugOptionsActivity extends Activity {
@@ -25,6 +29,8 @@ public final class DebugOptionsActivity extends Activity {
     
     private RadioButton radioRealGPS;
     private RadioButton radioPrerecordedGPS;
+    private Button buttonClearCache;
+    private Button buttonCrash;
     
     
     @Override
@@ -36,6 +42,8 @@ public final class DebugOptionsActivity extends Activity {
         
         radioRealGPS = (RadioButton) findViewById(R.id.radio_real_gps);
         radioPrerecordedGPS = (RadioButton) findViewById(R.id.radio_prerecorded_gps);
+        buttonClearCache = (Button) findViewById(R.id.button_clear_cache);
+        buttonCrash = (Button) findViewById(R.id.button_crash);
         
         radioRealGPS.setOnClickListener(new OnClickListener() {
             
@@ -55,6 +63,27 @@ public final class DebugOptionsActivity extends Activity {
                 editor.putInt(GPS_MODE, GPS_MODE_PRERECORDED);
                 editor.commit();
             }
+        });
+        
+        buttonClearCache.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Cache.getInstance().clear();
+                
+                NotificationDialog dialog = new NotificationDialog(DebugOptionsActivity.this, "Cache has been cleared.");
+                dialog.show();
+            }
+            
+        });
+        
+        buttonCrash.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                ((String) null).length();
+            }
+            
         });
     }
     

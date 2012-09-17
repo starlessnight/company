@@ -48,16 +48,21 @@
         </RadioGroup>
     </RelativeLayout>
 
-    <TextView
-        android:id="@+id/adjust_time_heading"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/button_clear_cache"
+        android:layout_width="160dp"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:text="@string/adjust_time"
-        android:textColor="#FFFFFFFF"
-        android:textSize="20dp"
-        android:visibility="invisible" >
-    </TextView>
+        android:layout_gravity="center"
+        android:layout_margin="4dp"
+        android:text="Clear cache" />
+
+    <Button
+        android:id="@+id/button_crash"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="4dp"
+        android:text="Crash app (!)"
+        android:textColor="#FF2000" />
 
 </LinearLayout>

@@ -55,13 +55,13 @@ public final class MainMenu {
 			activity.startActivity(intent);
 			break;
 			
-        case R.id.crash:
-            ((HomeActivity) null).getApplication();
-            break;
-
-        case R.id.clear_cache:
-            Cache.getInstance().clear();
-            break;
+//        case R.id.crash:
+//            ((HomeActivity) null).getApplication();
+//            break;
+//
+//        case R.id.clear_cache:
+//            Cache.getInstance().clear();
+//            break;
 
         case R.id.debug_options:
             intent = new Intent(activity, DebugOptionsActivity.class);
