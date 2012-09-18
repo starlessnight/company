@@ -272,7 +272,7 @@ public final class Route implements Parcelable {
 		if (nearestNode != null) {
 			distance = nearestNode.distanceTo(latitude, longitude);
 			
-			RouteNode nextNode = nearestNode.getNextNode();
+			RouteNode nextNode = nearestNode;//.getNextNode();
 			while (nearestNode.getFlag() == 0 && nextNode != null && nextNode.getFlag() == 0) {
 				distance += nextNode.getDistance();
 				
@@ -280,9 +280,9 @@ public final class Route implements Parcelable {
 			}
 			
 			// FIXME: Temporary
-			if (nearestNode.getFlag() != 0 && nearestNode.distanceTo(latitude, longitude) < 5) {
-			    nearestNode.setFlag(0);
-			}
+//			if (nearestNode.getFlag() != 0 && nearestNode.distanceTo(latitude, longitude) < 5) {
+//			    nearestNode.setFlag(0);
+//			}
 		}
 		return distance;
 	}

@@ -1,5 +1,7 @@
 package com.smartrek.activities;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -40,11 +42,11 @@ import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.GeoPoint;
+import com.smartrek.utils.PrerecordedTrajectory;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.ValidationParameters;
-import com.smartrek.utils.ValidationService;
 
 public class ValidationActivity extends Activity {
     
@@ -82,6 +84,8 @@ public class ValidationActivity extends Activity {
     private ValidationTimeoutNotifier validationTimeoutNotifier;
     
     private Handler validationTimeoutHandler;
+    
+    private FakeLocationService fakeLocationService;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -143,7 +147,7 @@ public class ValidationActivity extends Activity {
         	locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 5, locationListener);
         }
         else {
-        	FakeLocationService faceLocationService = new FakeLocationService(locationListener);
+        	fakeLocationService = new FakeLocationService(locationListener);
         }
 
         startTime = new Time();
@@ -362,7 +366,7 @@ public class ValidationActivity extends Activity {
     }
     
     private void deactivateLocationService() {
-    	
+    	fakeLocationService.cancel();
     }
     
     private class ValidationLocationListener implements LocationListener {
@@ -412,42 +416,36 @@ public class ValidationActivity extends Activity {
     private class FakeLocationService extends TimerTask {
     	private Timer timer;
     	private LocationListener listener;
-    	private Queue<RouteNode> nodes;
+    	//private Queue<RouteNode> nodes;
     	
-    	public FakeLocationService(LocationListener listener) {
+    	private Queue<GeoPoint> trajectory;
+    	
+    	@SuppressWarnings("unchecked")
+		public FakeLocationService(LocationListener listener) {
     		this.listener = listener;
     		
+			try {
+				InputStream in = getResources().getAssets().open("trajectory.csv");
+				trajectory = (Queue<GeoPoint>) PrerecordedTrajectory.read(in);
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			
     		timer = new Timer();
-    		timer.schedule(this, 1000, 2000);
-    		
-    		nodes = new LinkedList<RouteNode>();
-    		nodes.add(new RouteNode(32.236054,-110.952562, 0, 0));
-    		nodes.add(new RouteNode(32.239448,-110.952476, 0, 0));
-    		nodes.add(new RouteNode(32.243314,-110.952519, 0, 0));
-    		nodes.add(new RouteNode(32.247833,-110.952476, 0, 0));
-    		nodes.add(new RouteNode(32.249752,-110.952543, 0, 0));
-    		nodes.add(new RouteNode(32.249843,-110.952543, 0, 0));
-    		nodes.add(new RouteNode(32.249902,-110.950673, 0, 0));
-    		nodes.add(new RouteNode(32.250011,-110.945159, 0, 0));
-    		nodes.add(new RouteNode(32.25021,-110.944107, 0, 0));
-    		nodes.add(new RouteNode(32.256126,-110.94385, 0, 0));
-    		nodes.add(new RouteNode(32.257632,-110.945459, 0, 0));
-    		nodes.add(new RouteNode(32.257632,-110.951854, 0, 0));
-    		nodes.add(new RouteNode(32.258195,-110.95239, 0, 0));
-    		nodes.add(new RouteNode(32.263965,-110.952454, 0, 0));
-    		//nodes.add(new RouteNode(, 0, 0));
+    		timer.schedule(this, 1000, 500);
     	}
 
 		@Override
 		public void run() {
-			if (nodes.isEmpty()) {
+			if (trajectory == null || trajectory.isEmpty()) {
 				timer.cancel();
 			}
 			else {
-				RouteNode node = nodes.poll();
+				GeoPoint geoPoint = trajectory.poll();
 				Location location = new Location("");
-				location.setLatitude(node.getLatitude());
-				location.setLongitude(node.getLongitude());
+				location.setLatitude(geoPoint.getLatitude());
+				location.setLongitude(geoPoint.getLongitude());
 				location.setTime(System.currentTimeMillis());
 				listener.onLocationChanged(location);
 			}
