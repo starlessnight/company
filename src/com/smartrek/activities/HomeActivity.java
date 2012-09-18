@@ -35,7 +35,6 @@ import com.smartrek.tasks.GeocodingTask;
 import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
-import com.smartrek.utils.Cache;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.LocationService;
@@ -233,7 +232,7 @@ public final class HomeActivity extends Activity {
 	    
 	    /***************End Buttons********************/
 	}
-
+	
 	private TripListDialog tripListDialog;
 	
 	/**
@@ -579,65 +578,4 @@ public final class HomeActivity extends Activity {
 		editAddressDest.unsetAddress();
 		editAddressDest.setAddress(address);
 	}
-	
-//	private class FavoriteAddressFetchTask extends AsyncTask<Integer, Object, List<Address>> {
-//		
-//		private ProgressDialog dialog;
-//		
-//		/**
-//		 * If isForOrigin is true, {@code showFavAddrListForOrigin()} will be
-//		 * called. Otherwise, {@code showFavAddrListForDest()} will be called.
-//		 * However, this is a temporary solution and must be replace with more
-//		 * robust solution in the near future.
-//		 */
-//		private boolean isForOrigin;
-//		
-//		public FavoriteAddressFetchTask(boolean isForOrigin) {
-//			super();
-//			this.isForOrigin = isForOrigin;
-//		}
-//		
-//		@Override
-//		protected void onPreExecute() {
-//			dialog = new ProgressDialog(HomeActivity.this);
-//			dialog.setMessage("Fetching favorite addresses...");
-//			dialog.setIndeterminate(true);
-//			dialog.setCancelable(false);
-//			dialog.show();
-//		}
-//
-//		@Override
-//		protected List<Address> doInBackground(Integer... params) {
-//
-//			// FIXME: Potential array out of boundary exception
-//			int uid = params[0];
-//
-//			FavoriteAddressFetchRequest request = new FavoriteAddressFetchRequest(uid);
-//			try {
-//				favoriteAddresses = request.execute();
-//			}
-//			catch (Exception e) {
-//				ehs.registerException(e);
-//			}
-//
-//			return favoriteAddresses;
-//		}
-//
-//		@Override
-//		protected void onPostExecute(List<Address> result) {
-//			dialog.cancel();
-//
-//			if (ehs.hasExceptions()) {
-//				ehs.reportExceptions();
-//			}
-//			else {
-//				if (isForOrigin) {
-//					showFavAddrListForOrigin(result);
-//				}
-//				else {
-//					showFavAddrListForDest(result);
-//				}
-//			}
-//		}
-//	}
 }
