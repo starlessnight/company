@@ -2,21 +2,16 @@ package com.smartrek.requests;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.SimpleFormatter;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.text.format.Time;
 import android.util.Log;
-import android.util.TimeFormatException;
 
-import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
+import com.smartrek.utils.Cache;
 import com.smartrek.utils.HTTP;
 import com.smartrek.utils.RouteNode;
 

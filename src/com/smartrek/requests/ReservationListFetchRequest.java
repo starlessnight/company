@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.smartrek.models.Reservation;
+import com.smartrek.utils.Cache;
 
 public class ReservationListFetchRequest extends FetchRequest<List<Reservation>> {
 	
@@ -16,6 +17,9 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
 
 	@Override
 	public List<Reservation> execute() throws Exception {
+	    // FIXME: Not going to use cache for now
+	    Cache.getInstance().clear();
+	    
 		String response = executeFetchRequest(getURL());
 		
 		List<Reservation> reservations = new ArrayList<Reservation>();
