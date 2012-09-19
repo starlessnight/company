@@ -9,6 +9,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.utils.ExceptionHandlingService;
 
@@ -28,7 +29,7 @@ public final class ReservationDetailsActivity extends Activity {
 	private Button buttonStartTrip;
 	
 	private Route route;
-	
+	private Reservation reservation;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -37,12 +38,18 @@ public final class ReservationDetailsActivity extends Activity {
         
         Bundle extras = getIntent().getExtras();
         route = extras.getParcelable("route");
+        reservation = extras.getParcelable("reservation");
         
         if (route == null) {
         	ehs.reportException("Could not load route (e73d67fc)");
      	
         }
         else {
+            long arrivalTime = route.getArrivalTime();
+            if (reservation != null) {
+                arrivalTime = reservation.getArrivalTime();
+            }
+            
 	        textViewName = (TextView) findViewById(R.id.textViewReservationName);
 	        textViewName.setText(String.format("Reservation #%d", route.getId()));
 	        
@@ -61,7 +68,7 @@ public final class ReservationDetailsActivity extends Activity {
 	        textViewArrivalTime = (TextView) findViewById(R.id.textViewArrivalTime);
 	        // FIXME: Date/time format i18n
 	        Time at = new Time();
-	        at.set(route.getArrivalTime());
+	        at.set(arrivalTime);
 	        textViewArrivalTime.setText(at.format("%b %d, %G %l:%M%p"));
 	        
 	        textViewCredits = (TextView) findViewById(R.id.textViewCredits);

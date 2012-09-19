@@ -63,6 +63,7 @@ public final class ReservationListActivity extends ListActivity {
 		Bundle extras = new Bundle();
 		// FIXME: Reservation.getRoute() is a temporary solution
 		extras.putParcelable("route", reservations.get(position).getRoute());
+		extras.putParcelable("reservation", reservations.get(position));
 		intent.putExtras(extras);
 		startActivity(intent);
 	}
