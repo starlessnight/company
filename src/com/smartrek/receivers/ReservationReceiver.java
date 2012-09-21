@@ -11,7 +11,7 @@ import android.text.format.Time;
 import android.util.Log;
 
 import com.smartrek.activities.R;
-import com.smartrek.activities.ReservationConfirmationActivity;
+import com.smartrek.activities.ReservationDetailsActivity;
 import com.smartrek.models.Route;
 import com.smartrek.utils.TimeRange;
 import com.smartrek.utils.ValidationParameters;
@@ -55,17 +55,14 @@ public final class ReservationReceiver extends BroadcastReceiver {
 		
 	    Route route = intent.getExtras().getParcelable("route");
 		
-        Intent reservationConfirmationIntent = new Intent(context, ReservationConfirmationActivity.class);
-        intent.putExtra("route", route);
-        //intent.putExtra("reservation", reservation);
-        // In reality, you would want to have a static variable for the
-        // request code instead of 192837
-        PendingIntent sender = PendingIntent.getBroadcast(context, 192837, reservationConfirmationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent reservationIntent = new Intent(context, ReservationDetailsActivity.class);
+        reservationIntent.putExtra("route", route);
+        //reservationIntent.putExtra("reservation", reservation);
+        PendingIntent sender = PendingIntent.getActivity(context, 0, reservationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         
-
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         
-        Notification notification = new Notification(R.drawable.icon, "SmarTrek", route.getDepartureTime());
+        Notification notification = new Notification(R.drawable.icon_small, "SmarTrek", route.getDepartureTime());
         notification.setLatestEventInfo(context, "SmarTrek", "Your reserved trip is about to start", sender);
         notificationManager.notify(0, notification);
 		
