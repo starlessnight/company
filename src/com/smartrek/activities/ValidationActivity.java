@@ -2,7 +2,6 @@ package com.smartrek.activities;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Timer;
@@ -23,6 +22,9 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.MediaPlayer;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -244,6 +246,16 @@ public class ValidationActivity extends Activity {
         new SendTrajectoryTask().execute(seq++, User.getCurrentUser(this).getId());
     }
     
+    // FIXME: Temporary
+    private boolean pingFlag1, pingFlag2, pingFlag3;
+    
+    // FIXME: Temporary
+    private void playPingSound() {
+        Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        MediaPlayer mp = MediaPlayer.create(this, alert);
+        mp.start();
+    }
+    
     private void showNavigationInformation(final Location location, final RouteNode node) {
     	final double latitude = location.getLatitude();
     	final double longitude = location.getLongitude();
@@ -266,6 +278,20 @@ public class ValidationActivity extends Activity {
 				textViewMessage.setText(StringUtil.capitalizeFirstLetter(node.getMessage()));
 				textViewDistance.setText(distancePresentation);
 				textViewRoadname.setText(node.getRoadName());
+				
+				// TODO: Temporary
+				if (!pingFlag1 && distanceInFoot <= 500) {
+				    pingFlag1 = true;
+				    playPingSound();
+				}
+				else if (!pingFlag2 && distanceInMile <= 1.0) {
+				    pingFlag2 = true;
+				    playPingSound();
+				}
+				else if (!pingFlag3 && distanceInMile <= 2.0) {
+				    pingFlag3 = true;
+				    playPingSound();
+				}
 			}
 		});
     }
@@ -283,23 +309,9 @@ public class ValidationActivity extends Activity {
         pointOverlay.setLocation((float)lat, (float)lng);
         
         nearestNode = route.getNearestNode(lat, lng);
-        //nearestLink = ValidationService.getNearestLink(nearestNode, lat, lng);
         nearestLink = route.getNearestLink(lat, lng);
         
     	List<RouteNode> routeNodes = route.getNodes();
-        
-//    	// FIXME: There's gotta be a better solution
-//    	for (int i = 0; i < routeNodes.size() - mapOverlayOffset; i++) {
-//    		RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(i);
-//    		overlay.setColor(Color.DKGRAY);
-//    	}
-//    	RouteSegmentOverlay overlay = (RouteSegmentOverlay) mapOverlays.get(nearestLink.getStartNode().getNodeIndex());
-    	
-//    	RouteNode startNode = nearestLink.getStartNode();
-//    	startNodeOverlay.setLocation(startNode.getLatitude(), startNode.getLongitude());
-//    	
-//    	RouteNode endNode = nearestLink.getEndNode();
-//    	endNodeOverlay.setLocation(endNode.getLatitude(), endNode.getLongitude());
     	
     	ValidationParameters params = ValidationParameters.getInstance();
         
@@ -317,6 +329,7 @@ public class ValidationActivity extends Activity {
 			while (node.getNextNode() != null) {
 				node = node.getNextNode();
 				if (node.getFlag() != 0) {
+				    pingFlag1 = pingFlag2 = pingFlag3 = false;
 					showNavigationInformation(location, node);
 					
 					break;
@@ -327,7 +340,7 @@ public class ValidationActivity extends Activity {
     	
     	mapView.postInvalidate();
     	
-    	if (trajectory.size() >= 3) {
+    	if (trajectory.size() >= 8) {
     		sendTrajectory();
     	}
         

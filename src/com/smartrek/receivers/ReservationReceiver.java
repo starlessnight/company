@@ -1,5 +1,8 @@
 package com.smartrek.receivers;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +10,7 @@ import android.location.Location;
 import android.text.format.Time;
 import android.util.Log;
 
+import com.smartrek.activities.R;
 import com.smartrek.activities.ReservationDetailsActivity;
 import com.smartrek.models.Route;
 import com.smartrek.utils.TimeRange;
@@ -47,21 +51,23 @@ public final class ReservationReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		Log.d("ReservationReceiver", "Validation has started.");
+	    Log.d("ReservationReceiver", "onReceive");
 		
+	    Route route = intent.getExtras().getParcelable("route");
 		
-        // TODO: We probably want to ask user if she wants to open up
-        // ValidatinoActivity
-		// TODO: Pass 'route' instance to ValidationActivity
-		Intent intent2 = new Intent(context, ReservationDetailsActivity.class);
-		intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent2.putExtra("route", intent.getExtras().getParcelable("route"));
-		context.startActivity(intent2);
+        Intent reservationIntent = new Intent(context, ReservationDetailsActivity.class);
+        reservationIntent.putExtra("route", route);
+        //reservationIntent.putExtra("reservation", reservation);
+        PendingIntent sender = PendingIntent.getActivity(context, 0, reservationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        
+        Notification notification = new Notification(R.drawable.icon_small, "SmarTrek", route.getDepartureTime());
+        notification.setLatestEventInfo(context, "SmarTrek", "Your reserved trip is about to start", sender);
+        notificationManager.notify(0, notification);
+		
 		
 		/*
-		
-		Bundle extras = intent.getExtras();
-		Route route = (Route) extras.get("route");
 		
 		if (parameters == null) {
 			parameters = new ValidationParameters();
