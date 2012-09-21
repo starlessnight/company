@@ -20,6 +20,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Route;
 import com.smartrek.receivers.ReservationReceiver;
 import com.smartrek.requests.ReservationMapper;
@@ -109,29 +110,22 @@ public final class ReservationConfirmationActivity extends Activity {
 //    	dialog.show();
     }
 	
-	private void scheduleEvent(Route route) {
+	private void scheduleNotification(Route route) {
 		
 		long departureTime = route.getDepartureTime();
 		
-		Intent intent = new Intent(ReservationConfirmationActivity.this, ReservationReceiver.class);
+		Intent intent = new Intent(this, ReservationReceiver.class);
 		intent.putExtra("route", route);
-		intent.putExtra("alarm_message", "O'Doyle Rules!");
+		//intent.putExtra("reservation", reservation);
 		// In reality, you would want to have a static variable for the
 		// request code instead of 192837
-		PendingIntent sender = PendingIntent.getBroadcast(ReservationConfirmationActivity.this, 192837,
+		PendingIntent sender = PendingIntent.getBroadcast(this, 192837,
 				intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		// Get the AlarmManager service
-		//AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-		//am.set(AlarmManager.RTC_WAKEUP, departureTime - 60000*5, sender); // 5 min earlier than departure time
+		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+		am.set(AlarmManager.RTC_WAKEUP, departureTime - 60000*5, sender); // 5 min earlier than departure time
 		
-		NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		
-		Notification notification = new Notification(R.drawable.icon, "A new notification", departureTime - 60000*5);
-		notification.setLatestEventInfo(this, "This is the title", "This is the text", sender);
-		notificationManager.notify(0, notification); 
-		
-		Log.d("ReservationConfirmationActivity", "Event has been scheduled. " + departureTime);
 	}
 	
 	private final class ReservationTask extends AsyncTask<Object, Object, Object> {
@@ -154,12 +148,9 @@ public final class ReservationConfirmationActivity extends Activity {
 			try {
 				mapper.reserveRoute(route);
 			}
-			catch (IOException e) {
+			catch (Exception e) {
 				ehs.registerException(e);
 			}
-            catch (JSONException e) {
-                ehs.registerException(e);
-            }
 			
 			return null;
 		}
@@ -172,15 +163,21 @@ public final class ReservationConfirmationActivity extends Activity {
 		        ehs.reportExceptions();
 		    }
 		    else {
-				scheduleEvent(route);
+				scheduleNotification(route);
 				
-				Intent intent = new Intent(ReservationConfirmationActivity.this, ReservationListActivity.class);
-//				Bundle extras = new Bundle();
-//				extras.putParcelable("route", route);
-//				intent.putExtras(extras);
-				startActivity(intent);
-				
-				finish();
+				NotificationDialog dialog = new NotificationDialog(ReservationConfirmationActivity.this, "You have successfully reserved a route.");
+				dialog.setActionListener(new NotificationDialog.ActionListener() {
+                    
+                    @Override
+                    public void onClickDismiss() {
+                        Intent intent = new Intent(ReservationConfirmationActivity.this, ReservationListActivity.class);
+                        startActivity(intent);
+                        
+                        finish();
+                        
+                    }
+                });
+				dialog.show();
 			}
 		}
 	}
