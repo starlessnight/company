@@ -6,6 +6,8 @@ import org.json.JSONException;
 
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -18,12 +20,9 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.smartrek.dialogs.TripSaveDialog;
 import com.smartrek.models.Route;
-import com.smartrek.models.User;
 import com.smartrek.receivers.ReservationReceiver;
 import com.smartrek.requests.ReservationMapper;
-import com.smartrek.requests.TripAddRequest;
 import com.smartrek.utils.ExceptionHandlingService;
 
 /**
@@ -123,8 +122,14 @@ public final class ReservationConfirmationActivity extends Activity {
 				intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		// Get the AlarmManager service
-		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-		am.set(AlarmManager.RTC_WAKEUP, departureTime - 60000*5, sender); // 5 min earlier than departure time
+		//AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+		//am.set(AlarmManager.RTC_WAKEUP, departureTime - 60000*5, sender); // 5 min earlier than departure time
+		
+		NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		
+		Notification notification = new Notification(R.drawable.icon, "A new notification", departureTime - 60000*5);
+		notification.setLatestEventInfo(this, "This is the title", "This is the text", sender);
+		notificationManager.notify(0, notification); 
 		
 		Log.d("ReservationConfirmationActivity", "Event has been scheduled. " + departureTime);
 	}
