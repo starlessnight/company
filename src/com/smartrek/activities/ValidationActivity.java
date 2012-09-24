@@ -31,10 +31,13 @@ import android.os.Handler;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
@@ -58,6 +61,7 @@ public class ValidationActivity extends Activity {
     private TextView textViewMessage;
     private TextView textViewDistance;
     private TextView textViewRoadname;
+    private ToggleButton buttonFollow;
     
     private Route route;
     private List<Overlay> mapOverlays;
@@ -100,6 +104,17 @@ public class ValidationActivity extends Activity {
         
         mapView = (MapView) findViewById(R.id.mapview);
         mapView.setBuiltInZoomControls(false);
+        mapView.setOnTouchListener(new OnTouchListener() {
+			
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				buttonFollow.setChecked(false);
+				return false;
+			}
+		});
+        
+        MapController mc = mapView.getController();
+        mc.setZoom(18);
         
         /* Create a ImageView with a zoomIn-Icon. */
         final ImageView imageViewZoomIn = (ImageView) findViewById(R.id.image_view_zoom_in);
@@ -122,11 +137,22 @@ public class ValidationActivity extends Activity {
         textViewDistance = (TextView) findViewById(R.id.text_view_distance);
         textViewRoadname = (TextView) findViewById(R.id.text_view_roadname);
         
+        buttonFollow = (ToggleButton) findViewById(R.id.button_follow);
+        buttonFollow.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				if (buttonFollow.isChecked()) {
+					
+				}
+				else {
+					
+				}
+			}
+		});
+        
         ((View) findViewById(R.id.text_view_navigation)).getBackground().setAlpha(220);
 
-        MapController mc = mapView.getController();
-        mc.setZoom(18);
-        
         if (route.getFirstNode() != null) {
         	mc.setCenter(route.getFirstNode().getGeoPoint());
         }
@@ -304,7 +330,9 @@ public class ValidationActivity extends Activity {
         double lat = location.getLatitude();
         double lng = location.getLongitude();
         
-        mapView.getController().animateTo(lat, lng);
+        if (buttonFollow.isChecked()) {
+        	mapView.getController().animateTo(lat, lng);
+        }
         
         pointOverlay.setLocation((float)lat, (float)lng);
         
