@@ -8,10 +8,58 @@ import com.smartrek.models.JSONModel;
 
 public final class RouteNode implements Parcelable, JSONModel {
 	
+	/**
+	 * Extra information for navigation
+	 *
+	 */
+	public static class Metadata implements Parcelable {
+		public boolean[] pingFlags = new boolean[3];
+		
+		public static final Parcelable.Creator<Metadata> CREATOR = new Parcelable.Creator<Metadata>() {
+			public Metadata createFromParcel(Parcel in) {
+				return new Metadata(in);
+			}
+
+			public Metadata[] newArray(int size) {
+				return new Metadata[size];
+			}
+		};
+		
+		public Metadata() {
+			resetPingFlags();
+		}
+		
+		public Metadata(Parcel in) {
+			in.readBooleanArray(pingFlags);
+		}
+		
+		public void resetPingFlags() {
+			for (int i = 0; i < pingFlags.length; i++) {
+				pingFlags[i] = false;
+			}
+		}
+		
+		@Override
+		public int describeContents() {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+		
+		@Override
+		public void writeToParcel(Parcel dest, int flags) {
+			dest.writeBooleanArray(pingFlags);
+		}
+	}
+	
 	private double lat;
 	private double lng;
 	private int routeNum;
 	private int nodeNum;
+	
+	/**
+	 * This must be non-null for route nodes with a non-zero {@code flag}.
+	 */
+	private Metadata metadata;
 	
 	/**
 	 * Navigation metadata. Non-zero value indicates change of navigation information.
@@ -66,6 +114,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		lng = in.readDouble();
 		routeNum = in.readInt();
 		nodeNum = in.readInt();
+		metadata = in.readParcelable(Metadata.class.getClassLoader());
 		flag = in.readInt();
 		distance = in.readDouble();
 		message = in.readString();
@@ -120,6 +169,18 @@ public final class RouteNode implements Parcelable, JSONModel {
 
 	public void setNodeIndex(int nodeIndex) {
 		this.nodeIndex = nodeIndex;
+	}
+	
+	public Metadata getMetadata() {
+		return metadata;
+	}
+	
+	public boolean hasMetadata() {
+		return metadata != null;
+	}
+	
+	public void setMetadata(Metadata metadata) {
+		this.metadata = metadata;
 	}
 
 	public int getFlag() {
@@ -187,6 +248,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		dest.writeDouble(lng);
 		dest.writeInt(routeNum);
 		dest.writeInt(nodeNum);
+		dest.writeParcelable(metadata, flags);
 		dest.writeInt(flag);
 		dest.writeDouble(distance);
 		dest.writeString(message);

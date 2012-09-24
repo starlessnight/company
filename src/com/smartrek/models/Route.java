@@ -366,6 +366,30 @@ public final class Route implements Parcelable {
 		return t;
 		
 	}
+	
+	public void preprocessNodes() {
+		RouteNode prevNode = null;
+		for(int i = 0; i < routeNodes.size(); i++) {
+			RouteNode node = routeNodes.get(i);
+			node.setPrevNode(prevNode);
+			node.setNodeIndex(i);
+			
+			if (prevNode != null) {
+				prevNode.setNextNode(node);
+			}
+			
+			if (node.getFlag() != 0) {
+				if (node.hasMetadata()) {
+					node.getMetadata().resetPingFlags();
+				}
+				else {
+					node.setMetadata(new RouteNode.Metadata());
+				}
+			}
+			
+			prevNode = node;
+		}
+	}
 
 	@Override
 	public int describeContents() {

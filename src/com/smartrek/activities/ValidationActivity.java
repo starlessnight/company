@@ -96,8 +96,7 @@ public class ValidationActivity extends Activity {
         
         Bundle extras = getIntent().getExtras();
         route = extras.getParcelable("route");
-        
-        RouteMapper.buildRouteNodeReferenceChain(route.getNodes());
+        route.preprocessNodes();
         
         mapView = (MapView) findViewById(R.id.mapview);
         mapView.setBuiltInZoomControls(false);
@@ -247,9 +246,6 @@ public class ValidationActivity extends Activity {
     }
     
     // FIXME: Temporary
-    private boolean pingFlag1, pingFlag2, pingFlag3;
-    
-    // FIXME: Temporary
     private void playPingSound() {
         Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         MediaPlayer mp = MediaPlayer.create(this, alert);
@@ -279,18 +275,22 @@ public class ValidationActivity extends Activity {
 				textViewDistance.setText(distancePresentation);
 				textViewRoadname.setText(node.getRoadName());
 				
-				// TODO: Temporary
-				if (!pingFlag1 && distanceInFoot <= 500) {
-				    pingFlag1 = true;
-				    playPingSound();
-				}
-				else if (!pingFlag2 && distanceInMile <= 1.0) {
-				    pingFlag2 = true;
-				    playPingSound();
-				}
-				else if (!pingFlag3 && distanceInMile <= 2.0) {
-				    pingFlag3 = true;
-				    playPingSound();
+				// FIXME: Temporary
+				if (node.hasMetadata()) {
+					RouteNode.Metadata metadata = node.getMetadata();
+				
+					if (!metadata.pingFlags[0] && distanceInFoot <= 500) {
+						metadata.pingFlags[0] = true;
+					    playPingSound();
+					}
+					else if (metadata.pingFlags[1] && distanceInMile <= 1.0) {
+						metadata.pingFlags[1] = true;
+					    playPingSound();
+					}
+					else if (!metadata.pingFlags[2] && distanceInMile <= 2.0) {
+						metadata.pingFlags[2] = true;
+					    playPingSound();
+					}
 				}
 			}
 		});
@@ -308,8 +308,9 @@ public class ValidationActivity extends Activity {
         
         pointOverlay.setLocation((float)lat, (float)lng);
         
-        nearestNode = route.getNearestNode(lat, lng);
+        //nearestNode = route.getNearestNode(lat, lng);
         nearestLink = route.getNearestLink(lat, lng);
+        nearestNode = nearestLink.getEndNode();
         
     	List<RouteNode> routeNodes = route.getNodes();
     	
@@ -329,9 +330,7 @@ public class ValidationActivity extends Activity {
 			while (node.getNextNode() != null) {
 				node = node.getNextNode();
 				if (node.getFlag() != 0) {
-				    pingFlag1 = pingFlag2 = pingFlag3 = false;
 					showNavigationInformation(location, node);
-					
 					break;
 				}
 			}
