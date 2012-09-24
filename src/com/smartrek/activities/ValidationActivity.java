@@ -31,6 +31,9 @@ import android.os.Handler;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -43,6 +46,7 @@ import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.RouteMapper;
+import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.utils.ExceptionHandlingService;
@@ -102,57 +106,11 @@ public class ValidationActivity extends Activity {
         route = extras.getParcelable("route");
         route.preprocessNodes();
         
-        mapView = (MapView) findViewById(R.id.mapview);
-        mapView.setBuiltInZoomControls(false);
-        mapView.setOnTouchListener(new OnTouchListener() {
-			
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				buttonFollow.setChecked(false);
-				return false;
-			}
-		});
+        initViews();
         
         MapController mc = mapView.getController();
         mc.setZoom(18);
         
-        /* Create a ImageView with a zoomIn-Icon. */
-        final ImageView imageViewZoomIn = (ImageView) findViewById(R.id.image_view_zoom_in);
-        imageViewZoomIn.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                        mapView.getController().zoomIn();
-                }
-        });
-        
-        final ImageView imageViewZoomOut = (ImageView) findViewById(R.id.image_view_zoom_out);
-        imageViewZoomOut.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                        mapView.getController().zoomOut();
-                }
-        });
-        
-        textViewMessage = (TextView) findViewById(R.id.text_view_message);
-        textViewDistance = (TextView) findViewById(R.id.text_view_distance);
-        textViewRoadname = (TextView) findViewById(R.id.text_view_roadname);
-        
-        buttonFollow = (ToggleButton) findViewById(R.id.button_follow);
-        buttonFollow.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				if (buttonFollow.isChecked()) {
-					
-				}
-				else {
-					
-				}
-			}
-		});
-        
-        ((View) findViewById(R.id.text_view_navigation)).getBackground().setAlpha(220);
-
         if (route.getFirstNode() != null) {
         	mc.setCenter(route.getFirstNode().getGeoPoint());
         }
@@ -186,6 +144,21 @@ public class ValidationActivity extends Activity {
     }
     
     @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        super.onCreateOptionsMenu(menu);
+        MenuInflater mi = getMenuInflater();
+        mi.inflate(R.menu.main, menu);
+        return true;
+    }
+    
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        MainMenu.onMenuItemSelected(this, featureId, item);
+        
+        return super.onMenuItemSelected(featureId, item);
+    }
+    
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         // Handle the back button
         if(keyCode == KeyEvent.KEYCODE_BACK) {
@@ -213,6 +186,56 @@ public class ValidationActivity extends Activity {
             return super.onKeyDown(keyCode, event);
         }
 
+    }
+    
+    private void initViews() {
+        mapView = (MapView) findViewById(R.id.mapview);
+        mapView.setBuiltInZoomControls(false);
+        mapView.setOnTouchListener(new OnTouchListener() {
+            
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                buttonFollow.setChecked(false);
+                return false;
+            }
+        });
+        
+        /* Create a ImageView with a zoomIn-Icon. */
+        final ImageView imageViewZoomIn = (ImageView) findViewById(R.id.image_view_zoom_in);
+        imageViewZoomIn.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(final View v) {
+                        mapView.getController().zoomIn();
+                }
+        });
+        
+        final ImageView imageViewZoomOut = (ImageView) findViewById(R.id.image_view_zoom_out);
+        imageViewZoomOut.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(final View v) {
+                        mapView.getController().zoomOut();
+                }
+        });
+        
+        textViewMessage = (TextView) findViewById(R.id.text_view_message);
+        textViewDistance = (TextView) findViewById(R.id.text_view_distance);
+        textViewRoadname = (TextView) findViewById(R.id.text_view_roadname);
+        
+        buttonFollow = (ToggleButton) findViewById(R.id.button_follow);
+        buttonFollow.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (buttonFollow.isChecked()) {
+                    
+                }
+                else {
+                    
+                }
+            }
+        });
+        
+        ((View) findViewById(R.id.text_view_navigation)).getBackground().setAlpha(220);
     }
 
     public synchronized int[] drawRoute (MapView mapView, Route route, int routeNum) {
@@ -273,9 +296,14 @@ public class ValidationActivity extends Activity {
     
     // FIXME: Temporary
     private void playPingSound() {
-        Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        MediaPlayer mp = MediaPlayer.create(this, alert);
-        mp.start();
+        try {
+            Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            MediaPlayer mp = MediaPlayer.create(this, alert);
+            mp.start();
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+        }
     }
     
     private void showNavigationInformation(final Location location, final RouteNode node) {
