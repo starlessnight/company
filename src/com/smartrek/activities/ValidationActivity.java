@@ -406,7 +406,9 @@ public class ValidationActivity extends Activity {
     }
     
     private void deactivateLocationService() {
-    	fakeLocationService.cancel();
+        if (fakeLocationService != null) {
+            fakeLocationService.cancel();
+        }
     }
     
     private class ValidationLocationListener implements LocationListener {
