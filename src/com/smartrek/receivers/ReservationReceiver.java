@@ -64,6 +64,7 @@ public final class ReservationReceiver extends BroadcastReceiver {
         
         Notification notification = new Notification(R.drawable.icon_small, "SmarTrek", route.getDepartureTime());
         notification.setLatestEventInfo(context, "SmarTrek", "Your reserved trip is about to start", sender);
+        notification.flags = Notification.FLAG_AUTO_CANCEL;
         notificationManager.notify(0, notification);
 		
 		
