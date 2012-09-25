@@ -317,6 +317,9 @@ public class ValidationActivity extends Activity {
 		catch (IOException e) {
 			e.printStackTrace();
 		}
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     // FIXME: Temporary

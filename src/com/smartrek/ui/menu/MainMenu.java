@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.view.MenuItem;
 
-import com.smartrek.activities.ContactsActivity;
 import com.smartrek.activities.CouponsTabActivity;
 import com.smartrek.activities.DebugOptionsActivity;
 import com.smartrek.activities.HomeActivity;
@@ -13,7 +12,6 @@ import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.activities.R;
 import com.smartrek.activities.ReservationListActivity;
 import com.smartrek.models.User;
-import com.smartrek.utils.Cache;
 
 /**
  * A common interface to bring up the application menu
@@ -23,6 +21,11 @@ public final class MainMenu {
 	public static void onMenuItemSelected(Activity activity, int featureId, MenuItem item) {
 		Intent intent = null;
 		switch (item.getItemId()) {
+		
+		case R.id.route:
+		    intent = new Intent(activity, HomeActivity.class);
+		    activity.startActivity(intent);
+		    break;
 			
 //		case R.id.contacts:
 //			intent = new Intent(activity, ContactsActivity.class);
