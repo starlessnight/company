@@ -31,6 +31,9 @@ import android.os.Handler;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -43,6 +46,7 @@ import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.RouteMapper;
+import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.utils.ExceptionHandlingService;
@@ -102,6 +106,91 @@ public class ValidationActivity extends Activity {
         route = extras.getParcelable("route");
         route.preprocessNodes();
         
+        initViews();
+        
+        MapController mc = mapView.getController();
+        mc.setZoom(18);
+        
+        if (route.getFirstNode() != null) {
+            mc.setCenter(route.getFirstNode().getGeoPoint());
+        }
+        
+        preparePingSound();
+        
+        drawRoute(mapView, route, 0);
+        
+        // Acquire a reference to the system Location Manager
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        
+        // Define a listener that responds to location updates
+        locationListener = new ValidationLocationListener();
+        
+        SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
+
+        // Register the listener with the Location Manager to receive location updates
+        if (debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT) == DebugOptionsActivity.GPS_MODE_REAL) {
+            // TODO: Turn on GSP early
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 5, locationListener);
+        }
+        else {
+            fakeLocationService = new FakeLocationService(locationListener);
+        }
+
+        startTime = new Time();
+        startTime.setToNow();
+        
+        validationTimeoutNotifier = new ValidationTimeoutNotifier();
+        validationTimeoutHandler = new Handler();
+        validationTimeoutHandler.postDelayed(validationTimeoutNotifier, (900 + route.getDuration()*3) * 1000);
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        super.onCreateOptionsMenu(menu);
+        MenuInflater mi = getMenuInflater();
+        mi.inflate(R.menu.main, menu);
+        return true;
+    }
+    
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        MainMenu.onMenuItemSelected(this, featureId, item);
+        
+        return super.onMenuItemSelected(featureId, item);
+    }
+    
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // Handle the back button
+        if(keyCode == KeyEvent.KEYCODE_BACK) {
+            // Ask the user if they want to quit
+            new AlertDialog.Builder(this)
+            .setIcon(android.R.drawable.ic_dialog_alert)
+            .setTitle("Confirm")
+            .setMessage("Are you sure?")
+            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    //Stop the activity
+                    ValidationActivity.this.finish();    
+                }
+
+            })
+            .setNegativeButton("No", null)
+            .show();
+
+            return true;
+        }
+        else {
+            return super.onKeyDown(keyCode, event);
+        }
+
+    }
+    
+    private void initViews() {
         mapView = (MapView) findViewById(R.id.mapview);
         mapView.setBuiltInZoomControls(false);
         mapView.setOnTouchListener(new OnTouchListener() {
@@ -112,9 +201,6 @@ public class ValidationActivity extends Activity {
                 return false;
             }
         });
-        
-        MapController mc = mapView.getController();
-        mc.setZoom(18);
         
         /* Create a ImageView with a zoomIn-Icon. */
         final ImageView imageViewZoomIn = (ImageView) findViewById(R.id.image_view_zoom_in);
@@ -152,69 +238,6 @@ public class ValidationActivity extends Activity {
         });
         
         ((View) findViewById(R.id.text_view_navigation)).getBackground().setAlpha(220);
-
-        if (route.getFirstNode() != null) {
-            mc.setCenter(route.getFirstNode().getGeoPoint());
-        }
-        
-        preparePingSound();
-        
-        drawRoute(mapView, route, 0);
-        
-        // Acquire a reference to the system Location Manager
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        
-        // Define a listener that responds to location updates
-        locationListener = new ValidationLocationListener();
-        
-        SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
-
-        // Register the listener with the Location Manager to receive location updates
-        if (debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT) == DebugOptionsActivity.GPS_MODE_REAL) {
-            // TODO: Turn on GSP early
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 5, locationListener);
-        }
-        else {
-            fakeLocationService = new FakeLocationService(locationListener);
-        }
-
-        startTime = new Time();
-        startTime.setToNow();
-        
-        validationTimeoutNotifier = new ValidationTimeoutNotifier();
-        validationTimeoutHandler = new Handler();
-        validationTimeoutHandler.postDelayed(validationTimeoutNotifier, (900 + route.getDuration()*3) * 1000);
-    }
-    
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        // Handle the back button
-        if(keyCode == KeyEvent.KEYCODE_BACK) {
-            // Ask the user if they want to quit
-            new AlertDialog.Builder(this)
-            .setIcon(android.R.drawable.ic_dialog_alert)
-            .setTitle("Confirm")
-            .setMessage("Are you sure?")
-            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                    //Stop the activity
-                    ValidationActivity.this.finish();    
-                }
-
-            })
-            .setNegativeButton("No", null)
-            .show();
-
-            return true;
-        }
-        else {
-            return super.onKeyDown(keyCode, event);
-        }
-
     }
 
     public synchronized int[] drawRoute (MapView mapView, Route route, int routeNum) {
@@ -292,13 +315,7 @@ public class ValidationActivity extends Activity {
     
     // FIXME: Temporary
     private void playPingSound() {
-//        runOnUiThread(new Runnable() {
-//            public void run() {
-                
     	mediaPlayer.start();
-                
-//            }
-//        });
     }
     
     private void showNavigationInformation(final Location location, final RouteNode node) {
@@ -429,7 +446,9 @@ public class ValidationActivity extends Activity {
     }
     
     private void deactivateLocationService() {
-        fakeLocationService.cancel();
+        if (fakeLocationService != null) {
+            fakeLocationService.cancel();
+        }
     }
     
     private class ValidationLocationListener implements LocationListener {
