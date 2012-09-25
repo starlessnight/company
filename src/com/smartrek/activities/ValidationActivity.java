@@ -91,6 +91,8 @@ public class ValidationActivity extends Activity {
 
     private LocationListener locationListener;
     
+    private Location lastKnownLocation;
+    
     private ValidationTimeoutNotifier validationTimeoutNotifier;
     
     private Handler validationTimeoutHandler;
@@ -229,7 +231,11 @@ public class ValidationActivity extends Activity {
             @Override
             public void onClick(View v) {
                 if (buttonFollow.isChecked()) {
-                    
+                    if (lastKnownLocation != null) {
+                    	double latitude = lastKnownLocation.getLatitude();
+                    	double longitude = lastKnownLocation.getLongitude();
+                    	mapView.getController().animateTo(latitude, longitude);
+                    }
                 }
                 else {
                     
@@ -423,6 +429,7 @@ public class ValidationActivity extends Activity {
                 ehs.registerException(e);
             }
         }
+        lastKnownLocation = location;
     }
     
     private void arriveAtDestination() {
