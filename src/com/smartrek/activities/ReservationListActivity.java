@@ -34,7 +34,7 @@ import com.smartrek.utils.ExceptionHandlingService;
  * Shows a list of reserved routes
  *
  */
-public final class ReservationListActivity extends ListActivity {
+public final class ReservationListActivity extends GenericListActivity<Reservation> {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
@@ -43,7 +43,6 @@ public final class ReservationListActivity extends ListActivity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.reservation_list);
         
         getListView().setBackgroundDrawable(getResources().getDrawable(R.drawable.background_gradient));
         
