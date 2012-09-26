@@ -41,11 +41,6 @@ public class TripListDialog extends GenericListDialog<Trip> {
 		
 	};
 	
-//	private ActionListener listener;
-//	private ViewGroup dialogView;
-//	private ListView listViewTrip;
-//	private TextView textViewEmpty;
-	
 	public TripListDialog(Context context) {
 		super(context, null);
 	}
@@ -101,49 +96,11 @@ public class TripListDialog extends GenericListDialog<Trip> {
 	    }
 	}
 	
-//	public void setActionListener(ActionListener listener) {
-//		this.listener = listener;
-//	}
-	
 	private void prepareTripList() {
-//		listViewTrip = (ListView) dialogView.findViewById(R.id.list_view_trip);
-//		textViewEmpty = (TextView) dialogView.findViewById(R.id.text_view_empty);
 		
 		User currentUser = User.getCurrentUser(getContext());
 		new TripListFetchTask().execute(currentUser.getId());
 	}
-	
-//	private void initTripList(final List<Trip> trips) {
-//		listViewTrip.setAdapter(new TripListAdapter(getContext(), trips));
-//		listViewTrip.setOnItemClickListener(new OnItemClickListener() {
-//
-//			@Override
-//			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//				if (listener != null) {
-//					Trip trip = trips.get(position);
-//					listener.onClickListItem(trip, position);
-//				}
-//				dismiss();
-//			}
-//			
-//		});
-//	}
-//	
-//	private void initEmptyTripList() {
-//		// FIXME: Temporary
-//		listViewTrip.setVisibility(View.INVISIBLE);
-//		textViewEmpty.setVisibility(View.VISIBLE);
-//		setButton(DialogInterface.BUTTON_NEGATIVE, "Dismiss", onClickListener);
-//		setButton(DialogInterface.BUTTON_POSITIVE, "Add Trip", new DialogInterface.OnClickListener() {
-//			
-//			@Override
-//			public void onClick(DialogInterface dialog, int which) {
-//				if (listener != null) {
-//					listener.onClickAddTripButton();
-//				}
-//			}
-//		});
-//	}
 	
 	private class TripDeleteTask extends AsyncTask<Object, Object, Object> {
 
@@ -210,12 +167,13 @@ public class TripListDialog extends GenericListDialog<Trip> {
 			else {
 				setListItems(result);
 				if (result != null && result.size() > 0) {
-					//initTripList(result);
 					setAdapter(new TripListAdapter(getContext(), result));
 					initGenericList();
+					setStatus(GenericListDialog.Status.GenericList);
 				}
 				else {
 					initEmptyList();
+					setStatus(GenericListDialog.Status.EmptyList);
 				}
 			}
 		}

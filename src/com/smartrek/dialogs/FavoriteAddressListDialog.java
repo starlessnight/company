@@ -157,9 +157,11 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 				if (result != null && result.size() > 0) {
 					setAdapter(new FavoriteAddressListAdapter(getContext(), result));
 					initGenericList();
+					setStatus(GenericListDialog.Status.GenericList);
 				}
 				else {
 					initEmptyList();
+					setStatus(GenericListDialog.Status.EmptyList);
 				}
 			}
 		}
