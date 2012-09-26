@@ -73,17 +73,6 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 		super.onCreate(savedInstanceState);
 	}
 	
-//	@Override
-//	protected void onStart() {
-//		if (listItems != null && listItems.size() > 0) {
-//			initGenericList();
-//		}
-//		else {
-//			initEmptyList();
-//		}
-//		super.onStart();
-//	}
-	
 	protected void initViews() {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         dialogView = (ViewGroup) inflater.inflate(R.layout.generic_list, null);
@@ -96,7 +85,6 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 	 * This gets called when {@code listItems} has at least one item
 	 */
 	protected void initGenericList() {
-		//setListVisibility(true);
 		listViewGeneric.setAdapter(adapter);
 		listViewGeneric.setOnItemClickListener(new OnItemClickListener() {
 
@@ -116,7 +104,6 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 	 * This gets called when {@code listItem} is null or has no item
 	 */
 	protected void initEmptyList() {
-		//setListVisibility(false);
 		setButton(DialogInterface.BUTTON_NEGATIVE, "Dismiss", defaultNegativeButtonListener);	
 	}
 	
@@ -137,7 +124,7 @@ public class GenericListDialog<ItemType> extends AlertDialog {
             textViewGeneric.setVisibility(View.INVISIBLE);
 	    }
 	    else {
-	        Log.e("GeneridListDialog", "setStatus(): Unknown status. Should not reach here");
+	        Log.e("GenericListDialog", "setStatus(): Unknown status. Should not reach here");
 	    }
 	}
 	
@@ -149,17 +136,6 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 		this.adapter = adapter;
 	}
 
-//	public void setListVisibility(boolean visible) {
-//		if (visible) {
-//			listViewGeneric.setVisibility(View.VISIBLE);
-//			textViewGeneric.setVisibility(View.INVISIBLE);
-//		}
-//		else {
-//			listViewGeneric.setVisibility(View.INVISIBLE);
-//			textViewGeneric.setVisibility(View.VISIBLE);
-//		}
-//	}
-	
 	protected List<ItemType> getListItmes() {
 		return listItems;
 	}
