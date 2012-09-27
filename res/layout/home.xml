@@ -28,7 +28,7 @@
             android:layout_marginLeft="40dp"
             android:layout_marginTop="20dp"
             android:gravity="left"
-            android:text="Departure"
+            android:text="@string/origin"
             android:textColor="#FFFFFFFF" />
 
         <FrameLayout
@@ -75,7 +75,7 @@
             android:layout_marginLeft="40dp"
             android:layout_marginTop="20dp"
             android:gravity="left"
-            android:text="Arrival"
+            android:text="@string/destination"
             android:textColor="#FFFFFFFF" />
 
         <FrameLayout

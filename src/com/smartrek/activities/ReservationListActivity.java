@@ -187,7 +187,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 			textView2.setText(r.getDestinationAddress());
 			
 			TextView textViewDepartureTime = (TextView)view.findViewById(R.id.textViewDepartureTime);
-			SimpleDateFormat formatter = new SimpleDateFormat(getResources().getString(R.string.common_datetime_format));
+			SimpleDateFormat formatter = new SimpleDateFormat("h:mm a");
 			textViewDepartureTime.setText(formatter.format(new Date(r.getDepartureTime())));
 			
 			TextView textViewCredits = (TextView) view.findViewById(R.id.textViewCredits);

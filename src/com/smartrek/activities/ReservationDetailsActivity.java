@@ -50,9 +50,8 @@ public final class ReservationDetailsActivity extends Activity {
                 arrivalTime = reservation.getArrivalTime();
             }
             
-	        textViewName = (TextView) findViewById(R.id.textViewReservationName);
-	        textViewName.setText(String.format("Reservation #%d", route.getId()));
-	        
+            setTitle(String.format("Reservation #%d", route.getId()));
+            
 	        textViewOrigin = (TextView) findViewById(R.id.textViewOrigin);
 	        textViewOrigin.setText(route.getOrigin());
 	        
