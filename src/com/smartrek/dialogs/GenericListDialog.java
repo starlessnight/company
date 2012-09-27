@@ -75,7 +75,7 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 	
 	protected void initViews() {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        dialogView = (ViewGroup) inflater.inflate(R.layout.generic_list, null);
+        dialogView = (ViewGroup) inflater.inflate(R.layout.generic_list_dialog, null);
         layoutLoading = (ViewGroup) dialogView.findViewById(R.id.layout_loading);
         listViewGeneric = (ListView) dialogView.findViewById(R.id.list_view_generic);
         textViewGeneric = (TextView) dialogView.findViewById(R.id.text_view_generic);

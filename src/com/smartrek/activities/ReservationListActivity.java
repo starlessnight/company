@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -43,8 +42,6 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        getListView().setBackgroundDrawable(getResources().getDrawable(R.drawable.background_gradient));
         
         //registerForContextMenu(getListView());
         
@@ -143,9 +140,10 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 		    else {
 		    	if (reservations != null && reservations.size() > 0) {
 		    		setListAdapter(new ReservationItemAdapter(ReservationListActivity.this, R.layout.reservation_list_item, reservations));
+		    		setStatus(GenericListActivity.Status.GenericList);
 		    	}
 		    	else {
-		    		
+		    		setStatus(GenericListActivity.Status.EmptyList);
 		    	}
 		    }
 	    }
