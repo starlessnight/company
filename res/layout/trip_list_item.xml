@@ -10,26 +10,19 @@
     android:paddingTop="4dp" >
 
     <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left"
-        android:text="Name"
-        android:textColor="#F3E123" />
-
-    <TextView
         android:id="@+id/text_view_name"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:text="@string/placeholder"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#F7FFED" />
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#92D050" />
 
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
-        android:text="Origin"
+        android:text="@string/origin"
         android:textColor="#F3E123" />
 
     <TextView
@@ -38,14 +31,14 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:text="@string/placeholder"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="#F7FFED" />
 
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
-        android:text="Destination"
+        android:text="@string/destination"
         android:textColor="#F3E123" />
 
     <TextView
@@ -54,7 +47,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:text="@string/placeholder"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="#F7FFED" />
 
 </LinearLayout>
