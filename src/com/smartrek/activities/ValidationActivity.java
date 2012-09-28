@@ -59,6 +59,8 @@ import com.smartrek.utils.ValidationParameters;
 
 public class ValidationActivity extends Activity {
     
+    public static final int DEFAULT_ZOOM_LEVEL = 18;
+    
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 
     private MapView mapView;
@@ -111,7 +113,7 @@ public class ValidationActivity extends Activity {
         initViews();
         
         MapController mc = mapView.getController();
-        mc.setZoom(18);
+        mc.setZoom(DEFAULT_ZOOM_LEVEL);
         
         if (route.getFirstNode() != null) {
             mc.setCenter(route.getFirstNode().getGeoPoint());
@@ -234,7 +236,9 @@ public class ValidationActivity extends Activity {
                     if (lastKnownLocation != null) {
                     	double latitude = lastKnownLocation.getLatitude();
                     	double longitude = lastKnownLocation.getLongitude();
-                    	mapView.getController().animateTo(latitude, longitude);
+                    	MapController mc = mapView.getController();
+                    	mc.animateTo(latitude, longitude);
+                    	mc.setZoom(DEFAULT_ZOOM_LEVEL);
                     }
                 }
                 else {
@@ -324,7 +328,9 @@ public class ValidationActivity extends Activity {
     
     // FIXME: Temporary
     private void playPingSound() {
-    	mediaPlayer.start();
+        if (mediaPlayer != null) {
+            mediaPlayer.start();
+        }
     }
     
     private void showNavigationInformation(final Location location, final RouteNode node) {
