@@ -50,22 +50,22 @@ public class RouteLink {
         	double dr = RouteNode.distanceBetween(node1.getLatitude(), node1.getLongitude(), lat, lng);
         	double d = dr * Math.sin(angle1(lat, lng));
         	
-        	Log.d("RouteLink", String.format("Case 1, distance = %f", d));
+        	//Log.d("RouteLink", String.format("Case 1, distance = %f", d));
         	
         	return d;
         }
         else if (cosAngle1 <= 0.0f && cosAngle2 > 0.0f) {
             // case 2 (distance between node1 and a point)
-        	Log.d("RouteLink", String.format("Case 2, distance = %f", node1.distanceTo(lat, lng)));
+        	//Log.d("RouteLink", String.format("Case 2, distance = %f", node1.distanceTo(lat, lng)));
         	return node1.distanceTo(lat, lng);
         }
         else if (cosAngle1 > 0.0f && cosAngle2 <= 0.0f) {
             // case 3 (distance between node2 and a point)
-        	Log.d("RouteLink", String.format("Case 3, distance = %f", node2.distanceTo(lat, lng)));
+        	//Log.d("RouteLink", String.format("Case 3, distance = %f", node2.distanceTo(lat, lng)));
         	return node2.distanceTo(lat, lng);
         }
         else {
-            Log.d("RouteLink", "Should not reach here");
+            Log.e("RouteLink", "distanceTo(): Should not reach here");
         }
         
         return 0.0f;
