@@ -153,13 +153,19 @@ public class ValidationActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu){
         super.onCreateOptionsMenu(menu);
         MenuInflater mi = getMenuInflater();
-        mi.inflate(R.menu.main, menu);
+        mi.inflate(R.menu.validation, menu);
         return true;
     }
     
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         MainMenu.onMenuItemSelected(this, featureId, item);
+        
+        switch (item.getItemId()) {
+        case R.id.stop:
+            cancelValidation();
+            break;
+        }
         
         return super.onMenuItemSelected(featureId, item);
     }
@@ -168,23 +174,7 @@ public class ValidationActivity extends Activity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         // Handle the back button
         if(keyCode == KeyEvent.KEYCODE_BACK) {
-            // Ask the user if they want to quit
-            new AlertDialog.Builder(this)
-            .setIcon(android.R.drawable.ic_dialog_alert)
-            .setTitle("Confirm")
-            .setMessage("Are you sure?")
-            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-
-                    //Stop the activity
-                    ValidationActivity.this.finish();    
-                }
-
-            })
-            .setNegativeButton("No", null)
-            .show();
+            cancelValidation();
 
             return true;
         }
@@ -465,6 +455,28 @@ public class ValidationActivity extends Activity {
         if (fakeLocationService != null) {
             fakeLocationService.cancel();
         }
+    }
+    
+    private void cancelValidation() {
+        // Ask the user if they want to quit
+        new AlertDialog.Builder(this)
+        .setIcon(android.R.drawable.ic_dialog_alert)
+        .setTitle("Confirm")
+        .setMessage("Are you sure you want to stop this trip?")
+        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                deactivateLocationService();
+                
+                //Stop the activity
+                ValidationActivity.this.finish();    
+            }
+
+        })
+        .setNegativeButton("No", null)
+        .show();
     }
     
     private class ValidationLocationListener implements LocationListener {
