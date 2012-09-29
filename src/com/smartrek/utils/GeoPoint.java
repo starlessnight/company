@@ -1,5 +1,7 @@
 package com.smartrek.utils;
 
+import org.osmdroid.api.IGeoPoint;
+
 /**
  * Google's GeoPoint implementation is capable of storing geolocation in six
  * digit floating point precision. However, OpenStreetMap (OSM) provides seven
@@ -29,6 +31,10 @@ public class GeoPoint extends org.osmdroid.util.GeoPoint {
 		super(latitudeE6, longitudeE6);
 		this.latitude = latitudeE6 / 1E6;
 		this.longitude = longitudeE6 / 1E6;
+	}
+	
+	public GeoPoint(IGeoPoint geoPoint) {
+		this(geoPoint.getLatitudeE6(), geoPoint.getLongitudeE6());
 	}
 	
 	public double getLatitude() {
