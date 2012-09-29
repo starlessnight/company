@@ -34,8 +34,6 @@ public class RouteDebugOverlay extends Overlay {
 	
 	@Override
 	public boolean onLongPress(MotionEvent evt, MapView mapView) {
-		Log.d("RouteDebugOverlay", String.format("%f, %f", evt.getX(), evt.getY()));
-		
 		Projection projection = mapView.getProjection();
 		lastTouchedPoint = new GeoPoint(projection.fromPixels(evt.getX(), evt.getY()));
 		
@@ -62,7 +60,6 @@ public class RouteDebugOverlay extends Overlay {
 			Point point = projection.toMapPixels(lastTouchedPoint, null);
 			
 			canvas.drawCircle(point.x, point.y, 7, paint);
-			Log.d("RouteDebugOverlay", String.format("draw(): %d, %d", point.x, point.y));
 		}
 		
 	}

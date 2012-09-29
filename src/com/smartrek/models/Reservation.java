@@ -184,7 +184,7 @@ public final class Reservation implements Parcelable {
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
 		dest.writeInt(rid);
-		dest.writeParcelable(route, 0);
+		dest.writeParcelable(route, flags);
 		dest.writeLong(departureTime);
 		dest.writeInt(duration);
 		dest.writeString(originAddress);

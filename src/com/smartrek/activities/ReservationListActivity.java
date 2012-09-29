@@ -9,6 +9,7 @@ import java.util.List;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -36,6 +37,8 @@ import com.smartrek.utils.ExceptionHandlingService;
 public final class ReservationListActivity extends GenericListActivity<Reservation> {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
+    
+    private SharedPreferences debugPrefs;
 	
 	private List<Reservation> reservations;
 	
@@ -50,6 +53,13 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
         User currentUser = User.getCurrentUser(this);
         
         new ReservationRetrivalTask().execute(currentUser.getId());
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
 	}
 	
 	@Override
@@ -121,6 +131,10 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 			ReservationListFetchRequest request = new ReservationListFetchRequest(uid);
 			try {
 				reservations = request.execute();
+				
+				if (debugPrefs.getBoolean(DebugOptionsActivity.DEBUG_MODE, false)) {
+				}
+				
 				Collections.reverse(reservations);
             }
             catch (Exception e) {

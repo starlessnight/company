@@ -3,8 +3,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background_gradient"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
+    <CheckBox
+        android:id="@+id/checkbox_debug_mode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Enable debug mode" />
+    
     <TextView
         android:id="@+id/time_heading"
         android:layout_width="match_parent"
@@ -45,7 +52,7 @@
                 android:textColor="#FFFFFFFF"
                 android:textSize="18dp" >
             </RadioButton>
-            
+
             <RadioButton
                 android:id="@+id/radio_long_press"
                 android:layout_width="wrap_content"

@@ -1,8 +1,5 @@
 package com.smartrek.activities;
 
-import com.smartrek.dialogs.NotificationDialog;
-import com.smartrek.utils.Cache;
-
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -10,7 +7,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.RadioButton;
+
+import com.smartrek.dialogs.NotificationDialog;
+import com.smartrek.utils.Cache;
 
 public final class DebugOptionsActivity extends Activity {
     
@@ -19,6 +20,7 @@ public final class DebugOptionsActivity extends Activity {
      */
     public static final String DEBUG_PREFS = "debug_prefs";
     
+    public static final String DEBUG_MODE = "DebugMode";
     public static final String GPS_MODE = "GPSMode";
     
     public static final int GPS_MODE_REAL = 1;
@@ -28,9 +30,12 @@ public final class DebugOptionsActivity extends Activity {
     
     private SharedPreferences prefs;
     
+    private CheckBox checkboxDebugMode;
+    
     private RadioButton radioRealGPS;
     private RadioButton radioPrerecordedGPS;
     private RadioButton radioLongPress;
+    
     private Button buttonClearCache;
     private Button buttonCrash;
     
@@ -42,12 +47,20 @@ public final class DebugOptionsActivity extends Activity {
         
         prefs = getSharedPreferences(DEBUG_PREFS, MODE_PRIVATE);
         
+        checkboxDebugMode = (CheckBox) findViewById(R.id.checkbox_debug_mode);
+        checkboxDebugMode.setOnClickListener(new OnClickListener() {
+            
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putBoolean(DEBUG_MODE, true);
+                editor.commit();
+            }
+        });
+        
         radioRealGPS = (RadioButton) findViewById(R.id.radio_real_gps);
         radioPrerecordedGPS = (RadioButton) findViewById(R.id.radio_prerecorded_gps);
         radioLongPress = (RadioButton) findViewById(R.id.radio_long_press);
-        
-        buttonClearCache = (Button) findViewById(R.id.button_clear_cache);
-        buttonCrash = (Button) findViewById(R.id.button_crash);
         
         radioRealGPS.setOnClickListener(new OnClickListener() {
             
@@ -78,6 +91,9 @@ public final class DebugOptionsActivity extends Activity {
                 editor.commit();
             }
         });
+        
+        buttonClearCache = (Button) findViewById(R.id.button_clear_cache);
+        buttonCrash = (Button) findViewById(R.id.button_crash);
         
         buttonClearCache.setOnClickListener(new OnClickListener() {
 
