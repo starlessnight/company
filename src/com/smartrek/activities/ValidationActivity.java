@@ -48,6 +48,7 @@ import com.smartrek.models.User;
 import com.smartrek.requests.RouteMapper;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.PointOverlay;
+import com.smartrek.ui.overlays.RouteDebugOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.GeoPoint;
@@ -132,13 +133,17 @@ public class ValidationActivity extends Activity {
         SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
 
         // Register the listener with the Location Manager to receive location updates
-        if (debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT) == DebugOptionsActivity.GPS_MODE_REAL) {
+        int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
+        if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL) {
             // TODO: Turn on GSP early
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 5, locationListener);
         }
-        else {
+        else if (gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED) {
             fakeLocationService = new FakeLocationService(locationListener);
+        }
+        else {
+        	
         }
 
         startTime = new Time();
@@ -280,6 +285,21 @@ public class ValidationActivity extends Activity {
         pointOverlay = new PointOverlay(this, 0, 0);
         pointOverlay.setColor(0xCC2020DF);
         mapOverlays.add(pointOverlay);
+        
+        RouteDebugOverlay debugOverlay = new RouteDebugOverlay(this);
+        debugOverlay.setActionListener(new RouteDebugOverlay.ActionListener() {
+			
+			@Override
+			public void onLongPress(double latitude, double longitude) {
+                Location location = new Location("");
+                location.setLatitude(latitude);
+                location.setLongitude(longitude);
+                location.setTime(System.currentTimeMillis());
+				locationChanged(location);
+			}
+			
+		});
+        mapOverlays.add(debugOverlay);
         
         route.setUserId(User.getCurrentUser(this).getId());
         

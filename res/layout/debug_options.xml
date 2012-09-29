@@ -45,6 +45,16 @@
                 android:textColor="#FFFFFFFF"
                 android:textSize="18dp" >
             </RadioButton>
+            
+            <RadioButton
+                android:id="@+id/radio_long_press"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="true"
+                android:text="Long press"
+                android:textColor="#FFFFFFFF"
+                android:textSize="18dp" >
+            </RadioButton>
         </RadioGroup>
     </RelativeLayout>
 

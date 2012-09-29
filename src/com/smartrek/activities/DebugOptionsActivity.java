@@ -23,12 +23,14 @@ public final class DebugOptionsActivity extends Activity {
     
     public static final int GPS_MODE_REAL = 1;
     public static final int GPS_MODE_PRERECORDED = 2;
+    public static final int GPS_MODE_LONG_PRESS = 4;
     public static final int GPS_MODE_DEFAULT = GPS_MODE_REAL;
     
     private SharedPreferences prefs;
     
     private RadioButton radioRealGPS;
     private RadioButton radioPrerecordedGPS;
+    private RadioButton radioLongPress;
     private Button buttonClearCache;
     private Button buttonCrash;
     
@@ -42,6 +44,8 @@ public final class DebugOptionsActivity extends Activity {
         
         radioRealGPS = (RadioButton) findViewById(R.id.radio_real_gps);
         radioPrerecordedGPS = (RadioButton) findViewById(R.id.radio_prerecorded_gps);
+        radioLongPress = (RadioButton) findViewById(R.id.radio_long_press);
+        
         buttonClearCache = (Button) findViewById(R.id.button_clear_cache);
         buttonCrash = (Button) findViewById(R.id.button_crash);
         
@@ -61,6 +65,16 @@ public final class DebugOptionsActivity extends Activity {
             public void onClick(View v) {
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putInt(GPS_MODE, GPS_MODE_PRERECORDED);
+                editor.commit();
+            }
+        });
+        
+        radioLongPress.setOnClickListener(new OnClickListener() {
+            
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putInt(GPS_MODE, GPS_MODE_LONG_PRESS);
                 editor.commit();
             }
         });
