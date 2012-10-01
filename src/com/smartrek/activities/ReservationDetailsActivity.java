@@ -47,8 +47,10 @@ public final class ReservationDetailsActivity extends Activity {
         }
         else {
             long arrivalTime = route.getArrivalTime();
+            int duration = route.getDuration();
             if (reservation != null) {
                 arrivalTime = reservation.getArrivalTime();
+                duration = reservation.getDuration();
             }
             
             setTitle(String.format("Reservation #%d", route.getId()));
@@ -69,7 +71,7 @@ public final class ReservationDetailsActivity extends Activity {
 	        // FIXME: Date/time format i18n
 	        Time at = new Time();
 	        at.set(arrivalTime);
-	        textViewArrivalTime.setText(String.format("%s (%s)", at.format("%b %d, %G %l:%M%p"), HumanReadableTime.formatDuration(reservation.getDuration())));
+	        textViewArrivalTime.setText(String.format("%s (%s)", at.format("%b %d, %G %l:%M%p"), HumanReadableTime.formatDuration(duration)));
 	        
 	        textViewCredits = (TextView) findViewById(R.id.textViewCredits);
 	        textViewCredits.setText(String.valueOf(route.getCredits()));
