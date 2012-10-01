@@ -3,6 +3,7 @@ package com.smartrek.activities;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import com.smartrek.models.Route;
 import com.smartrek.models.User;
 import com.smartrek.requests.ReservationMapper;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.HumanReadableTime;
 import com.smartrek.utils.ValidationParameters;
 
 public class ValidationReportActivity extends Activity {
@@ -63,12 +65,19 @@ public class ValidationReportActivity extends Activity {
             textViewScore.setTextColor(validated ? Color.GREEN : Color.RED);
         }
         
-        long duration = (endTime.toMillis(false) - startTime.toMillis(false)) / 1000;
+        int duration = (int)((endTime.toMillis(false) - startTime.toMillis(false)) / 1000);
         textViewDuration = (TextView) findViewById(R.id.textViewTripDuration);
-        textViewDuration.setText(String.format("%d sec", duration));
+        textViewDuration.setText(HumanReadableTime.formatDuration(duration, true));
         
         textViewPoints = (TextView) findViewById(R.id.textViewPoints);
         textViewPoints.setText(String.format("%d", validated ? route.getCredits() : 0));
+	}
+	
+	@Override
+	public void onBackPressed() {
+		// TODO: Is this okay to do this?
+		Intent intent = new Intent(this, HomeActivity.class);
+		startActivity(intent);
 	}
 	
 	private class ValidationReportTask extends AsyncTask<Object, Object, Object> {
