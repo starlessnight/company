@@ -18,6 +18,7 @@ import com.smartrek.models.Route;
 import com.smartrek.receivers.ReservationReceiver;
 import com.smartrek.requests.ReservationMapper;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.HumanReadableTime;
 
 /**
  * This will popup before a user makes a reservation for a route
@@ -62,7 +63,7 @@ public final class ReservationConfirmationActivity extends Activity {
         // FIXME: Date/time format i18n
         Time at = new Time();
         at.set(route.getArrivalTime());
-        textViewArrivalTime.setText(at.format("%b %d, %G %l:%M%p"));
+        textViewArrivalTime.setText(String.format("%s (%s)", at.format("%b %d, %G %l:%M%p"), HumanReadableTime.formatDuration(route.getDuration())));
 
         textViewCredits = (TextView) findViewById(R.id.textViewCredits);
         textViewCredits.setText(String.valueOf(route.getCredits()));

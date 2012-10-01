@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import com.smartrek.activities.R;
 import com.smartrek.models.Route;
 import com.smartrek.utils.GeoPoint;
+import com.smartrek.utils.HumanReadableTime;
 
 public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	
@@ -30,8 +31,8 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 				"Route #" + route.getId(),
 				"Origin: \n" + route.getOrigin()
 						+ " \n\n" + "Destination: \n" + route.getDestination()
-						+ "\n\n" + "Estimated Travel Time: " + route.getDuration()/60
-						+ " min\n" + "Trekpoints: " + route.getCredits() + "\n\n"
+						+ "\n\n" + "Estimated Travel Time: " + HumanReadableTime.formatDuration(route.getDuration())
+						+ "\n" + "Trekpoints: " + route.getCredits() + "\n\n"
 						+ "(Tap to reserve this route)",
 				point);
 		addItem(item);
