@@ -31,7 +31,7 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 				"Origin: \n" + route.getOrigin()
 						+ " \n\n" + "Destination: \n" + route.getDestination()
 						+ "\n\n" + "Estimated Travel Time: " + route.getDuration()/60
-						+ " min\n" + "Credits: " + route.getCredits() + "\n\n"
+						+ " min\n" + "Trekpoints: " + route.getCredits() + "\n\n"
 						+ "(Tap to reserve this route)",
 				point);
 		addItem(item);
