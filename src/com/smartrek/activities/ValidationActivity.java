@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -125,34 +126,42 @@ public class ValidationActivity extends Activity {
         
         drawRoute(mapView, route, 0);
         
-        // Acquire a reference to the system Location Manager
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        
         // Define a listener that responds to location updates
         locationListener = new ValidationLocationListener();
         
-        SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
-
-        // Register the listener with the Location Manager to receive location updates
-        int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
-        if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL) {
-            // TODO: Turn on GSP early
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 5, locationListener);
-        }
-        else if (gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED) {
-            fakeLocationService = new FakeLocationService(locationListener);
-        }
-        else {
-        	
-        }
-
+        // FIXME: Use long type
         startTime = new Time();
         startTime.setToNow();
         
         validationTimeoutNotifier = new ValidationTimeoutNotifier();
         validationTimeoutHandler = new Handler();
         validationTimeoutHandler.postDelayed(validationTimeoutNotifier, (900 + route.getDuration()*3) * 1000);
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        
+        SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
+
+        // Register the listener with the Location Manager to receive location updates
+        int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
+        if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL) {
+            prepareGPS();
+        }
+        else if (gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED) {
+            fakeLocationService = new FakeLocationService(locationListener);
+        }
+        else {
+            
+        }
+    }
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        
+        // TODO: Pause location service
     }
     
     @Override
@@ -244,6 +253,41 @@ public class ValidationActivity extends Activity {
         });
         
         ((View) findViewById(R.id.layout_navigation)).getBackground().setAlpha(220);
+    }
+    
+    private void prepareGPS() {
+        // Acquire a reference to the system Location Manager
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            alertNoGPS();
+        }
+        else {
+            // TODO: Turn on GSP early
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 5, locationListener);
+        }
+    }
+    
+    /**
+     * Directly copied from http://stackoverflow.com/questions/843675/how-do-i-find-out-if-the-gps-of-an-android-device-is-enabled
+     */
+    private void alertNoGPS() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Yout GPS seems to be disabled. Do you want to enable it?")
+               .setCancelable(false)
+               .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                   public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                       startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                   }
+               })
+               .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                   public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                        dialog.cancel();
+                   }
+               });
+        final AlertDialog alert = builder.create();
+        alert.show();
     }
 
     public synchronized int[] drawRoute (MapView mapView, Route route, int routeNum) {
