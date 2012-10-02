@@ -46,11 +46,11 @@ public class RoutePathOverlay extends Overlay {
 		paint.setAntiAlias(true);
 		paint.setStyle(Paint.Style.STROKE);
 		
-		int thickness = 2 + zoom/2;
+		int thickness = 2 + zoom/2 + (highlighted ? 1 : -1);
 		paint.setStrokeWidth(thickness);
 		
 		// Seems like Paint.setAlpha has no effect
-		int alphaMask = highlighted ? 0xCF000000 : 0x7F000000;
+		int alphaMask = highlighted ? 0xCF000000 : 0x4F000000;
 		paint.setColor((color & 0x00FFFFFF) | alphaMask);
 		
 		Point point = new Point();
