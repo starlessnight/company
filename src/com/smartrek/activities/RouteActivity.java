@@ -251,8 +251,6 @@ public final class RouteActivity extends Activity {
      */
     private void updateMap(List<Route> possibleRoutes) {
     	
-    	Log.d("RouteActivity", "updateMap()");
-        
         if(possibleRoutes != null && possibleRoutes.size() > 0) {
             /* Get a midpoint to center the view of  the routes */
             GeoPoint mid = getMidPoint(possibleRoutes.get(0).getNodes());
@@ -381,7 +379,7 @@ public final class RouteActivity extends Activity {
         super.onCreateOptionsMenu(menu);
 
         MenuInflater mi = getMenuInflater();
-        mi.inflate(R.menu.route, menu);
+        mi.inflate(R.menu.main, menu);
         return true;
     }
     
