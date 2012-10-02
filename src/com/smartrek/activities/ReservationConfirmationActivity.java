@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.text.format.Time;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -19,6 +20,7 @@ import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Route;
 import com.smartrek.receivers.ReservationReceiver;
 import com.smartrek.requests.ReservationMapper;
+import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.HumanReadableTime;
 
@@ -88,6 +90,13 @@ public final class ReservationConfirmationActivity extends Activity {
         MenuInflater mi = getMenuInflater();
         mi.inflate(R.menu.main, menu);
         return true;
+    }
+    
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        MainMenu.onMenuItemSelected(this, featureId, item);
+        
+        return super.onMenuItemSelected(featureId, item);
     }
 	
 	private void scheduleNotification(Route route) {

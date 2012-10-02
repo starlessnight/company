@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.format.Time;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -11,6 +14,7 @@ import android.widget.TextView;
 
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
+import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.HumanReadableTime;
 
@@ -89,5 +93,21 @@ public final class ReservationDetailsActivity extends Activity {
 	            
 	        });
         }
+    }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        MenuInflater mi = getMenuInflater();
+        mi.inflate(R.menu.main, menu);
+        return true;
+    }
+    
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        MainMenu.onMenuItemSelected(this, featureId, item);
+        
+        return super.onMenuItemSelected(featureId, item);
     }
 }

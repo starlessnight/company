@@ -8,11 +8,15 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
 import com.smartrek.requests.ReservationMapper;
+import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.HumanReadableTime;
 import com.smartrek.utils.ValidationParameters;
@@ -73,8 +77,26 @@ public class ValidationReportActivity extends Activity {
         textViewPoints.setText(String.format("%d", validated ? route.getCredits() : 0));
 	}
 	
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        MenuInflater mi = getMenuInflater();
+        mi.inflate(R.menu.main, menu);
+        return true;
+    }
+    
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        MainMenu.onMenuItemSelected(this, featureId, item);
+        
+        return super.onMenuItemSelected(featureId, item);
+    }
+	
 	@Override
 	public void onBackPressed() {
+	    finish();
+	    
 		// TODO: Is this okay to do this?
 		Intent intent = new Intent(this, HomeActivity.class);
 		startActivity(intent);
