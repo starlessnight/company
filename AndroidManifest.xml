@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.smartrek.activities"
-    android:versionCode="4"
-    android:versionName="0.9.3" >
+    android:versionCode="5"
+    android:versionName="0.9.4" >
     <!-- http://stackoverflow.com/questions/9629125/regarding-version-code-and-version-name-android-manifest -->
 
     <uses-sdk
