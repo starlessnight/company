@@ -38,6 +38,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -242,7 +243,7 @@ public class ValidationActivity extends Activity {
             }
         });
         
-        ((View) findViewById(R.id.text_view_navigation)).getBackground().setAlpha(220);
+        ((View) findViewById(R.id.layout_navigation)).getBackground().setAlpha(220);
     }
 
     public synchronized int[] drawRoute (MapView mapView, Route route, int routeNum) {
@@ -391,6 +392,15 @@ public class ValidationActivity extends Activity {
         numberOfLocationChanges += 1;
         
         trajectory.accumulate(location);
+        
+        // FIXME: Need to refactor
+        ViewGroup textViewNavigation = (ViewGroup) findViewById(R.id.text_view_navigation);
+        if (textViewNavigation.getVisibility() == View.INVISIBLE) {
+            textViewNavigation.setVisibility(View.VISIBLE);
+            
+            TextView textViewWaiting = (TextView) findViewById(R.id.text_view_waiting);
+            textViewWaiting.setVisibility(View.INVISIBLE);
+        }
         
         double lat = location.getLatitude();
         double lng = location.getLongitude();
