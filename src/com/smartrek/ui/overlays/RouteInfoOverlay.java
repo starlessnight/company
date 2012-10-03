@@ -20,20 +20,15 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private Route route;
 	private GeoPoint geoPoint;
 	
-	public RouteInfoOverlay(MapView mapview, Route route, GeoPoint point) {
+	public RouteInfoOverlay(MapView mapview, Route route, int routeSeq, GeoPoint point) {
 		super(mapview.getResources().getDrawable(R.drawable.marker_default), mapview, null);
 		this.route = route;
 		this.geoPoint = point;
 
 		OverlayItem item = new OverlayItem(
-		// TODO: Showing a route ID is a temporary solution.
-		// Ultimately, we want to show "Route 1", "Route 2", ...
-				"Route #" + route.getId(),
-				"Origin: \n" + route.getOrigin()
-						+ " \n\n" + "Destination: \n" + route.getDestination()
-						+ "\n\n" + "Estimated Travel Time: " + HumanReadableTime.formatDuration(route.getDuration())
-						+ "\n" + "Trekpoints: " + route.getCredits() + "\n\n"
-						+ "(Tap to reserve this route)",
+				"Route " + (routeSeq + 1),
+				"Estimated Travel Time: " + HumanReadableTime.formatDuration(route.getDuration())
+				+ "\n" + "Trekpoints: " + route.getCredits(),
 				point);
 		addItem(item);
 		

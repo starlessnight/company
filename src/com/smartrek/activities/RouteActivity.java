@@ -332,7 +332,7 @@ public final class RouteActivity extends Activity {
         // FIXME:
         route.setUserId(User.getCurrentUser(this).getId());
         
-        routeOverlays[routeNum] = new RouteInfoOverlay(mapView, route, new GeoPoint(lat, lon));
+        routeOverlays[routeNum] = new RouteInfoOverlay(mapView, route, routeNum, new GeoPoint(lat, lon));
         routeOverlays[routeNum].setCallback(new RouteOverlayCallbackImpl(route, routeNum));
         mapOverlays.add(routeOverlays[routeNum]);
         
