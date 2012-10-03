@@ -7,11 +7,14 @@ import org.osmdroid.views.MapView.Projection;
 import org.osmdroid.views.overlay.Overlay;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
 
+import com.smartrek.activities.R;
 import com.smartrek.models.Route;
 import com.smartrek.utils.RouteNode;
 
@@ -23,10 +26,13 @@ public class RoutePathOverlay extends Overlay {
 	private int color;
 	private boolean highlighted = true;
 	
+	private Bitmap checkeredFlag;
+	
 	public RoutePathOverlay(Context context, Route route, int color) {
 		super(context);
 		this.route = route;
 		this.color = color;
+		this.checkeredFlag = BitmapFactory.decodeResource(context.getResources(), R.drawable.checkered_flag);
 	}
 	
 	public boolean isHighlighted() {
@@ -69,9 +75,7 @@ public class RoutePathOverlay extends Overlay {
 			path.lineTo(point.x, point.y);
 		}
 		
-		int radius = 4 + zoom/3;
-		
 		canvas.drawPath(path, paint);
-		canvas.drawCircle(point.x, point.y, radius, paint);
+		canvas.drawBitmap(checkeredFlag, point.x, point.y - checkeredFlag.getHeight(), paint);
 	}
 }
