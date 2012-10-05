@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Vector;
 
 import org.json.JSONException;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.tileprovider.util.CloudmadeUtil;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
@@ -93,6 +95,7 @@ public final class RouteActivity extends Activity {
         
         mapView = (MapView) findViewById(R.id.mapview);
         mapView.setBuiltInZoomControls(false);
+        CloudmadeUtil.retrieveCloudmadeKey(this);
         
         /* Create a ImageView with a zoomIn-Icon. */
         final ImageView imageViewZoomIn = (ImageView) findViewById(R.id.image_view_zoom_in);
