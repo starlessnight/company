@@ -10,7 +10,7 @@
         android:layout_height="fill_parent"
         android:clickable="true"
         tilesource="CloudMadeStandardTiles"
-        style="69104" />
+        style="74151" />
 
     <ImageView
         android:id="@+id/image_view_zoom_in"
