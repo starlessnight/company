@@ -2,7 +2,7 @@
 <resources>
 
     <string name="smartrek">smartrek</string>
-    <string name="app_name">smartrek</string>
+    <string name="app_name">smartrek - Beta</string>
 
     <!-- General terms -->
     <string name="placeholder">(placeholder)</string>
