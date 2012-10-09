@@ -49,6 +49,10 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".LicenseAgreementActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout"
+            android:label="smartrek EULA &amp; Terms of Service" />
+        <activity
             android:name=".LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout" />
         <activity
