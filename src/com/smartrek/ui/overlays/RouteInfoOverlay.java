@@ -21,7 +21,7 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private GeoPoint geoPoint;
 	
 	public RouteInfoOverlay(MapView mapview, Route route, int routeSeq, GeoPoint point) {
-		super(mapview.getResources().getDrawable(R.drawable.marker_default), mapview, null);
+		super(mapview.getResources().getDrawable(R.drawable.pin_route), mapview, null);
 		this.route = route;
 		this.geoPoint = point;
 

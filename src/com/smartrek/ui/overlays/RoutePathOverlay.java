@@ -26,13 +26,15 @@ public class RoutePathOverlay extends Overlay {
 	private int color;
 	private boolean highlighted = true;
 	
-	private Bitmap checkeredFlag;
+	private Bitmap originFlag;
+	private Bitmap destinationFlag;
 	
 	public RoutePathOverlay(Context context, Route route, int color) {
 		super(context);
 		this.route = route;
 		this.color = color;
-		this.checkeredFlag = BitmapFactory.decodeResource(context.getResources(), R.drawable.checkered_flag);
+		this.originFlag = BitmapFactory.decodeResource(context.getResources(), R.drawable.pin_origin);
+		this.destinationFlag = BitmapFactory.decodeResource(context.getResources(), R.drawable.pin_destination);
 	}
 	
 	public boolean isHighlighted() {
@@ -67,7 +69,12 @@ public class RoutePathOverlay extends Overlay {
 		RouteNode firstNode = routeNodes.get(0);
 		projection.toPixels(firstNode.getGeoPoint(), point);
 		path.moveTo(point.x, point.y);
-
+		
+        // Copy the initial point because the variable 'point' is not
+        // referentially transparent and path has to be drawn before the origin
+        // and the destination flags are drawn.
+		Point originPiont = new Point(point);
+		
 		for (int i = 1; i < routeNodes.size(); i++) {
 			RouteNode node = routeNodes.get(i);
 			
@@ -76,6 +83,7 @@ public class RoutePathOverlay extends Overlay {
 		}
 		
 		canvas.drawPath(path, paint);
-		canvas.drawBitmap(checkeredFlag, point.x, point.y - checkeredFlag.getHeight(), paint);
+		canvas.drawBitmap(originFlag, originPiont.x - (originFlag.getWidth()/2), originPiont.y - originFlag.getHeight(), paint);
+		canvas.drawBitmap(destinationFlag, point.x - (originFlag.getWidth()/2), point.y - destinationFlag.getHeight(), paint);
 	}
 }
