@@ -105,7 +105,6 @@ public class TripListDialog extends GenericListDialog<Trip> {
 	}
 	
 	private void requestRefresh() {
-		
 		User currentUser = User.getCurrentUser(getContext());
 		new TripListFetchTask().execute(currentUser.getId());
 	}
@@ -157,6 +156,7 @@ public class TripListDialog extends GenericListDialog<Trip> {
 			
 			TripListFetchRequest request = new TripListFetchRequest(uid);
 			try {
+			    request.invalidateCache();
 				listItems = request.execute();
 			}
 			catch (Exception e) {

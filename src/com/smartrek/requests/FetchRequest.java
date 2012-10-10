@@ -58,6 +58,9 @@ public abstract class FetchRequest<ReturnType> extends Request {
 		return Cache.getInstance().isCacheAvailable(url);
 	}
 	
+	/**
+	 * Marks cached entry as invalid so that it gets re-fetched from the server.
+	 */
 	public void invalidateCache() {
 		Cache.getInstance().invalidate(url);
 	}

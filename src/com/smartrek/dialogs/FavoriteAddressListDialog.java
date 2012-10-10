@@ -150,6 +150,7 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 
 			FavoriteAddressFetchRequest request = new FavoriteAddressFetchRequest(uid);
 			try {
+			    request.invalidateCache();
 				favoriteAddresses = request.execute();
 			}
 			catch (Exception e) {
