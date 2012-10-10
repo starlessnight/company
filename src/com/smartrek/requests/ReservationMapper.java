@@ -37,7 +37,7 @@ public final class ReservationMapper extends FetchRequest {
 				HOST,
 				route.getId(), route.getCredits(), route.getUserId(),
 				URLEncoder.encode(t.format("%Y-%m-%d %T")),
-				route.getDuration(),
+				route.getDuration() / 60, // Server requires this value in terms of minutes
 				URLEncoder.encode(route.getOrigin()),
 				URLEncoder.encode(route.getDestination()),
 				URLEncoder.encode(new String(buf)));
