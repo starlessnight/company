@@ -514,7 +514,9 @@ public class ValidationActivity extends Activity {
     }
     
     private void arriveAtDestination() {
-        locationManager.removeUpdates(locationListener);
+        if (locationManager != null) {
+            locationManager.removeUpdates(locationListener);
+        }
         validationTimeoutHandler.removeCallbacks(validationTimeoutNotifier);
         
         endTime = new Time();
