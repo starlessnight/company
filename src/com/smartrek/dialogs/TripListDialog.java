@@ -17,6 +17,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
 import com.smartrek.activities.R;
 import com.smartrek.models.Trip;
 import com.smartrek.models.User;
@@ -64,13 +65,20 @@ public class TripListDialog extends GenericListDialog<Trip> {
 		// enables context menu
 		registerForContextMenu(listViewGeneric);
 		listViewGeneric.setOnCreateContextMenuListener(this);
+        listViewGeneric.setOnRefreshListener(new OnRefreshListener() {
+
+            @Override
+            public void onRefresh() {
+                requestRefresh();
+            }
+        });
 	}
 	
 	@Override
 	public void onStart() {
 		super.onStart();
 		
-		prepareTripList();		
+		requestRefresh();		
 	}
 	
 	@Override
@@ -96,7 +104,7 @@ public class TripListDialog extends GenericListDialog<Trip> {
 	    }
 	}
 	
-	private void prepareTripList() {
+	private void requestRefresh() {
 		
 		User currentUser = User.getCurrentUser(getContext());
 		new TripListFetchTask().execute(currentUser.getId());
@@ -148,15 +156,14 @@ public class TripListDialog extends GenericListDialog<Trip> {
 			int uid = (Integer) params[0];
 			
 			TripListFetchRequest request = new TripListFetchRequest(uid);
-			List<Trip> trips = null;
 			try {
-				trips = request.execute();
+				listItems = request.execute();
 			}
 			catch (Exception e) {
 				ehs.registerException(e);
 			}
 
-			return trips;
+			return listItems;
 		}
 		
 		@Override
@@ -176,6 +183,9 @@ public class TripListDialog extends GenericListDialog<Trip> {
 					setStatus(GenericListDialog.Status.EmptyList);
 				}
 			}
+			listViewGeneric.onRefreshComplete();
+			
+			super.onPostExecute(result);
 		}
 		
 	}

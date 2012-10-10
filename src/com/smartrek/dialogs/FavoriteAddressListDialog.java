@@ -17,6 +17,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
 import com.smartrek.activities.R;
 import com.smartrek.models.Address;
 import com.smartrek.models.User;
@@ -54,14 +55,20 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 		// enables context menu
 		registerForContextMenu(listViewGeneric);
 		listViewGeneric.setOnCreateContextMenuListener(this);
+        listViewGeneric.setOnRefreshListener(new OnRefreshListener() {
+
+            @Override
+            public void onRefresh() {
+                requestRefresh();
+            }
+        });
 	}
 	
 	@Override
 	public void onStart() {
 		super.onStart();
 		
-		User currentUser = User.getCurrentUser(getContext());
-		new FavoriteAddressListFetchTask().execute(currentUser.getId());
+		requestRefresh();
 	}
 	
 	@Override
@@ -85,6 +92,11 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 	        default:
 	            return super.onMenuItemSelected(featureId, menuItem);
 	    }
+	}
+	
+	private void requestRefresh() {
+	    User currentUser = User.getCurrentUser(getContext());
+        new FavoriteAddressListFetchTask().execute(currentUser.getId());
 	}
 	
 	private class FavoriteAddressDeleteTask extends AsyncTask<Object, Object, Object> {
@@ -149,6 +161,8 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 		
 		@Override
 		protected void onPostExecute(List<Address> result) {
+		    listViewGeneric.onRefreshComplete();
+		    
 			if (ehs.hasExceptions()) {
 				ehs.reportExceptions();
 			}

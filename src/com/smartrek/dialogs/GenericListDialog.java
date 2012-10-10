@@ -17,6 +17,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.markupartist.android.widget.PullToRefreshListView;
+import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
 import com.smartrek.activities.R;
 
 public class GenericListDialog<ItemType> extends AlertDialog {
@@ -50,7 +52,7 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 	protected ActionListener<ItemType> actionListener;
 	protected ViewGroup dialogView;
 	protected ViewGroup layoutLoading;
-	protected ListView listViewGeneric;
+	protected PullToRefreshListView listViewGeneric;
 	protected TextView textViewGeneric;
 	
 	protected GenericListDialog(Context context, List<ItemType> listItems) {
@@ -77,7 +79,7 @@ public class GenericListDialog<ItemType> extends AlertDialog {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         dialogView = (ViewGroup) inflater.inflate(R.layout.generic_list_dialog, null);
         layoutLoading = (ViewGroup) dialogView.findViewById(R.id.layout_loading);
-        listViewGeneric = (ListView) dialogView.findViewById(R.id.list_view_generic);
+        listViewGeneric = (PullToRefreshListView) dialogView.findViewById(R.id.list_view_generic);
         textViewGeneric = (TextView) dialogView.findViewById(R.id.text_view_generic);
 	}
 	

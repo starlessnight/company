@@ -34,11 +34,11 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:visibility="invisible" />
 
-    <ListView
+    <com.markupartist.android.widget.PullToRefreshListView
         android:id="@+id/list_view_generic"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="invisible" >
-    </ListView>
+    </com.markupartist.android.widget.PullToRefreshListView>
 
 </FrameLayout>
