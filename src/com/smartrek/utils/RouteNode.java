@@ -51,8 +51,8 @@ public final class RouteNode implements Parcelable, JSONModel {
 		}
 	}
 	
-	private double lat;
-	private double lng;
+	private double latitude;
+	private double longitude;
 	private int routeNum;
 	private int nodeNum;
 	
@@ -110,8 +110,8 @@ public final class RouteNode implements Parcelable, JSONModel {
 	};
 
 	private RouteNode(Parcel in) {
-		lat = in.readDouble();
-		lng = in.readDouble();
+		latitude = in.readDouble();
+		longitude = in.readDouble();
 		routeNum = in.readInt();
 		nodeNum = in.readInt();
 		metadata = in.readParcelable(Metadata.class.getClassLoader());
@@ -122,29 +122,29 @@ public final class RouteNode implements Parcelable, JSONModel {
 	}
 	
 	public RouteNode(double latitude, double longitude, int routeNum, int nodeNum) {
-		lat = latitude;
-		lng = longitude;
+		this.latitude = latitude;
+		this.longitude = longitude;
 		this.routeNum = routeNum;
 		this.nodeNum = nodeNum;
 	}
 	
 	public RouteNode(Bundle  bundle, int routeNum, int nodeNum) {
-		lat = Double.parseDouble(bundle.getString("latitude" + nodeNum));
-		lng = Double.parseDouble(bundle.getString("longitude" + nodeNum));
+		this.latitude = Double.parseDouble(bundle.getString("latitude" + nodeNum));
+		longitude = Double.parseDouble(bundle.getString("longitude" + nodeNum));
 		this.routeNum = routeNum;
 		this.nodeNum = nodeNum;
 	}
 	
 	public GeoPoint getGeoPoint() {
-		return new GeoPoint((int)(lat * 1E6), (int)(lng * 1E6));
+		return new GeoPoint((int)(latitude * 1E6), (int)(longitude * 1E6));
 	}
 	
 	public double getLatitude() {
-		return lat;
+		return latitude;
 	}
 	
 	public double getLongitude() {
-		return lng;
+		return longitude;
 	}
 	
 	public RouteNode getPrevNode() {
@@ -244,8 +244,8 @@ public final class RouteNode implements Parcelable, JSONModel {
 
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeDouble(lat);
-		dest.writeDouble(lng);
+		dest.writeDouble(latitude);
+		dest.writeDouble(longitude);
 		dest.writeInt(routeNum);
 		dest.writeInt(nodeNum);
 		dest.writeParcelable(metadata, flags);
@@ -257,7 +257,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 	
 	@Override
 	public String toString() {
-	    return String.format("RouteNode (%f, %f)", lat, lng);
+	    return String.format("RouteNode (%f, %f)", latitude, longitude);
 	}
 	
 	/**
@@ -270,7 +270,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 	}
 	
 	public boolean equals(RouteNode node) {
-		return node != null && lat == node.lat && lng == node.lng && nodeNum == node.nodeNum;
+		return node != null && latitude == node.latitude && longitude == node.longitude && nodeNum == node.nodeNum;
 	}
 	
 	public static double distanceBetween(RouteNode node1, RouteNode node2) {
