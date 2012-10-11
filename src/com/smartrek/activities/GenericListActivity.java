@@ -68,7 +68,7 @@ public class GenericListActivity<ItemType> extends Activity {
         }
         else if (Status.EmptyList.equals(status)) {
             layoutLoading.setVisibility(View.GONE);
-            listViewGeneric.setVisibility(View.VISIBLE);
+            listViewGeneric.setVisibility(View.GONE);
             textViewGeneric.setVisibility(View.VISIBLE);
         }
         else if (Status.GenericList.equals(status)) {

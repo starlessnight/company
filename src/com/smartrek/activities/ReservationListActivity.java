@@ -24,6 +24,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
 import com.smartrek.requests.ReservationListFetchRequest;
@@ -45,6 +46,15 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        listViewGeneric.setOnRefreshListener(new OnRefreshListener() {
+
+            @Override
+            public void onRefresh() {
+            }
+        });
+        
+        textViewGeneric.setText("You do not have any reserved route.");
         
         //registerForContextMenu(getListView());
         
