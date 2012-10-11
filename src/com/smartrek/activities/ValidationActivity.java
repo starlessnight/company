@@ -438,13 +438,21 @@ public class ValidationActivity extends Activity {
         trajectory.accumulate(location);
         
         // FIXME: Need to refactor
-        ViewGroup textViewNavigation = (ViewGroup) findViewById(R.id.text_view_navigation);
-        if (textViewNavigation.getVisibility() == View.INVISIBLE) {
-            textViewNavigation.setVisibility(View.VISIBLE);
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                ViewGroup textViewNavigation = (ViewGroup) findViewById(R.id.text_view_navigation);
+                if (textViewNavigation.getVisibility() == View.INVISIBLE) {
+                    textViewNavigation.setVisibility(View.VISIBLE);
+                    
+                    TextView textViewWaiting = (TextView) findViewById(R.id.text_view_waiting);
+                    textViewWaiting.setVisibility(View.INVISIBLE);
+                }
+            }
             
-            TextView textViewWaiting = (TextView) findViewById(R.id.text_view_waiting);
-            textViewWaiting.setVisibility(View.INVISIBLE);
-        }
+        });
+
         
         double lat = location.getLatitude();
         double lng = location.getLongitude();
@@ -506,7 +514,9 @@ public class ValidationActivity extends Activity {
     }
     
     private void arriveAtDestination() {
-        locationManager.removeUpdates(locationListener);
+        if (locationManager != null) {
+            locationManager.removeUpdates(locationListener);
+        }
         validationTimeoutHandler.removeCallbacks(validationTimeoutNotifier);
         
         endTime = new Time();
