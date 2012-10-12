@@ -363,10 +363,11 @@ public class ValidationActivity extends Activity {
     private MediaPlayer mediaPlayer;
     
     private void preparePingSound() {
-    	Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        mediaPlayer = MediaPlayer.create(ValidationActivity.this, alert);
+    	//mediaPlayer = MediaPlayer.create(ValidationActivity.this, mediaUri);
+        mediaPlayer = new MediaPlayer();
         
         try {
+            mediaPlayer.setDataSource(getResources().getAssets().openFd("cell-phone-1-nr1.mp3").getFileDescriptor());
 			mediaPlayer.prepare();
 		}
 		catch (IllegalStateException e) {

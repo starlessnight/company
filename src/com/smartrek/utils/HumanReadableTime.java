@@ -30,10 +30,18 @@ public class HumanReadableTime {
 			int minutes = duration / 60;
 			duration %= 60;
 			
+			if (buf.length() > 0) {
+			    buf.append(" ");
+			}
+			
 			buf.append(minutes);
 			buf.append(" min");
 		}
 		if (showSeconds) {
+		    if (buf.length() > 0) {
+                buf.append(" ");
+            }
+		    
 			buf.append(duration);
 			buf.append(" sec");
 		}
