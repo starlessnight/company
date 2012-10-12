@@ -124,7 +124,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	
     private void requestRefresh(boolean useCache) {
         User currentUser = User.getCurrentUser(this);
-        new ReservationRetrivalTask().execute(currentUser.getId(), useCache);
+        new ReservationRetrivalTask(useCache).execute(currentUser.getId());
     }
 	   
 	/**
@@ -133,20 +133,27 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	private class ReservationRetrivalTask extends AsyncTask<Object, Object, List<Reservation>> {
 		
 		private ProgressDialog dialog;
+		
+		private boolean useCache;
+		
+		public ReservationRetrivalTask(boolean useCache) {
+		    this.useCache = useCache;
+		}
 
 		@Override
 		protected void onPreExecute() {
-			dialog = new ProgressDialog(ReservationListActivity.this);
-			dialog.setMessage("Loading reservations...");
-			dialog.setIndeterminate(true);
-			dialog.setCancelable(false);
-			dialog.show();
+		    if (!useCache) {
+    			dialog = new ProgressDialog(ReservationListActivity.this);
+    			dialog.setMessage("Loading reservations...");
+    			dialog.setIndeterminate(true);
+    			dialog.setCancelable(false);
+    			dialog.show();
+		    }
 		}
 		
 		@Override
 		protected List<Reservation> doInBackground(Object... params) {
 			int uid = (Integer) params[0];
-			boolean useCache = params.length > 1 && ((Boolean) params[1]);
 			
 			ReservationListFetchRequest request = new ReservationListFetchRequest(uid);
 			try {
@@ -169,7 +176,9 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 		
 		@Override
 		protected void onPostExecute(List<Reservation> result) {
-			dialog.cancel();
+		    if (!useCache) {
+		        dialog.cancel();
+		    }
 			listViewGeneric.onRefreshComplete();
 			
 		    if (ehs.hasExceptions()) {
