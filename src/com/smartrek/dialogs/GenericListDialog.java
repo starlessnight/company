@@ -66,6 +66,7 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 	protected void onCreate(Bundle savedInstanceState) {
 		
 	    initViews();
+	    setStatus(Status.Loading);
 		
 		setView(dialogView);
 		setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", defaultNegativeButtonListener);
@@ -88,11 +89,16 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 		listViewGeneric.setAdapter(adapter);
 		listViewGeneric.setOnItemClickListener(new OnItemClickListener() {
 
+            /**
+             * With com.markupartist.android.widget.PullToRefreshListView,
+             * {@code position} is off by 1. We're doing a quick hack here to
+             * adjust this.
+             */
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				if (actionListener != null) {
-					ItemType item = listItems.get(position);
-					actionListener.onClickListItem(item, position);
+					ItemType item = listItems.get(position-1);
+					actionListener.onClickListItem(item, position-1);
 				}
 				dismiss();
 			}

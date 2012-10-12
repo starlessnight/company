@@ -51,7 +51,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 
             @Override
             public void onRefresh() {
-                requestRefresh();
+                requestRefresh(false);
             }
         });
         
@@ -66,7 +66,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	protected void onStart() {
 	    super.onStart();
 	    
-	    requestRefresh();
+	    requestRefresh(true);
 	}
 	
 	@Override
@@ -122,9 +122,9 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	    }
 	}
 	
-    private void requestRefresh() {
+    private void requestRefresh(boolean useCache) {
         User currentUser = User.getCurrentUser(this);
-        new ReservationRetrivalTask().execute(currentUser.getId());
+        new ReservationRetrivalTask().execute(currentUser.getId(), useCache);
     }
 	   
 	/**
@@ -146,10 +146,13 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 		@Override
 		protected List<Reservation> doInBackground(Object... params) {
 			int uid = (Integer) params[0];
+			boolean useCache = params.length > 1 && ((Boolean) params[1]);
 			
 			ReservationListFetchRequest request = new ReservationListFetchRequest(uid);
 			try {
-			    request.invalidateCache();
+			    if (!useCache) {
+			        request.invalidateCache();
+			    }
 				reservations = request.execute();
 				
 				if (debugPrefs.getBoolean(DebugOptionsActivity.DEBUG_MODE, false)) {

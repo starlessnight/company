@@ -42,9 +42,14 @@ public class GenericListActivity<ItemType> extends Activity {
         listViewGeneric = (PullToRefreshListView) findViewById(R.id.list_view_generic);
         listViewGeneric.setOnItemClickListener(new OnItemClickListener() {
             
+            /**
+             * With com.markupartist.android.widget.PullToRefreshListView,
+             * {@code position} is off by 1. We're doing a quick hack here to
+             * adjust this.
+             */
             @Override
             public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-                onListItemClick((ListView) l, v, position, id);
+                onListItemClick((ListView) l, v, position-1, id);
             }
             
         });
