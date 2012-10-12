@@ -51,6 +51,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 
             @Override
             public void onRefresh() {
+                requestRefresh();
             }
         });
         
@@ -59,10 +60,13 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
         //registerForContextMenu(getListView());
         
         reservations = new ArrayList<Reservation>();
-        
-        User currentUser = User.getCurrentUser(this);
-        
-        new ReservationRetrivalTask().execute(currentUser.getId());
+	}
+	
+	@Override
+	protected void onStart() {
+	    super.onStart();
+	    
+	    requestRefresh();
 	}
 	
 	@Override
@@ -118,6 +122,11 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	    }
 	}
 	
+    private void requestRefresh() {
+        User currentUser = User.getCurrentUser(this);
+        new ReservationRetrivalTask().execute(currentUser.getId());
+    }
+	   
 	/**
 	 * Inner class for an asynchronous task.
 	 */
@@ -140,6 +149,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 			
 			ReservationListFetchRequest request = new ReservationListFetchRequest(uid);
 			try {
+			    request.invalidateCache();
 				reservations = request.execute();
 				
 				if (debugPrefs.getBoolean(DebugOptionsActivity.DEBUG_MODE, false)) {
@@ -157,6 +167,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 		@Override
 		protected void onPostExecute(List<Reservation> result) {
 			dialog.cancel();
+			listViewGeneric.onRefreshComplete();
 			
 		    if (ehs.hasExceptions()) {
 		        ehs.reportExceptions();

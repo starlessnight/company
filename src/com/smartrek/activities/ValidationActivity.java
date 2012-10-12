@@ -74,7 +74,6 @@ public class ValidationActivity extends Activity {
     
     private Route route;
     private List<Overlay> mapOverlays;
-    private int mapOverlayOffset = 1;
     
     private PointOverlay pointOverlay;
     
