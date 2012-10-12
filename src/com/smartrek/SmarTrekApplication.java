@@ -9,7 +9,7 @@ import android.app.Application;
 import com.smartrek.activities.R;
 
 @ReportsCrashes(formKey="dFdwTW1tbERoS1N4RlhNbFBjeHc4dXc6MQ",
-                mode = ReportingInteractionMode.SILENT, // I have decided to use this mode for the beta testing period.
+                mode = ReportingInteractionMode.DIALOG, // I have decided to use this mode for the beta testing period.
                 resToastText = R.string.crash_toast_text, // optional, displayed as soon as the crash occurs, before collecting data which can take a few seconds
                 resDialogText = R.string.crash_dialog_text,
                 resDialogIcon = android.R.drawable.ic_dialog_info, //optional. default is a warning sign
