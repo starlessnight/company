@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
@@ -24,6 +24,12 @@
             android:textAppearance="?android:attr/textAppearanceMedium" />
     </LinearLayout>
 
+    <com.markupartist.android.widget.PullToRefreshListView
+        android:id="@+id/list_view_generic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+    </com.markupartist.android.widget.PullToRefreshListView>
+
     <TextView
         android:id="@+id/text_view_generic"
         android:layout_width="match_parent"
@@ -31,14 +37,6 @@
         android:gravity="center"
         android:padding="16dp"
         android:text="@string/placeholder"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:visibility="invisible" />
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <ListView
-        android:id="@+id/list_view_generic"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="invisible" >
-    </ListView>
-
-</FrameLayout>
+</LinearLayout>

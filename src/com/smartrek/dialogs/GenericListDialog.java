@@ -14,9 +14,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
+import com.markupartist.android.widget.PullToRefreshListView;
 import com.smartrek.activities.R;
 
 public class GenericListDialog<ItemType> extends AlertDialog {
@@ -50,7 +50,7 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 	protected ActionListener<ItemType> actionListener;
 	protected ViewGroup dialogView;
 	protected ViewGroup layoutLoading;
-	protected ListView listViewGeneric;
+	protected PullToRefreshListView listViewGeneric;
 	protected TextView textViewGeneric;
 	
 	protected GenericListDialog(Context context, List<ItemType> listItems) {
@@ -77,7 +77,7 @@ public class GenericListDialog<ItemType> extends AlertDialog {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         dialogView = (ViewGroup) inflater.inflate(R.layout.generic_list_dialog, null);
         layoutLoading = (ViewGroup) dialogView.findViewById(R.id.layout_loading);
-        listViewGeneric = (ListView) dialogView.findViewById(R.id.list_view_generic);
+        listViewGeneric = (PullToRefreshListView) dialogView.findViewById(R.id.list_view_generic);
         textViewGeneric = (TextView) dialogView.findViewById(R.id.text_view_generic);
 	}
 	
@@ -110,18 +110,18 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 	public void setStatus(Status status) {
 	    if (Status.Loading.equals(status)) {
             layoutLoading.setVisibility(View.VISIBLE);
-            listViewGeneric.setVisibility(View.INVISIBLE);
-            textViewGeneric.setVisibility(View.INVISIBLE);
+            listViewGeneric.setVisibility(View.GONE);
+            textViewGeneric.setVisibility(View.GONE);
 	    }
 	    else if (Status.EmptyList.equals(status)) {
-            layoutLoading.setVisibility(View.INVISIBLE);
-            listViewGeneric.setVisibility(View.INVISIBLE);
+            layoutLoading.setVisibility(View.GONE);
+            listViewGeneric.setVisibility(View.VISIBLE);
             textViewGeneric.setVisibility(View.VISIBLE);
 	    }
 	    else if (Status.GenericList.equals(status)) {
-            layoutLoading.setVisibility(View.INVISIBLE);
+            layoutLoading.setVisibility(View.GONE);
             listViewGeneric.setVisibility(View.VISIBLE);
-            textViewGeneric.setVisibility(View.INVISIBLE);
+            textViewGeneric.setVisibility(View.GONE);
 	    }
 	    else {
 	        Log.e("GenericListDialog", "setStatus(): Unknown status. Should not reach here");

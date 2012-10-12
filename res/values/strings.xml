@@ -107,4 +107,10 @@
     <string name="crash_dialog_comment_prompt">Please describe what you were trying to do.</string>
     <string name="crash_dialog_ok_toast">Thank you!</string>
 
+    <!-- *************************************************************************************** -->
+    
+    <string name="pull_to_refresh_pull_label">Pull to refresh...</string>
+    <string name="pull_to_refresh_release_label">Release to refresh...</string>
+    <string name="pull_to_refresh_refreshing_label">Loading...</string>
+    <string name="pull_to_refresh_tap_label">Tap to refresh...</string>
 </resources>

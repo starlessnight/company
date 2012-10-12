@@ -24,6 +24,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
 import com.smartrek.requests.ReservationListFetchRequest;
@@ -46,13 +47,26 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        listViewGeneric.setOnRefreshListener(new OnRefreshListener() {
+
+            @Override
+            public void onRefresh() {
+                requestRefresh();
+            }
+        });
+        
+        textViewGeneric.setText("You do not have any reserved route.");
+        
         //registerForContextMenu(getListView());
         
         reservations = new ArrayList<Reservation>();
-        
-        User currentUser = User.getCurrentUser(this);
-        
-        new ReservationRetrivalTask().execute(currentUser.getId());
+	}
+	
+	@Override
+	protected void onStart() {
+	    super.onStart();
+	    
+	    requestRefresh();
 	}
 	
 	@Override
@@ -108,6 +122,11 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	    }
 	}
 	
+    private void requestRefresh() {
+        User currentUser = User.getCurrentUser(this);
+        new ReservationRetrivalTask().execute(currentUser.getId());
+    }
+	   
 	/**
 	 * Inner class for an asynchronous task.
 	 */
@@ -130,6 +149,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 			
 			ReservationListFetchRequest request = new ReservationListFetchRequest(uid);
 			try {
+			    request.invalidateCache();
 				reservations = request.execute();
 				
 				if (debugPrefs.getBoolean(DebugOptionsActivity.DEBUG_MODE, false)) {
@@ -147,6 +167,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 		@Override
 		protected void onPostExecute(List<Reservation> result) {
 			dialog.cancel();
+			listViewGeneric.onRefreshComplete();
 			
 		    if (ehs.hasExceptions()) {
 		        ehs.reportExceptions();
