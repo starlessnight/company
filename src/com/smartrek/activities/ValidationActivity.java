@@ -367,7 +367,7 @@ public class ValidationActivity extends Activity {
         mediaPlayer = new MediaPlayer();
         
         try {
-            mediaPlayer.setDataSource(getResources().getAssets().openFd("cell-phone-1-nr1.mp3").getFileDescriptor());
+            mediaPlayer.setDataSource(getResources().getAssets().openFd("ping.mp3").getFileDescriptor());
 			mediaPlayer.prepare();
 		}
 		catch (IllegalStateException e) {

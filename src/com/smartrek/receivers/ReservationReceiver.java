@@ -58,6 +58,7 @@ public final class ReservationReceiver extends BroadcastReceiver {
 		
         Intent reservationIntent = new Intent(context, ReservationDetailsActivity.class);
         reservationIntent.putExtra("reservationId", reservationId);
+        reservationIntent.putExtra("route", route);
         PendingIntent sender = PendingIntent.getActivity(context, 0, reservationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
