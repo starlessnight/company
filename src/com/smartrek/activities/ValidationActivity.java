@@ -23,8 +23,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -58,6 +56,7 @@ import com.smartrek.utils.PrerecordedTrajectory;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.StringUtil;
+import com.smartrek.utils.SystemService;
 import com.smartrek.utils.ValidationParameters;
 
 public class ValidationActivity extends Activity {
@@ -259,34 +258,13 @@ public class ValidationActivity extends Activity {
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            alertNoGPS();
+            SystemService.alertNoGPS(this);
         }
         else {
             // TODO: Turn on GSP early
             //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, locationListener);
         }
-    }
-    
-    /**
-     * Directly copied from http://stackoverflow.com/questions/843675/how-do-i-find-out-if-the-gps-of-an-android-device-is-enabled
-     */
-    private void alertNoGPS() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Yout GPS seems to be disabled. Do you want to enable it?")
-               .setCancelable(false)
-               .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                   public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                       startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                   }
-               })
-               .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                   public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        dialog.cancel();
-                   }
-               });
-        final AlertDialog alert = builder.create();
-        alert.show();
     }
 
     public synchronized int[] drawRoute (MapView mapView, Route route, int routeNum) {

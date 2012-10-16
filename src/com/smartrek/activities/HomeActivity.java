@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.view.KeyEvent;
@@ -38,6 +39,7 @@ import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.LocationService;
+import com.smartrek.utils.SystemService;
 import com.smartrek.utils.LocationService.LocationServiceListener;
 
 /**
@@ -225,12 +227,17 @@ public final class HomeActivity extends Activity {
 	    buttonOriginMyLocation.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				editAddressOrigin.setAddressAsCurrentLocation();
+				LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		        
+		        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+		            SystemService.alertNoGPS(HomeActivity.this);
+		        }
+		        else {
+		        	editAddressOrigin.setAddressAsCurrentLocation();
+		        }
 			}
 	    });
 	    
-	    
-	    /***************End Buttons********************/
 	}
 	
 	private TripListDialog tripListDialog;
