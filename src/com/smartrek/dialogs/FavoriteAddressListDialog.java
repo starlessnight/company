@@ -82,11 +82,11 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 	public boolean onMenuItemSelected(int featureId, MenuItem menuItem) {
 	    AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuItem.getMenuInfo();
 	    
-	    Address listItem = listItems.get(info.position);
+	    Address listItem = listItems.get(info.position - 1);
 	    
 	    switch (menuItem.getItemId()) {
 	        case R.id.delete:
-	        	new FavoriteAddressDeleteTask(info.position).execute(listItem.getUid(), listItem.getId());
+	        	new FavoriteAddressDeleteTask(info.position - 1).execute(listItem.getUid(), listItem.getId());
 	            return true;
 	            
 	        default:
