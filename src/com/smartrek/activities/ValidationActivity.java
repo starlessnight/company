@@ -26,7 +26,6 @@ import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -46,6 +45,7 @@ import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.RouteMapper;
+import com.smartrek.ui.NavigationView;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RouteDebugOverlay;
@@ -66,9 +66,7 @@ public class ValidationActivity extends Activity {
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 
     private MapView mapView;
-    private TextView textViewMessage;
-    private TextView textViewDistance;
-    private TextView textViewRoadname;
+    private NavigationView navigationView;
     private ToggleButton buttonFollow;
     
     private Route route;
@@ -119,8 +117,6 @@ public class ValidationActivity extends Activity {
         if (route.getFirstNode() != null) {
             mc.setCenter(route.getFirstNode().getGeoPoint());
         }
-        
-        preparePingSound();
         
         drawRoute(mapView, route, 0);
         
@@ -226,9 +222,7 @@ public class ValidationActivity extends Activity {
                 }
         });
         
-        textViewMessage = (TextView) findViewById(R.id.text_view_message);
-        textViewDistance = (TextView) findViewById(R.id.text_view_distance);
-        textViewRoadname = (TextView) findViewById(R.id.text_view_roadname);
+        navigationView = (NavigationView) findViewById(R.id.navigation_view);
         
         buttonFollow = (ToggleButton) findViewById(R.id.button_follow);
         buttonFollow.setOnClickListener(new OnClickListener() {
@@ -338,74 +332,11 @@ public class ValidationActivity extends Activity {
         new SendTrajectoryTask().execute(seq++, User.getCurrentUser(this).getId());
     }
     
-    private MediaPlayer mediaPlayer;
-    
-    private void preparePingSound() {
-    	//mediaPlayer = MediaPlayer.create(ValidationActivity.this, mediaUri);
-        mediaPlayer = new MediaPlayer();
-        
-        try {
-            mediaPlayer.setDataSource(getResources().getAssets().openFd("ping.mp3").getFileDescriptor());
-			mediaPlayer.prepare();
-		}
-		catch (IllegalStateException e) {
-			e.printStackTrace();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    
-    // FIXME: Temporary
-    private void playPingSound() {
-        if (mediaPlayer != null) {
-            mediaPlayer.start();
-        }
-    }
-    
     private void showNavigationInformation(final Location location, final RouteNode node) {
-        final double latitude = location.getLatitude();
-        final double longitude = location.getLongitude();
         
         runOnUiThread(new Runnable() {
             public void run() {
-                double distance = route.getDistanceToNextTurn(latitude, longitude);
-                double distanceInMile = distance * 0.000621371;
-                double distanceInFoot = distance * 3.28084;
-                
-                String distancePresentation = null;
-                if (distanceInFoot < 1000) {
-                    distancePresentation = String.format("%.0f ft", distanceInFoot);
-                }
-                else {
-                    distancePresentation = String.format("%.1f mi", distanceInMile);
-                }
-                
-                //String message = String.format("%s in %s", StringUtil.capitalizeFirstLetter(node.getMessage()), distancePresentation);
-                textViewMessage.setText(StringUtil.capitalizeFirstLetter(node.getMessage()));
-                textViewDistance.setText(distancePresentation);
-                textViewRoadname.setText(node.getRoadName());
-                
-                // FIXME: Temporary
-                if (node.hasMetadata()) {
-                    RouteNode.Metadata metadata = node.getMetadata();
-                
-                    if (!metadata.pingFlags[0] && distanceInFoot <= 500) {
-                        metadata.pingFlags[0] = true;
-                        playPingSound();
-                    }
-                    else if (metadata.pingFlags[1] && distanceInMile <= 1.0) {
-                        metadata.pingFlags[1] = true;
-                        playPingSound();
-                    }
-                    else if (!metadata.pingFlags[2] && distanceInMile <= 2.0) {
-                        metadata.pingFlags[2] = true;
-                        playPingSound();
-                    }
-                }
+            	navigationView.update(route, location, node);
             }
         });
     }
@@ -414,23 +345,6 @@ public class ValidationActivity extends Activity {
         numberOfLocationChanges += 1;
         
         trajectory.accumulate(location);
-        
-        // FIXME: Need to refactor
-        runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                ViewGroup textViewNavigation = (ViewGroup) findViewById(R.id.text_view_navigation);
-                if (textViewNavigation.getVisibility() == View.INVISIBLE) {
-                    textViewNavigation.setVisibility(View.VISIBLE);
-                    
-                    TextView textViewWaiting = (TextView) findViewById(R.id.text_view_waiting);
-                    textViewWaiting.setVisibility(View.INVISIBLE);
-                }
-            }
-            
-        });
-
         
         double lat = location.getLatitude();
         double lng = location.getLongitude();
