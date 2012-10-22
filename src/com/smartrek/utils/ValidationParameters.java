@@ -5,11 +5,17 @@ package com.smartrek.utils;
  *
  */
 public class ValidationParameters {
+    
+    /**
+     * Distance threshold for guidance. Unit is in meters.
+     */
+    private double inRouteDistanceThreshold = 35;
 
 	/**
-	 * Unit is in meters
+	 * Distance threshold for validation purposes. Unit is in meters.
 	 */
-	private float distanceThreshold = 457.2f; // 1500 ft
+	private float validationDistanceThreshold = 457.2f; // 1500 ft
+	
 	/**
 	 * Users may depart after (departure time) - (threshold). Unit is in seconds.
 	 */
@@ -53,8 +59,12 @@ public class ValidationParameters {
 		return instance;
 	}
 	
-	public float getDistanceThreshold() {
-		return distanceThreshold;
+	public double getInRouteDistanceThreshold() {
+	    return inRouteDistanceThreshold;
+	}
+	
+	public float getValidationDistanceThreshold() {
+		return validationDistanceThreshold;
 	}
 
 	public int getDepartureTimeNegativeThreshold() {

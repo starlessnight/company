@@ -364,7 +364,7 @@ public class ValidationActivity extends Activity {
         ValidationParameters params = ValidationParameters.getInstance();
         
         double distanceToLink = nearestLink.distanceTo(lat, lng);
-        if (distanceToLink <= params.getDistanceThreshold()) {
+        if (distanceToLink <= params.getValidationDistanceThreshold()) {
             numberOfInRoute += 1;
         }
         
