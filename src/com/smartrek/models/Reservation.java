@@ -24,7 +24,7 @@ public final class Reservation implements Parcelable {
 	private long departureTime;
 	
 	/**
-	 * Estimated travel time
+	 * Estimated travel time in seconds
 	 */
 	private int duration;
 	
@@ -155,7 +155,7 @@ public final class Reservation implements Parcelable {
 		r.setDepartureTime(departureTime);
 
 		// travel duration
-		r.setDuration(object.getInt("END_TIME"));
+		r.setDuration(object.getInt("END_TIME") * 60);
 		
 		r.setOriginAddress(object.getString("ORIGIN_ADDRESS"));
 		r.setDestinationAddress(object.getString("DESTINATION_ADDRESS"));
