@@ -22,7 +22,6 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,9 +35,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.smartrek.models.Route;
@@ -55,7 +52,6 @@ import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.PrerecordedTrajectory;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
-import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.SystemService;
 import com.smartrek.utils.ValidationParameters;
 
@@ -333,7 +329,7 @@ public class ValidationActivity extends Activity {
     }
     
     private void showNavigationInformation(final Location location, final RouteNode node) {
-        
+        Log.d("ValidationActivity", "showNavigationInformation()");
         runOnUiThread(new Runnable() {
             public void run() {
             	navigationView.update(route, location, node);
@@ -358,8 +354,6 @@ public class ValidationActivity extends Activity {
         //nearestNode = route.getNearestNode(lat, lng);
         nearestLink = route.getNearestLink(lat, lng);
         nearestNode = nearestLink.getEndNode();
-        
-        List<RouteNode> routeNodes = route.getNodes();
         
         ValidationParameters params = ValidationParameters.getInstance();
         
