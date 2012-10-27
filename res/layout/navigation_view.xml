@@ -2,8 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/layout_navigation"
     android:layout_width="fill_parent"
-    android:layout_height="68dp"
-    android:background="#293A17" >
+    android:layout_height="68dp" >
 
     <TextView
         android:id="@+id/text_view_waiting"

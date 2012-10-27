@@ -91,7 +91,7 @@ public final class ReservationDetailsActivity extends Activity {
 	                Intent intent = new Intent(ReservationDetailsActivity.this, ValidationActivity.class);
 	                intent.putExtra("route", route);
 	                startActivity(intent);
-	                //finish();
+	                finish();
 	            }
 	            
 	        });

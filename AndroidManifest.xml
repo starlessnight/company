@@ -7,7 +7,7 @@
     <!-- http://stackoverflow.com/questions/9629125/regarding-version-code-and-version-name-android-manifest -->
 
     <uses-sdk
-        android:minSdkVersion="4"
+        android:minSdkVersion="8"
         android:targetSdkVersion="11" />
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />

@@ -8,6 +8,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.json.JSONException;
+import org.osmdroid.tileprovider.util.CloudmadeUtil;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
@@ -191,6 +192,7 @@ public class ValidationActivity extends Activity {
     
     private void initViews() {
         mapView = (MapView) findViewById(R.id.mapview);
+        CloudmadeUtil.retrieveCloudmadeKey(this);
         mapView.setBuiltInZoomControls(false);
         mapView.setOnTouchListener(new OnTouchListener() {
             
@@ -239,8 +241,6 @@ public class ValidationActivity extends Activity {
                 }
             }
         });
-        
-        ((View) findViewById(R.id.layout_navigation)).getBackground().setAlpha(220);
     }
     
     private void prepareGPS() {

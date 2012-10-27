@@ -54,7 +54,7 @@ public class RouteDebugOverlay extends Overlay {
 			Paint paint = new Paint();
 			paint.setAntiAlias(true);
 			paint.setStyle(Paint.Style.STROKE);
-			paint.setColor(Color.RED);
+			paint.setColor(0x33F0C020);
 			
 			Projection projection = mapView.getProjection();
 			Point point = projection.toMapPixels(lastTouchedPoint, null);

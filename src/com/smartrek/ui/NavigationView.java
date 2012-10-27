@@ -20,7 +20,7 @@ import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.ValidationParameters;
 
-public class NavigationView extends LinearLayout {
+public final class NavigationView extends LinearLayout {
     
     public enum Status {
         WaitingForGPS, OutOfRoute, InRoute
@@ -53,7 +53,7 @@ public class NavigationView extends LinearLayout {
         textViewDistance = (TextView) findViewById(R.id.text_view_distance);
         textViewRoadname = (TextView) findViewById(R.id.text_view_roadname);
         
-        preparePingSound();
+        setStatus(Status.WaitingForGPS);
 	}
 	
 	public Status getStatus() {
@@ -66,21 +66,21 @@ public class NavigationView extends LinearLayout {
 	        textViewGenericMessage.setVisibility(View.GONE);
 	        textViewNavigation.setVisibility(View.GONE);
 	        
-	        setBackgroundColor(0xA0666666);
+	        setBackgroundColor(0xC0666666);
 	    }
 	    else if (Status.OutOfRoute.equals(status)) {
             textViewWaiting.setVisibility(View.GONE);
             textViewGenericMessage.setVisibility(View.VISIBLE);
             textViewNavigation.setVisibility(View.GONE);
             
-            setBackgroundColor(0xA0FFCC00);
+            setBackgroundColor(0xC0FF3300);
         }
 	    else if (Status.InRoute.equals(status)) {
             textViewWaiting.setVisibility(View.GONE);
             textViewGenericMessage.setVisibility(View.GONE);
             textViewNavigation.setVisibility(View.VISIBLE);
             
-            setBackgroundColor(0xA0293A17);
+            setBackgroundColor(0xC0293A17);
         }
 	    else {
 	        Log.e(getClass().toString(), "setStatus(): Should not reach here.");
@@ -140,11 +140,14 @@ public class NavigationView extends LinearLayout {
 
 	}
 	
-    private void preparePingSound() {
-    	//mediaPlayer = MediaPlayer.create(ValidationActivity.this, mediaUri);
+	/**
+	 * This function causes Activity.setContentView() to hang on Android 3.1.
+	 */
+    public void preparePingSound() {
         mediaPlayer = new MediaPlayer();
         
         try {
+        	//mediaPlayer.setDataSource("file:///android_asset/ping.mp3");
             mediaPlayer.setDataSource(getResources().getAssets().openFd("ping.mp3").getFileDescriptor());
 			mediaPlayer.prepare();
 		}

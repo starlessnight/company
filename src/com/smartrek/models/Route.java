@@ -1,10 +1,12 @@
 package com.smartrek.models;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.os.Bundle;
 import android.os.Parcel;
@@ -45,6 +47,54 @@ public final class Route implements Parcelable {
 			return new Route[size];
 		}
 	};
+	
+	public static Route parse(JSONObject routeObject, long departureTime) throws JSONException, IOException {
+	    JSONArray rts = (JSONArray) routeObject.get("ROUTE");
+	    
+	    ArrayList<RouteNode> routeNodes = new ArrayList<RouteNode>();
+        for (int i = 0; i < rts.length(); i++) {
+            JSONObject ro = (JSONObject) rts.get(i);
+            
+            RouteNode node = new RouteNode(ro.getDouble("LATITUDE"),
+                    ro.getDouble("LONGITUDE"), 0, ro.getInt("NODEID"));
+            
+            if (ro.has("FLAG")) {
+            	node.setFlag(ro.getInt("FLAG"));
+            }
+            if (ro.has("MESSAGE")) {
+            	node.setMessage(ro.getString("MESSAGE"));
+            }
+            if (ro.has("DISTANCE")) {
+            	// conversion from mile to meter
+            	node.setDistance(ro.getDouble("DISTANCE") * 1609.34);
+            }
+            if (ro.has("ROADNAME")) {
+            	node.setRoadName(ro.getString("ROADNAME"));
+            }
+            
+            routeNodes.add(node);
+        }
+        
+        // Route ID
+        int rid = routeObject.getInt("RID");
+        
+        // Web service returns the estimated travel time in minutes, but we
+        // internally store it as seconds.
+        //
+        // Server returns ESTIMATED_TRAVEL_TIME in some APIs, and returns END_TIME in other APIs. FUCK ME...
+        double ett = 0;
+        if (routeObject.has("ESTIMATED_TRAVEL_TIME")) {
+        	ett = routeObject.getDouble("ESTIMATED_TRAVEL_TIME");
+        }
+        else if (routeObject.has("END_TIME")) {
+        	ett = routeObject.getDouble("END_TIME");
+        }
+        
+        Route route = new Route(routeNodes, rid, departureTime, (int)(ett * 60));
+        route.setCredits(routeObject.getInt("CREDITS"));
+        
+        return route;
+	}
 	
 	public Route() {
 	    
