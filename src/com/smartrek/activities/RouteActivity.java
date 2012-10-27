@@ -22,6 +22,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -181,10 +182,11 @@ public final class RouteActivity extends Activity {
             }
         });
 
-        ScrollableTimeLayout scrollView = (ScrollableTimeLayout) findViewById(R.id.scrollTime);
-        scrollView.setTimeLayout(timeLayout);
+        ScrollableTimeLayout scrollableTimeLayout = (ScrollableTimeLayout) findViewById(R.id.scrollTime);
+        scrollableTimeLayout.setTimeLayout(timeLayout);
         
-        //Display display = getWindowManager().getDefaultDisplay();
+        Display display = getWindowManager().getDefaultDisplay();
+        scrollableTimeLayout.setScreenWidth(Math.max(display.getWidth(), display.getHeight()));
 
         // FIXME: Should store values in a different preference file
         int timeDisplayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
@@ -520,7 +522,7 @@ public final class RouteActivity extends Activity {
                 //timeLayout.setColumnState(selectedColumn, State.None);
                 
                 if (selectedColumn == 0) {
-                    for (int i = 1; i < 4; i++) {
+                    for (int i = 1; i < 9; i++) {
                         long departureTime = timeLayout.getDepartureTime(i);
                         new RouteTask(originCoord, destCoord, departureTime, i, false).execute();
                     }

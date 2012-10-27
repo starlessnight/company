@@ -15,7 +15,7 @@ import com.smartrek.ui.ScrollViewListener;
 public final class ScrollableTimeLayout extends ObservableScrollView implements ScrollViewListener {
 
 	// FIXME: This must be loaded dynamically
-	private int width = 450;
+	private int screenWidth = 450;
 	
 	private TimeLayout timeLayout;
 	
@@ -34,6 +34,14 @@ public final class ScrollableTimeLayout extends ObservableScrollView implements 
 		this.timeLayout = timeLayout;
 	}
 	
+	public int getScreenWidth() {
+		return screenWidth;
+	}
+	
+	public void setScreenWidth(int screenWidth) {
+		this.screenWidth = screenWidth;
+	}
+	
 //	public void setScrollableTimeLayoutListener(ScrollableTimeLayoutListener listener) {
 //		this.listener = listener;
 //	}
@@ -42,7 +50,7 @@ public final class ScrollableTimeLayout extends ObservableScrollView implements 
 	public void onScrollChanged(ObservableScrollView scrollView, int x, int y,	int oldx, int oldy) {
 		if(timeLayout != null) {
 			int columnWidth = timeLayout.getColumnWidth();
-			int upperBound = (width+x)/columnWidth;
+			int upperBound = (getScreenWidth() + x)/columnWidth;
 			
 			timeLayout.notifyColumn(upperBound, true);
 		}
