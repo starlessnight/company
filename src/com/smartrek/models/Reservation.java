@@ -1,5 +1,6 @@
 package com.smartrek.models;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -144,8 +145,9 @@ public final class Reservation implements Parcelable {
 	 * @return An instance of Reservation
 	 * @throws JSONException
 	 * @throws ParseException 
+	 * @throws IOException 
 	 */
-	public static Reservation parse(JSONObject object) throws JSONException, ParseException {
+	public static Reservation parse(JSONObject object) throws JSONException, ParseException, IOException {
 		Reservation r = new Reservation();
 		
 		r.setRid(object.getInt("RID"));
@@ -162,15 +164,15 @@ public final class Reservation implements Parcelable {
 		r.setCredits(object.getInt("CREDITS"));
 		r.setValidatedFlag(object.getInt("VALIDATED_FLAG"));
 		
-        Route route = new Route();
-        route.setId(r.getRid());
-        route.setOrigin(r.getOriginAddress());
-        route.setDestination(r.getDestinationAddress());
-        route.setDepartureTime(r.getDepartureTime());
-        route.setCredits(r.getCredits());
-        route.setNodes(object.getJSONArray("ROUTE"));
+//        Route route = new Route();
+//        route.setId(r.getRid());
+//        route.setOrigin(r.getOriginAddress());
+//        route.setDestination(r.getDestinationAddress());
+//        route.setDepartureTime(r.getDepartureTime());
+//        route.setCredits(r.getCredits());
+//        route.setNodes(object.getJSONArray("ROUTE"));
         
-        r.setRoute(route);
+        r.setRoute(Route.parse(object, departureTime));
 		
 		return r;
 	}

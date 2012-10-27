@@ -114,7 +114,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		longitude = in.readDouble();
 		routeNum = in.readInt();
 		nodeNum = in.readInt();
-		metadata = in.readParcelable(Metadata.class.getClassLoader());
+		//metadata = in.readParcelable(Metadata.class.getClassLoader());
 		flag = in.readInt();
 		distance = in.readDouble();
 		message = in.readString();
@@ -130,7 +130,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 	
 	public RouteNode(Bundle  bundle, int routeNum, int nodeNum) {
 		this.latitude = Double.parseDouble(bundle.getString("latitude" + nodeNum));
-		longitude = Double.parseDouble(bundle.getString("longitude" + nodeNum));
+		this.longitude = Double.parseDouble(bundle.getString("longitude" + nodeNum));
 		this.routeNum = routeNum;
 		this.nodeNum = nodeNum;
 	}
@@ -248,7 +248,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		dest.writeDouble(longitude);
 		dest.writeInt(routeNum);
 		dest.writeInt(nodeNum);
-		dest.writeParcelable(metadata, flags);
+		//dest.writeParcelable(metadata, flags);
 		dest.writeInt(flag);
 		dest.writeDouble(distance);
 		dest.writeString(message);

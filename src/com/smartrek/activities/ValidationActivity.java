@@ -240,7 +240,7 @@ public class ValidationActivity extends Activity {
             }
         });
         
-        ((View) findViewById(R.id.layout_navigation)).getBackground().setAlpha(220);
+        //((View) findViewById(R.id.layout_navigation)).getBackground().setAlpha(220);
     }
     
     private void prepareGPS() {

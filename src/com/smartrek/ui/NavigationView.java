@@ -20,7 +20,7 @@ import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.ValidationParameters;
 
-public class NavigationView extends LinearLayout {
+public final class NavigationView extends LinearLayout {
     
     public enum Status {
         WaitingForGPS, OutOfRoute, InRoute
@@ -52,8 +52,6 @@ public class NavigationView extends LinearLayout {
         textViewMessage = (TextView) findViewById(R.id.text_view_message);
         textViewDistance = (TextView) findViewById(R.id.text_view_distance);
         textViewRoadname = (TextView) findViewById(R.id.text_view_roadname);
-        
-        preparePingSound();
 	}
 	
 	public Status getStatus() {
@@ -140,11 +138,14 @@ public class NavigationView extends LinearLayout {
 
 	}
 	
-    private void preparePingSound() {
-    	//mediaPlayer = MediaPlayer.create(ValidationActivity.this, mediaUri);
+	/**
+	 * This function causes Activity.setContentView() to hang on Android 3.1.
+	 */
+    public void preparePingSound() {
         mediaPlayer = new MediaPlayer();
         
         try {
+        	//mediaPlayer.setDataSource("file:///android_asset/ping.mp3");
             mediaPlayer.setDataSource(getResources().getAssets().openFd("ping.mp3").getFileDescriptor());
 			mediaPlayer.prepare();
 		}

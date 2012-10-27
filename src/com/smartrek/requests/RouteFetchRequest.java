@@ -55,7 +55,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 
 		JSONArray array = new JSONArray(response);
 		for(int i = 0; i < array.length(); i++) {
-			Route route = parseRoute((JSONObject) array.get(i), departureTime);
+			Route route = Route.parse((JSONObject) array.get(i), departureTime);
 			routes.add(route);
 		}
 		
@@ -66,44 +66,5 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 		return routes;
 	}
 	
-	// FIXME: This should be under Route class
-	public Route parseRoute(JSONObject routeObject, long departureTime) throws JSONException, IOException {
-	    JSONArray rts = (JSONArray) routeObject.get("ROUTE");
-	    
-	    ArrayList<RouteNode> routeNodes = new ArrayList<RouteNode>();
-        for (int i = 0; i < rts.length(); i++) {
-            JSONObject ro = (JSONObject) rts.get(i);
-            
-            RouteNode node = new RouteNode(ro.getDouble("LATITUDE"),
-                    ro.getDouble("LONGITUDE"), 0, ro.getInt("NODEID"));
-            
-            if (ro.has("FLAG")) {
-            	node.setFlag(ro.getInt("FLAG"));
-            }
-            if (ro.has("MESSAGE")) {
-            	node.setMessage(ro.getString("MESSAGE"));
-            }
-            if (ro.has("DISTANCE")) {
-            	// conversion from mile to meter
-            	node.setDistance(ro.getDouble("DISTANCE") * 1609.34);
-            }
-            if (ro.has("ROADNAME")) {
-            	node.setRoadName(ro.getString("ROADNAME"));
-            }
-            
-            routeNodes.add(node);
-        }
-        
-        // Route ID
-        int rid = routeObject.getInt("RID");
-        
-        // Web service returns the estimated travel time in minutes, but we
-        // internally store it as seconds.
-        double ett = routeObject.getDouble("ESTIMATED_TRAVEL_TIME");
-        
-        Route route = new Route(routeNodes, rid, departureTime, (int)(ett * 60));
-        route.setCredits(routeObject.getInt("CREDITS"));
-        
-        return route;
-	}
+
 }
