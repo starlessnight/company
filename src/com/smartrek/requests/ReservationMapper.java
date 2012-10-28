@@ -11,7 +11,6 @@ import android.text.format.Time;
 import android.util.Log;
 
 import com.smartrek.models.Route;
-import com.smartrek.utils.Cache;
 import com.smartrek.utils.HTTP;
 import com.smartrek.utils.RouteNode;
 
