@@ -12,23 +12,4 @@
         tilesource="CloudMadeStandardTiles"
         style="74151" />
 
-    <ImageView
-        android:id="@+id/image_view_zoom_in"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/image_view_zoom_out"
-        android:layout_alignParentRight="true"
-        android:layout_margin="2dp"
-        android:src="@drawable/zoom_in_leaf" />
-
-    <ImageView
-        android:id="@+id/image_view_zoom_out"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="44dp"
-        android:layout_marginRight="2dp"
-        android:src="@drawable/zoom_out_leaf" />
-
 </RelativeLayout>

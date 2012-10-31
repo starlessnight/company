@@ -194,6 +194,7 @@ public class ValidationActivity extends Activity {
         mapView = (MapView) findViewById(R.id.mapview);
         CloudmadeUtil.retrieveCloudmadeKey(this);
         mapView.setBuiltInZoomControls(false);
+        mapView.setMultiTouchControls(true);
         mapView.setOnTouchListener(new OnTouchListener() {
             
             @Override
@@ -201,23 +202,6 @@ public class ValidationActivity extends Activity {
                 buttonFollow.setChecked(false);
                 return false;
             }
-        });
-        
-        /* Create a ImageView with a zoomIn-Icon. */
-        final ImageView imageViewZoomIn = (ImageView) findViewById(R.id.image_view_zoom_in);
-        imageViewZoomIn.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                        mapView.getController().zoomIn();
-                }
-        });
-        
-        final ImageView imageViewZoomOut = (ImageView) findViewById(R.id.image_view_zoom_out);
-        imageViewZoomOut.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                        mapView.getController().zoomOut();
-                }
         });
         
         navigationView = (NavigationView) findViewById(R.id.navigation_view);

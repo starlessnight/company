@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Vector;
 
 import org.json.JSONException;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.tileprovider.util.CloudmadeUtil;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
@@ -96,25 +95,9 @@ public final class RouteActivity extends Activity {
         
         mapView = (MapView) findViewById(R.id.mapview);
         mapView.setBuiltInZoomControls(false);
+        mapView.setMultiTouchControls(true);
         CloudmadeUtil.retrieveCloudmadeKey(this);
         
-        /* Create a ImageView with a zoomIn-Icon. */
-        final ImageView imageViewZoomIn = (ImageView) findViewById(R.id.image_view_zoom_in);
-        imageViewZoomIn.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                        mapView.getController().zoomIn();
-                }
-        });
-        
-        final ImageView imageViewZoomOut = (ImageView) findViewById(R.id.image_view_zoom_out);
-        imageViewZoomOut.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                        mapView.getController().zoomOut();
-                }
-        });
-    
         /* Set the map view for a view of North America before zooming in on route */
         MapController mc = mapView.getController();
         int lat = (int) Math.round(38.27268853598097f*1E6);
