@@ -75,6 +75,8 @@ public final class Route implements Parcelable {
             routeNodes.add(node);
         }
         
+        RouteMapper.buildRouteNodeReferenceChain(routeNodes);
+        
         // Route ID
         int rid = routeObject.getInt("RID");
         
@@ -110,6 +112,8 @@ public final class Route implements Parcelable {
 		departureTime = in.readLong();
 		uid = in.readInt();
 		credits = in.readInt();
+		
+		RouteMapper.buildRouteNodeReferenceChain(routeNodes);
 	}
 	
 	public Route (ArrayList<RouteNode> locs, int rid, long departureTime, int duration) {
@@ -299,7 +303,19 @@ public final class Route implements Parcelable {
 	public double getLength() {
 		double length = 0.0;
 		for (RouteNode node : routeNodes) {
-			length += node.getDistance();
+			double d = node.getDistance();
+			if (d == 0.0) {
+				// If node length information is not available, get an estimation.
+				
+				RouteNode nextNode = node.getNextNode();
+				
+				if (nextNode != null) {
+					length += RouteNode.distanceBetween(node, nextNode);
+				}
+			}
+			else {
+				length += d;
+			}
 		}
 		
 		return length;

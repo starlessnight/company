@@ -29,7 +29,7 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 				"Route " + (routeSeq + 1),
 				"Estimated Travel Time: " + HumanReadableTime.formatDuration(route.getDuration())
 				// This won't work because the server does not return any extra info unless the route is reserved
-				//+ String.format("\nLength: %.01f mi", route.getLength() * 0.000621371)
+				+ String.format("\nLength: %.01f mi", route.getLength() * 0.000621371)
 				+ "\nTrekpoints: " + route.getCredits(),
 				point);
 		addItem(item);
