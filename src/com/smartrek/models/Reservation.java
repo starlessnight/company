@@ -81,6 +81,9 @@ public final class Reservation implements Parcelable {
         this.route = route;
     }
 
+    /**
+     * @return Departure time in milliseconds
+     */
     public long getDepartureTime() {
 		return departureTime;
 	}
@@ -93,10 +96,16 @@ public final class Reservation implements Parcelable {
         return duration;
     }
 
+	/**
+	 * @param Trip duration in seconds
+	 */
     public void setDuration(int duration) {
         this.duration = duration;
     }
 
+    /**
+     * @return Arrival time in milliseconds
+     */
     public long getArrivalTime() {
         return departureTime + duration*1000;
 	}
@@ -134,8 +143,36 @@ public final class Reservation implements Parcelable {
 	}
 	
 	public boolean isPast() {
-		long currentTime = System.currentTimeMillis();
-		return getDepartureTime() < currentTime;
+		return getDepartureTime() < System.currentTimeMillis();
+	}
+	
+	/**
+	 * The difference between {@code isPast()} and {@code hasExpired()} is that
+	 * {@code isPast()} simply compares the current system time with the
+	 * reserved departure time whereas {@code hasExpired()} considers grace
+	 * period.
+	 * 
+	 * Grace period: 15 minutes
+	 * 
+	 * @return True if (the current system time) > (departure time) + (grace period)
+	 */
+	public boolean hasExpired() {
+		return getDepartureTime() + (15*60*1000) < System.currentTimeMillis();
+	}
+	
+	/**
+	 * Determines whether it is too early to start the trip.
+	 * 
+	 * Grace period: 15 minutes
+	 * 
+	 * @return
+	 */
+	public boolean isTooEarlyToStart() {
+		return getDepartureTime() - (15*60*1000) > System.currentTimeMillis();
+	}
+	
+	public boolean isEligibleTrip() {
+		return !hasExpired() && !isTooEarlyToStart();
 	}
 	
 	/**

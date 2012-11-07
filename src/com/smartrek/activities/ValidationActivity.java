@@ -36,9 +36,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
-import android.widget.ImageView;
 import android.widget.ToggleButton;
 
+import com.smartrek.dialogs.NotificationDialog;
+import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
@@ -66,7 +67,13 @@ public class ValidationActivity extends Activity {
     private NavigationView navigationView;
     private ToggleButton buttonFollow;
     
+    /**
+     * @deprecated
+     */
     private Route route;
+    
+    private Reservation reservation;
+    
     private List<Overlay> mapOverlays;
     
     private PointOverlay pointOverlay;
@@ -103,8 +110,11 @@ public class ValidationActivity extends Activity {
         setContentView(R.layout.post_reservation_map);
         
         Bundle extras = getIntent().getExtras();
+        reservation = extras.getParcelable("reservation");
+        
         route = extras.getParcelable("route");
         route.preprocessNodes();
+        
         
         initViews();
         
@@ -130,9 +140,37 @@ public class ValidationActivity extends Activity {
     }
     
     @Override
+    protected void onStart() {
+    	super.onStart();
+    	
+        if (reservation.hasExpired()) {
+        	NotificationDialog dialog = new NotificationDialog(this, getResources().getString(R.string.trip_has_expired));
+        	dialog.setActionListener(new NotificationDialog.ActionListener() {
+				
+				@Override
+				public void onClickDismiss() {
+					finish();
+				}
+			});
+        	dialog.show();
+        }
+        else if (reservation.isTooEarlyToStart()) {
+        	NotificationDialog dialog = new NotificationDialog(this, getResources().getString(R.string.trip_too_early_to_start));
+        	dialog.setActionListener(new NotificationDialog.ActionListener() {
+				
+				@Override
+				public void onClickDismiss() {
+					finish();
+				}
+			});
+        	dialog.show();
+        }
+    }
+    
+    @Override
     protected void onResume() {
         super.onResume();
-        
+
         SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
 
         // Register the listener with the Location Manager to receive location updates

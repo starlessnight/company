@@ -35,6 +35,9 @@ public final class ReservationDetailsActivity extends Activity {
 	private TextView textViewHelp;
 	private Button buttonStartTrip;
 	
+	/**
+	 * @deprecated
+	 */
 	private Route route;
 	private Reservation reservation;
 	
@@ -100,6 +103,7 @@ public final class ReservationDetailsActivity extends Activity {
 	            	
 	                Intent intent = new Intent(ReservationDetailsActivity.this, ValidationActivity.class);
 	                intent.putExtra("route", route);
+	                intent.putExtra("reservation", reservation);
 	                startActivity(intent);
 	                finish();
 	            }
@@ -112,8 +116,15 @@ public final class ReservationDetailsActivity extends Activity {
     protected void onResume() {
         super.onResume();
         
-        buttonStartTrip.setEnabled(!reservation.isPast());
-        textViewHelp.setVisibility(reservation.isPast() ? View.VISIBLE : View.GONE);
+        buttonStartTrip.setEnabled(reservation.isEligibleTrip());
+        textViewHelp.setVisibility(reservation.isEligibleTrip() ? View.GONE : View.VISIBLE);
+        
+        if (reservation.hasExpired()) {
+        	textViewHelp.setText(getResources().getString(R.string.trip_has_expired));
+        }
+        else if (reservation.isTooEarlyToStart()) {
+        	textViewHelp.setText(getResources().getString(R.string.trip_too_early_to_start));
+        }
     }
     
     @Override

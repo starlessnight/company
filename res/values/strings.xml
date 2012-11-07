@@ -26,6 +26,11 @@
     <string name="trekpoints">Trekpoints</string>
     
     <string name="common_datetime_format">MMM dd, yyyy (E) HH:mm:ss</string>
+    
+    
+    <!-- Trip -->
+    <string name="trip_has_expired">Your trip has expired.</string>
+    <string name="trip_too_early_to_start">It is too early to start your trip.</string>
 
     <!-- *************************************************************************************** -->
     <!-- *************************************************************************************** -->
