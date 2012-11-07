@@ -75,13 +75,20 @@
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Button
-        android:layout_gravity="center_horizontal"
-        android:paddingLeft="48dp"
-        android:paddingRight="48dp"
-        android:layout_marginTop="12dp"
         android:id="@+id/buttonStartTrip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        android:paddingLeft="48dp"
+        android:paddingRight="48dp"
         android:text="Start trip" />
+
+    <TextView
+        android:id="@+id/textViewHelp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Your reservation has expired" />
 
 </LinearLayout>

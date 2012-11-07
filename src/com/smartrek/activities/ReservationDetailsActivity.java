@@ -32,6 +32,7 @@ public final class ReservationDetailsActivity extends Activity {
 	private TextView textViewDepartureTime;
 	private TextView textViewArrivalTime;
 	private TextView textViewCredits;
+	private TextView textViewHelp;
 	private Button buttonStartTrip;
 	
 	private Route route;
@@ -53,18 +54,25 @@ public final class ReservationDetailsActivity extends Activity {
         else {
             long arrivalTime = route.getArrivalTime();
             int duration = route.getDuration();
+            
+            String origin = route.getOrigin();
+            String destination = route.getDestination();
+            
             if (reservation != null) {
                 arrivalTime = reservation.getArrivalTime();
                 duration = reservation.getDuration();
+                
+                origin = reservation.getOriginAddress();
+                destination = reservation.getDestinationAddress();
             }
             
             setTitle(String.format("Reservation #%d", route.getId()));
             
 	        textViewOrigin = (TextView) findViewById(R.id.textViewOrigin);
-	        textViewOrigin.setText(route.getOrigin());
+	        textViewOrigin.setText(origin);
 	        
 	        textViewDestination = (TextView) findViewById(R.id.textViewDestination);
-	        textViewDestination.setText(route.getDestination());
+	        textViewDestination.setText(destination);
 	        
 	        textViewDepartureTime = (TextView) findViewById(R.id.textViewDepartureTime);
 	        // FIXME: Date/time format i18n
@@ -80,6 +88,8 @@ public final class ReservationDetailsActivity extends Activity {
 	        
 	        textViewCredits = (TextView) findViewById(R.id.textViewCredits);
 	        textViewCredits.setText(String.valueOf(route.getCredits()));
+	        
+	        textViewHelp = (TextView) findViewById(R.id.textViewHelp);
         
 	        buttonStartTrip = (Button) findViewById(R.id.buttonStartTrip);
 	        buttonStartTrip.setOnClickListener(new OnClickListener() {
@@ -96,6 +106,14 @@ public final class ReservationDetailsActivity extends Activity {
 	            
 	        });
         }
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        
+        buttonStartTrip.setEnabled(!reservation.isPast());
+        textViewHelp.setVisibility(reservation.isPast() ? View.VISIBLE : View.GONE);
     }
     
     @Override
