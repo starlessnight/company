@@ -13,7 +13,8 @@
         android:text="Name"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textColor="#92D050" />
     <TextView
         android:id="@+id/textViewAddress"
         android:layout_gravity="left"
