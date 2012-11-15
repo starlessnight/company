@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/LoginLayout"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@drawable/background_gradient"
     android:orientation="vertical" >
+    
+        <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp" >
 
     <ImageView
         android:id="@+id/smartrek"
@@ -71,5 +77,7 @@
             android:padding="8dp"
             android:text="@string/login" />
     </LinearLayout>
+    
+    </LinearLayout>
 
-</LinearLayout>
+</ScrollView>
