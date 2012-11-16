@@ -54,7 +54,7 @@ public final class Cache {
 		return instance;
 	}
 	
-	public boolean isCacheAvailable(String key) {
+	public boolean has(String key) {
 		return storage.containsKey(key) && isValid(storage.get(key));
 	}
 	

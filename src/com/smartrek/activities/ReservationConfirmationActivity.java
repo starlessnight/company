@@ -1,5 +1,8 @@
 package com.smartrek.activities;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -21,6 +24,7 @@ import com.smartrek.models.Route;
 import com.smartrek.receivers.ReservationReceiver;
 import com.smartrek.requests.ReservationMapper;
 import com.smartrek.ui.menu.MainMenu;
+import com.smartrek.utils.Cache;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.HumanReadableTime;
 
@@ -114,13 +118,24 @@ public final class ReservationConfirmationActivity extends Activity {
 		
 		// In reality, you would want to have a static variable for the
 		// request code instead of 192837
-		PendingIntent sender = PendingIntent.getBroadcast(this, 192837,
+		PendingIntent pendingOperation = PendingIntent.getBroadcast(this, 192837,
 				intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		// Get the AlarmManager service
 		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-		am.set(AlarmManager.RTC_WAKEUP, departureTime - 60000*5, sender); // 5 min earlier than departure time
-		
+		am.set(AlarmManager.RTC_WAKEUP, departureTime - 60000*5, pendingOperation); // 5 min earlier than departure time
+
+		Cache cache = Cache.getInstance();
+		if (cache.has("pendingAlarms")) {
+			List<PendingIntent> pendingAlarms = (List<PendingIntent>) cache.fetch("pendingAlarms");
+			pendingAlarms.add(pendingOperation);
+		}
+		else {
+			List<PendingIntent> pendingOperations = new LinkedList<PendingIntent>();
+			pendingOperations.add(pendingOperation);
+			
+			cache.put("pendingAlarms", pendingOperations);
+		}
 	}
 	
 	private final class ReservationTask extends AsyncTask<Object, Object, Object> {

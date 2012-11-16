@@ -38,7 +38,7 @@ public abstract class FetchRequest<ReturnType> extends Request {
 	
 	protected String executeFetchRequest(String url) throws IOException {
 		Cache cache = Cache.getInstance();
-		if (cache.isCacheAvailable(url)) {
+		if (cache.has(url)) {
 			return (String) cache.fetch(url);
 		}
 		else {
@@ -55,7 +55,7 @@ public abstract class FetchRequest<ReturnType> extends Request {
 	 * @return
 	 */
 	public boolean isCached() {
-		return Cache.getInstance().isCacheAvailable(url);
+		return Cache.getInstance().has(url);
 	}
 	
 	/**
