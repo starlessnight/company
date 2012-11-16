@@ -511,7 +511,7 @@ public final class HomeActivity extends Activity {
 			locationService.requestCurrentLocation(new LocationServiceListener() {
 				@Override
 				public void locationAcquired(Location location) {
-					originCoord = new GeoPoint((int)(location.getLatitude() * 1E6), (int)(location.getLongitude() * 1E6));
+					originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
 					dialog.cancel();
 					
 					String dest = getDestinationAddress().getAddress();
@@ -557,10 +557,10 @@ public final class HomeActivity extends Activity {
 		extras.putString("originAddr", editAddressOrigin.getText().toString());
 		extras.putString("destAddr", editAddressDest.getText().toString());
 		// TODO: Any better way to handle this?
-		extras.putInt("originLat", originCoord.getLatitudeE6());
-		extras.putInt("originLng", originCoord.getLongitudeE6());
-		extras.putInt("destLat", destCoord.getLatitudeE6());
-		extras.putInt("destLng", destCoord.getLongitudeE6());
+		extras.putDouble("originLat", originCoord.getLatitude());
+		extras.putDouble("originLng", originCoord.getLongitude());
+		extras.putDouble("destLat", destCoord.getLatitude());
+		extras.putDouble("destLng", destCoord.getLongitude());
 		extras.putBoolean("debugMode", debugMode);
 		intent.putExtras(extras);
 		startActivity(intent);
