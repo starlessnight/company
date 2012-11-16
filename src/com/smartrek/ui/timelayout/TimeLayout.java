@@ -1,7 +1,6 @@
 package com.smartrek.ui.timelayout;
 
 import android.content.Context;
-import android.text.format.Time;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -33,6 +32,8 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     
     private int selectedColumn = 0;
     
+    private int columnCount = 20;
+    
     private TimeLayoutListener timeLayoutListener;
 
     public interface TimeLayoutListener {
@@ -56,9 +57,9 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
         AdjustableTime adjustableTime = new AdjustableTime();
         adjustableTime.setToNow();
         
-        int numboxes = adjustableTime.getNumTimeBoxes();
+        //int numboxes = adjustableTime.getNumTimeBoxes();
         
-        for (int i = 0; i < numboxes; i++) {
+        for (int i = 0; i < columnCount; i++) {
              TimeColumn timeColumn = new TimeColumn(this, i);
              timeColumn.setDepartureTime(adjustableTime.initTime().toMillis(false));
              timeColumn.setOnClickListener(this);
@@ -83,8 +84,12 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     	}
     }
     
-    public synchronized int getSelectedColumn() {
+    public int getSelectedColumn() {
     	return selectedColumn;
+    }
+    
+    public int getColumnCount() {
+    	return columnCount;
     }
     
     public int getColumnWidth() {
