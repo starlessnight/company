@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 
+import com.smartrek.activities.R;
 import com.smartrek.dialogs.ExceptionDialog;
 import com.smartrek.exceptions.RouteNotFoundException;
 
@@ -50,7 +51,7 @@ public class ExceptionHandlingService {
         AlertDialog dialog = new AlertDialog.Builder(context).create();
         dialog.setTitle("Exception");
         dialog.setMessage(message);
-        dialog.setButton("Dismiss", new Dialog.OnClickListener() {
+        dialog.setButton(context.getResources().getString(R.string.close), new Dialog.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -63,7 +64,7 @@ public class ExceptionHandlingService {
     	// TODO: Is there any better way to handle this?
     	if (e instanceof RouteNotFoundException) {
     		ExceptionDialog dialog = new ExceptionDialog(context, e.getMessage());
-    		dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Dismiss", new OnClickListener() {
+    		dialog.setButton(DialogInterface.BUTTON_NEGATIVE, context.getResources().getString(R.string.close), new OnClickListener() {
 				
 				@Override
 				public void onClick(DialogInterface dialog, int which) {

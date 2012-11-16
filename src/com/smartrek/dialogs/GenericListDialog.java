@@ -110,7 +110,7 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 	 * This gets called when {@code listItem} is null or has no item
 	 */
 	protected void initEmptyList() {
-		setButton(DialogInterface.BUTTON_NEGATIVE, "Dismiss", defaultNegativeButtonListener);	
+		setButton(DialogInterface.BUTTON_NEGATIVE, getContext().getResources().getString(R.string.close), defaultNegativeButtonListener);	
 	}
 	
 	public void setStatus(Status status) {

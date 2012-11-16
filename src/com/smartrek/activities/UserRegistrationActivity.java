@@ -132,7 +132,7 @@ public final class UserRegistrationActivity extends Activity {
 				// TODO: Text localization
 				dialog.setTitle("Info");
 				dialog.setMessage("Successfully registered.");
-				dialog.setButton("Dismiss", new DialogInterface.OnClickListener() {
+				dialog.setButton(getResources().getString(R.string.close), new DialogInterface.OnClickListener() {
 					
 					public void onClick(DialogInterface dialog, int which) {
 						UserRegistrationActivity.this.finish();

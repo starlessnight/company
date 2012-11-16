@@ -1,5 +1,7 @@
 package com.smartrek.dialogs;
 
+import com.smartrek.activities.R;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -25,7 +27,7 @@ public class NotificationDialog extends AlertDialog {
 		setTitle("Notification");
 		setMessage(message);
 		
-		setButton(DialogInterface.BUTTON_NEGATIVE, "Dismiss", new OnClickListener() {
+		setButton(DialogInterface.BUTTON_NEGATIVE, getContext().getResources().getString(R.string.close), new OnClickListener() {
             
             @Override
             public void onClick(DialogInterface dialog, int which) {
