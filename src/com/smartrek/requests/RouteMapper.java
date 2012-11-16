@@ -63,8 +63,8 @@ public final class RouteMapper extends FetchRequest<List<Route>> {
 	    
 	    for (int i = 0; i < array.length(); i++) {
 	        JSONObject obj = (JSONObject) array.get(i);
-	        float latitude = (float) obj.getDouble("LATITUDE");
-	        float longitude = (float) obj.getDouble("LONGITUDE");
+	        double latitude = obj.getDouble("LATITUDE");
+	        double longitude = obj.getDouble("LONGITUDE");
 	        int nodeId = obj.getInt("NODEID");
 	        RouteNode node = new RouteNode(latitude, longitude, 0, nodeId);
 	        
@@ -81,8 +81,8 @@ public final class RouteMapper extends FetchRequest<List<Route>> {
         for (int i = 0; i < rts.length(); i++) {
             JSONObject ro = (JSONObject) rts.get(i);
             
-            RouteNode node = new RouteNode((float)ro.getDouble("LATITUDE"),
-                    (float)ro.getDouble("LONGITUDE"), 0, ro.getInt("NODEID"));
+            RouteNode node = new RouteNode(ro.getDouble("LATITUDE"),
+                    ro.getDouble("LONGITUDE"), 0, ro.getInt("NODEID"));
             routeNodes.add(node);
         }
         

@@ -27,7 +27,7 @@ public class PointOverlay extends Overlay {
 	}
 	
 	public void setLocation(float lat, float lng) {
-		geoPoint = new GeoPoint((int)(lat * 1E6), (int)(lng * 1E6));
+		geoPoint = new GeoPoint(lat, lng);
 	}
 	
 	public void setColor(int color) {

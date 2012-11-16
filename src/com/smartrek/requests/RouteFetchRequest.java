@@ -23,7 +23,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 		Time t = new Time();
 		t.set(departureTime);
 		
-		return String.format("%s/getroutes/startlat=%f%%20startlon=%f%%20endlat=%f%%20endlon=%f%%20departtime=%d:%02d",
+		return String.format("%s/getroutes/startlat=%.7f%%20startlon=%.7f%%20endlat=%.7f%%20endlon=%.7f%%20departtime=%d:%02d",
 				HOST, origin.getLatitude(), origin.getLongitude(),
 				destination.getLatitude(), destination.getLongitude(),
 				t.hour, t.minute);
