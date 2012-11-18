@@ -127,6 +127,7 @@ public final class ReservationConfirmationActivity extends Activity {
 
 		Cache cache = Cache.getInstance();
 		if (cache.has("pendingAlarms")) {
+			@SuppressWarnings("unchecked")
 			List<PendingIntent> pendingAlarms = (List<PendingIntent>) cache.fetch("pendingAlarms");
 			pendingAlarms.add(pendingOperation);
 		}

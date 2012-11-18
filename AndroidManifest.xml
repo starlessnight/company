@@ -57,7 +57,8 @@
             android:configChanges="keyboardHidden|orientation|screenLayout" />
         <activity
             android:name=".HomeActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout" />
+            android:configChanges="keyboardHidden|orientation|screenLayout"
+            android:label="Where to" />
         <activity
             android:name=".UserRegistrationActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout" />
@@ -67,7 +68,8 @@
         <activity
             android:name=".ReservationConfirmationActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:label="Reserve route" />
+            android:label="Reserve route"
+            android:theme="@android:style/Theme.Light" />
         <activity
             android:name=".ReservationDetailsActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout" />

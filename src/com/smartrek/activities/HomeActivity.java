@@ -79,7 +79,7 @@ public final class HomeActivity extends Activity {
 	private ImageButton buttonSaveTripHelp;
 	private ImageButton buttonFavAddrOrigin;
 	private ImageButton destFavButton;
-	private ImageButton buttonOriginMyLocation;
+	private Button buttonOriginMyLocation;
 	
 	private GeoPoint originCoord;
 	private GeoPoint destCoord;
@@ -223,7 +223,7 @@ public final class HomeActivity extends Activity {
 	    destFavButton.setId(2);
 	    buttonDone.setId(3);
 	    
-	    buttonOriginMyLocation = (ImageButton) findViewById(R.id.origin_my_location);
+	    buttonOriginMyLocation = (Button) findViewById(R.id.origin_my_location);
 	    buttonOriginMyLocation.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {

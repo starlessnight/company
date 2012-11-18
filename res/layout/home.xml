@@ -1,48 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/MainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
     android:orientation="vertical" >
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|bottom"
+        android:src="@drawable/background_logo" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="10dp" >
+        android:padding="10dp"
+        android:layout_marginTop="40dp" >
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:gravity="center"
-            android:text="@string/whereTo"
-            android:textColor="#b39e69"
-            android:textSize="22dp" />
-
-        <TextView
-            android:id="@+id/origin_text"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="40dp"
-            android:layout_marginTop="20dp"
-            android:gravity="left"
-            android:text="@string/origin"
-            android:textColor="#FFFFFFFF" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical" >
+
+            <TextView
+                android:id="@+id/origin_text"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginRight="20dp"
+                android:gravity="bottom"
+                android:text="From"
+                android:textColor="#FFFFFFFF"
+                android:textSize="18sp" />
+
+            <Button
+                android:id="@+id/origin_my_location"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:background="@null"
+                android:drawableLeft="@drawable/current_location"
+                android:drawablePadding="2dp"
+                android:padding="2dp"
+                android:textSize="12sp"
+                android:text="Current&#10;Location" />
+
+            <Button
+                android:id="@+id/button_load_trip"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:background="@null"
+                android:drawableLeft="@drawable/load_trip"
+                android:drawablePadding="2dp"
+                android:padding="2dp"
+                android:text="Load&#10;Trip"
+                android:textSize="12sp" />
+
+        </LinearLayout>
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
-
-            <ImageButton
-                android:id="@+id/origin_my_location"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="@null"
-                android:padding="2dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/my_location" />
 
             <com.smartrek.ui.EditAddress
                 android:id="@+id/origin_box"
@@ -65,18 +85,19 @@
                 android:background="@null"
                 android:padding="2dp"
                 android:scaleType="fitXY"
-                android:src="@drawable/route_favorite" />
+                android:src="@drawable/favorite_address" />
         </FrameLayout>
 
         <TextView
             android:id="@+id/destination_text"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="40dp"
             android:layout_marginTop="20dp"
             android:gravity="left"
-            android:text="@string/destination"
-            android:textColor="#FFFFFFFF" />
+            android:text="To"
+            android:textColor="#FFFFFFFF"
+            android:textSize="18sp" />
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -99,36 +120,13 @@
                 android:background="@null"
                 android:padding="2dp"
                 android:scaleType="fitXY"
-                android:src="@drawable/route_favorite" />
+                android:src="@drawable/favorite_address" />
         </FrameLayout>
-
-        <!--
-                <TextView
-                    android:id="@+id/date_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignLeft="@+id/date_box"
-                    android:layout_alignRight="@+id/date_box"
-                    android:gravity="left"
-                    android:paddingBottom="5dp"
-                    android:paddingTop="15dp"
-                    android:text="Departure Time"
-                    android:textColor="#FFFFFFFF" />
-
-                <EditText
-                    android:id="@+id/date_box"
-                    android:layout_width="170dp"
-                    android:layout_height="40dp"
-                    android:layout_alignParentRight="true"
-                    android:layout_below="@id/date_text"
-                    android:layout_marginRight="50dp"
-                    android:inputType="date" />
-        -->
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp" >
+            android:layout_marginTop="20dp" >
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -136,15 +134,6 @@
                 android:layout_marginLeft="40dp"
                 android:layout_marginRight="40dp"
                 android:orientation="horizontal" >
-
-                <Button
-                    android:id="@+id/button_load_trip"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight=".5"
-                    android:gravity="center"
-                    android:padding="4dp"
-                    android:text="@string/load_trip" />
 
                 <Button
                     android:id="@+id/button_save_trip"
@@ -155,6 +144,16 @@
                     android:gravity="center"
                     android:padding="4dp"
                     android:text="@string/save_trip" />
+
+                <Button
+                    android:id="@+id/Done"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".5"
+                    android:gravity="center"
+                    android:padding="4dp"
+                    android:text="Next"
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <ImageButton
@@ -165,21 +164,10 @@
                 android:background="@null"
                 android:padding="2dp"
                 android:scaleType="fitXY"
-                android:src="@drawable/question_mark" />
+                android:src="@drawable/question_mark"
+                android:visibility="gone" />
         </FrameLayout>
 
-        <Button
-            android:id="@+id/Done"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="40dp"
-            android:layout_marginTop="20dp"
-            android:gravity="center"
-            android:padding="4dp"
-            android:text="@string/Go"
-            android:textStyle="bold" />
     </LinearLayout>
 
-</ScrollView>
+</FrameLayout>
