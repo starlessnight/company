@@ -19,12 +19,15 @@ import com.smartrek.models.User;
  */
 public final class MainMenu {
 	public static void onMenuItemSelected(Activity activity, int featureId, MenuItem item) {
+		
 		Intent intent = null;
 		switch (item.getItemId()) {
 		
 		case R.id.route:
-		    intent = new Intent(activity, HomeActivity.class);
-		    activity.startActivity(intent);
+			if (!activity.getClass().equals(HomeActivity.class)) {
+				intent = new Intent(activity, HomeActivity.class);
+				activity.startActivity(intent);
+			}
 		    break;
 			
 //		case R.id.contacts:
@@ -33,10 +36,12 @@ public final class MainMenu {
 //			break;
 
 		case R.id.map_display_options:
-			intent = new Intent(activity, MapDisplayActivity.class);
-			int displayed = 0;
-			intent.putExtra("mapmode", 1);
-			activity.startActivityForResult(intent, displayed);
+			if (!activity.getClass().equals(MapDisplayActivity.class)) {
+				intent = new Intent(activity, MapDisplayActivity.class);
+				int displayed = 0;
+				intent.putExtra("mapmode", 1);
+				activity.startActivityForResult(intent, displayed);
+			}
 			break;
 
 		case R.id.mycoupons:
@@ -45,8 +50,10 @@ public final class MainMenu {
 			break;
 
 		case R.id.reservation:
-			intent = new Intent(activity, ReservationListActivity.class);
-			activity.startActivity(intent);
+			if (!activity.getClass().equals(ReservationListActivity.class)) {
+				intent = new Intent(activity, ReservationListActivity.class);
+				activity.startActivity(intent);
+			}
 			break;
 
 		case R.id.logout_option:
@@ -67,8 +74,10 @@ public final class MainMenu {
 //            break;
 
         case R.id.debug_options:
-            intent = new Intent(activity, DebugOptionsActivity.class);
-            activity.startActivity(intent);
+        	if (!activity.getClass().equals(DebugOptionsActivity.class)) {
+        		intent = new Intent(activity, DebugOptionsActivity.class);
+            	activity.startActivity(intent);
+        	}
             break;
 		}
 	}
