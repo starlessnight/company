@@ -12,6 +12,8 @@ public final class EditAddress extends EditText {
 	
 	private boolean currentLocationInUse;
 	private Address address;
+	
+	private int defaultTextColor;
 
 	public EditAddress(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -30,6 +32,10 @@ public final class EditAddress extends EditText {
 	}
 	
 	public void setAddressAsCurrentLocation() {
+		if (!currentLocationInUse) {
+			defaultTextColor = getCurrentTextColor();			
+		}
+		
 		currentLocationInUse = true;
 		address = null;
 		
@@ -39,11 +45,18 @@ public final class EditAddress extends EditText {
 	}
 	
 	public void unsetAddress() {
+		if (currentLocationInUse) {
+			setTextColor(defaultTextColor);
+		}
+		
 		currentLocationInUse = false;
 		address = null;
 		
 		setText("");
-		setTextColor(getTextColors().getDefaultColor());
+		
+		// This approach does not work
+		//setTextColor(getTextColors().getDefaultColor());
+		
 		setEnabled(true);
 	}
 	
@@ -60,6 +73,7 @@ public final class EditAddress extends EditText {
 	}
 	
 	public void setAddress(Address address) {
+		unsetAddress();
 		setText(address.getAddress());
 		this.address = address;
 	}
