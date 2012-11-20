@@ -13,7 +13,6 @@ import android.text.format.Time;
 import com.smartrek.exceptions.RouteNotFoundException;
 import com.smartrek.models.Route;
 import com.smartrek.utils.GeoPoint;
-import com.smartrek.utils.RouteNode;
 
 public class RouteFetchRequest extends FetchRequest<List<Route>> {
 	

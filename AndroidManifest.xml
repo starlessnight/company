@@ -68,8 +68,7 @@
         <activity
             android:name=".ReservationConfirmationActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:label="Reserve route"
-            android:theme="@android:style/Theme.Light" />
+            android:label="Reserve route" />
         <activity
             android:name=".ReservationDetailsActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout" />
@@ -108,7 +107,8 @@
             android:configChanges="keyboardHidden|orientation|screenLayout" />
         <activity
             android:name=".ValidationReportActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout" />
+            android:configChanges="keyboardHidden|orientation|screenLayout"
+            android:label="Route validation report" />
         <activity
             android:name=".FavoriteAddressListActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout" />

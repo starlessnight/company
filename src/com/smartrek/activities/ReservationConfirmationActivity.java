@@ -109,6 +109,7 @@ public final class ReservationConfirmationActivity extends Activity {
 		
 		Intent intent = new Intent(this, ReservationReceiver.class);
 		
+		// TODO: We need a reservation instance here...
 		intent.putExtra("route", route);
 		
 		// NOTE: It appears custom Parcelable objects cannot passed across

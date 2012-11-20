@@ -382,7 +382,16 @@ public class ValidationActivity extends Activity {
         double distanceToLink = nearestLink.distanceTo(lat, lng);
         if (distanceToLink <= params.getValidationDistanceThreshold()) {
             numberOfInRoute += 1;
+            nearestLink.getStartNode().getMetadata().setValidated(true);
         }
+        
+        int numberOfValidatedNodes = 0;
+        for (RouteNode node : route.getNodes()) {
+        	if (node.getMetadata().isValidated()) {
+        		numberOfValidatedNodes += 1;
+        	}
+        }
+        Log.d("ValidationActivity", String.format("%d/%d", numberOfValidatedNodes, route.getNodes().size()));
         
         if (nearestNode.getFlag() != 0) {
             showNavigationInformation(location, nearestNode);

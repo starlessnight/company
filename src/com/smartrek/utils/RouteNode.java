@@ -15,6 +15,8 @@ public final class RouteNode implements Parcelable, JSONModel {
 	public static class Metadata implements Parcelable {
 		public boolean[] pingFlags = new boolean[3];
 		
+		private boolean validated;
+		
 		public static final Parcelable.Creator<Metadata> CREATOR = new Parcelable.Creator<Metadata>() {
 			public Metadata createFromParcel(Parcel in) {
 				return new Metadata(in);
@@ -49,6 +51,16 @@ public final class RouteNode implements Parcelable, JSONModel {
 		public void writeToParcel(Parcel dest, int flags) {
 			dest.writeBooleanArray(pingFlags);
 		}
+
+		public boolean isValidated() {
+			return validated;
+		}
+
+		public void setValidated(boolean validated) {
+			this.validated = validated;
+		}
+		
+		
 	}
 	
 	private double latitude;
@@ -59,7 +71,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 	/**
 	 * This must be non-null for route nodes with a non-zero {@code flag}.
 	 */
-	private Metadata metadata;
+	private Metadata metadata = new Metadata();
 	
 	/**
 	 * Navigation metadata. Non-zero value indicates change of navigation information.
@@ -114,7 +126,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		longitude = in.readDouble();
 		routeNum = in.readInt();
 		nodeNum = in.readInt();
-		//metadata = in.readParcelable(Metadata.class.getClassLoader());
+		metadata = in.readParcelable(Metadata.class.getClassLoader());
 		flag = in.readInt();
 		distance = in.readDouble();
 		message = in.readString();
@@ -248,7 +260,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		dest.writeDouble(longitude);
 		dest.writeInt(routeNum);
 		dest.writeInt(nodeNum);
-		//dest.writeParcelable(metadata, flags);
+		dest.writeParcelable(metadata, flags);
 		dest.writeInt(flag);
 		dest.writeDouble(distance);
 		dest.writeString(message);
