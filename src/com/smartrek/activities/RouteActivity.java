@@ -191,11 +191,6 @@ public final class RouteActivity extends Activity {
         originCoord = new GeoPoint(extras.getDouble("originLat"), extras.getDouble("originLng"));
         destCoord = new GeoPoint(extras.getDouble("destLat"), extras.getDouble("destLng"));
         
-        Log.d("RouteActivity", "org lat = " + originCoord.getLatitude());
-        Log.d("RouteActivity", "org lng = " + originCoord.getLongitude());
-        Log.d("RouteActivity", "dst lat = " + destCoord.getLatitude());
-        Log.d("RouteActivity", "dst lng = " + destCoord.getLongitude());
-
         dialog.setMessage("Finding routes...");
         dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
 

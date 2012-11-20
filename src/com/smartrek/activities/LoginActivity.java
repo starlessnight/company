@@ -1,6 +1,11 @@
 package com.smartrek.activities;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -12,9 +17,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
+import com.smartrek.receivers.ReservationReceiver;
+import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.requests.UserLoginRequest;
-import com.smartrek.requests.UserMapper;
+import com.smartrek.utils.Cache;
 import com.smartrek.utils.ExceptionHandlingService;
 
 public final class LoginActivity extends Activity implements OnClickListener {
@@ -55,9 +63,7 @@ public final class LoginActivity extends Activity implements OnClickListener {
     private void checkSharedPreferences() {
         User currentUser = User.getCurrentUser(this);
         
-        if(currentUser != null){
-        	Log.d("Login_Activity","Got Login info from Shared Preferences");
-        	Log.d("Login_Activity","Finishing Login_Activity, Staring Home_Activity");
+        if(currentUser != null) {
         	Intent intent = new Intent(this, HomeActivity.class);
 			startActivity(intent);
 			finish();
@@ -78,6 +84,35 @@ public final class LoginActivity extends Activity implements OnClickListener {
 			Log.d("Attempting Login", "User: " + username + "    Password: " + password);
 			
 			new LoginTask().execute(username, password);
+	}
+	
+	private void registerNotification(Reservation reservation) {
+		
+		Intent intent = new Intent(this, ReservationReceiver.class);
+		
+		intent.putExtra("route", reservation.getRoute());
+		
+		// In reality, you would want to have a static variable for the
+		// request code instead of 192837
+		PendingIntent pendingOperation = PendingIntent.getBroadcast(this, 192837,
+				intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+		// Get the AlarmManager service
+		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+		am.set(AlarmManager.RTC_WAKEUP, reservation.getDepartureTime() - 60000*5, pendingOperation); // 5 min earlier than departure time
+
+		Cache cache = Cache.getInstance();
+		if (cache.has("pendingAlarms")) {
+			@SuppressWarnings("unchecked")
+			List<PendingIntent> pendingAlarms = (List<PendingIntent>) cache.fetch("pendingAlarms");
+			pendingAlarms.add(pendingOperation);
+		}
+		else {
+			List<PendingIntent> pendingOperations = new LinkedList<PendingIntent>();
+			pendingOperations.add(pendingOperation);
+			
+			cache.put("pendingAlarms", pendingOperations);
+		}
 	}
 
 	Button.OnClickListener registerButtonClickListener = new Button.OnClickListener() {
@@ -125,13 +160,7 @@ public final class LoginActivity extends Activity implements OnClickListener {
 				
 				User.setCurrentUser(LoginActivity.this, user);
 				
-				Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-				
-				Log.d("Login_Activity","Finishing Login_Activity, Staring Home_Activity");
-				
-				startActivity(intent);
-				finish();
-				
+				new NotificationTask().execute(user.getId());
 			}
 			else {
 				Log.d("Login_Activity", "Failed Login User: " + user.getUsername());
@@ -140,6 +169,35 @@ public final class LoginActivity extends Activity implements OnClickListener {
 				pwd.setText("");
 			}
 		}
+	}
+	
+	private class NotificationTask extends AsyncTask<Object, Object, List<Reservation>> {
+		@Override
+		protected List<Reservation> doInBackground(Object... params) {
+			int uid = (Integer) params[0];
+			
+			ReservationListFetchRequest request = new ReservationListFetchRequest(uid);
+			List<Reservation> reservations = null;
+			try {
+				reservations = request.execute();
+			}
+			catch (Exception e) {
+				ehs.registerException(e);
+			}
+			
+			return reservations;
+		}
 		
+		@Override
+		protected void onPostExecute(List<Reservation> result) {
+			for (Reservation r : result) {
+				registerNotification(r);
+			}
+			
+			Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+			
+			startActivity(intent);
+			finish();
+		}
 	}
 }
