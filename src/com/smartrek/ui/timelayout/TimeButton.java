@@ -64,7 +64,7 @@ public final class TimeButton extends TextView {
 		return state;
 	}
 	
-	public synchronized void setState(State state) {
+	public void setState(State state) {
 		this.state = state;
 
 		((Activity) getContext()).runOnUiThread(new StateUpdateTask(state));
@@ -74,7 +74,7 @@ public final class TimeButton extends TextView {
 	 * 
 	 */
     @Override
-    protected synchronized void onDraw(Canvas canvas) {
+    protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         Rect rect = new Rect();
         Paint paint = new Paint();

@@ -25,9 +25,6 @@ import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.ImageView;
 
 import com.smartrek.exceptions.RouteNotFoundException;
 import com.smartrek.models.Route;
@@ -139,9 +136,11 @@ public final class RouteActivity extends Activity {
                         timeLayout.setColumnState(column, State.InProgress);
                         long departureTime = timeButton.getDepartureTime();
                         
-                        RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime, column, true);
-                        routeTasks.add(routeTask);
-                        routeTask.execute();
+                        updateRoute(originCoord, destCoord, departureTime, column);
+                        
+//                        RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime, column, true);
+//                        routeTasks.add(routeTask);
+//                        routeTask.execute();
 //                  }
 //                  else {
 //                      timeLayout.setColumnState(column, State.Selected);
@@ -265,8 +264,40 @@ public final class RouteActivity extends Activity {
             mc.setCenter(mid);
             mc.zoomToSpan(range[0], range[1]);
             
-            mapView.invalidate();
+            mapView.postInvalidate();
         }
+        else {
+        	Log.d("RouteActivity", "updateMap(): no route available.");
+        }
+    }
+    
+    /**
+     * Updates the map by fetching a route from a local cache
+     * 
+     * @param origin
+     * @param destination
+     * @param departureTime
+     * @param column
+     * @throws JSONException 
+     * @throws IOException 
+     * @throws RouteNotFoundException 
+     */
+    private void updateRoute(GeoPoint origin, GeoPoint destination, long departureTime, int column) {
+    	RouteFetchRequest request = new RouteFetchRequest(origin, destination, departureTime);
+    	try {
+			List<Route> routes = request.execute();
+			updateMap(routes);
+			timeLayout.setColumnState(column, TimeButton.State.Selected);
+		}
+		catch (RouteNotFoundException e) {
+			e.printStackTrace();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		catch (JSONException e) {
+			e.printStackTrace();
+		}
     }
 
     private List<Overlay> mapOverlays;
@@ -489,7 +520,7 @@ public final class RouteActivity extends Activity {
             dialog.dismiss();
             
             setHighlightedRoutePathOverlays(true);
-            mapView.invalidate();
+            mapView.postInvalidate();
             
             if (ehs.hasExceptions()) {
                 ehs.reportExceptions();

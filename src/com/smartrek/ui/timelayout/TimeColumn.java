@@ -45,7 +45,7 @@ public final class TimeColumn extends LinearLayout {
 		return state;
 	}
 	
-	public synchronized void setState(State state) {
+	public void setState(State state) {
 		this.state = state;
 		
 		departureTimeButton.setState(state);

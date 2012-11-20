@@ -75,7 +75,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     	return displayMode;
     }
     
-    public synchronized void setDisplayMode(DisplayMode displayMode) {
+    public void setDisplayMode(DisplayMode displayMode) {
     	this.displayMode = displayMode;
     	
     	for (int i = 0; i < getChildCount(); i++) {
@@ -96,15 +96,15 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     	return 150;
     }
     
-    public synchronized State getColumnState(int column) {
+    public State getColumnState(int column) {
     	return ((TimeColumn) getChildAt(column)).getState();
     }
     
-    public synchronized void setColumnState(int column, State state) {
+    public void setColumnState(int column, State state) {
     	((TimeColumn) getChildAt(column)).setState(state);
     }
 
-    public synchronized void notifyColumn(int column, boolean visible) {
+    public void notifyColumn(int column, boolean visible) {
     	State state = getColumnState(column);
     	if(!State.InProgress.equals(state)) {
     		//Log.d("TimeLayout", String.format("Setting column %d state to InProgress", column));
@@ -121,7 +121,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
      * @param column Column number (zero-based)
      * @param model An instance of a model class
      */
-    public synchronized void setModelForColumn(int column, Route model) {
+    public void setModelForColumn(int column, Route model) {
     	models[column] = model;
     	
     	TimeColumn timeButton = (TimeColumn) getChildAt(column);
@@ -155,7 +155,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
 	
 	        setColumnState(column, State.Selected);
 	        
-	        this.invalidate(); // TODO: What is this?
+	        this.postInvalidate(); // TODO: What is this?
 	        
 	        if(onSelectListener != null) {
 	        	selectedColumn = column;
