@@ -1,6 +1,7 @@
 package com.smartrek.ui.timelayout;
 
 import android.text.format.Time;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -50,6 +51,12 @@ public final class TimeColumn extends FrameLayout {
 		
 		progressBar = new ProgressBar(getContext());
 		progressBar.setVisibility(View.INVISIBLE);
+		
+//		FrameLayout.LayoutParams params = (LayoutParams) progressBar.getLayoutParams();
+//		params.width = 24;
+//		params.height = 24;
+//		params.gravity = Gravity.CENTER;
+		
 		addView(progressBar);
 	}
 

@@ -103,6 +103,9 @@ public final class ReservationConfirmationActivity extends Activity {
         return super.onMenuItemSelected(featureId, item);
     }
 	
+    /**
+     * Creates a system alarm for a single route
+     */
 	private void scheduleNotification(Route route) {
 		
 		long departureTime = route.getDepartureTime();
