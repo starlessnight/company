@@ -1,5 +1,7 @@
 package com.smartrek.activities;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -38,6 +40,7 @@ import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.GeoPoint;
+import com.smartrek.utils.Geocoding;
 import com.smartrek.utils.LocationService;
 import com.smartrek.utils.SystemService;
 import com.smartrek.utils.LocationService.LocationServiceListener;
@@ -322,8 +325,14 @@ public final class HomeActivity extends Activity {
 		}
 
 		@Override
-		public void callback(GeoPoint coordinate) {
-			originCoord = coordinate;
+		public void callback(List<Geocoding.Address> addresses) {
+			if (addresses.size() == 1) {
+				originCoord = addresses.get(0).getGeoPoint();
+			}
+			else {
+				// TODO: Popup a dialog to pick an address
+				originCoord = addresses.get(0).getGeoPoint();
+			}
 		}
 
 		@Override
@@ -351,8 +360,14 @@ public final class HomeActivity extends Activity {
 		}
 
 		@Override
-		public void callback(GeoPoint coordinate) {
-			destCoord = coordinate;
+		public void callback(List<Geocoding.Address> addresses) {
+			if (addresses.size() == 1) {
+				destCoord = addresses.get(0).getGeoPoint();
+			}
+			else {
+				// TODO: Popup a dialog to pick an address
+				destCoord = addresses.get(0).getGeoPoint();
+			}
 		}
 
 		@Override

@@ -1,6 +1,8 @@
 package com.smartrek.tasks;
 
-import com.smartrek.utils.GeoPoint;
+import java.util.List;
+
+import com.smartrek.utils.Geocoding;
 
 /**
  * Defines an interface that is going to be called when GeocodingTask.execute()
@@ -8,6 +10,6 @@ import com.smartrek.utils.GeoPoint;
  */
 public interface GeocodingTaskCallback {
 	public void preCallback();
-	public void callback(GeoPoint coordinate);
+	public void callback(List<Geocoding.Address> addresses);
 	public void postCallback();
 }

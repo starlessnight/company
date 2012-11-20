@@ -1,9 +1,10 @@
 package com.smartrek.tasks;
 
+import java.util.List;
+
 import android.os.AsyncTask;
 
 import com.smartrek.utils.ExceptionHandlingService;
-import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Geocoding;
 
 /**
@@ -30,15 +31,15 @@ public final class GeocodingTask extends AsyncTask<String, Void, Void> {
     @Override
     protected Void doInBackground(String... args) {
         String postalAddress = args[0];
-        GeoPoint coordinate = null;
+        List<Geocoding.Address> addresses = null;
 		try {
-			coordinate = Geocoding.lookup(postalAddress);
+			addresses = Geocoding.lookup(postalAddress);
 			
-	        if(coordinate.getLatitude() == 0.0 && coordinate.getLongitude() == 0.0) {
+	        if(addresses == null || addresses.size() == 0) {
 	            ehs.registerException(new Exception(String.format("Could not find a coordinate of the address '%s'.", postalAddress)));
 	        }
 	        else {
-	        	callback.callback(coordinate);
+	        	callback.callback(addresses);
 	        }
 		}
 		catch (Exception e) {
