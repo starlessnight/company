@@ -64,6 +64,8 @@ public final class LoginActivity extends Activity implements OnClickListener {
         User currentUser = User.getCurrentUser(this);
         
         if(currentUser != null) {
+        	new NotificationTask().execute(currentUser.getId());
+        	
         	Intent intent = new Intent(this, HomeActivity.class);
 			startActivity(intent);
 			finish();
@@ -90,6 +92,7 @@ public final class LoginActivity extends Activity implements OnClickListener {
 		
 		Intent intent = new Intent(this, ReservationReceiver.class);
 		
+		intent.putExtra("reservation", reservation);
 		intent.putExtra("route", reservation.getRoute());
 		
 		// In reality, you would want to have a static variable for the

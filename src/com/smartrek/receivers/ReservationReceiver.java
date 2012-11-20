@@ -12,6 +12,7 @@ import android.util.Log;
 
 import com.smartrek.activities.R;
 import com.smartrek.activities.ReservationDetailsActivity;
+import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.utils.TimeRange;
 import com.smartrek.utils.ValidationParameters;
@@ -54,11 +55,13 @@ public final class ReservationReceiver extends BroadcastReceiver {
 	    Log.d("ReservationReceiver", "onReceive");
 		
 	    Route route = intent.getExtras().getParcelable("route");
+	    Reservation reservation = intent.getExtras().getParcelable("reservation");
 	    int reservationId = intent.getExtras().getInt("reservationId");
 		
         Intent reservationIntent = new Intent(context, ReservationDetailsActivity.class);
         reservationIntent.putExtra("reservationId", reservationId);
         reservationIntent.putExtra("route", route);
+        reservationIntent.putExtra("reservation", reservation);
         PendingIntent sender = PendingIntent.getActivity(context, 0, reservationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
