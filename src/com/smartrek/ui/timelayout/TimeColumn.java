@@ -1,7 +1,10 @@
 package com.smartrek.ui.timelayout;
 
 import android.text.format.Time;
+import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import com.smartrek.ui.timelayout.TimeButton.DisplayMode;
 import com.smartrek.ui.timelayout.TimeButton.State;
@@ -10,10 +13,11 @@ import com.smartrek.ui.timelayout.TimeButton.State;
  * 
  * 
  */
-public final class TimeColumn extends LinearLayout {
+public final class TimeColumn extends FrameLayout {
 	
 	private TimeButton departureTimeButton;
 	private TimeButton arrivalTimeButton;
+	private ProgressBar progressBar;
 	
 	private long departureTime;
 	private long arrivalTime;
@@ -31,14 +35,22 @@ public final class TimeColumn extends LinearLayout {
 	public TimeColumn(TimeLayout timelayout, int btnum) {
 		super(timelayout.getContext());
 		
-		setOrientation(VERTICAL);
 		setTag(btnum);
+		
+		LinearLayout timeColumnLayout = new LinearLayout(getContext());
+		timeColumnLayout.setOrientation(LinearLayout.VERTICAL);
 
 		departureTimeButton = new TimeButton(getContext());
-		addView(departureTimeButton);
+		timeColumnLayout.addView(departureTimeButton);
 		
 		arrivalTimeButton = new TimeButton(getContext());
-		addView(arrivalTimeButton);
+		timeColumnLayout.addView(arrivalTimeButton);
+		
+		addView(timeColumnLayout);
+		
+		progressBar = new ProgressBar(getContext());
+		progressBar.setVisibility(View.INVISIBLE);
+		addView(progressBar);
 	}
 
 	public State getState() {
@@ -50,6 +62,13 @@ public final class TimeColumn extends LinearLayout {
 		
 		departureTimeButton.setState(state);
 		arrivalTimeButton.setState(state);
+		
+		if (State.InProgress.equals(state)) {
+			progressBar.setVisibility(View.VISIBLE);
+		}
+		else {
+			progressBar.setVisibility(View.INVISIBLE);
+		}
 	}
 
 	public void setDisplayMode(DisplayMode displayMode) {

@@ -479,7 +479,7 @@ public final class RouteActivity extends Activity {
         @Override
         protected void onPreExecute() {
             // FIXME: Should this be here?
-            //timeLayout.setColumnState(selectedColumn, TimeButton.State.InProgress);
+            timeLayout.setColumnState(selectedColumn, TimeButton.State.InProgress);
         	
         	if (isCached()) {
         		
