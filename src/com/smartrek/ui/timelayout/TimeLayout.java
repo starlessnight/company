@@ -57,7 +57,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
         AdjustableTime adjustableTime = new AdjustableTime();
         adjustableTime.setToNow();
         
-        //int numboxes = adjustableTime.getNumTimeBoxes();
+        columnCount = adjustableTime.getNumTimeBoxes();
         
         for (int i = 0; i < columnCount; i++) {
              TimeColumn timeColumn = new TimeColumn(this, i);
