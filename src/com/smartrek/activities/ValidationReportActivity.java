@@ -19,6 +19,7 @@ import com.smartrek.requests.ReservationMapper;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.HumanReadableTime;
+import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.ValidationParameters;
 
 public class ValidationReportActivity extends Activity {
@@ -62,7 +63,10 @@ public class ValidationReportActivity extends Activity {
             }
             
             textViewScore = (TextView) findViewById(R.id.textViewValidationScore);
-            textViewScore.setText(String.format("%.1f/%.1f = %.01f%%", route.getValidatedDistance(), route.getLength(), score*100));
+            textViewScore.setText(String.format("%s/%s = %.01f%%",
+            		StringUtil.formatImperialDistance(route.getValidatedDistance()),
+            		StringUtil.formatImperialDistance(route.getLength()),
+            		score*100));
             textViewScore.setTextColor(validated ? Color.GREEN : Color.RED);
         }
         

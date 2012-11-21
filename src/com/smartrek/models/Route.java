@@ -353,6 +353,9 @@ public final class Route implements Parcelable {
 		return distance;
 	}
 	
+	/**
+	 * @return Sum of the length of validated nodes in meters
+	 */
 	public double getValidatedDistance() {
 		double distance = 0.0;
 		
