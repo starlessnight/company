@@ -6,6 +6,7 @@ import java.util.List;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -65,10 +66,6 @@ public final class LoginActivity extends Activity implements OnClickListener {
         
         if(currentUser != null) {
         	new NotificationTask().execute(currentUser.getId());
-        	
-        	Intent intent = new Intent(this, HomeActivity.class);
-			startActivity(intent);
-			finish();
         }
     	
     }
@@ -175,6 +172,21 @@ public final class LoginActivity extends Activity implements OnClickListener {
 	}
 	
 	private class NotificationTask extends AsyncTask<Object, Object, List<Reservation>> {
+		private ProgressDialog dialog;
+		
+		public NotificationTask() {
+			super();
+			
+			dialog = new ProgressDialog(LoginActivity.this);
+			dialog.setTitle("Smartrek");
+			dialog.setMessage("Fetching existing reservations...");
+		}
+		
+		@Override
+		protected void onPreExecute() {
+			dialog.show();
+		}
+		
 		@Override
 		protected List<Reservation> doInBackground(Object... params) {
 			int uid = (Integer) params[0];
@@ -193,6 +205,10 @@ public final class LoginActivity extends Activity implements OnClickListener {
 		
 		@Override
 		protected void onPostExecute(List<Reservation> result) {
+			if (dialog.isShowing()) {
+				dialog.cancel();
+			}
+			
 			for (Reservation r : result) {
 				registerNotification(r);
 			}
