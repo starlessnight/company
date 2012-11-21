@@ -116,14 +116,16 @@ public final class ReservationDetailsActivity extends Activity {
     protected void onResume() {
         super.onResume();
         
-        buttonStartTrip.setEnabled(reservation.isEligibleTrip());
-        textViewHelp.setVisibility(reservation.isEligibleTrip() ? View.GONE : View.VISIBLE);
-        
-        if (reservation.hasExpired()) {
-        	textViewHelp.setText(getResources().getString(R.string.trip_has_expired));
-        }
-        else if (reservation.isTooEarlyToStart()) {
-        	textViewHelp.setText(getResources().getString(R.string.trip_too_early_to_start));
+        if (reservation != null) {
+            buttonStartTrip.setEnabled(reservation.isEligibleTrip());
+            textViewHelp.setVisibility(reservation.isEligibleTrip() ? View.GONE : View.VISIBLE);
+            
+            if (reservation.hasExpired()) {
+            	textViewHelp.setText(getResources().getString(R.string.trip_has_expired));
+            }
+            else if (reservation.isTooEarlyToStart()) {
+            	textViewHelp.setText(getResources().getString(R.string.trip_too_early_to_start));
+            }
         }
     }
     
