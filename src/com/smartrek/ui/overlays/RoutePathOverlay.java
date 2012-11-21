@@ -20,7 +20,10 @@ import com.smartrek.utils.RouteNode;
 
 public class RoutePathOverlay extends Overlay {
 	
-	public static final int COLORS[] = {0xFF79BA14, 0xFF1E8BD9, 0xFF232A2E};
+	/**
+	 * Green, blue, dark gray
+	 */
+	public static final int COLORS[] = {0xFFC0D44E, 0xFF7DBCE8, 0xFF232A2E};
 	
 	private Route route;
 	private int color;
@@ -54,7 +57,7 @@ public class RoutePathOverlay extends Overlay {
 		paint.setAntiAlias(true);
 		paint.setStyle(Paint.Style.STROKE);
 		
-		int thickness = 2 + zoom/2 + (highlighted ? 1 : -1);
+		int thickness = 1 + zoom/2 + (highlighted ? 1 : -1);
 		paint.setStrokeWidth(thickness);
 		
 		// Seems like Paint.setAlpha has no effect
