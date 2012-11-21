@@ -102,14 +102,6 @@ public final class NavigationView extends LinearLayout {
             setStatus(Status.InRoute);
             
             String distancePresentation = StringUtil.formatImperialDistance(distance);
-//            if (distanceInFoot < 1000) {
-//                distancePresentation = String.format("%.0f ft", distanceInFoot);
-//            }
-//            else {
-//                distancePresentation = String.format("%.1f mi", distanceInMile);
-//            }
-            
-            //String message = String.format("%s in %s", StringUtil.capitalizeFirstLetter(node.getMessage()), distancePresentation);
             textViewMessage.setText(StringUtil.capitalizeFirstLetter(node.getMessage()));
             textViewDistance.setText(distancePresentation);
             textViewRoadname.setText(node.getRoadName());
