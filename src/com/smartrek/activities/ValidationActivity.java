@@ -78,9 +78,6 @@ public class ValidationActivity extends Activity {
     
     private PointOverlay pointOverlay;
     
-    private int numberOfLocationChanges = 0;
-    private int numberOfInRoute = 0;
-    
     private Time startTime;
     private Time endTime;
     
@@ -360,8 +357,6 @@ public class ValidationActivity extends Activity {
     }
     
     private synchronized void locationChanged(Location location) {
-        numberOfLocationChanges += 1;
-        
         trajectory.accumulate(location);
         
         double lat = location.getLatitude();
@@ -381,7 +376,6 @@ public class ValidationActivity extends Activity {
         
         double distanceToLink = nearestLink.distanceTo(lat, lng);
         if (distanceToLink <= params.getValidationDistanceThreshold()) {
-            numberOfInRoute += 1;
             nearestLink.getStartNode().getMetadata().setValidated(true);
         }
         
@@ -443,8 +437,6 @@ public class ValidationActivity extends Activity {
         
         Intent intent = new Intent(this, ValidationReportActivity.class);
         intent.putExtra("route", route);
-        intent.putExtra("numberOfLocationChanges", numberOfLocationChanges);
-        intent.putExtra("numberOfInRoute", numberOfInRoute);
         intent.putExtra("startTime", startTime.toMillis(false));
         intent.putExtra("endTime", endTime.toMillis(false));
         startActivity(intent);
@@ -511,8 +503,6 @@ public class ValidationActivity extends Activity {
             Intent intent = new Intent(ValidationActivity.this, ValidationReportActivity.class);
             intent.putExtra("route", route);
             intent.putExtra("timedout", true);
-            intent.putExtra("numberOfLocationChanges", numberOfLocationChanges);
-            intent.putExtra("numberOfInRoute", numberOfInRoute);
             intent.putExtra("startTime", startTime.toMillis(false));
             intent.putExtra("endTime", endTime.toMillis(false));
             startActivity(intent);

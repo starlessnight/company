@@ -33,6 +33,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		
 		public Metadata(Parcel in) {
 			in.readBooleanArray(pingFlags);
+			validated = (in.readByte() == 1);
 		}
 		
 		public void resetPingFlags() {
@@ -50,6 +51,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		@Override
 		public void writeToParcel(Parcel dest, int flags) {
 			dest.writeBooleanArray(pingFlags);
+			dest.writeByte((byte)(validated ? 1 : 0));
 		}
 
 		public boolean isValidated() {
@@ -203,6 +205,9 @@ public final class RouteNode implements Parcelable, JSONModel {
 		this.flag = flag;
 	}
 
+	/**
+	 * @return Distance to the next node
+	 */
 	public double getDistance() {
 		return distance;
 	}

@@ -26,9 +26,6 @@ public class ValidationReportActivity extends Activity {
     
 	private Route route;
 	
-	private int numberOfLocationChanges;
-    private int numberOfInRoute;
-    
     private Time startTime;
     private Time endTime;
     
@@ -43,8 +40,6 @@ public class ValidationReportActivity extends Activity {
         
         Bundle extras = getIntent().getExtras();
         route = extras.getParcelable("route");
-        numberOfLocationChanges = extras.getInt("numberOfLocationChanges");
-        numberOfInRoute = extras.getInt("numberOfInRoute");
         startTime = new Time();
         startTime.set(extras.getLong("startTime"));
         endTime = new Time();
@@ -56,7 +51,9 @@ public class ValidationReportActivity extends Activity {
             textViewScore.setText("Timed out");
         }
         else {
-            float score = numberOfInRoute / (float)numberOfLocationChanges;
+        	double score = route.getValidatedDistance() / route.getLength();
+        	
+            //float score = numberOfInRoute / (float)numberOfLocationChanges;
             ValidationParameters params = ValidationParameters.getInstance();
             validated = score >= params.getScoreThreshold();
             
@@ -65,7 +62,7 @@ public class ValidationReportActivity extends Activity {
             }
             
             textViewScore = (TextView) findViewById(R.id.textViewValidationScore);
-            textViewScore.setText(String.format("%d/%d = %.01f%%", numberOfInRoute, numberOfLocationChanges, score*100));
+            textViewScore.setText(String.format("%.1f/%.1f = %.01f%%", route.getValidatedDistance(), route.getLength(), score*100));
             textViewScore.setTextColor(validated ? Color.GREEN : Color.RED);
         }
         

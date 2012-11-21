@@ -353,6 +353,18 @@ public final class Route implements Parcelable {
 		return distance;
 	}
 	
+	public double getValidatedDistance() {
+		double distance = 0.0;
+		
+		for (RouteNode node : getNodes()) {
+			if (node.getMetadata().isValidated()) {
+				distance += node.getDistance();
+			}
+		}
+		
+		return distance;
+	}
+	
 	///////////////////////////////////////////////////////////////////////////
 	
 	public boolean isNearOrigin(double lat, double lng) {
