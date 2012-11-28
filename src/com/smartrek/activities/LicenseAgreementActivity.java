@@ -1,7 +1,6 @@
 package com.smartrek.activities;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -9,17 +8,14 @@ import android.view.View.OnClickListener;
 import android.webkit.WebView;
 import android.widget.Button;
 
+import com.smartrek.utils.Preferences;
+
 public class LicenseAgreementActivity extends Activity {
     
     /**
      * Request code
      */
     public static final int LICENSE_AGREEMENT_ACTIVITY = 1;
-    
-    /**
-     * Preference key
-     */
-    public static final String LICENSE_AGREEMENT = "LicenseAgreement";
     
     /**
      * Preference value
@@ -45,9 +41,9 @@ public class LicenseAgreementActivity extends Activity {
 
             @Override
             public void onClick(View v) {
-                SharedPreferences prefs = getSharedPreferences("Global", Context.MODE_PRIVATE);
+                SharedPreferences prefs = Preferences.getGlobalPreferences(LicenseAgreementActivity.this);
                 SharedPreferences.Editor editor = prefs.edit();
-                editor.putInt(LICENSE_AGREEMENT, AGREED);
+                editor.putInt(Preferences.Global.LICENSE_AGREEMENT, AGREED);
                 editor.commit();
                 
                 setResult(AGREED);

@@ -1,7 +1,6 @@
 package com.smartrek.activities;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -12,6 +11,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import com.google.android.gcm.GCMRegistrar;
+import com.smartrek.utils.Preferences;
 
 public class MainActivity extends Activity implements AnimationListener {
 	
@@ -46,8 +46,8 @@ public class MainActivity extends Activity implements AnimationListener {
 	public void onAnimationEnd(Animation animation) {
 		logo.setAlpha(0);
 		
-		SharedPreferences prefs = getSharedPreferences("Global", Context.MODE_PRIVATE);
-		int licenseAgreement = prefs.getInt(LicenseAgreementActivity.LICENSE_AGREEMENT, LicenseAgreementActivity.DISAGREED);
+		SharedPreferences prefs = Preferences.getGlobalPreferences(this);
+		int licenseAgreement = prefs.getInt(Preferences.Global.LICENSE_AGREEMENT, LicenseAgreementActivity.DISAGREED);
 		
 		if (licenseAgreement == LicenseAgreementActivity.AGREED) {
 			startLoginActivity();

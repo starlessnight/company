@@ -9,6 +9,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.smartrek.activities.LoginActivity;
+import com.smartrek.utils.Preferences;
 
 public final class User implements JSONModel, Parcelable {
 	
@@ -137,7 +138,7 @@ public final class User implements JSONModel, Parcelable {
 	 * @throws JSONException 
 	 */
 	public static JSONObject getCurrentUserData(Context context) throws JSONException {
-		SharedPreferences prefs = context.getSharedPreferences(LoginActivity.LOGIN_PREFS, Context.MODE_PRIVATE);
+		SharedPreferences prefs = Preferences.getAuthPreferences(context);
 		return new JSONObject(prefs.getString("CurrentUser", ""));
 	}
 	
@@ -156,7 +157,7 @@ public final class User implements JSONModel, Parcelable {
 	public static void setCurrentUser(Context context, User currentUser) {
 		User.currentUser = currentUser;
 		
-		SharedPreferences prefs = context.getSharedPreferences(LoginActivity.LOGIN_PREFS, Context.MODE_PRIVATE);
+		SharedPreferences prefs = Preferences.getAuthPreferences(context);
 		SharedPreferences.Editor editor = prefs.edit();
 		try {
 			if(currentUser == null) {
@@ -172,7 +173,7 @@ public final class User implements JSONModel, Parcelable {
 	}
 	
 	public static void logout(Context context) {
-		SharedPreferences prefs = context.getSharedPreferences(LoginActivity.LOGIN_PREFS, Context.MODE_PRIVATE);
+		SharedPreferences prefs = Preferences.getAuthPreferences(context);
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.remove(USERNAME);
 		editor.remove(PASSWORD);

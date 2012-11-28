@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
+import com.smartrek.utils.Preferences;
 
 public class GCMIntentService extends GCMBaseIntentService {
 
@@ -37,7 +38,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 		Log.i(LOG_TAG, "GCMIntentService onRegistered called");
 		Log.i(LOG_TAG, "Registration id is: " + registrationId);
 		
-		SharedPreferences prefs = getSharedPreferences("Global", Context.MODE_PRIVATE);
+		SharedPreferences prefs = Preferences.getGlobalPreferences(context);
 		SharedPreferences.Editor editor = prefs.edit();
 		
 		editor.putString("GCMRegistrationID", registrationId);

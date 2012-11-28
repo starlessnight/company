@@ -17,6 +17,7 @@ import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.User;
 import com.smartrek.requests.UserLoginRequest;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.Preferences;
 
 public final class LoginActivity extends Activity implements OnClickListener {
     
@@ -24,7 +25,6 @@ public final class LoginActivity extends Activity implements OnClickListener {
 	
 	private EditText editTextUsername;
 	private EditText editTextPassword;
-	public static final String LOGIN_PREFS = "login_file";
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,12 +50,12 @@ public final class LoginActivity extends Activity implements OnClickListener {
     }
     
     private void checkSharedPreferences() {
-    	SharedPreferences loginPrefs = getSharedPreferences(LOGIN_PREFS, Context.MODE_PRIVATE);
+    	SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
     	String username = loginPrefs.getString(User.USERNAME, "");
     	String password = loginPrefs.getString(User.PASSWORD, "");
     	
     	if (!username.equals("") && !password.equals("")) {
-    		SharedPreferences prefs = getSharedPreferences("Global", Context.MODE_PRIVATE);
+    		SharedPreferences prefs = Preferences.getGlobalPreferences(this);
     		String gcmRegistrationId = prefs.getString("GCMRegistrationID", "");
     		
     		new LoginTask(username, password, gcmRegistrationId).execute();
@@ -69,19 +69,19 @@ public final class LoginActivity extends Activity implements OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-			String username = editTextUsername.getText().toString();
-			String password = editTextPassword.getText().toString();
-			
-			SharedPreferences globalPrefs = getSharedPreferences("Global", Context.MODE_PRIVATE);
-    		String gcmRegistrationId = globalPrefs.getString("GCMRegistrationID", "");
-    		
-    		SharedPreferences loginPrefs = getSharedPreferences(LOGIN_PREFS, Context.MODE_PRIVATE);
-    		SharedPreferences.Editor loginPrefsEditor = loginPrefs.edit();
-    		loginPrefsEditor.putString(User.USERNAME, username);
-    		loginPrefsEditor.putString(User.PASSWORD, password);
-    		loginPrefsEditor.commit();
-			
-			new LoginTask(username, password, gcmRegistrationId).execute();
+		String username = editTextUsername.getText().toString();
+		String password = editTextPassword.getText().toString();
+		
+		SharedPreferences globalPrefs = Preferences.getGlobalPreferences(this);
+		String gcmRegistrationId = globalPrefs.getString(Preferences.Global.GCM_REG_ID, "");
+		
+		SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
+		SharedPreferences.Editor loginPrefsEditor = loginPrefs.edit();
+		loginPrefsEditor.putString(User.USERNAME, username);
+		loginPrefsEditor.putString(User.PASSWORD, password);
+		loginPrefsEditor.commit();
+		
+		new LoginTask(username, password, gcmRegistrationId).execute();
 	}
 	
 	Button.OnClickListener registerButtonClickListener = new Button.OnClickListener() {
