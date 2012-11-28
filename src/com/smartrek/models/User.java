@@ -9,10 +9,16 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.smartrek.activities.LoginActivity;
-import com.smartrek.requests.UserMapper;
-
 
 public final class User implements JSONModel, Parcelable {
+	
+	/* JSON keys */
+	public static final String UID = "UID";
+	public static final String USERNAME = "USERNAME";
+	public static final String FIRSTNAME = "FIRSTNAME";
+	public static final String LASTNAME = "LASTNAME";
+	public static final String EMAIL = "EMAIL";
+	public static final String PASSWORD = "PASSWORD";
 	
 	private static User currentUser;
 
@@ -99,11 +105,12 @@ public final class User implements JSONModel, Parcelable {
 	@Override
 	public String toJSON() throws JSONException {
 		JSONObject obj = new JSONObject();
-		obj.put(UserMapper.UID, getId());
-		obj.put(UserMapper.USERNAME, getUsername());
-		obj.put(UserMapper.FIRSTNAME, getFirstname());
-		obj.put(UserMapper.LASTNAME, getLastname());
-		obj.put(UserMapper.EMAIL, getEmail());
+		obj.put(UID, getId());
+		obj.put(USERNAME, getUsername());
+		obj.put(FIRSTNAME, getFirstname());
+		obj.put(LASTNAME, getLastname());
+		obj.put(EMAIL, getEmail());
+		obj.put(PASSWORD, getPassword());
 		
 		return obj.toString();
 	}
@@ -114,23 +121,30 @@ public final class User implements JSONModel, Parcelable {
 	
 	public static User parse(JSONObject object) throws JSONException {
 		User user = new User();
-		user.id = object.getInt(UserMapper.UID);
-		user.username = object.getString(UserMapper.USERNAME);
-		if(object.has(UserMapper.FIRSTNAME)) user.firstname = object.getString(UserMapper.FIRSTNAME);
-		if(object.has(UserMapper.LASTNAME)) user.lastname = object.getString(UserMapper.LASTNAME);
-		if(object.has(UserMapper.EMAIL)) user.email = object.getString(UserMapper.EMAIL);
+		user.id = object.getInt(UID);
+		user.username = object.getString(USERNAME);
+		if (object.has(FIRSTNAME)) user.firstname = object.getString(FIRSTNAME);
+		if (object.has(LASTNAME)) user.lastname = object.getString(LASTNAME);
+		if (object.has(EMAIL)) user.email = object.getString(EMAIL);
+		if (object.has(PASSWORD)) user.password = object.getString(PASSWORD);
 		
 		return user;
 	}
 	
+	/**
+	 * @param context
+	 * @return JSON object of the current user (if exists)
+	 * @throws JSONException 
+	 */
+	public static JSONObject getCurrentUserData(Context context) throws JSONException {
+		SharedPreferences prefs = context.getSharedPreferences(LoginActivity.LOGIN_PREFS, Context.MODE_PRIVATE);
+		return new JSONObject(prefs.getString("CurrentUser", ""));
+	}
+	
 	public static User getCurrentUser(Context context) {
 		if(currentUser == null) {
-			SharedPreferences prefs = context.getSharedPreferences(LoginActivity.LOGIN_PREFS, Context.MODE_PRIVATE);
-	        String jsonString = prefs.getString("CurrentUser", "");
-	        System.out.println(jsonString);
-	        
 	        try {
-				currentUser = parse(jsonString);
+				currentUser = parse(getCurrentUserData(context));
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -149,7 +163,6 @@ public final class User implements JSONModel, Parcelable {
 				editor.putString("CurrentUser", "");
 			}
 			else {
-				System.out.println(currentUser.toJSON());
 				editor.putString("CurrentUser", currentUser.toJSON());
 			}
 			editor.commit();

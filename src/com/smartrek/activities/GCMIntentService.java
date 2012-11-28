@@ -2,6 +2,7 @@ package com.smartrek.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
@@ -31,10 +32,16 @@ public class GCMIntentService extends GCMBaseIntentService {
 	}
 
 	@Override
-	protected void onRegistered(Context arg0, String registrationId) {
+	protected void onRegistered(Context context, String registrationId) {
 		// TODO Auto-generated method stub
 		Log.i(LOG_TAG, "GCMIntentService onRegistered called");
 		Log.i(LOG_TAG, "Registration id is: " + registrationId);
+		
+		SharedPreferences prefs = getSharedPreferences("Global", Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = prefs.edit();
+		
+		editor.putString("GCMRegistrationID", registrationId);
+		editor.commit();
 	}
 
 	@Override

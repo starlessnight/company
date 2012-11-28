@@ -32,19 +32,14 @@ public class MainActivity extends Activity implements AnimationListener {
 		
 		GCMRegistrar.checkDevice(this);
 		GCMRegistrar.checkManifest(this);
-		String regId = GCMRegistrar.getRegistrationId(this);
+		final String regId = GCMRegistrar.getRegistrationId(this);
 		if (regId.equals("")) {
 			GCMRegistrar.register(this, GCMIntentService.GCM_SENDER_ID);
 			Log.v(LOG_TAG, "Registered to GCM.");
-			
-			regId = GCMRegistrar.getRegistrationId(this);
-			Log.v(LOG_TAG, "Registration ID: " + regId);
 		}
 		else {
 			Log.v(LOG_TAG, "Already registered to GCM.");
 		}
-		
-		
 	}
 
 	@Override
@@ -60,8 +55,6 @@ public class MainActivity extends Activity implements AnimationListener {
 		else {
 			Intent intent = new Intent(this, LicenseAgreementActivity.class);
 			startActivityForResult(intent, LicenseAgreementActivity.LICENSE_AGREEMENT_ACTIVITY);
-			
-			Log.d("MainActivity", "asldkfjalskdfjlaskfdj");
 		}
 	}
 

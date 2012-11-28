@@ -3,11 +3,16 @@ package com.smartrek.activities;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -57,11 +62,30 @@ public final class LoginActivity extends Activity implements OnClickListener {
     }
     
     private void checkSharedPreferences() {
-        User currentUser = User.getCurrentUser(this);
-        
-        if(currentUser != null) {
-        	new NotificationTask().execute(currentUser.getId());
-        }
+    	JSONObject currentUserData;
+		try {
+			currentUserData = User.getCurrentUserData(this);
+			
+	    	if (currentUserData != null && !currentUserData.equals("")) {
+	    		String username = currentUserData.getString(User.USERNAME);
+	    		String password = currentUserData.getString(User.PASSWORD);
+	    		
+	    		SharedPreferences prefs = getSharedPreferences("Global", Context.MODE_PRIVATE);
+	    		String gcmRegistrationId = prefs.getString("GCMRegistrationID", "");
+	    		
+	    		new LoginTask().execute(username, password, gcmRegistrationId);
+	    	}
+	    	
+		}
+		catch (JSONException e) {
+			ehs.reportException(e);
+		}
+
+//        User currentUser = User.getCurrentUser(this);
+//        
+//        if(currentUser != null) {
+//        	new NotificationTask().execute(currentUser.getId());
+//        }
     	
     }
     
@@ -72,12 +96,13 @@ public final class LoginActivity extends Activity implements OnClickListener {
 
 	@Override
 	public void onClick(View v) {
-		
 			String username = editTextUsername.getText().toString();
 			String password = editTextPassword.getText().toString();
-			Log.d("Attempting Login", "User: " + username + "    Password: " + password);
 			
-			new LoginTask().execute(username, password);
+			SharedPreferences prefs = getSharedPreferences("Global", Context.MODE_PRIVATE);
+    		String gcmRegistrationId = prefs.getString("GCMRegistrationID", "");
+			
+			new LoginTask().execute(username, password, gcmRegistrationId);
 	}
 	
 	private void registerNotification(Reservation reservation) {
@@ -130,10 +155,11 @@ public final class LoginActivity extends Activity implements OnClickListener {
 		protected User doInBackground(String... params) {
 			String username = params[0];
 			String password = params[1];
+			String gcmRegistrationId = params[2];
 			
 			User user = null;
 			try {
-				UserLoginRequest request = new UserLoginRequest(username, password);
+				UserLoginRequest request = new UserLoginRequest(username, password, gcmRegistrationId);
 				user = request.execute();
 			}
 			catch(Exception e) {

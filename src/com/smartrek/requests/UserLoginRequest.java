@@ -9,9 +9,18 @@ import com.smartrek.models.User;
 
 public class UserLoginRequest extends FetchRequest<User> {
 
-	public UserLoginRequest(String username, String password) {
-		super(String.format("%s/verifyaccount/username=%s&password=%s",
-				HOST, URLEncoder.encode(username), URLEncoder.encode(password)));
+	/**
+	 * 
+	 * @param username
+	 * @param password
+	 * @param gcmRegistrationId Google Cloud Messaging registration ID
+	 */
+	public UserLoginRequest(String username, String password, String gcmRegistrationId) {
+		super(String.format("%s/V0.2/verifyaccount/username=%s&password=%s&deviceid=%s&flag=1",
+				HOST,
+				URLEncoder.encode(username),
+				URLEncoder.encode(password),
+				URLEncoder.encode(gcmRegistrationId)));
 //	    super("http://static.suminb.com/smartrek/login.html");
 	}
 	

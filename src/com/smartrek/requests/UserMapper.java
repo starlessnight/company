@@ -18,13 +18,6 @@ import com.smartrek.utils.HTTP;
  ****************************************************************************************************/
 public class UserMapper extends Request {
 	
-	// values are database field names
-	public static final String UID = "UID";
-	public static final String USERNAME = "USERNAME";
-	public static final String FIRSTNAME = "FIRSTNAME";
-	public static final String LASTNAME = "LASTNAME";
-	public static final String EMAIL = "EMAIL";
-	
 	public UserMapper() {
 		super();
 	}
