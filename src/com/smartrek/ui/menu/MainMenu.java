@@ -57,8 +57,7 @@ public final class MainMenu {
 			break;
 
 		case R.id.logout_option:
-			User.setCurrentUser(activity, null);
-			// finish();
+			User.logout(activity);
 
 			// TODO: Is this right way to do it?
 			intent = new Intent(activity, LoginActivity.class);

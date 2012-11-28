@@ -170,6 +170,14 @@ public final class User implements JSONModel, Parcelable {
 			e.printStackTrace();
 		}
 	}
+	
+	public static void logout(Context context) {
+		SharedPreferences prefs = context.getSharedPreferences(LoginActivity.LOGIN_PREFS, Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.remove(USERNAME);
+		editor.remove(PASSWORD);
+		editor.commit();
+	}
 
 	@Override
 	public int describeContents() {
