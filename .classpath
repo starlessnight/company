@@ -8,6 +8,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/osmdroid-android-3.0.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-android-1.5.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/acra-4.3.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="/opt/local/share/android-sdk/extras/google/gcm/gcm-client/dist/gcm.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/gcm.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
