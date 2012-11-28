@@ -1,7 +1,5 @@
 package com.smartrek.activities;
 
-import org.json.JSONException;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -14,8 +12,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
+import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.User;
 import com.smartrek.requests.UserLoginRequest;
 import com.smartrek.utils.ExceptionHandlingService;
@@ -145,6 +143,8 @@ public final class LoginActivity extends Activity implements OnClickListener {
 		
 		@Override
 		protected void onPostExecute(User user) {
+		    dialog.cancel();
+		    
 			if(user != null && user.getId() != -1) {
 				Log.d("Login_Activity","Successful Login");
 				Log.d("Login_Activity", "Saving Login Info to Shared Preferences");
@@ -155,10 +155,13 @@ public final class LoginActivity extends Activity implements OnClickListener {
 				startActivity(intent);
 			}
 			else {
-				Log.d("Login_Activity", "Failed Login User: " + user.getUsername());
-				TextView loginfail_text = (TextView) findViewById(R.id.failed_login);
-				loginfail_text.setVisibility(View.VISIBLE);
+//				Log.d("Login_Activity", "Failed Login User: " + user.getUsername());
+//				TextView loginfail_text = (TextView) findViewById(R.id.failed_login);
+//				loginfail_text.setVisibility(View.VISIBLE);
 				editTextPassword.setText("");
+				
+				NotificationDialog notificationDialog = new NotificationDialog(LoginActivity.this, "The username or password you entered is not valid.");
+				notificationDialog.show();
 			}
 		}
 	}
