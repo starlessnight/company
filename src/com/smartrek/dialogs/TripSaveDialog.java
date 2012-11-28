@@ -6,7 +6,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
@@ -76,8 +78,19 @@ public final class TripSaveDialog extends AlertDialog {
 			editTextDestination.setText(destination.getAddress());
 		}
 		
+		ViewGroup layoutSetReminder = (ViewGroup) dialogView.findViewById(R.id.layout_set_reminder);
+		layoutSetReminder.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				openSetReminderDialog();
+			}
+			
+		});
+		
 		setView(dialogView);
-		setTitle("Save Trip");
+		setIcon(getContext().getResources().getDrawable(R.drawable.save_trip));
+		setTitle(getContext().getResources().getString(R.string.save_trip));
 		
 		setButton(DialogInterface.BUTTON_POSITIVE, "Add", new OnClickListener() {
 			
@@ -123,6 +136,14 @@ public final class TripSaveDialog extends AlertDialog {
 	private Address getDestination() {
 		//return new Address(0, User.getCurrentUser(getContext()).getId(), "", editTextDestination.getText().toString().trim());
 		return destination;
+	}
+	
+	/**
+	 * Opens up a dialog to set a trip reminder.
+	 */
+	private void openSetReminderDialog() {
+		SetReminderDialog dialog = new SetReminderDialog(getContext());
+		dialog.show();
 	}
 	
 	private class TripSaveTask extends AsyncTask<Object, Object, Object> {
