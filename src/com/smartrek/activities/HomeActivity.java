@@ -1,13 +1,17 @@
 package com.smartrek.activities;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.view.KeyEvent;
@@ -32,12 +36,16 @@ import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.dialogs.TripListDialog;
 import com.smartrek.dialogs.TripSaveDialog;
 import com.smartrek.models.Address;
+import com.smartrek.models.Reservation;
 import com.smartrek.models.Trip;
 import com.smartrek.models.User;
+import com.smartrek.receivers.ReservationReceiver;
+import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.tasks.GeocodingTask;
 import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
+import com.smartrek.utils.Cache;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Geocoding;
@@ -240,7 +248,8 @@ public final class HomeActivity extends Activity {
 		        }
 			}
 	    });
-	    
+
+	    new NotificationTask().execute(User.getCurrentUser(this).getId());
 	}
 	
 	private TripListDialog tripListDialog;
@@ -599,5 +608,79 @@ public final class HomeActivity extends Activity {
 	private void setDestinationAddress(Address address) {
 		editAddressDest.unsetAddress();
 		editAddressDest.setAddress(address);
+	}
+	
+	private void registerNotification(Reservation reservation) {
+		
+		Intent intent = new Intent(this, ReservationReceiver.class);
+		
+		intent.putExtra("reservation", reservation);
+		intent.putExtra("route", reservation.getRoute());
+		
+		// In reality, you would want to have a static variable for the
+		// request code instead of 192837
+		PendingIntent pendingOperation = PendingIntent.getBroadcast(this, 192837,
+				intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+		// Get the AlarmManager service
+		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+		am.set(AlarmManager.RTC_WAKEUP, reservation.getDepartureTime() - 60000*5, pendingOperation); // 5 min earlier than departure time
+
+		Cache cache = Cache.getInstance();
+		if (cache.has("pendingAlarms")) {
+			@SuppressWarnings("unchecked")
+			List<PendingIntent> pendingAlarms = (List<PendingIntent>) cache.fetch("pendingAlarms");
+			pendingAlarms.add(pendingOperation);
+		}
+		else {
+			List<PendingIntent> pendingOperations = new LinkedList<PendingIntent>();
+			pendingOperations.add(pendingOperation);
+			
+			cache.put("pendingAlarms", pendingOperations);
+		}
+	}
+	
+	private class NotificationTask extends AsyncTask<Object, Object, List<Reservation>> {
+		private ProgressDialog dialog;
+		
+		public NotificationTask() {
+			super();
+			
+			dialog = new ProgressDialog(HomeActivity.this);
+			dialog.setTitle("Smartrek");
+			dialog.setMessage("Fetching existing reservations...");
+		}
+		
+		@Override
+		protected void onPreExecute() {
+			dialog.show();
+		}
+		
+		@Override
+		protected List<Reservation> doInBackground(Object... params) {
+			int uid = (Integer) params[0];
+			
+			ReservationListFetchRequest request = new ReservationListFetchRequest(uid);
+			List<Reservation> reservations = null;
+			try {
+				reservations = request.execute();
+			}
+			catch (Exception e) {
+				ehs.registerException(e);
+			}
+			
+			return reservations;
+		}
+		
+		@Override
+		protected void onPostExecute(List<Reservation> result) {
+			if (dialog.isShowing()) {
+				dialog.cancel();
+			}
+			
+			for (Reservation r : result) {
+				registerNotification(r);
+			}
+		}
 	}
 }

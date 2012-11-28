@@ -8,7 +8,7 @@ import org.json.JSONException;
 import com.smartrek.models.User;
 
 public class UserLoginRequest extends FetchRequest<User> {
-
+	
 	/**
 	 * 
 	 * @param username
