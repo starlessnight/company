@@ -7,7 +7,6 @@ import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,18 +29,14 @@ public final class LoginActivity extends Activity implements OnClickListener {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
-	private EditText uname;
-	private EditText pwd;
+	private EditText editTextUsername;
+	private EditText editTextPassword;
 	public static final String LOGIN_PREFS = "login_file";
-	
-	private Context context;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_login);
-        
-        context = this;
         
         /* Check Shared memory to see if login info has already been entered on this phone */
         checkSharedPreferences();
@@ -56,8 +51,8 @@ public final class LoginActivity extends Activity implements OnClickListener {
         new_user.setId(2);
         new_user.setOnClickListener(registerButtonClickListener);
         
-        uname = (EditText) findViewById(R.id.username_box);
-        pwd = (EditText) findViewById(R.id.pwd_box);
+        editTextUsername = (EditText) findViewById(R.id.username_box);
+        editTextPassword = (EditText) findViewById(R.id.pwd_box);
        
     }
     
@@ -78,8 +73,8 @@ public final class LoginActivity extends Activity implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 		
-			String username = uname.getText().toString();
-			String password = pwd.getText().toString();
+			String username = editTextUsername.getText().toString();
+			String password = editTextPassword.getText().toString();
 			Log.d("Attempting Login", "User: " + username + "    Password: " + password);
 			
 			new LoginTask().execute(username, password);
@@ -121,7 +116,7 @@ public final class LoginActivity extends Activity implements OnClickListener {
 		public void onClick(View arg0) {
 			Log.d("Login_Activity","Register New user clicked");
 			Log.d("Login_Activity","Starting Register Activity");
-			Intent intent = new Intent(context, UserRegistrationActivity.class);
+			Intent intent = new Intent(LoginActivity.this, UserRegistrationActivity.class);
 			startActivity(intent);
 		}
 	};
@@ -166,7 +161,7 @@ public final class LoginActivity extends Activity implements OnClickListener {
 				Log.d("Login_Activity", "Failed Login User: " + user.getUsername());
 				TextView loginfail_text = (TextView) findViewById(R.id.failed_login);
 				loginfail_text.setVisibility(View.VISIBLE);
-				pwd.setText("");
+				editTextPassword.setText("");
 			}
 		}
 	}
