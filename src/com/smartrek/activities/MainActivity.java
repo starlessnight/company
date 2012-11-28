@@ -11,10 +11,14 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
+import com.google.android.gcm.GCMRegistrar;
+
 public class MainActivity extends Activity implements AnimationListener {
 	
+	public static final String LOG_TAG = "MainActivity";
+	
 	private ImageView logo;
-
+	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -25,7 +29,22 @@ public class MainActivity extends Activity implements AnimationListener {
 		Animation fadeAnimation = AnimationUtils.loadAnimation(this, R.anim.fade);
 		fadeAnimation.setAnimationListener(this);
 		logo.startAnimation(fadeAnimation);
-
+		
+		GCMRegistrar.checkDevice(this);
+		GCMRegistrar.checkManifest(this);
+		String regId = GCMRegistrar.getRegistrationId(this);
+		if (regId.equals("")) {
+			GCMRegistrar.register(this, GCMIntentService.GCM_SENDER_ID);
+			Log.v(LOG_TAG, "Registered to GCM.");
+			
+			regId = GCMRegistrar.getRegistrationId(this);
+			Log.v(LOG_TAG, "Registration ID: " + regId);
+		}
+		else {
+			Log.v(LOG_TAG, "Already registered to GCM.");
+		}
+		
+		
 	}
 
 	@Override
