@@ -52,12 +52,13 @@ public final class TimeColumn extends FrameLayout {
 		progressBar = new ProgressBar(getContext());
 		progressBar.setVisibility(View.INVISIBLE);
 		
-//		FrameLayout.LayoutParams params = (LayoutParams) progressBar.getLayoutParams();
-//		params.width = 24;
-//		params.height = 24;
-//		params.gravity = Gravity.CENTER;
-		
 		addView(progressBar);
+		
+		// The following statement must be called after addView(progressBar); 
+		FrameLayout.LayoutParams params = (LayoutParams) progressBar.getLayoutParams();
+		params.width = 48;
+		params.height = 48;
+		params.gravity = Gravity.CENTER;
 	}
 
 	public State getState() {
