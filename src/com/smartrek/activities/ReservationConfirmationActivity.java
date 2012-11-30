@@ -118,7 +118,7 @@ public final class ReservationConfirmationActivity extends Activity {
 		// NOTE: It appears custom Parcelable objects cannot passed across
 		// different processes. Since a PendingIntent launched by AlarmManager
 		// is on a separate process, we cannot pack a Route object.
-		intent.putExtra("reservationId", route.getId());
+		intent.putExtra(ReservationReceiver.RESERVATION_ID, route.getId());
 		
 		// In reality, you would want to have a static variable for the
 		// request code instead of 192837

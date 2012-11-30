@@ -614,7 +614,7 @@ public final class HomeActivity extends Activity {
 		
 		Intent intent = new Intent(this, ReservationReceiver.class);
 		
-		intent.putExtra("reservation", reservation);
+		intent.putExtra(ReservationReceiver.RESERVATION, reservation);
 		intent.putExtra("route", reservation.getRoute());
 		
 		// In reality, you would want to have a static variable for the

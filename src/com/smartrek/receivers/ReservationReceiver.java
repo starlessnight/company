@@ -23,6 +23,10 @@ import com.smartrek.utils.ValidationParameters;
  */
 public final class ReservationReceiver extends BroadcastReceiver {
 	
+	public static final String RESERVATION_ID = "reservationId";
+	
+	public static final String RESERVATION = "reservation";
+	
 	private ValidationParameters parameters;
 	
 	private boolean departureTimeValidated;
@@ -56,18 +60,18 @@ public final class ReservationReceiver extends BroadcastReceiver {
 		
 	    Route route = intent.getExtras().getParcelable("route");
 	    Reservation reservation = intent.getExtras().getParcelable("reservation");
-	    int reservationId = intent.getExtras().getInt("reservationId");
+	    int reservationId = intent.getExtras().getInt(RESERVATION_ID);
 		
         Intent reservationIntent = new Intent(context, ReservationDetailsActivity.class);
-        reservationIntent.putExtra("reservationId", reservationId);
+        reservationIntent.putExtra(RESERVATION_ID, reservationId);
         reservationIntent.putExtra("route", route);
-        reservationIntent.putExtra("reservation", reservation);
+        reservationIntent.putExtra(RESERVATION, reservation);
         PendingIntent sender = PendingIntent.getActivity(context, 0, reservationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         
-        Notification notification = new Notification(R.drawable.icon_small, "SmarTrek", route.getDepartureTime());
-        notification.setLatestEventInfo(context, "SmarTrek", "Your reserved trip is about to start", sender);
+        Notification notification = new Notification(R.drawable.icon_small, "Smartrek", route.getDepartureTime());
+        notification.setLatestEventInfo(context, "Smartrek", "Your reserved trip is about to start", sender);
         notification.flags = Notification.FLAG_AUTO_CANCEL;
         notificationManager.notify(0, notification);
 		
