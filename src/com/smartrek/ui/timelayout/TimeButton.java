@@ -52,19 +52,37 @@ public final class TimeButton extends TextView {
 	private State state = State.Unknown;
 	private DisplayMode displayMode = DisplayMode.Time;
 	
-	private Rect rect = new Rect();
+	/**
+	 * To draw column borders
+	 */
 	private Paint paint = new Paint();
 	
-	public TimeButton(Context context) {
+	/**
+	 * To draw column borders for a highlighted column
+	 */
+	private Paint paint2 = new Paint();
+	
+	/**
+	 * Zero-based index
+	 */
+	private int row;
+	
+	public TimeButton(Context context, int row) {
 		super(context);
+		
+		this.row = row;
 		
 		setWidth(WIDTH);
 		setHeight(HEIGHT);
 		setGravity(Gravity.CENTER);
 		
         paint.setStyle(Paint.Style.STROKE);
-        paint.setColor(Color.WHITE);
-        paint.setStrokeWidth(3);
+        paint.setColor(0xFF606060);
+        paint.setStrokeWidth(1);
+        
+        paint2.setStyle(Paint.Style.STROKE);
+        paint2.setColor(0xFFD3E0D3);
+        paint2.setStrokeWidth(1);
 	}
 	
 	public State getState() {
@@ -83,8 +101,17 @@ public final class TimeButton extends TextView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        getLocalVisibleRect(rect);
-        canvas.drawRect(rect, paint);
+        
+        int width = canvas.getWidth();
+        int height = canvas.getHeight();
+        
+        // vertical border
+        canvas.drawLine(width-1, 0, width-1, height, paint);
+        
+        // horizontal border
+        if (row == 0) {
+        	canvas.drawLine(0, height-1, width, height-1, State.Selected.equals(getState()) ? paint2 : paint);
+        }
     }
     
 	private final class StateUpdateTask extends Thread {
