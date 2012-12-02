@@ -29,6 +29,11 @@ public class MainActivity extends Activity implements AnimationListener {
 		Animation fadeAnimation = AnimationUtils.loadAnimation(this, R.anim.fade);
 		fadeAnimation.setAnimationListener(this);
 		logo.startAnimation(fadeAnimation);
+	}
+	
+	@Override
+	protected void onStart() {
+		super.onStart();
 		
 		GCMRegistrar.checkDevice(this);
 		GCMRegistrar.checkManifest(this);
