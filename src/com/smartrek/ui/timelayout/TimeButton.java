@@ -52,12 +52,19 @@ public final class TimeButton extends TextView {
 	private State state = State.Unknown;
 	private DisplayMode displayMode = DisplayMode.Time;
 	
+	private Rect rect = new Rect();
+	private Paint paint = new Paint();
+	
 	public TimeButton(Context context) {
 		super(context);
 		
 		setWidth(WIDTH);
 		setHeight(HEIGHT);
 		setGravity(Gravity.CENTER);
+		
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setColor(Color.WHITE);
+        paint.setStrokeWidth(3);
 	}
 	
 	public State getState() {
@@ -76,11 +83,6 @@ public final class TimeButton extends TextView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Rect rect = new Rect();
-        Paint paint = new Paint();
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setColor(Color.WHITE);
-        paint.setStrokeWidth(3);
         getLocalVisibleRect(rect);
         canvas.drawRect(rect, paint);
     }
