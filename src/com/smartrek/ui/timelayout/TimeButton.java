@@ -64,7 +64,7 @@ public final class TimeButton extends TextView {
 		return state;
 	}
 	
-	public void setState(State state) {
+	public synchronized void setState(State state) {
 		this.state = state;
 
 		((Activity) getContext()).runOnUiThread(new StateUpdateTask(state));

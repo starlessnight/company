@@ -10,4 +10,60 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center" >
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@drawable/weekday_button"
+            android:textOff="S"
+            android:textOn="S" />
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@drawable/weekday_button"
+            android:textOff="M"
+            android:textOn="M" />
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@drawable/weekday_button"
+            android:textOff="T"
+            android:textOn="T" />
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@drawable/weekday_button"
+            android:textOff="W"
+            android:textOn="W" />
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@drawable/weekday_button"
+            android:textOff="R"
+            android:textOn="R" />
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@drawable/weekday_button"
+            android:textOff="F"
+            android:textOn="F" />
+
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@drawable/weekday_button"
+            android:textOff="S"
+            android:textOn="S" />
+    </LinearLayout>
+
 </LinearLayout>
