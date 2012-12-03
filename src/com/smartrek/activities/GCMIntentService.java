@@ -29,7 +29,10 @@ public class GCMIntentService extends GCMBaseIntentService {
 	protected void onMessage(Context arg0, Intent intent) {
 		// TODO Auto-generated method stub
 		Log.i(LOG_TAG, "GCMIntentService onMessage called");
-		Log.i(LOG_TAG, "Message is: " + intent.getStringExtra("message"));
+		Log.i(LOG_TAG, "Origin: " + intent.getStringExtra("origin"));
+		Log.i(LOG_TAG, "Destination: " + intent.getStringExtra("destination"));
+		Log.i(LOG_TAG, "Time: " + intent.getStringExtra("time"));
+		Log.i(LOG_TAG, "Message: " + intent.getStringExtra("message"));
 	}
 
 	@Override
