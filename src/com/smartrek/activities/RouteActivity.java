@@ -26,10 +26,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.exceptions.RouteNotFoundException;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
 import com.smartrek.requests.RouteFetchRequest;
+import com.smartrek.tasks.GeocodingTask;
+import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.RouteInfoOverlay;
 import com.smartrek.ui.overlays.RouteOverlayCallback;
@@ -44,6 +47,7 @@ import com.smartrek.ui.timelayout.TimeLayout.TimeLayoutListener;
 import com.smartrek.ui.timelayout.TimeLayout.TimeLayoutOnSelectListener;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.GeoPoint;
+import com.smartrek.utils.Geocoding;
 import com.smartrek.utils.RouteNode;
 
 /**
@@ -51,6 +55,9 @@ import com.smartrek.utils.RouteNode;
  *
  */
 public final class RouteActivity extends Activity {
+	
+	public static final String ORIGIN_ADDR = "originAddr";
+	public static final String DEST_ADDR = "destAddr";
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
@@ -74,6 +81,77 @@ public final class RouteActivity extends Activity {
     private List<RouteTask> routeTasks = new Vector<RouteTask>();
     
     private boolean debugMode;
+    
+	private GeocodingTaskCallback originGeocodingTaskCallback = new GeocodingTaskCallback() {
+		
+		private ProgressDialog dialog;
+
+		@Override
+		public void preCallback() {
+			dialog = new CancelableProgressDialog(RouteActivity.this, "Geocoding origin address...");
+	        dialog.show();
+		}
+
+		@Override
+		public void callback(List<Geocoding.Address> addresses) {
+			if (addresses.size() == 1) {
+				originCoord = addresses.get(0).getGeoPoint();
+			}
+			else {
+				// TODO: Popup a dialog to pick an address
+				originCoord = addresses.get(0).getGeoPoint();
+			}
+		}
+
+		@Override
+		public void postCallback() {
+			dialog.cancel();
+			
+			if (ehs.hasExceptions()) {
+			    ehs.reportExceptions();
+			}
+			else {
+				new GeocodingTask(ehs, destGeocodingTaskCallback).execute(destAddr);
+			}
+		}
+		
+	};
+	
+	private GeocodingTaskCallback destGeocodingTaskCallback = new GeocodingTaskCallback() {
+
+		private ProgressDialog dialog;
+		
+		@Override
+		public void preCallback() {
+			dialog = new CancelableProgressDialog(RouteActivity.this, "Geocoding destination address...");
+	        dialog.show();
+		}
+
+		@Override
+		public void callback(List<Geocoding.Address> addresses) {
+			if (addresses.size() == 1) {
+				destCoord = addresses.get(0).getGeoPoint();
+			}
+			else {
+				// TODO: Popup a dialog to pick an address
+				destCoord = addresses.get(0).getGeoPoint();
+			}
+		}
+
+		@Override
+		public void postCallback() {
+			dialog.cancel();
+			
+			if (ehs.hasExceptions()) {
+			    ehs.reportExceptions();
+			}
+			else {
+		        RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
+		        routeTasks.add(routeTask);
+		        routeTask.execute();
+			}
+		}
+	};
     
     public GeoPoint getOriginCoord() {
         return originCoord;
@@ -185,26 +263,10 @@ public final class RouteActivity extends Activity {
         
         debugMode = extras.getBoolean("debugMode");
 
-        originAddr = extras.getString("originAddr");
-        destAddr = extras.getString("destAddr");
+        originAddr = extras.getString(ORIGIN_ADDR);
+        destAddr = extras.getString(DEST_ADDR);
         
-        originCoord = new GeoPoint(extras.getDouble("originLat"), extras.getDouble("originLng"));
-        destCoord = new GeoPoint(extras.getDouble("destLat"), extras.getDouble("destLng"));
-        
-        dialog.setMessage("Finding routes...");
-        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				finish();
-			}
-        
-        });
-        dialog.show();
-        
-        RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
-        routeTasks.add(routeTask);
-        routeTask.execute();
+        new GeocodingTask(ehs, originGeocodingTaskCallback).execute(originAddr);
     }
     
     @Override
@@ -451,6 +513,8 @@ public final class RouteActivity extends Activity {
         private GeoPoint destination;
         private long departureTime;
         
+        private ProgressDialog dialog;
+        
         public RouteTask(GeoPoint origin, GeoPoint destination, long departureTime, int column, boolean updateMap) {
         	super();
         	
@@ -475,6 +539,16 @@ public final class RouteActivity extends Activity {
         protected void onPreExecute() {
             // FIXME: Should this be here?
             timeLayout.setColumnState(selectedColumn, TimeButton.State.InProgress);
+            
+            dialog = new CancelableProgressDialog(RouteActivity.this, "Finding routes...");
+	        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					finish();
+				}
+	        
+	        });
         	
         	if (isCached()) {
         		
@@ -512,7 +586,9 @@ public final class RouteActivity extends Activity {
          */
         @Override
         protected void onPostExecute(List<Route> routes) {
-            dialog.dismiss();
+            if (dialog.isShowing()) {
+            	dialog.dismiss();
+            }
             
             setHighlightedRoutePathOverlays(true);
             mapView.postInvalidate();

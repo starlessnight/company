@@ -23,6 +23,8 @@ import com.smartrek.utils.ValidationParameters;
  */
 public final class ReservationReceiver extends BroadcastReceiver {
 	
+	public static final String LOG_TAG = "ReservationReceiver";
+	
 	public static final String RESERVATION_ID = "reservationId";
 	
 	public static final String RESERVATION = "reservation";
@@ -48,7 +50,7 @@ public final class ReservationReceiver extends BroadcastReceiver {
 	}
 	
 	private boolean validateRoute(Location location) {
-		Log.d("ReservationReceiver", "location = " + location);
+		Log.d(LOG_TAG, "location = " + location);
 		
 		
 		return false;
@@ -56,7 +58,7 @@ public final class ReservationReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-	    Log.d("ReservationReceiver", "onReceive");
+	    Log.d(LOG_TAG, "onReceive");
 		
 	    Route route = intent.getExtras().getParcelable("route");
 	    Reservation reservation = intent.getExtras().getParcelable("reservation");

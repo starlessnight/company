@@ -9,7 +9,6 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,11 +24,9 @@ import android.view.View.OnLongClickListener;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.FavoriteAddressAddDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
 import com.smartrek.dialogs.NotificationDialog;
@@ -41,17 +38,11 @@ import com.smartrek.models.Trip;
 import com.smartrek.models.User;
 import com.smartrek.receivers.ReservationReceiver;
 import com.smartrek.requests.ReservationListFetchRequest;
-import com.smartrek.tasks.GeocodingTask;
-import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.Cache;
 import com.smartrek.utils.ExceptionHandlingService;
-import com.smartrek.utils.GeoPoint;
-import com.smartrek.utils.Geocoding;
-import com.smartrek.utils.LocationService;
 import com.smartrek.utils.SystemService;
-import com.smartrek.utils.LocationService.LocationServiceListener;
 
 /**
  * This Activity is the home screen for the Smartrek Application. From this
@@ -78,11 +69,9 @@ public final class HomeActivity extends Activity {
 	
 	private EditAddress editAddressOrigin;
 	private EditAddress editAddressDest;
-	private EditText dateBox;
 	
 	private TextView originText;
 	private TextView destText;
-	private TextView dateText;
 	
 	private Button buttonLoadTrip;
 	private Button buttonSaveTrip;
@@ -91,9 +80,6 @@ public final class HomeActivity extends Activity {
 	private ImageButton buttonFavAddrOrigin;
 	private ImageButton destFavButton;
 	private Button buttonOriginMyLocation;
-	
-	private GeoPoint originCoord;
-	private GeoPoint destCoord;
 	
 	private Time current;
 	
@@ -211,7 +197,8 @@ public final class HomeActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				debugMode = false;
-				prepareMapActivity();
+				//prepareMapActivity();
+				startMapActivity();
 			}
 	    	
 	    });
@@ -224,7 +211,8 @@ public final class HomeActivity extends Activity {
 					editAddressOrigin.setText("origin");
 				if (editAddressDest.getText().toString().equals(""))
 					editAddressDest.setText("destination");
-				prepareMapActivity();
+				//prepareMapActivity();
+				startMapActivity();
 				return true;
 			}
 			
@@ -323,75 +311,6 @@ public final class HomeActivity extends Activity {
 		}
 	}
 
-	GeocodingTaskCallback originGeocodingTaskCallback = new GeocodingTaskCallback() {
-		
-		private ProgressDialog dialog;
-
-		@Override
-		public void preCallback() {
-			dialog = new CancelableProgressDialog(HomeActivity.this, "Geocoding origin address...");
-	        dialog.show();
-		}
-
-		@Override
-		public void callback(List<Geocoding.Address> addresses) {
-			if (addresses.size() == 1) {
-				originCoord = addresses.get(0).getGeoPoint();
-			}
-			else {
-				// TODO: Popup a dialog to pick an address
-				originCoord = addresses.get(0).getGeoPoint();
-			}
-		}
-
-		@Override
-		public void postCallback() {
-			dialog.cancel();
-			
-			if (ehs.hasExceptions()) {
-			    ehs.reportExceptions();
-			}
-			else {
-				new GeocodingTask(ehs, destGeocodingTaskCallback).execute(getDestinationAddress().getAddress());
-			}
-		}
-		
-	};
-	
-	GeocodingTaskCallback destGeocodingTaskCallback = new GeocodingTaskCallback() {
-
-		private ProgressDialog dialog;
-		
-		@Override
-		public void preCallback() {
-			dialog = new CancelableProgressDialog(HomeActivity.this, "Geocoding destination address...");
-	        dialog.show();
-		}
-
-		@Override
-		public void callback(List<Geocoding.Address> addresses) {
-			if (addresses.size() == 1) {
-				destCoord = addresses.get(0).getGeoPoint();
-			}
-			else {
-				// TODO: Popup a dialog to pick an address
-				destCoord = addresses.get(0).getGeoPoint();
-			}
-		}
-
-		@Override
-		public void postCallback() {
-			dialog.cancel();
-			
-			if (ehs.hasExceptions()) {
-			    ehs.reportExceptions();
-			}
-			else {
-				startMapActivity();
-			}
-		}
-	};
-	
 	/**
 	 * 
 	 * @return Origin address that user has entered
@@ -525,45 +444,6 @@ public final class HomeActivity extends Activity {
 		buttonSaveTripHelp.setVisibility(isReadyToSave ? View.INVISIBLE : View.VISIBLE);
 	}
 	
-	private void prepareMapActivity() {
-		if (editAddressOrigin.isCurrentLocationInUse()) {
-			final CancelableProgressDialog dialog = new CancelableProgressDialog(this, "Acquiring current location...");
-	        dialog.show();
-			
-	        // FIXME: When dialog gets canceled, requestCurrentLocation() must be canceled as well.
-			LocationService locationService = LocationService.getInstance(this);
-			locationService.requestCurrentLocation(new LocationServiceListener() {
-				@Override
-				public void locationAcquired(Location location) {
-					originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
-					dialog.cancel();
-					
-					String dest = getDestinationAddress().getAddress();
-					if (dest.equals("")) {
-						ehs.reportException("Destination address cannot be empty.");
-					}
-					else {
-						new GeocodingTask(ehs, destGeocodingTaskCallback).execute(dest);
-					}
-				}
-			});
-		}
-		else {
-			String origin = getOriginAddress().getAddress();
-			String destination = getDestinationAddress().getAddress();
-			
-			if (origin.equals("")) {
-				ehs.reportException("Origin address cannot be empty.");
-			}
-			else if (destination.equals("")) {
-				ehs.reportException("Destination address cannot be empty.");
-			}
-			else {
-				new GeocodingTask(ehs, originGeocodingTaskCallback).execute(origin);
-			}
-		}
-	}
-	
 	/**
 	 * This private helper method will bundle the possible routes as well as the
 	 * user information to be be passed to the Map_Activity. The Route are
@@ -580,11 +460,6 @@ public final class HomeActivity extends Activity {
 		Bundle extras = new Bundle();
 		extras.putString("originAddr", editAddressOrigin.getText().toString());
 		extras.putString("destAddr", editAddressDest.getText().toString());
-		// TODO: Any better way to handle this?
-		extras.putDouble("originLat", originCoord.getLatitude());
-		extras.putDouble("originLng", originCoord.getLongitude());
-		extras.putDouble("destLat", destCoord.getLatitude());
-		extras.putDouble("destLng", destCoord.getLongitude());
 		extras.putBoolean("debugMode", debugMode);
 		intent.putExtras(extras);
 		startActivity(intent);
