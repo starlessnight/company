@@ -275,7 +275,7 @@ public final class RouteActivity extends Activity {
         new AlertDialog.Builder(this)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle("Confirm")
-                .setMessage("Are you sure you want to go back to main screen?")
+                .setMessage("Are you sure you want to go back to previous screen?")
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
