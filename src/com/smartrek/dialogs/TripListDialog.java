@@ -92,11 +92,12 @@ public class TripListDialog extends GenericListDialog<Trip> {
 	public boolean onMenuItemSelected(int featureId, MenuItem menuItem) {
 	    AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuItem.getMenuInfo();
 	    
-	    Trip listItem = listItems.get(info.position);
+	    // For some reason info.position returns a value offset by +1
+	    Trip listItem = listItems.get(info.position - 1);
 	    
 	    switch (menuItem.getItemId()) {
 	        case R.id.delete:
-	        	new TripDeleteTask(info.position).execute(listItem.getId());
+	        	new TripDeleteTask(info.position - 1).execute(listItem.getId());
 	            return true;
 	            
 	        default:

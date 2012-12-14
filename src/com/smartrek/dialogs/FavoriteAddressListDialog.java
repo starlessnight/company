@@ -82,6 +82,7 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 	public boolean onMenuItemSelected(int featureId, MenuItem menuItem) {
 	    AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuItem.getMenuInfo();
 	    
+	    // For some reason info.position returns a value offset by +1
 	    Address listItem = listItems.get(info.position - 1);
 	    
 	    switch (menuItem.getItemId()) {
