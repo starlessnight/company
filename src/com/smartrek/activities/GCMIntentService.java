@@ -42,6 +42,10 @@ public class GCMIntentService extends GCMBaseIntentService {
 		String message = intent.getStringExtra("message");
 		long departureTime = intent.getLongExtra("time", 0) * 1000;
 		
+		if (message == null || message.equals("")) {
+			message = "(placeholder)";
+		}
+		
 		Intent routeIntent = new Intent(context, RouteActivity.class);
         routeIntent.putExtra(RouteActivity.ORIGIN_ADDR, origin);
         routeIntent.putExtra(RouteActivity.DEST_ADDR, destination);
