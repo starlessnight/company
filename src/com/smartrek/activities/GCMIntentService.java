@@ -14,23 +14,20 @@ import com.smartrek.utils.Preferences;
 public class GCMIntentService extends GCMBaseIntentService {
 
 	public static final String GCM_SENDER_ID = "968174328058";
-	public static final String LOG_TAG = "GetAClue::GCMIntentService";
+	public static final String LOG_TAG = "GCMIntentService";
 
 	public GCMIntentService() {
 		super(GCM_SENDER_ID);
-		// TODO Auto-generated constructor stub
 		Log.i(LOG_TAG, "GCMIntentService constructor called");
 	}
 
 	@Override
 	protected void onError(Context arg0, String errorId) {
-		// TODO Auto-generated method stub
 		Log.i(LOG_TAG, "GCMIntentService onError called: " + errorId);
 	}
 
 	@Override
 	protected void onMessage(Context context, Intent intent) {
-		// TODO Auto-generated method stub
 		Log.i(LOG_TAG, "GCMIntentService onMessage called");
 		Log.i(LOG_TAG, "Origin: " + intent.getStringExtra("origin"));
 		Log.i(LOG_TAG, "Destination: " + intent.getStringExtra("destination"));
@@ -61,7 +58,6 @@ public class GCMIntentService extends GCMBaseIntentService {
 
 	@Override
 	protected void onRegistered(Context context, String registrationId) {
-		// TODO Auto-generated method stub
 		Log.i(LOG_TAG, "GCMIntentService onRegistered called");
 		Log.i(LOG_TAG, "Registration id is: " + registrationId);
 		
@@ -74,7 +70,6 @@ public class GCMIntentService extends GCMBaseIntentService {
 
 	@Override
 	protected void onUnregistered(Context arg0, String registrationId) {
-		// TODO Auto-generated method stub
 		Log.i(LOG_TAG, "GCMIntentService onUnregistered called");
 		Log.i(LOG_TAG, "Registration id is: " + registrationId);
 	}
