@@ -25,6 +25,7 @@
     <string name="cancel">Cancel</string>
     <string name="reserve">Reserve</string>
     <string name="trekpoints">Trekpoints</string>
+    <string name="add">Add</string>
     
     <string name="common_datetime_format">MMM dd, yyyy (E) HH:mm:ss</string>
     
@@ -54,6 +55,7 @@
     <string name="Go">Go!</string>
     <string name="load_trip">Load trip</string>
     <string name="save_trip">Save trip</string>
+    <string name="edit_trip">Edit trip</string>
     <string name="here_and_now">here and now</string>
     <!-- *************************************************************************************** -->
     <!-- *************************************************************************************** -->

@@ -1,12 +1,13 @@
 package com.smartrek.dialogs;
 
+import request.TripUpdateRequest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import android.widget.EditText;
 
 import com.smartrek.activities.R;
 import com.smartrek.models.Address;
+import com.smartrek.models.Trip;
 import com.smartrek.models.User;
 import com.smartrek.requests.TripAddRequest;
 import com.smartrek.requests.TripListFetchRequest;
@@ -42,8 +44,20 @@ public final class TripSaveDialog extends AlertDialog {
 	private EditText editTextOrigin;
 	private EditText editTextDestination;
 	
+	/**
+	 * Unsaved origin address
+	 */
 	private Address origin;
+	
+	/**
+	 * Unsaved destination address
+	 */
 	private Address destination;
+	
+	/**
+	 * Saved trip. Will be used to pre-populate necessary fields.
+	 */
+	private Trip trip;
 	
 	/**
 	 * I decided to force the caller to set the origin and the destination
@@ -59,6 +73,21 @@ public final class TripSaveDialog extends AlertDialog {
 		super(context);
 		this.origin = origin;
 		this.destination = destination;
+	}
+	
+	/**
+	 * When an instance of Trip is given, this dialog will triger an edit mode.
+	 * 
+	 * @param context
+	 * @param trip
+	 */
+	public TripSaveDialog(Context context, Trip trip) {
+		super(context);
+		this.trip = trip;
+		
+		// FIXME: Those should not be null
+		this.origin = null;
+		this.destination = null;
 	}
 	
 	@Override
@@ -77,6 +106,11 @@ public final class TripSaveDialog extends AlertDialog {
 		if (destination != null) {
 			editTextDestination.setText(destination.getAddress());
 		}
+		if (trip != null) {
+			editTextName.setText(trip.getName());
+			editTextOrigin.setText(trip.getOrigin());
+			editTextDestination.setText(trip.getDestination());
+		}
 		
 		ViewGroup layoutSetReminder = (ViewGroup) dialogView.findViewById(R.id.layout_set_reminder);
 		layoutSetReminder.setOnClickListener(new View.OnClickListener() {
@@ -88,11 +122,13 @@ public final class TripSaveDialog extends AlertDialog {
 			
 		});
 		
-		setView(dialogView);
-		setIcon(getContext().getResources().getDrawable(R.drawable.save_trip));
-		setTitle(getContext().getResources().getString(R.string.save_trip));
+		Resources res = getContext().getResources();
 		
-		setButton(DialogInterface.BUTTON_POSITIVE, "Add", new OnClickListener() {
+		setView(dialogView);
+		setIcon(res.getDrawable(R.drawable.save_trip));
+		setTitle(isEditMode() ? res.getString(R.string.edit_trip) : res.getString(R.string.save_trip));
+		
+		setButton(DialogInterface.BUTTON_POSITIVE, res.getString(R.string.add), new OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -101,11 +137,16 @@ public final class TripSaveDialog extends AlertDialog {
 				}
 				
 				User currentUser = User.getCurrentUser(getContext());
-				new TripSaveTask(getContext(), currentUser.getId(), getName(), getOrigin(), getDestination()).execute();
+				if (isEditMode()) {
+					new TripSaveTask(getContext(), trip.getId(), currentUser.getId(), getName(), getOrigin(), getDestination()).execute();
+				}
+				else {
+					new TripSaveTask(getContext(), 0, currentUser.getId(), getName(), getOrigin(), getDestination()).execute();
+				}
 			}
 		});
 		
-		setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new OnClickListener() {
+		setButton(DialogInterface.BUTTON_NEGATIVE, res.getString(R.string.cancel), new OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -138,6 +179,10 @@ public final class TripSaveDialog extends AlertDialog {
 		return destination;
 	}
 	
+	public boolean isEditMode() {
+		return trip != null;
+	}
+	
 	/**
 	 * Opens up a dialog to set a trip reminder.
 	 */
@@ -151,15 +196,26 @@ public final class TripSaveDialog extends AlertDialog {
 		private ProgressDialog progressDialog;
 		
 		private Context context;
+		
+		/**
+		 * Trip ID
+		 */
+		private int tid;
+		
+		/**
+		 * User ID
+		 */
 		private int uid;
+		
 		private String name;
 		private Address origin;
 		private Address destination;
 		
 		private ExceptionHandlingService ehs;
 		
-		public TripSaveTask(Context context, int uid, String name, Address origin, Address destination) {
+		public TripSaveTask(Context context, int tid, int uid, String name, Address origin, Address destination) {
 			this.context = context;
+			this.tid = tid;
 			this.uid = uid;
 			this.name = name;
 			this.origin = origin;
@@ -178,9 +234,15 @@ public final class TripSaveDialog extends AlertDialog {
 		
 		@Override
 		protected Object doInBackground(Object... params) {
-			TripAddRequest request = new TripAddRequest(uid, name, origin.getId(), destination.getId());
 			try {
-				request.execute();
+				if (tid == 0) {
+					TripAddRequest request = new TripAddRequest(uid, name, origin.getId(), destination.getId());
+					request.execute();
+				}
+				else {
+					TripUpdateRequest request = new TripUpdateRequest(tid, uid, name, origin.getId(), destination.getId());
+					request.execute();
+				}
 				
 				new TripListFetchRequest(uid).invalidateCache();
 			}
