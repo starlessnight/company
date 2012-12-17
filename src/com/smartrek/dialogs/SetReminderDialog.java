@@ -5,13 +5,19 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.smartrek.activities.R;
 
 public final class SetReminderDialog extends AlertDialog {
 	
 	private ViewGroup dialogView;
+	
+	private Button buttonPickWeekdays;
+	
+	private byte weekdays;
 
 	protected SetReminderDialog(Context context) {
 		super(context);
@@ -25,6 +31,17 @@ public final class SetReminderDialog extends AlertDialog {
 		
 		setView(dialogView);
 		setTitle("Pick a time");
+		
+		buttonPickWeekdays = (Button) dialogView.findViewById(R.id.button_pick_weekdays);
+		buttonPickWeekdays.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				WeekdaysDialog dialog = new WeekdaysDialog(getContext());
+				dialog.show();
+			}
+			
+		});
 		
 		setButton(DialogInterface.BUTTON_POSITIVE, "OK", new OnClickListener() {
 			

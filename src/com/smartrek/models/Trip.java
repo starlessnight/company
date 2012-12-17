@@ -12,6 +12,7 @@ import org.json.JSONObject;
  */
 public class Trip {
 	
+	// TODO: Is this a right place to put these?
 	public static final byte SUN = 0x40;
 	public static final byte MON = 0x20;
 	public static final byte TUE = 0x10;
@@ -47,13 +48,14 @@ public class Trip {
 	 */
 	private int weekdays;
 	
-	public Trip(int id, String name, int oid, String origin, int did, String destination) {
+	public Trip(int id, String name, int oid, String origin, int did, String destination, int weekdays) {
 		this.id = id;
 		this.name = name;
 		this.oid = oid;
 		this.origin = origin;
 		this.did = did;
 		this.destination = destination;
+		this.weekdays = weekdays;
 	}
 
 	public int getId() {
@@ -86,7 +88,7 @@ public class Trip {
 	}
 	
 	public int getRecurringWeekdays() {
-		return 0;
+		return weekdays;
 	}
 	
 	public static Trip parse(JSONObject object) throws JSONException {
@@ -97,6 +99,8 @@ public class Trip {
 		String origin = object.getString("ORIGIN_ADDRESS");
 		String destination = object.getString("DESTINATION_ADDRESS");
 		
-		return new Trip(id, name, oid, origin, did, destination);
+		int weekdays = object.getInt("DATETYPE");
+		
+		return new Trip(id, name, oid, origin, did, destination, weekdays);
 	}
 }
