@@ -1,6 +1,5 @@
 package com.smartrek.dialogs;
 
-import request.TripUpdateRequest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -19,6 +18,7 @@ import com.smartrek.models.Trip;
 import com.smartrek.models.User;
 import com.smartrek.requests.TripAddRequest;
 import com.smartrek.requests.TripListFetchRequest;
+import com.smartrek.requests.TripUpdateRequest;
 import com.smartrek.utils.ExceptionHandlingService;
 
 public final class TripSaveDialog extends AlertDialog {
@@ -84,10 +84,11 @@ public final class TripSaveDialog extends AlertDialog {
 	public TripSaveDialog(Context context, Trip trip) {
 		super(context);
 		this.trip = trip;
-		
-		// FIXME: Those should not be null
-		this.origin = null;
-		this.destination = null;
+
+		// FIXME: I think Trip should have a userID field.
+		int uid = User.getCurrentUser(context).getId();
+		this.origin = new Address(trip.getOriginID(), uid, "", trip.getOrigin());
+		this.destination = new Address(trip.getDestinationID(), uid, "", trip.getDestination());
 	}
 	
 	@Override
@@ -141,6 +142,7 @@ public final class TripSaveDialog extends AlertDialog {
 					new TripSaveTask(getContext(), trip.getId(), currentUser.getId(), getName(), getOrigin(), getDestination()).execute();
 				}
 				else {
+					// TODO: Should I pass 'trip'?
 					new TripSaveTask(getContext(), 0, currentUser.getId(), getName(), getOrigin(), getDestination()).execute();
 				}
 			}

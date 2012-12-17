@@ -1,11 +1,10 @@
-package request;
+package com.smartrek.requests;
 
 import java.io.IOException;
 import java.net.URLEncoder;
 
 import org.json.JSONException;
 
-import com.smartrek.requests.UpdateRequest;
 
 public class TripUpdateRequest extends UpdateRequest {
 	
@@ -43,8 +42,8 @@ public class TripUpdateRequest extends UpdateRequest {
 	}
 
 	public void execute() throws IOException, JSONException {
-		String url = String.format("%s/favroutes-update/?rid=%d&uid=%d&name=%s&oid=%d&did=%d",
-				HOST, tid, uid, URLEncoder.encode(name), oid, did);
+		String url = String.format("%s/favroutes-update/?rid=%d&uid=%d&name=%s&oid=%d&did=%d&arrivaltime=%s&datetype=%d",
+				HOST, tid, uid, URLEncoder.encode(name), oid, did, "0:00:00", 0);
 		executeUpdateRequest(url);
 	}
 }
