@@ -17,7 +17,7 @@ import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
-import com.smartrek.utils.HumanReadableTime;
+import com.smartrek.utils.datetime.HumanReadableTime;
 
 /**
  * Shows detailed information about a reservation.

@@ -20,7 +20,7 @@ import com.smartrek.requests.TripAddRequest;
 import com.smartrek.requests.TripListFetchRequest;
 import com.smartrek.requests.TripUpdateRequest;
 import com.smartrek.utils.ExceptionHandlingService;
-import com.smartrek.utils.RecurringTime;
+import com.smartrek.utils.datetime.RecurringTime;
 
 public final class TripSaveDialog extends AlertDialog {
 	

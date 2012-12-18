@@ -14,8 +14,8 @@ import com.smartrek.activities.R;
 import com.smartrek.activities.ReservationDetailsActivity;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
-import com.smartrek.utils.TimeRange;
 import com.smartrek.utils.ValidationParameters;
+import com.smartrek.utils.datetime.TimeRange;
 
 /**
  * Route validation happens here

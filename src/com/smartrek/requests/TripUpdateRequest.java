@@ -5,7 +5,7 @@ import java.net.URLEncoder;
 
 import org.json.JSONException;
 
-import com.smartrek.utils.RecurringTime;
+import com.smartrek.utils.datetime.RecurringTime;
 
 
 public class TripUpdateRequest extends UpdateRequest {

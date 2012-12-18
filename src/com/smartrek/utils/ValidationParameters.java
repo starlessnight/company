@@ -1,5 +1,7 @@
 package com.smartrek.utils;
 
+import com.smartrek.utils.datetime.TimeRange;
+
 /**
  * Manages configurable parameters for route validation
  *

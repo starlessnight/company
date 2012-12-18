@@ -26,7 +26,7 @@ import com.smartrek.requests.ReservationMapper;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.Cache;
 import com.smartrek.utils.ExceptionHandlingService;
-import com.smartrek.utils.HumanReadableTime;
+import com.smartrek.utils.datetime.HumanReadableTime;
 
 /**
  * This will popup before a user makes a reservation for a route
