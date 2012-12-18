@@ -18,7 +18,7 @@ public final class TripListFetchRequest extends FetchRequest<List<Trip>> {
 	private int uid;
 	
 	public TripListFetchRequest(int uid) {
-		super(String.format("%s/favroutes-list/?userid=%d", HOST, uid));
+		super(String.format("%s/V0.2/favroutes-list/?userid=%d", HOST, uid));
 		this.uid = uid;
 	}
 	

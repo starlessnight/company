@@ -90,7 +90,7 @@ public class Trip {
 		String origin = object.getString("ORIGIN_ADDRESS");
 		String destination = object.getString("DESTINATION_ADDRESS");
 		
-		int weekdays = object.getInt("DATETYPE");
+		byte weekdays = (byte) object.getInt("DATETYPE");
 		
 		return new Trip(id, name, oid, origin, did, destination, weekdays);
 	}

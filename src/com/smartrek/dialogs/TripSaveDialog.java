@@ -148,11 +148,11 @@ public final class TripSaveDialog extends AlertDialog {
 				
 				User currentUser = User.getCurrentUser(getContext());
 				if (isEditMode()) {
-					new TripSaveTask(getContext(), trip.getId(), currentUser.getId(), getName(), getOrigin(), getDestination(), new RecurringTime(hour, minute, weekdays)).execute();
+					new TripSaveTask(getContext(), trip.getId(), currentUser.getId(), getName(), getOrigin(), getDestination(), new RecurringTime((byte)hour, (byte)minute, weekdays)).execute();
 				}
 				else {
 					// TODO: Should I pass 'trip'?
-					new TripSaveTask(getContext(), 0, currentUser.getId(), getName(), getOrigin(), getDestination(), new RecurringTime(hour, minute, weekdays)).execute();
+					new TripSaveTask(getContext(), 0, currentUser.getId(), getName(), getOrigin(), getDestination(), new RecurringTime((byte)hour, (byte)minute, weekdays)).execute();
 				}
 			}
 		});

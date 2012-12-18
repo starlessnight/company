@@ -10,31 +10,31 @@ public class RecurringTime {
 	public static final byte FRI = 0x02;
 	public static final byte SAT = 0x01;
 
-	private int hour;
+	private byte hour;
 	
-	private int minute;
+	private byte minute;
 	
 	private byte weekdays;
 	
-	public RecurringTime(int hour, int minute, byte weekdays) {
+	public RecurringTime(byte hour, byte minute, byte weekdays) {
 		this.hour = hour;
 		this.minute = minute;
 		this.weekdays = weekdays;
 	}
 
-	public int getHour() {
+	public byte getHour() {
 		return hour;
 	}
 
-	public void setHour(int hour) {
+	public void setHour(byte hour) {
 		this.hour = hour;
 	}
 
-	public int getMinute() {
+	public byte getMinute() {
 		return minute;
 	}
 
-	public void setMinute(int minute) {
+	public void setMinute(byte minute) {
 		this.minute = minute;
 	}
 
