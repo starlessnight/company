@@ -197,14 +197,14 @@ public final class TripSaveDialog extends AlertDialog {
 	 * Opens up a dialog to set a trip reminder.
 	 */
 	private void openSetReminderDialog() {
-		SetReminderDialog dialog = new SetReminderDialog(getContext());
+		SetReminderDialog dialog = new SetReminderDialog(getContext(), trip != null ? trip.getRecurringTime() : null);
 		dialog.setActionListener(new SetReminderDialog.ActionListener() {
 			
 			@Override
-			public void onClickPositiveButton(int hour, int minute, byte weekdays) {
-				TripSaveDialog.this.hour = hour;
-				TripSaveDialog.this.minute = minute;
-				TripSaveDialog.this.weekdays = weekdays;
+			public void onClickPositiveButton(RecurringTime recurringTime) {
+				TripSaveDialog.this.hour = recurringTime.getHour();
+				TripSaveDialog.this.minute = recurringTime.getMinute();
+				TripSaveDialog.this.weekdays = recurringTime.getWeekdays();
 			}
 			
 			@Override

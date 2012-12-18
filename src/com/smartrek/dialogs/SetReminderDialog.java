@@ -13,11 +13,12 @@ import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 
 import com.smartrek.activities.R;
+import com.smartrek.utils.datetime.RecurringTime;
 
 public final class SetReminderDialog extends AlertDialog {
 	
 	public interface ActionListener {
-		void onClickPositiveButton(int hour, int minute, byte weekdays);
+		void onClickPositiveButton(RecurringTime recurringTime);
 		void onClickNegativeButton();
 	}
 	
@@ -29,14 +30,11 @@ public final class SetReminderDialog extends AlertDialog {
 	
 	private Button buttonPickWeekdays;
 	
-	private byte weekdays;
-	
-	private int hour;
-	
-	private int minute;
+	private RecurringTime recurringTime;
 
-	protected SetReminderDialog(Context context) {
+	protected SetReminderDialog(Context context, RecurringTime recurringTime) {
 		super(context);
+		this.recurringTime = recurringTime != null ? recurringTime : new RecurringTime();
 	}
 
 	@Override
@@ -55,22 +53,27 @@ public final class SetReminderDialog extends AlertDialog {
 			
 			@Override
 			public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-				SetReminderDialog.this.hour = hourOfDay;
-				SetReminderDialog.this.minute = minute;
+				recurringTime.setHour(hourOfDay);
+				recurringTime.setMinute(minute);
 			}
 		});
+		
+		if (recurringTime != null) {
+			timePicker.setCurrentHour((int) recurringTime.getHour());
+			timePicker.setCurrentMinute((int) recurringTime.getMinute());
+		}
 		
 		buttonPickWeekdays = (Button) dialogView.findViewById(R.id.button_pick_weekdays);
 		buttonPickWeekdays.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				WeekdaysDialog dialog = new WeekdaysDialog(getContext(), weekdays);
+				WeekdaysDialog dialog = new WeekdaysDialog(getContext(), recurringTime.getWeekdays());
 				dialog.setActionListener(new WeekdaysDialog.ActionListener() {
 					
 					@Override
 					public void onClickPositiveButton(byte weekdays) {
-						SetReminderDialog.this.weekdays = weekdays;
+						recurringTime.setWeekdays(weekdays);
 					}
 					
 					@Override
@@ -87,7 +90,7 @@ public final class SetReminderDialog extends AlertDialog {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				if (listener != null) {
-					listener.onClickPositiveButton(hour, minute, weekdays);
+					listener.onClickPositiveButton(recurringTime);
 				}
 			}
 		});
@@ -107,18 +110,6 @@ public final class SetReminderDialog extends AlertDialog {
 		super.onCreate(savedInstanceState);
 	}
 	
-	public int getHour() {
-		return hour;
-	}
-	
-	public int getMinute() {
-		return minute;
-	}
-	
-	public byte getWeekdays() {
-		return weekdays;
-	}
-
 	public ActionListener getActionListener() {
 		return listener;
 	}

@@ -18,6 +18,9 @@ public class RecurringTime {
 	
 	private byte weekdays;
 	
+	public RecurringTime() {
+	}
+	
 	public RecurringTime(byte hour, byte minute, byte second, byte weekdays) {
 		this.hour = hour;
 		this.minute = minute;
@@ -29,31 +32,31 @@ public class RecurringTime {
 		return hour;
 	}
 
-	public void setHour(byte hour) {
-		this.hour = hour;
+	public void setHour(int hour) {
+		this.hour = (byte) hour;
 	}
 
-	public byte getMinute() {
+	public int getMinute() {
 		return minute;
 	}
 
-	public void setMinute(byte minute) {
-		this.minute = minute;
+	public void setMinute(int minute) {
+		this.minute = (byte) minute;
 	}
 
 	public byte getSecond() {
 		return second;
 	}
 
-	public void setSecond(byte second) {
-		this.second = second;
+	public void setSecond(int second) {
+		this.second = (byte) second;
 	}
 
 	public byte getWeekdays() {
 		return weekdays;
 	}
 
-	public void setWeekdays(byte weekdays) {
-		this.weekdays = weekdays;
+	public void setWeekdays(int weekdays) {
+		this.weekdays = (byte) weekdays;
 	}
 }
