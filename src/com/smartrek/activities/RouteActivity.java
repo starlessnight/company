@@ -341,20 +341,22 @@ public final class RouteActivity extends Activity {
      */
     private void updateRoute(GeoPoint origin, GeoPoint destination, long departureTime, int column) {
     	RouteFetchRequest request = new RouteFetchRequest(origin, destination, departureTime);
-    	try {
-			List<Route> routes = request.execute();
-			updateMap(routes);
-			timeLayout.setColumnState(column, TimeButton.State.Selected);
-		}
-		catch (RouteNotFoundException e) {
-			e.printStackTrace();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		catch (JSONException e) {
-			e.printStackTrace();
-		}
+    	if (request.isCached()) {
+	    	try {
+				List<Route> routes = request.execute();
+				updateMap(routes);
+				timeLayout.setColumnState(column, TimeButton.State.Selected);
+			}
+			catch (RouteNotFoundException e) {
+				e.printStackTrace();
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			catch (JSONException e) {
+				e.printStackTrace();
+			}
+    	}
     }
 
     private List<Overlay> mapOverlays;
