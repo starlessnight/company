@@ -14,11 +14,14 @@ public class RecurringTime {
 	
 	private byte minute;
 	
+	private byte second;
+	
 	private byte weekdays;
 	
-	public RecurringTime(byte hour, byte minute, byte weekdays) {
+	public RecurringTime(byte hour, byte minute, byte second, byte weekdays) {
 		this.hour = hour;
 		this.minute = minute;
+		this.setSecond(second);
 		this.weekdays = weekdays;
 	}
 
@@ -38,6 +41,14 @@ public class RecurringTime {
 		this.minute = minute;
 	}
 
+	public byte getSecond() {
+		return second;
+	}
+
+	public void setSecond(byte second) {
+		this.second = second;
+	}
+
 	public byte getWeekdays() {
 		return weekdays;
 	}
@@ -45,6 +56,4 @@ public class RecurringTime {
 	public void setWeekdays(byte weekdays) {
 		this.weekdays = weekdays;
 	}
-	
-	
 }

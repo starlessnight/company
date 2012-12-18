@@ -3,6 +3,8 @@ package com.smartrek.models;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.smartrek.utils.datetime.RecurringTime;
+
 /**
  * Simply defines an origin and a destination addresses. No association with a
  * specific departure time, route, etc.
@@ -30,23 +32,18 @@ public class Trip {
 	private String destination;
 	
 	/**
-	 * Desired arrival time
-	 */
-	private String arrivalTime;
-	
-	/**
 	 * Recurring dates
 	 */
-	private int weekdays;
+	private RecurringTime recurringTime;
 	
-	public Trip(int id, String name, int oid, String origin, int did, String destination, int weekdays) {
+	public Trip(int id, String name, int oid, String origin, int did, String destination, RecurringTime recurringTime) {
 		this.id = id;
 		this.name = name;
 		this.oid = oid;
 		this.origin = origin;
 		this.did = did;
 		this.destination = destination;
-		this.weekdays = weekdays;
+		this.recurringTime = recurringTime;
 	}
 
 	public int getId() {
@@ -73,13 +70,8 @@ public class Trip {
 		return destination;
 	}
 	
-	public String getFormattedDesiredArrivalTime() {
-		// TODO: Unimplemented
-		return "0:00:00";
-	}
-	
-	public int getRecurringWeekdays() {
-		return weekdays;
+	public RecurringTime getRecurringTime() {
+		return recurringTime;
 	}
 	
 	public static Trip parse(JSONObject object) throws JSONException {
@@ -89,9 +81,22 @@ public class Trip {
 		String name = object.getString("NAME");
 		String origin = object.getString("ORIGIN_ADDRESS");
 		String destination = object.getString("DESTINATION_ADDRESS");
+
+		byte hour = 0;
+		byte minute = 0;
+		byte second = 0;
+		
+		String departureTime = object.getString("DEPARTURE");
+		if (departureTime.matches("\\d{1,2}:\\d{2}:\\d{2}")) {
+			String[] cols = departureTime.split(":");
+			
+			hour = (byte) Integer.parseInt(cols[0]);
+			minute = (byte) Integer.parseInt(cols[1]);
+			second = (byte) Integer.parseInt(cols[2]);
+		}
 		
 		byte weekdays = (byte) object.getInt("DATETYPE");
 		
-		return new Trip(id, name, oid, origin, did, destination, weekdays);
+		return new Trip(id, name, oid, origin, did, destination, new RecurringTime(hour, minute, second, weekdays));
 	}
 }

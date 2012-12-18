@@ -24,7 +24,7 @@ public final class TripAddRequest extends AddRequest {
 	}
 	
 	public void execute() throws IOException, JSONException {
-		String url = String.format("%s/favroutes-add/?uid=%d&name=%s&oid=%d&did=%d&arrivaltime=%d:%d:00&datetype=%d",
+		String url = String.format("%s/V0.2/favroutes-add/?uid=%d&name=%s&oid=%d&did=%d&arrivaltime=%d:%d:00&datetype=%d",
 				HOST, uid, URLEncoder.encode(name), oid, did, recurringTime.getHour(), recurringTime.getMinute(), recurringTime.getWeekdays());
 		executeAddRequest(url);
 	}
