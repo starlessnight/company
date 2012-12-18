@@ -1,4 +1,4 @@
-package com.smartrek.utils;
+package com.smartrek.utils.datetime;
 
 import android.text.format.Time;
 

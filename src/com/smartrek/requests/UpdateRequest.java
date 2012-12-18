@@ -5,8 +5,8 @@ import java.io.IOException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public abstract class DeleteRequest extends Request {
-	protected String executeDeleteRequest(String url) throws IOException, JSONException {
+public class UpdateRequest extends Request {
+	protected String executeUpdateRequest(String url) throws IOException, JSONException {
 		String response = executeHttpGetRequest(url).trim();
 		
 		// Since the server returns a JSON array for no apparent reason...

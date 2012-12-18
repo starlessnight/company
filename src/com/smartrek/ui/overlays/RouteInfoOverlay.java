@@ -11,8 +11,8 @@ import android.widget.ImageView;
 import com.smartrek.activities.R;
 import com.smartrek.models.Route;
 import com.smartrek.utils.GeoPoint;
-import com.smartrek.utils.HumanReadableTime;
 import com.smartrek.utils.StringUtil;
+import com.smartrek.utils.datetime.HumanReadableTime;
 
 public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	

@@ -5,11 +5,20 @@
     android:orientation="vertical" >
 
     <TimePicker
-        android:id="@+id/timePicker1"
+        android:id="@+id/timepicker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center" />
+    
+    <Button 
+        android:id="@+id/button_pick_weekdays"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Pick weekdays"
+        />
 
+    <!-- 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -65,5 +74,6 @@
             android:textOff="S"
             android:textOn="S" />
     </LinearLayout>
+    -->
 
 </LinearLayout>

@@ -93,11 +93,17 @@ public class TripListDialog extends GenericListDialog<Trip> {
 	    AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuItem.getMenuInfo();
 	    
 	    // For some reason info.position returns a value offset by +1
-	    Trip listItem = listItems.get(info.position - 1);
+	    int menuItemIndex = info.position - 1;
+	    
+	    Trip listItem = listItems.get(menuItemIndex);
 	    
 	    switch (menuItem.getItemId()) {
+	    	case R.id.edit:
+	    		showTripEditDialog(listItem);
+	    		return true;
+	    		
 	        case R.id.delete:
-	        	new TripDeleteTask(info.position - 1).execute(listItem.getId());
+	        	new TripDeleteTask(menuItemIndex).execute(listItem.getId());
 	            return true;
 	            
 	        default:
@@ -108,6 +114,11 @@ public class TripListDialog extends GenericListDialog<Trip> {
 	private void requestRefresh() {
 		User currentUser = User.getCurrentUser(getContext());
 		new TripListFetchTask().execute(currentUser.getId());
+	}
+	
+	private void showTripEditDialog(Trip trip) {
+		TripSaveDialog dialog = new TripSaveDialog(getContext(), trip);
+		dialog.show();
 	}
 	
 	private class TripDeleteTask extends AsyncTask<Object, Object, Object> {

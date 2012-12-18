@@ -18,9 +18,9 @@ import com.smartrek.models.User;
 import com.smartrek.requests.ReservationMapper;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
-import com.smartrek.utils.HumanReadableTime;
 import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.ValidationParameters;
+import com.smartrek.utils.datetime.HumanReadableTime;
 
 public class ValidationReportActivity extends Activity {
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
