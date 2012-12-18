@@ -4,11 +4,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <com.markupartist.android.widget.PullToRefreshListView
+    <ListView
         android:id="@+id/list_view_generic"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
-    </com.markupartist.android.widget.PullToRefreshListView>
+    </ListView>
 
     <TextView
         android:id="@+id/text_view_generic"

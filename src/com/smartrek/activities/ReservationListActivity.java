@@ -47,13 +47,13 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        listViewGeneric.setOnRefreshListener(new OnRefreshListener() {
-
-            @Override
-            public void onRefresh() {
-                requestRefresh(false);
-            }
-        });
+//        listViewGeneric.setOnRefreshListener(new OnRefreshListener() {
+//
+//            @Override
+//            public void onRefresh() {
+//                requestRefresh(false);
+//            }
+//        });
         
         textViewGeneric.setText("You do not have any reserved route.");
         
@@ -92,13 +92,20 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		MenuInflater mi = getMenuInflater();
-		mi.inflate(R.menu.main, menu);
+		mi.inflate(R.menu.list_activity, menu);
 		return true;
 	}
 	
 	@Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		MainMenu.onMenuItemSelected(this, featureId, item);
+		
+		switch (item.getItemId()) {
+			case R.id.refresh:
+				requestRefresh(false);
+				break;
+		}
+		
 		return super.onMenuItemSelected(featureId, item);
 	}
 	
@@ -182,7 +189,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 		    if (dialog != null && dialog.isShowing()) {
 		        dialog.cancel();
 		    }
-			listViewGeneric.onRefreshComplete();
+			//listViewGeneric.onRefreshComplete();
 			
 		    if (ehs.hasExceptions()) {
 		        ehs.reportExceptions();
