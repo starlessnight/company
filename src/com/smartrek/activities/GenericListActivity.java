@@ -13,7 +13,6 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.markupartist.android.widget.PullToRefreshListView;
 import com.smartrek.dialogs.GenericListDialog.ActionListener;
 
 public class GenericListActivity<ItemType> extends Activity {
@@ -25,7 +24,7 @@ public class GenericListActivity<ItemType> extends Activity {
     protected List<ItemType> listItems;
     protected ArrayAdapter<ItemType> adapter;
     protected ActionListener<ItemType> actionListener;
-    protected PullToRefreshListView listViewGeneric;
+    protected ListView listViewGeneric;
     protected TextView textViewGeneric;
     
     @Override
@@ -39,7 +38,7 @@ public class GenericListActivity<ItemType> extends Activity {
     
     protected void initViews() {
         textViewGeneric = (TextView) findViewById(R.id.text_view_generic);
-        listViewGeneric = (PullToRefreshListView) findViewById(R.id.list_view_generic);
+        listViewGeneric = (ListView) findViewById(R.id.list_view_generic);
         listViewGeneric.setOnItemClickListener(new OnItemClickListener() {
             
             /**
