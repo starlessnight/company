@@ -37,7 +37,7 @@ public final class SetReminderDialog extends AlertDialog {
 
 			@Override
 			public void onClick(View v) {
-				WeekdaysDialog dialog = new WeekdaysDialog(getContext());
+				WeekdaysDialog dialog = new WeekdaysDialog(getContext(), weekdays);
 				dialog.show();
 			}
 			

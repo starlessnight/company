@@ -18,8 +18,9 @@ public class WeekdaysDialog extends AlertDialog {
 	
 	private byte weekdays;
 	
-	public WeekdaysDialog(Context context) {
+	public WeekdaysDialog(Context context, byte weekdays) {
 		super(context);
+		this.weekdays = weekdays;
 	}
 	
 	@Override
@@ -44,6 +45,7 @@ public class WeekdaysDialog extends AlertDialog {
 			
 			final byte weekday = (byte)(1 << i);
 			final CheckBox checkBox = (CheckBox) dialogView.findViewById(checkboxId);
+			checkBox.setChecked((weekdays & weekday) != 0);
 			checkBox.setOnClickListener(new View.OnClickListener() {
 			
 				@Override
