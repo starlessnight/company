@@ -3,6 +3,7 @@ package com.smartrek.dialogs;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +30,8 @@ public final class SetReminderDialog extends AlertDialog {
 		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		dialogView = (ViewGroup) inflater.inflate(R.layout.trip_save_date, null);
 		
+		Resources res = getContext().getResources();
+		
 		setView(dialogView);
 		setTitle("Pick a time");
 		
@@ -43,14 +46,14 @@ public final class SetReminderDialog extends AlertDialog {
 			
 		});
 		
-		setButton(DialogInterface.BUTTON_POSITIVE, "OK", new OnClickListener() {
+		setButton(DialogInterface.BUTTON_POSITIVE, res.getString(R.string.ok), new OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 			}
 		});
 		
-		setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new OnClickListener() {
+		setButton(DialogInterface.BUTTON_NEGATIVE, res.getString(R.string.cancel), new OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
