@@ -13,6 +13,13 @@ import android.widget.CheckBox;
 import com.smartrek.activities.R;
 
 public class WeekdaysDialog extends AlertDialog {
+	
+	public interface ActionListener {
+		void onClickPositiveButton(byte weekdays);
+		void onClickNegativeButton();
+	}
+	
+	private ActionListener listener;
 
 	private ViewGroup dialogView;
 	
@@ -64,6 +71,9 @@ public class WeekdaysDialog extends AlertDialog {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
+				if (listener != null) {
+					listener.onClickPositiveButton(weekdays);
+				}
 			}
 		});
 		
@@ -71,6 +81,9 @@ public class WeekdaysDialog extends AlertDialog {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
+				if (listener != null) {
+					listener.onClickNegativeButton();
+				}
 			}
 		});
 		
@@ -81,5 +94,13 @@ public class WeekdaysDialog extends AlertDialog {
 	
 	public byte getWeekdays() {
 		return weekdays;
+	}
+
+	public ActionListener getActionListener() {
+		return listener;
+	}
+
+	public void setActionListener(ActionListener listener) {
+		this.listener = listener;
 	}
 }

@@ -12,15 +12,6 @@ import org.json.JSONObject;
  */
 public class Trip {
 	
-	// TODO: Is this a right place to put these?
-	public static final byte SUN = 0x40;
-	public static final byte MON = 0x20;
-	public static final byte TUE = 0x10;
-	public static final byte WED = 0x08;
-	public static final byte THU = 0x04;
-	public static final byte FRI = 0x02;
-	public static final byte SAT = 0x01;
-
 	private int id;
 	private String name;
 	

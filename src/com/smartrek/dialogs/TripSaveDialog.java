@@ -20,6 +20,7 @@ import com.smartrek.requests.TripAddRequest;
 import com.smartrek.requests.TripListFetchRequest;
 import com.smartrek.requests.TripUpdateRequest;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.RecurringTime;
 
 public final class TripSaveDialog extends AlertDialog {
 	
@@ -58,6 +59,12 @@ public final class TripSaveDialog extends AlertDialog {
 	 * Saved trip. Will be used to pre-populate necessary fields.
 	 */
 	private Trip trip;
+	
+	private int hour;
+	
+	private int minute;
+	
+	private byte weekdays;
 	
 	/**
 	 * I decided to force the caller to set the origin and the destination
@@ -129,7 +136,9 @@ public final class TripSaveDialog extends AlertDialog {
 		setIcon(res.getDrawable(R.drawable.save_trip));
 		setTitle(isEditMode() ? res.getString(R.string.edit_trip) : res.getString(R.string.save_trip));
 		
-		setButton(DialogInterface.BUTTON_POSITIVE, res.getString(R.string.add), new OnClickListener() {
+		setButton(DialogInterface.BUTTON_POSITIVE,
+				isEditMode() ? res.getString(R.string.ok) : res.getString(R.string.add),
+				new OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -139,11 +148,11 @@ public final class TripSaveDialog extends AlertDialog {
 				
 				User currentUser = User.getCurrentUser(getContext());
 				if (isEditMode()) {
-					new TripSaveTask(getContext(), trip.getId(), currentUser.getId(), getName(), getOrigin(), getDestination()).execute();
+					new TripSaveTask(getContext(), trip.getId(), currentUser.getId(), getName(), getOrigin(), getDestination(), new RecurringTime(hour, minute, weekdays)).execute();
 				}
 				else {
 					// TODO: Should I pass 'trip'?
-					new TripSaveTask(getContext(), 0, currentUser.getId(), getName(), getOrigin(), getDestination()).execute();
+					new TripSaveTask(getContext(), 0, currentUser.getId(), getName(), getOrigin(), getDestination(), new RecurringTime(hour, minute, weekdays)).execute();
 				}
 			}
 		});
@@ -190,6 +199,19 @@ public final class TripSaveDialog extends AlertDialog {
 	 */
 	private void openSetReminderDialog() {
 		SetReminderDialog dialog = new SetReminderDialog(getContext());
+		dialog.setActionListener(new SetReminderDialog.ActionListener() {
+			
+			@Override
+			public void onClickPositiveButton(int hour, int minute, byte weekdays) {
+				TripSaveDialog.this.hour = hour;
+				TripSaveDialog.this.minute = minute;
+				TripSaveDialog.this.weekdays = weekdays;
+			}
+			
+			@Override
+			public void onClickNegativeButton() {
+			}
+		});
 		dialog.show();
 	}
 	
@@ -212,16 +234,18 @@ public final class TripSaveDialog extends AlertDialog {
 		private String name;
 		private Address origin;
 		private Address destination;
+		private RecurringTime recurringTime;
 		
 		private ExceptionHandlingService ehs;
 		
-		public TripSaveTask(Context context, int tid, int uid, String name, Address origin, Address destination) {
+		public TripSaveTask(Context context, int tid, int uid, String name, Address origin, Address destination, RecurringTime recurringTime) {
 			this.context = context;
 			this.tid = tid;
 			this.uid = uid;
 			this.name = name;
 			this.origin = origin;
 			this.destination = destination;
+			this.recurringTime = recurringTime;
 			this.ehs = new ExceptionHandlingService(context);
 		}
 		
@@ -238,11 +262,11 @@ public final class TripSaveDialog extends AlertDialog {
 		protected Object doInBackground(Object... params) {
 			try {
 				if (tid == 0) {
-					TripAddRequest request = new TripAddRequest(uid, name, origin.getId(), destination.getId());
+					TripAddRequest request = new TripAddRequest(uid, name, origin.getId(), destination.getId(), recurringTime);
 					request.execute();
 				}
 				else {
-					TripUpdateRequest request = new TripUpdateRequest(tid, uid, name, origin.getId(), destination.getId());
+					TripUpdateRequest request = new TripUpdateRequest(tid, uid, name, origin.getId(), destination.getId(), recurringTime);
 					request.execute();
 				}
 				
