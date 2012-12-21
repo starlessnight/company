@@ -87,7 +87,7 @@ public class Trip {
 		byte second = 0;
 		
 		// FIXME: This should be desired arrival time
-		String departureTime = object.getString("DEPARTURE");
+		String departureTime = object.getString("ARRIVAL");
 		if (departureTime.matches("\\d{1,2}:\\d{2}:\\d{2}")) {
 			String[] cols = departureTime.split(":");
 			

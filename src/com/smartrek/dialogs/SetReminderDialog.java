@@ -49,6 +49,12 @@ public final class SetReminderDialog extends AlertDialog {
 		setTitle("Pick a time");
 		
 		timePicker = (TimePicker) dialogView.findViewById(R.id.timepicker);
+		
+		if (recurringTime != null) {
+			timePicker.setCurrentHour((int) recurringTime.getHour());
+			timePicker.setCurrentMinute((int) recurringTime.getMinute());
+		}
+		
 		timePicker.setOnTimeChangedListener(new OnTimeChangedListener() {
 			
 			@Override
@@ -57,11 +63,6 @@ public final class SetReminderDialog extends AlertDialog {
 				recurringTime.setMinute(minute);
 			}
 		});
-		
-		if (recurringTime != null) {
-			timePicker.setCurrentHour((int) recurringTime.getHour());
-			timePicker.setCurrentMinute((int) recurringTime.getMinute());
-		}
 		
 		buttonPickWeekdays = (Button) dialogView.findViewById(R.id.button_pick_weekdays);
 		buttonPickWeekdays.setOnClickListener(new View.OnClickListener() {
