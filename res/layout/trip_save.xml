@@ -52,7 +52,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="4dp"
-            android:text="Set reminder on this trip" />
+            android:text="When would you like to arrive?" />
     </LinearLayout>
 
 </LinearLayout>
