@@ -1,6 +1,9 @@
 package com.smartrek.tasks;
 
+import java.io.IOException;
 import java.util.List;
+
+import org.json.JSONException;
 
 import android.os.AsyncTask;
 
@@ -41,6 +44,12 @@ public final class GeocodingTask extends AsyncTask<String, Void, Void> {
 	        else {
 	        	callback.callback(addresses);
 	        }
+		}
+		catch (IOException e) {
+			ehs.registerException(e, "Could not complete geocoding request");
+		}
+		catch (JSONException e) {
+			ehs.registerException(e);
 		}
 		catch (Exception e) {
 			ehs.registerException(e);

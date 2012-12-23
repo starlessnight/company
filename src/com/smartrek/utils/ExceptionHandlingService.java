@@ -9,13 +9,55 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.util.Log;
 
 import com.smartrek.activities.R;
 import com.smartrek.dialogs.ExceptionDialog;
 import com.smartrek.exceptions.RouteNotFoundException;
 
 public class ExceptionHandlingService {
-    private Stack<Exception> exceptions = new Stack<Exception>();
+	
+	public static final String LOG_TAG = "ExceptionHandlingService";
+	
+	/**
+	 * Contains an exception instance and other metadata
+	 */
+	public static class ExceptionContainer {
+		private Exception e;
+		private String preferredMessage;
+		
+		public ExceptionContainer(Exception e) {
+			this.e = e;
+		}
+		
+		public ExceptionContainer(Exception e, String preferredMessage) {
+			this.e = e;
+			this.preferredMessage = preferredMessage;
+		}
+		
+		public Exception getException() {
+			return e;
+		}
+		
+		public String getPreferredMessage() {
+			return preferredMessage;
+		}
+		
+		public boolean hasPreferredMessage() {
+			return preferredMessage != null && !preferredMessage.equals("");
+		}
+		
+		public String getMessage() {
+			return hasPreferredMessage() ? getPreferredMessage() : getException().getMessage();
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("%s: %s", e.getClass().toString(), preferredMessage != null ? preferredMessage : e.getMessage());
+		}
+	}
+	
+    private Stack<ExceptionContainer> exceptions = new Stack<ExceptionContainer>();
     private Context context;
     
     public ExceptionHandlingService(Context context) {
@@ -27,19 +69,33 @@ public class ExceptionHandlingService {
     }
     
     /**
-     * Reports an exception when {@code reportExceptions()} is called.
-     * 
-     * @param e
+     * Adds an exception instance to the stack
      */
     public synchronized void registerException(Exception e) {
-        registerException(e, System.err);
+        registerException(e, (String)null);
     }
     
+    /**
+     * Adds an exception instance to the stack
+     */
+    public synchronized void registerException(Exception e, String preferredMessage) {
+    	ExceptionContainer ec = new ExceptionContainer(e, preferredMessage);
+    	exceptions.push(ec);
+    	
+    	Log.d(LOG_TAG, ec.toString());
+    	e.printStackTrace();
+    }
+    
+    /**
+     * Adds an exception instance to the stack
+     * 
+     * @deprecated Not to use System.err. Use Log.d().
+     */
     public synchronized void registerException(Exception e, PrintStream err) {
         if (err != null) {
             e.printStackTrace(err);
         }
-        exceptions.push(e);
+        exceptions.push(new ExceptionContainer(e));
     }
     
     /**
@@ -49,7 +105,7 @@ public class ExceptionHandlingService {
      */
     public synchronized void reportException(String message) {
         AlertDialog dialog = new AlertDialog.Builder(context).create();
-        dialog.setTitle("Exception");
+        dialog.setTitle("An error has occurred");
         dialog.setMessage(message);
         dialog.setButton(context.getResources().getString(R.string.close), new Dialog.OnClickListener() {
             @Override
@@ -75,19 +131,28 @@ public class ExceptionHandlingService {
     		dialog.show();
     	}
     	else {
-    		reportException(e.getMessage());
+            AlertDialog dialog = new AlertDialog.Builder(context).create();
+            dialog.setTitle(e.getClass().toString());
+            dialog.setMessage(e.getMessage());
+            dialog.setButton(context.getResources().getString(R.string.close), new Dialog.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            dialog.show();
     	}
     }
     
     public synchronized void reportExceptions() {
         while (!exceptions.isEmpty()) {
-            Exception e = exceptions.pop();
+        	ExceptionContainer ec = exceptions.pop();
             
-            reportException(e);
+            reportException(ec.getMessage());
         }
     }
     
-    public Exception popException() {
+    public ExceptionContainer popException() {
     	return exceptions.pop();
     }
 }
