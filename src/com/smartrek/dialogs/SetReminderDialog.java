@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +35,8 @@ public final class SetReminderDialog extends AlertDialog {
 
 	protected SetReminderDialog(Context context, RecurringTime recurringTime) {
 		super(context);
-		this.recurringTime = recurringTime != null ? recurringTime : new RecurringTime();
+		// TODO: I don't think this is a good practice (new RecurringTime() part)
+		this.recurringTime = recurringTime; // != null ? recurringTime : new RecurringTime();
 	}
 
 	@Override
@@ -53,6 +55,13 @@ public final class SetReminderDialog extends AlertDialog {
 		if (recurringTime != null) {
 			timePicker.setCurrentHour((int) recurringTime.getHour());
 			timePicker.setCurrentMinute((int) recurringTime.getMinute());
+		}
+		else {
+			Time time = new Time();
+			time.setToNow();
+			
+			timePicker.setCurrentHour(time.hour);
+			timePicker.setCurrentMinute(time.minute);
 		}
 		
 		timePicker.setOnTimeChangedListener(new OnTimeChangedListener() {
