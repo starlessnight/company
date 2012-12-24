@@ -232,14 +232,14 @@ public class FavoriteAddressEditDialog extends AlertDialog {
 		        ehs.reportExceptions();
 		    }
 		    else {
-		    	dismiss();
-		    	
 				Toast toast = Toast.makeText(
 						getContext(),
 						String.format("Address '%s' has been updated.", address.getName()),
 						Toast.LENGTH_SHORT);
 				toast.show();
 		    }
+		    
+		    dismiss();
 		}
 	}
 }

@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
 import com.smartrek.activities.R;
+import com.smartrek.models.Address;
 import com.smartrek.models.Trip;
 import com.smartrek.models.User;
 import com.smartrek.requests.TripDeleteRequest;
@@ -113,11 +114,23 @@ public class TripListDialog extends GenericListDialog<Trip> {
 	
 	private void requestRefresh() {
 		User currentUser = User.getCurrentUser(getContext());
+		new TripListFetchRequest(currentUser.getId()).invalidateCache();
 		new TripListFetchTask().execute(currentUser.getId());
 	}
 	
 	private void showTripEditDialog(Trip trip) {
 		TripEditDialog dialog = new TripEditDialog(getContext(), trip);
+		dialog.setActionListener(new TripEditDialog.ActionListener() {
+			
+			@Override
+			public void onClickPositiveButton(String name, Address origin, Address destination) {
+				requestRefresh();
+			}
+			
+			@Override
+			public void onClickNegativeButton() {
+			}
+		});
 		dialog.show();
 	}
 	
@@ -168,7 +181,7 @@ public class TripListDialog extends GenericListDialog<Trip> {
 			
 			TripListFetchRequest request = new TripListFetchRequest(uid);
 			try {
-			    request.invalidateCache();
+			    //request.invalidateCache();
 				listItems = request.execute();
 			}
 			catch (Exception e) {

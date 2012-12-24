@@ -10,7 +10,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.smartrek.activities.R;
 import com.smartrek.models.Address;
@@ -142,17 +144,6 @@ public final class TripEditDialog extends AlertDialog {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				if (actionListener != null) {
-					actionListener.onClickPositiveButton(getName(), getOrigin(), getDestination());
-				}
-				
-				User currentUser = User.getCurrentUser(getContext());
-				if (isEditMode()) {
-					new TripSaveTask(getContext(), trip.getId(), currentUser.getId(), getName(), getOrigin(), getDestination(), new RecurringTime((byte)hour, (byte)minute, (byte)0, weekdays)).execute();
-				}
-				else {
-					new TripSaveTask(getContext(), 0, currentUser.getId(), getName(), getOrigin(), getDestination(), new RecurringTime((byte)hour, (byte)minute, (byte)0, weekdays)).execute();
-				}
 			}
 		});
 		
@@ -169,6 +160,27 @@ public final class TripEditDialog extends AlertDialog {
 		// This has to be called after all overriding code, otherwise it won't
 		// look like a dialog.
 		super.onCreate(savedInstanceState);
+		
+		// Replace the default onClickListener to prevent this dialog closing.
+		Button positiveButton = getButton(DialogInterface.BUTTON_POSITIVE);
+		positiveButton.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				User currentUser = User.getCurrentUser(getContext());
+				if (isEditMode()) {
+					new TripSaveTask(getContext(), trip.getId(), currentUser.getId(), getName(), getOrigin(), getDestination(), new RecurringTime((byte)hour, (byte)minute, (byte)0, weekdays)).execute();
+				}
+				else {
+					new TripSaveTask(getContext(), 0, currentUser.getId(), getName(), getOrigin(), getDestination(), new RecurringTime((byte)hour, (byte)minute, (byte)0, weekdays)).execute();
+				}
+				
+				if (actionListener != null) {
+					actionListener.onClickPositiveButton(getName(), getOrigin(), getDestination());
+				}
+			}
+			
+		});
 	}
 	
 	public void setActionListener(ActionListener listener) {
@@ -287,10 +299,12 @@ public final class TripEditDialog extends AlertDialog {
 		    }
 		    else {
 		    	String message = (name != null && !name.equals("")) ?
-		    			String.format("Trip '%s' has been saved.", name) : "Trip has been saved";
-		    	NotificationDialog notificationDialog = new NotificationDialog(getContext(), message);
-		    	notificationDialog.show();
+		    			String.format("Trip '%s' has been saved.", name) : "Trip has been saved.";
+		    	Toast toast = Toast.makeText(getContext(), message, Toast.LENGTH_SHORT);
+		    	toast.show();
 		    }
+		    
+		    dismiss();
 		}
 	}
 }
