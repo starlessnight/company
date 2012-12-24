@@ -9,6 +9,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.RadioButton;
+import android.widget.Toast;
 
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.utils.Cache;
@@ -101,8 +102,11 @@ public final class DebugOptionsActivity extends Activity {
             public void onClick(View v) {
                 Cache.getInstance().clear();
                 
-                NotificationDialog dialog = new NotificationDialog(DebugOptionsActivity.this, "Cache has been cleared.");
-                dialog.show();
+                Toast toast = Toast.makeText(
+                		DebugOptionsActivity.this,
+                		"Cache has been cleared.",
+                		Toast.LENGTH_SHORT);
+                toast.show();
             }
             
         });
