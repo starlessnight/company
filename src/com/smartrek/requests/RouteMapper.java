@@ -21,11 +21,9 @@ import org.json.JSONObject;
 import android.text.format.Time;
 import android.util.Log;
 
-import com.smartrek.exceptions.RouteNotFoundException;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.utils.Cache;
-import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.HTTP;
 import com.smartrek.utils.RouteNode;
 
@@ -36,13 +34,10 @@ import com.smartrek.utils.RouteNode;
  */
 public final class RouteMapper extends FetchRequest<List<Route>> {
 	
-	/**
-	 * @deprecated
-	 */
-	public RouteMapper(){
-		super();
+	public RouteMapper() {
+		super(null);
 	}
-	
+
 	public static void buildRouteNodeReferenceChain(List<RouteNode> nodes) {
 		RouteNode prevNode = null;
 		for(int i = 0; i < nodes.size(); i++) {

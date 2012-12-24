@@ -6,6 +6,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class UpdateRequest extends Request {
+	
+	private String url;
+	
+	protected UpdateRequest() {
+	}
+	
+	protected UpdateRequest(String url) {
+		this.url = url;
+	}
+
 	protected String executeUpdateRequest(String url) throws IOException, JSONException {
 		String response = executeHttpGetRequest(url).trim();
 		

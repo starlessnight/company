@@ -16,6 +16,13 @@ import com.smartrek.utils.RouteNode;
 
 public final class ReservationMapper extends FetchRequest {
 	
+	/**
+	 * @deprecated
+	 */
+	public ReservationMapper() {
+		super(null);
+	}
+
 	public void reserveRoute(Route route) throws IOException, JSONException {
 		// TODO: Better way to handle this?
 		StringBuffer buf = new StringBuffer();

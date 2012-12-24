@@ -5,6 +5,7 @@ import java.util.Map;
 
 import android.util.Log;
 
+import com.smartrek.utils.Cache;
 import com.smartrek.utils.HTTP;
 
 /**
@@ -17,6 +18,8 @@ import com.smartrek.utils.HTTP;
  */
 public abstract class Request {
 	
+	public static final String LOG_TAG = "Request";
+	
 	public static final String HOST = "http://50.56.81.42:8080";
 
 	/**
@@ -24,6 +27,16 @@ public abstract class Request {
 	 */
 	public enum Verb {
 		Fetch, Add, Update, Delete
+	}
+	
+	protected String url;
+	
+	protected Request() {
+		
+	}
+	
+	protected Request(String url) {
+		this.url = url;
 	}
 	
 	public void setParameter(String key, Object value) {
@@ -35,7 +48,7 @@ public abstract class Request {
 	}
 	
 	protected String executeHttpGetRequest(String url, Map<String, Object> params) throws IOException {
-		Log.d("Request", "executeHttpGetRequest(): url="+url);
+		Log.d(LOG_TAG, "executeHttpGetRequest(): url="+url);
 		
 		HTTP http = new HTTP(url);
 		http.connect();
@@ -54,5 +67,21 @@ public abstract class Request {
 	
 	public String executeHttpPostRequest(String url, Map<String, Object> params) {
 		return null;
+	}
+	
+	/**
+	 * Indicates whether the data is available in the local cache
+	 * 
+	 * @return
+	 */
+	public boolean isCached() {
+		return Cache.getInstance().has(url);
+	}
+	
+	/**
+	 * Marks cached entry as invalid so that it gets re-fetched from the server.
+	 */
+	public void invalidateCache() {
+		Cache.getInstance().invalidate(url);
 	}
 }

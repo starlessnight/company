@@ -10,21 +10,12 @@ public abstract class FetchRequest<ReturnType> extends Request {
 	public interface Listener<ReturnType> {
 		void onFinish(ReturnType result);
 	}
+	
+	protected FetchRequest(String url) {
+		super(url);
+	}
 
 	protected Listener<ReturnType> listener;
-	
-	protected String url;
-	
-	/**
-	 * @deprecated
-	 */
-	public FetchRequest() {
-		
-	}
-	
-	public FetchRequest(String url) {
-		this.url = url;
-	}
 	
 	public void setListener(Listener<ReturnType> listener) {
 		this.listener = listener;
@@ -47,21 +38,5 @@ public abstract class FetchRequest<ReturnType> extends Request {
 			
 			return response;
 		}
-	}
-	
-	/**
-	 * Indicates whether the data is available in the local cache
-	 * 
-	 * @return
-	 */
-	public boolean isCached() {
-		return Cache.getInstance().has(url);
-	}
-	
-	/**
-	 * Marks cached entry as invalid so that it gets re-fetched from the server.
-	 */
-	public void invalidateCache() {
-		Cache.getInstance().invalidate(url);
 	}
 }

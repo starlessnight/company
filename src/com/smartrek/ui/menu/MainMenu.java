@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.view.MenuItem;
 
-import com.smartrek.activities.CouponsTabActivity;
 import com.smartrek.activities.DebugOptionsActivity;
 import com.smartrek.activities.HomeActivity;
 import com.smartrek.activities.LoginActivity;
@@ -42,11 +41,6 @@ public final class MainMenu {
 				intent.putExtra("mapmode", 1);
 				activity.startActivityForResult(intent, displayed);
 			}
-			break;
-
-		case R.id.mycoupons:
-			intent = new Intent(activity, CouponsTabActivity.class);
-			activity.startActivity(intent);
 			break;
 
 		case R.id.reservation:
