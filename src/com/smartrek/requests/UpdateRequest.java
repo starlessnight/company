@@ -7,8 +7,6 @@ import org.json.JSONObject;
 
 public class UpdateRequest extends Request {
 	
-	private String url;
-	
 	protected UpdateRequest() {
 	}
 	
