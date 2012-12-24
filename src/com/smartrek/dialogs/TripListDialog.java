@@ -117,7 +117,7 @@ public class TripListDialog extends GenericListDialog<Trip> {
 	}
 	
 	private void showTripEditDialog(Trip trip) {
-		TripSaveDialog dialog = new TripSaveDialog(getContext(), trip);
+		TripEditDialog dialog = new TripEditDialog(getContext(), trip);
 		dialog.show();
 	}
 	

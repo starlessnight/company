@@ -4,6 +4,7 @@ import java.util.List;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -37,8 +38,10 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		Resources res = getContext().getResources();
+		
 		setTitle("Favorite addresses");
-		setButton(DialogInterface.BUTTON_NEUTRAL, "Add", new OnClickListener() {
+		setButton(DialogInterface.BUTTON_NEUTRAL, res.getString(R.string.add), new OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
@@ -88,6 +91,10 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 	    Address listItem = listItems.get(menuItemIndex);
 	    
 	    switch (menuItem.getItemId()) {
+	    	case R.id.edit:
+	    		showAddressEditDialog(listItem);
+	    		return true;
+	    	
 	        case R.id.delete:
 	        	new FavoriteAddressDeleteTask(menuItemIndex).execute(listItem.getUid(), listItem.getId());
 	            return true;
@@ -98,8 +105,28 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 	}
 	
 	private void requestRefresh() {
-	    User currentUser = User.getCurrentUser(getContext());
+		User currentUser = User.getCurrentUser(getContext());
+		
+		// Invalidate cache
+		new FavoriteAddressFetchRequest(currentUser.getId()).invalidateCache();
+		
         new FavoriteAddressListFetchTask().execute(currentUser.getId());
+	}
+	
+	private void showAddressEditDialog(Address address) {
+		FavoriteAddressEditDialog dialog = new FavoriteAddressEditDialog(getContext(), address);
+		dialog.setActionListener(new FavoriteAddressEditDialog.ActionListener() {
+			
+			@Override
+			public void onClickPositiveButton() {
+				requestRefresh();
+			}
+			
+			@Override
+			public void onClickNegativeButton() {
+			}
+		});
+		dialog.show();
 	}
 	
 	private class FavoriteAddressDeleteTask extends AsyncTask<Object, Object, Object> {

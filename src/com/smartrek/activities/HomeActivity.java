@@ -27,11 +27,11 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.smartrek.dialogs.FavoriteAddressAddDialog;
+import com.smartrek.dialogs.FavoriteAddressEditDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.dialogs.TripListDialog;
-import com.smartrek.dialogs.TripSaveDialog;
+import com.smartrek.dialogs.TripEditDialog;
 import com.smartrek.models.Address;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Trip;
@@ -320,7 +320,7 @@ public final class HomeActivity extends Activity {
 			return editAddressOrigin.getAddress();
 		}
 		else {
-			return new Address(0, User.getCurrentUser(this).getId(), "", editAddressOrigin.getText().toString().trim());
+			return new Address(0, User.getCurrentUser(this).getId(), "", editAddressOrigin.getText().toString().trim(), 0, 0);
 		}
 	}
 	
@@ -333,13 +333,13 @@ public final class HomeActivity extends Activity {
 			return editAddressDest.getAddress();
 		}
 		else {
-			return new Address(0, User.getCurrentUser(this).getId(), "", editAddressDest.getText().toString().trim());
+			return new Address(0, User.getCurrentUser(this).getId(), "", editAddressDest.getText().toString().trim(), 0, 0);
 		}
 	}
 	
     private void onClickSaveTrip() {
-        TripSaveDialog dialog = new TripSaveDialog(this, getOriginAddress(), getDestinationAddress());
-        dialog.setActionListener(new TripSaveDialog.ActionListener() {
+        TripEditDialog dialog = new TripEditDialog(this, getOriginAddress(), getDestinationAddress());
+        dialog.setActionListener(new TripEditDialog.ActionListener() {
             
             @Override
             public void onClickPositiveButton(String name, Address origin, Address destination) {
@@ -372,9 +372,9 @@ public final class HomeActivity extends Activity {
 
 			@Override
 			public void onClickNeutralButton() {
-				FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(HomeActivity.this);
+				FavoriteAddressEditDialog dialog = new FavoriteAddressEditDialog(HomeActivity.this);
 				dialog.setAddress(getOriginAddress());
-				dialog.setActionListener(new FavoriteAddressAddDialog.ActionListener() {
+				dialog.setActionListener(new FavoriteAddressEditDialog.ActionListener() {
 					
 					@Override
 					public void onClickPositiveButton() {
@@ -408,9 +408,9 @@ public final class HomeActivity extends Activity {
 			
 			@Override
 			public void onClickNeutralButton() {
-				FavoriteAddressAddDialog dialog = new FavoriteAddressAddDialog(HomeActivity.this);
+				FavoriteAddressEditDialog dialog = new FavoriteAddressEditDialog(HomeActivity.this);
 				dialog.setAddress(getDestinationAddress());
-				dialog.setActionListener(new FavoriteAddressAddDialog.ActionListener() {
+				dialog.setActionListener(new FavoriteAddressEditDialog.ActionListener() {
 					
 					@Override
 					public void onClickPositiveButton() {

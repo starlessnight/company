@@ -22,7 +22,7 @@ import com.smartrek.requests.TripUpdateRequest;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.datetime.RecurringTime;
 
-public final class TripSaveDialog extends AlertDialog {
+public final class TripEditDialog extends AlertDialog {
 	
 	/**
 	 * Dialog action listener
@@ -76,26 +76,26 @@ public final class TripSaveDialog extends AlertDialog {
 	 * @param origin
 	 * @param destination
 	 */
-	public TripSaveDialog(Context context, Address origin, Address destination) {
+	public TripEditDialog(Context context, Address origin, Address destination) {
 		super(context);
 		this.origin = origin;
 		this.destination = destination;
 	}
 	
 	/**
-	 * When an instance of Trip is given, this dialog will triger an edit mode.
+	 * When an instance of Trip is given, this dialog will trigger an edit mode.
 	 * 
 	 * @param context
 	 * @param trip
 	 */
-	public TripSaveDialog(Context context, Trip trip) {
+	public TripEditDialog(Context context, Trip trip) {
 		super(context);
 		this.trip = trip;
 
 		// FIXME: I think Trip should have a userID field.
 		int uid = User.getCurrentUser(context).getId();
-		this.origin = new Address(trip.getOriginID(), uid, "", trip.getOrigin());
-		this.destination = new Address(trip.getDestinationID(), uid, "", trip.getDestination());
+		this.origin = new Address(trip.getOriginID(), uid, "", trip.getOrigin(), 0, 0);
+		this.destination = new Address(trip.getDestinationID(), uid, "", trip.getDestination(), 0, 0);
 	}
 	
 	@Override
@@ -137,7 +137,7 @@ public final class TripSaveDialog extends AlertDialog {
 		setTitle(isEditMode() ? res.getString(R.string.edit_trip) : res.getString(R.string.save_trip));
 		
 		setButton(DialogInterface.BUTTON_POSITIVE,
-				isEditMode() ? res.getString(R.string.ok) : res.getString(R.string.add),
+				res.getString(isEditMode() ? R.string.ok : R.string.add),
 				new OnClickListener() {
 			
 			@Override
@@ -202,9 +202,9 @@ public final class TripSaveDialog extends AlertDialog {
 			
 			@Override
 			public void onClickPositiveButton(RecurringTime recurringTime) {
-				TripSaveDialog.this.hour = recurringTime.getHour();
-				TripSaveDialog.this.minute = recurringTime.getMinute();
-				TripSaveDialog.this.weekdays = recurringTime.getWeekdays();
+				TripEditDialog.this.hour = recurringTime.getHour();
+				TripEditDialog.this.minute = recurringTime.getMinute();
+				TripEditDialog.this.weekdays = recurringTime.getWeekdays();
 			}
 			
 			@Override
