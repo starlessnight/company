@@ -64,7 +64,7 @@ public final class RouteActivity extends Activity {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
-    private RouteInfoOverlay[] routeOverlays = new RouteInfoOverlay[3];
+    private RouteInfoOverlay[] routeInfoOverlays = new RouteInfoOverlay[3];
     private RoutePathOverlay[] routePathOverlays = new RoutePathOverlay[3];
     
     private String originAddr;
@@ -203,8 +203,8 @@ public final class RouteActivity extends Activity {
                 Log.d(LOG_TAG, "Column state: " + timeLayout.getColumnState(column));
                 
                 // FIXME: Refactor this. (Close all route info overlays)
-                for (int i = 0; i < routeOverlays.length; i++) {
-                	RouteInfoOverlay routeInfoOverlay = routeOverlays[i];
+                for (int i = 0; i < routeInfoOverlays.length; i++) {
+                	RouteInfoOverlay routeInfoOverlay = routeInfoOverlays[i];
                 	
                 	if (routeInfoOverlay != null) {
                 		routeInfoOverlay.hide();
@@ -320,6 +320,14 @@ public final class RouteActivity extends Activity {
                 range = drawRoute(mapView, route, i);
             }
             
+            // Overlays must be drawn in orders
+            for (int i = 0; i < possibleRoutes.size(); i++) {
+            	mapOverlays.add(routePathOverlays[i]);
+            }
+            for (int i = 0; i < possibleRoutes.size(); i++) {
+            	mapOverlays.add(routeInfoOverlays[i]);
+            }
+            
             /* Get the MapController set the midpoint and range */
             MapController mc = mapView.getController();
             //mc.animateTo(mid);
@@ -412,7 +420,7 @@ public final class RouteActivity extends Activity {
         }
         
         routePathOverlays[routeNum] = new RoutePathOverlay(this, route, RoutePathOverlay.COLORS[routeNum]);
-        mapOverlays.add(routePathOverlays[routeNum]);
+        //mapOverlays.add(routePathOverlays[routeNum]);
         
         /* Set values into route to be passed to next Activity */
         route.setAddresses(originAddr, destAddr);
@@ -420,9 +428,9 @@ public final class RouteActivity extends Activity {
         // FIXME:
         route.setUserId(User.getCurrentUser(this).getId());
         
-        routeOverlays[routeNum] = new RouteInfoOverlay(mapView, route, routeNum, new GeoPoint(lat, lon));
-        routeOverlays[routeNum].setCallback(new RouteOverlayCallbackImpl(route, routeNum));
-        mapOverlays.add(routeOverlays[routeNum]);
+        routeInfoOverlays[routeNum] = new RouteInfoOverlay(mapView, route, routeNum, new GeoPoint(lat, lon));
+        routeInfoOverlays[routeNum].setCallback(new RouteOverlayCallbackImpl(route, routeNum));
+        //mapOverlays.add(routeOverlays[routeNum]);
         
         /* Add offset of 1000 to range so that map displays extra space around route. */
         int [] range = {latMax - latMin + 1500 ,lonMax - lonMin + 1500};
@@ -453,7 +461,7 @@ public final class RouteActivity extends Activity {
     }
     
     private void setHighlightedRoutePathOverlays(boolean highlighted) {
-        for (int i = 0; i < routeOverlays.length; i++) {
+        for (int i = 0; i < routeInfoOverlays.length; i++) {
             RoutePathOverlay overlay = routePathOverlays[i];
             
             if (overlay != null) {
@@ -658,7 +666,7 @@ public final class RouteActivity extends Activity {
             // Highlight selected route path
         	setHighlightedRoutePathOverlays(false);
             routePathOverlays[routeNum].setHighlighted(true);
-            mapView.getController().setCenter(routeOverlays[routeNum].getGeoPoint());
+            mapView.getController().setCenter(routeInfoOverlays[routeNum].getGeoPoint());
             
             return true;
         }
