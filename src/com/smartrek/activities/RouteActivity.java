@@ -17,6 +17,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
@@ -55,6 +56,8 @@ import com.smartrek.utils.RouteNode;
  *
  */
 public final class RouteActivity extends Activity {
+	
+	public static final String LOG_TAG = "RouteActivity";
 	
 	public static final String ORIGIN_ADDR = "originAddr";
 	public static final String DEST_ADDR = "destAddr";
@@ -197,7 +200,7 @@ public final class RouteActivity extends Activity {
         timeLayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
             @Override
             public void onSelect(int column, TimeColumn timeButton) {
-                Log.d("RouteActivity", "Column state: " + timeLayout.getColumnState(column));
+                Log.d(LOG_TAG, "Column state: " + timeLayout.getColumnState(column));
                 
                 // FIXME: Refactor this. (Close all route info overlays)
                 for (int i = 0; i < routeOverlays.length; i++) {
@@ -271,12 +274,14 @@ public final class RouteActivity extends Activity {
     
     @Override
     public void onBackPressed() {
+    	Resources res = getResources();
+    	
         // Ask the user if they want to quit
         new AlertDialog.Builder(this)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle("Confirm")
                 .setMessage("Are you sure you want to go back to previous screen?")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                .setPositiveButton(res.getString(R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         
@@ -289,7 +294,7 @@ public final class RouteActivity extends Activity {
                         RouteActivity.this.finish();
                     }
 
-                }).setNegativeButton("No", null).show();
+                }).setNegativeButton(res.getString(R.string.no), null).show();
     }
     
     /**
@@ -324,7 +329,7 @@ public final class RouteActivity extends Activity {
             mapView.postInvalidate();
         }
         else {
-        	Log.d("RouteActivity", "updateMap(): no route available.");
+        	Log.d(LOG_TAG, "updateMap(): no route available.");
         }
     }
     
@@ -543,7 +548,9 @@ public final class RouteActivity extends Activity {
             timeLayout.setColumnState(selectedColumn, TimeButton.State.InProgress);
             
             dialog = new CancelableProgressDialog(RouteActivity.this, "Finding routes...");
-	        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+	        dialog.setButton(DialogInterface.BUTTON_NEGATIVE,
+	        		getResources().getString(R.string.cancel),
+	        		new DialogInterface.OnClickListener() {
 
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
