@@ -32,7 +32,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     
     private int selectedColumn = 0;
     
-    private int columnCount = 20;
+    private int columnCount;
     
     private TimeLayoutListener timeLayoutListener;
 
