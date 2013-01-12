@@ -22,7 +22,7 @@ import android.widget.TextView;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Route;
 import com.smartrek.receivers.ReservationReceiver;
-import com.smartrek.requests.ReservationMapper;
+import com.smartrek.requests.ReservationRequest;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.Cache;
 import com.smartrek.utils.ExceptionHandlingService;
@@ -158,10 +158,9 @@ public final class ReservationConfirmationActivity extends Activity {
 
 		@Override
 		protected Object doInBackground(Object... params) {
-			ReservationMapper mapper = new ReservationMapper();
-			
+			ReservationRequest request = new ReservationRequest(route);
 			try {
-				mapper.reserveRoute(route);
+				request.execute();
 			}
 			catch (Exception e) {
 				ehs.registerException(e);
