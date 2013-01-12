@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
-import com.smartrek.requests.ReservationMapper;
+import com.smartrek.requests.RouteValidationRequest;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.StringUtil;
@@ -110,9 +110,9 @@ public class ValidationReportActivity extends Activity {
 			int uid = (Integer) params[0];
 			int rid = (Integer) params[1];
 			
-			ReservationMapper mapper = new ReservationMapper();
+			RouteValidationRequest request = new RouteValidationRequest(uid, rid);
 			try {
-				mapper.reportValidation(uid, rid);
+				request.execute();
 			}
 			catch (IOException e) {
 				ehs.registerException(e);

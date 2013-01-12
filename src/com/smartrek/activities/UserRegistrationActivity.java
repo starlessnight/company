@@ -13,7 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.smartrek.models.User;
-import com.smartrek.requests.UserMapper;
+import com.smartrek.requests.UserRegistrationRequest;
 import com.smartrek.utils.ExceptionHandlingService;
 
 public final class UserRegistrationActivity extends Activity {
@@ -111,9 +111,9 @@ public final class UserRegistrationActivity extends Activity {
 		protected Object doInBackground(Object... params) {
 			
 			User user = (User) params[0];
-			UserMapper mapper = new UserMapper();
+			UserRegistrationRequest request = new UserRegistrationRequest();
 			try {
-				mapper.register(user);
+				request.execute(user);
 			}
 			catch (IOException e) {
 				ehs.registerException(e);

@@ -629,7 +629,7 @@ public final class RouteActivity extends Activity {
                 //timeLayout.setColumnState(selectedColumn, State.None);
                 
                 if (selectedColumn == 0) {
-                    for (int i = 1; i < 9; i++) {
+                    for (int i = 1; i < Math.min(9, timeLayout.getColumnCount()); i++) {
                         long departureTime = timeLayout.getDepartureTime(i);
                         new RouteTask(originCoord, destCoord, departureTime, i, false).execute();
                     }

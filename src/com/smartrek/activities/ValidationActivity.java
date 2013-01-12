@@ -43,7 +43,7 @@ import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
-import com.smartrek.requests.RouteMapper;
+import com.smartrek.requests.SendTrajectoryRequest;
 import com.smartrek.ui.NavigationView;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.PointOverlay;
@@ -555,16 +555,14 @@ public class ValidationActivity extends Activity {
     
     private class SendTrajectoryTask extends AsyncTask<Object, Object, Object> {
 
-        private RouteMapper mapper = new RouteMapper();
-        
         @Override
         protected Object doInBackground(Object... params) {
             int seq = (Integer) params[0];
             int uid = (Integer) params[1];
             
-            Log.d("ValidationActivity", "sendTrajectory()");
+            SendTrajectoryRequest request = new SendTrajectoryRequest();
             try {
-                mapper.sendTrajectory(seq, uid, route.getId(), trajectory);
+            	request.execute(seq, uid, route.getId(), trajectory);
             }
             catch (Exception e) {
                 ehs.registerException(e);

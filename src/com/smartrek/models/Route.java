@@ -14,7 +14,6 @@ import android.os.Parcelable;
 import android.text.format.Time;
 import android.util.Log;
 
-import com.smartrek.requests.RouteMapper;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.NaiveNNS;
 import com.smartrek.utils.RouteLink;
@@ -75,7 +74,7 @@ public final class Route implements Parcelable {
             routeNodes.add(node);
         }
         
-        RouteMapper.buildRouteNodeReferenceChain(routeNodes);
+        buildRouteNodeReferenceChain(routeNodes);
         
         // Route ID
         int rid = routeObject.getInt("RID");
@@ -113,7 +112,7 @@ public final class Route implements Parcelable {
 		uid = in.readInt();
 		credits = in.readInt();
 		
-		RouteMapper.buildRouteNodeReferenceChain(routeNodes);
+		buildRouteNodeReferenceChain(routeNodes);
 	}
 	
 	public Route (ArrayList<RouteNode> locs, int rid, long departureTime, int duration) {
@@ -218,7 +217,7 @@ public final class Route implements Parcelable {
 	}
 	
 	public void setNodes(JSONArray nodes) throws JSONException {
-	    routeNodes = RouteMapper.buildRouteNodes(nodes);
+	    routeNodes = buildRouteNodes(nodes);
 	}
 	
 	public int getId(){
@@ -513,4 +512,35 @@ public final class Route implements Parcelable {
 //		
 //		return new String(buf);
 //	}
+	
+	public static void buildRouteNodeReferenceChain(List<RouteNode> nodes) {
+		RouteNode prevNode = null;
+		for(int i = 0; i < nodes.size(); i++) {
+			RouteNode node = nodes.get(i);
+			node.setPrevNode(prevNode);
+			node.setNodeIndex(i);
+			
+			if (prevNode != null) {
+				prevNode.setNextNode(node);
+			}
+			
+			prevNode = node;
+		}
+	}
+	
+	public static List<RouteNode> buildRouteNodes(JSONArray array) throws JSONException {
+	    List<RouteNode> nodes = new ArrayList<RouteNode>();
+	    
+	    for (int i = 0; i < array.length(); i++) {
+	        JSONObject obj = (JSONObject) array.get(i);
+	        double latitude = obj.getDouble("LATITUDE");
+	        double longitude = obj.getDouble("LONGITUDE");
+	        int nodeId = obj.getInt("NODEID");
+	        RouteNode node = new RouteNode(latitude, longitude, 0, nodeId);
+	        
+	        nodes.add(node);
+	    }
+	    
+	    return nodes;
+	}
 }
