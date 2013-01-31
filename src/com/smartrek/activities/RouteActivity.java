@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Vector;
 
 import org.json.JSONException;
+import org.osmdroid.tileprovider.tilesource.ITileSource;
+import org.osmdroid.tileprovider.tilesource.XYTileSource;
 import org.osmdroid.tileprovider.util.CloudmadeUtil;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
@@ -174,7 +176,11 @@ public final class RouteActivity extends Activity {
         mapView = (MapView) findViewById(R.id.mapview);
         mapView.setBuiltInZoomControls(false);
         mapView.setMultiTouchControls(true);
-        CloudmadeUtil.retrieveCloudmadeKey(this);
+        //CloudmadeUtil.retrieveCloudmadeKey(this);
+        
+        final ITileSource tileSource = new XYTileSource("Custom", null, 3, 18, 256, "", "http://maps.suminb.com/tiles/");
+
+        mapView.setTileSource(tileSource);
         
         /* Set the map view for a view of North America before zooming in on route */
         MapController mc = mapView.getController();
