@@ -54,6 +54,7 @@ import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.PrerecordedTrajectory;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
+import com.smartrek.utils.SmartrekTileProvider;
 import com.smartrek.utils.SystemService;
 import com.smartrek.utils.ValidationParameters;
 
@@ -230,6 +231,7 @@ public class ValidationActivity extends Activity {
         CloudmadeUtil.retrieveCloudmadeKey(this);
         mapView.setBuiltInZoomControls(false);
         mapView.setMultiTouchControls(true);
+        mapView.setTileSource(new SmartrekTileProvider());
         mapView.setOnTouchListener(new OnTouchListener() {
             
             @Override

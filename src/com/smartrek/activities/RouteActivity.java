@@ -52,6 +52,7 @@ import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Geocoding;
 import com.smartrek.utils.RouteNode;
+import com.smartrek.utils.SmartrekTileProvider;
 
 /**
  * 
@@ -176,11 +177,7 @@ public final class RouteActivity extends Activity {
         mapView = (MapView) findViewById(R.id.mapview);
         mapView.setBuiltInZoomControls(false);
         mapView.setMultiTouchControls(true);
-        //CloudmadeUtil.retrieveCloudmadeKey(this);
-        
-        final ITileSource tileSource = new XYTileSource("Custom", null, 3, 18, 256, "", "http://maps.suminb.com/tiles/");
-
-        mapView.setTileSource(tileSource);
+        mapView.setTileSource(new SmartrekTileProvider());
         
         /* Set the map view for a view of North America before zooming in on route */
         MapController mc = mapView.getController();
