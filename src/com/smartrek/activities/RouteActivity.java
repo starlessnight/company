@@ -1,6 +1,7 @@
 package com.smartrek.activities;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -306,19 +307,26 @@ public final class RouteActivity extends Activity {
     private void updateMap(List<Route> possibleRoutes) {
     	
         if(possibleRoutes != null && possibleRoutes.size() > 0) {
-            /* Get a midpoint to center the view of  the routes */
-            GeoPoint mid = getMidPoint(possibleRoutes.get(0).getNodes());
             
-            /* range holds 2 points consisting of the lat/lon range to be displayed */
-            int[] range = null;
+            List<RouteNode> nodes = new ArrayList<RouteNode>(); 
             
             /* Iterate through the routes to draw each to the screen */
             for (int i = 0; i < possibleRoutes.size(); i++) {
                 Route route = possibleRoutes.get(i);
             
                 /* Draw the route to the screen and hold on to the range */
-                range = drawRoute(mapView, route, i);
+                drawRoute(mapView, route, i);
+                
+                nodes.addAll(route.getNodes());
             }
+            
+            RouteRect routeRect = new RouteRect(nodes);
+            
+            /* Get a midpoint to center the view of  the routes */
+            GeoPoint mid = routeRect.getMidPoint();
+            
+            /* range holds 2 points consisting of the lat/lon range to be displayed */
+            int[] range = routeRect.getRange();
             
             // Overlays must be drawn in orders
             for (int i = 0; i < possibleRoutes.size(); i++) {
@@ -330,9 +338,8 @@ public final class RouteActivity extends Activity {
             
             /* Get the MapController set the midpoint and range */
             MapController mc = mapView.getController();
-            //mc.animateTo(mid);
-            mc.setCenter(mid);
             mc.zoomToSpan(range[0], range[1]);
+            mc.setCenter(mid); // setCenter only works properly after zoomToSpan
             
             mapView.postInvalidate();
         }
@@ -439,25 +446,41 @@ public final class RouteActivity extends Activity {
         return range;
     }
     
-    /***************************************************************************************************************
-     * ****************** private GeoPoint getMidPoint (RouteNode r1, RouteNode r2) ********************************
-     *
-     * This is a private helper method to obtain a mid point between the first and last nodes in the list of nodes. 
-     * This value is used as a center point point for the map view. 
-     *
-     * @param r1    The first RouteNode in the list of RouteNodes 
-     * 
-     * @param r2    The last RouteNode in the list of RouteNodes 
-     *
-     * @return A GeoPoint representing the mid point between the first and last node in the route.
-     *
-     ***************************************************************************************************************/
-    private GeoPoint getMidPoint (List<RouteNode> nodes) {
-        GeoPoint p1 = nodes.get(0).getGeoPoint(); 
-        GeoPoint p2 = nodes.get(nodes.size()-1).getGeoPoint();
-        int midLat = (p1.getLatitudeE6() + p2.getLatitudeE6())/2;
-        int midLong = (p1.getLongitudeE6() + p2.getLongitudeE6())/2;
-        return new GeoPoint(midLat,midLong);
+    private static class RouteRect {
+    	
+    	int latMax;
+    	int lonMax;
+    	int latMin;
+    	int lonMin;
+    	
+    	RouteRect(List<RouteNode> nodes) {
+            int latMax = (int) (-81 * 1E6);
+            int lonMax = (int) (-181 * 1E6);
+            int latMin = (int) (+81 * 1E6);
+            int lonMin = (int) (+181 * 1E6);
+            for (int i = 0; i < nodes.size() - 1; i++) {
+                GeoPoint point = nodes.get(i).getGeoPoint();
+                int curLat = point.getLatitudeE6();
+                int curLon = point.getLongitudeE6();
+                latMax = Math.max(latMax, curLat);
+                lonMax = Math.max(lonMax, curLon);
+                latMin = Math.min(latMin, curLat);
+                lonMin = Math.min(lonMin, curLon);
+            }
+            this.latMax = latMax;
+            this.lonMax = lonMax;
+            this.latMin = latMin;
+            this.lonMin = lonMin;
+        }
+        
+        GeoPoint getMidPoint(){
+        	return new GeoPoint((latMax + latMin) / 2, (lonMax + lonMin) / 2);
+        }
+        
+        int[] getRange(){
+        	return new int[]{latMax - latMin, lonMax - lonMin};
+        }
+    	
     }
     
     private void setHighlightedRoutePathOverlays(boolean highlighted) {
