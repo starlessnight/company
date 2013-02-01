@@ -35,8 +35,7 @@ public final class SetReminderDialog extends AlertDialog {
 
 	protected SetReminderDialog(Context context, RecurringTime recurringTime) {
 		super(context);
-		// TODO: I don't think this is a good practice (new RecurringTime() part)
-		this.recurringTime = recurringTime; // != null ? recurringTime : new RecurringTime();
+		this.recurringTime = recurringTime != null ? recurringTime : new RecurringTime();
 	}
 
 	@Override

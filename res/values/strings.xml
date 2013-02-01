@@ -36,6 +36,7 @@
     <!-- Trip -->
     <string name="trip_has_expired">Your trip has expired.</string>
     <string name="trip_too_early_to_start">It is too early to start your trip.</string>
+    <string name="enter_trip_name">Please enter a trip name.</string>
 
     <!-- *************************************************************************************** -->
     <!-- *************************************************************************************** -->

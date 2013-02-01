@@ -23,7 +23,7 @@ public class RoutePathOverlay extends Overlay {
 	/**
 	 * Green, blue, dark gray
 	 */
-	public static final int COLORS[] = {0xFFC0D44E, 0xFF7DBCE8, 0xFF232A2E};
+	public static final int COLORS[] = {0xFFB4D400, 0xFF0089E8, 0xFF232A2E};
 	
 	private Route route;
 	private int color;

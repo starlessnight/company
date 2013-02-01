@@ -167,16 +167,21 @@ public final class TripEditDialog extends AlertDialog {
 
 			@Override
 			public void onClick(View v) {
-				User currentUser = User.getCurrentUser(getContext());
-				if (isEditMode()) {
-					new TripSaveTask(getContext(), trip.getId(), currentUser.getId(), getName(), getOrigin(), getDestination(), new RecurringTime((byte)hour, (byte)minute, (byte)0, weekdays)).execute();
-				}
-				else {
-					new TripSaveTask(getContext(), 0, currentUser.getId(), getName(), getOrigin(), getDestination(), new RecurringTime((byte)hour, (byte)minute, (byte)0, weekdays)).execute();
-				}
-				
-				if (actionListener != null) {
-					actionListener.onClickPositiveButton(getName(), getOrigin(), getDestination());
+				String name = getName();
+				if(name.length() == 0){
+					Toast.makeText(getContext(), R.string.enter_trip_name, Toast.LENGTH_LONG).show();
+				}else{
+					User currentUser = User.getCurrentUser(getContext());
+					if (isEditMode()) {
+						new TripSaveTask(getContext(), trip.getId(), currentUser.getId(), name, getOrigin(), getDestination(), new RecurringTime((byte)hour, (byte)minute, (byte)0, weekdays)).execute();
+					}
+					else {
+						new TripSaveTask(getContext(), 0, currentUser.getId(), name, getOrigin(), getDestination(), new RecurringTime((byte)hour, (byte)minute, (byte)0, weekdays)).execute();
+					}
+					
+					if (actionListener != null) {
+						actionListener.onClickPositiveButton(name, getOrigin(), getDestination());
+					}
 				}
 			}
 			
