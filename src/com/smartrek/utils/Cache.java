@@ -2,6 +2,7 @@ package com.smartrek.utils;
 
 import java.util.Hashtable;
 
+import android.os.SystemClock;
 import android.util.Log;
 
 /**
@@ -59,12 +60,12 @@ public final class Cache {
 	}
 	
 	public boolean isValid(Data data) {
-		return data != null && data.expires > System.currentTimeMillis();
+		return data != null && data.expires > SystemClock.elapsedRealtime();
 	}
 	
 	public void put(String key, Object value) {
 		Data data = new Data();
-		data.expires = System.currentTimeMillis() + TTL*1000;
+		data.expires = SystemClock.elapsedRealtime() + TTL*1000;
 		data.userdata = value;
 		storage.put(key, data);
 	}
