@@ -1,11 +1,8 @@
 package com.smartrek.activities;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,13 +12,10 @@ import android.widget.EditText;
 
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.User;
-import com.smartrek.requests.UserLoginRequest;
-import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.tasks.LoginTask;
 import com.smartrek.utils.Preferences;
 
 public final class LoginActivity extends Activity implements OnClickListener {
-    
-    private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
 	private EditText editTextUsername;
 	private EditText editTextPassword;
@@ -30,9 +24,6 @@ public final class LoginActivity extends Activity implements OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_login);
-        
-        /* Check Shared memory to see if login info has already been entered on this phone */
-        checkSharedPreferences();
         
         /* If it hasn't set up the login screen */
         
@@ -47,19 +38,6 @@ public final class LoginActivity extends Activity implements OnClickListener {
         editTextUsername = (EditText) findViewById(R.id.username_box);
         editTextPassword = (EditText) findViewById(R.id.pwd_box);
        
-    }
-    
-    private void checkSharedPreferences() {
-    	SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
-    	String username = loginPrefs.getString(User.USERNAME, "");
-    	String password = loginPrefs.getString(User.PASSWORD, "");
-    	
-    	if (!username.equals("") && !password.equals("")) {
-    		SharedPreferences prefs = Preferences.getGlobalPreferences(this);
-    		String gcmRegistrationId = prefs.getString("GCMRegistrationID", "");
-    		
-    		new LoginTask(username, password, gcmRegistrationId).execute();
-    	}
     }
     
     @Override
@@ -81,7 +59,29 @@ public final class LoginActivity extends Activity implements OnClickListener {
 		loginPrefsEditor.putString(User.PASSWORD, password);
 		loginPrefsEditor.commit();
 		
-		new LoginTask(username, password, gcmRegistrationId).execute();
+		new LoginTask(this, username, password, gcmRegistrationId){
+            @Override
+            protected void onPostLogin(User user) {
+                if(user != null && user.getId() != -1) {
+                    Log.d("Login_Activity","Successful Login");
+                    Log.d("Login_Activity", "Saving Login Info to Shared Preferences");
+
+                    User.setCurrentUser(LoginActivity.this, user);
+                    
+                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                    LoginActivity.this.startActivity(intent);
+                }
+                else {
+//                  Log.d("Login_Activity", "Failed Login User: " + user.getUsername());
+//                  TextView loginfail_text = (TextView) findViewById(R.id.failed_login);
+//                  loginfail_text.setVisibility(View.VISIBLE);
+                    editTextPassword.setText("");
+                    
+                    NotificationDialog notificationDialog = new NotificationDialog(LoginActivity.this, "The username or password you entered is not valid.");
+                    notificationDialog.show();
+                }                
+            }
+		}.execute();
 	}
 	
 	Button.OnClickListener registerButtonClickListener = new Button.OnClickListener() {
@@ -94,76 +94,5 @@ public final class LoginActivity extends Activity implements OnClickListener {
 			startActivity(intent);
 		}
 	};
-	
-	/**
-	 * Methods in this class will be executed asynchronously. 
-	 */
-	private class LoginTask extends AsyncTask<String, Object, User> {
-		
-		private ProgressDialog dialog;
-		
-		private String username;
-		private String password;
-		private String gcmRegistrationId;
-		
-		public LoginTask(String username, String password, String gcmRegistrationId) {
-			super();
-			
-			this.username = username;
-			this.password = password;
-			this.gcmRegistrationId = gcmRegistrationId;
-
-			dialog = new ProgressDialog(LoginActivity.this);
-			dialog.setTitle("Smartrek");
-			dialog.setMessage(String.format("Logging in as '%s'...", username));
-		}
-		
-		@Override
-		protected void onPreExecute() {
-			dialog.show();
-		}
-
-		@Override
-		protected User doInBackground(String... params) {
-			User user = null;
-			try {
-				UserLoginRequest request = new UserLoginRequest(username, password, gcmRegistrationId);
-				user = request.execute();
-			}
-			catch(Exception e) {
-				ehs.registerException(e);
-			}
-			
-			if(user == null) {
-				user = new User(-1, username);
-			}
-
-			return user;
-		}
-		
-		@Override
-		protected void onPostExecute(User user) {
-		    dialog.cancel();
-		    
-			if(user != null && user.getId() != -1) {
-				Log.d("Login_Activity","Successful Login");
-				Log.d("Login_Activity", "Saving Login Info to Shared Preferences");
-
-				User.setCurrentUser(LoginActivity.this, user);
-				
-				Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-				startActivity(intent);
-			}
-			else {
-//				Log.d("Login_Activity", "Failed Login User: " + user.getUsername());
-//				TextView loginfail_text = (TextView) findViewById(R.id.failed_login);
-//				loginfail_text.setVisibility(View.VISIBLE);
-				editTextPassword.setText("");
-				
-				NotificationDialog notificationDialog = new NotificationDialog(LoginActivity.this, "The username or password you entered is not valid.");
-				notificationDialog.show();
-			}
-		}
-	}
 
 }
