@@ -1,6 +1,5 @@
 package com.smartrek.utils;
 
-import com.smartrek.utils.datetime.TimeRange;
 
 /**
  * Manages configurable parameters for route validation
@@ -27,8 +26,6 @@ public class ValidationParameters {
 	 * Users may depart before (departure time) + (threshold). Unit is in seconds.
 	 */
 	private int departureTimePositiveThreshold = 60*15;
-	
-	private TimeRange timeRange;
 	
 	/**
 	 * Unit is in meters.
