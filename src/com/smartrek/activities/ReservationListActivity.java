@@ -24,7 +24,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
 import com.smartrek.requests.ReservationListFetchRequest;
@@ -63,10 +63,16 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	}
 	
 	@Override
-	protected void onStart() {
-	    super.onStart();
-	    
-	    requestRefresh(true);
+	public void onStart() {
+		super.onStart();
+		EasyTracker.getInstance().activityStart(this);
+		requestRefresh(true);
+	}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+		EasyTracker.getInstance().activityStop(this);
 	}
 	
 	@Override

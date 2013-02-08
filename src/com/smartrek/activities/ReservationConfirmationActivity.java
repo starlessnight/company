@@ -19,6 +19,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Route;
 import com.smartrek.receivers.ReservationReceiver;
@@ -85,6 +86,18 @@ public final class ReservationConfirmationActivity extends Activity {
 			}
         });
         
+	}
+	
+	@Override
+	public void onStart() {
+		super.onStart();
+		EasyTracker.getInstance().activityStart(this);
+	}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+		EasyTracker.getInstance().activityStop(this);
 	}
 	
     @Override

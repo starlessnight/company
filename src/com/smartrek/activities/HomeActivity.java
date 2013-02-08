@@ -27,11 +27,12 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
 import com.smartrek.dialogs.NotificationDialog;
-import com.smartrek.dialogs.TripListDialog;
 import com.smartrek.dialogs.TripEditDialog;
+import com.smartrek.dialogs.TripListDialog;
 import com.smartrek.models.Address;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Trip;
@@ -238,6 +239,18 @@ public final class HomeActivity extends Activity {
 	    });
 
 	    new NotificationTask().execute(User.getCurrentUser(this).getId());
+	}
+	
+	@Override
+	public void onStart() {
+		super.onStart();
+		EasyTracker.getInstance().activityStart(this);
+	}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+		EasyTracker.getInstance().activityStop(this);
 	}
 	
 	private TripListDialog tripListDialog;

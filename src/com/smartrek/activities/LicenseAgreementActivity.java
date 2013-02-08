@@ -8,6 +8,7 @@ import android.view.View.OnClickListener;
 import android.webkit.WebView;
 import android.widget.Button;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.utils.Preferences;
 
 public class LicenseAgreementActivity extends Activity {
@@ -68,4 +69,16 @@ public class LicenseAgreementActivity extends Activity {
         webviewContent = (WebView) findViewById(R.id.webview_content);
         webviewContent.loadUrl("file:///android_asset/license.html");
     }
+    
+	@Override
+	public void onStart() {
+		super.onStart();
+		EasyTracker.getInstance().activityStart(this);
+	}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+		EasyTracker.getInstance().activityStop(this);
+	}
 }

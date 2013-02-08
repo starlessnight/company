@@ -10,6 +10,7 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.google.android.gcm.GCMRegistrar;
 import com.smartrek.models.User;
 import com.smartrek.tasks.LoginTask;
@@ -80,6 +81,8 @@ public class MainActivity extends Activity implements AnimationListener {
 	protected void onStart() {
 		super.onStart();
 		
+		EasyTracker.getInstance().activityStart(this);
+		
 		GCMRegistrar.checkDevice(this);
 		GCMRegistrar.checkManifest(this);
 		final String regId = GCMRegistrar.getRegistrationId(this);
@@ -90,6 +93,12 @@ public class MainActivity extends Activity implements AnimationListener {
 		else {
 			Log.v(LOG_TAG, "Already registered to GCM.");
 		}
+	}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+		EasyTracker.getInstance().activityStop(this);
 	}
 
 	@Override

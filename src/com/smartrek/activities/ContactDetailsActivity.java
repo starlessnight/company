@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.models.User;
 
 public final class ContactDetailsActivity extends Activity {
@@ -34,5 +35,17 @@ public final class ContactDetailsActivity extends Activity {
 		
 		textViewEmail = (TextView) findViewById(R.id.textViewEmail);
 		textViewEmail.setText(user.getEmail());
+	}
+	
+	@Override
+	public void onStart() {
+		super.onStart();
+		EasyTracker.getInstance().activityStart(this);
+	}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+		EasyTracker.getInstance().activityStop(this);
 	}
 }

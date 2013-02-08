@@ -30,6 +30,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.exceptions.RouteNotFoundException;
 import com.smartrek.models.Route;
@@ -275,6 +276,18 @@ public final class RouteActivity extends Activity {
         
         new GeocodingTask(ehs, originGeocodingTaskCallback).execute(originAddr);
     }
+    
+	@Override
+	public void onStart() {
+		super.onStart();
+		EasyTracker.getInstance().activityStart(this);
+	}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+		EasyTracker.getInstance().activityStop(this);
+	}
     
     @Override
     public void onBackPressed() {

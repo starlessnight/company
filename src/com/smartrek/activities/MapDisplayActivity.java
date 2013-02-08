@@ -1,5 +1,7 @@
 package com.smartrek.activities;
 
+import com.google.analytics.tracking.android.EasyTracker;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,7 +10,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.RadioButton;
 
-public class MapDisplayActivity extends Activity {
+public final class MapDisplayActivity extends Activity {
     
     /**
      * Name of the shared preference file
@@ -93,6 +95,18 @@ public class MapDisplayActivity extends Activity {
         timeIncrement15.setOnClickListener(timeIncrementListener);
         timeIncrement60.setOnClickListener(timeIncrementListener);
     }
+    
+	@Override
+	public void onStart() {
+		super.onStart();
+		EasyTracker.getInstance().activityStart(this);
+	}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+		EasyTracker.getInstance().activityStop(this);
+	}
     
     @Override
     public void onBackPressed() {

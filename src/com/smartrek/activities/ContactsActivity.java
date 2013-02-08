@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.adapters.ContactItemAdapter;
 import com.smartrek.models.User;
 import com.smartrek.tasks.AsyncTaskCallback;
@@ -47,6 +48,18 @@ public final class ContactsActivity extends ListActivity {
         	
         });
         task.execute(user.getId());
+	}
+	
+	@Override
+	public void onStart() {
+		super.onStart();
+		EasyTracker.getInstance().activityStart(this);
+	}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+		EasyTracker.getInstance().activityStop(this);
 	}
 	
 	@Override

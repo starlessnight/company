@@ -13,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
 import com.smartrek.requests.RouteValidationRequest;
@@ -22,7 +23,7 @@ import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.ValidationParameters;
 import com.smartrek.utils.datetime.HumanReadableTime;
 
-public class ValidationReportActivity extends Activity {
+public final class ValidationReportActivity extends Activity {
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
 	private Route route;
@@ -76,6 +77,18 @@ public class ValidationReportActivity extends Activity {
         
         textViewPoints = (TextView) findViewById(R.id.textViewPoints);
         textViewPoints.setText(String.format("%d", validated ? route.getCredits() : 0));
+	}
+	
+	@Override
+	public void onStart() {
+		super.onStart();
+		EasyTracker.getInstance().activityStart(this);
+	}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+		EasyTracker.getInstance().activityStop(this);
 	}
 	
     @Override

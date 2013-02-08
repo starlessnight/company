@@ -38,6 +38,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.ToggleButton;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
@@ -58,7 +59,7 @@ import com.smartrek.utils.SmartrekTileProvider;
 import com.smartrek.utils.SystemService;
 import com.smartrek.utils.ValidationParameters;
 
-public class ValidationActivity extends Activity {
+public final class ValidationActivity extends Activity {
     
     public static final int DEFAULT_ZOOM_LEVEL = 18;
     
@@ -141,7 +142,9 @@ public class ValidationActivity extends Activity {
     protected void onStart() {
     	super.onStart();
     	
-        if (reservation.hasExpired()) {
+    	EasyTracker.getInstance().activityStart(this);
+        
+    	if (reservation.hasExpired()) {
         	NotificationDialog dialog = new NotificationDialog(this, getResources().getString(R.string.trip_has_expired));
         	dialog.setActionListener(new NotificationDialog.ActionListener() {
 				
@@ -164,6 +167,12 @@ public class ValidationActivity extends Activity {
         	dialog.show();
         }
     }
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+		EasyTracker.getInstance().activityStop(this);
+	}
     
     @Override
     protected void onResume() {
