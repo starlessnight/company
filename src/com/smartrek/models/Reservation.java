@@ -160,8 +160,12 @@ public final class Reservation implements Parcelable {
 	 * @return True if (the current system time) > (departure time) + (grace period)
 	 */
 	public boolean hasExpired() {
-		return getDepartureTime() + (15*60*1000) < System.currentTimeMillis();
+		return getExpiryTime() < System.currentTimeMillis();
 	}
+	
+    public long getExpiryTime() {
+        return getDepartureTime() + (15*60*1000);
+    }
 	
 	/**
 	 * Determines whether it is too early to start the trip.

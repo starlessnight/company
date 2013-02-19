@@ -1,5 +1,6 @@
 package com.smartrek.receivers;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -77,7 +78,13 @@ public final class ReservationReceiver extends BroadcastReceiver {
             Notification notification = new Notification(R.drawable.icon_small, "Smartrek", route.getDepartureTime());
             notification.setLatestEventInfo(context, "Smartrek", "Your reserved trip is about to start", sender);
             notification.flags = Notification.FLAG_AUTO_CANCEL;
-            notificationManager.notify(0, notification);
+            notificationManager.notify(ReservationNotificationExpiry.NOTIFICATION_ID, notification);
+            
+            Intent expiry = new Intent(context, ReservationNotificationExpiry.class);
+            PendingIntent pendingExpiry = PendingIntent.getBroadcast(context, 
+                ReservationNotificationExpiry.REQUEST_CODE, expiry, PendingIntent.FLAG_UPDATE_CURRENT);
+            AlarmManager expiryMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            expiryMgr.set(AlarmManager.ELAPSED_REALTIME, reservation.getExpiryTime(), pendingExpiry);
         }
 		
 		/*
