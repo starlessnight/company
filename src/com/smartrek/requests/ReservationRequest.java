@@ -29,8 +29,8 @@ public class ReservationRequest extends Request {
 		buf.deleteCharAt(buf.length()-1);
 		buf.append("]");
 
-		Time t = new Time();
-		t.set(route.getDepartureTime());
+		Time t = new Time(TIME_ZONE);
+        t.set(route.getDepartureTime());
 		
 		url = String.format("%s/addreservations/?rid=%d&credits=%d&uid=%d&start_datetime=%s&estimatedTT=%d&origin_address=%s&destination_address=%s&route=%s",
 				HOST,

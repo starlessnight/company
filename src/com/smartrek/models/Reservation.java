@@ -3,9 +3,12 @@ package com.smartrek.models;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.smartrek.requests.Request;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -190,6 +193,7 @@ public final class Reservation implements Parcelable {
 		r.setRid(object.getInt("RID"));
 		
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+		dateFormat.setTimeZone(TimeZone.getTimeZone(Request.TIME_ZONE));
 		long departureTime = dateFormat.parse(object.getString("START_TIME")).getTime();
 		r.setDepartureTime(departureTime);
 
