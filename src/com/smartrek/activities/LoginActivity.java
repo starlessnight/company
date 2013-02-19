@@ -1,5 +1,7 @@
 package com.smartrek.activities;
 
+import java.net.ConnectException;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -76,8 +78,14 @@ public final class LoginActivity extends Activity implements OnClickListener {
 //                  TextView loginfail_text = (TextView) findViewById(R.id.failed_login);
 //                  loginfail_text.setVisibility(View.VISIBLE);
                     editTextPassword.setText("");
-                    
-                    NotificationDialog notificationDialog = new NotificationDialog(LoginActivity.this, "The username or password you entered is not valid.");
+                 
+                    String msg;
+                    if(ehs.hasExceptions() && ehs.popException().getException() instanceof ConnectException){
+                        msg = "Can't connect. Check your network.";
+                    }else{
+                        msg = "The username or password you entered is not valid.";
+                    }
+                    NotificationDialog notificationDialog = new NotificationDialog(LoginActivity.this, msg);
                     notificationDialog.show();
                 }                
             }

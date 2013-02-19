@@ -19,6 +19,7 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
 	private String password;
 	private String gcmRegistrationId;
 	private boolean dialogEnabled = true;
+	protected ExceptionHandlingService ehs;
 	
 	private Context ctx;
 	
@@ -29,6 +30,7 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
 		this.password = password;
 		this.gcmRegistrationId = gcmRegistrationId;
 		this.ctx = ctx;
+		ehs = new ExceptionHandlingService(ctx);
 		
 		dialog = new ProgressDialog(ctx);
         dialog.setTitle("Smartrek");
@@ -50,7 +52,7 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
 			user = request.execute();
 		}
 		catch(Exception e) {
-		    new ExceptionHandlingService(ctx).registerException(e);
+		    ehs.registerException(e);
 		}
 		
 		if(user == null) {
