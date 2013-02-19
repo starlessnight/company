@@ -122,6 +122,7 @@
             android:configChanges="keyboardHidden|orientation|screenLayout" />
 
         <receiver android:name="com.smartrek.receivers.ReservationReceiver" />
+        <receiver android:name="com.smartrek.receivers.ReservationNotificationExpiry" />
         <receiver
             android:name="com.google.android.gcm.GCMBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
