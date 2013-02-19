@@ -68,15 +68,17 @@ public final class ReservationReceiver extends BroadcastReceiver {
         reservationIntent.putExtra(RESERVATION_ID, reservationId);
         reservationIntent.putExtra("route", route);
         reservationIntent.putExtra(RESERVATION, reservation);
-        PendingIntent sender = PendingIntent.getActivity(context, 0, reservationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        
-        Notification notification = new Notification(R.drawable.icon_small, "Smartrek", route.getDepartureTime());
-        notification.setLatestEventInfo(context, "Smartrek", "Your reserved trip is about to start", sender);
-        notification.flags = Notification.FLAG_AUTO_CANCEL;
-        notificationManager.notify(0, notification);
-		
+        if(reservation.isEligibleTrip()){
+            PendingIntent sender = PendingIntent.getActivity(context, 0, reservationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            
+            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            
+            Notification notification = new Notification(R.drawable.icon_small, "Smartrek", route.getDepartureTime());
+            notification.setLatestEventInfo(context, "Smartrek", "Your reserved trip is about to start", sender);
+            notification.flags = Notification.FLAG_AUTO_CANCEL;
+            notificationManager.notify(0, notification);
+        }
 		
 		/*
 		
