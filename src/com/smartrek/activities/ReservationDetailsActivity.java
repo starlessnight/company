@@ -139,6 +139,8 @@ public final class ReservationDetailsActivity extends Activity {
             else if (reservation.isTooEarlyToStart()) {
             	textViewHelp.setText(getResources().getString(R.string.trip_too_early_to_start));
             }
+        } else{
+            textViewHelp.setVisibility(View.GONE);
         }
     }
     
