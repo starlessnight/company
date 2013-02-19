@@ -9,7 +9,7 @@ import org.osmdroid.tileprovider.tilesource.XYTileSource;
 final public class SmartrekTileProvider extends XYTileSource {
 
 	public SmartrekTileProvider() {
-		super("Custom", null, 3, 18, 256, "", "http://maps.suminb.com/tiles/");
+		super("Custom", null, 3, 18, 256, "", "http://tile.smartrekmobile.com/osm/");
 	}
 
 }
