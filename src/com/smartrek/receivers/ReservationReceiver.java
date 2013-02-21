@@ -70,7 +70,7 @@ public final class ReservationReceiver extends BroadcastReceiver {
         reservationIntent.putExtra("route", route);
         reservationIntent.putExtra(RESERVATION, reservation);
         
-        if(reservation.isEligibleTrip()){
+        if(reservation != null && reservation.isEligibleTrip()){
             PendingIntent sender = PendingIntent.getActivity(context, 0, reservationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
