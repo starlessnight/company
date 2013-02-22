@@ -8,10 +8,12 @@
     <string name="placeholder">(placeholder)</string>
     <string name="firstname">Firstname</string>
     <string name="lastname">Lastname</string>
+    <string name="login_logo_subtitle">working together to reduce traffic</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="password_confirmation">Password confirmation</string>
     <string name="login">Login</string>
+    <string name="create_account_link_text">Dont\'t have an account? &lt;u>Create one now&lt;/u></string>
     <string name="signup">Sign up</string>
     <string name="origin">Origin</string>
     <string name="destination">Destination</string>

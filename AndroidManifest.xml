@@ -62,7 +62,8 @@
             android:label="Smartrek EULA &amp; Terms of Service" />
         <activity
             android:name=".LoginActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout" />
+            android:configChanges="keyboardHidden|orientation|screenLayout"
+            android:theme="@android:style/Theme.NoTitleBar" />
         <activity
             android:name=".HomeActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout"

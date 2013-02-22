@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+   <item android:drawable="@drawable/green_button" />
+   <item 
+	android:right="10dp"
+	android:drawable="@drawable/login_button_icon" 
+  />
+</layer-list>

@@ -3,81 +3,96 @@
     android:id="@+id/LoginLayout"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/background_gradient"
-    android:orientation="vertical" >
-    
-        <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="10dp" >
-
-    <ImageView
-        android:id="@+id/smartrek"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:gravity="center_horizontal|center_vertical"
-        android:padding="15dp"
-        android:src="@drawable/login_logo" />
-
-    <EditText
-        android:id="@+id/username_box"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:layout_margin="12dp"
-        android:hint="@string/username"
-        android:singleLine="true" >
-
-        <requestFocus>
-        </requestFocus>
-    </EditText>
-
-    <EditText
-        android:id="@+id/pwd_box"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:layout_margin="12dp"
-        android:hint="@string/password"
-        android:inputType="textPassword" />
-
-    <TextView
-        android:id="@+id/failed_login"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal|center_vertical"
-        android:text="@string/failed_login"
-        android:textColor="#FFFFFFFF"
-        android:textSize="15dp"
-        android:visibility="invisible" />
+    android:background="@color/gray"
+    android:orientation="vertical"
+    android:fillViewport="true" >
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        android:gravity="right"
-        android:orientation="horizontal" >
-
-        <Button
-            android:id="@+id/new_user_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="8dp"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="@string/signup" />
-
-        <Button
-            android:id="@+id/login_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="@string/login" />
-    </LinearLayout>
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="vertical"
+	        android:focusable="true"
+	        android:focusableInTouchMode="true">
     
-    </LinearLayout>
+	    <RelativeLayout 
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content">
+	        
+		    <ImageView
+		        android:id="@+id/smartrek"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:src="@drawable/login_logo"
+		        android:layout_marginTop="40dp"
+		        android:layout_centerHorizontal="true" />
+	    
+		    <TextView
+		        android:layout_alignRight="@id/smartrek"
+		        android:layout_alignBottom="@id/smartrek"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="@string/login_logo_subtitle"
+		        android:textSize="11.5dp"
+		        style="@style/SmallestText"
+		    />
+		    
+		    <LinearLayout
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:orientation="vertical"
+		        android:layout_marginTop="60dp"
+		        android:layout_marginLeft="45dp"
+		        android:layout_marginRight="45dp"
+		        android:layout_below="@id/smartrek">
+		    
+			    <EditText
+			        android:id="@+id/username_box"
+			        android:layout_width="match_parent"
+			        android:layout_height="wrap_content"
+			        android:layout_gravity="right"
+			        android:hint="@string/username"
+			        android:singleLine="true"
+			        style="@style/DualTextFieldFirst" />
+			
+			    <EditText
+			        android:id="@+id/pwd_box"
+			        android:layout_width="match_parent"
+			        android:layout_height="wrap_content"
+			        android:layout_gravity="right"
+			        android:hint="@string/password"
+			        android:inputType="textPassword"
+			        style="@style/DualTextFieldSecond" />
+			    
+			    <Button
+		            android:id="@+id/login_button"
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content"
+		            android:layout_marginTop="15dp"
+		            android:text="@string/login"
+		            android:enabled="false"
+		            style="@style/LoginButton"
+				/>
+			    
+			</LinearLayout>
+		    
+		</RelativeLayout>
+	
+	    <FrameLayout 
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent">
+		    
+			<TextView
+	           android:id="@+id/new_user_button"
+	           android:layout_width="wrap_content"
+	           android:layout_height="60dp"
+	           android:layout_gravity="bottom|center_horizontal"
+	           android:gravity="bottom"
+	           android:layout_marginBottom="15dp"
+	           style="@style/SmallestText"
+			/>
+			
+	    </FrameLayout>
+	    
+  	</LinearLayout>
 
 </ScrollView>
