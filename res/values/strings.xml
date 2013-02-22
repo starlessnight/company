@@ -6,13 +6,15 @@
 
     <!-- General terms -->
     <string name="placeholder">(placeholder)</string>
+    <string name="terms_of_use">Smartrek Terms of Use</string>
+    <string name="agree_terms_of_use">by clicking continue you agree to these terms and conditions</string>
     <string name="firstname">Firstname</string>
     <string name="lastname">Lastname</string>
     <string name="login_logo_subtitle">working together to reduce traffic</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="password_confirmation">Password confirmation</string>
-    <string name="login">Login</string>
+    <string name="login">log in</string>
     <string name="create_account_link_text">Dont\'t have an account? &lt;u>Create one now&lt;/u></string>
     <string name="signup">Sign up</string>
     <string name="origin">Origin</string>

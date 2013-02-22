@@ -3,38 +3,58 @@
     android:id="@+id/MainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_gradient"
-    android:orientation="vertical" >
+    android:background="@color/gray"
+    android:orientation="vertical">
 
-    <WebView
-        android:id="@+id/webview_content"
-        android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:layout_weight="0.85"
-        android:layout_margin="10dp"
-        android:ems="10"
-        android:inputType="none">
-
-        <requestFocus />
-    </WebView>
-    
-    <LinearLayout
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
-
+        android:text="@string/terms_of_use"
+        android:gravity="center_horizontal"
+        style="@style/PopUpTitle" 
+    />
+    
+    <ScrollView 
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        
+        <TextView
+	        android:id="@+id/webview_content"
+	        android:text="@string/placeholder"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="15dp"
+	        android:padding="8dp"
+	        style="@style/PopUpBody"
+	    />
+        
+    </ScrollView>
+    
+    <LinearLayout 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+		android:layout_marginRight="30dp"
+		android:orientation="vertical">
+	
+        <TextView
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="15dp"
+	        android:text="@string/agree_terms_of_use"
+	        style="@style/SmallestText"
+	    />
+        
         <Button
-            android:id="@+id/button_disagree"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Disagree" />
-
-        <Button
-            android:id="@+id/button_agree"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Agree" />
+	        android:id="@+id/button_agree"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="15dp"
+			android:layout_marginBottom="15dp"
+	        android:text="continue"
+	        style="@style/NextActionButton" 
+		/>
         
     </LinearLayout>
 

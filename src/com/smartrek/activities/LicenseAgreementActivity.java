@@ -1,12 +1,18 @@
 package com.smartrek.activities;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.apache.commons.io.IOUtils;
+
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.utils.Preferences;
@@ -28,9 +34,8 @@ public class LicenseAgreementActivity extends Activity {
      */
     public static final int DISAGREED = 0;
     
-    private WebView webviewContent;
+    private TextView webviewContent;
     private Button buttonAgree;
-    private Button buttonDisagree;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,20 +59,16 @@ public class LicenseAgreementActivity extends Activity {
             
         });
         
-        buttonDisagree = (Button) findViewById(R.id.button_disagree);
-        buttonDisagree.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                setResult(DISAGREED);
-                //finishActivity(LICENSE_AGREEMENT);
-                finish();
-            }
-            
-        });
-        
-        webviewContent = (WebView) findViewById(R.id.webview_content);
-        webviewContent.loadUrl("file:///android_asset/license.html");
+        InputStream is = null;
+        try {
+            is = getResources().getAssets().open("license.html");
+            webviewContent = (TextView) findViewById(R.id.webview_content);
+            webviewContent.setText(Html.fromHtml(IOUtils.toString(is)));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
     }
     
 	@Override

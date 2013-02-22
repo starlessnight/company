@@ -3,7 +3,7 @@
 
     <!-- The default gap between components in a layout. -->
     <dimen name="default_gap">16dip</dimen>
-    <dimen name="smallest_font">11dp</dimen>
+    <dimen name="smallest_font">14dp</dimen>
     <dimen name="smaller_font">18dp</dimen>
     <dimen name="large_font">32dp</dimen>
 

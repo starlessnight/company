@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="header_background">#585b5a</color>
 	<color name="gray">#404041</color>
 	<color name="secondary_font">#a7a9ab</color>
 	<color name="light_green">#6cbd44</color>

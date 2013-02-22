@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="PopUpTitle">
+	    <item name="android:textSize">@dimen/smaller_font</item>
+	    <item name="android:textColor">@android:color/white</item>
+	    <item name="android:textStyle">bold</item>
+	    <item name="android:padding">15dp</item>
+	    <item name="android:background">@color/header_background</item>
+	</style>
+	<style name="PopUpBody">
+	    <item name="android:textSize">@dimen/smaller_font</item>
+	    <item name="android:textColor">@android:color/white</item>
+	    <item name="android:padding">15dp</item>
+	    <item name="android:background">@color/gray</item>
+	</style>
 	<style name="SmallestText">
 	    <item name="android:textSize">@dimen/smallest_font</item>
 	    <item name="android:textColor">@color/secondary_font</item>
@@ -23,6 +36,7 @@
 	<style name="NextActionButton">
 	    <item name="android:textSize">@dimen/large_font</item>
 	    <item name="android:textColor">@color/button_text</item>
+	    <item name="android:textStyle">bold</item>
 	    <item name="android:paddingTop">5dp</item>
 		<item name="android:paddingRight">44dp</item>
 		<item name="android:paddingBottom">5dp</item>
