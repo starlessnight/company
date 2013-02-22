@@ -20,7 +20,7 @@
 	<style name="DualTextFieldSecond" parent="NormalTextField">
 		<item name="android:background">@drawable/dual_text_field_second</item>
 	</style>
-	<style name="LoginButton">
+	<style name="NextActionButton">
 	    <item name="android:textSize">@dimen/large_font</item>
 	    <item name="android:textColor">@color/button_text</item>
 	    <item name="android:paddingTop">5dp</item>
@@ -28,6 +28,6 @@
 		<item name="android:paddingBottom">5dp</item>
 		<item name="android:paddingLeft">15dp</item>
 		<item name="android:gravity">left</item>
-		<item name="android:background">@drawable/login_button</item>
+		<item name="android:background">@drawable/next_action_button</item>
 	</style>
 </resources>

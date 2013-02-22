@@ -59,7 +59,8 @@
         <activity
             android:name=".LicenseAgreementActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout"
-            android:label="Smartrek EULA &amp; Terms of Service" />
+            android:label="Smartrek EULA &amp; Terms of Service"
+            android:theme="@android:style/Theme.NoTitleBar" />
         <activity
             android:name=".LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout"
