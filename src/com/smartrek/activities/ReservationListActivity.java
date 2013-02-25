@@ -12,18 +12,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
@@ -97,7 +95,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		MenuInflater mi = getMenuInflater();
+		MenuInflater mi = getSupportMenuInflater();
 		mi.inflate(R.menu.list_activity, menu);
 		return true;
 	}
@@ -114,12 +112,12 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 		
 		return super.onMenuItemSelected(featureId, item);
 	}
-	
+	/*
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 	                                ContextMenuInfo menuInfo) {
 	    super.onCreateContextMenu(menu, v, menuInfo);
-	    MenuInflater inflater = getMenuInflater();
+	    MenuInflater inflater = getSupportMenuInflater();
 	    inflater.inflate(R.menu.context, menu);
 	}
 	
@@ -134,7 +132,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	            return super.onContextItemSelected(item);
 	    }
 	}
-	
+	*/
     private void requestRefresh(boolean useCache) {
         User currentUser = User.getCurrentUser(this);
         new ReservationRetrivalTask(useCache, currentUser.getId()).execute();
@@ -253,8 +251,8 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 			SimpleDateFormat formatter = new SimpleDateFormat("h:mm a");
 			textViewDepartureTime.setText(formatter.format(new Date(r.getDepartureTime())));
 			
-			TextView textViewCredits = (TextView) view.findViewById(R.id.textViewCredits);
-			textViewCredits.setText(String.format("%d", r.getCredits()));
+			//TextView textViewCredits = (TextView) view.findViewById(R.id.textViewCredits);
+			//textViewCredits.setText(String.format("%d", r.getCredits()));
 			
 			return view;
 		}

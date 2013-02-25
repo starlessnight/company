@@ -2,7 +2,6 @@ package com.smartrek.activities;
 
 import java.util.List;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,7 +14,7 @@ import android.widget.TextView;
 
 import com.smartrek.dialogs.GenericListDialog.ActionListener;
 
-public class GenericListActivity<ItemType> extends Activity {
+public class GenericListActivity<ItemType> extends ActionBarActivity {
     
     protected enum Status {
         Loading, EmptyList, GenericList
