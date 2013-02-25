@@ -40,7 +40,7 @@ public final class EditAddress extends EditText {
 		address = null;
 		
 		setText("Current location");
-		setTextColor(Color.BLUE);
+		//setTextColor(Color.BLUE);
 		setEnabled(false);
 	}
 	
