@@ -25,7 +25,8 @@
         <item name="actionBarTabStyle">@style/smartrek_ActionBarTabStyle</item>
         <item name="actionDropDownStyle">@style/smartrek_DropDownNav</item>
         <item name="actionBarStyle">@style/smartrek_solid_ActionBar</item>
-        <item name="actionBarSize">56dip</item>
+        <item name="actionBarSize">50dp</item>
+        <item name="actionOverflowButtonStyle">@style/CustomOverFlow</item>
 
         <item name="android:actionBarItemBackground">@drawable/selectable_background_smartrek</item>
         <item name="android:popupMenuStyle">@style/smartrek_PopupMenu</item>
@@ -34,26 +35,33 @@
         <item name="android:actionDropDownStyle">@style/smartrek_DropDownNav</item>
         <item name="android:actionBarStyle">@style/smartrek_solid_ActionBar</item>
         <item name="android:panelBackground">@drawable/menu_hardkey_panel_smartrek</item>
-        <item name="android:actionBarSize">56dip</item>
+        <item name="android:actionBarSize">50dp</item>
+        <item name="android:actionOverflowButtonStyle">@style/CustomOverFlow</item>
+        
+        <item name="android:paddingBottom">2dp</item>
         
     </style>
+    
+    <style name="CustomOverFlow" parent="@style/Widget.Sherlock.ActionButton.Overflow">
+    	<item name="android:src">@drawable/icon_overflow</item>
+	</style>
 
     <style name="smartrek_solid_ActionBar" parent="@style/Widget.Sherlock.ActionBar.Solid">
         <item name="background">@drawable/ab_solid_smartrek</item>
         <item name="backgroundStacked">@drawable/ab_stacked_solid_smartrek</item>
         <item name="backgroundSplit">@drawable/ab_bottom_solid_smartrek</item>
         <item name="progressBarStyle">@style/smartrek_ProgressBar</item>
-        <item name="titleTextStyle">@style/CustomTitleColorBar</item>
+        <item name="titleTextStyle">@style/CustomTitleBar</item>
         
         <item name="android:background">@drawable/ab_solid_smartrek</item>
         <item name="android:backgroundStacked">@drawable/ab_stacked_solid_smartrek</item>
         <item name="android:backgroundSplit">@drawable/ab_bottom_solid_smartrek</item>
         <item name="android:progressBarStyle">@style/smartrek_ProgressBar</item>
-        <item name="android:titleTextStyle">@style/CustomTitleColorBar</item>
+        <item name="android:titleTextStyle">@style/CustomTitleBar</item>
        
     </style>
     
-    <style name="CustomTitleColorBar" parent="@style/TextAppearance.Sherlock.Widget.ActionBar.Title">
+    <style name="CustomTitleBar" parent="@style/TextAppearance.Sherlock.Widget.ActionBar.Title">
     	<item name="android:textSize">@dimen/large_font</item>
     	<item name="android:textStyle">bold</item>
 	</style>

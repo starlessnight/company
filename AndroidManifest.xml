@@ -34,7 +34,7 @@
         android:name="com.smartrek.SmarTrekApplication"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
-        android:logo="@drawable/icon_smartrek_simplified" >
+        android:logo="@drawable/icon_logo" >
         <uses-library android:name="android.test.runner" />
 
         <meta-data
@@ -68,6 +68,7 @@
         <activity
             android:name=".HomeActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout"
+            android:theme="@style/Theme.smartrek"
             android:label="Where to" />
         <activity
             android:name=".UserRegistrationActivity"

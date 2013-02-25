@@ -20,6 +20,7 @@
 	      android:layout_marginTop="30dp"
 	      android:layout_marginLeft="30dp" 
 	      android:layout_marginRight="30dp"
+	      android:gravity="center_horizontal"
 	      style="@style/SmallerText" />
 
         <EditText

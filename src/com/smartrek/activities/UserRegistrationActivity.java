@@ -2,7 +2,6 @@ package com.smartrek.activities;
 
 import java.io.IOException;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
@@ -14,13 +13,14 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.models.User;
 import com.smartrek.requests.UserRegistrationRequest;
 import com.smartrek.utils.ExceptionHandlingService;
 
-public final class UserRegistrationActivity extends SherlockActivity
+public final class UserRegistrationActivity extends ActionBarActivity
         implements TextWatcher {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
@@ -188,4 +188,5 @@ public final class UserRegistrationActivity extends SherlockActivity
         }
         buttonRegister.setEnabled(enabled);
     }
+    
 }

@@ -3,7 +3,6 @@ package com.smartrek.activities;
 import java.util.LinkedList;
 import java.util.List;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -14,9 +13,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
@@ -27,6 +23,10 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
@@ -64,7 +64,7 @@ import com.smartrek.utils.SystemService;
  * @version 1.0
  * 
  */
-public final class HomeActivity extends Activity {
+public final class HomeActivity extends SherlockActivity {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
@@ -274,7 +274,7 @@ public final class HomeActivity extends Activity {
 	@Override
     public boolean onCreateOptionsMenu(Menu menu){
     	super.onCreateOptionsMenu(menu);
-     	MenuInflater mi = getMenuInflater();
+     	MenuInflater mi = getSupportMenuInflater();
      	mi.inflate(R.menu.main, menu);
     	return true;
     }

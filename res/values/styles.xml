@@ -19,9 +19,9 @@
 	    <item name="android:textSize">@dimen/smaller_font</item>
 	    <item name="android:textColor">@android:color/white</item>
 	    <item name="android:textColorHint">@color/secondary_font</item>
-	    <item name="android:paddingTop">12dp</item>
+	    <item name="android:paddingTop">11dp</item>
 		<item name="android:paddingRight">15dp</item>
-		<item name="android:paddingBottom">12dp</item>
+		<item name="android:paddingBottom">13dp</item>
 		<item name="android:paddingLeft">15dp</item>
 		<item name="android:background">@drawable/normal_text_field</item>
 	</style>
@@ -35,9 +35,9 @@
 	    <item name="android:textSize">@dimen/large_font</item>
 	    <item name="android:textColor">@color/button_text</item>
 	    <item name="android:textStyle">bold</item>
-	    <item name="android:paddingTop">5dp</item>
+	    <item name="android:paddingTop">3dp</item>
 		<item name="android:paddingRight">44dp</item>
-		<item name="android:paddingBottom">5dp</item>
+		<item name="android:paddingBottom">7dp</item>
 		<item name="android:paddingLeft">15dp</item>
 		<item name="android:gravity">left</item>
 		<item name="android:background">@drawable/next_action_button</item>
