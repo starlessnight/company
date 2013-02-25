@@ -6,15 +6,11 @@ import java.util.List;
 import java.util.Vector;
 
 import org.json.JSONException;
-import org.osmdroid.tileprovider.tilesource.ITileSource;
-import org.osmdroid.tileprovider.tilesource.XYTileSource;
-import org.osmdroid.tileprovider.util.CloudmadeUtil;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -26,10 +22,10 @@ import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.Display;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.exceptions.RouteNotFoundException;
@@ -60,7 +56,7 @@ import com.smartrek.utils.SmartrekTileProvider;
  * 
  *
  */
-public final class RouteActivity extends Activity {
+public final class RouteActivity extends ActionBarActivity {
 	
 	public static final String LOG_TAG = "RouteActivity";
 	
@@ -513,7 +509,7 @@ public final class RouteActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
-        MenuInflater mi = getMenuInflater();
+        MenuInflater mi = getSupportMenuInflater();
         mi.inflate(R.menu.main, menu);
         return true;
     }

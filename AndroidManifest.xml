@@ -78,7 +78,9 @@
             android:label="@string/signup" />
         <activity
             android:name=".RouteActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize" />
+            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
+            android:theme="@style/Theme.smartrek"
+            android:label="select route" />
         <activity
             android:name=".ReservationConfirmationActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
