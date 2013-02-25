@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:text="@string/terms_of_use"
         android:gravity="center_horizontal"
-        style="@style/PopUpTitle" 
+        style="@style/Header" 
     />
     
     <ScrollView 
@@ -27,7 +27,7 @@
 	        android:layout_height="wrap_content"
 	        android:layout_marginTop="15dp"
 	        android:padding="8dp"
-	        style="@style/PopUpBody"
+	        style="@style/SmallerText"
 	    />
         
     </ScrollView>

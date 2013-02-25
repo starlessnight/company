@@ -8,6 +8,7 @@
     <string name="placeholder">(placeholder)</string>
     <string name="terms_of_use">Smartrek Terms of Use</string>
     <string name="agree_terms_of_use">by clicking continue you agree to these terms and conditions</string>
+    <string name="sign_up_msg">Sign up today and work collectively to reduce traffic and pollution!</string>
     <string name="firstname">Firstname</string>
     <string name="lastname">Lastname</string>
     <string name="login_logo_subtitle">working together to reduce traffic</string>
@@ -16,7 +17,8 @@
     <string name="password_confirmation">Password confirmation</string>
     <string name="login">log in</string>
     <string name="create_account_link_text">Dont\'t have an account? &lt;u>Create one now&lt;/u></string>
-    <string name="signup">Sign up</string>
+    <string name="signup">sign up</string>
+    <string name="get_started">get started!</string>
     <string name="origin">Origin</string>
     <string name="destination">Destination</string>
     <string name="about">About</string>

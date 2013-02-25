@@ -7,17 +7,21 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.actionbarsherlock.app.SherlockActivity;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.models.User;
 import com.smartrek.requests.UserRegistrationRequest;
 import com.smartrek.utils.ExceptionHandlingService;
 
-public final class UserRegistrationActivity extends Activity {
+public final class UserRegistrationActivity extends SherlockActivity
+        implements TextWatcher {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
@@ -36,11 +40,17 @@ public final class UserRegistrationActivity extends Activity {
         setContentView(R.layout.user_registration);
         
         editTextUsername = (EditText) findViewById(R.id.editTextUsername);
+        editTextUsername.addTextChangedListener(this);
         editTextFirstname = (EditText) findViewById(R.id.editTextFirstname);
+        editTextFirstname.addTextChangedListener(this);
         editTextLastname = (EditText) findViewById(R.id.editTextLastname);
+        editTextLastname.addTextChangedListener(this);
         editTextEmail = (EditText) findViewById(R.id.editTextEmail);
+        editTextEmail.addTextChangedListener(this);
         editTextPassword = (EditText) findViewById(R.id.editTextPassword);
+        editTextPassword.addTextChangedListener(this);
         editTextPasswordConfirm = (EditText) findViewById(R.id.editTextPasswordConfirm);
+        editTextPasswordConfirm.addTextChangedListener(this);
         
         buttonRegister = (Button) findViewById(R.id.buttonRegister);
         buttonRegister.setOnClickListener(new OnClickListener() {
@@ -155,5 +165,27 @@ public final class UserRegistrationActivity extends Activity {
 				dialog.show();
 			}
 		}
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count,
+            int after) {
+        
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+        boolean enabled = true;
+        EditText[] inputs = {editTextEmail, editTextFirstname, editTextLastname, 
+            editTextPassword, editTextPasswordConfirm, editTextUsername};
+        for (EditText input : inputs) {
+            enabled &= input.getText().length() > 0;
+        }
+        buttonRegister.setEnabled(enabled);
     }
 }
