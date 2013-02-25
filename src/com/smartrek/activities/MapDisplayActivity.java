@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.RadioButton;
 
-public final class MapDisplayActivity extends Activity {
+public final class MapDisplayActivity extends ActionBarActivity {
     
     /**
      * Name of the shared preference file

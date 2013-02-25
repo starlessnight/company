@@ -95,8 +95,8 @@
     <string name="map_display_settings">map display settings</string>
     <string name="map_display"> Display options </string>
     <string name="time_display">Time display options</string>
-    <string name="display_arrival_time"> display arrival time</string>
-    <string name="display_travel_time"> display travel time </string>
+    <string name="display_arrival_time"> Display arrival time</string>
+    <string name="display_travel_time"> Display travel time </string>
     <string name="display_departure_time"> display departure time </string>
     <string name="adjust_time">Adjust time increment</string>
     <string name="five">5 minutes</string>

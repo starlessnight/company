@@ -95,7 +95,9 @@
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize" />
         <activity
             android:name=".MapDisplayActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize" />
+            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
+            android:theme="@style/Theme.smartrek" 
+            android:label="settings" />
         <activity
             android:name=".ReservationListActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"

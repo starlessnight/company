@@ -2,64 +2,65 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_gradient"
+    android:background="@color/gray"
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/map_display_heading"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingTop="10dp"
-        android:text="@string/map_display"
-        android:textColor="#b39e69"
-        android:textSize="20dp" >
-    </TextView>
-
-    <TextView
         android:id="@+id/time_heading"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/map_display_heading"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingTop="8dp"
         android:text="@string/time_display"
-        android:textColor="#FFFFFFFF"
-        android:textSize="20dp" >
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="30dp"
+        style="@style/SmallestText">
     </TextView>
 
+    <View
+        android:id="@+id/separator"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@id/time_heading"
+        android:layout_marginTop="14dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:background="@color/secondary_font"  
+     />
+    
     <RelativeLayout
         android:id="@+id/group1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/time_heading"
-        android:paddingLeft="65dp" >
+        android:layout_below="@id/separator"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp">
 
         <RadioGroup
             android:id="@+id/time_display_mode"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" >
 
             <RadioButton
                 android:id="@+id/mdoradio1"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:enabled="true"
                 android:text="@string/display_travel_time"
-                android:textColor="#FFFFFFFF"
-                android:textSize="18dp" >
+                android:button="@null"
+	            android:drawableRight="@drawable/radio"
+	            android:gravity="left|center_vertical"
+                style="@style/SmallerText">
             </RadioButton>
 
             <RadioButton
                 android:id="@+id/mdoradio2"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:enabled="true"
                 android:text="@string/display_arrival_time"
-                android:textColor="#FFFFFFFF"
-                android:textSize="18dp" >
+                android:button="@null"
+	            android:drawableRight="@drawable/radio"
+	            android:gravity="left|center_vertical"
+                style="@style/SmallerText">
             </RadioButton>
         </RadioGroup>
     </RelativeLayout>
