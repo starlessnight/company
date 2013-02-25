@@ -125,7 +125,9 @@
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize" />
         <activity
             android:name=".ValidationActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize" />
+            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
+            android:theme="@style/Theme.smartrek"
+            android:label="navigate" />
         <activity
             android:name=".ValidationReportActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"

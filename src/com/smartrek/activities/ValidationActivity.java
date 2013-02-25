@@ -13,7 +13,6 @@ import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,15 +28,15 @@ import android.os.Handler;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.ToggleButton;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Reservation;
@@ -59,7 +58,7 @@ import com.smartrek.utils.SmartrekTileProvider;
 import com.smartrek.utils.SystemService;
 import com.smartrek.utils.ValidationParameters;
 
-public final class ValidationActivity extends Activity {
+public final class ValidationActivity extends ActionBarActivity {
     
     public static final int DEFAULT_ZOOM_LEVEL = 18;
     
@@ -203,7 +202,7 @@ public final class ValidationActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         super.onCreateOptionsMenu(menu);
-        MenuInflater mi = getMenuInflater();
+        MenuInflater mi = getSupportMenuInflater();
         mi.inflate(R.menu.validation, menu);
         return true;
     }
