@@ -2,12 +2,13 @@ package com.smartrek.requests;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import android.text.format.Time;
 
 import com.smartrek.models.Route;
 import com.smartrek.utils.RouteNode;
@@ -29,13 +30,14 @@ public class ReservationRequest extends Request {
 		buf.deleteCharAt(buf.length()-1);
 		buf.append("]");
 
-		Time t = new Time(TIME_ZONE);
-        t.set(route.getDepartureTime());
-		
+        Date now = new Date(route.getDepartureTime());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        dateFormat.setTimeZone(TimeZone.getTimeZone(TIME_ZONE));
+        
 		url = String.format("%s/addreservations/?rid=%d&credits=%d&uid=%d&start_datetime=%s&estimatedTT=%d&origin_address=%s&destination_address=%s&route=%s",
 				HOST,
 				route.getId(), route.getCredits(), route.getUserId(),
-				URLEncoder.encode(t.format("%Y-%m-%d %T")),
+				URLEncoder.encode(dateFormat.format(now)),
 				route.getDuration() / 60, // Server requires this value in terms of minutes
 				URLEncoder.encode(route.getOrigin()),
 				URLEncoder.encode(route.getDestination()),
