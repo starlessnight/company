@@ -95,6 +95,26 @@
 	        android:layout_marginRight="30dp"
 	        android:text="@string/placeholder"
 	        style="@style/SmallerText" />
+	    
+	    <TextView
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="15dp"
+	        android:layout_marginLeft="30dp"
+	        android:layout_marginRight="30dp"
+	        android:text="Estimate duration"
+	        style="@style/SmallestText"
+	    />
+	    
+	    <TextView
+	        android:id="@+id/textViewDuration"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="30dp"
+	        android:layout_marginRight="30dp"
+	        android:text="@string/placeholder"
+	        style="@style/SmallerText"
+	    />
 	
 	    <View
 	        android:layout_width="match_parent"

@@ -88,7 +88,8 @@
             android:label="reserve?" />
         <activity
             android:name=".ReservationDetailsActivity"
-            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize" />
+            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize" 
+            android:theme="@style/Theme.smartrek" />
         <activity
             android:name=".DebugOptionsActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"

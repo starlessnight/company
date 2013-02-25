@@ -42,6 +42,7 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 	private TextView textViewDestination;
 	private TextView textViewDepartureTime;
 	private TextView textViewArrivalTime;
+	private TextView textViewDuration;
 	private TextView textViewCredits;
 	
 	private Button buttonReserve;
@@ -71,7 +72,10 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
         // FIXME: Date/time format i18n
         Time at = new Time();
         at.set(route.getArrivalTime());
-        textViewArrivalTime.setText(String.format("%s (%s)", at.format("%b %d, %G %l:%M%p"), HumanReadableTime.formatDuration(route.getDuration())));
+        textViewArrivalTime.setText(at.format("%b %d, %G %l:%M%p"));
+        
+        textViewDuration = (TextView) findViewById(R.id.textViewDuration);
+        textViewDuration.setText(HumanReadableTime.formatDuration(route.getDuration()));
 
         textViewCredits = (TextView) findViewById(R.id.textViewCredits);
         textViewCredits.setText(String.valueOf(route.getCredits()));

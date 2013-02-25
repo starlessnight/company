@@ -1,18 +1,17 @@
 package com.smartrek.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
@@ -24,7 +23,7 @@ import com.smartrek.utils.datetime.HumanReadableTime;
  * Shows detailed information about a reservation.
  *
  */
-public final class ReservationDetailsActivity extends Activity {
+public final class ReservationDetailsActivity extends ActionBarActivity {
 	private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
 	private TextView textViewName;
@@ -32,6 +31,7 @@ public final class ReservationDetailsActivity extends Activity {
 	private TextView textViewDestination;
 	private TextView textViewDepartureTime;
 	private TextView textViewArrivalTime;
+	private TextView textViewDuration;
 	private TextView textViewCredits;
 	private TextView textViewHelp;
 	private Button buttonStartTrip;
@@ -88,7 +88,10 @@ public final class ReservationDetailsActivity extends Activity {
 	        // FIXME: Date/time format i18n
 	        Time at = new Time();
 	        at.set(arrivalTime);
-	        textViewArrivalTime.setText(String.format("%s (%s)", at.format("%b %d, %G %l:%M%p"), HumanReadableTime.formatDuration(duration)));
+	        textViewArrivalTime.setText(at.format("%b %d, %G %l:%M%p"));
+	        
+	        textViewDuration = (TextView) findViewById(R.id.textViewDuration);
+	        textViewDuration.setText(HumanReadableTime.formatDuration(duration));
 	        
 	        textViewCredits = (TextView) findViewById(R.id.textViewCredits);
 	        textViewCredits.setText(String.valueOf(route.getCredits()));
@@ -148,7 +151,7 @@ public final class ReservationDetailsActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
-        MenuInflater mi = getMenuInflater();
+        MenuInflater mi = getSupportMenuInflater();
         mi.inflate(R.menu.main, menu);
         return true;
     }
