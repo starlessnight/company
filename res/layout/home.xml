@@ -1,176 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/MainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background"
-    android:orientation="vertical" >
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left|bottom"
-        android:layout_marginLeft="0dp"
-        android:src="@drawable/background_logo" />
+    android:background="@color/gray"
+    android:orientation="vertical"
+    android:fillViewport="true">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="10dp"
-        android:layout_marginTop="40dp" >
-
-        <LinearLayout
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="vertical"
+	        android:focusable="true"
+	        android:focusableInTouchMode="true">
+	        
+       	<Button
+                android:id="@+id/origin_my_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:layout_marginLeft="30dp" 
+	      		android:layout_marginRight="30dp"
+                android:text="start from&#10;current location"
+                style="@style/CurrentLocationButton"
+        />
+       	
+       	<LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="40dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical" >
-
-            <TextView
-                android:id="@+id/origin_text"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:layout_marginRight="20dp"
-                android:gravity="bottom"
-                android:text="From"
-                android:textColor="#FFFFFFFF"
-                android:textSize="18sp" />
-
-            <Button
-                android:id="@+id/origin_my_location"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:background="@null"
-                android:drawableLeft="@drawable/current_location"
-                android:drawablePadding="2dp"
-                android:padding="2dp"
-                android:textSize="12sp"
-                android:textColor="#FFFFFFFF"
-                android:text="Current&#10;Location" />
-
-            <Button
-                android:id="@+id/button_load_trip"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:background="@null"
-                android:drawableLeft="@drawable/load_trip"
-                android:drawablePadding="2dp"
-                android:padding="2dp"
-                android:textColor="#FFFFFFFF"
-                android:text="Load&#10;Trip"
-                android:textSize="12sp" />
-
-        </LinearLayout>
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:orientation="horizontal">
+       	    
             <com.smartrek.ui.EditAddress
                 android:id="@+id/origin_box"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_marginLeft="40dp"
-                android:layout_marginRight="40dp"
-                android:inputType="textPostalAddress" >
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="From"
+                android:inputType="textPostalAddress" 
+                style="@style/NormalTextField">
 
-                <requestFocus android:layout_width="match_parent" >
-                </requestFocus>
             </com.smartrek.ui.EditAddress>
-
+            
             <ImageButton
                 android:id="@+id/Favs1"
                 android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_gravity="right"
-                android:background="@null"
-                android:padding="2dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/favorite_address" />
-        </FrameLayout>
+                android:layout_height="54dp"
+                android:layout_marginLeft="10dp"
+                style="@style/MoreButton" 
+            />
 
-        <TextView
-            android:id="@+id/destination_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="40dp"
-            android:layout_marginTop="20dp"
-            android:gravity="left"
-            android:text="To"
-            android:textColor="#FFFFFFFF"
-            android:textSize="18sp" />
-
-        <FrameLayout
+        </LinearLayout>
+        
+       	<LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:orientation="horizontal">
 
             <com.smartrek.ui.EditAddress
                 android:id="@+id/destination_box"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:layout_marginLeft="40dp"
-                android:layout_marginRight="40dp"
-                android:inputType="textPostalAddress" />
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="To"
+                android:inputType="textPostalAddress" 
+                style="@style/NormalTextField" />
 
             <ImageButton
                 android:id="@+id/Favs2"
                 android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_gravity="right"
-                android:background="@null"
-                android:padding="2dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/favorite_address" />
-        </FrameLayout>
+                android:layout_height="54dp"
+                android:layout_marginLeft="10dp"
+                style="@style/MoreButton"
+             />
+        </LinearLayout>
 
-        <FrameLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp" >
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="40dp"
-                android:layout_marginRight="40dp"
-                android:orientation="horizontal" >
-
-                <Button
+            	<Button
                     android:id="@+id/button_save_trip"
                     android:layout_width="0dip"
                     android:layout_height="wrap_content"
                     android:layout_weight=".5"
                     android:enabled="false"
-                    android:gravity="center"
-                    android:padding="4dp"
-                    android:text="@string/save_trip" />
-
-                <Button
-                    android:id="@+id/Done"
-                    android:layout_width="0dip"
+                    android:text="save&#10;trip"
+                    style="@style/SaveButton" 
+                />
+            	
+            	<Button
+			        android:id="@+id/button_load_trip"
+			        android:layout_width="0dip"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
                     android:layout_weight=".5"
-                    android:gravity="center"
-                    android:padding="4dp"
-                    android:text="Next"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <ImageButton
-                android:id="@+id/button_save_trip_help"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:layout_gravity="right|center_vertical"
-                android:background="@null"
-                android:padding="2dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/question_mark"
-                android:visibility="gone" />
-        </FrameLayout>
+			        android:text="load&#10;trip"
+			        style="@style/LoadButton"
+			    />
+                
+        </LinearLayout>
+        
+        <FrameLayout 
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent">
+            	
+	        <Button
+	            android:id="@+id/Done"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="15dp"
+	      		android:layout_marginLeft="30dp"
+	      		android:layout_marginRight="30dp"
+	      		android:layout_marginBottom="15dp"
+	      		android:layout_gravity="bottom"
+	            android:text="search"
+	            style="@style/NextActionButton"
+	        />
+	    </FrameLayout>
 
     </LinearLayout>
 
-</FrameLayout>
+</ScrollView>

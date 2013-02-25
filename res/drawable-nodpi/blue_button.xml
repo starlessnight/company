@@ -2,7 +2,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_enabled="true">
         <layer-list>
-          <item android:drawable="@drawable/button_green" />
+          <item android:drawable="@drawable/button_blue" />
           <item>
 		      <shape>
 		          <solid android:color="@color/botton_highlight" />
@@ -10,7 +10,7 @@
 		  </item>
 		  <item 
 		      android:top="1.5dp"
-		      android:drawable="@drawable/button_green" 
+		      android:drawable="@drawable/button_blue" 
 	      />
 		  <item android:top="1.5dp">
 		      <shape>
@@ -20,13 +20,9 @@
 		  <item 
 		      android:top="1.5dp" 
 		      android:bottom="1.5dp" 
-		      android:drawable="@drawable/button_green" 
-		  />
-		  <item 
-		      android:right="10dp"
-		      android:drawable="@drawable/next_action_button_icon" 
+		      android:drawable="@drawable/button_blue" 
 		  />
 		</layer-list>
 	</item>
-	<item android:state_enabled="false" android:drawable="@drawable/button_green" />
+	<item android:state_enabled="false" android:drawable="@drawable/button_blue" />
 </selector> 

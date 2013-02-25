@@ -11,6 +11,9 @@
 	    <item name="android:textSize">@dimen/smaller_font</item>
 	    <item name="android:textColor">@android:color/white</item>
 	</style>
+	<style name="SmallerBoldText" parent="SmallerText">
+	    <item name="android:textStyle">bold</item>
+	</style>
 	<style name="SmallestText">
 	    <item name="android:textSize">@dimen/smallest_font</item>
 	    <item name="android:textColor">@color/secondary_font</item>
@@ -19,9 +22,9 @@
 	    <item name="android:textSize">@dimen/smaller_font</item>
 	    <item name="android:textColor">@android:color/white</item>
 	    <item name="android:textColorHint">@color/secondary_font</item>
-	    <item name="android:paddingTop">11dp</item>
+	    <item name="android:paddingTop">14dp</item>
 		<item name="android:paddingRight">15dp</item>
-		<item name="android:paddingBottom">13dp</item>
+		<item name="android:paddingBottom">16dp</item>
 		<item name="android:paddingLeft">15dp</item>
 		<item name="android:background">@drawable/normal_text_field</item>
 	</style>
@@ -41,5 +44,43 @@
 		<item name="android:paddingLeft">15dp</item>
 		<item name="android:gravity">left</item>
 		<item name="android:background">@drawable/next_action_button</item>
+	</style>
+	<style name="CurrentLocationButton">
+	    <item name="android:textSize">@dimen/smaller_font</item>
+	    <item name="android:textColor">@color/button_text</item>
+	    <item name="android:textStyle">bold</item>
+	    <item name="android:paddingTop">4dp</item>
+		<item name="android:paddingRight">44dp</item>
+		<item name="android:paddingBottom">6dp</item>
+		<item name="android:paddingLeft">15dp</item>
+		<item name="android:gravity">left</item>
+		<item name="android:background">@drawable/current_location_button</item>
+	</style>
+	<style name="SaveButton">
+	    <item name="android:textSize">@dimen/smaller_font</item>
+	    <item name="android:textColor">@color/button_text</item>
+	    <item name="android:textStyle">bold</item>
+	    <item name="android:paddingTop">4dp</item>
+		<item name="android:paddingRight">44dp</item>
+		<item name="android:paddingBottom">6dp</item>
+		<item name="android:paddingLeft">15dp</item>
+		<item name="android:gravity">left</item>
+		<item name="android:background">@drawable/save_button</item>
+	</style>
+	<style name="LoadButton">
+	    <item name="android:textSize">@dimen/smaller_font</item>
+	    <item name="android:textColor">@color/button_text</item>
+	    <item name="android:textStyle">bold</item>
+	    <item name="android:paddingTop">4dp</item>
+		<item name="android:paddingRight">44dp</item>
+		<item name="android:paddingBottom">6dp</item>
+		<item name="android:paddingLeft">15dp</item>
+		<item name="android:gravity">left</item>
+		<item name="android:background">@drawable/load_button</item>
+	</style>
+	<style name="MoreButton">
+	    <item name="android:src">@drawable/more_button_icon</item>
+		<item name="android:scaleType">center</item>
+	    <item name="android:background">@android:color/black</item> 
 	</style>
 </resources>

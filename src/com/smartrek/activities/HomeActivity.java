@@ -21,7 +21,6 @@ import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
@@ -30,7 +29,6 @@ import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
-import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.dialogs.TripEditDialog;
 import com.smartrek.dialogs.TripListDialog;
 import com.smartrek.models.Address;
@@ -71,13 +69,9 @@ public final class HomeActivity extends SherlockActivity {
 	private EditAddress editAddressOrigin;
 	private EditAddress editAddressDest;
 	
-	private TextView originText;
-	private TextView destText;
-	
 	private Button buttonLoadTrip;
 	private Button buttonSaveTrip;
 	private Button buttonDone;
-	private ImageButton buttonSaveTripHelp;
 	private ImageButton buttonFavAddrOrigin;
 	private ImageButton destFavButton;
 	private Button buttonOriginMyLocation;
@@ -124,8 +118,6 @@ public final class HomeActivity extends SherlockActivity {
 	    /***************Start TextViews********************/
 	    
 	    // Instantiate TextViews from file main.xml
-	    originText = (TextView) findViewById(R.id.origin_text);
-	    destText = (TextView) findViewById(R.id.destination_text);
 	    //dateText = (TextView) findViewById(R.id.date_text);
 	    
 	    // Declare a tiny animation to be used on startup.
@@ -133,8 +125,6 @@ public final class HomeActivity extends SherlockActivity {
 		animation.setDuration(1500);
 		
 		// Set animation to be used by TextViews.
-	    destText.setAnimation(animation);
-	    originText.setAnimation(animation);
 	    //dateText.setAnimation(animation);  
 	    
 	    /***************End TextViews********************/
@@ -142,23 +132,11 @@ public final class HomeActivity extends SherlockActivity {
 	    /***************Start Buttons********************/
 	    
 	    // Instantiate Buttons from file main.xml
-	    buttonSaveTripHelp = (ImageButton) findViewById(R.id.button_save_trip_help);
 	    buttonFavAddrOrigin = (ImageButton) findViewById(R.id.Favs1);
 	    destFavButton = (ImageButton) findViewById(R.id.Favs2);
 	    buttonLoadTrip = (Button) findViewById(R.id.button_load_trip);
 	    buttonSaveTrip = (Button) findViewById(R.id.button_save_trip);
 	    buttonDone = (Button) findViewById(R.id.Done);
-	    
-	    buttonSaveTripHelp.setOnClickListener(new OnClickListener() {
-	    	
-			@Override
-			public void onClick(View v) {
-				Context context = HomeActivity.this;
-				NotificationDialog dialog = new NotificationDialog(context, context.getResources().getString(R.string.save_trip_help_message));
-				dialog.show();
-			}
-			
-		});
 	    
 		// Set Button OnClickListerners to be declared by this class
 	    buttonFavAddrOrigin.setOnClickListener(new OnClickListener() {
@@ -454,7 +432,6 @@ public final class HomeActivity extends SherlockActivity {
 		boolean isReadyToSave = editAddressOrigin.hasAddress() && editAddressDest.hasAddress();
 		
 		buttonSaveTrip.setEnabled(isReadyToSave);
-		buttonSaveTripHelp.setVisibility(isReadyToSave ? View.INVISIBLE : View.VISIBLE);
 	}
 	
 	/**
