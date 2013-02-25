@@ -1,88 +1,148 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="4dp" >
+    android:fillViewport="true">    
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/origin"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+	<LinearLayout 
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical"
+	   	android:background="@color/gray">
+	
+	    <TextView
+	        android:id="@+id/textView2"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:text="@string/origin"
+	        android:layout_marginTop="15dp"
+	        android:layout_marginLeft="30dp"
+	        android:layout_marginRight="30dp"
+	        style="@style/SmallestText" />
+	
+	    <TextView
+	        android:id="@+id/textViewOrigin"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:text="@string/placeholder"
+	        android:layout_marginLeft="30dp"
+	        android:layout_marginRight="30dp"
+	        style="@style/SmallerText" />
+	
+	    <TextView
+	        android:id="@+id/textView3"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="15dp"
+	        android:layout_marginLeft="30dp"
+	        android:layout_marginRight="30dp"
+	        android:text="@string/destination"
+	        style="@style/SmallestText" />
+	
+	    <TextView
+	        android:id="@+id/textViewDestination"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="30dp"
+	        android:layout_marginRight="30dp"
+	        android:text="@string/placeholder"
+	        style="@style/SmallerText" />
+	
+	    <View
+	        android:layout_width="match_parent"
+	        android:layout_height="2dp"
+	        android:layout_marginTop="15dp"
+	        android:layout_marginLeft="30dp"
+	        android:layout_marginRight="30dp"
+	        android:background="@color/secondary_font"  
+	     />
+	    
+	    <TextView
+	        android:id="@+id/textView4"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:text="Departure time"
+	        android:layout_marginTop="15dp"
+	        android:layout_marginLeft="30dp"
+	        android:layout_marginRight="30dp"
+	        style="@style/SmallestText" />
+	
+	    <TextView
+	        android:id="@+id/textViewDepartureTime"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="30dp"
+	        android:layout_marginRight="30dp"
+	        android:text="@string/placeholder"
+	        style="@style/SmallerText" />
+	
+	    <TextView
+	        android:id="@+id/textView5"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="15dp"
+	        android:layout_marginLeft="30dp"
+	        android:layout_marginRight="30dp"
+	        android:text="Estimated arrival time"
+	        style="@style/SmallestText" />
+	
+	    <TextView
+	        android:id="@+id/textViewArrivalTime"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="30dp"
+	        android:layout_marginRight="30dp"
+	        android:text="@string/placeholder"
+	        style="@style/SmallerText" />
+	
+	    <View
+	        android:layout_width="match_parent"
+	        android:layout_height="2dp"
+	        android:layout_marginTop="15dp"
+	        android:layout_marginLeft="30dp"
+	        android:layout_marginRight="30dp"
+	        android:background="@color/secondary_font"  
+	     />
+	    
+	    <TextView
+	        android:id="@+id/textView6"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginTop="15dp"
+	        android:layout_marginLeft="30dp"
+	        android:layout_marginRight="30dp"
+	        android:text="@string/trekpoints"
+	        style="@style/SmallestText" />
+	
+	    <TextView
+	        android:id="@+id/textViewCredits"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="30dp"
+	        android:layout_marginRight="30dp"
+	        android:text="@string/placeholder"
+	        style="@style/SmallerText" />
+	    
+	    <FrameLayout 
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent">
+	
+		    <Button
+		        android:id="@+id/button_reserve"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_gravity="bottom"
+		        android:layout_marginTop="15dp"
+		        android:layout_marginBottom="15dp"
+		        android:layout_marginLeft="30dp"
+		        android:layout_marginRight="30dp"
+		        android:text="@string/reserve" 
+		        style="@style/NextActionButton"
+		    />
+	    
+	    </FrameLayout>
+	
+	</LinearLayout>
 
-    <TextView
-        android:id="@+id/textViewOrigin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/placeholder"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/destination"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-    <TextView
-        android:id="@+id/textViewDestination"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/placeholder"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Departure time"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-    <TextView
-        android:id="@+id/textViewDepartureTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/placeholder"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/textView5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Estimated arrival time"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-    <TextView
-        android:id="@+id/textViewArrivalTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/placeholder"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/trekpoints"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-    <TextView
-        android:id="@+id/textViewCredits"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/placeholder"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <Button
-        android:id="@+id/button_reserve"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="12dp"
-        android:paddingLeft="48dp"
-        android:paddingRight="48dp"
-        android:text="@string/reserve" />
-
-</LinearLayout>
+</ScrollView>

@@ -3,7 +3,6 @@ package com.smartrek.activities;
 import java.util.LinkedList;
 import java.util.List;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -11,14 +10,14 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Route;
@@ -33,7 +32,7 @@ import com.smartrek.utils.datetime.HumanReadableTime;
  * This will popup before a user makes a reservation for a route
  *
  */
-public final class ReservationConfirmationActivity extends Activity {
+public final class ReservationConfirmationActivity extends ActionBarActivity {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
@@ -104,7 +103,7 @@ public final class ReservationConfirmationActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
-        MenuInflater mi = getMenuInflater();
+        MenuInflater mi = getSupportMenuInflater();
         mi.inflate(R.menu.main, menu);
         return true;
     }
