@@ -2,6 +2,7 @@ package com.smartrek.utils;
 
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
+import android.widget.TextView;
 
 public class Font {
 
@@ -15,6 +16,12 @@ public class Font {
     
     public static Typeface getLight(AssetManager assets){
         return getTypeface(assets, LIGHT);
+    }
+    
+    public static void setTypeface(Typeface tf, TextView... views){
+        for (TextView v : views) {
+            v.setTypeface(tf);
+        }
     }
     
     static Typeface getTypeface(AssetManager assets, String path){

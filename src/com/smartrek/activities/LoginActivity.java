@@ -5,6 +5,7 @@ import java.net.ConnectException;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Html;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.User;
 import com.smartrek.tasks.LoginTask;
+import com.smartrek.utils.Font;
 import com.smartrek.utils.Preferences;
 
 public final class LoginActivity extends Activity implements OnClickListener,
@@ -47,6 +49,11 @@ public final class LoginActivity extends Activity implements OnClickListener,
         editTextUsername.addTextChangedListener(this);
         editTextPassword = (EditText) findViewById(R.id.pwd_box);
         editTextPassword.addTextChangedListener(this);
+        
+        AssetManager assets = getAssets();
+        Font.setTypeface(Font.getBold(assets), (TextView)findViewById(R.id.subtitle),
+            login, new_user);
+        Font.setTypeface(Font.getLight(assets), editTextUsername, editTextPassword);
     }
     
     @Override

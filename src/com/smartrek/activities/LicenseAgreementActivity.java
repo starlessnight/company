@@ -8,7 +8,6 @@ import org.apache.commons.io.IOUtils;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
@@ -74,12 +73,9 @@ public class LicenseAgreementActivity extends Activity {
         }
         
         AssetManager assets = getAssets();
-        Typeface helBold = Font.getBold(assets); 
-        ((TextView)findViewById(R.id.title)).setTypeface(helBold);
-        ((TextView)findViewById(R.id.contine_notice)).setTypeface(helBold);
-        buttonAgree.setTypeface(helBold);
-        Typeface helLight = Font.getLight(assets);
-        webviewContent.setTypeface(helLight);
+        Font.setTypeface(Font.getBold(assets), (TextView)findViewById(R.id.title),
+            (TextView)findViewById(R.id.contine_notice), buttonAgree);
+        Font.setTypeface(Font.getLight(assets), webviewContent);
     }
     
 	@Override

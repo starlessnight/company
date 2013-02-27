@@ -27,12 +27,13 @@
 		        android:layout_centerHorizontal="true" />
 	    
 		    <TextView
+		        android:id="@+id/subtitle"
 		        android:layout_alignRight="@id/smartrek"
 		        android:layout_alignBottom="@id/smartrek"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:text="@string/login_logo_subtitle"
-		        android:textSize="11.5dp"
+		        android:textSize="11dp"
 		        style="@style/SmallestText"
 		    />
 		    
@@ -87,7 +88,7 @@
 	           android:layout_height="60dp"
 	           android:layout_gravity="bottom|center_horizontal"
 	           android:gravity="bottom"
-	           android:layout_marginBottom="15dp"
+	           android:paddingBottom="15dp"
 	           style="@style/SmallestText"
 			/>
 			

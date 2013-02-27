@@ -12,8 +12,8 @@
     <string name="firstname">Firstname</string>
     <string name="lastname">Lastname</string>
     <string name="login_logo_subtitle">working together to reduce traffic</string>
-    <string name="username">Username</string>
-    <string name="password">Password</string>
+    <string name="username">username</string>
+    <string name="password">password</string>
     <string name="password_confirmation">Password confirmation</string>
     <string name="login">log in</string>
     <string name="create_account_link_text">Dont\'t have an account? &lt;u>Create one now&lt;/u></string>
