@@ -7,6 +7,8 @@ import org.apache.commons.io.IOUtils;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
@@ -15,6 +17,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.utils.Font;
 import com.smartrek.utils.Preferences;
 
 public class LicenseAgreementActivity extends Activity {
@@ -69,6 +72,14 @@ public class LicenseAgreementActivity extends Activity {
         } finally {
             IOUtils.closeQuietly(is);
         }
+        
+        AssetManager assets = getAssets();
+        Typeface helBold = Font.getBold(assets); 
+        ((TextView)findViewById(R.id.title)).setTypeface(helBold);
+        ((TextView)findViewById(R.id.contine_notice)).setTypeface(helBold);
+        buttonAgree.setTypeface(helBold);
+        Typeface helLight = Font.getLight(assets);
+        webviewContent.setTypeface(helLight);
     }
     
 	@Override
