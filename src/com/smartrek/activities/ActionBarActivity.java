@@ -2,12 +2,17 @@ package com.smartrek.activities;
 
 import java.lang.reflect.Field;
 
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.ViewConfiguration;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockActivity;
+import com.smartrek.utils.Font;
 
 public class ActionBarActivity extends SherlockActivity {
 
@@ -26,6 +31,19 @@ public class ActionBarActivity extends SherlockActivity {
             }
         }
         super.onCreate(savedInstanceState);
+    }
+    
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        try {
+            final int titleId = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ? Resources
+                    .getSystem().getIdentifier("action_bar_title", "id", "android")
+                    : com.actionbarsherlock.R.id.abs__action_bar_title;
+            TextView title = (TextView) getWindow().findViewById(titleId);
+            Font.setTypeface(Font.getBold(getAssets()), title);
+        } catch (Exception e) {
+        }
     }
     
     @Override
