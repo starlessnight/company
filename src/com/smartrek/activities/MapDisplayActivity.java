@@ -1,14 +1,15 @@
 package com.smartrek.activities;
 
-import com.google.analytics.tracking.android.EasyTracker;
-
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.RadioButton;
+import android.widget.TextView;
+
+import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.utils.Font;
 
 public final class MapDisplayActivity extends ActionBarActivity {
     
@@ -94,6 +95,9 @@ public final class MapDisplayActivity extends ActionBarActivity {
         timeIncrement5.setOnClickListener(timeIncrementListener);
         timeIncrement15.setOnClickListener(timeIncrementListener);
         timeIncrement60.setOnClickListener(timeIncrementListener);
+        
+        Font.setTypeface(boldFont, (TextView)findViewById(R.id.time_heading));
+        Font.setTypeface(lightFont, displayTravel, displayArrival);
     }
     
 	@Override
