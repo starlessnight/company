@@ -9,12 +9,12 @@
     <string name="terms_of_use">Smartrek Terms of Use</string>
     <string name="agree_terms_of_use">by clicking continue you agree to these terms and conditions</string>
     <string name="sign_up_msg">Sign up today and work collectively to reduce traffic and pollution!</string>
-    <string name="firstname">Firstname</string>
-    <string name="lastname">Lastname</string>
+    <string name="firstname">first name</string>
+    <string name="lastname">last name</string>
     <string name="login_logo_subtitle">working together to reduce traffic</string>
     <string name="username">username</string>
     <string name="password">password</string>
-    <string name="password_confirmation">Password confirmation</string>
+    <string name="password_confirmation">password confirm</string>
     <string name="login">log in</string>
     <string name="create_account_link_text">Dont\'t have an account? &lt;u>Create one now&lt;/u></string>
     <string name="signup">sign up</string>
@@ -25,7 +25,7 @@
     <string name="settings">Settings</string>
     <string name="more">More</string>
     <string name="credits">Credits</string>
-    <string name="email">Email</string>
+    <string name="email">email</string>
     <string name="dismiss">Dismiss</string>
     <string name="close">Close</string>
     <string name="cancel">Cancel</string>

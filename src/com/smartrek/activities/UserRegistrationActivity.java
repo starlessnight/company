@@ -12,13 +12,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.models.User;
 import com.smartrek.requests.UserRegistrationRequest;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.Font;
 
 public final class UserRegistrationActivity extends ActionBarActivity
         implements TextWatcher {
@@ -61,6 +61,11 @@ public final class UserRegistrationActivity extends ActionBarActivity
 			}
 
         });
+        
+        Font.setTypeface(lightFont, (TextView)findViewById(R.id.smartrek), editTextEmail,
+            editTextFirstname, editTextLastname, editTextPassword, editTextPasswordConfirm,
+            editTextUsername);
+        Font.setTypeface(boldFont, buttonRegister);
     }
     
 	@Override

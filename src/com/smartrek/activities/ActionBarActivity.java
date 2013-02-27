@@ -2,20 +2,24 @@ package com.smartrek.activities;
 
 import java.lang.reflect.Field;
 
+import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockActivity;
 import com.smartrek.utils.Font;
 
 public class ActionBarActivity extends SherlockActivity {
 
+    protected Typeface boldFont;
+    
+    protected Typeface lightFont;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -31,6 +35,9 @@ public class ActionBarActivity extends SherlockActivity {
             }
         }
         super.onCreate(savedInstanceState);
+        AssetManager assets = getAssets();
+        boldFont = Font.getBold(assets);
+        lightFont = Font.getLight(assets);
     }
     
     @Override
@@ -41,7 +48,7 @@ public class ActionBarActivity extends SherlockActivity {
                     .getSystem().getIdentifier("action_bar_title", "id", "android")
                     : com.actionbarsherlock.R.id.abs__action_bar_title;
             TextView title = (TextView) getWindow().findViewById(titleId);
-            Font.setTypeface(Font.getBold(getAssets()), title);
+            Font.setTypeface(boldFont, title);
         } catch (Exception e) {
         }
     }
