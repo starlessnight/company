@@ -22,7 +22,6 @@ import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageButton;
 
-import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -41,6 +40,7 @@ import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.Cache;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.Font;
 import com.smartrek.utils.SystemService;
 
 /**
@@ -62,7 +62,7 @@ import com.smartrek.utils.SystemService;
  * @version 1.0
  * 
  */
-public final class HomeActivity extends SherlockActivity {
+public final class HomeActivity extends ActionBarActivity {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
@@ -217,6 +217,10 @@ public final class HomeActivity extends SherlockActivity {
 	    });
 
 	    new NotificationTask().execute(User.getCurrentUser(this).getId());
+	    
+	   Font.setTypeface(boldFont, buttonDone, buttonLoadTrip, buttonSaveTrip,
+           buttonOriginMyLocation);
+	   Font.setTypeface(lightFont, editAddressDest, editAddressOrigin);
 	}
 	
 	@Override

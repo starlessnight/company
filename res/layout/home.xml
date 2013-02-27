@@ -38,7 +38,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="From"
+                android:hint="start"
                 android:inputType="textPostalAddress" 
                 style="@style/NormalTextField">
 
@@ -67,7 +67,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="To"
+                android:hint="end"
                 android:inputType="textPostalAddress" 
                 style="@style/NormalTextField" />
 

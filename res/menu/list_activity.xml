@@ -3,14 +3,14 @@
     
     <item android:id="@+id/refresh"
           android:icon="@android:drawable/ic_menu_rotate"
-          android:title="Refresh"
+          android:title="refresh"
 	/>
 
     <item
         android:id="@+id/route"
         android:enabled="true"
         android:icon="@drawable/route"
-        android:title="Where to"
+        android:title="where to"
         android:visible="true"/>
     <item
         android:id="@+id/reservation"
@@ -39,6 +39,6 @@
         android:title="@string/logout"/>
     <item
         android:id="@+id/debug_options"
-        android:title="Debug options"/>
+        android:title="debug options"/>
 
 </menu>

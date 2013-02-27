@@ -4,13 +4,13 @@
     <item
         android:id="@+id/edit"
         android:enabled="true"
-        android:title="Edit"
+        android:title="edit"
         android:visible="true"/>
 
     <item
         android:id="@+id/delete"
         android:enabled="true"
-        android:title="Delete"
+        android:title="delete"
         android:visible="true"/>
     
 </menu>

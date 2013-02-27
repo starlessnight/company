@@ -22,7 +22,7 @@
     <string name="origin">Origin</string>
     <string name="destination">Destination</string>
     <string name="about">About</string>
-    <string name="settings">Settings</string>
+    <string name="settings">settings</string>
     <string name="more">More</string>
     <string name="credits">Credits</string>
     <string name="email">email</string>
@@ -77,9 +77,9 @@
     <!-- *************************************************************************************** -->
     <!-- *************************************************************************************** -->
 
-    <string name="my_coupons">My Coupons</string>
+    <string name="my_coupons">my coupons</string>
     <string name="my_contacts">My Contacts</string>
-    <string name="reservations">Reservations</string>
+    <string name="reservations">my reservations</string>
     <string name="my_credits">My Credits</string>
 
     <!-- *************************************************************************************** -->
@@ -87,7 +87,7 @@
     <!-- *************************************************************************************** -->
     <string name="map_mode">map mode</string>
     <string name="map_view">map view</string>
-    <string name="logout">Log out</string>
+    <string name="logout">log out</string>
     <string name="satellite_view"> satellite view</string>
     <!-- *************************************************************************************** -->
     <!-- *************************************************************************************** -->
