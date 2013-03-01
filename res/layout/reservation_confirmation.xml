@@ -62,7 +62,7 @@
 	        android:id="@+id/textView4"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:text="Departure time"
+	        android:text="DEPARTURE TIME"
 	        android:layout_marginTop="15dp"
 	        android:layout_marginLeft="30dp"
 	        android:layout_marginRight="30dp"
@@ -84,7 +84,7 @@
 	        android:layout_marginTop="15dp"
 	        android:layout_marginLeft="30dp"
 	        android:layout_marginRight="30dp"
-	        android:text="Estimated arrival time"
+	        android:text="ESTIMATED ARRIVAL TIME"
 	        style="@style/SmallestText" />
 	
 	    <TextView
@@ -102,7 +102,7 @@
 	        android:layout_marginTop="15dp"
 	        android:layout_marginLeft="30dp"
 	        android:layout_marginRight="30dp"
-	        android:text="Estimate duration"
+	        android:text="ESTIMATED DURATION"
 	        style="@style/SmallestText"
 	    />
 	    

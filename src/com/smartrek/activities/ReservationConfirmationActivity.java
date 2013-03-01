@@ -26,6 +26,7 @@ import com.smartrek.requests.ReservationRequest;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.Cache;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.Font;
 import com.smartrek.utils.datetime.HumanReadableTime;
 
 /**
@@ -88,6 +89,13 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 				new ReservationTask().execute();
 			}
         });
+        
+        Font.setTypeface(boldFont, (TextView)findViewById(R.id.textView2), 
+            (TextView)findViewById(R.id.textView3), (TextView)findViewById(R.id.textView4), 
+            (TextView)findViewById(R.id.textView5), (TextView)findViewById(R.id.textView6));
+        Font.setTypeface(lightFont, textViewArrivalTime, textViewCredits,
+            textViewDepartureTime, textViewDestination, textViewDuration, 
+            textViewOrigin);
         
 	}
 	
