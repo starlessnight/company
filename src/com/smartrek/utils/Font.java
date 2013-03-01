@@ -2,6 +2,7 @@ package com.smartrek.utils;
 
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
+import android.util.TypedValue;
 import android.widget.TextView;
 
 public class Font {
@@ -21,6 +22,15 @@ public class Font {
     public static void setTypeface(Typeface tf, TextView... views){
         for (TextView v : views) {
             v.setTypeface(tf);
+        }
+    }
+    
+    public static void autoScaleTextSize(TextView tv, float width){
+        String s = tv.getText().toString();
+        float currentWidth = tv.getPaint().measureText(s);
+        while(currentWidth > width) {         
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, tv.getTextSize() - 1.0f); 
+            currentWidth = tv.getPaint().measureText(s);
         }
     }
     

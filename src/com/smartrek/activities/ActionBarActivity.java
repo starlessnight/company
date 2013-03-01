@@ -3,10 +3,13 @@ package com.smartrek.activities;
 import java.lang.reflect.Field;
 
 import android.content.res.AssetManager;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.ViewConfiguration;
 import android.widget.TextView;
@@ -43,14 +46,33 @@ public class ActionBarActivity extends SherlockActivity {
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        try {
-            final int titleId = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ? Resources
-                    .getSystem().getIdentifier("action_bar_title", "id", "android")
-                    : com.actionbarsherlock.R.id.abs__action_bar_title;
-            TextView title = (TextView) getWindow().findViewById(titleId);
-            Font.setTypeface(boldFont, title);
-        } catch (Exception e) {
-        }
+        TextView title = getActionBarTitle();
+        Font.setTypeface(boldFont, title);
+        resizeActionBarTitle();
+    }
+    
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                resizeActionBarTitle();
+            }
+        }, 500);
+    }
+    
+    void resizeActionBarTitle(){
+        float offset = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 112, getResources().getDisplayMetrics());
+        int width = getWindowManager().getDefaultDisplay().getWidth();
+        Font.autoScaleTextSize(getActionBarTitle(), width - offset);
+    }
+    
+    TextView getActionBarTitle(){
+        int titleId = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ? Resources
+                .getSystem().getIdentifier("action_bar_title", "id", "android")
+                : com.actionbarsherlock.R.id.abs__action_bar_title;
+        return (TextView) getWindow().findViewById(titleId);
     }
     
     @Override
