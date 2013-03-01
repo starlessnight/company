@@ -2,7 +2,7 @@
 <resources>
 
     <string name="smartrek">smartrek</string>
-    <string name="app_name">Smartrek - Beta</string>
+    <string name="app_name">smartrek - beta</string>
 
     <!-- General terms -->
     <string name="placeholder">(placeholder)</string>
@@ -18,6 +18,7 @@
     <string name="login">log in</string>
     <string name="create_account_link_text">Dont\'t have an account? &lt;u>Create one now&lt;/u></string>
     <string name="signup">sign up</string>
+    <string name="sign_in">sign in</string>
     <string name="get_started">get started!</string>
     <string name="origin">Origin</string>
     <string name="destination">Destination</string>

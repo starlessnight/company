@@ -106,7 +106,7 @@
             android:name=".ReservationListActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
             android:theme="@style/Theme.smartrek"
-            android:label="My reservations" />
+            android:label="my reservations" />
         <activity
             android:name=".ContactsActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
