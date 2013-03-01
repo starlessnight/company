@@ -258,7 +258,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 			//textViewCredits.setText(String.format("%d", r.getCredits()));
 			
 			TextView itemNum = (TextView)view.findViewById(R.id.itemNum);
-			itemNum.setText(String.format("No. %03d", position + 1));
+			itemNum.setText(String.format("No. %d", r.getRoute().getId()));
 			
             Font.setTypeface(ReservationListActivity.this.boldFont, 
 		        itemNum, (TextView)view.findViewById(R.id.textView0),

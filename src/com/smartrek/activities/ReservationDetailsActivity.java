@@ -17,6 +17,7 @@ import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.Font;
 import com.smartrek.utils.datetime.HumanReadableTime;
 
 /**
@@ -70,7 +71,7 @@ public final class ReservationDetailsActivity extends ActionBarActivity {
                 destination = reservation.getDestinationAddress();
             }
             
-            setTitle(String.format("Reservation #%d", route.getId()));
+            setTitle(String.format("no. %d", route.getId()));
             
 	        textViewOrigin = (TextView) findViewById(R.id.textViewOrigin);
 	        textViewOrigin.setText(origin);
@@ -113,6 +114,14 @@ public final class ReservationDetailsActivity extends ActionBarActivity {
 	            }
 	            
 	        });
+	        
+	        Font.setTypeface(boldFont, (TextView)findViewById(R.id.textView1),
+                (TextView)findViewById(R.id.textView2), (TextView)findViewById(R.id.textView3),
+                (TextView)findViewById(R.id.textView4), (TextView)findViewById(R.id.textView5),
+                (TextView)findViewById(R.id.textView6));
+	        Font.setTypeface(lightFont, textViewArrivalTime, textViewCredits,
+                textViewDepartureTime, textViewDestination, textViewDuration, 
+                textViewOrigin);
         }
     }
     

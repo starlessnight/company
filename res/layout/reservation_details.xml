@@ -18,7 +18,7 @@
 	        android:layout_marginTop="15dp"
 	        android:layout_marginLeft="30dp"
 	        android:layout_marginRight="30dp"
-	        android:text="Departure time"
+	        android:text="DEPARTURE TIME"
 	        style="@style/SmallestText" />
 	
 	    <TextView
@@ -47,7 +47,7 @@
 	        android:layout_marginTop="15dp"
 	        android:layout_marginLeft="30dp"
 	        android:layout_marginRight="30dp"
-	        android:text="Origin"
+	        android:text="@string/origin"
 	        style="@style/SmallestText" />
 	
 	    <TextView
@@ -66,7 +66,7 @@
 	        android:layout_marginTop="15dp"
 	        android:layout_marginLeft="30dp"
 	        android:layout_marginRight="30dp"
-	        android:text="Destination"
+	        android:text="@string/destination"
 	        style="@style/SmallestText" />
 	
 	    <TextView
@@ -96,7 +96,7 @@
 	        android:layout_marginTop="15dp"
 	        android:layout_marginLeft="30dp"
 	        android:layout_marginRight="30dp"
-	        android:text="Estimated arrival time"
+	        android:text="ESTIMATED ARRIVAL TIME"
 	        style="@style/SmallestText"
 	    />
 	
@@ -111,12 +111,13 @@
 	    />
 	    
 	    <TextView
+	        android:id="@+id/textView1"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:layout_marginTop="15dp"
 	        android:layout_marginLeft="30dp"
 	        android:layout_marginRight="30dp"
-	        android:text="Estimate duration"
+	        android:text="ESTIMATED DURATION"
 	        style="@style/SmallestText"
 	    />
 	    
@@ -186,6 +187,7 @@
 			        android:layout_gravity="bottom"
 			        android:gravity="center"
 			        android:text="@string/placeholder" 
+			        style="@style/SmallerText"
 			    />
 	    
 	    </LinearLayout>
