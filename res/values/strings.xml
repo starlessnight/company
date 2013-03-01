@@ -20,8 +20,8 @@
     <string name="signup">sign up</string>
     <string name="sign_in">sign in</string>
     <string name="get_started">get started!</string>
-    <string name="origin">Origin</string>
-    <string name="destination">Destination</string>
+    <string name="origin">ORIGIN</string>
+    <string name="destination">DESTINATION</string>
     <string name="about">About</string>
     <string name="settings">settings</string>
     <string name="more">More</string>

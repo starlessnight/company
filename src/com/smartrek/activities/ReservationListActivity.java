@@ -28,6 +28,7 @@ import com.smartrek.models.User;
 import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.Font;
 
 /**
  * Shows a list of reserved routes
@@ -58,6 +59,8 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
         //registerForContextMenu(getListView());
         
         reservations = new ArrayList<Reservation>();
+        
+        Font.setTypeface(lightFont, textViewGeneric);
 	}
 	
 	@Override
@@ -253,6 +256,16 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 			
 			//TextView textViewCredits = (TextView) view.findViewById(R.id.textViewCredits);
 			//textViewCredits.setText(String.format("%d", r.getCredits()));
+			
+			TextView itemNum = (TextView)view.findViewById(R.id.itemNum);
+			itemNum.setText(String.format("No. %03d", position + 1));
+			
+            Font.setTypeface(ReservationListActivity.this.boldFont, 
+		        itemNum, (TextView)view.findViewById(R.id.textView0),
+		        (TextView)view.findViewById(R.id.textView1), (TextView)view.findViewById(R.id.textView3)
+			);
+			Font.setTypeface(ReservationListActivity.this.lightFont, textView1, 
+		        textView2, textViewDepartureTime);
 			
 			return view;
 		}

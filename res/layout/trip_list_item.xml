@@ -22,7 +22,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
-        android:text="@string/origin"
+        android:text="Origin"
         android:textColor="#F3E123" />
 
     <TextView
@@ -38,7 +38,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
-        android:text="@string/destination"
+        android:text="Destination"
         android:textColor="#F3E123" />
 
     <TextView

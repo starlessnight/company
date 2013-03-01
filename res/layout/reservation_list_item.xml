@@ -10,13 +10,22 @@
         android:layout_height="wrap_content"
         android:orientation="vertical" >
 
-        <TextView 
+        <TextView
+            android:id="@+id/itemNum" 
         	android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
-            android:text="Departure time"
+            style="@style/SmallestText"
+        />
+        <TextView
+            android:id="@+id/textView0" 
+        	android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:text="DEPARTURE TIME"
             style="@style/SmallestText"
         />
         
