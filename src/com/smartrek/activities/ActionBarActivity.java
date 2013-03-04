@@ -12,9 +12,11 @@ import android.os.Handler;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.ViewConfiguration;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockActivity;
+import com.smartrek.utils.Dimension;
 import com.smartrek.utils.Font;
 
 public class ActionBarActivity extends SherlockActivity {
@@ -49,6 +51,7 @@ public class ActionBarActivity extends SherlockActivity {
         TextView title = getActionBarTitle();
         Font.setTypeface(boldFont, title);
         resizeActionBarTitle();
+        repositionActionBarTitle();
     }
     
     @Override
@@ -57,7 +60,11 @@ public class ActionBarActivity extends SherlockActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+                TextView title = getActionBarTitle();
+                repositionActionBarTitle();
+                Font.setTypeface(boldFont, title);
                 resizeActionBarTitle();
+                title.requestLayout();
             }
         }, 500);
     }
@@ -66,6 +73,12 @@ public class ActionBarActivity extends SherlockActivity {
         float offset = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 112, getResources().getDisplayMetrics());
         int width = getWindowManager().getDefaultDisplay().getWidth();
         Font.autoScaleTextSize(getActionBarTitle(), width - offset);
+    }
+    
+    void repositionActionBarTitle(){
+        TextView title = getActionBarTitle();
+        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) title.getLayoutParams();
+        layoutParams.bottomMargin = Dimension.dpToPx(4, getResources().getDisplayMetrics());
     }
     
     TextView getActionBarTitle(){

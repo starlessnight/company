@@ -6,7 +6,6 @@
         android:drawable="@drawable/icon_smartrek_simplified"
         android:right="-1dp"
         android:left="-2dp"
-        android:bottom="-2dp"
     />
 
 
