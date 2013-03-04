@@ -1,18 +1,20 @@
 package com.smartrek.ui.timelayout;
 
+import com.smartrek.utils.Dimension;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.view.Gravity;
 import android.widget.TextView;
 
 public final class TimeButton extends TextView {
 	
 	public static final int WIDTH = 148;
-	public static final int HEIGHT = 28;
+	public static final int HEIGHT = 25;
+	public static final int SMALL_HEIGHT = 15;
 	
 	public enum State {
 		None, Unknown, InProgress, Selected, Disabled;
@@ -67,13 +69,13 @@ public final class TimeButton extends TextView {
 	 */
 	private int row;
 	
-	public TimeButton(Context context, int row) {
+	public TimeButton(Context context, int row, boolean large) {
 		super(context);
 		
 		this.row = row;
 		
 		setWidth(WIDTH);
-		setHeight(HEIGHT);
+		setHeight(Dimension.dpToPx(large?HEIGHT:SMALL_HEIGHT, getResources().getDisplayMetrics()));
 		setGravity(Gravity.CENTER);
 		
         paint.setStyle(Paint.Style.STROKE);

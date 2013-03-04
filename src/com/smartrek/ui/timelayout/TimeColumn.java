@@ -41,10 +41,10 @@ public final class TimeColumn extends FrameLayout {
 		LinearLayout timeColumnLayout = new LinearLayout(getContext());
 		timeColumnLayout.setOrientation(LinearLayout.VERTICAL);
 
-		departureTimeButton = new TimeButton(getContext(), 0);
+		departureTimeButton = new TimeButton(getContext(), 0, true);
 		timeColumnLayout.addView(departureTimeButton);
 		
-		arrivalTimeButton = new TimeButton(getContext(), 1);
+		arrivalTimeButton = new TimeButton(getContext(), 1, true);
 		timeColumnLayout.addView(arrivalTimeButton);
 		
 		addView(timeColumnLayout);
