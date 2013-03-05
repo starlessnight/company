@@ -48,7 +48,8 @@
                 android:button="@null"
 	            android:drawableRight="@drawable/radio"
 	            android:gravity="left|center_vertical"
-                style="@style/SmallerText">
+                style="@style/SmallerText"
+                android:padding="0dp">
             </RadioButton>
 
             <RadioButton
@@ -60,7 +61,8 @@
                 android:button="@null"
 	            android:drawableRight="@drawable/radio"
 	            android:gravity="left|center_vertical"
-                style="@style/SmallerText">
+                style="@style/SmallerText"
+                android:padding="0dp">
             </RadioButton>
         </RadioGroup>
     </RelativeLayout>
