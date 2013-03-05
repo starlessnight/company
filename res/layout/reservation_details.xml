@@ -160,6 +160,10 @@
 	        style="@style/SmallerText" />
 	
 	    <LinearLayout 
+	        android:layout_marginTop="15dp"
+	        android:layout_marginBottom="15dp"
+	        android:layout_marginLeft="30dp"
+			android:layout_marginRight="30dp"
 	        android:layout_width="match_parent"
 		    android:layout_height="match_parent"
 		    android:orientation="vertical">
@@ -168,9 +172,6 @@
 			        android:id="@+id/buttonStartTrip"
 			        android:layout_width="match_parent"
 			        android:layout_height="wrap_content"
-			        android:layout_marginTop="15dp"
-			        android:layout_marginLeft="30dp"
-			        android:layout_marginRight="30dp"
 			        android:layout_marginBottom="15dp"
 			        android:layout_gravity="bottom"
 			        android:text="start trip"
@@ -181,9 +182,6 @@
 			        android:id="@+id/textViewHelp"
 			        android:layout_width="match_parent"
 			        android:layout_height="wrap_content"
-			        android:layout_marginLeft="30dp"
-			        android:layout_marginRight="30dp"
-			        android:layout_marginBottom="15dp"
 			        android:layout_gravity="bottom"
 			        android:gravity="center"
 			        android:text="@string/placeholder" 
