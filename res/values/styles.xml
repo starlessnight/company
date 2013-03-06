@@ -68,7 +68,7 @@
 		<item name="android:background">@drawable/load_button</item>
 	</style>
 	<style name="MoreButton">
-	    <item name="android:src">@drawable/more_button_icon</item>
+	    <item name="android:src">@drawable/icon_more</item>
 		<item name="android:scaleType">center</item>
 	    <item name="android:background">@android:color/black</item>
 	</style>
