@@ -6,5 +6,6 @@
     <dimen name="smallest_font">14dp</dimen>
     <dimen name="smaller_font">18dp</dimen>
     <dimen name="large_font">32dp</dimen>
+    <dimen name="timetable_separator_width">1dp</dimen>
 
 </resources>

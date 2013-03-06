@@ -1,6 +1,7 @@
 package com.smartrek.ui.timelayout;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.LinearLayout;
 import com.smartrek.models.Route;
 import com.smartrek.ui.timelayout.TimeButton.DisplayMode;
 import com.smartrek.ui.timelayout.TimeButton.State;
+import com.smartrek.utils.Font;
 
 
 /**
@@ -59,8 +61,10 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
         
         columnCount = adjustableTime.getNumTimeBoxes();
         
+        Typeface boldFont = Font.getBold(getResources().getAssets());        
+        
         for (int i = 0; i < columnCount; i++) {
-             TimeColumn timeColumn = new TimeColumn(this, i);
+             TimeColumn timeColumn = new TimeColumn(this, i, boldFont, boldFont);
              timeColumn.setDepartureTime(adjustableTime.initTime().toMillis(false));
              timeColumn.setOnClickListener(this);
              adjustableTime.incrementBy(15);
