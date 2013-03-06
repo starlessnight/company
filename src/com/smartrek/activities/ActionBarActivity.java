@@ -21,6 +21,10 @@ import com.smartrek.utils.Font;
 
 public class ActionBarActivity extends SherlockActivity {
 
+    private static final int titleWidth = 120;
+    
+    private static final int titleTopOffset = -3;
+
     protected Typeface boldFont;
     
     protected Typeface lightFont;
@@ -70,7 +74,7 @@ public class ActionBarActivity extends SherlockActivity {
     }
     
     void resizeActionBarTitle(){
-        float offset = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 112, getResources().getDisplayMetrics());
+        float offset = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, titleWidth, getResources().getDisplayMetrics());
         int width = getWindowManager().getDefaultDisplay().getWidth();
         Font.autoScaleTextSize(getActionBarTitle(), width - offset);
     }
@@ -78,7 +82,7 @@ public class ActionBarActivity extends SherlockActivity {
     void repositionActionBarTitle(){
         TextView title = getActionBarTitle();
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) title.getLayoutParams();
-        layoutParams.bottomMargin = Dimension.dpToPx(4, getResources().getDisplayMetrics());
+        layoutParams.topMargin = Dimension.dpToPx(titleTopOffset, getResources().getDisplayMetrics());
     }
     
     TextView getActionBarTitle(){

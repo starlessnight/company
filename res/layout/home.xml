@@ -47,7 +47,7 @@
             <ImageButton
                 android:id="@+id/Favs1"
                 android:layout_width="36dp"
-                android:layout_height="54dp"
+                android:layout_height="52dp"
                 android:layout_marginLeft="10dp"
                 style="@style/MoreButton" 
             />
@@ -74,7 +74,7 @@
             <ImageButton
                 android:id="@+id/Favs2"
                 android:layout_width="36dp"
-                android:layout_height="54dp"
+                android:layout_height="52dp"
                 android:layout_marginLeft="10dp"
                 style="@style/MoreButton"
              />
