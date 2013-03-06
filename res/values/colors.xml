@@ -6,9 +6,15 @@
 	<color name="gray">#404041</color>
 	<color name="secondary_font">#a7a9ab</color>
 	<color name="light_green">#6cbd44</color>
-	<color name="dark_green">#1e5429</color>
+	<color name="light_green_highlight">#a0cc3a</color>
+	<color name="light_green_shadow">#42802b</color>
+	<color name="dark_green">#20542a</color>
+	<color name="dark_green_highlight">#38813a</color>
+	<color name="dark_green_shadow">#053a16</color>
 	<color name="light_blue">#5bbce2</color>
-	<color name="dark_blue">#295262</color>
-	<color name="botton_highlight">#80ffffff</color>
-	<color name="botton_shadow">#80000000</color>
+	<color name="light_blue_highlight">#9ad2ed</color>
+	<color name="light_blue_shadow">#3b7f99</color>
+	<color name="dark_blue">#2a5262</color>
+	<color name="dark_blue_highlight">#2a7896</color>
+	<color name="dark_blue_shadow">#123642</color>
 </resources>
