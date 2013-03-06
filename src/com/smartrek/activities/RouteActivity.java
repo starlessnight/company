@@ -447,7 +447,7 @@ public final class RouteActivity extends ActionBarActivity {
         // FIXME:
         route.setUserId(User.getCurrentUser(this).getId());
         
-        routeInfoOverlays[routeNum] = new RouteInfoOverlay(mapView, route, routeNum, new GeoPoint(lat, lon));
+        routeInfoOverlays[routeNum] = new RouteInfoOverlay(mapView, route, routeNum, new GeoPoint(lat, lon), boldFont, lightFont);
         routeInfoOverlays[routeNum].setCallback(new RouteOverlayCallbackImpl(route, routeNum));
         //mapOverlays.add(routeOverlays[routeNum]);
         

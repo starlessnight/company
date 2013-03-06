@@ -26,6 +26,7 @@ import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
 
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.view.MotionEvent;
 import android.view.View;
@@ -49,6 +50,8 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 	protected final MapController mc;
 	protected Item currentFocussedItem;
 	protected int currentFocussedIndex;
+	protected Typeface headerFont;
+	protected Typeface bodyFont;
 
 	/**
 	 * Create a new BalloonItemizedOverlay
@@ -57,7 +60,7 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 	 * @param mapView - The view upon which the overlay items are to be drawn.
 	 */
 	public BalloonItemizedOverlay(Drawable defaultMarker, MapView mapView,
-			OnItemGestureListener<Item> itemGestureListener) {
+			OnItemGestureListener<Item> itemGestureListener, Typeface headerFont, Typeface bodyFont) {
 		//super(defaultMarker, new DefaultResourceProxyImpl(mapView.getContext()));
 		super(new ArrayList<Item>(), defaultMarker, itemGestureListener,
 				new DefaultResourceProxyImpl(mapView.getContext()));
@@ -65,6 +68,8 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 		this.mapView = mapView;
 		viewOffset = 0;
 		mc = mapView.getController();
+		this.headerFont = headerFont;
+		this.bodyFont = bodyFont;
 	}
 
 	/**
@@ -115,7 +120,8 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 	 * can populate additional sub-views.
 	 */
 	protected BalloonOverlayView<Item> createBalloonOverlayView() {
-		return new BalloonOverlayView<Item>(getMapView().getContext(), getBalloonBottomOffset());
+		return new BalloonOverlayView<Item>(getMapView().getContext(), 
+	        getBalloonBottomOffset(), headerFont, bodyFont);
 	}
 
 	/**

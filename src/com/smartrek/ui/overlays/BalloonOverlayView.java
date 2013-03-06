@@ -18,6 +18,7 @@ package com.smartrek.ui.overlays;
 import org.osmdroid.views.overlay.OverlayItem;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.smartrek.activities.R;
+import com.smartrek.utils.Font;
 
 /**
  * A view representing a MapView marker information balloon.
@@ -58,7 +60,7 @@ public class BalloonOverlayView<Item extends OverlayItem> extends FrameLayout {
 	 * @param balloonBottomOffset - The bottom padding (in pixels) to be applied
 	 * when rendering this view.
 	 */
-	public BalloonOverlayView(Context context, int balloonBottomOffset) {
+	public BalloonOverlayView(Context context, int balloonBottomOffset, Typeface headerFont, Typeface bodyFont) {
 
 		super(context);
 
@@ -70,8 +72,10 @@ public class BalloonOverlayView<Item extends OverlayItem> extends FrameLayout {
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View v = inflater.inflate(R.layout.balloon_overlay, layout);
 		title = (TextView) v.findViewById(R.id.balloon_item_title);
+		Font.setTypeface(headerFont, title);
 		snippet = (TextView) v.findViewById(R.id.balloon_item_snippet);
-
+		Font.setTypeface(bodyFont, snippet);
+		
 		close = (ImageView) v.findViewById(R.id.close_img_button);
 		close.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {

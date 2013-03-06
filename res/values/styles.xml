@@ -7,6 +7,19 @@
 	    <item name="android:padding">15dp</item>
 	    <item name="android:background">@color/header_background</item>
 	</style>
+	<style name="PopUpHeader">
+	    <item name="android:textSize">@dimen/smaller_font</item>
+	    <item name="android:textColor">@android:color/white</item>
+	    <item name="android:textStyle">bold</item>
+	    <item name="android:padding">15dp</item>
+	    <item name="android:background">@color/pop_up_header_background</item>
+	</style>
+	<style name="PopUpBody">
+	    <item name="android:textSize">@dimen/smaller_font</item>
+	    <item name="android:textColor">@android:color/white</item>
+	    <item name="android:padding">15dp</item>
+	    <item name="android:background">@color/dark_gray</item>
+	</style>
 	<style name="SmallerText">
 	    <item name="android:textSize">@dimen/smaller_font</item>
 	    <item name="android:textColor">@android:color/white</item>

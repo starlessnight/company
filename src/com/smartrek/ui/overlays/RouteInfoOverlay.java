@@ -3,6 +3,7 @@ package com.smartrek.ui.overlays;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.OverlayItem;
 
+import android.graphics.Typeface;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,8 +22,8 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private Route route;
 	private GeoPoint geoPoint;
 	
-	public RouteInfoOverlay(MapView mapview, Route route, int routeSeq, GeoPoint point) {
-		super(mapview.getResources().getDrawable(R.drawable.pin_route), mapview, null);
+	public RouteInfoOverlay(MapView mapview, Route route, int routeSeq, GeoPoint point, Typeface headerFont, Typeface bodyFont) {
+		super(mapview.getResources().getDrawable(R.drawable.pin_route), mapview, null, headerFont, bodyFont);
 		this.route = route;
 		this.geoPoint = point;
 
