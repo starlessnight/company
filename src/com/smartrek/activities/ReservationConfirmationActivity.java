@@ -90,9 +90,10 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 			}
         });
         
-        Font.setTypeface(boldFont, (TextView)findViewById(R.id.textView2), 
-            (TextView)findViewById(R.id.textView3), (TextView)findViewById(R.id.textView4), 
-            (TextView)findViewById(R.id.textView5), (TextView)findViewById(R.id.textView6),
+        Font.setTypeface(boldFont, (TextView)findViewById(R.id.textView1),
+            (TextView)findViewById(R.id.textView2), (TextView)findViewById(R.id.textView3), 
+            (TextView)findViewById(R.id.textView4), (TextView)findViewById(R.id.textView5), 
+            (TextView)findViewById(R.id.textView6),
             buttonReserve);
         Font.setTypeface(lightFont, textViewArrivalTime, textViewCredits,
             textViewDepartureTime, textViewDestination, textViewDuration, 

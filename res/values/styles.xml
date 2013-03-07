@@ -31,6 +31,17 @@
 	    <item name="android:textSize">@dimen/smallest_font</item>
 	    <item name="android:textColor">@color/secondary_font</item>
 	</style>
+	<style name="MicroText">
+	    <item name="android:textSize">@dimen/micro_font</item>
+	    <item name="android:textColor">@color/secondary_font</item>
+	    <item name="android:includeFontPadding">false</item>
+	</style>
+	<style name="MediumText">
+	    <item name="android:textSize">@dimen/medium_font</item>
+	    <item name="android:includeFontPadding">false</item>
+	    <item name="android:textColor">@android:color/white</item>
+	    <item name="android:paddingTop">5dp</item>
+	</style>
 	<style name="NormalTextField">
 	    <item name="android:textSize">@dimen/smaller_font</item>
 	    <item name="android:textColor">@android:color/white</item>
