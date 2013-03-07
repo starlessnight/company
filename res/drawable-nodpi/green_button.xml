@@ -17,10 +17,6 @@
 		      android:bottom="1.5dp" 
 		      android:drawable="@drawable/button_green" 
 		  />
-		  <item 
-		      android:right="10dp"
-		      android:drawable="@drawable/next_action_button_icon" 
-		  />
 		</layer-list>
 	</item>
 	<item android:state_enabled="false" android:drawable="@drawable/button_green" />
