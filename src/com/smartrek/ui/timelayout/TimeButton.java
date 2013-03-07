@@ -24,7 +24,7 @@ public final class TimeButton extends TextView {
 	public static final int IN_PREGRESS_BACKGROUND_COLOR = Color.parseColor("#5f5e60");
 	
 	private static final int largeTopOffset = 11;
-	private static final int smallTopOffset = 4;
+	private static final int smallTopOffset = 7;
 	
 	public enum State {
 		None, Unknown, InProgress, Selected, Disabled;
@@ -89,7 +89,7 @@ public final class TimeButton extends TextView {
 		setGravity(Gravity.CENTER);
 		
 		setTextSize(TypedValue.COMPLEX_UNIT_PX, res.getDimension(
-	        large?R.dimen.smaller_font:R.dimen.smallest_font));
+	        large?R.dimen.smaller_font:R.dimen.micro_font));
 		
 		Font.setTypeface(font, this);
 		setIncludeFontPadding(false);
