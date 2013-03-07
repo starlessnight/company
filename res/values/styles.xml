@@ -48,7 +48,7 @@
 	<style name="DualTextFieldSecond" parent="NormalTextField">
 		<item name="android:background">@drawable/dual_text_field_second</item>
 	</style>
-	<style name="NextActionButton">
+	<style name="LargeTextButton">
 	    <item name="android:textSize">@dimen/large_font</item>
 	    <item name="android:textColor">@color/button_text</item>
 	    <item name="android:textStyle">bold</item>
@@ -58,7 +58,12 @@
 		<item name="android:paddingBottom">10dp</item>
 		<item name="android:includeFontPadding">false</item>
 		<item name="android:gravity">left</item>
+	</style>
+	<style name="NextActionButton" parent="LargeTextButton">
 		<item name="android:background">@drawable/next_action_button</item>
+	</style>
+	<style name="AddBuddyButton" parent="LargeTextButton">
+		<item name="android:background">@drawable/add_buddy_button</item>
 	</style>
 	<style name="SmallerTextButton">
 	    <item name="android:textSize">@dimen/smaller_font</item>

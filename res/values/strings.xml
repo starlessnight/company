@@ -39,6 +39,12 @@
     
     <string name="common_datetime_format">MMM dd, yyyy (E) HH:mm:ss</string>
     
+    <!-- Tutorial -->
+    <string name="tutorial_slide1">Swipe to learn more about avoiding traffic congestion while getting there faster!</string>
+    <string name="tutorial_slide2">Load your trip with your departure location and destination</string>
+    <string name="tutorial_slide3">Select the best route for your trip</string>
+    <string name="tutorial_slide4">Load your route and Smartrek will remind you when it\'s time to leave</string>
+    <string name="tutorial_slide5">Follow your route and earn Trekpoints you can redeem for epic rewards!</string>
     
     <!-- Trip -->
     <string name="trip_has_expired">Your trip has expired.</string>

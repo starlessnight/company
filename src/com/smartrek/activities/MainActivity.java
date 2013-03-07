@@ -148,7 +148,9 @@ public class MainActivity extends Activity implements AnimationListener {
         switch (requestCode) {
         case LicenseAgreementActivity.LICENSE_AGREEMENT_ACTIVITY:
         	if (resultCode == LicenseAgreementActivity.AGREED) {
-        		startLoginActivity();
+                startActivity(new Intent(this, TutorialActivity.class));
+                
+                finish();
         	}
         	else {
         		finish();

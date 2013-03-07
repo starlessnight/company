@@ -8,5 +8,7 @@
     <dimen name="large_font">32dp</dimen>
     <dimen name="timetable_separator_width">1dp</dimen>
     <dimen name="button_icon_padding">5dp</dimen>
+    <dimen name="tutorial_indicator_size">12dp</dimen>
+    <dimen name="tutorial_indicator_spacing">10dp</dimen>
 
 </resources>
