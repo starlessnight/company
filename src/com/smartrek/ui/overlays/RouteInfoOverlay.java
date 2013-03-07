@@ -33,7 +33,7 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private GeoPoint geoPoint;
 	
 	public RouteInfoOverlay(MapView mapview, Route route, int routeSeq, GeoPoint point, Typeface headerFont, Typeface bodyFont) {
-		super(pinRouteDrawable(mapview.getContext(), routeSeq, headerFont),
+		super(pinRouteDrawable(mapview.getContext(), routeSeq + 1, headerFont),
 	        mapview, null, headerFont, bodyFont);
 		this.route = route;
 		this.geoPoint = point;
@@ -165,7 +165,7 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
         paint.setAntiAlias(true);
         
         Canvas canvas = new Canvas(bm);
-        canvas.drawText(String.valueOf(routeSeq), bm.getWidth()/2 - textSize/4, 
+        canvas.drawText(String.valueOf(routeSeq), bm.getWidth()/2 - textSize/3, 
             bm.getHeight()/2, paint);
 
         return new BitmapDrawable(res, bm);
