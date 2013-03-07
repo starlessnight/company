@@ -3,7 +3,18 @@ package com.smartrek.ui.overlays;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.OverlayItem;
 
+import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Paint.Align;
+import android.graphics.Paint.Style;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -23,10 +34,11 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private GeoPoint geoPoint;
 	
 	public RouteInfoOverlay(MapView mapview, Route route, int routeSeq, GeoPoint point, Typeface headerFont, Typeface bodyFont) {
-		super(mapview.getResources().getDrawable(R.drawable.pin_route), mapview, null, headerFont, bodyFont);
+		super(pinRouteDrawable(mapview.getContext(), routeSeq, headerFont),
+	        mapview, null, headerFont, bodyFont);
 		this.route = route;
 		this.geoPoint = point;
-
+		
 		OverlayItem item = new OverlayItem(
 				"Route " + (routeSeq + 1),
 				"Estimated Travel Time: " + HumanReadableTime.formatDuration(route.getDuration())
@@ -140,4 +152,24 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 			return super.onBalloonTap(index, item);
 		}
 	}
+	
+	static Drawable pinRouteDrawable(Context ctx, int routeSeq, Typeface font){
+        Resources res = ctx.getResources();
+        Bitmap bm = BitmapFactory.decodeResource(res, R.drawable.pin_route).copy(Bitmap.Config.ARGB_8888, true);
+
+        Paint paint = new Paint(); 
+        paint.setStyle(Style.FILL);  
+        paint.setColor(Color.WHITE);
+        float textSize = res.getDimension(R.dimen.smallest_font);
+        paint.setTextSize(textSize);
+        paint.setTypeface(font);
+        paint.setAntiAlias(true);
+        
+        Canvas canvas = new Canvas(bm);
+        canvas.drawText(String.valueOf(routeSeq), bm.getWidth()/2 - textSize/4, 
+            bm.getHeight()/2, paint);
+
+        return new BitmapDrawable(res, bm);
+    }
+	
 }
