@@ -15,18 +15,18 @@
         	android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            style="@style/SmallestText"
+            android:layout_marginLeft="45dp"
+            android:layout_marginRight="45dp"
+            style="@style/MicroText"
         />
         <TextView
             android:id="@+id/textView0" 
         	android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
+            android:layout_marginLeft="45dp"
+            android:layout_marginRight="45dp"
             android:text="DEPARTURE TIME"
-            style="@style/SmallestText"
+            style="@style/MicroText"
         />
         
         <TextView
@@ -35,61 +35,61 @@
             android:layout_height="wrap_content"
             android:layout_gravity="left"
             android:text="@string/placeholder"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
+            android:layout_marginLeft="45dp"
+            android:layout_marginRight="45dp"
             android:textColor="@color/light_green"
-            style="@style/SmallerText" 
+            style="@style/MediumText" 
 		/>
 
         <TextView
             android:id="@+id/textView1"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="45dp"
+            android:layout_marginRight="45dp"
             android:layout_gravity="left"
             android:text="@string/origin"
-            style="@style/SmallestText" />
+            style="@style/MicroText" />
 
         <TextView
             android:id="@+id/textViewOrigin"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
+            android:layout_marginLeft="45dp"
+            android:layout_marginRight="45dp"
             android:text="@string/placeholder"
-            style="@style/SmallerText" />
+            style="@style/MediumText" />
 
         <TextView
             android:id="@+id/textView3"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="45dp"
+            android:layout_marginRight="45dp"
             android:layout_gravity="left"
             android:text="@string/destination"
-            style="@style/SmallestText" 
+            style="@style/MicroText" 
         />
 
         <TextView
             android:id="@+id/textViewDestination"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
+            android:layout_marginLeft="45dp"
+            android:layout_marginRight="45dp"
             android:layout_gravity="left"
             android:text="@string/placeholder"
-            style="@style/SmallerText" />
+            style="@style/MediumText" />
         
         <View
 	       android:layout_width="match_parent"
 	       android:layout_height="2dp"
-	       android:layout_marginTop="15dp"
-	       android:layout_marginLeft="30dp"
-	       android:layout_marginRight="30dp"
+	       android:layout_marginTop="10dp"
+	       android:layout_marginLeft="45dp"
+	       android:layout_marginRight="45dp"
 	       android:background="@color/secondary_font"  
     	/>
     </LinearLayout>
