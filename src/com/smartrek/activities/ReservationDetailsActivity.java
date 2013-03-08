@@ -121,7 +121,7 @@ public final class ReservationDetailsActivity extends ActionBarActivity {
                 (TextView)findViewById(R.id.textView6), buttonStartTrip);
 	        Font.setTypeface(lightFont, textViewArrivalTime, textViewCredits,
                 textViewDepartureTime, textViewDestination, textViewDuration, 
-                textViewOrigin);
+                textViewOrigin, textViewHelp);
         }
     }
     
