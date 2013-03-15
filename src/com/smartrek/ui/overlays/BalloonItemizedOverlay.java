@@ -248,7 +248,7 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 			
 			
 			
-			clickRegion = (View) balloonView.findViewById(R.id.balloon_inner_layout);
+			clickRegion = (View) balloonView.findViewById(R.id.balloon_item_snippet);
 			clickRegion.setOnTouchListener(createBalloonTouchListener());
 			isRecycled = false;
 		} else {
