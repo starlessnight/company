@@ -33,6 +33,8 @@ public abstract class Request {
 	
 	protected String url;
 	
+	protected int responseCode;
+	
 	protected Request() {
 		
 	}
@@ -55,7 +57,7 @@ public abstract class Request {
 		HTTP http = new HTTP(url);
 		http.connect();
 		
-		int responseCode = http.getResponseCode();
+		responseCode = http.getResponseCode();
 		String responseBody = http.getResponseBody();
 		
 		if (responseCode == 200) {

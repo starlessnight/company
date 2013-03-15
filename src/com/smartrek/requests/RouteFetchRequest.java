@@ -47,7 +47,22 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 	}
 	
 	public List<Route> execute() throws IOException, JSONException, RouteNotFoundException {
-		String response = executeFetchRequest(url);
+		String response = null;
+		try{
+		    response = executeFetchRequest(url);
+		}catch(IOException e){
+		    String msg = null;
+		    if(responseCode == 400){
+		        msg = "The required route is out of service area.";
+		    }else if(responseCode == 500){
+		        msg = "The server isn't able to handle the calls.";
+		    }
+		    if(msg == null){
+		        throw e;
+		    }else{
+		        throw new IOException(msg);
+		    }
+		}
 		
 		// Begin parsing the server response
 		List<Route> routes = new ArrayList<Route>();
