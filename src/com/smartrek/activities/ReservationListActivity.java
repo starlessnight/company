@@ -25,6 +25,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
+import com.smartrek.requests.ReservationDeleteRequest;
 import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
@@ -213,15 +214,6 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	    }
 	}
 	
-	private class ReservationDeleteTask extends AsyncTask<Object, Object, String> {
-		@Override
-		protected String doInBackground(Object... params) {
-			
-			
-			return null;
-		}
-	}
-	
 	private class ReservationItemAdapter extends ArrayAdapter<Reservation> {
 		
 		private int textViewResourceId;
@@ -234,7 +226,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 		}
 		
 		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
+		public View getView(final int position, View convertView, ViewGroup parent) {
 			View view = convertView;
 			
 			if (view == null) {
@@ -242,7 +234,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 				view = inflater.inflate(textViewResourceId, parent, false);
 			}
 			
-			Reservation r = getItem(position);
+			final Reservation r = getItem(position);
 			
 			TextView textView1 = (TextView)view.findViewById(R.id.textViewOrigin);
 			textView1.setText(r.getOriginAddress());
@@ -260,6 +252,14 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 			TextView itemNum = (TextView)view.findViewById(R.id.itemNum);
 			itemNum.setText(String.format("No. %d", r.getRoute().getId()));
 			
+			View deleteButton = view.findViewById(R.id.delete_button);
+			deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new ReservationDeleteTask(position).execute(User.getCurrentUser(getContext()).getId(), r.getRid());
+                }
+            });
+			
             Font.setTypeface(ReservationListActivity.this.boldFont, 
 		        itemNum, (TextView)view.findViewById(R.id.textView0),
 		        (TextView)view.findViewById(R.id.textView1), (TextView)view.findViewById(R.id.textView3)
@@ -270,4 +270,54 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 			return view;
 		}
 	}
+	
+	private class ReservationDeleteTask extends AsyncTask<Object, Object, Object> {
+
+	    private ProgressDialog dialog;
+	    
+        private int listItemIndex;
+        
+        public ReservationDeleteTask(int listItemIndex) {
+            this.listItemIndex = listItemIndex;
+        }
+        
+        @Override
+        protected void onPreExecute() {
+            dialog = new ProgressDialog(ReservationListActivity.this);
+            dialog.setMessage("Deleting reservation...");
+            dialog.setIndeterminate(true);
+            dialog.setCancelable(false);
+            dialog.show();
+        }
+        
+        @Override
+        protected Object doInBackground(Object... params) {
+            int uid = (Integer) params[0];
+            int rid = (Integer) params[1];
+            
+            ReservationDeleteRequest request = new ReservationDeleteRequest(uid, rid);
+            try {
+                request.execute();
+            }
+            catch (Exception e) {
+                ehs.registerException(e);
+            }
+            
+            return null;
+        }
+        
+        @Override
+        protected void onPostExecute(Object result) {
+            if (dialog != null && dialog.isShowing()) {
+                dialog.cancel();
+            }
+            if (ehs.hasExceptions()) {
+                ehs.reportExceptions();
+            }
+            else {
+                requestRefresh(false);
+            }
+        }
+    }
+	
 }
