@@ -49,6 +49,7 @@ import com.smartrek.ui.timelayout.TimeLayout.TimeLayoutOnSelectListener;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Geocoding;
+import com.smartrek.utils.Misc;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.SmartrekTileProvider;
 
@@ -173,6 +174,7 @@ public final class RouteActivity extends ActionBarActivity {
         SharedPreferences prefs = getSharedPreferences(MapDisplayActivity.MAP_DISPLAY_PREFS, MODE_PRIVATE);
         
         mapView = (MapView) findViewById(R.id.mapview);
+        Misc.disableHardwareAcceleration(mapView);
         mapView.setBuiltInZoomControls(false);
         mapView.setMultiTouchControls(true);
         mapView.setTileSource(new SmartrekTileProvider());

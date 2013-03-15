@@ -51,6 +51,7 @@ import com.smartrek.ui.overlays.RouteDebugOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.GeoPoint;
+import com.smartrek.utils.Misc;
 import com.smartrek.utils.PrerecordedTrajectory;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
@@ -236,6 +237,7 @@ public final class ValidationActivity extends ActionBarActivity {
     
     private void initViews() {
         mapView = (MapView) findViewById(R.id.mapview);
+        Misc.disableHardwareAcceleration(mapView);
         CloudmadeUtil.retrieveCloudmadeKey(this);
         mapView.setBuiltInZoomControls(false);
         mapView.setMultiTouchControls(true);
