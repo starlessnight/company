@@ -23,7 +23,7 @@ public class RoutePathOverlay extends Overlay {
 	/**
 	 * Green, blue, dark gray
 	 */
-	public static final int COLORS[] = {0xFFB4D400, 0xFF0089E8, 0xFF232A2E};
+	public static final int COLORS[] = {0xFF6CBD44, 0xFF0089E8, 0xFF232A2E};
 	
 	private Route route;
 	private int color;
@@ -57,7 +57,7 @@ public class RoutePathOverlay extends Overlay {
 		paint.setAntiAlias(true);
 		paint.setStyle(Paint.Style.STROKE);
 		
-		int thickness = 1 + zoom/2 + (highlighted ? 1 : -1);
+		int thickness = 5 + zoom/2 + (highlighted ? 3 : -3);
 		paint.setStrokeWidth(thickness);
 		
 		// Seems like Paint.setAlpha has no effect
