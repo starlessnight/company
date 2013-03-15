@@ -1,6 +1,7 @@
 package com.smartrek.dialogs;
 
 import java.io.IOException;
+import java.util.List;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -22,7 +23,10 @@ import com.smartrek.models.User;
 import com.smartrek.requests.FavoriteAddressAddRequest;
 import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.requests.FavoriteAddressUpdateRequest;
+import com.smartrek.tasks.GeocodingTask;
+import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.GeoPoint;
 
 /**
  * The purpose of this dialog is to provide an interface to add a favorite
@@ -194,6 +198,20 @@ public class FavoriteAddressEditDialog extends AlertDialog {
 						String.format("Address '%s' has been added.", address.getName()),
 						Toast.LENGTH_SHORT);
 				toast.show();
+				
+				new GeocodingTask(ehs, new GeocodingTaskCallback() {
+                    @Override
+                    public void preCallback() {}
+                    @Override
+                    public void postCallback() {}
+                    @Override
+                    public void callback(List<com.smartrek.utils.Geocoding.Address> addresses) {
+                        GeoPoint geoPoint = addresses.get(0).getGeoPoint();
+                        address.setLatitude(geoPoint.getLatitude());
+                        address.setLongitude(geoPoint.getLongitude());
+                        new FavoriteAddressUpdateTask(address, false).execute();
+                    }
+                }).execute(address.getAddress());
 			}
 		}
 		
@@ -203,9 +221,16 @@ public class FavoriteAddressEditDialog extends AlertDialog {
 		
 		private Address address;
 		
-		public FavoriteAddressUpdateTask(Address address) {
+		private boolean showMsg;
+		
+		public FavoriteAddressUpdateTask(Address address, boolean showMsg) {
 			this.address = address;
+			this.showMsg = showMsg;
 		}
+		
+		public FavoriteAddressUpdateTask(Address address) {
+            this(address, true);
+        }
 		
 		@Override
 		protected Object doInBackground(Object... params) {
@@ -231,7 +256,7 @@ public class FavoriteAddressEditDialog extends AlertDialog {
 		    if (ehs.hasExceptions()) {
 		        ehs.reportExceptions();
 		    }
-		    else {
+		    else if (showMsg){
 				Toast toast = Toast.makeText(
 						getContext(),
 						String.format("Address '%s' has been updated.", address.getName()),
