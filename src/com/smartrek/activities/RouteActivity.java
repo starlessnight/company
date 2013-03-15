@@ -87,6 +87,15 @@ public final class RouteActivity extends ActionBarActivity {
     
     private boolean debugMode;
     
+    private Runnable goBackToWhereTo = new Runnable() {
+        @Override
+        public void run() {
+            if(!isFinishing()){
+                finish();
+            }
+        }
+    };
+    
 	private GeocodingTaskCallback originGeocodingTaskCallback = new GeocodingTaskCallback() {
 		
 		private ProgressDialog dialog;
@@ -113,7 +122,7 @@ public final class RouteActivity extends ActionBarActivity {
 			dialog.cancel();
 			
 			if (ehs.hasExceptions()) {
-			    ehs.reportExceptions();
+			    ehs.reportExceptions(goBackToWhereTo);
 			}
 			else {
 				new GeocodingTask(ehs, destGeocodingTaskCallback).execute(destAddr);
@@ -148,7 +157,7 @@ public final class RouteActivity extends ActionBarActivity {
 			dialog.cancel();
 			
 			if (ehs.hasExceptions()) {
-			    ehs.reportExceptions();
+			    ehs.reportExceptions(goBackToWhereTo);
 			}
 			else {
 		        RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
@@ -648,7 +657,7 @@ public final class RouteActivity extends ActionBarActivity {
             mapView.postInvalidate();
             
             if (ehs.hasExceptions()) {
-                ehs.reportExceptions();
+                ehs.reportExceptions(goBackToWhereTo);
             }
             else {
             	// FIXME: Temporary

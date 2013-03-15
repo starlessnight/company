@@ -103,7 +103,7 @@ public class ExceptionHandlingService {
      * 
      * @param message
      */
-    public synchronized void reportException(String message) {
+    public synchronized void reportException(String message, final Runnable callback) {
         AlertDialog dialog = new AlertDialog.Builder(context).create();
         dialog.setTitle("An error has occurred");
         dialog.setMessage(message);
@@ -111,9 +111,16 @@ public class ExceptionHandlingService {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
+                if(callback != null){
+                    callback.run();
+                }
             }
         });
         dialog.show();
+    }
+    
+    public synchronized void reportException(String message) {
+        reportException(message, null);
     }
     
     public synchronized void reportException(Exception e) {
@@ -144,12 +151,16 @@ public class ExceptionHandlingService {
     	}
     }
     
-    public synchronized void reportExceptions() {
+    public synchronized void reportExceptions(Runnable callback) {
         while (!exceptions.isEmpty()) {
         	ExceptionContainer ec = exceptions.pop();
             
-            reportException(ec.getMessage());
+            reportException(ec.getMessage(), callback);
         }
+    }
+    
+    public synchronized void reportExceptions() {
+        reportExceptions(null);
     }
     
     public ExceptionContainer popException() {
