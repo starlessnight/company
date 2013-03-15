@@ -64,6 +64,8 @@ import com.smartrek.utils.SystemService;
  */
 public final class HomeActivity extends ActionBarActivity {
     
+    public static final String INIT_NOTIFICATION = "init";
+    
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
 	private EditAddress editAddressOrigin;
@@ -216,7 +218,9 @@ public final class HomeActivity extends ActionBarActivity {
 			}
 	    });
 
-	    new NotificationTask().execute(User.getCurrentUser(this).getId());
+	    if(getIntent().getBooleanExtra(INIT_NOTIFICATION, false)){
+	        new NotificationTask().execute(User.getCurrentUser(this).getId());
+	    }
 	    
 	   Font.setTypeface(boldFont, buttonDone, buttonLoadTrip, buttonSaveTrip,
            buttonOriginMyLocation);

@@ -85,6 +85,7 @@ public final class LoginActivity extends Activity implements OnClickListener,
                     User.setCurrentUser(LoginActivity.this, user);
                     
                     Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                    intent.putExtra(HomeActivity.INIT_NOTIFICATION, true);
                     LoginActivity.this.startActivity(intent);
                 }
                 else {
