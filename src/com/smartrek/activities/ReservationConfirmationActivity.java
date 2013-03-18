@@ -205,6 +205,10 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 		    else {
 				scheduleNotification(route);
 				
+				if(route.isFake()){
+				    DebugOptionsActivity.addFakeRouteId(ReservationConfirmationActivity.this, route.getId());
+				}
+				
 				NotificationDialog dialog = new NotificationDialog(ReservationConfirmationActivity.this, "You have successfully reserved a route.");
 				dialog.setActionListener(new NotificationDialog.ActionListener() {
                     

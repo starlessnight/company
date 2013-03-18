@@ -18,6 +18,8 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 	
 	private long departureTime;
 	
+	private boolean fake;
+	
 	public static String buildUrl(GeoPoint origin, GeoPoint destination, long departureTime) {
 		Time t = new Time();
 		t.set(departureTime);
@@ -40,10 +42,11 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 	 */
 	public RouteFetchRequest(long departureTime) {
 		//super(HOST + "/getroutesTucson/fake");
-		//super(HOST + "/getroutesTucsonNavigation");
-		super("http://static.suminb.com/smartrek/fake-routes.html");
+		super(HOST + "/getroutesTucsonNavigation/fake");
+		//super("http://static.suminb.com/smartrek/fake-routes.html");
 		
 		this.departureTime = departureTime;
+		fake = true;
 	}
 	
 	public List<Route> execute() throws IOException, JSONException, RouteNotFoundException {
@@ -70,6 +73,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 		JSONArray array = new JSONArray(response);
 		for(int i = 0; i < array.length(); i++) {
 			Route route = Route.parse((JSONObject) array.get(i), departureTime);
+		    route.setFake(fake);
 			routes.add(route);
 		}
 		

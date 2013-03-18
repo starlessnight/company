@@ -1,6 +1,10 @@
 package com.smartrek.activities;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,7 +15,6 @@ import android.widget.CheckBox;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
-import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.utils.Cache;
 
 public final class DebugOptionsActivity extends Activity {
@@ -28,6 +31,10 @@ public final class DebugOptionsActivity extends Activity {
     public static final int GPS_MODE_PRERECORDED = 2;
     public static final int GPS_MODE_LONG_PRESS = 4;
     public static final int GPS_MODE_DEFAULT = GPS_MODE_REAL;
+    
+    private static final String fakeRouteIds = "fakeRouteIds";
+    
+    private static final int fakeRouteIdSize = 10;
     
     private SharedPreferences prefs;
     
@@ -140,4 +147,53 @@ public final class DebugOptionsActivity extends Activity {
             Log.e("DebugOptionsActivity", "Should not reach here.");
         }
     }
+    
+    private static SharedPreferences getPrefs(Context ctx){
+        return ctx.getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, 
+                MODE_PRIVATE);
+    }
+    
+    private static JSONArray getFakeRouteIds(Context ctx){
+        JSONArray ids = null;
+        try {
+            ids = new JSONArray(getPrefs(ctx).getString(fakeRouteIds, "[]"));
+        }
+        catch (JSONException e) {
+            ids = new JSONArray();
+        }
+        return ids;
+    }
+    
+    private static void saveFakeRouteIds(Context ctx, JSONArray ids){
+        SharedPreferences.Editor editor = getPrefs(ctx).edit();
+        editor.putString(fakeRouteIds, ids.toString());
+        editor.commit();
+    }
+    
+    public static void addFakeRouteId(Context ctx, int id){
+        JSONArray newIds;
+        JSONArray oldIds = getFakeRouteIds(ctx);
+        if(oldIds.length() > fakeRouteIdSize - 1){
+            newIds = new JSONArray();
+            for(int i=oldIds.length() - fakeRouteIdSize + 1; i<oldIds.length(); i++){
+                newIds.put(oldIds.optInt(i));
+            }
+        }else{
+            newIds = oldIds;
+        }
+        saveFakeRouteIds(ctx, newIds.put(id));
+    }
+    
+    public static boolean isFakeRouteId(Context ctx, int id){
+        boolean fake = false;
+        JSONArray ids = getFakeRouteIds(ctx);
+        for(int i=0; i<ids.length(); i++){
+            if(ids.optInt(i) == id){
+                fake = true;
+                break;
+            }
+        }
+        return fake;
+    }
+    
 }

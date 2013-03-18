@@ -35,6 +35,7 @@ public final class Route implements Parcelable {
 	private long departureTime;
 	private int uid;
 	private int credits;
+	private boolean fake;
 	
 	
 	public static final Parcelable.Creator<Route> CREATOR = new Parcelable.Creator<Route>() {
@@ -111,6 +112,7 @@ public final class Route implements Parcelable {
 		departureTime = in.readLong();
 		uid = in.readInt();
 		credits = in.readInt();
+		fake = (Boolean) in.readValue(null);
 		
 		buildRouteNodeReferenceChain(routeNodes);
 	}
@@ -489,6 +491,7 @@ public final class Route implements Parcelable {
 		dest.writeLong(departureTime);
 		dest.writeInt(uid);
 		dest.writeInt(credits);
+		dest.writeValue(fake);
 	}
 
 //	/**
@@ -543,4 +546,12 @@ public final class Route implements Parcelable {
 	    
 	    return nodes;
 	}
+
+    public boolean isFake() {
+        return fake;
+    }
+
+    public void setFake(boolean fake) {
+        this.fake = fake;
+    }
 }
