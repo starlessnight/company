@@ -2,6 +2,7 @@ package com.smartrek.activities;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Queue;
@@ -121,6 +122,10 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     private ListView dirListView;
     
     private ArrayAdapter<String> dirListadapter;
+    
+    private static String utteranceId = "utteranceId";
+
+    private boolean uttered = true;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -531,7 +536,9 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         intent.putExtra("endTime", endTime.toMillis(false));
         startActivity(intent);
         
-        finish();
+        if(mTts == null || uttered){
+            finish();
+        }
     }
     
     private void deactivateLocationService() {
@@ -678,8 +685,11 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
                 mTts = new TextToSpeech(this, this);
                 navigationView.setListener(new CheckPointListener() {
                     @Override
-                    public void onCheckPoint(String navText) {
-                        mTts.speak(navText, TextToSpeech.QUEUE_ADD, null);
+                    public void onCheckPoint(final String navText) {
+                        uttered = false;
+                        HashMap<String, String> params = new HashMap<String, String>();
+                        params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
+                        mTts.speak(navText, TextToSpeech.QUEUE_ADD, params);
                     }
                 });
             } else {
@@ -695,7 +705,16 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     @Override
     public void onInit(int status) {
         if(mTts != null){
-            mTts.setLanguage(Locale.US);
+            mTts.setLanguage(Locale.US);            
+            mTts.setOnUtteranceCompletedListener(new TextToSpeech.OnUtteranceCompletedListener() {
+                @Override
+                public void onUtteranceCompleted(String utteranceId) {
+                    uttered = true;
+                    if(arrived){
+                        finish();
+                    }
+                }
+            });
         }
     }
     
