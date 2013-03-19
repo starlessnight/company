@@ -3,6 +3,7 @@ package com.smartrek.ui;
 import org.apache.commons.lang3.text.WordUtils;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 
 import com.smartrek.activities.R;
 import com.smartrek.models.Route;
+import com.smartrek.utils.Font;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.StringUtil;
@@ -136,6 +138,11 @@ public final class NavigationView extends LinearLayout {
 
     public void setListener(CheckPointListener cpListener) {
         this.listener = cpListener;
+    }
+    
+    public void setTypeface(Typeface font){
+        Font.setTypeface(font, textViewGenericMessage, textViewNavigation,
+            textViewWaiting);
     }
 
 }

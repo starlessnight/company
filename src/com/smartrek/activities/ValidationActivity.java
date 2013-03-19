@@ -35,6 +35,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.actionbarsherlock.view.Menu;
@@ -54,6 +55,7 @@ import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RouteDebugOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.PrerecordedTrajectory;
@@ -266,6 +268,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         });
         
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        navigationView.setTypeface(boldFont);
         
         buttonFollow = (ToggleButton) findViewById(R.id.button_follow);
         buttonFollow.setOnClickListener(new OnClickListener() {
@@ -286,6 +289,15 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
                 }
             }
         });
+        
+        TextView dirList = (TextView)findViewById(R.id.directions_list);
+        dirList.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                
+            }
+        });
+        Font.setTypeface(boldFont, dirList);
     }
     
     private void prepareGPS() {
@@ -561,7 +573,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             }
             
             timer = new Timer();
-            timer.schedule(this, 1000, 750);
+            timer.schedule(this, 1000, 500);
         }
 
         @Override

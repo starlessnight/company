@@ -14,20 +14,37 @@
  
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="52dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:orientation="horizontal" >
 
-        <ToggleButton
-            android:id="@+id/button_follow"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:layout_margin="10dp"
-            android:background="@drawable/my_location_toggle"
-            android:checked="true"
-            android:textOff=""
-            android:textOn="" />
+        <FrameLayout 
+            android:layout_width="52dp"
+	        android:layout_height="match_parent"
+	        android:background="@color/transparent_gray">
+	        
+	        <ToggleButton
+	            android:id="@+id/button_follow"
+	            android:layout_width="48dp"
+	            android:layout_height="48dp"
+	            android:background="@drawable/my_location_toggle"
+	            android:checked="true"
+	            android:textOff=""
+	            android:textOn=""
+	            android:layout_gravity="center" />
+        </FrameLayout>
+        
+        <TextView
+            android:id="@+id/directions_list"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="10dp" 
+            android:gravity="center"
+            android:text="@string/directions_list"
+            android:background="@color/transparent_gray"
+            style="@style/SmallerBoldText"
+		/>
 
         <!--
         <TextView

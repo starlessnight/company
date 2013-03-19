@@ -4,9 +4,9 @@
     android:dither="true"
     android:variablePadding="true">
     <item
-        android:drawable="@drawable/my_location_active"
+        android:drawable="@drawable/icon_current_location"
         android:state_checked="true"/>
     <item
-        android:drawable="@drawable/my_location_inactive"
+        android:drawable="@drawable/icon_current_location_disabled"
         android:state_checked="false"/>
 </selector>
