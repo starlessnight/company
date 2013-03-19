@@ -564,6 +564,8 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             locationManager.removeUpdates(locationListener);
         }
         
+        validationTimeoutHandler.removeCallbacks(validationTimeoutNotifier);
+        
         endTime = new Time();
         endTime.setToNow();
         
