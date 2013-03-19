@@ -19,4 +19,5 @@
 	<color name="dark_blue">#2a5262</color>
 	<color name="dark_blue_highlight">#2a7896</color>
 	<color name="dark_blue_shadow">#123642</color>
+	<color name="transparent_light_red">#80E0574F</color>
 </resources>

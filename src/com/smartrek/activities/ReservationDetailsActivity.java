@@ -110,6 +110,7 @@ public final class ReservationDetailsActivity extends ActionBarActivity {
 	            @Override
 	            public void onClick(View view) {
 	            	Log.d("ReservationDetailsActivity", "buttonStartTrip.onClick()");
+	            	buttonStartTrip.setEnabled(false);
 	            	final FakeRoute fakeRoute = DebugOptionsActivity.getFakeRoute(
             	        ReservationDetailsActivity.this, route.getId()); 
                     if(fakeRoute != null){

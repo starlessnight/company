@@ -537,7 +537,12 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         startActivity(intent);
         
         if(mTts == null || uttered){
-            finish();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    finish();
+                }
+            }, 3000);
         }
     }
     
@@ -631,7 +636,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             }
             
             timer = new Timer();
-            timer.schedule(this, 1000, 500);
+            timer.schedule(this, 1500, 500);
         }
 
         @Override

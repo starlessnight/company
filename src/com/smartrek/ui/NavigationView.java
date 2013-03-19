@@ -56,16 +56,19 @@ public final class NavigationView extends LinearLayout {
 	        textViewWaiting.setVisibility(View.VISIBLE);
 	        textViewGenericMessage.setVisibility(View.GONE);
 	        textViewNavigation.setVisibility(View.GONE);
+	        setBackgroundResource(R.color.transparent_gray);
 	    }
 	    else if (Status.OutOfRoute.equals(status)) {
             textViewWaiting.setVisibility(View.GONE);
             textViewGenericMessage.setVisibility(View.VISIBLE);
             textViewNavigation.setVisibility(View.GONE);
+            setBackgroundResource(R.color.transparent_light_red);
         }
 	    else if (Status.InRoute.equals(status)) {
             textViewWaiting.setVisibility(View.GONE);
             textViewGenericMessage.setVisibility(View.GONE);
             textViewNavigation.setVisibility(View.VISIBLE);
+            setBackgroundResource(R.color.transparent_light_green);
         }
 	    else {
 	        Log.e(getClass().toString(), "setStatus(): Should not reach here.");
