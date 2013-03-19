@@ -27,6 +27,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.text.format.Time;
@@ -537,12 +538,12 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         startActivity(intent);
         
         if(mTts == null || uttered){
-            new Handler().postDelayed(new Runnable() {
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     finish();
                 }
-            }, 3000);
+            }, 6000);
         }
     }
     
