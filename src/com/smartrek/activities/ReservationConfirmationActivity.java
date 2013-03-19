@@ -19,6 +19,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Route;
 import com.smartrek.receivers.ReservationReceiver;
@@ -206,7 +207,10 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 				scheduleNotification(route);
 				
 				if(route.isFake()){
-				    DebugOptionsActivity.addFakeRouteId(ReservationConfirmationActivity.this, route.getId());
+				    FakeRoute fakeRoute = new FakeRoute();
+				    fakeRoute.id = route.getId();
+				    fakeRoute.seq = route.getSeq();
+				    DebugOptionsActivity.addFakeRoute(ReservationConfirmationActivity.this, fakeRoute);
 				}
 				
 				NotificationDialog dialog = new NotificationDialog(ReservationConfirmationActivity.this, "You have successfully reserved a route.");

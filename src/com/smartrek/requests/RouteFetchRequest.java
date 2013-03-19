@@ -74,6 +74,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 		for(int i = 0; i < array.length(); i++) {
 			Route route = Route.parse((JSONObject) array.get(i), departureTime);
 		    route.setFake(fake);
+		    route.setSeq(i);
 			routes.add(route);
 		}
 		

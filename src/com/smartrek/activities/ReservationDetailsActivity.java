@@ -16,6 +16,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.requests.RouteFetchRequest;
@@ -109,7 +110,9 @@ public final class ReservationDetailsActivity extends ActionBarActivity {
 	            @Override
 	            public void onClick(View view) {
 	            	Log.d("ReservationDetailsActivity", "buttonStartTrip.onClick()");
-                    if(DebugOptionsActivity.isFakeRouteId(ReservationDetailsActivity.this, route.getId())){
+	            	final FakeRoute fakeRoute = DebugOptionsActivity.getFakeRoute(
+            	        ReservationDetailsActivity.this, route.getId()); 
+                    if(fakeRoute != null){
                         new AsyncTask<Void, Void, List<Route>>() {
                             @Override
                             protected List<Route> doInBackground(Void... params) {
@@ -128,7 +131,7 @@ public final class ReservationDetailsActivity extends ActionBarActivity {
                                     ehs.reportExceptions();
                                 }else if(routes != null && routes.size() > 0) {
                                     Intent intent = new Intent(ReservationDetailsActivity.this, ValidationActivity.class);
-                                    intent.putExtra("route", routes.get(0));
+                                    intent.putExtra("route", routes.get(fakeRoute.seq));
                                     intent.putExtra("reservation", reservation);
                                     startActivity(intent);
                                     finish();

@@ -32,9 +32,9 @@ public final class DebugOptionsActivity extends Activity {
     public static final int GPS_MODE_LONG_PRESS = 4;
     public static final int GPS_MODE_DEFAULT = GPS_MODE_REAL;
     
-    private static final String fakeRouteIds = "fakeRouteIds";
+    private static final String fakeRoutes = "fakeRouteIds";
     
-    private static final int fakeRouteIdSize = 10;
+    private static final int fakeRouteSize = 10;
     
     private SharedPreferences prefs;
     
@@ -153,10 +153,10 @@ public final class DebugOptionsActivity extends Activity {
                 MODE_PRIVATE);
     }
     
-    private static JSONArray getFakeRouteIds(Context ctx){
+    private static JSONArray getFakeRoutes(Context ctx){
         JSONArray ids = null;
         try {
-            ids = new JSONArray(getPrefs(ctx).getString(fakeRouteIds, "[]"));
+            ids = new JSONArray(getPrefs(ctx).getString(fakeRoutes, "[]"));
         }
         catch (JSONException e) {
             ids = new JSONArray();
@@ -164,36 +164,58 @@ public final class DebugOptionsActivity extends Activity {
         return ids;
     }
     
-    private static void saveFakeRouteIds(Context ctx, JSONArray ids){
+    private static void saveFakeRoutes(Context ctx, JSONArray routes){
         SharedPreferences.Editor editor = getPrefs(ctx).edit();
-        editor.putString(fakeRouteIds, ids.toString());
+        editor.putString(fakeRoutes, routes.toString());
         editor.commit();
     }
     
-    public static void addFakeRouteId(Context ctx, int id){
-        JSONArray newIds;
-        JSONArray oldIds = getFakeRouteIds(ctx);
-        if(oldIds.length() > fakeRouteIdSize - 1){
-            newIds = new JSONArray();
-            for(int i=oldIds.length() - fakeRouteIdSize + 1; i<oldIds.length(); i++){
-                newIds.put(oldIds.optInt(i));
+    public static void addFakeRoute(Context ctx, FakeRoute route){
+        JSONArray newRoutes;
+        JSONArray oldRoutes = getFakeRoutes(ctx);
+        if(oldRoutes.length() > fakeRouteSize - 1){
+            newRoutes = new JSONArray();
+            for(int i=oldRoutes.length() - fakeRouteSize + 1; i<oldRoutes.length(); i++){
+                newRoutes.put(oldRoutes.optString(i));
             }
         }else{
-            newIds = oldIds;
+            newRoutes = oldRoutes;
         }
-        saveFakeRouteIds(ctx, newIds.put(id));
+        saveFakeRoutes(ctx, newRoutes.put(route.toString()));
     }
     
-    public static boolean isFakeRouteId(Context ctx, int id){
-        boolean fake = false;
-        JSONArray ids = getFakeRouteIds(ctx);
-        for(int i=0; i<ids.length(); i++){
-            if(ids.optInt(i) == id){
-                fake = true;
+    public static FakeRoute getFakeRoute(Context ctx, int id){
+        FakeRoute route = null;
+        JSONArray routes = getFakeRoutes(ctx);
+        for(int i=0; i<routes.length(); i++){
+            FakeRoute r = FakeRoute.fromString(routes.optString(i));
+            if(r.id == id){
+                route = r;
                 break;
             }
         }
-        return fake;
+        return route;
+    }
+    
+    public static class FakeRoute {
+        
+        int id;
+        
+        int seq;
+        
+        @Override
+        public String toString() {
+            return id + "," + seq;
+        }
+        
+        public static FakeRoute fromString(String val){
+            String[] vals = val.split(",");
+            FakeRoute r = new FakeRoute();
+            r.id = Integer.parseInt(vals[0]);
+            r.seq = Integer.parseInt(vals[1]);
+            return r;
+        }
+        
     }
     
 }
