@@ -1,9 +1,6 @@
 package com.smartrek.activities;
 
-import java.util.List;
-
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
@@ -16,10 +13,8 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
-import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
-import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
@@ -110,42 +105,11 @@ public final class ReservationDetailsActivity extends ActionBarActivity {
 	            @Override
 	            public void onClick(View view) {
 	            	Log.d("ReservationDetailsActivity", "buttonStartTrip.onClick()");
-	            	buttonStartTrip.setEnabled(false);
-	            	final FakeRoute fakeRoute = DebugOptionsActivity.getFakeRoute(
-            	        ReservationDetailsActivity.this, route.getId()); 
-                    if(fakeRoute != null){
-                        new AsyncTask<Void, Void, List<Route>>() {
-                            @Override
-                            protected List<Route> doInBackground(Void... params) {
-                                List<Route> routes = null;
-                                try {
-                                    RouteFetchRequest request = new RouteFetchRequest(route.getDepartureTime());
-                                    routes = request.execute();
-                                }
-                                catch(Exception e) {
-                                    ehs.registerException(e);
-                                }                                
-                                return routes;
-                            }
-                            protected void onPostExecute(java.util.List<Route> routes) {
-                                if (ehs.hasExceptions()) {
-                                    ehs.reportExceptions();
-                                }else if(routes != null && routes.size() > 0) {
-                                    Intent intent = new Intent(ReservationDetailsActivity.this, ValidationActivity.class);
-                                    intent.putExtra("route", routes.get(fakeRoute.seq));
-                                    intent.putExtra("reservation", reservation);
-                                    startActivity(intent);
-                                    finish();
-                                }
-                            }
-                        }.execute();
-	            	}else{
-	            	    Intent intent = new Intent(ReservationDetailsActivity.this, ValidationActivity.class);
-	                    intent.putExtra("route", route);
-	                    intent.putExtra("reservation", reservation);
-	                    startActivity(intent);
-	                    finish();
-	            	}
+            	    Intent intent = new Intent(ReservationDetailsActivity.this, ValidationActivity.class);
+                    intent.putExtra("route", route);
+                    intent.putExtra("reservation", reservation);
+                    startActivity(intent);
+                    finish();
 	            }
 	            
 	        });

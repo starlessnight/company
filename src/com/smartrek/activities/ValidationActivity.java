@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.json.JSONException;
 import org.osmdroid.tileprovider.util.CloudmadeUtil;
@@ -27,7 +28,6 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.text.format.Time;
@@ -47,11 +47,13 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
+import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.requests.SendTrajectoryRequest;
 import com.smartrek.ui.NavigationView;
 import com.smartrek.ui.NavigationView.CheckPointListener;
@@ -114,7 +116,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     
     private FakeLocationService fakeLocationService;
     
-    private boolean arrived;
+    private AtomicBoolean arrived= new AtomicBoolean(false);
     
     private static final int ttsCheckCode = 1;
     
@@ -126,22 +128,66 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     
     private static String utteranceId = "utteranceId";
 
-    private boolean uttered = true;
+    private AtomicBoolean uttered = new AtomicBoolean(true);
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_reservation_map);
         
-        Intent checkTtsIntent = new Intent();
-        checkTtsIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
-        startActivityForResult(checkTtsIntent, ttsCheckCode);
-        
         Bundle extras = getIntent().getExtras();
         reservation = extras.getParcelable("reservation");
         
         route = extras.getParcelable("route");
-        route.preprocessNodes();
+        
+        // Define a listener that responds to location updates
+        locationListener = new ValidationLocationListener();
+        
+        // FIXME: Use long type
+        startTime = new Time();
+        startTime.setToNow();
+        
+        validationTimeoutNotifier = new ValidationTimeoutNotifier();
+        validationTimeoutHandler = new Handler();
+        validationTimeoutHandler.postDelayed(validationTimeoutNotifier, (900 + route.getDuration()*3) * 1000);
+        
+        Intent checkTtsIntent = new Intent();
+        checkTtsIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
+        startActivityForResult(checkTtsIntent, ttsCheckCode);
+        
+        final FakeRoute fakeRoute = DebugOptionsActivity.getFakeRoute(
+            ValidationActivity.this, route.getId()); 
+        if(fakeRoute == null){
+            route.preprocessNodes();
+        }else{
+            new AsyncTask<Void, Void, List<Route>>() {
+                @Override
+                protected List<Route> doInBackground(Void... params) {
+                    List<Route> routes = null;
+                    try {
+                        RouteFetchRequest request = new RouteFetchRequest(route.getDepartureTime());
+                        routes = request.execute();
+                    }
+                    catch(Exception e) {
+                        ehs.registerException(e);
+                    }                                
+                    return routes;
+                }
+                protected void onPostExecute(java.util.List<Route> routes) {
+                    if (ehs.hasExceptions()) {
+                        ehs.reportExceptions(new Runnable() {
+                            @Override
+                            public void run() {
+                                finish();
+                            }
+                        });
+                    }else if(routes != null && routes.size() > 0) {
+                        route = routes.get(fakeRoute.seq);
+                        route.preprocessNodes();
+                    }
+                }
+            }.execute();
+        }
         
         dirListadapter = new ArrayAdapter<String>(this, R.layout.direction_list_item, R.id.direction_text){
             @Override
@@ -163,17 +209,6 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         }
         
         drawRoute(mapView, route, 0);
-        
-        // Define a listener that responds to location updates
-        locationListener = new ValidationLocationListener();
-        
-        // FIXME: Use long type
-        startTime = new Time();
-        startTime.setToNow();
-        
-        validationTimeoutNotifier = new ValidationTimeoutNotifier();
-        validationTimeoutHandler = new Handler();
-        validationTimeoutHandler.postDelayed(validationTimeoutNotifier, (900 + route.getDuration()*3) * 1000);   
     }
     
     @Override
@@ -224,7 +259,9 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             prepareGPS();
         }
         else if (gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED) {
-            fakeLocationService = new FakeLocationService(locationListener);
+            if(fakeLocationService == null){
+                fakeLocationService = new FakeLocationService(locationListener);
+            }
         }
         else {
             
@@ -347,15 +384,17 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     
     private void prepareGPS() {
         // Acquire a reference to the system Location Manager
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            SystemService.alertNoGPS(this);
-        }
-        else {
-            // TODO: Turn on GSP early
-            //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, locationListener);
+        if(locationManager == null){
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            
+            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                SystemService.alertNoGPS(this);
+            }
+            else {
+                // TODO: Turn on GSP early
+                //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, locationListener);
+            }
         }
     }
 
@@ -504,8 +543,8 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             sendTrajectory();
         }
         
-        if (!arrived && route.hasArrivedAtDestination(lat, lng)) {
-            arrived = true;
+        if (!arrived.get() && route.hasArrivedAtDestination(lat, lng)) {
+            arrived.set(true);
             deactivateLocationService();
             arriveAtDestination();
             Log.d("ValidationActivity", "Arriving at destination");
@@ -524,7 +563,6 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         if (locationManager != null) {
             locationManager.removeUpdates(locationListener);
         }
-        validationTimeoutHandler.removeCallbacks(validationTimeoutNotifier);
         
         endTime = new Time();
         endTime.setToNow();
@@ -537,13 +575,8 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         intent.putExtra("endTime", endTime.toMillis(false));
         startActivity(intent);
         
-        if(mTts == null || uttered){
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    finish();
-                }
-            }, 6000);
+        if(mTts == null || uttered.get()){
+            finish();
         }
     }
     
@@ -692,7 +725,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
                 navigationView.setListener(new CheckPointListener() {
                     @Override
                     public void onCheckPoint(final String navText) {
-                        uttered = false;
+                        uttered.set(false);
                         HashMap<String, String> params = new HashMap<String, String>();
                         params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
                         mTts.speak(navText, TextToSpeech.QUEUE_ADD, params);
@@ -715,8 +748,8 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             mTts.setOnUtteranceCompletedListener(new TextToSpeech.OnUtteranceCompletedListener() {
                 @Override
                 public void onUtteranceCompleted(String utteranceId) {
-                    uttered = true;
-                    if(arrived){
+                    uttered.set(true);
+                    if(arrived.get()){
                         finish();
                     }
                 }
@@ -727,6 +760,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        validationTimeoutHandler.removeCallbacks(validationTimeoutNotifier);
         if(mTts != null){
             mTts.shutdown();
         }
