@@ -1,24 +1,15 @@
 package com.smartrek.utils;
 
 public class StringUtil {
-
-	public static String capitalizeFirstLetter(String str) {
-		if (str != null && str.length() > 0) {
-			return Character.toUpperCase(str.charAt(0)) + str.substring(1);
-		}
-		else {
-			return str;
-		}
-	}
 	
 	public static String formatImperialDistance(double meter) {
 		double foot = UnitConversion.meterToFoot(meter);
 		
-		if (foot < 1000) {
-			return String.format("%.0f ft", foot);
+		if (foot < 5280) {
+			return String.format("%.0f feet", foot);
 		}
 		else {
-			return String.format("%.1f mi", UnitConversion.meterToMile(meter));
+			return String.format("%.1f miles", UnitConversion.meterToMile(meter));
 		}
 	}
 	

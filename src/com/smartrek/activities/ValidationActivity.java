@@ -3,6 +3,7 @@ package com.smartrek.activities;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Locale;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -25,6 +26,8 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -45,6 +48,7 @@ import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.SendTrajectoryRequest;
 import com.smartrek.ui.NavigationView;
+import com.smartrek.ui.NavigationView.CheckPointListener;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RouteDebugOverlay;
@@ -59,7 +63,7 @@ import com.smartrek.utils.SmartrekTileProvider;
 import com.smartrek.utils.SystemService;
 import com.smartrek.utils.ValidationParameters;
 
-public final class ValidationActivity extends ActionBarActivity {
+public final class ValidationActivity extends ActionBarActivity implements OnInitListener {
     
     public static final int DEFAULT_ZOOM_LEVEL = 18;
     
@@ -103,10 +107,20 @@ public final class ValidationActivity extends ActionBarActivity {
     
     private FakeLocationService fakeLocationService;
     
+    private boolean arrived;
+    
+    private static final int ttsCheckCode = 1;
+    
+    private TextToSpeech mTts;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_reservation_map);
+        
+        Intent checkTtsIntent = new Intent();
+        checkTtsIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
+        startActivityForResult(checkTtsIntent, ttsCheckCode);
         
         Bundle extras = getIntent().getExtras();
         reservation = extras.getParcelable("reservation");
@@ -135,7 +149,7 @@ public final class ValidationActivity extends ActionBarActivity {
         
         validationTimeoutNotifier = new ValidationTimeoutNotifier();
         validationTimeoutHandler = new Handler();
-        validationTimeoutHandler.postDelayed(validationTimeoutNotifier, (900 + route.getDuration()*3) * 1000);
+        validationTimeoutHandler.postDelayed(validationTimeoutNotifier, (900 + route.getDuration()*3) * 1000);   
     }
     
     @Override
@@ -421,7 +435,8 @@ public final class ValidationActivity extends ActionBarActivity {
             sendTrajectory();
         }
         
-        if (route.hasArrivedAtDestination(lat, lng)) {
+        if (!arrived && route.hasArrivedAtDestination(lat, lng)) {
+            arrived = true;
             deactivateLocationService();
             arriveAtDestination();
             Log.d("ValidationActivity", "Arriving at destination");
@@ -546,7 +561,7 @@ public final class ValidationActivity extends ActionBarActivity {
             }
             
             timer = new Timer();
-            timer.schedule(this, 1000, 500);
+            timer.schedule(this, 1000, 750);
         }
 
         @Override
@@ -591,4 +606,42 @@ public final class ValidationActivity extends ActionBarActivity {
             }
         }
     }
+    
+    protected void onActivityResult(
+            int requestCode, int resultCode, Intent data) {
+        if (requestCode == ttsCheckCode) {
+            if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
+                // success, create the TTS instance
+                mTts = new TextToSpeech(this, this);
+                navigationView.setListener(new CheckPointListener() {
+                    @Override
+                    public void onCheckPoint(String navText) {
+                        mTts.speak(navText, TextToSpeech.QUEUE_ADD, null);
+                    }
+                });
+            } else {
+                // missing data, install it
+                Intent installIntent = new Intent();
+                installIntent.setAction(
+                    TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+                startActivity(installIntent);
+            }
+        }
+    }
+
+    @Override
+    public void onInit(int status) {
+        if(mTts != null){
+            mTts.setLanguage(Locale.US);
+        }
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(mTts != null){
+            mTts.shutdown();
+        }
+    }
+    
 }

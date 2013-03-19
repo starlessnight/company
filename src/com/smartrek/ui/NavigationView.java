@@ -1,15 +1,13 @@
 package com.smartrek.ui;
 
-import java.io.IOException;
+import org.apache.commons.lang3.text.WordUtils;
 
 import android.content.Context;
 import android.location.Location;
-import android.media.MediaPlayer;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -28,17 +26,11 @@ public final class NavigationView extends LinearLayout {
     
     private Status status;
 	
-	private ViewGroup textViewNavigation;
+	private TextView textViewNavigation;
 	private TextView textViewWaiting;
 	private TextView textViewGenericMessage;
-	private TextView textViewMessage;
-	private TextView textViewDistance;
-	private TextView textViewRoadname;
 	
-	/**
-	 * Media player to play a ping sound
-	 */
-	private MediaPlayer mediaPlayer;
+	private CheckPointListener listener;
 
 	public NavigationView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -46,12 +38,9 @@ public final class NavigationView extends LinearLayout {
 		LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		layoutInflater.inflate(R.layout.navigation_view, this, true);
 		
-		textViewNavigation = (ViewGroup) findViewById(R.id.text_view_navigation);
+		textViewNavigation = (TextView) findViewById(R.id.text_view_navigation);
 		textViewWaiting = (TextView) findViewById(R.id.text_view_waiting);
 		textViewGenericMessage = (TextView) findViewById(R.id.text_view_generic_message);
-        textViewMessage = (TextView) findViewById(R.id.text_view_message);
-        textViewDistance = (TextView) findViewById(R.id.text_view_distance);
-        textViewRoadname = (TextView) findViewById(R.id.text_view_roadname);
         
         setStatus(Status.WaitingForGPS);
 	}
@@ -65,22 +54,16 @@ public final class NavigationView extends LinearLayout {
 	        textViewWaiting.setVisibility(View.VISIBLE);
 	        textViewGenericMessage.setVisibility(View.GONE);
 	        textViewNavigation.setVisibility(View.GONE);
-	        
-	        setBackgroundColor(0xC0666666);
 	    }
 	    else if (Status.OutOfRoute.equals(status)) {
             textViewWaiting.setVisibility(View.GONE);
             textViewGenericMessage.setVisibility(View.VISIBLE);
             textViewNavigation.setVisibility(View.GONE);
-            
-            setBackgroundColor(0xC0FF3300);
         }
 	    else if (Status.InRoute.equals(status)) {
             textViewWaiting.setVisibility(View.GONE);
             textViewGenericMessage.setVisibility(View.GONE);
             textViewNavigation.setVisibility(View.VISIBLE);
-            
-            setBackgroundColor(0xC0293A17);
         }
 	    else {
 	        Log.e(getClass().toString(), "setStatus(): Should not reach here.");
@@ -102,25 +85,34 @@ public final class NavigationView extends LinearLayout {
             setStatus(Status.InRoute);
             
             String distancePresentation = StringUtil.formatImperialDistance(distance);
-            textViewMessage.setText(StringUtil.capitalizeFirstLetter(node.getMessage()));
-            textViewDistance.setText(distancePresentation);
-            textViewRoadname.setText(node.getRoadName());
+            String navText = WordUtils.capitalize(node.getMessage()) + " in " 
+                + distancePresentation + " on " + node.getRoadName();
+            textViewNavigation.setText(navText);
             
             // FIXME: Temporary
             if (node.hasMetadata()) {
                 RouteNode.Metadata metadata = node.getMetadata();
             
+                boolean checkpoint = false;
+                
                 if (!metadata.pingFlags[0] && distanceInFoot <= 500) {
                     metadata.pingFlags[0] = true;
-                    playPingSound();
-                }
-                else if (metadata.pingFlags[1] && distanceInMile <= 1.0) {
                     metadata.pingFlags[1] = true;
-                    playPingSound();
+                    metadata.pingFlags[2] = true;
+                    checkpoint = true;
+                }
+                else if (!metadata.pingFlags[1] && distanceInMile <= 1.0) {
+                    metadata.pingFlags[1] = true;
+                    metadata.pingFlags[2] = true;
+                    checkpoint = true;
                 }
                 else if (!metadata.pingFlags[2] && distanceInMile <= 2.0) {
                     metadata.pingFlags[2] = true;
-                    playPingSound();
+                    checkpoint = true;
+                }
+                
+                if(listener != null && checkpoint){
+                    listener.onCheckPoint(navText);
                 }
             }
         }
@@ -132,33 +124,18 @@ public final class NavigationView extends LinearLayout {
 
 	}
 	
-	/**
-	 * This function causes Activity.setContentView() to hang on Android 3.1.
-	 */
-    public void preparePingSound() {
-        mediaPlayer = new MediaPlayer();
-        
-        try {
-        	//mediaPlayer.setDataSource("file:///android_asset/ping.mp3");
-            mediaPlayer.setDataSource(getResources().getAssets().openFd("ping.mp3").getFileDescriptor());
-			mediaPlayer.prepare();
-		}
-		catch (IllegalStateException e) {
-			e.printStackTrace();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+	public static interface CheckPointListener {
+	    
+	    void onCheckPoint(String navText);
+	    
+	}
+
+    public CheckPointListener getListener() {
+        return listener;
     }
-	
-    // FIXME: Temporary
-    private void playPingSound() {
-        if (mediaPlayer != null) {
-            mediaPlayer.start();
-        }
+
+    public void setListener(CheckPointListener cpListener) {
+        this.listener = cpListener;
     }
 
 }

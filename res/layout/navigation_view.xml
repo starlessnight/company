@@ -2,79 +2,38 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/layout_navigation"
     android:layout_width="fill_parent"
-    android:layout_height="68dp" >
+    android:layout_height="104dp"
+    android:paddingTop="20dp"
+    android:paddingLeft="45dp"
+   	android:paddingRight="45dp"
+    android:background="@color/transparent_light_green">
 
     <TextView
         android:id="@+id/text_view_waiting"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
         android:text="Waiting for GPS..."
-        android:textColor="#FFFFFF"
-        android:textSize="30dp"
+        android:textColor="@android:color/black"
+        style="@style/SmallerBoldText"
         android:visibility="visible" />
     
     <TextView
         android:id="@+id/text_view_generic_message"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
         android:text="@string/placeholder"
-        android:textColor="#FFFFFF"
-        android:textSize="20dp"
+        android:textColor="@android:color/black"
+        style="@style/SmallerBoldText"
         android:visibility="invisible" />
 
-    <LinearLayout
+    <TextView
         android:id="@+id/text_view_navigation"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="invisible" >
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:gravity="center"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/text_view_message"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="@string/placeholder"
-                android:textColor="#FFFFFF"
-                android:textSize="30dp" />
-
-            <TextView
-                android:id="@+id/text_view_"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="8dp"
-                android:layout_marginRight="8dp"
-                android:gravity="center"
-                android:text="in"
-                android:textColor="#FFFFFF"
-                android:textSize="22dp" />
-
-            <TextView
-                android:id="@+id/text_view_distance"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="@string/placeholder"
-                android:textColor="#FFFFFF"
-                android:textSize="30dp" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/text_view_roadname"
-            android:layout_width="match_parent"
-            android:layout_height="28dp"
-            android:gravity="center"
-            android:text="@string/placeholder"
-            android:textColor="#FFFFFF"
-            android:textSize="24dp" />
-    </LinearLayout>
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="@string/placeholder"
+        android:textColor="@android:color/black"
+        style="@style/SmallerBoldText"
+        android:visibility="invisible"
+    />
 
 </FrameLayout>
