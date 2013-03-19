@@ -2,28 +2,27 @@ package com.smartrek.activities;
 
 import java.io.IOException;
 
-import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
 import com.smartrek.requests.RouteValidationRequest;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
-import com.smartrek.utils.StringUtil;
+import com.smartrek.utils.Font;
 import com.smartrek.utils.ValidationParameters;
-import com.smartrek.utils.datetime.HumanReadableTime;
 
-public final class ValidationReportActivity extends Activity {
+public final class ValidationReportActivity extends ActionBarActivity {
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
 	private Route route;
@@ -31,8 +30,6 @@ public final class ValidationReportActivity extends Activity {
     private Time startTime;
     private Time endTime;
     
-    private TextView textViewScore;
-    private TextView textViewDuration;
     private TextView textViewPoints;
     
 	@Override
@@ -48,9 +45,11 @@ public final class ValidationReportActivity extends Activity {
         endTime.set(extras.getLong("endTime"));
         
         boolean validated = false;
+        final int uid = User.getCurrentUser(this).getId();
+        
+        String msg;
         if (extras.getBoolean("timedout")) {
-            textViewScore = (TextView) findViewById(R.id.textViewValidationScore);
-            textViewScore.setText("Timed out");
+            msg ="Timed out!";
         }
         else {
         	double score = route.getValidatedDistance() / route.getLength();
@@ -60,23 +59,24 @@ public final class ValidationReportActivity extends Activity {
             validated = score >= params.getScoreThreshold();
             
             if (validated) {
-            	new ValidationReportTask().execute(User.getCurrentUser(this).getId(), route.getId());
+                new ValidationReportTask().execute(uid, route.getId());
             }
-            
-            textViewScore = (TextView) findViewById(R.id.textViewValidationScore);
-            textViewScore.setText(String.format("%s/%s = %.01f%%",
-            		StringUtil.formatImperialDistance(route.getValidatedDistance()),
-            		StringUtil.formatImperialDistance(route.getLength()),
-            		score*100));
-            textViewScore.setTextColor(validated ? Color.GREEN : Color.RED);
+            msg = String.format("You just earned %d Trekpoints!", validated ? route.getCredits() : 0);
         }
         
-        int duration = (int)((endTime.toMillis(false) - startTime.toMillis(false)) / 1000);
-        textViewDuration = (TextView) findViewById(R.id.textViewTripDuration);
-        textViewDuration.setText(HumanReadableTime.formatDuration(duration, true));
-        
         textViewPoints = (TextView) findViewById(R.id.textViewPoints);
-        textViewPoints.setText(String.format("%d", validated ? route.getCredits() : 0));
+        textViewPoints.setText(msg);
+        
+        Button okBtn = (Button) findViewById(R.id.ok_button);
+        okBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        
+        Font.setTypeface(lightFont, textViewPoints);
+        Font.setTypeface(boldFont, okBtn);
 	}
 	
 	@Override
@@ -95,7 +95,7 @@ public final class ValidationReportActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
-        MenuInflater mi = getMenuInflater();
+        MenuInflater mi = getSupportMenuInflater();
         mi.inflate(R.menu.main, menu);
         return true;
     }

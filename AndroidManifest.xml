@@ -135,7 +135,8 @@
         <activity
             android:name=".ValidationReportActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
-            android:label="Route validation report" />
+            android:theme="@style/Theme.smartrek"
+            android:label="@string/congratulations" />
         <activity
             android:name=".FavoriteAddressListActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize" />

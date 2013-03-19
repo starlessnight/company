@@ -82,6 +82,9 @@
 	<style name="AddBuddyButton" parent="LargeTextButton">
 		<item name="android:background">@drawable/add_buddy_button</item>
 	</style>
+	<style name="LargeSaveButton" parent="LargeTextButton">
+		<item name="android:background">@drawable/save_button</item>
+	</style>
 	<style name="SmallerTextButton">
 	    <item name="android:textSize">@dimen/smaller_font</item>
 	    <item name="android:textColor">@color/button_text</item>

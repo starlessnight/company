@@ -33,7 +33,7 @@
     <string name="reserve">reserve</string>
     <string name="trekpoints">TREKPOINTS</string>
     <string name="add">Add</string>
-    <string name="ok">OK</string>
+    <string name="ok">ok</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     
@@ -71,7 +71,7 @@
     <string name="date">enter date</string>
     <string name="Go">Go!</string>
     <string name="load_trip">Load trip</string>
-    <string name="save_trip">Save trip</string>
+    <string name="save_trip">save trip</string>
     <string name="edit_trip">Edit trip</string>
     <string name="here_and_now">here and now</string>
     <!-- *************************************************************************************** -->
@@ -140,4 +140,6 @@
     <string name="pull_to_refresh_tap_label">Tap to refresh...</string>
     
     <string name="directions_list">Directions List</string>
+    <string name="congratulations">Congratulations!</string>
+    
 </resources>
