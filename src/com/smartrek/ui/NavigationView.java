@@ -72,6 +72,13 @@ public final class NavigationView extends LinearLayout {
 	    }
 	}
 	
+	public static String getDirection(RouteNode node, double distance){
+        String distancePresentation = StringUtil.formatImperialDistance(distance);
+        String dir = WordUtils.capitalize(node.getMessage()) + " in " 
+            + distancePresentation + " on " + node.getRoadName();
+        return dir;
+	}
+	
 	public void update(final Route route, final Location location, final RouteNode node) {
 		
         final double latitude = location.getLatitude();
@@ -86,10 +93,8 @@ public final class NavigationView extends LinearLayout {
         if (nearestLink.distanceTo(latitude, longitude) <= params.getInRouteDistanceThreshold()) {
             setStatus(Status.InRoute);
             
-            String distancePresentation = StringUtil.formatImperialDistance(distance);
-            String navText = WordUtils.capitalize(node.getMessage()) + " in " 
-                + distancePresentation + " on " + node.getRoadName();
-            textViewNavigation.setText(navText);
+            String dirText = getDirection(node, distance);
+            textViewNavigation.setText(dirText);
             
             // FIXME: Temporary
             if (node.hasMetadata()) {
@@ -114,7 +119,7 @@ public final class NavigationView extends LinearLayout {
                 }
                 
                 if(listener != null && checkpoint){
-                    listener.onCheckPoint(navText);
+                    listener.onCheckPoint(dirText);
                 }
             }
         }

@@ -35,6 +35,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -115,6 +118,10 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     
     private TextToSpeech mTts;
     
+    private ListView dirListView;
+    
+    private ArrayAdapter<String> dirListadapter;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,6 +137,15 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         route = extras.getParcelable("route");
         route.preprocessNodes();
         
+        dirListadapter = new ArrayAdapter<String>(this, R.layout.direction_list_item, R.id.direction_text){
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                Font.setTypeface(boldFont, (TextView)view.findViewById( R.id.direction_text));
+                view.setBackgroundResource(position == 0?R.color.light_green:0);
+                return view;
+            }
+        };
         
         initViews();
         
@@ -290,14 +306,37 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             }
         });
         
-        TextView dirList = (TextView)findViewById(R.id.directions_list);
-        dirList.setOnClickListener(new OnClickListener() {
+        TextView dirSwitch = (TextView)findViewById(R.id.directions_switch);
+        dirSwitch.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                
+                for (View mView : getMapViews()) {
+                    mView.setVisibility(View.INVISIBLE);
+                }
+                findViewById(R.id.directions_view).setVisibility(View.VISIBLE);
             }
         });
-        Font.setTypeface(boldFont, dirList);
+        
+        TextView mapViewSwitch = (TextView)findViewById(R.id.mapview_switch);
+        mapViewSwitch.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for (View mView : getMapViews()) {
+                    mView.setVisibility(View.VISIBLE);
+                }
+                findViewById(R.id.directions_view).setVisibility(View.INVISIBLE);
+            }
+        });
+        
+        dirListView = (ListView) findViewById(R.id.directions_list);
+        dirListView.setAdapter(dirListadapter);
+        
+        Font.setTypeface(boldFont, dirSwitch, mapViewSwitch);
+    }
+    
+    private View[] getMapViews(){
+        return new View[]{findViewById(R.id.mapview), 
+                findViewById(R.id.navigation_view), findViewById(R.id.mapview_options)};
     }
     
     private void prepareGPS() {
@@ -390,6 +429,18 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         runOnUiThread(new Runnable() {
             public void run() {
             	navigationView.update(route, location, node);
+            	dirListadapter.clear();
+            	RouteNode nextNode = node;
+                double distance = 0;
+            	do {
+                    if (nextNode.getFlag() != 0) {
+                        distance += nextNode == node? 
+                            route.getDistanceToNextTurn(location.getLatitude(), 
+                                location.getLongitude())
+                            :nextNode.getDistance(); 
+                        dirListadapter.add(NavigationView.getDirection(nextNode, distance));
+                    }
+            	} while ((nextNode = nextNode.getNextNode()) != null);
             }
         });
     }

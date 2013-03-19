@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"/>
  
     <LinearLayout
+        android:id="@+id/mapview_options"
         android:layout_width="fill_parent"
         android:layout_height="52dp"
         android:layout_alignParentBottom="true"
@@ -36,7 +37,7 @@
         </FrameLayout>
         
         <TextView
-            android:id="@+id/directions_list"
+            android:id="@+id/directions_switch"
             android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:layout_marginLeft="10dp"
@@ -60,6 +61,37 @@
             android:gravity="center"
             android:text="Score" />
         -->
+    </LinearLayout>
+    
+    <LinearLayout
+        android:id="@+id/directions_view"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent" 
+        android:orientation="vertical"
+        android:background="@color/gray"
+        android:layout_alignParentTop="true"
+        android:visibility="invisible">
+        
+        <ListView
+            android:id="@+id/directions_list"
+        	android:layout_height="0dp"
+        	android:layout_width="match_parent"     
+            android:layout_weight="1" 
+            android:divider="@null"
+			android:dividerHeight="0dp"
+        />
+        
+        <TextView
+             android:id="@+id/mapview_switch"
+             android:layout_height="52dp"
+             android:layout_width="match_parent"
+             android:paddingTop="13dp"
+             android:text="@string/map_view"
+             android:gravity="center_horizontal"
+             android:background="@color/dark_gray"
+             style="@style/SmallerBoldText"
+        />
+        
     </LinearLayout>
 
 </RelativeLayout>
