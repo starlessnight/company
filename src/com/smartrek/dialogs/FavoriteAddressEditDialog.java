@@ -150,13 +150,28 @@ public class FavoriteAddressEditDialog extends AlertDialog {
 		address.setName(getName());
 		address.setAddress(getAddress());
 		
-		User currentUser = User.getCurrentUser(getContext());
-		if (isEditMode()) {
-			new FavoriteAddressUpdateTask(address).execute();
-		}
-		else {
-			new FavoriteAddressAddTask().execute(currentUser.getId(), getName(), getAddress());
-		}
+		new GeocodingTask(ehs, new GeocodingTaskCallback() {
+            @Override
+            public void preCallback() {}
+            @Override
+            public void postCallback() {
+                if (isEditMode()) {
+                    new FavoriteAddressUpdateTask(address).execute();
+                }
+                else {
+                    User currentUser = User.getCurrentUser(getContext());
+                    new FavoriteAddressAddTask().execute(currentUser.getId(), 
+                        getName(), getAddress(), address.getLatitude(), 
+                        address.getLongitude());
+                }
+            }
+            @Override
+            public void callback(List<com.smartrek.utils.Geocoding.Address> addresses) {
+                GeoPoint geoPoint = addresses.get(0).getGeoPoint();
+                address.setLatitude(geoPoint.getLatitude());
+                address.setLongitude(geoPoint.getLongitude());
+            }
+        }, false).execute(address.getAddress());
 		
 		if (listener != null) {
 			listener.onClickPositiveButton();
@@ -170,8 +185,10 @@ public class FavoriteAddressEditDialog extends AlertDialog {
 			int uid = (Integer) params[0];
 			String name = (String) params[1];
 			String address = (String) params[2];
+			double lat = (Double) params[3];
+			double lon = (Double) params[4];
 			
-			FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(uid, name, address);
+			FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(uid, name, address, lat, lon);
 			try {
 				request.execute();
 				
@@ -198,20 +215,6 @@ public class FavoriteAddressEditDialog extends AlertDialog {
 						String.format("Address '%s' has been added.", address.getName()),
 						Toast.LENGTH_SHORT);
 				toast.show();
-				
-				new GeocodingTask(ehs, new GeocodingTaskCallback() {
-                    @Override
-                    public void preCallback() {}
-                    @Override
-                    public void postCallback() {}
-                    @Override
-                    public void callback(List<com.smartrek.utils.Geocoding.Address> addresses) {
-                        GeoPoint geoPoint = addresses.get(0).getGeoPoint();
-                        address.setLatitude(geoPoint.getLatitude());
-                        address.setLongitude(geoPoint.getLongitude());
-                        new FavoriteAddressUpdateTask(address, false).execute();
-                    }
-                }).execute(address.getAddress());
 			}
 		}
 		
