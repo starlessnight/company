@@ -1,6 +1,7 @@
 package com.smartrek.ui.overlays;
 
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
 
 import android.content.Context;
@@ -103,8 +104,12 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 //		return overlays.size();
 //	}
 	
+	private Overlay overlay;
+	
 	public void hide() {
 		hideBalloon();
+		mapView.getOverlays().add(currentFocussedIndex, overlay);
+		overlay = null;
 	}
 
 	@Override
@@ -133,6 +138,8 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 											}
 									}
 								});
+		
+		overlay = mapView.getOverlays().remove(currentFocussedIndex);
 		
 		if (callback != null) {
 			return callback.onTap(index);
