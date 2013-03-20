@@ -1,7 +1,5 @@
 package com.smartrek.ui.timelayout;
 
-import org.apache.commons.lang3.StringUtils;
-
 import android.graphics.Typeface;
 import android.text.format.Time;
 import android.util.DisplayMetrics;
@@ -22,7 +20,7 @@ import com.smartrek.utils.Dimension;
  */
 public final class TimeColumn extends FrameLayout {
 	
-    private static final int spacingHeight = 5;
+    private static final int spacingHeight = 7;
     private static final int stripeHieght = 7;
     
 	private TimeButton departureTimeButton;
@@ -53,10 +51,10 @@ public final class TimeColumn extends FrameLayout {
 		LinearLayout timeColumnLayout = new LinearLayout(getContext());
 		timeColumnLayout.setOrientation(LinearLayout.VERTICAL);
 
-		departureTimeButton = new TimeButton(getContext(), 0, true, departureTimeFont);
+		departureTimeButton = new TimeButton(getContext(), 0, false, departureTimeFont);
 		timeColumnLayout.addView(departureTimeButton);
 		
-		arrivalTimeButton = new TimeButton(getContext(), 1, false, arrivalTimeFont);
+		arrivalTimeButton = new TimeButton(getContext(), 1, true, arrivalTimeFont);
 		timeColumnLayout.addView(arrivalTimeButton);
 		
 		bottomSpacing = new View(getContext());
@@ -126,7 +124,7 @@ public final class TimeColumn extends FrameLayout {
 		
 		Time t = new Time();
 		t.set(time);
-		departureTimeButton.setText(StringUtils.upperCase(t.format("%l:%M%p")));
+		departureTimeButton.setText(t.format("%H:%M"));
 		
 		postInvalidate();
 	}
@@ -140,12 +138,12 @@ public final class TimeColumn extends FrameLayout {
 		
 		if (time != 0) {
     		if (displayMode.equals(DisplayMode.Duration)) {
-    			arrivalTimeButton.setText(String.format("%d mins", getDuration()/60));
+    			arrivalTimeButton.setText(String.format("%d m", getDuration()/60));
     		}
     		else {
     			Time t = new Time();
     			t.set(time);
-    			arrivalTimeButton.setText(StringUtils.upperCase(t.format("%l:%M%p")));
+    			arrivalTimeButton.setText(t.format("%H:%M"));
     		}
     		
     		postInvalidate();

@@ -19,12 +19,12 @@ import com.smartrek.utils.Font;
 public final class TimeButton extends TextView {
 	
 	public static final int WIDTH = 115;
-	public static final int HEIGHT = 25;
-	public static final int SMALL_HEIGHT = 15;
+	public static final int HEIGHT = 20;
+	public static final int SMALL_HEIGHT = 18;
 	public static final int IN_PREGRESS_BACKGROUND_COLOR = Color.parseColor("#5f5e60");
 	
-	private static final int largeTopOffset = 11;
-	private static final int smallTopOffset = 7;
+	private static final int largeTopOffset = 6;
+	private static final int smallTopOffset = 10;
 	
 	public enum State {
 		None, Unknown, InProgress, Selected, Disabled;
@@ -126,7 +126,7 @@ public final class TimeButton extends TextView {
         
         // vertical border
         float borderX = width - getResources().getDimension(R.dimen.timetable_separator_width);
-        canvas.drawLine(borderX, large?height/2f:0, borderX, height, paint);
+        canvas.drawLine(borderX, large?0:height*4f/5, borderX, height, paint);
         
         // horizontal border
         if (row == 0) {
