@@ -172,8 +172,8 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
         paint.setAntiAlias(true);
         
         Canvas canvas = new Canvas(bm);
-        canvas.drawText(String.valueOf(routeSeq), bm.getWidth()/2 - textSize/3, 
-            bm.getHeight()/2, paint);
+        canvas.drawText(String.valueOf(routeSeq), bm.getWidth()*3.427f/10, 
+            bm.getHeight()*5.3f/10, paint);
 
         return new BitmapDrawable(res, bm);
     }
