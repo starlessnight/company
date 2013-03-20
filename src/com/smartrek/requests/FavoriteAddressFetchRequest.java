@@ -11,7 +11,7 @@ import com.smartrek.models.Address;
 public final class FavoriteAddressFetchRequest extends FetchRequest<List<Address>> {
 
 	public FavoriteAddressFetchRequest(int uid) {
-		super(String.format("%s/getfavadd/%d", HOST, uid));
+		super(String.format("%s/V0.2/getfavadd/%d", HOST, uid));
 	}
 	
 	@Override
@@ -29,6 +29,8 @@ public final class FavoriteAddressFetchRequest extends FetchRequest<List<Address
 			address.setUid(object.getInt("UID"));
 			address.setName(object.getString("NAME"));
 			address.setAddress(object.getString("ADDRESS"));
+			address.setLatitude(object.getDouble("LAT"));
+			address.setLongitude(object.getDouble("LON"));
 			
 			addresses.add(address);
 		}

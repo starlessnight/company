@@ -1,5 +1,6 @@
 package com.smartrek.activities;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -35,12 +36,17 @@ import com.smartrek.models.Reservation;
 import com.smartrek.models.Trip;
 import com.smartrek.models.User;
 import com.smartrek.receivers.ReservationReceiver;
+import com.smartrek.requests.FavoriteAddressFetchRequest;
+import com.smartrek.requests.FavoriteAddressUpdateRequest;
 import com.smartrek.requests.ReservationListFetchRequest;
+import com.smartrek.tasks.GeocodingTask;
+import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.Cache;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
+import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.SystemService;
 
 /**
@@ -64,7 +70,7 @@ import com.smartrek.utils.SystemService;
  */
 public final class HomeActivity extends ActionBarActivity {
     
-    public static final String INIT_NOTIFICATION = "init";
+    public static final String INIT = "init";
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
@@ -218,13 +224,73 @@ public final class HomeActivity extends ActionBarActivity {
 			}
 	    });
 
-	    if(getIntent().getBooleanExtra(INIT_NOTIFICATION, false)){
+	    if(getIntent().getBooleanExtra(INIT, false)){
 	        new NotificationTask().execute(User.getCurrentUser(this).getId());
+	        updateAllFavAddrLatLon();
 	    }
 	    
 	   Font.setTypeface(boldFont, buttonDone, buttonLoadTrip, buttonSaveTrip,
            buttonOriginMyLocation);
 	   Font.setTypeface(lightFont, editAddressDest, editAddressOrigin);
+	}
+	
+	private void updateAllFavAddrLatLon(){
+	    new AsyncTask<Void, Void, List<Address>>(){
+	        @Override
+	        protected List<Address> doInBackground(Void... params) {
+	            User currentUser = User.getCurrentUser(HomeActivity.this);
+	            FavoriteAddressFetchRequest req = new FavoriteAddressFetchRequest(currentUser.getId());
+	            req.invalidateCache();
+	            List<Address> addresses;
+	            try {
+	                addresses = req.execute();
+                }
+                catch (Exception e) {
+                    ehs.registerException(e);
+                    addresses = Collections.emptyList();
+                }
+	            return addresses;
+	        }
+	        @Override
+	        protected void onPostExecute(List<Address> addresses) {
+	            for (final Address address : addresses) {
+	                if(address.getLatitude() == 0 && address.getLongitude() == 0){
+	                    new GeocodingTask(ehs, new GeocodingTaskCallback() {
+	                        @Override
+	                        public void preCallback() {}
+	                        @Override
+	                        public void postCallback() {
+                                new AsyncTask<Void, Void, Void>(){
+                                    @Override
+                                    protected Void doInBackground(Void... params) {
+                                        try {
+                                            FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
+                                                address.getId(),
+                                                address.getUid(),
+                                                address.getName(),
+                                                address.getAddress(),
+                                                address.getLatitude(),
+                                                address.getLongitude());
+                                            request.execute();
+                                        }
+                                        catch (Exception e) {
+                                            ehs.registerException(e);
+                                        }
+                                        return null;
+                                    }
+                                }.execute();
+	                        }
+	                        @Override
+	                        public void callback(List<com.smartrek.utils.Geocoding.Address> addresses) {
+	                            GeoPoint geoPoint = addresses.get(0).getGeoPoint();
+	                            address.setLatitude(geoPoint.getLatitude());
+                                address.setLongitude(geoPoint.getLongitude());
+	                        }
+	                    }, false).execute(address.getAddress());
+	                }
+                }
+	        }
+	    }.execute();
 	}
 	
 	@Override

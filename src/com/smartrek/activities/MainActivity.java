@@ -73,7 +73,7 @@ public class MainActivity extends Activity implements AnimationListener {
 	
 	private void startHomeActivity(){
         Intent intent = new Intent(this, HomeActivity.class);
-        intent.putExtra(HomeActivity.INIT_NOTIFICATION, true);
+        intent.putExtra(HomeActivity.INIT, true);
         startActivity(intent);
         finish();
 	}

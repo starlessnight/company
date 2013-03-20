@@ -15,14 +15,21 @@ import com.smartrek.utils.Geocoding;
  */
 public final class GeocodingTask extends AsyncTask<String, Void, Void> {
 	
+    private boolean registerException;
 	private ExceptionHandlingService ehs;
 	private GeocodingTaskCallback callback;
 	
-	public GeocodingTask(ExceptionHandlingService ehs, GeocodingTaskCallback callback) {
+	public GeocodingTask(ExceptionHandlingService ehs, GeocodingTaskCallback callback, 
+	        boolean registerException) {
 		super();
 		this.ehs = ehs;
 		this.callback = callback;
+		this.registerException = registerException;
 	}
+	
+	public GeocodingTask(ExceptionHandlingService ehs, GeocodingTaskCallback callback) {
+        this(ehs, callback, true);
+    }
     
     @Override
     protected void onPreExecute () {
@@ -39,20 +46,28 @@ public final class GeocodingTask extends AsyncTask<String, Void, Void> {
 			addresses = Geocoding.lookup(postalAddress);
 			
 	        if(addresses == null || addresses.size() == 0) {
-	            ehs.registerException(new Exception(String.format("Could not find a coordinate of the address '%s'.", postalAddress)));
+	            if(registerException){
+	                ehs.registerException(new Exception(String.format("Could not find a coordinate of the address '%s'.", postalAddress)));
+	            }
 	        }
 	        else {
 	        	callback.callback(addresses);
 	        }
 		}
 		catch (IOException e) {
-			ehs.registerException(e, "Could not complete geocoding request");
+		    if(registerException){
+		        ehs.registerException(e, "Could not complete geocoding request");
+		    }
 		}
 		catch (JSONException e) {
-			ehs.registerException(e);
+		    if(registerException){
+		        ehs.registerException(e);
+		    }
 		}
 		catch (Exception e) {
-			ehs.registerException(e);
+		    if(registerException){
+		        ehs.registerException(e);
+		    }
 		}
         
         return null;
