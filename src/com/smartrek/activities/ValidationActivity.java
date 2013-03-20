@@ -388,17 +388,17 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     
     private void prepareGPS() {
         // Acquire a reference to the system Location Manager
-        if(locationManager == null){
-            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            
-            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                SystemService.alertNoGPS(this);
-            }
-            else {
-                // TODO: Turn on GSP early
-                //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, locationListener);
-            }
+        if(locationManager != null){
+            locationManager.removeUpdates(locationListener);
+        }
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            SystemService.alertNoGPS(this);
+        }
+        else {
+            // TODO: Turn on GSP early
+            //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, locationListener);
         }
     }
 
