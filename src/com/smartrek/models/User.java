@@ -194,4 +194,8 @@ public final class User implements JSONModel, Parcelable {
 		dest.writeString(lastname);
 		dest.writeString(email);
 	}
+
+    public void setId(int id) {
+        this.id = id;
+    }
 }

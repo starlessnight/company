@@ -3,6 +3,9 @@ package com.smartrek.requests;
 import java.io.IOException;
 import java.net.URLEncoder;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.smartrek.models.User;
 
 public class UserRegistrationRequest extends Request {
@@ -16,6 +19,12 @@ public class UserRegistrationRequest extends Request {
 				URLEncoder.encode(user.getFirstname()),
 				URLEncoder.encode(user.getLastname()));
 		
-		executeHttpGetRequest(url);
+		String res = executeHttpGetRequest(url);
+		try {
+            JSONObject json = new JSONObject(res);
+            user.setId(json.getInt("uid"));
+        }
+        catch (JSONException e) {
+        }
 	}
 }

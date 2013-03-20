@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -19,6 +21,7 @@ import com.smartrek.models.User;
 import com.smartrek.requests.UserRegistrationRequest;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
+import com.smartrek.utils.Preferences;
 
 public final class UserRegistrationActivity extends ActionBarActivity
         implements TextWatcher {
@@ -133,10 +136,10 @@ public final class UserRegistrationActivity extends ActionBarActivity
 		return true;
     }
 
-    private class UserRegistrationTask extends AsyncTask<Object, Object, Object> {
+    private class UserRegistrationTask extends AsyncTask<Object, Object, User> {
     	
 		@Override
-		protected Object doInBackground(Object... params) {
+		protected User doInBackground(Object... params) {
 			
 			User user = (User) params[0];
 			UserRegistrationRequest request = new UserRegistrationRequest();
@@ -151,7 +154,7 @@ public final class UserRegistrationActivity extends ActionBarActivity
 		}
     	
 		@Override
-		protected void onPostExecute(Object result) {
+		protected void onPostExecute(final User result) {
 		    if (ehs.hasExceptions()) {
 		        ehs.reportExceptions();
 		    }
@@ -161,9 +164,21 @@ public final class UserRegistrationActivity extends ActionBarActivity
 				dialog.setTitle("Info");
 				dialog.setMessage("Successfully registered.");
 				dialog.setButton(getResources().getString(R.string.close), new DialogInterface.OnClickListener() {
-					
 					public void onClick(DialogInterface dialog, int which) {
-						UserRegistrationActivity.this.finish();
+					    SharedPreferences globalPrefs = Preferences.getGlobalPreferences(UserRegistrationActivity.this);
+				        String gcmRegistrationId = globalPrefs.getString(Preferences.Global.GCM_REG_ID, "");
+				        
+				        SharedPreferences loginPrefs = Preferences.getAuthPreferences(UserRegistrationActivity.this);
+				        SharedPreferences.Editor loginPrefsEditor = loginPrefs.edit();
+				        loginPrefsEditor.putString(User.USERNAME, result.getUsername());
+				        loginPrefsEditor.putString(User.PASSWORD, result.getPassword());
+				        loginPrefsEditor.commit();
+					    
+					    User.setCurrentUser(UserRegistrationActivity.this, result);
+					    
+	                    Intent intent = new Intent(UserRegistrationActivity.this, HomeActivity.class);
+	                    intent.putExtra(HomeActivity.INIT, true);
+	                    UserRegistrationActivity.this.startActivity(intent);
 					}
 					
 				});
