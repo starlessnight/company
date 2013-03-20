@@ -105,8 +105,6 @@
 	       android:layout_width="match_parent"
 	       android:layout_height="2dp"
 	       android:layout_marginTop="10dp"
-	       android:layout_marginLeft="45dp"
-	       android:layout_marginRight="45dp"
 	       android:background="@color/secondary_font"  
     	/>
     </LinearLayout>
