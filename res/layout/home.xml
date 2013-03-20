@@ -25,13 +25,12 @@
                 style="@style/CurrentLocationButton"
         />
        	
-       	<LinearLayout
+       	<RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:orientation="horizontal">
+            android:layout_marginRight="30dp">
        	    
             <com.smartrek.ui.EditAddress
                 android:id="@+id/origin_box"
@@ -39,6 +38,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:hint="start"
+                android:paddingRight="47dp"
                 android:inputType="textPostalAddress" 
                 style="@style/NormalTextField">
 
@@ -47,20 +47,21 @@
             <ImageButton
                 android:id="@+id/Favs1"
                 android:layout_width="36dp"
-                android:layout_height="52dp"
-                android:layout_marginLeft="10dp"
+                android:layout_height="50dp"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="1dp"
+                android:layout_alignRight="@id/origin_box"
                 style="@style/MoreButton" 
             />
 
-        </LinearLayout>
+        </RelativeLayout>
         
-       	<LinearLayout
+       	<RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:orientation="horizontal">
+            android:layout_marginRight="30dp">
 
             <com.smartrek.ui.EditAddress
                 android:id="@+id/destination_box"
@@ -68,17 +69,20 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:hint="end"
-                android:inputType="textPostalAddress" 
+                android:inputType="textPostalAddress"
+                android:paddingRight="47dp" 
                 style="@style/NormalTextField" />
 
             <ImageButton
                 android:id="@+id/Favs2"
                 android:layout_width="36dp"
-                android:layout_height="52dp"
-                android:layout_marginLeft="10dp"
+                android:layout_height="50dp"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="1dp"
+                android:layout_alignRight="@id/destination_box"
                 style="@style/MoreButton"
              />
-        </LinearLayout>
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
