@@ -96,7 +96,7 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
             ((ImageView)view.findViewById(R.id.image)).setImageResource(image);
             TextView textView = (TextView)view.findViewById(R.id.text);
             textView.setText(text);
-            textView.setTypeface(Font.getLight(getActivity().getAssets()));
+            Font.setTypeface(Font.getLight(getActivity().getAssets()), textView);
             return view;
         }
         
