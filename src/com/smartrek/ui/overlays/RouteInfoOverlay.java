@@ -107,17 +107,27 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private Overlay overlay;
 	
 	public void hide() {
+	    callback.onChange();
 		hideBalloon();
-		mapView.getOverlays().add(currentFocussedIndex, overlay);
-		overlay = null;
+	}
+	
+	public void showOverlay(){
+	    if(overlay != null){
+            mapView.getOverlays().add(overlay);
+            overlay = null;
+        }
+    }
+	
+	public void hideOverlay(){
+	    overlay = mapView.getOverlays().remove(currentFocussedIndex);
 	}
 
 	@Override
 	protected final boolean onTap(int index) {
 		Log.d("RouteOverlay", "onTap, index=" + index);
+		callback.onChange();
 		
 		// FIXME: Move the following code to RouteActivity
-		
 		currentFocussedIndex = index;
 		currentFocussedItem = createItem(index);
 		
@@ -139,7 +149,7 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 									}
 								});
 		
-		overlay = mapView.getOverlays().remove(currentFocussedIndex);
+		hideOverlay();
 		
 		if (callback != null) {
 			return callback.onTap(index);

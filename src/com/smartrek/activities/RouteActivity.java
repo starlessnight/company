@@ -707,6 +707,16 @@ public final class RouteActivity extends ActionBarActivity {
         }
 
         @Override
+        public void onChange() {
+            for (int i = 0; i < routeInfoOverlays.length; i++) {
+                RouteInfoOverlay routeInfoOverlay = routeInfoOverlays[i];
+                if (routeInfoOverlay != null) {
+                    routeInfoOverlay.showOverlay();
+                }
+            }
+        }
+        
+        @Override
         public boolean onTap(int index) {
         	Log.d("RouteActivity.RouteOverlayCallbackImpl", "onTap()");
             // Highlight selected route path

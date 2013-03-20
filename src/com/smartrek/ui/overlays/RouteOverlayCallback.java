@@ -6,4 +6,5 @@ public interface RouteOverlayCallback {
 	boolean onBalloonTap(int index, OverlayItem item);
 	boolean onTap(int index);
 	boolean onClose();
+	void onChange();
 }
