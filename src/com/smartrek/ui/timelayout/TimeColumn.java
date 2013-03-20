@@ -1,5 +1,7 @@
 package com.smartrek.ui.timelayout;
 
+import org.apache.commons.lang3.StringUtils;
+
 import android.graphics.Typeface;
 import android.text.format.Time;
 import android.util.DisplayMetrics;
@@ -124,7 +126,7 @@ public final class TimeColumn extends FrameLayout {
 		
 		Time t = new Time();
 		t.set(time);
-		departureTimeButton.setText(t.format("%l:%M%p"));
+		departureTimeButton.setText(StringUtils.upperCase(t.format("%l:%M%p")));
 		
 		postInvalidate();
 	}
@@ -138,12 +140,12 @@ public final class TimeColumn extends FrameLayout {
 		
 		if (time != 0) {
     		if (displayMode.equals(DisplayMode.Duration)) {
-    			arrivalTimeButton.setText(String.format("%d min", getDuration()/60));
+    			arrivalTimeButton.setText(String.format("%d mins", getDuration()/60));
     		}
     		else {
     			Time t = new Time();
     			t.set(time);
-    			arrivalTimeButton.setText(t.format("%l:%M%p"));
+    			arrivalTimeButton.setText(StringUtils.upperCase(t.format("%l:%M%p")));
     		}
     		
     		postInvalidate();

@@ -24,7 +24,7 @@ public class HumanReadableTime {
 			duration %= 3600;
 			
 			buf.append(hours);
-			buf.append(" hr");
+			buf.append(" hrs");
 		}
 		if (duration > 60) {
 			int minutes = duration / 60;
@@ -35,7 +35,7 @@ public class HumanReadableTime {
 			}
 			
 			buf.append(minutes);
-			buf.append(" min");
+			buf.append(" mins");
 		}
 		if (showSeconds) {
 		    if (buf.length() > 0) {
@@ -43,7 +43,7 @@ public class HumanReadableTime {
             }
 		    
 			buf.append(duration);
-			buf.append(" sec");
+			buf.append(" secs");
 		}
 		
 		return new String(buf);
