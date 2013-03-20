@@ -9,6 +9,7 @@ import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.json.JSONException;
 import org.osmdroid.tileprovider.util.CloudmadeUtil;
@@ -28,6 +29,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.text.format.Time;
@@ -116,7 +118,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     
     private FakeLocationService fakeLocationService;
     
-    private AtomicBoolean arrived= new AtomicBoolean(false);
+    private AtomicBoolean arrived = new AtomicBoolean(false);
     
     private static final int ttsCheckCode = 1;
     
@@ -128,7 +130,9 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     
     private static String utteranceId = "utteranceId";
 
-    private AtomicBoolean uttered = new AtomicBoolean(true);
+    private AtomicInteger utteringCnt = new AtomicInteger();
+    
+    private AtomicInteger utteredCnt = new AtomicInteger();
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -545,7 +549,6 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         
         if (!arrived.get() && route.hasArrivedAtDestination(lat, lng)) {
             arrived.set(true);
-            deactivateLocationService();
             arriveAtDestination();
             Log.d("ValidationActivity", "Arriving at destination");
             
@@ -560,10 +563,6 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     }
     
     private void arriveAtDestination() {
-        if (locationManager != null) {
-            locationManager.removeUpdates(locationListener);
-        }
-        
         validationTimeoutHandler.removeCallbacks(validationTimeoutNotifier);
         
         endTime = new Time();
@@ -571,15 +570,36 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         
         sendTrajectory();
         
+        if(mTts == null){
+            reportValidation();
+        }else{
+            final int oldCnt = utteredCnt.get();
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    int newCnt = utteredCnt.get();
+                    if(newCnt == oldCnt && newCnt == utteringCnt.get()){
+                        reportValidation();
+                    }
+                }
+            }, Math.round(Math.random() * 1000));
+        }
+    }
+    
+    private void reportValidation(){
+        if (locationManager != null) {
+            locationManager.removeUpdates(locationListener);
+        }
+        
+        deactivateLocationService();
+        
         Intent intent = new Intent(this, ValidationReportActivity.class);
         intent.putExtra("route", route);
         intent.putExtra("startTime", startTime.toMillis(false));
         intent.putExtra("endTime", endTime.toMillis(false));
         startActivity(intent);
         
-        if(mTts == null || uttered.get()){
-            finish();
-        }
+        finish();
     }
     
     private void deactivateLocationService() {
@@ -672,7 +692,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             }
             
             timer = new Timer();
-            timer.schedule(this, 1500, 500);
+            timer.schedule(this, 1000, 500);
         }
 
         @Override
@@ -727,7 +747,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
                 navigationView.setListener(new CheckPointListener() {
                     @Override
                     public void onCheckPoint(final String navText) {
-                        uttered.set(false);
+                        utteringCnt.incrementAndGet();
                         HashMap<String, String> params = new HashMap<String, String>();
                         params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
                         mTts.speak(navText, TextToSpeech.QUEUE_ADD, params);
@@ -750,9 +770,8 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             mTts.setOnUtteranceCompletedListener(new TextToSpeech.OnUtteranceCompletedListener() {
                 @Override
                 public void onUtteranceCompleted(String utteranceId) {
-                    uttered.set(true);
-                    if(arrived.get()){
-                        finish();
+                    if(utteredCnt.incrementAndGet() == utteringCnt.get() && arrived.get()){
+                        reportValidation();
                     }
                 }
             });
