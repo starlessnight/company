@@ -51,7 +51,8 @@
                 android:id="@+id/delete_button"
                 android:layout_width="wrap_content"
 				android:layout_height="26dp"
-				android:layout_gravity="right|bottom" 
+				android:layout_gravity="right|top" 
+				android:layout_marginTop="-2dp"
 				android:src="@drawable/balloon_overlay_close"
 				android:scaleType="center"
 			/>

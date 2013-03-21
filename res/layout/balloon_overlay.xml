@@ -17,16 +17,16 @@
 		android:background="@color/pop_up_header_background">
 		<TextView android:layout_height="wrap_content"
 		    android:layout_weight="1"
-			android:layout_width="match_parent" 
+			android:layout_width="wrap_content" 
 			android:id="@+id/balloon_item_title"
 			android:text="balloon_item_title" 
 			style="@style/PopUpHeader" />
 		<ImageView android:layout_width="wrap_content"
-			android:layout_height="wrap_content" 
+			android:layout_height="match_parent" 
 			android:src="@drawable/balloon_overlay_close"
 			android:layout_gravity="center_vertical"
 			android:id="@+id/close_img_button"
-			android:layout_marginRight="5dp" />
+			android:scaleType="center" />
 	</LinearLayout>
 
 	<TextView android:layout_height="wrap_content"
