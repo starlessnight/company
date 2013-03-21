@@ -134,6 +134,8 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     
     private AtomicInteger utteredCnt = new AtomicInteger();
     
+    private AtomicBoolean reported = new AtomicBoolean(false);
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -582,24 +584,28 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
                         reportValidation();
                     }
                 }
-            }, Math.round(Math.random() * 1000));
+            }, 1000 + Math.round(Math.random() * 500));
         }
     }
     
     private void reportValidation(){
-        if (locationManager != null) {
-            locationManager.removeUpdates(locationListener);
+        if(!reported.get()){
+            reported.set(true);
+            
+            if (locationManager != null) {
+                locationManager.removeUpdates(locationListener);
+            }
+            
+            deactivateLocationService();
+            
+            Intent intent = new Intent(this, ValidationReportActivity.class);
+            intent.putExtra("route", route);
+            intent.putExtra("startTime", startTime.toMillis(false));
+            intent.putExtra("endTime", endTime.toMillis(false));
+            startActivity(intent);
+            
+            finish();
         }
-        
-        deactivateLocationService();
-        
-        Intent intent = new Intent(this, ValidationReportActivity.class);
-        intent.putExtra("route", route);
-        intent.putExtra("startTime", startTime.toMillis(false));
-        intent.putExtra("endTime", endTime.toMillis(false));
-        startActivity(intent);
-        
-        finish();
     }
     
     private void deactivateLocationService() {
