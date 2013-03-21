@@ -18,8 +18,8 @@
 	      android:layout_height="wrap_content"
 	      android:text="@string/sign_up_msg"
 	      android:layout_marginTop="30dp"
-	      android:layout_marginLeft="30dp" 
-	      android:layout_marginRight="30dp"
+	      android:layout_marginLeft="45dp" 
+	      android:layout_marginRight="45dp"
 	      android:gravity="center_horizontal"
 	      style="@style/SmallerText" />
 
