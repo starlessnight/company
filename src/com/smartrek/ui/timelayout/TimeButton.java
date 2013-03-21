@@ -121,8 +121,8 @@ public final class TimeButton extends TextView {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         
-        int width = canvas.getWidth();
-        int height = canvas.getHeight();
+        int width = getWidth();
+        int height = getHeight();
         
         // vertical border
         float borderX = width - getResources().getDimension(R.dimen.timetable_separator_width);
