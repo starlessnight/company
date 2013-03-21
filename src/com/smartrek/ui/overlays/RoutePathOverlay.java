@@ -16,6 +16,7 @@ import android.graphics.Point;
 
 import com.smartrek.activities.R;
 import com.smartrek.models.Route;
+import com.smartrek.utils.Dimension;
 import com.smartrek.utils.RouteNode;
 
 public class RoutePathOverlay extends Overlay {
@@ -57,8 +58,8 @@ public class RoutePathOverlay extends Overlay {
 		paint.setAntiAlias(true);
 		paint.setStyle(Paint.Style.STROKE);
 		
-		int thickness = 5 + zoom/2 + (highlighted ? 3 : -3);
-		paint.setStrokeWidth(thickness);
+		int thickness = 1 + zoom/2 + (highlighted ? 1 : -1);
+		paint.setStrokeWidth(Dimension.dpToPx(thickness, mapView.getResources().getDisplayMetrics()));
 		
 		// Seems like Paint.setAlpha has no effect
 		int alphaMask = highlighted ? 0xCF000000 : 0x4F000000;
