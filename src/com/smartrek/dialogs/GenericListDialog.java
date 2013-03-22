@@ -3,9 +3,11 @@ package com.smartrek.dialogs;
 import java.util.List;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.AssetManager;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,12 +16,14 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.markupartist.android.widget.PullToRefreshListView;
 import com.smartrek.activities.R;
+import com.smartrek.utils.Font;
 
-public class GenericListDialog<ItemType> extends AlertDialog {
+public class GenericListDialog<ItemType> extends Dialog {
     
     protected enum Status {
         Loading, EmptyList, GenericList
@@ -52,9 +56,13 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 	protected ViewGroup layoutLoading;
 	protected PullToRefreshListView listViewGeneric;
 	protected TextView textViewGeneric;
+	protected Button addButton;
+	protected TextView titleView;
+	protected Typeface boldFont;
+	protected Typeface lightFont;
 	
 	protected GenericListDialog(Context context, List<ItemType> listItems) {
-		super(context);
+		super(context, android.R.style.Theme_Translucent_NoTitleBar);
 		this.listItems = listItems;
 		
 		if (context instanceof Activity) {
@@ -68,8 +76,18 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 	    initViews();
 	    setStatus(Status.Loading);
 		
-		setView(dialogView);
-		setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", defaultNegativeButtonListener);
+		setContentView(dialogView);
+		
+		View closeIcon = dialogView.findViewById(R.id.close_icon);
+        closeIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+                if (actionListener != null) {
+                    actionListener.onClickNegativeButton();
+                }
+            }
+        });
 		
 		super.onCreate(savedInstanceState);
 	}
@@ -80,6 +98,23 @@ public class GenericListDialog<ItemType> extends AlertDialog {
         layoutLoading = (ViewGroup) dialogView.findViewById(R.id.layout_loading);
         listViewGeneric = (PullToRefreshListView) dialogView.findViewById(R.id.list_view_generic);
         textViewGeneric = (TextView) dialogView.findViewById(R.id.text_view_generic);
+        addButton = (Button) dialogView.findViewById(R.id.add_button);
+        titleView = (TextView) dialogView.findViewById(R.id.title);
+        
+        AssetManager assets = getContext().getAssets();
+        boldFont = Font.getBold(assets);
+        lightFont = Font.getLight(assets);
+        
+        Font.setTypeface(boldFont, titleView);
+        if(addButton != null){
+            Font.setTypeface(boldFont, addButton);
+        }
+        Font.setTypeface(lightFont, textViewGeneric);
+	}
+	
+	@Override
+	public void setTitle(CharSequence title) {
+	    titleView.setText(title);
 	}
 	
 	/**
@@ -110,7 +145,7 @@ public class GenericListDialog<ItemType> extends AlertDialog {
 	 * This gets called when {@code listItem} is null or has no item
 	 */
 	protected void initEmptyList() {
-		setButton(DialogInterface.BUTTON_NEGATIVE, getContext().getResources().getString(R.string.close), defaultNegativeButtonListener);	
+		//setButton(DialogInterface.BUTTON_NEGATIVE, getContext().getResources().getString(R.string.close), defaultNegativeButtonListener);	
 	}
 	
 	public void setStatus(Status status) {

@@ -5,6 +5,8 @@ import java.util.List;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.res.AssetManager;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -27,6 +29,7 @@ import com.smartrek.requests.FavoriteAddressUpdateRequest;
 import com.smartrek.tasks.GeocodingTask;
 import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
 
 /**
@@ -109,6 +112,10 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
                 }
             }
         });
+		
+		AssetManager assets = getContext().getAssets();
+		Font.setTypeface(Font.getBold(assets), titleView, confirmButton);
+		Font.setTypeface(Font.getLight(assets), editTextName, editTextAddress);
 		
 		// This has to be called after all overriding code, otherwise it won't
 		// look like a dialog.

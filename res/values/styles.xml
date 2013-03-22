@@ -17,10 +17,7 @@
 	    <item name="android:paddingLeft">15dp</item>
 	    <item name="android:background">@color/pop_up_header_background</item>
 	</style>
-	<style name="PopUpHeader" parent="OverlayHeader">
-	    <item name="android:paddingTop">13dp</item>
-	    <item name="android:paddingBottom">13dp</item>
-	</style>
+	<style name="PopUpHeader" parent="OverlayHeader"></style>
 	<style name="OverlayBody">
 	    <item name="android:textSize">@dimen/smaller_font</item>
 	    <item name="android:textColor">@android:color/white</item>
@@ -82,6 +79,9 @@
 	</style>
 	<style name="NextActionButton" parent="LargeTextButton">
 		<item name="android:background">@drawable/next_action_button</item>
+	</style>
+	<style name="AddButton" parent="LargeTextButton">
+		<item name="android:background">@drawable/add_button</item>
 	</style>
 	<style name="AddBuddyButton" parent="LargeTextButton">
 		<item name="android:background">@drawable/add_buddy_button</item>

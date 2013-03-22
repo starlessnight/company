@@ -3,25 +3,32 @@
     android:id="@+id/gridLayout1"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="4dp">
+    android:orientation="vertical">
 
 
     <TextView
         android:id="@+id/textViewName"
         android:layout_gravity="left"
         android:text="Name"
-        android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textColor="#92D050" />
+        android:layout_marginTop="10dp"
+        style="@style/MediumText" />
     <TextView
         android:id="@+id/textViewAddress"
         android:layout_gravity="left"
         android:text="Address"
-        android:textAppearance="?android:attr/textAppearanceSmall"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" />
-
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        style="@style/MediumText"
+    />
+    
+    <View
+       android:layout_width="match_parent"
+       android:layout_height="2dp"
+       android:layout_marginTop="10dp"
+       android:background="@color/secondary_font"  
+   	/>
 
 </LinearLayout>

@@ -3,8 +3,6 @@ package com.smartrek.dialogs;
 import java.util.List;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.ContextMenu;
@@ -25,6 +23,7 @@ import com.smartrek.models.User;
 import com.smartrek.requests.FavoriteAddressDeleteRequest;
 import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.Font;
 
 public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 	
@@ -38,22 +37,21 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Resources res = getContext().getResources();
+	    super.onCreate(savedInstanceState);
 		
-		setTitle("Favorite addresses");
-		setButton(DialogInterface.BUTTON_NEUTRAL, res.getString(R.string.add), new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if (actionListener != null) {
-					actionListener.onClickNeutralButton();
-				}
-			}
-			
-		});
+		setTitle("Favorite Locations");
 		
-		super.onCreate(savedInstanceState);
 		textViewGeneric.setText("You don't have any favorite address");
+		addButton.setText("add location");
+		addButton.setVisibility(View.VISIBLE);
+		addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (actionListener != null) {
+                    actionListener.onClickNeutralButton();
+                }
+            }
+        });
 		
 		// enables context menu
 		registerForContextMenu(listViewGeneric);
@@ -235,9 +233,11 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 			
 			TextView textViewName = (TextView) view.findViewById(R.id.textViewName);
 			textViewName.setText(item.getName());
+			Font.setTypeface(boldFont, textViewName);
 			
 			TextView textViewAddress = (TextView) view.findViewById(R.id.textViewAddress);
 			textViewAddress.setText(item.getAddress());
+			Font.setTypeface(lightFont, textViewAddress);
 			
 			return view;
 		}

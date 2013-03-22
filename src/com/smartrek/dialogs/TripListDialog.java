@@ -53,14 +53,15 @@ public class TripListDialog extends GenericListDialog<Trip> {
 		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		dialogView = (ViewGroup) inflater.inflate(R.layout.trip_list, null);
 		
-		setView(dialogView);
-		setTitle("Trip List");
+		setContentView(dialogView);
 		
-		setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", onClickListener);
+		//setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", onClickListener);
 		
 		// This has to be called after all overriding code, otherwise it won't
 		// look like a dialog.
 		super.onCreate(savedInstanceState);
+		
+		setTitle("Trip List");
 		textViewGeneric.setText("You don't have any saved trip");
 		
 		// enables context menu
