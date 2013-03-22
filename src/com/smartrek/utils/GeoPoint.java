@@ -44,4 +44,8 @@ public class GeoPoint extends org.osmdroid.util.GeoPoint {
 	public double getLongitude() {
 		return longitude;
 	}
+	
+	public boolean isEmpty(){
+	    return latitude == 0 && longitude == 0;
+	}
 }

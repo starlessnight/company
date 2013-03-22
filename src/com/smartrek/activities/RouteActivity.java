@@ -63,6 +63,9 @@ public final class RouteActivity extends ActionBarActivity {
 	
 	public static final String ORIGIN_ADDR = "originAddr";
 	public static final String DEST_ADDR = "destAddr";
+	
+	public static final String ORIGIN_COORD = "originCoord";
+    public static final String DEST_COORD = "destCoord";
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
@@ -124,8 +127,12 @@ public final class RouteActivity extends ActionBarActivity {
 			if (ehs.hasExceptions()) {
 			    ehs.reportExceptions(goBackToWhereTo);
 			}
-			else {
+			else if(destCoord == null || destCoord.isEmpty()){
 				new GeocodingTask(ehs, destGeocodingTaskCallback).execute(destAddr);
+			}else{
+			    RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
+	            routeTasks.add(routeTask);
+	            routeTask.execute();
 			}
 		}
 		
@@ -281,7 +288,23 @@ public final class RouteActivity extends ActionBarActivity {
         originAddr = extras.getString(ORIGIN_ADDR);
         destAddr = extras.getString(DEST_ADDR);
         
-        new GeocodingTask(ehs, originGeocodingTaskCallback).execute(originAddr);
+        org.osmdroid.util.GeoPoint pOriginCoord = extras.getParcelable(ORIGIN_COORD);
+        if(pOriginCoord != null){
+            originCoord = new GeoPoint(pOriginCoord);
+        }
+        org.osmdroid.util.GeoPoint pDestCoord = extras.getParcelable(DEST_COORD);
+        if(pOriginCoord != null){
+            destCoord = new GeoPoint(pDestCoord);
+        }
+        if(originCoord == null || originCoord.isEmpty()){
+            new GeocodingTask(ehs, originGeocodingTaskCallback).execute(originAddr);
+        }else if(destCoord == null || destCoord.isEmpty()){
+            new GeocodingTask(ehs, destGeocodingTaskCallback).execute(destAddr);
+        }else{
+            RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
+            routeTasks.add(routeTask);
+            routeTask.execute();
+        }
     }
     
 	@Override

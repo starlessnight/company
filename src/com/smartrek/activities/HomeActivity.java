@@ -359,9 +359,36 @@ public final class HomeActivity extends ActionBarActivity {
 				}
 				
 				@Override
-				public void onClickListItem(Trip trip, int position) {
+				public void onClickListItem(final Trip trip, int position) {
 					setOriginAddress(trip.getOrigin());
 					setDestinationAddress(trip.getDestination());
+					new AsyncTask<Void, Void, List<Address>>(){
+			            @Override
+			            protected List<Address> doInBackground(Void... params) {
+			                User currentUser = User.getCurrentUser(HomeActivity.this);
+			                FavoriteAddressFetchRequest req = new FavoriteAddressFetchRequest(currentUser.getId());
+			                List<Address> addresses;
+			                try {
+			                    addresses = req.execute();
+			                }
+			                catch (Exception e) {
+			                    ehs.registerException(e);
+			                    addresses = Collections.emptyList();
+			                }
+			                return addresses;
+			            }
+			            @Override
+			            protected void onPostExecute(List<Address> addresses) {
+			                for (final Address address : addresses) {
+			                    int id = address.getId();
+			                    if(id == trip.getOriginID()){
+			                        setOriginAddress(address);
+			                    }else if(id == trip.getDestinationID()){
+			                        setDestinationAddress(address);
+			                    }
+			                }
+			            }
+			        }.execute();
 				}
 
 			});
@@ -523,7 +550,13 @@ public final class HomeActivity extends ActionBarActivity {
 		
 		Bundle extras = new Bundle();
 		extras.putString("originAddr", editAddressOrigin.getText().toString());
+		Address originAddr = getOriginAddress();
+		extras.putParcelable(RouteActivity.ORIGIN_COORD, 
+	        new GeoPoint(originAddr.getLatitude(), originAddr.getLongitude()));
 		extras.putString("destAddr", editAddressDest.getText().toString());
+		Address destAddr = getDestinationAddress();
+        extras.putParcelable(RouteActivity.DEST_COORD, 
+            new GeoPoint(destAddr.getLatitude(), destAddr.getLongitude()));
 		extras.putBoolean("debugMode", debugMode);
 		intent.putExtras(extras);
 		startActivity(intent);
