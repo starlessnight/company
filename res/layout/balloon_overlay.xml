@@ -17,7 +17,7 @@
 		android:background="@color/pop_up_header_background">
 		<TextView android:layout_height="wrap_content"
 		    android:layout_weight="1"
-			android:layout_width="wrap_content" 
+			android:layout_width="0dp" 
 			android:id="@+id/balloon_item_title"
 			android:text="balloon_item_title" 
 			style="@style/PopUpHeader" />
