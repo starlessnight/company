@@ -1,5 +1,8 @@
 package com.smartrek.activities;
 
+import java.io.File;
+
+import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -7,6 +10,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -35,6 +39,8 @@ public final class DebugOptionsActivity extends Activity {
     private static final String fakeRoutes = "fakeRouteIds";
     
     private static final int fakeRouteSize = 10;
+    
+    private static final String osmdroidCacheDir = "osmdroid";
     
     private SharedPreferences prefs;
     
@@ -108,6 +114,9 @@ public final class DebugOptionsActivity extends Activity {
             @Override
             public void onClick(View v) {
                 Cache.getInstance().clear();
+                
+                FileUtils.deleteQuietly(
+                    new File(Environment.getExternalStorageDirectory(), osmdroidCacheDir));
                 
                 Toast toast = Toast.makeText(
                 		DebugOptionsActivity.this,
