@@ -3,18 +3,19 @@ package com.smartrek.dialogs;
 import java.io.IOException;
 import java.util.List;
 
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.smartrek.activities.R;
@@ -35,7 +36,7 @@ import com.smartrek.utils.GeoPoint;
  * @author Sumin Byeon
  * 
  */
-public class FavoriteAddressEditDialog extends AlertDialog {
+public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 	
 	public interface ActionListener {
 		void onClickPositiveButton();
@@ -52,7 +53,7 @@ public class FavoriteAddressEditDialog extends AlertDialog {
 	private ProgressBar progressBar;
 	
 	public FavoriteAddressEditDialog(Context context) {
-		super(context);
+		this(context, null);
 	}
 	
 	/**
@@ -62,7 +63,7 @@ public class FavoriteAddressEditDialog extends AlertDialog {
 	 * @param address
 	 */
 	public FavoriteAddressEditDialog(Context context, Address address) {
-		super(context);
+		super(context, android.R.style.Theme_Translucent_NoTitleBar);
 		this.address = address;
 	}
 	
@@ -72,54 +73,47 @@ public class FavoriteAddressEditDialog extends AlertDialog {
 		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		dialogView = (ViewGroup) inflater.inflate(R.layout.favorite_address_add, null);
 		
+		boolean isAdd = address == null || address.getId() == 0;
+		
+		TextView titleView = (TextView) dialogView.findViewById(R.id.title);
+		titleView.setText((isAdd?"Add New":"Edit") + " Location");
+		
 		editTextName = (EditText) dialogView.findViewById(R.id.editTextName);
+		editTextName.addTextChangedListener(this);
 		editTextName.setText(address.getName());
 		
 		editTextAddress = (EditText) dialogView.findViewById(R.id.editTextAddress);
+		editTextAddress.addTextChangedListener(this);
 		editTextAddress.setText(address.getAddress());
 		
 		progressBar = (ProgressBar) dialogView.findViewById(R.id.progressBar);
 		
-		Resources res = getContext().getResources();
+		setContentView(dialogView);
 		
-		setView(dialogView);
-		setTitle("Would you like to add as favorite address?");
+		Button confirmButton = (Button) dialogView.findViewById(R.id.confirm_button);
+		confirmButton.setEnabled(!isAdd);
+		confirmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onClickPositiveButton();
+            }
+        });
 		
-		setButton(DialogInterface.BUTTON_POSITIVE,
-				res.getString(isEditMode() ? R.string.ok : R.string.add),
-				new DialogInterface.OnClickListener() {
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-			}
-			
-		});
-		
-		setButton(DialogInterface.BUTTON_NEGATIVE, res.getString(R.string.cancel), new DialogInterface.OnClickListener() {
-
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if (listener != null) {
-					listener.onClickNegativeButton();
-				}
-			}
-			
-		});
+		View closeIcon = dialogView.findViewById(R.id.close_icon);
+		closeIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+                if (listener != null) {
+                    listener.onClickNegativeButton();
+                }
+            }
+        });
 		
 		// This has to be called after all overriding code, otherwise it won't
 		// look like a dialog.
 		super.onCreate(savedInstanceState);
 		
-		// Replace the default onClickListener to prevent this dialog closing.
-		Button positiveButton = getButton(DialogInterface.BUTTON_POSITIVE);
-		positiveButton.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				onClickPositiveButton();
-			}
-			
-		});
 	}
 	
 	private String getName() {
@@ -270,4 +264,22 @@ public class FavoriteAddressEditDialog extends AlertDialog {
 		    dismiss();
 		}
 	}
+	
+    @Override
+    public void afterTextChanged(Editable s) {
+        
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count,
+            int after) {
+        
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+        Button btn = (Button) dialogView.findViewById(R.id.confirm_button);
+        btn.setEnabled(editTextName.getText().length() > 0 && editTextName.getText().length() > 0);
+    }
+	
 }

@@ -1,45 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent"
+    android:background="@color/transparent_black">
 
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="8dp" >
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Name"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <EditText
-            android:id="@+id/editTextName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="Name your favorite address"
-            android:singleLine="true" >
-
-            <requestFocus />
-        </EditText>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Address"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <EditText
-            android:id="@+id/editTextAddress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:singleLine="true" />
-    </LinearLayout>
+        android:layout_gravity="center"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp">
+        
+        <LinearLayout
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content"
+			android:orientation="horizontal" 
+			android:background="@color/pop_up_header_background">
+	        <TextView
+	            android:id="@+id/title" 
+	            android:layout_height="wrap_content"
+	            android:layout_width="0dp"
+	            android:layout_weight="1"
+	            style="@style/PopUpHeader"   
+			/>
+	        <ImageView
+	            android:id="@+id/close_icon"
+	            android:layout_width="wrap_content"
+				android:layout_height="match_parent" 
+				android:src="@drawable/balloon_overlay_close"
+				android:layout_gravity="center_vertical"
+				android:scaleType="center" 
+			/>
+	    </LinearLayout>
+        
+        <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:orientation="vertical"
+	        android:paddingLeft="15dp"
+        	android:paddingRight="15dp"
+        	android:paddingBottom="15dp"
+	        android:background="@color/dark_gray">
+	
+	        <EditText
+	            android:id="@+id/editTextName"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:hint="name your location"
+	            android:layout_marginTop="15dp"
+	            android:singleLine="true" 
+	            style="@style/NormalTextField">
+	
+	            <requestFocus />
+	        </EditText>
+	
+	        <EditText
+	            android:id="@+id/editTextAddress"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:singleLine="true"
+	            android:hint="address"
+	            android:layout_marginTop="15dp" 
+	         	style="@style/NormalTextField"
+         	/>
+	        
+	        <Button
+	            android:id="@+id/confirm_button"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="15dp"
+	            android:text="confirm"
+	            style="@style/NextActionButton"
+			/>
+	        
+	    </LinearLayout>
+	</LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"

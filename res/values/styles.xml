@@ -7,7 +7,7 @@
 	    <item name="android:padding">15dp</item>
 	    <item name="android:background">@color/header_background</item>
 	</style>
-	<style name="PopUpHeader">
+	<style name="OverlayHeader">
 	    <item name="android:textSize">@dimen/smaller_font</item>
 	    <item name="android:textColor">@android:color/white</item>
 	    <item name="android:textStyle">bold</item>
@@ -17,7 +17,11 @@
 	    <item name="android:paddingLeft">15dp</item>
 	    <item name="android:background">@color/pop_up_header_background</item>
 	</style>
-	<style name="PopUpBody">
+	<style name="PopUpHeader" parent="OverlayHeader">
+	    <item name="android:paddingTop">13dp</item>
+	    <item name="android:paddingBottom">13dp</item>
+	</style>
+	<style name="OverlayBody">
 	    <item name="android:textSize">@dimen/smaller_font</item>
 	    <item name="android:textColor">@android:color/white</item>
 	    <item name="android:paddingTop">22dp</item>
