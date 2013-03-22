@@ -81,7 +81,8 @@ public final class NavigationView extends LinearLayout {
         String roadName = node.getRoadName();
         String dir = WordUtils.capitalize(node.getMessage()) 
             + (StringUtils.isEmpty(distancePresentation)?"":(" in " + distancePresentation)) 
-            + (StringUtils.isBlank(roadName)?"":(" on " + roadName));
+            + (StringUtils.isBlank(roadName) || StringUtils.equalsIgnoreCase(roadName, "null")
+                ?"":(" on " + roadName));
         return dir;
 	}
 	
