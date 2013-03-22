@@ -1,5 +1,6 @@
 package com.smartrek.ui;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.WordUtils;
 
 import android.content.Context;
@@ -77,8 +78,10 @@ public final class NavigationView extends LinearLayout {
 	
 	public static String getDirection(RouteNode node, double distance){
         String distancePresentation = StringUtil.formatImperialDistance(distance);
-        String dir = WordUtils.capitalize(node.getMessage()) + " in " 
-            + distancePresentation + " on " + node.getRoadName();
+        String roadName = node.getRoadName();
+        String dir = WordUtils.capitalize(node.getMessage()) 
+            + (StringUtils.isEmpty(distancePresentation)?"":(" in " + distancePresentation)) 
+            + (StringUtils.isBlank(roadName)?"":(" on " + roadName));
         return dir;
 	}
 	
