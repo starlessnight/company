@@ -45,7 +45,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.actionbarsherlock.view.Menu;
@@ -447,7 +446,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             lonMin = Math.min(lonMin, curLon);
         }
         
-        RoutePathOverlay pathOverlay = new RoutePathOverlay(this, route, Color.DKGRAY);
+        RoutePathOverlay pathOverlay = new RoutePathOverlay(this, route, RoutePathOverlay.GREEN);
         mapOverlays.add(pathOverlay);
         
         pointOverlay = new PointOverlay(this, 0, 0);

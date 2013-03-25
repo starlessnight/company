@@ -21,10 +21,14 @@ import com.smartrek.utils.RouteNode;
 
 public class RoutePathOverlay extends Overlay {
 	
+    public static final int GREEN = 0xFF6CBD44; 
+    
+    public static final int BLUE = 0xFF0089E8;
+    
 	/**
 	 * Green, blue, dark gray
 	 */
-	public static final int COLORS[] = {0xFF6CBD44, 0xFF0089E8, 0xFF232A2E};
+	public static final int COLORS[] = {GREEN, BLUE, 0xFF232A2E};
 	
 	private Route route;
 	private int color;
