@@ -24,7 +24,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -140,6 +139,8 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     
     private AtomicBoolean reported = new AtomicBoolean(false);
     
+    private boolean isDebugging;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -162,10 +163,9 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         validationTimeoutHandler.postDelayed(validationTimeoutNotifier, (900 + route.getDuration()*3) * 1000);
         
         final FakeRoute fakeRoute = DebugOptionsActivity.getFakeRoute(
-            ValidationActivity.this, route.getId()); 
-        if(fakeRoute == null){
-            route.preprocessNodes();
-        }else{
+            ValidationActivity.this, route.getId());
+        isDebugging = fakeRoute != null; 
+        if(isDebugging){
             new AsyncTask<Void, Void, List<Route>>() {
                 @Override
                 protected List<Route> doInBackground(Void... params) {
@@ -188,11 +188,15 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
                             }
                         });
                     }else if(routes != null && routes.size() > 0) {
+                        Route oldRoute = route; 
                         route = routes.get(fakeRoute.seq);
+                        route.setId(oldRoute.getId());
                         route.preprocessNodes();
                     }
                 }
             }.execute();
+        }else{
+            route.preprocessNodes();
         }
         
         dirListadapter = new ArrayAdapter<String>(this, R.layout.direction_list_item, R.id.direction_text){
@@ -330,7 +334,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         CloudmadeUtil.retrieveCloudmadeKey(this);
         mapView.setBuiltInZoomControls(false);
         mapView.setMultiTouchControls(true);
-        mapView.setTileSource(new SmartrekTileProvider(route.isFake()));
+        mapView.setTileSource(new SmartrekTileProvider(isDebugging));
         mapView.setOnTouchListener(new OnTouchListener() {
             
             @Override
