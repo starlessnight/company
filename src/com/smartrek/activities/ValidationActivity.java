@@ -330,7 +330,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         CloudmadeUtil.retrieveCloudmadeKey(this);
         mapView.setBuiltInZoomControls(false);
         mapView.setMultiTouchControls(true);
-        mapView.setTileSource(new SmartrekTileProvider());
+        mapView.setTileSource(new SmartrekTileProvider(route.isFake()));
         mapView.setOnTouchListener(new OnTouchListener() {
             
             @Override

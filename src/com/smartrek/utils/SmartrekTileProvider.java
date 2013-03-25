@@ -1,5 +1,6 @@
 package com.smartrek.utils;
 
+import org.osmdroid.tileprovider.MapTile;
 import org.osmdroid.tileprovider.tilesource.XYTileSource;
 
 /**
@@ -8,8 +9,31 @@ import org.osmdroid.tileprovider.tilesource.XYTileSource;
  */
 final public class SmartrekTileProvider extends XYTileSource {
 
-	public SmartrekTileProvider() {
+    private static final String osmHost = "http://tile.openstreetmap.org/";
+    
+    private static final String osmImgFilenameEnding = ".png"; 
+    
+    private boolean debug;
+    
+	public SmartrekTileProvider(boolean debug) {
 		super("Custom", null, 3, 18, 256, "", "http://tile.smartrekmobile.com/osm/");
+		this.debug = debug;
 	}
+	
+	@Override
+    public String getTileURLString(final MapTile aTile) {
+	    int zoomLevel = aTile.getZoomLevel();
+	    String baseUrl;
+	    String imageFilenameEnding;
+	    if(debug && zoomLevel > 14){
+	        baseUrl = osmHost;
+	        imageFilenameEnding = osmImgFilenameEnding;
+	    }else{
+	        baseUrl = getBaseUrl();
+	        imageFilenameEnding = mImageFilenameEnding;
+	    }
+        return baseUrl + zoomLevel + "/" + aTile.getX() + "/" + aTile.getY()
+                + imageFilenameEnding;
+    }
 
 }

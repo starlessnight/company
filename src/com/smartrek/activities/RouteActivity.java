@@ -189,11 +189,16 @@ public final class RouteActivity extends ActionBarActivity {
         
         SharedPreferences prefs = getSharedPreferences(MapDisplayActivity.MAP_DISPLAY_PREFS, MODE_PRIVATE);
         
+        /* Get the extras from the bundle */
+        Bundle extras = getIntent().getExtras();
+        
+        debugMode = extras.getBoolean("debugMode");
+        
         mapView = (MapView) findViewById(R.id.mapview);
         Misc.disableHardwareAcceleration(mapView);
         mapView.setBuiltInZoomControls(false);
         mapView.setMultiTouchControls(true);
-        mapView.setTileSource(new SmartrekTileProvider());
+        mapView.setTileSource(new SmartrekTileProvider(debugMode));
         
         /* Set the map view for a view of North America before zooming in on route */
         MapController mc = mapView.getController();
@@ -279,11 +284,6 @@ public final class RouteActivity extends ActionBarActivity {
         // FIXME: Temporary solution
         selectedTime = new Time();
         selectedTime.setToNow();
-             
-        /* Get the extras from the bundle */
-        Bundle extras = getIntent().getExtras();
-        
-        debugMode = extras.getBoolean("debugMode");
 
         originAddr = extras.getString(ORIGIN_ADDR);
         destAddr = extras.getString(DEST_ADDR);
