@@ -13,10 +13,12 @@ final public class SmartrekTileProvider extends XYTileSource {
     
     private static final String osmImgFilenameEnding = ".png"; 
     
+    private static final int debugZoomLimit = 14;
+    
     private boolean debug;
     
 	public SmartrekTileProvider(boolean debug) {
-		super("Custom", null, 3, 18, 256, "", "http://tile.smartrekmobile.com/osm/");
+		super("Custom", null, 3, debug?debugZoomLimit:18, 256, "", "http://tile.smartrekmobile.com/osm/");
 		this.debug = debug;
 	}
 	
@@ -25,7 +27,7 @@ final public class SmartrekTileProvider extends XYTileSource {
 	    int zoomLevel = aTile.getZoomLevel();
 	    String baseUrl;
 	    String imageFilenameEnding;
-	    if(debug && zoomLevel > 14){
+	    if(debug && zoomLevel > debugZoomLimit){
 	        baseUrl = osmHost;
 	        imageFilenameEnding = osmImgFilenameEnding;
 	    }else{
