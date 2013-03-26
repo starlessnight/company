@@ -32,7 +32,9 @@
 	<TextView android:layout_height="wrap_content"
 			android:layout_width="fill_parent" 
 			android:id="@+id/balloon_item_snippet"
-			android:text="balloon_item_snippet" 
+			android:text="balloon_item_snippet"
+			android:paddingRight="5dp"
+			android:drawableRight="@drawable/icon_more"
 			style="@style/OverlayBody" />
 
 </LinearLayout>
