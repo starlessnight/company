@@ -11,11 +11,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
@@ -36,15 +38,17 @@ public final class DebugOptionsActivity extends Activity {
     public static final int GPS_MODE_LONG_PRESS = 4;
     public static final int GPS_MODE_DEFAULT = GPS_MODE_REAL;
     
+    public static final String GPS_UPDATE_INTERVAL = "GPS_UPDATE_INTERVAL";
+    
     private static final String fakeRoutes = "fakeRouteIds";
     
     private static final int fakeRouteSize = 10;
     
     private static final String osmdroidCacheDir = "osmdroid";
     
-    private SharedPreferences prefs;
+    private static final int defaultUpdateInterval = 1000;
     
-    private CheckBox checkboxDebugMode;
+    private SharedPreferences prefs;
     
     private RadioButton radioRealGPS;
     private RadioButton radioPrerecordedGPS;
@@ -53,24 +57,12 @@ public final class DebugOptionsActivity extends Activity {
     private Button buttonClearCache;
     private Button buttonCrash;
     
-    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.debug_options);
         
         prefs = getSharedPreferences(DEBUG_PREFS, MODE_PRIVATE);
-        
-        checkboxDebugMode = (CheckBox) findViewById(R.id.checkbox_debug_mode);
-        checkboxDebugMode.setOnClickListener(new OnClickListener() {
-            
-            @Override
-            public void onClick(View v) {
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.putBoolean(DEBUG_MODE, true);
-                editor.commit();
-            }
-        });
         
         radioRealGPS = (RadioButton) findViewById(R.id.radio_real_gps);
         radioPrerecordedGPS = (RadioButton) findViewById(R.id.radio_prerecorded_gps);
@@ -135,6 +127,28 @@ public final class DebugOptionsActivity extends Activity {
             }
             
         });
+        
+        EditText updateIntervalView = (EditText) findViewById(R.id.update_interval);
+        updateIntervalView.setText(String.valueOf(prefs.getInt(GPS_UPDATE_INTERVAL, defaultUpdateInterval)));
+        updateIntervalView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+            
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count,
+                    int after) {
+            }
+            
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(s.length() > 0){
+                    prefs.edit()
+                        .putInt(GPS_UPDATE_INTERVAL, Integer.parseInt(s.toString()))
+                        .commit();
+                }
+            }
+        });
     }
     
     @Override
@@ -160,6 +174,10 @@ public final class DebugOptionsActivity extends Activity {
     private static SharedPreferences getPrefs(Context ctx){
         return ctx.getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, 
                 MODE_PRIVATE);
+    }
+    
+    public static int getGpsUpdateInterval(Context ctx){
+        return getPrefs(ctx).getInt(GPS_UPDATE_INTERVAL, defaultUpdateInterval);
     }
     
     private static JSONArray getFakeRoutes(Context ctx){

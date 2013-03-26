@@ -279,8 +279,11 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             prepareGPS();
         }
         else if (gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED) {
+            int interval = DebugOptionsActivity.getGpsUpdateInterval(this);
             if(fakeLocationService == null){
-                fakeLocationService = new FakeLocationService(locationListener);
+                fakeLocationService = new FakeLocationService(locationListener, interval);
+            }else{
+                fakeLocationService = fakeLocationService.setInterval(interval);
             }
         }
         else {
@@ -414,7 +417,8 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         else {
             // TODO: Turn on GSP early
             //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 25, locationListener);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, locationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 
+                DebugOptionsActivity.getGpsUpdateInterval(this), 5, locationListener);
         }
     }
 
@@ -714,20 +718,42 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         
         private Queue<GeoPoint> trajectory;
         
+        private int interval;
+        
+        public FakeLocationService(LocationListener listener, int interva) {
+            this(listener, interva, null);
+        }
+        
         @SuppressWarnings("unchecked")
-        public FakeLocationService(LocationListener listener) {
+        public FakeLocationService(LocationListener listener, int interval, Queue<GeoPoint> trajectory) {
             this.listener = listener;
+            this.interval = interval;
             
-            try {
-                InputStream in = getResources().getAssets().open("trajectory.csv");
-                trajectory = (Queue<GeoPoint>) PrerecordedTrajectory.read(in);
-            }
-            catch (IOException e) {
-                e.printStackTrace();
+            if(trajectory == null){
+                try {
+                    InputStream in = getResources().getAssets().open("trajectory.csv");
+                    this.trajectory = (Queue<GeoPoint>) PrerecordedTrajectory.read(in);
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }else{
+                this.trajectory = trajectory;
             }
             
             timer = new Timer();
-            timer.schedule(this, 1000, 1000);
+            timer.schedule(this, 1000, interval);
+        }
+        
+        FakeLocationService setInterval(int millisecond){
+            FakeLocationService rtn;
+            if(interval != millisecond){
+                cancel();
+                rtn = new FakeLocationService(listener, millisecond, trajectory);
+            }else{
+                rtn = this;
+            }
+            return rtn;
         }
 
         @Override

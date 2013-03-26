@@ -4,13 +4,6 @@
     android:layout_height="match_parent"
     android:background="@drawable/background_gradient"
     android:orientation="vertical">
-
-    <CheckBox
-        android:id="@+id/checkbox_debug_mode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Enable debug mode" />
     
     <TextView
         android:id="@+id/time_heading"
@@ -50,7 +43,7 @@
                 android:enabled="true"
                 android:text="Pre-recorded data"
                 android:textColor="#FFFFFFFF"
-                android:textSize="18dp" >
+                android:textSize="20dp" >
             </RadioButton>
 
             <RadioButton
@@ -64,6 +57,25 @@
             </RadioButton>
         </RadioGroup>
     </RelativeLayout>
+    
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFFFF"
+        android:textSize="18dp"
+        android:gravity="center"
+        android:text="Update interval (milliseconds):"
+	/>
+    <EditText
+        android:id="@+id/update_interval"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:textColor="#FFFFFFFF"
+           android:textSize="18dp"
+        android:inputType="number" 
+	/>
 
     <Button
         android:id="@+id/button_clear_cache"
