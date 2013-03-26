@@ -10,7 +10,7 @@ import android.location.Location;
 
 public class Trajectory {
 	
-	public class Record {
+	public static class Record {
 		/**
 		 * Latitude
 		 */
@@ -129,6 +129,13 @@ public class Trajectory {
 			
 			return array;
 		}
+		
+		public static Record from(JSONArray array) throws JSONException {
+	        return new Record((float)array.getDouble(0), (float)array.getDouble(1), 
+	            (float)(array.getDouble(2) / 3.2808399f), (float)(array.getDouble(5) / 2.23693629f), 
+	            (float) array.getDouble(3), array.getLong(4));
+	    }
+		
 	}
 	
 	private List<Record> records = new Vector<Record>();
@@ -175,4 +182,17 @@ public class Trajectory {
 		
 		return array;
 	}
+	
+	public void append(Trajectory traj){
+	    records.addAll(traj.records);
+	}
+	
+	public static Trajectory from(JSONArray array) throws JSONException {
+        Trajectory traj = new Trajectory();
+        for(int i=0; i<array.length(); i++){
+            traj.records.add(Record.from(array.getJSONArray(i)));
+        }
+        return traj;
+    }
+	
 }

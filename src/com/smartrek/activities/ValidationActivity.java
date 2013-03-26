@@ -1,5 +1,6 @@
 package com.smartrek.activities;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -11,6 +12,8 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.io.FileUtils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.osmdroid.tileprovider.util.CloudmadeUtil;
 import org.osmdroid.views.MapController;
@@ -50,6 +53,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.SendTrajectoryService;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Reservation;
@@ -489,8 +493,26 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     
     private int seq = 1;
     
-    private void sendTrajectory() {
-        new SendTrajectoryTask().execute(seq++, User.getCurrentUser(this).getId());
+    private void saveTrajectory(){
+        final File tFile = SendTrajectoryService.getInFile(this, route.getId(), seq++);
+        final JSONArray tJson;
+        try {
+            tJson = trajectory.toJSON();
+            new AsyncTask<Void, Void, Void>(){
+                @Override
+                protected Void doInBackground(Void... params) {
+                    try {
+                        FileUtils.write(tFile, tJson.toString());
+                    }
+                    catch (IOException e) {
+                    }
+                    return null;
+                }
+            }.execute();
+        }
+        catch (JSONException e) {
+        }
+        trajectory.clear();
     }
     
     private void showNavigationInformation(final Location location, final RouteNode node) {
@@ -579,7 +601,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         mapView.postInvalidate();
         
         if (trajectory.size() >= 8) {
-            sendTrajectory();
+            saveTrajectory();
         }
         
         if (!arrived.get() && route.hasArrivedAtDestination(lat, lng)) {
@@ -603,7 +625,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         endTime = new Time();
         endTime.setToNow();
         
-        sendTrajectory();
+        saveTrajectory();
         
         if(mTts == null){
             reportValidation();

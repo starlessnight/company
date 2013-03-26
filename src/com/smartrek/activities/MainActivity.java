@@ -12,6 +12,7 @@ import android.widget.ImageView;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.android.gcm.GCMRegistrar;
+import com.smartrek.SendTrajectoryService;
 import com.smartrek.models.User;
 import com.smartrek.tasks.LoginTask;
 import com.smartrek.utils.Preferences;
@@ -69,6 +70,7 @@ public class MainActivity extends Activity implements AnimationListener {
             }.setDialogEnabled(false);
             loginTask.execute();
         }
+        SendTrajectoryService.schedule(this);
 	}
 	
 	private void startHomeActivity(){

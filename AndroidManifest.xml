@@ -155,6 +155,7 @@
         </receiver>
 
         <service android:name=".GCMIntentService" />
+        <service android:name="com.smartrek.SendTrajectoryService" />
     </application>
 
 </manifest>
