@@ -205,6 +205,16 @@ public final class HomeActivity extends ActionBarActivity {
 			
 		});
 	    
+	    Button reverseButton = (Button) findViewById(R.id.reverse_button);
+	    reverseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Address oAddress = getOriginAddress();
+                setOriginAddress(getDestinationAddress());
+                setDestinationAddress(oAddress);
+            }
+        });
+	    
 	    buttonFavAddrOrigin.setId(1);
 	    destFavButton.setId(2);
 	    buttonDone.setId(3);
@@ -230,7 +240,7 @@ public final class HomeActivity extends ActionBarActivity {
 	    }
 	    
 	   Font.setTypeface(boldFont, buttonDone, buttonLoadTrip, buttonSaveTrip,
-           buttonOriginMyLocation);
+           buttonOriginMyLocation, reverseButton);
 	   Font.setTypeface(lightFont, editAddressDest, editAddressOrigin);
 	}
 	
