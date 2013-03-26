@@ -58,7 +58,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 		    if(responseCode == 400){
 		        msg = "The required route is out of service area.";
 		    }else if(responseCode == 500){
-		        msg = "The server isn't able to handle the calls.";
+		        msg = "The server is busy.";
 		    }
 		    if(msg == null){
 		        throw e;
