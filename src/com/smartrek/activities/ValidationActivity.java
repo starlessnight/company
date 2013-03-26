@@ -192,11 +192,13 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
                         route = routes.get(fakeRoute.seq);
                         route.setId(oldRoute.getId());
                         route.preprocessNodes();
+                        updateDirectionsList();
                     }
                 }
             }.execute();
         }else{
             route.preprocessNodes();
+            updateDirectionsList();
         }
         
         dirListadapter = new ArrayAdapter<String>(this, R.layout.direction_list_item, R.id.direction_text){
@@ -492,20 +494,35 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         runOnUiThread(new Runnable() {
             public void run() {
             	navigationView.update(route, location, node);
-            	dirListadapter.clear();
-            	RouteNode nextNode = node;
-                double distance = 0;
-            	do {
-                    if (nextNode.getFlag() != 0) {
-                        distance += nextNode == node? 
-                            route.getDistanceToNextTurn(location.getLatitude(), 
-                                location.getLongitude())
-                            :nextNode.getDistance(); 
-                        dirListadapter.add(NavigationView.getDirection(nextNode, distance));
-                    }
-            	} while ((nextNode = nextNode.getNextNode()) != null);
+            	updateDirectionsList(node, location);
             }
         });
+    }
+    
+    private void updateDirectionsList(){
+        updateDirectionsList(null, null);
+    }
+    
+    private void updateDirectionsList(RouteNode node, Location location){
+        dirListadapter.clear();
+        RouteNode nextNode = node;
+        if(nextNode == null){
+            nextNode = route.getFirstNode();
+        }
+        if(nextNode != null){
+            double distance = 0;
+            do {
+                if (nextNode.getFlag() != 0) {
+                    if(nextNode == node && location != null){
+                        distance = route.getDistanceToNextTurn(location.getLatitude(), 
+                            location.getLongitude());
+                    }
+                    dirListadapter.add(NavigationView.getDirection(nextNode, distance));
+                    distance = 0;
+                }
+                distance += nextNode.getDistance();
+            } while ((nextNode = nextNode.getNextNode()) != null);
+        }
     }
     
     private synchronized void locationChanged(Location location) {
@@ -710,7 +727,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             }
             
             timer = new Timer();
-            timer.schedule(this, 1000, 500);
+            timer.schedule(this, 1000, 1000);
         }
 
         @Override
