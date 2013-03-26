@@ -494,6 +494,8 @@ public final class RouteActivity extends ActionBarActivity {
     
     private static class RouteRect {
     	
+        static final double padding = 1.15; 
+        
     	int latMax;
     	int lonMax;
     	int latMin;
@@ -524,7 +526,8 @@ public final class RouteActivity extends ActionBarActivity {
         }
         
         int[] getRange(){
-        	return new int[]{latMax - latMin, lonMax - lonMin};
+        	return new int[]{Double.valueOf((latMax - latMin) * padding).intValue(), 
+    	        Double.valueOf((lonMax - lonMin) * padding).intValue()};
         }
     	
     }
