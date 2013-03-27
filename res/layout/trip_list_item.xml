@@ -3,27 +3,25 @@
     android:id="@+id/gridLayout1"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingBottom="4dp"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp"
-    android:paddingTop="4dp" >
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/text_view_name"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="left"
+        android:layout_marginTop="10dp"
         android:text="@string/placeholder"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="#92D050" />
+        style="@style/MediumText" />
 
     <TextView
+        android:id="@+id/text_view_origin_label"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:layout_gravity="left"
-        android:text="Origin"
-        android:textColor="#F3E123" />
+        android:text="START"
+        style="@style/MicroText"
+    />
 
     <TextView
         android:id="@+id/text_view_origin"
@@ -31,15 +29,18 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:text="@string/placeholder"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="#F7FFED" />
+        style="@style/MediumText"
+    />
 
     <TextView
+        android:id="@+id/text_view_destination_label"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:layout_gravity="left"
-        android:text="Destination"
-        android:textColor="#F3E123" />
+        android:text="DESTINATION"
+        style="@style/MicroText"
+    />
 
     <TextView
         android:id="@+id/text_view_destination"
@@ -47,7 +48,14 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:text="@string/placeholder"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="#F7FFED" />
+        style="@style/MediumText"
+	/>
+    
+    <View
+      android:layout_width="match_parent"
+      android:layout_height="2dp"
+      android:layout_marginTop="10dp"
+      android:background="@color/secondary_font"  
+  	/>
 
 </LinearLayout>

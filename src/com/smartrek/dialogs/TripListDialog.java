@@ -25,6 +25,7 @@ import com.smartrek.models.User;
 import com.smartrek.requests.TripDeleteRequest;
 import com.smartrek.requests.TripListFetchRequest;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.Font;
 
 public class TripListDialog extends GenericListDialog<Trip> {
 	
@@ -61,7 +62,7 @@ public class TripListDialog extends GenericListDialog<Trip> {
 		// look like a dialog.
 		super.onCreate(savedInstanceState);
 		
-		setTitle("Trip List");
+		setTitle("Select Trip");
 		textViewGeneric.setText("You don't have any saved trip");
 		
 		// enables context menu
@@ -241,6 +242,13 @@ public class TripListDialog extends GenericListDialog<Trip> {
 			
 			TextView textView2 = (TextView) view.findViewById(R.id.text_view_destination);
 			textView2.setText(trip.getDestination());
+			
+			Font.setTypeface(boldFont, textView3, 
+		        (TextView)view.findViewById(R.id.text_view_origin_label),
+		        (TextView)view.findViewById(R.id.text_view_destination_label)
+	        );
+			
+			Font.setTypeface(lightFont, textView1, textView2);
 			
 			return view;
 		}
