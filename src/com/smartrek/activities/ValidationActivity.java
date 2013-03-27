@@ -169,6 +169,16 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         validationTimeoutHandler = new Handler();
         validationTimeoutHandler.postDelayed(validationTimeoutNotifier, (900 + route.getDuration()*3) * 1000);
         
+        dirListadapter = new ArrayAdapter<String>(this, R.layout.direction_list_item, R.id.direction_text){
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                Font.setTypeface(boldFont, (TextView)view.findViewById( R.id.direction_text));
+                view.setBackgroundResource(position == 0?R.color.light_green:0);
+                return view;
+            }
+        };
+        
         final FakeRoute fakeRoute = DebugOptionsActivity.getFakeRoute(
             ValidationActivity.this, route.getId());
         isDebugging = fakeRoute != null; 
@@ -207,16 +217,6 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             route.preprocessNodes();
             updateDirectionsList();
         }
-        
-        dirListadapter = new ArrayAdapter<String>(this, R.layout.direction_list_item, R.id.direction_text){
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                View view = super.getView(position, convertView, parent);
-                Font.setTypeface(boldFont, (TextView)view.findViewById( R.id.direction_text));
-                view.setBackgroundResource(position == 0?R.color.light_green:0);
-                return view;
-            }
-        };
         
         initViews();
         
