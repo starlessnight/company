@@ -62,7 +62,7 @@ public class GenericListDialog<ItemType> extends Dialog {
 	protected Typeface lightFont;
 	
 	protected GenericListDialog(Context context, List<ItemType> listItems) {
-		super(context, android.R.style.Theme_Translucent_NoTitleBar);
+		super(context, R.style.PopUpDialog);
 		this.listItems = listItems;
 		
 		if (context instanceof Activity) {

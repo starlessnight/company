@@ -66,7 +66,7 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 	 * @param address
 	 */
 	public FavoriteAddressEditDialog(Context context, Address address) {
-		super(context, android.R.style.Theme_Translucent_NoTitleBar);
+		super(context, R.style.PopUpDialog);
 		this.address = address;
 	}
 	
