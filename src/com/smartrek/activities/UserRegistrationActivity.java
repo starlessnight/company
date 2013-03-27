@@ -21,6 +21,7 @@ import com.smartrek.models.User;
 import com.smartrek.requests.UserRegistrationRequest;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
+import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
 
 public final class UserRegistrationActivity extends ActionBarActivity
@@ -69,12 +70,18 @@ public final class UserRegistrationActivity extends ActionBarActivity
             editTextFirstname, editTextLastname, editTextPassword, editTextPasswordConfirm,
             editTextUsername);
         Font.setTypeface(boldFont, buttonRegister);
+        
+        if(Misc.isAddGoogleAccount(this)){
+            Misc.setAddGoogleAccount(this, false);
+            Misc.showGoogleAccountDialog(this);
+        }
     }
     
 	@Override
 	public void onStart() {
 		super.onStart();
 		EasyTracker.getInstance().activityStart(this);
+		Misc.initGCM(this);
 	}
 	
 	@Override

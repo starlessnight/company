@@ -9,6 +9,8 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
+import com.google.android.gcm.GCMConstants;
+import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
 
 public class GCMIntentService extends GCMBaseIntentService {
@@ -22,8 +24,11 @@ public class GCMIntentService extends GCMBaseIntentService {
 	}
 
 	@Override
-	protected void onError(Context arg0, String errorId) {
+	protected void onError(Context ctx, String errorId) {
 		Log.i(LOG_TAG, "GCMIntentService onError called: " + errorId);
+		if(GCMConstants.ERROR_ACCOUNT_MISSING.equals(errorId)){
+		    Misc.setAddGoogleAccount(ctx, true);
+		}
 	}
 
 	@Override

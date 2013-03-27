@@ -21,11 +21,12 @@ import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.User;
 import com.smartrek.tasks.LoginTask;
 import com.smartrek.utils.Font;
+import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
 
 public final class LoginActivity extends Activity implements OnClickListener,
         TextWatcher {
-	
+    
 	private EditText editTextUsername;
 	private EditText editTextPassword;
 	
@@ -52,6 +53,17 @@ public final class LoginActivity extends Activity implements OnClickListener,
         Font.setTypeface(Font.getBold(assets), (TextView)findViewById(R.id.subtitle),
             login, new_user);
         Font.setTypeface(Font.getLight(assets), editTextUsername, editTextPassword);
+        
+        if(Misc.isAddGoogleAccount(this)){
+            Misc.setAddGoogleAccount(this, false);
+            Misc.showGoogleAccountDialog(this);
+        }
+    }
+    
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Misc.initGCM(this);
     }
     
     @Override

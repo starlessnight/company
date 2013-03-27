@@ -11,10 +11,10 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import com.google.analytics.tracking.android.EasyTracker;
-import com.google.android.gcm.GCMRegistrar;
 import com.smartrek.SendTrajectoryService;
 import com.smartrek.models.User;
 import com.smartrek.tasks.LoginTask;
+import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
 
 public class MainActivity extends Activity implements AnimationListener {
@@ -86,16 +86,7 @@ public class MainActivity extends Activity implements AnimationListener {
 		
 		EasyTracker.getInstance().activityStart(this);
 		
-		GCMRegistrar.checkDevice(this);
-		GCMRegistrar.checkManifest(this);
-		final String regId = GCMRegistrar.getRegistrationId(this);
-		if (regId.equals("")) {
-			GCMRegistrar.register(this, GCMIntentService.GCM_SENDER_ID);
-			Log.v(LOG_TAG, "Registered to GCM.");
-		}
-		else {
-			Log.v(LOG_TAG, "Already registered to GCM.");
-		}
+		Misc.initGCM(this);
 	}
 	
 	@Override
