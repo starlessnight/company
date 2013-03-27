@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
+import org.apache.commons.lang3.ArrayUtils;
 import org.json.JSONArray;
 
 import android.app.AlarmManager;
@@ -38,11 +39,12 @@ public class SendTrajectoryService extends IntentService {
         if(user != null){
             File inDir = getInDir(this);
             File[] routeDirs = inDir.listFiles();
-            if(routeDirs.length > 0){
+            if(ArrayUtils.isNotEmpty(routeDirs)){
                 Arrays.sort(routeDirs);
                 File routeDir = null;
                 for(File d:routeDirs){
-                    if(d.list().length > 0){
+                    String[] files = d.list();
+                    if(ArrayUtils.isNotEmpty(files)){
                         routeDir = d;
                     }else if(d.lastModified() < System.currentTimeMillis() - sevenDays){
                         FileUtils.deleteQuietly(d);
@@ -96,9 +98,12 @@ public class SendTrajectoryService extends IntentService {
                 }
             }   
         }
-        for (File f : getOutDir().listFiles()) {
-            if(f.lastModified() < System.currentTimeMillis() - sevenDays){
-                FileUtils.deleteQuietly(f);
+        File[] oFiles = getOutDir().listFiles();
+        if(ArrayUtils.isNotEmpty(oFiles)){
+            for (File f : oFiles) {
+                if(f.lastModified() < System.currentTimeMillis() - sevenDays){
+                    FileUtils.deleteQuietly(f);
+                }
             }
         }
     }
