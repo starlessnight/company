@@ -30,6 +30,10 @@ public class PointOverlay extends Overlay {
 		geoPoint = new GeoPoint(lat, lng);
 	}
 	
+	public GeoPoint getLocation(){
+	    return geoPoint;
+	}
+	
 	public void setColor(int color) {
 		this.color = color;
 	}

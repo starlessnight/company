@@ -34,6 +34,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.text.format.Time;
@@ -145,6 +146,8 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     
     private boolean isDebugging;
     
+    private long lastLocChanged;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -233,6 +236,8 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             checkTtsIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
             startActivityForResult(checkTtsIntent, ttsCheckCode);
         }
+        
+        lastLocChanged = SystemClock.elapsedRealtime();
     }
     
     @Override
@@ -557,11 +562,44 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         double lat = location.getLatitude();
         double lng = location.getLongitude();
         
-        if (buttonFollow.isChecked()) {
-            mapView.getController().animateTo(lat, lng);
+        GeoPoint oldLoc = pointOverlay.getLocation();
+        long now = SystemClock.elapsedRealtime();
+        if(oldLoc.isEmpty()){
+            if (buttonFollow.isChecked()) {
+                mapView.getController().animateTo(lat, lng);
+            }
+            pointOverlay.setLocation((float) lat, (float)lng);
+            mapView.postInvalidate();
+        }else{
+            final double oldLat = oldLoc.getLatitude();
+            double y = lat - oldLat;
+            final double oldLng = oldLoc.getLongitude();
+            double x = lng - oldLng;
+            final double slop = y/x;
+            double timeInterval = 1000 / 30;
+            long numOfSteps = Math.round((now - lastLocChanged) / timeInterval);
+            final double stepSize = x / numOfSteps;
+            Handler animator = new Handler(Looper.getMainLooper());
+            long startTime = SystemClock.uptimeMillis();
+            for(int i=1; i<=numOfSteps; i++){
+                final int seq = i;
+                animator.postAtTime(new Runnable() {
+                    @Override
+                    public void run() {
+                        double deltaX = seq * stepSize;
+                        double newLng = oldLng + deltaX;
+                        double newLat = oldLat + deltaX * slop; 
+                        pointOverlay.setLocation((float) newLat, (float)newLng);
+                        mapView.postInvalidate();
+                        if (buttonFollow.isChecked()) {
+                            mapView.getController().setCenter(new GeoPoint(newLat, newLng));
+                        }
+                    }
+                }, startTime + Math.round(i * timeInterval));
+            }
         }
         
-        pointOverlay.setLocation((float)lat, (float)lng);
+        lastLocChanged = now;
         
         //nearestNode = route.getNearestNode(lat, lng);
         nearestLink = route.getNearestLink(lat, lng);
@@ -596,9 +634,6 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
                 }
             }
         }
-        
-        
-        mapView.postInvalidate();
         
         if (trajectory.size() >= 8) {
             saveTrajectory();
