@@ -37,7 +37,8 @@
         
         <ScrollView 
             android:layout_width="match_parent"
-		    android:layout_height="match_parent">
+		    android:layout_height="match_parent"
+		    android:requiresFadingEdge="vertical">
 	        
             <LinearLayout
 			    android:layout_width="match_parent"
@@ -46,7 +47,7 @@
 		        android:paddingLeft="15dp"
 	        	android:paddingRight="15dp"
 	        	android:paddingBottom="15dp"
-		        android:background="@color/dark_gray" >
+	        	android:background="@color/dark_gray">
 			
 			    <EditText
 			        android:id="@+id/edit_text_name"

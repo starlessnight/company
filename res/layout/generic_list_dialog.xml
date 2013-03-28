@@ -36,7 +36,7 @@
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:orientation="vertical"
-	       	android:paddingBottom="15dp"
+  	       	android:paddingBottom="15dp"
 	        android:background="@color/dark_gray">
 	    
 	        <LinearLayout
@@ -69,7 +69,8 @@
 		        android:layout_height="0dp"
 		        android:layout_weight="1"
 		        android:divider="@null"
-				android:dividerHeight="0dp">
+				android:dividerHeight="0dp"
+				android:requiresFadingEdge="vertical">
 		    </com.markupartist.android.widget.PullToRefreshListView>
 		
 		    <TextView
