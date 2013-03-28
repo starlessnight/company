@@ -3,10 +3,11 @@ package com.smartrek.dialogs;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -286,7 +287,7 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         Button btn = (Button) dialogView.findViewById(R.id.confirm_button);
-        btn.setEnabled(editTextName.getText().length() > 0 && editTextAddress.getText().length() > 0);
+        btn.setEnabled(StringUtils.isNotBlank(editTextName.getText()) && StringUtils.isNotBlank(editTextAddress.getText()));
     }
 	
 }

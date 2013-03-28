@@ -1,5 +1,7 @@
 package com.smartrek.dialogs;
 
+import org.apache.commons.lang3.StringUtils;
+
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -243,7 +245,7 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         Button btn = (Button) dialogView.findViewById(R.id.save_button);
-        btn.setEnabled(editTextName.getText().length() > 0);
+        btn.setEnabled(StringUtils.isNotBlank(editTextName.getText()));
     }
 	
 	private class TripSaveTask extends AsyncTask<Object, Object, Object> {

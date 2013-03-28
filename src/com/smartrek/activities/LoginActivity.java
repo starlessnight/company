@@ -2,6 +2,8 @@ package com.smartrek.activities;
 
 import java.net.ConnectException;
 
+import org.apache.commons.lang3.StringUtils;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -142,7 +144,8 @@ public final class LoginActivity extends Activity implements OnClickListener,
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         Button login = (Button) findViewById(R.id.login_button);
-        login.setEnabled(editTextUsername.getText().length() > 0 && editTextPassword.getText().length() > 0);
+        login.setEnabled(StringUtils.isNotBlank(editTextUsername.getText()) 
+            && StringUtils.isNotBlank(editTextPassword.getText()));
     }
 
 }

@@ -2,6 +2,8 @@ package com.smartrek.activities;
 
 import java.io.IOException;
 
+import org.apache.commons.lang3.StringUtils;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -211,7 +213,7 @@ public final class UserRegistrationActivity extends ActionBarActivity
         EditText[] inputs = {editTextEmail, editTextFirstname, editTextLastname, 
             editTextPassword, editTextPasswordConfirm, editTextUsername};
         for (EditText input : inputs) {
-            enabled &= input.getText().length() > 0;
+            enabled &= StringUtils.isNotBlank(input.getText());
         }
         buttonRegister.setEnabled(enabled);
     }
