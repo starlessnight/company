@@ -286,8 +286,10 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        Button btn = (Button) dialogView.findViewById(R.id.confirm_button);
-        btn.setEnabled(StringUtils.isNotBlank(editTextName.getText()) && StringUtils.isNotBlank(editTextAddress.getText()));
+        if(editTextName != null && editTextAddress != null){
+            Button btn = (Button) dialogView.findViewById(R.id.confirm_button);
+            btn.setEnabled(StringUtils.isNotBlank(editTextName.getText()) && StringUtils.isNotBlank(editTextAddress.getText()));
+        }
     }
 	
 }

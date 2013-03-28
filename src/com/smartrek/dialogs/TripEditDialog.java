@@ -244,8 +244,10 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        Button btn = (Button) dialogView.findViewById(R.id.save_button);
-        btn.setEnabled(StringUtils.isNotBlank(editTextName.getText()));
+        if(editTextName != null){
+            Button btn = (Button) dialogView.findViewById(R.id.save_button);
+            btn.setEnabled(StringUtils.isNotBlank(editTextName.getText()));
+        }
     }
 	
 	private class TripSaveTask extends AsyncTask<Object, Object, Object> {
