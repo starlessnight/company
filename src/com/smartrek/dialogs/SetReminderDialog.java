@@ -1,22 +1,23 @@
 package com.smartrek.dialogs;
 
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.res.Resources;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.TimePicker.OnTimeChangedListener;
 
 import com.smartrek.activities.R;
+import com.smartrek.utils.Font;
 import com.smartrek.utils.datetime.RecurringTime;
 
-public final class SetReminderDialog extends AlertDialog {
+public final class SetReminderDialog extends Dialog {
 	
 	public interface ActionListener {
 		void onClickPositiveButton(RecurringTime recurringTime);
@@ -34,7 +35,7 @@ public final class SetReminderDialog extends AlertDialog {
 	private RecurringTime recurringTime;
 
 	protected SetReminderDialog(Context context, RecurringTime recurringTime) {
-		super(context);
+		super(context, R.style.PopUpDialog);
 		this.recurringTime = recurringTime != null ? recurringTime : new RecurringTime();
 	}
 
@@ -44,10 +45,10 @@ public final class SetReminderDialog extends AlertDialog {
 		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		dialogView = (ViewGroup) inflater.inflate(R.layout.trip_save_date, null);
 		
-		Resources res = getContext().getResources();
+		setContentView(dialogView);
 		
-		setView(dialogView);
-		setTitle("Pick a time");
+		TextView titleView = (TextView) dialogView.findViewById(R.id.title);
+        titleView.setText("When do you want to arrive?");
 		
 		timePicker = (TimePicker) dialogView.findViewById(R.id.timepicker);
 		
@@ -94,25 +95,35 @@ public final class SetReminderDialog extends AlertDialog {
 			
 		});
 		
-		setButton(DialogInterface.BUTTON_POSITIVE, res.getString(R.string.ok), new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if (listener != null) {
-					listener.onClickPositiveButton(recurringTime);
-				}
-			}
-		});
+		Button setButton = (Button) dialogView.findViewById(R.id.set_button);
+		setButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+                if (listener != null) {
+                    listener.onClickPositiveButton(recurringTime);
+                } 
+            }
+        });
 		
-		setButton(DialogInterface.BUTTON_NEGATIVE, res.getString(R.string.cancel), new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if (listener != null) {
-					listener.onClickNegativeButton();
-				}
-			}
-		});
+		View.OnClickListener onClickNegative = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+                if (listener != null) {
+                    listener.onClickNegativeButton();
+                }
+            }
+        };
+		
+		Button backButton = (Button) dialogView.findViewById(R.id.back_button);
+        backButton.setOnClickListener(onClickNegative);
+		
+		View closeIcon = dialogView.findViewById(R.id.close_icon);
+        closeIcon.setOnClickListener(onClickNegative);
+        
+        AssetManager assets = getContext().getAssets();
+        Font.setTypeface(Font.getBold(assets), titleView, setButton, backButton);
 		
 		// This has to be called after all overriding code, otherwise it won't
 		// look like a dialog.

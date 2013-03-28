@@ -1,79 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-
-    <TimePicker
-        android:id="@+id/timepicker"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center" />
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/transparent_black">    
     
-    <Button 
-        android:id="@+id/button_pick_weekdays"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Pick weekdays"
-        />
-
-    <!-- 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center" >
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+        
+        <LinearLayout
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content"
+			android:orientation="horizontal" 
+			android:background="@color/pop_up_header_background">
+	        <TextView
+	            android:id="@+id/title" 
+	            android:layout_height="wrap_content"
+	            android:layout_width="0dp"
+	            android:layout_weight="1"
+	            style="@style/PopUpHeader"   
+			/>
+	        <ImageView
+	            android:id="@+id/close_icon"
+	            android:layout_width="wrap_content"
+				android:layout_height="match_parent" 
+				android:src="@drawable/balloon_overlay_close"
+				android:layout_gravity="center_vertical"
+				android:scaleType="center" 
+			/>
+	    </LinearLayout>
+    
+		<LinearLayout
+		    android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:orientation="vertical"
+	        android:paddingLeft="15dp"
+        	android:paddingRight="15dp"
+        	android:paddingBottom="15dp"
+	        android:background="@color/dark_gray">
+		
+		    <TimePicker
+		        android:id="@+id/timepicker"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_gravity="center" />
+		    
+		    <Button 
+		        android:id="@+id/button_pick_weekdays"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_gravity="center"
+		        android:text="Pick weekdays"
+		    />
+		    
+		    <LinearLayout
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="15dp"
+	            android:orientation="horizontal">
 
-        <ToggleButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@drawable/weekday_button"
-            android:textOff="S"
-            android:textOn="S" />
-
-        <ToggleButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@drawable/weekday_button"
-            android:textOff="M"
-            android:textOn="M" />
-
-        <ToggleButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@drawable/weekday_button"
-            android:textOff="T"
-            android:textOn="T" />
-
-        <ToggleButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@drawable/weekday_button"
-            android:textOff="W"
-            android:textOn="W" />
-
-        <ToggleButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@drawable/weekday_button"
-            android:textOff="R"
-            android:textOn="R" />
-
-        <ToggleButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@drawable/weekday_button"
-            android:textOff="F"
-            android:textOn="F" />
-
-        <ToggleButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@drawable/weekday_button"
-            android:textOff="S"
-            android:textOn="S" />
-    </LinearLayout>
-    -->
-
-</LinearLayout>
+            	<Button
+                    android:id="@+id/back_button"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".5"
+                    android:text="back"
+                    style="@style/PrevActionButton" 
+                />
+            	
+            	<Button
+			        android:id="@+id/set_button"
+			        android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_weight=".5"
+			        android:text="set"
+			        style="@style/AlarmGreenButton"
+			    />
+                
+        	</LinearLayout>
+		    
+		</LinearLayout>
+	</LinearLayout>
+</FrameLayout>
