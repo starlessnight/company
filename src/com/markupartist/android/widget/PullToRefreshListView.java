@@ -19,6 +19,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.smartrek.activities.R;
+import com.smartrek.utils.Font;
 
 /**
  * https://github.com/johannilsson/android-pulltorefresh/tree/master/pulltorefresh/res
@@ -104,6 +105,9 @@ public class PullToRefreshListView extends ListView implements OnScrollListener 
             (ProgressBar) mRefreshView.findViewById(R.id.pull_to_refresh_progress);
         mRefreshViewLastUpdated =
             (TextView) mRefreshView.findViewById(R.id.pull_to_refresh_updated_at);
+        
+        Font.setTypeface(Font.getLight(getResources().getAssets()), 
+            mRefreshViewText, mRefreshViewLastUpdated);
 
         mRefreshViewImage.setMinimumHeight(50);
         mRefreshView.setOnClickListener(new OnClickRefreshListener());

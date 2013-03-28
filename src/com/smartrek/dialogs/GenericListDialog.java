@@ -109,7 +109,7 @@ public class GenericListDialog<ItemType> extends Dialog {
         if(addButton != null){
             Font.setTypeface(boldFont, addButton);
         }
-        Font.setTypeface(lightFont, textViewGeneric);
+        Font.setTypeface(lightFont, textViewGeneric, (TextView) dialogView.findViewById(R.id.loading_text));
 	}
 	
 	@Override
