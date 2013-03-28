@@ -9,8 +9,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_gravity="center"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
+        android:layout_margin="15dp"
         android:focusable="true"
         android:focusableInTouchMode="true">
         
@@ -36,56 +35,60 @@
 			/>
 	    </LinearLayout>
     
-		<LinearLayout
-		    android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:orientation="vertical"
-	        android:paddingLeft="15dp"
-        	android:paddingRight="15dp"
-        	android:paddingBottom="15dp"
-	        android:background="@color/dark_gray">
-		
-		    <TimePicker
-		        android:id="@+id/timepicker"
-		        android:layout_width="wrap_content"
+        <ScrollView 
+            android:layout_width="match_parent"
+		    android:layout_height="match_parent">
+			<LinearLayout
+			    android:layout_width="match_parent"
 		        android:layout_height="wrap_content"
-		        android:layout_gravity="center" />
-		    
-		    <Button 
-		        android:id="@+id/button_pick_weekdays"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_gravity="center"
-		        android:text="Pick weekdays"
-		    />
-		    
-		    <LinearLayout
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_marginTop="15dp"
-	            android:orientation="horizontal">
-
-            	<Button
-                    android:id="@+id/back_button"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight=".5"
-                    android:text="back"
-                    style="@style/PrevActionButton" 
-                />
-            	
-            	<Button
-			        android:id="@+id/set_button"
-			        android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_weight=".5"
-			        android:text="set"
-			        style="@style/AlarmGreenButton"
+		        android:orientation="vertical"
+		        android:paddingLeft="15dp"
+	        	android:paddingRight="15dp"
+	        	android:paddingBottom="15dp"
+		        android:background="@color/dark_gray">
+			
+			    <TimePicker
+			        android:id="@+id/timepicker"
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        android:layout_gravity="center" />
+			    
+			    <Button 
+			        android:id="@+id/button_pick_weekdays"
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        android:layout_gravity="center"
+			        android:text="Pick weekdays"
 			    />
-                
-        	</LinearLayout>
-		    
-		</LinearLayout>
+			    
+			    <LinearLayout
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content"
+		            android:layout_marginTop="15dp"
+		            android:orientation="horizontal">
+	
+	            	<Button
+	                    android:id="@+id/back_button"
+	                    android:layout_width="0dip"
+	                    android:layout_height="wrap_content"
+	                    android:layout_weight=".5"
+	                    android:text="back"
+	                    style="@style/PrevActionButton" 
+	                />
+	            	
+	            	<Button
+				        android:id="@+id/set_button"
+				        android:layout_width="0dip"
+	                    android:layout_height="wrap_content"
+	                    android:layout_marginLeft="10dp"
+	                    android:layout_weight=".5"
+				        android:text="set"
+				        style="@style/AlarmGreenButton"
+				    />
+	                
+	        	</LinearLayout>
+			    
+			</LinearLayout>
+		</ScrollView>
 	</LinearLayout>
 </FrameLayout>

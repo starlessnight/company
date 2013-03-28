@@ -9,8 +9,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_gravity="center"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
+        android:layout_margin="15dp"
         android:focusable="true"
         android:focusableInTouchMode="true">
         
@@ -36,68 +35,74 @@
 			/>
 	    </LinearLayout>
         
-		<LinearLayout
-		    android:layout_width="match_parent"
-		    android:layout_height="match_parent"
-		    android:orientation="vertical"
-	        android:paddingLeft="15dp"
-        	android:paddingRight="15dp"
-        	android:paddingBottom="15dp"
-	        android:background="@color/dark_gray" >
-		
-		    <EditText
-		        android:id="@+id/edit_text_name"
-		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:layout_marginTop="15dp"
-		        android:hint="name your trip"
-		        android:singleLine="true"
-		        style="@style/NormalTextField"
-	        />
-		
-		    <EditText
-		        android:id="@+id/edit_text_origin"
-		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:layout_marginTop="15dp"
-		        android:editable="false"
-		        android:hint="start address"
-		        android:singleLine="true"
-		        android:focusable="false"
-        		android:focusableInTouchMode="false"
-		        style="@style/DualTextFieldFirst" 
-	        />
-		
-		    <EditText
-		        android:id="@+id/edit_text_destination"
-		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:editable="false"
-		        android:hint="end address"
-		        android:singleLine="true"
-		        android:focusable="false"
-        		android:focusableInTouchMode="false" 
-		        style="@style/DualTextFieldSecond"
-	        />
-		    
-		    <Button
-	            android:id="@+id/layout_set_reminder"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_marginTop="15dp"
-	            android:text="set reminder"
-	            style="@style/AlarmBlueButton"
-			/>
-		    
-		    <Button
-	            android:id="@+id/save_button"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_marginTop="15dp"
-	            android:text="save trip"
-	            style="@style/YesButton"
-			/>
-		
-		</LinearLayout>
+        <ScrollView 
+            android:layout_width="match_parent"
+		    android:layout_height="match_parent">
+	        
+            <LinearLayout
+			    android:layout_width="match_parent"
+			    android:layout_height="wrap_content"
+			    android:orientation="vertical"
+		        android:paddingLeft="15dp"
+	        	android:paddingRight="15dp"
+	        	android:paddingBottom="15dp"
+		        android:background="@color/dark_gray" >
+			
+			    <EditText
+			        android:id="@+id/edit_text_name"
+			        android:layout_width="match_parent"
+			        android:layout_height="wrap_content"
+			        android:layout_marginTop="15dp"
+			        android:hint="name your trip"
+			        android:singleLine="true"
+			        style="@style/NormalTextField"
+		        />
+			
+			    <EditText
+			        android:id="@+id/edit_text_origin"
+			        android:layout_width="match_parent"
+			        android:layout_height="wrap_content"
+			        android:layout_marginTop="15dp"
+			        android:editable="false"
+			        android:hint="start address"
+			        android:singleLine="true"
+			        android:focusable="false"
+	        		android:focusableInTouchMode="false"
+			        style="@style/DualTextFieldFirst" 
+		        />
+			
+			    <EditText
+			        android:id="@+id/edit_text_destination"
+			        android:layout_width="match_parent"
+			        android:layout_height="wrap_content"
+			        android:editable="false"
+			        android:hint="end address"
+			        android:singleLine="true"
+			        android:focusable="false"
+	        		android:focusableInTouchMode="false" 
+			        style="@style/DualTextFieldSecond"
+		        />
+			    
+			    <Button
+		            android:id="@+id/layout_set_reminder"
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content"
+		            android:layout_marginTop="15dp"
+		            android:text="set reminder"
+		            style="@style/AlarmBlueButton"
+				/>
+			    
+			    <Button
+		            android:id="@+id/save_button"
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content"
+		            android:layout_marginTop="15dp"
+		            android:text="save trip"
+		            style="@style/YesButton"
+				/>
+			
+			</LinearLayout>
+            
+        </ScrollView>
 	</LinearLayout>
 </FrameLayout>

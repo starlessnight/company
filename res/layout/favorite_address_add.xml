@@ -9,8 +9,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_gravity="center"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
+        android:layout_margin="15dp"
         android:focusable="true"
         android:focusableInTouchMode="true">
         
@@ -35,46 +34,51 @@
 				android:scaleType="center" 
 			/>
 	    </LinearLayout>
+	    
+        <ScrollView 
+            android:layout_width="match_parent"
+		    android:layout_height="match_parent">
         
-        <LinearLayout
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:orientation="vertical"
-	        android:paddingLeft="15dp"
-        	android:paddingRight="15dp"
-        	android:paddingBottom="15dp"
-	        android:background="@color/dark_gray">
-	
-	        <EditText
-	            android:id="@+id/editTextName"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:hint="name your location"
-	            android:layout_marginTop="15dp"
-	            android:singleLine="true" 
-	            style="@style/NormalTextField"
-            />
-	
-	        <EditText
-	            android:id="@+id/editTextAddress"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:singleLine="true"
-	            android:hint="address"
-	            android:layout_marginTop="15dp" 
-	         	style="@style/NormalTextField"
-         	/>
-	        
-	        <Button
-	            android:id="@+id/confirm_button"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_marginTop="15dp"
-	            android:text="confirm"
-	            style="@style/NextActionButton"
-			/>
-	        
-	    </LinearLayout>
+	        <LinearLayout
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:orientation="vertical"
+		        android:paddingLeft="15dp"
+	        	android:paddingRight="15dp"
+	        	android:paddingBottom="15dp"
+		        android:background="@color/dark_gray">
+		
+		        <EditText
+		            android:id="@+id/editTextName"
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content"
+		            android:hint="name your location"
+		            android:layout_marginTop="15dp"
+		            android:singleLine="true" 
+		            style="@style/NormalTextField"
+	            />
+		
+		        <EditText
+		            android:id="@+id/editTextAddress"
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content"
+		            android:singleLine="true"
+		            android:hint="address"
+		            android:layout_marginTop="15dp" 
+		         	style="@style/NormalTextField"
+	         	/>
+		        
+		        <Button
+		            android:id="@+id/confirm_button"
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content"
+		            android:layout_marginTop="15dp"
+		            android:text="confirm"
+		            style="@style/NextActionButton"
+				/>
+		        
+		    </LinearLayout>
+	 	</ScrollView>
 	</LinearLayout>
 
     <ProgressBar
