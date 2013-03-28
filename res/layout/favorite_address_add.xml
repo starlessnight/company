@@ -10,7 +10,9 @@
         android:orientation="vertical"
         android:layout_gravity="center"
         android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp">
+        android:layout_marginRight="15dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
         
         <LinearLayout
 			android:layout_width="fill_parent" 
@@ -50,10 +52,8 @@
 	            android:hint="name your location"
 	            android:layout_marginTop="15dp"
 	            android:singleLine="true" 
-	            style="@style/NormalTextField">
-	
-	            <requestFocus />
-	        </EditText>
+	            style="@style/NormalTextField"
+            />
 	
 	        <EditText
 	            android:id="@+id/editTextAddress"

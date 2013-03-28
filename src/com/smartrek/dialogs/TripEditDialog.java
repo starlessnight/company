@@ -1,17 +1,19 @@
 package com.smartrek.dialogs;
 
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.res.Resources;
+import android.content.res.AssetManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.smartrek.activities.R;
@@ -22,9 +24,10 @@ import com.smartrek.requests.TripAddRequest;
 import com.smartrek.requests.TripListFetchRequest;
 import com.smartrek.requests.TripUpdateRequest;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.Font;
 import com.smartrek.utils.datetime.RecurringTime;
 
-public final class TripEditDialog extends AlertDialog {
+public final class TripEditDialog extends Dialog implements TextWatcher {
 	
 	/**
 	 * Dialog action listener
@@ -79,7 +82,7 @@ public final class TripEditDialog extends AlertDialog {
 	 * @param destination
 	 */
 	public TripEditDialog(Context context, Address origin, Address destination) {
-		super(context);
+		super(context, R.style.PopUpDialog);
 		this.origin = origin;
 		this.destination = destination;
 	}
@@ -91,7 +94,7 @@ public final class TripEditDialog extends AlertDialog {
 	 * @param trip
 	 */
 	public TripEditDialog(Context context, Trip trip) {
-		super(context);
+		super(context, R.style.PopUpDialog);
 		this.trip = trip;
 
 		// FIXME: I think Trip should have a userID field.
@@ -106,7 +109,11 @@ public final class TripEditDialog extends AlertDialog {
 		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		dialogView = (ViewGroup) inflater.inflate(R.layout.trip_save, null);
 		
+		TextView titleView = (TextView) dialogView.findViewById(R.id.title);
+        titleView.setText((isEditMode()?"Edit":"Save") + " Trip");
+		
 		editTextName = (EditText) dialogView.findViewById(R.id.edit_text_name);
+		editTextName.addTextChangedListener(this);
 		editTextOrigin = (EditText) dialogView.findViewById(R.id.edit_text_origin);
 		editTextDestination = (EditText) dialogView.findViewById(R.id.edit_text_destination);
 		
@@ -122,7 +129,7 @@ public final class TripEditDialog extends AlertDialog {
 			editTextDestination.setText(trip.getDestination());
 		}
 		
-		ViewGroup layoutSetReminder = (ViewGroup) dialogView.findViewById(R.id.layout_set_reminder);
+		Button layoutSetReminder = (Button) dialogView.findViewById(R.id.layout_set_reminder);
 		layoutSetReminder.setOnClickListener(new View.OnClickListener() {
 
 			@Override
@@ -132,60 +139,51 @@ public final class TripEditDialog extends AlertDialog {
 			
 		});
 		
-		Resources res = getContext().getResources();
+		Button saveButton = (Button) dialogView.findViewById(R.id.save_button);
+		saveButton.setEnabled(isEditMode());
+		saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String name = getName();
+                if(name.length() == 0){
+                    Toast.makeText(getContext(), R.string.enter_trip_name, Toast.LENGTH_LONG).show();
+                }else{
+                    User currentUser = User.getCurrentUser(getContext());
+                    if (isEditMode()) {
+                        new TripSaveTask(getContext(), trip.getId(), currentUser.getId(), name, getOrigin(), getDestination(), new RecurringTime((byte)hour, (byte)minute, (byte)0, weekdays)).execute();
+                    }
+                    else {
+                        new TripSaveTask(getContext(), 0, currentUser.getId(), name, getOrigin(), getDestination(), new RecurringTime((byte)hour, (byte)minute, (byte)0, weekdays)).execute();
+                    }
+                    
+                    if (actionListener != null) {
+                        actionListener.onClickPositiveButton(name, getOrigin(), getDestination());
+                    }
+                }
+            }
+        });
 		
-		setView(dialogView);
-		setIcon(res.getDrawable(R.drawable.save_trip));
-		setTitle(isEditMode() ? res.getString(R.string.edit_trip) : res.getString(R.string.save_trip));
+		View closeIcon = dialogView.findViewById(R.id.close_icon);
+        closeIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+                if (actionListener != null) {
+                    actionListener.onClickNegativeButton();
+                }
+            }
+        });
+        
+        AssetManager assets = getContext().getAssets();
+        Font.setTypeface(Font.getBold(assets), titleView, saveButton, layoutSetReminder);
+        Font.setTypeface(Font.getLight(assets), editTextName, editTextOrigin, editTextDestination);
 		
-		setButton(DialogInterface.BUTTON_POSITIVE,
-				res.getString(isEditMode() ? R.string.ok : R.string.add),
-				new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-			}
-		});
-		
-		setButton(DialogInterface.BUTTON_NEGATIVE, res.getString(R.string.cancel), new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if (actionListener != null) {
-					actionListener.onClickNegativeButton();
-				}
-			}
-		});
+		setContentView(dialogView);
 		
 		// This has to be called after all overriding code, otherwise it won't
 		// look like a dialog.
 		super.onCreate(savedInstanceState);
-		
-		// Replace the default onClickListener to prevent this dialog closing.
-		Button positiveButton = getButton(DialogInterface.BUTTON_POSITIVE);
-		positiveButton.setOnClickListener(new View.OnClickListener() {
 
-			@Override
-			public void onClick(View v) {
-				String name = getName();
-				if(name.length() == 0){
-					Toast.makeText(getContext(), R.string.enter_trip_name, Toast.LENGTH_LONG).show();
-				}else{
-					User currentUser = User.getCurrentUser(getContext());
-					if (isEditMode()) {
-						new TripSaveTask(getContext(), trip.getId(), currentUser.getId(), name, getOrigin(), getDestination(), new RecurringTime((byte)hour, (byte)minute, (byte)0, weekdays)).execute();
-					}
-					else {
-						new TripSaveTask(getContext(), 0, currentUser.getId(), name, getOrigin(), getDestination(), new RecurringTime((byte)hour, (byte)minute, (byte)0, weekdays)).execute();
-					}
-					
-					if (actionListener != null) {
-						actionListener.onClickPositiveButton(name, getOrigin(), getDestination());
-					}
-				}
-			}
-			
-		});
 	}
 	
 	public void setActionListener(ActionListener listener) {
@@ -230,6 +228,23 @@ public final class TripEditDialog extends AlertDialog {
 		});
 		dialog.show();
 	}
+	
+    @Override
+    public void afterTextChanged(Editable s) {
+        
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count,
+            int after) {
+        
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+        Button btn = (Button) dialogView.findViewById(R.id.save_button);
+        btn.setEnabled(editTextName.getText().length() > 0);
+    }
 	
 	private class TripSaveTask extends AsyncTask<Object, Object, Object> {
 

@@ -1,58 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-
-    <EditText
-        android:id="@+id/edit_text_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="Name of this trip"
-        android:singleLine="true" >
-
-        <requestFocus />
-    </EditText>
-
-    <EditText
-        android:id="@+id/edit_text_origin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:editable="false"
-        android:ems="10"
-        android:hint="Origin address"
-        android:singleLine="true" />
-
-    <EditText
-        android:id="@+id/edit_text_destination"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:editable="false"
-        android:ems="10"
-        android:hint="Destination address"
-        android:singleLine="true" />
-
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/transparent_black">
+    
     <LinearLayout
-        android:id="@+id/layout_set_reminder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="horizontal" >
-
-        <ImageView
-            android:id="@+id/imageView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="4dp"
-            android:src="@drawable/clock" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="4dp"
-            android:text="When would you like to arrive?" />
-    </LinearLayout>
-
-</LinearLayout>
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+        
+        <LinearLayout
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content"
+			android:orientation="horizontal" 
+			android:background="@color/pop_up_header_background">
+	        <TextView
+	            android:id="@+id/title" 
+	            android:layout_height="wrap_content"
+	            android:layout_width="0dp"
+	            android:layout_weight="1"
+	            style="@style/PopUpHeader"   
+			/>
+	        <ImageView
+	            android:id="@+id/close_icon"
+	            android:layout_width="wrap_content"
+				android:layout_height="match_parent" 
+				android:src="@drawable/balloon_overlay_close"
+				android:layout_gravity="center_vertical"
+				android:scaleType="center" 
+			/>
+	    </LinearLayout>
+        
+		<LinearLayout
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    android:orientation="vertical"
+	        android:paddingLeft="15dp"
+        	android:paddingRight="15dp"
+        	android:paddingBottom="15dp"
+	        android:background="@color/dark_gray" >
+		
+		    <EditText
+		        android:id="@+id/edit_text_name"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="15dp"
+		        android:hint="name your trip"
+		        android:singleLine="true"
+		        style="@style/NormalTextField"
+	        />
+		
+		    <EditText
+		        android:id="@+id/edit_text_origin"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="15dp"
+		        android:editable="false"
+		        android:hint="start address"
+		        android:singleLine="true"
+		        android:focusable="false"
+        		android:focusableInTouchMode="false"
+		        style="@style/DualTextFieldFirst" 
+	        />
+		
+		    <EditText
+		        android:id="@+id/edit_text_destination"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:editable="false"
+		        android:hint="end address"
+		        android:singleLine="true"
+		        android:focusable="false"
+        		android:focusableInTouchMode="false" 
+		        style="@style/DualTextFieldSecond"
+	        />
+		    
+		    <Button
+	            android:id="@+id/layout_set_reminder"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="15dp"
+	            android:text="set reminder"
+	            style="@style/AlarmBlueButton"
+			/>
+		    
+		    <Button
+	            android:id="@+id/save_button"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="15dp"
+	            android:text="save trip"
+	            style="@style/YesButton"
+			/>
+		
+		</LinearLayout>
+	</LinearLayout>
+</FrameLayout>

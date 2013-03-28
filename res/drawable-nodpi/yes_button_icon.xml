@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="true">
+        <bitmap android:src="@drawable/icon_yes" android:gravity="right|center_vertical" />
+    </item>
+    <item android:state_enabled="false">
+        <bitmap android:src="@drawable/icon_yes_disabled" android:gravity="right|center_vertical" />
+    </item>
+</selector> 
