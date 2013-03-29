@@ -73,6 +73,8 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 	
 	private byte weekdays;
 	
+	private RecurringTime tmpTime;
+	
 	/**
 	 * I decided to force the caller to set the origin and the destination
 	 * addresses using this constructor, instead of providing setters, because
@@ -99,6 +101,10 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 		super(context, R.style.PopUpDialog);
 		this.trip = trip;
 
+		if(trip != null){
+		    tmpTime = trip.getRecurringTime();
+		}
+		
 		// FIXME: I think Trip should have a userID field.
 		int uid = User.getCurrentUser(context).getId();
 		this.origin = new Address(trip.getOriginID(), uid, "", trip.getOrigin(), 0, 0);
@@ -214,7 +220,7 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 	 * Opens up a dialog to set a trip reminder.
 	 */
 	private void openSetReminderDialog() {
-		SetReminderDialog dialog = new SetReminderDialog(getContext(), trip != null ? trip.getRecurringTime() : null);
+		SetReminderDialog dialog = new SetReminderDialog(getContext(), tmpTime);
 		dialog.setActionListener(new SetReminderDialog.ActionListener() {
 			
 			@Override
@@ -222,6 +228,7 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 				TripEditDialog.this.hour = recurringTime.getHour();
 				TripEditDialog.this.minute = recurringTime.getMinute();
 				TripEditDialog.this.weekdays = recurringTime.getWeekdays();
+				tmpTime = recurringTime;
 			}
 			
 			@Override

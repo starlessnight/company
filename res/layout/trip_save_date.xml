@@ -43,29 +43,151 @@
 			    android:layout_width="match_parent"
 		        android:layout_height="wrap_content"
 		        android:orientation="vertical"
-		        android:paddingLeft="15dp"
-	        	android:paddingRight="15dp"
 	        	android:paddingBottom="15dp"
 	        	android:background="@color/dark_gray">
-			
-			    <TimePicker
-			        android:id="@+id/timepicker"
-			        android:layout_width="wrap_content"
+	        	
+			    <LinearLayout 
 			        android:layout_height="wrap_content"
-			        android:layout_gravity="center" />
+			        android:layout_width="match_parent"
+			        android:layout_marginTop="15dp"
+			        android:layout_marginLeft="30dp"
+			        android:orientation="horizontal">
+			        
+			        <LinearLayout 
+				        android:layout_height="wrap_content"
+				        android:layout_width="80dp"
+				        android:orientation="vertical">
+				        <ImageButton
+				            android:id="@+id/time_hour_up"
+					        android:layout_width="match_parent"
+					        android:layout_height="@dimen/time_button_height"
+					        style="@style/UpButton" 
+						/>
+				        <EditText
+				            android:id="@+id/time_hour"
+				            android:layout_width="match_parent"
+					        android:layout_height="@dimen/time_textfield_height"
+					        android:layout_marginTop="10dp"
+					        style="@style/TimeTextField" 
+						/>
+					    <ImageButton
+					        android:id="@+id/time_hour_down"
+					        android:layout_width="match_parent"
+					        android:layout_height="@dimen/time_button_height"
+					        android:layout_marginTop="10dp"
+					        style="@style/DownButton" 
+						/>
+				    </LinearLayout>
+				    
+			        <LinearLayout 
+				        android:layout_height="wrap_content"
+				        android:layout_width="80dp"
+				        android:layout_marginLeft="13dp"
+				        android:orientation="vertical">
+				        <ImageButton
+				            android:id="@+id/time_minute_up"
+					        android:layout_width="match_parent"
+					        android:layout_height="@dimen/time_button_height"
+					        style="@style/UpButton" 
+						/>
+				        <EditText
+				            android:id="@+id/time_minute"
+				            android:layout_width="match_parent"
+					        android:layout_height="@dimen/time_textfield_height"
+					        android:layout_marginTop="10dp"
+					        style="@style/TimeTextField" 
+						/>
+					    <ImageButton
+					        android:id="@+id/time_minute_down"
+					        android:layout_width="match_parent"
+					        android:layout_height="@dimen/time_button_height"
+					        android:layout_marginTop="10dp"
+					        style="@style/DownButton" 
+						/>
+				    </LinearLayout>
+				    
+			        <TextView
+			            android:id="@+id/time_am_pm"
+			            android:layout_width="80dp"
+				        android:layout_height="@dimen/time_textfield_height"
+				        android:layout_marginLeft="13dp"
+				        android:layout_gravity="center_vertical"
+				        style="@style/TimeTextField" 
+					/>
+			        
+			    </LinearLayout>
 			    
-			    <Button 
-			        android:id="@+id/button_pick_weekdays"
-			        android:layout_width="wrap_content"
+			    <LinearLayout 
+			        android:id="@+id/weekday_checkbox_group"
 			        android:layout_height="wrap_content"
-			        android:layout_gravity="center"
-			        android:text="Pick weekdays"
-			    />
+			        android:layout_width="match_parent"
+			        android:layout_marginTop="30dp"
+			        android:layout_marginLeft="15dp"
+			        android:orientation="horizontal">
+			        
+			        <CheckedTextView
+			        	android:layout_height="@dimen/weekday_checkbox_height"
+			        	android:layout_width="@dimen/weekday_checkbox_width"
+			        	android:text="S"
+			            style="@style/WeekdayCheckBox" 
+					/>
+			        
+			        <CheckedTextView
+			        	android:layout_height="@dimen/weekday_checkbox_height"
+			        	android:layout_width="@dimen/weekday_checkbox_width"
+			        	android:layout_marginLeft="@dimen/weekday_checkbox_spacing"
+			        	android:text="M"    
+			            style="@style/WeekdayCheckBox" 
+					/>
+			        
+			        <CheckedTextView
+			        	android:layout_height="@dimen/weekday_checkbox_height"
+			        	android:layout_width="@dimen/weekday_checkbox_width"
+			        	android:layout_marginLeft="@dimen/weekday_checkbox_spacing"
+			        	android:text="T"    
+			            style="@style/WeekdayCheckBox" 
+					/>
+			        
+			        <CheckedTextView
+			        	android:layout_height="@dimen/weekday_checkbox_height"
+			        	android:layout_width="@dimen/weekday_checkbox_width"
+			        	android:layout_marginLeft="@dimen/weekday_checkbox_spacing"
+			        	android:text="W"    
+			            style="@style/WeekdayCheckBox" 
+					/>
+			        
+			        <CheckedTextView
+			        	android:layout_height="@dimen/weekday_checkbox_height"
+			        	android:layout_width="@dimen/weekday_checkbox_width"
+			        	android:layout_marginLeft="@dimen/weekday_checkbox_spacing"
+			        	android:text="Th"    
+			            style="@style/WeekdayCheckBox" 
+					/>
+			        
+			        <CheckedTextView
+			        	android:layout_height="@dimen/weekday_checkbox_height"
+			        	android:layout_width="@dimen/weekday_checkbox_width"
+			        	android:layout_marginLeft="@dimen/weekday_checkbox_spacing"
+			        	android:text="F"    
+			            style="@style/WeekdayCheckBox" 
+					/>
+			        
+			        <CheckedTextView
+			        	android:layout_height="@dimen/weekday_checkbox_height"
+			        	android:layout_width="@dimen/weekday_checkbox_width"
+			        	android:layout_marginLeft="@dimen/weekday_checkbox_spacing"
+			        	android:text="S"    
+			            style="@style/WeekdayCheckBox" 
+					/>
+			        
+			    </LinearLayout>
 			    
 			    <LinearLayout
 		            android:layout_width="match_parent"
 		            android:layout_height="wrap_content"
 		            android:layout_marginTop="15dp"
+			        android:layout_marginLeft="15dp"
+			        android:layout_marginRight="15dp"
 		            android:orientation="horizontal">
 	
 	            	<Button

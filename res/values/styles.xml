@@ -66,6 +66,27 @@
 	<style name="DualTextFieldSecond" parent="NormalTextField">
 		<item name="android:background">@drawable/dual_text_field_second</item>
 	</style>
+	<style name="TimeTextField" parent="NormalTextField">
+	    <item name="android:textSize">@dimen/large_font</item>
+	    <item name="android:textStyle">bold</item>
+	    <item name="android:paddingTop">10dp</item>
+		<item name="android:paddingRight">0dp</item>
+		<item name="android:paddingLeft">0dp</item>
+		<item name="android:paddingBottom">10dp</item>
+		<item name="android:singleLine">true</item>
+		<item name="android:gravity">center</item>
+	</style>
+	<style name="WeekdayCheckBox">
+	    <item name="android:textSize">@dimen/smaller_font</item>
+	    <item name="android:textColor">@color/weekday_button_text</item>
+	    <item name="android:paddingTop">17dp</item>
+		<item name="android:paddingRight">0dp</item>
+		<item name="android:paddingBottom">17dp</item>
+		<item name="android:paddingLeft">0dp</item>
+		<item name="android:includeFontPadding">false</item>
+		<item name="android:gravity">center</item>
+		<item name="android:background">@drawable/weekday_checkbox</item>
+    </style>
 	<style name="LargeTextButton">
 	    <item name="android:textSize">@dimen/large_font</item>
 	    <item name="android:textColor">@color/button_text</item>
@@ -126,6 +147,16 @@
 	</style>
 	<style name="MoreButton">
 	    <item name="android:src">@drawable/icon_more_disabled</item>
+		<item name="android:scaleType">center</item>
+	    <item name="android:background">@android:color/black</item>
+	</style>
+	<style name="UpButton">
+	    <item name="android:src">@drawable/icon_up_disabled</item>
+		<item name="android:scaleType">center</item>
+	    <item name="android:background">@android:color/black</item>
+	</style>
+	<style name="DownButton">
+	    <item name="android:src">@drawable/icon_down_disabled</item>
 		<item name="android:scaleType">center</item>
 	    <item name="android:background">@android:color/black</item>
 	</style>
