@@ -219,9 +219,9 @@ public final class SetReminderDialog extends Dialog {
             
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(!filtering && StringUtils.isNotBlank(s)){
+                if(!filtering){
                     String newText = s.toString().trim();
-                    int val = Integer.parseInt(newText);
+                    int val = StringUtils.isBlank(newText)?0:Integer.parseInt(newText);
                     while(val > max){
                         newText = newText.substring(1);
                         val = Integer.parseInt(newText);
