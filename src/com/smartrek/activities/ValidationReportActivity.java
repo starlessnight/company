@@ -20,7 +20,6 @@ import com.smartrek.requests.RouteValidationRequest;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
-import com.smartrek.utils.ValidationParameters;
 
 public final class ValidationReportActivity extends ActionBarActivity {
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
@@ -44,24 +43,15 @@ public final class ValidationReportActivity extends ActionBarActivity {
         endTime = new Time();
         endTime.set(extras.getLong("endTime"));
         
-        boolean validated = false;
         final int uid = User.getCurrentUser(this).getId();
         
-        String msg;
+        String msg = null;
         if (extras.getBoolean("timedout")) {
             msg ="Timed out!";
         }
         else {
-        	double score = route.getValidatedDistance() / route.getLength();
-        	
-            //float score = numberOfInRoute / (float)numberOfLocationChanges;
-            ValidationParameters params = ValidationParameters.getInstance();
-            validated = score >= params.getScoreThreshold();
-            
-            if (validated) {
-                new ValidationReportTask().execute(uid, route.getId());
-            }
-            msg = String.format("You just earned %d Trekpoints!", validated ? route.getCredits() : 0);
+            new ValidationReportTask().execute(uid, route.getId());
+            msg = String.format("You just earned %d Trekpoints!", route.getCredits());
         }
         
         textViewPoints = (TextView) findViewById(R.id.textViewPoints);

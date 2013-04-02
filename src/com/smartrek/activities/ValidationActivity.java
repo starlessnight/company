@@ -61,7 +61,6 @@ import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.RouteFetchRequest;
-import com.smartrek.requests.SendTrajectoryRequest;
 import com.smartrek.ui.NavigationView;
 import com.smartrek.ui.NavigationView.CheckPointListener;
 import com.smartrek.ui.menu.MainMenu;
@@ -650,13 +649,11 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     private void arriveAtDestination() {
         validationTimeoutHandler.removeCallbacks(validationTimeoutNotifier);
         
-        endTime = new Time();
-        endTime.setToNow();
-        
         saveTrajectory();
         
+        reportValidation();
         if(mTts == null){
-            reportValidation();
+            finish();
         }else{
             final int oldCnt = utteredCnt.get();
             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
@@ -664,7 +661,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
                 public void run() {
                     int newCnt = utteredCnt.get();
                     if(newCnt == oldCnt && newCnt == utteringCnt.get()){
-                        reportValidation();
+                        finish();
                     }
                 }
             }, 1000 + Math.round(Math.random() * 500));
@@ -681,14 +678,22 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             
             deactivateLocationService();
             
-            Intent intent = new Intent(this, ValidationReportActivity.class);
-            intent.putExtra("route", route);
-            intent.putExtra("startTime", startTime.toMillis(false));
-            intent.putExtra("endTime", endTime.toMillis(false));
-            startActivity(intent);
-            
-            finish();
+            if(isTripValidated()){
+                endTime = new Time();
+                endTime.setToNow();
+                Intent intent = new Intent(this, ValidationReportActivity.class);
+                intent.putExtra("route", route);
+                intent.putExtra("startTime", startTime.toMillis(false));
+                intent.putExtra("endTime", endTime.toMillis(false));
+                startActivity(intent);
+            }
         }
+    }
+    
+    private boolean isTripValidated(){
+        double score = route.getValidatedDistance() / route.getLength();
+        ValidationParameters params = ValidationParameters.getInstance();
+        return score >= params.getScoreThreshold();
     }
     
     private void deactivateLocationService() {
@@ -708,7 +713,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                deactivateLocationService();
+                reportValidation();
                 
                 //Stop the activity
                 ValidationActivity.this.finish();    
@@ -747,12 +752,13 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
                 endTime.setToNow();
             }
             
-            Intent intent = new Intent(ValidationActivity.this, ValidationReportActivity.class);
-            intent.putExtra("route", route);
-            intent.putExtra("timedout", true);
-            intent.putExtra("startTime", startTime.toMillis(false));
-            intent.putExtra("endTime", endTime.toMillis(false));
-            startActivity(intent);
+            if(isTripValidated()){
+                Intent intent = new Intent(ValidationActivity.this, ValidationReportActivity.class);
+                intent.putExtra("route", route);
+                intent.putExtra("startTime", startTime.toMillis(false));
+                intent.putExtra("endTime", endTime.toMillis(false));
+                startActivity(intent);
+            }
             
             finish();
         }
@@ -821,33 +827,6 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             }
         }
     }
-    
-    private class SendTrajectoryTask extends AsyncTask<Object, Object, Object> {
-
-        @Override
-        protected Object doInBackground(Object... params) {
-            int seq = (Integer) params[0];
-            int uid = (Integer) params[1];
-            
-            SendTrajectoryRequest request = new SendTrajectoryRequest();
-            try {
-            	request.execute(seq, uid, route.getId(), trajectory);
-            }
-            catch (Exception e) {
-                ehs.registerException(e);
-            }
-            
-            return null;
-        }
-        
-        @Override
-        protected void onPostExecute(Object result) {
-            // Silently report exceptions
-            while (ehs.hasExceptions()) {
-                System.err.print(ehs.popException());
-            }
-        }
-    }
 
     @Override
     public void onInit(int status) {
@@ -857,7 +836,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
                 @Override
                 public void onUtteranceCompleted(String utteranceId) {
                     if(utteredCnt.incrementAndGet() == utteringCnt.get() && arrived.get()){
-                        reportValidation();
+                        finish();
                     }
                 }
             });
