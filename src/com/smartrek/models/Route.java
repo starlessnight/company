@@ -37,6 +37,7 @@ public final class Route implements Parcelable {
 	private int credits;
 	private boolean fake;
 	private int seq;
+	private Double length;
 	
 	
 	public static final Parcelable.Creator<Route> CREATOR = new Parcelable.Creator<Route>() {
@@ -95,6 +96,11 @@ public final class Route implements Parcelable {
         
         Route route = new Route(routeNodes, rid, departureTime, (int)(ett * 60));
         route.setCredits(routeObject.getInt("CREDITS"));
+        
+        if (routeObject.has("DISTANCE")) {
+            // conversion from mile to meter
+            route.length = routeObject.getDouble("DISTANCE") * 1609.34;
+        }
         
         return route;
 	}
@@ -304,23 +310,26 @@ public final class Route implements Parcelable {
 	 * @return Length of the route in meters.
 	 */
 	public double getLength() {
-		double length = 0.0;
-		for (RouteNode node : routeNodes) {
-			double d = node.getDistance();
-			if (d == 0.0) {
-				// If node length information is not available, get an estimation.
-				
-				RouteNode nextNode = node.getNextNode();
-				
-				if (nextNode != null) {
-					length += RouteNode.distanceBetween(node, nextNode);
-				}
-			}
-			else {
-				length += d;
-			}
-		}
-		
+	    double length = 0.0;
+	    if(this.length != null){
+	        length = this.length; 
+	    }else{
+	        for (RouteNode node : routeNodes) {
+                double d = node.getDistance();
+                if (d == 0.0) {
+                    // If node length information is not available, get an estimation.
+                    
+                    RouteNode nextNode = node.getNextNode();
+                    
+                    if (nextNode != null) {
+                        length += RouteNode.distanceBetween(node, nextNode);
+                    }
+                }
+                else {
+                    length += d;
+                }
+            }
+	    }
 		return length;
 	}
 	
