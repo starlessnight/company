@@ -23,7 +23,7 @@ public class UserRegistrationRequest extends Request {
 		try {
             JSONObject json = new JSONArray(res).getJSONObject(0);
             if("FAILED".equals(json.getString("STATUS"))){
-                //throw new Exception();
+                throw new Exception(json.getString("MESSAGE"));
             }else{
                 user.setId(json.getInt("UID"));
             }
