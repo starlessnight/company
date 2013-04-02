@@ -25,8 +25,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -85,8 +83,6 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     
     public static final int DEFAULT_ZOOM_LEVEL = 18;
     
-    private static final String samsungTtsPackage = "com.samsung.SMT";
-    
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 
     private MapView mapView;
@@ -128,8 +124,6 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     private FakeLocationService fakeLocationService;
     
     private AtomicBoolean arrived = new AtomicBoolean(false);
-    
-    private static final int ttsCheckCode = 1;
     
     private TextToSpeech mTts;
     
@@ -230,13 +224,9 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         
         drawRoute(mapView, route, 0);
         
-        if(isSamsungPhoneWithTTS()){
-            enforceSamsungTTS();
-        }else{
-            Intent checkTtsIntent = new Intent();
-            checkTtsIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
-            startActivityForResult(checkTtsIntent, ttsCheckCode);
-        }
+        try{
+            mTts = new TextToSpeech(this, this);
+        }catch(Throwable t){}
         
         lastLocChanged = SystemClock.elapsedRealtime();
         
@@ -858,22 +848,6 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             }
         }
     }
-    
-    protected void onActivityResult(
-            int requestCode, int resultCode, Intent data) {
-        if (requestCode == ttsCheckCode) {
-            if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
-                // success, create the TTS instance
-                mTts = new TextToSpeech(this, this);
-            } else {
-                // missing data, install it
-                Intent installIntent = new Intent();
-                installIntent.setAction(
-                    TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
-                startActivity(installIntent);
-            }
-        }
-    }
 
     @Override
     public void onInit(int status) {
@@ -906,33 +880,6 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         if(mTts != null){
             mTts.shutdown();
         }
-    }
-    
-    private void enforceSamsungTTS(){
-        mTts = new TextToSpeech(this, new OnInitListener() {
-            @Override
-            public void onInit(int status) {}
-        });
-        mTts.setEngineByPackageName(samsungTtsPackage);
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                onInit(0);
-            }
-        }, 1000);
-    }
-    
-    private boolean isSamsungPhoneWithTTS() {
-        boolean retour = false;
-        try {
-            @SuppressWarnings("unused")
-            ApplicationInfo info = getPackageManager()
-                    .getApplicationInfo(samsungTtsPackage, 0);
-            retour = true;
-        } catch (PackageManager.NameNotFoundException e) {
-            retour = false;
-        }
-        return retour;
     }
     
 }
