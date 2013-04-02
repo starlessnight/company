@@ -31,7 +31,11 @@ public final class SetReminderDialog extends Dialog {
     
     private static final String timePM = "pm";
     
+    private static final int minHour = 1;
+    
     private static final int maxHour = 12;
+    
+    private static final int minMinute = 0;
     
     private static final int maxMinute = 59;
     
@@ -95,7 +99,7 @@ public final class SetReminderDialog extends Dialog {
         });
         
         final EditText timeHourView = (EditText) dialogView.findViewById(R.id.time_hour);
-        setNumberRange(timeHourView, 1, maxHour);
+        setNumberRange(timeHourView, minHour, maxHour);
         timeHourView.setText(String.valueOf(hour > maxHour?(hour - maxHour):hour));
         
         dialogView.findViewById(R.id.time_hour_up)
@@ -103,7 +107,7 @@ public final class SetReminderDialog extends Dialog {
                 @Override
                 public void onClick(View v) {
                     int newVal = Integer.parseInt(timeHourView.getText().toString()) + 1;
-                    timeHourView.setText(String.valueOf(newVal > maxHour?1:newVal));
+                    timeHourView.setText(String.valueOf(newVal > maxHour?minHour:newVal));
                 }
             });
         
@@ -112,12 +116,12 @@ public final class SetReminderDialog extends Dialog {
                 @Override
                 public void onClick(View v) {
                     int newVal = Integer.parseInt(timeHourView.getText().toString()) - 1;
-                    timeHourView.setText(String.valueOf(newVal == 0?maxHour:newVal));
+                    timeHourView.setText(String.valueOf(newVal < minHour?maxHour:newVal));
                 }
             });
         
         final EditText timeMinuteView = (EditText) dialogView.findViewById(R.id.time_minute);
-        setNumberRange(timeMinuteView, 0, maxMinute);
+        setNumberRange(timeMinuteView, minMinute, maxMinute);
         timeMinuteView.setText(String.valueOf(minute));
         
         dialogView.findViewById(R.id.time_minute_up)
@@ -125,7 +129,7 @@ public final class SetReminderDialog extends Dialog {
                 @Override
                 public void onClick(View v) {
                     int newVal = Integer.parseInt(timeMinuteView.getText().toString()) + 1;
-                    timeMinuteView.setText(String.valueOf(newVal > maxMinute?1:newVal));
+                    timeMinuteView.setText(String.valueOf(newVal > maxMinute?minMinute:newVal));
                 }
             });
     
@@ -134,7 +138,7 @@ public final class SetReminderDialog extends Dialog {
                 @Override
                 public void onClick(View v) {
                     int newVal = Integer.parseInt(timeMinuteView.getText().toString()) - 1;
-                    timeMinuteView.setText(String.valueOf(newVal == 0?maxMinute:newVal));
+                    timeMinuteView.setText(String.valueOf(newVal < minMinute?maxMinute:newVal));
                 }
             });
         
