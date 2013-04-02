@@ -16,7 +16,7 @@
     <string name="password">password</string>
     <string name="password_confirmation">password confirm</string>
     <string name="login">log in</string>
-    <string name="create_account_link_text">Dont\'t have an account? &lt;u>Create one now&lt;/u></string>
+    <string name="create_account_link_text">Don\'t have an account? &lt;u>Create one now&lt;/u></string>
     <string name="signup">sign up</string>
     <string name="sign_in">sign in</string>
     <string name="get_started">get started!</string>
