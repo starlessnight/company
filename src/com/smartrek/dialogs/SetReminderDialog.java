@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -67,7 +68,10 @@ public final class SetReminderDialog extends Dialog {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		
+	    AssetManager assets = getContext().getAssets();
+	    final Typeface boldFont = Font.getBold(assets);
+	    final Typeface lightFont = Font.getLight(assets);
+	    
 		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		dialogView = (ViewGroup) inflater.inflate(R.layout.trip_save_date, null);
 		
@@ -139,7 +143,13 @@ public final class SetReminderDialog extends Dialog {
         for(int i=0; i<weekdayChkGrp.getChildCount(); i++){
             CheckedTextView wCheckbox = (CheckedTextView)weekdayChkGrp.getChildAt(i);
             byte wVal = weekdayVals[i];
-            wCheckbox.setChecked((recurringTime.getWeekdays() & wVal) > 0);
+            boolean checked = (recurringTime.getWeekdays() & wVal) > 0;
+            wCheckbox.setChecked(checked);
+            if(checked){
+                Font.setTypeface(boldFont, wCheckbox);
+            }else{
+                Font.setTypeface(lightFont, wCheckbox);
+            }
             wCheckbox.setTag(wVal);
             wCheckbox.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -150,8 +160,10 @@ public final class SetReminderDialog extends Dialog {
                     byte val = (Byte) chkbox.getTag();
                     if(chkbox.isChecked()){
                         weekdays |= val; 
+                        Font.setTypeface(boldFont, chkbox);
                     }else{
                         weekdays &= ~val;
+                        Font.setTypeface(lightFont, chkbox);
                     }
                     recurringTime.setWeekdays(weekdays);
                 }
@@ -192,11 +204,8 @@ public final class SetReminderDialog extends Dialog {
 		View closeIcon = dialogView.findViewById(R.id.close_icon);
         closeIcon.setOnClickListener(onClickNegative);
         
-        AssetManager assets = getContext().getAssets();
-        Font.setTypeface(Font.getBold(assets), titleView, setButton, backButton,
+        Font.setTypeface(boldFont, titleView, setButton, backButton,
             timeHourView, timeAmPmView, timeMinuteView);
-        
-        Font.setTypeface(Font.getLight(assets), weekdayCheckboxes.toArray(new CheckedTextView[0]));
 		
 		// This has to be called after all overriding code, otherwise it won't
 		// look like a dialog.
