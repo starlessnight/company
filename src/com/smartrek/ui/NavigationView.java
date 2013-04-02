@@ -76,6 +76,15 @@ public final class NavigationView extends LinearLayout {
 	    }
 	}
 	
+	public static String getDirection(RouteNode node, String distance){
+        String roadName = node.getRoadName();
+        String dir = WordUtils.capitalize(node.getMessage()) 
+            + (StringUtils.isEmpty(distance)?"":(" in " + distance)) 
+            + (StringUtils.isBlank(roadName) || StringUtils.equalsIgnoreCase(roadName, "null")
+                ?"":(" on " + roadName));
+        return dir;
+    }
+	
 	public static String getDirection(RouteNode node, double distance){
         String distancePresentation = StringUtil.formatImperialDistance(distance);
         String roadName = node.getRoadName();
@@ -86,47 +95,64 @@ public final class NavigationView extends LinearLayout {
         return dir;
 	}
 	
+	private static double metersToFeet(double meters){
+	    return meters * 3.28084;
+	}
+	
+	private static double metersToMiles(double meters){
+        return meters * 0.000621371;
+    }
+	
 	public void update(final Route route, final Location location, final RouteNode node) {
 		
         final double latitude = location.getLatitude();
         final double longitude = location.getLongitude();
 		
 		double distance = route.getDistanceToNextTurn(latitude, longitude);
-        double distanceInMile = distance * 0.000621371;
-        double distanceInFoot = distance * 3.28084;
+        double distanceInMile = metersToMiles(distance);
+        double distanceInFoot = metersToFeet(distance);
         
         ValidationParameters params = ValidationParameters.getInstance();
         RouteLink nearestLink = route.getNearestLink(latitude, longitude);
         if (nearestLink.distanceTo(latitude, longitude) <= params.getInRouteDistanceThreshold()) {
             setStatus(Status.InRoute);
             
-            String dirText = getDirection(node, distance);
-            textViewNavigation.setText(dirText);
+            textViewNavigation.setText(getDirection(node, distance));
             
             // FIXME: Temporary
             if (node.hasMetadata()) {
+                double linkDistance = 0;
+                RouteNode end = nearestLink.getEndNode();
+                while((end = end.getPrevNode()) != null){
+                    linkDistance += end.getDistance();
+                    if (end.getFlag() != 0) {
+                        break;
+                    }
+                }
+                
+                double linkDistanceInMile = metersToMiles(linkDistance);
                 RouteNode.Metadata metadata = node.getMetadata();
             
-                boolean checkpoint = false;
+                String checkpointDistance = null;
                 
                 if (!metadata.pingFlags[0] && distanceInFoot <= 500) {
                     metadata.pingFlags[0] = true;
                     metadata.pingFlags[1] = true;
                     metadata.pingFlags[2] = true;
-                    checkpoint = true;
+                    checkpointDistance = "500 feet";
                 }
-                else if (!metadata.pingFlags[1] && distanceInMile <= 1.0) {
+                else if (!metadata.pingFlags[1] && linkDistanceInMile >= 1.0 && distanceInMile <= 1.0) {
                     metadata.pingFlags[1] = true;
                     metadata.pingFlags[2] = true;
-                    checkpoint = true;
+                    checkpointDistance = "1 mile";
                 }
-                else if (!metadata.pingFlags[2] && distanceInMile <= 2.0) {
+                else if (!metadata.pingFlags[2] && linkDistanceInMile >= 2.0 && distanceInMile <= 2.0) {
                     metadata.pingFlags[2] = true;
-                    checkpoint = true;
+                    checkpointDistance = "2 miles";
                 }
                 
-                if(listener != null && checkpoint){
-                    listener.onCheckPoint(dirText);
+                if(listener != null && checkpointDistance != null){
+                    listener.onCheckPoint(getDirection(node, checkpointDistance));
                 }
             }
         }
