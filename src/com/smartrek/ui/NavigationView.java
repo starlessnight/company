@@ -34,6 +34,8 @@ public final class NavigationView extends LinearLayout {
 	private TextView textViewGenericMessage;
 	
 	private CheckPointListener listener;
+	
+	private boolean firstNodeValidated;
 
 	public NavigationView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -158,7 +160,7 @@ public final class NavigationView extends LinearLayout {
         }
         else {
             setStatus(Status.OutOfRoute);
-            textViewGenericMessage.setText("Out of route. Please go back to route.");
+            textViewGenericMessage.setText(firstNodeValidated?"Out of route. Please go back to route.":"Please start from the highlighted route.");
         }
         
 
@@ -181,6 +183,14 @@ public final class NavigationView extends LinearLayout {
     public void setTypeface(Typeface font){
         Font.setTypeface(font, textViewGenericMessage, textViewNavigation,
             textViewWaiting);
+    }
+
+    public boolean isFirstNodeValidated() {
+        return firstNodeValidated;
+    }
+
+    public void setFirstNodeValidated(boolean firstNodeValidated) {
+        this.firstNodeValidated = firstNodeValidated;
     }
 
 }

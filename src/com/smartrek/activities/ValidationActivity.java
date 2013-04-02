@@ -612,6 +612,15 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         }
         Log.d("ValidationActivity", String.format("%d/%d", numberOfValidatedNodes, route.getNodes().size()));
         
+        if(numberOfValidatedNodes == 1){
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    navigationView.setFirstNodeValidated(true);
+                }
+            });
+        }
+        
         if (nearestNode.getFlag() != 0) {
             showNavigationInformation(location, nearestNode);
         }
