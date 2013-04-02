@@ -142,10 +142,14 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     
     private long lastLocChanged;
     
+    private Handler animator;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_reservation_map);
+        
+        animator = new Handler(Looper.getMainLooper());
         
         Bundle extras = getIntent().getExtras();
         reservation = extras.getParcelable("reservation");
@@ -563,6 +567,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             pointOverlay.setLocation((float) lat, (float)lng);
             mapView.postInvalidate();
         }else{
+            animator.removeCallbacksAndMessages(null);
             final double oldLat = oldLoc.getLatitude();
             double y = lat - oldLat;
             final double oldLng = oldLoc.getLongitude();
@@ -571,7 +576,6 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             double timeInterval = 1000 / 30;
             long numOfSteps = Math.round((now - lastLocChanged) / timeInterval);
             final double stepSize = x / numOfSteps;
-            Handler animator = new Handler(Looper.getMainLooper());
             long startTime = SystemClock.uptimeMillis();
             for(int i=1; i<=numOfSteps; i++){
                 final int seq = i;
