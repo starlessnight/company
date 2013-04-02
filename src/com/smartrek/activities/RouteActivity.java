@@ -13,10 +13,14 @@ import org.osmdroid.views.overlay.OverlayItem;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
@@ -66,6 +70,8 @@ public final class RouteActivity extends ActionBarActivity {
 	
 	public static final String ORIGIN_COORD = "originCoord";
     public static final String DEST_COORD = "destCoord";
+    
+    public static final String CURRENT_LOCATION = "CURRENT_LOCATION";
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
@@ -296,6 +302,39 @@ public final class RouteActivity extends ActionBarActivity {
         if(pOriginCoord != null){
             destCoord = new GeoPoint(pDestCoord);
         }
+        
+        if(extras.getBoolean(CURRENT_LOCATION)){
+            final LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            final LocationListener locationListener = new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    dialog.dismiss();
+                    locationManager.removeUpdates(this);
+                    originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
+                    doRouteTask();
+                }
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {}
+                @Override
+                public void onProviderEnabled(String provider) {}
+                @Override
+                public void onProviderDisabled(String provider) {}
+            };
+            final CancelableProgressDialog dialog = new CancelableProgressDialog(RouteActivity.this, "Geocoding origin address...");
+            dialog.setActionListener(new CancelableProgressDialog.ActionListener() {
+                @Override
+                public void onClickNegativeButton() {
+                    locationManager.removeUpdates(locationListener);
+                }
+            });
+            dialog.show();
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, locationListener);
+        }else{
+            doRouteTask();
+        }
+    }
+    
+    private void doRouteTask(){
         if(originCoord == null || originCoord.isEmpty()){
             new GeocodingTask(ehs, originGeocodingTaskCallback).execute(originAddr);
         }else if(destCoord == null || destCoord.isEmpty()){

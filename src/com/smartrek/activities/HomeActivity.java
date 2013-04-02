@@ -223,14 +223,7 @@ public final class HomeActivity extends ActionBarActivity {
 	    buttonOriginMyLocation.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		        
-		        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-		            SystemService.alertNoGPS(HomeActivity.this);
-		        }
-		        else {
-		        	editAddressOrigin.setAddressAsCurrentLocation();
-		        }
+	        	editAddressOrigin.setAddressAsCurrentLocation();
 			}
 	    });
 
@@ -556,20 +549,34 @@ public final class HomeActivity extends ActionBarActivity {
 	 * @author Tim
 	 */
 	private void startMapActivity() {
-		Intent intent = new Intent(this, RouteActivity.class);
-		
-		Bundle extras = new Bundle();
-		extras.putString("originAddr", editAddressOrigin.getText().toString());
-		Address originAddr = getOriginAddress();
-		extras.putParcelable(RouteActivity.ORIGIN_COORD, 
-	        new GeoPoint(originAddr.getLatitude(), originAddr.getLongitude()));
-		extras.putString("destAddr", editAddressDest.getText().toString());
-		Address destAddr = getDestinationAddress();
-        extras.putParcelable(RouteActivity.DEST_COORD, 
-            new GeoPoint(destAddr.getLatitude(), destAddr.getLongitude()));
-		extras.putBoolean("debugMode", debugMode);
-		intent.putExtras(extras);
-		startActivity(intent);
+	    boolean proceed;
+	    Intent intent = new Intent(this, RouteActivity.class);
+	    if(editAddressOrigin.isCurrentLocationInUse()){
+	        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+	        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+	            SystemService.alertNoGPS(this);
+	            proceed = false;
+	        }else{
+	            intent.putExtra(RouteActivity.CURRENT_LOCATION, true);
+	            proceed = true;
+	        }
+	    }else{
+	        proceed = true;
+	    }
+	    if(proceed){
+    	    Bundle extras = new Bundle();
+            extras.putString("originAddr", editAddressOrigin.getText().toString());
+            Address originAddr = getOriginAddress();
+            extras.putParcelable(RouteActivity.ORIGIN_COORD, 
+                new GeoPoint(originAddr.getLatitude(), originAddr.getLongitude()));
+            extras.putString("destAddr", editAddressDest.getText().toString());
+            Address destAddr = getDestinationAddress();
+            extras.putParcelable(RouteActivity.DEST_COORD, 
+                new GeoPoint(destAddr.getLatitude(), destAddr.getLongitude()));
+            extras.putBoolean("debugMode", debugMode);
+            intent.putExtras(extras);
+            startActivity(intent);
+	    }
 	}
 	
 	private void setOriginAddress(String address) {
