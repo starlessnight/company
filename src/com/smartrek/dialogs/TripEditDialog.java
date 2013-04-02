@@ -103,6 +103,9 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 
 		if(trip != null){
 		    tmpTime = trip.getRecurringTime();
+		    if(tmpTime.getHour() == 0){
+		        tmpTime.setHour(24);
+		    }
 		}
 		
 		// FIXME: I think Trip should have a userID field.

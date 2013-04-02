@@ -15,7 +15,6 @@ import android.text.format.Time;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
@@ -33,7 +32,7 @@ public final class SetReminderDialog extends Dialog {
     
     private static final int maxHour = 12;
     
-    private static final int maxMinute = 60;
+    private static final int maxMinute = 59;
     
     private static final byte[] weekdayVals = {RecurringTime.SUN, RecurringTime.MON,
         RecurringTime.TUE, RecurringTime.WED, RecurringTime.THU, RecurringTime.FRI,
@@ -81,7 +80,7 @@ public final class SetReminderDialog extends Dialog {
         int minute = recurringTime.getMinute();
         
         final TextView timeAmPmView = (TextView) dialogView.findViewById(R.id.time_am_pm);
-        timeAmPmView.setText(hour < maxHour?timeAM:timePM);
+        timeAmPmView.setText(hour <= maxHour?timeAM:timePM);
         
         timeAmPmView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,7 +91,7 @@ public final class SetReminderDialog extends Dialog {
         });
         
         final EditText timeHourView = (EditText) dialogView.findViewById(R.id.time_hour);
-        setMaxNumber(timeHourView, maxHour);
+        setNumberRange(timeHourView, 1, maxHour);
         timeHourView.setText(String.valueOf(hour > maxHour?(hour - maxHour):hour));
         
         dialogView.findViewById(R.id.time_hour_up)
@@ -114,7 +113,7 @@ public final class SetReminderDialog extends Dialog {
             });
         
         final EditText timeMinuteView = (EditText) dialogView.findViewById(R.id.time_minute);
-        setMaxNumber(timeMinuteView, maxMinute);
+        setNumberRange(timeMinuteView, 0, maxMinute);
         timeMinuteView.setText(String.valueOf(minute));
         
         dialogView.findViewById(R.id.time_minute_up)
@@ -212,7 +211,7 @@ public final class SetReminderDialog extends Dialog {
 		this.listener = listener;
 	}
 	
-	private static EditText setMaxNumber(final EditText v, final int max){
+	private static EditText setNumberRange(final EditText v, final int min, final int max){
 	    v.addTextChangedListener(new TextWatcher() {
             
             boolean filtering;
@@ -221,14 +220,14 @@ public final class SetReminderDialog extends Dialog {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if(!filtering){
                     String newText = s.toString().trim();
-                    int val = StringUtils.isBlank(newText)?0:Integer.parseInt(newText);
+                    int val = StringUtils.isBlank(newText)?min:Integer.parseInt(newText);
                     while(val > max){
                         newText = newText.substring(1);
                         val = Integer.parseInt(newText);
                         newText = String.valueOf(val);
                     }
-                    if(val == 0){
-                        newText = "1";
+                    if(val <= min){
+                        newText = String.valueOf(min);
                     }
                     filtering = true;
                     newText = StringUtils.leftPad(newText, 2, "0");
