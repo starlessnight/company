@@ -111,6 +111,9 @@
 		<item name="android:background">@drawable/save_button</item>
 	</style>
 	<style name="AlarmGreenButton" parent="LargeTextButton">
+	    <item name="android:textSize">@dimen/smaller_font</item>
+	    <item name="android:paddingTop">17dp</item>
+		<item name="android:paddingBottom">17dp</item>
 		<item name="android:background">@drawable/alarm_green_button</item>
 	</style>
 	<style name="AlarmBlueButton" parent="LargeTextButton">
@@ -120,6 +123,9 @@
 		<item name="android:background">@drawable/yes_button</item>
 	</style>
 	<style name="PrevActionButton" parent="LargeTextButton">
+	    <item name="android:textSize">@dimen/smaller_font</item>
+	    <item name="android:paddingTop">17dp</item>
+		<item name="android:paddingBottom">17dp</item>
 		<item name="android:background">@drawable/prev_action_button</item>
 	</style>
 	<style name="SmallerTextButton">

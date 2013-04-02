@@ -12,8 +12,8 @@
     <dimen name="button_icon_padding">5dp</dimen>
     <dimen name="tutorial_indicator_size">12dp</dimen>
     <dimen name="tutorial_indicator_spacing">10dp</dimen>
-    <dimen name="weekday_checkbox_spacing">8dp</dimen>
-    <dimen name="weekday_checkbox_width">39dp</dimen>
+    <dimen name="weekday_checkbox_spacing">6dp</dimen>
+    <dimen name="weekday_checkbox_width">32dp</dimen>
     <dimen name="weekday_checkbox_height">60dp</dimen>
     <dimen name="time_button_height">40dp</dimen>
     <dimen name="time_textfield_height">60dp</dimen>
