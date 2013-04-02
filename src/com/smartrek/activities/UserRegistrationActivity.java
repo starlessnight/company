@@ -155,7 +155,7 @@ public final class UserRegistrationActivity extends ActionBarActivity
 			try {
 				request.execute(user);
 			}
-			catch (IOException e) {
+			catch (Exception e) {
 				ehs.registerException(e);
 			}
 			
