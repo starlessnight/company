@@ -75,6 +75,25 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
         //setColumnState(0, TimeButton.State.Selected);
     }
     
+    public void refresh(){
+        removeAllViews();
+        
+        AdjustableTime adjustableTime = new AdjustableTime();
+        adjustableTime.setToNow();
+        
+        columnCount = adjustableTime.getNumTimeBoxes();
+        
+        Typeface boldFont = Font.getBold(getResources().getAssets());        
+        
+        for (int i = 0; i < columnCount; i++) {
+             TimeColumn timeColumn = new TimeColumn(this, i, boldFont, boldFont);
+             timeColumn.setDepartureTime(adjustableTime.initTime().toMillis(false));
+             timeColumn.setOnClickListener(this);
+             adjustableTime.incrementBy(15);
+             addView(timeColumn, i);
+        }
+    }
+    
     public DisplayMode getDisplayMode() {
     	return displayMode;
     }

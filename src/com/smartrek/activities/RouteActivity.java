@@ -445,23 +445,31 @@ public final class RouteActivity extends ActionBarActivity {
      * @throws RouteNotFoundException 
      */
     private void updateRoute(GeoPoint origin, GeoPoint destination, long departureTime, int column) {
-    	RouteFetchRequest request = new RouteFetchRequest(origin, destination, departureTime);
-    	if (request.isCached()) {
-	    	try {
-				List<Route> routes = request.execute();
-				updateMap(routes);
-				timeLayout.setColumnState(column, TimeButton.State.Selected);
-			}
-			catch (RouteNotFoundException e) {
-				e.printStackTrace();
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-			catch (JSONException e) {
-				e.printStackTrace();
-			}
-    	}
+        RouteFetchRequest request = new RouteFetchRequest(origin, destination, departureTime);
+        if (request.isCached()) {
+            try {
+                List<Route> routes = request.execute();
+                updateMap(routes);
+                timeLayout.setColumnState(column, TimeButton.State.Selected);
+            }
+            catch (RouteNotFoundException e) {
+                e.printStackTrace();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }else{
+            for (RouteTask task : routeTasks) {
+                task.cancel(true);
+            }
+            timeLayout.refresh();
+            RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
+            routeTasks.add(routeTask);
+            routeTask.execute();
+        }
     }
 
     private List<Overlay> mapOverlays;
