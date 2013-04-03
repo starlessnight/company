@@ -63,6 +63,7 @@ import com.smartrek.models.User;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.ui.NavigationView;
 import com.smartrek.ui.NavigationView.CheckPointListener;
+import com.smartrek.ui.NavigationView.Status;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RouteDebugOverlay;
@@ -137,6 +138,8 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     private AtomicInteger utteredCnt = new AtomicInteger();
     
     private AtomicBoolean reported = new AtomicBoolean(false);
+    
+    private AtomicBoolean inRouteOnce = new AtomicBoolean(false);
     
     private boolean isDebugging;
     
@@ -242,28 +245,30 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     	
     	EasyTracker.getInstance().activityStart(this);
         
-    	if (reservation.hasExpired()) {
-        	NotificationDialog dialog = new NotificationDialog(this, getResources().getString(R.string.trip_has_expired));
-        	dialog.setActionListener(new NotificationDialog.ActionListener() {
-				
-				@Override
-				public void onClickDismiss() {
-					finish();
-				}
-			});
-        	dialog.show();
-        }
-        else if (reservation.isTooEarlyToStart()) {
-        	NotificationDialog dialog = new NotificationDialog(this, getResources().getString(R.string.trip_too_early_to_start));
-        	dialog.setActionListener(new NotificationDialog.ActionListener() {
-				
-				@Override
-				public void onClickDismiss() {
-					finish();
-				}
-			});
-        	dialog.show();
-        }
+    	if(!inRouteOnce.get()){
+        	if (reservation.hasExpired()) {
+            	NotificationDialog dialog = new NotificationDialog(this, getResources().getString(R.string.trip_has_expired));
+            	dialog.setActionListener(new NotificationDialog.ActionListener() {
+    				
+    				@Override
+    				public void onClickDismiss() {
+    					finish();
+    				}
+    			});
+            	dialog.show();
+            }
+            else if (reservation.isTooEarlyToStart()) {
+            	NotificationDialog dialog = new NotificationDialog(this, getResources().getString(R.string.trip_too_early_to_start));
+            	dialog.setActionListener(new NotificationDialog.ActionListener() {
+    				
+    				@Override
+    				public void onClickDismiss() {
+    					finish();
+    				}
+    			});
+            	dialog.show();
+            }
+    	}
     }
 	
 	@Override
@@ -520,7 +525,11 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         Log.d("ValidationActivity", "showNavigationInformation()");
         runOnUiThread(new Runnable() {
             public void run() {
-            	navigationView.update(route, location, node);
+            	Status status = navigationView.update(route, location, node);
+            	if(!inRouteOnce.get() && status == Status.InRoute){
+            	    inRouteOnce.set(true);
+            	    navigationView.setEverInRoute(true);
+            	}
             	updateDirectionsList(node, location);
             }
         });
@@ -615,15 +624,6 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         	}
         }
         Log.d("ValidationActivity", String.format("%d/%d", numberOfValidatedNodes, route.getNodes().size()));
-        
-        if(numberOfValidatedNodes == 1){
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    navigationView.setFirstNodeValidated(true);
-                }
-            });
-        }
         
         if (nearestNode.getFlag() != 0) {
             showNavigationInformation(location, nearestNode);

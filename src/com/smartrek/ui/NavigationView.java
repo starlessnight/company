@@ -35,7 +35,7 @@ public final class NavigationView extends LinearLayout {
 	
 	private CheckPointListener listener;
 	
-	private boolean firstNodeValidated;
+	private boolean everInRoute;
 
 	public NavigationView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -105,8 +105,9 @@ public final class NavigationView extends LinearLayout {
         return meters * 0.000621371;
     }
 	
-	public void update(final Route route, final Location location, final RouteNode node) {
-		
+	public Status update(final Route route, final Location location, final RouteNode node) {
+	    Status rtnStatus;
+	    
         final double latitude = location.getLatitude();
         final double longitude = location.getLongitude();
 		
@@ -117,7 +118,7 @@ public final class NavigationView extends LinearLayout {
         ValidationParameters params = ValidationParameters.getInstance();
         RouteLink nearestLink = route.getNearestLink(latitude, longitude);
         if (nearestLink.distanceTo(latitude, longitude) <= params.getInRouteDistanceThreshold()) {
-            setStatus(Status.InRoute);
+            setStatus(rtnStatus = Status.InRoute);
             
             textViewNavigation.setText(getDirection(node, distance));
             
@@ -159,11 +160,11 @@ public final class NavigationView extends LinearLayout {
             }
         }
         else {
-            setStatus(Status.OutOfRoute);
-            textViewGenericMessage.setText(firstNodeValidated?"Out of route. Please go back to route.":"Please start from the highlighted route.");
+            setStatus(rtnStatus = Status.OutOfRoute);
+            textViewGenericMessage.setText(everInRoute?"Out of route. Please go back to route.":"Please start from the highlighted route.");
         }
         
-
+        return rtnStatus;
 	}
 	
 	public static interface CheckPointListener {
@@ -185,12 +186,12 @@ public final class NavigationView extends LinearLayout {
             textViewWaiting);
     }
 
-    public boolean isFirstNodeValidated() {
-        return firstNodeValidated;
+    public boolean isEverInRoute() {
+        return everInRoute;
     }
 
-    public void setFirstNodeValidated(boolean firstNodeValidated) {
-        this.firstNodeValidated = firstNodeValidated;
+    public void setEverInRoute(boolean everInRoute) {
+        this.everInRoute = everInRoute;
     }
 
 }
