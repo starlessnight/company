@@ -367,8 +367,8 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
                     	double latitude = lastKnownLocation.getLatitude();
                     	double longitude = lastKnownLocation.getLongitude();
                     	MapController mc = mapView.getController();
-                    	mc.animateTo(latitude, longitude);
                     	mc.setZoom(DEFAULT_ZOOM_LEVEL);
+                    	mc.animateTo(latitude, longitude);
                     }
                 }
                 else {
