@@ -304,11 +304,12 @@ public final class RouteActivity extends ActionBarActivity {
         }
         
         if(extras.getBoolean(CURRENT_LOCATION)){
+            final CancelableProgressDialog currentLocDialog = new CancelableProgressDialog(RouteActivity.this, "Getting current location...");
             final LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             final LocationListener locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    dialog.dismiss();
+                    currentLocDialog.dismiss();
                     locationManager.removeUpdates(this);
                     originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
                     doRouteTask();
@@ -320,14 +321,13 @@ public final class RouteActivity extends ActionBarActivity {
                 @Override
                 public void onProviderDisabled(String provider) {}
             };
-            final CancelableProgressDialog dialog = new CancelableProgressDialog(RouteActivity.this, "Geocoding origin address...");
-            dialog.setActionListener(new CancelableProgressDialog.ActionListener() {
+            currentLocDialog.setActionListener(new CancelableProgressDialog.ActionListener() {
                 @Override
                 public void onClickNegativeButton() {
                     locationManager.removeUpdates(locationListener);
                 }
             });
-            dialog.show();
+            currentLocDialog.show();
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, locationListener);
         }else{
             doRouteTask();
