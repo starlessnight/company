@@ -237,6 +237,29 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         lastLocChanged = SystemClock.elapsedRealtime();
         
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        
+        if (reservation.hasExpired()) {
+            NotificationDialog dialog = new NotificationDialog(this, getResources().getString(R.string.trip_has_expired));
+            dialog.setActionListener(new NotificationDialog.ActionListener() {
+                
+                @Override
+                public void onClickDismiss() {
+                    finish();
+                }
+            });
+            dialog.show();
+        }
+        else if (reservation.isTooEarlyToStart()) {
+            NotificationDialog dialog = new NotificationDialog(this, getResources().getString(R.string.trip_too_early_to_start));
+            dialog.setActionListener(new NotificationDialog.ActionListener() {
+                
+                @Override
+                public void onClickDismiss() {
+                    finish();
+                }
+            });
+            dialog.show();
+        }
     }
     
     @Override
@@ -244,31 +267,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     	super.onStart();
     	
     	EasyTracker.getInstance().activityStart(this);
-        
-    	if(!inRouteOnce.get()){
-        	if (reservation.hasExpired()) {
-            	NotificationDialog dialog = new NotificationDialog(this, getResources().getString(R.string.trip_has_expired));
-            	dialog.setActionListener(new NotificationDialog.ActionListener() {
-    				
-    				@Override
-    				public void onClickDismiss() {
-    					finish();
-    				}
-    			});
-            	dialog.show();
-            }
-            else if (reservation.isTooEarlyToStart()) {
-            	NotificationDialog dialog = new NotificationDialog(this, getResources().getString(R.string.trip_too_early_to_start));
-            	dialog.setActionListener(new NotificationDialog.ActionListener() {
-    				
-    				@Override
-    				public void onClickDismiss() {
-    					finish();
-    				}
-    			});
-            	dialog.show();
-            }
-    	}
+    	
     }
 	
 	@Override
