@@ -124,6 +124,16 @@ public final class NavigationView extends LinearLayout {
             
             // FIXME: Temporary
             if (node.hasMetadata()) {
+                double linkDistance = 0;
+                RouteNode end = nearestLink.getEndNode();
+                while((end = end.getPrevNode()) != null){
+                    linkDistance += end.getDistance();
+                    if (end.getFlag() != 0) {
+                        break;
+                    }
+                }
+                
+                double linkDistanceInMile = metersToMiles(linkDistance);
                 RouteNode.Metadata metadata = node.getMetadata();
             
                 String checkpointDistance = null;
@@ -134,12 +144,12 @@ public final class NavigationView extends LinearLayout {
                     metadata.pingFlags[2] = true;
                     checkpointDistance = "500 feet";
                 }
-                else if (!metadata.pingFlags[1] && distanceInMile <= 1.0) {
+                else if (!metadata.pingFlags[1] && linkDistanceInMile >= 1.0 && distanceInMile <= 1.0) {
                     metadata.pingFlags[1] = true;
                     metadata.pingFlags[2] = true;
                     checkpointDistance = "1 mile";
                 }
-                else if (!metadata.pingFlags[2] && distanceInMile <= 2.0) {
+                else if (!metadata.pingFlags[2] && linkDistanceInMile >= 2.0 && distanceInMile <= 2.0) {
                     metadata.pingFlags[2] = true;
                     checkpointDistance = "2 miles";
                 }
