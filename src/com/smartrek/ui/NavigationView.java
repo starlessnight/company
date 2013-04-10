@@ -89,12 +89,7 @@ public final class NavigationView extends LinearLayout {
 	
 	public static String getDirection(RouteNode node, double distance){
         String distancePresentation = StringUtil.formatImperialDistance(distance);
-        String roadName = node.getRoadName();
-        String dir = WordUtils.capitalize(node.getMessage()) 
-            + (StringUtils.isEmpty(distancePresentation)?"":(" in " + distancePresentation)) 
-            + (StringUtils.isBlank(roadName) || StringUtils.equalsIgnoreCase(roadName, "null")
-                ?"":(" on " + roadName));
-        return dir;
+        return getDirection(node, distancePresentation);
 	}
 	
 	private static double metersToFeet(double meters){
@@ -138,11 +133,11 @@ public final class NavigationView extends LinearLayout {
             
                 String checkpointDistance = null;
                 
-                if (!metadata.pingFlags[0] && distanceInFoot <= 500) {
+                if (!metadata.pingFlags[0] && linkDistanceInMile >= 0.094697 && distanceInMile <= 0.094697) {
                     metadata.pingFlags[0] = true;
                     metadata.pingFlags[1] = true;
                     metadata.pingFlags[2] = true;
-                    checkpointDistance = "500 feet";
+                    checkpointDistance = "0.1 miles";
                 }
                 else if (!metadata.pingFlags[1] && linkDistanceInMile >= 1.0 && distanceInMile <= 1.0) {
                     metadata.pingFlags[1] = true;

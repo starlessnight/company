@@ -3,14 +3,7 @@ package com.smartrek.utils;
 public class StringUtil {
 	
 	public static String formatImperialDistance(double meter) {
-		double foot = UnitConversion.meterToFoot(meter);
-		
-		if (foot < 5280) {
-			return String.format("%.0f feet", foot);
-		}
-		else {
-			return String.format("%.1f miles", UnitConversion.meterToMile(meter));
-		}
+		return String.format("%.1f miles", UnitConversion.meterToMile(meter));
 	}
 	
 	public static String formatMetricDistance(double meter) {
