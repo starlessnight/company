@@ -1,10 +1,17 @@
 package com.smartrek.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
 import android.content.Context;
 import android.graphics.Typeface;
 import android.location.Location;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.AbsoluteSizeSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -97,12 +104,59 @@ public final class NavigationView extends LinearLayout {
         return dir;
     }
 	
-	public static String getDirection(RouteNode node, String distance){
-        return getDirection(node, distance, false);
+	public static CharSequence getFormattedDirection(RouteNode node, String distance, int largeFontSize){
+	    String roadName = node.getRoadName();
+        String msg = node.getMessage();
+        String[] distToks = distance.split(" ");
+        String dir1 = StringUtils.substringBeforeLast(msg, " ");
+        String dir2 = StringUtils.substringAfterLast(msg, " ");
+        SpannableStringBuilder dir = new SpannableStringBuilder();
+        if(StringUtils.isNotEmpty(distance)){
+            dir.append("In ")
+                .append(spannable(distToks[0], new AbsoluteSizeSpan(largeFontSize)))
+                .append(" " + distToks[1] + ", ");
+        }
+        dir.append(hightlight(dir1, "left right", largeFontSize))
+            .append(StringUtils.isBlank(dir2)?"":(" " + dir2));
+        if(StringUtils.isNotBlank(roadName) && !StringUtils.equalsIgnoreCase(roadName, "null")){
+            dir.append(" ")
+                .append(spannable(roadName, new AbsoluteSizeSpan(largeFontSize)));
+        }
+        return dir;
     }
 	
-	public static String getDirection(RouteNode node, double distance){
-        return getDirection(node, StringUtil.formatImperialDistance(distance), false);
+	private static Spannable hightlight(String str, String substr, int largeFontSize){
+        SpannableString spannable = SpannableString.valueOf(str);
+        for(String s : substr.split(" ")){
+            int len = s.length();
+            for (int i : indexesOf(str, s)) {
+                spannable.setSpan(new AbsoluteSizeSpan(largeFontSize), i, i + len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+        }
+        return spannable;
+    }
+	
+	private static List<Integer> indexesOf(String str, String substr){
+        List<Integer> indexes = new ArrayList<Integer>();
+        for (int index = str.indexOf(substr); index >= 0; index = str.indexOf(substr, index + 1)){
+            indexes.add(index);
+        }
+        return indexes;
+    }
+	
+	private static Spannable spannable(CharSequence source, Object... span){
+        SpannableString spannable = SpannableString.valueOf(source);
+        int length = source.length();
+        for (Object s : span) {
+            if(s != null){
+                spannable.setSpan(s, 0, length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+        }
+        return spannable;
+    }
+	
+	public static CharSequence getFormattedDirection(RouteNode node, double distance, int largeFontSize){
+        return getFormattedDirection(node, StringUtil.formatImperialDistance(distance), largeFontSize);
     }
 	
 	public static String getContinueDirection(RouteNode node, String distance){
@@ -137,7 +191,8 @@ public final class NavigationView extends LinearLayout {
             
             String formattedDist = StringUtil.formatImperialDistance(distance);
             
-            textViewNavigation.setText(getDirection(node, formattedDist));
+            textViewNavigation.setText(getFormattedDirection(node, formattedDist, 
+                getResources().getDimensionPixelSize(R.dimen.large_font)));
             
             // FIXME: Temporary
             if (node.hasMetadata()) {

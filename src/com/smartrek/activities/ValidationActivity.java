@@ -63,7 +63,6 @@ import com.smartrek.models.User;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.ui.NavigationView;
 import com.smartrek.ui.NavigationView.CheckPointListener;
-import com.smartrek.ui.NavigationView.Status;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RouteDebugOverlay;
@@ -129,7 +128,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     
     private ListView dirListView;
     
-    private ArrayAdapter<String> dirListadapter;
+    private ArrayAdapter<CharSequence> dirListadapter;
     
     private static String utteranceId = "utteranceId";
 
@@ -168,12 +167,15 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         validationTimeoutHandler = new Handler();
         validationTimeoutHandler.postDelayed(validationTimeoutNotifier, (900 + route.getDuration()*3) * 1000);
         
-        dirListadapter = new ArrayAdapter<String>(this, R.layout.direction_list_item, R.id.direction_text){
+        dirListadapter = new ArrayAdapter<CharSequence>(this, R.layout.direction_list_item, R.id.direction_text){
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
                 Font.setTypeface(boldFont, (TextView)view.findViewById( R.id.direction_text));
                 view.setBackgroundResource(position == 0?R.color.light_green:0);
+                TextView textView = (TextView)view.findViewById(R.id.direction_text);
+                textView.setText(getItem(position));
+                textView.requestLayout();
                 return view;
             }
         };
@@ -546,7 +548,8 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
                         distance = route.getDistanceToNextTurn(location.getLatitude(), 
                             location.getLongitude());
                     }
-                    dirListadapter.add(NavigationView.getDirection(nextNode, distance));
+                    dirListadapter.add(NavigationView.getFormattedDirection(nextNode, 
+                        distance, getResources().getDimensionPixelSize(R.dimen.large_font)));
                     distance = 0;
                 }
                 distance += nextNode.getDistance();
