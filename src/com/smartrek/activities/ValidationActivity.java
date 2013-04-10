@@ -139,8 +139,6 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     
     private AtomicBoolean reported = new AtomicBoolean(false);
     
-    private AtomicBoolean inRouteOnce = new AtomicBoolean(false);
-    
     private boolean isDebugging;
     
     private long lastLocChanged;
@@ -524,11 +522,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         Log.d("ValidationActivity", "showNavigationInformation()");
         runOnUiThread(new Runnable() {
             public void run() {
-            	Status status = navigationView.update(route, location, node);
-            	if(!inRouteOnce.get() && status == Status.InRoute){
-            	    inRouteOnce.set(true);
-            	    navigationView.setEverInRoute(true);
-            	}
+            	navigationView.update(route, location, node);
             	updateDirectionsList(node, location);
             }
         });

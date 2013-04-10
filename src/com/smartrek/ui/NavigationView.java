@@ -36,6 +36,8 @@ public final class NavigationView extends LinearLayout {
 	private CheckPointListener listener;
 	
 	private boolean everInRoute;
+	
+	private RouteNode lastEnd;
 
 	public NavigationView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -88,9 +90,17 @@ public final class NavigationView extends LinearLayout {
     }
 	
 	public static String getDirection(RouteNode node, double distance){
-        String distancePresentation = StringUtil.formatImperialDistance(distance);
-        return getDirection(node, distancePresentation);
-	}
+        return getDirection(node, StringUtil.formatImperialDistance(distance));
+    }
+	
+	public static String getContinueDirection(RouteNode node, String distance){
+	    String roadName = node.getRoadName();
+        String dir = "Continue"
+            + (StringUtils.isBlank(roadName) || StringUtils.equalsIgnoreCase(roadName, "null")
+                    ?"":(" on " + roadName))
+            + (StringUtils.isEmpty(distance)?"":(" for " + distance));
+        return dir;
+    }
 	
 	private static double metersToFeet(double meters){
 	    return meters * 3.28084;
@@ -100,9 +110,7 @@ public final class NavigationView extends LinearLayout {
         return meters * 0.000621371;
     }
 	
-	public Status update(final Route route, final Location location, final RouteNode node) {
-	    Status rtnStatus;
-	    
+	public void update(final Route route, final Location location, final RouteNode node) {
         final double latitude = location.getLatitude();
         final double longitude = location.getLongitude();
 		
@@ -113,53 +121,72 @@ public final class NavigationView extends LinearLayout {
         ValidationParameters params = ValidationParameters.getInstance();
         RouteLink nearestLink = route.getNearestLink(latitude, longitude);
         if (nearestLink.distanceTo(latitude, longitude) <= params.getInRouteDistanceThreshold()) {
-            setStatus(rtnStatus = Status.InRoute);
+            setStatus(Status.InRoute);
             
-            textViewNavigation.setText(getDirection(node, distance));
+            String formattedDist = StringUtil.formatImperialDistance(distance);
+            
+            textViewNavigation.setText(getDirection(node, formattedDist));
             
             // FIXME: Temporary
             if (node.hasMetadata()) {
-                double linkDistance = 0;
                 RouteNode end = nearestLink.getEndNode();
-                while((end = end.getPrevNode()) != null){
-                    linkDistance += end.getDistance();
-                    if (end.getFlag() != 0) {
-                        break;
+                while(end.getFlag() == 0 && end.getNextNode() != null){
+                    end = end.getNextNode(); 
+                }
+                 
+                boolean continueDir = false;    
+                if(!everInRoute){
+                    everInRoute = true;
+                    continueDir = true;
+                }else if(end != lastEnd){
+                    continueDir = true;
+                }
+                lastEnd = end;
+                
+                if(continueDir){
+                    if(listener != null){
+                        listener.onCheckPoint(getContinueDirection(node, formattedDist));
                     }
-                }
+                }else{
+                    double linkDistance = 0;
+                    while((end = end.getPrevNode()) != null){
+                        linkDistance += end.getDistance();
+                        if (end.getFlag() != 0) {
+                            break;
+                        }
+                    }
+                    
+                    double linkDistanceInMile = metersToMiles(linkDistance);
+                    RouteNode.Metadata metadata = node.getMetadata();
                 
-                double linkDistanceInMile = metersToMiles(linkDistance);
-                RouteNode.Metadata metadata = node.getMetadata();
-            
-                String checkpointDistance = null;
-                
-                if (!metadata.pingFlags[0] && linkDistanceInMile >= 0.094697 && distanceInMile <= 0.094697) {
-                    metadata.pingFlags[0] = true;
-                    metadata.pingFlags[1] = true;
-                    metadata.pingFlags[2] = true;
-                    checkpointDistance = "0.1 miles";
-                }
-                else if (!metadata.pingFlags[1] && linkDistanceInMile >= 1.0 && distanceInMile <= 1.0) {
-                    metadata.pingFlags[1] = true;
-                    metadata.pingFlags[2] = true;
-                    checkpointDistance = "1 mile";
-                }
-                else if (!metadata.pingFlags[2] && linkDistanceInMile >= 2.0 && distanceInMile <= 2.0) {
-                    metadata.pingFlags[2] = true;
-                    checkpointDistance = "2 miles";
-                }
-                
-                if(listener != null && checkpointDistance != null){
-                    listener.onCheckPoint(getDirection(node, checkpointDistance));
+                    String checkpointDistance = null;
+                    
+                    if (!metadata.pingFlags[0] && linkDistanceInMile >= 0.094697 && distanceInMile <= 0.094697) {
+                        metadata.pingFlags[0] = true;
+                        metadata.pingFlags[1] = true;
+                        metadata.pingFlags[2] = true;
+                        checkpointDistance = "0.1 miles";
+                    }
+                    else if (!metadata.pingFlags[1] && linkDistanceInMile >= 1.0 && distanceInMile <= 1.0) {
+                        metadata.pingFlags[1] = true;
+                        metadata.pingFlags[2] = true;
+                        checkpointDistance = "1 mile";
+                    }
+                    else if (!metadata.pingFlags[2] && linkDistanceInMile >= 2.0 && distanceInMile <= 2.0) {
+                        metadata.pingFlags[2] = true;
+                        checkpointDistance = "2 miles";
+                    }
+                    
+                    if(listener != null && checkpointDistance != null){
+                        listener.onCheckPoint(getDirection(node, checkpointDistance));
+                    }
                 }
             }
         }
         else {
-            setStatus(rtnStatus = Status.OutOfRoute);
+            setStatus(Status.OutOfRoute);
             textViewGenericMessage.setText(everInRoute?"Out of route. Please go back to route.":"Please start from the highlighted route.");
         }
-        
-        return rtnStatus;
 	}
 	
 	public static interface CheckPointListener {
@@ -179,14 +206,6 @@ public final class NavigationView extends LinearLayout {
     public void setTypeface(Typeface font){
         Font.setTypeface(font, textViewGenericMessage, textViewNavigation,
             textViewWaiting);
-    }
-
-    public boolean isEverInRoute() {
-        return everInRoute;
-    }
-
-    public void setEverInRoute(boolean everInRoute) {
-        this.everInRoute = everInRoute;
     }
 
 }
