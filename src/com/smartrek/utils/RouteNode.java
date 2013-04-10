@@ -13,7 +13,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 	 *
 	 */
 	public static class Metadata implements Parcelable {
-		public boolean[] pingFlags = new boolean[3];
+		public boolean[] pingFlags = new boolean[4];
 		
 		private boolean validated;
 		

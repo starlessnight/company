@@ -165,15 +165,22 @@ public final class NavigationView extends LinearLayout {
                         metadata.pingFlags[0] = true;
                         metadata.pingFlags[1] = true;
                         metadata.pingFlags[2] = true;
+                        metadata.pingFlags[3] = true;
                         checkpointDistance = "0.1 miles";
                     }
-                    else if (!metadata.pingFlags[1] && linkDistanceInMile >= 1.0 && distanceInMile <= 1.0) {
+                    else if (!metadata.pingFlags[1] && linkDistanceInMile >= 0.5 && distanceInMile <= 0.5) {
                         metadata.pingFlags[1] = true;
                         metadata.pingFlags[2] = true;
+                        metadata.pingFlags[3] = true;
+                        checkpointDistance = "0.5 miles";
+                    }
+                    else if (!metadata.pingFlags[2] && linkDistanceInMile >= 1.0 && distanceInMile <= 1.0) {
+                        metadata.pingFlags[2] = true;
+                        metadata.pingFlags[3] = true;
                         checkpointDistance = "1 mile";
                     }
-                    else if (!metadata.pingFlags[2] && linkDistanceInMile >= 2.0 && distanceInMile <= 2.0) {
-                        metadata.pingFlags[2] = true;
+                    else if (!metadata.pingFlags[3] && linkDistanceInMile >= 2.0 && distanceInMile <= 2.0) {
+                        metadata.pingFlags[3] = true;
                         checkpointDistance = "2 miles";
                     }
                     
