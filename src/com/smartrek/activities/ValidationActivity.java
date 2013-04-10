@@ -477,14 +477,19 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
 			
 			@Override
 			public void onLongPress(double latitude, double longitude) {
-                Location location = new Location("");
-                location.setLatitude(latitude);
-                location.setLongitude(longitude);
-                location.setTime(System.currentTimeMillis());
-				locationChanged(location);
+			    SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
+		        int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
+		        if(gpsMode == DebugOptionsActivity.GPS_MODE_LONG_PRESS){
+		            Location location = new Location("");
+	                location.setLatitude(latitude);
+	                location.setLongitude(longitude);
+	                location.setTime(System.currentTimeMillis());
+	                locationChanged(location);
+		        }
 			}
 			
 		});
+        
         mapOverlays.add(debugOverlay);
         
         route.setUserId(User.getCurrentUser(this).getId());
