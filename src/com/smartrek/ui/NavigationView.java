@@ -80,17 +80,23 @@ public final class NavigationView extends LinearLayout {
 	    }
 	}
 	
-	public static String getDirection(RouteNode node, String distance){
+	public static String getDirection(RouteNode node, String distance, boolean actionOnly){
         String roadName = node.getRoadName();
-        String dir = WordUtils.capitalize(node.getMessage()) 
-            + (StringUtils.isEmpty(distance)?"":(" in " + distance)) 
+        String dir = WordUtils.capitalize(node.getMessage());
+        if(!actionOnly){
+            dir += (StringUtils.isEmpty(distance)?"":(" in " + distance)) 
             + (StringUtils.isBlank(roadName) || StringUtils.equalsIgnoreCase(roadName, "null")
                 ?"":(" on " + roadName));
+        }
         return dir;
     }
 	
+	public static String getDirection(RouteNode node, String distance){
+        return getDirection(node, distance, false);
+    }
+	
 	public static String getDirection(RouteNode node, double distance){
-        return getDirection(node, StringUtil.formatImperialDistance(distance));
+        return getDirection(node, StringUtil.formatImperialDistance(distance), false);
     }
 	
 	public static String getContinueDirection(RouteNode node, String distance){
@@ -157,35 +163,46 @@ public final class NavigationView extends LinearLayout {
                     }
                     
                     double linkDistanceInMile = metersToMiles(linkDistance);
+                    double linkDistanceInFoot = metersToFeet(linkDistance);
                     RouteNode.Metadata metadata = node.getMetadata();
                 
                     String checkpointDistance = null;
+                    boolean actionOnly = false;
                     
-                    if (!metadata.pingFlags[0] && linkDistanceInMile >= 0.2 && distanceInMile <= 0.2) {
+                    if (!metadata.pingFlags[0] && linkDistanceInFoot >= 100 && distanceInFoot <= 100) {
                         metadata.pingFlags[0] = true;
                         metadata.pingFlags[1] = true;
                         metadata.pingFlags[2] = true;
                         metadata.pingFlags[3] = true;
-                        checkpointDistance = "0.2 miles";
+                        metadata.pingFlags[4] = true;
+                        checkpointDistance = "";
+                        actionOnly = true;
                     }
-                    else if (!metadata.pingFlags[1] && linkDistanceInMile >= 0.5 && distanceInMile <= 0.5) {
+                    else if (!metadata.pingFlags[1] && linkDistanceInMile >= 0.2 && distanceInMile <= 0.2) {
                         metadata.pingFlags[1] = true;
                         metadata.pingFlags[2] = true;
                         metadata.pingFlags[3] = true;
-                        checkpointDistance = "0.5 miles";
+                        metadata.pingFlags[4] = true;
+                        checkpointDistance = "0.2 miles";
                     }
-                    else if (!metadata.pingFlags[2] && linkDistanceInMile >= 1.0 && distanceInMile <= 1.0) {
+                    else if (!metadata.pingFlags[2] && linkDistanceInMile >= 0.5 && distanceInMile <= 0.5) {
                         metadata.pingFlags[2] = true;
                         metadata.pingFlags[3] = true;
+                        metadata.pingFlags[4] = true;
+                        checkpointDistance = "0.5 miles";
+                    }
+                    else if (!metadata.pingFlags[3] && linkDistanceInMile >= 1.0 && distanceInMile <= 1.0) {
+                        metadata.pingFlags[3] = true;
+                        metadata.pingFlags[4] = true;
                         checkpointDistance = "1 mile";
                     }
-                    else if (!metadata.pingFlags[3] && linkDistanceInMile >= 2.0 && distanceInMile <= 2.0) {
-                        metadata.pingFlags[3] = true;
+                    else if (!metadata.pingFlags[4] && linkDistanceInMile >= 2.0 && distanceInMile <= 2.0) {
+                        metadata.pingFlags[4] = true;
                         checkpointDistance = "2 miles";
                     }
                     
                     if(listener != null && checkpointDistance != null){
-                        listener.onCheckPoint(getDirection(node, checkpointDistance));
+                        listener.onCheckPoint(getDirection(node, checkpointDistance, actionOnly));
                     }
                 }
             }
