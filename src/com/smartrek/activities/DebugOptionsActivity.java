@@ -35,6 +35,7 @@ public final class DebugOptionsActivity extends Activity {
     
     public static final int GPS_MODE_REAL = 1;
     public static final int GPS_MODE_PRERECORDED = 2;
+    public static final int GPS_MODE_PRERECORDED_LA = 3;
     public static final int GPS_MODE_LONG_PRESS = 4;
     public static final int GPS_MODE_DEFAULT = GPS_MODE_REAL;
     
@@ -52,6 +53,7 @@ public final class DebugOptionsActivity extends Activity {
     
     private RadioButton radioRealGPS;
     private RadioButton radioPrerecordedGPS;
+    private RadioButton radioPrerecordedGPS_LA;
     private RadioButton radioLongPress;
     
     private Button buttonClearCache;
@@ -66,6 +68,7 @@ public final class DebugOptionsActivity extends Activity {
         
         radioRealGPS = (RadioButton) findViewById(R.id.radio_real_gps);
         radioPrerecordedGPS = (RadioButton) findViewById(R.id.radio_prerecorded_gps);
+        radioPrerecordedGPS_LA = (RadioButton) findViewById(R.id.radio_prerecorded_gps_la);
         radioLongPress = (RadioButton) findViewById(R.id.radio_long_press);
         
         radioRealGPS.setOnClickListener(new OnClickListener() {
@@ -84,6 +87,16 @@ public final class DebugOptionsActivity extends Activity {
             public void onClick(View v) {
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putInt(GPS_MODE, GPS_MODE_PRERECORDED);
+                editor.commit();
+            }
+        });
+        
+        radioPrerecordedGPS_LA.setOnClickListener(new OnClickListener() {
+            
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putInt(GPS_MODE, GPS_MODE_PRERECORDED_LA);
                 editor.commit();
             }
         });
@@ -164,6 +177,14 @@ public final class DebugOptionsActivity extends Activity {
             
         case GPS_MODE_PRERECORDED:
             radioPrerecordedGPS.setChecked(true);
+            break;
+            
+        case GPS_MODE_PRERECORDED_LA:
+            radioPrerecordedGPS_LA.setChecked(true);
+            break;
+            
+        case GPS_MODE_LONG_PRESS:
+            radioLongPress.setChecked(true);
             break;
             
         default:

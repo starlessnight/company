@@ -287,10 +287,10 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL) {
             prepareGPS();
         }
-        else if (gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED) {
+        else if (gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED || gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA) {
             int interval = DebugOptionsActivity.getGpsUpdateInterval(this);
             if(fakeLocationService == null){
-                fakeLocationService = new FakeLocationService(locationListener, interval);
+                fakeLocationService = new FakeLocationService(locationListener, interval, gpsMode);
             }else{
                 fakeLocationService = fakeLocationService.setInterval(interval);
             }
@@ -785,19 +785,23 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         
         private int interval;
         
-        public FakeLocationService(LocationListener listener, int interva) {
-            this(listener, interva, null);
+        private int gpsMode;
+        
+        public FakeLocationService(LocationListener listener, int interva, int gpsMode) {
+            this(listener, interva, null, gpsMode);
         }
         
         @SuppressWarnings("unchecked")
-        public FakeLocationService(LocationListener listener, int interval, Queue<GeoPoint> trajectory) {
+        public FakeLocationService(LocationListener listener, int interval, Queue<GeoPoint> trajectory, int gpsMode) {
             this.listener = listener;
             this.interval = interval;
+            this.gpsMode = gpsMode;
             
             if(trajectory == null){
                 try {
-                    InputStream in = getResources().getAssets().open("trajectory.csv");
-                    this.trajectory = (Queue<GeoPoint>) PrerecordedTrajectory.read(in);
+                    InputStream in = getResources().getAssets().open(
+                        gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED?"trajectory.csv":"trajectory-la.csv");
+                    this.trajectory = (Queue<GeoPoint>) PrerecordedTrajectory.read(in, gpsMode);
                 }
                 catch (IOException e) {
                     e.printStackTrace();
@@ -814,7 +818,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             FakeLocationService rtn;
             if(interval != millisecond){
                 cancel();
-                rtn = new FakeLocationService(listener, millisecond, trajectory);
+                rtn = new FakeLocationService(listener, millisecond, trajectory, gpsMode);
             }else{
                 rtn = this;
             }
