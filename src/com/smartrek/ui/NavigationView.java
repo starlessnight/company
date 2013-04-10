@@ -29,6 +29,10 @@ import com.smartrek.utils.ValidationParameters;
 
 public final class NavigationView extends LinearLayout {
     
+    private static final double checkPointFeetOffset = 250;
+    
+    private static final double checkPointMilesOffset = checkPointFeetOffset * 0.000189394;
+    
     public enum Status {
         WaitingForGPS, OutOfRoute, InRoute
     }
@@ -229,7 +233,7 @@ public final class NavigationView extends LinearLayout {
                     String checkpointDistance = null;
                     boolean actionOnly = false;
                     
-                    if (!metadata.pingFlags[0] && distanceInFoot <= 100) {
+                    if (!metadata.pingFlags[0] && distanceInFoot <= 100 + checkPointFeetOffset) {
                         metadata.pingFlags[0] = true;
                         metadata.pingFlags[1] = true;
                         metadata.pingFlags[2] = true;
@@ -238,25 +242,25 @@ public final class NavigationView extends LinearLayout {
                         checkpointDistance = "";
                         actionOnly = true;
                     }
-                    else if (!metadata.pingFlags[1] && distanceInMile <= 0.2) {
+                    else if (!metadata.pingFlags[1] && distanceInMile <= 0.2 + checkPointMilesOffset) {
                         metadata.pingFlags[1] = true;
                         metadata.pingFlags[2] = true;
                         metadata.pingFlags[3] = true;
                         metadata.pingFlags[4] = true;
                         checkpointDistance = linkDistanceInMile >= 0.2?"0.2 miles":formattedDist;
                     }
-                    else if (!metadata.pingFlags[2] && distanceInMile <= 0.5) {
+                    else if (!metadata.pingFlags[2] && distanceInMile <= 0.5 + checkPointMilesOffset) {
                         metadata.pingFlags[2] = true;
                         metadata.pingFlags[3] = true;
                         metadata.pingFlags[4] = true;
                         checkpointDistance = linkDistanceInMile >= 0.5?"0.5 miles":formattedDist;
                     }
-                    else if (!metadata.pingFlags[3] && distanceInMile <= 1.0) {
+                    else if (!metadata.pingFlags[3] && distanceInMile <= 1.0 + checkPointMilesOffset) {
                         metadata.pingFlags[3] = true;
                         metadata.pingFlags[4] = true;
                         checkpointDistance = linkDistanceInMile >= 1.0?"1 mile":formattedDist;
                     }
-                    else if (!metadata.pingFlags[4] && distanceInMile <= 2.0) {
+                    else if (!metadata.pingFlags[4] && distanceInMile <= 2.0 + checkPointMilesOffset) {
                         metadata.pingFlags[4] = true;
                         checkpointDistance = "2 miles";
                         checkpointDistance = linkDistanceInMile >= 2.0?"2 miles":formattedDist;
