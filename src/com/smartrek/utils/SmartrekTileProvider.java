@@ -13,7 +13,7 @@ final public class SmartrekTileProvider extends XYTileSource {
     
     private static final String osmImgFilenameEnding = ".png"; 
     
-    private static final int debugZoomLimit = 14;
+    private static final int debugZoomLimit = 9;
     
     private boolean debug;
     
