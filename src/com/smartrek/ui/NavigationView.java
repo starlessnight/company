@@ -163,13 +163,12 @@ public final class NavigationView extends LinearLayout {
                     }
                     
                     double linkDistanceInMile = metersToMiles(linkDistance);
-                    double linkDistanceInFoot = metersToFeet(linkDistance);
                     RouteNode.Metadata metadata = node.getMetadata();
                 
                     String checkpointDistance = null;
                     boolean actionOnly = false;
                     
-                    if (!metadata.pingFlags[0] && linkDistanceInFoot >= 100 && distanceInFoot <= 100) {
+                    if (!metadata.pingFlags[0] && distanceInFoot <= 100) {
                         metadata.pingFlags[0] = true;
                         metadata.pingFlags[1] = true;
                         metadata.pingFlags[2] = true;
@@ -178,27 +177,28 @@ public final class NavigationView extends LinearLayout {
                         checkpointDistance = "";
                         actionOnly = true;
                     }
-                    else if (!metadata.pingFlags[1] && linkDistanceInMile >= 0.2 && distanceInMile <= 0.2) {
+                    else if (!metadata.pingFlags[1] && distanceInMile <= 0.2) {
                         metadata.pingFlags[1] = true;
                         metadata.pingFlags[2] = true;
                         metadata.pingFlags[3] = true;
                         metadata.pingFlags[4] = true;
-                        checkpointDistance = "0.2 miles";
+                        checkpointDistance = linkDistanceInMile >= 0.2?"0.2 miles":formattedDist;
                     }
-                    else if (!metadata.pingFlags[2] && linkDistanceInMile >= 0.5 && distanceInMile <= 0.5) {
+                    else if (!metadata.pingFlags[2] && distanceInMile <= 0.5) {
                         metadata.pingFlags[2] = true;
                         metadata.pingFlags[3] = true;
                         metadata.pingFlags[4] = true;
-                        checkpointDistance = "0.5 miles";
+                        checkpointDistance = linkDistanceInMile >= 0.5?"0.5 miles":formattedDist;
                     }
-                    else if (!metadata.pingFlags[3] && linkDistanceInMile >= 1.0 && distanceInMile <= 1.0) {
+                    else if (!metadata.pingFlags[3] && distanceInMile <= 1.0) {
                         metadata.pingFlags[3] = true;
                         metadata.pingFlags[4] = true;
-                        checkpointDistance = "1 mile";
+                        checkpointDistance = linkDistanceInMile >= 1.0?"1 mile":formattedDist;
                     }
-                    else if (!metadata.pingFlags[4] && linkDistanceInMile >= 2.0 && distanceInMile <= 2.0) {
+                    else if (!metadata.pingFlags[4] && distanceInMile <= 2.0) {
                         metadata.pingFlags[4] = true;
                         checkpointDistance = "2 miles";
+                        checkpointDistance = linkDistanceInMile >= 2.0?"2 miles":formattedDist;
                     }
                     
                     if(listener != null && checkpointDistance != null){
