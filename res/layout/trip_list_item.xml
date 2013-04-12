@@ -3,8 +3,6 @@
     android:id="@+id/gridLayout1"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:paddingLeft="15dp"
-    android:paddingRight="15dp"
     android:orientation="vertical">
 
     <TextView
@@ -12,6 +10,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
         android:text="@string/placeholder"
         style="@style/MediumText" />
 
@@ -20,6 +20,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
         android:layout_gravity="left"
         android:text="START"
         style="@style/MicroText"
@@ -29,6 +31,8 @@
         android:id="@+id/text_view_origin"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
         android:layout_gravity="left"
         android:text="@string/placeholder"
         style="@style/MediumText"
@@ -39,6 +43,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
         android:layout_gravity="left"
         android:text="DESTINATION"
         style="@style/MicroText"
@@ -48,6 +54,8 @@
         android:id="@+id/text_view_destination"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
         android:layout_gravity="left"
         android:text="@string/placeholder"
         style="@style/MediumText"
