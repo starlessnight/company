@@ -25,64 +25,84 @@
                 style="@style/CurrentLocationButton"
         />
        	
-       	<RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp">
+       	<LinearLayout
+       	    android:orientation="horizontal"
+       	    android:layout_height="wrap_content"
+       	    android:layout_width="match_parent">
        	    
-            <com.smartrek.ui.EditAddress
-                android:id="@+id/origin_box"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="start"
-                android:paddingRight="47dp"
-                android:inputType="textPostalAddress" 
-                style="@style/NormalTextField">
-
-            </com.smartrek.ui.EditAddress>
-            
-            <ImageButton
-                android:id="@+id/Favs1"
-                android:layout_width="36dp"
-                android:layout_height="50dp"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="1dp"
-                android:layout_alignRight="@id/origin_box"
-                style="@style/MoreButton" 
-            />
-
-        </RelativeLayout>
+       	    <ImageButton
+	            android:id="@+id/reverse_button"
+	            android:layout_width="30dp"
+	            android:layout_height="match_parent"
+	            android:layout_marginTop="15dp"
+	            style="@style/ReverseButton"
+	        />
+       	    
+       	    <LinearLayout
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:orientation="vertical">
+       	
+		       	<RelativeLayout
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content"
+		            android:layout_marginTop="15dp"
+		            android:layout_marginRight="30dp">
+		       	    
+		            <com.smartrek.ui.EditAddress
+		                android:id="@+id/origin_box"
+		                android:layout_width="match_parent"
+		                android:layout_height="wrap_content"
+		                android:layout_weight="1"
+		                android:hint="start"
+		                android:paddingRight="47dp"
+		                android:inputType="textPostalAddress" 
+		                style="@style/NormalTextField">
+		
+		            </com.smartrek.ui.EditAddress>
+		            
+		            <ImageButton
+		                android:id="@+id/Favs1"
+		                android:layout_width="36dp"
+		                android:layout_height="50dp"
+		                android:layout_centerVertical="true"
+		                android:layout_marginRight="1dp"
+		                android:layout_alignRight="@id/origin_box"
+		                style="@style/MoreButton" 
+		            />
+		
+		        </RelativeLayout>
+		        
+		       	<RelativeLayout
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content"
+		            android:layout_marginTop="15dp"
+		            android:layout_marginRight="30dp">
+		
+		            <com.smartrek.ui.EditAddress
+		                android:id="@+id/destination_box"
+		                android:layout_width="match_parent"
+		                android:layout_height="wrap_content"
+		                android:layout_weight="1"
+		                android:hint="end"
+		                android:inputType="textPostalAddress"
+		                android:paddingRight="47dp" 
+		                style="@style/NormalTextField" />
+		
+		            <ImageButton
+		                android:id="@+id/Favs2"
+		                android:layout_width="36dp"
+		                android:layout_height="50dp"
+		                android:layout_centerVertical="true"
+		                android:layout_marginRight="1dp"
+		                android:layout_alignRight="@id/destination_box"
+		                style="@style/MoreButton"
+		             />
+		        </RelativeLayout>
+	        
+	       	</LinearLayout>
         
-       	<RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp">
-
-            <com.smartrek.ui.EditAddress
-                android:id="@+id/destination_box"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="end"
-                android:inputType="textPostalAddress"
-                android:paddingRight="47dp" 
-                style="@style/NormalTextField" />
-
-            <ImageButton
-                android:id="@+id/Favs2"
-                android:layout_width="36dp"
-                android:layout_height="50dp"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="1dp"
-                android:layout_alignRight="@id/destination_box"
-                style="@style/MoreButton"
-             />
-        </RelativeLayout>
+       	</LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -113,17 +133,6 @@
 			    />
                 
         </LinearLayout>
-        
-        <Button
-            android:id="@+id/reverse_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-      		android:layout_marginLeft="30dp"
-      		android:layout_marginRight="30dp"
-            android:text="reverse start&#10;and end"
-            style="@style/ReverseButton"
-        />
         
         <FrameLayout 
             android:layout_marginTop="15dp"

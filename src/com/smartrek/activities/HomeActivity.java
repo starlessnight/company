@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -12,6 +14,8 @@ import android.content.Intent;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.format.Time;
 import android.view.KeyEvent;
 import android.view.View;
@@ -68,7 +72,7 @@ import com.smartrek.utils.SystemService;
  * @version 1.0
  * 
  */
-public final class HomeActivity extends ActionBarActivity {
+public final class HomeActivity extends ActionBarActivity implements TextWatcher {
     
     public static final String INIT = "init";
     
@@ -103,6 +107,7 @@ public final class HomeActivity extends ActionBarActivity {
 			}
 	    	
 	    });
+	    editAddressOrigin.addTextChangedListener(this);
 	    
 	    editAddressDest = (EditAddress) findViewById(R.id.destination_box);
 	    editAddressDest.setOnKeyListener(new OnKeyListener() {
@@ -114,6 +119,7 @@ public final class HomeActivity extends ActionBarActivity {
 			}
 	    	
 	    });
+	    editAddressDest.addTextChangedListener(this);
 	    
 	    //dateBox = (EditText) findViewById(R.id.date_box);
 	
@@ -205,7 +211,8 @@ public final class HomeActivity extends ActionBarActivity {
 			
 		});
 	    
-	    Button reverseButton = (Button) findViewById(R.id.reverse_button);
+	    ImageButton reverseButton = (ImageButton) findViewById(R.id.reverse_button);
+	    reverseButton.setEnabled(false);
 	    reverseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -233,7 +240,7 @@ public final class HomeActivity extends ActionBarActivity {
 	    }
 	    
 	   Font.setTypeface(boldFont, buttonDone, buttonLoadTrip, buttonSaveTrip,
-           buttonOriginMyLocation, reverseButton);
+           buttonOriginMyLocation);
 	   Font.setTypeface(lightFont, editAddressDest, editAddressOrigin);
 	}
 	
@@ -672,4 +679,20 @@ public final class HomeActivity extends ActionBarActivity {
 			}
 		}
 	}
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count,
+            int after) {
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        ImageButton reverseBtn = (ImageButton) findViewById(R.id.reverse_button);
+        reverseBtn.setEnabled(StringUtils.isNotBlank(editAddressOrigin.getText()) 
+            || StringUtils.isNotBlank(editAddressDest.getText()));
+    }
 }
