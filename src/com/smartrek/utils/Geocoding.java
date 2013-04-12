@@ -133,7 +133,7 @@ public final class Geocoding {
 	}
 	
 	private static String removeZipCodes(String address){
-	    return address.replaceAll("[0-9]{5}(-[0-9]{4})?", "");
+	    return address.replaceAll("(?<=\\S[,\\s]{1,10})([0-9]{5}(-[0-9]{4})?)(?=([,\\s]{1,10}($|\\S)|$))", "");
 	}
 	
 }
