@@ -4,14 +4,18 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
+import android.net.Uri;
 import android.os.Bundle;
-import android.text.Html;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -36,7 +40,7 @@ public class LicenseAgreementActivity extends Activity {
      */
     public static final int DISAGREED = 0;
     
-    private TextView webviewContent;
+    private WebView webviewContent;
     private Button buttonAgree;
 
     @Override
@@ -64,8 +68,30 @@ public class LicenseAgreementActivity extends Activity {
         InputStream is = null;
         try {
             is = getResources().getAssets().open("license.html");
-            webviewContent = (TextView) findViewById(R.id.webview_content);
-            webviewContent.setText(Html.fromHtml(IOUtils.toString(is)));
+            webviewContent = (WebView) findViewById(R.id.webview_content);
+            webviewContent.setWebViewClient(new WebViewClient() {
+                public void onPageFinished(WebView view, String url) {
+                    webviewContent.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            webviewContent.setVisibility(View.VISIBLE);
+                        }
+                    }, 250);
+                }
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                    String emailProtocol = "mailto:";
+                    if (url != null && url.startsWith("http://")) {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                    } else if(url != null && url.startsWith(emailProtocol)){
+                        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                            "mailto", StringUtils.substringAfter(url, emailProtocol), null));
+                        startActivity(emailIntent);
+                    }
+                    return true;
+                }
+             });
+            webviewContent.loadDataWithBaseURL("file:///android_asset/", 
+                IOUtils.toString(is), "text/html", "utf-8", null);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
@@ -75,7 +101,7 @@ public class LicenseAgreementActivity extends Activity {
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getBold(assets), (TextView)findViewById(R.id.title),
             (TextView)findViewById(R.id.contine_notice), buttonAgree);
-        Font.setTypeface(Font.getLight(assets), webviewContent);
+        Font.setTypeface(Font.getLight(assets));
     }
     
 	@Override
