@@ -120,8 +120,10 @@ public class TripListDialog extends GenericListDialog<Trip> {
 		new TripListFetchTask().execute(currentUser.getId());
 	}
 	
+	private TripEditDialog dialog;
+	
 	private void showTripEditDialog(Trip trip) {
-		TripEditDialog dialog = new TripEditDialog(getContext(), trip);
+		dialog = new TripEditDialog(getContext(), trip);
 		dialog.setActionListener(new TripEditDialog.ActionListener() {
 			
 			@Override
@@ -131,10 +133,17 @@ public class TripListDialog extends GenericListDialog<Trip> {
 			
 			@Override
 			public void onClickNegativeButton() {
+			    dialog = null;
 			}
 		});
 		dialog.show();
 	}
+	
+	public void resizeButtonText(){
+        if(dialog != null && dialog.isShowing()){
+            dialog.resizeButtonText();
+        }
+    }
 	
 	private class TripDeleteTask extends AsyncTask<Object, Object, Object> {
 

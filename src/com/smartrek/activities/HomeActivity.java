@@ -11,6 +11,7 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -439,8 +440,10 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 		}
 	}
 	
+	private TripEditDialog dialog;
+	
     private void onClickSaveTrip() {
-        TripEditDialog dialog = new TripEditDialog(this, getOriginAddress(), getDestinationAddress());
+        dialog = new TripEditDialog(this, getOriginAddress(), getDestinationAddress());
         dialog.setActionListener(new TripEditDialog.ActionListener() {
             
             @Override
@@ -449,10 +452,22 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
             
             @Override
             public void onClickNegativeButton() {
+                dialog = null;
             }
             
         });
         dialog.show();
+    }
+    
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if(dialog != null && dialog.isShowing()){
+            dialog.resizeButtonText();
+        }
+        if(tripListDialog != null && tripListDialog.isShowing()){
+            tripListDialog.resizeButtonText();
+        }
     }
 	
 	private void onClickButtonFavAddrOrigin(View view) {

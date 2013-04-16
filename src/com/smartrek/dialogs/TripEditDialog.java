@@ -219,11 +219,13 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 		return trip != null;
 	}
 	
+	private SetReminderDialog dialog;
+	
 	/**
 	 * Opens up a dialog to set a trip reminder.
 	 */
 	private void openSetReminderDialog() {
-		SetReminderDialog dialog = new SetReminderDialog(getContext(), tmpTime);
+		dialog = new SetReminderDialog(getContext(), tmpTime);
 		dialog.setActionListener(new SetReminderDialog.ActionListener() {
 			
 			@Override
@@ -236,9 +238,16 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 			
 			@Override
 			public void onClickNegativeButton() {
+			    dialog = null;
 			}
 		});
 		dialog.show();
+	}
+	
+	public void resizeButtonText(){
+	    if(dialog != null && dialog.isShowing()){
+	        dialog.resizeButtonText();
+	    }
 	}
 	
     @Override

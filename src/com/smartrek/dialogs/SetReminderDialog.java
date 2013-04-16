@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.Time;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,9 +28,9 @@ import com.smartrek.utils.datetime.RecurringTime;
 
 public final class SetReminderDialog extends Dialog {
 	
-    private static final String timeAM = "am";
+    private static final String timeAM = "AM";
     
-    private static final String timePM = "pm";
+    private static final String timePM = "PM";
     
     private static final int minHour = 1;
     
@@ -53,6 +54,41 @@ public final class SetReminderDialog extends Dialog {
 	private ViewGroup dialogView;
 	
 	private RecurringTime recurringTime;
+	
+	private static class TextViewDimension {
+	    
+	    float textSize;
+	    
+	    int paddingTop;
+	    
+	    int paddingBottom;
+	    
+	    TextViewDimension(TextView v){
+	        textSize = v.getTextSize();
+	        paddingTop = v.getPaddingTop();
+	        paddingBottom = v.getPaddingBottom();
+	    }
+	    
+	    void reset(TextView v){
+	        v.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+	        v.setPadding(v.getPaddingLeft(), paddingTop, v.getPaddingRight(), 
+                paddingBottom);
+	    }
+	    
+	    void setPadding(TextView v) {
+	        float tTextSize = v.getTextSize();
+	        if(tTextSize < textSize){
+	            int deltaPadding = Float.valueOf((textSize - tTextSize) / 2).intValue();
+	            v.setPadding(v.getPaddingLeft(), paddingTop + deltaPadding, v.getPaddingRight(), 
+                    paddingBottom + deltaPadding);
+	        }
+	    }
+	    
+	}
+	
+	private TextViewDimension backButtonDim;
+	
+	private TextViewDimension setButtonDim;
 
 	protected SetReminderDialog(Context context, RecurringTime recurringTime) {
 		super(context, R.style.PopUpDialog);
@@ -204,17 +240,50 @@ public final class SetReminderDialog extends Dialog {
 		
 		Button backButton = (Button) dialogView.findViewById(R.id.back_button);
         backButton.setOnClickListener(onClickNegative);
-		
+        
 		View closeIcon = dialogView.findViewById(R.id.close_icon);
         closeIcon.setOnClickListener(onClickNegative);
         
         Font.setTypeface(boldFont, titleView, setButton, backButton,
             timeHourView, timeAmPmView, timeMinuteView);
+        
+        resizeButtonText();
 		
 		// This has to be called after all overriding code, otherwise it won't
 		// look like a dialog.
 		super.onCreate(savedInstanceState);
 	}
+	
+	public void resizeButtonText(){
+	    float offset = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 44 + 45 + 10, 
+            getContext().getResources().getDisplayMetrics());
+        int winWidth = getWindow().getWindowManager().getDefaultDisplay().getWidth();
+        final float width = winWidth / 2.0f - offset;
+        final Button backButton = (Button) dialogView.findViewById(R.id.back_button);
+        backButton.post(new Runnable() {
+            @Override
+            public void run() {
+                if(backButtonDim == null){
+                    backButtonDim = new TextViewDimension(backButton);
+                }
+                backButtonDim.reset(backButton);
+                Font.autoScaleTextSize(backButton, width);
+                backButtonDim.setPadding(backButton);
+            }
+        });
+        final Button setButton = (Button) dialogView.findViewById(R.id.set_button);
+        setButton.post(new Runnable() {
+            @Override
+            public void run() {
+                if(setButtonDim == null){
+                    setButtonDim = new TextViewDimension(setButton);
+                }
+                setButtonDim.reset(setButton);
+                Font.autoScaleTextSize(setButton, width);
+                setButtonDim.setPadding(setButton);
+            }
+        });
+    }
 	
 	public ActionListener getActionListener() {
 		return listener;
