@@ -46,6 +46,7 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -67,6 +68,7 @@ import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RouteDebugOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
+import com.smartrek.utils.Dimension;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
@@ -358,6 +360,11 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
             }
         });
         
+        TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
+        Misc.initOsmCredit(osmCredit);
+        RelativeLayout.LayoutParams osmCreditLp = (RelativeLayout.LayoutParams) osmCredit.getLayoutParams();
+        osmCreditLp.bottomMargin = Dimension.dpToPx(52, getResources().getDisplayMetrics());
+        
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.setTypeface(boldFont);
         
@@ -406,7 +413,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         dirListView = (ListView) findViewById(R.id.directions_list);
         dirListView.setAdapter(dirListadapter);
         
-        Font.setTypeface(boldFont, dirSwitch, mapViewSwitch);
+        Font.setTypeface(boldFont, dirSwitch, mapViewSwitch, osmCredit);
     }
     
     private View[] getMapViews(){

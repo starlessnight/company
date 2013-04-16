@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.Display;
+import android.widget.TextView;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -51,6 +52,7 @@ import com.smartrek.ui.timelayout.TimeLayout;
 import com.smartrek.ui.timelayout.TimeLayout.TimeLayoutListener;
 import com.smartrek.ui.timelayout.TimeLayout.TimeLayoutOnSelectListener;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Geocoding;
 import com.smartrek.utils.Misc;
@@ -205,6 +207,10 @@ public final class RouteActivity extends ActionBarActivity {
         mapView.setBuiltInZoomControls(false);
         mapView.setMultiTouchControls(true);
         mapView.setTileSource(new SmartrekTileProvider(debugMode));
+        
+        TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
+        Font.setTypeface(boldFont, osmCredit);
+        Misc.initOsmCredit(osmCredit);
         
         /* Set the map view for a view of North America before zooming in on route */
         MapController mc = mapView.getController();

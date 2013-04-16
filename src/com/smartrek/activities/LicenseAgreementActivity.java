@@ -76,7 +76,7 @@ public class LicenseAgreementActivity extends Activity {
                         public void run() {
                             webviewContent.setVisibility(View.VISIBLE);
                         }
-                    }, 250);
+                    }, 100);
                 }
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
                     String emailProtocol = "mailto:";

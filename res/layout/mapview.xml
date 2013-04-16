@@ -11,6 +11,20 @@
         android:clickable="true"
         style="78449" />
     
+    <TextView 
+        android:id="@+id/osm_credit"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:text="@string/placeholder"
+        android:paddingRight="4dp"
+        android:paddingLeft="4dp"
+        android:textColor="@android:color/black"
+        style="@style/SmallestText"
+    	android:background="@color/transparent_white"    
+	/>
+    
     <!-- tilesource="CloudMadeStandardTiles" -->
 
 </RelativeLayout>
