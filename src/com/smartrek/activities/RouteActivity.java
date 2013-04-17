@@ -209,7 +209,7 @@ public final class RouteActivity extends ActionBarActivity {
         mapView.setTileSource(new SmartrekTileProvider(debugMode));
         
         TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
-        Font.setTypeface(boldFont, osmCredit);
+        Font.setTypeface(lightFont, osmCredit);
         Misc.initOsmCredit(osmCredit);
         
         /* Set the map view for a view of North America before zooming in on route */
