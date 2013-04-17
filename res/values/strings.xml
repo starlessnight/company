@@ -48,8 +48,8 @@
     <string name="tutorial_slide5">Follow your route and earn Trekpoints you can redeem for epic rewards!</string>
     
     <!-- Trip -->
-    <string name="trip_has_expired">Your trip has expired.</string>
-    <string name="trip_too_early_to_start">It is too early to start your trip.</string>
+    <string name="trip_has_expired">Your trip has expired</string>
+    <string name="trip_too_early_to_start">Your trip begins in %d minute</string>
     <string name="enter_trip_name">Please enter a trip name.</string>
 
     <!-- *************************************************************************************** -->

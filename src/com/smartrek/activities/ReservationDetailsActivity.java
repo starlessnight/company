@@ -148,7 +148,12 @@ public final class ReservationDetailsActivity extends ActionBarActivity {
             	textViewHelp.setText(getResources().getString(R.string.trip_has_expired));
             }
             else if (reservation.isTooEarlyToStart()) {
-            	textViewHelp.setText(getResources().getString(R.string.trip_too_early_to_start));
+                long minutes = (reservation.getDepartureTime() - System.currentTimeMillis()) / 60000;
+            	String msg = getResources().getString(R.string.trip_too_early_to_start, minutes);
+            	if(minutes != 1){
+            	    msg += "s";
+            	}
+                textViewHelp.setText(msg);
             }
         } else{
             textViewHelp.setVisibility(View.GONE);
