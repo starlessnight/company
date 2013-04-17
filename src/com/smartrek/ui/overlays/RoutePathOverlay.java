@@ -91,7 +91,7 @@ public class RoutePathOverlay extends Overlay {
 		}
 		
 		canvas.drawPath(path, paint);
-		canvas.drawBitmap(originFlag, originPiont.x - (originFlag.getWidth()/2), originPiont.y - originFlag.getHeight(), paint);
-		canvas.drawBitmap(destinationFlag, point.x - (originFlag.getWidth()/2), point.y - destinationFlag.getHeight(), paint);
+		canvas.drawBitmap(originFlag, originPiont.x - (originFlag.getWidth()/2), originPiont.y - originFlag.getHeight() * 85 / 100, paint);
+		canvas.drawBitmap(destinationFlag, point.x - (originFlag.getWidth()/2), point.y - destinationFlag.getHeight() * 85 / 100, paint);
 	}
 }
