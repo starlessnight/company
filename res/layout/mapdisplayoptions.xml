@@ -50,7 +50,7 @@
 	            android:gravity="left|center_vertical"
                 style="@style/MediumText"
                 android:padding="0dp"
-                android:layout_marginTop="-5dp">
+                android:layout_marginTop="0dp">
             </RadioButton>
 
             <RadioButton
@@ -64,7 +64,7 @@
 	            android:gravity="left|center_vertical"
                 style="@style/MediumText"
                 android:padding="0dp"
-                android:layout_marginTop="-5dp">
+                android:layout_marginTop="0dp">
             </RadioButton>
         </RadioGroup>
     </RelativeLayout>

@@ -4,7 +4,7 @@
 
     <item
         android:drawable="@android:drawable/btn_radio"
-        android:top="10dp"
+        android:top="-1dp"
     />
 
 
