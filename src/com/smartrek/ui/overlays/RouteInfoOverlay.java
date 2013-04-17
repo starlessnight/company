@@ -171,16 +171,13 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	
 	static Drawable pinRouteDrawable(Context ctx, int routeSeq, Typeface font){
         Resources res = ctx.getResources();
-        int textColor;
+        int textColor = Color.WHITE;
         int pinRouteRes;
         if(routeSeq == 1){
-            textColor = Color.BLACK;
             pinRouteRes = R.drawable.green_pin_route;
         }else if(routeSeq == 2){
-            textColor = Color.BLACK;
             pinRouteRes = R.drawable.blue_pin_route;
         }else{
-            textColor = Color.WHITE;
             pinRouteRes = R.drawable.pin_route;
         }
         Bitmap bm = BitmapFactory.decodeResource(res, pinRouteRes).copy(
@@ -195,8 +192,8 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
         paint.setAntiAlias(true);
         
         Canvas canvas = new Canvas(bm);
-        canvas.drawText(String.valueOf(routeSeq), bm.getWidth()*3.427f/10, 
-            bm.getHeight()*5.3f/10, paint);
+        canvas.drawText(String.valueOf(routeSeq), bm.getWidth()*3.9f/10, 
+            bm.getHeight()*5.6f/10, paint);
 
         return new BitmapDrawable(res, bm);
     }
