@@ -40,6 +40,7 @@
 	        android:layout_marginTop="15dp"
 	        android:paddingLeft="15dp"
 	        android:paddingRight="15dp"
+	        android:lineSpacingMultiplier="1.2"
 	        android:text="@string/agree_terms_of_use"
 	        style="@style/SmallestText"
 	    />
