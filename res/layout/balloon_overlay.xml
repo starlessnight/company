@@ -34,7 +34,7 @@
 			android:id="@+id/balloon_item_snippet"
 			android:text="balloon_item_snippet"
 			android:paddingRight="5dp"
-			android:drawableRight="@drawable/icon_more"
+			android:drawableRight="@drawable/icon_more_small"
 			style="@style/OverlayBody" />
 
 </LinearLayout>
