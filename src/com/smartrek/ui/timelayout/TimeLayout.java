@@ -37,6 +37,9 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     private int columnCount;
     
     private TimeLayoutListener timeLayoutListener;
+    
+    private Typeface lightFont;
+    private Typeface boldFont;
 
     public interface TimeLayoutListener {
     	public void updateTimeLayout(TimeLayout timeLayout, int column);
@@ -61,10 +64,11 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
         
         columnCount = adjustableTime.getNumTimeBoxes();
         
-        Typeface boldFont = Font.getBold(getResources().getAssets());        
+        lightFont = Font.getLight(getResources().getAssets());
+        boldFont = Font.getBold(getResources().getAssets());
         
         for (int i = 0; i < columnCount; i++) {
-             TimeColumn timeColumn = new TimeColumn(this, i, boldFont, boldFont);
+             TimeColumn timeColumn = new TimeColumn(this, i, lightFont, boldFont);
              timeColumn.setDepartureTime(adjustableTime.initTime().toMillis(false));
              timeColumn.setOnClickListener(this);
              adjustableTime.incrementBy(15);
@@ -83,10 +87,8 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
         
         columnCount = adjustableTime.getNumTimeBoxes();
         
-        Typeface boldFont = Font.getBold(getResources().getAssets());        
-        
         for (int i = 0; i < columnCount; i++) {
-             TimeColumn timeColumn = new TimeColumn(this, i, boldFont, boldFont);
+             TimeColumn timeColumn = new TimeColumn(this, i, lightFont, boldFont);
              timeColumn.setDepartureTime(adjustableTime.initTime().toMillis(false));
              timeColumn.setOnClickListener(this);
              adjustableTime.incrementBy(15);
