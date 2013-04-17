@@ -12,9 +12,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -57,7 +60,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
         
         textViewGeneric.setText("You do not have any reserved route.");
         
-        //registerForContextMenu(getListView());
+        registerForContextMenu(getListView());
         
         reservations = new ArrayList<Reservation>();
         
@@ -116,27 +119,31 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 		
 		return super.onMenuItemSelected(featureId, item);
 	}
-	/*
+	
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 	                                ContextMenuInfo menuInfo) {
 	    super.onCreateContextMenu(menu, v, menuInfo);
-	    MenuInflater inflater = getSupportMenuInflater();
-	    inflater.inflate(R.menu.context, menu);
+	    android.view.MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.reservations_context, menu);
 	}
 	
 	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-	    //AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+	public boolean onContextItemSelected(android.view.MenuItem item) {
 	    switch (item.getItemId()) {
 	        case R.id.delete:
+	            AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+	            int menuItemIndex = info.position;
+	            Reservation reservation = reservations.get(menuItemIndex);
+	            new ReservationDeleteTask(menuItemIndex).execute(
+                    User.getCurrentUser(this).getId(), reservation.getRid());
 	            return true;
 	            
 	        default:
 	            return super.onContextItemSelected(item);
 	    }
 	}
-	*/
+	
     private void requestRefresh(boolean useCache) {
         User currentUser = User.getCurrentUser(this);
         new ReservationRetrivalTask(useCache, currentUser.getId()).execute();
@@ -251,14 +258,6 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 			
 			TextView itemNum = (TextView)view.findViewById(R.id.itemNum);
 			itemNum.setText(String.format("No. %d", r.getRoute().getId()));
-			
-			View deleteButton = view.findViewById(R.id.delete_button);
-			deleteButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    new ReservationDeleteTask(position).execute(User.getCurrentUser(getContext()).getId(), r.getRid());
-                }
-            });
 			
             Font.setTypeface(ReservationListActivity.this.boldFont, 
 		        itemNum, (TextView)view.findViewById(R.id.textView0),
