@@ -413,7 +413,8 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         dirListView = (ListView) findViewById(R.id.directions_list);
         dirListView.setAdapter(dirListadapter);
         
-        Font.setTypeface(boldFont, dirSwitch, mapViewSwitch, osmCredit);
+        Font.setTypeface(lightFont, osmCredit);
+        Font.setTypeface(boldFont, dirSwitch, mapViewSwitch);
     }
     
     private View[] getMapViews(){
