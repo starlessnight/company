@@ -363,7 +363,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
         Misc.initOsmCredit(osmCredit);
         RelativeLayout.LayoutParams osmCreditLp = (RelativeLayout.LayoutParams) osmCredit.getLayoutParams();
-        osmCreditLp.bottomMargin = Dimension.dpToPx(52, getResources().getDisplayMetrics());
+        osmCreditLp.bottomMargin += Dimension.dpToPx(52, getResources().getDisplayMetrics());
         
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.setTypeface(boldFont);
@@ -413,8 +413,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         dirListView = (ListView) findViewById(R.id.directions_list);
         dirListView.setAdapter(dirListadapter);
         
-        Font.setTypeface(lightFont, osmCredit);
-        Font.setTypeface(boldFont, dirSwitch, mapViewSwitch);
+        Font.setTypeface(boldFont, dirSwitch, mapViewSwitch, osmCredit);
     }
     
     private View[] getMapViews(){

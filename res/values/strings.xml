@@ -17,7 +17,7 @@
     <string name="password_confirmation">password confirm</string>
     <string name="login">log in</string>
     <string name="create_account_link_text">Don\'t have an account?</string>
-    <string name="osm_contributors">© &lt;u>&lt;font color=\"#5BBCE2\">OpenStreetMap&lt;/font>&lt;/u> contributors</string>
+    <string name="osm_contributors">© OpenStreetMap contributors</string>
     <string name="signup">sign up</string>
     <string name="sign_in">sign in</string>
     <string name="get_started">get started!</string>

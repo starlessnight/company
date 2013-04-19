@@ -17,12 +17,12 @@
         android:layout_width="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:text="@string/placeholder"
-        android:paddingRight="4dp"
-        android:paddingLeft="4dp"
-        android:textColor="@android:color/black"
-        style="@style/SmallestText"
-    	android:background="@color/transparent_white"    
+        android:text="@string/osm_contributors"
+        android:includeFontPadding="true"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="15dp"
+        android:textColor="@color/transparent_secondary_font"
+        style="@style/MicroText"
 	/>
     
     <!-- tilesource="CloudMadeStandardTiles" -->

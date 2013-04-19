@@ -1,9 +1,5 @@
 package com.smartrek.utils;
 
-import com.google.android.gcm.GCMRegistrar;
-import com.smartrek.activities.GCMIntentService;
-import com.smartrek.activities.R;
-
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -12,10 +8,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
-import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+
+import com.google.android.gcm.GCMRegistrar;
+import com.smartrek.activities.GCMIntentService;
 
 public class Misc {
     
@@ -78,7 +76,6 @@ public class Misc {
     
     public static void initOsmCredit(TextView v){
         final Context ctx = v.getContext();
-        v.setText(Html.fromHtml(ctx.getString(R.string.osm_contributors)));
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
