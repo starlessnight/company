@@ -101,7 +101,8 @@ public final class Geocoding {
 	 * @throws JSONException 
 	 */
 	public static List<Address> lookup(String query) throws IOException, JSONException {
-		String url = String.format("%s?q=%s&format=json", URL, URLEncoder.encode(removeZipCodes(query)));
+		String url = String.format("%s?q=%s&format=json", URL, URLEncoder.encode(
+	        replaceLaInitials(removeZipCodes(query))));
 		Log.d("Geocoding", "url = " + url);
 		
 		HTTP http = new HTTP(url);
@@ -134,6 +135,10 @@ public final class Geocoding {
 	
 	private static String removeZipCodes(String address){
 	    return address.replaceAll("(?<=\\S[,\\s]{1,10})([0-9]{5}(-[0-9]{4})?)(?=([,\\s]{1,10}($|\\S)|$))", "");
+	}
+	
+	private static String replaceLaInitials(String address){
+	    return address.replaceAll("(?i)(?<=(^|(^|\\S)[,\\s]{1,10}))la(?=([,\\s]{1,10}($|\\S)|$))", "los angeles");
 	}
 	
 }
