@@ -1,7 +1,5 @@
 package com.smartrek.activities;
 
-import java.io.IOException;
-
 import org.apache.commons.lang3.StringUtils;
 
 import android.app.AlertDialog;
@@ -188,6 +186,7 @@ public final class UserRegistrationActivity extends ActionBarActivity
 	                    Intent intent = new Intent(UserRegistrationActivity.this, HomeActivity.class);
 	                    intent.putExtra(HomeActivity.INIT, true);
 	                    UserRegistrationActivity.this.startActivity(intent);
+	                    finish();
 					}
 					
 				});
@@ -216,6 +215,14 @@ public final class UserRegistrationActivity extends ActionBarActivity
             enabled &= StringUtils.isNotBlank(input.getText());
         }
         buttonRegister.setEnabled(enabled);
+    }
+    
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
     
 }

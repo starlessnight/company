@@ -64,7 +64,11 @@ import com.smartrek.utils.SmartrekTileProvider;
  *
  */
 public final class RouteActivity extends ActionBarActivity {
-	
+
+    public static final int RESERVATION_CONFIRM = 3;
+    
+    public static final int RESERVATION_CONFIRM_ENDED = 3;
+    
 	public static final String LOG_TAG = "RouteActivity";
 	
 	public static final String ORIGIN_ADDR = "originAddr";
@@ -610,11 +614,12 @@ public final class RouteActivity extends ActionBarActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode,Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        Bundle extras = intent.getExtras();
         
         if(requestCode == -1) {
             finish();
         }
+        
+        Bundle extras = intent == null?null:intent.getExtras();
         
         SharedPreferences prefs = getSharedPreferences(MapDisplayActivity.MAP_DISPLAY_PREFS, MODE_PRIVATE);
         
@@ -626,6 +631,10 @@ public final class RouteActivity extends ActionBarActivity {
                 timeLayout.setDisplayMode((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? DisplayMode.Duration : DisplayMode.Time);
             }
         } 
+        
+        if(requestCode == RESERVATION_CONFIRM && resultCode == RESERVATION_CONFIRM_ENDED){
+            finish();
+        }
     }
     
     @Override
@@ -780,7 +789,7 @@ public final class RouteActivity extends ActionBarActivity {
             Bundle extras = new Bundle();
             extras.putParcelable("route", route);
             intent.putExtras(extras);
-            startActivity(intent);
+            startActivityForResult(intent, RESERVATION_CONFIRM);
             
             return true;
         }

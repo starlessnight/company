@@ -221,6 +221,7 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
                         Intent intent = new Intent(ReservationConfirmationActivity.this, ReservationListActivity.class);
                         startActivity(intent);
                         
+                        setResult(RouteActivity.RESERVATION_CONFIRM_ENDED);
                         finish();
                         
                     }

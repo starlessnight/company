@@ -45,6 +45,7 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
             public void onClick(View v) {
                 Intent intent = new Intent(TutorialActivity.this, UserRegistrationActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
         
@@ -53,6 +54,7 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
             public void onClick(View v) {
                 Intent intent = new Intent(TutorialActivity.this, LoginActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
     }

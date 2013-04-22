@@ -99,6 +99,7 @@ public final class LoginActivity extends Activity implements OnClickListener,
                     Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                     intent.putExtra(HomeActivity.INIT, true);
                     LoginActivity.this.startActivity(intent);
+                    finish();
                 }
                 else {
 //                  Log.d("Login_Activity", "Failed Login User: " + user.getUsername());
