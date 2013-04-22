@@ -23,7 +23,7 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
 		String response = executeFetchRequest(getURL());
 		
 		List<Reservation> reservations = new ArrayList<Reservation>();
-        JSONArray array = new JSONArray(response);
+        JSONArray array = new JSONArray(response.replaceAll("\"DISTANCE\":,", "\"DISTANCE\":0,"));
         for (int i = 0; i < array.length(); i++) {
             Reservation r = Reservation.parse(new JSONObject(array.get(i).toString()));
             reservations.add(r);
