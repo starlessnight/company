@@ -49,6 +49,11 @@
 	    <item name="android:textColor">@android:color/white</item>
 	    <item name="android:paddingTop">5dp</item>
 	</style>
+	<style name="LargeBoldText">
+	    <item name="android:textSize">@dimen/large_font</item>
+	    <item name="android:textColor">@android:color/white</item>
+	    <item name="android:textStyle">bold</item>
+	</style>
 	<style name="NormalTextField">
 	    <item name="android:textSize">@dimen/smaller_font</item>
 	    <item name="android:textColor">@android:color/white</item>

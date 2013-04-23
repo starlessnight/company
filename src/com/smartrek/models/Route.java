@@ -66,6 +66,9 @@ public final class Route implements Parcelable {
             if (ro.has("MESSAGE")) {
             	node.setMessage(ro.getString("MESSAGE"));
             }
+            if (ro.has("DIRECTION")) {
+                node.setDirection(ro.getString("DIRECTION"));
+            }
             if (ro.has("DISTANCE")) {
             	// conversion from mile to meter
             	node.setDistance(ro.getDouble("DISTANCE") * 1609.34);

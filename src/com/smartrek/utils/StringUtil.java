@@ -5,13 +5,17 @@ import java.math.RoundingMode;
 
 public class StringUtil {
 	
-	public static String formatImperialDistance(double meter) {
+	public static String formatImperialDistance(double meter, boolean shorter) {
 	    String miles = new BigDecimal(UnitConversion.meterToMile(meter)).setScale(1, RoundingMode.CEILING).toString();
 	    if(miles.equals("1.0")){
 	        miles = "1";
 	    }
-		return miles + " mile" + (miles.equals("1")?"":"s");
+		return miles + " " + (shorter?"mi":("mile" + (miles.equals("1")?"":"s")));
 	}
+	
+	public static String formatImperialDistance(double meter) {
+        return formatImperialDistance(meter, false);
+    }
 	
 	public static String formatMetricDistance(double meter) {
 		if (meter < 1000) {

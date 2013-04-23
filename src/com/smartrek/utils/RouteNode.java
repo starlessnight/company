@@ -93,6 +93,11 @@ public final class RouteNode implements Parcelable, JSONModel {
 	private String message;
 	
 	/**
+     * Navigation direction
+     */
+    private String direction;
+	
+	/**
 	 * Navigation metadata
 	 */
 	private String roadName;
@@ -132,6 +137,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		flag = in.readInt();
 		distance = in.readDouble();
 		message = in.readString();
+		direction = in.readString();
 		roadName = in.readString();
 	}
 	
@@ -223,6 +229,14 @@ public final class RouteNode implements Parcelable, JSONModel {
 	public void setMessage(String message) {
 		this.message = message;
 	}
+	
+	public String getDirection() {
+        return direction;
+    }
+
+    public void setDirection(String direction) {
+        this.direction = direction;
+    }
 
 	/**
      * Calculates the distance from this route node to a geocoordinate.
@@ -269,6 +283,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		dest.writeInt(flag);
 		dest.writeDouble(distance);
 		dest.writeString(message);
+	    dest.writeString(direction);
 		dest.writeString(roadName);
 	}
 	

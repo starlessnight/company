@@ -3,38 +3,83 @@
     android:id="@+id/layout_navigation"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:minHeight="104dp"
-    android:paddingTop="19dp"
-    android:paddingLeft="45dp"
-   	android:paddingRight="45dp"
-   	android:paddingBottom="19dp">
+    android:minHeight="104dp">
 
     <TextView
         android:id="@+id/text_view_waiting"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="Waiting for GPS..."
-        android:textColor="@android:color/white"
+        android:paddingTop="19dp"
+	    android:paddingLeft="45dp"
+	   	android:paddingRight="45dp"
+	   	android:paddingBottom="19dp"
         style="@style/SmallerBoldText"
-        android:visibility="visible" />
+        android:visibility="invisible" />
     
     <TextView
         android:id="@+id/text_view_generic_message"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="@string/placeholder"
-        android:textColor="@android:color/white"
+        android:paddingTop="19dp"
+	    android:paddingLeft="45dp"
+	   	android:paddingRight="45dp"
+	   	android:paddingBottom="19dp"
         style="@style/SmallerBoldText"
         android:visibility="invisible" />
 
-    <TextView
-        android:id="@+id/text_view_navigation"
+    <LinearLayout
+        android:id="@+id/navigation_display" 
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/placeholder"
-        android:textColor="@android:color/black"
-        style="@style/SmallerBoldText"
-        android:visibility="invisible"
-    />
+        android:orientation="horizontal"
+        android:visibility="visible">
+        
+    	<LinearLayout 
+	        android:layout_width="105dp"
+	        android:layout_height="match_parent"
+	        android:paddingTop="10dp"
+	   		android:paddingBottom="10dp"
+	        android:background="@color/transparent_light_green"
+	        android:orientation="vertical">
+	            
+	        <ImageView
+	            android:id="@+id/img_view_direction"
+	            android:layout_height="wrap_content"
+	            android:layout_width="wrap_content"
+	            android:layout_gravity="center_horizontal"
+	            android:src="@drawable/make_a_u_turn" 
+			/>
+	        
+	        <TextView
+		        android:id="@+id/text_view_distance"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="10dp"
+		        android:layout_marginLeft="15dp"
+		        android:layout_marginRight="15dp"
+		        android:text="100.1 mi"
+		        android:gravity="center_horizontal"
+		        style="@style/SmallerBoldText"
+	    	/>
+        
+        </LinearLayout>
+        
+        <TextView
+	        android:id="@+id/text_view_road"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_marginLeft="10dp"
+	        android:paddingTop="10dp"
+	   		android:paddingBottom="10dp"
+	   		android:paddingLeft="15dp"
+	   		android:paddingRight="15dp"
+	        android:text="@string/placeholder"
+	        style="@style/LargeBoldText"
+	        android:background="@color/transparent_light_green"
+    	/>
+        
+    </LinearLayout>
 
 </FrameLayout>

@@ -16,6 +16,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -39,7 +41,10 @@ public final class NavigationView extends LinearLayout {
     
     private Status status;
 	
-	private TextView textViewNavigation;
+    private ViewGroup navigationDisplay;
+    private ImageView imgViewDirection;
+    private TextView textViewDistance;
+    private TextView textViewRoad;
 	private TextView textViewWaiting;
 	private TextView textViewGenericMessage;
 	
@@ -55,7 +60,10 @@ public final class NavigationView extends LinearLayout {
 		LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		layoutInflater.inflate(R.layout.navigation_view, this, true);
 		
-		textViewNavigation = (TextView) findViewById(R.id.text_view_navigation);
+		navigationDisplay = (ViewGroup) findViewById(R.id.navigation_display);
+		imgViewDirection = (ImageView) findViewById(R.id.img_view_direction);
+		textViewDistance = (TextView) findViewById(R.id.text_view_distance);
+		textViewRoad = (TextView) findViewById(R.id.text_view_road);
 		textViewWaiting = (TextView) findViewById(R.id.text_view_waiting);
 		textViewGenericMessage = (TextView) findViewById(R.id.text_view_generic_message);
         
@@ -70,20 +78,20 @@ public final class NavigationView extends LinearLayout {
 	    if (Status.WaitingForGPS.equals(status)) {
 	        textViewWaiting.setVisibility(View.VISIBLE);
 	        textViewGenericMessage.setVisibility(View.GONE);
-	        textViewNavigation.setVisibility(View.GONE);
+	        navigationDisplay.setVisibility(View.GONE);
 	        setBackgroundResource(R.color.transparent_gray);
 	    }
 	    else if (Status.OutOfRoute.equals(status)) {
             textViewWaiting.setVisibility(View.GONE);
             textViewGenericMessage.setVisibility(View.VISIBLE);
-            textViewNavigation.setVisibility(View.GONE);
+            navigationDisplay.setVisibility(View.GONE);
             setBackgroundResource(R.color.transparent_light_red);
         }
 	    else if (Status.InRoute.equals(status)) {
             textViewWaiting.setVisibility(View.GONE);
             textViewGenericMessage.setVisibility(View.GONE);
-            textViewNavigation.setVisibility(View.VISIBLE);
-            setBackgroundResource(R.color.transparent_light_green);
+            navigationDisplay.setVisibility(View.VISIBLE);
+            setBackgroundResource(android.R.color.transparent);
         }
 	    else {
 	        Log.e(getClass().toString(), "setStatus(): Should not reach here.");
@@ -195,8 +203,16 @@ public final class NavigationView extends LinearLayout {
             
             String formattedDist = StringUtil.formatImperialDistance(distance);
             
-            textViewNavigation.setText(getFormattedDirection(node, formattedDist, 
-                getResources().getDimensionPixelSize(R.dimen.large_font)));
+            int dirDrawableId = getDirectionDrawableId(node.getDirection());
+            if(dirDrawableId == 0){
+                imgViewDirection.setVisibility(View.INVISIBLE);
+            }else{
+                imgViewDirection.setImageResource(dirDrawableId);
+                imgViewDirection.setVisibility(View.VISIBLE);
+            }
+            textViewDistance.setText(StringUtil.formatImperialDistance(distance, true));
+            String roadName = node.getRoadName();
+            textViewRoad.setText((StringUtils.isBlank(roadName) || StringUtils.equalsIgnoreCase(roadName, "null"))?"":roadName);
             
             // FIXME: Temporary
             if (node.hasMetadata()) {
@@ -278,6 +294,30 @@ public final class NavigationView extends LinearLayout {
         }
 	}
 	
+	public static int getDirectionDrawableId(String direction){
+	    int id;
+	    if(StringUtils.equalsIgnoreCase("slightly left", direction)){
+	        id = R.drawable.slightly_left;
+	    }else if(StringUtils.equalsIgnoreCase("curve left", direction)){
+	        id = R.drawable.curve_left;
+	    }else if(StringUtils.equalsIgnoreCase("turn left", direction)){
+	        id = R.drawable.turn_left;
+	    }else if(StringUtils.equalsIgnoreCase("slightly right", direction)){
+	        id = R.drawable.slightly_right;
+	    }else if(StringUtils.equalsIgnoreCase("curve right", direction)){
+	        id = R.drawable.curve_right;
+	    }else if(StringUtils.equalsIgnoreCase("turn right", direction)){
+	        id = R.drawable.turn_right;
+	    }else if(StringUtils.equalsIgnoreCase("make a u turn", direction)){
+	        id = R.drawable.make_a_u_turn;
+	    }else if(StringUtils.equalsIgnoreCase("go straight", direction)){
+	        id = R.drawable.go_straight;
+	    }else{
+	        id = 0; 
+	    }
+	    return id;
+	}
+	
 	public static interface CheckPointListener {
 	    
 	    void onCheckPoint(String navText);
@@ -293,8 +333,8 @@ public final class NavigationView extends LinearLayout {
     }
     
     public void setTypeface(Typeface font){
-        Font.setTypeface(font, textViewGenericMessage, textViewNavigation,
-            textViewWaiting);
+        Font.setTypeface(font, textViewGenericMessage, textViewWaiting,
+            textViewDistance, textViewRoad);
     }
 
 }
