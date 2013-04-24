@@ -1,6 +1,7 @@
 package com.smartrek.ui;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +32,22 @@ import com.smartrek.utils.ValidationParameters;
 
 public final class NavigationView extends LinearLayout {
     
+    public static class DirectionItem {
+        
+        public int drawableId;
+        
+        public double distance;
+        
+        public String roadName;
+
+        public DirectionItem(int drawableId, double distance, String roadName) {
+            this.drawableId = drawableId;
+            this.distance = distance;
+            this.roadName = roadName;
+        }
+        
+    }
+    
     private static final double checkPointFeetOffset = 250;
     
     private static final double checkPointMilesOffset = checkPointFeetOffset * 0.000189394;
@@ -47,12 +64,18 @@ public final class NavigationView extends LinearLayout {
     private TextView textViewRoad;
 	private TextView textViewWaiting;
 	private TextView textViewGenericMessage;
+	private ImageView btnPrevItem;
+	private ImageView btnNextItem;
 	
 	private CheckPointListener listener;
 	
 	private boolean everInRoute;
 	
 	private RouteNode lastEnd;
+
+	private List<DirectionItem> items = Collections.emptyList();
+	
+	private int currentItemIdx;
 
 	public NavigationView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -66,6 +89,22 @@ public final class NavigationView extends LinearLayout {
 		textViewRoad = (TextView) findViewById(R.id.text_view_road);
 		textViewWaiting = (TextView) findViewById(R.id.text_view_waiting);
 		textViewGenericMessage = (TextView) findViewById(R.id.text_view_generic_message);
+		btnPrevItem = (ImageView) findViewById(R.id.btn_prev_item);
+		btnPrevItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                currentItemIdx = Math.max(currentItemIdx - 1, 0);
+                refresh();
+            }
+        });
+		btnNextItem = (ImageView) findViewById(R.id.btn_next_item);
+		btnNextItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                currentItemIdx = Math.min(currentItemIdx + 1, items.size() - 1);
+                refresh();
+            }
+        });
         
         setStatus(Status.WaitingForGPS);
 	}
@@ -76,12 +115,14 @@ public final class NavigationView extends LinearLayout {
 	
 	public void setStatus(Status status) {
 	    if (Status.WaitingForGPS.equals(status)) {
+	        currentItemIdx = 0;
 	        textViewWaiting.setVisibility(View.VISIBLE);
 	        textViewGenericMessage.setVisibility(View.GONE);
 	        navigationDisplay.setVisibility(View.GONE);
 	        setBackgroundResource(R.color.transparent_gray);
 	    }
 	    else if (Status.OutOfRoute.equals(status)) {
+	        currentItemIdx = 0;
             textViewWaiting.setVisibility(View.GONE);
             textViewGenericMessage.setVisibility(View.VISIBLE);
             navigationDisplay.setVisibility(View.GONE);
@@ -188,7 +229,24 @@ public final class NavigationView extends LinearLayout {
         return meters * 0.000621371;
     }
 	
-	public void update(final Route route, final Location location, final RouteNode node) {
+	private void refresh(){
+	    DirectionItem item = items.get(currentItemIdx);
+        if(item.drawableId == 0){
+            imgViewDirection.setVisibility(View.INVISIBLE);
+        }else{
+            imgViewDirection.setImageResource(item.drawableId);
+            imgViewDirection.setVisibility(View.VISIBLE);
+        }
+        textViewDistance.setText(StringUtil.formatImperialDistance(item.distance, true));
+        textViewRoad.setText((StringUtils.isBlank(item.roadName) || StringUtils.equalsIgnoreCase(item.roadName, "null"))?"":item.roadName);
+        btnPrevItem.setVisibility(currentItemIdx == 0?View.INVISIBLE:View.VISIBLE);
+        int itemSize = items.size();
+        btnNextItem.setVisibility((itemSize == 1 || currentItemIdx == itemSize - 1)?View.INVISIBLE:View.VISIBLE);
+	}
+	
+	public void update(final Route route, final Location location, final RouteNode node, List<DirectionItem> dirItems) {
+	    items = dirItems;
+	    currentItemIdx = Math.min(currentItemIdx, items.size() - 1);
         final double latitude = location.getLatitude();
         final double longitude = location.getLongitude();
 		
@@ -201,18 +259,7 @@ public final class NavigationView extends LinearLayout {
         if (nearestLink.distanceTo(latitude, longitude) <= params.getInRouteDistanceThreshold()) {
             setStatus(Status.InRoute);
             
-            String formattedDist = StringUtil.formatImperialDistance(distance);
-            
-            int dirDrawableId = getDirectionDrawableId(node.getDirection());
-            if(dirDrawableId == 0){
-                imgViewDirection.setVisibility(View.INVISIBLE);
-            }else{
-                imgViewDirection.setImageResource(dirDrawableId);
-                imgViewDirection.setVisibility(View.VISIBLE);
-            }
-            textViewDistance.setText(StringUtil.formatImperialDistance(distance, true));
-            String roadName = node.getRoadName();
-            textViewRoad.setText((StringUtils.isBlank(roadName) || StringUtils.equalsIgnoreCase(roadName, "null"))?"":roadName);
+            refresh();
             
             // FIXME: Temporary
             if (node.hasMetadata()) {
@@ -228,6 +275,8 @@ public final class NavigationView extends LinearLayout {
                     continueDir = true;
                 }
                 lastEnd = end;
+                
+                String formattedDist = StringUtil.formatImperialDistance(distance);
                 
                 if(continueDir){
                     if(listener != null){

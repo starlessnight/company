@@ -3,6 +3,7 @@ package com.smartrek.activities;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -66,6 +67,7 @@ import com.smartrek.models.User;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.ui.NavigationView;
 import com.smartrek.ui.NavigationView.CheckPointListener;
+import com.smartrek.ui.NavigationView.DirectionItem;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RouteDebugOverlay;
@@ -555,8 +557,8 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         Log.d("ValidationActivity", "showNavigationInformation()");
         runOnUiThread(new Runnable() {
             public void run() {
-            	navigationView.update(route, location, node);
-            	updateDirectionsList(node, location);
+                List<DirectionItem> items = updateDirectionsList(node, location);
+            	navigationView.update(route, location, node, items);
             }
         });
     }
@@ -565,7 +567,8 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         updateDirectionsList(null, null);
     }
     
-    private void updateDirectionsList(RouteNode node, Location location){
+    private List<DirectionItem> updateDirectionsList(RouteNode node, Location location){
+        List<DirectionItem> items = new ArrayList<DirectionItem>(); 
         dirListadapter.clear();
         RouteNode nextNode = node;
         if(nextNode == null){
@@ -579,14 +582,17 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
                         distance = route.getDistanceToNextTurn(location.getLatitude(), 
                             location.getLongitude());
                     }
-                    dirListadapter.add(new DirectionItem(
+                    DirectionItem item = new DirectionItem(
                         NavigationView.getDirectionDrawableId(nextNode.getDirection()),
-                        distance, nextNode.getRoadName()));
+                        distance, nextNode.getRoadName());
+                    dirListadapter.add(item);
+                    items.add(item);
                     distance = 0;
                 }
                 distance += nextNode.getDistance();
             } while ((nextNode = nextNode.getNextNode()) != null);
         }
+        return items;
     }
     
     private synchronized void locationChanged(Location location) {
@@ -904,22 +910,6 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         if(mTts != null){
             mTts.shutdown();
         }
-    }
-    
-    private static class DirectionItem {
-        
-        int drawableId;
-        
-        double distance;
-        
-        String roadName;
-
-        DirectionItem(int drawableId, double distance, String roadName) {
-            this.drawableId = drawableId;
-            this.distance = distance;
-            this.roadName = roadName;
-        }
-        
     }
     
 }

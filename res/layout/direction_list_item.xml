@@ -48,8 +48,8 @@
 	        android:layout_marginLeft="10dp"
 	        android:paddingTop="10dp"
 	   		android:paddingBottom="10dp"
-	   		android:paddingLeft="15dp"
-	   		android:paddingRight="15dp"
+	   		android:paddingLeft="19dp"
+	   		android:paddingRight="19dp"
 	        android:text="@string/placeholder"
 	        style="@style/LargeBoldText"
     	/>
