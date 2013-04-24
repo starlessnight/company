@@ -220,7 +220,6 @@ public final class NavigationView extends LinearLayout {
                 while(end.getFlag() == 0 && end.getNextNode() != null){
                     end = end.getNextNode(); 
                 }
-                 
                 boolean continueDir = false;    
                 if(!everInRoute){
                     everInRoute = true;
@@ -232,7 +231,11 @@ public final class NavigationView extends LinearLayout {
                 
                 if(continueDir){
                     if(listener != null){
-                        listener.onCheckPoint(getContinueDirection(node, formattedDist));
+                        RouteNode prevNode = end.getPrevNode();
+                        if(prevNode == null){
+                            prevNode = end;
+                        }
+                        listener.onCheckPoint(getContinueDirection(prevNode, formattedDist));
                     }
                 }else{
                     double linkDistance = 0;
