@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.osmdroid.tileprovider.util.CloudmadeUtil;
@@ -45,6 +46,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -77,6 +79,7 @@ import com.smartrek.utils.PrerecordedTrajectory;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.SmartrekTileProvider;
+import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.SystemService;
 import com.smartrek.utils.ValidationParameters;
 
@@ -130,7 +133,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     
     private ListView dirListView;
     
-    private ArrayAdapter<CharSequence> dirListadapter;
+    private ArrayAdapter<DirectionItem> dirListadapter;
     
     private static String utteranceId = "utteranceId";
 
@@ -169,15 +172,30 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         validationTimeoutHandler = new Handler();
         validationTimeoutHandler.postDelayed(validationTimeoutNotifier, (900 + route.getDuration()*3) * 1000);
         
-        dirListadapter = new ArrayAdapter<CharSequence>(this, R.layout.direction_list_item, R.id.direction_text){
+        dirListadapter = new ArrayAdapter<DirectionItem>(this, R.layout.direction_list_item, R.id.text_view_road){
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
-                Font.setTypeface(boldFont, (TextView)view.findViewById( R.id.direction_text));
-                view.setBackgroundResource(position == 0?R.color.light_green:0);
-                TextView textView = (TextView)view.findViewById(R.id.direction_text);
-                textView.setText(getItem(position));
-                textView.requestLayout();
+                TextView vRoad = (TextView)view.findViewById(R.id.text_view_road);
+                TextView vDistance = (TextView)view.findViewById(R.id.text_view_distance);
+                Font.setTypeface(boldFont, vRoad, vDistance);
+                for(View v: new View[]{view.findViewById(R.id.left_panel), vRoad}){
+                    v.setBackgroundResource(position == 0?R.color.light_green:0);
+                }
+                DirectionItem item = getItem(position);
+                ImageView vDirection = (ImageView)view.findViewById(R.id.img_view_direction);
+                if(item.drawableId == 0){
+                    vDirection.setVisibility(View.INVISIBLE);
+                }else{
+                    vDirection.setImageResource(item.drawableId);
+                    vDirection.setVisibility(View.VISIBLE);
+                }
+                vDistance.setText(StringUtil.formatImperialDistance(item.distance, true));
+                vDistance.requestLayout();
+                vRoad.setText((StringUtils.isBlank(item.roadName) 
+                    || StringUtils.equalsIgnoreCase(item.roadName, "null"))
+                    ?"":item.roadName);
+                vRoad.requestLayout();
                 return view;
             }
         };
@@ -561,8 +579,9 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
                         distance = route.getDistanceToNextTurn(location.getLatitude(), 
                             location.getLongitude());
                     }
-                    dirListadapter.add(NavigationView.getFormattedDirection(nextNode, 
-                        distance, getResources().getDimensionPixelSize(R.dimen.large_font)));
+                    dirListadapter.add(new DirectionItem(
+                        NavigationView.getDirectionDrawableId(nextNode.getDirection()),
+                        distance, nextNode.getRoadName()));
                     distance = 0;
                 }
                 distance += nextNode.getDistance();
@@ -885,6 +904,22 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
         if(mTts != null){
             mTts.shutdown();
         }
+    }
+    
+    private static class DirectionItem {
+        
+        int drawableId;
+        
+        double distance;
+        
+        String roadName;
+
+        DirectionItem(int drawableId, double distance, String roadName) {
+            this.drawableId = drawableId;
+            this.distance = distance;
+            this.roadName = roadName;
+        }
+        
     }
     
 }

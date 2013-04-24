@@ -3,20 +3,58 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:minHeight="104dp"
-    android:paddingTop="19dp"
     android:orientation="vertical">
     
-    <TextView
-        android:id="@+id/direction_text"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginLeft="45dp"
-        android:layout_marginRight="45dp"
-        android:paddingBottom="19dp"
-        android:text="@string/placeholder"
-        style="@style/SmallerBoldText"
-    />
+        android:orientation="horizontal">
+        
+    	<LinearLayout
+    	    android:id="@+id/left_panel"  
+	        android:layout_width="105dp"
+	        android:layout_height="match_parent"
+	        android:paddingTop="10dp"
+	   		android:paddingBottom="10dp"
+	        android:orientation="vertical">
+	            
+	        <ImageView
+	            android:id="@+id/img_view_direction"
+	            android:layout_height="wrap_content"
+	            android:layout_width="wrap_content"
+	            android:layout_gravity="center_horizontal"
+	            android:src="@drawable/make_a_u_turn" 
+			/>
+	        
+	        <TextView
+		        android:id="@+id/text_view_distance"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="10dp"
+		        android:layout_marginLeft="15dp"
+		        android:layout_marginRight="15dp"
+		        android:text="100.1 mi"
+		        android:gravity="center_horizontal"
+		        style="@style/SmallerBoldText"
+	    	/>
+        
+        </LinearLayout>
+        
+        <TextView
+	        android:id="@+id/text_view_road"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_marginLeft="10dp"
+	        android:paddingTop="10dp"
+	   		android:paddingBottom="10dp"
+	   		android:paddingLeft="15dp"
+	   		android:paddingRight="15dp"
+	        android:text="@string/placeholder"
+	        style="@style/LargeBoldText"
+    	/>
+        
+    </LinearLayout>
     
     <View
        android:layout_width="match_parent"

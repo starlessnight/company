@@ -15,7 +15,7 @@
 	   	android:paddingRight="45dp"
 	   	android:paddingBottom="19dp"
         style="@style/SmallerBoldText"
-        android:visibility="invisible" />
+        android:visibility="visible" />
     
     <TextView
         android:id="@+id/text_view_generic_message"
@@ -34,7 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:visibility="visible">
+        android:visibility="invisible">
         
     	<LinearLayout 
 	        android:layout_width="105dp"
