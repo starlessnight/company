@@ -316,7 +316,7 @@ public final class NavigationView extends LinearLayout {
 	    }else if(StringUtils.equalsIgnoreCase("go straight", direction)){
 	        id = R.drawable.go_straight;
 	    }else{
-	        id = 0; 
+	        id = R.drawable.go_straight; 
 	    }
 	    return id;
 	}
