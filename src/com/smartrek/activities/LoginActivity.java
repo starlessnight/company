@@ -55,11 +55,6 @@ public final class LoginActivity extends Activity implements OnClickListener,
         Font.setTypeface(Font.getBold(assets), (TextView)findViewById(R.id.subtitle),
             login, new_user);
         Font.setTypeface(Font.getLight(assets), editTextUsername, editTextPassword);
-        
-        if(Misc.isAddGoogleAccount(this)){
-            Misc.setAddGoogleAccount(this, false);
-            Misc.showGoogleAccountDialog(this);
-        }
     }
     
     @Override
@@ -75,49 +70,54 @@ public final class LoginActivity extends Activity implements OnClickListener,
 
 	@Override
 	public void onClick(View v) {
-		String username = editTextUsername.getText().toString();
-		String password = editTextPassword.getText().toString();
-		
-		SharedPreferences globalPrefs = Preferences.getGlobalPreferences(this);
-		String gcmRegistrationId = globalPrefs.getString(Preferences.Global.GCM_REG_ID, "");
-		
-		SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
-		SharedPreferences.Editor loginPrefsEditor = loginPrefs.edit();
-		loginPrefsEditor.putString(User.USERNAME, username);
-		loginPrefsEditor.putString(User.PASSWORD, password);
-		loginPrefsEditor.commit();
-		
-		new LoginTask(this, username, password, gcmRegistrationId){
-            @Override
-            protected void onPostLogin(User user) {
-                if(user != null && user.getId() != -1) {
-                    Log.d("Login_Activity","Successful Login");
-                    Log.d("Login_Activity", "Saving Login Info to Shared Preferences");
-
-                    User.setCurrentUser(LoginActivity.this, user);
-                    
-                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                    intent.putExtra(HomeActivity.INIT, true);
-                    LoginActivity.this.startActivity(intent);
-                    finish();
-                }
-                else {
-//                  Log.d("Login_Activity", "Failed Login User: " + user.getUsername());
-//                  TextView loginfail_text = (TextView) findViewById(R.id.failed_login);
-//                  loginfail_text.setVisibility(View.VISIBLE);
-                    editTextPassword.setText("");
-                 
-                    String msg;
-                    if(ehs.hasExceptions() && ehs.popException().getException() instanceof ConnectException){
-                        msg = "Can't connect. Check your network.";
-                    }else{
-                        msg = "The username or password you entered is not valid.";
+	    if(Misc.isAddGoogleAccount(this)){
+            Misc.setAddGoogleAccount(this, false);
+            Misc.showGoogleAccountDialog(this);
+        }else{
+    		String username = editTextUsername.getText().toString();
+    		String password = editTextPassword.getText().toString();
+    		
+    		SharedPreferences globalPrefs = Preferences.getGlobalPreferences(this);
+    		String gcmRegistrationId = globalPrefs.getString(Preferences.Global.GCM_REG_ID, "");
+    		
+    		SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
+    		SharedPreferences.Editor loginPrefsEditor = loginPrefs.edit();
+    		loginPrefsEditor.putString(User.USERNAME, username);
+    		loginPrefsEditor.putString(User.PASSWORD, password);
+    		loginPrefsEditor.commit();
+    		
+    		new LoginTask(this, username, password, gcmRegistrationId){
+                @Override
+                protected void onPostLogin(User user) {
+                    if(user != null && user.getId() != -1) {
+                        Log.d("Login_Activity","Successful Login");
+                        Log.d("Login_Activity", "Saving Login Info to Shared Preferences");
+    
+                        User.setCurrentUser(LoginActivity.this, user);
+                        
+                        Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                        intent.putExtra(HomeActivity.INIT, true);
+                        LoginActivity.this.startActivity(intent);
+                        finish();
                     }
-                    NotificationDialog notificationDialog = new NotificationDialog(LoginActivity.this, msg);
-                    notificationDialog.show();
-                }                
-            }
-		}.execute();
+                    else {
+    //                  Log.d("Login_Activity", "Failed Login User: " + user.getUsername());
+    //                  TextView loginfail_text = (TextView) findViewById(R.id.failed_login);
+    //                  loginfail_text.setVisibility(View.VISIBLE);
+                        editTextPassword.setText("");
+                     
+                        String msg;
+                        if(ehs.hasExceptions() && ehs.popException().getException() instanceof ConnectException){
+                            msg = "Can't connect. Check your network.";
+                        }else{
+                            msg = "The username or password you entered is not valid.";
+                        }
+                        NotificationDialog notificationDialog = new NotificationDialog(LoginActivity.this, msg);
+                        notificationDialog.show();
+                    }                
+                }
+    		}.execute();
+        }
 	}
 	
 	Button.OnClickListener registerButtonClickListener = new Button.OnClickListener() {

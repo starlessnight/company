@@ -61,7 +61,12 @@ public final class UserRegistrationActivity extends ActionBarActivity
 
 			@Override
 			public void onClick(View view) {
-				checkUserInput();
+			    if(Misc.isAddGoogleAccount(UserRegistrationActivity.this)){
+		            Misc.setAddGoogleAccount(UserRegistrationActivity.this, false);
+		            Misc.showGoogleAccountDialog(UserRegistrationActivity.this);
+		        }else{
+		            checkUserInput();
+		        }
 			}
 
         });
@@ -70,11 +75,6 @@ public final class UserRegistrationActivity extends ActionBarActivity
             editTextFirstname, editTextLastname, editTextPassword, editTextPasswordConfirm,
             editTextUsername);
         Font.setTypeface(boldFont, buttonRegister);
-        
-        if(Misc.isAddGoogleAccount(this)){
-            Misc.setAddGoogleAccount(this, false);
-            Misc.showGoogleAccountDialog(this);
-        }
     }
     
 	@Override
