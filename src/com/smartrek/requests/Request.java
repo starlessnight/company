@@ -3,6 +3,8 @@ package com.smartrek.requests;
 import java.io.IOException;
 import java.util.Map;
 
+import org.apache.http.client.HttpResponseException;
+
 import android.util.Log;
 
 import com.smartrek.utils.Cache;
@@ -63,6 +65,9 @@ public abstract class Request {
 		if (responseCode == 200) {
 			return responseBody;
 		}
+		else if(responseCode == 500){
+		    throw new HttpResponseException(responseCode, responseBody);
+		}
 		else {
 			throw new IOException(String.format("HTTP %d: %s", responseCode, responseBody));
 		}
@@ -88,4 +93,5 @@ public abstract class Request {
 	public void invalidateCache() {
 		Cache.getInstance().invalidate(url);
 	}
+	
 }
