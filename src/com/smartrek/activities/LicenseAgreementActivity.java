@@ -6,11 +6,13 @@ import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -70,7 +72,12 @@ public class LicenseAgreementActivity extends Activity {
             is = getResources().getAssets().open("license.html");
             webviewContent = (WebView) findViewById(R.id.webview_content);
             webviewContent.setWebViewClient(new WebViewClient() {
-                public void onPageFinished(WebView view, String url) {
+                @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+				public void onPageFinished(WebView view, String url) {
+                    view.setBackgroundColor(0x00000000);
+                    if (Build.VERSION.SDK_INT >= 11) {
+                        view.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
+                    }
                     webviewContent.postDelayed(new Runnable() {
                         @Override
                         public void run() {
