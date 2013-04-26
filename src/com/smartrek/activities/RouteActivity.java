@@ -100,12 +100,20 @@ public final class RouteActivity extends ActionBarActivity {
     
     private List<RouteTask> routeTasks = new Vector<RouteTask>();
     
+    private List<GeocodingTask> geocodingTasks = new ArrayList<GeocodingTask>();
+    
     private boolean debugMode;
     
     private Runnable goBackToWhereTo = new Runnable() {
         @Override
         public void run() {
             if(!isFinishing()){
+                for(GeocodingTask t:geocodingTasks){
+                    t.cancel(true);
+                }
+                for (RouteTask task : routeTasks) {
+                    task.cancel(true);
+                }
                 finish();
             }
         }
@@ -113,11 +121,17 @@ public final class RouteActivity extends ActionBarActivity {
     
 	private GeocodingTaskCallback originGeocodingTaskCallback = new GeocodingTaskCallback() {
 		
-		private ProgressDialog dialog;
+		private CancelableProgressDialog dialog;
 
 		@Override
 		public void preCallback() {
 			dialog = new CancelableProgressDialog(RouteActivity.this, "Geocoding origin address...");
+			dialog.setActionListener(new CancelableProgressDialog.ActionListener() {
+                @Override
+                public void onClickNegativeButton() {
+                    goBackToWhereTo.run();
+                }
+            });
 	        dialog.show();
 		}
 
@@ -140,7 +154,9 @@ public final class RouteActivity extends ActionBarActivity {
 			    ehs.reportExceptions(goBackToWhereTo);
 			}
 			else if(destCoord == null || destCoord.isEmpty()){
-				new GeocodingTask(ehs, destGeocodingTaskCallback).execute(destAddr);
+				GeocodingTask task = new GeocodingTask(ehs, destGeocodingTaskCallback);
+				task.execute(destAddr);
+                geocodingTasks.add(task);
 			}else{
 			    RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
 	            routeTasks.add(routeTask);
@@ -152,11 +168,17 @@ public final class RouteActivity extends ActionBarActivity {
 	
 	private GeocodingTaskCallback destGeocodingTaskCallback = new GeocodingTaskCallback() {
 
-		private ProgressDialog dialog;
+		private CancelableProgressDialog dialog;
 		
 		@Override
 		public void preCallback() {
 			dialog = new CancelableProgressDialog(RouteActivity.this, "Geocoding destination address...");
+			dialog.setActionListener(new CancelableProgressDialog.ActionListener() {
+                @Override
+                public void onClickNegativeButton() {
+                    goBackToWhereTo.run();
+                }
+            });
 	        dialog.show();
 		}
 
@@ -335,6 +357,7 @@ public final class RouteActivity extends ActionBarActivity {
                 @Override
                 public void onClickNegativeButton() {
                     locationManager.removeUpdates(locationListener);
+                    goBackToWhereTo.run();
                 }
             });
             currentLocDialog.show();
@@ -346,9 +369,13 @@ public final class RouteActivity extends ActionBarActivity {
     
     private void doRouteTask(){
         if(originCoord == null || originCoord.isEmpty()){
-            new GeocodingTask(ehs, originGeocodingTaskCallback).execute(originAddr);
+            GeocodingTask task = new GeocodingTask(ehs, originGeocodingTaskCallback);
+            task.execute(originAddr);
+            geocodingTasks.add(task);
         }else if(destCoord == null || destCoord.isEmpty()){
-            new GeocodingTask(ehs, destGeocodingTaskCallback).execute(destAddr);
+            GeocodingTask task = new GeocodingTask(ehs, destGeocodingTaskCallback);
+            task.execute(destAddr);
+            geocodingTasks.add(task);
         }else{
             RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
             routeTasks.add(routeTask);
@@ -380,14 +407,7 @@ public final class RouteActivity extends ActionBarActivity {
                 .setPositiveButton(res.getString(R.string.yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        
-                        // Cancel all pending tasks
-                        for (RouteTask task : routeTasks) {
-                            task.cancel(true);
-                        }
-                        
-                        // Stop the activity
-                        RouteActivity.this.finish();
+                        goBackToWhereTo.run();
                     }
 
                 }).setNegativeButton(res.getString(R.string.no), null).show();
@@ -633,7 +653,7 @@ public final class RouteActivity extends ActionBarActivity {
         } 
         
         if(requestCode == RESERVATION_CONFIRM && resultCode == RESERVATION_CONFIRM_ENDED){
-            finish();
+            goBackToWhereTo.run();
         }
     }
     
@@ -662,7 +682,7 @@ public final class RouteActivity extends ActionBarActivity {
         private GeoPoint destination;
         private long departureTime;
         
-        private ProgressDialog dialog;
+        private CancelableProgressDialog dialog;
         
         public RouteTask(GeoPoint origin, GeoPoint destination, long departureTime, int column, boolean updateMap) {
         	super();
@@ -690,16 +710,12 @@ public final class RouteActivity extends ActionBarActivity {
             timeLayout.setColumnState(selectedColumn, TimeButton.State.InProgress);
             
             dialog = new CancelableProgressDialog(RouteActivity.this, "Finding routes...");
-	        dialog.setButton(DialogInterface.BUTTON_NEGATIVE,
-	        		getResources().getString(R.string.cancel),
-	        		new DialogInterface.OnClickListener() {
-
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					finish();
-				}
-	        
-	        });
+            dialog.setActionListener(new CancelableProgressDialog.ActionListener() {
+                @Override
+                public void onClickNegativeButton() {
+                    goBackToWhereTo.run();
+                }
+            });
         	
         	if (isCached()) {
         		
@@ -765,7 +781,9 @@ public final class RouteActivity extends ActionBarActivity {
                 if (selectedColumn == 0) {
                     for (int i = 1; i < Math.min(9, timeLayout.getColumnCount()); i++) {
                         long departureTime = timeLayout.getDepartureTime(i);
-                        new RouteTask(originCoord, destCoord, departureTime, i, false).execute();
+                        RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime, i, false);
+                        routeTask.execute();
+                        routeTasks.add(routeTask);
                     }
                 }
             }

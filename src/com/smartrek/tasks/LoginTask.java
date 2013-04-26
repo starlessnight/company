@@ -35,6 +35,7 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
 		dialog = new ProgressDialog(ctx);
         dialog.setTitle("Smartrek");
         dialog.setMessage(String.format("Logging in as '%s'...", username));
+        dialog.setCanceledOnTouchOutside(false);
 	}
 	
 	@Override
