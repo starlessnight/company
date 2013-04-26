@@ -22,11 +22,14 @@ import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -41,6 +44,9 @@ import android.speech.tts.TextToSpeech.OnInitListener;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -53,9 +59,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.SendTrajectoryService;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
@@ -85,7 +88,7 @@ import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.SystemService;
 import com.smartrek.utils.ValidationParameters;
 
-public final class ValidationActivity extends ActionBarActivity implements OnInitListener {
+public final class ValidationActivity extends Activity implements OnInitListener {
     
     public static final int DEFAULT_ZOOM_LEVEL = 18;
     
@@ -151,10 +154,18 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     
     private Handler animator;
     
+    private Typeface boldFont;
+    
+    private Typeface lightFont;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_reservation_map);
+        
+        AssetManager assets = getAssets();
+        boldFont = Font.getBold(assets);
+        lightFont = Font.getLight(assets);
         
         animator = new Handler(Looper.getMainLooper());
         
@@ -332,7 +343,7 @@ public final class ValidationActivity extends ActionBarActivity implements OnIni
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         super.onCreateOptionsMenu(menu);
-        MenuInflater mi = getSupportMenuInflater();
+        MenuInflater mi = getMenuInflater();
         mi.inflate(R.menu.validation, menu);
         return true;
     }
