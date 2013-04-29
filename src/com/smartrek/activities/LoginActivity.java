@@ -108,14 +108,15 @@ public final class LoginActivity extends Activity implements OnClickListener,
     //                  loginfail_text.setVisibility(View.VISIBLE);
                         editTextPassword.setText("");
                      
-                        String msg;
+                        CharSequence msg;
                         Exception exc = ehs.hasExceptions()?ehs.popException().getException():null;
                         if(exc instanceof ConnectException || exc instanceof UnknownHostException){
                             msg = "Can't connect. Check your network.";
                         }else if(exc instanceof HttpResponseException && ((HttpResponseException)exc).getStatusCode() == 500){
                             msg = "The server encountered an unexpected condition which prevented it from fulfilling the request.";
                         }else{
-                            msg = "The username or password you entered is not valid.";
+                            msg = Html.fromHtml("The username or password you entered is not valid.&nbsp;"
+                                + "<a href=\"http://www.smartrekmobile.com/reset\">Forgot your password?</a>");
                         }
                         NotificationDialog notificationDialog = new NotificationDialog(LoginActivity.this, msg);
                         notificationDialog.show();
