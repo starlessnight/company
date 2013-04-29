@@ -108,12 +108,6 @@ public final class RouteActivity extends ActionBarActivity {
         @Override
         public void run() {
             if(!isFinishing()){
-                for(GeocodingTask t:geocodingTasks){
-                    t.cancel(true);
-                }
-                for (RouteTask task : routeTasks) {
-                    task.cancel(true);
-                }
                 finish();
             }
         }
@@ -654,6 +648,17 @@ public final class RouteActivity extends ActionBarActivity {
         
         if(requestCode == RESERVATION_CONFIRM && resultCode == RESERVATION_CONFIRM_ENDED){
             goBackToWhereTo.run();
+        }
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        for(GeocodingTask t:geocodingTasks){
+            t.cancel(true);
+        }
+        for (RouteTask task : routeTasks) {
+            task.cancel(true);
         }
     }
     
