@@ -78,12 +78,7 @@ public class LicenseAgreementActivity extends Activity {
                     if (Build.VERSION.SDK_INT >= 11) {
                         view.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
                     }
-                    webviewContent.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            webviewContent.setVisibility(View.VISIBLE);
-                        }
-                    }, 100);
+                    webviewContent.setVisibility(View.VISIBLE);
                 }
                 public boolean shouldOverrideUrlLoading(WebView view, String url) {
                     String emailProtocol = "mailto:";
