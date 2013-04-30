@@ -101,37 +101,45 @@ public final class Geocoding {
 	 * @throws JSONException 
 	 */
 	public static List<Address> lookup(String query) throws IOException, JSONException {
-		String url = String.format("%s?q=%s&format=json", URL, URLEncoder.encode(
-	        replaceLaInitials(removeZipCodes(query))));
-		Log.d("Geocoding", "url = " + url);
-		
-		HTTP http = new HTTP(url);
-		http.connect();
-		
-		List<Address> addresses = new ArrayList<Address>();
-		
-		int responseCode = http.getResponseCode();
-		if (responseCode == 200) {
-			String response = http.getResponseBody();
-			
-			JSONArray array = new JSONArray(response);
-			
-			for (int i=0; i<array.length(); i++) {
-				JSONObject object = (JSONObject) array.get(i);
-				
-				Address address = new Address();
-				address.setLatitude(object.getDouble("lat"));
-				address.setLongitude(object.getDouble("lon"));
-				address.setName(object.getString("display_name"));
-				address.setClass_(object.getString("class"));
-				address.setType(object.getString("type"));
-				
-				addresses.add(address);
-			}
-		}
-		
-		return addresses;
+		return lookup(query, true);
 	}
+	
+	private static List<Address> lookup(String query, boolean retry) throws IOException, JSONException {
+        String url = String.format("%s?q=%s&format=json", URL, URLEncoder.encode(
+            replaceLaInitials(removeZipCodes(query))));
+        Log.d("Geocoding", "url = " + url);
+        
+        HTTP http = new HTTP(url);
+        http.connect();
+        
+        List<Address> addresses = new ArrayList<Address>();
+        
+        int responseCode = http.getResponseCode();
+        if (responseCode == 200) {
+            String response = http.getResponseBody();
+            
+            JSONArray array = new JSONArray(response);
+            
+            for (int i=0; i<array.length(); i++) {
+                JSONObject object = (JSONObject) array.get(i);
+                
+                Address address = new Address();
+                address.setLatitude(object.getDouble("lat"));
+                address.setLongitude(object.getDouble("lon"));
+                address.setName(object.getString("display_name"));
+                address.setClass_(object.getString("class"));
+                address.setType(object.getString("type"));
+                
+                addresses.add(address);
+            }
+        }
+        
+        if(retry && addresses.isEmpty()){
+            addresses = lookup(removeStreets(query), false);
+        }
+        
+        return addresses;
+    }
 	
 	private static String removeZipCodes(String address){
 	    return address.replaceAll("(?<=\\S[,\\s]{1,10})([0-9]{5}(-[0-9]{4})?)(?=([,\\s]{1,10}($|\\S)|$))", "");
@@ -140,5 +148,9 @@ public final class Geocoding {
 	private static String replaceLaInitials(String address){
 	    return address.replaceAll("(?i)(?<=(^|(^|\\S)[,\\s]{1,10}))la(?=([,\\s]{1,10}($|\\S)|$))", "los angeles");
 	}
+	
+	private static String removeStreets(String address){
+        return address.replaceAll("(?i)(?<=(^|(^|\\S)[,\\s]{1,10}))((st\\.?)|(street))(?=([,\\s]{1,10}($|\\S)|$))", "");
+    }
 	
 }

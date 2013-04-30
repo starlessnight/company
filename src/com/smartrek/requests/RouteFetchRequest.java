@@ -75,11 +75,13 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 			Route route = Route.parse((JSONObject) array.get(i), departureTime);
 		    route.setFake(fake);
 		    route.setSeq(i);
-			routes.add(route);
+		    if(!route.getNodes().isEmpty()){
+		        routes.add(route);
+		    }
 		}
 		
 		if (routes.size() == 0) {
-			throw new RouteNotFoundException("Could not find a route (0xb615)");
+			throw new RouteNotFoundException("Could not find a route.");
 		}
 		
 		return routes;
