@@ -73,7 +73,6 @@ public final class LoginActivity extends Activity implements OnClickListener,
 	@Override
 	public void onClick(View v) {
 	    if(Misc.isAddGoogleAccount(this)){
-            Misc.setAddGoogleAccount(this, false);
             Misc.showGoogleAccountDialog(this);
         }else{
     		String username = editTextUsername.getText().toString();

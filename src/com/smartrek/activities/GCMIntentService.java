@@ -66,6 +66,8 @@ public class GCMIntentService extends GCMBaseIntentService {
 		Log.i(LOG_TAG, "GCMIntentService onRegistered called");
 		Log.i(LOG_TAG, "Registration id is: " + registrationId);
 		
+		Misc.setAddGoogleAccount(context, false);
+		
 		SharedPreferences prefs = Preferences.getGlobalPreferences(context);
 		SharedPreferences.Editor editor = prefs.edit();
 		

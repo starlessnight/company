@@ -62,7 +62,6 @@ public final class UserRegistrationActivity extends ActionBarActivity
 			@Override
 			public void onClick(View view) {
 			    if(Misc.isAddGoogleAccount(UserRegistrationActivity.this)){
-		            Misc.setAddGoogleAccount(UserRegistrationActivity.this, false);
 		            Misc.showGoogleAccountDialog(UserRegistrationActivity.this);
 		        }else{
 		            checkUserInput();
