@@ -2,6 +2,8 @@ package com.smartrek.ui.timelayout;
 
 import android.text.format.Time;
 
+import com.smartrek.requests.Request;
+
 /*********************************************************************************************************
  * 
  * 
@@ -9,6 +11,8 @@ import android.text.format.Time;
  *********************************************************************************************************/
 public class AdjustableTime extends Time {
 	
+    private Time deviceTime;
+    
 	/*********************************************************************************************************
 	 * 
 	 * 
@@ -16,11 +20,16 @@ public class AdjustableTime extends Time {
 	 *********************************************************************************************************/
 	public AdjustableTime() {
 		super();
-		this.setToNow();
+		setToNow();
+		switchTimezone(Request.TIME_ZONE);
+		deviceTime = new Time();
+		deviceTime.setToNow();
 	}
 	
 	public Time initTime() {
-		return new Time(this);
+		Time t = new Time(this);
+		t.switchTimezone(Request.TIME_ZONE);
+        return t;
 	}
 	
 	/*********************************************************************************************************
@@ -53,10 +62,14 @@ public class AdjustableTime extends Time {
 	 * 
 	 *********************************************************************************************************/
 	public int getNumTimeBoxes() {
-		int numboxes = 0;
-		numboxes += (60 - this.minute) / 15;
-		numboxes += (23 - this.hour) * 4;
-		return numboxes + 1;
+		return Math.min(getNumTimeBoxes(this), getNumTimeBoxes(deviceTime));
 	}
+	
+	private static int getNumTimeBoxes(Time t) {
+        int numboxes = 0;
+        numboxes += (60 - t.minute) / 15;
+        numboxes += (23 - t.hour) * 4;
+        return numboxes + (t.minute == 0?0:1);
+    }
 	
 }

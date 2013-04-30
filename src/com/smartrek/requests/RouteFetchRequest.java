@@ -23,6 +23,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 	public static String buildUrl(GeoPoint origin, GeoPoint destination, long departureTime) {
 		Time t = new Time();
 		t.set(departureTime);
+		t.switchTimezone(TIME_ZONE);
 		
 		return String.format("%s/getroutes/startlat=%.7f%%20startlon=%.7f%%20endlat=%.7f%%20endlon=%.7f%%20departtime=%d:%02d",
 				HOST, origin.getLatitude(), origin.getLongitude(),
