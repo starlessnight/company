@@ -82,8 +82,9 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:textColor="#FFFFFFFF"
-           android:textSize="18dp"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="18dp"
+        android:text="@string/placeholder"
         android:inputType="number" 
 	/>
 
