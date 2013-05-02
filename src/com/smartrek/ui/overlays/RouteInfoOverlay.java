@@ -186,7 +186,7 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
         Paint paint = new Paint(); 
         paint.setStyle(Style.FILL);  
         paint.setColor(textColor);
-        float textSize = res.getDimension(R.dimen.smallest_font);
+        float textSize = res.getDimension(R.dimen.medium_font);
         paint.setTextSize(textSize);
         paint.setTypeface(font);
         paint.setAntiAlias(true);
