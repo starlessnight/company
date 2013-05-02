@@ -89,7 +89,10 @@ public final class Geocoding {
 	/**
 	 * http://code.google.com/apis/maps/documentation/geocoding/#GeocodingResponses
 	 */
+	public static final String GOOGLE_URL = "http://maps.googleapis.com/maps/api/geocode/json";
+	
 	public static final String URL = "http://nominatim.openstreetmap.org/search";
+	
 
 	/**
 	 * Converts an address into a geographic coordinate. This function does not
@@ -101,12 +104,8 @@ public final class Geocoding {
 	 * @throws JSONException 
 	 */
 	public static List<Address> lookup(String query) throws IOException, JSONException {
-		return lookup(query, true);
-	}
-	
-	private static List<Address> lookup(String query, boolean retry) throws IOException, JSONException {
         String url = String.format("%s?q=%s&format=json", URL, URLEncoder.encode(
-            replaceLaInitials(removeZipCodes(query))));
+            replaceLaInitials(query)));
         Log.d("Geocoding", "url = " + url);
         
         HTTP http = new HTTP(url);
@@ -134,8 +133,12 @@ public final class Geocoding {
             }
         }
         
-        if(retry && addresses.isEmpty()){
-            addresses = lookup(removeStreets(query), false);
+        if(addresses.isEmpty()){
+            GeoPoint gp = googleLookup(query);
+            Address address = new Address();
+            address.setLatitude(gp.getLatitude());
+            address.setLongitude(gp.getLongitude());
+            addresses.add(address);
         }
         
         return addresses;
@@ -151,6 +154,40 @@ public final class Geocoding {
 	
 	private static String removeStreets(String address){
         return address.replaceAll("(?i)(?<=(^|(^|\\S)[,\\s]{1,10}))((st\\.?)|(street))(?=([,\\s]{1,10}($|\\S)|$))", "");
+    }
+	
+    private static GeoPoint googleLookup(String address) throws IOException, JSONException {
+        String url = String.format("%s?address=%s&sensor=false", GOOGLE_URL, URLEncoder.encode(address));
+        Log.d("Geocoding", "url = " + url);
+        
+        double lat = 0.0;
+        double lng = 0.0;
+        
+        HTTP http = new HTTP(url);
+        http.connect();
+        
+        int responseCode = http.getResponseCode();
+        if (responseCode == 200) {
+            String response = http.getResponseBody();
+            
+            JSONObject object = new JSONObject(response);
+            
+            // if status == "OK"
+            if("OK".equals(object.get("status"))) {
+                JSONArray results = (JSONArray) object.get("results");
+                if(results.length() > 0) {
+                    JSONObject result = (JSONObject) results.get(0);
+                    
+                    JSONObject geometry = (JSONObject) result.get("geometry");
+                    JSONObject location = (JSONObject) geometry.get("location");
+                
+                    lat = location.getDouble("lat");
+                    lng = location.getDouble("lng");
+                }
+            }
+        }
+        
+        return new GeoPoint(lat, lng);
     }
 	
 }
