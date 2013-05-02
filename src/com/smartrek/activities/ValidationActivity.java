@@ -705,8 +705,6 @@ public final class ValidationActivity extends Activity implements OnInitListener
     }
     
     private void arriveAtDestination() {
-        validationTimeoutHandler.removeCallbacks(validationTimeoutNotifier);
-        
         saveTrajectory();
         
         reportValidation();
@@ -729,6 +727,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
     private void reportValidation(){
         if(!reported.get()){
             reported.set(true);
+            
+            validationTimeoutHandler.removeCallbacks(validationTimeoutNotifier);
             
             if (locationManager != null) {
                 locationManager.removeUpdates(locationListener);
@@ -917,7 +917,6 @@ public final class ValidationActivity extends Activity implements OnInitListener
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        validationTimeoutHandler.removeCallbacks(validationTimeoutNotifier);
         if(mTts != null){
             mTts.shutdown();
         }
