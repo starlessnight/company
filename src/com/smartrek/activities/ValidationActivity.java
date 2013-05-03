@@ -320,7 +320,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
         if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL) {
             prepareGPS();
         }
-        else if (gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED || gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA) {
+        else if (gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED || gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA
+                || gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA2) {
             int interval = DebugOptionsActivity.getGpsUpdateInterval(this);
             if(fakeLocationService == null){
                 fakeLocationService = new FakeLocationService(locationListener, interval, gpsMode);
@@ -728,14 +729,6 @@ public final class ValidationActivity extends Activity implements OnInitListener
         if(!reported.get()){
             reported.set(true);
             
-            validationTimeoutHandler.removeCallbacks(validationTimeoutNotifier);
-            
-            if (locationManager != null) {
-                locationManager.removeUpdates(locationListener);
-            }
-            
-            deactivateLocationService();
-            
             if(isTripValidated()){
                 endTime = new Time();
                 endTime.setToNow();
@@ -848,8 +841,15 @@ public final class ValidationActivity extends Activity implements OnInitListener
             
             if(trajectory == null){
                 try {
-                    InputStream in = getResources().getAssets().open(
-                        gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED?"trajectory.csv":"trajectory-la.csv");
+                    String tFile;
+                    if(gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED){
+                        tFile = "trajectory.csv";
+                    }else if(gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA){
+                        tFile = "trajectory-la.csv";
+                    }else{
+                        tFile = "trajectory-la-2.csv";
+                    }
+                    InputStream in = getResources().getAssets().open(tFile);
                     this.trajectory = (Queue<GeoPoint>) PrerecordedTrajectory.read(in, gpsMode);
                 }
                 catch (IOException e) {
@@ -917,6 +917,11 @@ public final class ValidationActivity extends Activity implements OnInitListener
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        validationTimeoutHandler.removeCallbacks(validationTimeoutNotifier);
+        if (locationManager != null) {
+            locationManager.removeUpdates(locationListener);
+        }
+        deactivateLocationService();
         if(mTts != null){
             mTts.shutdown();
         }
