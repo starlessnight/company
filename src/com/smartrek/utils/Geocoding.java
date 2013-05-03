@@ -128,10 +128,6 @@ public final class Geocoding {
                 address.setName(object.getString("display_name"));
                 address.setClass_(object.getString("class"));
                 address.setType(object.getString("type"));
-                
-                if(object.getLong("place_id") != 3870591082L){
-                    addresses.add(address);
-                }
             }
         }
         
