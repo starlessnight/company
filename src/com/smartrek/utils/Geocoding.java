@@ -129,7 +129,9 @@ public final class Geocoding {
                 address.setClass_(object.getString("class"));
                 address.setType(object.getString("type"));
                 
-                addresses.add(address);
+                if(object.getLong("place_id") != 3870591082L){
+                    addresses.add(address);
+                }
             }
         }
         
