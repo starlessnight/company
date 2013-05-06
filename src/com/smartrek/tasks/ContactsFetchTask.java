@@ -13,9 +13,11 @@ public final class ContactsFetchTask extends AsyncTask <Object, Object, List<Use
 	
 	private AsyncTaskCallback<List<User>> callback;
 	private ExceptionHandlingService ehs;
+	private Context ctx;
 	
 	public ContactsFetchTask(Context context) {
 		ehs = new ExceptionHandlingService(context);
+		ctx = context;
 	}
 	
 	public void setCallback(AsyncTaskCallback<List<User>> callback) {
@@ -37,7 +39,7 @@ public final class ContactsFetchTask extends AsyncTask <Object, Object, List<Use
 		ContactsRequest request = new ContactsRequest(uid);
 		List<User> contacts = null;
 		try {
-			contacts = request.execute();
+			contacts = request.execute(ctx);
 		}
 		catch (Exception e) {
 			ehs.registerException(e);

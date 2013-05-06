@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.http.client.HttpResponseException;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.smartrek.utils.Cache;
@@ -83,15 +84,15 @@ public abstract class Request {
 	 * 
 	 * @return
 	 */
-	public boolean isCached() {
-		return Cache.getInstance().has(url);
+	public boolean isCached(Context ctx) {
+		return Cache.getInstance(ctx).has(url);
 	}
 	
 	/**
 	 * Marks cached entry as invalid so that it gets re-fetched from the server.
 	 */
-	public void invalidateCache() {
-		Cache.getInstance().invalidate(url);
+	public void invalidateCache(Context ctx) {
+		Cache.getInstance(ctx).invalidate(url);
 	}
 	
 }

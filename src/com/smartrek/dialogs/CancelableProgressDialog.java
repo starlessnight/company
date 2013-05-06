@@ -22,6 +22,7 @@ public class CancelableProgressDialog extends ProgressDialog {
 		super(context);
 		setMessage(message);
 		setCanceledOnTouchOutside(false);
+		setCancelable(false);
 	}
 	
 	public void setActionListener(ActionListener actionListener) {

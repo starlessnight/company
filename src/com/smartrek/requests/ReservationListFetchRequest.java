@@ -6,6 +6,8 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.content.Context;
+
 import com.smartrek.models.Reservation;
 import com.smartrek.utils.Cache;
 
@@ -16,11 +18,11 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
 	}
 
 	@Override
-	public List<Reservation> execute() throws Exception {
+	public List<Reservation> execute(Context ctx) throws Exception {
 	    // FIXME: Not going to use cache for now
-	    Cache.getInstance().clear();
+	    Cache.getInstance(ctx).clear();
 	    
-		String response = executeFetchRequest(getURL());
+		String response = executeFetchRequest(getURL(), ctx);
 		
 		List<Reservation> reservations = new ArrayList<Reservation>();
         JSONArray array = new JSONArray(response.replaceAll("\"DISTANCE\":,", "\"DISTANCE\":0,"));

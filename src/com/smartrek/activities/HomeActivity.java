@@ -2,7 +2,6 @@ package com.smartrek.activities;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -59,7 +58,6 @@ import com.smartrek.tasks.GeocodingTask;
 import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
-import com.smartrek.utils.Cache;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
@@ -292,10 +290,10 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	        protected List<Address> doInBackground(Void... params) {
 	            User currentUser = User.getCurrentUser(HomeActivity.this);
 	            FavoriteAddressFetchRequest req = new FavoriteAddressFetchRequest(currentUser.getId());
-	            req.invalidateCache();
+	            req.invalidateCache(HomeActivity.this);
 	            List<Address> addresses;
 	            try {
-	                addresses = req.execute();
+	                addresses = req.execute(HomeActivity.this);
                 }
                 catch (Exception e) {
                     ehs.registerException(e);
@@ -421,7 +419,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 			                FavoriteAddressFetchRequest req = new FavoriteAddressFetchRequest(currentUser.getId());
 			                List<Address> addresses;
 			                try {
-			                    addresses = req.execute();
+			                    addresses = req.execute(HomeActivity.this);
 			                }
 			                catch (Exception e) {
 			                    ehs.registerException(e);
@@ -765,19 +763,6 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 		// Get the AlarmManager service
 		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
 		am.set(AlarmManager.RTC_WAKEUP, reservation.getDepartureTime() - 60000*5, pendingOperation); // 5 min earlier than departure time
-
-		Cache cache = Cache.getInstance();
-		if (cache.has("pendingAlarms")) {
-			@SuppressWarnings("unchecked")
-			List<PendingIntent> pendingAlarms = (List<PendingIntent>) cache.fetch("pendingAlarms");
-			pendingAlarms.add(pendingOperation);
-		}
-		else {
-			List<PendingIntent> pendingOperations = new LinkedList<PendingIntent>();
-			pendingOperations.add(pendingOperation);
-			
-			cache.put("pendingAlarms", pendingOperations);
-		}
 	}
 	
 	private class NotificationTask extends AsyncTask<Object, Object, List<Reservation>> {
@@ -789,6 +774,8 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 			dialog = new ProgressDialog(HomeActivity.this);
 			dialog.setTitle("Smartrek");
 			dialog.setMessage("Fetching existing reservations...");
+			dialog.setCancelable(false);
+			dialog.setCanceledOnTouchOutside(false);
 		}
 		
 		@Override
@@ -803,7 +790,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 			ReservationListFetchRequest request = new ReservationListFetchRequest(uid);
 			List<Reservation> reservations = null;
 			try {
-				reservations = request.execute();
+				reservations = request.execute(HomeActivity.this);
 			}
 			catch (Exception e) {
 				ehs.registerException(e);

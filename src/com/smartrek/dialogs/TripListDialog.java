@@ -116,7 +116,7 @@ public class TripListDialog extends GenericListDialog<Trip> {
 	
 	private void requestRefresh() {
 		User currentUser = User.getCurrentUser(getContext());
-		new TripListFetchRequest(currentUser.getId()).invalidateCache();
+		new TripListFetchRequest(currentUser.getId()).invalidateCache(getContext());
 		new TripListFetchTask().execute(currentUser.getId());
 	}
 	
@@ -162,7 +162,7 @@ public class TripListDialog extends GenericListDialog<Trip> {
 				request.execute();
 				
 				// clear cache
-				new TripListFetchRequest(User.getCurrentUser(getContext()).getId()).invalidateCache();
+				new TripListFetchRequest(User.getCurrentUser(getContext()).getId()).invalidateCache(getContext());
 			}
 			catch (Exception e) {
 				ehs.registerException(e);
@@ -193,7 +193,7 @@ public class TripListDialog extends GenericListDialog<Trip> {
 			TripListFetchRequest request = new TripListFetchRequest(uid);
 			try {
 			    //request.invalidateCache();
-				listItems = request.execute();
+				listItems = request.execute(getContext());
 			}
 			catch (Exception e) {
 				ehs.registerException(e);

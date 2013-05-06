@@ -470,9 +470,9 @@ public final class RouteActivity extends ActionBarActivity {
      */
     private void updateRoute(GeoPoint origin, GeoPoint destination, long departureTime, int column) {
         RouteFetchRequest request = new RouteFetchRequest(origin, destination, departureTime);
-        if (request.isCached()) {
+        if (request.isCached(this)) {
             try {
-                List<Route> routes = request.execute();
+                List<Route> routes = request.execute(this);
                 updateMap(routes);
                 timeLayout.setColumnState(column, TimeButton.State.Selected);
             }
@@ -701,12 +701,12 @@ public final class RouteActivity extends ActionBarActivity {
         
         public boolean isCached() {
         	RouteFetchRequest request = new RouteFetchRequest(origin, destination, departureTime);
-        	return request.isCached();
+        	return request.isCached(RouteActivity.this);
         }
         
         public List<Route> getData() throws RouteNotFoundException, IOException, JSONException {
         	RouteFetchRequest request = new RouteFetchRequest(origin, destination, departureTime);
-        	return request.execute();
+        	return request.execute(RouteActivity.this);
         }
         
         @Override
@@ -739,7 +739,7 @@ public final class RouteActivity extends ActionBarActivity {
             try {
             	if (debugMode) {
             		RouteFetchRequest request = new RouteFetchRequest(departureTime);
-            		routes = request.execute();
+            		routes = request.execute(RouteActivity.this);
             	}
             	else {
             		routes = getData();

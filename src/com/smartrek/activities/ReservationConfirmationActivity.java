@@ -155,19 +155,6 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 		// Get the AlarmManager service
 		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
 		am.set(AlarmManager.RTC_WAKEUP, departureTime - 60000*5, pendingOperation); // 5 min earlier than departure time
-
-		Cache cache = Cache.getInstance();
-		if (cache.has("pendingAlarms")) {
-			@SuppressWarnings("unchecked")
-			List<PendingIntent> pendingAlarms = (List<PendingIntent>) cache.fetch("pendingAlarms");
-			pendingAlarms.add(pendingOperation);
-		}
-		else {
-			List<PendingIntent> pendingOperations = new LinkedList<PendingIntent>();
-			pendingOperations.add(pendingOperation);
-			
-			cache.put("pendingAlarms", pendingOperations);
-		}
 	}
 	
 	private final class ReservationTask extends AsyncTask<Object, Object, Object> {
@@ -180,6 +167,7 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 			dialog.setMessage("Making reservation...");
 			dialog.setIndeterminate(true);
 			dialog.setCancelable(false);
+			dialog.setCanceledOnTouchOutside(false);
 			dialog.show();
 		}
 

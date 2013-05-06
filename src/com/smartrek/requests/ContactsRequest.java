@@ -6,6 +6,8 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.content.Context;
+
 import com.smartrek.models.User;
 
 
@@ -16,8 +18,8 @@ public final class ContactsRequest extends FetchRequest<List<User>> {
 	}
 
 	@Override
-	public List<User> execute() throws Exception {
-		String response = executeFetchRequest(getURL());
+	public List<User> execute(Context ctx) throws Exception {
+		String response = executeFetchRequest(getURL(), ctx);
 		
 		List<User> contacts = new ArrayList<User>();
 		JSONArray array = new JSONArray(response);

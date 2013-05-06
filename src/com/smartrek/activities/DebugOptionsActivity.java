@@ -7,8 +7,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
@@ -131,18 +133,36 @@ public final class DebugOptionsActivity extends Activity {
 
             @Override
             public void onClick(View v) {
-                Cache.getInstance().clear();
-                
-                FileUtils.deleteQuietly(
-                    new File(Environment.getExternalStorageDirectory(), osmdroidCacheDir));
-                
-                Toast toast = Toast.makeText(
-                		DebugOptionsActivity.this,
-                		"Cache has been cleared.",
-                		Toast.LENGTH_SHORT);
-                toast.show();
+                new AsyncTask<Void, Void, Void>() {
+                    
+                    ProgressDialog dialog;
+                    
+                    protected void onPreExecute() {
+                        dialog = new ProgressDialog(DebugOptionsActivity.this);
+                        dialog.setMessage("Clearing cache...");
+                        dialog.setIndeterminate(true);
+                        dialog.setCancelable(false);
+                        dialog.setCanceledOnTouchOutside(false);
+                        dialog.show();
+                    }
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        Cache.getInstance(DebugOptionsActivity.this).clear();
+                        FileUtils.deleteQuietly(new File(
+                            Environment.getExternalStorageDirectory(), osmdroidCacheDir));
+                        return null;
+                    }
+                    protected void onPostExecute(Void result) {
+                        dialog.cancel();
+                        Toast toast = Toast.makeText(
+                                DebugOptionsActivity.this,
+                                "Cache has been cleared.",
+                                Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                }.execute();
             }
-            
+
         });
         
         buttonCrash.setOnClickListener(new OnClickListener() {

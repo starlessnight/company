@@ -167,11 +167,12 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 
 		@Override
 		protected void onPreExecute() {
-		    if (!useCache || !request.isCached()) {
+		    if (!useCache || !request.isCached(ReservationListActivity.this)) {
     			dialog = new ProgressDialog(ReservationListActivity.this);
     			dialog.setMessage("Loading reservations...");
     			dialog.setIndeterminate(true);
     			dialog.setCancelable(false);
+    			dialog.setCanceledOnTouchOutside(false);
     			dialog.show();
 		    }
 		}
@@ -183,9 +184,9 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 			//ReservationListFetchRequest request = new ReservationListFetchRequest(uid);
 			try {
 			    if (!useCache) {
-			        request.invalidateCache();
+			        request.invalidateCache(ReservationListActivity.this);
 			    }
-				reservations = request.execute();
+				reservations = request.execute(ReservationListActivity.this);
 				
 				if (debugPrefs.getBoolean(DebugOptionsActivity.DEBUG_MODE, false)) {
 				}
@@ -286,6 +287,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
             dialog.setMessage("Deleting reservation...");
             dialog.setIndeterminate(true);
             dialog.setCancelable(false);
+            dialog.setCanceledOnTouchOutside(false);
             dialog.show();
         }
         

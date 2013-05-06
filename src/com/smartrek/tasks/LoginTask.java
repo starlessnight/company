@@ -36,6 +36,7 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
         dialog.setTitle("Smartrek");
         dialog.setMessage(String.format("Logging in as '%s'...", username));
         dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
 	}
 	
 	@Override
@@ -50,7 +51,7 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
 		User user = null;
 		try {
 			UserLoginRequest request = new UserLoginRequest(username, password, gcmRegistrationId);
-			user = request.execute();
+			user = request.execute(ctx);
 		}
 		catch(Exception e) {
 		    ehs.registerException(e);

@@ -1,8 +1,12 @@
 package com.smartrek.utils;
 
-import java.util.Hashtable;
+import java.io.File;
+import java.io.IOException;
+import java.security.MessageDigest;
 
-import android.os.SystemClock;
+import org.apache.commons.io.FileUtils;
+
+import android.content.Context;
 import android.util.Log;
 
 /**
@@ -14,27 +18,13 @@ import android.util.Log;
  *       data from 'storage'. 
  */
 public final class Cache {
-	
-	public class Data {
-		/**
-		 * The local cache expires on this date/time
-		 */
-		public long expires;
-		
-		public Object userdata;
-	}
-	
+    	
 	/**
 	 * Time-to-live in terms of seconds
 	 */
 	public static final int TTL = 60*15;
-
-	/**
-	 * Singleton instance
-	 */
-	private static Cache instance;
 	
-	private Hashtable<String, Data> storage = new Hashtable<String, Data>();
+	private Context ctx;
 	
 	/**
 	 * Explicit call of this constructor outside this class is prohibited.
@@ -43,31 +33,23 @@ public final class Cache {
 		
 	}
 	
-	/**
-	 * Singleton
-	 * 
-	 * @return
-	 */
-	public static Cache getInstance() {
-		if(instance == null) {
-			instance = new Cache();
-		}
+	public static Cache getInstance(Context ctx) {
+		Cache instance = new Cache();
+		instance.ctx =ctx;
 		return instance;
 	}
 	
 	public boolean has(String key) {
-		return storage.containsKey(key) && isValid(storage.get(key));
+		return containsKey(key) && isValid(get(key));
 	}
 	
-	public boolean isValid(Data data) {
-		return data != null && data.expires > SystemClock.elapsedRealtime();
-	}
-	
-	public void put(String key, Object value) {
-		Data data = new Data();
-		data.expires = SystemClock.elapsedRealtime() + TTL*1000;
-		data.userdata = value;
-		storage.put(key, data);
+	public void put(String key, String data) {
+	    File file = getCacheFile(ctx, key);
+        try{
+            FileUtils.writeStringToFile(file, data);
+        }catch(Throwable t){
+            FileUtils.deleteQuietly(file);
+        }
 	}
 	
 	/**
@@ -76,31 +58,79 @@ public final class Cache {
 	 * @param key
 	 */
 	public void invalidate(String key) {
-		storage.remove(key);
+		remove(key);
 	}
 	
 	/**
 	 * Clears all cache
 	 */
 	public void clear() {
-		storage.clear();
+	    try {
+            FileUtils.cleanDirectory(ctx.getCacheDir());
+        }
+        catch (IOException e) {}
 	}
 	
-	public Object fetch(String key) {
+	public String fetch(String key) {
 		Log.d("Cache", "url = " + key);
-		if(storage.containsKey(key)) {
-			Data data = storage.get(key);
-			
+		if(containsKey(key)) {
+			File data = get(key);
 			if(isValid(data)) {
 				Log.d("Cache", "Fetching from cache (valid)");
-				return data.userdata;
+				String val = null;
+                try{
+                    val = FileUtils.readFileToString(data);
+                }catch(IOException e){}
+				return val;
 			}
 			else {
 				Log.d("Cache", "Removing from cache");
-				storage.remove(key);
+				remove(key);
 			}
 		}
 		
 		return null;
 	}
+	
+	private boolean isValid(File data) {
+        return data != null && (data.lastModified() + TTL*1000) > System.currentTimeMillis();
+    }
+	
+	private boolean containsKey(String key) {
+        File file = getCacheFile(ctx, key);
+        return file.exists() && file.length() != 0;
+    }
+
+    private File get(String key) {
+        return getCacheFile(ctx, key);
+    }
+
+    private void remove(String key) {
+        FileUtils.deleteQuietly(getCacheFile(ctx, key));
+    }
+    
+    private static File getCacheFile(Context ctx, String key){
+        return new File(ctx.getCacheDir(), md5(key));
+    }
+    
+    private static String md5(String s) {
+        String output = null;
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            digest.update(s.getBytes("UTF-8"));
+            byte messageDigest[] = digest.digest();
+            StringBuffer hexString = new StringBuffer();
+            for (int i = 0; i < messageDigest.length; i++) {
+                String h = Integer.toHexString(0xFF & messageDigest[i]);
+                while (h.length() < 2)
+                    h = "0" + h;
+                hexString.append(h);
+            }
+            output = hexString.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return output;
+    }
+		
 }

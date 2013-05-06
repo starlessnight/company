@@ -21,6 +21,8 @@ public class NotificationDialog extends AlertDialog {
 
 	public NotificationDialog(Context context, CharSequence message) {
 		super(context);
+		setCancelable(false);
+		setCanceledOnTouchOutside(false);
 		this.message = message;
 	}
 	

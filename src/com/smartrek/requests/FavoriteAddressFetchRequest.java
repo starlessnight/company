@@ -6,6 +6,8 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.content.Context;
+
 import com.smartrek.models.Address;
 
 public final class FavoriteAddressFetchRequest extends FetchRequest<List<Address>> {
@@ -15,10 +17,10 @@ public final class FavoriteAddressFetchRequest extends FetchRequest<List<Address
 	}
 	
 	@Override
-	public List<Address> execute() throws Exception {
+	public List<Address> execute(Context ctx) throws Exception {
 		List<Address> addresses = new ArrayList<Address>();
 		
-		String response = executeFetchRequest(getURL());
+		String response = executeFetchRequest(getURL(), ctx);
 		JSONArray array = new JSONArray(response);
 		
 		for(int i = 0; i < array.length(); i++) {

@@ -2,6 +2,8 @@ package com.smartrek.requests;
 
 import java.io.IOException;
 
+import android.content.Context;
+
 import com.smartrek.utils.Cache;
 
 
@@ -25,10 +27,10 @@ public abstract class FetchRequest<ReturnType> extends Request {
 		return url;
 	}
 	
-	public abstract ReturnType execute() throws Exception;
+	public abstract ReturnType execute(Context ctx) throws Exception;
 	
-	protected String executeFetchRequest(String url) throws IOException {
-		Cache cache = Cache.getInstance();
+	protected String executeFetchRequest(String url, Context ctx) throws IOException {
+		Cache cache = Cache.getInstance(ctx);
 		if (cache.has(url)) {
 			return (String) cache.fetch(url);
 		}

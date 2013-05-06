@@ -198,7 +198,7 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 				request.execute();
 				
 				// clear cache
-				new FavoriteAddressFetchRequest(uid).invalidateCache();
+				new FavoriteAddressFetchRequest(uid).invalidateCache(getContext());
 			}
 			catch (IOException e) {
 				ehs.registerException(e);

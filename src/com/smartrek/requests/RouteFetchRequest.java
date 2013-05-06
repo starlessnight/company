@@ -8,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.text.format.Time;
 
 import com.smartrek.exceptions.RouteNotFoundException;
@@ -50,10 +51,10 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 		fake = true;
 	}
 	
-	public List<Route> execute() throws IOException, JSONException, RouteNotFoundException {
+	public List<Route> execute(Context ctx) throws IOException, JSONException, RouteNotFoundException {
 		String response = null;
 		try{
-		    response = executeFetchRequest(url);
+		    response = executeFetchRequest(url, ctx);
 		}catch(IOException e){
 		    String msg = null;
 		    if(responseCode == 400){

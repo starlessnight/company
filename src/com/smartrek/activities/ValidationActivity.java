@@ -223,7 +223,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
                     List<Route> routes = null;
                     try {
                         RouteFetchRequest request = new RouteFetchRequest(route.getDepartureTime());
-                        routes = request.execute();
+                        routes = request.execute(ValidationActivity.this);
                     }
                     catch(Exception e) {
                         ehs.registerException(e);

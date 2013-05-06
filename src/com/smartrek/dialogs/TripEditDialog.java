@@ -309,6 +309,7 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 			progressDialog.setMessage("Saving trip...");
 			progressDialog.setIndeterminate(true);
 			progressDialog.setCancelable(false);
+			progressDialog.setCanceledOnTouchOutside(false);
 			progressDialog.show();
 		}
 		
@@ -324,7 +325,7 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 					request.execute();
 				}
 				
-				new TripListFetchRequest(uid).invalidateCache();
+				new TripListFetchRequest(uid).invalidateCache(getContext());
 			}
 			catch (Exception e) {
 				ehs.registerException(e);

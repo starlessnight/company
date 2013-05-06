@@ -8,6 +8,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+
 import com.smartrek.models.Trip;
 
 public final class TripListFetchRequest extends FetchRequest<List<Trip>> {
@@ -23,8 +25,8 @@ public final class TripListFetchRequest extends FetchRequest<List<Trip>> {
 	}
 	
 	@Override
-	public List<Trip> execute() throws JSONException, IOException {
-		String response = executeFetchRequest(getURL());
+	public List<Trip> execute(Context ctx) throws JSONException, IOException {
+		String response = executeFetchRequest(getURL(), ctx);
 
 		JSONArray array = new JSONArray(response);
 		List<Trip> trips = new ArrayList<Trip>();
