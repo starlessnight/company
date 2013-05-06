@@ -92,6 +92,12 @@ public final class ValidationActivity extends Activity implements OnInitListener
     
     public static final int DEFAULT_ZOOM_LEVEL = 18;
     
+    private static final String RESERVATION = "reservation";
+    
+    private static final String ROUTE = "route";
+    
+    private static final String START_TIME = "startTime";
+    
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 
     private MapView mapView;
@@ -169,10 +175,13 @@ public final class ValidationActivity extends Activity implements OnInitListener
         
         animator = new Handler(Looper.getMainLooper());
         
-        Bundle extras = getIntent().getExtras();
-        reservation = extras.getParcelable("reservation");
+        boolean isOnRecreate = savedInstanceState != null;
         
-        route = extras.getParcelable("route");
+        Bundle extras = getIntent().getExtras();
+        
+        reservation = extras.getParcelable(RESERVATION);
+        
+        route = extras.getParcelable(ROUTE);
         
         // Define a listener that responds to location updates
         locationListener = new ValidationLocationListener();
@@ -215,7 +224,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
         
         final FakeRoute fakeRoute = DebugOptionsActivity.getFakeRoute(
             ValidationActivity.this, route.getId());
-        isDebugging = fakeRoute != null; 
+        isDebugging = fakeRoute != null;
         if(isDebugging){
             new AsyncTask<Void, Void, List<Route>>() {
                 @Override
@@ -271,27 +280,29 @@ public final class ValidationActivity extends Activity implements OnInitListener
         
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         
-        if (reservation.hasExpired()) {
-            NotificationDialog dialog = new NotificationDialog(this, getResources().getString(R.string.trip_has_expired));
-            dialog.setActionListener(new NotificationDialog.ActionListener() {
-                
-                @Override
-                public void onClickDismiss() {
-                    finish();
-                }
-            });
-            dialog.show();
-        }
-        else if (reservation.isTooEarlyToStart()) {
-            NotificationDialog dialog = new NotificationDialog(this, getResources().getString(R.string.trip_too_early_to_start));
-            dialog.setActionListener(new NotificationDialog.ActionListener() {
-                
-                @Override
-                public void onClickDismiss() {
-                    finish();
-                }
-            });
-            dialog.show();
+        if(!isOnRecreate){
+            if (reservation.hasExpired()) {
+                NotificationDialog dialog = new NotificationDialog(this, getResources().getString(R.string.trip_has_expired));
+                dialog.setActionListener(new NotificationDialog.ActionListener() {
+                    
+                    @Override
+                    public void onClickDismiss() {
+                        finish();
+                    }
+                });
+                dialog.show();
+            }
+            else if (reservation.isTooEarlyToStart()) {
+                NotificationDialog dialog = new NotificationDialog(this, getResources().getString(R.string.trip_too_early_to_start));
+                dialog.setActionListener(new NotificationDialog.ActionListener() {
+                    
+                    @Override
+                    public void onClickDismiss() {
+                        finish();
+                    }
+                });
+                dialog.show();
+            }
         }
     }
     
@@ -740,8 +751,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
                 endTime = new Time();
                 endTime.setToNow();
                 Intent intent = new Intent(this, ValidationReportActivity.class);
-                intent.putExtra("route", route);
-                intent.putExtra("startTime", startTime.toMillis(false));
+                intent.putExtra(ROUTE, route);
+                intent.putExtra(START_TIME, startTime.toMillis(false));
                 intent.putExtra("endTime", endTime.toMillis(false));
                 startActivity(intent);
             }
@@ -812,8 +823,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
             
             if(isTripValidated()){
                 Intent intent = new Intent(ValidationActivity.this, ValidationReportActivity.class);
-                intent.putExtra("route", route);
-                intent.putExtra("startTime", startTime.toMillis(false));
+                intent.putExtra(ROUTE, route);
+                intent.putExtra(START_TIME, startTime.toMillis(false));
                 intent.putExtra("endTime", endTime.toMillis(false));
                 startActivity(intent);
             }
