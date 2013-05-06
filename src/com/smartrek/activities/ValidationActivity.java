@@ -296,6 +296,13 @@ public final class ValidationActivity extends Activity implements OnInitListener
     }
     
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        finish();
+        startActivity(intent);
+    }
+    
+    @Override
     protected void onStart() {
     	super.onStart();
     	

@@ -134,7 +134,8 @@
             android:name=".ValidationActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
             android:theme="@android:style/Theme.NoTitleBar"
-            android:label="navigate" />
+            android:label="navigate"
+            android:launchMode="singleTask" />
         <activity
             android:name=".ValidationReportActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
