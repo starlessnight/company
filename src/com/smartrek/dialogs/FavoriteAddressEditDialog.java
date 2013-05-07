@@ -136,6 +136,10 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 		this.address = address;
 	}
 	
+	public Address getAddressObject(){
+	    return address;
+	}
+	
 	public void setActionListener(ActionListener listener) {
 		this.listener = listener;
 	}

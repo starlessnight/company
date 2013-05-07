@@ -550,8 +550,12 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 			return editAddressOrigin.getAddress();
 		}
 		else {
-			return new Address(0, User.getCurrentUser(this).getId(), "", editAddressOrigin.getText().toString().trim(), 0, 0);
+			return getRawOriginAddress();
 		}
+	}
+	
+	private Address getRawOriginAddress(){
+	    return new Address(0, User.getCurrentUser(this).getId(), "", editAddressOrigin.getText().toString().trim(), 0, 0);
 	}
 	
 	/**
@@ -563,9 +567,13 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 			return editAddressDest.getAddress();
 		}
 		else {
-			return new Address(0, User.getCurrentUser(this).getId(), "", editAddressDest.getText().toString().trim(), 0, 0);
+			return getRawDestinationAddress();
 		}
 	}
+	
+	private Address getRawDestinationAddress() {
+        return new Address(0, User.getCurrentUser(this).getId(), "", editAddressDest.getText().toString().trim(), 0, 0);
+    }
 	
 	private TripEditDialog dialog;
 	
@@ -616,13 +624,13 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 
 			@Override
 			public void onClickNeutralButton() {
-				FavoriteAddressEditDialog editDialog = new FavoriteAddressEditDialog(HomeActivity.this);
-				editDialog.setAddress(getOriginAddress());
+				final FavoriteAddressEditDialog editDialog = new FavoriteAddressEditDialog(HomeActivity.this);
+				editDialog.setAddress(getRawOriginAddress());
 				editDialog.setActionListener(new FavoriteAddressEditDialog.ActionListener() {
 					
 					@Override
 					public void onClickPositiveButton() {
-						updateAddress(editAddressOrigin, getOriginAddress());
+						updateAddress(editAddressOrigin, editDialog.getAddressObject());
 						listDialog.requestRefresh();
 					}
 					
@@ -653,13 +661,13 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 			
 			@Override
 			public void onClickNeutralButton() {
-				FavoriteAddressEditDialog dialog = new FavoriteAddressEditDialog(HomeActivity.this);
-				dialog.setAddress(getDestinationAddress());
+				final FavoriteAddressEditDialog dialog = new FavoriteAddressEditDialog(HomeActivity.this);
+				dialog.setAddress(getRawDestinationAddress());
 				dialog.setActionListener(new FavoriteAddressEditDialog.ActionListener() {
 					
 					@Override
 					public void onClickPositiveButton() {
-						updateAddress(editAddressDest, getOriginAddress());
+						updateAddress(editAddressDest, dialog.getAddressObject());
 					}
 					
 					@Override
