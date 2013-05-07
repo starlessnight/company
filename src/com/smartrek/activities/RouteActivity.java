@@ -17,6 +17,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.location.Location;
 import android.location.LocationListener;
@@ -407,6 +408,21 @@ public final class RouteActivity extends ActionBarActivity {
                 }).setNegativeButton(res.getString(R.string.no), null).show();
     }
     
+    private RouteRect routeRect;
+    
+    private void fitRouteToMap(){
+        if(routeRect != null){
+            /* Get a midpoint to center the view of  the routes */
+            GeoPoint mid = routeRect.getMidPoint();
+            /* range holds 2 points consisting of the lat/lon range to be displayed */
+            int[] range = routeRect.getRange();
+            /* Get the MapController set the midpoint and range */
+            MapController mc = mapView.getController();
+            mc.zoomToSpan(range[0], range[1]);
+            mc.setCenter(mid); // setCenter only works properly after zoomToSpan
+        }
+    }
+    
     /**
      * This function will be called when BackgroundDownloadTask().execute()
      * succeeds.
@@ -429,13 +445,7 @@ public final class RouteActivity extends ActionBarActivity {
                 nodes.addAll(route.getNodes());
             }
             
-            RouteRect routeRect = new RouteRect(nodes);
-            
-            /* Get a midpoint to center the view of  the routes */
-            GeoPoint mid = routeRect.getMidPoint();
-            
-            /* range holds 2 points consisting of the lat/lon range to be displayed */
-            int[] range = routeRect.getRange();
+            routeRect = new RouteRect(nodes);
             
             // Overlays must be drawn in orders
             for (int i = 0; i < possibleRoutes.size(); i++) {
@@ -445,16 +455,23 @@ public final class RouteActivity extends ActionBarActivity {
             	mapOverlays.add(routeInfoOverlays[i]);
             }
             
-            /* Get the MapController set the midpoint and range */
-            MapController mc = mapView.getController();
-            mc.zoomToSpan(range[0], range[1]);
-            mc.setCenter(mid); // setCenter only works properly after zoomToSpan
+            fitRouteToMap();
             
             mapView.postInvalidate();
         }
         else {
         	Log.d(LOG_TAG, "updateMap(): no route available.");
         }
+    }
+    
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mapView.postDelayed(new Runnable() {
+            public void run() {
+                fitRouteToMap();
+            }
+        }, 500);
     }
     
     /**
