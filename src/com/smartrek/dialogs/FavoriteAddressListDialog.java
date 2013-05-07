@@ -102,13 +102,10 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 	    }
 	}
 	
-	private void requestRefresh() {
+	public void requestRefresh() {
 		User currentUser = User.getCurrentUser(getContext());
 		
-		// Invalidate cache
-		new FavoriteAddressFetchRequest(currentUser.getId()).invalidateCache(getContext());
-		
-        new FavoriteAddressListFetchTask().execute(currentUser.getId());
+		new FavoriteAddressListFetchTask().execute(currentUser.getId());
 	}
 	
 	private void showAddressEditDialog(Address address) {
@@ -178,7 +175,7 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 
 			FavoriteAddressFetchRequest request = new FavoriteAddressFetchRequest(uid);
 			try {
-			    request.invalidateCache(getContext());
+				request.invalidateCache(getContext());
 				favoriteAddresses = request.execute(getContext());
 			}
 			catch (Exception e) {

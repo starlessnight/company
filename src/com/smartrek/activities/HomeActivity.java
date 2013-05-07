@@ -607,8 +607,8 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	
 	private void showFavAddrListForOrigin() {
 
-		FavoriteAddressListDialog dialog = new FavoriteAddressListDialog(HomeActivity.this);
-		dialog.setActionListener(new FavoriteAddressListDialog.ActionListener() {
+		final FavoriteAddressListDialog listDialog = new FavoriteAddressListDialog(HomeActivity.this);
+		listDialog.setActionListener(new FavoriteAddressListDialog.ActionListener() {
 			
 			@Override
 			public void onClickNegativeButton() {
@@ -616,20 +616,21 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 
 			@Override
 			public void onClickNeutralButton() {
-				FavoriteAddressEditDialog dialog = new FavoriteAddressEditDialog(HomeActivity.this);
-				dialog.setAddress(getOriginAddress());
-				dialog.setActionListener(new FavoriteAddressEditDialog.ActionListener() {
+				FavoriteAddressEditDialog editDialog = new FavoriteAddressEditDialog(HomeActivity.this);
+				editDialog.setAddress(getOriginAddress());
+				editDialog.setActionListener(new FavoriteAddressEditDialog.ActionListener() {
 					
 					@Override
 					public void onClickPositiveButton() {
 						updateAddress(editAddressOrigin, getOriginAddress());
+						listDialog.requestRefresh();
 					}
 					
 					@Override
 					public void onClickNegativeButton() {
 					}
 				});
-				dialog.show();
+				editDialog.show();
 			}
 			
 			@Override
@@ -639,7 +640,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 			}
 
 		});
-		dialog.show();
+		listDialog.show();
 	}
 	
 	private void showFavAddrListForDest() {

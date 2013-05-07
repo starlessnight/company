@@ -177,10 +177,6 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
                 address.setLongitude(geoPoint.getLongitude());
             }
         }, false).execute(address.getAddress());
-		
-		if (listener != null) {
-			listener.onClickPositiveButton();
-		}
 	}
 	
 	private class FavoriteAddressAddTask extends AsyncTask<Object, Object, Object> {
@@ -220,6 +216,10 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 						String.format("Address '%s' has been added.", address.getName()),
 						Toast.LENGTH_SHORT);
 				toast.show();
+				
+				if (listener != null) {
+	                listener.onClickPositiveButton();
+	            }
 			}
 		}
 		
@@ -273,6 +273,10 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 		    }
 		    
 		    dismiss();
+		    
+		    if (listener != null) {
+	            listener.onClickPositiveButton();
+	        }
 		}
 	}
 	

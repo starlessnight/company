@@ -166,10 +166,6 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
                     else {
                         new TripSaveTask(getContext(), 0, currentUser.getId(), name, getOrigin(), getDestination(), new RecurringTime((byte)hour, (byte)minute, (byte)0, weekdays)).execute();
                     }
-                    
-                    if (actionListener != null) {
-                        actionListener.onClickPositiveButton(name, getOrigin(), getDestination());
-                    }
                 }
             }
         });
@@ -349,6 +345,10 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 		    }
 		    
 		    dismiss();
+		    
+		    if (actionListener != null) {
+                actionListener.onClickPositiveButton(name, getOrigin(), getDestination());
+            }
 		}
 	}
 }
