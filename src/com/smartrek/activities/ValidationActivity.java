@@ -17,6 +17,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.tileprovider.util.CloudmadeUtil;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
@@ -98,6 +99,10 @@ public final class ValidationActivity extends Activity implements OnInitListener
     
     private static final String START_TIME = "startTime";
     
+    private static final String POLL_CNT = "pollCnt";
+    
+    private static final String GEO_POINT = "geoPoint";
+    
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 
     private MapView mapView;
@@ -115,8 +120,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
     
     private PointOverlay pointOverlay;
     
-    private Time startTime;
-    private Time endTime;
+    private long startTime;
     
     // FIXME: Temporary
     private RouteNode nearestNode;
@@ -164,6 +168,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
     
     private Typeface lightFont;
     
+    private int savedPollCnt;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -181,14 +187,19 @@ public final class ValidationActivity extends Activity implements OnInitListener
         
         reservation = extras.getParcelable(RESERVATION);
         
-        route = extras.getParcelable(ROUTE);
+        route = (isOnRecreate?savedInstanceState:extras).getParcelable(ROUTE);
         
         // Define a listener that responds to location updates
         locationListener = new ValidationLocationListener();
         
-        // FIXME: Use long type
-        startTime = new Time();
-        startTime.setToNow();
+        if(isOnRecreate){
+            startTime = savedInstanceState.getLong(START_TIME);
+            savedPollCnt = savedInstanceState.getInt(POLL_CNT);
+        }else{
+            Time now = new Time();
+            now.setToNow();
+            startTime = now.toMillis(false);
+        }
         
         validationTimeoutNotifier = new ValidationTimeoutNotifier();
         validationTimeoutHandler = new Handler();
@@ -225,7 +236,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
         final FakeRoute fakeRoute = DebugOptionsActivity.getFakeRoute(
             ValidationActivity.this, route.getId());
         isDebugging = fakeRoute != null;
-        if(isDebugging){
+        if(!isOnRecreate && isDebugging){
             new AsyncTask<Void, Void, List<Route>>() {
                 @Override
                 protected List<Route> doInBackground(Void... params) {
@@ -266,8 +277,15 @@ public final class ValidationActivity extends Activity implements OnInitListener
         MapController mc = mapView.getController();
         mc.setZoom(DEFAULT_ZOOM_LEVEL);
         
-        if (route.getFirstNode() != null) {
-            mc.setCenter(route.getFirstNode().getGeoPoint());
+        GeoPoint center = null;
+        if(isOnRecreate){
+            center = new GeoPoint((IGeoPoint)savedInstanceState.getParcelable(GEO_POINT));
+        }else if (route.getFirstNode() != null) {
+            center = route.getFirstNode().getGeoPoint();
+        }
+        
+        if(center != null){
+            mc.setCenter(center);
         }
         
         drawRoute(mapView, route, 0);
@@ -314,6 +332,24 @@ public final class ValidationActivity extends Activity implements OnInitListener
     }
     
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(ROUTE, route);
+        outState.putLong(START_TIME, startTime);
+        outState.putInt(POLL_CNT, fakeLocationService == null?0:fakeLocationService.pollCnt);
+        GeoPoint geoPoint = null;
+        RouteNode firstNode = route.getFirstNode();
+        if(pointOverlay != null) {
+            geoPoint = pointOverlay.getLocation();
+        }else if(firstNode != null){
+            geoPoint = firstNode.getGeoPoint();
+        }
+        if(geoPoint != null){
+            outState.putParcelable(GEO_POINT, geoPoint);
+        }
+    }
+    
+    @Override
     protected void onStart() {
     	super.onStart();
     	
@@ -345,6 +381,10 @@ public final class ValidationActivity extends Activity implements OnInitListener
                 fakeLocationService = new FakeLocationService(locationListener, interval, gpsMode);
             }else{
                 fakeLocationService = fakeLocationService.setInterval(interval);
+            }
+            if(savedPollCnt > 0){
+                fakeLocationService.skip(savedPollCnt);
+                savedPollCnt = 0;
             }
         }
         else {
@@ -649,7 +689,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
             double timeInterval = 1000 / 30;
             long numOfSteps = Math.round((now - lastLocChanged) / timeInterval);
             final double stepSize = x / numOfSteps;
-            long startTime = SystemClock.uptimeMillis();
+            long startTimeMillis = SystemClock.uptimeMillis();
             for(int i=1; i<=numOfSteps; i++){
                 final int seq = i;
                 animator.postAtTime(new Runnable() {
@@ -664,7 +704,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
                             mapView.getController().setCenter(new GeoPoint(newLat, newLng));
                         }
                     }
-                }, startTime + Math.round(i * timeInterval));
+                }, startTimeMillis + Math.round(i * timeInterval));
             }
         }
         
@@ -748,12 +788,12 @@ public final class ValidationActivity extends Activity implements OnInitListener
             reported.set(true);
             
             if(isTripValidated()){
-                endTime = new Time();
-                endTime.setToNow();
+                Time now = new Time();
+                now.setToNow();
                 Intent intent = new Intent(this, ValidationReportActivity.class);
                 intent.putExtra(ROUTE, route);
-                intent.putExtra(START_TIME, startTime.toMillis(false));
-                intent.putExtra("endTime", endTime.toMillis(false));
+                intent.putExtra(START_TIME, startTime);
+                intent.putExtra("endTime", now.toMillis(false));
                 startActivity(intent);
             }
         }
@@ -816,16 +856,14 @@ public final class ValidationActivity extends Activity implements OnInitListener
     private class ValidationTimeoutNotifier extends Thread {
         @Override
         public void run() {
-            if (endTime == null) {
-                endTime = new Time();
-                endTime.setToNow();
-            }
+            Time now = new Time();
+            now.setToNow();
             
             if(isTripValidated()){
                 Intent intent = new Intent(ValidationActivity.this, ValidationReportActivity.class);
                 intent.putExtra(ROUTE, route);
-                intent.putExtra(START_TIME, startTime.toMillis(false));
-                intent.putExtra("endTime", endTime.toMillis(false));
+                intent.putExtra(START_TIME, startTime);
+                intent.putExtra("endTime", now.toMillis(false));
                 startActivity(intent);
             }
             
@@ -846,6 +884,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
         private int interval;
         
         private int gpsMode;
+        
+        int pollCnt;
         
         public FakeLocationService(LocationListener listener, int interva, int gpsMode) {
             this(listener, interva, null, gpsMode);
@@ -904,8 +944,16 @@ public final class ValidationActivity extends Activity implements OnInitListener
                 location.setLongitude(geoPoint.getLongitude());
                 location.setTime(System.currentTimeMillis());
                 listener.onLocationChanged(location);
+                pollCnt++;
             }
         }
+        
+        void skip(int cnt){
+            for(int i=0; i<cnt; i++){
+                trajectory.poll();
+            }
+        }
+        
     }
 
     @Override

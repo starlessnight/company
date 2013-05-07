@@ -475,10 +475,7 @@ public final class Route implements Parcelable {
 			}
 			
 			if (node.getFlag() != 0) {
-				if (node.hasMetadata()) {
-					node.getMetadata().resetPingFlags();
-				}
-				else {
+				if (!node.hasMetadata()) {
 					node.setMetadata(new RouteNode.Metadata());
 				}
 			}
