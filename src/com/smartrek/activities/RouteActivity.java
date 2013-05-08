@@ -669,8 +669,14 @@ public final class RouteActivity extends ActionBarActivity {
             }
         } 
         
-        if(requestCode == RESERVATION_CONFIRM && resultCode == RESERVATION_CONFIRM_ENDED){
-            goBackToWhereTo.run();
+        if(requestCode == RESERVATION_CONFIRM){
+            if(resultCode == RESERVATION_CONFIRM_ENDED){
+                goBackToWhereTo.run();
+            }else{
+                RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
+                routeTasks.add(routeTask);
+                routeTask.execute();
+            }
         }
     }
     
@@ -834,6 +840,9 @@ public final class RouteActivity extends ActionBarActivity {
         @Override
         public boolean onBalloonTap(int index, OverlayItem item) {
         	Log.d("RouteActivity.RouteOverlayCallbackImpl", "onBalloonTap()");
+        	for (RouteTask task : routeTasks) {
+                task.cancel(true);
+            }
             Intent intent = new Intent(RouteActivity.this, ReservationConfirmationActivity.class);
             Bundle extras = new Bundle();
             extras.putParcelable("route", route);
