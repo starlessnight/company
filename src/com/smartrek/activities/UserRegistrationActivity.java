@@ -3,6 +3,8 @@ package com.smartrek.activities;
 import org.apache.commons.lang3.StringUtils;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -137,13 +139,32 @@ public final class UserRegistrationActivity extends ActionBarActivity
     	user.setEmail(email);
     	user.setPassword(password);
     	
-		new UserRegistrationTask().execute(user);
+		new UserRegistrationTask(this).execute(user);
 		
 		return true;
     }
 
     private class UserRegistrationTask extends AsyncTask<Object, Object, User> {
     	
+        private ProgressDialog dialog;
+        
+        private Context ctx;
+        
+        public UserRegistrationTask(Context ctx){
+            this.ctx = ctx;
+        }
+        
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            dialog = new ProgressDialog(ctx);
+            dialog.setTitle("Smartrek");
+            dialog.setMessage("Signing up ...");
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.setCancelable(false);
+            dialog.show();
+        }
+        
 		@Override
 		protected User doInBackground(Object... params) {
 			
@@ -161,6 +182,7 @@ public final class UserRegistrationActivity extends ActionBarActivity
     	
 		@Override
 		protected void onPostExecute(final User result) {
+		    dialog.cancel();
 		    if (ehs.hasExceptions()) {
 		        ehs.reportExceptions();
 		    }

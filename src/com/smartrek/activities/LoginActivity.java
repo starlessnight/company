@@ -1,6 +1,7 @@
 package com.smartrek.activities;
 
 import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -110,8 +111,11 @@ public final class LoginActivity extends Activity implements OnClickListener,
                         CharSequence msg;
                         Exception exc = ehs.hasExceptions()?ehs.popException().getException():null;
                         if(exc instanceof ConnectException || exc instanceof UnknownHostException){
-                            msg = "Can't connect. Check your network.";
-                        }else if(exc instanceof HttpResponseException && ((HttpResponseException)exc).getStatusCode() == 500){
+                            msg = getString(R.string.no_connection);
+                        }else if(exc instanceof SocketTimeoutException){
+                            msg = getString(R.string.connection_timeout);
+                        }
+                        else if(exc instanceof HttpResponseException && ((HttpResponseException)exc).getStatusCode() == 500){
                             msg = "The server encountered an unexpected condition which prevented it from fulfilling the request.";
                         }else{
                             msg = Html.fromHtml("The username or password you entered is not valid.&nbsp;"

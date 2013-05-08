@@ -1,6 +1,9 @@
 package com.smartrek.utils;
 
 import java.io.PrintStream;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.Stack;
 
 import android.app.Activity;
@@ -158,8 +161,15 @@ public class ExceptionHandlingService {
     public synchronized void reportExceptions(Runnable callback) {
         while (!exceptions.isEmpty()) {
         	ExceptionContainer ec = exceptions.pop();
-            
-            reportException(ec.getMessage(), callback);
+            String message;
+            if(ec.e instanceof ConnectException || ec.e instanceof UnknownHostException){
+                message = context.getString(R.string.no_connection);
+            }else if(ec.e instanceof SocketTimeoutException){
+                message = context.getString(R.string.connection_timeout); 
+            }else{
+                message = ec.getMessage();
+            }
+            reportException(message, callback);
         }
     }
     
