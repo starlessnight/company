@@ -104,21 +104,23 @@ public class ExceptionHandlingService {
      * @param message
      */
     public synchronized void reportException(String message, final Runnable callback) {
-        AlertDialog dialog = new AlertDialog.Builder(context).create();
-        dialog.setTitle("An error has occurred");
-        dialog.setMessage(message);
-        dialog.setButton(context.getResources().getString(R.string.close), new Dialog.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-                if(callback != null){
-                    callback.run();
+        try{
+            AlertDialog dialog = new AlertDialog.Builder(context).create();
+            dialog.setTitle("An error has occurred");
+            dialog.setMessage(message);
+            dialog.setButton(context.getResources().getString(R.string.close), new Dialog.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                    if(callback != null){
+                        callback.run();
+                    }
                 }
-            }
-        });
-        dialog.setCancelable(false);
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.show();
+            });
+            dialog.setCancelable(false);
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.show();
+        }catch(Throwable t){}
     }
     
     public synchronized void reportException(String message) {
