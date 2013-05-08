@@ -56,7 +56,8 @@ public class Misc {
            public void onClick(DialogInterface dialog, int which) {
                 // close the dialog, return to activity
             }
-        });    
+        });
+        helpBuilder.setCancelable(false);
         AlertDialog helpDialog = helpBuilder.create();
         helpDialog.show();
     }

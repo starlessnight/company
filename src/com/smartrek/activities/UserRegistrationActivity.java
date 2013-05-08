@@ -189,6 +189,8 @@ public final class UserRegistrationActivity extends ActionBarActivity
 					}
 					
 				});
+				dialog.setCancelable(false);
+				dialog.setCanceledOnTouchOutside(false);
 				dialog.show();
 			}
 		}

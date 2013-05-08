@@ -116,6 +116,8 @@ public class ExceptionHandlingService {
                 }
             }
         });
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
         dialog.show();
     }
     

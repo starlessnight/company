@@ -332,14 +332,16 @@ public final class RouteActivity extends ActionBarActivity {
         
         if(extras.getBoolean(CURRENT_LOCATION)){
             final CancelableProgressDialog currentLocDialog = new CancelableProgressDialog(RouteActivity.this, "Getting current location...");
-            final LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            final LocationListener locationListener = new LocationListener() {
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    currentLocDialog.dismiss();
-                    locationManager.removeUpdates(this);
-                    originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
-                    doRouteTask();
+                    try{
+                        locationManager.removeUpdates(this);
+                        currentLocDialog.dismiss();
+                        originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
+                        doRouteTask();
+                    }catch(Throwable t){}
                 }
                 @Override
                 public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -514,6 +516,10 @@ public final class RouteActivity extends ActionBarActivity {
     }
 
     private List<Overlay> mapOverlays;
+
+    private LocationManager locationManager;
+
+    private LocationListener locationListener;
     
     /*****************************************************************************************************************
      * ************* public void drawRoute (MapView mapView, ArrayList<Parcelable> route, int routeNum) **************
@@ -676,6 +682,9 @@ public final class RouteActivity extends ActionBarActivity {
         }
         for (RouteTask task : routeTasks) {
             task.cancel(true);
+        }
+        if(locationManager != null && locationListener != null){
+            locationManager.removeUpdates(locationListener); 
         }
     }
     
