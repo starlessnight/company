@@ -606,17 +606,24 @@ public final class ValidationActivity extends Activity implements OnInitListener
         final JSONArray tJson;
         try {
             tJson = trajectory.toJSON();
-            new AsyncTask<Void, Void, Void>(){
+            runOnUiThread(new Runnable() {
                 @Override
-                protected Void doInBackground(Void... params) {
-                    try {
-                        FileUtils.write(tFile, tJson.toString());
-                    }
-                    catch (IOException e) {
-                    }
-                    return null;
+                public void run() {
+                    try{
+                        new AsyncTask<Void, Void, Void>(){
+                            @Override
+                            protected Void doInBackground(Void... params) {
+                                try {
+                                    FileUtils.write(tFile, tJson.toString());
+                                }
+                                catch (IOException e) {
+                                }
+                                return null;
+                            }
+                        }.execute();
+                    }catch(Throwable t){}
                 }
-            }.execute();
+            });
         }
         catch (JSONException e) {
         }
