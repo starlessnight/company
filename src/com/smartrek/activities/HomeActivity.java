@@ -817,8 +817,10 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 			if (dialog.isShowing()) {
 				dialog.cancel();
 			}
-			
-			if(result != null){
+			if (ehs.hasExceptions()) {
+                ehs.reportExceptions();
+            }
+            else if(result != null){
     			for (Reservation r : result) {
     				registerNotification(r);
     			}
