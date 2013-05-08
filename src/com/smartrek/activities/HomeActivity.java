@@ -814,8 +814,10 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 				dialog.cancel();
 			}
 			
-			for (Reservation r : result) {
-				registerNotification(r);
+			if(result != null){
+    			for (Reservation r : result) {
+    				registerNotification(r);
+    			}
 			}
 		}
 	}
