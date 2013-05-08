@@ -61,6 +61,7 @@ import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
+import com.smartrek.utils.Misc;
 import com.smartrek.utils.SystemService;
 
 /**
@@ -305,12 +306,13 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	        protected void onPostExecute(List<Address> addresses) {
 	            for (final Address address : addresses) {
 	                if(address.getLatitude() == 0 && address.getLongitude() == 0){
-	                    new GeocodingTask(ehs, new GeocodingTaskCallback() {
+	                    final String addressStr = address.getAddress();
+                        GeocodingTask gTask = new GeocodingTask(ehs, new GeocodingTaskCallback() {
 	                        @Override
 	                        public void preCallback() {}
 	                        @Override
 	                        public void postCallback() {
-                                new AsyncTask<Void, Void, Void>(){
+                                AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
                                     @Override
                                     protected Void doInBackground(Void... params) {
                                         try {
@@ -318,7 +320,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
                                                 address.getId(),
                                                 address.getUid(),
                                                 address.getName(),
-                                                address.getAddress(),
+                                                addressStr,
                                                 address.getLatitude(),
                                                 address.getLongitude());
                                             request.execute();
@@ -328,7 +330,8 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
                                         }
                                         return null;
                                     }
-                                }.execute();
+                                };
+                                Misc.parallelExecute(task);
 	                        }
 	                        @Override
 	                        public void callback(List<com.smartrek.utils.Geocoding.Address> addresses) {
@@ -336,7 +339,8 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	                            address.setLatitude(geoPoint.getLatitude());
                                 address.setLongitude(geoPoint.getLongitude());
 	                        }
-	                    }, false).execute(address.getAddress());
+	                    }, false);
+                        Misc.parallelExecute(gTask, addressStr);
 	                }
                 }
 	        }

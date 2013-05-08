@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
@@ -84,6 +85,17 @@ public class Misc {
                     Uri.parse("http://www.openstreetmap.org/")));
             }
         });
+    }
+    
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+	public static <Params, Progress, Result> AsyncTask<Params, Progress, Result> parallelExecute(AsyncTask<Params, Progress, Result> task, 
+            Params... params){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+        }else{
+            task.execute(params);
+        }
+        return task;
     }
     
 }
