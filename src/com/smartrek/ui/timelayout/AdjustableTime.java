@@ -62,7 +62,7 @@ public class AdjustableTime extends Time {
 	 * 
 	 *********************************************************************************************************/
 	public int getNumTimeBoxes() {
-		return Math.min(getNumTimeBoxes(this), getNumTimeBoxes(deviceTime));
+		return getNumTimeBoxes(this);
 	}
 	
 	private static int getNumTimeBoxes(Time t) {
