@@ -104,7 +104,7 @@ public final class Geocoding {
 	 * @throws JSONException 
 	 */
 	public static List<Address> lookup(String query) throws IOException, JSONException {
-        String url = String.format("%s?q=%s&format=json", URL, URLEncoder.encode(
+        /*String url = String.format("%s?q=%s&format=json", URL, URLEncoder.encode(
             replaceLaInitials(query)));
         Log.d("Geocoding", "url = " + url);
         
@@ -132,14 +132,16 @@ public final class Geocoding {
                 addresses.add(address);
             }
         }
-        
-        if(addresses.isEmpty()){
+        */
+	    
+	    List<Address> addresses = new ArrayList<Address>();
+        //if(addresses.isEmpty()){
             GeoPoint gp = googleLookup(query);
             Address address = new Address();
             address.setLatitude(gp.getLatitude());
             address.setLongitude(gp.getLongitude());
             addresses.add(address);
-        }
+        //}
         
         return addresses;
     }
