@@ -1,10 +1,12 @@
 package com.smartrek.activities;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import android.accounts.Account;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Dialog;
@@ -35,6 +37,14 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.extensions.android.accounts.GoogleAccountManager;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.CalendarScopes;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
 import com.smartrek.dialogs.TripEditDialog;
@@ -247,9 +257,9 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	    if(getIntent().getBooleanExtra(INIT, false)){
 	        new NotificationTask().execute(User.getCurrentUser(this).getId());
 	        updateAllFavAddrLatLon();
-            if (checkGooglePlayServicesAvailable()) {
-                authorizeCalendars();
-            }
+//            if (checkGooglePlayServicesAvailable()) {
+//                authorizeCalendars();
+//            }
 	    }
 	    
 	   Font.setTypeface(boldFont, buttonDone, buttonLoadTrip, buttonSaveTrip,
@@ -431,7 +441,6 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	}
 	
 	private void authorizeCalendars(){
-	    /*
 	    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
             @Override
             protected Void doInBackground(Void... params) {
@@ -463,7 +472,6 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
             }
 	    };
 	    Misc.parallelExecute(task);
-	    */
 	}
 	
 	@Override 
