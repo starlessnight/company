@@ -1,12 +1,10 @@
 package com.smartrek.activities;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Dialog;
@@ -14,7 +12,6 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -38,10 +35,6 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.model.CalendarListEntry;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
 import com.smartrek.dialogs.TripEditDialog;
@@ -88,20 +81,10 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
     public static final String INIT = "init";
     
     public static final String LOGOUT = "logout";
-
-    private static final String CALENDAR_ACCOUNT_NAME = "calendarAccountName";
     
     private static final int REQUEST_GOOGLE_PLAY_SERVICES = 0;
 
     private static final int REQUEST_AUTHORIZATION = 1;
-
-    private static final int REQUEST_ACCOUNT_PICKER = 2;
-
-    private HttpTransport transport;
-
-    private GoogleAccountCredential credential;
-
-    private Calendar calClient;
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
@@ -264,14 +247,9 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	    if(getIntent().getBooleanExtra(INIT, false)){
 	        new NotificationTask().execute(User.getCurrentUser(this).getId());
 	        updateAllFavAddrLatLon();
-//	        credential = GoogleAccountCredential.usingOAuth2(this, CalendarScopes.CALENDAR_READONLY);
-//	        credential.setSelectedAccountName(getPreferences(Context.MODE_PRIVATE)
-//                .getString(CALENDAR_ACCOUNT_NAME, null));
-//	        transport = AndroidHttp.newCompatibleTransport();
-//	        calClient = new com.google.api.services.calendar.Calendar.Builder(
-//	            transport, new GsonFactory(), credential)
-//	            .setApplicationName(getString(R.string.app_name))
-//	            .build();
+            if (checkGooglePlayServicesAvailable()) {
+                authorizeCalendars();
+            }
 	    }
 	    
 	   Font.setTypeface(boldFont, buttonDone, buttonLoadTrip, buttonSaveTrip,
@@ -450,43 +428,57 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 		tripListDialog.show();
 	}
 	
-	@Override
-	protected void onResume() {
-	    super.onResume();
-//	    if (checkGooglePlayServicesAvailable()) {
-//	      haveGooglePlayServices();
-//	    }
+	private void authorizeCalendars(){
+	    /*
+	    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+            @Override
+            protected Void doInBackground(Void... params) {
+                GoogleAccountManager gam = new GoogleAccountManager(HomeActivity.this);
+                for (Account account : gam.getAccounts()) {
+                    GoogleAccountCredential cred = GoogleAccountCredential
+                            .usingOAuth2(HomeActivity.this, CalendarScopes.CALENDAR_READONLY);
+                    cred.setSelectedAccountName(account.name);
+                    Calendar client = new Calendar.Builder(
+                            AndroidHttp.newCompatibleTransport(),
+                            new GsonFactory(), cred).setApplicationName(
+                            getString(R.string.app_name)).build();
+                    try {
+                        client.calendarList().list().execute();
+                    }
+                    catch (final GooglePlayServicesAvailabilityIOException availabilityException) {
+                        showGooglePlayServicesAvailabilityErrorDialog(
+                            availabilityException.getConnectionStatusCode());
+                    }
+                    catch (UserRecoverableAuthIOException userRecoverableException) {
+                        startActivityForResult(userRecoverableException.getIntent(),
+                            REQUEST_AUTHORIZATION);
+                    }
+                    catch (IOException e) {
+                        Log.w("authorizeCalendars", Log.getStackTraceString(e));
+                    }
+                }
+                return null;
+            }
+	    };
+	    Misc.parallelExecute(task);
+	    */
 	}
 	
 	@Override 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
+		Log.i("onActivityResult", requestCode + "," + resultCode);
 	    switch (requestCode) {
 	      case REQUEST_GOOGLE_PLAY_SERVICES:
 	        if (resultCode == Activity.RESULT_OK) {
-	          haveGooglePlayServices();
+	            authorizeCalendars();
 	        } else {
-	          checkGooglePlayServicesAvailable();
+	            checkGooglePlayServicesAvailable();
 	        }
 	        break;
 	      case REQUEST_AUTHORIZATION:
 	        if (resultCode == Activity.RESULT_OK) {
-	          loadCalendars();
-	        } else {
-	          chooseAccount();
-	        }
-	        break;
-	      case REQUEST_ACCOUNT_PICKER:
-	        if (resultCode == Activity.RESULT_OK && data != null && data.getExtras() != null) {
-	          String accountName = data.getExtras().getString(AccountManager.KEY_ACCOUNT_NAME);
-	          if (accountName != null) {
-	            credential.setSelectedAccountName(accountName);
-	            SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
-	            SharedPreferences.Editor editor = settings.edit();
-	            editor.putString(CALENDAR_ACCOUNT_NAME, accountName);
-	            editor.commit();
-	            loadCalendars();
-	          }
+	            authorizeCalendars();
 	        }
 	        break;
 	    }
@@ -511,40 +503,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	    }
 	    return true;
 	  }
-
-	  private void haveGooglePlayServices() {
-	    // check if there is already an account selected
-	    if (credential.getSelectedAccountName() == null) {
-	      // ask user to choose account
-	      chooseAccount();
-	    } else {
-	      // load calendars
-	      loadCalendars();
-	    }
-	  }
-
-	  private void chooseAccount() {
-	    startActivityForResult(credential.newChooseAccountIntent(), REQUEST_ACCOUNT_PICKER);
-	  }
 	  
-	  private void loadCalendars(){
-	      new AsyncTask<Void, Void, Void>(){
-	          @Override
-	        protected Void doInBackground(Void... params) {
-	            try {
-                    List<CalendarListEntry> cals = calClient.calendarList().list().execute().getItems();
-                    for (CalendarListEntry c : cals) {
-                        Log.i("CalendarListEntry", c.toPrettyString());
-                    }
-                }
-                catch (IOException e) {
-                    Log.e("loadCalendars", Log.getStackTraceString(e));
-                }
-	            return null;
-	        }
-	      }.execute();
-	  }
-
 	/**
 	 * 
 	 * @return Origin address that user has entered

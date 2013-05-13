@@ -6,19 +6,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-public final class ReservationNotificationExpiry extends BroadcastReceiver {
+public final class NotificationExpiry extends BroadcastReceiver {
 	
-	public static final String LOG_TAG = "ReservationNotificationExpiry";
+	public static final String LOG_TAG = "NotificationExpiry";
 	
-	public static final int NOTIFICATION_ID = 0;
-
-	public static final int REQUEST_CODE = 0; 
+	public static final String NOTIFICATION_ID = "notificationId";
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
 	    Log.d(LOG_TAG, "onReceive");
 	    NotificationManager nMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-	    nMgr.cancel(NOTIFICATION_ID);
+	    nMgr.cancel(intent.getIntExtra(NOTIFICATION_ID, 0));
 	}
 
 }

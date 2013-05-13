@@ -30,6 +30,8 @@ public final class ReservationReceiver extends BroadcastReceiver {
 	
 	public static final String RESERVATION = "reservation";
 	
+	public static final int ID = 0;
+	
 	private ValidationParameters parameters;
 	
 	private boolean departureTimeValidated;
@@ -78,13 +80,14 @@ public final class ReservationReceiver extends BroadcastReceiver {
             Notification notification = new Notification(R.drawable.icon_small, "Smartrek", route.getDepartureTime());
             notification.setLatestEventInfo(context, "Smartrek", "Your reserved trip is about to start", sender);
             notification.flags = Notification.FLAG_AUTO_CANCEL;
-            notificationManager.notify(ReservationNotificationExpiry.NOTIFICATION_ID, notification);
+            notificationManager.notify(ID, notification);
             
-            Intent expiry = new Intent(context, ReservationNotificationExpiry.class);
-            PendingIntent pendingExpiry = PendingIntent.getBroadcast(context, 
-                ReservationNotificationExpiry.REQUEST_CODE, expiry, PendingIntent.FLAG_UPDATE_CURRENT);
+            Intent expiry = new Intent(context, NotificationExpiry.class);
+            expiry.putExtra(NotificationExpiry.NOTIFICATION_ID, ID);
+            PendingIntent pendingExpiry = PendingIntent.getBroadcast(context, 0, 
+                expiry, PendingIntent.FLAG_UPDATE_CURRENT);
             AlarmManager expiryMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            expiryMgr.set(AlarmManager.ELAPSED_REALTIME, reservation.getExpiryTime(), pendingExpiry);
+            expiryMgr.set(AlarmManager.RTC, reservation.getExpiryTime(), pendingExpiry);
         }
 		
 		/*

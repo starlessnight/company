@@ -71,6 +71,7 @@ public class MainActivity extends Activity implements AnimationListener {
             loginTask.execute();
         }
         SendTrajectoryService.schedule(this);
+        //CalendarService.schedule(this);
 	}
 	
 	private void startHomeActivity(){

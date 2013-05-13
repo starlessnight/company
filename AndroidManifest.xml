@@ -27,6 +27,7 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
 
     <instrumentation
         android:name="android.test.InstrumentationTestRunner"
@@ -146,7 +147,8 @@
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize" />
 
         <receiver android:name="com.smartrek.receivers.ReservationReceiver" />
-        <receiver android:name="com.smartrek.receivers.ReservationNotificationExpiry" />
+        <receiver android:name="com.smartrek.receivers.NotificationExpiry" />
+        <receiver android:name="com.smartrek.receivers.CalendarNotification" />
         <receiver
             android:name="com.google.android.gcm.GCMBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
@@ -160,6 +162,7 @@
 
         <service android:name=".GCMIntentService" />
         <service android:name="com.smartrek.SendTrajectoryService" />
+        <service android:name="com.smartrek.CalendarService" />
     </application>
 
 </manifest>
