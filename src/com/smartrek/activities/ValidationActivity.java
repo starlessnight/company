@@ -849,6 +849,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
             int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
             if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL) {
                 if(isBetterLocation(location, lastLocation)){
+                    lastLocation = location;
                     locationChanged(location);
                 }
             }else{
