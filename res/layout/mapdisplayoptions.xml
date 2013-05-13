@@ -96,7 +96,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/separator2"
-        android:text="20130513"
+        android:text="@string/distribution_date"
         android:layout_marginTop="12dp"
         android:layout_marginLeft="45dp"
         android:layout_marginRight="45dp"

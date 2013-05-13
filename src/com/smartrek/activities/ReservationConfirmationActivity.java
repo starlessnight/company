@@ -173,7 +173,7 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 
 		@Override
 		protected Object doInBackground(Object... params) {
-			ReservationRequest request = new ReservationRequest(route);
+			ReservationRequest request = new ReservationRequest(route, getString(R.string.distribution_date));
 			try {
 				request.execute();
 			}

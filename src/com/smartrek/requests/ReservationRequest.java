@@ -15,7 +15,7 @@ import com.smartrek.utils.RouteNode;
 
 public class ReservationRequest extends Request {
 	
-	public ReservationRequest(Route route) {
+	public ReservationRequest(Route route, String version) {
 		super();
 		
 		// TODO: Better way to handle this?
@@ -34,14 +34,15 @@ public class ReservationRequest extends Request {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         dateFormat.setTimeZone(TimeZone.getTimeZone(TIME_ZONE));
         
-		url = String.format("%s/addreservations/?rid=%d&credits=%d&uid=%d&start_datetime=%s&estimatedTT=%d&origin_address=%s&destination_address=%s&route=%s",
+		url = String.format("%s/V0.2/addreservations/?rid=%d&credits=%d&uid=%d&start_datetime=%s&estimatedTT=%d&origin_address=%s&destination_address=%s&route=%s&version=%s",
 				HOST,
 				route.getId(), route.getCredits(), route.getUserId(),
 				URLEncoder.encode(dateFormat.format(now)),
 				route.getDuration() / 60, // Server requires this value in terms of minutes
 				URLEncoder.encode(route.getOrigin()),
 				URLEncoder.encode(route.getDestination()),
-				URLEncoder.encode(new String(buf)));
+				URLEncoder.encode(new String(buf)),
+				version);
 	}
 	
 	public void execute() throws IOException, JSONException {
