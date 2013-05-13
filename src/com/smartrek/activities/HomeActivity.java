@@ -282,8 +282,9 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	        }
 	        @Override
 	        protected void onPostExecute(List<Address> addresses) {
+	            boolean isPatched = DebugOptionsActivity.isGoogleGeocodingPatched(HomeActivity.this);
 	            for (final Address address : addresses) {
-	                if(address.getLatitude() == 0 && address.getLongitude() == 0){
+	                if(!isPatched || (address.getLatitude() == 0 && address.getLongitude() == 0)){
 	                    final String addressStr = address.getAddress();
                         GeocodingTask gTask = new GeocodingTask(ehs, new GeocodingTaskCallback() {
 	                        @Override
@@ -321,6 +322,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
                         Misc.parallelExecute(gTask, addressStr);
 	                }
                 }
+	            DebugOptionsActivity.setGoogleGeocodingPatched(HomeActivity.this, true);
 	        }
 	    }.execute();
 	}

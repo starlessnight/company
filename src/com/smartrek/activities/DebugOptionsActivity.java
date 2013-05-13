@@ -44,6 +44,8 @@ public final class DebugOptionsActivity extends Activity {
     
     public static final String GPS_UPDATE_INTERVAL = "GPS_UPDATE_INTERVAL";
     
+    public static final String GOOGLE_GEOCODING_PATCHED = "GOOGLE_GEOCODING_PATCHED";
+    
     private static final String fakeRoutes = "fakeRouteIds";
     
     private static final int fakeRouteSize = 10;
@@ -236,6 +238,16 @@ public final class DebugOptionsActivity extends Activity {
     
     public static int getGpsUpdateInterval(Context ctx){
         return getPrefs(ctx).getInt(GPS_UPDATE_INTERVAL, defaultUpdateInterval);
+    }
+    
+    public static boolean isGoogleGeocodingPatched(Context ctx){
+        return getPrefs(ctx).getBoolean(GOOGLE_GEOCODING_PATCHED, false);
+    }
+    
+    public static void setGoogleGeocodingPatched(Context ctx, boolean patched){
+        getPrefs(ctx).edit()
+            .putBoolean(GOOGLE_GEOCODING_PATCHED, patched)
+            .commit();
     }
     
     private static JSONArray getFakeRoutes(Context ctx){
