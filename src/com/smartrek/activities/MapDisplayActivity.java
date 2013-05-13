@@ -96,8 +96,10 @@ public final class MapDisplayActivity extends ActionBarActivity {
         timeIncrement15.setOnClickListener(timeIncrementListener);
         timeIncrement60.setOnClickListener(timeIncrementListener);
         
-        Font.setTypeface(boldFont, (TextView)findViewById(R.id.time_heading));
-        Font.setTypeface(lightFont, displayTravel, displayArrival);
+        Font.setTypeface(boldFont, (TextView)findViewById(R.id.time_heading),
+            (TextView)findViewById(R.id.distribution_heading));
+        Font.setTypeface(lightFont, displayTravel, displayArrival,
+            (TextView)findViewById(R.id.distribution_date));
     }
     
 	@Override

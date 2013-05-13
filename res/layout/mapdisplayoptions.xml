@@ -70,6 +70,40 @@
     </RelativeLayout>
 
     <TextView
+        android:id="@+id/distribution_heading"
+        android:text="DISTRUBUTION DATE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/group1"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="45dp"
+        style="@style/MicroText">
+    </TextView>
+
+    <View
+        android:id="@+id/separator2"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@id/distribution_heading"
+        android:layout_marginTop="12dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:background="@color/secondary_font"  
+     />
+    
+    <TextView
+        android:id="@+id/distribution_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/separator2"
+        android:text="20130513"
+        android:layout_marginTop="12dp"
+        android:layout_marginLeft="45dp"
+        android:layout_marginRight="45dp"
+        style="@style/MediumText"
+	/>
+    
+    <TextView
         android:id="@+id/adjust_time_heading"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
