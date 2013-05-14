@@ -25,8 +25,6 @@
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="com.smartrek.activities.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
-    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_CALENDAR" />
 
     <instrumentation
@@ -78,7 +76,8 @@
             android:name=".HomeActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
             android:theme="@style/Theme.smartrek"
-            android:label="where to" />
+            android:label="where to"
+            android:launchMode="singleTask" />
         <activity
             android:name=".UserRegistrationActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
@@ -149,6 +148,8 @@
         <receiver android:name="com.smartrek.receivers.ReservationReceiver" />
         <receiver android:name="com.smartrek.receivers.NotificationExpiry" />
         <receiver android:name="com.smartrek.receivers.CalendarNotification" />
+        <receiver android:name="com.smartrek.receivers.CalendarNotificationPlan" />
+        <receiver android:name="com.smartrek.receivers.CalendarNotificationDelay" />
         <receiver
             android:name="com.google.android.gcm.GCMBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >

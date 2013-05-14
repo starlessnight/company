@@ -1,15 +1,15 @@
 package com.smartrek.activities;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 
-import android.accounts.Account;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.Dialog;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -37,14 +37,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.extensions.android.accounts.GoogleAccountManager;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GooglePlayServicesAvailabilityIOException;
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.CalendarScopes;
+import com.smartrek.CalendarService;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
 import com.smartrek.dialogs.TripEditDialog;
@@ -61,6 +54,7 @@ import com.smartrek.tasks.GeocodingTask;
 import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
+import com.smartrek.utils.CalendarContract.Instances;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
@@ -89,6 +83,8 @@ import com.smartrek.utils.SystemService;
 public final class HomeActivity extends ActionBarActivity implements TextWatcher {
     
     public static final String INIT = "init";
+    
+    public static final String EVENT_ID = "event_id";
     
     public static final String LOGOUT = "logout";
     
@@ -140,6 +136,8 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	    	
 	    });
 	    editAddressDest.addTextChangedListener(this);
+	    
+	    handleCalendarEvent(getIntent().getIntExtra(EVENT_ID, 0));
 	    
 	    //dateBox = (EditText) findViewById(R.id.date_box);
 	
@@ -271,6 +269,22 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
            finish();
            return;
        }
+	}
+	
+	@Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleCalendarEvent(intent.getIntExtra(EVENT_ID, 0));
+    }
+	
+	private void handleCalendarEvent(int eventId){
+        if(eventId > 0){
+            NotificationManager nMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            nMgr.cancel(eventId);
+            JSONObject event = CalendarService.getEvent(this, eventId);
+            setDestinationAddress(event.optString(Instances.EVENT_LOCATION));
+            setOriginAddress("");
+        }
 	}
 	
 	private void updateAllFavAddrLatLon(){
@@ -440,6 +454,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 		tripListDialog.show();
 	}
 	
+	/*
 	private void authorizeCalendars(){
 	    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
             @Override
@@ -473,6 +488,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	    };
 	    Misc.parallelExecute(task);
 	}
+	*/
 	
 	@Override 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -481,14 +497,14 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	    switch (requestCode) {
 	      case REQUEST_GOOGLE_PLAY_SERVICES:
 	        if (resultCode == Activity.RESULT_OK) {
-	            authorizeCalendars();
+	            //authorizeCalendars();
 	        } else {
-	            checkGooglePlayServicesAvailable();
+	            //checkGooglePlayServicesAvailable();
 	        }
 	        break;
 	      case REQUEST_AUTHORIZATION:
 	        if (resultCode == Activity.RESULT_OK) {
-	            authorizeCalendars();
+	            //authorizeCalendars();
 	        }
 	        break;
 	    }

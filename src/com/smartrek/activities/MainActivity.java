@@ -11,6 +11,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.CalendarService;
 import com.smartrek.SendTrajectoryService;
 import com.smartrek.models.User;
 import com.smartrek.tasks.LoginTask;
@@ -71,7 +72,7 @@ public class MainActivity extends Activity implements AnimationListener {
             loginTask.execute();
         }
         SendTrajectoryService.schedule(this);
-        //CalendarService.schedule(this);
+        CalendarService.schedule(this);
 	}
 	
 	private void startHomeActivity(){

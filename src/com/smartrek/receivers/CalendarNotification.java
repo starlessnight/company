@@ -18,14 +18,10 @@ import android.os.Build;
 import android.util.Log;
 
 import com.smartrek.CalendarService;
-import com.smartrek.activities.MainActivity;
+import com.smartrek.activities.HomeActivity;
 import com.smartrek.activities.R;
 import com.smartrek.utils.CalendarContract.Instances;
 
-/**
- * Route validation happens here
- *
- */
 public final class CalendarNotification extends BroadcastReceiver {
 	
 	public static final String LOG_TAG = "CalendarNotification";
@@ -38,18 +34,10 @@ public final class CalendarNotification extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 	    Log.d(LOG_TAG, "onReceive");
-		
-	    String eventId = intent.getExtras().getString(EVENT_ID);
-		
+	    
+	    int eventId = intent.getIntExtra(EVENT_ID, 0);
 	    JSONObject event = CalendarService.getEvent(context, eventId);
         if(event != null){
-            Intent mainIntent = new Intent(context, MainActivity.class);
-            PendingIntent sender = PendingIntent.getActivity(context, 0, mainIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            
-            NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            
-            int notiId = Integer.parseInt(eventId);
-            
             long startTime = event.optLong(Instances.BEGIN);
             
             String notiInfo = "Title: " + event.optString(Instances.TITLE)
@@ -59,10 +47,17 @@ public final class CalendarNotification extends BroadcastReceiver {
                 notiInfo += "\nLocation: " + location;
             }
             long expiryTime = startTime - THIRTY_MINS;
-            if(true || System.currentTimeMillis() < expiryTime){
+            if(System.currentTimeMillis() < expiryTime /* || true*/){
+                Intent homeIntent = new Intent(context, HomeActivity.class);
+                homeIntent.putExtra(HomeActivity.EVENT_ID, eventId);
+                PendingIntent sender = PendingIntent.getActivity(context, eventId, homeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                Intent delay = new Intent(context, CalendarNotificationDelay.class);
+                delay.putExtra(CalendarNotificationDelay.EVENT_ID, eventId);
+                PendingIntent pendingDelay = PendingIntent.getBroadcast(context, eventId, delay, 
+                    PendingIntent.FLAG_UPDATE_CURRENT);
                 Intent expiry = new Intent(context, NotificationExpiry.class);
-                expiry.putExtra(NotificationExpiry.NOTIFICATION_ID, notiId);
-                PendingIntent pendingExpiry = PendingIntent.getBroadcast(context, 0, 
+                expiry.putExtra(NotificationExpiry.NOTIFICATION_ID, eventId);
+                PendingIntent pendingExpiry = PendingIntent.getBroadcast(context, eventId, 
                     expiry, PendingIntent.FLAG_UPDATE_CURRENT);
                 Notification notification;
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
@@ -70,10 +65,10 @@ public final class CalendarNotification extends BroadcastReceiver {
                             new Notification.Builder(context)
                                .setContentTitle("Smartrek")
                                .setContentText(notiInfo)
-                               .setContentIntent(pendingExpiry)
+                               .setContentIntent(sender)
                                .setWhen(startTime)
-                               .addAction(0, "Plan the trip", pendingExpiry)
-                               .addAction(0, "Remind me later", pendingExpiry)
+                               .addAction(0, "Plan the trip", sender)
+                               .addAction(0, "Remind me later", pendingDelay)
                                .addAction(0, "Dismiss", pendingExpiry)
                                .setSmallIcon(R.drawable.icon_small)
                             )
@@ -81,10 +76,11 @@ public final class CalendarNotification extends BroadcastReceiver {
                         .build();
                 }else{
                     notification = new Notification(R.drawable.icon_small, "Smartrek", startTime);
-                    notification.setLatestEventInfo(context, "Smartrek", notiInfo, pendingExpiry);
+                    notification.setLatestEventInfo(context, "Smartrek", notiInfo, sender);
                 }
                 notification.flags = Notification.FLAG_AUTO_CANCEL;
-                notificationManager.notify(notiId, notification);
+                NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.notify(eventId, notification);
                 
                 AlarmManager expiryMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                 expiryMgr.set(AlarmManager.RTC, expiryTime, pendingExpiry);

@@ -29,7 +29,7 @@ import com.smartrek.utils.CalendarContract.Instances;
 
 public class CalendarService extends IntentService {
 
-    private static final long FIFTHTEEN_MINS = 10000 /*15 * 60 * 1000*/;
+    private static final long FIFTHTEEN_MINS = 15 * 60 * 1000 /* 10000 */;
     
     private static final long FOUR_HOURS = 4 * 60 * 60 * 1000;
     
@@ -58,7 +58,7 @@ public class CalendarService extends IntentService {
                    File file = getFile(eventId);
                    long start = Long.parseLong(events.getString(2));
                    long notiTime = start - TWO_AND_A_HALF_HOURS;
-                   if((!file.exists() || file.length() == 0) && true/*System.currentTimeMillis() < notiTime*/){
+                   if((!file.exists() || file.length() == 0) && System.currentTimeMillis() < notiTime /* true */){
                        JSONObject eventJson = new JSONObject()
                            .put(BaseColumns._ID, eventId)
                            .put(Instances.TITLE, events.getString(1))
@@ -67,12 +67,12 @@ public class CalendarService extends IntentService {
                        FileUtils.write(file, eventJson.toString());
                        Intent noti = new Intent(CalendarService.this, 
                            CalendarNotification.class);
-                       noti.putExtra(CalendarNotification.EVENT_ID, eventId);
+                       noti.putExtra(CalendarNotification.EVENT_ID, Integer.parseInt(eventId));
                        PendingIntent pendingNoti = PendingIntent.getBroadcast(
-                           CalendarService.this, 0, noti, 
+                           CalendarService.this, Integer.parseInt(eventId), noti, 
                            PendingIntent.FLAG_UPDATE_CURRENT);
                        AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-                       am.set(AlarmManager.RTC_WAKEUP, /*notiTime*/ System.currentTimeMillis(), pendingNoti);
+                       am.set(AlarmManager.RTC_WAKEUP, notiTime /*System.currentTimeMillis()*/, pendingNoti);
                        break;
                    }
                 }
@@ -171,9 +171,9 @@ public class CalendarService extends IntentService {
         return new File(getDir(ctx), eventId);
     }
     
-    public static JSONObject getEvent(Context ctx, String id){
+    public static JSONObject getEvent(Context ctx, int id){
         JSONObject event = null;
-        File file = getFile(ctx, id);
+        File file = getFile(ctx, String.valueOf(id));
         if(file.exists() && file.length() != 0){
             try {
                 event = new JSONObject(FileUtils.readFileToString(file));
