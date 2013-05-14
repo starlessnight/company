@@ -47,7 +47,7 @@ public final class CalendarNotification extends BroadcastReceiver {
                 notiInfo += "\nLocation: " + location;
             }
             long expiryTime = startTime - THIRTY_MINS;
-            if(System.currentTimeMillis() < expiryTime /* || true*/){
+            if(System.currentTimeMillis() < expiryTime /* || true */){
                 Intent homeIntent = new Intent(context, HomeActivity.class);
                 homeIntent.putExtra(HomeActivity.EVENT_ID, eventId);
                 PendingIntent sender = PendingIntent.getActivity(context, eventId, homeIntent, PendingIntent.FLAG_UPDATE_CURRENT);

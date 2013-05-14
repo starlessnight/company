@@ -20,9 +20,6 @@ import android.os.SystemClock;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-import com.google.api.client.util.DateTime;
-import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.EventDateTime;
 import com.smartrek.models.User;
 import com.smartrek.receivers.CalendarNotification;
 import com.smartrek.utils.CalendarContract.Instances;
@@ -72,7 +69,7 @@ public class CalendarService extends IntentService {
                            CalendarService.this, Integer.parseInt(eventId), noti, 
                            PendingIntent.FLAG_UPDATE_CURRENT);
                        AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-                       am.set(AlarmManager.RTC_WAKEUP, notiTime /*System.currentTimeMillis()*/, pendingNoti);
+                       am.set(AlarmManager.RTC_WAKEUP, notiTime /* System.currentTimeMillis() */, pendingNoti);
                        break;
                    }
                 }
@@ -193,12 +190,6 @@ public class CalendarService extends IntentService {
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
         alarm.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
                 SystemClock.elapsedRealtime(), FIFTHTEEN_MINS, sendTrajServ);
-    }
-    
-    public static long getTime(Event e){
-        EventDateTime start = e.getStart();
-        DateTime dateTime = start.getDateTime();
-        return dateTime != null?dateTime.getValue():start.getDate().getValue();
     }
 
 }

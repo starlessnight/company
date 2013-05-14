@@ -6,9 +6,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
-import android.app.Activity;
 import android.app.AlarmManager;
-import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -21,7 +19,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.Time;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -36,7 +33,6 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.smartrek.CalendarService;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
@@ -255,9 +251,6 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	    if(getIntent().getBooleanExtra(INIT, false)){
 	        new NotificationTask().execute(User.getCurrentUser(this).getId());
 	        updateAllFavAddrLatLon();
-//            if (checkGooglePlayServicesAvailable()) {
-//                authorizeCalendars();
-//            }
 	    }
 	    
 	   Font.setTypeface(boldFont, buttonDone, buttonLoadTrip, buttonSaveTrip,
@@ -453,82 +446,6 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 		}
 		tripListDialog.show();
 	}
-	
-	/*
-	private void authorizeCalendars(){
-	    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
-            @Override
-            protected Void doInBackground(Void... params) {
-                GoogleAccountManager gam = new GoogleAccountManager(HomeActivity.this);
-                for (Account account : gam.getAccounts()) {
-                    GoogleAccountCredential cred = GoogleAccountCredential
-                            .usingOAuth2(HomeActivity.this, CalendarScopes.CALENDAR_READONLY);
-                    cred.setSelectedAccountName(account.name);
-                    Calendar client = new Calendar.Builder(
-                            AndroidHttp.newCompatibleTransport(),
-                            new GsonFactory(), cred).setApplicationName(
-                            getString(R.string.app_name)).build();
-                    try {
-                        client.calendarList().list().execute();
-                    }
-                    catch (final GooglePlayServicesAvailabilityIOException availabilityException) {
-                        showGooglePlayServicesAvailabilityErrorDialog(
-                            availabilityException.getConnectionStatusCode());
-                    }
-                    catch (UserRecoverableAuthIOException userRecoverableException) {
-                        startActivityForResult(userRecoverableException.getIntent(),
-                            REQUEST_AUTHORIZATION);
-                    }
-                    catch (IOException e) {
-                        Log.w("authorizeCalendars", Log.getStackTraceString(e));
-                    }
-                }
-                return null;
-            }
-	    };
-	    Misc.parallelExecute(task);
-	}
-	*/
-	
-	@Override 
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		Log.i("onActivityResult", requestCode + "," + resultCode);
-	    switch (requestCode) {
-	      case REQUEST_GOOGLE_PLAY_SERVICES:
-	        if (resultCode == Activity.RESULT_OK) {
-	            //authorizeCalendars();
-	        } else {
-	            //checkGooglePlayServicesAvailable();
-	        }
-	        break;
-	      case REQUEST_AUTHORIZATION:
-	        if (resultCode == Activity.RESULT_OK) {
-	            //authorizeCalendars();
-	        }
-	        break;
-	    }
-	}
-	
-	 void showGooglePlayServicesAvailabilityErrorDialog(final int connectionStatusCode) {
-	    runOnUiThread(new Runnable() {
-	      public void run() {
-	        Dialog dialog = GooglePlayServicesUtil.getErrorDialog(
-	            connectionStatusCode, HomeActivity.this, REQUEST_GOOGLE_PLAY_SERVICES);
-	        dialog.show();
-	      }
-	    });
-	  }
-	
-	  /** Check that Google Play services APK is installed and up to date. */
-	  private boolean checkGooglePlayServicesAvailable() {
-	    final int connectionStatusCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-	    if (GooglePlayServicesUtil.isUserRecoverableError(connectionStatusCode)) {
-	      showGooglePlayServicesAvailabilityErrorDialog(connectionStatusCode);
-	      return false;
-	    }
-	    return true;
-	  }
 	  
 	/**
 	 * 
