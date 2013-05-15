@@ -41,7 +41,7 @@ public final class EditAddress extends EditText {
 		
 		setText("Current location");
 		//setTextColor(Color.BLUE);
-		setEnabled(false);
+		//setEnabled(false);
 	}
 	
 	public void unsetAddress() {
@@ -57,7 +57,7 @@ public final class EditAddress extends EditText {
 		// This approach does not work
 		//setTextColor(getTextColors().getDefaultColor());
 		
-		setEnabled(true);
+		//setEnabled(true);
 	}
 	
 	public boolean isCurrentLocationInUse() {

@@ -22,6 +22,7 @@ import android.text.format.Time;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnLongClickListener;
 import android.view.animation.Animation;
@@ -116,6 +117,14 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	    	
 	    });
 	    editAddressOrigin.addTextChangedListener(this);
+	    editAddressOrigin.setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(editAddressOrigin.isCurrentLocationInUse() && hasFocus){
+                    editAddressOrigin.unsetAddress();
+                }
+            }
+        });
 	    
 	    editAddressDest = (EditAddress) findViewById(R.id.destination_box);
 	    editAddressDest.setOnKeyListener(new OnKeyListener() {
@@ -129,6 +138,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	    });
 	    editAddressDest.addTextChangedListener(this);
 	    
+	    editAddressOrigin.setAddressAsCurrentLocation();
 	    handleCalendarEvent(getIntent().getIntExtra(EVENT_ID, 0));
 	    
 	    //dateBox = (EditText) findViewById(R.id.date_box);
@@ -241,6 +251,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 			@Override
 			public void onClick(View v) {
 	        	editAddressOrigin.setAddressAsCurrentLocation();
+	        	editAddressOrigin.clearFocus();
 			}
 	    });
 
