@@ -84,7 +84,7 @@ public class SendTrajectoryService extends IntentService {
                     }
                     SendTrajectoryRequest request = new SendTrajectoryRequest();
                     try {
-                        request.execute(seq, user.getId(), routeId, traj);
+                        request.execute(seq, user.getId(), routeId, traj.decimateBy500ft());
                         try{
                             FileUtils.write(outFile, String.valueOf(seq));
                         }catch(Exception e){}

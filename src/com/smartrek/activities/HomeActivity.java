@@ -220,10 +220,8 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 			@Override
 			public boolean onLongClick(View v) {
 				debugMode = true;
-				if (editAddressOrigin.getText().toString().equals(""))
-					editAddressOrigin.setText("origin");
-				if (editAddressDest.getText().toString().equals(""))
-					editAddressDest.setText("destination");
+				setOriginAddress("origin");
+				setDestinationAddress("destination");
 				//prepareMapActivity();
 				startMapActivity();
 				return true;

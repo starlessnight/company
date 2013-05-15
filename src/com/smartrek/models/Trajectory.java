@@ -1,10 +1,13 @@
 package com.smartrek.models;
 
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Vector;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+
+import com.smartrek.utils.RouteNode;
 
 import android.location.Location;
 
@@ -185,6 +188,21 @@ public class Trajectory {
 	
 	public void append(Trajectory traj){
 	    records.addAll(traj.records);
+	}
+	
+	public Trajectory decimateBy500ft(){
+	    ListIterator<Record> recordIter = records.listIterator();
+	    Record lastRecord = null;
+	    while(recordIter.hasNext()){
+	        Record r = recordIter.next();
+	        if(lastRecord != null && RouteNode.distanceBetween(lastRecord.lat, 
+	                lastRecord.lng, r.lat, r.lng) < 152.4){
+	            recordIter.remove();
+	        }else{
+	            lastRecord = r; 
+	        }
+	    }
+	    return this;
 	}
 	
 	public static Trajectory from(JSONArray array) throws JSONException {
