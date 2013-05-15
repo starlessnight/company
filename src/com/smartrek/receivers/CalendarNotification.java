@@ -19,6 +19,7 @@ import android.util.Log;
 
 import com.smartrek.CalendarService;
 import com.smartrek.activities.HomeActivity;
+import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.activities.R;
 import com.smartrek.utils.CalendarContract.Instances;
 
@@ -37,7 +38,7 @@ public final class CalendarNotification extends BroadcastReceiver {
 	    
 	    int eventId = intent.getIntExtra(EVENT_ID, 0);
 	    JSONObject event = CalendarService.getEvent(context, eventId);
-        if(event != null){
+        if(event != null && MapDisplayActivity.isCalendarIntegrationEnabled(context)){
             long startTime = event.optLong(Instances.BEGIN);
             
             String notiInfo = "Title: " + event.optString(Instances.TITLE)
