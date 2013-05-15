@@ -22,7 +22,8 @@ public final class SmarTrekApplication extends Application {
     public void onCreate() {
         // The following line triggers the initialization of ACRA
         ACRA.init(this);
-        LocationLibrary.initialiseLibrary(getBaseContext(), "com.smartrek.activities");
+        long fifteenMin = 15 * 60 * 1000;
+        LocationLibrary.initialiseLibrary(getBaseContext(), fifteenMin, (int)fifteenMin, true, "com.smartrek.activities");
         super.onCreate();
     }
 }
