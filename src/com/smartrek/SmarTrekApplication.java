@@ -6,6 +6,7 @@ import org.acra.annotation.ReportsCrashes;
 
 import android.app.Application;
 
+import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary;
 import com.smartrek.activities.R;
 
 @ReportsCrashes(formKey="dFdwTW1tbERoS1N4RlhNbFBjeHc4dXc6MQ",
@@ -21,6 +22,7 @@ public final class SmarTrekApplication extends Application {
     public void onCreate() {
         // The following line triggers the initialization of ACRA
         ACRA.init(this);
+        LocationLibrary.initialiseLibrary(getBaseContext(), "com.smartrek.activities");
         super.onCreate();
     }
 }
