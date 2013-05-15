@@ -1,10 +1,14 @@
 package com.smartrek.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -26,12 +30,16 @@ public final class MapDisplayActivity extends ActionBarActivity {
     
     public static final String TIME_INCREMENT = "TimeIncrement";
     public static final int TIME_INCREMENT_DEFAULT = 15;
+    
+    private static final String CALENDAR_INTEGRATION = "CALENDAR_INTEGRATION";
 
     private RadioButton displayTravel;
     private RadioButton displayArrival;
     private RadioButton timeIncrement5;
     private RadioButton timeIncrement15;
     private RadioButton timeIncrement60;
+    
+    private CheckBox calendarIntegration;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -96,10 +104,29 @@ public final class MapDisplayActivity extends ActionBarActivity {
         timeIncrement15.setOnClickListener(timeIncrementListener);
         timeIncrement60.setOnClickListener(timeIncrementListener);
         
+        boolean calIntEnabled = isCalendarIntegrationEnabled(this);
+        calendarIntegration = (CheckBox) findViewById(R.id.calendar_integration);
+        calendarIntegration.setChecked(calIntEnabled);
+        calendarIntegration.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                prefs.edit()
+                    .putBoolean(CALENDAR_INTEGRATION, isChecked)
+                    .commit();
+            }
+        });
+        
         Font.setTypeface(boldFont, (TextView)findViewById(R.id.time_heading),
+            (TextView)findViewById(R.id.calendar_integration_heading), 
             (TextView)findViewById(R.id.distribution_heading));
         Font.setTypeface(lightFont, displayTravel, displayArrival,
+            (TextView)findViewById(R.id.calendar_integration_text),
             (TextView)findViewById(R.id.distribution_date));
+    }
+    
+    public static boolean isCalendarIntegrationEnabled(Context ctx){
+        return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
+            .getBoolean(CALENDAR_INTEGRATION, true);
     }
     
 	@Override

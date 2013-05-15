@@ -20,6 +20,7 @@ import android.os.SystemClock;
 import android.provider.BaseColumns;
 import android.util.Log;
 
+import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.models.User;
 import com.smartrek.receivers.CalendarNotification;
 import com.smartrek.utils.CalendarContract.Instances;
@@ -42,7 +43,7 @@ public class CalendarService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         Log.i("CalendarService", "onHandleIntent");
         User user = User.getCurrentUser(this);
-        if (user != null) {
+        if (user != null && MapDisplayActivity.isCalendarIntegrationEnabled(this)) {
             try {
                 long now = System.currentTimeMillis();
                 Uri.Builder eventsUriBuilder = Instances.CONTENT_URI.buildUpon();

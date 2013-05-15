@@ -70,8 +70,8 @@
     </RelativeLayout>
 
     <TextView
-        android:id="@+id/distribution_heading"
-        android:text="DISTRUBUTION DATE"
+        android:id="@+id/calendar_integration_heading"
+        android:text="CALENDAR INTEGRATION"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/group1"
@@ -82,6 +82,52 @@
 
     <View
         android:id="@+id/separator2"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@id/calendar_integration_heading"
+        android:layout_marginTop="12dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:background="@color/secondary_font"  
+     />
+    
+    <TextView
+        android:id="@+id/calendar_integration_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/separator2"
+        android:text="Enabled"
+        android:layout_marginTop="12dp"
+        android:layout_marginLeft="45dp"
+        android:layout_marginRight="45dp"
+        style="@style/MediumText"
+	/>
+    
+    <CheckBox
+         android:id="@+id/calendar_integration"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_alignParentRight="true"
+         android:layout_alignBaseline="@id/calendar_integration_text"
+         android:enabled="true"
+         android:padding="0dp"
+         android:layout_marginTop="0dp"
+         android:layout_marginRight="45dp"
+	/>
+    
+    <TextView
+        android:id="@+id/distribution_heading"
+        android:text="DISTRUBUTION DATE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/calendar_integration_text"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="45dp"
+        style="@style/MicroText">
+    </TextView>
+
+    <View
+        android:id="@+id/separator3"
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_below="@id/distribution_heading"
@@ -95,7 +141,7 @@
         android:id="@+id/distribution_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/separator2"
+        android:layout_below="@id/separator3"
         android:text="@string/distribution_date"
         android:layout_marginTop="12dp"
         android:layout_marginLeft="45dp"
