@@ -51,18 +51,14 @@ public class CalendarService extends IntentService {
                 ContentUris.appendId(eventsUriBuilder, now + FOUR_HOURS);
                 Cursor events = getContentResolver().query(eventsUriBuilder.build(), new String[] { BaseColumns._ID, Instances.TITLE,
                     Instances.BEGIN, Instances.EVENT_LOCATION}, null, null, Instances.BEGIN + " asc");
+                boolean hasNotification = false;
                 while(events.moveToNext()) {
                    String eventId = events.getString(0);
                    File file = getFile(eventId);
                    long start = Long.parseLong(events.getString(2));
                    long notiTime = start - TWO_AND_A_HALF_HOURS;
                    if((!file.exists() || file.length() == 0) && System.currentTimeMillis() < notiTime /* true */){
-                       JSONObject eventJson = new JSONObject()
-                           .put(BaseColumns._ID, eventId)
-                           .put(Instances.TITLE, events.getString(1))
-                           .put(Instances.BEGIN, start)
-                           .put(Instances.EVENT_LOCATION, events.getString(3));
-                       FileUtils.write(file, eventJson.toString());
+                       hasNotification = true;
                        Intent noti = new Intent(CalendarService.this, 
                            CalendarNotification.class);
                        noti.putExtra(CalendarNotification.EVENT_ID, Integer.parseInt(eventId));
@@ -71,6 +67,14 @@ public class CalendarService extends IntentService {
                            PendingIntent.FLAG_UPDATE_CURRENT);
                        AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
                        am.set(AlarmManager.RTC_WAKEUP, notiTime /* System.currentTimeMillis() */, pendingNoti);
+                   }
+                   JSONObject eventJson = new JSONObject()
+                       .put(BaseColumns._ID, eventId)
+                       .put(Instances.TITLE, events.getString(1))
+                       .put(Instances.BEGIN, start)
+                       .put(Instances.EVENT_LOCATION, events.getString(3));
+                   FileUtils.write(file, eventJson.toString());
+                   if(hasNotification){
                        break;
                    }
                 }
