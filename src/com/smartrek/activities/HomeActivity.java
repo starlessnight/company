@@ -84,10 +84,6 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
     
     public static final String LOGOUT = "logout";
     
-    private static final int REQUEST_GOOGLE_PLAY_SERVICES = 0;
-
-    private static final int REQUEST_AUTHORIZATION = 1;
-    
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
 	private EditAddress editAddressOrigin;
@@ -276,7 +272,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
             nMgr.cancel(eventId);
             JSONObject event = CalendarService.getEvent(this, eventId);
             setDestinationAddress(event.optString(Instances.EVENT_LOCATION));
-            setOriginAddress("");
+            editAddressOrigin.setAddressAsCurrentLocation();
         }
 	}
 	

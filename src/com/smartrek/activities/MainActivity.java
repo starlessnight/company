@@ -36,43 +36,56 @@ public class MainActivity extends Activity implements AnimationListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
-
-		logo = (ImageView) findViewById(R.id.imageViewLogo);
-		Animation fadeAnimation = AnimationUtils.loadAnimation(this, R.anim.fade);
-		fadeAnimation.setAnimationListener(this);
-		logo.startAnimation(fadeAnimation);
 		
-		/* Check Shared memory to see if login info has already been entered on this phone */
-        SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
-        String username = loginPrefs.getString(User.USERNAME, "");
-        String password = loginPrefs.getString(User.PASSWORD, "");
-        if (!username.equals("") && !password.equals("")) {
-            String gcmRegistrationId = Preferences.getGlobalPreferences(this).getString("GCMRegistrationID", "");
-            
-            loginTask = new LoginTask(this, username, password, gcmRegistrationId) {
-                @Override
-                protected void onPostLogin(final User user) {
-                    loggedIn = user != null && user.getId() != -1;
-                    if(loggedIn){
-                        User.setCurrentUser(MainActivity.this, user);
-                        Log.d(LOG_TAG,"Successful Login");
-                        Log.d(LOG_TAG, "Saving Login Info to Shared Preferences");
-                    }
-                    loginTaskEnded = true;
-                    if(splashEnded){
-                        if(loggedIn){
-                            startHomeActivity();
-                        }else{
-                            startLoginActivity();
-                        }
-                    }
-               }
-            }.setDialogEnabled(false);
-            loginTask.execute();
-        }
-        SendTrajectoryService.schedule(this);
-        CalendarService.schedule(this);
+		// Possible work around for market launches. See http://code.google.com/p/android/issues/detail?id=2373
+		// for more details. Essentially, the market launches the main activity on top of other activities.
+		// we never want this to happen. Instead, we check if we are the root and if not, we finish.
+		if (!isTaskRoot()) {
+		    final Intent intent = getIntent();
+		    final String intentAction = intent.getAction(); 
+		    if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) && intentAction != null && intentAction.equals(Intent.ACTION_MAIN)) {
+		        Log.w(LOG_TAG, "Main Activity is not the root.  Finishing Main Activity instead of launching.");
+		        finish();
+		    }
+		}else{
+		    setContentView(R.layout.main);
+
+	        logo = (ImageView) findViewById(R.id.imageViewLogo);
+	        Animation fadeAnimation = AnimationUtils.loadAnimation(this, R.anim.fade);
+	        fadeAnimation.setAnimationListener(this);
+	        logo.startAnimation(fadeAnimation);
+	        
+	        /* Check Shared memory to see if login info has already been entered on this phone */
+	        SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
+	        String username = loginPrefs.getString(User.USERNAME, "");
+	        String password = loginPrefs.getString(User.PASSWORD, "");
+	        if (!username.equals("") && !password.equals("")) {
+	            String gcmRegistrationId = Preferences.getGlobalPreferences(this).getString("GCMRegistrationID", "");
+	            
+	            loginTask = new LoginTask(this, username, password, gcmRegistrationId) {
+	                @Override
+	                protected void onPostLogin(final User user) {
+	                    loggedIn = user != null && user.getId() != -1;
+	                    if(loggedIn){
+	                        User.setCurrentUser(MainActivity.this, user);
+	                        Log.d(LOG_TAG,"Successful Login");
+	                        Log.d(LOG_TAG, "Saving Login Info to Shared Preferences");
+	                    }
+	                    loginTaskEnded = true;
+	                    if(splashEnded){
+	                        if(loggedIn){
+	                            startHomeActivity();
+	                        }else{
+	                            startLoginActivity();
+	                        }
+	                    }
+	               }
+	            }.setDialogEnabled(false);
+	            loginTask.execute();
+	        }
+	        SendTrajectoryService.schedule(this);
+	        CalendarService.schedule(this);
+		}
 	}
 	
 	private void startHomeActivity(){
