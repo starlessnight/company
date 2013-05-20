@@ -726,6 +726,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
         
         double distanceToLink = nearestLink.distanceTo(lat, lng);
         if (distanceToLink <= params.getValidationDistanceThreshold()) {
+            Log.i("validated node", nearestLink.getStartNode().getNodeIndex() + "");
             nearestLink.getStartNode().getMetadata().setValidated(true);
         }
         
@@ -960,7 +961,11 @@ public final class ValidationActivity extends Activity implements OnInitListener
         
         private int gpsMode;
         
+        private boolean interp;
+        
         int pollCnt;
+        
+        GeoPoint lastGeoPoint;
         
         public FakeLocationService(LocationListener listener, int interva, int gpsMode) {
             this(listener, interva, null, gpsMode);
@@ -1015,12 +1020,20 @@ public final class ValidationActivity extends Activity implements OnInitListener
                 timer.cancel();
             }
             else {
-                GeoPoint geoPoint = trajectory.poll();
                 Location location = new Location("");
-                location.setLatitude(geoPoint.getLatitude());
-                location.setLongitude(geoPoint.getLongitude());
                 location.setTime(System.currentTimeMillis());
+                GeoPoint nextGeoPoint = trajectory.peek();
+                if(nextGeoPoint != null && interp){
+                    location.setLatitude((lastGeoPoint.getLatitude() + nextGeoPoint.getLatitude()) /2);
+                    location.setLongitude((lastGeoPoint.getLongitude() + nextGeoPoint.getLongitude()) / 2);
+                }else{
+                    GeoPoint geoPoint = trajectory.poll();
+                    lastGeoPoint = geoPoint;
+                    location.setLatitude(geoPoint.getLatitude());
+                    location.setLongitude(geoPoint.getLongitude());
+                }
                 listener.onLocationChanged(location);
+                interp = !interp; 
                 pollCnt++;
             }
         }
