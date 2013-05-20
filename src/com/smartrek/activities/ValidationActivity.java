@@ -1028,13 +1028,13 @@ public final class ValidationActivity extends Activity implements OnInitListener
                     location.setLongitude((lastGeoPoint.getLongitude() + nextGeoPoint.getLongitude()) / 2);
                 }else{
                     GeoPoint geoPoint = trajectory.poll();
+                    pollCnt++;
                     lastGeoPoint = geoPoint;
                     location.setLatitude(geoPoint.getLatitude());
                     location.setLongitude(geoPoint.getLongitude());
                 }
                 listener.onLocationChanged(location);
                 interp = !interp; 
-                pollCnt++;
             }
         }
         
