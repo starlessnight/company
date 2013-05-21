@@ -1,9 +1,6 @@
 package com.smartrek.activities;
 
-import java.io.IOException;
-
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.view.View;
@@ -15,8 +12,6 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.models.Route;
-import com.smartrek.models.User;
-import com.smartrek.requests.RouteValidationRequest;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
@@ -43,14 +38,11 @@ public final class ValidationReportActivity extends ActionBarActivity {
         endTime = new Time();
         endTime.set(extras.getLong("endTime"));
         
-        final int uid = User.getCurrentUser(this).getId();
-        
         String msg = null;
         if (extras.getBoolean("timedout")) {
             msg ="Timed out!";
         }
         else {
-            new ValidationReportTask().execute(uid, route.getId());
             msg = String.format("You just earned %d Trekpoints!", route.getCredits());
         }
         
@@ -106,29 +98,4 @@ public final class ValidationReportActivity extends ActionBarActivity {
 		startActivity(intent);
 	}
 	
-	private class ValidationReportTask extends AsyncTask<Object, Object, Object> {
-
-		@Override
-		protected Object doInBackground(Object... params) {
-			int uid = (Integer) params[0];
-			int rid = (Integer) params[1];
-			
-			RouteValidationRequest request = new RouteValidationRequest(uid, rid);
-			try {
-				request.execute();
-			}
-			catch (IOException e) {
-				ehs.registerException(e);
-			}
-			return null;
-		}
-		
-		@Override
-		protected void onPostExecute(Object result) {
-		    if (ehs.hasExceptions()) {
-		        ehs.reportExceptions();
-		    }
-		}
-		
-	}
 }

@@ -69,6 +69,7 @@ import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.RouteFetchRequest;
+import com.smartrek.requests.RouteValidationRequest;
 import com.smartrek.ui.NavigationView;
 import com.smartrek.ui.NavigationView.CheckPointListener;
 import com.smartrek.ui.NavigationView.DirectionItem;
@@ -728,10 +729,21 @@ public final class ValidationActivity extends Activity implements OnInitListener
         
         ValidationParameters params = ValidationParameters.getInstance();
         
+        boolean alreadyValidated = isTripValidated(); 
+        
         double distanceToLink = nearestLink.distanceTo(lat, lng);
         if (distanceToLink <= params.getValidationDistanceThreshold()) {
             Log.i("validated node", nearestLink.getStartNode().getNodeIndex() + "");
             nearestLink.getStartNode().getMetadata().setValidated(true);
+        }
+        
+        if(!alreadyValidated && isTripValidated()){
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    new ValidationReportTask().execute(User.getCurrentUser(ValidationActivity.this).getId(), route.getId());
+                }
+            });
         }
         
         int numberOfValidatedNodes = 0;
@@ -1094,6 +1106,32 @@ public final class ValidationActivity extends Activity implements OnInitListener
         if(mTts != null){
             mTts.shutdown();
         }
+    }
+    
+    private class ValidationReportTask extends AsyncTask<Object, Object, Object> {
+
+        @Override
+        protected Object doInBackground(Object... params) {
+            int uid = (Integer) params[0];
+            int rid = (Integer) params[1];
+            
+            RouteValidationRequest request = new RouteValidationRequest(uid, rid);
+            try {
+                request.execute();
+            }
+            catch (IOException e) {
+                ehs.registerException(e);
+            }
+            return null;
+        }
+        
+        @Override
+        protected void onPostExecute(Object result) {
+            if (ehs.hasExceptions()) {
+                ehs.reportExceptions();
+            }
+        }
+        
     }
     
 }
