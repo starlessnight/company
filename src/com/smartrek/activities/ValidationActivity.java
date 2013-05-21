@@ -305,7 +305,9 @@ public final class ValidationActivity extends Activity implements OnInitListener
                     
                     @Override
                     public void onClickDismiss() {
-                        finish();
+                        if(!isFinishing()){
+                            finish();
+                        }
                     }
                 });
                 dialog.show();
@@ -316,7 +318,9 @@ public final class ValidationActivity extends Activity implements OnInitListener
                     
                     @Override
                     public void onClickDismiss() {
-                        finish();
+                        if(!isFinishing()){
+                            finish();
+                        }
                     }
                 });
                 dialog.show();
@@ -932,18 +936,27 @@ public final class ValidationActivity extends Activity implements OnInitListener
     private class ValidationTimeoutNotifier extends Thread {
         @Override
         public void run() {
-            Time now = new Time();
-            now.setToNow();
-            
             if(isTripValidated()){
                 Intent intent = new Intent(ValidationActivity.this, ValidationReportActivity.class);
                 intent.putExtra(ROUTE, route);
                 intent.putExtra(START_TIME, startTime);
+                Time now = new Time();
+                now.setToNow();
                 intent.putExtra("endTime", now.toMillis(false));
                 startActivity(intent);
+                finish();
+            }else{
+                NotificationDialog dialog = new NotificationDialog(ValidationActivity.this, "Timed out!");
+                dialog.setActionListener(new NotificationDialog.ActionListener() {
+                    @Override
+                    public void onClickDismiss() {
+                        if(!isFinishing()){
+                            finish();
+                        }
+                    }
+                });
+                dialog.show();
             }
-            
-            finish();
         }
     }
     
