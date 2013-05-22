@@ -14,6 +14,7 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.CalendarService;
 import com.smartrek.SendTrajectoryService;
 import com.smartrek.UserLocationService;
+import com.smartrek.ValidationService;
 import com.smartrek.models.User;
 import com.smartrek.tasks.LoginTask;
 import com.smartrek.utils.Misc;
@@ -87,6 +88,7 @@ public class MainActivity extends Activity implements AnimationListener {
 	        SendTrajectoryService.schedule(this);
 	        CalendarService.schedule(this);
 	        UserLocationService.schedule(this);
+	        ValidationService.schedule(this);
 		}
 	}
 	

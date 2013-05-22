@@ -169,6 +169,7 @@
         <service android:name="com.smartrek.SendTrajectoryService" />
         <service android:name="com.smartrek.CalendarService" />
         <service android:name="com.smartrek.UserLocationService" />
+        <service android:name="com.smartrek.ValidationService" />
         <service android:name="com.littlefluffytoys.littlefluffylocationlibrary.LocationBroadcastService" />
 	    <receiver android:name="com.littlefluffytoys.littlefluffylocationlibrary.StartupBroadcastReceiver" android:exported="true">
 	      <intent-filter>

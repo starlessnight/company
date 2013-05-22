@@ -62,6 +62,7 @@ import android.widget.ToggleButton;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.SendTrajectoryService;
+import com.smartrek.ValidationService;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Reservation;
@@ -69,7 +70,6 @@ import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.RouteFetchRequest;
-import com.smartrek.requests.RouteValidationRequest;
 import com.smartrek.ui.NavigationView;
 import com.smartrek.ui.NavigationView.CheckPointListener;
 import com.smartrek.ui.NavigationView.DirectionItem;
@@ -636,6 +636,28 @@ public final class ValidationActivity extends Activity implements OnInitListener
         trajectory.clear();
     }
     
+    private void saveValidation(){
+        final File tFile = ValidationService.getFile(this, route.getId());
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    new AsyncTask<Void, Void, Void>(){
+                        @Override
+                        protected Void doInBackground(Void... params) {
+                            try {
+                                FileUtils.write(tFile, "");
+                            }
+                            catch (IOException e) {
+                            }
+                            return null;
+                        }
+                    }.execute();
+                }catch(Throwable t){}
+            }
+        });
+    }
+    
     private void showNavigationInformation(final Location location, final RouteNode node) {
         Log.d("ValidationActivity", "showNavigationInformation()");
         runOnUiThread(new Runnable() {
@@ -741,7 +763,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    new ValidationReportTask().execute(User.getCurrentUser(ValidationActivity.this).getId(), route.getId());
+                    saveValidation();
                 }
             });
         }
@@ -1106,32 +1128,6 @@ public final class ValidationActivity extends Activity implements OnInitListener
         if(mTts != null){
             mTts.shutdown();
         }
-    }
-    
-    private class ValidationReportTask extends AsyncTask<Object, Object, Object> {
-
-        @Override
-        protected Object doInBackground(Object... params) {
-            int uid = (Integer) params[0];
-            int rid = (Integer) params[1];
-            
-            RouteValidationRequest request = new RouteValidationRequest(uid, rid);
-            try {
-                request.execute();
-            }
-            catch (IOException e) {
-                ehs.registerException(e);
-            }
-            return null;
-        }
-        
-        @Override
-        protected void onPostExecute(Object result) {
-            if (ehs.hasExceptions()) {
-                ehs.reportExceptions();
-            }
-        }
-        
     }
     
 }
