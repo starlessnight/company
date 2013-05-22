@@ -19,7 +19,7 @@ import com.smartrek.requests.RouteValidationRequest;
 
 public class ValidationService extends IntentService {
     
-    private static long thirtySecs = 30 * 1000; 
+    private static long tenSecs = 10 * 1000; 
     
     public ValidationService() {
         super(ValidationService.class.getName());
@@ -59,7 +59,7 @@ public class ValidationService extends IntentService {
                 ctx, ValidationService.class), PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
         alarm.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(),
-            thirtySecs, sendTrajServ);
+            tenSecs, sendTrajServ);
     }
 
 }
