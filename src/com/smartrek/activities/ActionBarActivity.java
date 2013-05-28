@@ -86,7 +86,7 @@ public class ActionBarActivity extends SherlockActivity {
     }
     
     TextView getActionBarTitle(){
-        int titleId = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ? Resources
+        int titleId = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH ? Resources
                 .getSystem().getIdentifier("action_bar_title", "id", "android")
                 : com.actionbarsherlock.R.id.abs__action_bar_title;
         return (TextView) getWindow().findViewById(titleId);

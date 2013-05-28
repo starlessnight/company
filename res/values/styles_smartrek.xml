@@ -17,7 +17,7 @@
 -->
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-
+    
     <style name="Theme.smartrek" parent="@style/Theme.Sherlock">
         <item name="actionBarItemBackground">@drawable/selectable_background_smartrek</item>
         <item name="popupMenuStyle">@style/smartrek_PopupMenu</item>
@@ -26,7 +26,8 @@
         <item name="actionDropDownStyle">@style/smartrek_DropDownNav</item>
         <item name="actionBarStyle">@style/smartrek_solid_ActionBar</item>
         <item name="actionBarSize">50dp</item>
-
+        <item name="actionOverflowButtonStyle">@style/OverFlow</item>
+        
         <item name="android:actionBarItemBackground">@drawable/selectable_background_smartrek</item>
         <item name="android:popupMenuStyle">@style/smartrek_PopupMenu</item>
         <item name="android:dropDownListViewStyle">@style/smartrek_DropDownListView</item>
@@ -35,7 +36,19 @@
         <item name="android:actionBarStyle">@style/smartrek_solid_ActionBar</item>
         <item name="android:panelBackground">@drawable/menu_hardkey_panel_smartrek</item>
         <item name="android:actionBarSize">50dp</item>
+        <item name="android:actionOverflowButtonStyle">@style/OverFlow</item>
+    </style>
+    
+    <style name="OverFlow" parent="@android:style/Widget.Holo.ActionButton.Overflow">
+    	<item name="android:src">@drawable/abs__ic_menu_moreoverflow_holo_dark</item>
+	</style>
+    
+    <style name="Theme.smartrek.inverse" parent="@style/Theme.smartrek">
+        <item name="actionBarItemBackground">@drawable/selectable_background_smartrek_inverse</item>
+        <item name="actionBarStyle">@style/smartrek_solid_ActionBar_inverse</item>
         
+        <item name="android:actionBarItemBackground">@drawable/selectable_background_smartrek_inverse</item>
+        <item name="android:actionBarStyle">@style/smartrek_solid_ActionBar_inverse</item>
     </style>
 
     <style name="smartrek_solid_ActionBar" parent="@style/Widget.Sherlock.ActionBar.Solid">
@@ -51,6 +64,13 @@
         <item name="android:progressBarStyle">@style/smartrek_ProgressBar</item>
         <item name="android:titleTextStyle">@style/CustomTitleBar</item>
        
+    </style>
+    
+    <style name="smartrek_solid_ActionBar_inverse" parent="@style/smartrek_solid_ActionBar">
+        <item name="background">@drawable/ab_solid_smartrek_inverse</item>
+        <item name="backgroundSplit">@drawable/ab_bottom_solid_smartrek_inverse</item>
+        <item name="android:background">@drawable/ab_solid_smartrek_inverse</item>
+        <item name="android:backgroundSplit">@drawable/ab_bottom_solid_smartrek_inverse</item>
     </style>
     
     <style name="CustomTitleBar" parent="@style/TextAppearance.Sherlock.Widget.ActionBar.Title">
