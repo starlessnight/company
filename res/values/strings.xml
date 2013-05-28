@@ -145,5 +145,6 @@
     
     <string name="directions_list">Directions List</string>
     <string name="congratulations">Congratulations!</string>
+    <string name="dashboard">dashboard</string>
     
 </resources>

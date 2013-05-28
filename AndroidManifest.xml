@@ -119,6 +119,11 @@
             android:theme="@style/Theme.smartrek"
             android:label="my reservations" />
         <activity
+            android:name=".DashboardActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
+            android:theme="@style/Theme.smartrek"
+            android:label="dashboard" />
+        <activity
             android:name=".ContactsActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
             android:label="My contacts" />

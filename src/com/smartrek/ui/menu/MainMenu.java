@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 
 import com.actionbarsherlock.view.MenuItem;
+import com.smartrek.activities.DashboardActivity;
 import com.smartrek.activities.DebugOptionsActivity;
 import com.smartrek.activities.HomeActivity;
 import com.smartrek.activities.MapDisplayActivity;
@@ -53,6 +54,15 @@ public final class MainMenu {
                    int displayed = 0;
                    intent.putExtra("mapmode", 1);
                    activity.startActivityForResult(intent, displayed);
+               }
+               break;
+               
+           case R.id.dashboard:
+               if (!activity.getClass().equals(DashboardActivity.class)) {
+                   intent = new Intent(activity, DashboardActivity.class);
+                   intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                   activity.startActivity(intent);
+                   activity.finish();
                }
                break;
 

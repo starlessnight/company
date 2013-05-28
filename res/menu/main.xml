@@ -13,6 +13,9 @@
         android:icon="@drawable/reservation"
         android:title="@string/reservations"
         android:visible="true"/>
+    <item
+        android:id="@+id/dashboard"
+        android:title="@string/dashboard"/>
     <!--
     <item
         android:id="@+id/contacts"
