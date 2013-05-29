@@ -382,7 +382,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
         else if (gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED 
                 || gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA
                 || gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA2
-                || gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA3) {
+                || gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA3
+                || gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA4) {
             int interval = DebugOptionsActivity.getGpsUpdateInterval(this);
             if(fakeLocationService == null){
                 fakeLocationService = new FakeLocationService(locationListener, interval, gpsMode);
@@ -1033,8 +1034,10 @@ public final class ValidationActivity extends Activity implements OnInitListener
                         tFile = "trajectory-la.csv";
                     }else if(gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA2){
                         tFile = "trajectory-la-2.csv";
-                    }else{
+                    }else if(gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA3){
                         tFile = "trajectory-la-3.csv";
+                    }else{
+                        tFile = "trajectory-la-4.csv";
                     }
                     InputStream in = getResources().getAssets().open(tFile);
                     this.trajectory = (Queue<GeoPoint>) PrerecordedTrajectory.read(in, gpsMode);
