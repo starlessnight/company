@@ -319,18 +319,7 @@ public final class Route implements Parcelable {
 	    }else{
 	        for (RouteNode node : routeNodes) {
                 double d = node.getDistance();
-                if (d == 0.0) {
-                    // If node length information is not available, get an estimation.
-                    
-                    RouteNode nextNode = node.getNextNode();
-                    
-                    if (nextNode != null) {
-                        length += RouteNode.distanceBetween(node, nextNode);
-                    }
-                }
-                else {
-                    length += d;
-                }
+                length += d;
             }
 	    }
 		return length;

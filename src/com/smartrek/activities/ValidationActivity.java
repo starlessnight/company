@@ -848,7 +848,10 @@ public final class ValidationActivity extends Activity implements OnInitListener
     }
     
     private boolean isTripValidated(){
-        double score = route.getValidatedDistance() / route.getLength();
+        double validatedDistance = route.getValidatedDistance();
+        double length = route.getLength();
+        double score = validatedDistance / length;
+        Log.i("isTripValidated", validatedDistance + " / " + length + " = " + score);
         ValidationParameters params = ValidationParameters.getInstance();
         return score >= params.getScoreThreshold();
     }
