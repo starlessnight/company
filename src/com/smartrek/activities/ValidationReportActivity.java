@@ -1,6 +1,7 @@
 package com.smartrek.activities;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.view.View;
@@ -59,6 +60,8 @@ public final class ValidationReportActivity extends ActionBarActivity {
         
         Font.setTypeface(lightFont, textViewPoints);
         Font.setTypeface(boldFont, okBtn);
+        
+        MediaPlayer.create(this, R.raw.validation_music).start();
 	}
 	
 	@Override

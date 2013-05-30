@@ -35,6 +35,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -170,6 +171,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
     private Typeface lightFont;
     
     private int savedPollCnt;
+    
+    private MediaPlayer validationMusicPlayer;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -327,6 +330,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
                 dialog.show();
             }
         }
+        
+        validationMusicPlayer = MediaPlayer.create(this, R.raw.validation_music);
     }
     
     @Override
@@ -764,6 +769,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    validationMusicPlayer.start();
                     saveValidation();
                 }
             });
