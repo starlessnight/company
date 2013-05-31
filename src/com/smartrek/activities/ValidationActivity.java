@@ -1018,11 +1018,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
         
         private int gpsMode;
         
-        private boolean interp;
-        
         int pollCnt;
-        
-        GeoPoint lastGeoPoint;
         
         public FakeLocationService(LocationListener listener, int interva, int gpsMode) {
             this(listener, interva, null, gpsMode);
@@ -1081,19 +1077,11 @@ public final class ValidationActivity extends Activity implements OnInitListener
             else {
                 Location location = new Location("");
                 location.setTime(System.currentTimeMillis());
-                GeoPoint nextGeoPoint = trajectory.peek();
-                if(nextGeoPoint != null && interp){
-                    location.setLatitude((lastGeoPoint.getLatitude() + nextGeoPoint.getLatitude()) /2);
-                    location.setLongitude((lastGeoPoint.getLongitude() + nextGeoPoint.getLongitude()) / 2);
-                }else{
-                    GeoPoint geoPoint = trajectory.poll();
-                    pollCnt++;
-                    lastGeoPoint = geoPoint;
-                    location.setLatitude(geoPoint.getLatitude());
-                    location.setLongitude(geoPoint.getLongitude());
-                }
+                GeoPoint geoPoint = trajectory.poll();
+                pollCnt++;
+                location.setLatitude(geoPoint.getLatitude());
+                location.setLongitude(geoPoint.getLongitude());
                 listener.onLocationChanged(location);
-                interp = !interp; 
             }
         }
         
