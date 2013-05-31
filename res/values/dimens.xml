@@ -17,5 +17,7 @@
     <dimen name="weekday_checkbox_height">60dp</dimen>
     <dimen name="time_button_height">40dp</dimen>
     <dimen name="time_textfield_height">60dp</dimen>
+    <dimen name="dashboard_tab_width">50dp</dimen>
+    <dimen name="dashboard_tab_margin">1dp</dimen>
 
 </resources>
