@@ -29,6 +29,7 @@
 	        android:layout_marginRight="45dp"
 	        android:text="@string/placeholder"
 	        android:textColor="@color/light_green"
+	        android:lineSpacingMultiplier="1.2"
 	        style="@style/MediumText" />
 	    
 	    <View
@@ -107,6 +108,7 @@
 	        android:layout_marginLeft="45dp"
 	        android:layout_marginRight="45dp"
 	        android:text="@string/placeholder"
+	        android:lineSpacingMultiplier="1.2"
 	        style="@style/MediumText"
 	    />
 	    

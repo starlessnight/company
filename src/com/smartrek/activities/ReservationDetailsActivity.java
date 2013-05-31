@@ -2,7 +2,6 @@ package com.smartrek.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -81,15 +80,11 @@ public final class ReservationDetailsActivity extends ActionBarActivity {
 	        
 	        textViewDepartureTime = (TextView) findViewById(R.id.textViewDepartureTime);
 	        // FIXME: Date/time format i18n
-	        Time dt = new Time();
-	        dt.set(route.getDepartureTime());
-	        textViewDepartureTime.setText(dt.format("%b %d, %G %l:%M%p"));
+	        textViewDepartureTime.setText(Reservation.formatTime(route.getDepartureTime()));
 	        
 	        textViewArrivalTime = (TextView) findViewById(R.id.textViewArrivalTime);
 	        // FIXME: Date/time format i18n
-	        Time at = new Time();
-	        at.set(arrivalTime);
-	        textViewArrivalTime.setText(at.format("%b %d, %G %l:%M%p"));
+	        textViewArrivalTime.setText(Reservation.formatTime(arrivalTime));
 	        
 	        textViewDuration = (TextView) findViewById(R.id.textViewDuration);
 	        textViewDuration.setText(HumanReadableTime.formatDuration(duration));

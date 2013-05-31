@@ -45,6 +45,7 @@
 	            android:text="@string/placeholder"
 	            android:textColor="@color/light_green"
 	            android:layout_weight="1"
+	            android:lineSpacingMultiplier="1.2"
 	            style="@style/MediumText" 
 			/>
             

@@ -12,12 +12,15 @@ import com.smartrek.requests.Request;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.format.Time;
 
 /**
  * A model class representing a reservation
  */
 public final class Reservation implements Parcelable {
-
+    
+    private static final String TIME_FORMAT = "%A %b %d, %G\n%I:%M %p";
+    
 	/**
 	 * Reservation ID
 	 */
@@ -239,4 +242,11 @@ public final class Reservation implements Parcelable {
 		dest.writeInt(credits);
 		dest.writeInt(validatedFlag);
 	}
+	
+	public static String formatTime(long time){
+	    Time at = new Time();
+        at.set(time);
+	    return at.format(TIME_FORMAT);  
+	}
+	
 }

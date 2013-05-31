@@ -1,15 +1,11 @@
 package com.smartrek.activities;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.format.Time;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -21,11 +17,11 @@ import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.dialogs.NotificationDialog;
+import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.receivers.ReservationReceiver;
 import com.smartrek.requests.ReservationRequest;
 import com.smartrek.ui.menu.MainMenu;
-import com.smartrek.utils.Cache;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.datetime.HumanReadableTime;
@@ -66,15 +62,11 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
         
         textViewDepartureTime = (TextView) findViewById(R.id.textViewDepartureTime);
         // FIXME: Date/time format i18n
-        Time dt = new Time();
-        dt.set(route.getDepartureTime());
-        textViewDepartureTime.setText(dt.format("%b %d, %G %l:%M%p"));
+        textViewDepartureTime.setText(Reservation.formatTime(route.getDepartureTime()));
         
         textViewArrivalTime = (TextView) findViewById(R.id.textViewArrivalTime);
         // FIXME: Date/time format i18n
-        Time at = new Time();
-        at.set(route.getArrivalTime());
-        textViewArrivalTime.setText(at.format("%b %d, %G %l:%M%p"));
+        textViewArrivalTime.setText(Reservation.formatTime(route.getArrivalTime()));
         
         textViewDuration = (TextView) findViewById(R.id.textViewDuration);
         textViewDuration.setText(HumanReadableTime.formatDuration(route.getDuration()));
