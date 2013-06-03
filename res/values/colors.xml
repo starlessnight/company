@@ -3,7 +3,9 @@
     <color name="header_background">#57585a</color>
     <color name="pop_up_header_background">#58585a</color>
     <color name="dark_gray">#333333</color>
+    <color name="dashboard_dark_gray">#3b3a3c</color>
     <color name="light_gray">#bdbcbc</color>
+    <color name="medium_light_gray">#7f7e7f</color>
 	<color name="gray">#404041</color>
 	<color name="transparent_black">#4d000000</color>
 	<color name="transparent_gray">#80404041</color>

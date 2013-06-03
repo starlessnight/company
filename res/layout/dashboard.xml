@@ -1,63 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/dashboard_bg"
-    android:orientation="vertical"
-    android:fillViewport="true">
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical" >
 
     <LinearLayout
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:orientation="vertical"
-	        android:focusable="true"
-	        android:focusableInTouchMode="true">
-	    <LinearLayout android:orientation="horizontal"
-	        android:layout_height="48dp"
-	        android:layout_width="match_parent">
-	        <View
-	            android:id="@+id/rewards_tab"
-	            android:layout_height="match_parent"
-	            android:layout_width="@dimen/dashboard_tab_width"
-	            android:background="@drawable/rewards_tab"
-			/>
-	        <View
-	            android:id="@+id/validated_trips_tab"
-	            android:layout_height="match_parent"
-	            android:layout_width="@dimen/dashboard_tab_width"
-	            android:layout_marginLeft="@dimen/dashboard_tab_margin"
-	            android:background="@drawable/validated_trips_tab"
-			/>
-	        <View
-	            android:id="@+id/leaderboards_tab"
-	            android:layout_height="match_parent"
-	            android:layout_width="@dimen/dashboard_tab_width"
-	            android:layout_marginLeft="@dimen/dashboard_tab_margin"
-	            android:background="@drawable/leaderboards_tab"
-			/>
-	        <View
-	            android:id="@+id/awards_tab"
-	            android:layout_height="match_parent"
-	            android:layout_width="@dimen/dashboard_tab_width"
-	            android:layout_marginLeft="@dimen/dashboard_tab_margin"
-	            android:background="@drawable/awards_tab"
-			/>
-	        <TextView 
-	            android:id="@+id/trekpoints_label"
-	            android:layout_height="match_parent"
-	            android:layout_width="match_parent"
-	            android:layout_marginLeft="@dimen/dashboard_tab_margin"
-	            android:background="@drawable/trekpoints_label"
-	            android:textColor="#3b3a3c"
-	            android:paddingLeft="16dp"
-	            android:paddingRight="48dp"
-	            android:gravity="center_vertical"
-	            android:singleLine="true"
-	            style="@style/SmallerBoldText"
-	            android:text="0"
-	        />
-	    </LinearLayout>    
-        
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal" >
+
+        <View
+            android:id="@+id/rewards_tab"
+            android:layout_width="@dimen/dashboard_tab_width"
+            android:layout_height="match_parent"
+            android:background="@drawable/rewards_tab" />
+
+        <View
+            android:id="@+id/validated_trips_tab"
+            android:layout_width="@dimen/dashboard_tab_width"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/dashboard_tab_margin"
+            android:background="@drawable/validated_trips_tab" />
+
+        <View
+            android:id="@+id/leaderboards_tab"
+            android:layout_width="@dimen/dashboard_tab_width"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/dashboard_tab_margin"
+            android:background="@drawable/leaderboards_tab" />
+
+        <View
+            android:id="@+id/awards_tab"
+            android:layout_width="@dimen/dashboard_tab_width"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/dashboard_tab_margin"
+            android:background="@drawable/awards_tab" />
+
+        <TextView
+            android:id="@+id/trekpoints_label"
+            style="@style/SmallerBoldText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="@dimen/dashboard_tab_margin"
+            android:background="@drawable/trekpoints_label"
+            android:gravity="center_vertical"
+            android:paddingLeft="16dp"
+            android:paddingRight="48dp"
+            android:singleLine="true"
+            android:text="0"
+            android:textColor="@color/dashboard_dark_gray" />
     </LinearLayout>
 
-</ScrollView>
+    <LinearLayout
+        android:id="@+id/rewrads_panel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center" >
+
+        <ProgressBar
+            android:id="@+id/rewrads_loading"
+            style="@style/ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true" />
+
+        <ListView
+            android:id="@+id/rewards_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:cacheColorHint="#00000000"
+            android:divider="@null"
+            android:dividerHeight="0dp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+</LinearLayout>

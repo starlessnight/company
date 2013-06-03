@@ -176,4 +176,5 @@
 	    <item name="android:windowNoTitle">true</item>
 	    <item name="android:windowContentOverlay">@null</item>
 	</style>
+	<style name="ProgressBar" parent="@android:style/Widget.ProgressBar.Inverse" />
 </resources>

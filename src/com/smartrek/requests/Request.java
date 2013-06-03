@@ -24,6 +24,10 @@ public abstract class Request {
 	public static final String LOG_TAG = "Request";
 	
 	public static final String HOST = "http://portal.smartrekmobile.com:8080";
+	
+	public static final String NEW_HOST = "http://www.smartrekmobile.com/api";
+	
+	public static final String IMG_HOST = "http://www.smartrekmobile.com";
 
 	public static final String TIME_ZONE = "PST8PDT";
 	
