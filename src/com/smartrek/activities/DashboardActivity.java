@@ -88,8 +88,13 @@ public final class DashboardActivity extends ActionBarActivity {
                 Font.setTypeface(lightFont, trekpointsView);
                 if(reward.trekpoints == null){
                     trekpointsText = "any amount";
+                    trekpointsView.setCompoundDrawablesWithIntrinsicBounds(null, 
+                        null, null, null);
                 }else{
                     trekpointsText = reward.trekpoints.toString();
+                    trekpointsView.setCompoundDrawablesWithIntrinsicBounds(null, 
+                        null, getResources().getDrawable(R.drawable.trekpoints_icon_color), 
+                        null);
                 }
                 trekpointsView.setText(trekpointsText);
                 final ImageView pictureView = (ImageView) view.findViewById(R.id.picture_reward);
