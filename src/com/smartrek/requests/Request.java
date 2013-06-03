@@ -28,6 +28,8 @@ public abstract class Request {
 	public static final String NEW_HOST = "http://www.smartrekmobile.com/api";
 	
 	public static final String IMG_HOST = "http://www.smartrekmobile.com";
+	
+	public static final String REDEEM_URL = "http://www.smartrekmobile.com/dashboard/rewards";
 
 	public static final String TIME_ZONE = "PST8PDT";
 	

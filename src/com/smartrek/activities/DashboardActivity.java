@@ -7,13 +7,19 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -36,6 +42,10 @@ import com.smartrek.utils.Misc;
 public final class DashboardActivity extends ActionBarActivity {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
+    
+    private View rewardsDetail;
+
+    private ListView rewardsList;
     
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,7 +83,63 @@ public final class DashboardActivity extends ActionBarActivity {
             }
         };
         Misc.parallelExecute(trekpointsTask);
-        final ListView rewardsList = (ListView) findViewById(R.id.rewards_list);
+        final ImageView detailRewardPicture = (ImageView) findViewById(R.id.detail_picture_reward);
+        final TextView detailRewardName = (TextView) findViewById(R.id.detail_name_reward);
+        final TextView detailRewardDescription = (TextView) findViewById(R.id.detail_description_reward);
+        final TextView detailRewardTrekpoints = (TextView) findViewById(R.id.detail_trekpoints_reward);
+        rewardsList = (ListView) findViewById(R.id.rewards_list);
+        rewardsDetail = findViewById(R.id.rewards_detail);
+        rewardsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                    int position, long id) {
+                final Reward reward = (Reward) parent.getItemAtPosition(position);
+                detailRewardName.setText(reward.name);
+                detailRewardDescription.setText(reward.description);
+                String trekpointsText;
+                if(reward.trekpoints == null){
+                    trekpointsText = "any amount";
+                    detailRewardTrekpoints.setCompoundDrawablesWithIntrinsicBounds(null, 
+                        null, null, null);
+                }else{
+                    trekpointsText = reward.trekpoints.toString();
+                    detailRewardTrekpoints.setCompoundDrawablesWithIntrinsicBounds(null, 
+                        null, getResources().getDrawable(R.drawable.trekpoints_icon_color), 
+                        null);
+                }
+                detailRewardTrekpoints.setText(trekpointsText);
+                detailRewardPicture.setBackgroundResource(R.drawable.rewards_picture_bg);
+                detailRewardPicture.setImageResource(android.R.color.transparent);
+                AsyncTask<Void, Void, Bitmap> pictureTask = new AsyncTask<Void, Void, Bitmap>() {
+                    @Override
+                    protected Bitmap doInBackground(Void... params) {
+                        Bitmap rs = null;
+                        InputStream is = null;
+                        try{
+                            HTTP http = new HTTP(Request.IMG_HOST + reward.picture);
+                            http.connect();
+                            is = http.getInputStream();
+                            rs = BitmapFactory.decodeStream(is);
+                        }catch(Exception e){
+                        }finally{
+                            IOUtils.closeQuietly(is);
+                        }
+                        return rs;
+                    }
+                    protected void onPostExecute(final Bitmap rs) {
+                        if(rs != null){
+                            detailRewardPicture.setBackgroundResource(R.drawable.rewards_picture_bg_loaded);
+                            detailRewardPicture.setImageBitmap(rs);
+                        }
+                    }
+                };
+                Misc.parallelExecute(pictureTask);
+                rewardsList.setVisibility(View.GONE);
+                rewardsDetail.setVisibility(View.VISIBLE);
+                Animation fadeAnimation = AnimationUtils.loadAnimation(DashboardActivity.this, android.R.anim.fade_in);
+                rewardsDetail.startAnimation(fadeAnimation);
+            }
+        });
         final ArrayAdapter<Reward> rewardsAdapter = new ArrayAdapter<Reward>(this, R.layout.rewards_list_item,
                 R.id.name_reward){
             @Override
@@ -155,6 +221,27 @@ public final class DashboardActivity extends ActionBarActivity {
             }
         };
         Misc.parallelExecute(rewardsTask);
+        final Button redeemButton = (Button) findViewById(R.id.redeem_button);
+        redeemButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(Request.REDEEM_URL)));
+            }
+        });
+        Font.setTypeface(boldFont, detailRewardName, detailRewardTrekpoints, redeemButton);
+        Font.setTypeface(lightFont, detailRewardDescription);
+	}
+	
+	@Override
+	public void onBackPressed() {
+	    if(rewardsDetail != null && rewardsDetail.getVisibility() == View.VISIBLE){
+	        rewardsDetail.setVisibility(View.GONE);
+	        rewardsList.setVisibility(View.VISIBLE);
+	        Animation fadeAnimation = AnimationUtils.loadAnimation(DashboardActivity.this, android.R.anim.fade_in);
+	        rewardsList.startAnimation(fadeAnimation);
+	    }else{
+	        super.onBackPressed();
+	    }
 	}
 	
 	@Override
