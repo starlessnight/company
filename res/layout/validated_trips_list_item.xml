@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="100dp"
+    android:orientation="vertical">
+    
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:paddingTop="5dp"
+	   	android:paddingBottom="5dp"
+        android:layout_weight="1">
+        
+        <LinearLayout 
+            	android:layout_height="wrap_content"
+            	android:layout_width="match_parent"
+            	android:layout_centerVertical="true"
+             	android:layout_alignParentLeft="true"
+            	android:layout_marginLeft="22dp"
+            	android:layout_marginRight="38dp"
+            	android:orientation="vertical">
+        	<TextView
+	            android:id="@+id/title_validated_trips"
+	            android:layout_height="wrap_content"
+	            android:layout_width="match_parent"
+	            android:text="@string/placeholder"
+	            android:textColor="@color/dashboard_dark_gray"
+	            style="@style/SmallerBoldText"
+			/>
+	        <TextView
+	            android:id="@+id/description_validated_trips"
+	            android:layout_height="wrap_content"
+	            android:layout_width="match_parent"
+	            android:text="@string/placeholder"
+	            android:textColor="@color/dashboard_dark_gray"
+	            style="@style/SmallerText"
+			/>
+        </LinearLayout>
+        
+        <ImageView
+             android:id="@+id/more_icon_validated_trips"
+             android:src="@drawable/icon_more_dashboard"
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:layout_centerVertical="true"
+             android:layout_alignParentRight="true"
+             android:layout_marginRight="21dp"
+		/>
+        
+    </RelativeLayout>
+    
+    <View
+       android:layout_width="match_parent"
+       android:layout_height="1dp"
+       android:background="@color/medium_light_gray"  
+   	/>
+
+</LinearLayout>

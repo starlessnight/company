@@ -28,11 +28,13 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.RewardsFetchRequest;
 import com.smartrek.requests.RewardsFetchRequest.Reward;
 import com.smartrek.requests.TrekpointFetchRequest;
+import com.smartrek.requests.ValidatedReservationsFetchRequest;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
@@ -42,19 +44,26 @@ import com.smartrek.utils.Misc;
 public final class DashboardActivity extends ActionBarActivity {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
+
+    private View rewardsContent;
+
+    private View validatedTripsContent;
+
+    private View awardsContent;
+    
+    private ListView rewardsList;
     
     private View rewardsDetail;
-
-    private ListView rewardsList;
+    
+    private ListView validatedTripsList;
+    
+    private View validatedTripsDetail;
     
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dashboard);
-        findViewById(R.id.rewards_tab).setSelected(true);
         final TextView trekpointsLabel = (TextView) findViewById(R.id.trekpoints_label);
-        Font.setTypeface(boldFont, trekpointsLabel);
-        
         User user = User.getCurrentUser(this);
         final int uid = user.getId();
         AsyncTask<Void, Void, Long> trekpointsTask = new AsyncTask<Void, Void, Long>() {
@@ -87,6 +96,13 @@ public final class DashboardActivity extends ActionBarActivity {
         final TextView detailRewardName = (TextView) findViewById(R.id.detail_name_reward);
         final TextView detailRewardDescription = (TextView) findViewById(R.id.detail_description_reward);
         final TextView detailRewardTrekpoints = (TextView) findViewById(R.id.detail_trekpoints_reward);
+        final Button redeemButton = (Button) findViewById(R.id.redeem_button);
+        redeemButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(Request.REDEEM_URL)));
+            }
+        });
         rewardsList = (ListView) findViewById(R.id.rewards_list);
         rewardsDetail = findViewById(R.id.rewards_detail);
         rewardsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -136,8 +152,7 @@ public final class DashboardActivity extends ActionBarActivity {
                 Misc.parallelExecute(pictureTask);
                 rewardsList.setVisibility(View.GONE);
                 rewardsDetail.setVisibility(View.VISIBLE);
-                Animation fadeAnimation = AnimationUtils.loadAnimation(DashboardActivity.this, android.R.anim.fade_in);
-                rewardsDetail.startAnimation(fadeAnimation);
+                fadeIn(rewardsDetail);
             }
         });
         final ArrayAdapter<Reward> rewardsAdapter = new ArrayAdapter<Reward>(this, R.layout.rewards_list_item,
@@ -192,57 +207,214 @@ public final class DashboardActivity extends ActionBarActivity {
             }
         };
         rewardsList.setAdapter(rewardsAdapter);
-        AsyncTask<Void, Void, List<Reward>> rewardsTask = new AsyncTask<Void, Void, List<Reward>>(){
+        final TextView detailValidatedTripsTitle = (TextView) findViewById(R.id.detail_title_validated_trips);
+        final TextView detailValidatedTripsDesc = (TextView) findViewById(R.id.detail_description_validated_trips);
+        final TextView detailValidatedTripsOrigin = (TextView) findViewById(R.id.detail_origin_validated_trips);
+        final TextView detailValidatedTripsDest = (TextView) findViewById(R.id.detail_destination_validated_trips);
+        final Button shareButton = (Button) findViewById(R.id.share_button);
+        validatedTripsList = (ListView) findViewById(R.id.validated_trips_list);
+        validatedTripsDetail = findViewById(R.id.validated_trips_detail);
+        validatedTripsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            protected List<Reward> doInBackground(Void... params) {
-                List<Reward> rewards = Collections.emptyList();
-                RewardsFetchRequest req = new RewardsFetchRequest();
-                req.invalidateCache(DashboardActivity.this);
-                try {
-                    rewards = req.execute(DashboardActivity.this);
-                }
-                catch (Exception e) {
-                    ehs.registerException(e);
-                }
-                return rewards;
-            }
-            @Override
-            protected void onPostExecute(List<Reward> result) {
-                if (ehs.hasExceptions()) {
-                    ehs.reportExceptions();
-                }
-                else {
-                    findViewById(R.id.rewrads_loading).setVisibility(View.GONE);
-                    for (Reward r : result) {
-                        rewardsAdapter.add(r);
-                    }
-                    rewardsList.setVisibility(View.VISIBLE);
-                }
-            }
-        };
-        Misc.parallelExecute(rewardsTask);
-        final Button redeemButton = (Button) findViewById(R.id.redeem_button);
-        redeemButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(Request.REDEEM_URL)));
+            public void onItemClick(AdapterView<?> parent, View view,
+                    int position, long id) {
+                final Reservation reserv = (Reservation) parent.getItemAtPosition(position);
+                detailValidatedTripsTitle.setText(getReservationTitle(reserv));
+                detailValidatedTripsDesc.setText(getReservationDescription(reserv));
+                detailValidatedTripsOrigin.setText(reserv.getOriginAddress());
+                detailValidatedTripsDest.setText(reserv.getDestinationAddress());
+                validatedTripsList.setVisibility(View.GONE);
+                validatedTripsDetail.setVisibility(View.VISIBLE);
+                fadeIn(validatedTripsDetail);
             }
         });
-        Font.setTypeface(boldFont, detailRewardName, detailRewardTrekpoints, redeemButton);
-        Font.setTypeface(lightFont, detailRewardDescription);
+        final ArrayAdapter<Reservation> validatedTripsAdapter = new ArrayAdapter<Reservation>(this,
+                R.layout.validated_trips_list_item, R.id.title_validated_trips){
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                final Reservation reserv = getItem(position);
+                TextView titleView = (TextView)view.findViewById(R.id.title_validated_trips);
+                Font.setTypeface(boldFont, titleView);
+                titleView.setText(getReservationTitle(reserv));
+                TextView descView = (TextView)view.findViewById(R.id.description_validated_trips);
+                Font.setTypeface(lightFont, descView);
+                descView.setText(getReservationDescription(reserv));
+                return view;
+            }
+        };
+        validatedTripsList.setAdapter(validatedTripsAdapter);
+        final View rewardsTab = findViewById(R.id.rewards_tab);
+        final View validatedTripsTab = findViewById(R.id.validated_trips_tab);
+        final View awardsTab = findViewById(R.id.awards_tab);
+        final View contentLoading = findViewById(R.id.content_loading);
+        rewardsContent = findViewById(R.id.rewards_content);
+        validatedTripsContent = findViewById(R.id.validated_trips_content);
+        awardsContent = findViewById(R.id.awards_content);
+        rewardsTab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!rewardsTab.isSelected()){
+                    validatedTripsTab.setSelected(false);
+                    awardsTab.setSelected(false);
+                    rewardsTab.setSelected(true);
+                    validatedTripsContent.setVisibility(View.GONE);
+                    awardsContent.setVisibility(View.GONE);
+                    rewardsDetail.setVisibility(View.GONE);
+                    rewardsList.setVisibility(View.VISIBLE);
+                    rewardsContent.setVisibility(View.VISIBLE);
+                    fadeIn(rewardsContent);
+                    AsyncTask<Void, Void, List<Reward>> rewardsTask = new AsyncTask<Void, Void, List<Reward>>(){
+                        @Override
+                        protected void onPreExecute() {
+                            if(rewardsAdapter.isEmpty()){
+                                contentLoading.setVisibility(View.VISIBLE);
+                            }else{
+                                contentLoading.setVisibility(View.GONE);
+                            }
+                        }
+                        @Override
+                        protected List<Reward> doInBackground(Void... params) {
+                            List<Reward> rewards = Collections.emptyList();
+                            RewardsFetchRequest req = new RewardsFetchRequest();
+                            req.invalidateCache(DashboardActivity.this);
+                            try {
+                                rewards = req.execute(DashboardActivity.this);
+                            }
+                            catch (Exception e) {
+                                ehs.registerException(e);
+                            }
+                            return rewards;
+                        }
+                        @Override
+                        protected void onPostExecute(List<Reward> result) {
+                            if (ehs.hasExceptions()) {
+                                ehs.reportExceptions();
+                            }
+                            else {
+                                contentLoading.setVisibility(View.GONE);
+                                rewardsAdapter.clear();
+                                for (Reward r : result) {
+                                    rewardsAdapter.add(r);
+                                }
+                                if(rewardsDetail != null && rewardsDetail.getVisibility() != View.VISIBLE){
+                                    rewardsList.setVisibility(View.VISIBLE);
+                                }
+                            }
+                        }
+                    };
+                    Misc.parallelExecute(rewardsTask);
+                }
+            }
+        });
+        validatedTripsTab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!validatedTripsTab.isSelected()){
+                    rewardsTab.setSelected(false);
+                    awardsTab.setSelected(false);
+                    validatedTripsTab.setSelected(true);
+                    rewardsContent.setVisibility(View.GONE);
+                    awardsContent.setVisibility(View.GONE);
+                    validatedTripsDetail.setVisibility(View.GONE);
+                    validatedTripsList.setVisibility(View.VISIBLE);
+                    validatedTripsContent.setVisibility(View.VISIBLE);
+                    fadeIn(validatedTripsContent);
+                    AsyncTask<Void, Void, List<Reservation>> validatedTripsTask = new AsyncTask<Void, Void, List<Reservation>>(){
+                        @Override
+                        protected void onPreExecute() {
+                            if(validatedTripsAdapter.isEmpty()){
+                                contentLoading.setVisibility(View.VISIBLE);
+                            }else{
+                                contentLoading.setVisibility(View.GONE);
+                            }
+                        }
+                        @Override
+                        protected List<Reservation> doInBackground(Void... params) {
+                            List<Reservation> reservations = Collections.emptyList();
+                            ValidatedReservationsFetchRequest req = new ValidatedReservationsFetchRequest(uid);
+                            req.invalidateCache(DashboardActivity.this);
+                            try {
+                                reservations = req.execute(DashboardActivity.this);
+                            }
+                            catch (Exception e) {
+                                ehs.registerException(e);
+                            }
+                            Collections.reverse(reservations);
+                            return reservations;
+                        }
+                        @Override
+                        protected void onPostExecute(List<Reservation> result) {
+                            if (ehs.hasExceptions()) {
+                                ehs.reportExceptions();
+                            }
+                            else {
+                                contentLoading.setVisibility(View.GONE);
+                                validatedTripsAdapter.clear();
+                                for (Reservation r : result) {
+                                    validatedTripsAdapter.add(r);
+                                }
+                                if(validatedTripsDetail != null && validatedTripsDetail.getVisibility() != View.VISIBLE){
+                                    validatedTripsList.setVisibility(View.VISIBLE);
+                                }
+                            }
+                        }
+                    };
+                    Misc.parallelExecute(validatedTripsTask);
+                }
+            }
+        });
+        awardsTab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!awardsContent.isSelected()){
+                    rewardsTab.setSelected(false);
+                    validatedTripsTab.setSelected(false);
+                    awardsTab.setSelected(true);
+                    rewardsContent.setVisibility(View.GONE);
+                    validatedTripsContent.setVisibility(View.GONE);
+                    awardsContent.setVisibility(View.VISIBLE);
+                    fadeIn(awardsContent);
+                }
+            }
+        });
+        rewardsTab.performClick();
+        Font.setTypeface(boldFont, trekpointsLabel, detailRewardName, detailRewardTrekpoints, 
+            detailValidatedTripsTitle, redeemButton, shareButton);
+        Font.setTypeface(lightFont, detailRewardDescription, detailValidatedTripsDesc,
+            detailValidatedTripsOrigin, detailValidatedTripsDest, 
+            (TextView) findViewById(R.id.share_label));
 	}
 	
 	@Override
 	public void onBackPressed() {
-	    if(rewardsDetail != null && rewardsDetail.getVisibility() == View.VISIBLE){
+	    if(rewardsContent != null && rewardsContent.getVisibility() == View.VISIBLE 
+	            && rewardsDetail != null && rewardsDetail.getVisibility() == View.VISIBLE){
 	        rewardsDetail.setVisibility(View.GONE);
 	        rewardsList.setVisibility(View.VISIBLE);
-	        Animation fadeAnimation = AnimationUtils.loadAnimation(DashboardActivity.this, android.R.anim.fade_in);
-	        rewardsList.startAnimation(fadeAnimation);
+	        fadeIn(rewardsList);
+	    }else if(validatedTripsContent != null && validatedTripsContent.getVisibility() == View.VISIBLE 
+	                && validatedTripsDetail != null && validatedTripsDetail.getVisibility() == View.VISIBLE){
+            validatedTripsDetail.setVisibility(View.GONE);
+            validatedTripsList.setVisibility(View.VISIBLE);
+            fadeIn(validatedTripsList);
 	    }else{
 	        super.onBackPressed();
 	    }
 	}
+	
+	private void fadeIn(View v){
+	    Animation anim = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
+        v.startAnimation(anim);
+	}
+	
+	private static String getReservationTitle(Reservation r){
+	    return r.getOriginName() + " to " + r.getDestinationName();
+	}
+	
+	private static String getReservationDescription(Reservation r){
+        return r.getFormattedDepartureTime() + ", "  + r.getCredits() + " trekpoints";
+    }
 	
 	@Override
 	public void onStart() {

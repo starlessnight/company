@@ -146,5 +146,6 @@
     <string name="directions_list">Directions List</string>
     <string name="congratulations">Congratulations!</string>
     <string name="dashboard">dashboard</string>
+    <string name="share_label_dashboard">get 10 free trekpoints for sharing!</string>
     
 </resources>

@@ -8,11 +8,11 @@ import java.util.TimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.smartrek.requests.Request;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.format.Time;
+
+import com.smartrek.requests.Request;
 
 /**
  * A model class representing a reservation
@@ -20,6 +20,8 @@ import android.text.format.Time;
 public final class Reservation implements Parcelable {
     
     private static final String TIME_FORMAT = "%A %b %d, %G\n%I:%M %p";
+    
+    private static final String TIME_FORMAT_SINGLE_LINE = "%A %b %d, %G %I:%M %p";
     
 	/**
 	 * Reservation ID
@@ -38,6 +40,10 @@ public final class Reservation implements Parcelable {
 	private String originAddress;
 	
 	private String destinationAddress;
+	
+	private String originName;
+    
+    private String destinationName;
 	
 	private int credits;
 	
@@ -97,6 +103,10 @@ public final class Reservation implements Parcelable {
 	public void setDepartureTime(long departureTime) {
 		this.departureTime = departureTime;
 	}
+	
+	public String getFormattedDepartureTime() {
+        return formatTime(departureTime, true);
+    }
 
 	public int getDuration() {
         return duration;
@@ -212,6 +222,9 @@ public final class Reservation implements Parcelable {
 		r.setCredits(object.getInt("CREDITS"));
 		r.setValidatedFlag(object.getInt("VALIDATED_FLAG"));
 		
+		r.setOriginName(object.getString("ORIGIN_NAME"));
+        r.setDestinationName(object.getString("DESTINATION_NAME"));
+		
 //        Route route = new Route();
 //        route.setId(r.getRid());
 //        route.setOrigin(r.getOriginAddress());
@@ -244,9 +257,29 @@ public final class Reservation implements Parcelable {
 	}
 	
 	public static String formatTime(long time){
-	    Time at = new Time();
-        at.set(time);
-	    return at.format(TIME_FORMAT);  
+	    return formatTime(time, false);  
 	}
+	
+	public static String formatTime(long time, boolean singleLine){
+        Time at = new Time();
+        at.set(time);
+        return at.format(singleLine?TIME_FORMAT_SINGLE_LINE:TIME_FORMAT);  
+    }
+
+    public String getOriginName() {
+        return originName;
+    }
+
+    public void setOriginName(String originName) {
+        this.originName = originName;
+    }
+
+    public String getDestinationName() {
+        return destinationName;
+    }
+
+    public void setDestinationName(String destinationName) {
+        this.destinationName = destinationName;
+    }
 	
 }

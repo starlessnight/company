@@ -5,7 +5,7 @@
     android:background="@drawable/dashboard_bg"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -54,101 +54,212 @@
             android:textColor="@color/dashboard_dark_gray" />
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/rewrads_panel"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center" >
-
+    <FrameLayout 
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_gravity="center">
         <ProgressBar
-            android:id="@+id/rewrads_loading"
-            style="@style/ProgressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:indeterminate="true" />
-
-        <ListView
-            android:id="@+id/rewards_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:cacheColorHint="#00000000"
-            android:divider="@null"
-            android:dividerHeight="0dp"
-            android:visibility="gone" />
-        
-        <ScrollView 
-            	android:id="@+id/rewards_detail"
+		    android:id="@+id/content_loading"
+		    style="@style/ProgressBar"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_gravity="center"
+		    android:indeterminate="true"
+		    android:visibility="gone" />
+    	<LinearLayout
+	        android:id="@+id/rewards_content"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:orientation="vertical"
+	        android:visibility="gone">
+	
+	        <ListView
+	            android:id="@+id/rewards_list"
 	            android:layout_width="match_parent"
 	            android:layout_height="match_parent"
-	            android:fillViewport="true"
-	            android:visibility="gone">
-            <LinearLayout
-                	android:layout_width="match_parent"
-	            	android:layout_height="wrap_content"
-	            	android:orientation="vertical">
-                <ImageView
-		             android:id="@+id/detail_picture_reward"
-		             android:layout_height="165dp"
-		             android:layout_width="match_parent"
-		             android:layout_marginTop="20dp"
-		             android:layout_marginLeft="30dp"
-			      	 android:layout_marginRight="30dp"
-		             android:background="@drawable/rewards_picture_bg"
-				/>
-                <TextView
-		            android:id="@+id/detail_name_reward"
-		            android:layout_height="wrap_content"
+	            android:cacheColorHint="#00000000"
+	            android:divider="@null"
+	            android:dividerHeight="0dp"
+	            android:visibility="gone" />
+	        
+	        <ScrollView 
+	            	android:id="@+id/rewards_detail"
 		            android:layout_width="match_parent"
-		            android:layout_marginTop="15dp"
-		            android:layout_marginLeft="45dp"
-		            android:layout_marginRight="45dp"
-		            android:text="@string/placeholder"
-		            android:textColor="@color/dashboard_dark_gray"
-		            style="@style/SmallerBoldText"
-				/>
-                <TextView
-		            android:id="@+id/detail_description_reward"
-		            android:layout_height="wrap_content"
-		            android:layout_width="match_parent"
-		            android:layout_marginTop="15dp"
-		            android:layout_marginLeft="45dp"
-		            android:layout_marginRight="45dp"
-		            android:text="@string/placeholder"
-		            android:lineSpacingMultiplier="1.2"
-		            android:textColor="@color/dashboard_dark_gray"
-		            style="@style/SmallerText"
-				/>
-		        <TextView
-		            android:id="@+id/detail_trekpoints_reward"
-		            android:layout_height="wrap_content"
-		            android:layout_width="wrap_content"
-		            android:layout_marginTop="25dp"
-		            android:layout_marginRight="45dp"
-		            android:layout_marginLeft="45dp"
-		            android:text="@string/placeholder"
-		            android:textColor="@color/dashboard_dark_gray"
-		            android:drawablePadding="5dp"
-		            style="@style/SmallerBoldText"
-				/>
-                <FrameLayout 
-			            android:layout_marginTop="15dp"
-			            android:layout_marginBottom="15dp"
-				        android:layout_width="match_parent"
-				        android:layout_height="match_parent">
-			        <Button
-			            android:id="@+id/redeem_button"
-			            android:layout_width="match_parent"
+		            android:layout_height="match_parent"
+		            android:fillViewport="true"
+		            android:visibility="gone">
+	            <LinearLayout
+	                	android:layout_width="match_parent"
+		            	android:layout_height="wrap_content"
+		            	android:orientation="vertical">
+	                <ImageView
+			             android:id="@+id/detail_picture_reward"
+			             android:layout_height="165dp"
+			             android:layout_width="match_parent"
+			             android:layout_marginTop="20dp"
+			             android:layout_marginLeft="20dp"
+				      	 android:layout_marginRight="20dp"
+			             android:background="@drawable/rewards_picture_bg"
+					/>
+	                <TextView
+			            android:id="@+id/detail_name_reward"
 			            android:layout_height="wrap_content"
-			      		android:layout_marginLeft="30dp"
-			      		android:layout_marginRight="30dp"
-			      		android:layout_gravity="bottom"
-			            android:text="redeem"
-			            style="@style/NextActionButton"
-			        />
-	    		</FrameLayout>
-            </LinearLayout>
-        </ScrollView>
-    </LinearLayout>
-
+			            android:layout_width="match_parent"
+			            android:layout_marginTop="15dp"
+			            android:layout_marginLeft="35dp"
+			            android:layout_marginRight="35dp"
+			            android:text="@string/placeholder"
+			            android:textColor="@color/dashboard_dark_gray"
+			            style="@style/SmallerBoldText"
+					/>
+	                <TextView
+			            android:id="@+id/detail_description_reward"
+			            android:layout_height="wrap_content"
+			            android:layout_width="match_parent"
+			            android:layout_marginTop="15dp"
+			            android:layout_marginLeft="35dp"
+			            android:layout_marginRight="35dp"
+			            android:text="@string/placeholder"
+			            android:lineSpacingMultiplier="1.2"
+			            android:textColor="@color/dashboard_dark_gray"
+			            style="@style/SmallerText"
+					/>
+			        <TextView
+			            android:id="@+id/detail_trekpoints_reward"
+			            android:layout_height="wrap_content"
+			            android:layout_width="wrap_content"
+			            android:layout_marginTop="25dp"
+			            android:layout_marginRight="35dp"
+			            android:layout_marginLeft="35dp"
+			            android:text="@string/placeholder"
+			            android:textColor="@color/dashboard_dark_gray"
+			            android:drawablePadding="5dp"
+			            style="@style/SmallerBoldText"
+					/>
+	                <FrameLayout 
+				            android:layout_marginTop="15dp"
+				            android:layout_marginBottom="15dp"
+					        android:layout_width="match_parent"
+					        android:layout_height="match_parent">
+				        <Button
+				            android:id="@+id/redeem_button"
+				            android:layout_width="match_parent"
+				            android:layout_height="wrap_content"
+				      		android:layout_marginLeft="20dp"
+				      		android:layout_marginRight="20dp"
+				      		android:layout_gravity="bottom"
+				            android:text="redeem"
+				            style="@style/NextActionButton"
+				        />
+		    		</FrameLayout>
+	            </LinearLayout>
+	        </ScrollView>
+	    </LinearLayout>
+	    <LinearLayout
+		        android:id="@+id/validated_trips_content"
+		        android:layout_width="match_parent"
+		        android:layout_height="match_parent"
+		        android:orientation="vertical"
+		        android:visibility="gone">
+	        <ListView
+	            android:id="@+id/validated_trips_list"
+	            android:layout_width="match_parent"
+	            android:layout_height="match_parent"
+	            android:cacheColorHint="#00000000"
+	            android:divider="@null"
+	            android:dividerHeight="0dp"
+	            android:visibility="gone" />
+	        <ScrollView 
+	            	android:id="@+id/validated_trips_detail"
+		            android:layout_width="match_parent"
+		            android:layout_height="match_parent"
+		            android:fillViewport="true"
+		            android:visibility="gone">
+	            <LinearLayout
+	                	android:layout_width="match_parent"
+		            	android:layout_height="wrap_content"
+		            	android:orientation="vertical">
+	                <TextView
+			            android:id="@+id/detail_title_validated_trips"
+			            android:layout_height="wrap_content"
+			            android:layout_width="match_parent"
+			            android:layout_marginTop="31dp"
+			            android:layout_marginLeft="35dp"
+			            android:layout_marginRight="35dp"
+			            android:text="@string/placeholder"
+			            android:textColor="@color/dashboard_dark_gray"
+			            style="@style/SmallerBoldText"
+					/>
+	                <TextView
+			            android:id="@+id/detail_description_validated_trips"
+			            android:layout_height="wrap_content"
+			            android:layout_width="match_parent"
+			            android:layout_marginLeft="35dp"
+			            android:layout_marginRight="35dp"
+			            android:text="@string/placeholder"
+			            android:textColor="@color/dashboard_dark_gray"
+			            style="@style/SmallerText"
+					/>
+	                <TextView
+			            android:id="@+id/detail_origin_validated_trips"
+			            android:layout_height="wrap_content"
+			            android:layout_width="match_parent"
+			            android:layout_marginTop="16dp"
+			            android:layout_marginLeft="35dp"
+			            android:layout_marginRight="35dp"
+			            android:text="@string/placeholder"
+			            android:textColor="@color/dashboard_dark_gray"
+			            style="@style/SmallerText"
+					/>
+	                <TextView
+			            android:id="@+id/detail_destination_validated_trips"
+			            android:layout_height="wrap_content"
+			            android:layout_width="match_parent"
+			            android:layout_marginTop="27dp"
+			            android:layout_marginLeft="35dp"
+			            android:layout_marginRight="35dp"
+			            android:text="@string/placeholder"
+			            android:textColor="@color/dashboard_dark_gray"
+			            style="@style/SmallerText"
+					/>
+	                <LinearLayout 
+				            android:layout_marginTop="89dp"
+				            android:layout_marginBottom="15dp"
+				            android:paddingLeft="20dp"
+				            android:paddingRight="20dp"
+					        android:layout_width="match_parent"
+					        android:layout_height="wrap_content"
+					        android:orientation="vertical">
+						<Button
+				            android:id="@+id/share_button"
+				            android:layout_width="match_parent"
+				            android:layout_height="wrap_content"
+				      		android:layout_gravity="bottom"
+				            android:text="share"
+				            android:enabled="false"
+				            style="@style/ShareButton"
+				        />
+		                <TextView
+				            android:id="@+id/share_label"
+				            android:layout_height="wrap_content"
+				            android:layout_width="match_parent"
+				            android:layout_marginTop="14dp"
+				            android:text="@string/share_label_dashboard"
+				            android:textColor="@color/dashboard_dark_gray"
+				            style="@style/SmallerText"
+						/>				        
+			        </LinearLayout>
+                </LinearLayout>
+            </ScrollView>
+	    </LinearLayout>
+	    <LinearLayout
+		        android:id="@+id/awards_content"
+		        android:layout_width="match_parent"
+		        android:layout_height="match_parent"
+		        android:orientation="vertical"
+		        android:visibility="gone">
+	        
+	    </LinearLayout>
+    </FrameLayout>
+    
 </LinearLayout>
