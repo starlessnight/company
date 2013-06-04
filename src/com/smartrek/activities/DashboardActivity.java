@@ -116,7 +116,8 @@ public final class DashboardActivity extends ActionBarActivity {
                     }
                     else {
                         int updateCnt = cnt - validatedTripsCount;
-                        if(updateCnt > 0){
+                        if(updateCnt > 0 && validatedTripsContent != null 
+                                && validatedTripsContent.getVisibility() != View.VISIBLE){
                             validateTripsUpdateCnt.setText(String.valueOf(updateCnt));
                             validateTripsUpdateCnt.setVisibility(View.VISIBLE);
                         }

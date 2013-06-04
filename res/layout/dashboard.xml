@@ -29,14 +29,14 @@
 	            android:background="@drawable/validated_trips_tab" />
 	        <TextView
 	            android:id="@+id/validated_trips_update_count"
-	            android:layout_height="16dp"
+	            android:layout_height="17dp"
 	            android:layout_width="wrap_content"
 	            android:minWidth="17dp"
 	            android:layout_marginTop="4dp"
 	            android:layout_marginRight="5dp"
 	            android:paddingLeft="3dp"
 	            android:paddingRight="3dp"
-	            android:paddingTop="3dp"
+	            android:paddingTop="2dp"
 	            android:background="#ed1c24" 
 	            android:layout_gravity="top|right"
 	            android:text="0"
