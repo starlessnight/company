@@ -92,6 +92,39 @@ public final class DashboardActivity extends ActionBarActivity {
             }
         };
         Misc.parallelExecute(trekpointsTask);
+        final TextView validateTripsUpdateCnt = (TextView) findViewById(R.id.validated_trips_update_count);
+        final int validatedTripsCount = MapDisplayActivity.getValidatedTripsCount(this);
+        if(validatedTripsCount > 0){
+            AsyncTask<Void, Void, Integer> validateTripsCntTask = new AsyncTask<Void, Void, Integer>() {
+                @Override
+                protected Integer doInBackground(Void... params) {
+                    Integer cnt = 0;
+                    ValidatedReservationsFetchRequest req = new ValidatedReservationsFetchRequest(uid);
+                    req.invalidateCache(DashboardActivity.this);
+                    try {
+                        cnt = req.execute(DashboardActivity.this).size();
+                    }
+                    catch (Exception e) {
+                        ehs.registerException(e);
+                    }
+                    return cnt;
+                }
+                @Override
+                protected void onPostExecute(Integer cnt) {
+                    if (ehs.hasExceptions()) {
+                        ehs.reportExceptions();
+                    }
+                    else {
+                        int updateCnt = cnt - validatedTripsCount;
+                        if(updateCnt > 0){
+                            validateTripsUpdateCnt.setText(String.valueOf(updateCnt));
+                            validateTripsUpdateCnt.setVisibility(View.VISIBLE);
+                        }
+                    }
+                }
+            };
+            Misc.parallelExecute(validateTripsCntTask);
+        }
         final ImageView detailRewardPicture = (ImageView) findViewById(R.id.detail_picture_reward);
         final TextView detailRewardName = (TextView) findViewById(R.id.detail_name_reward);
         final TextView detailRewardDescription = (TextView) findViewById(R.id.detail_description_reward);
@@ -357,10 +390,12 @@ public final class DashboardActivity extends ActionBarActivity {
                                 if(validatedTripsDetail != null && validatedTripsDetail.getVisibility() != View.VISIBLE){
                                     validatedTripsList.setVisibility(View.VISIBLE);
                                 }
+                                MapDisplayActivity.setValidatedTripsCount(DashboardActivity.this, result.size());
                             }
                         }
                     };
                     Misc.parallelExecute(validatedTripsTask);
+                    validateTripsUpdateCnt.setVisibility(View.GONE);
                 }
             }
         });
@@ -379,8 +414,9 @@ public final class DashboardActivity extends ActionBarActivity {
             }
         });
         rewardsTab.performClick();
-        Font.setTypeface(boldFont, trekpointsLabel, detailRewardName, detailRewardTrekpoints, 
-            detailValidatedTripsTitle, redeemButton, shareButton);
+        Font.setTypeface(boldFont, trekpointsLabel, validateTripsUpdateCnt,
+            detailRewardName, detailRewardTrekpoints, detailValidatedTripsTitle, 
+            redeemButton, shareButton);
         Font.setTypeface(lightFont, detailRewardDescription, detailValidatedTripsDesc,
             detailValidatedTripsOrigin, detailValidatedTripsDest, 
             (TextView) findViewById(R.id.share_label));

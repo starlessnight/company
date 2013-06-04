@@ -32,6 +32,8 @@ public final class MapDisplayActivity extends ActionBarActivity {
     public static final int TIME_INCREMENT_DEFAULT = 15;
     
     private static final String CALENDAR_INTEGRATION = "CALENDAR_INTEGRATION";
+    
+    private static final String VALIDATED_TRIPS_COUNT = "VALIDATED_TRIPS_COUNT";
 
     private RadioButton displayTravel;
     private RadioButton displayArrival;
@@ -127,6 +129,18 @@ public final class MapDisplayActivity extends ActionBarActivity {
     public static boolean isCalendarIntegrationEnabled(Context ctx){
         return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
             .getBoolean(CALENDAR_INTEGRATION, true);
+    }
+    
+    public static int getValidatedTripsCount(Context ctx){
+        return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
+            .getInt(VALIDATED_TRIPS_COUNT, 0);
+    }
+    
+    public static void setValidatedTripsCount(Context ctx, int count){
+        ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
+            .edit()
+            .putInt(VALIDATED_TRIPS_COUNT, count)
+            .commit();
     }
     
 	@Override

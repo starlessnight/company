@@ -18,12 +18,35 @@
             android:layout_height="match_parent"
             android:background="@drawable/rewards_tab" />
 
-        <View
-            android:id="@+id/validated_trips_tab"
-            android:layout_width="@dimen/dashboard_tab_width"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="@dimen/dashboard_tab_margin"
-            android:background="@drawable/validated_trips_tab" />
+        <FrameLayout 
+            	android:layout_width="@dimen/dashboard_tab_width"
+	            android:layout_height="match_parent"
+	            android:layout_marginLeft="@dimen/dashboard_tab_margin">
+	        <View
+	            android:id="@+id/validated_trips_tab"
+	            android:layout_width="match_parent"
+	            android:layout_height="match_parent"
+	            android:background="@drawable/validated_trips_tab" />
+	        <TextView
+	            android:id="@+id/validated_trips_update_count"
+	            android:layout_height="16dp"
+	            android:layout_width="wrap_content"
+	            android:minWidth="17dp"
+	            android:layout_marginTop="4dp"
+	            android:layout_marginRight="5dp"
+	            android:paddingLeft="3dp"
+	            android:paddingRight="3dp"
+	            android:paddingTop="3dp"
+	            android:background="#ed1c24" 
+	            android:layout_gravity="top|right"
+	            android:text="0"
+	            android:textColor="@android:color/white"
+	            android:textStyle="bold"
+	            android:gravity="center"
+	            style="@style/MicroText"
+	            android:visibility="gone"
+	        />
+        </FrameLayout>
 
         <View
             android:id="@+id/leaderboards_tab"
