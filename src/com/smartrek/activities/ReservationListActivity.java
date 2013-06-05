@@ -189,7 +189,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 				if (debugPrefs.getBoolean(DebugOptionsActivity.DEBUG_MODE, false)) {
 				}
 				
-				Collections.reverse(reservations);
+				Collections.sort(reservations, Reservation.orderByDepartureTime());
             }
             catch (Exception e) {
                 ehs.registerException(e);

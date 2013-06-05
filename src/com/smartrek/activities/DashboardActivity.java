@@ -374,7 +374,8 @@ public final class DashboardActivity extends ActionBarActivity {
                             catch (Exception e) {
                                 ehs.registerException(e);
                             }
-                            Collections.reverse(reservations);
+                            Collections.sort(reservations, Collections.reverseOrder(
+                                Reservation.orderByDepartureTime()));
                             return reservations;
                         }
                         @Override

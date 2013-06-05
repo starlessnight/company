@@ -3,8 +3,10 @@ package com.smartrek.models;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.TimeZone;
 
+import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -280,6 +282,17 @@ public final class Reservation implements Parcelable {
 
     public void setDestinationName(String destinationName) {
         this.destinationName = destinationName;
+    }
+    
+    public static Comparator<Reservation> orderByDepartureTime(){
+        return new Comparator<Reservation>() {
+            @Override
+            public int compare(Reservation lhs, Reservation rhs) {
+                return new CompareToBuilder()
+                    .append(lhs.departureTime, rhs.departureTime)
+                    .toComparison();
+            }
+        };
     }
 	
 }
