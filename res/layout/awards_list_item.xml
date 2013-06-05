@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    
+    <TextView
+		android:id="@+id/header_awards"
+		android:layout_width="match_parent"
+		android:layout_height="57dp"
+		android:paddingLeft="35dp"
+		android:background="@color/dashboard_transparent_green"
+		android:textColor="@color/dashboard_dark_gray"
+		android:gravity="center_vertical"
+		android:text="@string/placeholder"
+		style="@style/SmallerBoldText" 
+		android:visibility="gone"
+	/>
+    
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:paddingTop="14dp"
+	   	android:paddingBottom="14dp"
+        android:layout_weight="1">
+        
+        <ImageView
+             android:id="@+id/picture_award"
+             android:layout_height="72dp"
+             android:layout_width="72dp"
+             android:layout_centerVertical="true"
+             android:layout_alignParentLeft="true"
+             android:layout_marginLeft="28dp"
+		/>
+        
+        <TextView
+            android:id="@+id/name_award"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_toRightOf="@id/picture_award"
+            android:layout_alignTop="@id/picture_award"
+            android:layout_marginLeft="27dp"
+            android:layout_marginRight="38dp"
+            android:text="@string/placeholder"
+            android:textColor="@color/dashboard_dark_gray"
+            style="@style/SmallerBoldText"
+		/>
+        
+        <TextView
+            android:id="@+id/description_award"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_below="@id/name_award"
+            android:layout_alignLeft="@id/name_award"
+            android:layout_marginRight="38dp"
+            android:text="@string/placeholder"
+            android:textColor="@color/dashboard_dark_gray"
+            style="@style/SmallerText"
+		/>
+        
+        <FrameLayout
+            	android:id="@+id/progress_rewards_wrapper" 
+            	android:layout_height="10dp"
+	            android:layout_width="match_parent"
+	            android:layout_alignLeft="@id/name_award"
+	            android:layout_alignParentBottom="true"
+	            android:layout_marginRight="83dp"
+	            android:layout_marginBottom="14dp"
+	            android:background="@color/light_gray">
+	        <View
+	            android:id="@+id/progress_rewards"
+	            android:layout_width="match_parent"
+	            android:layout_height="match_parent"
+	            android:background="@drawable/awards_progress_bar"
+			/>
+        </FrameLayout>
+        
+        <ImageView
+             android:src="@drawable/icon_more_dashboard"
+             android:layout_height="wrap_content"
+             android:layout_width="wrap_content"
+             android:layout_centerVertical="true"
+             android:layout_alignParentRight="true"
+             android:layout_marginRight="21dp"
+		/>
+        
+    </RelativeLayout>
+    
+    <View
+       android:id="@+id/separator_awards"
+       android:layout_width="match_parent"
+       android:layout_height="1dp"
+       android:background="@color/medium_light_gray"  
+   	/>
+
+</LinearLayout>

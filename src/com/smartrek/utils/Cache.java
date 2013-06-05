@@ -2,6 +2,7 @@ package com.smartrek.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.MessageDigest;
 
 import org.apache.commons.io.FileUtils;
@@ -52,6 +53,15 @@ public final class Cache {
         }
 	}
 	
+	public void put(String key, InputStream data) {
+        File file = getCacheFile(ctx, key);
+        try{
+            FileUtils.copyInputStreamToFile(data, file);
+        }catch(Throwable t){
+            FileUtils.deleteQuietly(file);
+        }
+    }
+	
 	/**
 	 * Marks a cache entry as invalid (removes the entry)
 	 * 
@@ -70,6 +80,27 @@ public final class Cache {
         }
         catch (IOException e) {}
 	}
+	
+	public InputStream fetchStream(String key) {
+        Log.d("Cache", "url = " + key);
+        if(containsKey(key)) {
+            File data = get(key);
+            if(isValid(data)) {
+                Log.d("Cache", "Fetching from cache (valid)");
+                InputStream val = null;
+                try{
+                    val = FileUtils.openInputStream(data);
+                }catch(IOException e){}
+                return val;
+            }
+            else {
+                Log.d("Cache", "Removing from cache");
+                remove(key);
+            }
+        }
+        
+        return null;
+    }
 	
 	public String fetch(String key) {
 		Log.d("Cache", "url = " + key);

@@ -56,7 +56,7 @@ public final class MainMenu {
                    activity.startActivityForResult(intent, displayed);
                }
                break;
-           /*    
+               
            case R.id.dashboard:
                if (!activity.getClass().equals(DashboardActivity.class)) {
                    intent = new Intent(activity, DashboardActivity.class);
@@ -65,7 +65,7 @@ public final class MainMenu {
                    activity.finish();
                }
                break;
-           */
+
            case R.id.reservation:
                if (!activity.getClass().equals(ReservationListActivity.class)) {
                    intent = new Intent(activity, ReservationListActivity.class);

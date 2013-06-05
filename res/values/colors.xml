@@ -15,6 +15,7 @@
 	<color name="light_green_highlight">#a0cc3a</color>
 	<color name="light_green_shadow">#42802b</color>
 	<color name="transparent_light_green">#e66dbe45</color>
+	<color name="dashboard_transparent_green">#b3a1da84</color>
 	<color name="dark_green">#20542a</color>
 	<color name="dark_green_highlight">#38813a</color>
 	<color name="dark_green_shadow">#053a16</color>

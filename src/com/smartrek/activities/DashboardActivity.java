@@ -2,6 +2,7 @@ package com.smartrek.activities;
 
 import java.io.InputStream;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import org.apache.commons.io.IOUtils;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.ClipDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,12 +32,16 @@ import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
+import com.smartrek.requests.AwardsFetchRequest;
+import com.smartrek.requests.AwardsFetchRequest.Award;
+import com.smartrek.requests.MyAwardsFetchRequest;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.RewardsFetchRequest;
 import com.smartrek.requests.RewardsFetchRequest.Reward;
 import com.smartrek.requests.TrekpointFetchRequest;
 import com.smartrek.requests.ValidatedReservationsFetchRequest;
 import com.smartrek.ui.menu.MainMenu;
+import com.smartrek.utils.Cache;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.HTTP;
@@ -58,6 +64,14 @@ public final class DashboardActivity extends ActionBarActivity {
     private ListView validatedTripsList;
     
     private View validatedTripsDetail;
+    
+    private View awardsDetail;
+    
+    private ListView awardsList;
+    
+    private List<Award> allAwards = Collections.emptyList();
+    
+    private int awardTripsCount;
     
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -94,38 +108,37 @@ public final class DashboardActivity extends ActionBarActivity {
         Misc.parallelExecute(trekpointsTask);
         final TextView validateTripsUpdateCnt = (TextView) findViewById(R.id.validated_trips_update_count);
         final int validatedTripsCount = MapDisplayActivity.getValidatedTripsCount(this);
-        if(validatedTripsCount > 0){
-            AsyncTask<Void, Void, Integer> validateTripsCntTask = new AsyncTask<Void, Void, Integer>() {
-                @Override
-                protected Integer doInBackground(Void... params) {
-                    Integer cnt = 0;
-                    ValidatedReservationsFetchRequest req = new ValidatedReservationsFetchRequest(uid);
-                    req.invalidateCache(DashboardActivity.this);
-                    try {
-                        cnt = req.execute(DashboardActivity.this).size();
-                    }
-                    catch (Exception e) {
-                        ehs.registerException(e);
-                    }
-                    return cnt;
+        AsyncTask<Void, Void, Integer> validateTripsCntTask = new AsyncTask<Void, Void, Integer>() {
+            @Override
+            protected Integer doInBackground(Void... params) {
+                Integer cnt = 0;
+                ValidatedReservationsFetchRequest req = new ValidatedReservationsFetchRequest(uid);
+                req.invalidateCache(DashboardActivity.this);
+                try {
+                    cnt = req.execute(DashboardActivity.this).size();
                 }
-                @Override
-                protected void onPostExecute(Integer cnt) {
-                    if (ehs.hasExceptions()) {
-                        ehs.reportExceptions();
-                    }
-                    else {
-                        int updateCnt = cnt - validatedTripsCount;
-                        if(updateCnt > 0 && validatedTripsContent != null 
-                                && validatedTripsContent.getVisibility() != View.VISIBLE){
-                            validateTripsUpdateCnt.setText(String.valueOf(updateCnt));
-                            validateTripsUpdateCnt.setVisibility(View.VISIBLE);
-                        }
+                catch (Exception e) {
+                    ehs.registerException(e);
+                }
+                return cnt;
+            }
+            @Override
+            protected void onPostExecute(Integer cnt) {
+                if (ehs.hasExceptions()) {
+                    ehs.reportExceptions();
+                }
+                else {
+                    awardTripsCount = cnt;
+                    int updateCnt = cnt - validatedTripsCount;
+                    if(updateCnt > 0 && validatedTripsContent != null 
+                            && validatedTripsContent.getVisibility() != View.VISIBLE){
+                        validateTripsUpdateCnt.setText(String.valueOf(updateCnt));
+                        validateTripsUpdateCnt.setVisibility(View.VISIBLE);
                     }
                 }
-            };
-            Misc.parallelExecute(validateTripsCntTask);
-        }
+            }
+        };
+        validateTripsCntTask.execute();
         final ImageView detailRewardPicture = (ImageView) findViewById(R.id.detail_picture_reward);
         final TextView detailRewardName = (TextView) findViewById(R.id.detail_name_reward);
         final TextView detailRewardDescription = (TextView) findViewById(R.id.detail_description_reward);
@@ -165,10 +178,23 @@ public final class DashboardActivity extends ActionBarActivity {
                     protected Bitmap doInBackground(Void... params) {
                         Bitmap rs = null;
                         InputStream is = null;
+                        String url = Request.IMG_HOST + reward.picture;
+                        Cache cache = Cache.getInstance(DashboardActivity.this);
                         try{
-                            HTTP http = new HTTP(Request.IMG_HOST + reward.picture);
-                            http.connect();
-                            is = http.getInputStream();
+                            InputStream cachedStream = cache.fetchStream(url);
+                            if(cachedStream == null){
+                                HTTP http = new HTTP(url);
+                                http.connect();
+                                InputStream tmpStream = http.getInputStream();
+                                try{
+                                    cache.put(url, tmpStream);
+                                    is = cache.fetchStream(url);
+                                }finally{
+                                    IOUtils.closeQuietly(tmpStream);
+                                }
+                            }else{
+                                is = cachedStream;
+                            }
                             rs = BitmapFactory.decodeStream(is);
                         }catch(Exception e){
                         }finally{
@@ -218,10 +244,23 @@ public final class DashboardActivity extends ActionBarActivity {
                     protected Bitmap doInBackground(Void... params) {
                         Bitmap rs = null;
                         InputStream is = null;
+                        String url = Request.IMG_HOST + reward.picture;
+                        Cache cache = Cache.getInstance(DashboardActivity.this);
                         try{
-                            HTTP http = new HTTP(Request.IMG_HOST + reward.picture);
-                            http.connect();
-                            is = http.getInputStream();
+                            InputStream cachedStream = cache.fetchStream(url);
+                            if(cachedStream == null){
+                                HTTP http = new HTTP(url);
+                                http.connect();
+                                InputStream tmpStream = http.getInputStream();
+                                try{
+                                    cache.put(url, tmpStream);
+                                    is = cache.fetchStream(url);
+                                }finally{
+                                    IOUtils.closeQuietly(tmpStream);
+                                }
+                            }else{
+                                is = cachedStream;
+                            }
                             rs = BitmapFactory.decodeStream(is);
                         }catch(Exception e){
                         }finally{
@@ -230,7 +269,7 @@ public final class DashboardActivity extends ActionBarActivity {
                         return rs;
                     }
                     protected void onPostExecute(final Bitmap rs) {
-                        if(rs != null){
+                        if(rs != null && pictureView != null){
                             pictureView.setBackgroundResource(R.drawable.rewards_picture_bg_loaded);
                             pictureView.setImageBitmap(rs);
                         }
@@ -245,7 +284,7 @@ public final class DashboardActivity extends ActionBarActivity {
         final TextView detailValidatedTripsDesc = (TextView) findViewById(R.id.detail_description_validated_trips);
         final TextView detailValidatedTripsOrigin = (TextView) findViewById(R.id.detail_origin_validated_trips);
         final TextView detailValidatedTripsDest = (TextView) findViewById(R.id.detail_destination_validated_trips);
-        final Button shareButton = (Button) findViewById(R.id.share_button);
+        final Button shareValidatedTripsButton = (Button) findViewById(R.id.share_validated_trips_button);
         validatedTripsList = (ListView) findViewById(R.id.validated_trips_list);
         validatedTripsDetail = findViewById(R.id.validated_trips_detail);
         validatedTripsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -278,6 +317,78 @@ public final class DashboardActivity extends ActionBarActivity {
             }
         };
         validatedTripsList.setAdapter(validatedTripsAdapter);
+        awardsDetail = findViewById(R.id.awards_detail);
+        awardsList = (ListView) findViewById(R.id.awards_list);
+        final ArrayAdapter<Award> awardsAdapter = new ArrayAdapter<Award>(this, R.layout.awards_list_item, R.id.name_award){
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent) {
+                    View view = super.getView(position, convertView, parent);
+                    final Award award = getItem(position);
+                    TextView headerView = (TextView) view.findViewById(R.id.header_awards);
+                    boolean hasSeparator = award.headerLabel != null;
+                    if(hasSeparator){
+                        headerView.setText(award.headerLabel);
+                    }
+                    headerView.setVisibility(hasSeparator?View.VISIBLE:View.GONE);
+                    TextView nameView = (TextView) view.findViewById(R.id.name_award);
+                    nameView.setText(award.name);
+                    TextView descView = (TextView)view.findViewById(R.id.description_award);
+                    View progressView = view.findViewById(R.id.progress_rewards);
+                    boolean isTripsType = "trips".equals(award.type);
+                    if(isTripsType){
+                        descView.setText("complete " + award.threshold + " trips");
+                        double percentage = Math.min((double) awardTripsCount / award.threshold, 1);
+                        ((ClipDrawable)progressView.getBackground()).setLevel(
+                            Double.valueOf(percentage * 10000).intValue());
+                    }
+                    descView.setVisibility(isTripsType?View.VISIBLE:View.GONE);
+                    view.findViewById(R.id.progress_rewards_wrapper)
+                        .setVisibility(isTripsType?View.VISIBLE:View.GONE);
+                    view.findViewById(R.id.separator_awards).setVisibility(award.hideSeparator?
+                        View.GONE:View.VISIBLE);
+                    Font.setTypeface(boldFont, headerView, nameView);
+                    Font.setTypeface(lightFont, descView);
+                    final ImageView pictureView = (ImageView) view.findViewById(R.id.picture_award);
+                    AsyncTask<Void, Void, Bitmap> pictureTask = new AsyncTask<Void, Void, Bitmap>() {
+                        @Override
+                        protected Bitmap doInBackground(Void... params) {
+                            Bitmap rs = null;
+                            InputStream is = null;
+                            String url = Request.IMG_HOST + award.picture.replaceAll(" ", "%20");
+                            Cache cache = Cache.getInstance(DashboardActivity.this);
+                            try{
+                                InputStream cachedStream = cache.fetchStream(url);
+                                if(cachedStream == null){
+                                    HTTP http = new HTTP(url);
+                                    http.connect();
+                                    InputStream tmpStream = http.getInputStream();
+                                    try{
+                                        cache.put(url, tmpStream);
+                                        is = cache.fetchStream(url);
+                                    }finally{
+                                        IOUtils.closeQuietly(tmpStream);
+                                    }
+                                }else{
+                                    is = cachedStream;
+                                }
+                                rs = BitmapFactory.decodeStream(is);
+                            }catch(Exception e){
+                            }finally{
+                                IOUtils.closeQuietly(is);
+                            }
+                            return rs;
+                        }
+                        protected void onPostExecute(final Bitmap rs) {
+                            if(rs != null && pictureView != null){
+                                pictureView.setImageBitmap(rs);
+                            }
+                        }
+                    };
+                    Misc.parallelExecute(pictureTask);
+                    return view;
+                }
+        };
+        awardsList.setAdapter(awardsAdapter);
         final View rewardsTab = findViewById(R.id.rewards_tab);
         final View validatedTripsTab = findViewById(R.id.validated_trips_tab);
         final View awardsTab = findViewById(R.id.awards_tab);
@@ -414,15 +525,104 @@ public final class DashboardActivity extends ActionBarActivity {
                     awardsTab.setSelected(true);
                     rewardsContent.setVisibility(View.GONE);
                     validatedTripsContent.setVisibility(View.GONE);
+                    awardsDetail.setVisibility(View.GONE);
+                    awardsList.setVisibility(View.VISIBLE);
                     awardsContent.setVisibility(View.VISIBLE);
                     fadeIn(awardsContent);
+                    new AsyncTask<Void, Void, List<Award>>(){
+                        @Override
+                        protected void onPreExecute() {
+                            if(allAwards.isEmpty()){
+                                contentLoading.setVisibility(View.VISIBLE);
+                            }else{
+                                contentLoading.setVisibility(View.GONE);
+                            }
+                        }
+                        @Override
+                        protected List<Award> doInBackground(Void... params) {
+                            List<Award> awards = Collections.emptyList();
+                            AwardsFetchRequest req = new AwardsFetchRequest();
+                            req.invalidateCache(DashboardActivity.this);
+                            try {
+                                awards = req.execute(DashboardActivity.this);
+                            }
+                            catch (Exception e) {
+                                ehs.registerException(e);
+                            }
+                            return awards;
+                        }
+                        @Override
+                        protected void onPostExecute(List<Award> result) {
+                            if (ehs.hasExceptions()) {
+                                ehs.reportExceptions();
+                            }
+                            else {
+                                allAwards = result;
+                            }
+                        }
+                    }.execute();
+                    new AsyncTask<Void, Void, List<String>>(){
+                        @Override
+                        protected List<String> doInBackground(Void... params) {
+                            List<String> awards = Collections.emptyList();
+                            MyAwardsFetchRequest req = new MyAwardsFetchRequest(uid);
+                            req.invalidateCache(DashboardActivity.this);
+                            try {
+                                awards = req.execute(DashboardActivity.this);
+                            }
+                            catch (Exception e) {
+                                ehs.registerException(e);
+                            }
+                            return awards;
+                        }
+                        protected void onPostExecute(java.util.List<String> result) {
+                            if (ehs.hasExceptions()) {
+                                ehs.reportExceptions();
+                            }
+                            else {
+                              if(awardsContent != null && awardsContent.getVisibility() == View.VISIBLE){
+                                  contentLoading.setVisibility(View.GONE);
+                              }
+                              List<Award> completedList = new ArrayList<Award>();
+                              List<Award> inProgressList = new ArrayList<Award>();
+                              for (Award a : allAwards) {
+                                  if(result.contains(a.name)){
+                                      completedList.add(a);
+                                  }else{
+                                      inProgressList.add(a);
+                                  }
+                              }
+                              awardsAdapter.clear();
+                              for(int i=0; i<completedList.size(); i++){
+                                  Award a = completedList.get(i);
+                                  if(i == 0){
+                                      a.headerLabel = "completed awards";
+                                  }
+                                  if(i + 1 == completedList.size()){
+                                      a.hideSeparator = true;
+                                  }
+                                  awardsAdapter.add(a);
+                              }
+                              for(int i=0; i<inProgressList.size(); i++){
+                                  Award a = inProgressList.get(i);
+                                  if(i == 0){
+                                      a.headerLabel = "in progress";
+                                  }
+                                  awardsAdapter.add(a);
+                              }
+                              if(awardsDetail != null && awardsDetail.getVisibility() != View.VISIBLE){
+                                  awardsList.setVisibility(View.VISIBLE);
+                              }
+                            }
+                        }
+                    }.execute();
                 }
             }
         });
         rewardsTab.performClick();
         Font.setTypeface(boldFont, trekpointsLabel, validateTripsUpdateCnt,
             detailRewardName, detailRewardTrekpoints, detailValidatedTripsTitle, 
-            redeemButton, shareButton);
+            redeemButton, shareValidatedTripsButton);
         Font.setTypeface(lightFont, detailRewardDescription, detailValidatedTripsDesc,
             detailValidatedTripsOrigin, detailValidatedTripsDest, 
             (TextView) findViewById(R.id.share_label));
