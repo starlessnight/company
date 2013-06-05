@@ -326,7 +326,9 @@ public final class DashboardActivity extends ActionBarActivity {
                                 ehs.reportExceptions();
                             }
                             else {
-                                contentLoading.setVisibility(View.GONE);
+                                if(rewardsContent != null && rewardsContent.getVisibility() == View.VISIBLE){
+                                    contentLoading.setVisibility(View.GONE);
+                                }
                                 rewardsAdapter.clear();
                                 for (Reward r : result) {
                                     rewardsAdapter.add(r);
@@ -384,7 +386,9 @@ public final class DashboardActivity extends ActionBarActivity {
                                 ehs.reportExceptions();
                             }
                             else {
-                                contentLoading.setVisibility(View.GONE);
+                                if(validatedTripsContent != null && validatedTripsContent.getVisibility() == View.VISIBLE){
+                                    contentLoading.setVisibility(View.GONE);
+                                }
                                 validatedTripsAdapter.clear();
                                 for (Reservation r : result) {
                                     validatedTripsAdapter.add(r);
