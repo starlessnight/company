@@ -239,6 +239,8 @@ public final class DashboardActivity extends ActionBarActivity {
                 }
                 trekpointsView.setText(trekpointsText);
                 final ImageView pictureView = (ImageView) view.findViewById(R.id.picture_reward);
+                pictureView.setBackgroundResource(R.drawable.rewards_picture_bg);
+                pictureView.setImageResource(android.R.color.transparent);
                 AsyncTask<Void, Void, Bitmap> pictureTask = new AsyncTask<Void, Void, Bitmap>() {
                     @Override
                     protected Bitmap doInBackground(Void... params) {
@@ -319,6 +321,63 @@ public final class DashboardActivity extends ActionBarActivity {
         validatedTripsList.setAdapter(validatedTripsAdapter);
         awardsDetail = findViewById(R.id.awards_detail);
         awardsList = (ListView) findViewById(R.id.awards_list);
+        final ImageView detailAwardPicture = (ImageView) findViewById(R.id.detail_picture_award);
+        final TextView detailAwardName = (TextView) findViewById(R.id.detail_name_award);
+        final TextView detailAwardDescription = (TextView) findViewById(R.id.detail_description_award);
+        awardsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                    int position, long id) {
+                final Award award = (Award) parent.getItemAtPosition(position);
+                detailAwardName.setText(award.name);
+                boolean isTripsType = "trips".equals(award.type);
+                if(isTripsType){
+                    detailAwardDescription.setText("complete " + award.threshold + " trips");
+                }
+                detailAwardDescription.setVisibility(isTripsType?View.VISIBLE:View.GONE);
+                detailAwardPicture.setImageResource(android.R.color.transparent);
+                AsyncTask<Void, Void, Bitmap> pictureTask = new AsyncTask<Void, Void, Bitmap>() {
+                    @Override
+                    protected Bitmap doInBackground(Void... params) {
+                        Bitmap rs = null;
+                        InputStream is = null;
+                        String url = Request.IMG_HOST + award.picture;
+                        Cache cache = Cache.getInstance(DashboardActivity.this);
+                        try{
+                            InputStream cachedStream = cache.fetchStream(url);
+                            if(cachedStream == null){
+                                HTTP http = new HTTP(url);
+                                http.connect();
+                                InputStream tmpStream = http.getInputStream();
+                                try{
+                                    cache.put(url, tmpStream);
+                                    is = cache.fetchStream(url);
+                                }finally{
+                                    IOUtils.closeQuietly(tmpStream);
+                                }
+                            }else{
+                                is = cachedStream;
+                            }
+                            rs = BitmapFactory.decodeStream(is);
+                        }catch(Exception e){
+                        }finally{
+                            IOUtils.closeQuietly(is);
+                        }
+                        return rs;
+                    }
+                    protected void onPostExecute(final Bitmap rs) {
+                        if(rs != null){
+                            detailAwardPicture.setImageBitmap(rs);
+                        }
+                    }
+                };
+                Misc.parallelExecute(pictureTask);
+                awardsList.setVisibility(View.GONE);
+                awardsDetail.setVisibility(View.VISIBLE);
+                fadeIn(awardsDetail);
+            }
+        });
+        final Button shareAwardsButton = (Button) findViewById(R.id.share_awards_button);
         final ArrayAdapter<Award> awardsAdapter = new ArrayAdapter<Award>(this, R.layout.awards_list_item, R.id.name_award){
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
@@ -334,21 +393,25 @@ public final class DashboardActivity extends ActionBarActivity {
                     nameView.setText(award.name);
                     TextView descView = (TextView)view.findViewById(R.id.description_award);
                     View progressView = view.findViewById(R.id.progress_rewards);
+                    TextView progressTextView = (TextView) view.findViewById(R.id.progress_text);
                     boolean isTripsType = "trips".equals(award.type);
                     if(isTripsType){
                         descView.setText("complete " + award.threshold + " trips");
                         double percentage = Math.min((double) awardTripsCount / award.threshold, 1);
                         ((ClipDrawable)progressView.getBackground()).setLevel(
                             Double.valueOf(percentage * 10000).intValue());
+                        progressTextView.setText(Double.valueOf(percentage * 100).intValue() + "%");
                     }
                     descView.setVisibility(isTripsType?View.VISIBLE:View.GONE);
                     view.findViewById(R.id.progress_rewards_wrapper)
                         .setVisibility(isTripsType?View.VISIBLE:View.GONE);
+                    progressTextView.setVisibility(isTripsType?View.VISIBLE:View.GONE);
                     view.findViewById(R.id.separator_awards).setVisibility(award.hideSeparator?
                         View.GONE:View.VISIBLE);
-                    Font.setTypeface(boldFont, headerView, nameView);
+                    Font.setTypeface(boldFont, headerView, nameView, progressTextView);
                     Font.setTypeface(lightFont, descView);
                     final ImageView pictureView = (ImageView) view.findViewById(R.id.picture_award);
+                    pictureView.setImageResource(android.R.color.transparent);
                     AsyncTask<Void, Void, Bitmap> pictureTask = new AsyncTask<Void, Void, Bitmap>() {
                         @Override
                         protected Bitmap doInBackground(Void... params) {
@@ -621,11 +684,12 @@ public final class DashboardActivity extends ActionBarActivity {
         });
         rewardsTab.performClick();
         Font.setTypeface(boldFont, trekpointsLabel, validateTripsUpdateCnt,
-            detailRewardName, detailRewardTrekpoints, detailValidatedTripsTitle, 
-            redeemButton, shareValidatedTripsButton);
-        Font.setTypeface(lightFont, detailRewardDescription, detailValidatedTripsDesc,
-            detailValidatedTripsOrigin, detailValidatedTripsDest, 
-            (TextView) findViewById(R.id.share_label));
+            detailRewardName, detailAwardName, detailRewardTrekpoints, detailValidatedTripsTitle, 
+            redeemButton, shareValidatedTripsButton, shareAwardsButton);
+        Font.setTypeface(lightFont, detailRewardDescription, detailAwardDescription,
+            detailValidatedTripsDesc, detailValidatedTripsOrigin, detailValidatedTripsDest,
+            (TextView) findViewById(R.id.share_label_validated_trips),
+            (TextView) findViewById(R.id.share_label_awards));
 	}
 	
 	@Override
@@ -640,6 +704,11 @@ public final class DashboardActivity extends ActionBarActivity {
             validatedTripsDetail.setVisibility(View.GONE);
             validatedTripsList.setVisibility(View.VISIBLE);
             fadeIn(validatedTripsList);
+	    }else if(awardsContent != null && awardsContent.getVisibility() == View.VISIBLE 
+                && awardsDetail != null && awardsDetail.getVisibility() == View.VISIBLE){
+	        awardsDetail.setVisibility(View.GONE);
+	        awardsList.setVisibility(View.VISIBLE);
+            fadeIn(awardsList);
 	    }else{
 	        super.onBackPressed();
 	    }

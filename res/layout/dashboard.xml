@@ -263,7 +263,7 @@
 				            style="@style/ShareButton"
 				        />
 		                <TextView
-				            android:id="@+id/share_label"
+				            android:id="@+id/share_label_validated_trips"
 				            android:layout_height="wrap_content"
 				            android:layout_width="match_parent"
 				            android:layout_marginTop="14dp"
@@ -300,6 +300,70 @@
 	                	android:layout_width="match_parent"
 		            	android:layout_height="wrap_content"
 		            	android:orientation="vertical">
+	                <RelativeLayout
+				        android:layout_width="wrap_content"
+				        android:layout_height="90dp"
+				        android:layout_marginTop="30dp"
+					   	android:layout_gravity="center_horizontal|top">
+				        
+				        <ImageView
+				             android:id="@+id/detail_picture_award"
+				             android:layout_height="72dp"
+				             android:layout_width="72dp"
+				             android:layout_centerVertical="true"
+				             android:layout_alignParentLeft="true"
+						/>
+				        
+				        <TextView
+				            android:id="@+id/detail_name_award"
+				            android:layout_height="wrap_content"
+				            android:layout_width="wrap_content"
+				            android:layout_toRightOf="@id/detail_picture_award"
+				            android:layout_alignTop="@id/detail_picture_award"
+				            android:layout_marginLeft="27dp"
+				            android:text="@string/placeholder"
+				            android:textColor="@color/dashboard_dark_gray"
+				            style="@style/SmallerBoldText"
+						/>
+				        
+				        <TextView
+				            android:id="@+id/detail_description_award"
+				            android:layout_height="wrap_content"
+				            android:layout_width="wrap_content"
+				            android:layout_below="@id/detail_name_award"
+				            android:layout_alignLeft="@id/detail_name_award"
+				            android:text="@string/placeholder"
+				            android:textColor="@color/dashboard_dark_gray"
+				            style="@style/SmallerText"
+						/>
+        			</RelativeLayout>
+        			<LinearLayout 
+				            android:layout_marginTop="60dp"
+				            android:layout_marginBottom="15dp"
+				            android:paddingLeft="20dp"
+				            android:paddingRight="20dp"
+					        android:layout_width="match_parent"
+					        android:layout_height="wrap_content"
+					        android:orientation="vertical">
+						<Button
+				            android:id="@+id/share_awards_button"
+				            android:layout_width="match_parent"
+				            android:layout_height="wrap_content"
+				      		android:layout_gravity="bottom"
+				            android:text="share"
+				            android:enabled="false"
+				            style="@style/ShareButton"
+				        />
+		                <TextView
+				            android:id="@+id/share_label_awards"
+				            android:layout_height="wrap_content"
+				            android:layout_width="match_parent"
+				            android:layout_marginTop="14dp"
+				            android:text="@string/share_label_dashboard"
+				            android:textColor="@color/dashboard_dark_gray"
+				            style="@style/SmallerText"
+						/>				        
+			        </LinearLayout>
                 </LinearLayout>
 			</ScrollView>
 	    </LinearLayout>
