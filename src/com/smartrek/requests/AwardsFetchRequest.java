@@ -16,6 +16,43 @@ public final class AwardsFetchRequest extends FetchRequest<List<Award>> {
 
     public static class Award {
         
+        public enum Type { 
+            
+            beta {
+                 @Override 
+                 public String description(long trips){
+                     return "beta tester";
+                 }
+            }, 
+            trips {
+                @Override
+                public String description(long trips) {
+                    return "complete " + trips + " trip" + (trips > 1?"s":"");
+                }
+            },
+            points {
+                @Override
+                public String description(long lifeTimePoints) {
+                    return "earn " + lifeTimePoints + " trekpoint" 
+                        + (lifeTimePoints > 1?"s":"");
+                }
+            };
+            
+            public static Type of(String type){
+                Type typeEnum = null;
+                for(Type t : values()){
+                    if(t.name().equals(type)){
+                        typeEnum = t;
+                        break;
+                    }
+                }
+                return typeEnum;
+            }
+            
+            public abstract String description(long threshold);
+            
+        }
+        
         public long id;
         
         public String name;
@@ -29,6 +66,8 @@ public final class AwardsFetchRequest extends FetchRequest<List<Award>> {
         public String headerLabel;
         
         public boolean hideSeparator;
+        
+        public boolean completed;
         
     }
     

@@ -41,6 +41,7 @@ import com.smartrek.requests.Request;
 import com.smartrek.requests.RewardsFetchRequest;
 import com.smartrek.requests.RewardsFetchRequest.Reward;
 import com.smartrek.requests.TrekpointFetchRequest;
+import com.smartrek.requests.TrekpointFetchRequest.Trekpoint;
 import com.smartrek.requests.ValidatedReservationsFetchRequest;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.Cache;
@@ -73,7 +74,7 @@ public final class DashboardActivity extends ActionBarActivity {
     
     private List<Award> allAwards = Collections.emptyList();
     
-    private int awardTripsCount;
+    private Trekpoint trekpoints;
     
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -82,56 +83,81 @@ public final class DashboardActivity extends ActionBarActivity {
         final TextView trekpointsLabel = (TextView) findViewById(R.id.trekpoints_label);
         User user = User.getCurrentUser(this);
         final int uid = user.getId();
-        AsyncTask<Void, Void, Long> trekpointsTask = new AsyncTask<Void, Void, Long>() {
+        AsyncTask<Void, Void, Trekpoint> trekpointsTask = new AsyncTask<Void, Void, Trekpoint>() {
             @Override
-            protected Long doInBackground(Void... params) {
-                Long trekpoints = 0L;
+            protected Trekpoint doInBackground(Void... params) {
+                Trekpoint tp = null;
                 TrekpointFetchRequest req = new TrekpointFetchRequest(uid);
                 req.invalidateCache(DashboardActivity.this);
                 try {
-                    trekpoints = req.execute(DashboardActivity.this);
+                    tp = req.execute(DashboardActivity.this);
                 }
                 catch (Exception e) {
                     ehs.registerException(e);
                 }
-                return trekpoints;
+                return tp;
             }
             @Override
-            protected void onPostExecute(Long trekpoints) {
+            protected void onPostExecute(Trekpoint tp) {
                 if (ehs.hasExceptions()) {
                     ehs.reportExceptions();
                 }
                 else {
+                    trekpoints = tp;
                     DecimalFormat fmt = new DecimalFormat("#,###");
-                    trekpointsLabel.setText(fmt.format(trekpoints));
+                    trekpointsLabel.setText(fmt.format(trekpoints.credit));
                 }
             }
         };
-        Misc.parallelExecute(trekpointsTask);
+        trekpointsTask.execute();
         final TextView validateTripsUpdateCnt = (TextView) findViewById(R.id.validated_trips_update_count);
-        final int validatedTripsCount = MapDisplayActivity.getValidatedTripsCount(this);
-        AsyncTask<Void, Void, Integer> validateTripsCntTask = new AsyncTask<Void, Void, Integer>() {
+        final View contentLoading = findViewById(R.id.content_loading);
+        final ArrayAdapter<Reservation> validatedTripsAdapter = new ArrayAdapter<Reservation>(this,
+                R.layout.validated_trips_list_item, R.id.title_validated_trips){
             @Override
-            protected Integer doInBackground(Void... params) {
-                Integer cnt = 0;
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                final Reservation reserv = getItem(position);
+                TextView titleView = (TextView)view.findViewById(R.id.title_validated_trips);
+                Font.setTypeface(boldFont, titleView);
+                titleView.setText(getReservationTitle(reserv));
+                TextView descView = (TextView)view.findViewById(R.id.description_validated_trips);
+                Font.setTypeface(lightFont, descView);
+                descView.setText(getReservationDescription(reserv));
+                return view;
+            }
+        };
+        final int validatedTripsCount = MapDisplayActivity.getValidatedTripsCount(this);
+        AsyncTask<Void, Void, List<Reservation>> validateTripsCntTask = new AsyncTask<Void, Void, List<Reservation>>() {
+            @Override
+            protected List<Reservation> doInBackground(Void... params) {
+                List<Reservation> reservations = Collections.emptyList();
                 ValidatedReservationsFetchRequest req = new ValidatedReservationsFetchRequest(uid);
                 req.invalidateCache(DashboardActivity.this);
                 try {
-                    cnt = req.execute(DashboardActivity.this).size();
+                    reservations = req.execute(DashboardActivity.this);
                 }
                 catch (Exception e) {
                     ehs.registerException(e);
                 }
-                return cnt;
+                Collections.sort(reservations, Collections.reverseOrder(
+                    Reservation.orderByDepartureTime()));
+                return reservations;
             }
             @Override
-            protected void onPostExecute(Integer cnt) {
+            protected void onPostExecute(List<Reservation> reservations) {
                 if (ehs.hasExceptions()) {
                     ehs.reportExceptions();
                 }
                 else {
-                    awardTripsCount = cnt;
-                    int updateCnt = cnt - validatedTripsCount;
+                    if(validatedTripsContent != null && validatedTripsContent.getVisibility() == View.VISIBLE){
+                        contentLoading.setVisibility(View.GONE);
+                    }
+                    validatedTripsAdapter.clear();
+                    for (Reservation r : reservations) {
+                        validatedTripsAdapter.add(r);
+                    }
+                    int updateCnt = reservations.size() - validatedTripsCount;
                     if(updateCnt > 0 && validatedTripsContent != null 
                             && validatedTripsContent.getVisibility() != View.VISIBLE){
                         validateTripsUpdateCnt.setText(String.valueOf(updateCnt));
@@ -305,21 +331,6 @@ public final class DashboardActivity extends ActionBarActivity {
                 fadeIn(validatedTripsDetail);
             }
         });
-        final ArrayAdapter<Reservation> validatedTripsAdapter = new ArrayAdapter<Reservation>(this,
-                R.layout.validated_trips_list_item, R.id.title_validated_trips){
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                View view = super.getView(position, convertView, parent);
-                final Reservation reserv = getItem(position);
-                TextView titleView = (TextView)view.findViewById(R.id.title_validated_trips);
-                Font.setTypeface(boldFont, titleView);
-                titleView.setText(getReservationTitle(reserv));
-                TextView descView = (TextView)view.findViewById(R.id.description_validated_trips);
-                Font.setTypeface(lightFont, descView);
-                descView.setText(getReservationDescription(reserv));
-                return view;
-            }
-        };
         validatedTripsList.setAdapter(validatedTripsAdapter);
         awardsDetail = findViewById(R.id.awards_detail);
         awardsList = (ListView) findViewById(R.id.awards_list);
@@ -332,11 +343,14 @@ public final class DashboardActivity extends ActionBarActivity {
                     int position, long id) {
                 final Award award = (Award) parent.getItemAtPosition(position);
                 detailAwardName.setText(award.name);
-                boolean isTripsType = "trips".equals(award.type);
-                if(isTripsType){
-                    detailAwardDescription.setText(getAwardDescription(award.threshold));
+                Award.Type type = Award.Type.of(award.type);
+                boolean hasType = type != null;
+                String description = "";
+                if(hasType){
+                    description = type.description(award.threshold);
                 }
-                detailAwardDescription.setVisibility(isTripsType?View.VISIBLE:View.GONE);
+                detailAwardDescription.setText(description);
+                detailAwardDescription.setVisibility(hasType?View.VISIBLE:View.GONE);
                 detailAwardPicture.setImageResource(android.R.color.transparent);
                 AsyncTask<Void, Void, Bitmap> pictureTask = new AsyncTask<Void, Void, Bitmap>() {
                     @Override
@@ -397,18 +411,27 @@ public final class DashboardActivity extends ActionBarActivity {
                     View progressView = view.findViewById(R.id.progress_rewards);
                     View progressWrapper = view.findViewById(R.id.progress_rewards_wrapper);
                     TextView progressTextView = (TextView) view.findViewById(R.id.progress_text);
-                    boolean isTripsType = "trips".equals(award.type);
-                    if(isTripsType){
-                        descView.setText(getAwardDescription(award.threshold));;
-                        ((BitmapDrawable)progressWrapper.getBackground()).setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
-                        ClipDrawable background = (ClipDrawable) progressView.getBackground();
-                        double percentage = Math.min((double) awardTripsCount / award.threshold, 1);
-                        background.setLevel(Double.valueOf((1 - percentage) * 10000).intValue());
-                        progressTextView.setText(Double.valueOf(percentage * 100).intValue() + "%");
+                    Award.Type type = Award.Type.of(award.type);
+                    boolean hasType = type != null;
+                    long threshold = 1;
+                    long progressCnt = 0;
+                    String description = "";
+                    if(hasType){
+                        if(type == Award.Type.trips || type == Award.Type.beta && award.completed){
+                            progressCnt = validatedTripsAdapter.getCount();
+                        }else if(type == Award.Type.points){
+                            progressCnt = trekpoints.lifeTimeCredit;
+                        }
+                        threshold = award.threshold;
+                        description = type.description(threshold);
                     }
-                    descView.setVisibility(isTripsType?View.VISIBLE:View.GONE);
-                    progressWrapper.setVisibility(isTripsType?View.VISIBLE:View.GONE);
-                    progressTextView.setVisibility(isTripsType?View.VISIBLE:View.GONE);
+                    ((BitmapDrawable)progressWrapper.getBackground()).setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
+                    ClipDrawable background = (ClipDrawable) progressView.getBackground();
+                    double percentage = Math.min((double) progressCnt / threshold, 1);
+                    background.setLevel(Double.valueOf((1 - percentage) * 10000).intValue());
+                    progressTextView.setText(Double.valueOf(percentage * 100).intValue() + "%");
+                    descView.setText(description);
+                    descView.setVisibility(hasType?View.VISIBLE:View.GONE);
                     view.findViewById(R.id.separator_awards).setVisibility(award.hideSeparator?
                         View.GONE:View.VISIBLE);
                     Font.setTypeface(boldFont, headerView, nameView, progressTextView);
@@ -458,7 +481,6 @@ public final class DashboardActivity extends ActionBarActivity {
         final View rewardsTab = findViewById(R.id.rewards_tab);
         final View validatedTripsTab = findViewById(R.id.validated_trips_tab);
         final View awardsTab = findViewById(R.id.awards_tab);
-        final View contentLoading = findViewById(R.id.content_loading);
         rewardsContent = findViewById(R.id.rewards_content);
         validatedTripsContent = findViewById(R.id.validated_trips_content);
         awardsContent = findViewById(R.id.awards_content);
@@ -667,6 +689,7 @@ public final class DashboardActivity extends ActionBarActivity {
                                   if(i + 1 == completedList.size()){
                                       a.hideSeparator = true;
                                   }
+                                  a.completed = true;
                                   awardsAdapter.add(a);
                               }
                               for(int i=0; i<inProgressList.size(); i++){
@@ -729,10 +752,6 @@ public final class DashboardActivity extends ActionBarActivity {
 	private static String getReservationDescription(Reservation r){
         return r.getFormattedDepartureTime() + ", "  + r.getCredits() + " trekpoints";
     }
-	
-	private static String getAwardDescription(long threshold){
-	    return "complete " + threshold + " trip" + (threshold > 1?"s":"");
-	}
 	
 	@Override
 	public void onStart() {
