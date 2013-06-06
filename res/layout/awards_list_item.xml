@@ -69,7 +69,7 @@
 	            	android:id="@+id/progress_rewards_wrapper" 
 	            	android:layout_height="10dp"
 		            android:layout_width="0dp"
-		            android:background="@color/light_gray"
+		            android:background="@drawable/awards_progress_bar_bg"
 		            android:layout_weight="1">
 		        <View
 		            android:id="@+id/progress_rewards"

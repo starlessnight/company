@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <clip xmlns:android="http://schemas.android.com/apk/res/android"
-    android:drawable="@drawable/awards_progress_bar_bg"
+    android:drawable="@color/light_gray"
     android:clipOrientation="horizontal"
-	android:gravity="left"
+	android:gravity="right"
 />

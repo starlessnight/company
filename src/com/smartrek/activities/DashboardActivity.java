@@ -11,6 +11,8 @@ import org.apache.commons.io.IOUtils;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Shader.TileMode;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ClipDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -393,18 +395,19 @@ public final class DashboardActivity extends ActionBarActivity {
                     nameView.setText(award.name);
                     TextView descView = (TextView)view.findViewById(R.id.description_award);
                     View progressView = view.findViewById(R.id.progress_rewards);
+                    View progressWrapper = view.findViewById(R.id.progress_rewards_wrapper);
                     TextView progressTextView = (TextView) view.findViewById(R.id.progress_text);
                     boolean isTripsType = "trips".equals(award.type);
                     if(isTripsType){
-                        descView.setText(getAwardDescription(award.threshold));
+                        descView.setText(getAwardDescription(award.threshold));;
+                        ((BitmapDrawable)progressWrapper.getBackground()).setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
+                        ClipDrawable background = (ClipDrawable) progressView.getBackground();
                         double percentage = Math.min((double) awardTripsCount / award.threshold, 1);
-                        ((ClipDrawable)progressView.getBackground()).setLevel(
-                            Double.valueOf(percentage * 10000).intValue());
+                        background.setLevel(Double.valueOf((1 - percentage) * 10000).intValue());
                         progressTextView.setText(Double.valueOf(percentage * 100).intValue() + "%");
                     }
                     descView.setVisibility(isTripsType?View.VISIBLE:View.GONE);
-                    view.findViewById(R.id.progress_rewards_wrapper)
-                        .setVisibility(isTripsType?View.VISIBLE:View.GONE);
+                    progressWrapper.setVisibility(isTripsType?View.VISIBLE:View.GONE);
                     progressTextView.setVisibility(isTripsType?View.VISIBLE:View.GONE);
                     view.findViewById(R.id.separator_awards).setVisibility(award.hideSeparator?
                         View.GONE:View.VISIBLE);
