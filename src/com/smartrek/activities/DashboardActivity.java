@@ -72,9 +72,13 @@ public final class DashboardActivity extends ActionBarActivity {
     
     private ListView awardsList;
     
-    private List<Award> allAwards = Collections.emptyList();
+    private List<Award> allAwards;
+    
+    private List<String> completedAwards;
     
     private Trekpoint trekpoints;
+
+    private ArrayAdapter<Award> awardsAdapter;
     
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -106,10 +110,10 @@ public final class DashboardActivity extends ActionBarActivity {
                     trekpoints = tp;
                     DecimalFormat fmt = new DecimalFormat("#,###");
                     trekpointsLabel.setText(fmt.format(trekpoints == null?0:trekpoints.credit));
+                    awardsAdapter.notifyDataSetChanged();
                 }
             }
         };
-        trekpointsTask.execute();
         final TextView validateTripsUpdateCnt = (TextView) findViewById(R.id.validated_trips_update_count);
         final View contentLoading = findViewById(R.id.content_loading);
         final ArrayAdapter<Reservation> validatedTripsAdapter = new ArrayAdapter<Reservation>(this,
@@ -163,10 +167,10 @@ public final class DashboardActivity extends ActionBarActivity {
                         validateTripsUpdateCnt.setText(String.valueOf(updateCnt));
                         validateTripsUpdateCnt.setVisibility(View.VISIBLE);
                     }
+                    awardsAdapter.notifyDataSetChanged();
                 }
             }
         };
-        validateTripsCntTask.execute();
         final ImageView detailRewardPicture = (ImageView) findViewById(R.id.detail_picture_reward);
         final TextView detailRewardName = (TextView) findViewById(R.id.detail_name_reward);
         final TextView detailRewardDescription = (TextView) findViewById(R.id.detail_description_reward);
@@ -394,7 +398,7 @@ public final class DashboardActivity extends ActionBarActivity {
             }
         });
         final Button shareAwardsButton = (Button) findViewById(R.id.share_awards_button);
-        final ArrayAdapter<Award> awardsAdapter = new ArrayAdapter<Award>(this, R.layout.awards_list_item, R.id.name_award){
+        awardsAdapter = new ArrayAdapter<Award>(this, R.layout.awards_list_item, R.id.name_award){
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
                     View view = getLayoutInflater().inflate(R.layout.awards_list_item, parent, false);
@@ -617,10 +621,55 @@ public final class DashboardActivity extends ActionBarActivity {
                     awardsList.setVisibility(View.VISIBLE);
                     awardsContent.setVisibility(View.VISIBLE);
                     fadeIn(awardsContent);
-                    new AsyncTask<Void, Void, List<Award>>(){
+                    final Runnable onLoad = new Runnable() {
+                        
+                        boolean isRun;
+                        
+                        @Override
+                        public void run() {
+                            if(!isRun){
+                                isRun = true;
+                                if(awardsContent != null && awardsContent.getVisibility() == View.VISIBLE){
+                                    contentLoading.setVisibility(View.GONE);
+                                }
+                                List<Award> completedList = new ArrayList<Award>();
+                                List<Award> inProgressList = new ArrayList<Award>();
+                                for (Award a : allAwards) {
+                                    if(completedAwards.contains(a.name)){
+                                        completedList.add(a);
+                                    }else{
+                                        inProgressList.add(a);
+                                    }
+                                }
+                                awardsAdapter.clear();
+                                for(int i=0; i<completedList.size(); i++){
+                                    Award a = completedList.get(i);
+                                    if(i == 0){
+                                        a.headerLabel = "completed awards";
+                                    }
+                                    if(i + 1 == completedList.size()){
+                                        a.hideSeparator = true;
+                                    }
+                                    a.completed = true;
+                                    awardsAdapter.add(a);
+                                }
+                                for(int i=0; i<inProgressList.size(); i++){
+                                    Award a = inProgressList.get(i);
+                                    if(i == 0){
+                                        a.headerLabel = "in progress";
+                                    }
+                                    awardsAdapter.add(a);
+                                }
+                                if(awardsDetail != null && awardsDetail.getVisibility() != View.VISIBLE){
+                                    awardsList.setVisibility(View.VISIBLE);
+                                }
+                            }
+                        }
+                    };
+                    AsyncTask<Void, Void, List<Award>> allAwardsTask = new AsyncTask<Void, Void, List<Award>>(){
                         @Override
                         protected void onPreExecute() {
-                            if(allAwards.isEmpty()){
+                            if(allAwards == null || allAwards.isEmpty()){
                                 contentLoading.setVisibility(View.VISIBLE);
                             }else{
                                 contentLoading.setVisibility(View.GONE);
@@ -646,10 +695,14 @@ public final class DashboardActivity extends ActionBarActivity {
                             }
                             else {
                                 allAwards = result;
+                                if(allAwards != null && completedAwards != null){
+                                    onLoad.run();
+                                }
                             }
                         }
-                    }.execute();
-                    new AsyncTask<Void, Void, List<String>>(){
+                    };
+                    Misc.parallelExecute(allAwardsTask);
+                    AsyncTask<Void, Void, List<String>> completedAwardsTask = new AsyncTask<Void, Void, List<String>>(){
                         @Override
                         protected List<String> doInBackground(Void... params) {
                             List<String> awards = Collections.emptyList();
@@ -668,46 +721,19 @@ public final class DashboardActivity extends ActionBarActivity {
                                 ehs.reportExceptions();
                             }
                             else {
-                              if(awardsContent != null && awardsContent.getVisibility() == View.VISIBLE){
-                                  contentLoading.setVisibility(View.GONE);
-                              }
-                              List<Award> completedList = new ArrayList<Award>();
-                              List<Award> inProgressList = new ArrayList<Award>();
-                              for (Award a : allAwards) {
-                                  if(result.contains(a.name)){
-                                      completedList.add(a);
-                                  }else{
-                                      inProgressList.add(a);
-                                  }
-                              }
-                              awardsAdapter.clear();
-                              for(int i=0; i<completedList.size(); i++){
-                                  Award a = completedList.get(i);
-                                  if(i == 0){
-                                      a.headerLabel = "completed awards";
-                                  }
-                                  if(i + 1 == completedList.size()){
-                                      a.hideSeparator = true;
-                                  }
-                                  a.completed = true;
-                                  awardsAdapter.add(a);
-                              }
-                              for(int i=0; i<inProgressList.size(); i++){
-                                  Award a = inProgressList.get(i);
-                                  if(i == 0){
-                                      a.headerLabel = "in progress";
-                                  }
-                                  awardsAdapter.add(a);
-                              }
-                              if(awardsDetail != null && awardsDetail.getVisibility() != View.VISIBLE){
-                                  awardsList.setVisibility(View.VISIBLE);
-                              }
+                                completedAwards = result;
+                                if(allAwards != null && completedAwards != null){
+                                    onLoad.run();
+                                }
                             }
                         }
-                    }.execute();
+                    };
+                    Misc.parallelExecute(completedAwardsTask);
                 }
             }
         });
+        Misc.parallelExecute(trekpointsTask);
+        Misc.parallelExecute(validateTripsCntTask);
         rewardsTab.performClick();
         Font.setTypeface(boldFont, trekpointsLabel, validateTripsUpdateCnt,
             detailRewardName, detailAwardName, detailRewardTrekpoints, detailValidatedTripsTitle, 
