@@ -219,7 +219,7 @@ public final class DashboardActivity extends ActionBarActivity {
                 R.id.name_reward){
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
-                View view = super.getView(position, convertView, parent);
+                View view = getLayoutInflater().inflate(R.layout.rewards_list_item, parent, false);
                 final Reward reward = getItem(position);
                 TextView nameView = (TextView)view.findViewById(R.id.name_reward);
                 Font.setTypeface(boldFont, nameView);
@@ -234,7 +234,7 @@ public final class DashboardActivity extends ActionBarActivity {
                 }else{
                     trekpointsText = reward.trekpoints.toString();
                     trekpointsView.setCompoundDrawablesWithIntrinsicBounds(null, 
-                        null, getResources().getDrawable(R.drawable.trekpoints_icon_color), 
+                        null, getResources().getDrawable(R.drawable.trekpoints_icon_color_offset), 
                         null);
                 }
                 trekpointsView.setText(trekpointsText);
@@ -332,7 +332,7 @@ public final class DashboardActivity extends ActionBarActivity {
                 detailAwardName.setText(award.name);
                 boolean isTripsType = "trips".equals(award.type);
                 if(isTripsType){
-                    detailAwardDescription.setText("complete " + award.threshold + " trips");
+                    detailAwardDescription.setText(getAwardDescription(award.threshold));
                 }
                 detailAwardDescription.setVisibility(isTripsType?View.VISIBLE:View.GONE);
                 detailAwardPicture.setImageResource(android.R.color.transparent);
@@ -381,7 +381,7 @@ public final class DashboardActivity extends ActionBarActivity {
         final ArrayAdapter<Award> awardsAdapter = new ArrayAdapter<Award>(this, R.layout.awards_list_item, R.id.name_award){
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
-                    View view = super.getView(position, convertView, parent);
+                    View view = getLayoutInflater().inflate(R.layout.awards_list_item, parent, false);
                     final Award award = getItem(position);
                     TextView headerView = (TextView) view.findViewById(R.id.header_awards);
                     boolean hasSeparator = award.headerLabel != null;
@@ -396,7 +396,7 @@ public final class DashboardActivity extends ActionBarActivity {
                     TextView progressTextView = (TextView) view.findViewById(R.id.progress_text);
                     boolean isTripsType = "trips".equals(award.type);
                     if(isTripsType){
-                        descView.setText("complete " + award.threshold + " trips");
+                        descView.setText(getAwardDescription(award.threshold));
                         double percentage = Math.min((double) awardTripsCount / award.threshold, 1);
                         ((ClipDrawable)progressView.getBackground()).setLevel(
                             Double.valueOf(percentage * 10000).intValue());
@@ -726,6 +726,10 @@ public final class DashboardActivity extends ActionBarActivity {
 	private static String getReservationDescription(Reservation r){
         return r.getFormattedDepartureTime() + ", "  + r.getCredits() + " trekpoints";
     }
+	
+	private static String getAwardDescription(long threshold){
+	    return "complete " + threshold + " trip" + (threshold > 1?"s":"");
+	}
 	
 	@Override
 	public void onStart() {

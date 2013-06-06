@@ -58,35 +58,38 @@
             style="@style/SmallerText"
 		/>
         
-        <FrameLayout
-            	android:id="@+id/progress_rewards_wrapper" 
-            	android:layout_height="10dp"
+        <LinearLayout 
+            	android:layout_height="wrap_content"
 	            android:layout_width="match_parent"
+	            android:orientation="horizontal"
+	            android:layout_marginRight="53dp"
 	            android:layout_alignLeft="@id/name_award"
-	            android:layout_alignParentBottom="true"
-	            android:layout_marginRight="83dp"
-	            android:layout_marginBottom="14dp"
-	            android:background="@color/light_gray">
-	        <View
-	            android:id="@+id/progress_rewards"
-	            android:layout_width="match_parent"
-	            android:layout_height="match_parent"
-	            android:background="@drawable/awards_progress_bar"
+	            android:layout_alignParentBottom="true">
+            <FrameLayout
+	            	android:id="@+id/progress_rewards_wrapper" 
+	            	android:layout_height="10dp"
+		            android:layout_width="0dp"
+		            android:background="@color/light_gray"
+		            android:layout_weight="1">
+		        <View
+		            android:id="@+id/progress_rewards"
+		            android:layout_width="match_parent"
+		            android:layout_height="match_parent"
+		            android:background="@drawable/awards_progress_bar"
+				/>
+	        </FrameLayout>
+	        
+	        <TextView
+	            android:id="@+id/progress_text"
+	            android:layout_height="wrap_content"
+	            android:layout_width="wrap_content"
+	            android:layout_marginTop="1dp"
+	            android:layout_marginLeft="5dp"
+	            android:text="0%"
+	            android:textColor="@color/dashboard_dark_gray"
+	            style="@style/MicroText"
 			/>
-        </FrameLayout>
-        
-        <TextView
-            android:id="@+id/progress_text"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="53dp"
-            android:layout_marginBottom="14dp"
-            android:layout_alignParentBottom="true"
-            android:text="0%"
-            android:textColor="@color/dashboard_dark_gray"
-            style="@style/MicroText"
-		/>
+        </LinearLayout>
         
         <ImageView
              android:src="@drawable/icon_more_dashboard"
