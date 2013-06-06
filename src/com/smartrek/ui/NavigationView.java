@@ -120,6 +120,7 @@ public final class NavigationView extends LinearLayout {
 	        textViewGenericMessage.setVisibility(View.GONE);
 	        navigationDisplay.setVisibility(View.GONE);
 	        setBackgroundResource(R.color.transparent_gray);
+	        this.status = status;
 	    }
 	    else if (Status.OutOfRoute.equals(status)) {
 	        currentItemIdx = 0;
@@ -127,12 +128,14 @@ public final class NavigationView extends LinearLayout {
             textViewGenericMessage.setVisibility(View.VISIBLE);
             navigationDisplay.setVisibility(View.GONE);
             setBackgroundResource(R.color.transparent_light_red);
+            this.status = status;
         }
 	    else if (Status.InRoute.equals(status)) {
             textViewWaiting.setVisibility(View.GONE);
             textViewGenericMessage.setVisibility(View.GONE);
             navigationDisplay.setVisibility(View.VISIBLE);
             setBackgroundResource(android.R.color.transparent);
+            this.status = status;
         }
 	    else {
 	        Log.e(getClass().toString(), "setStatus(): Should not reach here.");
@@ -341,8 +344,12 @@ public final class NavigationView extends LinearLayout {
             }
         }
         else {
+            String outOfRouteMsg = "Out of route. Please go back to route.";
+            if(everInRoute && status != null && status != Status.OutOfRoute && listener != null){
+                listener.onCheckPoint(outOfRouteMsg);
+            }
             setStatus(Status.OutOfRoute);
-            textViewGenericMessage.setText(everInRoute?"Out of route. Please go back to route.":"Please start from the highlighted route.");
+            textViewGenericMessage.setText(everInRoute?outOfRouteMsg:"Please start from the highlighted route.");
         }
 	}
 	
