@@ -64,6 +64,7 @@
 	            android:orientation="horizontal"
 	            android:layout_marginRight="53dp"
 	            android:layout_alignLeft="@id/name_award"
+	            android:layout_below="@id/description_award"
 	            android:layout_alignParentBottom="true">
             <FrameLayout
 	            	android:id="@+id/progress_rewards_wrapper" 

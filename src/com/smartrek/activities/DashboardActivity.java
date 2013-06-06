@@ -105,7 +105,7 @@ public final class DashboardActivity extends ActionBarActivity {
                 else {
                     trekpoints = tp;
                     DecimalFormat fmt = new DecimalFormat("#,###");
-                    trekpointsLabel.setText(fmt.format(trekpoints.credit));
+                    trekpointsLabel.setText(fmt.format(trekpoints == null?0:trekpoints.credit));
                 }
             }
         };
@@ -420,7 +420,7 @@ public final class DashboardActivity extends ActionBarActivity {
                         if(type == Award.Type.trips || type == Award.Type.beta && award.completed){
                             progressCnt = validatedTripsAdapter.getCount();
                         }else if(type == Award.Type.points){
-                            progressCnt = trekpoints.lifeTimeCredit;
+                            progressCnt = trekpoints == null?0:trekpoints.lifeTimeCredit;
                         }
                         threshold = award.threshold;
                         description = type.description(threshold);
