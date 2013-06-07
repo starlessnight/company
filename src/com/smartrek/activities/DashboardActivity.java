@@ -428,6 +428,8 @@ public final class DashboardActivity extends ActionBarActivity {
                         }
                         threshold = award.threshold;
                         description = type.description(threshold);
+                    }else if(award.completed){
+                        progressCnt = 1;
                     }
                     ((BitmapDrawable)progressWrapper.getBackground()).setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
                     ClipDrawable background = (ClipDrawable) progressView.getBackground();
