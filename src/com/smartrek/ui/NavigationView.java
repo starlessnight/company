@@ -345,11 +345,15 @@ public final class NavigationView extends LinearLayout {
         }
         else {
             String outOfRouteMsg = "Out of route. Please go back to route.";
-            if(everInRoute && status != null && status != Status.OutOfRoute && listener != null){
+            String startFromRouteMsg = "Please start from the highlighted route.";
+            if(everInRoute && status != Status.OutOfRoute && listener != null){
                 listener.onCheckPoint(outOfRouteMsg);
+            }else if(!everInRoute && (status == null || status == Status.WaitingForGPS) 
+                    && listener != null){
+                listener.onCheckPoint(startFromRouteMsg);
             }
             setStatus(Status.OutOfRoute);
-            textViewGenericMessage.setText(everInRoute?outOfRouteMsg:"Please start from the highlighted route.");
+            textViewGenericMessage.setText(everInRoute?outOfRouteMsg:startFromRouteMsg);
         }
 	}
 	
