@@ -197,7 +197,7 @@ public final class DashboardActivity extends ActionBarActivity {
                     detailRewardTrekpoints.setCompoundDrawablesWithIntrinsicBounds(null, 
                         null, null, null);
                 }else{
-                    trekpointsText = reward.trekpoints.toString();
+                    trekpointsText = reward.trekpoints + " trekpoint" + (reward.trekpoints > 1?"s":"");
                     detailRewardTrekpoints.setCompoundDrawablesWithIntrinsicBounds(null, 
                         null, getResources().getDrawable(R.drawable.trekpoints_icon_color), 
                         null);
