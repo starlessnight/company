@@ -251,7 +251,7 @@ public final class DashboardActivity extends ActionBarActivity {
                 R.id.name_reward){
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
-                View view = getLayoutInflater().inflate(R.layout.rewards_list_item, parent, false);
+                View view = super.getView(position, convertView, parent);
                 final Reward reward = getItem(position);
                 TextView nameView = (TextView)view.findViewById(R.id.name_reward);
                 Font.setTypeface(boldFont, nameView);
@@ -271,45 +271,54 @@ public final class DashboardActivity extends ActionBarActivity {
                 }
                 trekpointsView.setText(trekpointsText);
                 final ImageView pictureView = (ImageView) view.findViewById(R.id.picture_reward);
-                pictureView.setBackgroundResource(R.drawable.rewards_picture_bg);
-                pictureView.setImageResource(android.R.color.transparent);
-                AsyncTask<Void, Void, Bitmap> pictureTask = new AsyncTask<Void, Void, Bitmap>() {
-                    @Override
-                    protected Bitmap doInBackground(Void... params) {
-                        Bitmap rs = null;
-                        InputStream is = null;
-                        String url = Request.IMG_HOST + reward.picture;
-                        Cache cache = Cache.getInstance(DashboardActivity.this);
-                        try{
-                            InputStream cachedStream = cache.fetchStream(url);
-                            if(cachedStream == null){
-                                HTTP http = new HTTP(url);
-                                http.connect();
-                                InputStream tmpStream = http.getInputStream();
-                                try{
-                                    cache.put(url, tmpStream);
-                                    is = cache.fetchStream(url);
-                                }finally{
-                                    IOUtils.closeQuietly(tmpStream);
+                final String url = Request.IMG_HOST + reward.picture;
+                if(!url.equals(pictureView.getTag())){
+                    pictureView.setTag(url);
+                    pictureView.setBackgroundResource(R.drawable.rewards_picture_bg);
+                    pictureView.setImageResource(android.R.color.transparent);
+                    AsyncTask<Void, Void, Bitmap> pictureTask = new AsyncTask<Void, Void, Bitmap>() {
+                        @Override
+                        protected Bitmap doInBackground(Void... params) {
+                            Bitmap rs = null;
+                            InputStream is = null;
+                            Cache cache = Cache.getInstance(DashboardActivity.this);
+                            try{
+                                InputStream cachedStream = cache.fetchStream(url);
+                                if(cachedStream == null){
+                                    HTTP http = new HTTP(url);
+                                    http.connect();
+                                    InputStream tmpStream = http.getInputStream();
+                                    try{
+                                        cache.put(url, tmpStream);
+                                        is = cache.fetchStream(url);
+                                    }finally{
+                                        IOUtils.closeQuietly(tmpStream);
+                                    }
+                                }else{
+                                    is = cachedStream;
                                 }
-                            }else{
-                                is = cachedStream;
+                                rs = BitmapFactory.decodeStream(is);
+                            }catch(Exception e){
+                            }finally{
+                                IOUtils.closeQuietly(is);
                             }
-                            rs = BitmapFactory.decodeStream(is);
-                        }catch(Exception e){
-                        }finally{
-                            IOUtils.closeQuietly(is);
+                            return rs;
                         }
-                        return rs;
-                    }
-                    protected void onPostExecute(final Bitmap rs) {
-                        if(rs != null && pictureView != null){
-                            pictureView.setBackgroundResource(R.drawable.rewards_picture_bg_loaded);
-                            pictureView.setImageBitmap(rs);
+                        protected void onPostExecute(final Bitmap rs) {
+                            if(rs != null && pictureView != null){
+                                pictureView.setBackgroundResource(R.drawable.rewards_picture_bg_loaded);
+                                pictureView.setImageBitmap(rs);
+                            }
                         }
+                    };
+                    @SuppressWarnings("unchecked")
+                    AsyncTask<Void, Void, Bitmap> lastTask = (AsyncTask<Void, Void, Bitmap>) view.getTag(R.id.picture_reward);
+                    if(lastTask != null){
+                        lastTask.cancel(true);
                     }
-                };
-                Misc.parallelExecute(pictureTask);
+                    view.setTag(R.id.picture_reward, lastTask);
+                    Misc.parallelExecute(pictureTask);
+                }
                 return view;
             }
         };
@@ -401,7 +410,7 @@ public final class DashboardActivity extends ActionBarActivity {
         awardsAdapter = new ArrayAdapter<Award>(this, R.layout.awards_list_item, R.id.name_award){
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
-                    View view = getLayoutInflater().inflate(R.layout.awards_list_item, parent, false);
+                    View view = super.getView(position, convertView, parent);
                     final Award award = getItem(position);
                     TextView headerView = (TextView) view.findViewById(R.id.header_awards);
                     boolean hasSeparator = award.headerLabel != null;
@@ -443,43 +452,53 @@ public final class DashboardActivity extends ActionBarActivity {
                     Font.setTypeface(boldFont, headerView, nameView, progressTextView);
                     Font.setTypeface(lightFont, descView);
                     final ImageView pictureView = (ImageView) view.findViewById(R.id.picture_award);
-                    pictureView.setImageResource(android.R.color.transparent);
-                    AsyncTask<Void, Void, Bitmap> pictureTask = new AsyncTask<Void, Void, Bitmap>() {
-                        @Override
-                        protected Bitmap doInBackground(Void... params) {
-                            Bitmap rs = null;
-                            InputStream is = null;
-                            String url = Request.IMG_HOST + award.picture.replaceAll(" ", "%20");
-                            Cache cache = Cache.getInstance(DashboardActivity.this);
-                            try{
-                                InputStream cachedStream = cache.fetchStream(url);
-                                if(cachedStream == null){
-                                    HTTP http = new HTTP(url);
-                                    http.connect();
-                                    InputStream tmpStream = http.getInputStream();
-                                    try{
-                                        cache.put(url, tmpStream);
-                                        is = cache.fetchStream(url);
-                                    }finally{
-                                        IOUtils.closeQuietly(tmpStream);
+                    final String url = Request.IMG_HOST + award.picture.replaceAll(" ", "%20");
+                    if(!url.equals(pictureView.getTag())){
+                        pictureView.setTag(url);
+                        pictureView.setImageResource(android.R.color.transparent);
+                        AsyncTask<Void, Void, Bitmap> pictureTask = new AsyncTask<Void, Void, Bitmap>() {
+                            @Override
+                            protected Bitmap doInBackground(Void... params) {
+                                Bitmap rs = null;
+                                InputStream is = null;
+                                
+                                Cache cache = Cache.getInstance(DashboardActivity.this);
+                                try{
+                                    InputStream cachedStream = cache.fetchStream(url);
+                                    if(cachedStream == null){
+                                        HTTP http = new HTTP(url);
+                                        http.connect();
+                                        InputStream tmpStream = http.getInputStream();
+                                        try{
+                                            cache.put(url, tmpStream);
+                                            is = cache.fetchStream(url);
+                                        }finally{
+                                            IOUtils.closeQuietly(tmpStream);
+                                        }
+                                    }else{
+                                        is = cachedStream;
                                     }
-                                }else{
-                                    is = cachedStream;
+                                    rs = BitmapFactory.decodeStream(is);
+                                }catch(Exception e){
+                                }finally{
+                                    IOUtils.closeQuietly(is);
                                 }
-                                rs = BitmapFactory.decodeStream(is);
-                            }catch(Exception e){
-                            }finally{
-                                IOUtils.closeQuietly(is);
+                                return rs;
                             }
-                            return rs;
-                        }
-                        protected void onPostExecute(final Bitmap rs) {
-                            if(rs != null && pictureView != null){
-                                pictureView.setImageBitmap(rs);
+                            protected void onPostExecute(final Bitmap rs) {
+                                if(rs != null && pictureView != null){
+                                    pictureView.setImageBitmap(rs);
+                                }
                             }
+                        };
+                        @SuppressWarnings("unchecked")
+                        AsyncTask<Void, Void, Bitmap> lastTask = (AsyncTask<Void, Void, Bitmap>) view.getTag(R.id.picture_award);
+                        if(lastTask != null){
+                            lastTask.cancel(true);
                         }
-                    };
-                    Misc.parallelExecute(pictureTask);
+                        view.setTag(R.id.picture_award, pictureTask);
+                        Misc.parallelExecute(pictureTask);
+                    }
                     return view;
                 }
         };
