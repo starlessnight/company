@@ -32,6 +32,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.dialogs.ShareDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
 import com.smartrek.requests.AwardsFetchRequest;
@@ -328,6 +329,12 @@ public final class DashboardActivity extends ActionBarActivity {
         final TextView detailValidatedTripsOrigin = (TextView) findViewById(R.id.detail_origin_validated_trips);
         final TextView detailValidatedTripsDest = (TextView) findViewById(R.id.detail_destination_validated_trips);
         final Button shareValidatedTripsButton = (Button) findViewById(R.id.share_validated_trips_button);
+        shareValidatedTripsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new ShareDialog(DashboardActivity.this, "Share Trip", null).show();
+            }
+        });
         validatedTripsList = (ListView) findViewById(R.id.validated_trips_list);
         validatedTripsDetail = findViewById(R.id.validated_trips_detail);
         validatedTripsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -407,6 +414,12 @@ public final class DashboardActivity extends ActionBarActivity {
             }
         });
         final Button shareAwardsButton = (Button) findViewById(R.id.share_awards_button);
+        shareAwardsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new ShareDialog(DashboardActivity.this, "Share Award", null).show();
+            }
+        });
         awardsAdapter = new ArrayAdapter<Award>(this, R.layout.awards_list_item, R.id.name_award){
                 @Override
                 public View getView(int position, View convertView, ViewGroup parent) {
