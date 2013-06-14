@@ -2,7 +2,6 @@ package com.smartrek.activities;
 
 import java.io.InputStream;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -38,7 +37,6 @@ import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
 import com.smartrek.requests.AwardsFetchRequest;
 import com.smartrek.requests.AwardsFetchRequest.Award;
-import com.smartrek.requests.MyAwardsFetchRequest;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.RewardsFetchRequest;
 import com.smartrek.requests.RewardsFetchRequest.Reward;
@@ -76,8 +74,6 @@ public final class DashboardActivity extends ActionBarActivity {
     
     private List<Award> allAwards;
     
-    private List<String> completedAwards;
-    
     private Trekpoint trekpoints;
 
     private ArrayAdapter<Award> awardsAdapter;
@@ -112,7 +108,6 @@ public final class DashboardActivity extends ActionBarActivity {
                     trekpoints = tp;
                     DecimalFormat fmt = new DecimalFormat("#,###");
                     trekpointsLabel.setText(fmt.format(trekpoints == null?0:trekpoints.credit));
-                    awardsAdapter.notifyDataSetChanged();
                 }
             }
         };
@@ -169,7 +164,6 @@ public final class DashboardActivity extends ActionBarActivity {
                         validateTripsUpdateCnt.setText(String.valueOf(updateCnt));
                         validateTripsUpdateCnt.setVisibility(View.VISIBLE);
                     }
-                    awardsAdapter.notifyDataSetChanged();
                 }
             }
         };
@@ -359,21 +353,23 @@ public final class DashboardActivity extends ActionBarActivity {
         final ImageView detailAwardPicture = (ImageView) findViewById(R.id.detail_picture_award);
         final TextView detailAwardName = (TextView) findViewById(R.id.detail_name_award);
         final TextView detailAwardDescription = (TextView) findViewById(R.id.detail_description_award);
+        final TextView detailAwardLongDescription = (TextView) findViewById(R.id.detail_long_description_award);
+        final View detailProgressView = findViewById(R.id.detail_progress_rewards);
+        final View detailProgressWrapper = findViewById(R.id.detail_progress_rewards_wrapper);
+        final TextView detailProgressTextView = (TextView) findViewById(R.id.detail_progress_text);
         awardsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                     int position, long id) {
                 final Award award = (Award) parent.getItemAtPosition(position);
                 detailAwardName.setText(award.name);
-                Award.Type type = Award.Type.of(award.type);
-                boolean hasType = type != null;
-                String description = "";
-                if(hasType){
-                    description = type.description(award.threshold);
-                }
-                detailAwardDescription.setText(description);
-                detailAwardDescription.setVisibility(hasType?View.VISIBLE:View.GONE);
+                detailAwardDescription.setText(award.task);
+                detailAwardLongDescription.setText(award.description);
                 detailAwardPicture.setImageResource(android.R.color.transparent);
+                ((BitmapDrawable)detailProgressWrapper.getBackground()).setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
+                ClipDrawable background = (ClipDrawable) detailProgressView.getBackground();
+                background.setLevel(Double.valueOf((100 - award.percent) * 100).intValue());
+                detailProgressTextView.setText(award.percent + "%");
                 AsyncTask<Void, Void, Bitmap> pictureTask = new AsyncTask<Void, Void, Bitmap>() {
                     @Override
                     protected Bitmap doInBackground(Void... params) {
@@ -436,37 +432,16 @@ public final class DashboardActivity extends ActionBarActivity {
                     headerView.setVisibility(hasSeparator?View.VISIBLE:View.GONE);
                     TextView nameView = (TextView) view.findViewById(R.id.name_award);
                     nameView.setText(award.name);
-                    TextView descView = (TextView)view.findViewById(R.id.description_award);
                     View progressView = view.findViewById(R.id.progress_rewards);
                     View progressWrapper = view.findViewById(R.id.progress_rewards_wrapper);
                     TextView progressTextView = (TextView) view.findViewById(R.id.progress_text);
-                    Award.Type type = Award.Type.of(award.type);
-                    boolean hasType = type != null;
-                    long threshold = 1;
-                    long progressCnt = 0;
-                    String description = "";
-                    if(hasType){
-                        if(type == Award.Type.trips || type == Award.Type.beta && award.completed){
-                            progressCnt = validatedTripsAdapter.getCount();
-                        }else if(type == Award.Type.points){
-                            progressCnt = trekpoints == null?0:trekpoints.lifeTimeCredit;
-                        }
-                        threshold = award.threshold;
-                        description = type.description(threshold);
-                    }else if(award.completed){
-                        progressCnt = 1;
-                    }
                     ((BitmapDrawable)progressWrapper.getBackground()).setTileModeXY(TileMode.REPEAT, TileMode.REPEAT);
                     ClipDrawable background = (ClipDrawable) progressView.getBackground();
-                    double percentage = Math.min((double) progressCnt / threshold, 1);
-                    background.setLevel(Double.valueOf((1 - percentage) * 10000).intValue());
-                    progressTextView.setText(Double.valueOf(percentage * 100).intValue() + "%");
-                    descView.setText(description);
-                    descView.setVisibility(hasType?View.VISIBLE:View.GONE);
+                    background.setLevel(Double.valueOf((100 - award.percent) * 100).intValue());
+                    progressTextView.setText(award.percent + "%");
                     view.findViewById(R.id.separator_awards).setVisibility(award.hideSeparator?
                         View.GONE:View.VISIBLE);
                     Font.setTypeface(boldFont, headerView, nameView, progressTextView);
-                    Font.setTypeface(lightFont, descView);
                     final ImageView pictureView = (ImageView) view.findViewById(R.id.picture_award);
                     final String url = Request.IMG_HOST + award.picture.replaceAll(" ", "%20");
                     if(!url.equals(pictureView.getTag())){
@@ -658,51 +633,6 @@ public final class DashboardActivity extends ActionBarActivity {
                     awardsList.setVisibility(View.VISIBLE);
                     awardsContent.setVisibility(View.VISIBLE);
                     fadeIn(awardsContent);
-                    final Runnable onLoad = new Runnable() {
-                        
-                        boolean isRun;
-                        
-                        @Override
-                        public void run() {
-                            if(!isRun){
-                                isRun = true;
-                                if(awardsContent != null && awardsContent.getVisibility() == View.VISIBLE){
-                                    contentLoading.setVisibility(View.GONE);
-                                }
-                                List<Award> completedList = new ArrayList<Award>();
-                                List<Award> inProgressList = new ArrayList<Award>();
-                                for (Award a : allAwards) {
-                                    if(completedAwards.contains(a.name)){
-                                        completedList.add(a);
-                                    }else{
-                                        inProgressList.add(a);
-                                    }
-                                }
-                                awardsAdapter.clear();
-                                for(int i=0; i<completedList.size(); i++){
-                                    Award a = completedList.get(i);
-                                    if(i == 0){
-                                        a.headerLabel = "completed awards";
-                                    }
-                                    if(i + 1 == completedList.size()){
-                                        a.hideSeparator = true;
-                                    }
-                                    a.completed = true;
-                                    awardsAdapter.add(a);
-                                }
-                                for(int i=0; i<inProgressList.size(); i++){
-                                    Award a = inProgressList.get(i);
-                                    if(i == 0){
-                                        a.headerLabel = "in progress";
-                                    }
-                                    awardsAdapter.add(a);
-                                }
-                                if(awardsDetail != null && awardsDetail.getVisibility() != View.VISIBLE){
-                                    awardsList.setVisibility(View.VISIBLE);
-                                }
-                            }
-                        }
-                    };
                     AsyncTask<Void, Void, List<Award>> allAwardsTask = new AsyncTask<Void, Void, List<Award>>(){
                         @Override
                         protected void onPreExecute() {
@@ -715,7 +645,7 @@ public final class DashboardActivity extends ActionBarActivity {
                         @Override
                         protected List<Award> doInBackground(Void... params) {
                             List<Award> awards = Collections.emptyList();
-                            AwardsFetchRequest req = new AwardsFetchRequest();
+                            AwardsFetchRequest req = new AwardsFetchRequest(uid);
                             req.invalidateCache(DashboardActivity.this);
                             try {
                                 awards = req.execute(DashboardActivity.this);
@@ -732,40 +662,30 @@ public final class DashboardActivity extends ActionBarActivity {
                             }
                             else {
                                 allAwards = result;
-                                if(allAwards != null && completedAwards != null){
-                                    onLoad.run();
+                                if(allAwards != null){
+                                    if(awardsContent != null && awardsContent.getVisibility() == View.VISIBLE){
+                                        contentLoading.setVisibility(View.GONE);
+                                    }
+                                    awardsAdapter.clear();
+                                    for(int i=0; i<allAwards.size(); i++){
+                                        Award a = allAwards.get(i);
+                                        if(i == 0){
+                                            a.headerLabel = "completed awards";
+                                        }else if(!a.complete && allAwards.get(i - 1).complete){
+                                            a.headerLabel = "in progress";
+                                        }
+                                        a.hideSeparator = i + 1 < allAwards.size() && a.complete
+                                            && !allAwards.get(i + 1).complete;
+                                        awardsAdapter.add(a);
+                                    }
+                                    if(awardsDetail != null && awardsDetail.getVisibility() != View.VISIBLE){
+                                        awardsList.setVisibility(View.VISIBLE);
+                                    }
                                 }
                             }
                         }
                     };
                     Misc.parallelExecute(allAwardsTask);
-                    AsyncTask<Void, Void, List<String>> completedAwardsTask = new AsyncTask<Void, Void, List<String>>(){
-                        @Override
-                        protected List<String> doInBackground(Void... params) {
-                            List<String> awards = Collections.emptyList();
-                            MyAwardsFetchRequest req = new MyAwardsFetchRequest(uid);
-                            req.invalidateCache(DashboardActivity.this);
-                            try {
-                                awards = req.execute(DashboardActivity.this);
-                            }
-                            catch (Exception e) {
-                                ehs.registerException(e);
-                            }
-                            return awards;
-                        }
-                        protected void onPostExecute(java.util.List<String> result) {
-                            if (ehs.hasExceptions()) {
-                                ehs.reportExceptions();
-                            }
-                            else {
-                                completedAwards = result;
-                                if(allAwards != null && completedAwards != null){
-                                    onLoad.run();
-                                }
-                            }
-                        }
-                    };
-                    Misc.parallelExecute(completedAwardsTask);
                 }
             }
         });
@@ -773,10 +693,11 @@ public final class DashboardActivity extends ActionBarActivity {
         Misc.parallelExecute(validateTripsCntTask);
         rewardsTab.performClick();
         Font.setTypeface(boldFont, trekpointsLabel, validateTripsUpdateCnt,
-            detailRewardName, detailAwardName, detailRewardTrekpoints, detailValidatedTripsTitle, 
-            redeemButton, shareValidatedTripsButton, shareAwardsButton);
+            detailRewardName, detailAwardName, detailProgressTextView, detailRewardTrekpoints, 
+            detailValidatedTripsTitle, redeemButton, shareValidatedTripsButton, shareAwardsButton);
         Font.setTypeface(lightFont, detailRewardDescription, detailAwardDescription,
-            detailValidatedTripsDesc, detailValidatedTripsOrigin, detailValidatedTripsDest,
+            detailAwardLongDescription, detailValidatedTripsDesc, 
+            detailValidatedTripsOrigin, detailValidatedTripsDest,
             (TextView) findViewById(R.id.share_label_validated_trips),
             (TextView) findViewById(R.id.share_label_awards));
 	}

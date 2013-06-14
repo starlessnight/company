@@ -302,10 +302,11 @@
 		            	android:orientation="vertical">
 	                <RelativeLayout
 				        android:layout_width="match_parent"
-				        android:layout_height="90dp"
+				        android:layout_height="wrap_content"
 				        android:layout_marginTop="30dp"
 				        android:layout_marginLeft="64dp"
 				        android:layout_marginRight="64dp"
+				        android:minHeight="90dp"
 					   	android:layout_gravity="center_horizontal|top">
 				        
 				        <ImageView
@@ -338,6 +339,39 @@
 				            android:textColor="@color/dashboard_dark_gray"
 				            style="@style/SmallerText"
 						/>
+				        
+				        <LinearLayout 
+				            	android:layout_height="wrap_content"
+					            android:layout_width="match_parent"
+					            android:orientation="horizontal"
+					            android:layout_marginTop="5dp"
+					            android:layout_alignLeft="@id/detail_name_award"
+					            android:layout_below="@id/detail_description_award">
+				            <FrameLayout
+					            	android:id="@+id/detail_progress_rewards_wrapper" 
+					            	android:layout_height="10dp"
+						            android:layout_width="0dp"
+						            android:background="@drawable/awards_progress_bar_bg"
+						            android:layout_weight="1">
+						        <View
+						            android:id="@+id/detail_progress_rewards"
+						            android:layout_width="match_parent"
+						            android:layout_height="match_parent"
+						            android:background="@drawable/awards_progress_bar"
+								/>
+					        </FrameLayout>
+					        
+					        <TextView
+					            android:id="@+id/detail_progress_text"
+					            android:layout_height="wrap_content"
+					            android:layout_width="28dp"
+					            android:layout_marginTop="1dp"
+				        	    android:layout_marginLeft="5dp"
+					            android:text="100%"
+					            android:textColor="@color/dashboard_dark_gray"
+					            style="@style/MicroText"
+							/>
+				        </LinearLayout>
         			</RelativeLayout>
         			<View
 				       android:layout_width="match_parent"
@@ -347,6 +381,17 @@
 				       android:layout_marginRight="64dp"
 				       android:background="@color/medium_light_gray"  
 				   	/>
+        			<TextView
+			            android:id="@+id/detail_long_description_award"
+			            android:layout_marginTop="35dp"
+			            android:paddingLeft="40dp"
+			            android:paddingRight="40dp"
+			            android:layout_height="wrap_content"
+			            android:layout_width="match_parent"
+			            android:text="@string/placeholder"
+			            android:textColor="@color/dashboard_dark_gray"
+			            style="@style/SmallerText"
+					/>
         			<LinearLayout 
 				            android:layout_marginTop="60dp"
 				            android:layout_marginBottom="15dp"

@@ -46,18 +46,6 @@
             style="@style/SmallerBoldText"
 		/>
         
-        <TextView
-            android:id="@+id/description_award"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:layout_below="@id/name_award"
-            android:layout_alignLeft="@id/name_award"
-            android:layout_marginRight="38dp"
-            android:text="@string/placeholder"
-            android:textColor="@color/dashboard_dark_gray"
-            style="@style/SmallerText"
-		/>
-        
         <LinearLayout 
             	android:layout_height="wrap_content"
 	            android:layout_width="match_parent"
@@ -65,8 +53,7 @@
 	            android:layout_marginTop="5dp"
 	            android:layout_marginRight="53dp"
 	            android:layout_alignLeft="@id/name_award"
-	            android:layout_below="@id/description_award"
-	            android:layout_alignParentBottom="true">
+	            android:layout_below="@id/name_award">
             <FrameLayout
 	            	android:id="@+id/progress_rewards_wrapper" 
 	            	android:layout_height="10dp"
