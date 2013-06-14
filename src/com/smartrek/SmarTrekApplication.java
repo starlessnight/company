@@ -6,6 +6,7 @@ import org.acra.annotation.ReportsCrashes;
 
 import android.app.Application;
 
+import com.facebook.internal.Utility;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary;
 import com.smartrek.activities.R;
 
@@ -24,6 +25,7 @@ public final class SmarTrekApplication extends Application {
         ACRA.init(this);
         long fifteenMin = 15 * 60 * 1000;
         LocationLibrary.initialiseLibrary(getBaseContext(), fifteenMin, (int)fifteenMin, true, "com.smartrek.activities");
+        //Utility.metadataApplicationId = "202039786615562";
         super.onCreate();
     }
 }

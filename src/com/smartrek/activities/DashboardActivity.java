@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -332,7 +333,8 @@ public final class DashboardActivity extends ActionBarActivity {
         shareValidatedTripsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new ShareDialog(DashboardActivity.this, "Share Trip", null).show();
+                ShareDialog.newInstance("Share Trip", new Date().toString())
+                    .show(getSupportFragmentManager(), null);
             }
         });
         validatedTripsList = (ListView) findViewById(R.id.validated_trips_list);
@@ -417,7 +419,8 @@ public final class DashboardActivity extends ActionBarActivity {
         shareAwardsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new ShareDialog(DashboardActivity.this, "Share Award", null).show();
+                ShareDialog.newInstance("Share Award", new Date().toString())
+                    .show(getSupportFragmentManager(), null);
             }
         });
         awardsAdapter = new ArrayAdapter<Award>(this, R.layout.awards_list_item, R.id.name_award){

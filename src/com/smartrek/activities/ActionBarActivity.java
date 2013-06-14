@@ -15,11 +15,11 @@ import android.view.ViewConfiguration;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.smartrek.utils.Dimension;
 import com.smartrek.utils.Font;
 
-public class ActionBarActivity extends SherlockActivity {
+public class ActionBarActivity extends SherlockFragmentActivity {
 
     private static final int titleWidth = 120;
     
