@@ -3,7 +3,7 @@ package com.smartrek.dialogs;
 import java.util.Arrays;
 
 import twitter4j.TwitterException;
-
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
@@ -23,6 +23,8 @@ import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
+import com.google.android.gms.plus.GooglePlusUtil;
+import com.google.android.gms.plus.PlusShare;
 import com.smartrek.activities.R;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
@@ -32,8 +34,8 @@ import com.twitter.android.TwitterApp.TwDialogListener;
 public class ShareDialog extends DialogFragment {
 	
     private static final String FB_PERMISSIONS = "publish_actions";
-
-    public static final String FB_APP_ID = "202039786615562";
+    
+    private static final int GOOGLE_PLUS_REQ = 7; 
     
     private static String TITLE = "TITLE";
     
@@ -135,12 +137,29 @@ public class ShareDialog extends DialogFragment {
         });
         
         TextView googlePlusButton = (TextView) dialogView.findViewById(R.id.google_plus_button);
+        googlePlusButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isNotLoading()){
+                    int errorCode = GooglePlusUtil.checkGooglePlusApp(getActivity());
+                    if (errorCode != GooglePlusUtil.SUCCESS) {
+                      GooglePlusUtil.getErrorDialog(errorCode, getActivity(), 0).show();
+                    }else{
+                        Intent shareIntent = new PlusShare.Builder(getActivity())
+                            .setType("text/plain")
+                            .setText(shareText)
+                            .getIntent();
+                        startActivityForResult(shareIntent, GOOGLE_PLUS_REQ);
+                    }
+                }
+            }
+        });
         
         View closeIcon = dialogView.findViewById(R.id.close_icon);
         closeIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dismiss();
+                dismissQuietly();
             }
         });
         
@@ -171,6 +190,9 @@ public class ShareDialog extends DialogFragment {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 	    super.onActivityResult(requestCode, resultCode, data);
 	    uiHelper.onActivityResult(requestCode, resultCode, data);
+	    if(requestCode == GOOGLE_PLUS_REQ && resultCode == Activity.RESULT_OK){
+	        dismissQuietly();
+	    }
 	}
 
 	@Override
@@ -222,7 +244,7 @@ public class ShareDialog extends DialogFragment {
                                 session.closeAndClearTokenInformation();
                                 internalFBButton.performClick();
                             }else{
-                                dismiss();
+                                dismissQuietly();
                                 displaySharedNotification();
                             }
                         }
@@ -234,7 +256,9 @@ public class ShareDialog extends DialogFragment {
     }
     
     private void displaySharedNotification(){
-        Toast.makeText(getActivity(), "shared", Toast.LENGTH_SHORT).show();
+        if(getActivity() != null){
+            Toast.makeText(getActivity(), "shared", Toast.LENGTH_SHORT).show();
+        }
     }
     
     private void updateTwitterStatus() {
@@ -264,7 +288,7 @@ public class ShareDialog extends DialogFragment {
                 protected void onPostExecute(Boolean success) {
                     loading.setVisibility(View.GONE);
                     if(success){
-                        dismiss();
+                        dismissQuietly();
                         displaySharedNotification();
                     }else{
                         mTwitter.resetAccessToken();
@@ -281,6 +305,12 @@ public class ShareDialog extends DialogFragment {
     
     private boolean isNotLoading(){
         return getView().findViewById(R.id.loading).getVisibility() != View.VISIBLE;
+    }
+    
+    private void dismissQuietly(){
+        if(getActivity() != null){
+            dismiss();
+        }
     }
     
 }
