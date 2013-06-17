@@ -328,9 +328,8 @@ public final class DashboardActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 Reservation res = (Reservation) shareValidatedTripsButton.getTag();
-                String text = "I got to " + res.getDestinationName() + " in "
-                        + Math.round(res.getDuration()/60f) + " min. and earned " + res.getCredits() 
-                        + " points with #Smartrek showing me the best route and time to avoid the worst #traffic!";
+                String text = "Smartrek showed me the best route and time to avoid traffic and to help others;"
+                    + "smartrek also awarded me " + res.getCredits() + " points for doing good.";
                 ShareDialog.newInstance("Share Trip", text)
                     .show(getSupportFragmentManager(), null);
             }
