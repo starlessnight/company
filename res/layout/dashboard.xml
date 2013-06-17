@@ -259,7 +259,6 @@
 				            android:layout_height="wrap_content"
 				      		android:layout_gravity="bottom"
 				            android:text="share"
-				            android:enabled="false"
 				            style="@style/ShareButton"
 				        />
 		                <TextView
