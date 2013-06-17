@@ -112,9 +112,12 @@ public class ShareDialog extends DialogFragment {
         mTwitter.setListener( new TwDialogListener() {
             @Override
             public void onError(String value) {
-                mTwitter.resetAccessToken();
-                mTwitter.authorize();
-                Toast.makeText(getActivity(), "wrong username and/or password", Toast.LENGTH_SHORT).show();
+                Log.w("onError", value);
+                if(!"Error getting access token".equals(value)){
+                    mTwitter.resetAccessToken();
+                    mTwitter.authorize();
+                    Toast.makeText(getActivity(), "wrong username and/or password", Toast.LENGTH_SHORT).show();
+                }
             }
             @Override
             public void onComplete(String value) {
