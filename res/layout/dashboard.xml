@@ -390,6 +390,7 @@
 			            android:layout_width="match_parent"
 			            android:text="@string/placeholder"
 			            android:textColor="@color/dashboard_dark_gray"
+			            android:lineSpacingMultiplier="1.2"
 			            style="@style/SmallerText"
 					/>
         			<LinearLayout 
