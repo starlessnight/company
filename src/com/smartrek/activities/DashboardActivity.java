@@ -327,7 +327,11 @@ public final class DashboardActivity extends ActionBarActivity {
         shareValidatedTripsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ShareDialog.newInstance("Share Trip", new Date().toString())
+                Reservation res = (Reservation) shareValidatedTripsButton.getTag();
+                String text = "I got to " + res.getDestinationName() + " in "
+                        + Math.round(res.getDuration()/60f) + " min. and earned " + res.getCredits() 
+                        + " points with #Smartrek showing me the best route and time to avoid the worst #traffic!";
+                ShareDialog.newInstance("Share Trip", text)
                     .show(getSupportFragmentManager(), null);
             }
         });
@@ -342,6 +346,7 @@ public final class DashboardActivity extends ActionBarActivity {
                 detailValidatedTripsDesc.setText(getReservationDescription(reserv));
                 detailValidatedTripsOrigin.setText(reserv.getOriginAddress());
                 detailValidatedTripsDest.setText(reserv.getDestinationAddress());
+                shareValidatedTripsButton.setTag(reserv);
                 validatedTripsList.setVisibility(View.GONE);
                 validatedTripsDetail.setVisibility(View.VISIBLE);
                 fadeIn(validatedTripsDetail);

@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.Request;
 import com.facebook.Response;
@@ -187,6 +188,7 @@ public class ShareDialog extends DialogFragment {
                                 internalFBButton.performClick();
                             }else{
                                 dismiss();
+                                displaySharedNotification();
                             }
                         }
                     });
@@ -194,6 +196,10 @@ public class ShareDialog extends DialogFragment {
             loading.setVisibility(View.VISIBLE);
             fbPending = false;
         }
+    }
+    
+    private void displaySharedNotification(){
+        Toast.makeText(getActivity(), "shared", Toast.LENGTH_SHORT).show();
     }
     
 }
