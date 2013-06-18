@@ -309,7 +309,10 @@ public class ShareDialog extends DialogFragment {
     
     private void dismissQuietly(){
         if(getActivity() != null){
-            dismiss();
+            try{
+                dismiss();
+            }catch(Throwable t){
+            }
         }
     }
     
