@@ -53,7 +53,8 @@
             android:layout_width="@dimen/dashboard_tab_width"
             android:layout_height="match_parent"
             android:layout_marginLeft="@dimen/dashboard_tab_margin"
-            android:background="@drawable/leaderboards_tab" />
+            android:background="@drawable/leaderboards_tab"
+            android:visibility="gone" />
 
         <View
             android:id="@+id/awards_tab"
@@ -269,6 +270,7 @@
 				            android:text="@string/share_label_dashboard"
 				            android:textColor="@color/dashboard_dark_gray"
 				            style="@style/SmallerText"
+				            android:visibility="gone"
 						/>				        
 			        </LinearLayout>
                 </LinearLayout>
@@ -408,6 +410,7 @@
 				            android:text="share"
 				            android:enabled="false"
 				            style="@style/ShareButton"
+				            android:visibility="gone"
 				        />
 		                <TextView
 				            android:id="@+id/share_label_awards"
@@ -417,6 +420,7 @@
 				            android:text="@string/share_label_dashboard"
 				            android:textColor="@color/dashboard_dark_gray"
 				            style="@style/SmallerText"
+				            android:visibility="gone"
 						/>				        
 			        </LinearLayout>
                 </LinearLayout>
