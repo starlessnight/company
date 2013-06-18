@@ -3,7 +3,6 @@ package com.smartrek.activities;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -358,9 +357,21 @@ public final class DashboardActivity extends ActionBarActivity {
         final TextView detailAwardName = (TextView) findViewById(R.id.detail_name_award);
         final TextView detailAwardDescription = (TextView) findViewById(R.id.detail_description_award);
         final TextView detailAwardLongDescription = (TextView) findViewById(R.id.detail_long_description_award);
+        final TextView detailAwardShareLabel = (TextView) findViewById(R.id.share_label_awards);
         final View detailProgressView = findViewById(R.id.detail_progress_rewards);
         final View detailProgressWrapper = findViewById(R.id.detail_progress_rewards_wrapper);
         final TextView detailProgressTextView = (TextView) findViewById(R.id.detail_progress_text);
+        final Button shareAwardsButton = (Button) findViewById(R.id.share_awards_button);
+        shareAwardsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Award award = (Award) shareAwardsButton.getTag();
+                String text = "I earned my " + award.name + " badge for using"
+                    + " #smartrek routes and times to avoid #traffic and help reduce congestion!";
+                ShareDialog.newInstance("Share Award", text)
+                    .show(getSupportFragmentManager(), null);
+            }
+        });
         awardsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
@@ -374,6 +385,15 @@ public final class DashboardActivity extends ActionBarActivity {
                 ClipDrawable background = (ClipDrawable) detailProgressView.getBackground();
                 background.setLevel(Double.valueOf((100 - award.percent) * 100).intValue());
                 detailProgressTextView.setText(award.percent + "%");
+                shareAwardsButton.setTag(award);
+                shareAwardsButton.setEnabled(award.complete);
+                int shareHintResId = award.getShareHintResId();
+                if(shareHintResId == 0){
+                    detailAwardShareLabel.setVisibility(View.GONE);
+                }else{
+                    detailAwardShareLabel.setText(getString(shareHintResId));
+                    detailAwardShareLabel.setVisibility(View.VISIBLE);
+                }
                 AsyncTask<Void, Void, Bitmap> pictureTask = new AsyncTask<Void, Void, Bitmap>() {
                     @Override
                     protected Bitmap doInBackground(Void... params) {
@@ -413,14 +433,6 @@ public final class DashboardActivity extends ActionBarActivity {
                 awardsList.setVisibility(View.GONE);
                 awardsDetail.setVisibility(View.VISIBLE);
                 fadeIn(awardsDetail);
-            }
-        });
-        final Button shareAwardsButton = (Button) findViewById(R.id.share_awards_button);
-        shareAwardsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ShareDialog.newInstance("Share Award", new Date().toString())
-                    .show(getSupportFragmentManager(), null);
             }
         });
         awardsAdapter = new ArrayAdapter<Award>(this, R.layout.awards_list_item, R.id.name_award){
@@ -703,7 +715,7 @@ public final class DashboardActivity extends ActionBarActivity {
             detailAwardLongDescription, detailValidatedTripsDesc, 
             detailValidatedTripsOrigin, detailValidatedTripsDest,
             (TextView) findViewById(R.id.share_label_validated_trips),
-            (TextView) findViewById(R.id.share_label_awards));
+            detailAwardShareLabel);
 	}
 	
 	@Override

@@ -149,6 +149,10 @@
     <string name="directions_list">Directions List</string>
     <string name="congratulations">Congratulations!</string>
     <string name="dashboard">dashboard</string>
-    <string name="share_label_dashboard">get 10 free trekpoints for sharing!</string>
+    <string name="points_award_share_hint">Show friends you’re earning points for helping solve traffic problems for all!</string>
+    <string name="trips_award_share_hint">Show friends you’re helping solve traffic congestion for all!</string>
+    <string name="environment_award_share_hint">Let others know you’re reducing emissions and helping improve air quality!</string>
+    <string name="donated_award_share_hint">Let friends know you’re helping others with your trekpoints!</string>
+    <string name="redemptions_award_share_hint">Let friends know you’re getting gifts for helping reduce congestion!</string>
     
 </resources>

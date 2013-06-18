@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 
+import com.smartrek.activities.R;
 import com.smartrek.requests.AwardsFetchRequest.Award;
 
 
@@ -26,6 +27,8 @@ public final class AwardsFetchRequest extends FetchRequest<List<Award>> {
         
         public String description;
         
+        public String type;
+        
         public int percent;
         
         public boolean complete;
@@ -33,6 +36,22 @@ public final class AwardsFetchRequest extends FetchRequest<List<Award>> {
         public String headerLabel;
         
         public boolean hideSeparator;
+        
+        public int getShareHintResId(){
+            int id = 0;
+            if("points".equals(type)){
+                id = R.string.points_award_share_hint;
+            }else if("trips".equals(type)){
+                id = R.string.trips_award_share_hint;
+            }else if("environment".equals(type)){
+                id = R.string.environment_award_share_hint;
+            }else if("donated".equals(type)){
+                id = R.string.donated_award_share_hint;
+            }else if("redemptions".equals(type)){
+                id = R.string.redemptions_award_share_hint;
+            }
+            return id;
+        }
         
     }
     
@@ -56,6 +75,7 @@ public final class AwardsFetchRequest extends FetchRequest<List<Award>> {
     		    award.picture = json.getString("picture");
     		    award.task = json.getString("task");
     		    award.description = json.getString("description");
+    		    award.type = json.getString("type");
     		    award.percent = json.getInt("percent");
     		    award.complete = json.getBoolean("complete");
     		    awards.add(award);
