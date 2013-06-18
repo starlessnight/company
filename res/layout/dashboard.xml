@@ -267,10 +267,9 @@
 				            android:layout_height="wrap_content"
 				            android:layout_width="match_parent"
 				            android:layout_marginTop="14dp"
-				            android:text="@string/share_label_dashboard"
+				            android:text="@string/trips_award_share_hint"
 				            android:textColor="@color/dashboard_dark_gray"
 				            style="@style/SmallerText"
-				            android:visibility="gone"
 						/>				        
 			        </LinearLayout>
                 </LinearLayout>
@@ -408,19 +407,16 @@
 				            android:layout_height="wrap_content"
 				      		android:layout_gravity="bottom"
 				            android:text="share"
-				            android:enabled="false"
 				            style="@style/ShareButton"
-				            android:visibility="gone"
 				        />
 		                <TextView
 				            android:id="@+id/share_label_awards"
 				            android:layout_height="wrap_content"
 				            android:layout_width="match_parent"
 				            android:layout_marginTop="14dp"
-				            android:text="@string/share_label_dashboard"
+				            android:text="@string/placeholder"
 				            android:textColor="@color/dashboard_dark_gray"
 				            style="@style/SmallerText"
-				            android:visibility="gone"
 						/>				        
 			        </LinearLayout>
                 </LinearLayout>
