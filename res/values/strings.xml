@@ -146,6 +146,7 @@
     <string name="pull_to_refresh_refreshing_label">loading...</string>
     <string name="pull_to_refresh_tap_label">tap to refresh...</string>
     
+    <string name="end_trip">End Trip</string>
     <string name="directions_list">Directions List</string>
     <string name="congratulations">Congratulations!</string>
     <string name="dashboard">dashboard</string>

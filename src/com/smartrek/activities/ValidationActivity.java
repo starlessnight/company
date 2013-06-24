@@ -516,8 +516,25 @@ public final class ValidationActivity extends Activity implements OnInitListener
         dirListView = (ListView) findViewById(R.id.directions_list);
         dirListView.setAdapter(dirListadapter);
         
+        TextView mapViewEndTripBtn = (TextView) findViewById(R.id.map_view_end_trip_btn);
+        mapViewEndTripBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cancelValidation();
+            }
+        });
+        
+        TextView dirViewEndTripBtn = (TextView) findViewById(R.id.directions_view_end_trip_btn);
+        dirViewEndTripBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cancelValidation();
+            }
+        });
+        
         Font.setTypeface(lightFont, osmCredit);
-        Font.setTypeface(boldFont, dirSwitch, mapViewSwitch);
+        Font.setTypeface(boldFont, dirSwitch, mapViewSwitch, 
+            mapViewEndTripBtn, dirViewEndTripBtn);
     }
     
     private View[] getMapViews(){

@@ -20,8 +20,22 @@
         android:layout_alignParentLeft="true"
         android:orientation="horizontal" >
 
+        <TextView
+            android:id="@+id/map_view_end_trip_btn"
+            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:paddingTop="13dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:gravity="center_horizontal"
+            android:text="@string/end_trip"
+            android:background="@color/transparent_gray"
+            style="@style/SmallerBoldText"
+		/>
+        
         <FrameLayout 
             android:layout_width="52dp"
+            android:layout_marginLeft="2dp"
 	        android:layout_height="match_parent"
 	        android:background="@color/transparent_gray">
 	        
@@ -82,16 +96,38 @@
 			android:dividerHeight="0dp"
         />
         
-        <TextView
-             android:id="@+id/mapview_switch"
-             android:layout_height="52dp"
-             android:layout_width="match_parent"
-             android:paddingTop="13dp"
-             android:text="@string/map_view"
-             android:gravity="center_horizontal"
-             android:background="@color/dark_gray"
-             style="@style/SmallerBoldText"
-        />
+        <LinearLayout
+		        android:id="@+id/directions_view_options"
+		        android:layout_width="match_parent"
+		        android:layout_height="52dp"
+		        android:orientation="horizontal" >
+        	
+             <TextView
+	            android:id="@+id/directions_view_end_trip_btn"
+	            android:layout_height="match_parent"
+	            android:layout_width="wrap_content"
+	            android:paddingTop="13dp"
+	            android:paddingLeft="5dp"
+	            android:paddingRight="5dp"
+	            android:gravity="center_horizontal"
+	            android:text="@string/end_trip"
+	            android:background="@color/dark_gray"
+	            style="@style/SmallerBoldText"
+			/>
+            
+	         <TextView
+	             android:id="@+id/mapview_switch"
+	             android:layout_height="match_parent"
+	             android:layout_width="match_parent"
+	             android:layout_marginLeft="2dp"
+	             android:paddingTop="13dp"
+	             android:text="@string/map_view"
+	             android:gravity="center_horizontal"
+	             android:background="@color/dark_gray"
+	             style="@style/SmallerBoldText"
+	        />
+            
+        </LinearLayout>
         
     </LinearLayout>
 
