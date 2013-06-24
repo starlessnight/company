@@ -10,7 +10,7 @@ public class ValidationParameters {
     /**
      * Distance threshold for guidance. Unit is in meters.
      */
-    private double inRouteDistanceThreshold = 35;
+    private double inRouteDistanceThreshold = 45.72;
 
 	/**
 	 * Distance threshold for validation purposes. Unit is in meters.
