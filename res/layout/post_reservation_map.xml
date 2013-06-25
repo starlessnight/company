@@ -19,23 +19,9 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:orientation="horizontal" >
-
-        <TextView
-            android:id="@+id/map_view_end_trip_btn"
-            android:layout_height="match_parent"
-            android:layout_width="wrap_content"
-            android:paddingTop="13dp"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:gravity="center_horizontal"
-            android:text="@string/end_trip"
-            android:background="@color/transparent_gray"
-            style="@style/SmallerBoldText"
-		/>
         
         <FrameLayout 
             android:layout_width="52dp"
-            android:layout_marginLeft="2dp"
 	        android:layout_height="match_parent"
 	        android:background="@color/transparent_gray">
 	        
@@ -53,14 +39,29 @@
         <TextView
             android:id="@+id/directions_switch"
             android:layout_height="match_parent"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_marginLeft="2dp"
             android:paddingTop="13dp"
             android:gravity="center_horizontal"
             android:text="@string/directions_list"
             android:background="@color/transparent_gray"
+            android:layout_weight="1"
             style="@style/SmallerBoldText"
 		/>
+        
+        <FrameLayout 
+	            android:id="@+id/map_view_end_trip_btn"
+	            android:layout_width="52dp"
+	            android:layout_marginLeft="2dp"
+		        android:layout_height="match_parent"
+		        android:background="@color/transparent_gray">
+	        <View
+	            android:layout_width="48dp"
+	            android:layout_height="48dp"
+	            android:background="@drawable/balloon_overlay_close"
+	            android:layout_gravity="center" 
+            />
+        </FrameLayout>
 
         <!--
         <TextView
@@ -101,31 +102,33 @@
 		        android:layout_width="match_parent"
 		        android:layout_height="52dp"
 		        android:orientation="horizontal" >
-        	
-             <TextView
-	            android:id="@+id/directions_view_end_trip_btn"
-	            android:layout_height="match_parent"
-	            android:layout_width="wrap_content"
-	            android:paddingTop="13dp"
-	            android:paddingLeft="5dp"
-	            android:paddingRight="5dp"
-	            android:gravity="center_horizontal"
-	            android:text="@string/end_trip"
-	            android:background="@color/dark_gray"
-	            style="@style/SmallerBoldText"
-			/>
             
 	         <TextView
 	             android:id="@+id/mapview_switch"
 	             android:layout_height="match_parent"
-	             android:layout_width="match_parent"
+	             android:layout_width="0dp"
 	             android:layout_marginLeft="2dp"
 	             android:paddingTop="13dp"
 	             android:text="@string/map_view"
 	             android:gravity="center_horizontal"
+	             android:layout_weight="1"
 	             android:background="@color/dark_gray"
 	             style="@style/SmallerBoldText"
 	        />
+	         
+	         <FrameLayout 
+		            android:id="@+id/directions_view_end_trip_btn"
+		            android:layout_width="52dp"
+		            android:layout_marginLeft="2dp"
+			        android:layout_height="match_parent"
+			        android:background="@color/dark_gray">
+		        <View
+		            android:layout_width="48dp"
+		            android:layout_height="48dp"
+		            android:background="@drawable/balloon_overlay_close"
+		            android:layout_gravity="center" 
+	            />
+	        </FrameLayout>
             
         </LinearLayout>
         
