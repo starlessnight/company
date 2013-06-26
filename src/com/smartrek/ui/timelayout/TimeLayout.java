@@ -71,6 +71,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     public void refresh(){
         removeAllViews();
         populateViews();
+        setDisplayMode(displayMode);
     }
     
     private void populateViews(){
