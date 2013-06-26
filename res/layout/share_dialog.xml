@@ -70,15 +70,6 @@
 		                style="@style/SmallerBoldText"
 					/>
 		            
-		            <com.facebook.widget.LoginButton
-		                android:id="@+id/internal_facebook_button"
-		                android:layout_width="wrap_content"
-		                android:layout_height="wrap_content"
-		                facebook:confirm_logout="false"
-		                facebook:fetch_user_info="true"
-		                android:visibility="gone"
-	                />
-		            
 		            <TextView
 		                android:id="@+id/twitter_button"
 		                android:layout_height="wrap_content"

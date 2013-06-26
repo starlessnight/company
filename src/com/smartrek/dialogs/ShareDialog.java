@@ -16,13 +16,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.FacebookRequestError;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
-import com.facebook.model.GraphUser;
-import com.facebook.widget.LoginButton;
 import com.google.android.gms.plus.GooglePlusUtil;
 import com.google.android.gms.plus.PlusShare;
 import com.smartrek.activities.R;
@@ -45,13 +44,16 @@ public class ShareDialog extends DialogFragment {
 	
 	private UiLifecycleHelper uiHelper;
 	
-	private GraphUser fbUser;
+	private String shareText;
 	
 	private boolean fbPending;
 	
-	private String shareText;
-	
-	private LoginButton internalFBButton;
+	private Session.StatusCallback fbCallback = new Session.StatusCallback() {
+        @Override
+        public void call(Session session, SessionState state, Exception exception) {
+            onSessionStateChange(session, state, exception);
+        }
+    };
 	
 	private TwitterApp mTwitter;
 	
@@ -82,28 +84,16 @@ public class ShareDialog extends DialogFragment {
         titleView.setText(args.getString(TITLE));
         
         TextView facebookButton = (TextView) dialogView.findViewById(R.id.facebook_button);
-        internalFBButton = (LoginButton) dialogView.findViewById(R.id.internal_facebook_button);
-        internalFBButton.setFragment(this);
-        internalFBButton.setPublishPermissions(Arrays.asList(FB_PERMISSIONS));
-        internalFBButton.setUserInfoChangedCallback(new LoginButton.UserInfoChangedCallback() {
-            @Override
-            public void onUserInfoFetched(GraphUser user) {
-                fbUser= user;
-                if(fbPending){
-                    updateFBStatus();
-                }
-            }
-        });
         facebookButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(isNotLoading()){
                     Session session = Session.getActiveSession();
-                    if (session != null && session.isOpened() && fbUser != null) {
+                    if (session != null && session.isOpened()) {
                         publishFB();
                     }else{
                         fbPending = true;
-                        internalFBButton.performClick();
+                        fbLogin();
                     }
                 }
             }
@@ -167,17 +157,36 @@ public class ShareDialog extends DialogFragment {
         Font.setTypeface(Font.getBold(assets), titleView, facebookButton, 
             twitterButton, googlePlusButton);
         
-        uiHelper = new UiLifecycleHelper(getActivity(), new Session.StatusCallback() {
-            @Override
-            public void call(Session session, SessionState state, Exception exception) {
-                if (state == SessionState.OPENED_TOKEN_UPDATED) {
-                    updateFBStatus();
-                }
-            }
-        });
+        uiHelper = new UiLifecycleHelper(getActivity(), fbCallback);
         uiHelper.onCreate(savedInstanceState);
 	    
 	    return dialogView;
+	}
+	
+	private void fbLogin(){
+	    try{
+    	    Session.openActiveSession(getActivity(), ShareDialog.this, true, fbCallback);
+	    } catch(Throwable t){}
+	}
+	
+	private void onSessionStateChange(Session session, SessionState state, Exception exception) {
+	    Log.i("onSessionStateChange", session + "");
+	    if (state == SessionState.OPENED_TOKEN_UPDATED) {
+	        if(hasPublishPermission()){
+	            publishFB();
+	        }else{
+                session.requestNewPublishPermissions(new Session.NewPermissionsRequest(this, Arrays.asList(FB_PERMISSIONS)));
+            }    
+	    }else if(state == SessionState.OPENED && (fbPending || hasPublishPermission())){
+	        fbPending = false;
+	        if(hasPublishPermission()){
+	            publishFB();
+	        }else{
+	            session.requestNewPublishPermissions(new Session.NewPermissionsRequest(this, Arrays.asList(FB_PERMISSIONS)));
+	        }
+        }else if(state == SessionState.CLOSED && fbPending){
+            fbLogin();
+        }
 	}
 	
 	@Override
@@ -221,17 +230,12 @@ public class ShareDialog extends DialogFragment {
     private void publishFB() {
         final Session session = Session.getActiveSession();
         if (session != null) {
-            fbPending = true;
-            if (hasPublishPermission()) {
-                updateFBStatus();
-            } else {
-                session.requestNewPublishPermissions(new Session.NewPermissionsRequest(this, Arrays.asList(FB_PERMISSIONS)));
-            }
+            updateFBStatus();
         }
     }
     
     private void updateFBStatus(){
-        if (fbUser != null && hasPublishPermission()) {
+        if(getActivity() != null) {
             final Session session = Session.getActiveSession();
             final View loading = getView().findViewById(R.id.loading);
             Request request = Request
@@ -239,10 +243,11 @@ public class ShareDialog extends DialogFragment {
                         @Override
                         public void onCompleted(Response response) {
                             loading.setVisibility(View.GONE);
-                            if(response.getError() != null){
+                            FacebookRequestError error = response.getError();
+                            Log.i("onCompleted", error != null?response.getError().toString():"");
+                            if(error != null && error.getErrorCode() != 506){
                                 fbPending = true;
                                 session.closeAndClearTokenInformation();
-                                internalFBButton.performClick();
                             }else{
                                 dismissQuietly();
                                 displaySharedNotification();
@@ -251,7 +256,6 @@ public class ShareDialog extends DialogFragment {
                     });
             request.executeAsync();
             loading.setVisibility(View.VISIBLE);
-            fbPending = false;
         }
     }
     
