@@ -53,6 +53,7 @@ public class UserLoginRequest extends FetchRequest<User> {
 	        user.setEmail(data.getString("email"));
 	        user.setFirstname(data.getString("first_name"));
 	        user.setLastname(data.getString("last_name"));
+	        user.setDeviceId(data.getString("device_id"));
 	    }else{
 	        // Since the server returns a JSON array for no apparent reason...
 	        user = User.parse(response.substring(1, response.length()-1));

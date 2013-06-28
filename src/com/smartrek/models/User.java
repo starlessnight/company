@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.smartrek.activities.LoginActivity;
 import com.smartrek.utils.Preferences;
 
 public final class User implements JSONModel, Parcelable {
@@ -29,6 +28,7 @@ public final class User implements JSONModel, Parcelable {
 	private String firstname;
 	private String lastname;
 	private String email;
+	private String deviceId;
 	
 	public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
 		public User createFromParcel(Parcel in) {
@@ -48,6 +48,7 @@ public final class User implements JSONModel, Parcelable {
 		firstname = in.readString();
 		lastname = in.readString();
 		email = in.readString();
+		deviceId = in.readString();
 	}
 	
 	public User(int id, String username) {
@@ -193,9 +194,19 @@ public final class User implements JSONModel, Parcelable {
 		dest.writeString(firstname);
 		dest.writeString(lastname);
 		dest.writeString(email);
+		dest.writeString(deviceId);
 	}
 
     public void setId(int id) {
         this.id = id;
     }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+    
 }

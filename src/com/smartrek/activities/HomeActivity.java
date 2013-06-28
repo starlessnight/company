@@ -12,6 +12,7 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -46,7 +47,9 @@ import com.smartrek.models.User;
 import com.smartrek.receivers.ReservationReceiver;
 import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.requests.FavoriteAddressUpdateRequest;
+import com.smartrek.requests.Request;
 import com.smartrek.requests.ReservationListFetchRequest;
+import com.smartrek.requests.UpdateDeviceIdRequest;
 import com.smartrek.tasks.GeocodingTask;
 import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
@@ -56,6 +59,7 @@ import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Misc;
+import com.smartrek.utils.Preferences;
 import com.smartrek.utils.SystemService;
 
 /**
@@ -256,6 +260,9 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	    if(getIntent().getBooleanExtra(INIT, false)){
 	        new NotificationTask().execute(User.getCurrentUser(this).getId());
 	        updateAllFavAddrLatLon();
+	        if(Request.NEW_API){
+	            updateDeviceId();
+	        }
 	    }
 	    
 	   Font.setTypeface(boldFont, buttonDone, buttonLoadTrip, buttonSaveTrip,
@@ -282,6 +289,27 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
             JSONObject event = CalendarService.getEvent(this, eventId);
             setDestinationAddress(event.optString(Instances.EVENT_LOCATION));
             editAddressOrigin.setAddressAsCurrentLocation();
+        }
+	}
+	
+	private void updateDeviceId(){
+	    SharedPreferences globalPrefs = Preferences.getGlobalPreferences(this);
+        final String gcmRegistrationId = globalPrefs.getString(Preferences.Global.GCM_REG_ID, "");
+        final User currentUser = User.getCurrentUser(HomeActivity.this);
+        if(!gcmRegistrationId.equals(currentUser.getDeviceId())){
+            currentUser.setDeviceId(gcmRegistrationId);
+            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+                @Override
+                protected Void doInBackground(Void... params) {
+                    try {
+                        new UpdateDeviceIdRequest().execute(currentUser.getId(), gcmRegistrationId,
+                            currentUser.getUsername(), currentUser.getPassword());
+                    }
+                    catch (Exception e) {}
+                    return null;
+                }
+            };
+            Misc.parallelExecute(task);
         }
 	}
 	
