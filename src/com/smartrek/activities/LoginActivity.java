@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Html;
@@ -24,13 +25,18 @@ import android.widget.TextView;
 
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.User;
+import com.smartrek.requests.Request;
+import com.smartrek.requests.UserIdRequest;
 import com.smartrek.tasks.LoginTask;
+import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
 
 public final class LoginActivity extends Activity implements OnClickListener,
         TextWatcher {
+    
+    private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
 	private EditText editTextUsername;
 	private EditText editTextPassword;
@@ -76,7 +82,7 @@ public final class LoginActivity extends Activity implements OnClickListener,
 	    if(Misc.isAddGoogleAccount(this)){
             Misc.showGoogleAccountDialog(this);
         }else{
-    		String username = editTextUsername.getText().toString();
+    		final String username = editTextUsername.getText().toString();
     		String password = editTextPassword.getText().toString();
     		
     		SharedPreferences globalPrefs = Preferences.getGlobalPreferences(this);
@@ -88,7 +94,7 @@ public final class LoginActivity extends Activity implements OnClickListener,
     		loginPrefsEditor.putString(User.PASSWORD, password);
     		loginPrefsEditor.commit();
     		
-    		new LoginTask(this, username, password, gcmRegistrationId){
+    		final LoginTask loginTask = new LoginTask(this, username, password, gcmRegistrationId){
                 @Override
                 protected void onPostLogin(User user) {
                     if(user != null && user.getId() != -1) {
@@ -125,7 +131,33 @@ public final class LoginActivity extends Activity implements OnClickListener,
                         notificationDialog.show();
                     }                
                 }
-    		}.execute();
+    		};
+    		if(Request.NEW_API){
+    		    new AsyncTask<Void, Void, Integer>() {
+    		        protected void onPreExecute() {
+    		            loginTask.showDialog();
+    		        }
+                    @Override
+                    protected Integer doInBackground(Void... params) {
+                        Integer id = null;
+                        try {
+                            UserIdRequest req = new UserIdRequest(username); 
+                            req.invalidateCache(LoginActivity.this);
+                            id = req.execute(LoginActivity.this);
+                        }
+                        catch(Exception e) {
+                            ehs.registerException(e);
+                        }
+                        return id;
+                    }
+                    protected void onPostExecute(Integer userId) {
+                        loginTask.setUserId(userId)
+                            .execute();
+                    }
+                }.execute();
+    		}else{
+    		    loginTask.execute();
+    		}
         }
 	}
 	

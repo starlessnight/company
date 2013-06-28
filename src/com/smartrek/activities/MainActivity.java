@@ -1,8 +1,11 @@
 package com.smartrek.activities;
 
+import java.util.EnumMap;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.animation.Animation;
@@ -16,13 +19,20 @@ import com.smartrek.SendTrajectoryService;
 import com.smartrek.UserLocationService;
 import com.smartrek.ValidationService;
 import com.smartrek.models.User;
+import com.smartrek.requests.Request;
+import com.smartrek.requests.Request.Link;
+import com.smartrek.requests.ServiceDiscoveryRequest;
+import com.smartrek.requests.UserIdRequest;
 import com.smartrek.tasks.LoginTask;
+import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
 
 public class MainActivity extends Activity implements AnimationListener {
 	
 	public static final String LOG_TAG = "MainActivity";
+	
+	private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
 	private ImageView logo;
 	
@@ -58,31 +68,85 @@ public class MainActivity extends Activity implements AnimationListener {
 	        logo.startAnimation(fadeAnimation);
 	        
 	        /* Check Shared memory to see if login info has already been entered on this phone */
-	        SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
-	        String username = loginPrefs.getString(User.USERNAME, "");
-	        String password = loginPrefs.getString(User.PASSWORD, "");
-	        if (!username.equals("") && !password.equals("")) {
-	            String gcmRegistrationId = Preferences.getGlobalPreferences(this).getString("GCMRegistrationID", "");
-	            
-	            loginTask = new LoginTask(this, username, password, gcmRegistrationId) {
-	                @Override
-	                protected void onPostLogin(final User user) {
-	                    loggedIn = user != null && user.getId() != -1;
-	                    if(loggedIn){
-	                        User.setCurrentUser(MainActivity.this, user);
-	                        Log.d(LOG_TAG,"Successful Login");
-	                        Log.d(LOG_TAG, "Saving Login Info to Shared Preferences");
-	                    }
-	                    loginTaskEnded = true;
-	                    if(splashEnded){
-	                        if(loggedIn){
-	                            startHomeActivity();
-	                        }else{
-	                            startLoginActivity();
-	                        }
-	                    }
-	               }
-	            }.setDialogEnabled(false);
+            SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
+            final String username = loginPrefs.getString(User.USERNAME, "");
+            String password = loginPrefs.getString(User.PASSWORD, "");
+            if (!username.equals("") && !password.equals("")) {
+                String gcmRegistrationId = Preferences.getGlobalPreferences(this).getString("GCMRegistrationID", "");
+                
+                loginTask = new LoginTask(this, username, password, gcmRegistrationId) {
+                    @Override
+                    protected void onPostLogin(final User user) {
+                        loggedIn = user != null && user.getId() != -1;
+                        if(loggedIn){
+                            User.setCurrentUser(MainActivity.this, user);
+                            Log.d(LOG_TAG,"Successful Login");
+                            Log.d(LOG_TAG, "Saving Login Info to Shared Preferences");
+                        }
+                        loginTaskEnded = true;
+                        if(splashEnded){
+                            if(loggedIn){
+                                startHomeActivity();
+                            }else{
+                                startLoginActivity();
+                            }
+                        }
+                   }
+                }.setDialogEnabled(false);
+            }
+	        
+	        if(Request.NEW_API){
+	            new AsyncTask<Void, Void, EnumMap<Link, String>>() {
+                    @Override
+                    protected EnumMap<Link, String> doInBackground(Void... params) {
+                        EnumMap<Link, String> links = null;
+                        try {
+                            ServiceDiscoveryRequest req = new ServiceDiscoveryRequest();  
+                            req.invalidateCache(MainActivity.this);
+                            links = req.execute(MainActivity.this);
+                        }
+                        catch(Exception e) {
+                            ehs.registerException(e);
+                        }
+                        return links;
+                    }
+                    @Override
+                    protected void onPostExecute(EnumMap<Link, String> result) {
+                        if (ehs.hasExceptions()) {
+                            ehs.reportExceptions(new Runnable() {
+                                @Override
+                                public void run() {
+                                    finish();
+                                }
+                            });
+                        }
+                        else {
+                            Request.setLinkUrls(result);
+                            if(loginTask != null){
+                                new AsyncTask<Void, Void, Integer>() {
+                                    @Override
+                                    protected Integer doInBackground(Void... params) {
+                                        Integer id = null;
+                                        try {
+                                            UserIdRequest req = new UserIdRequest(username); 
+                                            req.invalidateCache(MainActivity.this);
+                                            id = req.execute(MainActivity.this);
+                                        }
+                                        catch(Exception e) {
+                                            ehs.registerException(e);
+                                        }
+                                        return id;
+                                    }
+                                    protected void onPostExecute(Integer userId) {
+                                        loginTask.setUserId(userId)
+                                            .execute();
+                                    }
+                                }.execute();
+                            }
+                        }
+                    }
+                }.execute();
+	        }else if(loginTask != null){
 	            loginTask.execute();
 	        }
 	        SendTrajectoryService.schedule(this);
@@ -130,7 +194,7 @@ public class MainActivity extends Activity implements AnimationListener {
                 Intent intent = new Intent(this, LicenseAgreementActivity.class);
                 startActivityForResult(intent, LicenseAgreementActivity.LICENSE_AGREEMENT_ACTIVITY);
             }
-		}else{
+		}else{   
 		    if(loginTaskEnded){
 		        if(loggedIn){
 		            startHomeActivity();
@@ -138,6 +202,7 @@ public class MainActivity extends Activity implements AnimationListener {
 	                startLoginActivity();
 	            }
 		    }else{
+		        loginTask.showDialog();
 		        loginTask.setDialogEnabled(true);
 		    }
         }

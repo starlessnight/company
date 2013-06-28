@@ -20,6 +20,7 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
 	private String gcmRegistrationId;
 	private boolean dialogEnabled = true;
 	protected ExceptionHandlingService ehs;
+	private Integer userId;
 	
 	private Context ctx;
 	
@@ -39,6 +40,11 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
         dialog.setCancelable(false);
 	}
 	
+	public LoginTask setUserId(Integer userId){
+	    this.userId = userId;
+	    return this;
+	}
+	
 	@Override
 	protected void onPreExecute() {
 	    if(dialogEnabled){
@@ -50,7 +56,13 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
 	protected User doInBackground(String... params) {
 		User user = null;
 		try {
-			UserLoginRequest request = new UserLoginRequest(username, password, gcmRegistrationId);
+		    UserLoginRequest request = null; 
+		    if(userId != null){
+		        request = new UserLoginRequest(userId, username, password);
+		    }else{
+		        request = new UserLoginRequest(username, password, gcmRegistrationId);
+		    }
+		    request.invalidateCache(ctx);
 			user = request.execute(ctx);
 		}
 		catch(Exception e) {
@@ -84,6 +96,10 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
             dialog.show();
         }
         return this;
+    }
+    
+    public void showDialog(){
+        dialog.show();
     }
 	
 }

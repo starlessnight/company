@@ -1,11 +1,20 @@
 package com.smartrek.utils;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.commons.io.IOUtils;
+
+import android.util.Base64;
 
 /**
  * Handles HTTP connections
@@ -13,6 +22,8 @@ import java.net.URLConnection;
  */
 public final class HTTP {
 	
+    public enum Method { GET, POST, PUT, DELETE }
+    
 	private static final int BUF_SIZE = 4096;
 	
 	/**
@@ -22,8 +33,32 @@ public final class HTTP {
 	
 	private HttpURLConnection httpConn;
 	
+	private String username;
+	
+	private String password;
+	
+	private Method method = Method.GET;
+	
+	private Map<String, String> formData = Collections.emptyMap();
+	
 	public HTTP(String urlString) throws IOException {
 		httpConn = openHttpConnection(urlString);
+	}
+	
+	public HTTP setAuthorization(String username, String password){
+	    this.username = username;
+	    this.password = password;
+	    return this;
+	}
+	
+	public HTTP setMethod(Method m){
+	    method = m;
+	    return this;
+	}
+	
+	public HTTP setFormData(Map<String, String> formData){
+	    this.formData = formData;
+	    return this;
 	}
 	
 	/**
@@ -35,9 +70,39 @@ public final class HTTP {
 		if(httpConn != null) {
 			httpConn.setAllowUserInteraction(false);
 			httpConn.setInstanceFollowRedirects(true);
-			httpConn.setRequestMethod("GET");
+			httpConn.setRequestMethod(method.name());
 			httpConn.setConnectTimeout(15000);
 			httpConn.setReadTimeout(15000);
+			if(username != null && password != null){
+    			String encoding = "iso-8859-1";
+    			String authHeader = new String(Base64.encode((username + ':' + password).getBytes(encoding), 
+    		        Base64.DEFAULT), encoding);
+    			httpConn.setRequestProperty("Authorization", "Basic " + authHeader);
+			}
+			if(method != Method.GET){
+			    httpConn.setDoInput (true);
+			    httpConn.setDoOutput (true);
+			    httpConn.setUseCaches (false);
+			}
+			if(formData != null && !formData.isEmpty()){
+			    boolean first = true;
+			    String content = "";
+                for (Entry<String, String> data : formData.entrySet()) {
+                    String key = data.getKey();
+                    String val = data.getValue();
+                    content += (first?"":"&") + key + "=" + URLEncoder.encode(val, "UTF-8");  
+                    first = false;
+                }
+                httpConn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                DataOutputStream output = null;
+                try{
+                    output = new DataOutputStream(httpConn.getOutputStream());
+                    output.writeBytes(content);
+                    output.flush();
+                }finally{
+                    IOUtils.closeQuietly(output);
+                }
+            }
 			httpConn.connect();
 		}
 	}
