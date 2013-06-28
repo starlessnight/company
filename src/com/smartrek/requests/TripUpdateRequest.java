@@ -2,9 +2,13 @@ package com.smartrek.requests;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.json.JSONException;
 
+import com.smartrek.models.User;
+import com.smartrek.utils.HTTP.Method;
 import com.smartrek.utils.datetime.RecurringTime;
 
 
@@ -15,10 +19,7 @@ public class TripUpdateRequest extends UpdateRequest {
 	 */
 	private int tid;
 	
-	/**
-	 * User ID
-	 */
-	private int uid;
+	private User user;
 	
 	/**
 	 * Trip name
@@ -37,9 +38,9 @@ public class TripUpdateRequest extends UpdateRequest {
 	
 	private RecurringTime recurringTime;
 	
-	public TripUpdateRequest(int tid, int uid, String name, int oid, int did, RecurringTime recurringTime) {
+	public TripUpdateRequest(int tid, User user, String name, int oid, int did, RecurringTime recurringTime) {
 		this.tid = tid;
-		this.uid = uid;
+		this.user = user;
 		this.name = name;
 		this.oid = oid;
 		this.did = did;
@@ -47,8 +48,22 @@ public class TripUpdateRequest extends UpdateRequest {
 	}
 
 	public void execute() throws IOException, JSONException {
-		String url = String.format("%s/favroutes-update/?rid=%d&uid=%d&name=%s&oid=%d&did=%d&arrivaltime=%d:%d:00&datetype=%d",
-				HOST, tid, uid, URLEncoder.encode(name), oid, did, recurringTime.getHour(), recurringTime.getMinute(), recurringTime.getWeekdays());
-		executeUpdateRequest(url);
+	    if(NEW_API){
+	        this.username = user.getUsername();
+            this.password = user.getPassword();
+            url = getLinkUrl(Link.commute) + "/" + tid;
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("user_id", String.valueOf(user.getId()));
+            params.put("name", name);
+            params.put("origin_id", String.valueOf(oid));
+            params.put("destination_id", String.valueOf(did));
+            params.put("arrival_time", String.format("%d:%d:00", recurringTime.getHour(), recurringTime.getMinute()));
+            params.put("datetype", String.format("%d", recurringTime.getWeekdays()));
+            executeHttpRequest(Method.PUT, url, params);
+	    }else{
+    		String url = String.format("%s/favroutes-update/?rid=%d&uid=%d&name=%s&oid=%d&did=%d&arrivaltime=%d:%d:00&datetype=%d",
+    				HOST, tid, user.getId(), URLEncoder.encode(name), oid, did, recurringTime.getHour(), recurringTime.getMinute(), recurringTime.getWeekdays());
+    		executeUpdateRequest(url);
+	    }
 	}
 }

@@ -161,10 +161,10 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
                 }else{
                     User currentUser = User.getCurrentUser(getContext());
                     if (isEditMode()) {
-                        new TripSaveTask(getContext(), trip.getId(), currentUser.getId(), name, getOrigin(), getDestination(), new RecurringTime((byte)hour, (byte)minute, (byte)0, weekdays)).execute();
+                        new TripSaveTask(getContext(), trip.getId(), currentUser, name, getOrigin(), getDestination(), new RecurringTime((byte)hour, (byte)minute, (byte)0, weekdays)).execute();
                     }
                     else {
-                        new TripSaveTask(getContext(), 0, currentUser.getId(), name, getOrigin(), getDestination(), new RecurringTime((byte)hour, (byte)minute, (byte)0, weekdays)).execute();
+                        new TripSaveTask(getContext(), 0, currentUser, name, getOrigin(), getDestination(), new RecurringTime((byte)hour, (byte)minute, (byte)0, weekdays)).execute();
                     }
                 }
             }
@@ -276,10 +276,7 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 		 */
 		private int tid;
 		
-		/**
-		 * User ID
-		 */
-		private int uid;
+		private User user;
 		
 		private String name;
 		private Address origin;
@@ -288,10 +285,10 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 		
 		private ExceptionHandlingService ehs;
 		
-		public TripSaveTask(Context context, int tid, int uid, String name, Address origin, Address destination, RecurringTime recurringTime) {
+		public TripSaveTask(Context context, int tid, User user, String name, Address origin, Address destination, RecurringTime recurringTime) {
 			this.context = context;
 			this.tid = tid;
-			this.uid = uid;
+			this.user = user;
 			this.name = name;
 			this.origin = origin;
 			this.destination = destination;
@@ -313,15 +310,15 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 		protected Object doInBackground(Object... params) {
 			try {
 				if (tid == 0) {
-					TripAddRequest request = new TripAddRequest(uid, name, origin.getId(), destination.getId(), recurringTime);
+					TripAddRequest request = new TripAddRequest(user, name, origin.getId(), destination.getId(), recurringTime);
 					request.execute();
 				}
 				else {
-					TripUpdateRequest request = new TripUpdateRequest(tid, uid, name, origin.getId(), destination.getId(), recurringTime);
+					TripUpdateRequest request = new TripUpdateRequest(tid, user, name, origin.getId(), destination.getId(), recurringTime);
 					request.execute();
 				}
 				
-				new TripListFetchRequest(uid).invalidateCache(getContext());
+				new TripListFetchRequest(user).invalidateCache(getContext());
 			}
 			catch (Exception e) {
 				ehs.registerException(e);

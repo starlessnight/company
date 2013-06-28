@@ -116,8 +116,8 @@ public class TripListDialog extends GenericListDialog<Trip> {
 	
 	private void requestRefresh() {
 		User currentUser = User.getCurrentUser(getContext());
-		new TripListFetchRequest(currentUser.getId()).invalidateCache(getContext());
-		new TripListFetchTask().execute(currentUser.getId());
+		new TripListFetchRequest(currentUser).invalidateCache(getContext());
+		new TripListFetchTask().execute(currentUser);
 	}
 	
 	private TripEditDialog dialog;
@@ -157,12 +157,12 @@ public class TripListDialog extends GenericListDialog<Trip> {
 		protected Object doInBackground(Object... params) {
 			int fid = (Integer) params[0];
 			
-			TripDeleteRequest request = new TripDeleteRequest(fid);
+			TripDeleteRequest request = new TripDeleteRequest(fid, User.getCurrentUser(getContext()));
 			try {
 				request.execute();
 				
 				// clear cache
-				new TripListFetchRequest(User.getCurrentUser(getContext()).getId()).invalidateCache(getContext());
+				new TripListFetchRequest(User.getCurrentUser(getContext())).invalidateCache(getContext());
 			}
 			catch (Exception e) {
 				ehs.registerException(e);
@@ -188,9 +188,9 @@ public class TripListDialog extends GenericListDialog<Trip> {
 
 		@Override
 		protected List<Trip> doInBackground(Object... params) {
-			int uid = (Integer) params[0];
+		    User user = (User) params[0];
 			
-			TripListFetchRequest request = new TripListFetchRequest(uid);
+			TripListFetchRequest request = new TripListFetchRequest(user);
 			try {
 			    //request.invalidateCache();
 				listItems = request.execute(getContext());
