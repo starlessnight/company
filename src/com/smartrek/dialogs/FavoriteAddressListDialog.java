@@ -94,7 +94,7 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 	    		return true;
 	    	
 	        case R.id.delete:
-	        	new FavoriteAddressDeleteTask(menuItemIndex).execute(listItem.getUid(), listItem.getId());
+	        	new FavoriteAddressDeleteTask(menuItemIndex).execute(User.getCurrentUser(getContext()), listItem.getId());
 	            return true;
 	            
 	        default:
@@ -105,7 +105,7 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 	public void requestRefresh() {
 		User currentUser = User.getCurrentUser(getContext());
 		
-		new FavoriteAddressListFetchTask().execute(currentUser.getId());
+		new FavoriteAddressListFetchTask().execute(currentUser);
 	}
 	
 	private void showAddressEditDialog(Address address) {
@@ -134,15 +134,15 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 		
 		@Override
 		protected Object doInBackground(Object... params) {
-			int uid = (Integer) params[0];
+		    User user = (User) params[0];
 			int aid = (Integer) params[1];
 			
-			FavoriteAddressDeleteRequest request = new FavoriteAddressDeleteRequest(uid, aid);
+			FavoriteAddressDeleteRequest request = new FavoriteAddressDeleteRequest(user, aid);
 			try {
 				request.execute();
 				
 				// clear cache
-				new FavoriteAddressFetchRequest(uid).invalidateCache(getContext());
+				new FavoriteAddressFetchRequest(user).invalidateCache(getContext());
 			}
 			catch (Exception e) {
 				ehs.registerException(e);
@@ -171,9 +171,9 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 		@Override
 		protected List<Address> doInBackground(Object... params) {
 
-			int uid = (Integer) params[0];
+		    User user = (User) params[0];
 
-			FavoriteAddressFetchRequest request = new FavoriteAddressFetchRequest(uid);
+			FavoriteAddressFetchRequest request = new FavoriteAddressFetchRequest(user);
 			try {
 				request.invalidateCache(getContext());
 				favoriteAddresses = request.execute(getContext());

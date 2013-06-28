@@ -318,7 +318,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	        @Override
 	        protected List<Address> doInBackground(Void... params) {
 	            User currentUser = User.getCurrentUser(HomeActivity.this);
-	            FavoriteAddressFetchRequest req = new FavoriteAddressFetchRequest(currentUser.getId());
+	            FavoriteAddressFetchRequest req = new FavoriteAddressFetchRequest(currentUser);
 	            req.invalidateCache(HomeActivity.this);
 	            List<Address> addresses;
 	            try {
@@ -347,7 +347,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
                                         try {
                                             FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
                                                 address.getId(),
-                                                address.getUid(),
+                                                User.getCurrentUser(HomeActivity.this),
                                                 address.getName(),
                                                 addressStr,
                                                 address.getLatitude(),
@@ -450,7 +450,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 			            @Override
 			            protected List<Address> doInBackground(Void... params) {
 			                User currentUser = User.getCurrentUser(HomeActivity.this);
-			                FavoriteAddressFetchRequest req = new FavoriteAddressFetchRequest(currentUser.getId());
+			                FavoriteAddressFetchRequest req = new FavoriteAddressFetchRequest(currentUser);
 			                List<Address> addresses;
 			                try {
 			                    addresses = req.execute(HomeActivity.this);

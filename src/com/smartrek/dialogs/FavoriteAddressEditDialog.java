@@ -169,7 +169,7 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
                 }
                 else {
                     User currentUser = User.getCurrentUser(getContext());
-                    new FavoriteAddressAddTask().execute(currentUser.getId(), 
+                    new FavoriteAddressAddTask().execute(currentUser, 
                         getName(), getAddress(), address.getLatitude(), 
                         address.getLongitude());
                 }
@@ -187,18 +187,18 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 
 		@Override
 		protected Object doInBackground(Object... params) {
-			int uid = (Integer) params[0];
+			User user = (User) params[0];
 			String name = (String) params[1];
 			String address = (String) params[2];
 			double lat = (Double) params[3];
 			double lon = (Double) params[4];
 			
-			FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(uid, name, address, lat, lon);
+			FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(user, name, address, lat, lon);
 			try {
 				request.execute();
 				
 				// clear cache
-				new FavoriteAddressFetchRequest(uid).invalidateCache(getContext());
+				new FavoriteAddressFetchRequest(user).invalidateCache(getContext());
 			}
 			catch (IOException e) {
 				ehs.registerException(e);
@@ -249,7 +249,7 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 			try {
 				FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
 						address.getId(),
-						address.getUid(),
+						User.getCurrentUser(getContext()),
 						address.getName(),
 						address.getAddress(),
 						address.getLatitude(),

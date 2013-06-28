@@ -86,6 +86,10 @@ public abstract class Request {
 		return executeHttpRequest(Method.GET, url, params);
 	}
 	
+	protected String executeHttpRequest(Method method, String url) throws IOException {
+	    return executeHttpRequest(method, url, null);
+	}
+	
 	protected String executeHttpRequest(Method method, String url, 
 	        Map<String, String> params) throws IOException {
 	    Log.d(LOG_TAG, "executeHttpRequest(): method=" + method + ", url="+url 
@@ -102,7 +106,7 @@ public abstract class Request {
         responseCode = http.getResponseCode();
         String responseBody = http.getResponseBody();
         
-        if (responseCode == 200 || responseCode == 201) {
+        if (responseCode == 200 || responseCode == 201 || responseCode == 204) {
             return responseBody;
         }
         else if(responseCode == 500 || responseCode == 400){

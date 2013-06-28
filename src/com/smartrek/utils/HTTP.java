@@ -79,7 +79,7 @@ public final class HTTP {
     		        Base64.DEFAULT), encoding);
     			httpConn.setRequestProperty("Authorization", "Basic " + authHeader);
 			}
-			if(method != Method.GET){
+			if(method != Method.GET && method != Method.DELETE){
 			    httpConn.setDoInput (true);
 			    httpConn.setDoOutput (true);
 			    httpConn.setUseCaches (false);
