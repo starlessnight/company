@@ -86,7 +86,7 @@ public class ReservationRequest extends Request {
             params.put("destination", destination);
             params.put("route", routeBuf);
             params.put("validated", String.valueOf(0));
-            params.put("app_version", version);
+            params.put("version", version);
             String res = null;
             try {
                 res = executeHttpRequest(Method.POST, url, params);
