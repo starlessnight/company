@@ -258,7 +258,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	    });
 
 	    if(getIntent().getBooleanExtra(INIT, false)){
-	        new NotificationTask().execute(User.getCurrentUser(this).getId());
+	        new NotificationTask().execute(User.getCurrentUser(this));
 	        updateAllFavAddrLatLon();
 	        if(Request.NEW_API){
 	            updateDeviceId();
@@ -733,9 +733,9 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 		
 		@Override
 		protected List<Reservation> doInBackground(Object... params) {
-			int uid = (Integer) params[0];
+			User user = (User) params[0];
 			
-			ReservationListFetchRequest request = new ReservationListFetchRequest(uid);
+			ReservationListFetchRequest request = new ReservationListFetchRequest(user);
 			List<Reservation> reservations = null;
 			try {
 				reservations = request.execute(HomeActivity.this);

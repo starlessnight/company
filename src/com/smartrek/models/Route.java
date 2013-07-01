@@ -14,6 +14,7 @@ import android.os.Parcelable;
 import android.text.format.Time;
 import android.util.Log;
 
+import com.smartrek.requests.Request;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.NaiveNNS;
 import com.smartrek.utils.RouteLink;
@@ -51,7 +52,17 @@ public final class Route implements Parcelable {
 	};
 	
 	public static Route parse(JSONObject routeObject, long departureTime) throws JSONException, IOException {
-	    JSONArray rts = (JSONArray) routeObject.get("ROUTE");
+	    return parse(routeObject, departureTime, false);
+	}
+	
+	public static Route parse(JSONObject routeObject, long departureTime, boolean forceOld) throws JSONException, IOException {
+	    boolean newAPI = !forceOld && Request.NEW_API; 
+	    JSONArray rts;
+	    if(newAPI){
+	        rts = new JSONArray(routeObject.getString("route"));
+	    }else{
+	        rts = routeObject.getJSONArray("ROUTE");
+	    }
 	    
 	    ArrayList<RouteNode> routeNodes = new ArrayList<RouteNode>();
         for (int i = 0; i < rts.length(); i++) {
@@ -83,26 +94,31 @@ public final class Route implements Parcelable {
         buildRouteNodeReferenceChain(routeNodes);
         
         // Route ID
-        int rid = routeObject.getInt("RID");
+        int rid = routeObject.getInt(newAPI?"id":"RID");
         
         // Web service returns the estimated travel time in minutes, but we
         // internally store it as seconds.
         //
         // Server returns ESTIMATED_TRAVEL_TIME in some APIs, and returns END_TIME in other APIs. FUCK ME...
         double ett = 0;
-        if (routeObject.has("ESTIMATED_TRAVEL_TIME")) {
-        	ett = routeObject.getDouble("ESTIMATED_TRAVEL_TIME");
-        }
-        else if (routeObject.has("END_TIME")) {
-        	ett = routeObject.getDouble("END_TIME");
+        if(newAPI){
+            ett = routeObject.getDouble("estimated_travel_time");
+        }else{
+            if (routeObject.has("ESTIMATED_TRAVEL_TIME")) {
+            	ett = routeObject.getDouble("ESTIMATED_TRAVEL_TIME");
+            }
+            else if (routeObject.has("END_TIME")) {
+            	ett = routeObject.getDouble("END_TIME");
+            }
         }
         
         Route route = new Route(routeNodes, rid, departureTime, (int)(ett * 60));
-        route.setCredits(routeObject.getInt("CREDITS"));
+        route.setCredits(routeObject.optInt(newAPI?"credits":"CREDITS"));
         
-        if (routeObject.has("DISTANCE")) {
+        String distanceAttr = newAPI?"distance":"DISTANCE"; 
+        if (routeObject.has(distanceAttr)) {
             // conversion from mile to meter
-            route.length = routeObject.getDouble("DISTANCE") * 1609.34;
+            route.length = routeObject.getDouble(distanceAttr) * 1609.34;
         }
         
         return route;

@@ -43,6 +43,7 @@ public abstract class Request {
 	    query_upcoming_reservation,
 	    query_username,
 	    commute,
+	    favorite_trip,
 	    auth_user,
 	    reservation,
 	    address,
@@ -142,7 +143,16 @@ public abstract class Request {
 	}
 	
 	protected static String getLinkUrl(Link link){
-	    return linkUrls.get(link);
+	    String url;
+	    if(link == Link.commute){
+	        url = linkUrls.get(Link.favorite_trip);
+	        if(url == null){
+	            url = linkUrls.get(Link.commute);
+	        }
+	    }else{
+	        url = linkUrls.get(link);
+	    }
+	    return url;
 	}
 	
 }

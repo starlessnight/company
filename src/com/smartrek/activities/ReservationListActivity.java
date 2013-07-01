@@ -144,7 +144,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	
     private void requestRefresh(boolean useCache) {
         User currentUser = User.getCurrentUser(this);
-        new ReservationRetrivalTask(useCache, currentUser.getId()).execute();
+        new ReservationRetrivalTask(useCache, currentUser).execute();
     }
 	   
 	/**
@@ -158,9 +158,9 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 		
 		private ReservationListFetchRequest request;
 		
-		public ReservationRetrivalTask(boolean useCache, int uid) {
+		public ReservationRetrivalTask(boolean useCache, User user) {
 		    this.useCache = useCache;
-		    this.request = new ReservationListFetchRequest(uid);
+		    this.request = new ReservationListFetchRequest(user);
 		}
 
 		@Override

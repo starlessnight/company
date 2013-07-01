@@ -92,7 +92,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 
 		JSONArray array = new JSONArray(response);
 		for(int i = 0; i < array.length(); i++) {
-			Route route = Route.parse((JSONObject) array.get(i), departureTime);
+			Route route = Route.parse((JSONObject) array.get(i), departureTime, true);
 		    route.setFake(fake);
 		    route.setSeq(i);
 		    if(!route.getNodes().isEmpty()){

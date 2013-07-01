@@ -19,6 +19,7 @@ import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
+import com.smartrek.models.User;
 import com.smartrek.receivers.ReservationReceiver;
 import com.smartrek.requests.ReservationRequest;
 import com.smartrek.ui.menu.MainMenu;
@@ -165,7 +166,8 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 
 		@Override
 		protected Object doInBackground(Object... params) {
-			ReservationRequest request = new ReservationRequest(route, getString(R.string.distribution_date));
+			ReservationRequest request = new ReservationRequest(User.getCurrentUser(ReservationConfirmationActivity.this), 
+		        route, getString(R.string.distribution_date));
 			try {
 				request.execute();
 			}
