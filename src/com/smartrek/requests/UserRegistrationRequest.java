@@ -40,7 +40,8 @@ public class UserRegistrationRequest extends Request {
                 String msg = "";
                 Iterator keys = data.keys();
                 while(keys.hasNext()){
-                    msg += (msg.length() == 0?"":";\n") + data.getString(keys.next().toString());
+                    Object attr = keys.next();
+                    msg += (msg.length() == 0?"":".\n") + attr +  ": " + data.getString(attr.toString());
                 }
                 throw new Exception(msg);
             }else{
