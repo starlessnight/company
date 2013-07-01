@@ -1,5 +1,6 @@
 package com.smartrek.dialogs;
 
+import java.util.Collections;
 import java.util.List;
 
 import android.content.Context;
@@ -22,6 +23,8 @@ import com.smartrek.activities.R;
 import com.smartrek.models.Address;
 import com.smartrek.models.Trip;
 import com.smartrek.models.User;
+import com.smartrek.requests.FavoriteAddressFetchRequest;
+import com.smartrek.requests.Request;
 import com.smartrek.requests.TripDeleteRequest;
 import com.smartrek.requests.TripListFetchRequest;
 import com.smartrek.utils.ExceptionHandlingService;
@@ -203,25 +206,64 @@ public class TripListDialog extends GenericListDialog<Trip> {
 		}
 		
 		@Override
-		protected void onPostExecute(List<Trip> result) {
+		protected void onPostExecute(final List<Trip> result) {
 			if (ehs.hasExceptions()) {
 				ehs.reportExceptions();
+				listViewGeneric.onRefreshComplete();
 			}
 			else {
-				setListItems(result);
-				if (result != null && result.size() > 0) {
-					setAdapter(new TripListAdapter(getContext(), result));
-					initGenericList();
-					setStatus(GenericListDialog.Status.GenericList);
-				}
-				else {
-					initEmptyList();
-					setStatus(GenericListDialog.Status.EmptyList);
-				}
+			    if(Request.NEW_API){
+    			    new AsyncTask<Void, Void, List<Address>>(){
+                        @Override
+                        protected List<Address> doInBackground(Void... params) {
+                            User currentUser = User.getCurrentUser(getContext());
+                            FavoriteAddressFetchRequest req = new FavoriteAddressFetchRequest(currentUser);
+                            List<Address> addresses;
+                            try {
+                                addresses = req.execute(getContext());
+                            }
+                            catch (Exception e) {
+                                ehs.registerException(e);
+                                addresses = Collections.emptyList();
+                            }
+                            return addresses;
+                        }
+                        @Override
+                        protected void onPostExecute(List<Address> addresses) {
+                            for(Trip trip : result){
+                                for (final Address address : addresses) {
+                                    int id = address.getId();
+                                    String addStr = address.getAddress();
+                                    if(id == trip.getOriginID()){
+                                        trip.setOrigin(addStr);
+                                    }else if(id == trip.getDestinationID()){
+                                        trip.setDestination(addStr);
+                                    }
+                                }
+                            }
+                            refreshListItems(result);
+                        }
+                    }.execute();
+			    }else{
+			        refreshListItems(result);
+			    }
 			}
-			listViewGeneric.onRefreshComplete();
 			
 			super.onPostExecute(result);
+		}
+		
+		private void refreshListItems(List<Trip> result){
+		    setListItems(result);
+            if (result != null && result.size() > 0) {
+                setAdapter(new TripListAdapter(getContext(), result));
+                initGenericList();
+                setStatus(GenericListDialog.Status.GenericList);
+            }
+            else {
+                initEmptyList();
+                setStatus(GenericListDialog.Status.EmptyList);
+            }
+            listViewGeneric.onRefreshComplete();
 		}
 		
 	}

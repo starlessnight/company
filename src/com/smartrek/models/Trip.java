@@ -100,4 +100,12 @@ public class Trip {
 		
 		return new Trip(id, name, oid, origin, did, destination, new RecurringTime(hour, minute, second, weekdays));
 	}
+
+    public void setOrigin(String origin) {
+        this.origin = origin;
+    }
+
+    public void setDestination(String destination) {
+        this.destination = destination;
+    }
 }
