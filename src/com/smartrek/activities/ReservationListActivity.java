@@ -134,7 +134,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	            int menuItemIndex = info.position;
 	            Reservation reservation = reservations.get(menuItemIndex);
 	            new ReservationDeleteTask(menuItemIndex).execute(
-                    User.getCurrentUser(this).getId(), reservation.getRid());
+                    User.getCurrentUser(this), reservation.getRid());
 	            return true;
 	            
 	        default:
@@ -290,10 +290,10 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
         
         @Override
         protected Object doInBackground(Object... params) {
-            int uid = (Integer) params[0];
+            User user = (User) params[0];
             int rid = (Integer) params[1];
             
-            ReservationDeleteRequest request = new ReservationDeleteRequest(uid, rid);
+            ReservationDeleteRequest request = new ReservationDeleteRequest(user, rid);
             try {
                 request.execute();
             }
