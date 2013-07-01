@@ -13,6 +13,7 @@ import android.text.format.Time;
 
 import com.smartrek.exceptions.RouteNotFoundException;
 import com.smartrek.models.Route;
+import com.smartrek.models.User;
 import com.smartrek.utils.GeoPoint;
 
 public class RouteFetchRequest extends FetchRequest<List<Route>> {
@@ -26,15 +27,32 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 		t.set(departureTime);
 		t.switchTimezone(TIME_ZONE);
 		
-		return String.format("%s/getroutes/startlat=%.7f%%20startlon=%.7f%%20endlat=%.7f%%20endlon=%.7f%%20departtime=%d:%02d",
-				HOST, origin.getLatitude(), origin.getLongitude(),
-				destination.getLatitude(), destination.getLongitude(),
-				t.hour, t.minute);
+		String url;
+		double startlat = origin.getLatitude();
+		double startlon = origin.getLongitude();
+		double endlat = destination.getLatitude();
+		double endlon = destination.getLongitude();
+        if(NEW_API){
+		    url = getLinkUrl(Link.query_route)
+                .replaceAll("\\{startlat\\}", String.format("%.7f", startlat))
+                .replaceAll("\\{startlon\\}", String.format("%.7f", startlon))
+                .replaceAll("\\{endlat\\}", String.format("%.7f", endlat))
+                .replaceAll("\\{endlon\\}", String.format("%.7f", endlon))
+                .replaceAll("\\{departtime\\}", String.format("%d:%02d", t.hour, t.minute));
+		}else{
+            url = String.format("%s/getroutes/startlat=%.7f%%20startlon=%.7f%%20endlat=%.7f%%20endlon=%.7f%%20departtime=%d:%02d",
+	                HOST, startlat, startlon, endlat, endlon, t.hour, t.minute); 
+		}
+		return url;
 	}
 	
-	public RouteFetchRequest(GeoPoint origin, GeoPoint destination, long departureTime) {
+	public RouteFetchRequest(User user, GeoPoint origin, GeoPoint destination, long departureTime) {
 		super(buildUrl(origin, destination, departureTime));
 		this.departureTime = departureTime;
+		if(NEW_API){
+		    this.username = user.getUsername();
+		    this.password = user.getPassword();
+        }
 	}
 	
 	/**

@@ -488,7 +488,7 @@ public final class RouteActivity extends ActionBarActivity {
      * @throws RouteNotFoundException 
      */
     private void updateRoute(GeoPoint origin, GeoPoint destination, long departureTime, int column) {
-        RouteFetchRequest request = new RouteFetchRequest(origin, destination, departureTime);
+        RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(this), origin, destination, departureTime);
         if (request.isCached(this)) {
             try {
                 List<Route> routes = request.execute(this);
@@ -732,12 +732,12 @@ public final class RouteActivity extends ActionBarActivity {
         }
         
         public boolean isCached() {
-        	RouteFetchRequest request = new RouteFetchRequest(origin, destination, departureTime);
+        	RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(RouteActivity.this), origin, destination, departureTime);
         	return request.isCached(RouteActivity.this);
         }
         
         public List<Route> getData() throws RouteNotFoundException, IOException, JSONException {
-        	RouteFetchRequest request = new RouteFetchRequest(origin, destination, departureTime);
+        	RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(RouteActivity.this), origin, destination, departureTime);
         	return request.execute(RouteActivity.this);
         }
         
