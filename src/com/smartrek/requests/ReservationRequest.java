@@ -85,6 +85,7 @@ public class ReservationRequest extends Request {
             params.put("origin", origin);
             params.put("destination", destination);
             params.put("route", routeBuf);
+            params.put("credit", String.valueOf(credits));
             params.put("validated", String.valueOf(0));
             params.put("app_version", version);
             String res = null;

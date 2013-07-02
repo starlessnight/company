@@ -113,7 +113,7 @@ public final class Route implements Parcelable {
         }
         
         Route route = new Route(routeNodes, rid, departureTime, (int)(ett * 60));
-        route.setCredits(routeObject.optInt(newAPI?"credits":"CREDITS"));
+        route.setCredits(routeObject.optInt(newAPI?"credit":"CREDITS"));
         
         String distanceAttr = newAPI?"distance":"DISTANCE"; 
         if (routeObject.has(distanceAttr)) {

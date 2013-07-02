@@ -53,7 +53,7 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
                 
                 r.setOriginAddress(object.getString("origin"));
                 r.setDestinationAddress(object.getString("destination"));
-                r.setCredits(object.optInt("credits"));
+                r.setCredits(object.optInt("credit"));
                 r.setValidatedFlag(object.getInt("validated"));
                 r.setRoute(Route.parse(object, departureTime));
                 
