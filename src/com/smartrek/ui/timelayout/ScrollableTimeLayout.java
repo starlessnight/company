@@ -19,6 +19,8 @@ public final class ScrollableTimeLayout extends ObservableScrollView implements 
 	
 	private TimeLayout timeLayout;
 	
+	private int scrollX;
+	
 	//private ScrollableTimeLayoutListener listener;
 	
 //	public interface ScrollableTimeLayoutListener {
@@ -45,17 +47,26 @@ public final class ScrollableTimeLayout extends ObservableScrollView implements 
 //	public void setScrollableTimeLayoutListener(ScrollableTimeLayoutListener listener) {
 //		this.listener = listener;
 //	}
-
+	
 	@Override
 	public void onScrollChanged(ObservableScrollView scrollView, int x, int y,	int oldx, int oldy) {
-		if(timeLayout != null) {
-			int columnWidth = timeLayout.getColumnWidth();
-			int upperBound = (getScreenWidth() + x) / columnWidth;
-			
-			if (upperBound < timeLayout.getColumnCount()) {
-				timeLayout.notifyColumn(upperBound, true);
-			}
-		}
+	    scrollX = x;
+	    notifyScrollChanged();
+	}
+	
+	public void notifyScrollChanged(){
+	    if(timeLayout != null) {
+	        int loadingOffset = screenWidth / 2;
+            int columnWidth = timeLayout.getColumnWidth();
+            int lowerBound = Math.max(scrollX - loadingOffset, 0) / columnWidth;
+            int columnsInScreen = Double.valueOf(Math.ceil((1.0 * screenWidth + loadingOffset) / columnWidth)).intValue();
+            int upperBound = Math.min(lowerBound + columnsInScreen, timeLayout.getColumnCount());
+            int[] columns = new int[Math.max(upperBound - lowerBound + 1, 0)];
+            for(int i=0; i < columns.length; i++){
+                columns[i] = lowerBound + i; 
+            }
+            timeLayout.notifyColumns(columns);
+        }
 	}
 
 }

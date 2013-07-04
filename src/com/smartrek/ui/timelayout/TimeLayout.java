@@ -1,5 +1,9 @@
 package com.smartrek.ui.timelayout;
 
+import java.util.Arrays;
+
+import org.apache.commons.lang3.ArrayUtils;
+
 import android.content.Context;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
@@ -11,6 +15,7 @@ import android.widget.LinearLayout;
 import com.smartrek.models.Route;
 import com.smartrek.ui.timelayout.TimeButton.DisplayMode;
 import com.smartrek.ui.timelayout.TimeButton.State;
+import com.smartrek.utils.Dimension;
 import com.smartrek.utils.Font;
 
 
@@ -42,7 +47,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     private Typeface boldFont;
 
     public interface TimeLayoutListener {
-    	public void updateTimeLayout(TimeLayout timeLayout, int column);
+    	public void updateTimeLayout(TimeLayout timeLayout, int column, boolean visible);
     }
     
     public void setTimeLayoutListener(TimeLayoutListener listener) {
@@ -111,27 +116,44 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     }
     
     public int getColumnWidth() {
-    	return 150;
+    	return Dimension.dpToPx(TimeButton.WIDTH, getResources().getDisplayMetrics());
     }
     
     public State getColumnState(int column) {
-    	return ((TimeColumn) getChildAt(column)).getState();
+        State s = null;
+    	TimeColumn col = (TimeColumn) getChildAt(column);
+    	if(col != null){
+    	    s = col.getState();
+    	}
+        return s;
     }
     
     public void setColumnState(int column, State state) {
-    	((TimeColumn) getChildAt(column)).setState(state);
+    	TimeColumn col = (TimeColumn) getChildAt(column);
+    	if(col != null){
+    	    col.setState(state);
+    	}
     }
 
-    public void notifyColumn(int column, boolean visible) {
-    	State state = getColumnState(column);
-    	if(!State.InProgress.equals(state)) {
-    		//Log.d("TimeLayout", String.format("Setting column %d state to InProgress", column));
-    		//setColumnState(column, TimeButton.State.InProgress);
-    		
-    		if(timeLayoutListener != null) {
-    			timeLayoutListener.updateTimeLayout(this, column);
-    		}
-    	}
+    public void notifyColumns(int[] columns) {
+        for(int column : columns){
+        	State state = getColumnState(column);
+        	if(state != null && !State.InProgress.equals(state)) {
+        		//Log.d("TimeLayout", String.format("Setting column %d state to InProgress", column));
+        		//setColumnState(column, TimeButton.State.InProgress);
+        		
+        		if(timeLayoutListener != null) {
+        			timeLayoutListener.updateTimeLayout(this, column, true);
+        		}
+        	}
+        }
+        for(int i=0; i<columnCount; i++){
+            if(!Arrays.asList(ArrayUtils.toObject(columns)).contains(i)){
+                if(timeLayoutListener != null) {
+                    timeLayoutListener.updateTimeLayout(this, i, false);
+                }
+            }
+        }
     }
     
     /**

@@ -2,7 +2,9 @@ package com.smartrek.activities;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.json.JSONException;
@@ -26,7 +28,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
-import android.view.Display;
 import android.widget.TextView;
 
 import com.actionbarsherlock.view.Menu;
@@ -98,6 +99,8 @@ public final class RouteActivity extends ActionBarActivity {
     private Time selectedTime;
     
     private TimeLayout timeLayout;
+    
+    private ScrollableTimeLayout scrollableTimeLayout;
     
     private List<RouteTask> routeTasks = new Vector<RouteTask>();
     
@@ -252,6 +255,7 @@ public final class RouteActivity extends ActionBarActivity {
         // Set up time layout
         //        
         timeLayout = (TimeLayout) findViewById(R.id.timelayout);
+        scrollableTimeLayout = (ScrollableTimeLayout) findViewById(R.id.scrollTime);
         
         // What happens when user selects a specific time
         timeLayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
@@ -289,15 +293,30 @@ public final class RouteActivity extends ActionBarActivity {
         
         // What happens when user scrolls time layout
         timeLayout.setTimeLayoutListener(new TimeLayoutListener() {
+            
+            private Map<Integer, RouteTask> loadingTasks = new HashMap<Integer, RouteTask>();
+            
             @Override
-            public void updateTimeLayout(TimeLayout timeLayout, int column) {
-                if (timeLayout.getColumnState(column).equals(State.Unknown)) {
-                    timeLayout.setColumnState(column, State.InProgress);
-                    long departureTime = timeLayout.getDepartureTime(column);
-                    
-                    RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime, column, false);
-                    routeTasks.add(routeTask);
-                    routeTask.execute();
+            public void updateTimeLayout(TimeLayout timeLayout, int column, boolean visible) {
+                State columnState = timeLayout.getColumnState(column);
+                RouteTask task;
+                if(visible){
+                    if (originCoord != null && !originCoord.isEmpty() 
+                            && destCoord != null && !destCoord.isEmpty() 
+                            && (State.Unknown.equals(columnState))) {
+                        timeLayout.setColumnState(column, State.InProgress);
+                        long departureTime = timeLayout.getDepartureTime(column);
+                        
+                        RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime, column, false);
+                        routeTasks.add(routeTask);
+                        loadingTasks.put(column, routeTask);
+                        routeTask.execute();
+                    }
+                }else{
+                    if(State.InProgress.equals(columnState) && (task = loadingTasks.remove(column)) != null){
+                        task.cancel(true);
+                        timeLayout.setColumnState(column, State.Unknown);
+                    }
                 }
             }
         });
@@ -305,8 +324,7 @@ public final class RouteActivity extends ActionBarActivity {
         ScrollableTimeLayout scrollableTimeLayout = (ScrollableTimeLayout) findViewById(R.id.scrollTime);
         scrollableTimeLayout.setTimeLayout(timeLayout);
         
-        Display display = getWindowManager().getDefaultDisplay();
-        scrollableTimeLayout.setScreenWidth(Math.max(display.getWidth(), display.getHeight()));
+        updateTimetableScreenWidth();
 
         // FIXME: Should store values in a different preference file
         int timeDisplayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
@@ -361,6 +379,13 @@ public final class RouteActivity extends ActionBarActivity {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, locationListener);
         }else{
             doRouteTask();
+        }
+    }
+    
+    private void updateTimetableScreenWidth(){
+        if(scrollableTimeLayout != null){
+            scrollableTimeLayout.setScreenWidth(getWindowManager().getDefaultDisplay().getWidth());
+            scrollableTimeLayout.notifyScrollChanged();
         }
     }
     
@@ -471,6 +496,7 @@ public final class RouteActivity extends ActionBarActivity {
         super.onConfigurationChanged(newConfig);
         mapView.postDelayed(new Runnable() {
             public void run() {
+                updateTimetableScreenWidth();
                 fitRouteToMap();
             }
         }, 500);
@@ -814,14 +840,9 @@ public final class RouteActivity extends ActionBarActivity {
                 // FIXME: Relying on updateMap is kind of hack-ish. Need to come up with more sophisticated way.
                 timeLayout.setColumnState(selectedColumn, updateMap ? TimeButton.State.Selected : TimeButton.State.None);
                 //timeLayout.setColumnState(selectedColumn, State.None);
-                
+
                 if (selectedColumn == 0) {
-                    for (int i = 1; i < Math.min(9, timeLayout.getColumnCount()); i++) {
-                        long departureTime = timeLayout.getDepartureTime(i);
-                        RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime, i, false);
-                        routeTask.execute();
-                        routeTasks.add(routeTask);
-                    }
+                    scrollableTimeLayout.notifyScrollChanged();
                 }
             }
         }
