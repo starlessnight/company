@@ -33,6 +33,8 @@ public final class MapDisplayActivity extends ActionBarActivity {
     
     private static final String CALENDAR_INTEGRATION = "CALENDAR_INTEGRATION";
     
+    private static final String NAVIGATION_TTS = "NAVIGATION_TTS";
+    
     private static final String VALIDATED_TRIPS_COUNT = "VALIDATED_TRIPS_COUNT";
 
     private RadioButton displayTravel;
@@ -42,6 +44,8 @@ public final class MapDisplayActivity extends ActionBarActivity {
     private RadioButton timeIncrement60;
     
     private CheckBox calendarIntegration;
+    
+    private CheckBox navigationTts;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -118,17 +122,36 @@ public final class MapDisplayActivity extends ActionBarActivity {
             }
         });
         
+        boolean navTtsEnabled = isNavigationTtsEnabled(this);
+        navigationTts = (CheckBox) findViewById(R.id.navigation_tts);
+        navigationTts.setChecked(navTtsEnabled);
+        navigationTts.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                prefs.edit()
+                    .putBoolean(NAVIGATION_TTS, isChecked)
+                    .commit();
+            }
+        });
+        
         Font.setTypeface(boldFont, (TextView)findViewById(R.id.time_heading),
-            (TextView)findViewById(R.id.calendar_integration_heading), 
+            (TextView)findViewById(R.id.calendar_integration_heading),
+            (TextView)findViewById(R.id.navigation_tts_heading),
             (TextView)findViewById(R.id.distribution_heading));
         Font.setTypeface(lightFont, displayTravel, displayArrival,
             (TextView)findViewById(R.id.calendar_integration_text),
+            (TextView)findViewById(R.id.navigation_tts_text),
             (TextView)findViewById(R.id.distribution_date));
     }
     
     public static boolean isCalendarIntegrationEnabled(Context ctx){
         return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
             .getBoolean(CALENDAR_INTEGRATION, true);
+    }
+    
+    public static boolean isNavigationTtsEnabled(Context ctx){
+        return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
+            .getBoolean(NAVIGATION_TTS, true);
     }
     
     public static int getValidatedTripsCount(Context ctx){

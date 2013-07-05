@@ -1125,14 +1125,16 @@ public final class ValidationActivity extends Activity implements OnInitListener
             navigationView.setListener(new CheckPointListener() {
                 @Override
                 public void onCheckPoint(final String navText) {
-                    utteringCnt.incrementAndGet();
-                    HashMap<String, String> params = new HashMap<String, String>();
-                    params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
-                    params.put(TextToSpeech.Engine.KEY_PARAM_STREAM,
-                        String.valueOf(AudioManager.STREAM_NOTIFICATION));
-                    AudioManager am = (AudioManager)ValidationActivity.this.getSystemService(Context.AUDIO_SERVICE);
-                    am.setStreamMute(AudioManager.STREAM_MUSIC, true);
-                    mTts.speak(navText, TextToSpeech.QUEUE_ADD, params);
+                    if(MapDisplayActivity.isNavigationTtsEnabled(ValidationActivity.this)){
+                        utteringCnt.incrementAndGet();
+                        HashMap<String, String> params = new HashMap<String, String>();
+                        params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
+                        params.put(TextToSpeech.Engine.KEY_PARAM_STREAM,
+                            String.valueOf(AudioManager.STREAM_NOTIFICATION));
+                        AudioManager am = (AudioManager)ValidationActivity.this.getSystemService(Context.AUDIO_SERVICE);
+                        am.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                        mTts.speak(navText, TextToSpeech.QUEUE_ADD, params);
+                    }
                 }
             });
         }
