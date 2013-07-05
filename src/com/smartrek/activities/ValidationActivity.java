@@ -300,7 +300,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
         
         lastLocChanged = SystemClock.elapsedRealtime();
         
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        setVolumeControlStream(AudioManager.STREAM_NOTIFICATION);
         
         if(!isOnRecreate){
             if (reservation.hasExpired()) {
@@ -1116,6 +1116,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
             mTts.setOnUtteranceCompletedListener(new TextToSpeech.OnUtteranceCompletedListener() {
                 @Override
                 public void onUtteranceCompleted(String utteranceId) {
+                    unmuteMusic();
                     if(utteredCnt.incrementAndGet() == utteringCnt.get() && arrived.get()){
                         finish();
                     }
@@ -1127,15 +1128,25 @@ public final class ValidationActivity extends Activity implements OnInitListener
                     utteringCnt.incrementAndGet();
                     HashMap<String, String> params = new HashMap<String, String>();
                     params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
+                    params.put(TextToSpeech.Engine.KEY_PARAM_STREAM,
+                        String.valueOf(AudioManager.STREAM_NOTIFICATION));
+                    AudioManager am = (AudioManager)ValidationActivity.this.getSystemService(Context.AUDIO_SERVICE);
+                    am.setStreamMute(AudioManager.STREAM_MUSIC, true);
                     mTts.speak(navText, TextToSpeech.QUEUE_ADD, params);
                 }
             });
         }
     }
     
+    private void unmuteMusic(){
+        AudioManager am = (AudioManager)ValidationActivity.this.getSystemService(Context.AUDIO_SERVICE);
+        am.setStreamMute(AudioManager.STREAM_MUSIC, false);
+    }
+    
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unmuteMusic();
         validationTimeoutHandler.removeCallbacks(validationTimeoutNotifier);
         if (locationManager != null) {
             locationManager.removeUpdates(locationListener);
