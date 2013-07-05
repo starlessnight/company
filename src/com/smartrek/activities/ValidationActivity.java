@@ -86,6 +86,7 @@ import com.smartrek.utils.Misc;
 import com.smartrek.utils.PrerecordedTrajectory;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
+import com.smartrek.utils.RouteRect;
 import com.smartrek.utils.SmartrekTileProvider;
 import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.SystemService;
@@ -267,12 +268,14 @@ public final class ValidationActivity extends Activity implements OnInitListener
                         route = routes.get(fakeRoute.seq);
                         route.setId(oldRoute.getId());
                         route.preprocessNodes();
+                        routeRect = initRouteRect(route);
                         updateDirectionsList();
                     }
                 }
             }.execute();
         }else{
             route.preprocessNodes();
+            routeRect = initRouteRect(route);
             updateDirectionsList();
         }
         
@@ -447,6 +450,12 @@ public final class ValidationActivity extends Activity implements OnInitListener
 
     }
     
+    private RouteRect routeRect;
+    
+    private static RouteRect initRouteRect(Route r){
+        return new RouteRect(r.getNodes());
+    }
+    
     private void initViews() {
         mapView = (MapView) findViewById(R.id.mapview);
         Misc.disableHardwareAcceleration(mapView);
@@ -485,8 +494,15 @@ public final class ValidationActivity extends Activity implements OnInitListener
                     	mc.animateTo(latitude, longitude);
                     }
                 }
-                else {
-                    
+                else if(routeRect != null){
+                    /* Get a midpoint to center the view of  the routes */
+                    GeoPoint mid = routeRect.getMidPoint();
+                    /* range holds 2 points consisting of the lat/lon range to be displayed */
+                    int[] range = routeRect.getRange();
+                    /* Get the MapController set the midpoint and range */
+                    MapController mc = mapView.getController();
+                    mc.zoomToSpan(range[0], range[1]);
+                    mc.setCenter(mid); // setCenter only works properly after zoomToSpan
                 }
             }
         });
