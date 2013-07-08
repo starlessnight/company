@@ -1,7 +1,9 @@
 package com.smartrek.activities;
 
 import android.content.Intent;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.view.View;
@@ -61,7 +63,15 @@ public final class ValidationReportActivity extends ActionBarActivity {
         Font.setTypeface(lightFont, textViewPoints);
         Font.setTypeface(boldFont, okBtn);
         
-        MediaPlayer.create(this, R.raw.validation_music).start();
+        MediaPlayer validationMusicPlayer = new MediaPlayer();
+        validationMusicPlayer.setAudioStreamType(AudioManager.STREAM_NOTIFICATION);
+        try{
+            validationMusicPlayer.setDataSource(this,
+                Uri.parse("android.resource://" + getPackageName() + "/"+R.raw.validation_music));
+            validationMusicPlayer.prepare();
+        }catch (Throwable t) {
+        }
+        validationMusicPlayer.start();
 	}
 	
 	@Override
