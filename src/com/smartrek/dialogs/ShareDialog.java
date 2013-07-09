@@ -9,7 +9,6 @@ import android.content.res.AssetManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +46,8 @@ public class ShareDialog extends DialogFragment {
 	private String shareText;
 	
 	private boolean fbPending;
+	
+	private boolean fbClicked;
 	
 	private Session.StatusCallback fbCallback = new Session.StatusCallback() {
         @Override
@@ -87,6 +88,7 @@ public class ShareDialog extends DialogFragment {
         facebookButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                fbClicked = true;
                 if(isNotLoading()){
                     Session session = Session.getActiveSession();
                     if (session != null && session.isOpened()) {
@@ -104,7 +106,6 @@ public class ShareDialog extends DialogFragment {
         mTwitter.setListener( new TwDialogListener() {
             @Override
             public void onError(String value) {
-                Log.w("onError", value);
                 if(!"Error getting access token".equals(value)){
                     mTwitter.resetAccessToken();
                     mTwitter.authorize();
@@ -170,23 +171,24 @@ public class ShareDialog extends DialogFragment {
 	}
 	
 	private void onSessionStateChange(Session session, SessionState state, Exception exception) {
-	    Log.i("onSessionStateChange", session + "");
-	    if (state == SessionState.OPENED_TOKEN_UPDATED) {
-	        if(hasPublishPermission()){
-	            publishFB();
-	        }else{
-                session.requestNewPublishPermissions(new Session.NewPermissionsRequest(this, Arrays.asList(FB_PERMISSIONS)));
-            }    
-	    }else if(state == SessionState.OPENED && (fbPending || hasPublishPermission())){
-	        fbPending = false;
-	        if(hasPublishPermission()){
-	            publishFB();
-	        }else{
-	            session.requestNewPublishPermissions(new Session.NewPermissionsRequest(this, Arrays.asList(FB_PERMISSIONS)));
-	        }
-        }else if(state == SessionState.CLOSED && fbPending){
-            fbLogin();
-        }
+	    if(fbClicked){
+    	    if (state == SessionState.OPENED_TOKEN_UPDATED) {
+    	        if(hasPublishPermission()){
+    	            publishFB();
+    	        }else{
+                    session.requestNewPublishPermissions(new Session.NewPermissionsRequest(this, Arrays.asList(FB_PERMISSIONS)));
+                }    
+    	    }else if(state == SessionState.OPENED && (fbPending || hasPublishPermission())){
+    	        fbPending = false;
+    	        if(hasPublishPermission()){
+    	            publishFB();
+    	        }else{
+    	            session.requestNewPublishPermissions(new Session.NewPermissionsRequest(this, Arrays.asList(FB_PERMISSIONS)));
+    	        }
+            }else if(state == SessionState.CLOSED && fbPending){
+                fbLogin();
+            }
+	    }
 	}
 	
 	@Override
@@ -229,14 +231,7 @@ public class ShareDialog extends DialogFragment {
 
     private void publishFB() {
         final Session session = Session.getActiveSession();
-        if (session != null) {
-            updateFBStatus();
-        }
-    }
-    
-    private void updateFBStatus(){
-        if(getActivity() != null) {
-            final Session session = Session.getActiveSession();
+        if (session != null && getActivity() != null) {
             final View loading = getView().findViewById(R.id.loading);
             Request request = Request
                     .newStatusUpdateRequest(session, shareText, new Request.Callback() {
@@ -244,7 +239,6 @@ public class ShareDialog extends DialogFragment {
                         public void onCompleted(Response response) {
                             loading.setVisibility(View.GONE);
                             FacebookRequestError error = response.getError();
-                            Log.i("onCompleted", error != null?response.getError().toString():"");
                             if(error != null && error.getErrorCode() != 506){
                                 fbPending = true;
                                 session.closeAndClearTokenInformation();
@@ -284,7 +278,6 @@ public class ShareDialog extends DialogFragment {
                                 success = true;
                             }
                         }
-                        Log.w("updateTwitterStatus", Log.getStackTraceString(e));
                     }
                     return success;
                 }
