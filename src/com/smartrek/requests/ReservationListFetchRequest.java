@@ -36,7 +36,6 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
 		
 		List<Reservation> reservations = new ArrayList<Reservation>();
 		if(NEW_API){
-		    Log.i("ReservationListFetchRequest", response);
 		    JSONArray array = new JSONObject(response).getJSONArray("data");
             for(int i = 0; i < array.length(); i++) {
                 JSONObject object = (JSONObject) array.get(i);
@@ -55,7 +54,7 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
                 r.setDestinationAddress(object.getString("destination"));
                 r.setCredits(object.optInt("credit"));
                 r.setValidatedFlag(object.getInt("validated"));
-                r.setRoute(Route.parse(object, departureTime));
+                r.setRoute(Route.parse(object, departureTime, true));
                 
                 reservations.add(r);
             }

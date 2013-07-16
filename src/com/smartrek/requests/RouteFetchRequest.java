@@ -90,15 +90,22 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 		// Begin parsing the server response
 		List<Route> routes = new ArrayList<Route>();
 
-		JSONArray array = new JSONArray(response);
-		for(int i = 0; i < array.length(); i++) {
-			Route route = Route.parse((JSONObject) array.get(i), departureTime, true);
-		    route.setFake(fake);
-		    route.setSeq(i);
-		    if(!route.getNodes().isEmpty()){
-		        routes.add(route);
-		    }
+		JSONArray array;
+		if(NEW_API){
+		    array = new JSONArray();
+		    array.put(new JSONObject(response).getJSONObject("data"));
+		}else{
+		    array = new JSONArray(response);
 		}
+		
+		for(int i = 0; i < array.length(); i++) {
+            Route route = Route.parse((JSONObject) array.get(i), departureTime);
+            route.setFake(fake);
+            route.setSeq(i);
+            if(!route.getNodes().isEmpty()){
+                routes.add(route);
+            }
+        }
 		
 		if (routes.size() == 0) {
 			throw new RouteNotFoundException("Could not find a route.");

@@ -58,18 +58,23 @@ public final class Route implements Parcelable {
 	public static Route parse(JSONObject routeObject, long departureTime, boolean forceOld) throws JSONException, IOException {
 	    boolean newAPI = !forceOld && Request.NEW_API; 
 	    JSONArray rts;
-	    if(newAPI){
+	    String attr = "ROUTE";
+	    if(!routeObject.has(attr) || newAPI){
 	        rts = new JSONArray(routeObject.getString("route"));
 	    }else{
-	        rts = routeObject.getJSONArray("ROUTE");
+            rts = routeObject.getJSONArray(attr);
 	    }
 	    
 	    ArrayList<RouteNode> routeNodes = new ArrayList<RouteNode>();
         for (int i = 0; i < rts.length(); i++) {
             JSONObject ro = (JSONObject) rts.get(i);
             
-            RouteNode node = new RouteNode(ro.getDouble("LATITUDE"),
-                    ro.getDouble("LONGITUDE"), 0, ro.getInt("NODEID"));
+            RouteNode node = new RouteNode(
+                ro.getDouble(newAPI?"lat":"LATITUDE"),
+                ro.getDouble(newAPI?"lon":"LONGITUDE"), 
+                0, 
+                ro.getInt(newAPI?"node":"NODEID")
+            );
             
             if (ro.has("FLAG")) {
             	node.setFlag(ro.getInt("FLAG"));
@@ -94,7 +99,11 @@ public final class Route implements Parcelable {
         buildRouteNodeReferenceChain(routeNodes);
         
         // Route ID
-        int rid = routeObject.getInt(newAPI?"id":"RID");
+        int rid = 0;
+        String ridAttr = "RID";
+        if(!newAPI && routeObject.has(ridAttr)){
+            routeObject.getInt(ridAttr);
+        }
         
         // Web service returns the estimated travel time in minutes, but we
         // internally store it as seconds.
