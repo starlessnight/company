@@ -75,7 +75,8 @@ public class ReservationRequest extends Request {
         }
 	}
 	
-	public void execute() throws Exception {
+	public Integer execute() throws Exception {
+	    Integer id = null;
 	    if(NEW_API){
 	        this.username = user.getUsername();
 	        this.password = user.getPassword();
@@ -104,6 +105,8 @@ public class ReservationRequest extends Request {
                     msg += (msg.length() == 0?"":".\n") + attr +  ": " + data.getString(attr.toString());
                 }
                 throw new Exception(msg);
+            }else{
+                id = data.getInt("id");
             }
 	    }else{
     		String responseBody = executeHttpGetRequest(url);
@@ -119,5 +122,6 @@ public class ReservationRequest extends Request {
     		    }
     		}
 	    }
+	    return id;
 	}
 }

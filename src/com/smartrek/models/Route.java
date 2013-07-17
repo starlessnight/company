@@ -14,6 +14,7 @@ import android.os.Parcelable;
 import android.text.format.Time;
 import android.util.Log;
 
+import com.smartrek.activities.DebugOptionsActivity.NavigationLink;
 import com.smartrek.requests.Request;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.NaiveNNS;
@@ -39,6 +40,7 @@ public final class Route implements Parcelable {
 	private boolean fake;
 	private int seq;
 	private Double length;
+	private NavigationLink link;
 	
 	
 	public static final Parcelable.Creator<Route> CREATOR = new Parcelable.Creator<Route>() {
@@ -102,7 +104,7 @@ public final class Route implements Parcelable {
         int rid = 0;
         String ridAttr = "RID";
         if(!newAPI && routeObject.has(ridAttr)){
-            routeObject.getInt(ridAttr);
+            rid = routeObject.getInt(ridAttr);
         }
         
         // Web service returns the estimated travel time in minutes, but we
@@ -133,6 +135,46 @@ public final class Route implements Parcelable {
         return route;
 	}
 	
+	public static Route parse(JSONArray navInfo, long departureTime, int duration)
+            throws JSONException, IOException {
+        ArrayList<RouteNode> routeNodes = new ArrayList<RouteNode>();
+        for (int i = 0; i < navInfo.length(); i++) {
+            JSONObject ro = (JSONObject) navInfo.get(i);
+            
+            if(ro.has("node")){
+                RouteNode node = new RouteNode(
+                    ro.getDouble("lon"),
+                    ro.getDouble("lat"), 
+                    0, 
+                    ro.getInt("node")
+                );
+                
+                if (ro.has("remind")) {
+                    node.setFlag(ro.getInt("remind"));
+                }
+                if (ro.has("msg")) {
+                    node.setMessage(ro.getString("msg"));
+                }
+                if (ro.has("direction")) {
+                    node.setDirection(ro.getString("direction"));
+                }
+                if (ro.has("distance")) {
+                    node.setDistance(ro.getLong("distance") * 0.3048);
+                }
+                if (ro.has("road")) {
+                    node.setRoadName(ro.getString("road"));
+                }
+                routeNodes.add(node);
+            }
+        }
+        
+        buildRouteNodeReferenceChain(routeNodes);
+        
+        Route route = new Route(routeNodes, 0, departureTime, duration);
+        
+        return route;
+    }
+	
 	public Route() {
 	    
 	}
@@ -149,6 +191,14 @@ public final class Route implements Parcelable {
 		credits = in.readInt();
 		fake = (Boolean) in.readValue(null);
 		seq = in.readInt();
+		int lId = in.readInt();
+		String lUrl = in.readString();
+		if(lUrl != null){
+		    NavigationLink l = new NavigationLink();
+		    l.id = lId;
+		    l.url = lUrl;
+		    link = l;
+		}
 		
 		buildRouteNodeReferenceChain(routeNodes);
 	}
@@ -518,6 +568,8 @@ public final class Route implements Parcelable {
 		dest.writeInt(credits);
 		dest.writeValue(fake);
 		dest.writeInt(seq);
+		dest.writeInt(link == null?0:link.id);
+		dest.writeString(link == null?null:link.url);
 	}
 
 //	/**
@@ -587,5 +639,13 @@ public final class Route implements Parcelable {
 
     public void setSeq(int seq) {
         this.seq = seq;
+    }
+
+    public NavigationLink getLink() {
+        return link;
+    }
+
+    public void setLink(NavigationLink link) {
+        this.link = link;
     }
 }

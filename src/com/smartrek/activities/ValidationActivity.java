@@ -66,11 +66,13 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.SendTrajectoryService;
 import com.smartrek.ValidationService;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
+import com.smartrek.activities.DebugOptionsActivity.NavigationLink;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
+import com.smartrek.requests.Request;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.ui.NavigationView;
 import com.smartrek.ui.NavigationView.CheckPointListener;
@@ -239,16 +241,24 @@ public final class ValidationActivity extends Activity implements OnInitListener
             }
         };
         
+        final NavigationLink navLink = DebugOptionsActivity.getNavLink(this, reservation.getRid());
+        boolean hasNavLink = navLink != null;
         final FakeRoute fakeRoute = DebugOptionsActivity.getFakeRoute(
             ValidationActivity.this, route.getId());
         isDebugging = fakeRoute != null;
-        if(!isOnRecreate && isDebugging){
+        if(!isOnRecreate && (isDebugging || hasNavLink)){
             new AsyncTask<Void, Void, List<Route>>() {
                 @Override
                 protected List<Route> doInBackground(Void... params) {
                     List<Route> routes = null;
                     try {
-                        RouteFetchRequest request = new RouteFetchRequest(route.getDepartureTime());
+                        RouteFetchRequest request;
+                        if(isDebugging){
+                            request = new RouteFetchRequest(route.getDepartureTime());
+                        }else{
+                            request = new RouteFetchRequest(navLink.url, 
+                                reservation.getDepartureTime(), reservation.getDuration());
+                        }
                         routes = request.execute(ValidationActivity.this);
                     }
                     catch(Exception e) {
@@ -266,7 +276,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
                         });
                     }else if(routes != null && routes.size() > 0) {
                         Route oldRoute = route; 
-                        route = routes.get(fakeRoute.seq);
+                        route = routes.get(isDebugging?fakeRoute.seq:0);
                         route.setId(oldRoute.getId());
                         route.preprocessNodes();
                         routeRect = initRouteRect(route);
@@ -654,10 +664,39 @@ public final class ValidationActivity extends Activity implements OnInitListener
     private int seq = 1;
     
     private void saveTrajectory(){
-        final File tFile = SendTrajectoryService.getInFile(this, route.getId(), seq++);
-        final JSONArray tJson;
-        try {
-            tJson = trajectory.toJSON();
+        if(!Request.NEW_API){
+            final File tFile = SendTrajectoryService.getInFile(this, route.getId(), seq++);
+            final JSONArray tJson;
+            try {
+                tJson = trajectory.toJSON();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try{
+                            new AsyncTask<Void, Void, Void>(){
+                                @Override
+                                protected Void doInBackground(Void... params) {
+                                    try {
+                                        FileUtils.write(tFile, tJson.toString());
+                                    }
+                                    catch (IOException e) {
+                                    }
+                                    return null;
+                                }
+                            }.execute();
+                        }catch(Throwable t){}
+                    }
+                });
+            }
+            catch (JSONException e) {
+            }
+        }
+        trajectory.clear();
+    }
+    
+    private void saveValidation(){
+        if(!Request.NEW_API){
+            final File tFile = ValidationService.getFile(this, route.getId());
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -666,7 +705,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
                             @Override
                             protected Void doInBackground(Void... params) {
                                 try {
-                                    FileUtils.write(tFile, tJson.toString());
+                                    FileUtils.write(tFile, "");
                                 }
                                 catch (IOException e) {
                                 }
@@ -677,31 +716,6 @@ public final class ValidationActivity extends Activity implements OnInitListener
                 }
             });
         }
-        catch (JSONException e) {
-        }
-        trajectory.clear();
-    }
-    
-    private void saveValidation(){
-        final File tFile = ValidationService.getFile(this, route.getId());
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    new AsyncTask<Void, Void, Void>(){
-                        @Override
-                        protected Void doInBackground(Void... params) {
-                            try {
-                                FileUtils.write(tFile, "");
-                            }
-                            catch (IOException e) {
-                            }
-                            return null;
-                        }
-                    }.execute();
-                }catch(Throwable t){}
-            }
-        });
     }
     
     private void showNavigationInformation(final Location location, final RouteNode node) {

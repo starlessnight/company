@@ -284,6 +284,11 @@ public final class Reservation implements Parcelable {
         this.destinationName = destinationName;
     }
     
+    public int getDisplayId(){
+        int displayId = route.getId();
+        return displayId>0?displayId:rid;
+    }
+    
     public static Comparator<Reservation> orderByDepartureTime(){
         return new Comparator<Reservation>() {
             @Override

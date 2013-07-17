@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.text.format.Time;
 
+import com.smartrek.activities.DebugOptionsActivity.NavigationLink;
 import com.smartrek.exceptions.RouteNotFoundException;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
@@ -21,6 +22,10 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 	private long departureTime;
 	
 	private boolean fake;
+	
+	private boolean hasNavUrl;
+	
+	private int duration;
 	
 	public static String buildUrl(GeoPoint origin, GeoPoint destination, long departureTime) {
 		Time t = new Time();
@@ -66,8 +71,14 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 		//super("http://static.suminb.com/smartrek/fake-routes.html");
 		
 		this.departureTime = departureTime;
-		fake = true;
 	}
+	
+    public RouteFetchRequest(String url, long departureTime, int duration) {
+        super(url);
+        this.departureTime = departureTime;
+        this.duration = duration;
+        hasNavUrl = true;
+    }
 	
 	public List<Route> execute(Context ctx) throws IOException, JSONException, RouteNotFoundException {
 		String response = null;
@@ -91,19 +102,40 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 		List<Route> routes = new ArrayList<Route>();
 
 		JSONArray array;
+		NavigationLink link = null;
 		if(NEW_API){
 		    array = new JSONArray();
-		    array.put(new JSONObject(response).getJSONObject("data"));
+            JSONObject jsonRes = new JSONObject(response);
+		    if(hasNavUrl){
+		        array.put(jsonRes.getJSONArray("data"));
+		    }else{
+	            array.put(jsonRes.getJSONObject("data"));
+	            String linksAttr = "links";
+	            if(jsonRes.has(linksAttr)){
+	                link = new NavigationLink();
+	                link.url = jsonRes.getJSONObject(linksAttr).getString("navigation");
+	            }
+		    }
 		}else{
 		    array = new JSONArray(response);
 		}
 		
 		for(int i = 0; i < array.length(); i++) {
-            Route route = Route.parse((JSONObject) array.get(i), departureTime);
+		    Object obj = array.get(i);
+            Route route;
+            if(obj instanceof JSONObject){
+                route = Route.parse((JSONObject) obj, departureTime);
+            }else{
+                route = Route.parse((JSONArray) obj, departureTime, duration);
+            }
+            
             route.setFake(fake);
             route.setSeq(i);
             if(!route.getNodes().isEmpty()){
                 routes.add(route);
+            }
+            if(NEW_API && i == 0){
+                route.setLink(link);
             }
         }
 		

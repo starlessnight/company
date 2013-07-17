@@ -16,6 +16,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
+import com.smartrek.activities.DebugOptionsActivity.NavigationLink;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
@@ -150,7 +151,7 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 		am.set(AlarmManager.RTC_WAKEUP, departureTime - 60000*5, pendingOperation); // 5 min earlier than departure time
 	}
 	
-	private final class ReservationTask extends AsyncTask<Object, Object, Object> {
+	private final class ReservationTask extends AsyncTask<Object, Object, Integer> {
 		
 		private ProgressDialog dialog;
 
@@ -165,21 +166,22 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 		}
 
 		@Override
-		protected Object doInBackground(Object... params) {
+		protected Integer doInBackground(Object... params) {
+		    Integer rs = null;
 			ReservationRequest request = new ReservationRequest(User.getCurrentUser(ReservationConfirmationActivity.this), 
 		        route, getString(R.string.distribution_date));
 			try {
-				request.execute();
+			    rs = request.execute();
 			}
 			catch (Exception e) {
 				ehs.registerException(e);
 			}
 			
-			return null;
+			return rs;
 		}
 		
 		@Override
-		protected void onPostExecute(Object result) {
+		protected void onPostExecute(Integer result) {
 			dialog.cancel();
 			
 		    if (ehs.hasExceptions()) {
@@ -193,6 +195,12 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 				    fakeRoute.id = route.getId();
 				    fakeRoute.seq = route.getSeq();
 				    DebugOptionsActivity.addFakeRoute(ReservationConfirmationActivity.this, fakeRoute);
+				}
+				
+				NavigationLink link = route.getLink();
+				if(link != null && result != null){
+				    link.id = result;
+				    DebugOptionsActivity.addNavLink(ReservationConfirmationActivity.this, link);
 				}
 				
 				NotificationDialog dialog = new NotificationDialog(ReservationConfirmationActivity.this, "You have successfully reserved a route.");

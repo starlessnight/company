@@ -1,11 +1,18 @@
 package com.smartrek.activities;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -25,6 +32,7 @@ import android.widget.Toast;
 
 import com.smartrek.utils.Cache;
 
+@SuppressLint("NewApi")
 public final class DebugOptionsActivity extends Activity {
     
     /**
@@ -51,6 +59,10 @@ public final class DebugOptionsActivity extends Activity {
     private static final String fakeRoutes = "fakeRouteIds";
     
     private static final int fakeRouteSize = 10;
+    
+    private static final String navLinks = "navLinks";
+    
+    private static final int navLinksSize = 100;
     
     private static final String osmdroidCacheDir = "osmdroid";
     
@@ -345,6 +357,60 @@ public final class DebugOptionsActivity extends Activity {
             r.id = Integer.parseInt(vals[0]);
             r.seq = Integer.parseInt(vals[1]);
             return r;
+        }
+        
+    }
+    
+    private static SortedMap<Integer, NavigationLink> getNavLinks(Context ctx){
+        SortedMap<Integer, NavigationLink> rs = new TreeMap<Integer, NavigationLink>();
+        for (String lStr : getPrefs(ctx).getStringSet(navLinks, new HashSet<String>())) {
+            NavigationLink l = NavigationLink.fromString(lStr);
+            rs.put(l.id, l);
+        }
+        return rs;
+    }
+    
+    private static void saveNavLinks(Context ctx, Map<Integer, NavigationLink> links){
+        Set<String> linksSet = new HashSet<String>();
+        for(NavigationLink l:links.values()){
+            linksSet.add(l.toString());
+        }
+        SharedPreferences.Editor editor = getPrefs(ctx).edit();
+        editor.putStringSet(navLinks, linksSet);
+        editor.commit();
+    }
+    
+    public static void addNavLink(Context ctx, NavigationLink l){
+        SortedMap<Integer, NavigationLink> links = getNavLinks(ctx);
+        while(links.size() > navLinksSize - 1){
+            links.remove(links.firstKey());
+        }
+        links.put(l.id, l);
+        saveNavLinks(ctx, links);
+    }
+    
+    public static NavigationLink getNavLink(Context ctx, int id){
+        return getNavLinks(ctx).get(id);
+    }
+    
+    public static class NavigationLink {
+        
+        private static final String delimiter = ","; 
+        
+        public int id;
+        
+        public String url;
+        
+        @Override
+        public String toString() {
+            return id + delimiter + url;
+        }
+        
+        public static NavigationLink fromString(String val){
+            NavigationLink l = new NavigationLink();
+            l.id = Integer.parseInt(StringUtils.substringBefore(val, delimiter));
+            l.url = StringUtils.substringAfter(val, delimiter);
+            return l;
         }
         
     }

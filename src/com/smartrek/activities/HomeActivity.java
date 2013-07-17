@@ -223,11 +223,13 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 			
 			@Override
 			public boolean onLongClick(View v) {
-				debugMode = true;
-				setOriginAddress("origin");
-				setDestinationAddress("destination");
-				//prepareMapActivity();
-				startMapActivity();
+			    if(!Request.NEW_API){
+    				debugMode = true;
+    				setOriginAddress("origin");
+    				setDestinationAddress("destination");
+    				//prepareMapActivity();
+    				startMapActivity();
+			    }
 				return true;
 			}
 			
