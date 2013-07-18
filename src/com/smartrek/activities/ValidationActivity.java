@@ -196,6 +196,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
         reservation = extras.getParcelable(RESERVATION);
         
         route = (isOnRecreate?savedInstanceState:extras).getParcelable(ROUTE);
+        reservation.setRoute(route);
         
         // Define a listener that responds to location updates
         locationListener = new ValidationLocationListener();
@@ -278,6 +279,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
                         Route oldRoute = route; 
                         route = routes.get(isDebugging?fakeRoute.seq:0);
                         route.setId(oldRoute.getId());
+                        reservation.setRoute(route);
                         route.preprocessNodes();
                         routeRect = initRouteRect(route);
                         updateDirectionsList();
@@ -665,7 +667,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
     
     private void saveTrajectory(){
         if(!Request.NEW_API){
-            final File tFile = SendTrajectoryService.getInFile(this, route.getId(), seq++);
+            final File tFile = SendTrajectoryService.getInFile(this, reservation.getDisplayId(), seq++);
             final JSONArray tJson;
             try {
                 tJson = trajectory.toJSON();
@@ -696,7 +698,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
     
     private void saveValidation(){
         if(!Request.NEW_API){
-            final File tFile = ValidationService.getFile(this, route.getId());
+            final File tFile = ValidationService.getFile(this, reservation.getDisplayId());
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
