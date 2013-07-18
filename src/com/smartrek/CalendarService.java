@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -56,8 +57,10 @@ public class CalendarService extends IntentService {
                    String eventId = events.getString(0);
                    File file = getFile(eventId);
                    long start = Long.parseLong(events.getString(2));
+                   String location = events.getString(3);
                    long notiTime = start - TWO_AND_A_HALF_HOURS;
-                   if((!file.exists() || file.length() == 0) && System.currentTimeMillis() < notiTime /* true */){
+                   if((!file.exists() || file.length() == 0) && StringUtils.isNotBlank(location) 
+                           && System.currentTimeMillis() < notiTime /* true */){
                        hasNotification = true;
                        Intent noti = new Intent(CalendarService.this, 
                            CalendarNotification.class);
@@ -72,7 +75,7 @@ public class CalendarService extends IntentService {
                        .put(BaseColumns._ID, eventId)
                        .put(Instances.TITLE, events.getString(1))
                        .put(Instances.BEGIN, start)
-                       .put(Instances.EVENT_LOCATION, events.getString(3));
+                       .put(Instances.EVENT_LOCATION, location);
                    FileUtils.write(file, eventJson.toString());
                    if(hasNotification){
                        break;
