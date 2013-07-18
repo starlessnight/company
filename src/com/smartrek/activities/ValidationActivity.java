@@ -697,27 +697,25 @@ public final class ValidationActivity extends Activity implements OnInitListener
     }
     
     private void saveValidation(){
-        if(!Request.NEW_API){
-            final File tFile = ValidationService.getFile(this, reservation.getDisplayId());
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    try{
-                        new AsyncTask<Void, Void, Void>(){
-                            @Override
-                            protected Void doInBackground(Void... params) {
-                                try {
-                                    FileUtils.write(tFile, "");
-                                }
-                                catch (IOException e) {
-                                }
-                                return null;
+        final File tFile = ValidationService.getFile(this, reservation.getDisplayId());
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    new AsyncTask<Void, Void, Void>(){
+                        @Override
+                        protected Void doInBackground(Void... params) {
+                            try {
+                                FileUtils.write(tFile, "");
                             }
-                        }.execute();
-                    }catch(Throwable t){}
-                }
-            });
-        }
+                            catch (IOException e) {
+                            }
+                            return null;
+                        }
+                    }.execute();
+                }catch(Throwable t){}
+            }
+        });
     }
     
     private void showNavigationInformation(final Location location, final RouteNode node) {
