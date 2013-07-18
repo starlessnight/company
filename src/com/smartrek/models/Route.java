@@ -143,8 +143,8 @@ public final class Route implements Parcelable {
             
             if(ro.has("node")){
                 RouteNode node = new RouteNode(
-                    ro.getDouble("lon"),
-                    ro.getDouble("lat"), 
+                    ro.getDouble("lat"),
+                    ro.getDouble("lon"), 
                     0, 
                     ro.getInt("node")
                 );
