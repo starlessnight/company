@@ -1,18 +1,15 @@
 package com.smartrek.activities;
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -32,7 +29,6 @@ import android.widget.Toast;
 
 import com.smartrek.utils.Cache;
 
-@SuppressLint("NewApi")
 public final class DebugOptionsActivity extends Activity {
     
     /**
@@ -363,20 +359,33 @@ public final class DebugOptionsActivity extends Activity {
     
     private static SortedMap<Integer, NavigationLink> getNavLinks(Context ctx){
         SortedMap<Integer, NavigationLink> rs = new TreeMap<Integer, NavigationLink>();
-        for (String lStr : getPrefs(ctx).getStringSet(navLinks, new HashSet<String>())) {
-            NavigationLink l = NavigationLink.fromString(lStr);
-            rs.put(l.id, l);
+        JSONArray array = null;
+        try {
+            array = new JSONArray(getPrefs(ctx).getString(navLinks, "[]"));
+        }
+        catch (Throwable t) {
+            array = new JSONArray();
+        }
+        for (int i=0; i < array.length(); i++) {
+            JSONObject json = array.optJSONObject(i);
+            if(json != null){
+                NavigationLink l = NavigationLink.fromJSON(json);
+                rs.put(l.id, l);
+            }
         }
         return rs;
     }
     
     private static void saveNavLinks(Context ctx, Map<Integer, NavigationLink> links){
-        Set<String> linksSet = new HashSet<String>();
+        JSONArray array = new JSONArray();
         for(NavigationLink l:links.values()){
-            linksSet.add(l.toString());
+            try {
+                array.put(l.toJSON());
+            }
+            catch (JSONException e) { }
         }
         SharedPreferences.Editor editor = getPrefs(ctx).edit();
-        editor.putStringSet(navLinks, linksSet);
+        editor.putString(navLinks, array.toString());
         editor.commit();
     }
     
@@ -395,21 +404,25 @@ public final class DebugOptionsActivity extends Activity {
     
     public static class NavigationLink {
         
-        private static final String delimiter = ","; 
+        private static String ID = "ID";
+        
+        private static String URL = "URL";
         
         public int id;
         
         public String url;
         
-        @Override
-        public String toString() {
-            return id + delimiter + url;
+        public JSONObject toJSON() throws JSONException {
+            JSONObject json = new JSONObject();
+            json.put(ID, id);
+            json.put(URL, url);
+            return json;
         }
         
-        public static NavigationLink fromString(String val){
+        public static NavigationLink fromJSON(JSONObject json){
             NavigationLink l = new NavigationLink();
-            l.id = Integer.parseInt(StringUtils.substringBefore(val, delimiter));
-            l.url = StringUtils.substringAfter(val, delimiter);
+            l.id = json.optInt(ID);
+            l.url = json.optString(URL);
             return l;
         }
         
