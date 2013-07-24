@@ -21,7 +21,9 @@ import android.util.Log;
 
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
+import com.smartrek.requests.Request;
 import com.smartrek.requests.SendTrajectoryRequest;
+import com.smartrek.requests.TripLinkRequest;
 
 public class SendTrajectoryService extends IntentService {
     
@@ -70,7 +72,7 @@ public class SendTrajectoryService extends IntentService {
                             break;
                         }
                     }
-                    int routeId = Integer.parseInt(routeDir.getName());
+                    long routeId = Long.parseLong(routeDir.getName());
                     File outFile = getOutFile(routeId);
                     int seq = 1;
                     if(outFile.exists()){
@@ -84,7 +86,14 @@ public class SendTrajectoryService extends IntentService {
                     }
                     SendTrajectoryRequest request = new SendTrajectoryRequest();
                     try {
-                        request.execute(seq, user.getId(), routeId, traj);
+                        if(Request.NEW_API){
+                            TripLinkRequest tlr = new TripLinkRequest(user);
+                            tlr.invalidateCache(this);
+                            String link = tlr.execute(this);
+                            request.execute(user, link, routeId, traj);
+                        }else{
+                            request.execute(seq, user.getId(), routeId, traj);
+                        }
                         try{
                             FileUtils.write(outFile, String.valueOf(seq));
                         }catch(Exception e){}
@@ -112,7 +121,7 @@ public class SendTrajectoryService extends IntentService {
         return new File(getExternalFilesDir(null), "trajectory/out");
     }
     
-    private File getOutFile(int rId){
+    private File getOutFile(long rId){
         return new File(getOutDir(), String.valueOf(rId));
     }
     
@@ -120,7 +129,7 @@ public class SendTrajectoryService extends IntentService {
         return new File(ctx.getExternalFilesDir(null), "trajectory/in");
     }
     
-    public static File getInFile(Context ctx, int rId, int seq){
+    public static File getInFile(Context ctx, long rId, int seq){
         return new File(getInDir(ctx), rId + "/" + seq);
     }
     

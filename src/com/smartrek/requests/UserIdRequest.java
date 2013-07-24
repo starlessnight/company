@@ -6,14 +6,6 @@ import org.json.JSONObject;
 import android.content.Context;
 
 public final class UserIdRequest extends FetchRequest<Integer> {
-
-    public static class Trekpoint {
-        
-        public long credit;
-        
-        public long lifeTimeCredit;
-        
-    }
     
 	public UserIdRequest(String username) {
 		super(getLinkUrl(Link.query_username).replaceAll("\\{username\\}", username));

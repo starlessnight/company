@@ -47,7 +47,8 @@ public abstract class Request {
 	    auth_user,
 	    reservation,
 	    address,
-	    query_route
+	    query_route,
+	    trip
 	}
 	
 	private static EnumMap<Link, String> linkUrls = new EnumMap<Link, String>(Link.class);

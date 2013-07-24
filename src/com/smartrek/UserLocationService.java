@@ -11,13 +11,15 @@ import android.util.Log;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
+import com.smartrek.requests.Request;
 import com.smartrek.requests.SendTrajectoryRequest;
+import com.smartrek.requests.TripLinkRequest;
 
 public class UserLocationService extends IntentService {
 
     private static final long FIFTHTEEN_MINS = 15 * 60 * 1000 /* 10000 */;
 
-    private static final int RID = 9999;
+    private static final int RID = Request.NEW_API?0:9999;
     
     public UserLocationService() {
         super(UserLocationService.class.getName());
@@ -35,7 +37,14 @@ public class UserLocationService extends IntentService {
                 info.lastSpeed, info.lastHeading, info.lastLocationUpdateTimestamp);
             SendTrajectoryRequest request = new SendTrajectoryRequest();
             try {
-                request.execute(0, user.getId(), RID, traj);
+                if(Request.NEW_API){
+                    TripLinkRequest tlr = new TripLinkRequest(user);
+                    tlr.invalidateCache(this);
+                    String link = tlr.execute(this);
+                    request.execute(user, link, RID, traj);
+                }else{
+                    request.execute(0, user.getId(), RID, traj);
+                }
             }
             catch (Throwable t) {
                 Log.d("UserLocationService", Log.getStackTraceString(t));
