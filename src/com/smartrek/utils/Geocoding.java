@@ -159,7 +159,7 @@ public final class Geocoding {
     }
 	
     private static GeoPoint googleLookup(String address) throws IOException, JSONException {
-        String url = String.format("%s?address=%s&sensor=false", GOOGLE_URL, URLEncoder.encode(address));
+        String url = String.format("%s?address=%s&components=country:us&sensor=false", GOOGLE_URL, URLEncoder.encode(address));
         Log.d("Geocoding", "url = " + url);
         
         double lat = 0.0;

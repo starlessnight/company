@@ -52,6 +52,8 @@ public final class DebugOptionsActivity extends Activity {
     
     public static final String GOOGLE_GEOCODING_PATCHED = "GOOGLE_GEOCODING_PATCHED";
     
+    private static final int GOOGLE_GEOCODING_PATCH_NO = 1;
+    
     private static final String fakeRoutes = "fakeRouteIds";
     
     private static final int fakeRouteSize = 10;
@@ -283,12 +285,18 @@ public final class DebugOptionsActivity extends Activity {
     }
     
     public static boolean isGoogleGeocodingPatched(Context ctx){
-        return getPrefs(ctx).getBoolean(GOOGLE_GEOCODING_PATCHED, false);
+        boolean patched;
+        try{
+            patched = getPrefs(ctx).getInt(GOOGLE_GEOCODING_PATCHED, 0) == GOOGLE_GEOCODING_PATCH_NO;
+        }catch(Throwable t){
+            patched = false;
+        }
+        return patched;
     }
     
     public static void setGoogleGeocodingPatched(Context ctx, boolean patched){
         getPrefs(ctx).edit()
-            .putBoolean(GOOGLE_GEOCODING_PATCHED, patched)
+            .putInt(GOOGLE_GEOCODING_PATCHED, patched?GOOGLE_GEOCODING_PATCH_NO:0)
             .commit();
     }
     
