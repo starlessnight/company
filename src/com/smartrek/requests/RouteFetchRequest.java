@@ -71,6 +71,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 		//super("http://static.suminb.com/smartrek/fake-routes.html");
 		
 		this.departureTime = departureTime;
+		fake = true;
 	}
 	
     public RouteFetchRequest(String url, long departureTime, int duration) {
