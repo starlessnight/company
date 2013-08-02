@@ -231,7 +231,7 @@ public final class RouteActivity extends ActionBarActivity {
         Misc.disableHardwareAcceleration(mapView);
         mapView.setBuiltInZoomControls(false);
         mapView.setMultiTouchControls(true);
-        mapView.setTileSource(new SmartrekTileProvider(debugMode));
+        mapView.setTileSource(new SmartrekTileProvider());
         
         TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
         Font.setTypeface(lightFont, osmCredit);

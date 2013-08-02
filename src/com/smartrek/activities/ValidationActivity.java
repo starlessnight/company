@@ -482,7 +482,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
         CloudmadeUtil.retrieveCloudmadeKey(this);
         mapView.setBuiltInZoomControls(false);
         mapView.setMultiTouchControls(true);
-        mapView.setTileSource(new SmartrekTileProvider(isDebugging));
+        mapView.setTileSource(new SmartrekTileProvider());
         mapView.setOnTouchListener(new OnTouchListener() {
             
             @Override

@@ -1,5 +1,7 @@
 package com.smartrek.utils;
 
+import java.io.IOException;
+
 import org.osmdroid.tileprovider.MapTile;
 import org.osmdroid.tileprovider.tilesource.XYTileSource;
 
@@ -13,29 +15,28 @@ final public class SmartrekTileProvider extends XYTileSource {
     
     private static final String osmImgFilenameEnding = ".png"; 
     
-    private static final int debugZoomLimit = 9;
-    
-    private boolean debug;
-    
-	public SmartrekTileProvider(boolean debug) {
+	public SmartrekTileProvider() {
 		super("Custom", null, 3, 18, 256, "", "http://tile.smartrekmobile.com/osm/");
-		this.debug = debug;
 	}
 	
 	@Override
     public String getTileURLString(final MapTile aTile) {
 	    int zoomLevel = aTile.getZoomLevel();
-	    String baseUrl;
-	    String imageFilenameEnding;
-	    if(debug && zoomLevel > debugZoomLimit){
-	        baseUrl = osmHost;
-	        imageFilenameEnding = osmImgFilenameEnding;
-	    }else{
-	        baseUrl = getBaseUrl();
-	        imageFilenameEnding = mImageFilenameEnding;
-	    }
-        return baseUrl + zoomLevel + "/" + aTile.getX() + "/" + aTile.getY()
-                + imageFilenameEnding;
+	    String baseUrl = getBaseUrl();
+	    String imageFilenameEnding = mImageFilenameEnding;
+	    String url = baseUrl + zoomLevel + "/" + aTile.getX() + "/" + aTile.getY() + imageFilenameEnding;	    
+        try {
+            HTTP http = new HTTP(url);
+            http.connect();
+            if(http.getResponseCode() == 404){
+                baseUrl = osmHost;
+                imageFilenameEnding = osmImgFilenameEnding;
+                url = baseUrl + zoomLevel + "/" + aTile.getX() + "/" + aTile.getY() + imageFilenameEnding;
+            }
+        }
+        catch (IOException e) {
+        }
+        return url;
     }
 
 }
