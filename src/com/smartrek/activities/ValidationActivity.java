@@ -179,7 +179,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
     private MediaPlayer validationMusicPlayer;
     
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.post_reservation_map);
         
@@ -189,7 +189,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
         
         animator = new Handler(Looper.getMainLooper());
         
-        boolean isOnRecreate = savedInstanceState != null;
+        final boolean isOnRecreate = savedInstanceState != null;
         
         Bundle extras = getIntent().getExtras();
         
@@ -247,7 +247,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
         final FakeRoute fakeRoute = DebugOptionsActivity.getFakeRoute(
             ValidationActivity.this, route.getId());
         isDebugging = fakeRoute != null;
-        if(!isOnRecreate && (isDebugging || hasNavLink)){
+        boolean loadRoute = !isOnRecreate && (isDebugging || hasNavLink); 
+        if(loadRoute){
             new AsyncTask<Void, Void, List<Route>>() {
                 @Override
                 protected List<Route> doInBackground(Void... params) {
@@ -283,6 +284,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
                         route.preprocessNodes();
                         routeRect = initRouteRect(route);
                         updateDirectionsList();
+                        centerMap(mapView.getController(), isOnRecreate, savedInstanceState, route);
+                        drawRoute(mapView, route, 0);
                     }
                 }
             }.execute();
@@ -294,21 +297,10 @@ public final class ValidationActivity extends Activity implements OnInitListener
         
         initViews();
         
-        MapController mc = mapView.getController();
-        mc.setZoom(DEFAULT_ZOOM_LEVEL);
-        
-        GeoPoint center = null;
-        if(isOnRecreate){
-            center = new GeoPoint((IGeoPoint)savedInstanceState.getParcelable(GEO_POINT));
-        }else if (route.getFirstNode() != null) {
-            center = route.getFirstNode().getGeoPoint();
+        if(!loadRoute){
+            centerMap(mapView.getController(), isOnRecreate, savedInstanceState, route);
+            drawRoute(mapView, route, 0);
         }
-        
-        if(center != null){
-            mc.setCenter(center);
-        }
-        
-        drawRoute(mapView, route, 0);
         
         try{
             mTts = new TextToSpeech(this, this);
@@ -354,6 +346,20 @@ public final class ValidationActivity extends Activity implements OnInitListener
                 Uri.parse("android.resource://" + getPackageName() + "/"+R.raw.validation_music));
             validationMusicPlayer.prepare();
         }catch (Throwable t) {
+        }
+    }
+    
+    private static void centerMap(MapController mc, boolean isOnRecreate,
+            Bundle savedInstanceState, Route route){
+        mc.setZoom(DEFAULT_ZOOM_LEVEL);
+        GeoPoint center = null;
+        if(isOnRecreate){
+            center = new GeoPoint((IGeoPoint)savedInstanceState.getParcelable(GEO_POINT));
+        }else if (route.getFirstNode() != null) {
+            center = route.getFirstNode().getGeoPoint();
+        }
+        if(center != null){
+            mc.setCenter(center);
         }
     }
     

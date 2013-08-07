@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 
 import android.util.Base64;
 
@@ -41,6 +42,8 @@ public final class HTTP {
 	
 	private Map<String, String> formData = Collections.emptyMap();
 	
+	private JSONObject json;
+	
 	public HTTP(String urlString) throws IOException {
 		httpConn = openHttpConnection(urlString);
 	}
@@ -58,6 +61,11 @@ public final class HTTP {
 	
 	public HTTP setFormData(Map<String, String> formData){
 	    this.formData = formData;
+	    return this;
+	}
+	
+	public HTTP set(JSONObject json){
+	    this.json = json;
 	    return this;
 	}
 	
@@ -84,16 +92,25 @@ public final class HTTP {
 			    httpConn.setDoOutput (true);
 			    httpConn.setUseCaches (false);
 			}
-			if(formData != null && !formData.isEmpty()){
-			    boolean first = true;
-			    String content = "";
-                for (Entry<String, String> data : formData.entrySet()) {
-                    String key = data.getKey();
-                    String val = data.getValue();
-                    content += (first?"":"&") + key + "=" + URLEncoder.encode(val, "UTF-8");  
-                    first = false;
-                }
-                httpConn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			boolean hasJSON = json != null;
+			if(hasJSON || formData != null && !formData.isEmpty()){
+			    String content;
+			    String contentType;
+			    if(hasJSON){
+			        contentType = "application/json";
+			        content = json.toString();
+			    }else{
+			        contentType = "application/x-www-form-urlencoded";
+			        content = "";
+			        boolean first = true;
+	                for (Entry<String, String> data : formData.entrySet()) {
+	                    String key = data.getKey();
+	                    String val = data.getValue();
+	                    content += (first?"":"&") + key + "=" + URLEncoder.encode(val, "UTF-8");  
+	                    first = false;
+	                }
+			    }
+			    httpConn.setRequestProperty("Content-Type", contentType);
                 DataOutputStream output = null;
                 try{
                     output = new DataOutputStream(httpConn.getOutputStream());

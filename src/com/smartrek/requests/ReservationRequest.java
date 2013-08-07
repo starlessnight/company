@@ -4,14 +4,14 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.smartrek.activities.DebugOptionsActivity.NavigationLink;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
 import com.smartrek.utils.HTTP.Method;
@@ -30,6 +30,7 @@ public class ReservationRequest extends Request {
     private String destination;
     private String routeBuf;
     private String version;
+    private String navUrl;
     
 	public ReservationRequest(User user, Route route, String version) {
 		super();
@@ -59,6 +60,8 @@ public class ReservationRequest extends Request {
         destination = route.getDestination();
         routeBuf = new String(buf);
         this.version = version;
+        NavigationLink navLink = route.getLink();
+        navUrl = navLink == null?null:navLink.url;
         
         if(NEW_API){
             url = getLinkUrl(Link.reservation);
@@ -80,15 +83,17 @@ public class ReservationRequest extends Request {
 	    if(NEW_API){
 	        this.username = user.getUsername();
 	        this.password = user.getPassword();
-	        Map<String, String> params = new HashMap<String, String>();
+	        JSONObject params = new JSONObject();
+            params.put("id", new SimpleDateFormat("yyyyMMddHHmm").format(now));
             params.put("start_datetime", dateFormat.format(now));
-            params.put("estimated_travel_time", String.valueOf(duration));
+            params.put("estimated_travel_time", duration);
             params.put("origin", origin);
             params.put("destination", destination);
-            params.put("route", routeBuf);
-            params.put("credit", String.valueOf(credits));
-            params.put("validated", String.valueOf(0));
+            params.put("route", new JSONArray(routeBuf));
+            params.put("credit", credits);
+            params.put("validated", 0);
             params.put("app_version", version);
+            params.put("navigation_url", navUrl);
             String res = null;
             try {
                 res = executeHttpRequest(Method.POST, url, params);

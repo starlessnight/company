@@ -10,7 +10,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
@@ -53,7 +52,7 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
                 r.setOriginAddress(object.getString("origin"));
                 r.setDestinationAddress(object.getString("destination"));
                 r.setCredits(object.optInt("credit"));
-                r.setValidatedFlag(object.getInt("validated"));
+                r.setValidatedFlag(object.optInt("validated"));
                 r.setRoute(Route.parse(object, departureTime, true));
                 
                 reservations.add(r);

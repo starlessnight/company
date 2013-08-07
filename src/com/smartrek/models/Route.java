@@ -59,10 +59,13 @@ public final class Route implements Parcelable {
 	
 	public static Route parse(JSONObject routeObject, long departureTime, boolean forceOld) throws JSONException, IOException {
 	    boolean newAPI = !forceOld && Request.NEW_API; 
-	    JSONArray rts;
+	    JSONArray rts = new JSONArray();
 	    String attr = "ROUTE";
 	    if(!routeObject.has(attr) || newAPI){
-	        rts = new JSONArray(routeObject.getString("route"));
+	        String routeAttr = "route";
+	        if(routeObject.has(routeAttr)){
+	            rts = new JSONArray(routeObject.getString(routeAttr));
+	        }
 	    }else{
             rts = routeObject.getJSONArray(attr);
 	    }

@@ -5,6 +5,7 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import org.apache.http.client.HttpResponseException;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.util.Log;
@@ -89,11 +90,21 @@ public abstract class Request {
 	}
 	
 	protected String executeHttpRequest(Method method, String url) throws IOException {
-	    return executeHttpRequest(method, url, null);
+	    return executeHttpRequest(method, url, (Object) null);
 	}
 	
 	protected String executeHttpRequest(Method method, String url, 
-	        Map<String, String> params) throws IOException {
+            Map<String, String> params) throws IOException {
+	    return executeHttpRequest(method, url, (Object) params);
+    }
+	
+	protected String executeHttpRequest(Method method, String url, 
+            JSONObject json) throws IOException {
+        return executeHttpRequest(method, url, (Object) json);
+    }
+	
+	private String executeHttpRequest(Method method, String url, 
+	        Object params) throws IOException {
 	    Log.d(LOG_TAG, "executeHttpRequest(): method=" + method + ", url="+url 
             + ", params=" + params);
         
@@ -102,7 +113,11 @@ public abstract class Request {
             http.setAuthorization(username, password);
         }
         http.setMethod(method);
-        http.setFormData(params);
+        if(params instanceof Map){
+            http.setFormData((Map)params);
+        }else if(params instanceof JSONObject){
+            http.set((JSONObject)params);
+        }
         http.connect();
         
         responseCode = http.getResponseCode();
