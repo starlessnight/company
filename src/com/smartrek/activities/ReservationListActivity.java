@@ -255,7 +255,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 			//textViewCredits.setText(String.format("%d", r.getCredits()));
 			
 			TextView itemNum = (TextView)view.findViewById(R.id.itemNum);
-			itemNum.setText(String.format("No. %d", r.getDisplayId()));
+			itemNum.setText(String.format("No. %d", r.getRid()));
 			
             Font.setTypeface(ReservationListActivity.this.boldFont, 
 		        itemNum, (TextView)view.findViewById(R.id.textView0),
@@ -291,7 +291,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
         @Override
         protected Object doInBackground(Object... params) {
             User user = (User) params[0];
-            int rid = (Integer) params[1];
+            long rid = (Long) params[1];
             
             ReservationDeleteRequest request = new ReservationDeleteRequest(user, rid);
             try {

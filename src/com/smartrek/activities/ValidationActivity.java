@@ -72,7 +72,6 @@ import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
-import com.smartrek.requests.Request;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.ui.NavigationView;
 import com.smartrek.ui.NavigationView.CheckPointListener;
@@ -672,8 +671,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
     private int seq = 1;
     
     private void saveTrajectory(){
-        final File tFile = SendTrajectoryService.getInFile(this, Request.NEW_API?
-            reservation.getDepartureTime():reservation.getDisplayId(), seq++);
+        final File tFile = SendTrajectoryService.getInFile(this, reservation.getRid(), seq++);
         final JSONArray tJson;
         try {
             tJson = trajectory.toJSON();
@@ -702,7 +700,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
     }
     
     private void saveValidation(){
-        final File tFile = ValidationService.getFile(this, reservation.getDisplayId());
+        final File tFile = ValidationService.getFile(this, reservation.getRid());
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -768,11 +766,16 @@ public final class ValidationActivity extends Activity implements OnInitListener
     private synchronized void locationChanged(Location location) {
         trajectory.accumulate(location);
         
+        if(pointOverlay == null){
+            return;
+        }
+        
         double lat = location.getLatitude();
         double lng = location.getLongitude();
         
-        GeoPoint oldLoc = pointOverlay.getLocation();
         long now = SystemClock.elapsedRealtime();
+
+        GeoPoint oldLoc = pointOverlay.getLocation();
         if(oldLoc.isEmpty()){
             if (buttonFollow.isChecked()) {
                 mapView.getController().animateTo(lat, lng);
@@ -811,48 +814,51 @@ public final class ValidationActivity extends Activity implements OnInitListener
         lastLocChanged = now;
         
         //nearestNode = route.getNearestNode(lat, lng);
-        nearestLink = route.getNearestLink(lat, lng);
-        nearestNode = nearestLink.getEndNode();
-        
-        ValidationParameters params = ValidationParameters.getInstance();
-        
-        boolean alreadyValidated = isTripValidated(); 
-        
-        double distanceToLink = nearestLink.distanceTo(lat, lng);
-        if (distanceToLink <= params.getValidationDistanceThreshold()) {
-            Log.i("validated node", nearestLink.getStartNode().getNodeIndex() + "");
-            nearestLink.getStartNode().getMetadata().setValidated(true);
-        }
-        
-        if(!alreadyValidated && isTripValidated()){
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    validationMusicPlayer.start();
-                    saveValidation();
-                }
-            });
-        }
-        
-        int numberOfValidatedNodes = 0;
-        for (RouteNode node : route.getNodes()) {
-        	if (node.getMetadata().isValidated()) {
-        		numberOfValidatedNodes += 1;
-        	}
-        }
-        Log.d("ValidationActivity", String.format("%d/%d", numberOfValidatedNodes, route.getNodes().size()));
-        
-        if (nearestNode.getFlag() != 0) {
-            showNavigationInformation(location, nearestNode);
-        }
-        else {
-            // find the closest RouteNode with a non-zero flag
-            RouteNode node = nearestNode;
-            while (node.getNextNode() != null) {
-                node = node.getNextNode();
-                if (node.getFlag() != 0) {
-                    showNavigationInformation(location, node);
-                    break;
+        if(!route.getNodes().isEmpty()){
+            nearestLink = route.getNearestLink(lat, lng);
+            
+            nearestNode = nearestLink.getEndNode();
+            
+            ValidationParameters params = ValidationParameters.getInstance();
+            
+            boolean alreadyValidated = isTripValidated(); 
+            
+            double distanceToLink = nearestLink.distanceTo(lat, lng);
+            if (distanceToLink <= params.getValidationDistanceThreshold()) {
+                Log.i("validated node", nearestLink.getStartNode().getNodeIndex() + "");
+                nearestLink.getStartNode().getMetadata().setValidated(true);
+            }
+            
+            if(!alreadyValidated && isTripValidated()){
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        validationMusicPlayer.start();
+                        saveValidation();
+                    }
+                });
+            }
+            
+            int numberOfValidatedNodes = 0;
+            for (RouteNode node : route.getNodes()) {
+            	if (node.getMetadata().isValidated()) {
+            		numberOfValidatedNodes += 1;
+            	}
+            }
+            Log.d("ValidationActivity", String.format("%d/%d", numberOfValidatedNodes, route.getNodes().size()));
+            
+            if (nearestNode.getFlag() != 0) {
+                showNavigationInformation(location, nearestNode);
+            }
+            else {
+                // find the closest RouteNode with a non-zero flag
+                RouteNode node = nearestNode;
+                while (node.getNextNode() != null) {
+                    node = node.getNextNode();
+                    if (node.getFlag() != 0) {
+                        showNavigationInformation(location, node);
+                        break;
+                    }
                 }
             }
         }
@@ -861,7 +867,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
             saveTrajectory();
         }
         
-        if (!arrived.get() && route.hasArrivedAtDestination(lat, lng)) {
+        if (!arrived.get() && !route.getNodes().isEmpty() && route.hasArrivedAtDestination(lat, lng)) {
             arrived.set(true);
             arriveAtDestination();
             Log.d("ValidationActivity", "Arriving at destination");

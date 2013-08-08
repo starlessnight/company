@@ -14,9 +14,9 @@ public final class ReservationDeleteRequest extends DeleteRequest {
     /**
      * Reservation ID
      */
-    private int rid;
+    private long rid;
     
-    public ReservationDeleteRequest(User user, int rid) {
+    public ReservationDeleteRequest(User user, long rid) {
         this.user = user;
         this.rid = rid;
     }

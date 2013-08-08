@@ -74,6 +74,10 @@ public class RoutePathOverlay extends Overlay {
 		
 		List<RouteNode> routeNodes = route.getNodes();
 		
+		if(routeNodes.isEmpty()){
+		    return;
+		}
+		
 		RouteNode firstNode = routeNodes.get(0);
 		projection.toPixels(firstNode.getGeoPoint(), point);
 		path.moveTo(point.x, point.y);

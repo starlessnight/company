@@ -1,13 +1,8 @@
 package com.smartrek.requests;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -19,6 +14,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
@@ -26,17 +22,12 @@ import com.smartrek.utils.HTTP.Method;
 
 public class SendTrajectoryRequest extends Request {
 	
-    public void execute(User user, String link, long rid, Trajectory trajectory) throws JSONException, ClientProtocolException, IOException {
-        SimpleDateFormat idFmt = new SimpleDateFormat("yyyyMMdd/HH/mmss");
-        idFmt.setTimeZone(TimeZone.getTimeZone(TIME_ZONE));
-        String url = link.replaceAll("\\{id\\}", idFmt.format(new Date(rid)));
-        SimpleDateFormat fieldFmt = new SimpleDateFormat("yyyyMMddHHmmss");
-        fieldFmt.setTimeZone(TimeZone.getTimeZone(TIME_ZONE));
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("trajectorybatch_" + fieldFmt.format(new Date()), trajectory.toJSON().toString());
+    public void execute(User user, String link, Trajectory trajectory) throws JSONException, ClientProtocolException, IOException {
+        JSONObject params = new JSONObject();
+        params.put("trajectory", trajectory.toJSON());
         this.username = user.getUsername();
         this.password = user.getPassword();
-        executeHttpRequest(Method.PUT, url, params);
+        executeHttpRequest(Method.POST, link, params);
     }
     
 	public void execute(int seq, int uid, long rid, Trajectory trajectory) throws JSONException, ClientProtocolException, IOException {

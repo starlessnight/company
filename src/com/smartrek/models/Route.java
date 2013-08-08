@@ -31,7 +31,7 @@ public final class Route implements Parcelable {
 	private String origin;
 	private String destination;
 	private List<RouteNode> routeNodes = new ArrayList<RouteNode>();
-	private int rid;
+	private long rid;
 	private int validated;
 	private int duration;
 	private long departureTime;
@@ -186,7 +186,7 @@ public final class Route implements Parcelable {
 		origin = in.readString();
 		destination = in.readString();
 		in.readTypedList(routeNodes, RouteNode.CREATOR);
-		rid = in.readInt();
+		rid = in.readLong();
 		validated = in.readInt();
 		duration = in.readInt();
 		departureTime = in.readLong();
@@ -194,7 +194,7 @@ public final class Route implements Parcelable {
 		credits = in.readInt();
 		fake = (Boolean) in.readValue(null);
 		seq = in.readInt();
-		int lId = in.readInt();
+		long lId = in.readLong();
 		String lUrl = in.readString();
 		if(lUrl != null){
 		    NavigationLink l = new NavigationLink();
@@ -311,11 +311,11 @@ public final class Route implements Parcelable {
 	    routeNodes = buildRouteNodes(nodes);
 	}
 	
-	public int getId(){
+	public long getId(){
 		return rid;
 	}
 	
-	public void setId(int rid) {
+	public void setId(long rid) {
 	    this.rid = rid;
 	}
 	
@@ -562,7 +562,7 @@ public final class Route implements Parcelable {
 		dest.writeString(origin);
 		dest.writeString(destination);
 		dest.writeTypedList(routeNodes);
-		dest.writeInt(rid);
+		dest.writeLong(rid);
 		dest.writeInt(validated);
 		dest.writeInt(duration);
 		//dest.writeValue(departureTime);
@@ -571,7 +571,7 @@ public final class Route implements Parcelable {
 		dest.writeInt(credits);
 		dest.writeValue(fake);
 		dest.writeInt(seq);
-		dest.writeInt(link == null?0:link.id);
+		dest.writeLong(link == null?0:link.id);
 		dest.writeString(link == null?null:link.url);
 	}
 

@@ -39,7 +39,7 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
             for(int i = 0; i < array.length(); i++) {
                 JSONObject object = (JSONObject) array.get(i);
                 Reservation r = new Reservation();
-                r.setRid(object.getInt("id"));
+                r.setRid(object.getLong("id"));
                 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 dateFormat.setTimeZone(TimeZone.getTimeZone(Request.TIME_ZONE));

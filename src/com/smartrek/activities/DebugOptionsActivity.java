@@ -331,7 +331,7 @@ public final class DebugOptionsActivity extends Activity {
         saveFakeRoutes(ctx, newRoutes.put(route.toString()));
     }
     
-    public static FakeRoute getFakeRoute(Context ctx, int id){
+    public static FakeRoute getFakeRoute(Context ctx, long id){
         FakeRoute route = null;
         JSONArray routes = getFakeRoutes(ctx);
         for(int i=0; i<routes.length(); i++){
@@ -346,7 +346,7 @@ public final class DebugOptionsActivity extends Activity {
     
     public static class FakeRoute {
         
-        int id;
+        long id;
         
         int seq;
         
@@ -358,15 +358,15 @@ public final class DebugOptionsActivity extends Activity {
         public static FakeRoute fromString(String val){
             String[] vals = val.split(",");
             FakeRoute r = new FakeRoute();
-            r.id = Integer.parseInt(vals[0]);
+            r.id = Long.parseLong(vals[0]);
             r.seq = Integer.parseInt(vals[1]);
             return r;
         }
         
     }
     
-    private static SortedMap<Integer, NavigationLink> getNavLinks(Context ctx){
-        SortedMap<Integer, NavigationLink> rs = new TreeMap<Integer, NavigationLink>();
+    private static SortedMap<Long, NavigationLink> getNavLinks(Context ctx){
+        SortedMap<Long, NavigationLink> rs = new TreeMap<Long, NavigationLink>();
         JSONArray array = null;
         try {
             array = new JSONArray(getPrefs(ctx).getString(navLinks, "[]"));
@@ -384,7 +384,7 @@ public final class DebugOptionsActivity extends Activity {
         return rs;
     }
     
-    private static void saveNavLinks(Context ctx, Map<Integer, NavigationLink> links){
+    private static void saveNavLinks(Context ctx, Map<Long, NavigationLink> links){
         JSONArray array = new JSONArray();
         for(NavigationLink l:links.values()){
             try {
@@ -398,7 +398,7 @@ public final class DebugOptionsActivity extends Activity {
     }
     
     public static void addNavLink(Context ctx, NavigationLink l){
-        SortedMap<Integer, NavigationLink> links = getNavLinks(ctx);
+        SortedMap<Long, NavigationLink> links = getNavLinks(ctx);
         while(links.size() > navLinksSize - 1){
             links.remove(links.firstKey());
         }
@@ -406,7 +406,7 @@ public final class DebugOptionsActivity extends Activity {
         saveNavLinks(ctx, links);
     }
     
-    public static NavigationLink getNavLink(Context ctx, int id){
+    public static NavigationLink getNavLink(Context ctx, long id){
         return getNavLinks(ctx).get(id);
     }
     
@@ -416,7 +416,7 @@ public final class DebugOptionsActivity extends Activity {
         
         private static String URL = "URL";
         
-        public int id;
+        public long id;
         
         public String url;
         
@@ -429,7 +429,7 @@ public final class DebugOptionsActivity extends Activity {
         
         public static NavigationLink fromJSON(JSONObject json){
             NavigationLink l = new NavigationLink();
-            l.id = json.optInt(ID);
+            l.id = json.optLong(ID);
             l.url = json.optString(URL);
             return l;
         }

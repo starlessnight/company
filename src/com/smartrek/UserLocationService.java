@@ -38,10 +38,10 @@ public class UserLocationService extends IntentService {
             SendTrajectoryRequest request = new SendTrajectoryRequest();
             try {
                 if(Request.NEW_API){
-                    TripLinkRequest tlr = new TripLinkRequest(user);
-                    tlr.invalidateCache(this);
-                    String link = tlr.execute(this);
-                    request.execute(user, link, RID, traj);
+//                    TripLinkRequest tlr = new TripLinkRequest(user);
+//                    tlr.invalidateCache(this);
+//                    String link = tlr.execute(this);
+//                    request.execute(user, link, RID, traj);
                 }else{
                     request.execute(0, user.getId(), RID, traj);
                 }

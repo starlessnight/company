@@ -65,7 +65,7 @@ public final class ReservationReceiver extends BroadcastReceiver {
 		
 	    Route route = intent.getExtras().getParcelable("route");
 	    Reservation reservation = intent.getExtras().getParcelable("reservation");
-	    int reservationId = intent.getExtras().getInt(RESERVATION_ID);
+	    long reservationId = intent.getExtras().getLong(RESERVATION_ID);
 		
         Intent reservationIntent = new Intent(context, ReservationDetailsActivity.class);
         reservationIntent.putExtra(RESERVATION_ID, reservationId);

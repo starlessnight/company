@@ -28,7 +28,7 @@ public final class Reservation implements Parcelable {
 	/**
 	 * Reservation ID
 	 */
-	private int rid;
+	private long rid;
 	
 	private Route route;
 	
@@ -69,7 +69,7 @@ public final class Reservation implements Parcelable {
 	}
 	
 	private Reservation(Parcel in) {
-		rid = in.readInt();
+		rid = in.readLong();
 		route = in.readParcelable(Route.class.getClassLoader());
 		departureTime = in.readLong();
 		duration = in.readInt();
@@ -79,11 +79,11 @@ public final class Reservation implements Parcelable {
 		validatedFlag = in.readInt();
 	}
 
-	public int getRid() {
+	public long getRid() {
 		return rid;
 	}
 
-	public void setRid(int rid) {
+	public void setRid(long rid) {
 		this.rid = rid;
 	}
 
@@ -209,7 +209,7 @@ public final class Reservation implements Parcelable {
 	public static Reservation parse(JSONObject object) throws JSONException, ParseException, IOException {
 		Reservation r = new Reservation();
 		
-		r.setRid(object.getInt("RID"));
+		r.setRid(object.getLong("RID"));
 		
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
 		dateFormat.setTimeZone(TimeZone.getTimeZone(Request.TIME_ZONE));
@@ -248,7 +248,7 @@ public final class Reservation implements Parcelable {
 
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeInt(rid);
+		dest.writeLong(rid);
 		dest.writeParcelable(route, flags);
 		dest.writeLong(departureTime);
 		dest.writeInt(duration);
@@ -282,11 +282,6 @@ public final class Reservation implements Parcelable {
 
     public void setDestinationName(String destinationName) {
         this.destinationName = destinationName;
-    }
-    
-    public int getDisplayId(){
-        int displayId = route.getId();
-        return displayId>0?displayId:rid;
     }
     
     public static Comparator<Reservation> orderByDepartureTime(){

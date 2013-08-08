@@ -22,7 +22,7 @@ public class ReservationRequest extends Request {
     private SimpleDateFormat dateFormat;
     private User user;
     private Date now;
-    private int rid;
+    private long rid;
     private int credits;
     private int uid;
     private int duration;
@@ -78,8 +78,8 @@ public class ReservationRequest extends Request {
         }
 	}
 	
-	public Integer execute() throws Exception {
-	    Integer id = null;
+	public Long execute() throws Exception {
+	    Long id = null;
 	    if(NEW_API){
 	        this.username = user.getUsername();
 	        this.password = user.getPassword();
@@ -111,7 +111,7 @@ public class ReservationRequest extends Request {
                 }
                 throw new Exception(msg);
             }else{
-                id = data.getInt("id");
+                id = data.getLong("id");
             }
 	    }else{
     		String responseBody = executeHttpGetRequest(url);

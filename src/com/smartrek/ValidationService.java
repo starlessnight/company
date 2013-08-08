@@ -49,7 +49,7 @@ public class ValidationService extends IntentService {
         return new File(ctx.getExternalFilesDir(null), "validation");
     }
     
-    public static File getFile(Context ctx, int rId){
+    public static File getFile(Context ctx, long rId){
         return new File(getDir(ctx), String.valueOf(rId));
     }
     

@@ -151,7 +151,7 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 		am.set(AlarmManager.RTC_WAKEUP, departureTime - 60000*5, pendingOperation); // 5 min earlier than departure time
 	}
 	
-	private final class ReservationTask extends AsyncTask<Object, Object, Integer> {
+	private final class ReservationTask extends AsyncTask<Object, Object, Long> {
 		
 		private ProgressDialog dialog;
 
@@ -166,8 +166,8 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 		}
 
 		@Override
-		protected Integer doInBackground(Object... params) {
-		    Integer rs = null;
+		protected Long doInBackground(Object... params) {
+		    Long rs = null;
 			ReservationRequest request = new ReservationRequest(User.getCurrentUser(ReservationConfirmationActivity.this), 
 		        route, getString(R.string.distribution_date));
 			try {
@@ -181,7 +181,7 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 		}
 		
 		@Override
-		protected void onPostExecute(Integer result) {
+		protected void onPostExecute(Long result) {
 			dialog.cancel();
 			
 		    if (ehs.hasExceptions()) {

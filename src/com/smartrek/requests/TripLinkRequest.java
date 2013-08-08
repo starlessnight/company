@@ -8,8 +8,8 @@ import com.smartrek.models.User;
 
 public final class TripLinkRequest extends FetchRequest<String> {
     
-	public TripLinkRequest(User user) {
-		super(getLinkUrl(Link.trip));
+	public TripLinkRequest(User user, long reservationId) {
+		super(getLinkUrl(Link.reservation) + "/" + reservationId);
 		this.username = user.getUsername();
         this.password = user.getPassword();
 	}
@@ -18,7 +18,7 @@ public final class TripLinkRequest extends FetchRequest<String> {
 	public String execute(Context ctx) throws Exception {
 		String response = executeFetchRequest(getURL(), ctx);
 		JSONObject json  = new JSONObject(response);
-        return json.getJSONObject("links").getString("element");
+        return json.getJSONObject("links").getString("trajectory");
 	}
 
 }
