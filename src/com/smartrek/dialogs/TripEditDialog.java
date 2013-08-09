@@ -138,6 +138,8 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 			editTextName.setText(trip.getName());
 			editTextOrigin.setText(trip.getOrigin());
 			editTextDestination.setText(trip.getDestination());
+		}else{
+		    editTextName.setText(origin.getName() + " to " + destination.getName());
 		}
 		
 		Button layoutSetReminder = (Button) dialogView.findViewById(R.id.layout_set_reminder);
