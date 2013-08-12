@@ -23,7 +23,6 @@ import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.SendTrajectoryRequest;
-import com.smartrek.requests.TripLinkRequest;
 
 public class SendTrajectoryService extends IntentService {
     
@@ -87,10 +86,7 @@ public class SendTrajectoryService extends IntentService {
                     SendTrajectoryRequest request = new SendTrajectoryRequest();
                     try {
                         if(Request.NEW_API){
-                            TripLinkRequest tlr = new TripLinkRequest(user, routeId);
-                            tlr.invalidateCache(this);
-                            String link = tlr.execute(this);
-                            request.execute(user, link, traj);
+                            request.execute(user, routeId, traj);
                         }else{
                             request.execute(seq, user.getId(), routeId, traj);
                         }
