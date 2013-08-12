@@ -51,6 +51,8 @@ public final class Reservation implements Parcelable {
 	
 	private int validatedFlag;
 	
+	private String navLink;
+	
 	public static int COMPLETED = 0x0001;
 	public static int VALIDATED = 0x0002;
 	
@@ -77,6 +79,7 @@ public final class Reservation implements Parcelable {
 		destinationAddress = in.readString();
 		credits = in.readInt();
 		validatedFlag = in.readInt();
+		navLink = in.readString();
 	}
 
 	public long getRid() {
@@ -256,6 +259,7 @@ public final class Reservation implements Parcelable {
 		dest.writeString(destinationAddress);
 		dest.writeInt(credits);
 		dest.writeInt(validatedFlag);
+		dest.writeString(navLink);
 	}
 	
 	public static String formatTime(long time){
@@ -293,6 +297,14 @@ public final class Reservation implements Parcelable {
                     .toComparison();
             }
         };
+    }
+
+    public String getNavLink() {
+        return navLink;
+    }
+
+    public void setNavLink(String navLink) {
+        this.navLink = navLink;
     }
 	
 }

@@ -54,6 +54,7 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
                 r.setCredits(object.optInt("credit"));
                 r.setValidatedFlag(object.optInt("validated"));
                 r.setRoute(Route.parse(object, departureTime, true));
+                r.setNavLink(object.optString("navigation_url"));
                 
                 reservations.add(r);
             }

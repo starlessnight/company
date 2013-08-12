@@ -66,7 +66,6 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.SendTrajectoryService;
 import com.smartrek.ValidationService;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
-import com.smartrek.activities.DebugOptionsActivity.NavigationLink;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
@@ -241,7 +240,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
             }
         };
         
-        final NavigationLink navLink = DebugOptionsActivity.getNavLink(this, reservation.getRid());
+        final String navLink = reservation.getNavLink();
         boolean hasNavLink = navLink != null;
         final FakeRoute fakeRoute = DebugOptionsActivity.getFakeRoute(
             ValidationActivity.this, route.getId());
@@ -257,7 +256,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
                         if(isDebugging){
                             request = new RouteFetchRequest(route.getDepartureTime());
                         }else{
-                            request = new RouteFetchRequest(navLink.url, 
+                            request = new RouteFetchRequest(navLink, 
                                 reservation.getDepartureTime(), reservation.getDuration());
                         }
                         routes = request.execute(ValidationActivity.this);

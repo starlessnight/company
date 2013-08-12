@@ -197,12 +197,6 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 				    DebugOptionsActivity.addFakeRoute(ReservationConfirmationActivity.this, fakeRoute);
 				}
 				
-				NavigationLink link = route.getLink();
-				if(link != null && result != null){
-				    link.id = result;
-				    DebugOptionsActivity.addNavLink(ReservationConfirmationActivity.this, link);
-				}
-				
 				NotificationDialog dialog = new NotificationDialog(ReservationConfirmationActivity.this, "You have successfully reserved a route.");
 				dialog.setActionListener(new NotificationDialog.ActionListener() {
                     
