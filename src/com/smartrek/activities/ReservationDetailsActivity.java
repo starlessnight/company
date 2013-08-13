@@ -14,6 +14,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
+import com.smartrek.requests.Request;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
@@ -90,7 +91,7 @@ public final class ReservationDetailsActivity extends ActionBarActivity {
 	        textViewDuration.setText(HumanReadableTime.formatDuration(duration));
 	        
 	        textViewCredits = (TextView) findViewById(R.id.textViewCredits);
-	        textViewCredits.setText(String.valueOf(route.getCredits()));
+	        textViewCredits.setText(String.valueOf(Request.NEW_API?reservation.getCredits():route.getCredits()));
 	        
 	        textViewHelp = (TextView) findViewById(R.id.textViewHelp);
         
