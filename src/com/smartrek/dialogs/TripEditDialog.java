@@ -134,6 +134,7 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 		if (destination != null) {
 			editTextDestination.setText(destination.getAddress());
 		}
+		
 		if (trip != null) {
 			editTextName.setText(trip.getName());
 			editTextOrigin.setText(trip.getOrigin());
@@ -153,7 +154,6 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 		});
 		
 		Button saveButton = (Button) dialogView.findViewById(R.id.save_button);
-		saveButton.setEnabled(isEditMode());
 		saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
