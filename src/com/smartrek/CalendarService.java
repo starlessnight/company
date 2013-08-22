@@ -2,6 +2,7 @@ package com.smartrek;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -25,6 +26,7 @@ import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.models.User;
 import com.smartrek.receivers.CalendarNotification;
 import com.smartrek.utils.CalendarContract.Instances;
+import com.smartrek.utils.Geocoding;
 
 public class CalendarService extends IntentService {
 
@@ -60,7 +62,7 @@ public class CalendarService extends IntentService {
                    String location = events.getString(3);
                    long notiTime = start - TWO_AND_A_HALF_HOURS;
                    if((!file.exists() || file.length() == 0) && StringUtils.isNotBlank(location) 
-                           && System.currentTimeMillis() < notiTime /* true */){
+                           && canBeGeocoded(location) && System.currentTimeMillis() < notiTime /* true */){
                        hasNotification = true;
                        Intent noti = new Intent(CalendarService.this, 
                            CalendarNotification.class);
@@ -94,6 +96,17 @@ public class CalendarService extends IntentService {
                 }
             }
         }
+    }
+    
+    private static boolean canBeGeocoded(String location){
+        boolean rs;
+        try {
+            List<Geocoding.Address> addresses = Geocoding.lookup(location, false);
+            rs = addresses != null && !addresses.isEmpty() && !addresses.get(0).getGeoPoint().isEmpty();
+        }catch(Throwable t){
+            rs = false;
+        }
+        return rs;
     }
     
     private File getDir(){

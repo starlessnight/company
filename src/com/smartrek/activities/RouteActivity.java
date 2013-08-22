@@ -8,12 +8,14 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
 
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -34,6 +36,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.CalendarService;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.exceptions.RouteNotFoundException;
 import com.smartrek.models.Route;
@@ -41,6 +44,7 @@ import com.smartrek.models.User;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.tasks.GeocodingTask;
 import com.smartrek.tasks.GeocodingTaskCallback;
+import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.RouteInfoOverlay;
 import com.smartrek.ui.overlays.RouteOverlayCallback;
@@ -53,6 +57,7 @@ import com.smartrek.ui.timelayout.TimeColumn;
 import com.smartrek.ui.timelayout.TimeLayout;
 import com.smartrek.ui.timelayout.TimeLayout.TimeLayoutListener;
 import com.smartrek.ui.timelayout.TimeLayout.TimeLayoutOnSelectListener;
+import com.smartrek.utils.CalendarContract.Instances;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
@@ -61,6 +66,7 @@ import com.smartrek.utils.Misc;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.RouteRect;
 import com.smartrek.utils.SmartrekTileProvider;
+import com.smartrek.utils.SystemService;
 
 /**
  * 
@@ -68,6 +74,8 @@ import com.smartrek.utils.SmartrekTileProvider;
  */
 public final class RouteActivity extends ActionBarActivity {
 
+    public static final String EVENT_ID = "event_id";
+    
     public static final int RESERVATION_CONFIRM = 3;
     
     public static final int RESERVATION_CONFIRM_ENDED = 3;
@@ -225,6 +233,20 @@ public final class RouteActivity extends ActionBarActivity {
         /* Get the extras from the bundle */
         Bundle extras = getIntent().getExtras();
         
+        boolean currentLocation = extras.getBoolean(CURRENT_LOCATION);
+        originAddr = extras.getString(ORIGIN_ADDR);
+        destAddr = extras.getString(DEST_ADDR);
+        
+        int eventId = extras.getInt(EVENT_ID, 0);
+        if(eventId > 0){
+            NotificationManager nMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            nMgr.cancel(eventId);
+            JSONObject event = CalendarService.getEvent(this, eventId);
+            originAddr = EditAddress.CURRENT_LOCATION;
+            destAddr = event.optString(Instances.EVENT_LOCATION);
+            currentLocation = true;
+        }
+        
         debugMode = extras.getBoolean("debugMode");
         
         mapView = (MapView) findViewById(R.id.mapview);
@@ -336,9 +358,6 @@ public final class RouteActivity extends ActionBarActivity {
         // FIXME: Temporary solution
         selectedTime = new Time();
         selectedTime.setToNow();
-
-        originAddr = extras.getString(ORIGIN_ADDR);
-        destAddr = extras.getString(DEST_ADDR);
         
         org.osmdroid.util.GeoPoint pOriginCoord = extras.getParcelable(ORIGIN_COORD);
         if(pOriginCoord != null){
@@ -349,7 +368,7 @@ public final class RouteActivity extends ActionBarActivity {
             destCoord = new GeoPoint(pDestCoord);
         }
         
-        if(extras.getBoolean(CURRENT_LOCATION)){
+        if(currentLocation){
             final CancelableProgressDialog currentLocDialog = new CancelableProgressDialog(RouteActivity.this, "Getting current location...");
             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             locationListener = new LocationListener() {
@@ -378,6 +397,9 @@ public final class RouteActivity extends ActionBarActivity {
             });
             currentLocDialog.show();
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, locationListener);
+            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                SystemService.alertNoGPS(this);
+            }
         }else{
             doRouteTask();
         }

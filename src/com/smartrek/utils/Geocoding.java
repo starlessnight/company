@@ -104,6 +104,10 @@ public final class Geocoding {
 	 * @throws JSONException 
 	 */
 	public static List<Address> lookup(String query) throws IOException, JSONException {
+	    return lookup(query, true);
+	}
+	
+	public static List<Address> lookup(String query, boolean usOnly) throws IOException, JSONException {
         /*String url = String.format("%s?q=%s&format=json", URL, URLEncoder.encode(
             replaceLaInitials(query)));
         Log.d("Geocoding", "url = " + url);
@@ -136,7 +140,7 @@ public final class Geocoding {
 	    
 	    List<Address> addresses = new ArrayList<Address>();
         //if(addresses.isEmpty()){
-            GeoPoint gp = googleLookup(query);
+            GeoPoint gp = googleLookup(query, usOnly);
             Address address = new Address();
             address.setLatitude(gp.getLatitude());
             address.setLongitude(gp.getLongitude());
@@ -158,8 +162,8 @@ public final class Geocoding {
         return address.replaceAll("(?i)(?<=(^|(^|\\S)[,\\s]{1,10}))((st\\.?)|(street))(?=([,\\s]{1,10}($|\\S)|$))", "");
     }
 	
-    private static GeoPoint googleLookup(String address) throws IOException, JSONException {
-        String url = String.format("%s?address=%s&components=country:us&sensor=false", GOOGLE_URL, URLEncoder.encode(address));
+    private static GeoPoint googleLookup(String address, boolean usOnly) throws IOException, JSONException {
+        String url = String.format("%s?address=%s&sensor=false" + (usOnly?"&components=country:us":""), GOOGLE_URL, URLEncoder.encode(address));
         Log.d("Geocoding", "url = " + url);
         
         double lat = 0.0;

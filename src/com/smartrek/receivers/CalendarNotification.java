@@ -18,9 +18,9 @@ import android.os.Build;
 import android.util.Log;
 
 import com.smartrek.CalendarService;
-import com.smartrek.activities.HomeActivity;
 import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.activities.R;
+import com.smartrek.activities.RouteActivity;
 import com.smartrek.utils.CalendarContract.Instances;
 
 public final class CalendarNotification extends BroadcastReceiver {
@@ -49,9 +49,9 @@ public final class CalendarNotification extends BroadcastReceiver {
             }
             long expiryTime = startTime - THIRTY_MINS;
             if(System.currentTimeMillis() < expiryTime /* || true */){
-                Intent homeIntent = new Intent(context, HomeActivity.class);
-                homeIntent.putExtra(HomeActivity.EVENT_ID, eventId);
-                PendingIntent sender = PendingIntent.getActivity(context, eventId, homeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                Intent routeIntent = new Intent(context, RouteActivity.class);
+                routeIntent.putExtra(RouteActivity.EVENT_ID, eventId);
+                PendingIntent sender = PendingIntent.getActivity(context, eventId, routeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 Intent delay = new Intent(context, CalendarNotificationDelay.class);
                 delay.putExtra(CalendarNotificationDelay.EVENT_ID, eventId);
                 PendingIntent pendingDelay = PendingIntent.getBroadcast(context, eventId, delay, 

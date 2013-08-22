@@ -1,7 +1,6 @@
 package com.smartrek.ui;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.widget.EditText;
@@ -10,7 +9,8 @@ import com.smartrek.models.Address;
 
 public final class EditAddress extends EditText {
 	
-	private boolean currentLocationInUse;
+	public static final String CURRENT_LOCATION = "Current location";
+    private boolean currentLocationInUse;
 	private Address address;
 	
 	private int defaultTextColor;
@@ -39,7 +39,7 @@ public final class EditAddress extends EditText {
 		currentLocationInUse = true;
 		address = null;
 		
-		setText("Current location");
+		setText(CURRENT_LOCATION);
 		//setTextColor(Color.BLUE);
 		//setEnabled(false);
 	}

@@ -85,8 +85,6 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
     
     public static final String INIT = "init";
     
-    public static final String EVENT_ID = "event_id";
-    
     public static final String LOGOUT = "logout";
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
@@ -143,7 +141,6 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	    editAddressDest.addTextChangedListener(this);
 	    
 	    editAddressOrigin.setAddressAsCurrentLocation();
-	    handleCalendarEvent(getIntent().getIntExtra(EVENT_ID, 0));
 	    
 	    //dateBox = (EditText) findViewById(R.id.date_box);
 	
@@ -276,22 +273,6 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
            finish();
            return;
        }
-	}
-	
-	@Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        handleCalendarEvent(intent.getIntExtra(EVENT_ID, 0));
-    }
-	
-	private void handleCalendarEvent(int eventId){
-        if(eventId > 0){
-            NotificationManager nMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            nMgr.cancel(eventId);
-            JSONObject event = CalendarService.getEvent(this, eventId);
-            setDestinationAddress(event.optString(Instances.EVENT_LOCATION));
-            editAddressOrigin.setAddressAsCurrentLocation();
-        }
 	}
 	
 	private void updateDeviceId(){
