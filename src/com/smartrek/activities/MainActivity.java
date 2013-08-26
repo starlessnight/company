@@ -86,7 +86,7 @@ public class MainActivity extends Activity implements AnimationListener {
                         loginTaskEnded = true;
                         if(splashEnded){
                             if(loggedIn){
-                                startHomeActivity();
+                                startLandingActivity();
                             }else{
                                 startLoginActivity();
                             }
@@ -156,9 +156,8 @@ public class MainActivity extends Activity implements AnimationListener {
 		}
 	}
 	
-	private void startHomeActivity(){
-        Intent intent = new Intent(this, HomeActivity.class);
-        intent.putExtra(HomeActivity.INIT, true);
+	private void startLandingActivity(){
+        Intent intent = new Intent(this, LandingActivity.class);
         startActivity(intent);
         finish();
 	}
@@ -197,7 +196,7 @@ public class MainActivity extends Activity implements AnimationListener {
 		}else{   
 		    if(loginTaskEnded){
 		        if(loggedIn){
-		            startHomeActivity();
+		            startLandingActivity();
 	            }else{
 	                startLoginActivity();
 	            }

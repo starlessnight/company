@@ -4,11 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -36,6 +39,10 @@ public final class MapDisplayActivity extends ActionBarActivity {
     private static final String NAVIGATION_TTS = "NAVIGATION_TTS";
     
     private static final String VALIDATED_TRIPS_COUNT = "VALIDATED_TRIPS_COUNT";
+    
+    private static final String HOME_ADDRESS = "HOME_ADDRESS";
+    
+    private static final String WORK_ADDRESS = "WORK_ADDRESS";
 
     private RadioButton displayTravel;
     private RadioButton displayArrival;
@@ -134,6 +141,42 @@ public final class MapDisplayActivity extends ActionBarActivity {
             }
         });
         
+        EditText homeAddr = (EditText) findViewById(R.id.home_address);
+        homeAddr.setText(String.valueOf(prefs.getString(HOME_ADDRESS, "")));
+        homeAddr.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count,
+                    int after) {
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+                prefs.edit()
+                    .putString(HOME_ADDRESS, s.toString().trim())
+                    .commit();
+            }
+        });
+        
+        EditText workAddr = (EditText) findViewById(R.id.work_address);
+        workAddr.setText(String.valueOf(prefs.getString(WORK_ADDRESS, "")));
+        workAddr.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count,
+                    int after) {
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+                prefs.edit()
+                    .putString(WORK_ADDRESS, s.toString().trim())
+                    .commit();
+            }
+        });
+        
         Font.setTypeface(boldFont, (TextView)findViewById(R.id.time_heading),
             (TextView)findViewById(R.id.calendar_integration_heading),
             (TextView)findViewById(R.id.navigation_tts_heading),
@@ -141,7 +184,8 @@ public final class MapDisplayActivity extends ActionBarActivity {
         Font.setTypeface(lightFont, displayTravel, displayArrival,
             (TextView)findViewById(R.id.calendar_integration_text),
             (TextView)findViewById(R.id.navigation_tts_text),
-            (TextView)findViewById(R.id.distribution_date));
+            (TextView)findViewById(R.id.distribution_date),
+            homeAddr, workAddr);
     }
     
     public static boolean isCalendarIntegrationEnabled(Context ctx){
@@ -163,6 +207,30 @@ public final class MapDisplayActivity extends ActionBarActivity {
         ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
             .edit()
             .putInt(VALIDATED_TRIPS_COUNT, count)
+            .commit();
+    }
+    
+    public static String getHomeAddress(Context ctx){
+        return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
+            .getString(HOME_ADDRESS, "");
+    }
+    
+    public static void setHomeAddress(Context ctx, String address){
+        ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
+            .edit()
+            .putString(HOME_ADDRESS, address)
+            .commit();
+    }
+    
+    public static String getWorkAddress(Context ctx){
+        return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
+            .getString(WORK_ADDRESS, "");
+    }
+    
+    public static void setWorkAddress(Context ctx, String address){
+        ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
+            .edit()
+            .putString(WORK_ADDRESS, address)
             .commit();
     }
     

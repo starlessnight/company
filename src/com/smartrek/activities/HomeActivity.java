@@ -4,10 +4,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONObject;
 
 import android.app.AlarmManager;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -35,9 +33,9 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
-import com.smartrek.CalendarService;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
+import com.smartrek.dialogs.ShortcutAddressDialog;
 import com.smartrek.dialogs.TripEditDialog;
 import com.smartrek.dialogs.TripListDialog;
 import com.smartrek.models.Address;
@@ -54,7 +52,6 @@ import com.smartrek.tasks.GeocodingTask;
 import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
-import com.smartrek.utils.CalendarContract.Instances;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
@@ -95,6 +92,9 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	private Button buttonLoadTrip;
 	private Button buttonSaveTrip;
 	private Button buttonDone;
+	private Button buttonGoHome;
+	private Button buttonWork;
+	private Button buttonGetMeOut;
 	private ImageButton buttonFavAddrOrigin;
 	private ImageButton destFavButton;
 	private Button buttonOriginMyLocation;
@@ -172,6 +172,9 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	    buttonLoadTrip = (Button) findViewById(R.id.button_load_trip);
 	    buttonSaveTrip = (Button) findViewById(R.id.button_save_trip);
 	    buttonDone = (Button) findViewById(R.id.Done);
+	    buttonGoHome = (Button) findViewById(R.id.go_home);
+	    buttonWork = (Button) findViewById(R.id.work);
+	    buttonGetMeOut= (Button) findViewById(R.id.get_me_out);
 	    
 		// Set Button OnClickListerners to be declared by this class
 	    buttonFavAddrOrigin.setOnClickListener(new OnClickListener() {
@@ -232,6 +235,69 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 			
 		});
 	    
+	    buttonGoHome.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(StringUtils.isBlank(MapDisplayActivity.getHomeAddress(HomeActivity.this))){
+                    final ShortcutAddressDialog d = new ShortcutAddressDialog(HomeActivity.this, "Enter Home Location");
+                    d.setActionListener(new ShortcutAddressDialog.ActionListener() {
+                        @Override
+                        public void onClickPositiveButton() {
+                            MapDisplayActivity.setHomeAddress(HomeActivity.this, d.getAddress());
+                            d.dismiss();
+                        }
+                        @Override
+                        public void onClickNegativeButton() {
+                        }
+                    });
+                    d.show();
+                }
+            }
+        });
+	    
+	    buttonWork.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(StringUtils.isBlank(MapDisplayActivity.getWorkAddress(HomeActivity.this))){
+                    final ShortcutAddressDialog d = new ShortcutAddressDialog(HomeActivity.this, "Enter Work Location");
+                    d.setActionListener(new ShortcutAddressDialog.ActionListener() {
+                        @Override
+                        public void onClickPositiveButton() {
+                            MapDisplayActivity.setWorkAddress(HomeActivity.this, d.getAddress());
+                            d.dismiss();
+                        }
+                        @Override
+                        public void onClickNegativeButton() {
+                        }
+                    });
+                    d.show();
+                }else{
+                    new ShortcutNavigationTask(){
+                        @Override
+                        protected void doInBackground() {
+                            
+                        }
+                    }.execute();
+                }
+            }
+        });
+	    
+	    buttonGetMeOut.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ShortcutAddressDialog d = new ShortcutAddressDialog(HomeActivity.this, "Enter Location");
+                d.setActionListener(new ShortcutAddressDialog.ActionListener() {
+                    @Override
+                    public void onClickPositiveButton() {
+                    }
+                    @Override
+                    public void onClickNegativeButton() {
+                    }
+                });
+                d.show();
+            }
+        });
+	    
 	    ImageButton reverseButton = (ImageButton) findViewById(R.id.reverse_button);
 	    reverseButton.setEnabled(false);
 	    reverseButton.setOnClickListener(new View.OnClickListener() {
@@ -265,7 +331,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	    }
 	    
 	   Font.setTypeface(boldFont, buttonDone, buttonLoadTrip, buttonSaveTrip,
-           buttonOriginMyLocation);
+           buttonOriginMyLocation, buttonGoHome, buttonWork, buttonGetMeOut);
 	   Font.setTypeface(lightFont, editAddressDest, editAddressOrigin);
 	   
 	   if(getIntent().getBooleanExtra(LOGOUT, false)){
@@ -761,4 +827,17 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
         reverseBtn.setEnabled(StringUtils.isNotBlank(editAddressOrigin.getText()) 
             || StringUtils.isNotBlank(editAddressDest.getText()));
     }
+    
+    private static abstract class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            doInBackground();
+            return null;
+        }
+        
+        abstract protected void doInBackground();
+        
+    }
+    
 }

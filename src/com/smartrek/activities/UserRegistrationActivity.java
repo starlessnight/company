@@ -204,8 +204,7 @@ public final class UserRegistrationActivity extends ActionBarActivity
 					    
 					    User.setCurrentUser(UserRegistrationActivity.this, result);
 					    
-	                    Intent intent = new Intent(UserRegistrationActivity.this, HomeActivity.class);
-	                    intent.putExtra(HomeActivity.INIT, true);
+	                    Intent intent = new Intent(UserRegistrationActivity.this, LandingActivity.class);
 	                    UserRegistrationActivity.this.startActivity(intent);
 	                    finish();
 					}
