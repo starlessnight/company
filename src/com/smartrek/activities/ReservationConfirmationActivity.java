@@ -3,6 +3,7 @@ package com.smartrek.activities;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,7 +17,6 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
-import com.smartrek.activities.DebugOptionsActivity.NavigationLink;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
@@ -127,11 +127,11 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
     /**
      * Creates a system alarm for a single route
      */
-	private void scheduleNotification(Route route) {
+	public static void scheduleNotification(Context ctx, Route route) {
 		
 		long departureTime = route.getDepartureTime();
 		
-		Intent intent = new Intent(this, ReservationReceiver.class);
+		Intent intent = new Intent(ctx, ReservationReceiver.class);
 		
 		// TODO: We need a reservation instance here...
 		intent.putExtra("route", route);
@@ -143,11 +143,11 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 		
 		// In reality, you would want to have a static variable for the
 		// request code instead of 192837
-		PendingIntent pendingOperation = PendingIntent.getBroadcast(this, 192837,
+		PendingIntent pendingOperation = PendingIntent.getBroadcast(ctx, 192837,
 				intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 		// Get the AlarmManager service
-		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+		AlarmManager am = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
 		am.set(AlarmManager.RTC_WAKEUP, departureTime - 60000*5, pendingOperation); // 5 min earlier than departure time
 	}
 	
@@ -188,7 +188,7 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 		        ehs.reportExceptions();
 		    }
 		    else {
-				scheduleNotification(route);
+				scheduleNotification(ReservationConfirmationActivity.this, route);
 				
 				if(route.isFake()){
 				    FakeRoute fakeRoute = new FakeRoute();

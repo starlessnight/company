@@ -149,7 +149,6 @@
 	      		android:layout_marginLeft="30dp"
 	      		android:layout_marginRight="30dp"
 	            android:text="go home"
-	            android:visibility="gone"
 	            style="@style/NextActionButton"
 	        />
             
@@ -161,7 +160,6 @@
 	      		android:layout_marginLeft="30dp"
 	      		android:layout_marginRight="30dp"
 	            android:text="work"
-	            android:visibility="gone"
 	            style="@style/NextActionButton"
 	        />	
 	        
@@ -173,7 +171,6 @@
 	      		android:layout_marginLeft="30dp"
 	      		android:layout_marginRight="30dp"
 	            android:text="get me out"
-	            android:visibility="gone"
 	            style="@style/NextActionButton"
 	        />
             
@@ -181,7 +178,7 @@
 	            android:id="@+id/Done"
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
-	            android:layout_marginTop="0dp"
+	            android:layout_marginTop="15dp"
 	      		android:layout_marginLeft="30dp"
 	      		android:layout_marginRight="30dp"
 	            android:text="search"

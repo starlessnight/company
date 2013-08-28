@@ -49,8 +49,8 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
                 // travel duration
                 r.setDuration(object.getInt("estimated_travel_time") * 60);
                 
-                r.setOriginAddress(object.getString("origin"));
-                r.setDestinationAddress(object.getString("destination"));
+                r.setOriginAddress(object.optString("origin"));
+                r.setDestinationAddress(object.optString("destination"));
                 r.setCredits(object.optInt("credit"));
                 r.setValidatedFlag(object.optInt("validated"));
                 r.setRoute(Route.parse(object, departureTime, true));
