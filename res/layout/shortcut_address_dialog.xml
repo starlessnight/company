@@ -48,16 +48,32 @@
 	        	android:paddingRight="15dp"
 	        	android:paddingBottom="15dp"
 	        	android:background="@color/dark_gray">
-		
-		        <EditText
-		            android:id="@+id/editTextAddress"
+		        
+		        <RelativeLayout
 		            android:layout_width="match_parent"
 		            android:layout_height="wrap_content"
-		            android:singleLine="true"
-		            android:hint="address"
-		            android:layout_marginTop="15dp" 
-		         	style="@style/NormalTextField"
-	         	/>
+		            android:layout_marginTop="15dp">
+		
+		            <com.smartrek.ui.EditAddress
+		                android:id="@+id/editTextAddress"
+		                android:layout_width="match_parent"
+		                android:layout_height="wrap_content"
+		                android:layout_weight="1"
+		                android:hint="address"
+		                android:inputType="textPostalAddress"
+		                android:paddingRight="47dp" 
+		                style="@style/NormalTextField" />
+		
+		            <ImageButton
+		                android:id="@+id/fav_addr_btn"
+		                android:layout_width="36dp"
+		                android:layout_height="50dp"
+		                android:layout_centerVertical="true"
+		                android:layout_marginRight="1dp"
+		                android:layout_alignRight="@id/editTextAddress"
+		                style="@style/MoreButton"
+		             />
+		        </RelativeLayout>
 		        
 		        <Button
 		            android:id="@+id/confirm_button"

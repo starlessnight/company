@@ -1,7 +1,11 @@
 package com.smartrek.models;
 
 public final class Address {
-	
+
+    public static final String HOME_STRING = "home";
+    
+    public static final String WORK_STRING = "work";
+    
 	private int aid;
 	private int uid;
 	private String name;

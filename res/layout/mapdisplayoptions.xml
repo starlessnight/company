@@ -170,59 +170,11 @@
 		/>
 	    
 	    <TextView
-	        android:id="@+id/addresses_heading"
-	        android:text="ADDRESSES"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@id/navigation_tts_text"
-	        android:layout_marginTop="15dp"
-	        android:layout_marginLeft="45dp"
-	        style="@style/MicroText">
-	    </TextView>
-	    
-	    <View
-	        android:id="@+id/separator4"
-	        android:layout_width="match_parent"
-	        android:layout_height="2dp"
-	        android:layout_below="@id/addresses_heading"
-	        android:layout_marginTop="12dp"
-	        android:layout_marginLeft="30dp"
-	        android:layout_marginRight="30dp"
-	        android:background="@color/secondary_font"  
-	     />
-	    
-	    <EditText
-            android:id="@+id/home_address"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/addresses_heading"
-            android:singleLine="true"
-            android:hint="home"
-            android:layout_marginTop="27dp"
-	        android:layout_marginLeft="45dp"
-	        android:layout_marginRight="45dp"
-         	style="@style/NormalTextField"
-       	/>
-	    
-	    <EditText
-            android:id="@+id/work_address"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/home_address"
-            android:singleLine="true"
-            android:hint="work"
-            android:layout_marginTop="12dp"
-	        android:layout_marginLeft="45dp"
-	        android:layout_marginRight="45dp"
-         	style="@style/NormalTextField"
-       	/>
-	    
-	    <TextView
 	        android:id="@+id/distribution_heading"
 	        android:text="DISTRUBUTION DATE"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:layout_below="@id/work_address"
+	        android:layout_below="@id/navigation_tts_text"
 	        android:layout_marginTop="12dp"
 	        android:layout_marginLeft="45dp"
 	        android:layout_marginRight="45dp"

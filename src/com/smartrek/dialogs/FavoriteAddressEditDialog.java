@@ -55,6 +55,8 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 	private EditText editTextName;
 	private EditText editTextAddress;
 	private ProgressBar progressBar;
+	private boolean fixedName;
+	
 	
 	public FavoriteAddressEditDialog(Context context) {
 		this(context, null);
@@ -67,8 +69,13 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 	 * @param address
 	 */
 	public FavoriteAddressEditDialog(Context context, Address address) {
+        this(context, address, false);
+    }
+	
+	public FavoriteAddressEditDialog(Context context, Address address, boolean fixedName) {
 		super(context, R.style.PopUpDialog);
 		this.address = address;
+		this.fixedName = fixedName;
 	}
 	
 	@Override
@@ -85,6 +92,7 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 		editTextName = (EditText) dialogView.findViewById(R.id.editTextName);
 		editTextName.addTextChangedListener(this);
 		editTextName.setText(address.getName());
+		editTextName.setEnabled(!fixedName);
 		
 		editTextAddress = (EditText) dialogView.findViewById(R.id.editTextAddress);
 		editTextAddress.addTextChangedListener(this);
@@ -128,7 +136,7 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 		return editTextName.getText().toString().trim();
 	}
 	
-	private String getAddress() {
+	public String getAddress() {
 		return editTextAddress.getText().toString().trim();
 	}
 	

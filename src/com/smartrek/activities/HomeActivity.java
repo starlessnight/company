@@ -9,12 +9,9 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -39,12 +36,10 @@ import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
-import com.smartrek.dialogs.ShortcutAddressDialog;
 import com.smartrek.dialogs.TripEditDialog;
 import com.smartrek.dialogs.TripListDialog;
 import com.smartrek.models.Address;
 import com.smartrek.models.Reservation;
-import com.smartrek.models.Route;
 import com.smartrek.models.Trip;
 import com.smartrek.models.User;
 import com.smartrek.receivers.ReservationReceiver;
@@ -52,18 +47,14 @@ import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.requests.FavoriteAddressUpdateRequest;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.ReservationListFetchRequest;
-import com.smartrek.requests.ReservationRequest;
-import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.requests.UpdateDeviceIdRequest;
 import com.smartrek.tasks.GeocodingTask;
 import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
-import com.smartrek.ui.timelayout.AdjustableTime;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
-import com.smartrek.utils.Geocoding;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
 import com.smartrek.utils.SystemService;
@@ -101,9 +92,6 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	private Button buttonLoadTrip;
 	private Button buttonSaveTrip;
 	private Button buttonDone;
-	private Button buttonGoHome;
-	private Button buttonWork;
-	private Button buttonGetMeOut;
 	private ImageButton buttonFavAddrOrigin;
 	private ImageButton destFavButton;
 	private Button buttonOriginMyLocation;
@@ -185,9 +173,6 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	    buttonLoadTrip = (Button) findViewById(R.id.button_load_trip);
 	    buttonSaveTrip = (Button) findViewById(R.id.button_save_trip);
 	    buttonDone = (Button) findViewById(R.id.Done);
-	    buttonGoHome = (Button) findViewById(R.id.go_home);
-	    buttonWork = (Button) findViewById(R.id.work);
-	    buttonGetMeOut= (Button) findViewById(R.id.get_me_out);
 	    
 		// Set Button OnClickListerners to be declared by this class
 	    buttonFavAddrOrigin.setOnClickListener(new OnClickListener() {
@@ -248,82 +233,6 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 			
 		});
 	    
-	    buttonGoHome.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final ShortcutNavigationTask t = new ShortcutNavigationTask(HomeActivity.this, ehs);
-                String addr = MapDisplayActivity.getHomeAddress(HomeActivity.this);
-                if(StringUtils.isBlank(addr)){
-                    final ShortcutAddressDialog d = new ShortcutAddressDialog(HomeActivity.this, "Enter Home Location");
-                    d.setActionListener(new ShortcutAddressDialog.ActionListener() {
-                        @Override
-                        public void onClickPositiveButton() {
-                            String ad = d.getAddress();
-                            MapDisplayActivity.setHomeAddress(HomeActivity.this, ad);
-                            d.dismiss();
-                            t.address = ad;
-                            t.execute();
-                        }
-                        @Override
-                        public void onClickNegativeButton() {
-                        }
-                    });
-                    d.show();
-                }else{
-                    t.address = addr;
-                    t.execute();
-                }
-            }
-        });
-	    
-	    buttonWork.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final ShortcutNavigationTask t = new ShortcutNavigationTask(HomeActivity.this, ehs);
-                String addr = MapDisplayActivity.getWorkAddress(HomeActivity.this);
-                if(StringUtils.isBlank(addr)){
-                    final ShortcutAddressDialog d = new ShortcutAddressDialog(HomeActivity.this, "Enter Work Location");
-                    d.setActionListener(new ShortcutAddressDialog.ActionListener() {
-                        @Override
-                        public void onClickPositiveButton() {
-                            String ad = d.getAddress();
-                            MapDisplayActivity.setWorkAddress(HomeActivity.this, ad);
-                            d.dismiss();
-                            t.address = ad;
-                            t.execute();
-                        }
-                        @Override
-                        public void onClickNegativeButton() {
-                        }
-                    });
-                    d.show();
-                }else{
-                    t.address = addr;
-                    t.execute();
-                }
-            }
-        });
-	    
-	    buttonGetMeOut.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final ShortcutAddressDialog d = new ShortcutAddressDialog(HomeActivity.this, "Enter Location");
-                d.setActionListener(new ShortcutAddressDialog.ActionListener() {
-                    @Override
-                    public void onClickPositiveButton() {
-                        ShortcutNavigationTask t = new ShortcutNavigationTask(HomeActivity.this, ehs);
-                        t.address = d.getAddress();
-                        d.dismiss();
-                        t.execute();
-                    }
-                    @Override
-                    public void onClickNegativeButton() {
-                    }
-                });
-                d.show();
-            }
-        });
-	    
 	    ImageButton reverseButton = (ImageButton) findViewById(R.id.reverse_button);
 	    reverseButton.setEnabled(false);
 	    reverseButton.setOnClickListener(new View.OnClickListener() {
@@ -357,7 +266,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	    }
 	    
 	   Font.setTypeface(boldFont, buttonDone, buttonLoadTrip, buttonSaveTrip,
-           buttonOriginMyLocation, buttonGoHome, buttonWork, buttonGetMeOut);
+           buttonOriginMyLocation);
 	   Font.setTypeface(lightFont, editAddressDest, editAddressOrigin);
 	   
 	   if(getIntent().getBooleanExtra(LOGOUT, false)){
@@ -864,142 +773,6 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
         if(locationManager != null && locationListener != null){
             locationManager.removeUpdates(locationListener); 
         }
-    }
-    
-    private static class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
-
-        ProgressDialog dialog;
-        
-        String address;
-        
-        HomeActivity ctx;
-        
-        GeoPoint origin;
-        
-        GeoPoint dest;
-        
-        ExceptionHandlingService ehs;
-        
-        boolean startedMakingReserv;
-        
-        ShortcutNavigationTask(HomeActivity ctx, ExceptionHandlingService ehs){
-            this.ehs = ehs;
-            this.ctx = ctx;
-            dialog = new ProgressDialog(ctx);
-            dialog.setTitle("Smartrek");
-            dialog.setMessage("Loading...");
-            dialog.setCancelable(true);
-            dialog.setCanceledOnTouchOutside(false);
-            dialog.setOnCancelListener(new OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialog) {
-                    ShortcutNavigationTask.this.ctx.removeLocationUpdates();
-                }
-            });
-        }
-        
-        @Override
-        protected void onPreExecute() {
-            dialog.show();
-            ctx.locationManager = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
-            if (!ctx.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                SystemService.alertNoGPS(ctx);
-            }
-            ctx.locationListener = new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    try{
-                        ctx.locationManager.removeUpdates(this);
-                        dialog.dismiss();
-                        origin = new GeoPoint(location.getLatitude(), 
-                            location.getLongitude());
-                        makeReservation();
-                    }catch(Throwable t){}
-                }
-                @Override
-                public void onStatusChanged(String provider, int status, Bundle extras) {}
-                @Override
-                public void onProviderEnabled(String provider) {}
-                @Override
-                public void onProviderDisabled(String provider) {}
-            };
-            ctx.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, ctx.locationListener);
-        }
-        
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                dest = Geocoding.lookup(address).get(0).getGeoPoint();
-            }
-            catch (Exception e) {
-                ehs.registerException(e);
-            }
-            return null;
-        }
-        
-        @Override
-        protected void onPostExecute(Void result) {
-            if (ehs.hasExceptions()) {
-                if (dialog.isShowing()) {
-                    dialog.cancel();
-                }
-                ehs.reportExceptions();
-            }else{
-                makeReservation();
-            }
-        }
-        
-        void makeReservation(){
-            if(!startedMakingReserv && origin != null && dest != null){
-                startedMakingReserv = true;
-                new AsyncTask<Void, Void, Reservation>(){
-                    @Override
-                    protected Reservation doInBackground(Void... params) {
-                        Reservation reserv = null;
-                        AdjustableTime departureTime = new AdjustableTime();
-                        departureTime.setToNow();
-                        User user = User.getCurrentUser(ctx);
-                        RouteFetchRequest routeReq = new RouteFetchRequest(user, 
-                            origin, dest, departureTime.initTime().toMillis(false));
-                        try {
-                            Route route = routeReq.execute(ctx).get(0);
-                            route.setAddresses(EditAddress.CURRENT_LOCATION, address);
-                            route.setUserId(user.getId());
-                            ReservationRequest reservReq = new ReservationRequest(user, 
-                                route, ctx.getString(R.string.distribution_date));
-                            Long id = reservReq.execute();
-                            ReservationConfirmationActivity.scheduleNotification(ctx, route);
-                            ReservationListFetchRequest reservListReq = new ReservationListFetchRequest(user);
-                            reservListReq.invalidateCache(ctx);
-                            List<Reservation> reservs = reservListReq.execute(ctx);
-                            for (Reservation r : reservs) {
-                                if(id.equals(r.getRid())){
-                                    reserv = r;
-                                }
-                            }
-                        }
-                        catch(Exception e) {
-                            ehs.registerException(e);
-                        }
-                        return reserv;
-                    }
-                    protected void onPostExecute(Reservation reserv) {
-                        if (dialog.isShowing()) {
-                            dialog.cancel();
-                        }
-                        if (ehs.hasExceptions()) {
-                            ehs.reportExceptions();
-                        }else{
-                            Intent intent = new Intent(ctx, ValidationActivity.class);
-                            intent.putExtra("route", reserv.getRoute());
-                            intent.putExtra("reservation", reserv);
-                            ctx.startActivity(intent);
-                        }
-                    }
-                }.execute();
-            }
-        }
-        
     }
     
 }

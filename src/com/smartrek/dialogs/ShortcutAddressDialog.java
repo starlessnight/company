@@ -12,11 +12,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.smartrek.activities.R;
+import com.smartrek.models.Address;
+import com.smartrek.models.User;
+import com.smartrek.ui.EditAddress;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 
@@ -32,7 +35,7 @@ public class ShortcutAddressDialog extends Dialog implements TextWatcher {
 	private ActionListener listener;
 	private String title;
 	private ViewGroup dialogView;
-	private EditText editTextAddress;
+	private EditAddress editTextAddress;
 	private ProgressBar progressBar;
 	
 	public ShortcutAddressDialog(Context context) {
@@ -53,12 +56,51 @@ public class ShortcutAddressDialog extends Dialog implements TextWatcher {
 		TextView titleView = (TextView) dialogView.findViewById(R.id.title);
 		titleView.setText(title);
 		
-		editTextAddress = (EditText) dialogView.findViewById(R.id.editTextAddress);
+		editTextAddress = (EditAddress) dialogView.findViewById(R.id.editTextAddress);
 		editTextAddress.addTextChangedListener(this);
 		
 		progressBar = (ProgressBar) dialogView.findViewById(R.id.progressBar);
 		
 		setContentView(dialogView);
+		
+		ImageButton favAddrBtn = (ImageButton) dialogView.findViewById(R.id.fav_addr_btn);
+		favAddrBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FavoriteAddressListDialog dialog = new FavoriteAddressListDialog(getContext());
+                dialog.setActionListener(new FavoriteAddressListDialog.ActionListener() {
+                    
+                    @Override
+                    public void onClickNegativeButton() {
+                    }
+                    
+                    @Override
+                    public void onClickNeutralButton() {
+                        final FavoriteAddressEditDialog dialog = new FavoriteAddressEditDialog(getContext());
+                        dialog.setAddress(new Address(0, User.getCurrentUser(getContext()).getId(), "", editTextAddress.getText().toString().trim(), 0, 0));
+                        dialog.setActionListener(new FavoriteAddressEditDialog.ActionListener() {
+                            
+                            @Override
+                            public void onClickPositiveButton() {
+                                editTextAddress.setAddress(dialog.getAddressObject());
+                            }
+                            
+                            @Override
+                            public void onClickNegativeButton() {
+                            }
+                        });
+                        dialog.show();
+                    }
+                    
+                    @Override
+                    public void onClickListItem(Address item, int position) {
+                        editTextAddress.unsetAddress();
+                        editTextAddress.setAddress(item);
+                    }
+                });
+                dialog.show();
+            }
+        });
 		
 		Button confirmButton = (Button) dialogView.findViewById(R.id.confirm_button);
 		confirmButton.setEnabled(false);

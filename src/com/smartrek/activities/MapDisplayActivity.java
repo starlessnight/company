@@ -4,14 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -141,42 +138,6 @@ public final class MapDisplayActivity extends ActionBarActivity {
             }
         });
         
-        EditText homeAddr = (EditText) findViewById(R.id.home_address);
-        homeAddr.setText(String.valueOf(prefs.getString(HOME_ADDRESS, "")));
-        homeAddr.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count,
-                    int after) {
-            }
-            @Override
-            public void afterTextChanged(Editable s) {
-                prefs.edit()
-                    .putString(HOME_ADDRESS, s.toString().trim())
-                    .commit();
-            }
-        });
-        
-        EditText workAddr = (EditText) findViewById(R.id.work_address);
-        workAddr.setText(String.valueOf(prefs.getString(WORK_ADDRESS, "")));
-        workAddr.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count,
-                    int after) {
-            }
-            @Override
-            public void afterTextChanged(Editable s) {
-                prefs.edit()
-                    .putString(WORK_ADDRESS, s.toString().trim())
-                    .commit();
-            }
-        });
-        
         Font.setTypeface(boldFont, (TextView)findViewById(R.id.time_heading),
             (TextView)findViewById(R.id.calendar_integration_heading),
             (TextView)findViewById(R.id.navigation_tts_heading),
@@ -184,8 +145,7 @@ public final class MapDisplayActivity extends ActionBarActivity {
         Font.setTypeface(lightFont, displayTravel, displayArrival,
             (TextView)findViewById(R.id.calendar_integration_text),
             (TextView)findViewById(R.id.navigation_tts_text),
-            (TextView)findViewById(R.id.distribution_date),
-            homeAddr, workAddr);
+            (TextView)findViewById(R.id.distribution_date));
     }
     
     public static boolean isCalendarIntegrationEnabled(Context ctx){
