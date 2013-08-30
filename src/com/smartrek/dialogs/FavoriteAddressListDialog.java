@@ -2,6 +2,7 @@ package com.smartrek.dialogs;
 
 import java.util.List;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -31,8 +32,11 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 	
 	public interface ActionListener extends GenericListDialog.ActionListener<Address> {}
 
+	private Activity activity;
+	
 	public FavoriteAddressListDialog(Context context) {
 		super(context, null);
+		activity = (Activity) context;
 	}
 	
 	@Override
@@ -75,7 +79,7 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 	    super.onCreateContextMenu(menu, v, menuInfo);
-	    MenuInflater inflater = getOwnerActivity().getMenuInflater();
+	    MenuInflater inflater = activity.getMenuInflater();
 	    inflater.inflate(R.menu.context, menu);
 	}
 	

@@ -2,6 +2,7 @@ package com.smartrek.dialogs;
 
 import org.apache.commons.lang3.StringUtils;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -37,14 +38,12 @@ public class ShortcutAddressDialog extends Dialog implements TextWatcher {
 	private ViewGroup dialogView;
 	private EditAddress editTextAddress;
 	private ProgressBar progressBar;
+	private Activity ctx;
 	
-	public ShortcutAddressDialog(Context context) {
-		this(context, null);
-	}
-	
-	public ShortcutAddressDialog(Context context, String title) {
-		super(context, R.style.PopUpDialog);
+	public ShortcutAddressDialog(Activity ctx, String title) {
+		super(ctx, R.style.PopUpDialog);
 		this.title = title;
+		this.ctx = ctx;
 	}
 	
 	@Override
@@ -67,7 +66,7 @@ public class ShortcutAddressDialog extends Dialog implements TextWatcher {
 		favAddrBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FavoriteAddressListDialog dialog = new FavoriteAddressListDialog(getContext());
+                FavoriteAddressListDialog dialog = new FavoriteAddressListDialog(ctx);
                 dialog.setActionListener(new FavoriteAddressListDialog.ActionListener() {
                     
                     @Override

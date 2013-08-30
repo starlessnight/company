@@ -50,6 +50,8 @@ public final class DebugOptionsActivity extends Activity {
     
     public static final String GPS_UPDATE_INTERVAL = "GPS_UPDATE_INTERVAL";
     
+    private static final String CURRENT_LOCATION = "CURRENT_LOCATION";
+    
     public static final String GOOGLE_GEOCODING_PATCHED = "GOOGLE_GEOCODING_PATCHED";
     
     private static final int GOOGLE_GEOCODING_PATCH_NO = 1;
@@ -233,6 +235,28 @@ public final class DebugOptionsActivity extends Activity {
                 }
             }
         });
+        
+        EditText curLocView = (EditText) findViewById(R.id.current_location);
+        curLocView.setText(String.valueOf(prefs.getString(CURRENT_LOCATION, "")));
+        curLocView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+            
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count,
+                    int after) {
+            }
+            
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(s.length() > 0){
+                    prefs.edit()
+                        .putString(CURRENT_LOCATION, s.toString())
+                        .commit();
+                }
+            }
+        });
     }
     
     @Override
@@ -282,6 +306,10 @@ public final class DebugOptionsActivity extends Activity {
     
     public static int getGpsUpdateInterval(Context ctx){
         return getPrefs(ctx).getInt(GPS_UPDATE_INTERVAL, defaultUpdateInterval);
+    }
+    
+    public static String getCurrentLocation(Context ctx){
+        return getPrefs(ctx).getString(CURRENT_LOCATION, "");
     }
     
     public static boolean isGoogleGeocodingPatched(Context ctx){
