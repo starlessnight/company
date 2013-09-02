@@ -72,7 +72,7 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
 	private static String buildUrl(User user){
 	    String url;
 	    if(NEW_API){
-	        Date now = new Date();
+	        Date now = new Date(System.currentTimeMillis() - 15*60*1000);
 	        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
 	        dateFormat.setTimeZone(TimeZone.getTimeZone(TIME_ZONE));
 	        url = getLinkUrl(Link.query_upcoming_reservation).replaceAll("\\{YYYYmmddHHMM\\}", dateFormat.format(now)); 
