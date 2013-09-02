@@ -37,6 +37,8 @@ import com.smartrek.utils.SystemService;
 
 public class LandingActivity extends Activity {
 
+    public static final String LOGOUT = "logout";
+    
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
     LocationManager locationManager;
@@ -145,7 +147,16 @@ public class LandingActivity extends Activity {
                 d.show();
             }
         });
-        
+    }
+    
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if(intent.getBooleanExtra(LOGOUT, false)){
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
     }
     
     private void removeLocationUpdates(){
@@ -265,7 +276,7 @@ public class LandingActivity extends Activity {
                             reservListReq.invalidateCache(ctx);
                             List<Reservation> reservs = reservListReq.execute(ctx);
                             for (Reservation r : reservs) {
-                                if(id.equals(r.getRid())){
+                                if(((Long)r.getRid()).equals(id)){
                                     reserv = r;
                                 }
                             }
@@ -281,7 +292,7 @@ public class LandingActivity extends Activity {
                         }
                         if (ehs.hasExceptions()) {
                             ehs.reportExceptions();
-                        }else{
+                        }else if(reserv != null){
                             Intent intent = new Intent(ctx, ValidationActivity.class);
                             intent.putExtra("route", reserv.getRoute());
                             intent.putExtra("reservation", reserv);

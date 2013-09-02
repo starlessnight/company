@@ -7,6 +7,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.smartrek.activities.DashboardActivity;
 import com.smartrek.activities.DebugOptionsActivity;
 import com.smartrek.activities.HomeActivity;
+import com.smartrek.activities.LandingActivity;
 import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.activities.R;
 import com.smartrek.activities.ReservationConfirmationActivity;
@@ -79,8 +80,8 @@ public final class MainMenu {
            case R.id.logout_option:
                User.logout(activity);
 
-               intent = new Intent(activity, HomeActivity.class);
-               intent.putExtra(HomeActivity.LOGOUT, true);
+               intent = new Intent(activity, LandingActivity.class);
+               intent.putExtra(LandingActivity.LOGOUT, true);
                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                activity.startActivity(intent);
                activity.finish();

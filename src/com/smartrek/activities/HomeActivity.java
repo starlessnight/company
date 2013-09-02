@@ -82,8 +82,6 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
     
     public static final String INIT = "init";
     
-    public static final String LOGOUT = "logout";
-    
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
 	private EditAddress editAddressOrigin;
@@ -268,12 +266,6 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	   Font.setTypeface(boldFont, buttonDone, buttonLoadTrip, buttonSaveTrip,
            buttonOriginMyLocation);
 	   Font.setTypeface(lightFont, editAddressDest, editAddressOrigin);
-	   
-	   if(getIntent().getBooleanExtra(LOGOUT, false)){
-           startActivity(new Intent(this, LoginActivity.class));
-           finish();
-           return;
-       }
 	}
 	
 	private void updateDeviceId(){
