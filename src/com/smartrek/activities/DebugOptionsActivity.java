@@ -250,11 +250,9 @@ public final class DebugOptionsActivity extends Activity {
             
             @Override
             public void afterTextChanged(Editable s) {
-                if(s.length() > 0){
-                    prefs.edit()
-                        .putString(CURRENT_LOCATION, s.toString())
-                        .commit();
-                }
+                prefs.edit()
+                    .putString(CURRENT_LOCATION, s.toString())
+                    .commit();
             }
         });
     }
