@@ -84,7 +84,7 @@ public final class HTTP {
 			if(username != null && password != null){
     			String encoding = "iso-8859-1";
     			String authHeader = new String(Base64.encode((username + ':' + password).getBytes(encoding), 
-    		        Base64.DEFAULT), encoding);
+    		        Base64.NO_WRAP), encoding);
     			httpConn.setRequestProperty("Authorization", "Basic " + authHeader);
 			}
 			if(method != Method.GET && method != Method.DELETE){
