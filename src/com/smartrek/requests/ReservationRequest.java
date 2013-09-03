@@ -84,7 +84,9 @@ public class ReservationRequest extends Request {
 	        this.username = user.getUsername();
 	        this.password = user.getPassword();
 	        JSONObject params = new JSONObject();
-            params.put("id", new SimpleDateFormat("yyyyMMddHHmm").format(now));
+	        SimpleDateFormat dateFmt = new SimpleDateFormat("yyyyMMddHHmm");
+	        dateFmt.setTimeZone(TimeZone.getTimeZone(TIME_ZONE));
+            params.put("id", dateFmt.format(now));
             params.put("start_datetime", dateFormat.format(now));
             params.put("estimated_travel_time", duration);
             params.put("origin", origin);
