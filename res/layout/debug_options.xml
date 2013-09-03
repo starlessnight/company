@@ -141,6 +141,7 @@
         android:layout_marginRight="30dp"
         android:textColor="@android:color/darker_gray"
         android:textSize="18dp"
+        android:singleLine="true"
         android:text="@string/placeholder"
 	/>
 
