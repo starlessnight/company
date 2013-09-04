@@ -681,10 +681,6 @@ public final class RouteActivity extends ActionBarActivity {
         if(requestCode == RESERVATION_CONFIRM){
             if(resultCode == RESERVATION_CONFIRM_ENDED){
                 goBackToWhereTo.run();
-            }else{
-                RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
-                routeTasks.add(routeTask);
-                routeTask.execute();
             }
         }
     }
