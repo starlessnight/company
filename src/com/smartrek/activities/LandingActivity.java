@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -17,6 +18,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.TextView;
 
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
 import com.smartrek.dialogs.ShortcutAddressDialog;
@@ -31,6 +33,7 @@ import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.timelayout.AdjustableTime;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Geocoding;
 import com.smartrek.utils.SystemService;
@@ -147,6 +150,17 @@ public class LandingActivity extends Activity {
                 d.show();
             }
         });
+        
+        TextView vTitle = (TextView) findViewById(R.id.title);
+        TextView vDate = (TextView) findViewById(R.id.date);
+        TextView vClock = (TextView) findViewById(R.id.clock);
+        TextView vWeather = (TextView) findViewById(R.id.weather);
+        TextView vTrip1 = (TextView) findViewById(R.id.trip_one);
+        TextView vTrip2 = (TextView) findViewById(R.id.trip_two);
+        
+        AssetManager assets = getAssets();
+        Font.setTypeface(Font.getBold(assets), vTitle, vTrip1, vTrip2);
+        Font.setTypeface(Font.getLight(assets), vDate, vClock, vWeather);
     }
     
     @Override
