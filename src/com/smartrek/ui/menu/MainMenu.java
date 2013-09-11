@@ -29,12 +29,21 @@ public final class MainMenu {
 	       onMenuItemSelected(activity, featureId, item.getItemId());
 	    }
 	   
-	   private static void onMenuItemSelected(Activity activity, int featureId, int itemId) {
+	   public static void onMenuItemSelected(Activity activity, int featureId, int itemId) {
 	       if (activity.getClass().equals(ReservationConfirmationActivity.class)) {
 	           activity.setResult(RouteActivity.RESERVATION_CONFIRM_ENDED);
 	       }
            Intent intent = null;
            switch (itemId) {
+           
+           case R.id.home:
+               if (!activity.getClass().equals(LandingActivity.class)) {
+                   intent = new Intent(activity, LandingActivity.class);
+                   intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                   activity.startActivity(intent);
+                   activity.finish();
+               }
+               break;
            
            case R.id.route:
                if (!activity.getClass().equals(HomeActivity.class)) {

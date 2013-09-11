@@ -1,158 +1,166 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/MainLayout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/gray"
-    android:orientation="vertical"
-    android:fillViewport="true">
-
-    <LinearLayout
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:orientation="vertical"
-	        android:focusable="true"
-	        android:focusableInTouchMode="true">
-	        
-       	<Button
-                android:id="@+id/origin_my_location"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:layout_marginLeft="30dp" 
-	      		android:layout_marginRight="30dp"
-                android:text="start from&#10;current location"
-                style="@style/CurrentLocationButton"
-        />
-       	
-       	<LinearLayout
-       	    android:orientation="horizontal"
-       	    android:layout_height="wrap_content"
-       	    android:layout_width="match_parent">
-       	    
-       	    <ImageButton
-	            android:id="@+id/reverse_button"
-	            android:layout_width="30dp"
-	            android:layout_height="match_parent"
-	            android:layout_marginTop="15dp"
-	            style="@style/ReverseButton"
-	        />
-       	    
-       	    <LinearLayout
-		        android:layout_width="match_parent"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    	android:layout_width="match_parent"
+	    android:layout_height="match_parent">
+	<ScrollView
+	    android:id="@+id/MainLayout"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:background="@color/gray"
+	    android:orientation="vertical"
+	    android:fillViewport="true">
+	
+	    <LinearLayout
+		        android:layout_width="fill_parent"
 		        android:layout_height="wrap_content"
-		        android:orientation="vertical">
-       	
-		       	<RelativeLayout
-		            android:layout_width="match_parent"
-		            android:layout_height="wrap_content"
-		            android:layout_marginTop="15dp"
-		            android:layout_marginRight="30dp">
-		       	    
-		            <com.smartrek.ui.EditAddress
-		                android:id="@+id/origin_box"
-		                android:layout_width="match_parent"
-		                android:layout_height="wrap_content"
-		                android:layout_weight="1"
-		                android:hint="start"
-		                android:paddingRight="47dp"
-		                android:inputType="textPostalAddress" 
-		                style="@style/NormalTextField">
-		
-		            </com.smartrek.ui.EditAddress>
-		            
-		            <ImageButton
-		                android:id="@+id/Favs1"
-		                android:layout_width="36dp"
-		                android:layout_height="50dp"
-		                android:layout_centerVertical="true"
-		                android:layout_marginRight="1dp"
-		                android:layout_alignRight="@id/origin_box"
-		                style="@style/MoreButton" 
-		            />
-		
-		        </RelativeLayout>
+		        android:orientation="vertical"
+		        android:focusable="true"
+		        android:focusableInTouchMode="true">
 		        
-		       	<RelativeLayout
-		            android:layout_width="match_parent"
-		            android:layout_height="wrap_content"
+	       	<Button
+	                android:id="@+id/origin_my_location"
+	                android:layout_width="match_parent"
+	                android:layout_height="wrap_content"
+	                android:layout_marginTop="15dp"
+	                android:layout_marginLeft="30dp" 
+		      		android:layout_marginRight="30dp"
+	                android:text="start from&#10;current location"
+	                style="@style/CurrentLocationButton"
+	        />
+	       	
+	       	<LinearLayout
+	       	    android:orientation="horizontal"
+	       	    android:layout_height="wrap_content"
+	       	    android:layout_width="match_parent">
+	       	    
+	       	    <ImageButton
+		            android:id="@+id/reverse_button"
+		            android:layout_width="30dp"
+		            android:layout_height="match_parent"
 		            android:layout_marginTop="15dp"
-		            android:layout_marginRight="30dp">
-		
-		            <com.smartrek.ui.EditAddress
-		                android:id="@+id/destination_box"
-		                android:layout_width="match_parent"
-		                android:layout_height="wrap_content"
-		                android:layout_weight="1"
-		                android:hint="end"
-		                android:inputType="textPostalAddress"
-		                android:paddingRight="47dp" 
-		                style="@style/NormalTextField" />
-		
-		            <ImageButton
-		                android:id="@+id/Favs2"
-		                android:layout_width="36dp"
-		                android:layout_height="50dp"
-		                android:layout_centerVertical="true"
-		                android:layout_marginRight="1dp"
-		                android:layout_alignRight="@id/destination_box"
-		                style="@style/MoreButton"
-		             />
-		        </RelativeLayout>
+		            style="@style/ReverseButton"
+		        />
+	       	    
+	       	    <LinearLayout
+			        android:layout_width="match_parent"
+			        android:layout_height="wrap_content"
+			        android:orientation="vertical">
+	       	
+			       	<RelativeLayout
+			            android:layout_width="match_parent"
+			            android:layout_height="wrap_content"
+			            android:layout_marginTop="15dp"
+			            android:layout_marginRight="30dp">
+			       	    
+			            <com.smartrek.ui.EditAddress
+			                android:id="@+id/origin_box"
+			                android:layout_width="match_parent"
+			                android:layout_height="wrap_content"
+			                android:layout_weight="1"
+			                android:hint="start"
+			                android:paddingRight="47dp"
+			                android:inputType="textPostalAddress" 
+			                style="@style/NormalTextField">
+			
+			            </com.smartrek.ui.EditAddress>
+			            
+			            <ImageButton
+			                android:id="@+id/Favs1"
+			                android:layout_width="36dp"
+			                android:layout_height="50dp"
+			                android:layout_centerVertical="true"
+			                android:layout_marginRight="1dp"
+			                android:layout_alignRight="@id/origin_box"
+			                style="@style/MoreButton" 
+			            />
+			
+			        </RelativeLayout>
+			        
+			       	<RelativeLayout
+			            android:layout_width="match_parent"
+			            android:layout_height="wrap_content"
+			            android:layout_marginTop="15dp"
+			            android:layout_marginRight="30dp">
+			
+			            <com.smartrek.ui.EditAddress
+			                android:id="@+id/destination_box"
+			                android:layout_width="match_parent"
+			                android:layout_height="wrap_content"
+			                android:layout_weight="1"
+			                android:hint="end"
+			                android:inputType="textPostalAddress"
+			                android:paddingRight="47dp" 
+			                style="@style/NormalTextField" />
+			
+			            <ImageButton
+			                android:id="@+id/Favs2"
+			                android:layout_width="36dp"
+			                android:layout_height="50dp"
+			                android:layout_centerVertical="true"
+			                android:layout_marginRight="1dp"
+			                android:layout_alignRight="@id/destination_box"
+			                style="@style/MoreButton"
+			             />
+			        </RelativeLayout>
+		        
+		       	</LinearLayout>
 	        
 	       	</LinearLayout>
-        
-       	</LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:orientation="horizontal">
-
-            	<Button
-                    android:id="@+id/button_save_trip"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight=".5"
-                    android:enabled="false"
-                    android:text="save&#10;trip"
-                    style="@style/SaveButton" 
-                />
-            	
-            	<Button
-			        android:id="@+id/button_load_trip"
-			        android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_weight=".5"
-			        android:text="load&#10;trip"
-			        style="@style/LoadButton"
-			    />
-                
-        </LinearLayout>
-        
-        <LinearLayout 
-            android:layout_marginTop="15dp"
-            android:layout_marginBottom="15dp"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
-	        android:orientation="vertical"
-	        android:gravity="bottom|center">
-            
+	
+	        <LinearLayout
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_marginTop="15dp"
+	            android:layout_marginLeft="30dp"
+	            android:layout_marginRight="30dp"
+	            android:orientation="horizontal">
+	
+	            	<Button
+	                    android:id="@+id/button_save_trip"
+	                    android:layout_width="0dip"
+	                    android:layout_height="wrap_content"
+	                    android:layout_weight=".5"
+	                    android:enabled="false"
+	                    android:text="save&#10;trip"
+	                    style="@style/SaveButton" 
+	                />
+	            	
+	            	<Button
+				        android:id="@+id/button_load_trip"
+				        android:layout_width="0dip"
+	                    android:layout_height="wrap_content"
+	                    android:layout_marginLeft="10dp"
+	                    android:layout_weight=".5"
+				        android:text="load&#10;trip"
+				        style="@style/LoadButton"
+				    />
+	                
+	        </LinearLayout>
+	        
 	        <Button
 	            android:id="@+id/Done"
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
 	      		android:layout_marginLeft="30dp"
 	      		android:layout_marginRight="30dp"
+	      		android:layout_marginTop="15dp"
+	           	android:layout_marginBottom="15dp"
 	            android:text="search"
 	            style="@style/NextActionButton"
 	        />
+	
 	    </LinearLayout>
-
-    </LinearLayout>
-
-</ScrollView>
+	
+	</ScrollView>
+	
+	<ImageView
+	    android:id="@+id/floating_menu_button"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:src="@drawable/floating_menu_icon"
+		android:layout_gravity="bottom|right"
+		android:layout_marginRight="15dp"
+        android:layout_marginBottom="15dp"
+	/>
+	
+</FrameLayout>

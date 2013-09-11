@@ -36,6 +36,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
+import com.smartrek.dialogs.FloatingMenuDialog;
 import com.smartrek.dialogs.TripEditDialog;
 import com.smartrek.dialogs.TripListDialog;
 import com.smartrek.models.Address;
@@ -254,6 +255,14 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	        	editAddressOrigin.clearFocus();
 			}
 	    });
+	    
+	    findViewById(R.id.floating_menu_button).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FloatingMenuDialog dialog = new FloatingMenuDialog(HomeActivity.this);
+                dialog.show();
+            }
+        });
 
 	    if(getIntent().getBooleanExtra(INIT, false)){
 	        new NotificationTask().execute(User.getCurrentUser(this));

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/transparent_black">
+
+    <RelativeLayout
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center"
+	        android:focusable="true"
+	        android:focusableInTouchMode="true">
+        
+        <RelativeLayout
+            	android:id="@+id/content" 
+            	android:layout_width="wrap_content"
+	        	android:layout_height="wrap_content"
+	        	android:background="@drawable/floating_menu_dialog_bg"
+	        	android:padding="29dp"
+	        	android:layout_margin="20dp"
+	        	android:layout_centerInParent="true">
+            
+            <ImageView
+			    android:id="@+id/route"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/floating_menu_plan_trip"
+				android:layout_alignParentTop="true"
+				android:layout_alignParentLeft="true"
+			/>
+            
+            <ImageView
+			    android:id="@+id/dashboard"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/floating_menu_dashboard"
+				android:layout_marginLeft="14dp"
+				android:layout_alignParentTop="true"
+				android:layout_toRightOf="@+id/route"
+			/>
+            
+            <ImageView
+			    android:id="@+id/reservation"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/floating_menu_reservations"
+				android:layout_marginLeft="14dp"
+				android:layout_alignParentTop="true"
+				android:layout_toRightOf="@+id/dashboard"
+			/>
+            
+            <ImageView
+			    android:id="@+id/map_display_options"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/floating_menu_settings"
+				android:layout_marginTop="14dp"
+				android:layout_below="@+id/route"
+				android:layout_alignParentLeft="true"
+			/>
+            
+            <ImageView
+			    android:id="@+id/home"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/floating_menu_home"
+				android:layout_marginTop="14dp"
+				android:layout_marginLeft="14dp"
+				android:layout_below="@+id/route"
+				android:layout_toRightOf="@+id/map_display_options"
+			/>
+            
+            <ImageView
+			    android:id="@+id/logout_option"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:src="@drawable/floating_menu_logout"
+				android:layout_marginTop="14dp"
+				android:layout_marginLeft="14dp"
+				android:layout_below="@+id/route"
+				android:layout_toRightOf="@+id/home"
+			/>
+            
+        </RelativeLayout>
+        
+        <ImageView
+		    android:id="@+id/close_icon"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/floating_menu_close_button"
+			android:layout_alignTop="@+id/content"
+			android:layout_alignRight="@+id/content"
+			android:layout_marginTop="-10dp"
+			android:layout_marginRight="10dp"
+		/>
+        
+	</RelativeLayout>
+
+</FrameLayout>
