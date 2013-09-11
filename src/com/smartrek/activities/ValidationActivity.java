@@ -66,6 +66,7 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.SendTrajectoryService;
 import com.smartrek.ValidationService;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
+import com.smartrek.dialogs.FloatingMenuDialog;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
@@ -569,6 +570,14 @@ public final class ValidationActivity extends Activity implements OnInitListener
             @Override
             public void onClick(View v) {
                 cancelValidation();
+            }
+        });
+        
+        findViewById(R.id.floating_menu_button).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FloatingMenuDialog dialog = new FloatingMenuDialog(ValidationActivity.this);
+                dialog.show();
             }
         });
         

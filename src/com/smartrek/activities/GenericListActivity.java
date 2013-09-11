@@ -5,6 +5,7 @@ import java.util.List;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -12,6 +13,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.smartrek.dialogs.FloatingMenuDialog;
 import com.smartrek.dialogs.GenericListDialog.ActionListener;
 
 public class GenericListActivity<ItemType> extends ActionBarActivity {
@@ -33,6 +35,14 @@ public class GenericListActivity<ItemType> extends ActionBarActivity {
         
         initViews();
         setStatus(Status.Loading);
+        
+        findViewById(R.id.floating_menu_button).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FloatingMenuDialog dialog = new FloatingMenuDialog(GenericListActivity.this);
+                dialog.show();
+            }
+        });
     }
     
     protected void initViews() {
