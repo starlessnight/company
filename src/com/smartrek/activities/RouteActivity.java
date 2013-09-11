@@ -30,6 +30,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 import com.actionbarsherlock.view.Menu;
@@ -38,6 +40,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.CalendarService;
 import com.smartrek.dialogs.CancelableProgressDialog;
+import com.smartrek.dialogs.FloatingMenuDialog;
 import com.smartrek.exceptions.RouteNotFoundException;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
@@ -403,6 +406,14 @@ public final class RouteActivity extends ActionBarActivity {
         }else{
             doRouteTask();
         }
+        
+        findViewById(R.id.floating_menu_button).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FloatingMenuDialog dialog = new FloatingMenuDialog(RouteActivity.this);
+                dialog.show();
+            }
+        });
     }
     
     private void updateTimetableScreenWidth(){
