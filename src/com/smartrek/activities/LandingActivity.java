@@ -3,6 +3,8 @@ package com.smartrek.activities;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.osmdroid.views.MapController;
+import org.osmdroid.views.MapView;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -36,6 +38,8 @@ import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Geocoding;
+import com.smartrek.utils.Misc;
+import com.smartrek.utils.SmartrekTileProvider;
 import com.smartrek.utils.SystemService;
 
 public class LandingActivity extends Activity {
@@ -170,6 +174,38 @@ public class LandingActivity extends Activity {
         });
         TextView vTrekpoints = (TextView) findViewById(R.id.trekpoints);
         TextView vValidatedTripsUpdateCount = (TextView) findViewById(R.id.validated_trips_update_count);
+        
+        MapView mapView = (MapView) findViewById(R.id.mapview);
+        Misc.disableHardwareAcceleration(mapView);
+        mapView.setBuiltInZoomControls(false);
+        mapView.setMultiTouchControls(true);
+        mapView.setTileSource(new SmartrekTileProvider());
+        
+        final MapController mc = mapView.getController();
+        int lat = (int) Math.round(38.27268853598097f*1E6);
+        int lon = (int) Math.round(-99.1406250000000f*1E6);
+        mc.setZoom(4); 
+        mc.setCenter(new GeoPoint(lat, lon));
+        
+        final LocationManager networkLocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        LocationListener networkLocListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                try{
+                    networkLocManager.removeUpdates(this);
+                    mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+                    mc.setCenter(new GeoPoint(location.getLatitude(), 
+                        location.getLongitude()));
+                }catch(Throwable t){}
+            }
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+            @Override
+            public void onProviderEnabled(String provider) {}
+            @Override
+            public void onProviderDisabled(String provider) {}
+        };
+        networkLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocListener);
         
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getBold(assets), vTitle, vClock, vWeather, vTrip1, 
