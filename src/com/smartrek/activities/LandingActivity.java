@@ -52,6 +52,9 @@ public class LandingActivity extends Activity {
     
     LocationListener locationListener;
     
+    LocationManager networkLocManager;
+    LocationListener networkLocListener;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -187,8 +190,8 @@ public class LandingActivity extends Activity {
         mc.setZoom(4); 
         mc.setCenter(new GeoPoint(lat, lon));
         
-        final LocationManager networkLocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        LocationListener networkLocListener = new LocationListener() {
+        networkLocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        networkLocListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
                 try{
@@ -212,6 +215,14 @@ public class LandingActivity extends Activity {
             vTrip2, vPlanATrip, vGoHome, vGoToWork, vOuttaHere, vExploreMap,
             vRewards, vTrekpoints);
         Font.setTypeface(Font.getLight(assets), vDate, vValidatedTripsUpdateCount);
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(networkLocManager != null && networkLocListener != null){
+            networkLocManager.removeUpdates(networkLocListener); 
+        }
     }
     
     @Override
