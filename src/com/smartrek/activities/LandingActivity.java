@@ -52,7 +52,16 @@ public class LandingActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.landing);
-        findViewById(R.id.plan_trip_btn).setOnClickListener(new OnClickListener(){
+        
+        TextView vTitle = (TextView) findViewById(R.id.title);
+        TextView vDate = (TextView) findViewById(R.id.date);
+        TextView vClock = (TextView) findViewById(R.id.clock);
+        TextView vWeather = (TextView) findViewById(R.id.weather);
+        TextView vTrip1 = (TextView) findViewById(R.id.trip_one);
+        TextView vTrip2 = (TextView) findViewById(R.id.trip_two);
+        
+        TextView vPlanATrip = (TextView) findViewById(R.id.plan_a_trip);
+        vPlanATrip.setOnClickListener(new OnClickListener(){
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(LandingActivity.this, HomeActivity.class);
@@ -60,8 +69,8 @@ public class LandingActivity extends Activity {
                 startActivity(intent);
             }
         });
-        
-        findViewById(R.id.go_home).setOnClickListener(new OnClickListener() {
+        TextView vGoHome = (TextView) findViewById(R.id.go_home);
+        vGoHome.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 final ShortcutNavigationTask t = new ShortcutNavigationTask(LandingActivity.this, ehs);
@@ -95,8 +104,8 @@ public class LandingActivity extends Activity {
                 }).execute();
             }
         });
-        
-        findViewById(R.id.work).setOnClickListener(new OnClickListener() {
+        TextView vGoToWork = (TextView) findViewById(R.id.go_to_work);
+        vGoToWork.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 final ShortcutNavigationTask t = new ShortcutNavigationTask(LandingActivity.this, ehs);
@@ -130,8 +139,8 @@ public class LandingActivity extends Activity {
                 }).execute();
             }
         });
-        
-        findViewById(R.id.get_me_out).setOnClickListener(new OnClickListener() {
+        TextView vOuttaHere = (TextView) findViewById(R.id.outta_here);
+        vOuttaHere.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 final ShortcutAddressDialog d = new ShortcutAddressDialog(LandingActivity.this, "Enter Location");
@@ -150,17 +159,23 @@ public class LandingActivity extends Activity {
                 d.show();
             }
         });
-        
-        TextView vTitle = (TextView) findViewById(R.id.title);
-        TextView vDate = (TextView) findViewById(R.id.date);
-        TextView vClock = (TextView) findViewById(R.id.clock);
-        TextView vWeather = (TextView) findViewById(R.id.weather);
-        TextView vTrip1 = (TextView) findViewById(R.id.trip_one);
-        TextView vTrip2 = (TextView) findViewById(R.id.trip_two);
+        TextView vExploreMap = (TextView) findViewById(R.id.explore_map);
+        final TextView vRewards = (TextView) findViewById(R.id.rewards);
+        vRewards.post(new Runnable() {
+            @Override
+            public void run() {
+                int width = getWindowManager().getDefaultDisplay().getWidth();
+                Font.autoScaleTextSize(vRewards, width/2);
+            }
+        });
+        TextView vTrekpoints = (TextView) findViewById(R.id.trekpoints);
+        TextView vValidatedTripsUpdateCount = (TextView) findViewById(R.id.validated_trips_update_count);
         
         AssetManager assets = getAssets();
-        Font.setTypeface(Font.getBold(assets), vTitle, vTrip1, vTrip2);
-        Font.setTypeface(Font.getLight(assets), vDate, vClock, vWeather);
+        Font.setTypeface(Font.getBold(assets), vTitle, vClock, vWeather, vTrip1, 
+            vTrip2, vPlanATrip, vGoHome, vGoToWork, vOuttaHere, vExploreMap,
+            vRewards, vTrekpoints);
+        Font.setTypeface(Font.getLight(assets), vDate, vValidatedTripsUpdateCount);
     }
     
     @Override
