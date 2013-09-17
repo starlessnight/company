@@ -18,6 +18,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.format.Time;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.RelativeLayout;
@@ -64,6 +65,10 @@ public class LandingActivity extends Activity {
         
         TextView vTitle = (TextView) findViewById(R.id.title);
         TextView vDate = (TextView) findViewById(R.id.date);
+        Time now = new Time();
+        now.setToNow();
+        vDate.setText(String.valueOf(now.monthDay));
+        
         TextView vClock = (TextView) findViewById(R.id.clock);
         TextView vWeather = (TextView) findViewById(R.id.weather);
         TextView vTrip1 = (TextView) findViewById(R.id.trip_one);
