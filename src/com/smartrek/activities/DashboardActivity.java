@@ -18,8 +18,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -239,7 +237,7 @@ public final class DashboardActivity extends ActionBarActivity {
                 Misc.parallelExecute(pictureTask);
                 rewardsList.setVisibility(View.GONE);
                 rewardsDetail.setVisibility(View.VISIBLE);
-                fadeIn(rewardsDetail);
+                Misc.fadeIn(DashboardActivity.this, rewardsDetail);
             }
         });
         final ArrayAdapter<Reward> rewardsAdapter = new ArrayAdapter<Reward>(this, R.layout.rewards_list_item,
@@ -347,7 +345,7 @@ public final class DashboardActivity extends ActionBarActivity {
                 shareValidatedTripsButton.setTag(reserv);
                 validatedTripsList.setVisibility(View.GONE);
                 validatedTripsDetail.setVisibility(View.VISIBLE);
-                fadeIn(validatedTripsDetail);
+                Misc.fadeIn(DashboardActivity.this, validatedTripsDetail);
             }
         });
         validatedTripsList.setAdapter(validatedTripsAdapter);
@@ -432,7 +430,7 @@ public final class DashboardActivity extends ActionBarActivity {
                 Misc.parallelExecute(pictureTask);
                 awardsList.setVisibility(View.GONE);
                 awardsDetail.setVisibility(View.VISIBLE);
-                fadeIn(awardsDetail);
+                Misc.fadeIn(DashboardActivity.this, awardsDetail);
             }
         });
         awardsAdapter = new ArrayAdapter<Award>(this, R.layout.awards_list_item, R.id.name_award){
@@ -528,7 +526,7 @@ public final class DashboardActivity extends ActionBarActivity {
                     rewardsDetail.setVisibility(View.GONE);
                     rewardsList.setVisibility(View.VISIBLE);
                     rewardsContent.setVisibility(View.VISIBLE);
-                    fadeIn(rewardsContent);
+                    Misc.fadeIn(DashboardActivity.this, rewardsContent);
                     AsyncTask<Void, Void, List<Reward>> rewardsTask = new AsyncTask<Void, Void, List<Reward>>(){
                         @Override
                         protected void onPreExecute() {
@@ -586,7 +584,7 @@ public final class DashboardActivity extends ActionBarActivity {
                     validatedTripsDetail.setVisibility(View.GONE);
                     validatedTripsList.setVisibility(View.VISIBLE);
                     validatedTripsContent.setVisibility(View.VISIBLE);
-                    fadeIn(validatedTripsContent);
+                    Misc.fadeIn(DashboardActivity.this, validatedTripsContent);
                     AsyncTask<Void, Void, List<Reservation>> validatedTripsTask = new AsyncTask<Void, Void, List<Reservation>>(){
                         @Override
                         protected void onPreExecute() {
@@ -648,7 +646,7 @@ public final class DashboardActivity extends ActionBarActivity {
                     awardsDetail.setVisibility(View.GONE);
                     awardsList.setVisibility(View.VISIBLE);
                     awardsContent.setVisibility(View.VISIBLE);
-                    fadeIn(awardsContent);
+                    Misc.fadeIn(DashboardActivity.this, awardsContent);
                     AsyncTask<Void, Void, List<Award>> allAwardsTask = new AsyncTask<Void, Void, List<Award>>(){
                         @Override
                         protected void onPreExecute() {
@@ -724,25 +722,20 @@ public final class DashboardActivity extends ActionBarActivity {
 	            && rewardsDetail != null && rewardsDetail.getVisibility() == View.VISIBLE){
 	        rewardsDetail.setVisibility(View.GONE);
 	        rewardsList.setVisibility(View.VISIBLE);
-	        fadeIn(rewardsList);
+	        Misc.fadeIn(this, rewardsList);
 	    }else if(validatedTripsContent != null && validatedTripsContent.getVisibility() == View.VISIBLE 
 	                && validatedTripsDetail != null && validatedTripsDetail.getVisibility() == View.VISIBLE){
             validatedTripsDetail.setVisibility(View.GONE);
             validatedTripsList.setVisibility(View.VISIBLE);
-            fadeIn(validatedTripsList);
+            Misc.fadeIn(this, validatedTripsList);
 	    }else if(awardsContent != null && awardsContent.getVisibility() == View.VISIBLE 
                 && awardsDetail != null && awardsDetail.getVisibility() == View.VISIBLE){
 	        awardsDetail.setVisibility(View.GONE);
 	        awardsList.setVisibility(View.VISIBLE);
-            fadeIn(awardsList);
+	        Misc.fadeIn(this, awardsList);
 	    }else{
 	        super.onBackPressed();
 	    }
-	}
-	
-	private void fadeIn(View v){
-	    Animation anim = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
-        v.startAnimation(anim);
 	}
 	
 	private static String getReservationTitle(Reservation r){

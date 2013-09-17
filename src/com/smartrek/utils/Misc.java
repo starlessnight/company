@@ -11,6 +11,8 @@ import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.google.android.gcm.GCMRegistrar;
@@ -96,6 +98,11 @@ public class Misc {
             task.execute(params);
         }
         return task;
+    }
+    
+    public static void fadeIn(Context ctx, View v){
+        Animation anim = AnimationUtils.loadAnimation(ctx, android.R.anim.fade_in);
+        v.startAnimation(anim);
     }
     
 }

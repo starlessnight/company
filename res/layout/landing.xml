@@ -50,80 +50,128 @@
 		</LinearLayout>
         
 		<LinearLayout
+		    	android:id="@+id/upper_panel"
+		    	android:layout_width="match_parent"
+	        	android:layout_height="wrap_content"
+	        	android:orientation="horizontal"
+	        	android:layout_below="@id/header">
+		    <RelativeLayout
+		       		android:layout_width="match_parent"
+	        		android:layout_height="108dp"
+	        		android:layout_weight="1"
+	        		android:background="#393536">
+	        	<View
+	        	    android:layout_width="72dp"
+		        	android:layout_height="72dp"
+		        	android:background="#bec0c2"
+		        	android:layout_alignTop="@+id/avatar"
+		        	android:layout_alignRight="@+id/avatar"
+		        	android:layout_marginRight="-3dp"
+		        	android:layout_marginTop="3dp"  
+	        	/>
+		        <ImageView
+		            android:id="@+id/avatar"
+			        android:layout_width="wrap_content"
+		        	android:layout_height="wrap_content"
+		        	android:src="@drawable/avatar"
+		        	android:layout_centerVertical="true"
+		        	android:layout_alignParentRight="true"
+		        	android:layout_marginRight="14dp"
+		    	/>
+		        <ImageView
+		            android:id="@+id/clock_icon"
+			        android:layout_width="wrap_content"
+		        	android:layout_height="wrap_content"
+		        	android:src="@drawable/landing_profile_clock"
+		        	android:layout_alignTop="@+id/avatar"
+		        	android:layout_alignParentLeft="true"
+		        	android:layout_marginTop="12dp"
+		        	android:layout_marginLeft="14dp"
+		    	/>
+		        <TextView
+		            android:id="@+id/clock"
+		            android:layout_width="wrap_content"
+		        	android:layout_height="wrap_content"
+		            android:textSize="@dimen/smallest_font"
+		           	android:textColor="@android:color/white"
+		           	android:text="23m"
+		           	android:layout_toRightOf="@+id/clock_icon"
+		           	android:layout_alignBottom="@+id/clock_icon"
+		           	android:layout_marginLeft="4dp"
+		           	android:includeFontPadding="false"
+		        />
+		        <ImageView
+		            android:id="@+id/weather_icon"
+			        android:layout_width="wrap_content"
+		        	android:layout_height="wrap_content"
+		        	android:src="@drawable/landing_profile_weather"
+		        	android:layout_alignBottom="@+id/avatar"
+		        	android:layout_alignParentLeft="true"
+		        	android:layout_marginBottom="12dp"
+		        	android:layout_marginLeft="14dp"
+		    	/>
+		        <TextView
+		            android:id="@+id/weather"
+		            android:layout_width="wrap_content"
+		        	android:layout_height="wrap_content"
+		            android:textSize="@dimen/smallest_font"
+		           	android:textColor="@android:color/white"
+		           	android:text="74°F"
+		           	android:layout_toRightOf="@+id/weather_icon"
+		           	android:layout_alignBottom="@+id/weather_icon"
+		           	android:layout_marginLeft="4dp"
+		           	android:includeFontPadding="false"
+		        />
+		    </RelativeLayout>
+		    <RelativeLayout
+		       		android:layout_width="match_parent"
+	        		android:layout_height="108dp"
+	        		android:layout_weight="1"
+	        		android:background="@drawable/trip_info_bg">
+		        <TextView
+		            android:id="@+id/trip_one"
+		            android:layout_width="wrap_content"
+		        	android:layout_height="wrap_content"
+		            android:textSize="@dimen/smaller_font"
+		           	android:textColor="@android:color/white"
+		           	android:text="Home to Univ"
+		           	android:layout_alignParentTop="true"
+		           	android:layout_alignParentLeft="true"
+		           	android:layout_marginTop="25dp"
+		           	android:layout_marginLeft="14dp"
+		           	android:drawablePadding="8dp"
+		           	android:drawableLeft="@drawable/landing_tripinfo_button"
+		           	android:singleLine="true"
+		        />
+		        <TextView
+		            android:id="@+id/trip_two"
+		            android:layout_width="wrap_content"
+		        	android:layout_height="wrap_content"
+		            android:textSize="@dimen/smaller_font"
+		           	android:textColor="@android:color/white"
+		           	android:text="Univ to Home"
+		           	android:layout_alignParentBottom="true"
+		           	android:layout_alignParentLeft="true"
+		           	android:layout_marginBottom="25dp"
+		           	android:layout_marginLeft="14dp"
+		           	android:drawablePadding="8dp"
+		           	android:drawableLeft="@drawable/landing_tripinfo_button"
+		           	android:singleLine="true"
+		        />
+		    </RelativeLayout>
+		</LinearLayout>
+		
+		<LinearLayout
 		    	android:layout_width="match_parent"
 	        	android:layout_height="match_parent"
 	        	android:orientation="horizontal"
-	        	android:layout_below="@id/header">
+	        	android:layout_below="@id/upper_panel">
 		    <LinearLayout
+		        	android:id="@+id/bottom_left_panel"
 			        android:layout_width="match_parent"
 		        	android:layout_height="match_parent"
 		        	android:layout_weight="1"
 		        	android:orientation="vertical">
-		        <RelativeLayout
-			       		android:layout_width="match_parent"
-		        		android:layout_height="108dp"
-		        		android:background="#393536">
-		        	<View
-		        	    android:layout_width="72dp"
-			        	android:layout_height="72dp"
-			        	android:background="#bec0c2"
-			        	android:layout_alignTop="@+id/avatar"
-			        	android:layout_alignRight="@+id/avatar"
-			        	android:layout_marginRight="-3dp"
-			        	android:layout_marginTop="3dp"  
-		        	/>
-			        <ImageView
-			            android:id="@+id/avatar"
-				        android:layout_width="wrap_content"
-			        	android:layout_height="wrap_content"
-			        	android:src="@drawable/avatar"
-			        	android:layout_centerVertical="true"
-			        	android:layout_alignParentRight="true"
-			        	android:layout_marginRight="14dp"
-			    	/>
-			        <ImageView
-			            android:id="@+id/clock_icon"
-				        android:layout_width="wrap_content"
-			        	android:layout_height="wrap_content"
-			        	android:src="@drawable/landing_profile_clock"
-			        	android:layout_alignTop="@+id/avatar"
-			        	android:layout_alignParentLeft="true"
-			        	android:layout_marginTop="12dp"
-			        	android:layout_marginLeft="14dp"
-			    	/>
-			        <TextView
-			            android:id="@+id/clock"
-			            android:layout_width="wrap_content"
-			        	android:layout_height="wrap_content"
-			            android:textSize="@dimen/smallest_font"
-			           	android:textColor="@android:color/white"
-			           	android:text="23m"
-			           	android:layout_toRightOf="@+id/clock_icon"
-			           	android:layout_alignBottom="@+id/clock_icon"
-			           	android:layout_marginLeft="4dp"
-			        />
-			        <ImageView
-			            android:id="@+id/weather_icon"
-				        android:layout_width="wrap_content"
-			        	android:layout_height="wrap_content"
-			        	android:src="@drawable/landing_profile_weather"
-			        	android:layout_alignBottom="@+id/avatar"
-			        	android:layout_alignParentLeft="true"
-			        	android:layout_marginBottom="12dp"
-			        	android:layout_marginLeft="14dp"
-			    	/>
-			        <TextView
-			            android:id="@+id/weather"
-			            android:layout_width="wrap_content"
-			        	android:layout_height="wrap_content"
-			            android:textSize="@dimen/smallest_font"
-			           	android:textColor="@android:color/white"
-			           	android:text="74°F"
-			           	android:layout_toRightOf="@+id/weather_icon"
-			           	android:layout_alignBottom="@+id/weather_icon"
-			           	android:layout_marginLeft="4dp"
-			        />
-			    </RelativeLayout>
 			    <LinearLayout
 			        	android:layout_width="match_parent"
 			        	android:layout_height="match_parent"
@@ -184,56 +232,38 @@
 			    </LinearLayout>
 		    </LinearLayout>
 		    <LinearLayout
+		        	android:id="@+id/bottom_right_panel"
 			        android:layout_width="match_parent"
 		        	android:layout_height="match_parent"
 		        	android:layout_weight="1"
 		        	android:orientation="vertical">
-				<RelativeLayout
-			       		android:layout_width="match_parent"
-		        		android:layout_height="108dp"
-		        		android:background="@drawable/trip_info_bg">
-			        <TextView
-			            android:id="@+id/trip_one"
-			            android:layout_width="wrap_content"
-			        	android:layout_height="wrap_content"
-			            android:textSize="@dimen/smaller_font"
-			           	android:textColor="@android:color/white"
-			           	android:text="Home to Univ"
-			           	android:layout_alignParentTop="true"
-			           	android:layout_alignParentLeft="true"
-			           	android:layout_marginTop="25dp"
-			           	android:layout_marginLeft="14dp"
-			           	android:drawablePadding="8dp"
-			           	android:drawableLeft="@drawable/landing_tripinfo_button"
-			           	android:singleLine="true"
-			        />
-			        <TextView
-			            android:id="@+id/trip_two"
-			            android:layout_width="wrap_content"
-			        	android:layout_height="wrap_content"
-			            android:textSize="@dimen/smaller_font"
-			           	android:textColor="@android:color/white"
-			           	android:text="Univ to Home"
-			           	android:layout_alignParentBottom="true"
-			           	android:layout_alignParentLeft="true"
-			           	android:layout_marginBottom="25dp"
-			           	android:layout_marginLeft="14dp"
-			           	android:drawablePadding="8dp"
-			           	android:drawableLeft="@drawable/landing_tripinfo_button"
-			           	android:singleLine="true"
-			        />
-			    </RelativeLayout>
 			    <LinearLayout
 			        	android:layout_width="match_parent"
 			        	android:layout_height="match_parent"
 			        	android:orientation="vertical">
 			        <FrameLayout 
+			            	android:id="@+id/map_panel"
 					        android:layout_width="match_parent"
 					        android:layout_height="0dp"
 					        android:layout_weight="1">
 			        	<include layout="@layout/mapview" />
+			        	<FrameLayout 
+					            android:id="@+id/collapse_btn"
+					            android:layout_width="52dp"
+						        android:layout_height="52dp"
+						        android:background="@color/dark_gray"
+						        android:layout_gravity="bottom|right"
+						        android:visibility="gone">
+					        <View
+					            android:layout_width="48dp"
+					            android:layout_height="48dp"
+					            android:background="@drawable/balloon_overlay_close"
+					            android:layout_gravity="center" 
+				            />
+				        </FrameLayout>
 			        </FrameLayout>
 			        <RelativeLayout
+			            	android:id="@+id/rewards_panel"
 				            android:layout_width="match_parent"
 				        	android:layout_height="106dp"
 				            android:background="#36b4e2">

@@ -20,6 +20,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
@@ -34,6 +35,7 @@ import com.smartrek.requests.ReservationRequest;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.timelayout.AdjustableTime;
+import com.smartrek.utils.Dimension;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
@@ -166,7 +168,36 @@ public class LandingActivity extends Activity {
                 d.show();
             }
         });
+        
+        final View bottomLeftPanel = findViewById(R.id.bottom_left_panel);
+        final View bottomRightPanel = findViewById(R.id.bottom_right_panel);
+        final View rewardsPanel = findViewById(R.id.rewards_panel);
+        final View collapseBtn= findViewById(R.id.collapse_btn); 
         TextView vExploreMap = (TextView) findViewById(R.id.explore_map);
+        vExploreMap.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bottomLeftPanel.setVisibility(View.GONE);
+                bottomRightPanel.setVisibility(View.GONE);
+                rewardsPanel.setVisibility(View.GONE);
+                collapseBtn.setVisibility(View.VISIBLE);
+                bottomRightPanel.setVisibility(View.VISIBLE);
+                Misc.fadeIn(LandingActivity.this, bottomRightPanel);
+            }
+        });
+        collapseBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bottomRightPanel.setVisibility(View.GONE);
+                collapseBtn.setVisibility(View.GONE);
+                rewardsPanel.setVisibility(View.VISIBLE);
+                bottomLeftPanel.setVisibility(View.VISIBLE);
+                bottomRightPanel.setVisibility(View.VISIBLE);
+                Misc.fadeIn(LandingActivity.this, bottomLeftPanel);
+                Misc.fadeIn(LandingActivity.this, bottomRightPanel);
+            }
+        });
+        
         final TextView vRewards = (TextView) findViewById(R.id.rewards);
         vRewards.post(new Runnable() {
             @Override
@@ -189,6 +220,11 @@ public class LandingActivity extends Activity {
         int lon = (int) Math.round(-99.1406250000000f*1E6);
         mc.setZoom(4); 
         mc.setCenter(new GeoPoint(lat, lon));
+        
+        TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
+        Misc.initOsmCredit(osmCredit);
+        RelativeLayout.LayoutParams osmCreditLp = (RelativeLayout.LayoutParams) osmCredit.getLayoutParams();
+        osmCreditLp.rightMargin += Dimension.dpToPx(52, getResources().getDisplayMetrics());
         
         networkLocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         networkLocListener = new LocationListener() {
@@ -214,7 +250,8 @@ public class LandingActivity extends Activity {
         Font.setTypeface(Font.getBold(assets), vTitle, vClock, vWeather, vTrip1, 
             vTrip2, vPlanATrip, vGoHome, vGoToWork, vOuttaHere, vExploreMap,
             vRewards, vTrekpoints);
-        Font.setTypeface(Font.getLight(assets), vDate, vValidatedTripsUpdateCount);
+        Font.setTypeface(Font.getLight(assets), vDate, vValidatedTripsUpdateCount,
+            osmCredit);
     }
     
     @Override
