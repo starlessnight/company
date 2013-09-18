@@ -1,5 +1,6 @@
 package com.smartrek.activities;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -65,14 +66,13 @@ public class LandingActivity extends Activity {
         
         TextView vTitle = (TextView) findViewById(R.id.title);
         TextView vDate = (TextView) findViewById(R.id.date);
-        Time now = new Time();
-        now.setToNow();
-        vDate.setText(String.valueOf(now.monthDay));
+        refreshDate();
         
         TextView vClock = (TextView) findViewById(R.id.clock);
         TextView vWeather = (TextView) findViewById(R.id.weather);
         TextView vTrip1 = (TextView) findViewById(R.id.trip_one);
         TextView vTrip2 = (TextView) findViewById(R.id.trip_two);
+        refreshTripsInfo();
         
         TextView vPlanATrip = (TextView) findViewById(R.id.plan_a_trip);
         vPlanATrip.setOnClickListener(new OnClickListener(){
@@ -260,6 +260,13 @@ public class LandingActivity extends Activity {
     }
     
     @Override
+    protected void onResume() {
+        super.onResume();
+        refreshDate();
+        refreshTripsInfo();
+    }
+    
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if(networkLocManager != null && networkLocListener != null){
@@ -281,6 +288,80 @@ public class LandingActivity extends Activity {
         if(locationManager != null && locationListener != null){
             locationManager.removeUpdates(locationListener); 
         }
+    }
+    
+    private void refreshTripsInfo(){
+        final TextView vTrip1 = (TextView) findViewById(R.id.trip_one);
+        final TextView vTrip2 = (TextView) findViewById(R.id.trip_two);
+        AsyncTask<Void, Void, List<Reservation>> tripTask = new AsyncTask<Void, Void, List<Reservation>>(){
+            @Override
+            protected List<Reservation> doInBackground(Void... params) {
+                User user = User.getCurrentUser(LandingActivity.this);
+                ReservationListFetchRequest resReq = new ReservationListFetchRequest(user);
+                resReq.invalidateCache(LandingActivity.this);
+                FavoriteAddressFetchRequest addReq = new FavoriteAddressFetchRequest(user);
+                addReq.invalidateCache(LandingActivity.this);
+                
+                List<Reservation> reservations= null;
+                try {
+                    List<Address> addresses = addReq.execute(LandingActivity.this);
+                    reservations = resReq.execute(LandingActivity.this);
+                    for(Reservation r:reservations){
+                        if(r.getOriginName() == null){
+                            for (Address a : addresses) {
+                                if(a.getAddress().equals(r.getOriginAddress())){
+                                    r.setOriginName(a.getName());
+                                    break;
+                                }
+                            }
+                        }
+                        if(r.getDestinationName() == null){
+                            for (Address a : addresses) {
+                                if(a.getAddress().equals(r.getDestinationAddress())){
+                                    r.setDestinationName(a.getName());
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    Collections.sort(reservations, Reservation.orderByDepartureTime());
+                }
+                catch (Exception e) {
+                    ehs.registerException(e);
+                }
+                return reservations;
+            }
+            @Override
+            protected void onPostExecute(List<Reservation> reservations) {
+                if (ehs.hasExceptions()) {
+                    ehs.reportExceptions();
+                }
+                else if (reservations != null && reservations.size() > 0) {
+                    TextView[] vTrips = {vTrip1, vTrip2};
+                    for(int i=0; i<vTrips.length; i++){
+                        TextView vTrip = vTrips[i];
+                        if(i < reservations.size()){
+                            Reservation res = reservations.get(i);
+                            String originName = res.getOriginName();
+                            String destinationName = res.getDestinationName();
+                            vTrip.setText((originName == null?res.getOriginAddress():originName) 
+                                + " to " + (destinationName == null?res.getOriginAddress():destinationName));
+                            vTrip.setVisibility(View.VISIBLE);
+                        }else{
+                            vTrip.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                }
+            }
+        };
+        Misc.parallelExecute(tripTask);
+    }
+    
+    private void refreshDate(){
+        TextView vDate = (TextView) findViewById(R.id.date);
+        Time now = new Time();
+        now.setToNow();
+        vDate.setText(String.valueOf(now.monthDay));
     }
     
     private static class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {

@@ -146,6 +146,7 @@
 		           	android:drawablePadding="8dp"
 		           	android:drawableLeft="@drawable/landing_tripinfo_button"
 		           	android:singleLine="true"
+		           	android:visibility="invisible"
 		        />
 		        <TextView
 		            android:id="@+id/trip_two"
@@ -161,6 +162,7 @@
 		           	android:drawablePadding="8dp"
 		           	android:drawableLeft="@drawable/landing_tripinfo_button"
 		           	android:singleLine="true"
+		           	android:visibility="invisible"
 		        />
 		    </RelativeLayout>
 		</LinearLayout>
