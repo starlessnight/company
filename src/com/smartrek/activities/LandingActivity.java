@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Overlay;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -20,6 +21,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.format.Time;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.RelativeLayout;
@@ -36,6 +38,7 @@ import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.requests.ReservationRequest;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.ui.EditAddress;
+import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.ui.timelayout.AdjustableTime;
 import com.smartrek.utils.Dimension;
 import com.smartrek.utils.ExceptionHandlingService;
@@ -43,6 +46,8 @@ import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Geocoding;
 import com.smartrek.utils.Misc;
+import com.smartrek.utils.RouteNode;
+import com.smartrek.utils.RouteRect;
 import com.smartrek.utils.SmartrekTileProvider;
 import com.smartrek.utils.SystemService;
 
@@ -71,7 +76,9 @@ public class LandingActivity extends Activity {
         TextView vClock = (TextView) findViewById(R.id.clock);
         TextView vWeather = (TextView) findViewById(R.id.weather);
         TextView vTrip1 = (TextView) findViewById(R.id.trip_one);
+        vTrip1.setOnClickListener(newTripOnClickListener());
         TextView vTrip2 = (TextView) findViewById(R.id.trip_two);
+        vTrip2.setOnClickListener(newTripOnClickListener());
         refreshTripsInfo();
         
         TextView vPlanATrip = (TextView) findViewById(R.id.plan_a_trip);
@@ -173,33 +180,19 @@ public class LandingActivity extends Activity {
                 d.show();
             }
         });
-        
-        final View bottomLeftPanel = findViewById(R.id.bottom_left_panel);
-        final View bottomRightPanel = findViewById(R.id.bottom_right_panel);
-        final View rewardsPanel = findViewById(R.id.rewards_panel);
-        final View collapseBtn= findViewById(R.id.collapse_btn); 
+         
         TextView vExploreMap = (TextView) findViewById(R.id.explore_map);
         vExploreMap.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                bottomLeftPanel.setVisibility(View.GONE);
-                bottomRightPanel.setVisibility(View.GONE);
-                rewardsPanel.setVisibility(View.GONE);
-                collapseBtn.setVisibility(View.VISIBLE);
-                bottomRightPanel.setVisibility(View.VISIBLE);
-                Misc.fadeIn(LandingActivity.this, bottomRightPanel);
+                expandMap();
             }
         });
+        View collapseBtn= findViewById(R.id.collapse_btn);
         collapseBtn.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                bottomRightPanel.setVisibility(View.GONE);
-                collapseBtn.setVisibility(View.GONE);
-                rewardsPanel.setVisibility(View.VISIBLE);
-                bottomLeftPanel.setVisibility(View.VISIBLE);
-                bottomRightPanel.setVisibility(View.VISIBLE);
-                Misc.fadeIn(LandingActivity.this, bottomLeftPanel);
-                Misc.fadeIn(LandingActivity.this, bottomRightPanel);
+                collapseMap();
             }
         });
         
@@ -231,6 +224,22 @@ public class LandingActivity extends Activity {
         RelativeLayout.LayoutParams osmCreditLp = (RelativeLayout.LayoutParams) osmCredit.getLayoutParams();
         osmCreditLp.rightMargin += Dimension.dpToPx(52, getResources().getDisplayMetrics());
         
+        TextView vImComing = (TextView) findViewById(R.id.im_coming);
+        TextView vGetGoing = (TextView) findViewById(R.id.get_going);
+        vGetGoing.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Reservation reservation =(Reservation) v.getTag();
+                Intent intent = new Intent(LandingActivity.this, ValidationActivity.class);
+                intent.putExtra("route", reservation.getRoute());
+                intent.putExtra("reservation", reservation);
+                startActivity(intent);
+                MapView mapView = (MapView) findViewById(R.id.mapview);
+                mapView.getOverlays().clear();
+                collapseMap();
+            }
+        });
+        
         networkLocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         networkLocListener = new LocationListener() {
             @Override
@@ -254,7 +263,7 @@ public class LandingActivity extends Activity {
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getBold(assets), vTitle, vClock, vWeather, vTrip1, 
             vTrip2, vPlanATrip, vGoHome, vGoToWork, vOuttaHere, vExploreMap,
-            vRewards, vTrekpoints);
+            vRewards, vTrekpoints, vImComing, vGetGoing);
         Font.setTypeface(Font.getLight(assets), vDate, vValidatedTripsUpdateCount,
             osmCredit);
     }
@@ -290,6 +299,43 @@ public class LandingActivity extends Activity {
         }
     }
     
+    private void expandMap(){
+        expandMap(false);
+    }
+    
+    private void expandMap(boolean showMapButton){
+        View bottomLeftPanel = findViewById(R.id.bottom_left_panel);
+        View bottomRightPanel = findViewById(R.id.bottom_right_panel);
+        View rewardsPanel = findViewById(R.id.rewards_panel);
+        View collapseBtn= findViewById(R.id.collapse_btn);
+        bottomLeftPanel.setVisibility(View.GONE);
+        bottomRightPanel.setVisibility(View.GONE);
+        rewardsPanel.setVisibility(View.GONE);
+        if(showMapButton){
+            View mapButtonPanel = findViewById(R.id.map_button_panel);
+            mapButtonPanel.setVisibility(View.VISIBLE);
+        }
+        collapseBtn.setVisibility(View.VISIBLE);
+        bottomRightPanel.setVisibility(View.VISIBLE);
+        Misc.fadeIn(LandingActivity.this, bottomRightPanel);
+    }
+    
+    private void collapseMap(){
+        View bottomLeftPanel = findViewById(R.id.bottom_left_panel);
+        View bottomRightPanel = findViewById(R.id.bottom_right_panel);
+        View mapButtonPanel = findViewById(R.id.map_button_panel);
+        View rewardsPanel = findViewById(R.id.rewards_panel);
+        View collapseBtn= findViewById(R.id.collapse_btn);
+        bottomRightPanel.setVisibility(View.GONE);
+        collapseBtn.setVisibility(View.GONE);
+        mapButtonPanel.setVisibility(View.GONE);
+        rewardsPanel.setVisibility(View.VISIBLE);
+        bottomLeftPanel.setVisibility(View.VISIBLE);
+        bottomRightPanel.setVisibility(View.VISIBLE);
+        Misc.fadeIn(LandingActivity.this, bottomLeftPanel);
+        Misc.fadeIn(LandingActivity.this, bottomRightPanel);
+    }
+    
     private void refreshTripsInfo(){
         final TextView vTrip1 = (TextView) findViewById(R.id.trip_one);
         final TextView vTrip2 = (TextView) findViewById(R.id.trip_two);
@@ -302,7 +348,7 @@ public class LandingActivity extends Activity {
                 FavoriteAddressFetchRequest addReq = new FavoriteAddressFetchRequest(user);
                 addReq.invalidateCache(LandingActivity.this);
                 
-                List<Reservation> reservations= null;
+                List<Reservation> reservations= Collections.emptyList();
                 try {
                     List<Address> addresses = addReq.execute(LandingActivity.this);
                     reservations = resReq.execute(LandingActivity.this);
@@ -336,12 +382,13 @@ public class LandingActivity extends Activity {
                 if (ehs.hasExceptions()) {
                     ehs.reportExceptions();
                 }
-                else if (reservations != null && reservations.size() > 0) {
+                else {
                     TextView[] vTrips = {vTrip1, vTrip2};
                     for(int i=0; i<vTrips.length; i++){
                         TextView vTrip = vTrips[i];
                         if(i < reservations.size()){
                             Reservation res = reservations.get(i);
+                            vTrip.setTag(res);
                             String originName = res.getOriginName();
                             String destinationName = res.getDestinationName();
                             vTrip.setText((originName == null?res.getOriginAddress():originName) 
@@ -362,6 +409,105 @@ public class LandingActivity extends Activity {
         Time now = new Time();
         now.setToNow();
         vDate.setText(String.valueOf(now.monthDay));
+    }
+    
+    private OnClickListener newTripOnClickListener(){
+        return new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                expandMap(true);
+                Reservation r = (Reservation) v.getTag();
+                findViewById(R.id.get_going).setTag(r);
+                displayReservation(r);
+            }
+        };
+    }
+    
+    private synchronized int[] drawRoute (MapView mapView, Route route, int routeNum) {
+        List<Overlay> mapOverlays = mapView.getOverlays();
+        Log.d("LandingActivity", String.format("mapOverlays has %d items", mapOverlays.size()));
+        
+        if(routeNum == 0)
+            mapOverlays.clear();
+        
+        int latMax = (int)(-81 * 1E6);
+        int lonMax = (int)(-181 * 1E6);
+        int latMin = (int)(+81 * 1E6);
+        int lonMin = (int)(+181 * 1E6);
+         
+        List<RouteNode> routeNodes = route.getNodes();
+        
+        int lat = 0;
+        int lon = 0;
+        
+        for(int i = 0; i < routeNodes.size()-1; i++) {
+            GeoPoint point = routeNodes.get(i).getGeoPoint();
+            
+            int curLat = point.getLatitudeE6();
+            int curLon = point.getLongitudeE6();
+            
+            if(i == routeNodes.size()/2){
+                lat = curLat + 500;
+                lon = curLon+ 150;
+            }
+            
+            latMax = Math.max(latMax, curLat);
+            lonMax = Math.max(lonMax, curLon);
+            latMin = Math.min(latMin, curLat);
+            lonMin = Math.min(lonMin, curLon);
+        }
+        
+        RoutePathOverlay pathOverlay = new RoutePathOverlay(this, route, RoutePathOverlay.GREEN);
+        mapOverlays.add(pathOverlay);
+        
+        route.setUserId(User.getCurrentUser(this).getId());
+        
+        /* Add offset of 1000 to range so that map displays extra space around route. */
+        int [] range = {latMax - latMin + 1500 ,lonMax - lonMin + 1500};
+        
+        /* Return the range to doRoute so that map can be adjusted to range settings */
+        return range;
+    }
+    
+    private void displayReservation(final Reservation reservation){
+        AsyncTask<Void, Void, List<Route>> task = new AsyncTask<Void, Void, List<Route>>() {
+            @Override
+            protected List<Route> doInBackground(Void... params) {
+                List<Route> routes = null;
+                try {
+                    RouteFetchRequest request = new RouteFetchRequest(
+                        reservation.getNavLink(), reservation.getDepartureTime(), 
+                        reservation.getDuration());
+                    routes = request.execute(LandingActivity.this);
+                }
+                catch(Exception e) {
+                    ehs.registerException(e);
+                }                                
+                return routes;
+            }
+            protected void onPostExecute(java.util.List<Route> routes) {
+                if (ehs.hasExceptions()) {
+                    ehs.reportExceptions(new Runnable() {
+                        @Override
+                        public void run() {
+                            finish();
+                        }
+                    });
+                }else if(routes != null && routes.size() > 0) {
+                    Route route = routes.get(0); 
+                    route.preprocessNodes();
+                    MapView mapView = (MapView) findViewById(R.id.mapview);
+                    drawRoute(mapView, route, 0);
+                    RouteRect routeRect = ValidationActivity.initRouteRect(route);
+                    GeoPoint mid = routeRect.getMidPoint();
+                    int[] range = routeRect.getRange();
+                    MapController mc = mapView.getController();
+                    mc.zoomToSpan(range[0], range[1]);
+                    mc.setCenter(mid);
+                }
+            }
+        };
+        Misc.parallelExecute(task);
     }
     
     private static class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {

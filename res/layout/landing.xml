@@ -268,6 +268,45 @@
 				            />
 				        </FrameLayout>
 			        </FrameLayout>
+			        <LinearLayout
+			            	android:id="@+id/map_button_panel"
+				        	android:layout_width="match_parent"
+				        	android:layout_height="56dp"
+				        	android:orientation="horizontal"
+				        	android:visibility="gone">
+			        	<TextView
+			        	    android:id="@+id/im_coming"
+			        	    android:layout_width="match_parent"
+				        	android:layout_height="match_parent"
+				        	android:layout_weight="1"
+				        	android:text="I'm coming"
+				        	android:gravity="center"
+				        	android:textSize="@dimen/smaller_font"
+		           			android:textColor="@android:color/white"
+		           			android:drawablePadding="4dp"
+		           			android:drawableLeft="@drawable/im_coming_icon"
+		           			android:paddingLeft="34dp"
+		           			android:paddingRight="34dp"
+				        	android:background="#63c232"
+				        	android:singleLine="true"
+						/>
+			        	<TextView
+			        	    android:id="@+id/get_going"
+			        	    android:layout_width="match_parent"
+				        	android:layout_height="match_parent"
+				        	android:layout_weight="1"
+				        	android:text="Get Going"
+				        	android:gravity="center"
+				        	android:textSize="@dimen/smaller_font"
+		           			android:textColor="@android:color/white"
+		           			android:drawablePadding="4dp"
+		           			android:drawableLeft="@drawable/get_going_icon"
+		           			android:paddingLeft="34dp"
+		           			android:paddingRight="34dp"
+				        	android:background="#6cc0e4"
+				        	android:singleLine="true"
+						/>
+			        </LinearLayout>
 			        <RelativeLayout
 			            	android:id="@+id/rewards_panel"
 				            android:layout_width="match_parent"

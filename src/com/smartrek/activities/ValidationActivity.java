@@ -477,7 +477,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
     
     private RouteRect routeRect;
     
-    private static RouteRect initRouteRect(Route r){
+    public static RouteRect initRouteRect(Route r){
         return new RouteRect(r.getNodes());
     }
     
