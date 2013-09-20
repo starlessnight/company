@@ -228,7 +228,7 @@ public final class NavigationView extends LinearLayout {
 	    return meters * 3.28084;
 	}
 	
-	private static double metersToMiles(double meters){
+	public static double metersToMiles(double meters){
         return meters * 0.000621371;
     }
 	

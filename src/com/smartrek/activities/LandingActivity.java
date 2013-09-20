@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
+import android.content.DialogInterface.OnShowListener;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.database.Cursor;
@@ -283,7 +284,7 @@ public class LandingActivity extends Activity {
                     Contact contact = contacts.get(i);
                     items[i] = contact.name;
                 }
-                new AlertDialog.Builder(LandingActivity.this)
+                AlertDialog dialog = new AlertDialog.Builder(LandingActivity.this)
                     .setMultiChoiceItems(items, null, new OnMultiChoiceClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which, boolean isChecked) {
@@ -308,6 +309,15 @@ public class LandingActivity extends Activity {
                             }
                             TextView vGetGoing = (TextView) findViewById(R.id.get_going);
                             Reservation reservation =(Reservation) vGetGoing.getTag();
+                            Intent intent = new Intent(LandingActivity.this, ValidationActivity.class);
+                            intent.putExtra("route", reservation.getRoute());
+                            intent.putExtra("reservation", reservation);
+                            intent.putExtra(ValidationActivity.EMAILS, StringUtils.join(emails, ","));
+                            startActivity(intent);
+                            MapView mapView = (MapView) findViewById(R.id.mapview);
+                            infoOverlay.hide();
+                            mapView.getOverlays().clear();
+                            collapseMap();
                         }
                     })
                     .setNegativeButton(string.cancel, new DialogInterface.OnClickListener() {
@@ -316,8 +326,14 @@ public class LandingActivity extends Activity {
                             
                         }
                     })
-                    .create()
-                    .show();
+                    .create();
+                    dialog.setOnShowListener(new OnShowListener() {
+                        @Override
+                        public void onShow(DialogInterface dialog) {
+                            ((AlertDialog)dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                        }
+                    });
+                    dialog.show();
             }
         });
         
@@ -331,6 +347,7 @@ public class LandingActivity extends Activity {
                 intent.putExtra("reservation", reservation);
                 startActivity(intent);
                 MapView mapView = (MapView) findViewById(R.id.mapview);
+                infoOverlay.hide();
                 mapView.getOverlays().clear();
                 collapseMap();
             }
@@ -522,6 +539,8 @@ public class LandingActivity extends Activity {
         };
     }
     
+    RouteInfoOverlay infoOverlay;
+    
     private synchronized int[] drawRoute (final MapView mapView, Route route, int routeNum) {
         List<Overlay> mapOverlays = mapView.getOverlays();
         Log.d("LandingActivity", String.format("mapOverlays has %d items", mapOverlays.size()));
@@ -559,7 +578,7 @@ public class LandingActivity extends Activity {
         RoutePathOverlay pathOverlay = new RoutePathOverlay(this, route, RoutePathOverlay.GREEN);
         mapOverlays.add(pathOverlay);
         
-        final RouteInfoOverlay infoOverlay = new RouteInfoOverlay(mapView, route, routeNum, new GeoPoint(lat, lon), boldFont, lightFont);
+        infoOverlay = new RouteInfoOverlay(mapView, route, routeNum, new GeoPoint(lat, lon), boldFont, lightFont);
         infoOverlay.setCallback(new RouteOverlayCallback(){
             @Override
             public boolean onBalloonTap(int index, OverlayItem item) {

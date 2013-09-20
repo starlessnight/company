@@ -60,6 +60,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.analytics.tracking.android.EasyTracker;
@@ -72,6 +73,7 @@ import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
+import com.smartrek.requests.ImComingRequest;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.ui.NavigationView;
 import com.smartrek.ui.NavigationView.CheckPointListener;
@@ -107,6 +109,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
     private static final String POLL_CNT = "pollCnt";
     
     private static final String GEO_POINT = "geoPoint";
+    
+    public static final String EMAILS = "emails";
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 
@@ -177,6 +181,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
     
     private MediaPlayer validationMusicPlayer;
     
+    private String emails;
+    
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -203,10 +209,12 @@ public final class ValidationActivity extends Activity implements OnInitListener
         if(isOnRecreate){
             startTime = savedInstanceState.getLong(START_TIME);
             savedPollCnt = savedInstanceState.getInt(POLL_CNT);
+            emails = savedInstanceState.getString(EMAILS);
         }else{
             Time now = new Time();
             now.setToNow();
             startTime = now.toMillis(false);
+            emails = extras.getString(EMAILS);
         }
         
         validationTimeoutNotifier = new ValidationTimeoutNotifier();
@@ -385,6 +393,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
         if(geoPoint != null){
             outState.putParcelable(GEO_POINT, geoPoint);
         }
+        outState.putString(EMAILS, emails);
     }
     
     @Override
@@ -707,6 +716,51 @@ public final class ValidationActivity extends Activity implements OnInitListener
         trajectory.clear();
     }
     
+    private long lastSendImComingMsg;
+    
+    private static final long TEN_MINS = 10 * 60 * 1000;
+    
+    private void sendImComingMsg(){
+        if(emails != null && System.currentTimeMillis() - lastSendImComingMsg > TEN_MINS){
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try{
+                        new AsyncTask<Void, Void, Void>(){
+                            @Override
+                            protected Void doInBackground(Void... params) {
+                                try {
+                                    GeoPoint loc = pointOverlay.getLocation();
+                                    ImComingRequest req = new ImComingRequest(User.getCurrentUser(ValidationActivity.this), 
+                                        emails, loc.getLatitude(), loc.getLongitude(), 
+                                        reservation.getArrivalTime(), 
+                                        NavigationView.metersToMiles(reservation.getRoute().getLength()
+                                            - reservation.getRoute().getValidatedDistance()), 
+                                        reservation.getDestinationAddress());
+                                    req.execute();
+                                }
+                                catch (Exception e) {
+                                    ehs.registerException(e);
+                                }
+                                return null;
+                            }
+                            protected void onPostExecute(Void result) {
+                                String msg;
+                                if(ehs.hasExceptions()){
+                                    msg = "msg not sent, " + ehs.popException().getMessage(); 
+                                }else{
+                                    msg = "the I'm coming msg sent";
+                                }
+                                Toast.makeText(ValidationActivity.this, msg, Toast.LENGTH_LONG).show();
+                            }
+                        }.execute();
+                    }catch(Throwable t){}
+                }
+            });
+            lastSendImComingMsg = System.currentTimeMillis();
+        }
+    }
+    
     private void saveValidation(){
         final File tFile = ValidationService.getFile(this, reservation.getRid());
         runOnUiThread(new Runnable() {
@@ -874,6 +928,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
         if (trajectory.size() >= 8) {
             saveTrajectory();
         }
+        
+        sendImComingMsg();
         
         if (!arrived.get() && !route.getNodes().isEmpty() && route.hasArrivedAtDestination(lat, lng)) {
             arrived.set(true);

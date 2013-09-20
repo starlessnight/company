@@ -50,7 +50,8 @@ public abstract class Request {
 	    address,
 	    query_route,
 	    trip,
-	    trajectory
+	    trajectory,
+	    message
 	}
 	
 	private static EnumMap<Link, String> linkUrls = new EnumMap<Link, String>(Link.class);
