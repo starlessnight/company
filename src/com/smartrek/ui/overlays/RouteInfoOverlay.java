@@ -122,6 +122,10 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	    overlay = mapView.getOverlays().remove(currentFocussedIndex);
 	}
 
+	public void showBalloonOverlay(){
+	    onTap(0);
+	}
+	
 	@Override
 	protected final boolean onTap(int index) {
 		Log.d("RouteOverlay", "onTap, index=" + index);

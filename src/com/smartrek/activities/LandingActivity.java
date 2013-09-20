@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
+import org.osmdroid.views.overlay.OverlayItem;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -15,6 +16,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -38,6 +40,8 @@ import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.requests.ReservationRequest;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.ui.EditAddress;
+import com.smartrek.ui.overlays.RouteInfoOverlay;
+import com.smartrek.ui.overlays.RouteOverlayCallback;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.ui.timelayout.AdjustableTime;
 import com.smartrek.utils.Dimension;
@@ -63,6 +67,9 @@ public class LandingActivity extends Activity {
     
     LocationManager networkLocManager;
     LocationListener networkLocListener;
+    
+    Typeface boldFont;
+    Typeface lightFont;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -261,10 +268,13 @@ public class LandingActivity extends Activity {
         networkLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocListener);
         
         AssetManager assets = getAssets();
-        Font.setTypeface(Font.getBold(assets), vTitle, vClock, vWeather, vTrip1, 
+        boldFont = Font.getBold(assets);
+        lightFont = Font.getLight(assets);
+        
+        Font.setTypeface(boldFont, vTitle, vClock, vWeather, vTrip1, 
             vTrip2, vPlanATrip, vGoHome, vGoToWork, vOuttaHere, vExploreMap,
             vRewards, vTrekpoints, vImComing, vGetGoing);
-        Font.setTypeface(Font.getLight(assets), vDate, vValidatedTripsUpdateCount,
+        Font.setTypeface(lightFont, vDate, vValidatedTripsUpdateCount,
             osmCredit);
     }
     
@@ -423,7 +433,7 @@ public class LandingActivity extends Activity {
         };
     }
     
-    private synchronized int[] drawRoute (MapView mapView, Route route, int routeNum) {
+    private synchronized int[] drawRoute (final MapView mapView, Route route, int routeNum) {
         List<Overlay> mapOverlays = mapView.getOverlays();
         Log.d("LandingActivity", String.format("mapOverlays has %d items", mapOverlays.size()));
         
@@ -459,6 +469,31 @@ public class LandingActivity extends Activity {
         
         RoutePathOverlay pathOverlay = new RoutePathOverlay(this, route, RoutePathOverlay.GREEN);
         mapOverlays.add(pathOverlay);
+        
+        final RouteInfoOverlay infoOverlay = new RouteInfoOverlay(mapView, route, routeNum, new GeoPoint(lat, lon), boldFont, lightFont);
+        infoOverlay.setCallback(new RouteOverlayCallback(){
+            @Override
+            public boolean onBalloonTap(int index, OverlayItem item) {
+                return false;
+            }
+            @Override
+            public void onChange() {
+                infoOverlay.showOverlay();
+            }
+            @Override
+            public boolean onTap(int index) {
+                mapView.getController().setCenter(infoOverlay.getGeoPoint());
+                return true;
+            }
+            @Override
+            public boolean onClose() {
+                mapView.invalidate();
+                return true;
+            }
+        });
+        mapOverlays.add(infoOverlay);
+        infoOverlay.showOverlay();
+        infoOverlay.showBalloonOverlay();
         
         route.setUserId(User.getCurrentUser(this).getId());
         
