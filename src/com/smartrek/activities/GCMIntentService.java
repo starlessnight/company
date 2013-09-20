@@ -44,8 +44,10 @@ public class GCMIntentService extends GCMBaseIntentService {
 		String message = intent.getStringExtra("message");
 		long departureTime = intent.getLongExtra("time", 0) * 1000;
 		
+		boolean noop = false;
 		if (message == null || message.equals("")) {
 			message = "(placeholder)";
+			noop = true;
 		}
 		
 		Intent routeIntent = new Intent(context, RouteActivity.class);
@@ -56,7 +58,9 @@ public class GCMIntentService extends GCMBaseIntentService {
 		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         
         Notification notification = new Notification(R.drawable.icon_small, "Smartrek", departureTime);
-        notification.setLatestEventInfo(context, "Smartrek", message, pendingIntent);
+        if(!noop){
+            notification.setLatestEventInfo(context, "Smartrek", message, pendingIntent);
+        }
         notification.flags = Notification.FLAG_AUTO_CANCEL;
         notificationManager.notify(0, notification);
 	}
