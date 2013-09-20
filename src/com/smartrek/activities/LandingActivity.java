@@ -1,7 +1,10 @@
 package com.smartrek.activities;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.osmdroid.views.MapController;
@@ -9,19 +12,25 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
 
+import android.R.string;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.database.Cursor;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.provider.ContactsContract.PhoneLookup;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
@@ -232,6 +241,86 @@ public class LandingActivity extends Activity {
         osmCreditLp.rightMargin += Dimension.dpToPx(52, getResources().getDisplayMetrics());
         
         TextView vImComing = (TextView) findViewById(R.id.im_coming);
+        vImComing.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final List<Contact> contacts = new ArrayList<Contact>();
+                Map<String, Contact> contactsMap = new LinkedHashMap<String, Contact>();
+                List<String> ids = new ArrayList<String>(); 
+                Cursor people = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+                while(people.moveToNext()) {
+                   int nameFieldColumnIndex = people.getColumnIndex(PhoneLookup.DISPLAY_NAME);
+                   String name = people.getString(nameFieldColumnIndex);
+                   int idFieldColumnIndex = people.getColumnIndex(PhoneLookup._ID);
+                   String contactId = people.getString(idFieldColumnIndex);
+                   Contact contact = new Contact();
+                   contact.id = contactId;
+                   contact.name = name;
+                   contactsMap.put(contactId, contact);
+                   ids.add(contactId);
+                }
+                people.close();
+                Cursor emails = getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null, 
+                    ContactsContract.CommonDataKinds.Email.CONTACT_ID + " in (" + StringUtils.join(ids, ",") + ")", null, null); 
+                while (emails.moveToNext()) {
+                    String id = emails.getString(emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.CONTACT_ID));
+                    String email = emails.getString(emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
+                    Contact contact = contactsMap.get(id);
+                    if(contact != null && contact.email == null){
+                        contact.email = email;
+                    }
+                }
+                emails.close();
+                for(Contact contact : contactsMap.values()){
+                    if(contact.email != null){
+                        contacts.add(contact);
+                    }
+                }
+                int len = contacts.size();
+                final boolean[] checkedItems = new boolean[len];
+                CharSequence[] items = new CharSequence[len];
+                for(int i=0; i<len; i++){
+                    Contact contact = contacts.get(i);
+                    items[i] = contact.name;
+                }
+                new AlertDialog.Builder(LandingActivity.this)
+                    .setMultiChoiceItems(items, null, new OnMultiChoiceClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                            checkedItems[which] = isChecked;
+                            int checkedCnt = 0;
+                            for(boolean c : checkedItems){
+                                if(c){
+                                    checkedCnt++;
+                                }
+                            }
+                            ((AlertDialog)dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(checkedCnt > 0);
+                        }
+                    })
+                    .setPositiveButton(string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            List<String> emails = new ArrayList<String>();
+                            for(int i=0; i<checkedItems.length; i++){
+                                if(checkedItems[i]){
+                                    emails.add(contacts.get(i).email);
+                                }
+                            }
+                            TextView vGetGoing = (TextView) findViewById(R.id.get_going);
+                            Reservation reservation =(Reservation) vGetGoing.getTag();
+                        }
+                    })
+                    .setNegativeButton(string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            
+                        }
+                    })
+                    .create()
+                    .show();
+            }
+        });
+        
         TextView vGetGoing = (TextView) findViewById(R.id.get_going);
         vGetGoing.setOnClickListener(new OnClickListener() {
             @Override
@@ -756,6 +845,16 @@ public class LandingActivity extends Activity {
                 callback.run(result);
             }
         }
+        
+    }
+    
+    private static class Contact {
+        
+        String id;
+        
+        String name;
+        
+        String email;
         
     }
     
