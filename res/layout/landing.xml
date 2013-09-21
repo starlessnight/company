@@ -331,7 +331,7 @@
 				        	android:layout_height="wrap_content"
 				            android:textSize="@dimen/large_font"
 				           	android:textColor="@android:color/white"
-				           	android:text="2390"
+				           	android:text="0"
 				           	android:layout_alignParentTop="true"
 				           	android:layout_centerHorizontal="true"
 				        />
@@ -387,6 +387,7 @@
 						            android:layout_alignTop="@+id/validated_trips"
 						            android:layout_alignRight="@+id/validated_trips"
 						            android:layout_marginRight="-8dp"
+						            android:visibility="invisible"
 						        />
 					        </RelativeLayout>
 					        <FrameLayout 

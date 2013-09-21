@@ -80,13 +80,18 @@ public final class DashboardActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dashboard);
         final TextView trekpointsLabel = (TextView) findViewById(R.id.trekpoints_label);
-        User user = User.getCurrentUser(this);
+        final User user = User.getCurrentUser(this);
         final int uid = user.getId();
         AsyncTask<Void, Void, Trekpoint> trekpointsTask = new AsyncTask<Void, Void, Trekpoint>() {
             @Override
             protected Trekpoint doInBackground(Void... params) {
                 Trekpoint tp = null;
-                TrekpointFetchRequest req = new TrekpointFetchRequest(uid);
+                TrekpointFetchRequest req;
+                if(Request.NEW_API){
+                    req = new TrekpointFetchRequest(user);
+                }else{
+                    req = new TrekpointFetchRequest(uid);
+                }
                 req.invalidateCache(DashboardActivity.this);
                 try {
                     tp = req.execute(DashboardActivity.this);
@@ -130,7 +135,12 @@ public final class DashboardActivity extends ActionBarActivity {
             @Override
             protected List<Reservation> doInBackground(Void... params) {
                 List<Reservation> reservations = Collections.emptyList();
-                ValidatedReservationsFetchRequest req = new ValidatedReservationsFetchRequest(uid);
+                ValidatedReservationsFetchRequest req;
+                if(Request.NEW_API){
+                    req = new ValidatedReservationsFetchRequest(user);
+                }else{
+                    req = new ValidatedReservationsFetchRequest(uid);
+                }
                 req.invalidateCache(DashboardActivity.this);
                 try {
                     reservations = req.execute(DashboardActivity.this);
@@ -203,7 +213,7 @@ public final class DashboardActivity extends ActionBarActivity {
                     protected Bitmap doInBackground(Void... params) {
                         Bitmap rs = null;
                         InputStream is = null;
-                        String url = Request.IMG_HOST + reward.picture;
+                        String url = (Request.NEW_API?"":Request.IMG_HOST) + reward.picture;
                         Cache cache = Cache.getInstance(DashboardActivity.this);
                         try{
                             InputStream cachedStream = cache.fetchStream(url);
@@ -264,7 +274,7 @@ public final class DashboardActivity extends ActionBarActivity {
                 }
                 trekpointsView.setText(trekpointsText);
                 final ImageView pictureView = (ImageView) view.findViewById(R.id.picture_reward);
-                final String url = Request.IMG_HOST + reward.picture;
+                final String url = (Request.NEW_API?"":Request.IMG_HOST) + reward.picture;
                 if(!url.equals(pictureView.getTag())){
                     pictureView.setTag(url);
                     pictureView.setBackgroundResource(R.drawable.rewards_picture_bg);
@@ -397,7 +407,7 @@ public final class DashboardActivity extends ActionBarActivity {
                     protected Bitmap doInBackground(Void... params) {
                         Bitmap rs = null;
                         InputStream is = null;
-                        String url = Request.IMG_HOST + award.picture;
+                        String url = (Request.NEW_API?"":Request.IMG_HOST) + award.picture;
                         Cache cache = Cache.getInstance(DashboardActivity.this);
                         try{
                             InputStream cachedStream = cache.fetchStream(url);
@@ -457,7 +467,7 @@ public final class DashboardActivity extends ActionBarActivity {
                         View.GONE:View.VISIBLE);
                     Font.setTypeface(boldFont, headerView, nameView, progressTextView);
                     final ImageView pictureView = (ImageView) view.findViewById(R.id.picture_award);
-                    final String url = Request.IMG_HOST + award.picture.replaceAll(" ", "%20");
+                    final String url = (Request.NEW_API?"":Request.IMG_HOST) + award.picture.replaceAll(" ", "%20");
                     if(!url.equals(pictureView.getTag())){
                         pictureView.setTag(url);
                         pictureView.setImageResource(android.R.color.transparent);
@@ -597,7 +607,12 @@ public final class DashboardActivity extends ActionBarActivity {
                         @Override
                         protected List<Reservation> doInBackground(Void... params) {
                             List<Reservation> reservations = Collections.emptyList();
-                            ValidatedReservationsFetchRequest req = new ValidatedReservationsFetchRequest(uid);
+                            ValidatedReservationsFetchRequest req;
+                            if(Request.NEW_API){
+                                req = new ValidatedReservationsFetchRequest(user);
+                            }else{
+                                req = new ValidatedReservationsFetchRequest(uid);
+                            }
                             req.invalidateCache(DashboardActivity.this);
                             try {
                                 reservations = req.execute(DashboardActivity.this);
@@ -659,7 +674,12 @@ public final class DashboardActivity extends ActionBarActivity {
                         @Override
                         protected List<Award> doInBackground(Void... params) {
                             List<Award> awards = Collections.emptyList();
-                            AwardsFetchRequest req = new AwardsFetchRequest(uid);
+                            AwardsFetchRequest req;
+                            if(Request.NEW_API){
+                                req = new AwardsFetchRequest(user);
+                            }else{
+                                req = new AwardsFetchRequest(uid);
+                            }
                             req.invalidateCache(DashboardActivity.this);
                             try {
                                 awards = req.execute(DashboardActivity.this);

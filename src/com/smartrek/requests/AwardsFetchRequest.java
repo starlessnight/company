@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import android.content.Context;
 
 import com.smartrek.activities.R;
+import com.smartrek.models.User;
 import com.smartrek.requests.AwardsFetchRequest.Award;
 
 
@@ -60,27 +61,50 @@ public final class AwardsFetchRequest extends FetchRequest<List<Award>> {
 		super(String.format("%s/achievements/full/%d", NEW_HOST, uid));
 	}
 	
+	public AwardsFetchRequest(User user) {
+        super(getLinkUrl(Link.achievement).replaceAll("\\{user_id\\}", String.valueOf(user.getId())));
+        this.username = user.getUsername();
+        this.password = user.getPassword();
+    }
+	
 	@Override
 	public List<Award> execute(Context ctx) throws Exception {
 		String response = executeFetchRequest(getURL(), ctx);
-		JSONArray jsons  = new JSONArray(response);
 		List<Award> awards = new ArrayList<Award>();
-		for(int i=0; i<jsons.length(); i++){
-		    JSONArray list = jsons.getJSONArray(i);
-		    for(int j=0; j<list.length(); j++){
-    		    JSONObject json = list.getJSONObject(j);
-    		    Award award = new Award();
-    		    award.id = json.getLong("id");
-    		    award.name = json.getString("name");
-    		    award.picture = json.getString("picture");
-    		    award.task = json.getString("task");
-    		    award.description = json.getString("description");
-    		    award.type = json.getString("type");
-    		    award.percent = json.getInt("percent");
-    		    award.complete = json.getBoolean("complete");
-    		    awards.add(award);
-		    }
-		}
+		if(NEW_API){
+		    JSONArray list = new JSONObject(response).getJSONArray("data");
+            for(int j=0; j<list.length(); j++){
+                JSONObject json = list.getJSONObject(j);
+                Award award = new Award();
+                award.id = json.getLong("id");
+                award.name = json.getString("name");
+                award.picture = json.getString("picture");
+                award.task = json.getString("task");
+                award.description = json.getString("description");
+                award.type = json.getString("type");
+                award.percent = json.getInt("percent");
+                award.complete = json.getBoolean("complete");
+                awards.add(award);
+            }
+        }else{
+            JSONArray jsons = new JSONArray(response);
+            for(int i=0; i<jsons.length(); i++){
+                JSONArray list = jsons.getJSONArray(i);
+                for(int j=0; j<list.length(); j++){
+                    JSONObject json = list.getJSONObject(j);
+                    Award award = new Award();
+                    award.id = json.getLong("id");
+                    award.name = json.getString("name");
+                    award.picture = json.getString("picture");
+                    award.task = json.getString("task");
+                    award.description = json.getString("description");
+                    award.type = json.getString("type");
+                    award.percent = json.getInt("percent");
+                    award.complete = json.getBoolean("complete");
+                    awards.add(award);
+                }
+            }
+        }
 		return awards;
 	}
 	

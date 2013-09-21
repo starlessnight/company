@@ -1,5 +1,6 @@
 package com.smartrek.activities;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -46,9 +47,13 @@ import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
 import com.smartrek.requests.FavoriteAddressFetchRequest;
+import com.smartrek.requests.Request;
 import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.requests.ReservationRequest;
 import com.smartrek.requests.RouteFetchRequest;
+import com.smartrek.requests.TrekpointFetchRequest;
+import com.smartrek.requests.TrekpointFetchRequest.Trekpoint;
+import com.smartrek.requests.ValidatedReservationsFetchRequest;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.overlays.RouteInfoOverlay;
 import com.smartrek.ui.overlays.RouteOverlayCallback;
@@ -221,8 +226,11 @@ public class LandingActivity extends Activity {
                 Font.autoScaleTextSize(vRewards, width/2);
             }
         });
+        User user = User.getCurrentUser(LandingActivity.this);
         TextView vTrekpoints = (TextView) findViewById(R.id.trekpoints);
+        refreshTrekpoints();
         TextView vValidatedTripsUpdateCount = (TextView) findViewById(R.id.validated_trips_update_count);
+        refreshTripUpdateCount();
         
         MapView mapView = (MapView) findViewById(R.id.mapview);
         Misc.disableHardwareAcceleration(mapView);
@@ -353,6 +361,15 @@ public class LandingActivity extends Activity {
             }
         });
         
+        findViewById(R.id.rewards_panel).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LandingActivity.this, DashboardActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+        });
+        
         networkLocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         networkLocListener = new LocationListener() {
             @Override
@@ -389,6 +406,8 @@ public class LandingActivity extends Activity {
         super.onResume();
         refreshDate();
         refreshTripsInfo();
+        refreshTripUpdateCount();
+        refreshTrekpoints();
     }
     
     @Override
@@ -417,6 +436,87 @@ public class LandingActivity extends Activity {
     
     private void expandMap(){
         expandMap(false);
+    }
+    
+    private void refreshTrekpoints(){
+        final User user = User.getCurrentUser(this);
+        final int uid = user.getId();
+        AsyncTask<Void, Void, Trekpoint> task = new AsyncTask<Void, Void, Trekpoint>() {
+            @Override
+            protected Trekpoint doInBackground(Void... params) {
+                Trekpoint tp = null;
+                TrekpointFetchRequest req;
+                if(Request.NEW_API){
+                    req = new TrekpointFetchRequest(user);
+                }else{
+                    req = new TrekpointFetchRequest(uid);
+                }
+                req.invalidateCache(LandingActivity.this);
+                try {
+                    tp = req.execute(LandingActivity.this);
+                }
+                catch (Exception e) {
+                    ehs.registerException(e);
+                }
+                return tp;
+            }
+            @Override
+            protected void onPostExecute(Trekpoint trekpoints) {
+                if (ehs.hasExceptions()) {
+                    ehs.reportExceptions();
+                }
+                else {
+                    DecimalFormat fmt = new DecimalFormat("#,###");
+                    ((TextView)findViewById(R.id.trekpoints)).setText(fmt.format(trekpoints == null?0:trekpoints.credit));
+                }
+            }
+        };
+        Misc.parallelExecute(task);
+    }
+    
+    private void refreshTripUpdateCount(){
+        final User user = User.getCurrentUser(this);
+        final int uid = user.getId();
+        final int validatedTripsCount = MapDisplayActivity.getValidatedTripsCount(this);
+        AsyncTask<Void, Void, List<Reservation>> task = new AsyncTask<Void, Void, List<Reservation>>() {
+            @Override
+            protected List<Reservation> doInBackground(Void... params) {
+                List<Reservation> reservations = Collections.emptyList();
+                ValidatedReservationsFetchRequest req;
+                if(Request.NEW_API){
+                    req = new ValidatedReservationsFetchRequest(user);
+                }else{
+                    req = new ValidatedReservationsFetchRequest(uid);
+                }
+                req.invalidateCache(LandingActivity.this);
+                try {
+                    reservations = req.execute(LandingActivity.this);
+                }
+                catch (Exception e) {
+                    ehs.registerException(e);
+                }
+                Collections.sort(reservations, Collections.reverseOrder(
+                    Reservation.orderByDepartureTime()));
+                return reservations;
+            }
+            @Override
+            protected void onPostExecute(List<Reservation> reservations) {
+                if (ehs.hasExceptions()) {
+                    ehs.reportExceptions();
+                }
+                else {
+                    TextView vValidatedTripsUpdateCount = (TextView) findViewById(R.id.validated_trips_update_count);
+                    int updateCnt = reservations.size() - validatedTripsCount;
+                    if(updateCnt > 0){
+                        vValidatedTripsUpdateCount.setText(String.valueOf(updateCnt));
+                        vValidatedTripsUpdateCount.setVisibility(View.VISIBLE);
+                    }else{
+                        vValidatedTripsUpdateCount.setVisibility(View.INVISIBLE);
+                    }
+                }
+            }
+        };
+        Misc.parallelExecute(task);
     }
     
     private void expandMap(boolean showMapButton){

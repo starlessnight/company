@@ -19,6 +19,8 @@ public final class User implements JSONModel, Parcelable {
 	public static final String LASTNAME = "LASTNAME";
 	public static final String EMAIL = "EMAIL";
 	public static final String PASSWORD = "PASSWORD";
+	public static final String CREDIT = "CREDIT";
+	public static final String TRIP = "TRIP";
 	
 	private static User currentUser;
 
@@ -29,6 +31,8 @@ public final class User implements JSONModel, Parcelable {
 	private String lastname;
 	private String email;
 	private String deviceId;
+	private int credit;
+	private int trip;
 	
 	public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
 		public User createFromParcel(Parcel in) {
@@ -49,6 +53,8 @@ public final class User implements JSONModel, Parcelable {
 		lastname = in.readString();
 		email = in.readString();
 		deviceId = in.readString();
+		credit = in.readInt();
+		trip = in.readInt();
 	}
 	
 	public User(int id, String username) {
@@ -113,6 +119,8 @@ public final class User implements JSONModel, Parcelable {
 		obj.put(LASTNAME, getLastname());
 		obj.put(EMAIL, getEmail());
 		obj.put(PASSWORD, getPassword());
+		obj.put(CREDIT, getCredit());
+		obj.put(TRIP, getTrip());
 		
 		return obj.toString();
 	}
@@ -129,6 +137,8 @@ public final class User implements JSONModel, Parcelable {
 		if (object.has(LASTNAME)) user.lastname = object.getString(LASTNAME);
 		if (object.has(EMAIL)) user.email = object.getString(EMAIL);
 		if (object.has(PASSWORD)) user.password = object.getString(PASSWORD);
+		if (object.has(CREDIT)) user.credit = object.getInt(CREDIT);
+		if (object.has(TRIP)) user.trip = object.getInt(TRIP);
 		
 		return user;
 	}
@@ -195,6 +205,8 @@ public final class User implements JSONModel, Parcelable {
 		dest.writeString(lastname);
 		dest.writeString(email);
 		dest.writeString(deviceId);
+		dest.writeInt(credit);
+		dest.writeInt(trip);
 	}
 
     public void setId(int id) {
@@ -207,6 +219,22 @@ public final class User implements JSONModel, Parcelable {
 
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
+    }
+
+    public int getCredit() {
+        return credit;
+    }
+
+    public void setCredit(int credit) {
+        this.credit = credit;
+    }
+
+    public int getTrip() {
+        return trip;
+    }
+
+    public void setTrip(int trip) {
+        this.trip = trip;
     }
     
 }

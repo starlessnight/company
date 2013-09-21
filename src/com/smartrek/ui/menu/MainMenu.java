@@ -14,7 +14,6 @@ import com.smartrek.activities.ReservationConfirmationActivity;
 import com.smartrek.activities.ReservationListActivity;
 import com.smartrek.activities.RouteActivity;
 import com.smartrek.models.User;
-import com.smartrek.requests.Request;
 
 /**
  * A common interface to bring up the application menu
@@ -69,7 +68,7 @@ public final class MainMenu {
                break;
                
            case R.id.dashboard:
-               if (!Request.NEW_API && !activity.getClass().equals(DashboardActivity.class)) {
+               if (!activity.getClass().equals(DashboardActivity.class)) {
                    intent = new Intent(activity, DashboardActivity.class);
                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                    activity.startActivity(intent);

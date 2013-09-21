@@ -116,7 +116,7 @@ public final class Route implements Parcelable {
         // Server returns ESTIMATED_TRAVEL_TIME in some APIs, and returns END_TIME in other APIs. FUCK ME...
         double ett = 0;
         if(newAPI){
-            ett = routeObject.getDouble("estimated_travel_time");
+            ett = routeObject.optDouble("estimated_travel_time");
         }else{
             if (routeObject.has("ESTIMATED_TRAVEL_TIME")) {
             	ett = routeObject.getDouble("ESTIMATED_TRAVEL_TIME");

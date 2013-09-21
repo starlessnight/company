@@ -51,7 +51,9 @@ public abstract class Request {
 	    query_route,
 	    trip,
 	    trajectory,
-	    message
+	    message,
+	    achievement,
+	    reward
 	}
 	
 	private static EnumMap<Link, String> linkUrls = new EnumMap<Link, String>(Link.class);

@@ -26,15 +26,19 @@ public final class RewardsFetchRequest extends FetchRequest<List<Reward>> {
         
     }
     
-    
 	public RewardsFetchRequest() {
-		super(String.format("%s/rewards", NEW_HOST));
+		super(buildUrl());
 	}
 	
 	@Override
 	public List<Reward> execute(Context ctx) throws Exception {
 		String response = executeFetchRequest(getURL(), ctx);
-		JSONArray jsons  = new JSONArray(response);
+		JSONArray jsons;
+		if(NEW_API){
+            jsons = new JSONObject(response).getJSONArray("data");
+        }else{
+            jsons = new JSONArray(response);
+        }
 		List<Reward> rewards = new ArrayList<Reward>();
 		for(int i=0; i<jsons.length(); i++){
 		    JSONObject json = jsons.getJSONObject(i);
@@ -49,6 +53,16 @@ public final class RewardsFetchRequest extends FetchRequest<List<Reward>> {
 		    rewards.add(reward);
 		}
 		return rewards;
+	}
+	
+	private static String buildUrl(){
+	    String url;
+	    if(NEW_API){
+	        url = getLinkUrl(Link.reward);
+	    }else{
+	        url = String.format("%s/rewards", NEW_HOST);
+	    }
+	    return url;
 	}
 	
 

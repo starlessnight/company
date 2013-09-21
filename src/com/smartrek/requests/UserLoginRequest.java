@@ -3,6 +3,7 @@ package com.smartrek.requests;
 import java.io.IOException;
 import java.net.URLEncoder;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -54,6 +55,12 @@ public class UserLoginRequest extends FetchRequest<User> {
 	        user.setFirstname(data.getString("first_name"));
 	        user.setLastname(data.getString("last_name"));
 	        user.setDeviceId(data.getString("device_id"));
+	        String balance = data.optString("balance");
+	        if(StringUtils.isNotBlank(balance)){
+	            JSONObject balanceJson = new JSONObject(balance);
+	            user.setCredit(balanceJson.optInt("credit"));
+	            user.setTrip(balanceJson.optInt("trip"));
+	        }
 	    }else{
 	        // Since the server returns a JSON array for no apparent reason...
 	        user = User.parse(response.substring(1, response.length()-1));

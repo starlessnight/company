@@ -10,14 +10,6 @@ import com.smartrek.requests.Request.Link;
 
 public final class ServiceDiscoveryRequest extends FetchRequest<EnumMap<Link, String>> {
     
-    public static class Trekpoint {
-        
-        public long credit;
-        
-        public long lifeTimeCredit;
-        
-    }
-    
 	public ServiceDiscoveryRequest() {
 		super(ENTRYPOINT_URL);
 	}
