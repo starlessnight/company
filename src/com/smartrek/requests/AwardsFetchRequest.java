@@ -82,8 +82,8 @@ public final class AwardsFetchRequest extends FetchRequest<List<Award>> {
                 award.task = json.getString("task");
                 award.description = json.getString("description");
                 award.type = json.getString("type");
-                award.percent = json.getInt("percent");
                 award.complete = json.getBoolean("complete");
+                award.percent = json.optInt("percent", award.complete?100:0);
                 awards.add(award);
             }
         }else{

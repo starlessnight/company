@@ -1,7 +1,9 @@
 package com.smartrek.requests;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -35,7 +37,21 @@ public class ValidatedReservationsFetchRequest extends FetchRequest<List<Reserva
         }
 		List<Reservation> reservations = new ArrayList<Reservation>();
         for (int i = 0; i < array.length(); i++) {
-            Reservation r = Reservation.parse(new JSONObject(array.get(i).toString()));
+            JSONObject object = new JSONObject(array.get(i).toString());
+            Reservation r;
+            if(NEW_API){
+                r = new Reservation();
+                r.setRid(object.getLong("id"));
+                r.setOriginName(object.getString("origin"));
+                r.setDestinationName(object.getString("destination"));
+                r.setCredits(object.optInt("credit"));
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                dateFormat.setTimeZone(TimeZone.getTimeZone(Request.TIME_ZONE));
+                long departureTime = dateFormat.parse(object.getString("start_datetime")).getTime();
+                r.setDepartureTime(departureTime);
+            }else{
+                r = Reservation.parse(object);
+            }
             reservations.add(r);
         }
         
