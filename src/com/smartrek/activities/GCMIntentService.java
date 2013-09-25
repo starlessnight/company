@@ -42,25 +42,33 @@ public class GCMIntentService extends GCMBaseIntentService {
 		String origin = intent.getStringExtra("origin");
 		String destination = intent.getStringExtra("destination");
 		String message = intent.getStringExtra("message");
-		long departureTime = intent.getLongExtra("time", 0) * 1000;
+		double lat = Double.parseDouble(intent.getStringExtra("lat"));
+        double lon = Double.parseDouble(intent.getStringExtra("lon"));
+        String eta = intent.getStringExtra("eta");
+        String mile = intent.getStringExtra("mile");
 		
-		boolean noop = false;
-		if (message == null || message.equals("")) {
-			message = "(placeholder)";
-			noop = true;
-		}
+		long departureTime = intent.getLongExtra("time", 0) * 1000;
 		
 		Intent routeIntent = new Intent(context, RouteActivity.class);
         routeIntent.putExtra(RouteActivity.ORIGIN_ADDR, origin);
         routeIntent.putExtra(RouteActivity.DEST_ADDR, destination);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, routeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-		
+        
 		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         
         Notification notification = new Notification(R.drawable.icon_small, "Smartrek", departureTime);
-        if(!noop){
-            notification.setLatestEventInfo(context, "Smartrek", message, pendingIntent);
+        PendingIntent pendingIntent;
+        if(eta != null){
+            String msg = message + "\n" + mile + " miles to go estimated arrival time: " + eta;
+            Intent landingIntent = new Intent(context, LandingActivity.class);
+            landingIntent.putExtra(LandingActivity.LAT, lat);
+            landingIntent.putExtra(LandingActivity.LON, lon);
+            landingIntent.putExtra(LandingActivity.MSG, msg);
+            pendingIntent = PendingIntent.getActivity(context, 0, landingIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }else{
+            pendingIntent = PendingIntent.getActivity(context, 0, routeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
+        notification.setLatestEventInfo(context, "Smartrek", message, pendingIntent);
+        
         notification.flags = Notification.FLAG_AUTO_CANCEL;
         notificationManager.notify(0, notification);
 	}

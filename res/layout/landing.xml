@@ -71,12 +71,13 @@
 	        	/>
 		        <ImageView
 		            android:id="@+id/avatar"
-			        android:layout_width="wrap_content"
-		        	android:layout_height="wrap_content"
+			        android:layout_width="77dp"
+		        	android:layout_height="77dp"
 		        	android:src="@drawable/avatar"
 		        	android:layout_centerVertical="true"
 		        	android:layout_alignParentRight="true"
 		        	android:layout_marginRight="14dp"
+		        	android:scaleType="centerCrop"
 		    	/>
 		        <ImageView
 		            android:id="@+id/clock_icon"
@@ -247,6 +248,20 @@
 			        	android:layout_width="match_parent"
 			        	android:layout_height="match_parent"
 			        	android:orientation="vertical">
+			    	<TextView
+			    	    android:id="@+id/im_coming_msg"
+			    	    android:layout_width="match_parent"
+				       	android:layout_height="wrap_content"
+			    	    android:textSize="@dimen/smallest_font"
+		           		android:textColor="@android:color/white"
+		           		android:paddingLeft="10dp"
+		           		android:paddingRight="10dp"
+		           		android:paddingTop="10dp"
+		           		android:paddingBottom="10dp"
+		           		android:text="@string/placeholder"
+		           		android:background="#36b4e2"
+		           		android:visibility="gone"
+			    	/>
 			        <FrameLayout 
 			            	android:id="@+id/map_panel"
 					        android:layout_width="match_parent"

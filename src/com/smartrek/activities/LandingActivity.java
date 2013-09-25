@@ -1,5 +1,6 @@
 package com.smartrek.activities;
 
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
@@ -23,8 +25,11 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.DialogInterface.OnShowListener;
 import android.content.Intent;
+import android.content.IntentSender.SendIntentException;
 import android.content.res.AssetManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
@@ -37,10 +42,24 @@ import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.facebook.Response;
+import com.facebook.Session;
+import com.facebook.SessionState;
+import com.facebook.UiLifecycleHelper;
+import com.facebook.model.GraphUser;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
+import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
+import com.google.android.gms.plus.PlusClient;
+import com.google.android.gms.plus.model.people.Person;
+import com.google.android.gms.plus.model.people.Person.Image;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
+import com.smartrek.dialogs.ProfileSelectionDialog;
+import com.smartrek.dialogs.ProfileSelectionDialog.Type;
 import com.smartrek.dialogs.ShortcutAddressDialog;
 import com.smartrek.models.Address;
 import com.smartrek.models.Reservation;
@@ -59,20 +78,28 @@ import com.smartrek.ui.overlays.RouteInfoOverlay;
 import com.smartrek.ui.overlays.RouteOverlayCallback;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.ui.timelayout.AdjustableTime;
+import com.smartrek.utils.Cache;
 import com.smartrek.utils.Dimension;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Geocoding;
+import com.smartrek.utils.HTTP;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.RouteRect;
 import com.smartrek.utils.SmartrekTileProvider;
 import com.smartrek.utils.SystemService;
 
-public class LandingActivity extends Activity {
+public class LandingActivity extends Activity implements ConnectionCallbacks, OnConnectionFailedListener {
 
     public static final String LOGOUT = "logout";
+    
+    public static final String LAT = "lat";
+    
+    public static final String LON = "lon";
+    
+    public static final String MSG = "msg";
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
@@ -85,6 +112,25 @@ public class LandingActivity extends Activity {
     
     Typeface boldFont;
     Typeface lightFont;
+    
+    private static final int REQUEST_CODE_RESOLVE_ERR = 9000;
+
+    private ProgressDialog mConnectionProgressDialog;
+    private PlusClient mPlusClient;
+    private ConnectionResult mConnectionResult;
+    
+    private UiLifecycleHelper uiHelper;
+    
+    private boolean fbPending;
+    
+    private boolean fbClicked;
+    
+    private Session.StatusCallback fbCallback = new Session.StatusCallback() {
+        @Override
+        public void call(Session session, SessionState state, Exception exception) {
+            onSessionStateChange(session, state, exception);
+        }
+    };
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -215,6 +261,7 @@ public class LandingActivity extends Activity {
             @Override
             public void onClick(View v) {
                 collapseMap();
+                centerMapByCurrentLocation();
             }
         });
         
@@ -226,7 +273,7 @@ public class LandingActivity extends Activity {
                 Font.autoScaleTextSize(vRewards, width/2);
             }
         });
-        User user = User.getCurrentUser(LandingActivity.this);
+        
         TextView vTrekpoints = (TextView) findViewById(R.id.trekpoints);
         refreshTrekpoints();
         TextView vValidatedTripsUpdateCount = (TextView) findViewById(R.id.validated_trips_update_count);
@@ -238,7 +285,7 @@ public class LandingActivity extends Activity {
         mapView.setMultiTouchControls(true);
         mapView.setTileSource(new SmartrekTileProvider());
         
-        final MapController mc = mapView.getController();
+        MapController mc = mapView.getController();
         int lat = (int) Math.round(38.27268853598097f*1E6);
         int lon = (int) Math.round(-99.1406250000000f*1E6);
         mc.setZoom(4); 
@@ -322,10 +369,8 @@ public class LandingActivity extends Activity {
                             intent.putExtra("reservation", reservation);
                             intent.putExtra(ValidationActivity.EMAILS, StringUtils.join(emails, ","));
                             startActivity(intent);
-                            MapView mapView = (MapView) findViewById(R.id.mapview);
-                            infoOverlay.hide();
-                            mapView.getOverlays().clear();
                             collapseMap();
+                            centerMapByCurrentLocation();
                         }
                     })
                     .setNegativeButton(string.cancel, new DialogInterface.OnClickListener() {
@@ -354,10 +399,8 @@ public class LandingActivity extends Activity {
                 intent.putExtra("route", reservation.getRoute());
                 intent.putExtra("reservation", reservation);
                 startActivity(intent);
-                MapView mapView = (MapView) findViewById(R.id.mapview);
-                infoOverlay.hide();
-                mapView.getOverlays().clear();
                 collapseMap();
+                centerMapByCurrentLocation();
             }
         });
         
@@ -370,25 +413,37 @@ public class LandingActivity extends Activity {
             }
         });
         
-        networkLocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        networkLocListener = new LocationListener() {
+        TextView vImComingMsg = (TextView) findViewById(R.id.im_coming_msg);
+        
+        ImageView avatar = (ImageView) findViewById(R.id.avatar);
+        avatar.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onLocationChanged(Location location) {
-                try{
-                    networkLocManager.removeUpdates(this);
-                    mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
-                    mc.setCenter(new GeoPoint(location.getLatitude(), 
-                        location.getLongitude()));
-                }catch(Throwable t){}
+            public void onClick(View v) {
+                ProfileSelectionDialog d = new ProfileSelectionDialog(LandingActivity.this);
+                d.setActionListener(new ProfileSelectionDialog.ActionListener() {
+                    @Override
+                    public void onClickPositiveButton(Type type) {
+                        loadProfile(type);
+                        MapDisplayActivity.setProfileSelection(LandingActivity.this, type);
+                    }
+                    @Override
+                    public void onClickNegativeButton() {
+                    }
+                });
+                d.show();
             }
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {}
-            @Override
-            public void onProviderEnabled(String provider) {}
-            @Override
-            public void onProviderDisabled(String provider) {}
-        };
-        networkLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocListener);
+        });
+        
+        Intent intent = getIntent();
+        String imComingMsg = intent.getStringExtra(MSG);
+        if(StringUtils.isBlank(imComingMsg)){
+            centerMapByCurrentLocation();
+        }else{
+            handleImComing(imComingMsg, intent.getDoubleExtra(LAT, 0), 
+                intent.getDoubleExtra(LON, 0));
+        }
+        
+        loadProfile(MapDisplayActivity.getProfileSelection(this));
         
         AssetManager assets = getAssets();
         boldFont = Font.getBold(assets);
@@ -396,9 +451,35 @@ public class LandingActivity extends Activity {
         
         Font.setTypeface(boldFont, vTitle, vClock, vWeather, vTrip1, 
             vTrip2, vPlanATrip, vGoHome, vGoToWork, vOuttaHere, vExploreMap,
-            vRewards, vTrekpoints, vImComing, vGetGoing);
+            vRewards, vTrekpoints, vImComing, vGetGoing, vImComingMsg);
         Font.setTypeface(lightFont, vDate, vValidatedTripsUpdateCount,
             osmCredit);
+        
+        uiHelper = new UiLifecycleHelper(this, fbCallback);
+        uiHelper.onCreate(savedInstanceState);
+    }
+    
+    private void loadProfile(Type type){
+        if(type == Type.facebook){
+            fbClicked = true;
+            if(isNotLoading()){
+                Session session = Session.getActiveSession();
+                if (session != null && session.isOpened()) {
+                    makeMeRequest();
+                }else{
+                    fbPending = true;
+                    fbLogin();
+                }
+            }
+        }else if(type == type.googlePlus){
+            mPlusClient = new PlusClient.Builder(LandingActivity.this, 
+                    LandingActivity.this, LandingActivity.this)
+                .setVisibleActivities("http://schemas.google.com/AddActivity", "http://schemas.google.com/BuyActivity")
+                .build();
+            mPlusClient.connect();
+            // Progress bar to be displayed if the connection failure is not resolved.
+            showLoading();
+        }
     }
     
     @Override
@@ -408,6 +489,7 @@ public class LandingActivity extends Activity {
         refreshTripsInfo();
         refreshTripUpdateCount();
         refreshTrekpoints();
+        uiHelper.onResume();
     }
     
     @Override
@@ -421,11 +503,64 @@ public class LandingActivity extends Activity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        String imComingMsg = intent.getStringExtra(MSG);
         if(intent.getBooleanExtra(LOGOUT, false)){
             startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
+        }else if(StringUtils.isNotBlank(imComingMsg)){
+            handleImComing(imComingMsg, intent.getDoubleExtra(LAT, 0), 
+                intent.getDoubleExtra(LON, 0));
         }
+    }
+    
+    private void handleImComing(String msg, double lat, double lon){
+        TextView vImComingMsg = (TextView) findViewById(R.id.im_coming_msg);
+        vImComingMsg.setText(msg);
+        vImComingMsg.setVisibility(View.VISIBLE);
+        expandMap();
+    }
+    
+    private interface CurrentLocationListener {
+        
+        void get(double lat, double lon);
+        
+    }
+    
+    private void getCurrentLocation(final CurrentLocationListener lis){
+        if(networkLocManager == null){
+            networkLocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        }
+        if(networkLocListener == null){
+            networkLocListener = new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    try{
+                        networkLocManager.removeUpdates(this);
+                        lis.get(location.getLatitude(), location.getLongitude());
+                    }catch(Throwable t){}
+                }
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {}
+                @Override
+                public void onProviderEnabled(String provider) {}
+                @Override
+                public void onProviderDisabled(String provider) {}
+            };
+        }
+        networkLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocListener);
+    }
+    
+    private void centerMapByCurrentLocation(){
+        getCurrentLocation(new CurrentLocationListener() {
+            @Override
+            public void get(double lat, double lon) {
+                MapView mapView = (MapView) findViewById(R.id.mapview);
+                MapController mc = mapView.getController();
+                mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+                mc.setCenter(new GeoPoint(lat, lon));
+            }
+        });
     }
     
     private void removeLocationUpdates(){
@@ -537,14 +672,19 @@ public class LandingActivity extends Activity {
     }
     
     private void collapseMap(){
+        MapView mapView = (MapView) findViewById(R.id.mapview);
+        infoOverlay.hide();
+        mapView.getOverlays().clear();
         View bottomLeftPanel = findViewById(R.id.bottom_left_panel);
         View bottomRightPanel = findViewById(R.id.bottom_right_panel);
         View mapButtonPanel = findViewById(R.id.map_button_panel);
         View rewardsPanel = findViewById(R.id.rewards_panel);
         View collapseBtn= findViewById(R.id.collapse_btn);
+        TextView vImComingMsg = (TextView) findViewById(R.id.im_coming_msg);
         bottomRightPanel.setVisibility(View.GONE);
         collapseBtn.setVisibility(View.GONE);
         mapButtonPanel.setVisibility(View.GONE);
+        vImComingMsg.setVisibility(View.GONE);
         rewardsPanel.setVisibility(View.VISIBLE);
         bottomLeftPanel.setVisibility(View.VISIBLE);
         bottomRightPanel.setVisibility(View.VISIBLE);
@@ -975,6 +1115,171 @@ public class LandingActivity extends Activity {
         
         String email;
         
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        if (mConnectionProgressDialog.isShowing()) {
+            // The user clicked the sign-in button already. Start to resolve
+            // connection errors. Wait until onConnected() to dismiss the
+            // connection dialog.
+            if (result.hasResolution()) {
+                    try {
+                            result.startResolutionForResult(this, REQUEST_CODE_RESOLVE_ERR);
+                    } catch (SendIntentException e) {
+                            mPlusClient.connect();
+                    }
+            }
+        }
+        // Save the intent so that we can start an activity when the user clicks
+        // the sign-in button.
+        mConnectionResult = result;
+    }
+
+    private void updateTitle(String name){
+        TextView vTitle = (TextView) findViewById(R.id.title);
+        vTitle.setText(name + ", where would you like to go?");
+    }
+    
+    private void updateAvatar(final String url){
+        AsyncTask<Void, Void, Bitmap> pictureTask = new AsyncTask<Void, Void, Bitmap>() {
+            @Override
+            protected Bitmap doInBackground(Void... params) {
+                Bitmap rs = null;
+                InputStream is = null;
+                Cache cache = Cache.getInstance(LandingActivity.this);
+                try{
+                    InputStream cachedStream = cache.fetchStream(url);
+                    if(cachedStream == null){
+                        HTTP http = new HTTP(url);
+                        http.connect();
+                        InputStream tmpStream = http.getInputStream();
+                        try{
+                            cache.put(url, tmpStream);
+                            is = cache.fetchStream(url);
+                        }finally{
+                            IOUtils.closeQuietly(tmpStream);
+                        }
+                    }else{
+                        is = cachedStream;
+                    }
+                    rs = BitmapFactory.decodeStream(is);
+                }catch(Exception e){
+                }finally{
+                    IOUtils.closeQuietly(is);
+                }
+                return rs;
+            }
+            protected void onPostExecute(final Bitmap rs) {
+                if(rs != null){
+                    ImageView avatar = (ImageView)findViewById(R.id.avatar);
+                    avatar.setImageBitmap(rs);
+                }
+            }
+        };
+        Misc.parallelExecute(pictureTask);
+    }
+    
+    @Override
+    public void onConnected(Bundle arg0) {
+        // We've resolved any connection errors.
+        hideLoading();
+        Person person = mPlusClient.getCurrentPerson();
+        updateTitle(person.getDisplayName());
+        Image img = person.getImage();
+        if(person.hasImage() && img.hasUrl()){
+            ImageView avatar = (ImageView)findViewById(R.id.avatar);
+            String url = img.getUrl().replaceAll("\\?sz=50", "\\?sz=" + avatar.getHeight());
+            updateAvatar(url);
+        }
+        mPlusClient.disconnect();
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int responseCode, Intent intent) {
+        uiHelper.onActivityResult(requestCode, responseCode, intent);
+        if (requestCode == REQUEST_CODE_RESOLVE_ERR && responseCode == RESULT_OK) {
+            mConnectionResult = null;
+            mPlusClient.connect();
+        }
+    }
+
+    @Override
+    public void onDisconnected() {
+        
+    }
+    
+    private void showLoading(){
+        if(mConnectionProgressDialog == null){
+            mConnectionProgressDialog = new ProgressDialog(LandingActivity.this);
+            mConnectionProgressDialog.setMessage("Loading...");
+        }
+        mConnectionProgressDialog.show();
+    }
+    
+    private void hideLoading(){
+        if(mConnectionProgressDialog != null){
+            mConnectionProgressDialog.dismiss();
+        }
+    }
+    
+    private boolean isNotLoading(){
+        return mConnectionProgressDialog == null || !mConnectionProgressDialog.isShowing();
+    }
+    
+    private void fbLogin(){
+        try{
+            Session.openActiveSession(this, true, fbCallback);
+        } catch(Throwable t){}
+    }
+    
+    private void onSessionStateChange(Session session, SessionState state, Exception exception) {
+        if(fbClicked){
+            if (state == SessionState.OPENED_TOKEN_UPDATED) {
+                makeMeRequest();               
+            }else if(state == SessionState.OPENED && (fbPending)){
+                fbPending = false;
+                makeMeRequest();
+            }else if(state == SessionState.CLOSED && fbPending){
+                fbLogin();
+            }
+        }
+    }
+    
+    private void makeMeRequest() {
+        final Session session = Session.getActiveSession();
+        if (session != null) {
+            // Make an API call to get user data and define a 
+            // new callback to handle the response.
+            com.facebook.Request request = com.facebook.Request.newMeRequest(session, 
+                    new com.facebook.Request.GraphUserCallback() {
+                @Override
+                public void onCompleted(GraphUser user, Response response) {
+                    hideLoading();
+                    // If the response is successful
+                    if (session == Session.getActiveSession()) {
+                        if (user != null) {
+                            // Set the id for the ProfilePictureView
+                            // view that in turn displays the profile picture.
+                            updateAvatar("http://graph.facebook.com/" + user.getId() + "/picture?type=large");
+                            // Set the Textview's text to the user's name.
+                            updateTitle(user.getName());
+                        }
+                    }
+                    if (response.getError() != null) {
+                        // Handle errors, will do so later.
+                    }
+                }
+            });
+            request.executeAsync();
+            showLoading();
+        }
+    }
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        uiHelper.onPause();
     }
     
 }

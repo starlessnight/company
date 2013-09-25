@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:facebook="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/transparent_black">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center"
+       	android:background="@drawable/drop_shadow"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+        
+        <LinearLayout
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content"
+			android:orientation="horizontal" 
+			android:background="#7b7979">
+	        <TextView
+	            android:id="@+id/title" 
+	            android:layout_height="wrap_content"
+	            android:layout_width="0dp"
+	            android:layout_weight="1"
+	            android:text="Select Profile"
+	            style="@style/PopUpHeader"   
+	            android:background="@null"
+			/>
+	        <ImageView
+	            android:id="@+id/close_icon"
+	            android:layout_width="wrap_content"
+				android:layout_height="match_parent" 
+				android:src="@drawable/balloon_overlay_close"
+				android:layout_gravity="center_vertical"
+				android:scaleType="center" 
+			/>
+	    </LinearLayout>
+	    
+        <ScrollView 
+            android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    android:requiresFadingEdge="vertical">
+        
+            <FrameLayout 
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_gravity="center">
+            
+		        <LinearLayout
+				        android:layout_width="match_parent"
+				        android:layout_height="wrap_content"
+				        android:orientation="vertical"
+				        android:paddingLeft="35dp"
+			        	android:paddingRight="35dp"
+			        	android:paddingBottom="22dp"
+			        	android:background="#e9e9e9">
+				    
+		            <TextView
+		                android:id="@+id/facebook_button"
+		                android:layout_height="wrap_content"
+		                android:layout_width="match_parent"
+		                android:text="Facebook"
+		                android:drawableLeft="@drawable/facebook_icon"
+		                android:gravity="center_vertical"
+		                android:layout_marginTop="22dp"
+		                android:drawablePadding="35dp"
+		                android:textColor="@color/dashboard_dark_gray"
+		                style="@style/SmallerBoldText"
+					/>
+			        
+			        <TextView
+		                android:id="@+id/google_plus_button"
+		                android:layout_height="wrap_content"
+		                android:layout_width="match_parent"
+		                android:text="Google Plus"
+		                android:drawableLeft="@drawable/google_plus_icon"
+		                android:gravity="center_vertical"
+		                android:layout_marginTop="22dp"
+		                android:drawablePadding="35dp"
+		                android:textColor="@color/dashboard_dark_gray"
+		                style="@style/SmallerBoldText"
+					/>
+			    </LinearLayout>
+		        
+		    </FrameLayout>
+	 	</ScrollView>
+	</LinearLayout>
+
+</FrameLayout>

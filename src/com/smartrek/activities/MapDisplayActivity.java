@@ -1,5 +1,7 @@
 package com.smartrek.activities;
 
+import org.apache.commons.lang3.StringUtils;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,6 +15,7 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.dialogs.ProfileSelectionDialog;
 import com.smartrek.utils.Font;
 
 public final class MapDisplayActivity extends ActionBarActivity {
@@ -40,6 +43,8 @@ public final class MapDisplayActivity extends ActionBarActivity {
     private static final String HOME_ADDRESS = "HOME_ADDRESS";
     
     private static final String WORK_ADDRESS = "WORK_ADDRESS";
+    
+    private static final String PROFILE_SELECTION = "PROFILE_SELECTION";
 
     private RadioButton displayTravel;
     private RadioButton displayArrival;
@@ -191,6 +196,25 @@ public final class MapDisplayActivity extends ActionBarActivity {
         ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
             .edit()
             .putString(WORK_ADDRESS, address)
+            .commit();
+    }
+    
+    public static ProfileSelectionDialog.Type getProfileSelection(Context ctx){
+        ProfileSelectionDialog.Type type = null;
+        String typeStr  = ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
+            .getString(PROFILE_SELECTION, "");
+        if(StringUtils.isNotBlank(typeStr)){
+            try{
+                type = ProfileSelectionDialog.Type.valueOf(typeStr);
+            }catch(Throwable t){}
+        }
+        return type;
+    }
+    
+    public static void setProfileSelection(Context ctx, ProfileSelectionDialog.Type type){
+        ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
+            .edit()
+            .putString(PROFILE_SELECTION, type.name())
             .commit();
     }
     
