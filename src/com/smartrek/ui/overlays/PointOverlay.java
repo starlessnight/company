@@ -1,6 +1,5 @@
 package com.smartrek.ui.overlays;
 
-import com.smartrek.utils.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.MapView.Projection;
 import org.osmdroid.views.overlay.Overlay;
@@ -10,6 +9,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+
+import com.smartrek.utils.GeoPoint;
 
 /**
  * Draws a point on a map

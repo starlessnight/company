@@ -60,6 +60,7 @@ public class GCMIntentService extends GCMBaseIntentService {
         if(eta != null){
             String msg = message + "\n" + mile + " miles to go estimated arrival time: " + eta;
             Intent landingIntent = new Intent(context, LandingActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             landingIntent.putExtra(LandingActivity.LAT, lat);
             landingIntent.putExtra(LandingActivity.LON, lon);
             landingIntent.putExtra(LandingActivity.MSG, msg);

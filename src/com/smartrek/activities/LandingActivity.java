@@ -74,6 +74,7 @@ import com.smartrek.requests.TrekpointFetchRequest;
 import com.smartrek.requests.TrekpointFetchRequest.Trekpoint;
 import com.smartrek.requests.ValidatedReservationsFetchRequest;
 import com.smartrek.ui.EditAddress;
+import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RouteInfoOverlay;
 import com.smartrek.ui.overlays.RouteOverlayCallback;
 import com.smartrek.ui.overlays.RoutePathOverlay;
@@ -108,7 +109,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     LocationListener locationListener;
     
     LocationManager networkLocManager;
-    LocationListener networkLocListener;
+    List<LocationListener> networkLocListeners = new ArrayList<LocationListener>(); 
     
     Typeface boldFont;
     Typeface lightFont;
@@ -132,10 +133,20 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         }
     };
     
+    PointOverlay myPointOverlay;
+    
+    PointOverlay othersPointOverlay;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.landing);
+        
+        myPointOverlay = new PointOverlay(LandingActivity.this, 0, 0);
+        myPointOverlay.setColor(0xCC2020DF);
+        
+        othersPointOverlay = new PointOverlay(LandingActivity.this, 0, 0);
+        othersPointOverlay.setColor(0xCC2020DF);
         
         TextView vTitle = (TextView) findViewById(R.id.title);
         TextView vDate = (TextView) findViewById(R.id.date);
@@ -495,8 +506,10 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(networkLocManager != null && networkLocListener != null){
-            networkLocManager.removeUpdates(networkLocListener); 
+        if(networkLocManager != null){
+            for(LocationListener networkLocListener:networkLocListeners){
+                networkLocManager.removeUpdates(networkLocListener); 
+            }
         }
     }
     
@@ -514,10 +527,38 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         }
     }
     
-    private void handleImComing(String msg, double lat, double lon){
+    private void handleImComing(String msg, final double lat, final double lon){
         TextView vImComingMsg = (TextView) findViewById(R.id.im_coming_msg);
         vImComingMsg.setText(msg);
         vImComingMsg.setVisibility(View.VISIBLE);
+        getCurrentLocation(new CurrentLocationListener() {
+            @Override
+            public void get(final double myLat, final double myLon) {
+                ArrayList<RouteNode> nodes = new ArrayList<RouteNode>();
+                nodes.add(new RouteNode(myLat, myLon, 0, 1));
+                nodes.add(new RouteNode(myLat, myLon, 0, 2));
+                nodes.add(new RouteNode(lat, lon, 0, 3));
+                nodes.add(new RouteNode(lat, lon, 0, 4));
+                Route route = new Route(nodes, 0, 0, 0);
+                RouteRect routeRect = ValidationActivity.initRouteRect(route);
+                GeoPoint mid = routeRect.getMidPoint();
+                int[] range = routeRect.getRange();
+                final MapView mapView = (MapView) findViewById(R.id.mapview);
+                final List<Overlay> mapOverlays = mapView.getOverlays();
+                if(infoOverlay != null){
+                    infoOverlay.hide();
+                }
+                mapOverlays.clear();
+                myPointOverlay.setLocation((float) myLat, (float) myLon);
+                mapOverlays.add(myPointOverlay);
+                othersPointOverlay.setLocation((float) lat, (float)lon);
+                mapOverlays.add(othersPointOverlay);
+                mapView.postInvalidate();
+                MapController mc = mapView.getController();
+                mc.zoomToSpan(range[0], range[1]);
+                mc.setCenter(mid);
+            }
+        });
         expandMap();
     }
     
@@ -531,23 +572,22 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         if(networkLocManager == null){
             networkLocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         }
-        if(networkLocListener == null){
-            networkLocListener = new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    try{
-                        networkLocManager.removeUpdates(this);
-                        lis.get(location.getLatitude(), location.getLongitude());
-                    }catch(Throwable t){}
-                }
-                @Override
-                public void onStatusChanged(String provider, int status, Bundle extras) {}
-                @Override
-                public void onProviderEnabled(String provider) {}
-                @Override
-                public void onProviderDisabled(String provider) {}
-            };
-        }
+        LocationListener networkLocListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                try{
+                    networkLocManager.removeUpdates(this);
+                    lis.get(location.getLatitude(), location.getLongitude());
+                }catch(Throwable t){}
+            }
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+            @Override
+            public void onProviderEnabled(String provider) {}
+            @Override
+            public void onProviderDisabled(String provider) {}
+        };
+        networkLocListeners.add(networkLocListener);
         networkLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocListener);
     }
     
@@ -673,8 +713,11 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     
     private void collapseMap(){
         MapView mapView = (MapView) findViewById(R.id.mapview);
-        infoOverlay.hide();
+        if(infoOverlay != null){
+            infoOverlay.hide();
+        }
         mapView.getOverlays().clear();
+        mapView.postInvalidate();
         View bottomLeftPanel = findViewById(R.id.bottom_left_panel);
         View bottomRightPanel = findViewById(R.id.bottom_right_panel);
         View mapButtonPanel = findViewById(R.id.map_button_panel);
