@@ -17,6 +17,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -29,6 +30,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.dialogs.FloatingMenuDialog;
 import com.smartrek.dialogs.ShareDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
@@ -726,6 +728,15 @@ public final class DashboardActivity extends ActionBarActivity {
         Misc.parallelExecute(trekpointsTask);
         Misc.parallelExecute(validateTripsCntTask);
         rewardsTab.performClick();
+        
+        findViewById(R.id.floating_menu_button).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FloatingMenuDialog dialog = new FloatingMenuDialog(DashboardActivity.this);
+                dialog.show();
+            }
+        });
+        
         Font.setTypeface(boldFont, trekpointsLabel, validateTripsUpdateCnt,
             detailRewardName, detailAwardName, detailProgressTextView, detailRewardTrekpoints, 
             detailValidatedTripsTitle, redeemButton, shareValidatedTripsButton, shareAwardsButton);
