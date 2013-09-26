@@ -24,10 +24,14 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
@@ -145,10 +149,6 @@ public final class ValidationActivity extends Activity implements OnInitListener
     
     private Location lastKnownLocation;
     
-    private ValidationTimeoutNotifier validationTimeoutNotifier;
-    
-    private Handler validationTimeoutHandler;
-    
     private FakeLocationService fakeLocationService;
     
     private AtomicBoolean arrived = new AtomicBoolean(false);
@@ -182,6 +182,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
     private MediaPlayer validationMusicPlayer;
     
     private String emails;
+    
+    private BroadcastReceiver timeoutReceiver;
     
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -217,9 +219,40 @@ public final class ValidationActivity extends Activity implements OnInitListener
             emails = extras.getString(EMAILS);
         }
         
-        validationTimeoutNotifier = new ValidationTimeoutNotifier();
-        validationTimeoutHandler = new Handler();
-        validationTimeoutHandler.postDelayed(validationTimeoutNotifier, (900 + route.getDuration()*3) * 1000);
+        timeoutReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if(isTripValidated()){
+                    Intent rIntent = new Intent(ValidationActivity.this, ValidationReportActivity.class);
+                    rIntent.putExtra(ROUTE, route);
+                    rIntent.putExtra(START_TIME, startTime);
+                    Time now = new Time();
+                    now.setToNow();
+                    rIntent.putExtra("endTime", now.toMillis(false));
+                    startActivity(rIntent);
+                    finish();
+                }else{
+                    NotificationDialog dialog = new NotificationDialog(ValidationActivity.this, "Timed out!");
+                    dialog.setActionListener(new NotificationDialog.ActionListener() {
+                        @Override
+                        public void onClickDismiss() {
+                            if(!isFinishing()){
+                                finish();
+                            }
+                        }
+                    });
+                    dialog.show();
+                }
+            }
+        };
+        registerReceiver(timeoutReceiver, new IntentFilter(getClass().getName()));
+        
+        Intent timeoutIntent = new Intent(getClass().getName());
+        PendingIntent pendingTimeout = PendingIntent.getBroadcast(
+            ValidationActivity.this, 0, timeoutIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+        am.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() 
+            + (900 + route.getDuration()*3) * 1000, pendingTimeout);
         
         dirListadapter = new ArrayAdapter<DirectionItem>(this, R.layout.direction_list_item, R.id.text_view_road){
             @Override
@@ -1106,33 +1139,6 @@ public final class ValidationActivity extends Activity implements OnInitListener
         return provider1.equals(provider2);
     }
     
-    private class ValidationTimeoutNotifier extends Thread {
-        @Override
-        public void run() {
-            if(isTripValidated()){
-                Intent intent = new Intent(ValidationActivity.this, ValidationReportActivity.class);
-                intent.putExtra(ROUTE, route);
-                intent.putExtra(START_TIME, startTime);
-                Time now = new Time();
-                now.setToNow();
-                intent.putExtra("endTime", now.toMillis(false));
-                startActivity(intent);
-                finish();
-            }else{
-                NotificationDialog dialog = new NotificationDialog(ValidationActivity.this, "Timed out!");
-                dialog.setActionListener(new NotificationDialog.ActionListener() {
-                    @Override
-                    public void onClickDismiss() {
-                        if(!isFinishing()){
-                            finish();
-                        }
-                    }
-                });
-                dialog.show();
-            }
-        }
-    }
-    
     /**
      * Fake data player
      */
@@ -1262,7 +1268,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
     protected void onDestroy() {
         super.onDestroy();
         unmuteMusic();
-        validationTimeoutHandler.removeCallbacks(validationTimeoutNotifier);
+        unregisterReceiver(timeoutReceiver);
         if (locationManager != null) {
             locationManager.removeUpdates(locationListener);
         }
