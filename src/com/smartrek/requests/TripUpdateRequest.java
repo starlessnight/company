@@ -38,20 +38,23 @@ public class TripUpdateRequest extends UpdateRequest {
 	
 	private RecurringTime recurringTime;
 	
-	public TripUpdateRequest(int tid, User user, String name, int oid, int did, RecurringTime recurringTime) {
+	private String link;
+	
+	public TripUpdateRequest(String link, int tid, User user, String name, int oid, int did, RecurringTime recurringTime) {
 		this.tid = tid;
 		this.user = user;
 		this.name = name;
 		this.oid = oid;
 		this.did = did;
 		this.recurringTime = recurringTime;
+		this.link = link;
 	}
 
 	public void execute() throws IOException, JSONException {
 	    if(NEW_API){
 	        this.username = user.getUsername();
             this.password = user.getPassword();
-            url = getLinkUrl(Link.commute) + "/" + tid;
+            url = link.replaceAll("\\{id\\}", String.valueOf(tid));
             Map<String, String> params = new HashMap<String, String>();
             params.put("user_id", String.valueOf(user.getId()));
             params.put("name", name);

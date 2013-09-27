@@ -44,6 +44,7 @@ import com.smartrek.models.Reservation;
 import com.smartrek.models.Trip;
 import com.smartrek.models.User;
 import com.smartrek.receivers.ReservationReceiver;
+import com.smartrek.requests.AddressLinkRequest;
 import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.requests.FavoriteAddressUpdateRequest;
 import com.smartrek.requests.Request;
@@ -329,10 +330,12 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
                                 AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
                                     @Override
                                     protected Void doInBackground(Void... params) {
+                                        User user = User.getCurrentUser(HomeActivity.this);
                                         try {
                                             FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
+                                                new AddressLinkRequest(user).execute(HomeActivity.this),
                                                 address.getId(),
-                                                User.getCurrentUser(HomeActivity.this),
+                                                user,
                                                 address.getName(),
                                                 addressStr,
                                                 address.getLatitude(),

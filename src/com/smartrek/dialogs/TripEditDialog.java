@@ -23,6 +23,7 @@ import com.smartrek.models.Address;
 import com.smartrek.models.Trip;
 import com.smartrek.models.User;
 import com.smartrek.requests.TripAddRequest;
+import com.smartrek.requests.TripLinkRequest;
 import com.smartrek.requests.TripListFetchRequest;
 import com.smartrek.requests.TripUpdateRequest;
 import com.smartrek.utils.ExceptionHandlingService;
@@ -316,7 +317,9 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 					request.execute();
 				}
 				else {
-					TripUpdateRequest request = new TripUpdateRequest(tid, user, name, origin.getId(), destination.getId(), recurringTime);
+					TripUpdateRequest request = new TripUpdateRequest(
+				        new TripLinkRequest(user).execute(getContext()), tid, 
+				        user, name, origin.getId(), destination.getId(), recurringTime);
 					request.execute();
 				}
 				

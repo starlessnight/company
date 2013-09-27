@@ -30,9 +30,9 @@ public final class FavoriteAddressUpdateRequest extends UpdateRequest {
 	 * @param longitude
 	 * @throws UnsupportedEncodingException 
 	 */
-	public FavoriteAddressUpdateRequest(int aid, User user, String name, String address, double latitude, double longitude) throws UnsupportedEncodingException {
+	public FavoriteAddressUpdateRequest(String link, int aid, User user, String name, String address, double latitude, double longitude) throws UnsupportedEncodingException {
 		super(NEW_API?
-            getLinkUrl(Link.address) + "/" + aid
+		    link.replaceAll("\\{id\\}", String.valueOf(aid))
 	        :
 	        String.format("%s/updatefavadd/?fid=%d&uid=%d&name=%s&address=%s&lat=%.7f&lon=%.7f",
 			HOST, aid, user.getId(), URLEncoder.encode(name, "UTF-8"), URLEncoder.encode(address, "UTF-8"), latitude, longitude)

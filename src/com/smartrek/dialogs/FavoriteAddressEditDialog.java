@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.smartrek.activities.R;
 import com.smartrek.models.Address;
 import com.smartrek.models.User;
+import com.smartrek.requests.AddressLinkRequest;
 import com.smartrek.requests.FavoriteAddressAddRequest;
 import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.requests.FavoriteAddressUpdateRequest;
@@ -254,10 +255,12 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 		
 		@Override
 		protected Object doInBackground(Object... params) {
+		    User user = User.getCurrentUser(getContext());
 			try {
 				FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
+				        new AddressLinkRequest(user).execute(getContext()),
 						address.getId(),
-						User.getCurrentUser(getContext()),
+						user,
 						address.getName(),
 						address.getAddress(),
 						address.getLatitude(),

@@ -6,10 +6,10 @@ import android.content.Context;
 
 import com.smartrek.models.User;
 
-public final class TripLinkRequest extends FetchRequest<String> {
+public final class AddressLinkRequest extends FetchRequest<String> {
     
-	public TripLinkRequest(User user) {
-		super(getLinkUrl(Link.favorite_trip));
+	public AddressLinkRequest(User user) {
+		super(getLinkUrl(Link.address));
 		this.username = user.getUsername();
         this.password = user.getPassword();
 	}

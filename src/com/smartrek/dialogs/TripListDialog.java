@@ -26,6 +26,7 @@ import com.smartrek.models.User;
 import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.TripDeleteRequest;
+import com.smartrek.requests.TripLinkRequest;
 import com.smartrek.requests.TripListFetchRequest;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
@@ -160,8 +161,11 @@ public class TripListDialog extends GenericListDialog<Trip> {
 		protected Object doInBackground(Object... params) {
 			int fid = (Integer) params[0];
 			
-			TripDeleteRequest request = new TripDeleteRequest(fid, User.getCurrentUser(getContext()));
+			User user = User.getCurrentUser(getContext());
 			try {
+			    
+			    TripDeleteRequest request = new TripDeleteRequest(
+		            new TripLinkRequest(user).execute(getContext()), fid, user);
 				request.execute();
 				
 				// clear cache

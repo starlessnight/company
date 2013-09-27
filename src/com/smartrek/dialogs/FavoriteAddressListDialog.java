@@ -21,6 +21,7 @@ import com.markupartist.android.widget.PullToRefreshListView.OnRefreshListener;
 import com.smartrek.activities.R;
 import com.smartrek.models.Address;
 import com.smartrek.models.User;
+import com.smartrek.requests.AddressLinkRequest;
 import com.smartrek.requests.FavoriteAddressDeleteRequest;
 import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.utils.ExceptionHandlingService;
@@ -141,8 +142,9 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 		    User user = (User) params[0];
 			int aid = (Integer) params[1];
 			
-			FavoriteAddressDeleteRequest request = new FavoriteAddressDeleteRequest(user, aid);
 			try {
+			    FavoriteAddressDeleteRequest request = new FavoriteAddressDeleteRequest(
+	                new AddressLinkRequest(user).execute(getContext()), user, aid);
 				request.execute();
 				
 				// clear cache
