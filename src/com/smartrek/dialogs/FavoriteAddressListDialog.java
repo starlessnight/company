@@ -47,7 +47,7 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 		setTitle("Favorite Locations");
 		
 		textViewGeneric.setText("You don't have any favorite address");
-		addButton.setText("add location");
+		addButton.setText("Add Location");
 		addButton.setVisibility(View.VISIBLE);
 		addButton.setOnClickListener(new View.OnClickListener() {
             @Override

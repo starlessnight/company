@@ -177,7 +177,7 @@
 			        android:layout_height="wrap_content"
 			        android:layout_marginBottom="15dp"
 			        android:layout_gravity="bottom"
-			        android:text="start trip"
+			        android:text="Start Trip"
 			        style="@style/NextActionButton" 
 			   	/>
 			

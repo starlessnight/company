@@ -24,7 +24,7 @@
 	                android:layout_marginTop="15dp"
 	                android:layout_marginLeft="30dp" 
 		      		android:layout_marginRight="30dp"
-	                android:text="start from&#10;current location"
+	                android:text="Start From&#10;Current Location"
 	                style="@style/CurrentLocationButton"
 	        />
 	       	
@@ -121,7 +121,7 @@
 	                    android:layout_height="wrap_content"
 	                    android:layout_weight=".5"
 	                    android:enabled="false"
-	                    android:text="save&#10;trip"
+	                    android:text="Save&#10;Trip"
 	                    style="@style/SaveButton" 
 	                />
 	            	
@@ -131,7 +131,7 @@
 	                    android:layout_height="wrap_content"
 	                    android:layout_marginLeft="10dp"
 	                    android:layout_weight=".5"
-				        android:text="load&#10;trip"
+				        android:text="Load&#10;Trip"
 				        style="@style/LoadButton"
 				    />
 	                
@@ -145,7 +145,7 @@
 	      		android:layout_marginRight="30dp"
 	      		android:layout_marginTop="15dp"
 	           	android:layout_marginBottom="15dp"
-	            android:text="search"
+	            android:text="Search"
 	            style="@style/NextActionButton"
 	        />
 	

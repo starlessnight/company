@@ -197,7 +197,7 @@
 	                    android:layout_width="0dip"
 	                    android:layout_height="wrap_content"
 	                    android:layout_weight=".5"
-	                    android:text="back"
+	                    android:text="Back"
 	                    style="@style/PrevActionButton" 
 	                />
 	            	
@@ -207,7 +207,7 @@
 	                    android:layout_height="wrap_content"
 	                    android:layout_marginLeft="10dp"
 	                    android:layout_weight=".5"
-				        android:text="set"
+				        android:text="Set"
 				        style="@style/AlarmGreenButton"
 				    />
 	                

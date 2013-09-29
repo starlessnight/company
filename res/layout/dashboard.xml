@@ -172,7 +172,7 @@
 				      		android:layout_marginLeft="20dp"
 				      		android:layout_marginRight="20dp"
 				      		android:layout_gravity="bottom"
-				            android:text="redeem"
+				            android:text="Redeem"
 				            style="@style/NextActionButton"
 				        />
 		    		</FrameLayout>
@@ -259,7 +259,7 @@
 				            android:layout_width="match_parent"
 				            android:layout_height="wrap_content"
 				      		android:layout_gravity="bottom"
-				            android:text="share"
+				            android:text="Share"
 				            style="@style/ShareButton"
 				        />
 		                <TextView
@@ -406,7 +406,7 @@
 				            android:layout_width="match_parent"
 				            android:layout_height="wrap_content"
 				      		android:layout_gravity="bottom"
-				            android:text="share"
+				            android:text="Share"
 				            style="@style/ShareButton"
 				        />
 		                <TextView

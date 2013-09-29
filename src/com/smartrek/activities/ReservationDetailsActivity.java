@@ -71,7 +71,7 @@ public final class ReservationDetailsActivity extends ActionBarActivity {
                 destination = reservation.getDestinationAddress();
             }
             
-            setTitle(String.format("no. %d", reservation.getRid()));
+            setTitle(String.format("No. %d", reservation.getRid()));
             
 	        textViewOrigin = (TextView) findViewById(R.id.textViewOrigin);
 	        textViewOrigin.setText(origin);

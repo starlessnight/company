@@ -706,9 +706,9 @@ public final class DashboardActivity extends ActionBarActivity {
                                     for(int i=0; i<allAwards.size(); i++){
                                         Award a = allAwards.get(i);
                                         if(a.complete && i == 0){
-                                            a.headerLabel = "completed awards";
+                                            a.headerLabel = "Completed Awards";
                                         }else if(!a.complete && i == 0 || !a.complete && allAwards.get(i - 1).complete){
-                                            a.headerLabel = "in progress";
+                                            a.headerLabel = "In Progress";
                                         }
                                         a.hideSeparator = i + 1 < allAwards.size() && a.complete
                                             && !allAwards.get(i + 1).complete;

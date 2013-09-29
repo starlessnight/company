@@ -3,12 +3,12 @@
 
     <item
         android:id="@+id/stop"
-        android:title="stop this trip"/>
+        android:title="Stop This Trip"/>
     <item
         android:id="@+id/map_display_options"
         android:title="@string/settings"/>
     <item
         android:id="@+id/debug_options"
-        android:title="debug options"/>
+        android:title="Debug Options"/>
 
 </menu>
