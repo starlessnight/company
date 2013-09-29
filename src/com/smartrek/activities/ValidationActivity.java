@@ -108,7 +108,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
     
     private static final String ROUTE = "route";
     
-    private static final String START_TIME = "startTime";
+    private static final String START_TIME = "startTime"; 
     
     private static final String POLL_CNT = "pollCnt";
     
