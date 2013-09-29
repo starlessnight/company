@@ -821,7 +821,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             }
             @Override
             protected void onPostExecute(List<Reservation> reservations) {
-                if (ehs.hasExceptions()) {
+                if (ehs.hasExceptions()) { 
                     ehs.reportExceptions();
                 }
                 else {
