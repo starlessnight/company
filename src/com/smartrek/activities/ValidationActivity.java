@@ -167,6 +167,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
     
     private AtomicBoolean reported = new AtomicBoolean(false);
     
+    private AtomicBoolean timedOut = new AtomicBoolean(false);
+    
     private boolean isDebugging;
     
     private long lastLocChanged;
@@ -232,6 +234,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
                     startActivity(rIntent);
                     finish();
                 }else{
+                    timedOut.set(true);
                     NotificationDialog dialog = new NotificationDialog(ValidationActivity.this, "Timed out!");
                     dialog.setActionListener(new NotificationDialog.ActionListener() {
                         @Override
@@ -924,7 +927,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
                 nearestLink.getStartNode().getMetadata().setValidated(true);
             }
             
-            if(!alreadyValidated && isTripValidated()){
+            if(!timedOut.get() && !alreadyValidated && isTripValidated()){
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -1003,7 +1006,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
         if(!reported.get()){
             reported.set(true);
             
-            if(isTripValidated()){
+            if(!timedOut.get() && isTripValidated()){
                 Time now = new Time();
                 now.setToNow();
                 Intent intent = new Intent(this, ValidationReportActivity.class);
