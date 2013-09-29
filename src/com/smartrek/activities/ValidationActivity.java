@@ -106,7 +106,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
     
     private static final String RESERVATION = "reservation";
     
-    private static final String ROUTE = "route";
+    private static final String ROUTE = "route"; 
     
     private static final String START_TIME = "startTime"; 
     
