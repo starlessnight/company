@@ -41,6 +41,7 @@ import android.provider.ContactsContract;
 import android.provider.ContactsContract.PhoneLookup;
 import android.text.format.Time;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -115,6 +116,8 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     
     Typeface boldFont;
     Typeface lightFont;
+    
+    private static final int iconWidth = 48;
     
     private static final int REQUEST_CODE_RESOLVE_ERR = 9000;
 
@@ -311,7 +314,15 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         RelativeLayout.LayoutParams osmCreditLp = (RelativeLayout.LayoutParams) osmCredit.getLayoutParams();
         osmCreditLp.rightMargin += Dimension.dpToPx(52, getResources().getDisplayMetrics());
         
-        TextView vImComing = (TextView) findViewById(R.id.im_coming);
+        final TextView vImComing = (TextView) findViewById(R.id.im_coming);
+        vImComing.post(new Runnable() {
+            @Override
+            public void run() {
+                int width = getWindowManager().getDefaultDisplay().getWidth();
+                float offset = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, iconWidth, getResources().getDisplayMetrics());
+                Font.autoScaleTextSize(vImComing, width/2 - offset);
+            }
+        });
         vImComing.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -411,7 +422,16 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             }
         });
         
-        TextView vGetGoing = (TextView) findViewById(R.id.get_going);
+        final TextView vGetGoing = (TextView) findViewById(R.id.get_going);
+        vGetGoing.post(new Runnable() {
+            @Override
+            public void run() {
+                int width = getWindowManager().getDefaultDisplay().getWidth();
+                float offset = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, iconWidth, getResources().getDisplayMetrics());
+                Font.autoScaleTextSize(vGetGoing, width/2 - vGetGoing.getPaddingRight()
+                    - offset);
+            }
+        });
         vGetGoing.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
