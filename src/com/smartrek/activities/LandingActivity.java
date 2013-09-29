@@ -599,6 +599,14 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                 MapController mc = mapView.getController();
                 mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
                 mc.setCenter(new GeoPoint(lat, lon));
+                final List<Overlay> mapOverlays = mapView.getOverlays();
+                if(infoOverlay != null){
+                    infoOverlay.hide();
+                }
+                mapOverlays.clear();
+                myPointOverlay.setLocation((float) lat, (float) lon);
+                mapOverlays.add(myPointOverlay);
+                mapView.postInvalidate();
             }
         });
     }
@@ -814,6 +822,13 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         return new OnClickListener() {
             @Override
             public void onClick(View v) {
+                final MapView mapView = (MapView) findViewById(R.id.mapview);
+                final List<Overlay> mapOverlays = mapView.getOverlays();
+                if(infoOverlay != null){
+                    infoOverlay.hide();
+                }
+                mapOverlays.clear();
+                mapView.postInvalidate();
                 expandMap(true);
                 Reservation r = (Reservation) v.getTag();
                 findViewById(R.id.get_going).setTag(r);
