@@ -255,7 +255,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
             ValidationActivity.this, 0, timeoutIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
         am.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() 
-            + (900 + route.getDuration()*3) * 1000, pendingTimeout);
+            + (900 + reservation.getDuration()*3) * 1000, pendingTimeout);
         
         dirListadapter = new ArrayAdapter<DirectionItem>(this, R.layout.direction_list_item, R.id.text_view_road){
             @Override
