@@ -1058,7 +1058,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             try {
                 dest = Geocoding.lookup(address).get(0).getGeoPoint();
                 String curLoc = DebugOptionsActivity.getCurrentLocation(ctx);
-                if(StringUtils.isNotBlank(curLoc)){
+                if(StringUtils.isNotBlank(curLoc)){ 
                     origin = Geocoding.lookup(curLoc).get(0).getGeoPoint();
                 }
             }
