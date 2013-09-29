@@ -823,7 +823,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             protected void onPostExecute(List<Reservation> reservations) {
                 if (ehs.hasExceptions()) { 
                     ehs.reportExceptions();
-                }
+                } 
                 else {
                     TextView[] vTrips = {vTrip1, vTrip2};
                     for(int i=0; i<vTrips.length; i++){
