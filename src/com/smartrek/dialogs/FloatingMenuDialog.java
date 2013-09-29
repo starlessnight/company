@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.smartrek.activities.R;
 import com.smartrek.ui.menu.MainMenu;
@@ -41,7 +42,15 @@ public class FloatingMenuDialog extends Dialog {
 		int[] menuIds = {R.id.route, R.id.dashboard, R.id.reservation, 
 	        R.id.map_display_options, R.id.home, R.id.logout_option};
 		for(int id : menuIds){
-		    dialogView.findViewById(id).setOnClickListener(new View.OnClickListener() {
+		    final View vMenu = dialogView.findViewById(id);
+		    vMenu.post(new Runnable() {
+                @Override
+                public void run() {
+                    LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) vMenu.getLayoutParams();
+                    layoutParams.height = vMenu.getWidth() * 5 / 6;
+                }
+            });
+            vMenu.setOnClickListener(new View.OnClickListener() {
 	            @Override
 	            public void onClick(View v) {
 	                dismiss();
