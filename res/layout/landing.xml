@@ -315,7 +315,7 @@
 					        	android:layout_height="match_parent"
 			        	    	android:background="#6cc0e4"
 			        	    	android:layout_weight="1">
-				        	<TextView
+				        	<TextView 
 				        	    android:id="@+id/get_going"
 				        	    android:layout_width="wrap_content"
 					        	android:layout_height="wrap_content"
