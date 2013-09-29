@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -346,6 +347,12 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                         contacts.add(contact);
                     }
                 }
+                Collections.sort(contacts, new Comparator<Contact>() {
+                    @Override
+                    public int compare(Contact lhs, Contact rhs) {
+                        return lhs.name.compareTo(rhs.name);
+                    }
+                });
                 int len = contacts.size();
                 final boolean[] checkedItems = new boolean[len];
                 CharSequence[] items = new CharSequence[len];
