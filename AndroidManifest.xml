@@ -79,6 +79,7 @@
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
             android:name=".LandingActivity"
+            android:hardwareAccelerated="false"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar"
@@ -96,6 +97,7 @@
             android:label="@string/signup" />
         <activity
             android:name=".RouteActivity"
+            android:hardwareAccelerated="false"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
             android:theme="@style/Theme.smartrek"
             android:label="select route" />
@@ -149,6 +151,7 @@
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize" />
         <activity
             android:name=".ValidationActivity"
+            android:hardwareAccelerated="false"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
             android:theme="@android:style/Theme.NoTitleBar"
             android:label="navigate"
