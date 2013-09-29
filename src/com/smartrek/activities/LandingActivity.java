@@ -119,6 +119,8 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     
     private static final int iconWidth = 48;
     
+    private static final int tripIconWidth = 31;
+    
     private static final int REQUEST_CODE_RESOLVE_ERR = 9000;
 
     private ProgressDialog mConnectionProgressDialog;
@@ -833,7 +835,12 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                             String destinationName = res.getDestinationName();
                             vTrip.setText((originName == null?res.getOriginAddress():originName) 
                                 + " to " + (destinationName == null?res.getOriginAddress():destinationName));
+                            vTrip.setTextSize(getResources().getDimension(R.dimen.smaller_font));
                             vTrip.setVisibility(View.VISIBLE);
+                            int width = getWindowManager().getDefaultDisplay().getWidth();
+                            float offset = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 
+                                tripIconWidth, getResources().getDisplayMetrics());
+                            Font.autoScaleTextSize(vTrip, width/2 - offset);
                         }else{
                             vTrip.setVisibility(View.INVISIBLE);
                         }
