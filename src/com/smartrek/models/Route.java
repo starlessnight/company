@@ -144,31 +144,29 @@ public final class Route implements Parcelable {
         for (int i = 0; i < navInfo.length(); i++) {
             JSONObject ro = (JSONObject) navInfo.get(i);
             
-            if(ro.has("node")){
-                RouteNode node = new RouteNode(
-                    ro.getDouble("lat"),
-                    ro.getDouble("lon"), 
-                    0, 
-                    ro.getInt("node")
-                );
-                
-                if (ro.has("remind")) {
-                    node.setFlag(ro.getInt("remind"));
-                }
-                if (ro.has("msg")) {
-                    node.setMessage(ro.getString("msg"));
-                }
-                if (ro.has("direction")) {
-                    node.setDirection(ro.getString("direction"));
-                }
-                if (ro.has("distance")) {
-                    node.setDistance(ro.getLong("distance") * 0.3048);
-                }
-                if (ro.has("road")) {
-                    node.setRoadName(ro.getString("road"));
-                }
-                routeNodes.add(node);
+            RouteNode node = new RouteNode(
+                ro.getDouble("lat"),
+                ro.getDouble("lon"), 
+                0, 
+                ro.optInt("node")
+            );
+            
+            if (ro.has("remind")) {
+                node.setFlag(ro.getInt("remind"));
             }
+            if (ro.has("msg")) {
+                node.setMessage(ro.getString("msg"));
+            }
+            if (ro.has("direction")) {
+                node.setDirection(ro.getString("direction"));
+            }
+            if (ro.has("distance")) {
+                node.setDistance(ro.getLong("distance") * 0.3048);
+            }
+            if (ro.has("road")) {
+                node.setRoadName(ro.getString("road"));
+            }
+            routeNodes.add(node);
         }
         
         buildRouteNodeReferenceChain(routeNodes);
