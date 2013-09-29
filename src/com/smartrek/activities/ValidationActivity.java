@@ -922,12 +922,12 @@ public final class ValidationActivity extends Activity implements OnInitListener
             boolean alreadyValidated = isTripValidated(); 
             
             double distanceToLink = nearestLink.distanceTo(lat, lng);
-            if (distanceToLink <= params.getValidationDistanceThreshold()) {
+            if (!timedOut.get() && distanceToLink <= params.getValidationDistanceThreshold()) {
                 Log.i("validated node", nearestLink.getStartNode().getNodeIndex() + "");
                 nearestLink.getStartNode().getMetadata().setValidated(true);
             }
             
-            if(!timedOut.get() && !alreadyValidated && isTripValidated()){
+            if(!alreadyValidated && isTripValidated()){
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -987,7 +987,11 @@ public final class ValidationActivity extends Activity implements OnInitListener
         
         reportValidation();
         if(mTts == null){
-            finish();
+            if(isTripValidated()){
+                finish();
+            }else{
+                showValidationFailedDialog();
+            }
         }else{
             final int oldCnt = utteredCnt.get();
             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
@@ -995,7 +999,11 @@ public final class ValidationActivity extends Activity implements OnInitListener
                 public void run() {
                     int newCnt = utteredCnt.get();
                     if(newCnt == oldCnt && newCnt == utteringCnt.get()){
-                        finish();
+                        if(isTripValidated()){
+                            finish();
+                        }else{
+                            showValidationFailedDialog();
+                        }
                     }
                 }
             }, 1000 + Math.round(Math.random() * 500));
@@ -1006,7 +1014,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
         if(!reported.get()){
             reported.set(true);
             
-            if(!timedOut.get() && isTripValidated()){
+            if(isTripValidated()){
                 Time now = new Time();
                 now.setToNow();
                 Intent intent = new Intent(this, ValidationReportActivity.class);
@@ -1047,7 +1055,11 @@ public final class ValidationActivity extends Activity implements OnInitListener
                 reportValidation();
                 
                 //Stop the activity
-                ValidationActivity.this.finish();    
+                if(isTripValidated()){
+                    ValidationActivity.this.finish();
+                }else{
+                    showValidationFailedDialog();
+                }
             }
 
         })
@@ -1279,6 +1291,19 @@ public final class ValidationActivity extends Activity implements OnInitListener
         if(mTts != null){
             mTts.shutdown();
         }
+    }
+    
+    private void showValidationFailedDialog(){
+        NotificationDialog dialog = new NotificationDialog(ValidationActivity.this, "Sorry you didn't qualify for the Trekpoints, please try harder next time.");
+        dialog.setActionListener(new NotificationDialog.ActionListener() {
+            @Override
+            public void onClickDismiss() {
+                if(!isFinishing()){
+                    finish();
+                }
+            }
+        });
+        dialog.show();
     }
     
 }
