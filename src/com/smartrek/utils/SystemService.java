@@ -7,10 +7,17 @@ import android.content.Intent;
 import android.provider.Settings;
 
 public class SystemService {
+    
+    public interface Callback {
+        
+        void onNo();
+        
+    }
+    
     /**
      * Directly copied from http://stackoverflow.com/questions/843675/how-do-i-find-out-if-the-gps-of-an-android-device-is-enabled
      */
-    public static void alertNoGPS(final Context context) {
+    public static void alertNoGPS(final Context context, final Callback callback) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setMessage("Yout GPS seems to be disabled. Do you want to enable it?")
                .setCancelable(false)
@@ -22,9 +29,17 @@ public class SystemService {
                .setNegativeButton("No", new DialogInterface.OnClickListener() {
                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         dialog.cancel();
+                        if(callback != null){
+                            callback.onNo();
+                        }
                    }
                });
         final AlertDialog alert = builder.create();
         alert.show();
     }
+    
+    public static void alertNoGPS(final Context context) {
+        alertNoGPS(context, null);
+    }
+    
 }

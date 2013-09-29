@@ -57,6 +57,7 @@ import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailed
 import com.google.android.gms.plus.PlusClient;
 import com.google.android.gms.plus.model.people.Person;
 import com.google.android.gms.plus.model.people.Person.Image;
+import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
 import com.smartrek.dialogs.ProfileSelectionDialog;
 import com.smartrek.dialogs.ProfileSelectionDialog.Type;
@@ -137,6 +138,8 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     
     PointOverlay othersPointOverlay;
     
+    private ShortcutNavigationTask currentSNTask;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -173,7 +176,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         vGoHome.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                final ShortcutNavigationTask t = new ShortcutNavigationTask(LandingActivity.this, ehs);
+                currentSNTask = new ShortcutNavigationTask(LandingActivity.this, ehs);
                 new ShortcutAddressTask(LandingActivity.this, ehs, Address.HOME_STRING, 
                     new ShortcutAddressTask.Callback(){
                         @Override
@@ -188,8 +191,8 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                                         String ad = d.getAddress();
                                         MapDisplayActivity.setHomeAddress(LandingActivity.this, ad);
                                         d.dismiss();
-                                        t.address = ad;
-                                        t.execute();
+                                        currentSNTask.address = ad;
+                                        currentSNTask.execute();
                                     }
                                     @Override
                                     public void onClickNegativeButton() {
@@ -197,8 +200,8 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                                 });
                                 d.show();
                             }else{
-                                t.address = addr;
-                                t.execute();
+                                currentSNTask.address = addr;
+                                currentSNTask.execute();
                             }
                         }
                 }).execute();
@@ -208,7 +211,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         vGoToWork.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                final ShortcutNavigationTask t = new ShortcutNavigationTask(LandingActivity.this, ehs);
+                currentSNTask = new ShortcutNavigationTask(LandingActivity.this, ehs);
                 new ShortcutAddressTask(LandingActivity.this, ehs, Address.WORK_STRING, 
                     new ShortcutAddressTask.Callback(){
                         @Override
@@ -223,8 +226,8 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                                         String ad = d.getAddress();
                                         MapDisplayActivity.setHomeAddress(LandingActivity.this, ad);
                                         d.dismiss();
-                                        t.address = ad;
-                                        t.execute();
+                                        currentSNTask.address = ad;
+                                        currentSNTask.execute();
                                     }
                                     @Override
                                     public void onClickNegativeButton() {
@@ -232,8 +235,8 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                                 });
                                 d.show();
                             }else{
-                                t.address = addr;
-                                t.execute();
+                                currentSNTask.address = addr;
+                                currentSNTask.execute();
                             }
                         }
                 }).execute();
@@ -247,10 +250,10 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                 d.setActionListener(new ShortcutAddressDialog.ActionListener() {
                     @Override
                     public void onClickPositiveButton() {
-                        ShortcutNavigationTask t = new ShortcutNavigationTask(LandingActivity.this, ehs);
-                        t.address = d.getAddress();
+                        currentSNTask = new ShortcutNavigationTask(LandingActivity.this, ehs);
+                        currentSNTask.address = d.getAddress();
                         d.dismiss();
-                        t.execute();
+                        currentSNTask.execute();
                     }
                     @Override
                     public void onClickNegativeButton() {
@@ -501,6 +504,9 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         refreshTripUpdateCount();
         refreshTrekpoints();
         uiHelper.onResume();
+        if(currentSNTask != null && locationManager != null && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+            currentSNTask.cancelTask();
+        }
     }
     
     @Override
@@ -953,7 +959,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     
     private static class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
 
-        ProgressDialog dialog;
+        CancelableProgressDialog dialog;
         
         String address;
         
@@ -970,11 +976,13 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         ShortcutNavigationTask(LandingActivity ctx, ExceptionHandlingService ehs){
             this.ehs = ehs;
             this.ctx = ctx;
-            dialog = new ProgressDialog(ctx);
-            dialog.setTitle("Smartrek");
-            dialog.setMessage("Loading...");
-            dialog.setCancelable(true);
-            dialog.setCanceledOnTouchOutside(false);
+            dialog = new CancelableProgressDialog(ctx, "Getting current location...");
+            dialog.setActionListener(new CancelableProgressDialog.ActionListener() {
+                @Override
+                public void onClickNegativeButton() {
+                    ShortcutNavigationTask.this.ctx.removeLocationUpdates();
+                }
+            });
             dialog.setOnCancelListener(new OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
@@ -988,7 +996,14 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             dialog.show();
             ctx.locationManager = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
             if (!ctx.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                SystemService.alertNoGPS(ctx);
+                SystemService.alertNoGPS(ctx, new SystemService.Callback() {
+                    @Override
+                    public void onNo() {
+                        if (dialog.isShowing()) {
+                            dialog.cancel();
+                        }
+                    }
+                });
             }
             ctx.locationListener = new LocationListener() {
                 @Override
@@ -1036,6 +1051,13 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             }else{
                 makeReservation();
             }
+        }
+        
+        void cancelTask(){
+            if (dialog.isShowing()) {
+                dialog.cancel();
+            }
+            cancel(true);
         }
         
         void makeReservation(){
