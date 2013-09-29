@@ -32,6 +32,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.TextView;
 
 import com.smartrek.activities.R;
 
@@ -52,6 +53,7 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 	protected int currentFocussedIndex;
 	protected Typeface headerFont;
 	protected Typeface bodyFont;
+	protected boolean showArrow = true;
 
 	/**
 	 * Create a new BalloonItemizedOverlay
@@ -255,6 +257,8 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 			isRecycled = true;
 		}
 
+		((TextView)clickRegion).setCompoundDrawablesWithIntrinsicBounds(0, 0, 
+	        showArrow?R.drawable.icon_more_small:0, 0);
 		balloonView.setVisibility(View.GONE);
 
 		List<Overlay> mapOverlays = mapView.getOverlays();
@@ -281,6 +285,14 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 
 		return isRecycled;
 	}
+
+    public boolean isShowArrow() {
+        return showArrow;
+    }
+
+    public void setShowArrow(boolean showArrow) {
+        this.showArrow = showArrow;
+    }
 	
 //	@Override
 //	public boolean onSingleTapUp(final MotionEvent event, final MapView mapView) {

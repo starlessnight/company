@@ -917,6 +917,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         mapOverlays.add(pathOverlay);
         
         infoOverlay = new RouteInfoOverlay(mapView, route, routeNum, new GeoPoint(lat, lon), boldFont, lightFont);
+        infoOverlay.setShowArrow(false);
         infoOverlay.setCallback(new RouteOverlayCallback(){
             @Override
             public boolean onBalloonTap(int index, OverlayItem item) {
