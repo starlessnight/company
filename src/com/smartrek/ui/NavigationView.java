@@ -143,7 +143,10 @@ public final class NavigationView extends LinearLayout {
 	}
 	
 	public static String getDirection(RouteNode node, String distance, boolean actionOnly){
-        String roadName = node.getRoadName().replaceAll("-", "");
+	    String roadName = node.getRoadName();
+        if(roadName != null){
+            roadName = roadName.replaceAll("-", "");
+        }
         String msg = node.getMessage();
         String dir1 = StringUtils.substringBeforeLast(msg, " ");
         String dir2 = StringUtils.substringAfterLast(msg, " ");
@@ -216,7 +219,10 @@ public final class NavigationView extends LinearLayout {
     }
 	
 	public static String getContinueDirection(RouteNode node, String distance){
-	    String roadName = node.getRoadName().replaceAll("-", "");
+	    String roadName = node.getRoadName();
+	    if(roadName != null){
+	        roadName = roadName.replaceAll("-", "");
+	    }
         String dir = "Continue"
             + (StringUtils.isBlank(roadName) || StringUtils.equalsIgnoreCase(roadName, "null")
                     ?"":(" on " + roadName))
