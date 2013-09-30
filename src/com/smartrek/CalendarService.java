@@ -30,7 +30,7 @@ import com.smartrek.utils.Geocoding;
 
 public class CalendarService extends IntentService {
 
-    private static final long FIFTHTEEN_MINS = 15 * 60 * 1000 /* 10000 */;
+    private static final long FIFTHTEEN_MINS = 15 * 60 * 1000 /*10000*/;
     
     private static final long FOUR_HOURS = 4 * 60 * 60 * 1000;
     
