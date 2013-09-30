@@ -24,6 +24,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
 import com.smartrek.requests.ReservationDeleteRequest;
@@ -87,14 +88,32 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		Intent intent = new Intent(ReservationListActivity.this, ReservationDetailsActivity.class);
-		
-		Bundle extras = new Bundle();
-		// FIXME: Reservation.getRoute() is a temporary solution
-		extras.putParcelable("route", reservations.get(position).getRoute());
-		extras.putParcelable("reservation", reservations.get(position));
-		intent.putExtras(extras);
-		startActivity(intent);
+	    Reservation reservation = reservations.get(position);
+	    if(reservation.isEligibleTrip()){
+    		Intent intent = new Intent(ReservationListActivity.this, ValidationActivity.class);
+    		Bundle extras = new Bundle();
+    		// FIXME: Reservation.getRoute() is a temporary solution
+            extras.putParcelable("route", reservation.getRoute());
+    		extras.putParcelable("reservation", reservation);
+    		intent.putExtras(extras);
+    		startActivity(intent);
+	    }else{
+	        String msg = null;
+	        if (reservation.hasExpired()) {
+	            msg = getString(R.string.trip_has_expired);
+            }
+            else if (reservation.isTooEarlyToStart()) {
+                long minutes = (reservation.getDepartureTime() - System.currentTimeMillis()) / 60000;
+                msg = getString(R.string.trip_too_early_to_start, minutes);
+                if(minutes != 1){
+                    msg += "s";
+                }
+            }
+	        if(msg != null){
+    	        NotificationDialog dialog = new NotificationDialog(ReservationListActivity.this, msg);
+                dialog.show();
+	        }
+	    }
 	}
 	
 	@Override
