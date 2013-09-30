@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Rect;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -25,6 +26,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnKeyListener;
 import android.view.View.OnLongClickListener;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
@@ -272,6 +274,17 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	            updateDeviceId();
 	        }
 	    }
+	    
+	    final View activityRootView = findViewById(android.R.id.content);
+	    activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+	        @Override
+	        public void onGlobalLayout() {
+	            Rect r = new Rect();
+	            activityRootView.getWindowVisibleDisplayFrame(r);
+	            int heightDiff = activityRootView.getRootView().getHeight() - (r.bottom - r.top);
+	            findViewById(R.id.floating_menu_button).setVisibility(heightDiff > 100?View.INVISIBLE:View.VISIBLE);
+	         }
+	    });
 	    
 	   Font.setTypeface(boldFont, buttonDone, buttonLoadTrip, buttonSaveTrip,
            buttonOriginMyLocation);
