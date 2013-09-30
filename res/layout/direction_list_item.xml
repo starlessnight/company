@@ -35,7 +35,7 @@
 		        android:layout_marginRight="4dp"
 		        android:text="100.1 mi"
 		        android:gravity="center_horizontal"
-		        style="@style/SmallerBoldText"
+		        style="@style/LargeBoldText"
 	    	/>
         
         </LinearLayout>
