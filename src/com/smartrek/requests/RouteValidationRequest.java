@@ -16,11 +16,14 @@ import com.smartrek.utils.HTTP.Method;
  */
 public class RouteValidationRequest extends Request {
 	
-	public RouteValidationRequest(User user, int rid) {
+    private long rid;
+    
+	public RouteValidationRequest(User user, long rid) {
 	    if(NEW_API){
-	        url = getLinkUrl(Link.reservation) + "/" + rid;
+	        url = getLinkUrl(Link.trip).replaceAll("\\{user_id\\}", String.valueOf(user.getId()));
 	        this.username = user.getUsername();
 	        this.password = user.getPassword();
+	        this.rid = rid;
 	    }else{
 	        url = String.format("%s/validationdone/?uid=%d&rid=%d", HOST, user.getId(), rid);
 	    }
@@ -29,8 +32,8 @@ public class RouteValidationRequest extends Request {
 	public void execute() throws Exception {
 	    if(NEW_API){
 	        Map<String, String> params = new HashMap<String, String>();
-	        params.put("validated", String.valueOf(1));
-	        executeHttpRequest(Method.PUT, url, params);
+	        params.put("reservation_id", String.valueOf(rid));
+	        executeHttpRequest(Method.POST, url, params);
 	    }else{
 	        String res = executeHttpGetRequest(url);
 	        JSONObject json = new JSONArray(res).getJSONObject(0);
