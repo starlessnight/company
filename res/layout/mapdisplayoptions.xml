@@ -1,266 +1,281 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	    android:fillViewport="true">
-	    
-	<RelativeLayout 
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-        android:background="@color/gray"
-	    android:orientation="vertical"
-	    android:paddingBottom="15dp" 
-	    android:focusable="true"
-	    android:focusableInTouchMode="true">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    	android:layout_width="match_parent"
+	    android:layout_height="match_parent">
+	<ScrollView
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    android:fillViewport="true">
+		    
+		<RelativeLayout 
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+	        android:background="@color/gray"
+		    android:orientation="vertical"
+		    android:paddingBottom="15dp" 
+		    android:focusable="true"
+		    android:focusableInTouchMode="true">
+		
+		    <TextView
+		        android:id="@+id/time_heading"
+		        android:text="@string/time_display"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_marginTop="15dp"
+		        android:layout_marginLeft="45dp"
+		        style="@style/MicroText">
+		    </TextView>
+		
+		    <View
+		        android:id="@+id/separator"
+		        android:layout_width="match_parent"
+		        android:layout_height="2dp"
+		        android:layout_below="@id/time_heading"
+		        android:layout_marginTop="12dp"
+		        android:layout_marginLeft="30dp"
+		        android:layout_marginRight="30dp"
+		        android:background="@color/secondary_font"  
+		     />
+		    
+		    <RelativeLayout
+		        android:id="@+id/group1"
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_below="@id/separator"
+		        android:layout_marginLeft="45dp"
+		        android:layout_marginRight="45dp">
+		
+		        <RadioGroup
+		            android:id="@+id/time_display_mode"
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content" >
+		
+		            <RadioButton
+		                android:id="@+id/mdoradio1"
+		                android:layout_width="match_parent"
+		                android:layout_height="wrap_content"
+		                android:enabled="true"
+		                android:text="@string/display_travel_time"
+		                android:button="@null"
+			            android:drawableRight="@drawable/radio"
+			            android:gravity="left|center_vertical"
+		                style="@style/MediumText"
+		                android:padding="0dp"
+		                android:layout_marginTop="0dp">
+		            </RadioButton>
+		
+		            <RadioButton
+		                android:id="@+id/mdoradio2"
+		                android:layout_width="match_parent"
+		                android:layout_height="wrap_content"
+		                android:enabled="true"
+		                android:text="@string/display_arrival_time"
+		                android:button="@null"
+			            android:drawableRight="@drawable/radio"
+			            android:gravity="left|center_vertical"
+		                style="@style/MediumText"
+		                android:padding="0dp"
+		                android:layout_marginTop="0dp">
+		            </RadioButton>
+		        </RadioGroup>
+		    </RelativeLayout>
+		
+		    <TextView
+		        android:id="@+id/calendar_integration_heading"
+		        android:text="CALENDAR INTEGRATION"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_below="@id/group1"
+		        android:layout_marginTop="15dp"
+		        android:layout_marginLeft="45dp"
+		        style="@style/MicroText">
+		    </TextView>
+		
+		    <View
+		        android:id="@+id/separator2"
+		        android:layout_width="match_parent"
+		        android:layout_height="2dp"
+		        android:layout_below="@id/calendar_integration_heading"
+		        android:layout_marginTop="12dp"
+		        android:layout_marginLeft="30dp"
+		        android:layout_marginRight="30dp"
+		        android:background="@color/secondary_font"  
+		     />
+		    
+		    <TextView
+		        android:id="@+id/calendar_integration_text"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_below="@id/separator2"
+		        android:text="Enabled"
+		        android:layout_marginTop="12dp"
+		        android:layout_marginLeft="45dp"
+		        android:layout_marginRight="45dp"
+		        style="@style/MediumText"
+			/>
+		    
+		    <CheckBox
+		         android:id="@+id/calendar_integration"
+		         android:layout_width="wrap_content"
+		         android:layout_height="wrap_content"
+		         android:layout_alignParentRight="true"
+		         android:layout_alignBaseline="@id/calendar_integration_text"
+		         android:enabled="true"
+		         android:padding="0dp"
+		         android:layout_marginTop="0dp"
+		         android:layout_marginRight="45dp"
+			/>
+		    
+		    <TextView
+		        android:id="@+id/navigation_tts_heading"
+		        android:text="VOICE-GUIDED NAVIGATION"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_below="@id/calendar_integration_text"
+		        android:layout_marginTop="15dp"
+		        android:layout_marginLeft="45dp"
+		        style="@style/MicroText">
+		    </TextView>
+		
+		    <View
+		        android:id="@+id/separator3"
+		        android:layout_width="match_parent"
+		        android:layout_height="2dp"
+		        android:layout_below="@id/navigation_tts_heading"
+		        android:layout_marginTop="12dp"
+		        android:layout_marginLeft="30dp"
+		        android:layout_marginRight="30dp"
+		        android:background="@color/secondary_font"  
+		     />
+		    
+		    <TextView
+		        android:id="@+id/navigation_tts_text"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_below="@id/separator3"
+		        android:text="Enabled"
+		        android:layout_marginTop="12dp"
+		        android:layout_marginLeft="45dp"
+		        android:layout_marginRight="45dp"
+		        style="@style/MediumText"
+			/>
+		    
+		    <CheckBox
+		         android:id="@+id/navigation_tts"
+		         android:layout_width="wrap_content"
+		         android:layout_height="wrap_content"
+		         android:layout_alignParentRight="true"
+		         android:layout_alignBaseline="@id/navigation_tts_text"
+		         android:enabled="true"
+		         android:padding="0dp"
+		         android:layout_marginTop="0dp"
+		         android:layout_marginRight="45dp"
+			/>
+		    
+		    <TextView
+		        android:id="@+id/distribution_heading"
+		        android:text="DISTRUBUTION DATE"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_below="@id/navigation_tts_text"
+		        android:layout_marginTop="12dp"
+		        android:layout_marginLeft="45dp"
+		        android:layout_marginRight="45dp"
+		        style="@style/MicroText">
+		    </TextView>
+		
+		    <View
+		        android:id="@+id/separator5"
+		        android:layout_width="match_parent"
+		        android:layout_height="2dp"
+		        android:layout_below="@id/distribution_heading"
+		        android:layout_marginTop="12dp"
+		        android:layout_marginLeft="30dp"
+		        android:layout_marginRight="30dp"
+		        android:background="@color/secondary_font"  
+		     />
+		    
+		    <TextView
+		        android:id="@+id/distribution_date"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_below="@id/separator5"
+		        android:text="@string/distribution_date"
+		        android:layout_marginTop="12dp"
+		        android:layout_marginLeft="45dp"
+		        android:layout_marginRight="45dp"
+		        style="@style/MediumText"
+			/>
+		    
+		    <TextView
+		        android:id="@+id/adjust_time_heading"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_below="@id/group1"
+		        android:gravity="center"
+		        android:orientation="vertical"
+		        android:text="@string/adjust_time"
+		        android:textColor="#FFFFFFFF"
+		        android:textSize="20dp"
+		        android:visibility="invisible" >
+		    </TextView>
+		
+		    <RelativeLayout
+		        android:id="@+id/relativeLayout1"
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_below="@id/adjust_time_heading"
+		        android:paddingLeft="65dp"
+		        android:visibility="invisible" >
+		
+		        <RadioGroup
+		            android:id="@+id/time_increment"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content" >
+		
+		            <RadioButton
+		                android:id="@+id/time_increment_5min"
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:tag="5"
+		                android:text="@string/five"
+		                android:textColor="#FFFFFFFF"
+		                android:textSize="18dp" >
+		            </RadioButton>
+		
+		            <RadioButton
+		                android:id="@+id/time_increment_15min"
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:tag="15"
+		                android:text="@string/fifteen"
+		                android:textColor="#FFFFFFFF"
+		                android:textSize="18dp" >
+		            </RadioButton>
+		
+		            <RadioButton
+		                android:id="@+id/time_increment_60min"
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:tag="60"
+		                android:text="@string/sixty"
+		                android:textColor="#FFFFFFFF"
+		                android:textSize="18dp" >
+		            </RadioButton>
+		        </RadioGroup>
+		    </RelativeLayout>
+		
+		</RelativeLayout>
+	</ScrollView>
+
+	<ImageView
+	    android:id="@+id/floating_menu_button"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:src="@drawable/floating_menu_icon"
+		android:layout_gravity="bottom|right"
+		android:layout_marginRight="15dp"
+        android:layout_marginBottom="15dp"
+	/>
 	
-	    <TextView
-	        android:id="@+id/time_heading"
-	        android:text="@string/time_display"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_marginTop="15dp"
-	        android:layout_marginLeft="45dp"
-	        style="@style/MicroText">
-	    </TextView>
-	
-	    <View
-	        android:id="@+id/separator"
-	        android:layout_width="match_parent"
-	        android:layout_height="2dp"
-	        android:layout_below="@id/time_heading"
-	        android:layout_marginTop="12dp"
-	        android:layout_marginLeft="30dp"
-	        android:layout_marginRight="30dp"
-	        android:background="@color/secondary_font"  
-	     />
-	    
-	    <RelativeLayout
-	        android:id="@+id/group1"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@id/separator"
-	        android:layout_marginLeft="45dp"
-	        android:layout_marginRight="45dp">
-	
-	        <RadioGroup
-	            android:id="@+id/time_display_mode"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content" >
-	
-	            <RadioButton
-	                android:id="@+id/mdoradio1"
-	                android:layout_width="match_parent"
-	                android:layout_height="wrap_content"
-	                android:enabled="true"
-	                android:text="@string/display_travel_time"
-	                android:button="@null"
-		            android:drawableRight="@drawable/radio"
-		            android:gravity="left|center_vertical"
-	                style="@style/MediumText"
-	                android:padding="0dp"
-	                android:layout_marginTop="0dp">
-	            </RadioButton>
-	
-	            <RadioButton
-	                android:id="@+id/mdoradio2"
-	                android:layout_width="match_parent"
-	                android:layout_height="wrap_content"
-	                android:enabled="true"
-	                android:text="@string/display_arrival_time"
-	                android:button="@null"
-		            android:drawableRight="@drawable/radio"
-		            android:gravity="left|center_vertical"
-	                style="@style/MediumText"
-	                android:padding="0dp"
-	                android:layout_marginTop="0dp">
-	            </RadioButton>
-	        </RadioGroup>
-	    </RelativeLayout>
-	
-	    <TextView
-	        android:id="@+id/calendar_integration_heading"
-	        android:text="CALENDAR INTEGRATION"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@id/group1"
-	        android:layout_marginTop="15dp"
-	        android:layout_marginLeft="45dp"
-	        style="@style/MicroText">
-	    </TextView>
-	
-	    <View
-	        android:id="@+id/separator2"
-	        android:layout_width="match_parent"
-	        android:layout_height="2dp"
-	        android:layout_below="@id/calendar_integration_heading"
-	        android:layout_marginTop="12dp"
-	        android:layout_marginLeft="30dp"
-	        android:layout_marginRight="30dp"
-	        android:background="@color/secondary_font"  
-	     />
-	    
-	    <TextView
-	        android:id="@+id/calendar_integration_text"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@id/separator2"
-	        android:text="Enabled"
-	        android:layout_marginTop="12dp"
-	        android:layout_marginLeft="45dp"
-	        android:layout_marginRight="45dp"
-	        style="@style/MediumText"
-		/>
-	    
-	    <CheckBox
-	         android:id="@+id/calendar_integration"
-	         android:layout_width="wrap_content"
-	         android:layout_height="wrap_content"
-	         android:layout_alignParentRight="true"
-	         android:layout_alignBaseline="@id/calendar_integration_text"
-	         android:enabled="true"
-	         android:padding="0dp"
-	         android:layout_marginTop="0dp"
-	         android:layout_marginRight="45dp"
-		/>
-	    
-	    <TextView
-	        android:id="@+id/navigation_tts_heading"
-	        android:text="VOICE-GUIDED NAVIGATION"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@id/calendar_integration_text"
-	        android:layout_marginTop="15dp"
-	        android:layout_marginLeft="45dp"
-	        style="@style/MicroText">
-	    </TextView>
-	
-	    <View
-	        android:id="@+id/separator3"
-	        android:layout_width="match_parent"
-	        android:layout_height="2dp"
-	        android:layout_below="@id/navigation_tts_heading"
-	        android:layout_marginTop="12dp"
-	        android:layout_marginLeft="30dp"
-	        android:layout_marginRight="30dp"
-	        android:background="@color/secondary_font"  
-	     />
-	    
-	    <TextView
-	        android:id="@+id/navigation_tts_text"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@id/separator3"
-	        android:text="Enabled"
-	        android:layout_marginTop="12dp"
-	        android:layout_marginLeft="45dp"
-	        android:layout_marginRight="45dp"
-	        style="@style/MediumText"
-		/>
-	    
-	    <CheckBox
-	         android:id="@+id/navigation_tts"
-	         android:layout_width="wrap_content"
-	         android:layout_height="wrap_content"
-	         android:layout_alignParentRight="true"
-	         android:layout_alignBaseline="@id/navigation_tts_text"
-	         android:enabled="true"
-	         android:padding="0dp"
-	         android:layout_marginTop="0dp"
-	         android:layout_marginRight="45dp"
-		/>
-	    
-	    <TextView
-	        android:id="@+id/distribution_heading"
-	        android:text="DISTRUBUTION DATE"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@id/navigation_tts_text"
-	        android:layout_marginTop="12dp"
-	        android:layout_marginLeft="45dp"
-	        android:layout_marginRight="45dp"
-	        style="@style/MicroText">
-	    </TextView>
-	
-	    <View
-	        android:id="@+id/separator5"
-	        android:layout_width="match_parent"
-	        android:layout_height="2dp"
-	        android:layout_below="@id/distribution_heading"
-	        android:layout_marginTop="12dp"
-	        android:layout_marginLeft="30dp"
-	        android:layout_marginRight="30dp"
-	        android:background="@color/secondary_font"  
-	     />
-	    
-	    <TextView
-	        android:id="@+id/distribution_date"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@id/separator5"
-	        android:text="@string/distribution_date"
-	        android:layout_marginTop="12dp"
-	        android:layout_marginLeft="45dp"
-	        android:layout_marginRight="45dp"
-	        style="@style/MediumText"
-		/>
-	    
-	    <TextView
-	        android:id="@+id/adjust_time_heading"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@id/group1"
-	        android:gravity="center"
-	        android:orientation="vertical"
-	        android:text="@string/adjust_time"
-	        android:textColor="#FFFFFFFF"
-	        android:textSize="20dp"
-	        android:visibility="invisible" >
-	    </TextView>
-	
-	    <RelativeLayout
-	        android:id="@+id/relativeLayout1"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_below="@id/adjust_time_heading"
-	        android:paddingLeft="65dp"
-	        android:visibility="invisible" >
-	
-	        <RadioGroup
-	            android:id="@+id/time_increment"
-	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content" >
-	
-	            <RadioButton
-	                android:id="@+id/time_increment_5min"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:tag="5"
-	                android:text="@string/five"
-	                android:textColor="#FFFFFFFF"
-	                android:textSize="18dp" >
-	            </RadioButton>
-	
-	            <RadioButton
-	                android:id="@+id/time_increment_15min"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:tag="15"
-	                android:text="@string/fifteen"
-	                android:textColor="#FFFFFFFF"
-	                android:textSize="18dp" >
-	            </RadioButton>
-	
-	            <RadioButton
-	                android:id="@+id/time_increment_60min"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:tag="60"
-	                android:text="@string/sixty"
-	                android:textColor="#FFFFFFFF"
-	                android:textSize="18dp" >
-	            </RadioButton>
-	        </RadioGroup>
-	    </RelativeLayout>
-	
-	</RelativeLayout>
-</ScrollView>
+</FrameLayout>

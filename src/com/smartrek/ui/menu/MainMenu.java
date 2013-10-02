@@ -64,6 +64,9 @@ public final class MainMenu {
                    int displayed = 0;
                    intent.putExtra("mapmode", 1);
                    activity.startActivityForResult(intent, displayed);
+                   if (!activity.getClass().equals(RouteActivity.class)) {
+                       activity.finish();
+                   }
                }
                break;
                

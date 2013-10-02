@@ -15,6 +15,7 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.dialogs.FloatingMenuDialog;
 import com.smartrek.dialogs.ProfileSelectionDialog;
 import com.smartrek.utils.Font;
 
@@ -140,6 +141,14 @@ public final class MapDisplayActivity extends ActionBarActivity {
                 prefs.edit()
                     .putBoolean(NAVIGATION_TTS, isChecked)
                     .commit();
+            }
+        });
+        
+        findViewById(R.id.floating_menu_button).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FloatingMenuDialog dialog = new FloatingMenuDialog(MapDisplayActivity.this);
+                dialog.show();
             }
         });
         
