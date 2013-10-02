@@ -504,7 +504,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     
     private void loadProfile(Type type){
         if(type == Type.facebook){
-            fbClicked = true;
+            fbClicked = true; 
             if(isNotLoading()){
                 Session session = Session.getActiveSession();
                 if (session != null && session.isOpened()) {
