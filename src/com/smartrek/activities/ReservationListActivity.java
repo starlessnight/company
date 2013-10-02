@@ -120,7 +120,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		MenuInflater mi = getSupportMenuInflater();
-		mi.inflate(R.menu.list_activity, menu);
+		//mi.inflate(R.menu.list_activity, menu);
 		return true;
 	}
 	

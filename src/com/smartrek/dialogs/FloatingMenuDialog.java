@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
@@ -57,6 +58,18 @@ public class FloatingMenuDialog extends Dialog {
 	                MainMenu.onMenuItemSelected(context, 0, v.getId());
 	            }
 	        });
+            if(id == R.id.map_display_options){
+                vMenu.setOnLongClickListener(new OnLongClickListener() {
+                    
+                    @Override
+                    public boolean onLongClick(View v) {
+                        dismiss();
+                        MainMenu.onMenuItemSelected(context, 0, R.id.debug_options);
+                        return true;
+                    }
+                    
+                });
+            }
 		}
 		
 		View closeIcon = dialogView.findViewById(R.id.close_icon);

@@ -412,7 +412,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
     public boolean onCreateOptionsMenu(Menu menu){
     	super.onCreateOptionsMenu(menu);
      	MenuInflater mi = getSupportMenuInflater();
-     	mi.inflate(R.menu.main, menu);
+     	//mi.inflate(R.menu.main, menu);
     	return true;
     }
 	
