@@ -205,6 +205,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
         reservation = extras.getParcelable(RESERVATION);
         
         route = (isOnRecreate?savedInstanceState:extras).getParcelable(ROUTE);
+        route.setCredits(reservation.getCredits());
         reservation.setRoute(route);
         
         // Define a listener that responds to location updates
@@ -324,6 +325,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
                         route = routes.get(isDebugging?fakeRoute.seq:0);
                         route.setId(oldRoute.getId());
                         reservation.setRoute(route);
+                        route.setCredits(reservation.getCredits());
                         route.preprocessNodes();
                         routeRect = initRouteRect(route);
                         updateDirectionsList();
