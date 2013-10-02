@@ -27,6 +27,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
@@ -455,18 +456,25 @@ public final class RouteActivity extends ActionBarActivity {
     public void onBackPressed() {
     	Resources res = getResources();
     	
+    	boolean reverseButtons = Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB;
+    	String rightButtonText = res.getString(R.string.yes);
+    	String leftButtonText = res.getString(R.string.no); 
+    	DialogInterface.OnClickListener rightButtonOnClick = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                goBackToWhereTo.run();
+            }
+        }; 
         // Ask the user if they want to quit
         new AlertDialog.Builder(this)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle("Confirm")
                 .setMessage("Are you sure you want to go back to previous screen?")
-                .setPositiveButton(res.getString(R.string.yes), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        goBackToWhereTo.run();
-                    }
-
-                }).setNegativeButton(res.getString(R.string.no), null).show();
+                .setPositiveButton(reverseButtons?leftButtonText:rightButtonText, 
+                    reverseButtons?null:rightButtonOnClick)
+                .setNegativeButton(reverseButtons?rightButtonText:leftButtonText, 
+                    reverseButtons?rightButtonOnClick:null)
+                .show();
     }
     
     private RouteRect routeRect;

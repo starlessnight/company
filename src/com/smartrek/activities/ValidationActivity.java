@@ -642,7 +642,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
         }
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            SystemService.alertNoGPS(this);
+            SystemService.alertNoGPS(this, true);
         }else{
             // TODO: Turn on GSP early
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 

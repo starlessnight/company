@@ -1032,7 +1032,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             dialog.show();
             ctx.locationManager = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
             if (!ctx.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                SystemService.alertNoGPS(ctx, new SystemService.Callback() {
+                SystemService.alertNoGPS(ctx, true, new SystemService.Callback() {
                     @Override
                     public void onNo() {
                         if (dialog.isShowing()) {
