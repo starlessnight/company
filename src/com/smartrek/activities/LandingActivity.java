@@ -523,6 +523,11 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             // Progress bar to be displayed if the connection failure is not resolved.
             showLoading();
         }
+        User user = User.getCurrentUser(this);
+        String firstname = user.getFirstname();
+        if(StringUtils.isNotBlank(firstname)){
+            updateTitle(firstname);
+        }
     }
     
     @Override
@@ -1301,7 +1306,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         // We've resolved any connection errors.
         hideLoading();
         Person person = mPlusClient.getCurrentPerson();
-        updateTitle(person.getDisplayName());
+        updateTitle(person.getName().getGivenName());
         Image img = person.getImage();
         if(person.hasImage() && img.hasUrl()){
             ImageView avatar = (ImageView)findViewById(R.id.avatar);
@@ -1379,7 +1384,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                             // view that in turn displays the profile picture.
                             updateAvatar("http://graph.facebook.com/" + user.getId() + "/picture?type=large");
                             // Set the Textview's text to the user's name.
-                            updateTitle(user.getName());
+                            updateTitle(user.getFirstName());
                         }
                     }
                     if (response.getError() != null) {
