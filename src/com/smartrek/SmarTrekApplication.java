@@ -22,7 +22,7 @@ public final class SmarTrekApplication extends Application {
     @Override
     public void onCreate() {
         // The following line triggers the initialization of ACRA
-        ACRA.init(this);
+        //ACRA.init(this);
         long fifteenMin = 15 * 60 * 1000;
         LocationLibrary.initialiseLibrary(getBaseContext(), fifteenMin, (int)fifteenMin, true, "com.smartrek.activities");
         //Utility.metadataApplicationId = "202039786615562";
