@@ -110,6 +110,9 @@
 	<style name="AddButton" parent="LargeTextButton">
 		<item name="android:background">@drawable/add_button</item>
 	</style>
+	<style name="BuddyButton" parent="LargeTextButton">
+		<item name="android:background">@drawable/buddy_button</item>
+	</style>
 	<style name="AddBuddyButton" parent="LargeTextButton">
 		<item name="android:background">@drawable/add_buddy_button</item>
 	</style>

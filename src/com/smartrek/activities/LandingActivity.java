@@ -4,10 +4,7 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -16,19 +13,14 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
 
-import android.R.string;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
-import android.content.DialogInterface.OnMultiChoiceClickListener;
-import android.content.DialogInterface.OnShowListener;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
 import android.content.res.AssetManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
@@ -37,8 +29,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.provider.ContactsContract.PhoneLookup;
 import android.text.format.Time;
 import android.util.Log;
 import android.util.TypedValue;
@@ -60,6 +50,7 @@ import com.google.android.gms.plus.PlusClient;
 import com.google.android.gms.plus.model.people.Person;
 import com.google.android.gms.plus.model.people.Person.Image;
 import com.smartrek.dialogs.CancelableProgressDialog;
+import com.smartrek.dialogs.ContactsDialog;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
 import com.smartrek.dialogs.ProfileSelectionDialog;
 import com.smartrek.dialogs.ProfileSelectionDialog.Type;
@@ -328,99 +319,24 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         vImComing.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                final List<Contact> contacts = new ArrayList<Contact>();
-                Map<String, Contact> contactsMap = new LinkedHashMap<String, Contact>();
-                List<String> ids = new ArrayList<String>(); 
-                Cursor people = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
-                while(people.moveToNext()) {
-                   int nameFieldColumnIndex = people.getColumnIndex(PhoneLookup.DISPLAY_NAME);
-                   String name = people.getString(nameFieldColumnIndex);
-                   int idFieldColumnIndex = people.getColumnIndex(PhoneLookup._ID);
-                   String contactId = people.getString(idFieldColumnIndex);
-                   Contact contact = new Contact();
-                   contact.id = contactId;
-                   contact.name = name;
-                   contactsMap.put(contactId, contact);
-                   ids.add(contactId);
-                }
-                people.close();
-                Cursor emails = getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null, 
-                    ContactsContract.CommonDataKinds.Email.CONTACT_ID + " in (" + StringUtils.join(ids, ",") + ")", null, null); 
-                while (emails.moveToNext()) {
-                    String id = emails.getString(emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.CONTACT_ID));
-                    String email = emails.getString(emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
-                    Contact contact = contactsMap.get(id);
-                    if(contact != null && contact.email == null){
-                        contact.email = email;
-                    }
-                }
-                emails.close();
-                for(Contact contact : contactsMap.values()){
-                    if(contact.email != null){
-                        contacts.add(contact);
-                    }
-                }
-                Collections.sort(contacts, new Comparator<Contact>() {
+                ContactsDialog d = new ContactsDialog(LandingActivity.this);
+                d.setActionListener(new ContactsDialog.ActionListener() {
                     @Override
-                    public int compare(Contact lhs, Contact rhs) {
-                        return lhs.name.compareTo(rhs.name);
+                    public void onClickPositiveButton(List<String> emails) {
+                        TextView vGetGoing = (TextView) findViewById(R.id.get_going);
+                        Reservation reservation =(Reservation) vGetGoing.getTag();
+                        Intent intent = new Intent(LandingActivity.this, ValidationActivity.class);
+                        intent.putExtra("route", reservation.getRoute());
+                        intent.putExtra("reservation", reservation);
+                        intent.putExtra(ValidationActivity.EMAILS, StringUtils.join(emails, ","));
+                        startActivity(intent);
+                        collapseMap();
+                        centerMapByCurrentLocation();
                     }
+                    @Override
+                    public void onClickNegativeButton() {}
                 });
-                int len = contacts.size();
-                final boolean[] checkedItems = new boolean[len];
-                CharSequence[] items = new CharSequence[len];
-                for(int i=0; i<len; i++){
-                    Contact contact = contacts.get(i);
-                    items[i] = contact.name + "\n" + contact.email;
-                }
-                AlertDialog dialog = new AlertDialog.Builder(LandingActivity.this)
-                    .setMultiChoiceItems(items, null, new OnMultiChoiceClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                            checkedItems[which] = isChecked;
-                            int checkedCnt = 0;
-                            for(boolean c : checkedItems){
-                                if(c){
-                                    checkedCnt++;
-                                }
-                            }
-                            ((AlertDialog)dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(checkedCnt > 0);
-                        }
-                    })
-                    .setPositiveButton(string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            List<String> emails = new ArrayList<String>();
-                            for(int i=0; i<checkedItems.length; i++){
-                                if(checkedItems[i]){
-                                    emails.add(contacts.get(i).email);
-                                }
-                            }
-                            TextView vGetGoing = (TextView) findViewById(R.id.get_going);
-                            Reservation reservation =(Reservation) vGetGoing.getTag();
-                            Intent intent = new Intent(LandingActivity.this, ValidationActivity.class);
-                            intent.putExtra("route", reservation.getRoute());
-                            intent.putExtra("reservation", reservation);
-                            intent.putExtra(ValidationActivity.EMAILS, StringUtils.join(emails, ","));
-                            startActivity(intent);
-                            collapseMap();
-                            centerMapByCurrentLocation();
-                        }
-                    })
-                    .setNegativeButton(string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            
-                        }
-                    })
-                    .create();
-                    dialog.setOnShowListener(new OnShowListener() {
-                        @Override
-                        public void onShow(DialogInterface dialog) {
-                            ((AlertDialog)dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-                        }
-                    });
-                    dialog.show();
+                d.show();
             }
         });
         
@@ -1225,16 +1141,6 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                 callback.run(result);
             }
         }
-        
-    }
-    
-    private static class Contact {
-        
-        String id;
-        
-        String name;
-        
-        String email;
         
     }
 
