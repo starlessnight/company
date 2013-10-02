@@ -88,7 +88,7 @@
             android:name=".HomeActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
             android:theme="@style/Theme.smartrek"
-            android:label="Where To"
+            android:label="Plan Trip"
             android:launchMode="singleTask" />
         <activity
             android:name=".UserRegistrationActivity"

@@ -759,10 +759,10 @@ public final class ValidationActivity extends Activity implements OnInitListener
     private static final long TEN_MINS = 10 * 60 * 1000;
     
     private void sendImComingMsg(){
-        if(emails != null && System.currentTimeMillis() - lastSendImComingMsg > TEN_MINS){
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(emails != null && System.currentTimeMillis() - lastSendImComingMsg > TEN_MINS){
                     try{
                         new AsyncTask<Void, Void, Void>(){
                             @Override
@@ -794,9 +794,9 @@ public final class ValidationActivity extends Activity implements OnInitListener
                         }.execute();
                     }catch(Throwable t){}
                 }
-            });
-            lastSendImComingMsg = System.currentTimeMillis();
-        }
+                lastSendImComingMsg = System.currentTimeMillis();
+            }
+        });
     }
     
     private void saveValidation(){
