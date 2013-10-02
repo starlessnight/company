@@ -246,7 +246,13 @@ public final class NavigationView extends LinearLayout {
             imgViewDirection.setImageResource(item.drawableId);
             imgViewDirection.setVisibility(View.VISIBLE);
         }
-        textViewDistance.setText(StringUtil.formatImperialDistance(item.distance, true));
+        String mi = "mi";
+        String distance = StringUtil.formatImperialDistance(item.distance, true);
+        SpannableString distanceSpan = SpannableString.valueOf(distance);
+        int indexOfMi = distance.indexOf(mi);
+        distanceSpan.setSpan(new AbsoluteSizeSpan(getResources().getDimensionPixelSize(R.dimen.smallest_font)), 
+            indexOfMi, indexOfMi + mi.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        textViewDistance.setText(distanceSpan);
         textViewRoad.setText((StringUtils.isBlank(item.roadName) || StringUtils.equalsIgnoreCase(item.roadName, "null"))?"":item.roadName);
         btnPrevItem.setVisibility(currentItemIdx == 0?View.INVISIBLE:View.VISIBLE);
         int itemSize = items.size();
