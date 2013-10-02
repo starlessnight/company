@@ -589,8 +589,8 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                     infoOverlay.hide();
                 }
                 mapOverlays.clear();
-                myPointOverlay.setLocation((float) myLat, (float) myLon);
-                mapOverlays.add(myPointOverlay);
+                //myPointOverlay.setLocation((float) myLat, (float) myLon);
+                //mapOverlays.add(myPointOverlay);
                 othersPointOverlay.setLocation((float) lat, (float)lon);
                 mapOverlays.add(othersPointOverlay);
                 mapView.postInvalidate();
