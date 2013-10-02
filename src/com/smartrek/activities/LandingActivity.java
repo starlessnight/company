@@ -371,7 +371,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                 CharSequence[] items = new CharSequence[len];
                 for(int i=0; i<len; i++){
                     Contact contact = contacts.get(i);
-                    items[i] = contact.name;
+                    items[i] = contact.name + "\n" + contact.email;
                 }
                 AlertDialog dialog = new AlertDialog.Builder(LandingActivity.this)
                     .setMultiChoiceItems(items, null, new OnMultiChoiceClickListener() {
