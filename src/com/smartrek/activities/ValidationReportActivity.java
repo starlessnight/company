@@ -57,6 +57,7 @@ public final class ValidationReportActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 finish();
+                MainMenu.onMenuItemSelected(ValidationReportActivity.this, 0, R.id.dashboard);
             }
         });
         
@@ -106,9 +107,7 @@ public final class ValidationReportActivity extends ActionBarActivity {
 	public void onBackPressed() {
 	    finish();
 	    
-		// TODO: Is this okay to do this?
-		Intent intent = new Intent(this, HomeActivity.class);
-		startActivity(intent);
+	    MainMenu.onMenuItemSelected(this, 0, R.id.dashboard);
 	}
 	
 }
