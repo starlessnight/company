@@ -113,7 +113,7 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
         super.onCreateOptionsMenu(menu);
 
         MenuInflater mi = getSupportMenuInflater();
-        mi.inflate(R.menu.main, menu);
+        //mi.inflate(R.menu.main, menu);
         return true;
     }
     
