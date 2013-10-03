@@ -268,7 +268,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
         });
 
 	    if(getIntent().getBooleanExtra(INIT, false)){
-	        new NotificationTask().execute(User.getCurrentUser(this));
+	        //new NotificationTask().execute(User.getCurrentUser(this));
 	        updateAllFavAddrLatLon();
 	        if(Request.NEW_API){
 	            updateDeviceId(); 
