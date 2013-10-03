@@ -37,7 +37,7 @@ public final class TripAddRequest extends AddRequest {
             params.put("name", name);
             params.put("origin_id", String.valueOf(oid));
             params.put("destination_id", String.valueOf(did));
-            params.put("arrival_time", String.format("%d:%d:00", recurringTime.getHour(), recurringTime.getMinute()));
+            params.put("arrival_time", String.format("%02d:%02d:00", recurringTime.getHour() - 1, recurringTime.getMinute()));
             params.put("datetype", String.format("%d", recurringTime.getWeekdays()));
             executeHttpRequest(Method.POST, url, params);
 	    }else{
