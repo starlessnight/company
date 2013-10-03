@@ -276,7 +276,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
                     vDirection.setImageResource(item.drawableId);
                     vDirection.setVisibility(View.VISIBLE);
                 }
-                vDistance.setText(StringUtil.formatImperialDistance(item.distance, true));
+                vDistance.setText(NavigationView.adjustDistanceFontSize(ValidationActivity.this,
+                    StringUtil.formatImperialDistance(item.distance, true)));
                 vDistance.requestLayout();
                 vRoad.setText((StringUtils.isBlank(item.roadName) 
                     || StringUtils.equalsIgnoreCase(item.roadName, "null"))

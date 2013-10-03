@@ -246,17 +246,21 @@ public final class NavigationView extends LinearLayout {
             imgViewDirection.setImageResource(item.drawableId);
             imgViewDirection.setVisibility(View.VISIBLE);
         }
-        String mi = "mi";
         String distance = StringUtil.formatImperialDistance(item.distance, true);
-        SpannableString distanceSpan = SpannableString.valueOf(distance);
-        int indexOfMi = distance.indexOf(mi);
-        distanceSpan.setSpan(new AbsoluteSizeSpan(getResources().getDimensionPixelSize(R.dimen.smallest_font)), 
-            indexOfMi, indexOfMi + mi.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        textViewDistance.setText(distanceSpan);
+        textViewDistance.setText(adjustDistanceFontSize(getContext(), distance));
         textViewRoad.setText((StringUtils.isBlank(item.roadName) || StringUtils.equalsIgnoreCase(item.roadName, "null"))?"":item.roadName);
         btnPrevItem.setVisibility(currentItemIdx == 0?View.INVISIBLE:View.VISIBLE);
         int itemSize = items.size();
         btnNextItem.setVisibility((itemSize == 1 || currentItemIdx == itemSize - 1)?View.INVISIBLE:View.VISIBLE);
+	}
+	
+	public static SpannableString adjustDistanceFontSize(Context ctx, String distance){
+	    String mi = "mi";
+        SpannableString distanceSpan = SpannableString.valueOf(distance);
+        int indexOfMi = distance.indexOf(mi);
+        distanceSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources().getDimensionPixelSize(R.dimen.smallest_font)), 
+            indexOfMi, indexOfMi + mi.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return distanceSpan; 
 	}
 	
 	public void update(final Route route, final Location location, final RouteNode node, List<DirectionItem> dirItems) {
