@@ -166,6 +166,17 @@
 		           	android:singleLine="true"
 		           	android:visibility="invisible"
 		        />
+		        <TextView
+		            android:id="@+id/no_trips"
+		            android:layout_width="wrap_content"
+		        	android:layout_height="wrap_content"
+		            android:textSize="@dimen/smaller_font"
+		           	android:textColor="@android:color/white"
+		           	android:text="No upcoming trip"
+		           	android:layout_centerInParent="true"
+		           	android:singleLine="true"
+		           	android:visibility="visible"
+		        />
 		    </RelativeLayout>
 		</LinearLayout>
 		

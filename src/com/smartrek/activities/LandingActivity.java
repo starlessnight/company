@@ -404,12 +404,14 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         
         loadProfile(MapDisplayActivity.getProfileSelection(this));
         
+        TextView vNoTrips = (TextView) findViewById(R.id.no_trips);
+        
         AssetManager assets = getAssets();
         boldFont = Font.getBold(assets);
         lightFont = Font.getLight(assets);
         
         Font.setTypeface(boldFont, vTitle, vClock, vWeather, vTrip1, 
-            vTrip2, vPlanATrip, vGoHome, vGoToWork, vOuttaHere, vExploreMap,
+            vTrip2, vNoTrips, vPlanATrip, vGoHome, vGoToWork, vOuttaHere, vExploreMap,
             vRewards, vTrekpoints, vImComing, vGetGoing, vImComingMsg);
         Font.setTypeface(lightFont, vDate, vValidatedTripsUpdateCount,
             osmCredit);
@@ -767,6 +769,9 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                             vTrip.setVisibility(View.INVISIBLE);
                         }
                     }
+                    findViewById(R.id.no_trips).setVisibility(
+                       (vTrip1.getVisibility() == View.INVISIBLE && vTrip2.getVisibility() == View.INVISIBLE)?
+                           View.VISIBLE:View.INVISIBLE);
                 }
             }
         };
