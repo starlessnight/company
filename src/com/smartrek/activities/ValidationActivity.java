@@ -167,7 +167,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
     
     private AtomicBoolean reported = new AtomicBoolean(false);
     
-    private AtomicBoolean timedOut = new AtomicBoolean(false);
+    private AtomicBoolean stopValidation = new AtomicBoolean(false);
     
     private boolean isDebugging;
     
@@ -235,7 +235,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
                     startActivity(rIntent);
                     finish();
                 }else{
-                    timedOut.set(true);
+                    stopValidation.set(true);
                     NotificationDialog dialog = new NotificationDialog(ValidationActivity.this, "Timed out!");
                     dialog.setActionListener(new NotificationDialog.ActionListener() {
                         @Override
@@ -358,6 +358,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
         
         if(!isOnRecreate){
             if (reservation.hasExpired()) {
+                stopValidation.set(true);
                 NotificationDialog dialog = new NotificationDialog(this, getResources().getString(R.string.trip_has_expired));
                 dialog.setActionListener(new NotificationDialog.ActionListener() {
                     
@@ -371,7 +372,10 @@ public final class ValidationActivity extends Activity implements OnInitListener
                 dialog.show();
             }
             else if (reservation.isTooEarlyToStart()) {
-                NotificationDialog dialog = new NotificationDialog(this, getResources().getString(R.string.trip_too_early_to_start));
+                stopValidation.set(true);
+                long minutes = (reservation.getDepartureTime() - System.currentTimeMillis()) / 60000;
+                NotificationDialog dialog = new NotificationDialog(this, getResources()
+                    .getString(R.string.trip_too_early_to_start, minutes));
                 dialog.setActionListener(new NotificationDialog.ActionListener() {
                     
                     @Override
@@ -925,7 +929,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
             boolean alreadyValidated = isTripValidated(); 
             
             double distanceToLink = nearestLink.distanceTo(lat, lng);
-            if (!timedOut.get() && distanceToLink <= params.getValidationDistanceThreshold()) {
+            if (!stopValidation.get() && distanceToLink <= params.getValidationDistanceThreshold()) {
                 Log.i("validated node", nearestLink.getStartNode().getNodeIndex() + "");
                 nearestLink.getStartNode().getMetadata().setValidated(true);
             }
