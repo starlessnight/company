@@ -47,6 +47,7 @@
 	        android:layout_marginLeft="2dp"
 	   		android:paddingLeft="18.5dp"
 	   		android:paddingRight="18.5dp"
+	   		android:textSize="28dp"
 	   		android:text="@string/placeholder"
 	        style="@style/LargeBoldText"
     	/>
