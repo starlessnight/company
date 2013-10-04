@@ -13,7 +13,6 @@ import android.R.string;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ContentProviderOperation;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.AssetManager;
@@ -30,7 +29,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.smartrek.activities.R;
 import com.smartrek.utils.ExceptionHandlingService;
@@ -79,7 +77,12 @@ public class ContactsDialog extends Dialog implements TextWatcher {
 		confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = editTextEmail.getText().toString();
+                if (listener != null) {
+                    String email = editTextEmail.getText().toString();
+                    listener.onClickPositiveButton(Collections.singletonList(email));
+                }
+                dismiss();
+                /*
                 ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
                 ops.add(ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
                         .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
@@ -104,6 +107,7 @@ public class ContactsDialog extends Dialog implements TextWatcher {
                     editTextEmail.setText("");
                 } catch (Exception e) {
                 }
+                */
             }
         });
 		
