@@ -757,7 +757,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                             String originName = res.getOriginName();
                             String destinationName = res.getDestinationName();
                             vTrip.setText((originName == null?res.getOriginAddress():originName) 
-                                + " to " + (destinationName == null?res.getOriginAddress():destinationName));
+                                + " to " + (destinationName == null?res.getDestinationAddress():destinationName));
                             vTrip.setTextSize(TypedValue.COMPLEX_UNIT_PX, 
                                 getResources().getDimension(R.dimen.smaller_font));
                             vTrip.setVisibility(View.VISIBLE);
