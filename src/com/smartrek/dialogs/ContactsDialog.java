@@ -202,6 +202,7 @@ public class ContactsDialog extends Dialog implements TextWatcher {
                             ((AlertDialog)dialog).getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
                         }
                     });
+                    dialog.getListView().setFastScrollEnabled(true);
                     dialog.show();
             }
         });
