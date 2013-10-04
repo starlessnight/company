@@ -75,10 +75,10 @@ public final class Route implements Parcelable {
             JSONObject ro = (JSONObject) rts.get(i);
             
             RouteNode node = new RouteNode(
-                ro.getDouble(newAPI?"lat":"LATITUDE"),
-                ro.getDouble(newAPI?"lon":"LONGITUDE"), 
+                ro.optDouble(newAPI?"lat":"LATITUDE"),
+                ro.optDouble(newAPI?"lon":"LONGITUDE"), 
                 0, 
-                ro.getInt(newAPI?"node":"NODEID")
+                ro.optInt(newAPI?"node":"NODEID")
             );
             
             if (ro.has("FLAG")) {
