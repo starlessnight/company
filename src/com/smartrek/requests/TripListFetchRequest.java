@@ -49,7 +49,7 @@ public final class TripListFetchRequest extends FetchRequest<List<Trip>> {
                 if (departureTime.matches("\\d{1,2}:\\d{2}:\\d{2}")) {
                     String[] cols = departureTime.split(":");
                     
-                    hour = (byte) (Integer.parseInt(cols[0]) + 1);
+                    hour = (byte) (Integer.parseInt(cols[0]));
                     minute = (byte) Integer.parseInt(cols[1]);
                     second = (byte) Integer.parseInt(cols[2]);
                 }
