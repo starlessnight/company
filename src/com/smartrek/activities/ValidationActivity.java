@@ -798,8 +798,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
                             }
                         }.execute();
                     }catch(Throwable t){}
+                    lastSendImComingMsg = System.currentTimeMillis();
                 }
-                lastSendImComingMsg = System.currentTimeMillis();
             }
         });
     }
