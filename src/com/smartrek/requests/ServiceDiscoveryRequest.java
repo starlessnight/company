@@ -10,8 +10,12 @@ import com.smartrek.requests.Request.Link;
 
 public final class ServiceDiscoveryRequest extends FetchRequest<EnumMap<Link, String>> {
     
+    public ServiceDiscoveryRequest(String url) {
+        super(url);
+    }
+    
 	public ServiceDiscoveryRequest() {
-		super(ENTRYPOINT_URL);
+		this(ENTRYPOINT_URL);
 	}
 	
 	@Override

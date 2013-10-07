@@ -1,6 +1,7 @@
 package com.smartrek.activities;
 
 import java.io.File;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -27,6 +28,7 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import com.smartrek.requests.Request.Link;
 import com.smartrek.utils.Cache;
 
 public final class DebugOptionsActivity extends Activity {
@@ -51,6 +53,8 @@ public final class DebugOptionsActivity extends Activity {
     public static final String GPS_UPDATE_INTERVAL = "GPS_UPDATE_INTERVAL";
     
     private static final String CURRENT_LOCATION = "CURRENT_LOCATION";
+    
+    private static final String ENTRYPOINT = "ENTRYPOINT";
     
     public static final String GOOGLE_GEOCODING_PATCHED = "GOOGLE_GEOCODING_PATCHED";
     
@@ -80,6 +84,8 @@ public final class DebugOptionsActivity extends Activity {
     
     private Button buttonClearCache;
     private Button buttonCrash;
+    
+    private AsyncTask<Void, Void, EnumMap<Link, String>> initApiLinksTask;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -255,6 +261,32 @@ public final class DebugOptionsActivity extends Activity {
                     .commit();
             }
         });
+        
+        EditText entrypointView = (EditText) findViewById(R.id.entry_point);
+        entrypointView.setText(String.valueOf(prefs.getString(ENTRYPOINT, "")));
+        entrypointView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+            
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count,
+                    int after) {
+            }
+            
+            @Override
+            public void afterTextChanged(Editable s) {
+                String entrypoint = s.toString();
+                prefs.edit()
+                    .putString(ENTRYPOINT, entrypoint)
+                    .commit();
+                if(initApiLinksTask != null){
+                    initApiLinksTask.cancel(true);
+                }
+                initApiLinksTask = MainActivity.initApiLinks(DebugOptionsActivity.this, entrypoint, 
+                    null, null);
+            }
+        });
     }
     
     @Override
@@ -308,6 +340,10 @@ public final class DebugOptionsActivity extends Activity {
     
     public static String getCurrentLocation(Context ctx){
         return getPrefs(ctx).getString(CURRENT_LOCATION, "");
+    }
+    
+    public static String getEntrypoint(Context ctx){
+        return getPrefs(ctx).getString(ENTRYPOINT, "");
     }
     
     public static boolean isGoogleGeocodingPatched(Context ctx){

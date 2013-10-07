@@ -1,8 +1,12 @@
 package com.smartrek.activities;
 
 import java.util.EnumMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.apache.commons.lang3.StringUtils;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -44,6 +48,8 @@ public class MainActivity extends Activity implements AnimationListener {
 	
 	private LoginTask loginTask;
 	
+	private static AtomicBoolean initApiLinksFailed = new AtomicBoolean();
+	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -70,82 +76,58 @@ public class MainActivity extends Activity implements AnimationListener {
 	        /* Check Shared memory to see if login info has already been entered on this phone */
             SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
             final String username = loginPrefs.getString(User.USERNAME, "");
-            String password = loginPrefs.getString(User.PASSWORD, "");
+            final String password = loginPrefs.getString(User.PASSWORD, "");
             if (!username.equals("") && !password.equals("")) {
-                String gcmRegistrationId = Preferences.getGlobalPreferences(this).getString("GCMRegistrationID", "");
-                
-                loginTask = new LoginTask(this, username, password, gcmRegistrationId) {
-                    @Override
-                    protected void onPostLogin(final User user) {
-                        loggedIn = user != null && user.getId() != -1;
-                        if(loggedIn){
-                            User.setCurrentUser(MainActivity.this, user);
-                            Log.d(LOG_TAG,"Successful Login");
-                            Log.d(LOG_TAG, "Saving Login Info to Shared Preferences");
-                        }
-                        loginTaskEnded = true;
-                        if(splashEnded){
-                            if(loggedIn){
-                                startLandingActivity();
-                            }else{
-                                startLoginActivity();
-                            }
-                        }
-                   }
-                }.setDialogEnabled(false);
+                loginTask = newLoginTask(username, password);
             }
 	        
 	        if(Request.NEW_API){
-	            new AsyncTask<Void, Void, EnumMap<Link, String>>() {
+	            final Runnable onSuccess = new Runnable() {
                     @Override
-                    protected EnumMap<Link, String> doInBackground(Void... params) {
-                        EnumMap<Link, String> links = null;
-                        try {
-                            ServiceDiscoveryRequest req = new ServiceDiscoveryRequest();  
-                            req.invalidateCache(MainActivity.this);
-                            links = req.execute(MainActivity.this);
+                    public void run() {
+                        if(loginTask != null){
+                            loginTask.showDialog();
+                            loginTask.setDialogEnabled(true);
+                            new AsyncTask<Void, Void, Integer>() {
+                                @Override
+                                protected Integer doInBackground(Void... params) {
+                                    Integer id = null;
+                                    try {
+                                        UserIdRequest req = new UserIdRequest(username); 
+                                        req.invalidateCache(MainActivity.this);
+                                        id = req.execute(MainActivity.this);
+                                    }
+                                    catch(Exception e) {
+                                        ehs.registerException(e);
+                                    }
+                                    return id;
+                                }
+                                protected void onPostExecute(Integer userId) {
+                                    loginTask.setUserId(userId)
+                                        .execute();
+                                }
+                            }.execute();
                         }
-                        catch(Exception e) {
-                            ehs.registerException(e);
-                        }
-                        return links;
                     }
+                };
+	            String url = DebugOptionsActivity.getEntrypoint(MainActivity.this);
+                if(StringUtils.isBlank(url)){
+                    url = Request.ENTRYPOINT_URL;
+                }
+	            initApiLinks(this, url, onSuccess, new Runnable() {
                     @Override
-                    protected void onPostExecute(EnumMap<Link, String> result) {
-                        if (ehs.hasExceptions()) {
-                            ehs.reportExceptions(new Runnable() {
+                    public void run() {
+                        initApiLinks(MainActivity.this, Request.ENTRYPOINT_URL,
+                            onSuccess, 
+                            new Runnable() {
                                 @Override
                                 public void run() {
                                     finish();
                                 }
-                            });
-                        }
-                        else {
-                            Request.setLinkUrls(result);
-                            if(loginTask != null){
-                                new AsyncTask<Void, Void, Integer>() {
-                                    @Override
-                                    protected Integer doInBackground(Void... params) {
-                                        Integer id = null;
-                                        try {
-                                            UserIdRequest req = new UserIdRequest(username); 
-                                            req.invalidateCache(MainActivity.this);
-                                            id = req.execute(MainActivity.this);
-                                        }
-                                        catch(Exception e) {
-                                            ehs.registerException(e);
-                                        }
-                                        return id;
-                                    }
-                                    protected void onPostExecute(Integer userId) {
-                                        loginTask.setUserId(userId)
-                                            .execute();
-                                    }
-                                }.execute();
                             }
-                        }
+                        );
                     }
-                }.execute();
+                });
 	        }else if(loginTask != null){
 	            loginTask.execute();
 	        }
@@ -154,6 +136,67 @@ public class MainActivity extends Activity implements AnimationListener {
 	        UserLocationService.schedule(this);
 	        ValidationService.schedule(this);
 		}
+	}
+	
+	public static AsyncTask<Void, Void, EnumMap<Link, String>> initApiLinks(final Context ctx, final String entrypoint, 
+	        final Runnable onSuccess, final Runnable onError){
+	    final ExceptionHandlingService eh = new ExceptionHandlingService(ctx);
+	    AsyncTask<Void, Void, EnumMap<Link, String>> task = new AsyncTask<Void, Void, EnumMap<Link, String>>() {
+            @Override
+            protected EnumMap<Link, String> doInBackground(Void... params) {
+                EnumMap<Link, String> links = null;
+                try {
+                    ServiceDiscoveryRequest req = new ServiceDiscoveryRequest(entrypoint);  
+                    req.invalidateCache(ctx);
+                    links = req.execute(ctx);
+                }
+                catch(Exception e) {
+                    eh.registerException(e);
+                }
+                return links;
+            }
+            @Override
+            protected void onPostExecute(EnumMap<Link, String> result) {
+                if (eh.hasExceptions()) {
+                    initApiLinksFailed.set(true);
+                    if(onError != null){
+                        eh.reportExceptions(onError);
+                    }
+                }
+                else {
+                    initApiLinksFailed.set(false);
+                    Request.setLinkUrls(result);
+                    if(onSuccess != null){
+                        onSuccess.run();
+                    }
+                }
+            }
+        }.execute();
+        return task;
+	}
+	
+	private LoginTask newLoginTask(String username, String password){
+	    final String gcmRegistrationId = Preferences.getGlobalPreferences(this)
+            .getString("GCMRegistrationID", "");
+	    return new LoginTask(this, username, password, gcmRegistrationId) {
+            @Override
+            protected void onPostLogin(final User user) {
+                loggedIn = user != null && user.getId() != -1;
+                if(loggedIn){
+                    User.setCurrentUser(MainActivity.this, user);
+                    Log.d(LOG_TAG,"Successful Login");
+                    Log.d(LOG_TAG, "Saving Login Info to Shared Preferences");
+                }
+                loginTaskEnded = true;
+                if(splashEnded){
+                    if(loggedIn){
+                        startLandingActivity();
+                    }else{
+                        startLoginActivity();
+                    }
+                }
+           }
+        }.setDialogEnabled(false);
 	}
 	
 	private void startLandingActivity(){
@@ -200,9 +243,9 @@ public class MainActivity extends Activity implements AnimationListener {
 	            }else{
 	                startLoginActivity();
 	            }
-		    }else{
+		    }else if(!initApiLinksFailed.get()){
 		        loginTask.showDialog();
-		        loginTask.setDialogEnabled(true);
+	            loginTask.setDialogEnabled(true);
 		    }
         }
 	}
