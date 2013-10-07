@@ -352,12 +352,13 @@
 				            android:id="@+id/rewards"
 				            android:layout_width="wrap_content"
 				        	android:layout_height="wrap_content"
-				            android:textSize="70dp"
-				           	android:textColor="#33ffffff"
+				            android:textSize="100dp"
+				           	android:textColor="@color/transparent_white"
 				           	android:text="rewards"
 				           	android:layout_alignParentTop="true"
 				           	android:layout_centerHorizontal="true"
 				           	android:includeFontPadding="false"
+				           	android:visibility="gone"
 				        />
 			            
 			            <TextView
@@ -383,7 +384,6 @@
 									android:layout_height="wrap_content"
 						            android:layout_weight="1">
 				                <ImageView
-								    android:id="@+id/rewards"
 									android:layout_width="wrap_content"
 									android:layout_height="wrap_content"
 									android:src="@drawable/rewards_icon"

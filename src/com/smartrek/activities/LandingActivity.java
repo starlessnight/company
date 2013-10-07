@@ -282,6 +282,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             public void run() {
                 int width = getWindowManager().getDefaultDisplay().getWidth();
                 Font.autoScaleTextSize(vRewards, width/2);
+                vRewards.setVisibility(View.VISIBLE);
             }
         });
         
@@ -546,7 +547,9 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             public void onProviderDisabled(String provider) {}
         };
         networkLocListeners.add(networkLocListener);
-        networkLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocListener);
+        try{
+            networkLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocListener);
+        }catch(Throwable t){}
     }
     
     private void centerMapByCurrentLocation(){
