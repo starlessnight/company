@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.osmdroid.DefaultResourceProxyImpl;
-import com.smartrek.utils.GeoPoint;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
@@ -35,6 +34,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 
 import com.smartrek.activities.R;
+import com.smartrek.utils.GeoPoint;
 
 /**
  * An abstract extension of ItemizedOverlay for displaying an information balloon

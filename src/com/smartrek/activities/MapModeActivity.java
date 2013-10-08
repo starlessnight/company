@@ -1,7 +1,5 @@
 package com.smartrek.activities;
 
-import com.google.analytics.tracking.android.EasyTracker;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +7,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.RadioButton;
+
+import com.google.analytics.tracking.android.EasyTracker;
 
 /****************************************************************************************************************
  * ************************************** Map_Mode_Activity *****************************************************

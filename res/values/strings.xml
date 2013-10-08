@@ -7,6 +7,7 @@
     <string name="fb_app_id">202039786615562</string>
     <string name="twitter_key">iknmAGcTnig41yV7fEusnw</string>
     <string name="twitter_secret">SnDVqMWPaRjL1KjXUkD6iknj1zvQvxj0910xwxSQE3s</string>
+    <string name="ad_unit_id">ca-app-pub-8595980654717941/9900089113</string>
 
     <!-- General terms -->
     <string name="placeholder">(placeholder)</string>

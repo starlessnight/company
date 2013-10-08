@@ -7,9 +7,9 @@ import java.util.Vector;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import com.smartrek.utils.RouteNode;
-
 import android.location.Location;
+
+import com.smartrek.utils.RouteNode;
 
 public class Trajectory {
 	

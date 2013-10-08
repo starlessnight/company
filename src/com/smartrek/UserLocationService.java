@@ -13,7 +13,6 @@ import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.SendTrajectoryRequest;
-import com.smartrek.requests.TripLinkRequest;
 
 public class UserLocationService extends IntentService {
 
