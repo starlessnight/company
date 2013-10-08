@@ -146,6 +146,7 @@
 	      		android:layout_marginTop="15dp"
 	           	android:layout_marginBottom="15dp"
 	            android:text="Search"
+	            android:enabled="false"
 	            style="@style/NextActionButton"
 	        />
 	

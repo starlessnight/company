@@ -771,6 +771,11 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
+        if(buttonDone != null && editAddressOrigin != null 
+                && editAddressDest != null){
+            buttonDone.setEnabled(StringUtils.isNotBlank(editAddressOrigin.getText()) 
+                && StringUtils.isNotBlank(editAddressDest.getText()));
+        }
     }
 
     @Override
