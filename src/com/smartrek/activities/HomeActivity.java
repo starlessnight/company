@@ -631,9 +631,9 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	}
 	
 	private void updateSaveTripButtonState() {
-		boolean isReadyToSave = editAddressOrigin.hasAddress() && editAddressDest.hasAddress();
+		//boolean isReadyToSave = editAddressOrigin.hasAddress() && editAddressDest.hasAddress();
 		
-		buttonSaveTrip.setEnabled(isReadyToSave);
+		//buttonSaveTrip.setEnabled(isReadyToSave);
 	}
 	
 	/**
@@ -771,10 +771,12 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        if(buttonDone != null && editAddressOrigin != null 
+        if(buttonDone != null && buttonSaveTrip!= null && editAddressOrigin != null 
                 && editAddressDest != null){
-            buttonDone.setEnabled(StringUtils.isNotBlank(editAddressOrigin.getText()) 
-                && StringUtils.isNotBlank(editAddressDest.getText()));
+            boolean enabled = StringUtils.isNotBlank(editAddressOrigin.getText()) 
+                        && StringUtils.isNotBlank(editAddressDest.getText());
+            buttonDone.setEnabled(enabled);
+            buttonSaveTrip.setEnabled(enabled);
         }
     }
 

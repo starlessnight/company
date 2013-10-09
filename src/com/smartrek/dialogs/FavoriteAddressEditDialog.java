@@ -1,6 +1,5 @@
 package com.smartrek.dialogs;
 
-import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -209,7 +208,7 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 				// clear cache
 				new FavoriteAddressFetchRequest(user).invalidateCache(getContext());
 			}
-			catch (IOException e) {
+			catch (Exception e) {
 				ehs.registerException(e);
 			}
 			

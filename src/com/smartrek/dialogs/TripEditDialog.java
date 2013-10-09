@@ -1,5 +1,7 @@
 package com.smartrek.dialogs;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
 import android.app.Dialog;
@@ -22,6 +24,8 @@ import com.smartrek.activities.R;
 import com.smartrek.models.Address;
 import com.smartrek.models.Trip;
 import com.smartrek.models.User;
+import com.smartrek.requests.FavoriteAddressAddRequest;
+import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.requests.TripAddRequest;
 import com.smartrek.requests.TripLinkRequest;
 import com.smartrek.requests.TripListFetchRequest;
@@ -128,6 +132,7 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 		editTextName.addTextChangedListener(this);
 		editTextOrigin = (EditText) dialogView.findViewById(R.id.edit_text_origin);
 		editTextDestination = (EditText) dialogView.findViewById(R.id.edit_text_destination);
+		Button saveButton = (Button) dialogView.findViewById(R.id.save_button);
 		
 		if (origin != null) {
 			editTextOrigin.setText(origin.getAddress());
@@ -140,8 +145,11 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 			editTextName.setText(trip.getName());
 			editTextOrigin.setText(trip.getOrigin());
 			editTextDestination.setText(trip.getDestination());
-		}else{
+		}else if (origin != null && origin.getId() > 0 
+		        && destination != null && destination.getId() > 0){
 		    editTextName.setText(origin.getName() + " to " + destination.getName());
+		}else{
+		    saveButton.setEnabled(false);
 		}
 		
 		Button layoutSetReminder = (Button) dialogView.findViewById(R.id.layout_set_reminder);
@@ -154,7 +162,6 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 			
 		});
 		
-		Button saveButton = (Button) dialogView.findViewById(R.id.save_button);
 		saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -268,7 +275,7 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
         }
     }
 	
-	private class TripSaveTask extends AsyncTask<Object, Object, Object> {
+	private class TripSaveTask extends AsyncTask<Object, Object, String> {
 
 		private ProgressDialog progressDialog;
 		
@@ -310,11 +317,40 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 		}
 		
 		@Override
-		protected Object doInBackground(Object... params) {
+		protected String doInBackground(Object... params) {
 			try {
 				if (tid == 0) {
-					TripAddRequest request = new TripAddRequest(user, name, origin.getId(), destination.getId(), recurringTime);
-					request.execute();
+				    FavoriteAddressFetchRequest listReq = new FavoriteAddressFetchRequest(user);
+				    listReq.invalidateCache(getContext());
+				    List<Address> addrList = listReq.execute(getContext());
+				    int originId = 0;
+				    int destId = 0;
+				    for(Address addr : addrList){
+				        int id = addr.getId();
+				        String addrStr = addr.getAddress().trim();
+				        if(addrStr.equals(origin.getAddress().trim())){
+				            originId = id;
+				        }
+				        if(addrStr.equals(destination.getAddress().trim())){
+				            destId = id;
+                        }
+				    }
+				    if(originId > 0 && destId > 0){
+				        return "Trip already in list";
+				    }
+				    
+				    if(originId == 0){
+				        String addr = origin.getAddress();
+				        originId = new FavoriteAddressAddRequest(user, addr, addr, 0, 0).execute();
+				    }
+				    
+				    if(destId == 0){
+				        String addr = destination.getAddress();
+				        destId = new FavoriteAddressAddRequest(user, addr, addr, 0, 0).execute();
+				    }
+				    
+			        TripAddRequest request = new TripAddRequest(user, name, originId, destId, recurringTime);
+                    request.execute();
 				}
 				else {
 					TripUpdateRequest request = new TripUpdateRequest(
@@ -333,17 +369,24 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 		}
 		
 		@Override
-		protected void onPostExecute(Object result) {
+		protected void onPostExecute(String result) {
 			progressDialog.cancel();
+			
+			String message = null;
 			
 		    if (ehs.hasExceptions()) {
 		        ehs.reportExceptions();
 		    }
-		    else {
-		    	String message = (name != null && !name.equals("")) ?
+		    else if (result != null){
+		        message = result;
+		    }else {
+		    	message = (name != null && !name.equals("")) ?
 		    			String.format("Trip '%s' has been saved.", name) : "Trip has been saved.";
-		    	Toast toast = Toast.makeText(getContext(), message, Toast.LENGTH_SHORT);
-		    	toast.show();
+		    }
+		    
+		    if(message != null){
+		        Toast toast = Toast.makeText(getContext(), message, Toast.LENGTH_SHORT);
+                toast.show();
 		    }
 		    
 		    dismiss();
