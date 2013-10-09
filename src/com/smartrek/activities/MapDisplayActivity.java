@@ -15,6 +15,7 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.dialogs.FeedbackDialog;
 import com.smartrek.dialogs.FloatingMenuDialog;
 import com.smartrek.dialogs.ProfileSelectionDialog;
 import com.smartrek.utils.Font;
@@ -152,10 +153,20 @@ public final class MapDisplayActivity extends ActionBarActivity {
             }
         });
         
+        TextView feedback = (TextView) findViewById(R.id.feedback);
+        feedback.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FeedbackDialog d = new FeedbackDialog(MapDisplayActivity.this);
+                d.show();
+            }
+        });
+        
         Font.setTypeface(boldFont, (TextView)findViewById(R.id.time_heading),
             (TextView)findViewById(R.id.calendar_integration_heading),
             (TextView)findViewById(R.id.navigation_tts_heading),
-            (TextView)findViewById(R.id.distribution_heading));
+            (TextView)findViewById(R.id.distribution_heading),
+            feedback);
         Font.setTypeface(lightFont, displayTravel, displayArrival,
             (TextView)findViewById(R.id.calendar_integration_text),
             (TextView)findViewById(R.id.navigation_tts_text),

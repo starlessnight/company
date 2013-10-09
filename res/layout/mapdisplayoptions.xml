@@ -207,6 +207,19 @@
 		        style="@style/MediumText"
 			/>
 		    
+		    <Button
+	            android:id="@+id/feedback"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	      		android:layout_marginLeft="30dp"
+	      		android:layout_marginRight="30dp"
+	      		android:layout_marginTop="15dp"
+	           	android:layout_marginBottom="15dp"
+	           	android:layout_below="@id/distribution_date"
+	            android:text="Give Feedback"
+	            style="@style/NextActionButton"
+	        />
+		    
 		    <TextView
 		        android:id="@+id/adjust_time_heading"
 		        android:layout_width="match_parent"

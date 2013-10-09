@@ -128,6 +128,9 @@
 	<style name="YesButton" parent="LargeTextButton">
 		<item name="android:background">@drawable/yes_button</item>
 	</style>
+	<style name="CancelButton" parent="LargeTextButton">
+		<item name="android:background">@drawable/cancel_button</item>
+	</style>
 	<style name="PrevActionButton" parent="LargeTextButton">
 		<item name="android:background">@drawable/prev_action_button</item>
 	</style>
