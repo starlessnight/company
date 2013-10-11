@@ -12,6 +12,8 @@ import android.widget.TextView;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.google.ads.AdRequest;
+import com.google.ads.AdView;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.models.Route;
 import com.smartrek.ui.menu.MainMenu;
@@ -72,6 +74,19 @@ public final class ValidationReportActivity extends ActionBarActivity {
         }catch (Throwable t) {
         }
         validationMusicPlayer.start();
+        
+        AdView ad = (AdView) findViewById(R.id.adView);
+        autoRefresh(ad);
+	}
+	
+	private void autoRefresh(final AdView ad){
+	    ad.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ad.loadAd(new AdRequest());
+                autoRefresh(ad);
+            }
+        }, 10000);
 	}
 	
 	@Override
