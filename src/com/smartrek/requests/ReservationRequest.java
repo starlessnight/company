@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.json.JSONArray;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 import com.smartrek.activities.DebugOptionsActivity.NavigationLink;
@@ -31,6 +31,7 @@ public class ReservationRequest extends Request {
     private String routeBuf;
     private String version;
     private String navUrl;
+    private String routeJSON;
     
 	public ReservationRequest(User user, Route route, String version) {
 		super();
@@ -65,6 +66,7 @@ public class ReservationRequest extends Request {
         
         if(NEW_API){
             url = getLinkUrl(Link.reservation);
+            this.routeJSON = route.getRawJSON();
         }else{
             url = String.format("%s/V0.2/addreservations/?rid=%d&credits=%d&uid=%d&start_datetime=%s&estimatedTT=%d&origin_address=%s&destination_address=%s&route=%s&version=%s",
     				HOST,
@@ -83,19 +85,13 @@ public class ReservationRequest extends Request {
 	    if(NEW_API){
 	        this.username = user.getUsername();
 	        this.password = user.getPassword();
-	        JSONObject params = new JSONObject();
-	        SimpleDateFormat dateFmt = new SimpleDateFormat("yyyyMMddHHmm");
-	        dateFmt.setTimeZone(TimeZone.getTimeZone(TIME_ZONE));
-            params.put("id", dateFmt.format(now));
-            params.put("start_datetime", dateFormat.format(now));
-            params.put("estimated_travel_time", duration);
+	        JSONObject params = new JSONObject(routeJSON);
+	        String idStr = params.getString("id");
+            String separator = "_";
+	        params.put("id", StringUtils.contains(idStr, separator)?
+                StringUtils.substringAfter(idStr, separator):id);
             params.put("origin", origin);
             params.put("destination", destination);
-            params.put("route", new JSONArray(routeBuf));
-            params.put("credit", credits);
-            params.put("validated", 0);
-            params.put("app_version", version);
-            params.put("navigation_url", navUrl);
             String res = null;
             try {
                 res = executeHttpRequest(Method.POST, url, params);

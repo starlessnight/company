@@ -41,6 +41,7 @@ public final class Route implements Parcelable {
 	private int seq;
 	private Double length;
 	private NavigationLink link;
+	private String rawJSON;
 	
 	
 	public static final Parcelable.Creator<Route> CREATOR = new Parcelable.Creator<Route>() {
@@ -205,6 +206,7 @@ public final class Route implements Parcelable {
 		    l.url = lUrl;
 		    link = l;
 		}
+		rawJSON = in.readString();
 		
 		buildRouteNodeReferenceChain(routeNodes);
 	}
@@ -225,6 +227,7 @@ public final class Route implements Parcelable {
 		this.rid = bundle.getInt("rid");
 		this.validated = bundle.getInt("validated");
 		this.departureTime = bundle.getLong("departureTime");
+		this.rawJSON = bundle.getString("rawJSON");
 	}
 	
 	public void setAddresses(String origin, String destination) {
@@ -487,6 +490,8 @@ public final class Route implements Parcelable {
 //		bundle.putInt("valid_month", valid_date.getMonth());
 //		bundle.putInt("valid_year", valid_date.getYear());
 		
+		bundle.putString("rawJSON", rawJSON);
+		
 		putRouteNodeListOnToBundle(bundle);
 		
 	}
@@ -576,6 +581,7 @@ public final class Route implements Parcelable {
 		dest.writeInt(seq);
 		dest.writeLong(link == null?0:link.id);
 		dest.writeString(link == null?null:link.url);
+		dest.writeString(rawJSON);
 	}
 
 //	/**
@@ -653,5 +659,13 @@ public final class Route implements Parcelable {
 
     public void setLink(NavigationLink link) {
         this.link = link;
+    }
+
+    public String getRawJSON() {
+        return rawJSON;
+    }
+
+    public void setRawJSON(String rawJSON) {
+        this.rawJSON = rawJSON;
     }
 }

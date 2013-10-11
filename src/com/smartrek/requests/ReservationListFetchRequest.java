@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -39,7 +40,10 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
             for(int i = 0; i < array.length(); i++) {
                 JSONObject object = (JSONObject) array.get(i);
                 Reservation r = new Reservation();
-                r.setRid(object.getLong("id"));
+                String id = object.getString("id");
+                String separator = "_";
+                r.setRid(Long.parseLong(StringUtils.contains(id, separator)?
+                    StringUtils.substringAfter(id, separator):id));
                 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 dateFormat.setTimeZone(TimeZone.getTimeZone(Request.TIME_ZONE));

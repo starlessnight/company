@@ -125,7 +125,9 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 		    Object obj = array.get(i);
             Route route;
             if(obj instanceof JSONObject){
-                route = Route.parse((JSONObject) obj, departureTime);
+                JSONObject jsonObj = (JSONObject) obj;
+                route = Route.parse(jsonObj, departureTime);
+                route.setRawJSON(jsonObj.toString());
             }else{
                 route = Route.parse((JSONArray) obj, departureTime, duration);
             }
