@@ -341,12 +341,12 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 				    
 				    if(originId == 0){
 				        String addr = origin.getAddress();
-				        originId = new FavoriteAddressAddRequest(user, addr, addr, 0, 0).execute();
+				        originId = new FavoriteAddressAddRequest(user, truncateName(addr), addr, 0, 0).execute();
 				    }
 				    
 				    if(destId == 0){
 				        String addr = destination.getAddress();
-				        destId = new FavoriteAddressAddRequest(user, addr, addr, 0, 0).execute();
+				        destId = new FavoriteAddressAddRequest(user, truncateName(addr), addr, 0, 0).execute();
 				    }
 				    
 			        TripAddRequest request = new TripAddRequest(user, name, originId, destId, recurringTime);
@@ -394,6 +394,10 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 		    if (actionListener != null) {
                 actionListener.onClickPositiveButton(name, getOrigin(), getDestination());
             }
+		}
+		
+		private String truncateName(String addr){
+		    return StringUtils.abbreviate(addr, 30);
 		}
 	}
 }
