@@ -761,13 +761,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                             String destinationName = res.getDestinationName();
                             vTrip.setText((originName == null?res.getOriginAddress():originName) 
                                 + " to " + (destinationName == null?res.getDestinationAddress():destinationName));
-                            vTrip.setTextSize(TypedValue.COMPLEX_UNIT_PX, 
-                                getResources().getDimension(R.dimen.smaller_font));
                             vTrip.setVisibility(View.VISIBLE);
-                            int width = getWindowManager().getDefaultDisplay().getWidth();
-                            float offset = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 
-                                tripIconWidth, getResources().getDisplayMetrics());
-                            Font.autoScaleTextSize(vTrip, width/2 - offset);
                         }else{
                             vTrip.setVisibility(View.INVISIBLE);
                         }
