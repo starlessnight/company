@@ -1301,7 +1301,13 @@ public final class ValidationActivity extends Activity implements OnInitListener
     }
     
     private void showValidationFailedDialog(){
-        NotificationDialog dialog = new NotificationDialog(ValidationActivity.this, "Sorry you didn't qualify for the Trekpoints, please try harder next time.");
+        /*String url = ""; 
+        CharSequence msg = Html.fromHtml("Sorry " + User.getCurrentUser(this).getFirstname() 
+            + " that this trip did not earn you any point. Please try again soon.");
+            /*+ " For more information about how your trip may not be validated please refer to"
+            + "<a href=\"" + url + "\">" + url + "</a>");*/
+        CharSequence msg = "Unsuccessful Trip Validation Your trip did not successfully validate. Please reserve your next trip and try Smartrek again.";
+        NotificationDialog dialog = new NotificationDialog(ValidationActivity.this, msg);
         dialog.setActionListener(new NotificationDialog.ActionListener() {
             @Override
             public void onClickDismiss() {
