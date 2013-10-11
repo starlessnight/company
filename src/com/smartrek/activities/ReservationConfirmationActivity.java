@@ -202,7 +202,8 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
                     
                     @Override
                     public void onClickDismiss() {
-                        Intent intent = new Intent(ReservationConfirmationActivity.this, ReservationListActivity.class);
+                        Intent intent = new Intent(ReservationConfirmationActivity.this, LandingActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(intent);
                         
                         setResult(RouteActivity.RESERVATION_CONFIRM_ENDED);
