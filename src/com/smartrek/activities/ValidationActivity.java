@@ -48,6 +48,7 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
+import android.text.Html;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -1301,12 +1302,11 @@ public final class ValidationActivity extends Activity implements OnInitListener
     }
     
     private void showValidationFailedDialog(){
-        /*String url = ""; 
+        //String url = ""; 
         CharSequence msg = Html.fromHtml("Sorry " + User.getCurrentUser(this).getFirstname() 
             + " that this trip did not earn you any point. Please try again soon.");
             /*+ " For more information about how your trip may not be validated please refer to"
             + "<a href=\"" + url + "\">" + url + "</a>");*/
-        CharSequence msg = "Unsuccessful Trip Validation Your trip did not successfully validate. Please reserve your next trip and try Smartrek again.";
         NotificationDialog dialog = new NotificationDialog(ValidationActivity.this, msg);
         dialog.setActionListener(new NotificationDialog.ActionListener() {
             @Override
