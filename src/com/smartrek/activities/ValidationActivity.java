@@ -996,9 +996,9 @@ public final class ValidationActivity extends Activity implements OnInitListener
         reportValidation();
         if(mTts == null){
             if(isTripValidated()){
-                finish();
+                //finish();
             }else{
-                showValidationFailedDialog();
+               //showValidationFailedDialog();
             }
         }else{
             final int oldCnt = utteredCnt.get();
@@ -1008,9 +1008,9 @@ public final class ValidationActivity extends Activity implements OnInitListener
                     int newCnt = utteredCnt.get();
                     if(newCnt == oldCnt && newCnt == utteringCnt.get()){
                         if(isTripValidated()){
-                            finish();
+                            //finish();
                         }else{
-                            showValidationFailedDialog();
+                            //showValidationFailedDialog();
                         }
                     }
                 }
