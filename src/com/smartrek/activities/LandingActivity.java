@@ -900,7 +900,8 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                         }
                     });
                 }else if(routes != null && routes.size() > 0) {
-                    Route route = routes.get(0); 
+                    Route route = routes.get(0);
+                    route.setCredits(reservation.getCredits());
                     route.preprocessNodes();
                     MapView mapView = (MapView) findViewById(R.id.mapview);
                     drawRoute(mapView, route, 0);
