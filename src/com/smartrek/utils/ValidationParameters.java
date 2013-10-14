@@ -100,7 +100,7 @@ public class ValidationParameters {
 	}
 	
 	public float getScoreThreshold() {
-		return .075f;
+		return .75f;
 	}
 
 	public float getOutOfRouteTimeout() {
