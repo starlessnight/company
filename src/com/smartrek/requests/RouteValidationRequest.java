@@ -32,7 +32,7 @@ public class RouteValidationRequest extends Request {
 	public void execute() throws Exception {
 	    if(NEW_API){
 	        Map<String, String> params = new HashMap<String, String>();
-	        params.put("reservation_id", "reservation_" + String.valueOf(rid));
+	        params.put("reservation_id", String.valueOf(rid));
 	        executeHttpRequest(Method.POST, url, params);
 	    }else{
 	        String res = executeHttpGetRequest(url);
