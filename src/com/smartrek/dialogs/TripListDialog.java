@@ -222,6 +222,7 @@ public class TripListDialog extends GenericListDialog<Trip> {
                         protected List<Address> doInBackground(Void... params) {
                             User currentUser = User.getCurrentUser(getContext());
                             FavoriteAddressFetchRequest req = new FavoriteAddressFetchRequest(currentUser);
+                            req.invalidateCache(getContext());
                             List<Address> addresses;
                             try {
                                 addresses = req.execute(getContext());
