@@ -32,8 +32,12 @@ import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -663,11 +667,15 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         Misc.parallelExecute(task);
     }
     
+    private static int mapAnimDuration = 300;
+    
     private void expandMap(boolean showMapButton){
         View bottomLeftPanel = findViewById(R.id.bottom_left_panel);
         View bottomRightPanel = findViewById(R.id.bottom_right_panel);
         View rewardsPanel = findViewById(R.id.rewards_panel);
-        View collapseBtn= findViewById(R.id.collapse_btn);
+        final View collapseBtn= findViewById(R.id.collapse_btn);
+        int width = bottomRightPanel.getWidth();
+        int height = bottomRightPanel.getHeight();
         bottomLeftPanel.setVisibility(View.GONE);
         bottomRightPanel.setVisibility(View.GONE);
         rewardsPanel.setVisibility(View.GONE);
@@ -675,9 +683,27 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             View mapButtonPanel = findViewById(R.id.map_button_panel);
             mapButtonPanel.setVisibility(View.VISIBLE);
         }
-        collapseBtn.setVisibility(View.VISIBLE);
         bottomRightPanel.setVisibility(View.VISIBLE);
-        Misc.fadeIn(LandingActivity.this, bottomRightPanel);
+        View upperPanel = findViewById(R.id.upper_panel);
+        Display display = getWindowManager().getDefaultDisplay();
+        float newWidth = display.getWidth();
+        float newHeight = display.getHeight() - upperPanel.getHeight();
+        ScaleAnimation anim = new ScaleAnimation(width/newWidth, 1, 
+            height / newHeight, 1, newWidth, 0);
+        anim.setDuration(mapAnimDuration);
+        anim.setAnimationListener(new AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                collapseBtn.setVisibility(View.VISIBLE);
+            }
+        });
+        bottomRightPanel.startAnimation(anim);
     }
     
     private void collapseMap(){
@@ -687,21 +713,39 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         }
         mapView.getOverlays().clear();
         mapView.postInvalidate();
-        View bottomLeftPanel = findViewById(R.id.bottom_left_panel);
-        View bottomRightPanel = findViewById(R.id.bottom_right_panel);
+        final View bottomLeftPanel = findViewById(R.id.bottom_left_panel);
+        final View bottomRightPanel = findViewById(R.id.bottom_right_panel);
+        int height = bottomRightPanel.getHeight();
         View mapButtonPanel = findViewById(R.id.map_button_panel);
-        View rewardsPanel = findViewById(R.id.rewards_panel);
+        final View rewardsPanel = findViewById(R.id.rewards_panel);
         View collapseBtn= findViewById(R.id.collapse_btn);
         TextView vImComingMsg = (TextView) findViewById(R.id.im_coming_msg);
-        bottomRightPanel.setVisibility(View.GONE);
         collapseBtn.setVisibility(View.GONE);
         mapButtonPanel.setVisibility(View.GONE);
         vImComingMsg.setVisibility(View.GONE);
         rewardsPanel.setVisibility(View.VISIBLE);
         bottomLeftPanel.setVisibility(View.VISIBLE);
-        bottomRightPanel.setVisibility(View.VISIBLE);
-        Misc.fadeIn(LandingActivity.this, bottomLeftPanel);
-        Misc.fadeIn(LandingActivity.this, bottomRightPanel);
+        Display display = getWindowManager().getDefaultDisplay();
+        float newHeight = height - rewardsPanel.getHeight();
+        ScaleAnimation anim = new ScaleAnimation(1, 0.5f, 1, 
+            newHeight / height, display.getWidth(), 0);
+        anim.setDuration(mapAnimDuration);
+        anim.setAnimationListener(new AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                rewardsPanel.setVisibility(View.VISIBLE);
+                bottomLeftPanel.setVisibility(View.VISIBLE);
+            }
+        });
+        rewardsPanel.setVisibility(View.GONE);
+        bottomLeftPanel.setVisibility(View.GONE);
+        bottomRightPanel.startAnimation(anim);
     }
     
     private void refreshTripsInfo(){
