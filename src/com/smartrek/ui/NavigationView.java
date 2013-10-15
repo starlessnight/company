@@ -361,7 +361,16 @@ public final class NavigationView extends LinearLayout {
         }
         else {
             String outOfRouteMsg = "Out of route. Please go back to route.";
-            String startFromRouteMsg = "Please start from the highlighted route.";
+            String startFromRouteMsg = "Proceed to";
+            RouteNode roaddNode = route.getFirstNode();
+            while(roaddNode != null){
+                String roadName = roaddNode.getRoadName();
+                if(StringUtils.isNotBlank(roadName)){
+                    startFromRouteMsg += " " + roadName;
+                    break;
+                }
+                roaddNode = roaddNode.getNextNode();
+            }
             if(everInRoute && status != Status.OutOfRoute && listener != null){
                 listener.onCheckPoint(outOfRouteMsg);
             }else if(!everInRoute && (status == null || status == Status.WaitingForGPS) 
