@@ -89,7 +89,7 @@ public class ReservationRequest extends Request {
 	        String idStr = params.getString("id");
             String separator = "_";
 	        params.put("id", StringUtils.contains(idStr, separator)?
-                StringUtils.substringAfter(idStr, separator):id);
+                StringUtils.substringAfter(idStr, separator):idStr);
             params.put("origin", origin);
             params.put("destination", destination);
             String res = null;
