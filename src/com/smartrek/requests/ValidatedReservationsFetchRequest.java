@@ -46,7 +46,7 @@ public class ValidatedReservationsFetchRequest extends FetchRequest<List<Reserva
                 r.setDestinationName(object.getString("destination"));
                 r.setCredits(object.optInt("credit"));
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                dateFormat.setTimeZone(TimeZone.getTimeZone(Request.TIME_ZONE));
+                dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone()));
                 long departureTime = dateFormat.parse(object.getString("start_datetime")).getTime();
                 r.setDepartureTime(departureTime);
             }else{

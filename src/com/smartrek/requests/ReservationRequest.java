@@ -51,7 +51,7 @@ public class ReservationRequest extends Request {
 		this.user = user;
         now = new Date(route.getDepartureTime());
         dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        dateFormat.setTimeZone(TimeZone.getTimeZone(TIME_ZONE));
+        dateFormat.setTimeZone(TimeZone.getTimeZone(getTimeZone()));
         
         rid = route.getId();
         credits = route.getCredits();

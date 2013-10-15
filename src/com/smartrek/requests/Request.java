@@ -3,6 +3,7 @@ package com.smartrek.requests;
 import java.io.IOException;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 import org.apache.http.client.HttpResponseException;
 import org.json.JSONObject;
@@ -35,8 +36,10 @@ public abstract class Request {
 	public static final String REDEEM_URL = "http://www.smartrekmobile.com/dashboard/rewards";
 	
 	public static final String ENTRYPOINT_URL = "https://api.smartrekmobile.com";
-
-	public static final String TIME_ZONE = "PST8PDT";
+	
+	public static String getTimeZone(){
+	    return TimeZone.getDefault().getID();
+	}
 	
 	public static final boolean NEW_API = true;
 	

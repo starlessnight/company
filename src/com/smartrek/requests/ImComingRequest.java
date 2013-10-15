@@ -36,7 +36,7 @@ public final class ImComingRequest extends AddRequest {
         this.password = user.getPassword();
         String url = getLinkUrl(Link.message);
         SimpleDateFormat dateFmt = new SimpleDateFormat("HH:mm");
-        dateFmt.setTimeZone(TimeZone.getTimeZone(TIME_ZONE));
+        dateFmt.setTimeZone(TimeZone.getTimeZone(getTimeZone()));
         Map<String, String> params = new HashMap<String, String>();
         params.put("to", to);
         params.put("lat", String.valueOf(lat));

@@ -46,7 +46,7 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
                     StringUtils.substringAfter(id, separator):id));
                 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                dateFormat.setTimeZone(TimeZone.getTimeZone(Request.TIME_ZONE));
+                dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone()));
                 long departureTime = dateFormat.parse(object.getString("start_datetime")).getTime();
                 r.setDepartureTime(departureTime);
 
@@ -78,7 +78,7 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
 	    if(NEW_API){
 	        Date now = new Date(System.currentTimeMillis() - 15*60*1000);
 	        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
-	        dateFormat.setTimeZone(TimeZone.getTimeZone(TIME_ZONE));
+	        dateFormat.setTimeZone(TimeZone.getTimeZone(getTimeZone()));
 	        url = getLinkUrl(Link.query_upcoming_reservation).replaceAll("\\{YYYYmmddHHMM\\}", dateFormat.format(now)); 
 	    }else{
 	        url = String.format("%s/getreservations/%d", FetchRequest.HOST, user.getId());

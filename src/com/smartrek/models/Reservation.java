@@ -215,7 +215,7 @@ public final class Reservation implements Parcelable {
 		r.setRid(object.getLong("RID"));
 		
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-		dateFormat.setTimeZone(TimeZone.getTimeZone(Request.TIME_ZONE));
+		dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone()));
 		long departureTime = dateFormat.parse(object.getString("START_TIME")).getTime();
 		r.setDepartureTime(departureTime);
 

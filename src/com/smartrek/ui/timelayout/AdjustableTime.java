@@ -21,14 +21,14 @@ public class AdjustableTime extends Time {
 	public AdjustableTime() {
 		super();
 		setToNow();
-		switchTimezone(Request.TIME_ZONE);
+		switchTimezone(Request.getTimeZone());
 		deviceTime = new Time();
 		deviceTime.setToNow();
 	}
 	
 	public Time initTime() {
 		Time t = new Time(this);
-		t.switchTimezone(Request.TIME_ZONE);
+		t.switchTimezone(Request.getTimeZone());
         return t;
 	}
 	

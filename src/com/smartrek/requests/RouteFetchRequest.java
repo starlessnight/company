@@ -30,7 +30,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 	public static String buildUrl(GeoPoint origin, GeoPoint destination, long departureTime) {
 		Time t = new Time();
 		t.set(departureTime);
-		t.switchTimezone(TIME_ZONE);
+		t.switchTimezone(getTimeZone());
 		
 		String url;
 		double startlat = origin.getLatitude();
