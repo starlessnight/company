@@ -66,7 +66,7 @@ public class RoutePathOverlay extends Overlay {
 		paint.setStrokeWidth(Dimension.dpToPx(thickness, mapView.getResources().getDisplayMetrics()));
 		
 		// Seems like Paint.setAlpha has no effect
-		int alphaMask = highlighted ? 0xCF000000 : 0x4F000000;
+		int alphaMask = highlighted ? 0x66000000 : 0x4F000000;
 		paint.setColor((color & 0x00FFFFFF) | alphaMask);
 		
 		Point point = new Point();
