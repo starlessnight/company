@@ -34,6 +34,8 @@ public final class Reservation implements Parcelable {
 	
 	private long departureTime;
 	
+	private long departureTimeUtc;
+	
 	/**
 	 * Estimated travel time in seconds
 	 */
@@ -74,6 +76,7 @@ public final class Reservation implements Parcelable {
 		rid = in.readLong();
 		route = in.readParcelable(Route.class.getClassLoader());
 		departureTime = in.readLong();
+		departureTimeUtc = in.readLong();
 		duration = in.readInt();
 		originAddress = in.readString();
 		destinationAddress = in.readString();
@@ -164,7 +167,7 @@ public final class Reservation implements Parcelable {
 	}
 	
 	public boolean isPast() {
-		return getDepartureTime() < System.currentTimeMillis();
+		return getDepartureTimeUtc() < System.currentTimeMillis();
 	}
 	
 	/**
@@ -182,7 +185,7 @@ public final class Reservation implements Parcelable {
 	}
 	
     public long getExpiryTime() {
-        return getDepartureTime() + (15*60*1000);
+        return getDepartureTimeUtc() + (15*60*1000);
     }
 	
 	/**
@@ -193,7 +196,7 @@ public final class Reservation implements Parcelable {
 	 * @return
 	 */
 	public boolean isTooEarlyToStart() {
-		return getDepartureTime() - (15*60*1000) > System.currentTimeMillis();
+		return getDepartureTimeUtc() - (15*60*1000) > System.currentTimeMillis();
 	}
 	
 	public boolean isEligibleTrip() {
@@ -254,6 +257,7 @@ public final class Reservation implements Parcelable {
 		dest.writeLong(rid);
 		dest.writeParcelable(route, flags);
 		dest.writeLong(departureTime);
+		dest.writeLong(departureTimeUtc);
 		dest.writeInt(duration);
 		dest.writeString(originAddress);
 		dest.writeString(destinationAddress);
@@ -305,6 +309,14 @@ public final class Reservation implements Parcelable {
 
     public void setNavLink(String navLink) {
         this.navLink = navLink;
+    }
+
+    public long getDepartureTimeUtc() {
+        return departureTimeUtc;
+    }
+
+    public void setDepartureTimeUtc(long departureTimeUtc) {
+        this.departureTimeUtc = departureTimeUtc;
     }
 	
 }

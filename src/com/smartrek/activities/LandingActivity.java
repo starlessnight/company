@@ -56,6 +56,7 @@ import com.google.android.gms.plus.model.people.Person.Image;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.ContactsDialog;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
+import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.dialogs.ProfileSelectionDialog;
 import com.smartrek.dialogs.ProfileSelectionDialog.Type;
 import com.smartrek.dialogs.ShortcutAddressDialog;
@@ -330,13 +331,31 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                     public void onClickPositiveButton(List<String> emails) {
                         TextView vGetGoing = (TextView) findViewById(R.id.get_going);
                         Reservation reservation =(Reservation) vGetGoing.getTag();
-                        Intent intent = new Intent(LandingActivity.this, ValidationActivity.class);
-                        intent.putExtra("route", reservation.getRoute());
-                        intent.putExtra("reservation", reservation);
-                        intent.putExtra(ValidationActivity.EMAILS, StringUtils.join(emails, ","));
-                        startActivity(intent);
-                        collapseMap();
-                        centerMapByCurrentLocation();
+                        if(reservation.isEligibleTrip()){
+                            Intent intent = new Intent(LandingActivity.this, ValidationActivity.class);
+                            intent.putExtra("route", reservation.getRoute());
+                            intent.putExtra("reservation", reservation);
+                            intent.putExtra(ValidationActivity.EMAILS, StringUtils.join(emails, ","));
+                            startActivity(intent);
+                            collapseMap();
+                            centerMapByCurrentLocation();
+                        }else{
+                            String msg = null;
+                            if (reservation.hasExpired()) {
+                                msg = getString(R.string.trip_has_expired);
+                            }
+                            else if (reservation.isTooEarlyToStart()) {
+                                long minutes = (reservation.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
+                                msg = getString(R.string.trip_too_early_to_start, minutes);
+                                if(minutes != 1){
+                                    msg += "s";
+                                }
+                            }
+                            if(msg != null){
+                                NotificationDialog dialog = new NotificationDialog(LandingActivity.this, msg);
+                                dialog.show();
+                            }
+                        }
                     }
                     @Override
                     public void onClickNegativeButton() {}
@@ -359,12 +378,30 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             @Override
             public void onClick(View v) {
                 Reservation reservation =(Reservation) v.getTag();
-                Intent intent = new Intent(LandingActivity.this, ValidationActivity.class);
-                intent.putExtra("route", reservation.getRoute());
-                intent.putExtra("reservation", reservation);
-                startActivity(intent);
-                collapseMap();
-                centerMapByCurrentLocation();
+                if(reservation.isEligibleTrip()){
+                    Intent intent = new Intent(LandingActivity.this, ValidationActivity.class);
+                    intent.putExtra("route", reservation.getRoute());
+                    intent.putExtra("reservation", reservation);
+                    startActivity(intent);
+                    collapseMap();
+                    centerMapByCurrentLocation();
+                }else{
+                    String msg = null;
+                    if (reservation.hasExpired()) {
+                        msg = getString(R.string.trip_has_expired);
+                    }
+                    else if (reservation.isTooEarlyToStart()) {
+                        long minutes = (reservation.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
+                        msg = getString(R.string.trip_too_early_to_start, minutes);
+                        if(minutes != 1){
+                            msg += "s";
+                        }
+                    }
+                    if(msg != null){
+                        NotificationDialog dialog = new NotificationDialog(LandingActivity.this, msg);
+                        dialog.show();
+                    }
+                }
             }
         });
         

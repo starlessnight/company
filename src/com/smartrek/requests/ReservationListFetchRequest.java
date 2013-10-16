@@ -19,6 +19,10 @@ import com.smartrek.utils.Cache;
 
 public class ReservationListFetchRequest extends FetchRequest<List<Reservation>> {
 	
+    private static String start_datetime_attr = "start_datetime";
+    
+    private static String start_datetime_utc_attr = "start_datetime_utc";
+    
 	public ReservationListFetchRequest(User user) {
 		super(buildUrl(user));
 		if(NEW_API){
@@ -47,8 +51,13 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
                 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone()));
-                long departureTime = dateFormat.parse(object.getString("start_datetime")).getTime();
+                long departureTime = dateFormat.parse(object.getString(start_datetime_attr)).getTime();
                 r.setDepartureTime(departureTime);
+                
+                SimpleDateFormat dateFormatUtc = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                dateFormatUtc.setTimeZone(TimeZone.getTimeZone("UTC"));
+                long departureTimeUtc = dateFormat.parse(object.getString(start_datetime_utc_attr)).getTime();
+                r.setDepartureTimeUtc(departureTimeUtc);
 
                 // travel duration
                 r.setDuration(object.getInt("estimated_travel_time") * 60);
@@ -79,7 +88,10 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
 	        Date now = new Date(System.currentTimeMillis() - 15*60*1000);
 	        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
 	        dateFormat.setTimeZone(TimeZone.getTimeZone(getTimeZone()));
-	        url = getLinkUrl(Link.query_upcoming_reservation).replaceAll("\\{YYYYmmddHHMM\\}", dateFormat.format(now)); 
+	        url = getLinkUrl(Link.query_upcoming_reservation).replaceAll("\\{YYYYmmddHHMM\\}", dateFormat.format(now));
+	        if(!StringUtils.contains(url, start_datetime_utc_attr)){
+	            url = url.replaceAll(start_datetime_attr, start_datetime_attr + "," + start_datetime_utc_attr); 
+	        }
 	    }else{
 	        url = String.format("%s/getreservations/%d", FetchRequest.HOST, user.getId());
 	    }

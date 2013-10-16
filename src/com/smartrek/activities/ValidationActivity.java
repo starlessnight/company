@@ -374,7 +374,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
             }
             else if (reservation.isTooEarlyToStart()) {
                 stopValidation.set(true);
-                long minutes = (reservation.getDepartureTime() - System.currentTimeMillis()) / 60000;
+                long minutes = (reservation.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
                 NotificationDialog dialog = new NotificationDialog(this, getResources()
                     .getString(R.string.trip_too_early_to_start, minutes));
                 dialog.setActionListener(new NotificationDialog.ActionListener() {

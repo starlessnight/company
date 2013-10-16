@@ -103,7 +103,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	            msg = getString(R.string.trip_has_expired);
             }
             else if (reservation.isTooEarlyToStart()) {
-                long minutes = (reservation.getDepartureTime() - System.currentTimeMillis()) / 60000;
+                long minutes = (reservation.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
                 msg = getString(R.string.trip_too_early_to_start, minutes);
                 if(minutes != 1){
                     msg += "s";
