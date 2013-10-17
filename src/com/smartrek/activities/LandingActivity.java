@@ -763,10 +763,12 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         rewardsPanel.setVisibility(View.VISIBLE);
         bottomLeftPanel.setVisibility(View.VISIBLE);
         Display display = getWindowManager().getDefaultDisplay();
+        float newWidth = bottomLeftPanel.getWidth();
         float newHeight = height - rewardsPanel.getHeight();
-        ScaleAnimation anim = new ScaleAnimation(1, 0.5f, 1, 
+        ScaleAnimation anim = new ScaleAnimation(1, newWidth / display.getWidth(), 1, 
             newHeight / height, display.getWidth(), 0);
         anim.setDuration(mapAnimDuration);
+        anim.setFillEnabled(true);
         anim.setAnimationListener(new AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
