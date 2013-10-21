@@ -33,14 +33,11 @@ public class UserLocationService extends IntentService {
             LocationInfo info = new LocationInfo(this);
             Trajectory traj = new Trajectory();
             traj.accumulate(info.lastLat, info.lastLong, info.lastAltitude, 
-                info.lastSpeed, info.lastHeading, info.lastLocationUpdateTimestamp);
+                info.lastSpeed, info.lastHeading, System.currentTimeMillis());
             SendTrajectoryRequest request = new SendTrajectoryRequest();
             try {
                 if(Request.NEW_API){
-//                    TripLinkRequest tlr = new TripLinkRequest(user);
-//                    tlr.invalidateCache(this);
-//                    String link = tlr.execute(this);
-//                    request.execute(user, link, RID, traj);
+                    request.execute(user, 9999, traj);
                 }else{
                     request.execute(0, user.getId(), RID, traj);
                 }
@@ -56,7 +53,7 @@ public class UserLocationService extends IntentService {
                 new Intent(ctx, UserLocationService.class),
                 PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
-        alarm.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
+        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME,
                 SystemClock.elapsedRealtime(), FIFTHTEEN_MINS, sendTrajServ);
     }
 
