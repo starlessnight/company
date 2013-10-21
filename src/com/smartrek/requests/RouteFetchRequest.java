@@ -1,8 +1,11 @@
 package com.smartrek.requests;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,23 +31,24 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 	private int duration;
 	
 	public static String buildUrl(GeoPoint origin, GeoPoint destination, long departureTime) {
-		Time t = new Time();
-		t.set(departureTime);
-		t.switchTimezone(getTimeZone());
-		
 		String url;
 		double startlat = origin.getLatitude();
 		double startlon = origin.getLongitude();
 		double endlat = destination.getLatitude();
 		double endlon = destination.getLongitude();
         if(NEW_API){
+            SimpleDateFormat dateFormatUtc = new SimpleDateFormat("yyyyMMddHHmm");
+            dateFormatUtc.setTimeZone(TimeZone.getTimeZone(UTC_TIMEZONE));
 		    url = getLinkUrl(Link.query_route)
                 .replaceAll("\\{startlat\\}", String.format("%.7f", startlat))
                 .replaceAll("\\{startlon\\}", String.format("%.7f", startlon))
                 .replaceAll("\\{endlat\\}", String.format("%.7f", endlat))
                 .replaceAll("\\{endlon\\}", String.format("%.7f", endlon))
-                .replaceAll("\\{departtime\\}", String.format("%d:%02d", t.hour, t.minute));
+                .replaceAll("\\{departtime\\}", dateFormatUtc.format(new Date(departureTime)));
 		}else{
+		    Time t = new Time();
+	        t.set(departureTime);
+	        t.switchTimezone(getTimeZone());
             url = String.format("%s/getroutes/startlat=%.7f%%20startlon=%.7f%%20endlat=%.7f%%20endlon=%.7f%%20departtime=%d:%02d",
 	                HOST, startlat, startlon, endlat, endlon, t.hour, t.minute); 
 		}
@@ -143,7 +147,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
         }
 		
 		if (routes.size() == 0) {
-			throw new RouteNotFoundException("Could not find a route.");
+			//throw new RouteNotFoundException("Could not find a route.");
 		}
 		
 		return routes;

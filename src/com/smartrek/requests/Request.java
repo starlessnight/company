@@ -41,6 +41,12 @@ public abstract class Request {
 	    return TimeZone.getDefault().getID();
 	}
 	
+	public static String getTimeZone(int offset){
+	    return "GMT" + (offset < 0?"-":"+") + Math.abs(offset);
+	}
+	
+	public static final String UTC_TIMEZONE = "UTC";
+	
 	public static final boolean NEW_API = true;
 	
 	public enum Link { 

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.TimeZone;
 
 import org.apache.commons.lang3.builder.CompareToBuilder;
@@ -12,7 +13,6 @@ import org.json.JSONObject;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.text.format.Time;
 
 import com.smartrek.requests.Request;
 
@@ -21,9 +21,9 @@ import com.smartrek.requests.Request;
  */
 public final class Reservation implements Parcelable {
     
-    private static final String TIME_FORMAT = "%A %b %d, %G\n%I:%M %p";
+    private static final String TIME_FORMAT = "EEEE MMM dd, yyyy\nhh:mm a";
     
-    private static final String TIME_FORMAT_SINGLE_LINE = "%A %b %d, %G %I:%M %p";
+    private static final String TIME_FORMAT_SINGLE_LINE = "EEEE MMM dd, yyyy hh:mm a";
     
 	/**
 	 * Reservation ID
@@ -266,14 +266,22 @@ public final class Reservation implements Parcelable {
 		dest.writeString(navLink);
 	}
 	
-	public static String formatTime(long time){
-	    return formatTime(time, false);  
+	public static String formatTime(long time, TimeZone timezone){
+	    return formatTime(time, false, timezone);  
 	}
 	
+	public static String formatTime(long time){
+        return formatTime(time, false);  
+    }
+	
 	public static String formatTime(long time, boolean singleLine){
-        Time at = new Time();
-        at.set(time);
-        return at.format(singleLine?TIME_FORMAT_SINGLE_LINE:TIME_FORMAT);  
+        return formatTime(time, singleLine, null);  
+    }
+	
+	public static String formatTime(long time, boolean singleLine, TimeZone timezone){
+	    SimpleDateFormat dateFormat = new SimpleDateFormat(singleLine?TIME_FORMAT_SINGLE_LINE:TIME_FORMAT);	    
+        dateFormat.setTimeZone(timezone == null?TimeZone.getTimeZone(Request.getTimeZone()):timezone);
+        return dateFormat.format(new Date(time));  
     }
 
     public String getOriginName() {

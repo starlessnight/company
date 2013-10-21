@@ -45,6 +45,8 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     
     private Typeface lightFont;
     private Typeface boldFont;
+    
+    private int timzoneOffset;
 
     public interface TimeLayoutListener {
     	public void updateTimeLayout(TimeLayout timeLayout, int column, boolean visible);
@@ -86,7 +88,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
         columnCount = adjustableTime.getNumTimeBoxes();
         
         for (int i = 0; i < columnCount; i++) {
-             TimeColumn timeColumn = new TimeColumn(this, i, lightFont, boldFont);
+             TimeColumn timeColumn = new TimeColumn(this, i, lightFont, boldFont, timzoneOffset);
              timeColumn.setDepartureTime(adjustableTime.initTime().toMillis(false));
              timeColumn.setOnClickListener(this);
              adjustableTime.incrementBy(15);
@@ -226,4 +228,16 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     	 */
     	public void onSelect(int column, TimeColumn timeButton);
     }
+
+    public int getTimzoneOffset() {
+        return timzoneOffset;
+    }
+
+    public void setTimzoneOffset(int timzoneOffset) {
+        if(this.timzoneOffset != timzoneOffset){
+            this.timzoneOffset = timzoneOffset;
+            refresh();
+        }
+    }
+    
 }

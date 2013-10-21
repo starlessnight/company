@@ -1,7 +1,10 @@
 package com.smartrek.ui.timelayout;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 import android.graphics.Typeface;
-import android.text.format.Time;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
@@ -10,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.smartrek.activities.R;
+import com.smartrek.requests.Request;
 import com.smartrek.ui.timelayout.TimeButton.DisplayMode;
 import com.smartrek.ui.timelayout.TimeButton.State;
 import com.smartrek.utils.Dimension;
@@ -31,6 +35,7 @@ public final class TimeColumn extends FrameLayout {
 	
 	private long departureTime;
 	private long arrivalTime;
+	private int timzoneOffset;
 	
 	private State state = State.Unknown;
 	private DisplayMode displayMode = DisplayMode.Time;
@@ -43,8 +48,10 @@ public final class TimeColumn extends FrameLayout {
 	 * @param before
 	 */
 	public TimeColumn(TimeLayout timelayout, int btnum, Typeface departureTimeFont, 
-	        Typeface arrivalTimeFont) {
+	        Typeface arrivalTimeFont, int timzoneOffset) {
 		super(timelayout.getContext());
+		
+		this.timzoneOffset = timzoneOffset;
 		
 		setTag(btnum);
 		
@@ -122,9 +129,9 @@ public final class TimeColumn extends FrameLayout {
 	public void setDepartureTime(long time) {
 		this.departureTime = time;
 		
-		Time t = new Time();
-		t.set(time);
-		departureTimeButton.setText(t.format("%H:%M"));
+		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+        dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone(timzoneOffset)));
+		departureTimeButton.setText(dateFormat.format(new Date(time)));
 		
 		postInvalidate();
 	}
@@ -141,9 +148,9 @@ public final class TimeColumn extends FrameLayout {
     			arrivalTimeButton.setText(String.format("%d m", getDuration()/60));
     		}
     		else {
-    			Time t = new Time();
-    			t.set(time);
-    			arrivalTimeButton.setText(t.format("%H:%M"));
+    		    SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+    	        dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone(timzoneOffset)));
+    			arrivalTimeButton.setText(dateFormat.format(new Date(time)));
     		}
     		
     		postInvalidate();

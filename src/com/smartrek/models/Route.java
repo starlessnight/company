@@ -42,6 +42,7 @@ public final class Route implements Parcelable {
 	private Double length;
 	private NavigationLink link;
 	private String rawJSON;
+	private int timezoneOffset;
 	
 	
 	public static final Parcelable.Creator<Route> CREATOR = new Parcelable.Creator<Route>() {
@@ -136,6 +137,11 @@ public final class Route implements Parcelable {
             route.length = routeObject.getDouble(distanceAttr) * 1609.34;
         }
         
+        String timezoneOffsetAttr = "timezone_offset";
+        if (routeObject.has(timezoneOffsetAttr)) {
+            route.timezoneOffset = routeObject.getInt(timezoneOffsetAttr);
+        }
+        
         return route;
 	}
 	
@@ -207,6 +213,7 @@ public final class Route implements Parcelable {
 		    link = l;
 		}
 		rawJSON = in.readString();
+		timezoneOffset = in.readInt();
 		
 		buildRouteNodeReferenceChain(routeNodes);
 	}
@@ -228,6 +235,7 @@ public final class Route implements Parcelable {
 		this.validated = bundle.getInt("validated");
 		this.departureTime = bundle.getLong("departureTime");
 		this.rawJSON = bundle.getString("rawJSON");
+		this.timezoneOffset = bundle.getInt("timezoneOffset");
 	}
 	
 	public void setAddresses(String origin, String destination) {
@@ -491,6 +499,7 @@ public final class Route implements Parcelable {
 //		bundle.putInt("valid_year", valid_date.getYear());
 		
 		bundle.putString("rawJSON", rawJSON);
+		bundle.putInt("timezoneOffset", timezoneOffset);
 		
 		putRouteNodeListOnToBundle(bundle);
 		
@@ -582,6 +591,7 @@ public final class Route implements Parcelable {
 		dest.writeLong(link == null?0:link.id);
 		dest.writeString(link == null?null:link.url);
 		dest.writeString(rawJSON);
+		dest.writeInt(timezoneOffset);
 	}
 
 //	/**
@@ -667,5 +677,13 @@ public final class Route implements Parcelable {
 
     public void setRawJSON(String rawJSON) {
         this.rawJSON = rawJSON;
+    }
+
+    public int getTimezoneOffset() {
+        return timezoneOffset;
+    }
+
+    public void setTimezoneOffset(int timezoneOffset) {
+        this.timezoneOffset = timezoneOffset;
     }
 }

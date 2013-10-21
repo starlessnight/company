@@ -1,5 +1,7 @@
 package com.smartrek.activities;
 
+import java.util.TimeZone;
+
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -22,6 +24,7 @@ import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
 import com.smartrek.receivers.ReservationReceiver;
+import com.smartrek.requests.Request;
 import com.smartrek.requests.ReservationRequest;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
@@ -56,6 +59,8 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
         Bundle extras = getIntent().getExtras();
         route = extras.getParcelable("route");
         
+        TimeZone timzone = TimeZone.getTimeZone(Request.getTimeZone(route.getTimezoneOffset()));
+        
         textViewOrigin = (TextView) findViewById(R.id.textViewOrigin);
         textViewOrigin.setText(route.getOrigin());
         
@@ -64,11 +69,11 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
         
         textViewDepartureTime = (TextView) findViewById(R.id.textViewDepartureTime);
         // FIXME: Date/time format i18n
-        textViewDepartureTime.setText(Reservation.formatTime(route.getDepartureTime()));
+        textViewDepartureTime.setText(Reservation.formatTime(route.getDepartureTime(), timzone));
         
         textViewArrivalTime = (TextView) findViewById(R.id.textViewArrivalTime);
         // FIXME: Date/time format i18n
-        textViewArrivalTime.setText(Reservation.formatTime(route.getArrivalTime()));
+        textViewArrivalTime.setText(Reservation.formatTime(route.getArrivalTime(), timzone));
         
         textViewDuration = (TextView) findViewById(R.id.textViewDuration);
         textViewDuration.setText(HumanReadableTime.formatDuration(route.getDuration()));

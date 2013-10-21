@@ -55,7 +55,7 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
                 r.setDepartureTime(departureTime);
                 
                 SimpleDateFormat dateFormatUtc = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                dateFormatUtc.setTimeZone(TimeZone.getTimeZone("UTC"));
+                dateFormatUtc.setTimeZone(TimeZone.getTimeZone(UTC_TIMEZONE));
                 long departureTimeUtc = dateFormatUtc.parse(object.getString(start_datetime_utc_attr)).getTime();
                 r.setDepartureTimeUtc(departureTimeUtc);
 

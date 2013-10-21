@@ -828,6 +828,7 @@ public final class RouteActivity extends ActionBarActivity {
             	// FIXME: Temporary
             	if(routes != null && routes.size() > 0) {
             		Route firstRoute = routes.get(0);
+            		timeLayout.setTimzoneOffset(firstRoute.getTimezoneOffset());
             		timeLayout.setModelForColumn(selectedColumn, firstRoute);
             	}
             	
