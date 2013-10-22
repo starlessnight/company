@@ -18,7 +18,7 @@ public class UserLocationService extends IntentService {
 
     private static final long FIFTHTEEN_MINS = 15 * 60 * 1000 /* 10000 */;
 
-    private static final int RID = Request.NEW_API?0:9999;
+    private static final int RID = 9999;
     
     public UserLocationService() {
         super(UserLocationService.class.getName());
@@ -36,11 +36,7 @@ public class UserLocationService extends IntentService {
                 info.lastSpeed, info.lastHeading, System.currentTimeMillis());
             SendTrajectoryRequest request = new SendTrajectoryRequest();
             try {
-                if(Request.NEW_API){
-                    request.execute(user, 9999, traj);
-                }else{
-                    request.execute(0, user.getId(), RID, traj);
-                }
+                request.execute(0, user.getId(), RID, traj);
             }
             catch (Throwable t) {
                 Log.d("UserLocationService", Log.getStackTraceString(t));
