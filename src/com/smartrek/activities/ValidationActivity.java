@@ -993,7 +993,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
     private void arriveAtDestination() {
         saveTrajectory();
         
-        reportValidation();
+        //reportValidation();
         if(mTts == null){
             if(isTripValidated()){
                 //finish();
