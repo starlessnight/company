@@ -22,6 +22,15 @@ import com.smartrek.utils.HTTP.Method;
 
 public class SendTrajectoryRequest extends Request {
 	
+    public void execute(User user, Trajectory trajectory) throws JSONException, ClientProtocolException, IOException {
+        JSONObject params = new JSONObject();
+        params.put("trajectory", trajectory.toJSON());
+        this.username = user.getUsername();
+        this.password = user.getPassword();
+        String link = Request.getLinkUrl(Link.activity);
+        executeHttpRequest(Method.POST, link, params);
+    }
+    
     public void execute(User user, long rid, Trajectory trajectory) throws JSONException, ClientProtocolException, IOException {
         JSONObject params = new JSONObject();
         params.put("trajectory", trajectory.toJSON());

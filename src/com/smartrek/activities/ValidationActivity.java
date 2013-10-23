@@ -80,6 +80,7 @@ import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.ImComingRequest;
+import com.smartrek.requests.Request;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.ui.NavigationView;
 import com.smartrek.ui.NavigationView.CheckPointListener;
@@ -1322,7 +1323,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
         if(mTts != null){
             mTts.shutdown();
         }
-        if(isTripValidated()){
+        if(Request.NEW_API && isTripValidated()){
             saveTrip();
         }
     }

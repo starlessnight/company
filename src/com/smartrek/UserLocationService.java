@@ -36,7 +36,11 @@ public class UserLocationService extends IntentService {
                 info.lastSpeed, info.lastHeading, System.currentTimeMillis());
             SendTrajectoryRequest request = new SendTrajectoryRequest();
             try {
-                request.execute(0, user.getId(), RID, traj);
+                if(Request.NEW_API){
+                    request.execute(user, traj);
+                }else{
+                    request.execute(0, user.getId(), RID, traj);
+                }
             }
             catch (Throwable t) {
                 Log.d("UserLocationService", Log.getStackTraceString(t));
