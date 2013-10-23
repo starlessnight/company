@@ -34,6 +34,64 @@ public class SendTrajectoryService extends IntentService {
         super(SendTrajectoryService.class.getName());
     }
 
+    public static void send(Context ctx, long rId){
+        send(ctx, new File(getInDir(ctx), String.valueOf(rId)));
+    }
+    
+    private static void send(Context ctx, File routeDir){
+        User user = User.getCurrentUser(ctx);
+        if(user != null && ArrayUtils.isNotEmpty(routeDir.list())){
+            File[] files = routeDir.listFiles();
+            Arrays.sort(files, LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);
+            Trajectory traj = new Trajectory();
+            long startTime = files[0].lastModified();
+            List<File> toSendFiles = new ArrayList<File>();
+            for (File f : files) {
+                if(f.lastModified() < startTime + fiveMins){
+                    try {
+                        Trajectory t = Trajectory.from(new JSONArray(FileUtils.readFileToString(f)));
+                        traj.append(t);
+                        toSendFiles.add(f);
+                    }
+                    catch (Exception e) {
+                        Log.d("SendTrajectoryService", Log.getStackTraceString(e));
+                    }
+                }else{
+                    break;
+                }
+            }
+            long routeId = Long.parseLong(routeDir.getName());
+            File outFile = getOutFile(ctx, routeId);
+            int seq = 1;
+            if(outFile.exists()){
+                try {
+                    seq = Integer.parseInt(FileUtils.readFileToString(outFile)) + 1;
+                }
+                catch (NumberFormatException e) {
+                }
+                catch (IOException e) {
+                }
+            }
+            SendTrajectoryRequest request = new SendTrajectoryRequest();
+            try {
+                if(Request.NEW_API){
+                    request.execute(user, routeId, traj);
+                }else{
+                    request.execute(seq, user.getId(), routeId, traj);
+                }
+                try{
+                    FileUtils.write(outFile, String.valueOf(seq));
+                }catch(Exception e){}
+                for(File f:toSendFiles){
+                    FileUtils.deleteQuietly(f);
+                }
+            }
+            catch (Exception e) {
+                Log.d("SendTrajectoryService", Log.getStackTraceString(e));
+            }
+        }
+    }
+    
     @Override
     protected void onHandleIntent(Intent intent) {
         User user = User.getCurrentUser(this);
@@ -52,58 +110,11 @@ public class SendTrajectoryService extends IntentService {
                     }
                 }
                 if(routeDir != null){
-                    File[] files = routeDir.listFiles();
-                    Arrays.sort(files, LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);
-                    Trajectory traj = new Trajectory();
-                    long startTime = files[0].lastModified();
-                    List<File> toSendFiles = new ArrayList<File>();
-                    for (File f : files) {
-                        if(f.lastModified() < startTime + fiveMins){
-                            try {
-                                Trajectory t = Trajectory.from(new JSONArray(FileUtils.readFileToString(f)));
-                                traj.append(t);
-                                toSendFiles.add(f);
-                            }
-                            catch (Exception e) {
-                                Log.d("SendTrajectoryService", Log.getStackTraceString(e));
-                            }
-                        }else{
-                            break;
-                        }
-                    }
-                    long routeId = Long.parseLong(routeDir.getName());
-                    File outFile = getOutFile(routeId);
-                    int seq = 1;
-                    if(outFile.exists()){
-                        try {
-                            seq = Integer.parseInt(FileUtils.readFileToString(outFile)) + 1;
-                        }
-                        catch (NumberFormatException e) {
-                        }
-                        catch (IOException e) {
-                        }
-                    }
-                    SendTrajectoryRequest request = new SendTrajectoryRequest();
-                    try {
-                        if(Request.NEW_API){
-                            request.execute(user, routeId, traj);
-                        }else{
-                            request.execute(seq, user.getId(), routeId, traj);
-                        }
-                        try{
-                            FileUtils.write(outFile, String.valueOf(seq));
-                        }catch(Exception e){}
-                        for(File f:toSendFiles){
-                            FileUtils.deleteQuietly(f);
-                        }
-                    }
-                    catch (Exception e) {
-                        Log.d("SendTrajectoryService", Log.getStackTraceString(e));
-                    }
+                    send(this, routeDir);
                 }
             }   
         }
-        File[] oFiles = getOutDir().listFiles();
+        File[] oFiles = getOutDir(this).listFiles();
         if(ArrayUtils.isNotEmpty(oFiles)){
             for (File f : oFiles) {
                 if(f.lastModified() < System.currentTimeMillis() - sevenDays){
@@ -113,12 +124,12 @@ public class SendTrajectoryService extends IntentService {
         }
     }
     
-    private File getOutDir(){
-        return new File(getExternalFilesDir(null), "trajectory/out");
+    private static File getOutDir(Context ctx){
+        return new File(ctx.getExternalFilesDir(null), "trajectory/out");
     }
     
-    private File getOutFile(long rId){
-        return new File(getOutDir(), String.valueOf(rId));
+    private static File getOutFile(Context ctx, long rId){
+        return new File(getOutDir(ctx), String.valueOf(rId));
     }
     
     private static File getInDir(Context ctx){

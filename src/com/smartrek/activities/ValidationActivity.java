@@ -70,6 +70,7 @@ import android.widget.ToggleButton;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.SendTrajectoryService;
+import com.smartrek.TripService;
 import com.smartrek.ValidationService;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.dialogs.FloatingMenuDialog;
@@ -827,6 +828,28 @@ public final class ValidationActivity extends Activity implements OnInitListener
         });
     }
     
+    private void saveTrip(){
+        final File tFile = TripService.getFile(this, reservation.getRid());
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    new AsyncTask<Void, Void, Void>(){
+                        @Override
+                        protected Void doInBackground(Void... params) {
+                            try {
+                                FileUtils.write(tFile, "");
+                            }
+                            catch (IOException e) {
+                            }
+                            return null;
+                        }
+                    }.execute();
+                }catch(Throwable t){}
+            }
+        });
+    }
+    
     private void showNavigationInformation(final Location location, final RouteNode node) {
         Log.d("ValidationActivity", "showNavigationInformation()");
         runOnUiThread(new Runnable() {
@@ -1298,6 +1321,9 @@ public final class ValidationActivity extends Activity implements OnInitListener
         deactivateLocationService();
         if(mTts != null){
             mTts.shutdown();
+        }
+        if(isTripValidated()){
+            saveTrip();
         }
     }
     
