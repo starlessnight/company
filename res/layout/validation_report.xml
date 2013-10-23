@@ -52,9 +52,9 @@
 	             android:layout_height="wrap_content"
 	             ads:adUnitId="@string/ad_unit_id"
 	             ads:adSize="BANNER"
-	             ads:testDevices="TEST_EMULATOR, TEST_DEVICE_ID"
 	             ads:loadAdOnCreate="true"
 	         />
+	         <!--ads:testDevices="TEST_EMULATOR, TEST_DEVICE_ID"/-->
 	     </LinearLayout>
 	
 	</LinearLayout>
