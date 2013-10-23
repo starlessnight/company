@@ -20,7 +20,7 @@ public class RouteValidationRequest extends Request {
     
 	public RouteValidationRequest(User user, long rid) {
 	    if(NEW_API){
-	        url = getLinkUrl(Link.trip).replaceAll("\\{user_id\\}", String.valueOf(user.getId()));
+	        url = getLinkUrl(Link.claim).replaceAll("\\{user_id\\}", String.valueOf(user.getId()));
 	        this.username = user.getUsername();
 	        this.password = user.getPassword();
 	        this.rid = rid;

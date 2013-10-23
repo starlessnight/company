@@ -62,7 +62,9 @@ public abstract class Request {
 	    trajectory,
 	    message,
 	    achievement,
-	    reward
+	    reward,
+	    claim,
+	    activity
 	}
 	
 	private static EnumMap<Link, String> linkUrls = new EnumMap<Link, String>(Link.class);
