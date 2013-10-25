@@ -228,16 +228,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
         timeoutReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if(isTripValidated()){
-                    Intent rIntent = new Intent(ValidationActivity.this, ValidationReportActivity.class);
-                    rIntent.putExtra(ROUTE, route);
-                    rIntent.putExtra(START_TIME, startTime);
-                    Time now = new Time();
-                    now.setToNow();
-                    rIntent.putExtra("endTime", now.toMillis(false));
-                    startActivity(rIntent);
-                    finish();
-                }else{
+                if(!isTripValidated()){
                     stopValidation.set(true);
                     NotificationDialog dialog = new NotificationDialog(ValidationActivity.this, "Timed out!");
                     dialog.setActionListener(new NotificationDialog.ActionListener() {
@@ -321,7 +312,9 @@ public final class ValidationActivity extends Activity implements OnInitListener
                         ehs.reportExceptions(new Runnable() {
                             @Override
                             public void run() {
-                                finish();
+                                if(!isFinishing()){
+                                    finish();
+                                }
                             }
                         });
                     }else if(routes != null && routes.size() > 0) {
@@ -1284,7 +1277,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
                 public void onUtteranceCompleted(String utteranceId) {
                     unmuteMusic();
                     if(utteredCnt.incrementAndGet() == utteringCnt.get() && arrived.get()){
-                        finish();
+                        //finish();
                     }
                 }
             });
