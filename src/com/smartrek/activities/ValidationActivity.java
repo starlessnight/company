@@ -228,19 +228,27 @@ public final class ValidationActivity extends Activity implements OnInitListener
         timeoutReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if(!isTripValidated()){
-                    stopValidation.set(true);
-                    NotificationDialog dialog = new NotificationDialog(ValidationActivity.this, "Timed out!");
-                    dialog.setActionListener(new NotificationDialog.ActionListener() {
-                        @Override
-                        public void onClickDismiss() {
-                            if(!isFinishing()){
-                                finish();
-                            }
+                stopValidation.set(true);
+                final boolean tripValidated = isTripValidated();
+                NotificationDialog dialog = new NotificationDialog(ValidationActivity.this, "Timed out!");
+                dialog.setActionListener(new NotificationDialog.ActionListener() {
+                    @Override
+                    public void onClickDismiss() {
+                        if(tripValidated){
+                            Intent rIntent = new Intent(ValidationActivity.this, ValidationReportActivity.class);
+                            rIntent.putExtra(ROUTE, route);
+                            rIntent.putExtra(START_TIME, startTime);
+                            Time now = new Time();
+                            now.setToNow();
+                            rIntent.putExtra("endTime", now.toMillis(false));
+                            startActivity(rIntent);
                         }
-                    });
-                    dialog.show();
-                }
+                        if(!isFinishing()){
+                            finish();
+                        }
+                    }
+                });
+                dialog.show();
             }
         };
         registerReceiver(timeoutReceiver, new IntentFilter(getClass().getName()));
