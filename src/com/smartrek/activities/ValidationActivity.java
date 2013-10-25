@@ -788,7 +788,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
                                 if(ehs.hasExceptions()){
                                     msg = "msg not sent, " + ehs.popException().getMessage(); 
                                 }else{
-                                    msg = "the I'm coming msg sent";
+                                    msg = "the On My Way msg sent";
                                 }
                                 Toast.makeText(ValidationActivity.this, msg, Toast.LENGTH_LONG).show();
                             }
