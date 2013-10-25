@@ -8,6 +8,7 @@ import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
@@ -50,6 +51,20 @@ public class FeedbackDialog extends Dialog {
 		setContentView(dialogView);
 		
 		final WebView webviewContent = (WebView) dialogView.findViewById(R.id.webview_content);
+		webviewContent.setOnTouchListener(new View.OnTouchListener() {
+		    @Override
+		    public boolean onTouch(View v, MotionEvent event) {
+		        switch (event.getAction()) {
+		            case MotionEvent.ACTION_DOWN:
+		            case MotionEvent.ACTION_UP:
+		                if (!v.hasFocus()) {
+		                    v.requestFocus();
+		                }
+		                break;
+		        }
+		        return false;
+		    }
+		});
 		WebSettings settings = webviewContent.getSettings();
         settings.setLoadWithOverviewMode(true);
 		settings.setUseWideViewPort(true);
@@ -78,6 +93,7 @@ public class FeedbackDialog extends Dialog {
                 }
                 findViewById(R.id.scrollview).setVisibility(View.GONE);
                 webviewContent.setVisibility(View.VISIBLE);
+                webviewContent.requestFocus(View.FOCUS_DOWN);
                 Misc.fadeIn(ctx, webviewContent);
             }
         });
