@@ -778,13 +778,12 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             @Override
             protected List<Reservation> doInBackground(Void... params) {
                 User user = User.getCurrentUser(LandingActivity.this);
-                ReservationListFetchRequest resReq = new ReservationListFetchRequest(user);
-                resReq.invalidateCache(LandingActivity.this);
-                FavoriteAddressFetchRequest addReq = new FavoriteAddressFetchRequest(user);
-                addReq.invalidateCache(LandingActivity.this);
-                
                 List<Reservation> reservations= Collections.emptyList();
                 try {
+                    ReservationListFetchRequest resReq = new ReservationListFetchRequest(user);
+                    resReq.invalidateCache(LandingActivity.this);
+                    FavoriteAddressFetchRequest addReq = new FavoriteAddressFetchRequest(user);
+                    addReq.invalidateCache(LandingActivity.this);
                     List<Address> addresses = addReq.execute(LandingActivity.this);
                     reservations = resReq.execute(LandingActivity.this);
                     for(Reservation r:reservations){
@@ -807,6 +806,8 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                     }
                     Collections.sort(reservations, Reservation.orderByDepartureTime());
                 }
+                catch (NullPointerException e){
+                }
                 catch (Exception e) {
                     ehs.registerException(e);
                 }
@@ -817,7 +818,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                 if (ehs.hasExceptions()) { 
                     ehs.reportExceptions();
                 } 
-                else {
+                else if (!reservations.isEmpty()){
                     TextView[] vTrips = {vTrip1, vTrip2};
                     for(int i=0; i<vTrips.length; i++){
                         TextView vTrip = vTrips[i];
