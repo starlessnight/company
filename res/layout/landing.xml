@@ -310,7 +310,7 @@
 				        	    android:id="@+id/im_coming"
 				        	    android:layout_width="wrap_content"
 					        	android:layout_height="wrap_content"
-					        	android:text="On my way"
+					        	android:text="On My Way"
 					        	android:layout_gravity="center"
 					        	android:textSize="@dimen/smaller_font"
 			           			android:textColor="@android:color/white"

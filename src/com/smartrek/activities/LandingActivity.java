@@ -806,8 +806,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                     }
                     Collections.sort(reservations, Reservation.orderByDepartureTime());
                 }
-                catch (NullPointerException e){
-                }
+                catch (NullPointerException e){}
                 catch (Exception e) {
                     ehs.registerException(e);
                 }
@@ -818,7 +817,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                 if (ehs.hasExceptions()) { 
                     ehs.reportExceptions();
                 } 
-                else if (!reservations.isEmpty()){
+                else{
                     TextView[] vTrips = {vTrip1, vTrip2};
                     for(int i=0; i<vTrips.length; i++){
                         TextView vTrip = vTrips[i];
