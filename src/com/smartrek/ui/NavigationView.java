@@ -76,6 +76,8 @@ public final class NavigationView extends LinearLayout {
 	private List<DirectionItem> items = Collections.emptyList();
 	
 	private int currentItemIdx;
+	
+	private boolean finished;
 
 	public NavigationView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -356,6 +358,10 @@ public final class NavigationView extends LinearLayout {
                     if(listener != null && checkpointDistance != null){
                         listener.onCheckPoint(getDirection(node, checkpointDistance, actionOnly));
                     }
+                    
+                    if(lastEnd.getNextNode() == null){
+                        finished = true;
+                    }
                 }
             }
         }
@@ -423,6 +429,10 @@ public final class NavigationView extends LinearLayout {
     public void setTypeface(Typeface font){
         Font.setTypeface(font, textViewGenericMessage, textViewWaiting,
             textViewDistance, textViewRoad);
+    }
+
+    public boolean isFinished() {
+        return finished;
     }
 
 }

@@ -856,8 +856,10 @@ public final class ValidationActivity extends Activity implements OnInitListener
         Log.d("ValidationActivity", "showNavigationInformation()");
         runOnUiThread(new Runnable() {
             public void run() {
-                List<DirectionItem> items = updateDirectionsList(node, location);
-            	navigationView.update(route, location, node, items);
+                if(!navigationView.isFinished()){
+                    List<DirectionItem> items = updateDirectionsList(node, location);
+                    navigationView.update(route, location, node, items);
+                }
             }
         });
     }
@@ -994,7 +996,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
             }
         }
         
-        if (trajectory.size() >= 8) {
+        if (!navigationView.isFinished() && trajectory.size() >= 8) {
             saveTrajectory();
         }
         
@@ -1015,16 +1017,22 @@ public final class ValidationActivity extends Activity implements OnInitListener
         lastKnownLocation = location;
     }
     
+    private void displayArrivalMsg(){
+        String msg;
+        if(isTripValidated()){
+            msg = String.format("You just earned %d Trekpoints!", route.getCredits());
+        }else{
+            msg = getValidationFailedMsg();
+        }
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+    }
+    
     private void arriveAtDestination() {
         saveTrajectory();
         
         //reportValidation();
         if(mTts == null){
-            if(isTripValidated()){
-                //finish();
-            }else{
-               //showValidationFailedDialog();
-            }
+            displayArrivalMsg();
         }else{
             final int oldCnt = utteredCnt.get();
             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
@@ -1032,11 +1040,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
                 public void run() {
                     int newCnt = utteredCnt.get();
                     if(newCnt == oldCnt && newCnt == utteringCnt.get()){
-                        if(isTripValidated()){
-                            //finish();
-                        }else{
-                            //showValidationFailedDialog();
-                        }
+                        displayArrivalMsg();
                     }
                 }
             }, 1000 + Math.round(Math.random() * 500));
@@ -1328,11 +1332,15 @@ public final class ValidationActivity extends Activity implements OnInitListener
             saveTrip();
         }
     }
+
+    private String getValidationFailedMsg(){
+        return "Sorry " + User.getCurrentUser(this).getFirstname() 
+            + " that this trip did not earn you any point. Please try again soon.";
+    }
     
     private void showValidationFailedDialog(){
         //String url = ""; 
-        CharSequence msg = Html.fromHtml("Sorry " + User.getCurrentUser(this).getFirstname() 
-            + " that this trip did not earn you any point. Please try again soon.");
+        CharSequence msg = Html.fromHtml(getValidationFailedMsg());
             /*+ " For more information about how your trip may not be validated please refer to"
             + "<a href=\"" + url + "\">" + url + "</a>");*/
         NotificationDialog dialog = new NotificationDialog(ValidationActivity.this, msg);
