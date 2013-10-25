@@ -531,34 +531,18 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         TextView vImComingMsg = (TextView) findViewById(R.id.im_coming_msg);
         vImComingMsg.setText(msg);
         vImComingMsg.setVisibility(View.VISIBLE);
-        getCurrentLocation(new CurrentLocationListener() {
-            @Override
-            public void get(final double myLat, final double myLon) {
-                ArrayList<RouteNode> nodes = new ArrayList<RouteNode>();
-                nodes.add(new RouteNode(myLat, myLon, 0, 1));
-                nodes.add(new RouteNode(myLat, myLon, 0, 2));
-                nodes.add(new RouteNode(lat, lon, 0, 3));
-                nodes.add(new RouteNode(lat, lon, 0, 4));
-                Route route = new Route(nodes, 0, 0, 0);
-                RouteRect routeRect = ValidationActivity.initRouteRect(route);
-                GeoPoint mid = routeRect.getMidPoint();
-                int[] range = routeRect.getRange();
-                final MapView mapView = (MapView) findViewById(R.id.mapview);
-                final List<Overlay> mapOverlays = mapView.getOverlays();
-                if(infoOverlay != null){
-                    infoOverlay.hide();
-                }
-                mapOverlays.clear();
-                //myPointOverlay.setLocation((float) myLat, (float) myLon);
-                //mapOverlays.add(myPointOverlay);
-                othersPointOverlay.setLocation((float) lat, (float)lon);
-                mapOverlays.add(othersPointOverlay);
-                mapView.postInvalidate();
-                MapController mc = mapView.getController();
-                mc.zoomToSpan(range[0], range[1]);
-                mc.setCenter(mid);
-            }
-        });
+        final MapView mapView = (MapView) findViewById(R.id.mapview);
+        final List<Overlay> mapOverlays = mapView.getOverlays();
+        if(infoOverlay != null){
+            infoOverlay.hide();
+        }
+        mapOverlays.clear();
+        othersPointOverlay.setLocation((float) lat, (float)lon);
+        mapOverlays.add(othersPointOverlay);
+        mapView.postInvalidate();
+        MapController mc = mapView.getController();
+        mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+        mc.setCenter(new GeoPoint(lat, lon));
         expandMap();
     }
     

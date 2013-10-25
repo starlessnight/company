@@ -105,7 +105,7 @@ import com.smartrek.utils.ValidationParameters;
 
 public final class ValidationActivity extends Activity implements OnInitListener {
     
-    public static final int DEFAULT_ZOOM_LEVEL = 17;
+    public static final int DEFAULT_ZOOM_LEVEL = 18;
     
     private static final String RESERVATION = "reservation";
     
