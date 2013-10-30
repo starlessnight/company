@@ -14,7 +14,8 @@
 	    android:paddingLeft="45dp"
 	   	android:paddingRight="45dp"
 	   	android:paddingBottom="19dp"
-        style="@style/SmallerBoldText"
+	   	android:textSize="28dp"
+        style="@style/LargeBoldText"
         android:visibility="visible" />
     
     <TextView
@@ -26,7 +27,8 @@
 	    android:paddingLeft="45dp"
 	   	android:paddingRight="45dp"
 	   	android:paddingBottom="19dp"
-        style="@style/SmallerBoldText"
+	   	android:textSize="28dp"
+        style="@style/LargeBoldText"
         android:visibility="invisible" />
 
     <LinearLayout
