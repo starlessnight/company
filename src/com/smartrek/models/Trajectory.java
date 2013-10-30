@@ -13,7 +13,10 @@ import com.smartrek.utils.RouteNode;
 
 public class Trajectory {
 	
+    public static final long DEFAULT_LINK_ID = -1;
+    
 	public static class Record {
+	    
 		/**
 		 * Latitude
 		 */
@@ -44,13 +47,16 @@ public class Trajectory {
 		 */
 		private long time;
 		
-		public Record(float lat, float lng, float altitude, float speed, float heading, long time) {
+		private long linkId = DEFAULT_LINK_ID;
+		
+		public Record(float lat, float lng, float altitude, float speed, float heading, long time, long linkId) {
 			setLatitude(lat);
 			setLongitude(lng);
 			setAltitude(altitude);
 			setSpeed(speed);
 			setHeading(heading);
 			setTime(time);
+			this.linkId = linkId;
 		}
 
 		public float getLatitude() {
@@ -129,6 +135,7 @@ public class Trajectory {
 			array.put(getHeading());
 			array.put(getTime());
 			array.put(getSpeed() * 2.23693629f); // conversion from m/s to mph
+			array.put(linkId);
 			
 			return array;
 		}
@@ -136,7 +143,7 @@ public class Trajectory {
 		public static Record from(JSONArray array) throws JSONException {
 	        return new Record((float)array.getDouble(0), (float)array.getDouble(1), 
 	            (float)(array.getDouble(2) / 3.2808399f), (float)(array.getDouble(5) / 2.23693629f), 
-	            (float) array.getDouble(3), array.getLong(4));
+	            (float) array.getDouble(3), array.getLong(4), array.optLong(5, DEFAULT_LINK_ID));
 	    }
 		
 	}
@@ -156,17 +163,18 @@ public class Trajectory {
 	 * @param heading Angle between the headed direction and the North 
 	 * @param time Epoch in milliseconds
 	 */
-	public void accumulate(float lat, float lng, float altitude, float speed, float heading, long time) {
-		records.add(new Record(lat, lng, altitude, speed, heading, time));
+	public void accumulate(float lat, float lng, float altitude, float speed, float heading, long time, long linkId) {
+		records.add(new Record(lat, lng, altitude, speed, heading, time, linkId));
 	}
 	
-	public void accumulate(Location location) {
+	public void accumulate(Location location, long linkId) {
 		accumulate((float) location.getLatitude(),
 				(float) location.getLongitude(),
 				(float) location.getAltitude(),
 				location.getSpeed(),
 				location.getBearing(),
-				location.getTime());
+				location.getTime(),
+				linkId);
 	}
 	
 	public void clear() {

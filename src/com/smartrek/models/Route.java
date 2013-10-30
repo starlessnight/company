@@ -177,6 +177,10 @@ public final class Route implements Parcelable {
                 if (ro.has("road")) {
                     node.setRoadName(ro.getString("road"));
                 }
+                String linkIdAttr = "link";
+                if (ro.has(linkIdAttr)) {
+                    node.setLinkId(ro.getLong(linkIdAttr));
+                }
                 routeNodes.add(node);
             }
         }

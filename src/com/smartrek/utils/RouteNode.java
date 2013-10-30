@@ -5,6 +5,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.smartrek.models.JSONModel;
+import com.smartrek.models.Trajectory;
 
 public final class RouteNode implements Parcelable, JSONModel {
 	
@@ -102,6 +103,8 @@ public final class RouteNode implements Parcelable, JSONModel {
 	 */
 	private String roadName;
 	
+	private long linkId = Trajectory.DEFAULT_LINK_ID;
+	
     /**
      * A reference to the previous node. A link consists of two route nodes. A
      * route node belongs to at least one link, at most two links.
@@ -139,6 +142,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		message = in.readString();
 		direction = in.readString();
 		roadName = in.readString();
+		linkId = in.readLong();
 	}
 	
 	public RouteNode(double latitude, double longitude, int routeNum, int nodeNum) {
@@ -285,6 +289,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		dest.writeString(message);
 	    dest.writeString(direction);
 		dest.writeString(roadName);
+		dest.writeLong(linkId);
 	}
 	
 	@Override
@@ -324,4 +329,12 @@ public final class RouteNode implements Parcelable, JSONModel {
 
         return s * 1000;
 	}
+
+    public long getLinkId() {
+        return linkId;
+    }
+
+    public void setLinkId(long linkId) {
+        this.linkId = linkId;
+    }
 }

@@ -85,6 +85,7 @@ import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.ui.NavigationView;
 import com.smartrek.ui.NavigationView.CheckPointListener;
 import com.smartrek.ui.NavigationView.DirectionItem;
+import com.smartrek.ui.NavigationView.Status;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RouteDebugOverlay;
@@ -897,7 +898,6 @@ public final class ValidationActivity extends Activity implements OnInitListener
     }
     
     private synchronized void locationChanged(Location location) {
-        trajectory.accumulate(location);
         
         if(pointOverlay == null){
             return;
@@ -945,6 +945,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
         }
         
         lastLocChanged = now;
+        
+        long linkId = Trajectory.DEFAULT_LINK_ID;
         
         //nearestNode = route.getNearestNode(lat, lng);
         if(!route.getNodes().isEmpty()){
@@ -994,7 +996,13 @@ public final class ValidationActivity extends Activity implements OnInitListener
                     }
                 }
             }
+            
+            if(navigationView.getStatus() == Status.InRoute){
+                linkId = nearestLink.getStartNode().getLinkId();
+            }
         }
+        
+        trajectory.accumulate(location, linkId);
         
         if (!navigationView.isFinished() && trajectory.size() >= 8) {
             saveTrajectory();

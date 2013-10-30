@@ -33,7 +33,8 @@ public class UserLocationService extends IntentService {
             LocationInfo info = new LocationInfo(this);
             Trajectory traj = new Trajectory();
             traj.accumulate(info.lastLat, info.lastLong, info.lastAltitude, 
-                info.lastSpeed, info.lastHeading, System.currentTimeMillis());
+                info.lastSpeed, info.lastHeading, System.currentTimeMillis(), 
+                Trajectory.DEFAULT_LINK_ID);
             SendTrajectoryRequest request = new SendTrajectoryRequest();
             try {
                 if(Request.NEW_API){
