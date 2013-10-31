@@ -11,7 +11,6 @@ import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -164,10 +163,6 @@ public final class ValidationActivity extends Activity implements OnInitListener
     private ArrayAdapter<DirectionItem> dirListadapter;
     
     private static String utteranceId = "utteranceId";
-
-    private AtomicInteger utteringCnt = new AtomicInteger();
-    
-    private AtomicInteger utteredCnt = new AtomicInteger();
     
     private AtomicBoolean reported = new AtomicBoolean(false);
     
@@ -857,10 +852,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
         Log.d("ValidationActivity", "showNavigationInformation()");
         runOnUiThread(new Runnable() {
             public void run() {
-                if(!navigationView.isFinished()){
-                    List<DirectionItem> items = updateDirectionsList(node, location);
-                    navigationView.update(route, location, node, items);
-                }
+                List<DirectionItem> items = updateDirectionsList(node, location);
+                navigationView.update(route, location, node, items);
             }
         });
     }
@@ -1004,7 +997,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
         
         trajectory.accumulate(location, linkId);
         
-        if (!navigationView.isFinished() && trajectory.size() >= 8) {
+        if (!arrived.get() && trajectory.size() >= 8) {
             saveTrajectory();
         }
         
@@ -1026,33 +1019,15 @@ public final class ValidationActivity extends Activity implements OnInitListener
     }
     
     private void displayArrivalMsg(){
-        String msg;
         if(isTripValidated()){
-            msg = String.format("You just earned %d Trekpoints!", route.getCredits());
-        }else{
-            msg = getValidationFailedMsg();
+            Toast.makeText(this, "Congratulations, your trip has been validated", 
+                Toast.LENGTH_LONG).show();
         }
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
     
     private void arriveAtDestination() {
         saveTrajectory();
-        
-        //reportValidation();
-        if(mTts == null){
-            displayArrivalMsg();
-        }else{
-            final int oldCnt = utteredCnt.get();
-            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    int newCnt = utteredCnt.get();
-                    if(newCnt == oldCnt && newCnt == utteringCnt.get()){
-                        displayArrivalMsg();
-                    }
-                }
-            }, 1000 + Math.round(Math.random() * 500));
-        }
+        displayArrivalMsg();
     }
     
     private void reportValidation(){
@@ -1296,16 +1271,13 @@ public final class ValidationActivity extends Activity implements OnInitListener
                 @Override
                 public void onUtteranceCompleted(String utteranceId) {
                     unmuteMusic();
-                    if(utteredCnt.incrementAndGet() == utteringCnt.get() && arrived.get()){
-                        //finish();
-                    }
                 }
             });
             navigationView.setListener(new CheckPointListener() {
                 @Override
                 public void onCheckPoint(final String navText) {
-                    if(MapDisplayActivity.isNavigationTtsEnabled(ValidationActivity.this)){
-                        utteringCnt.incrementAndGet();
+                    if(MapDisplayActivity.isNavigationTtsEnabled(ValidationActivity.this)
+                            && !arrived.get()){
                         HashMap<String, String> params = new HashMap<String, String>();
                         params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
                         params.put(TextToSpeech.Engine.KEY_PARAM_STREAM,
