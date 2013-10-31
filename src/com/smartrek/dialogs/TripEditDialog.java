@@ -335,8 +335,15 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 				            destId = id;
                         }
 				    }
+				    
 				    if(originId > 0 && destId > 0){
-				        return "Trip already in list";
+				        TripListFetchRequest tripListReq = new TripListFetchRequest(user);
+				        tripListReq.invalidateCache(getContext());
+				        for (Trip trip : tripListReq.execute(getContext())) {
+                            if(trip.getOriginID() == originId && trip.getDestinationID() == destId){
+                                return "Trip already in list";
+                            }
+                        }
 				    }
 				    
 				    if(originId == 0){
