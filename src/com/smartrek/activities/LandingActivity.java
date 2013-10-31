@@ -29,6 +29,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.format.Time;
 import android.util.Log;
 import android.util.TypedValue;
@@ -445,6 +446,38 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         }
         
         loadProfile(MapDisplayActivity.getProfileSelection(this));
+        
+        getCurrentLocation(new CurrentLocationListener() {
+            @Override
+            public void get(final double lat, final double lon) {
+                AsyncTask<Void, Void, Boolean> checkCityAvailability = new AsyncTask<Void, Void, Boolean>(){
+                    @Override
+                    protected Boolean doInBackground(Void... params) {
+                        boolean result;
+                        try{
+                            result = Geocoding.isCityAvailable(lat, lon);
+                        }catch(Throwable t){
+                            result = true;
+                        }
+                        return result;
+                    }
+                    @Override
+                    protected void onPostExecute(Boolean result) {
+                        if(!result){
+                            CharSequence msg = Html.fromHtml(
+                                "Sorry we're only providing service to Los Angels and Phoenix area now. "
+                                + "<a href=\"http://www.smartrekmobile.com/cities\">"
+                                + "Want us come to your city?"
+                                + "</a>"
+                            );
+                            NotificationDialog dialog = new NotificationDialog(LandingActivity.this, msg);
+                            dialog.show();
+                        }
+                    }
+                };
+                Misc.parallelExecute(checkCityAvailability);
+            }
+        });
         
         TextView vNoTrips = (TextView) findViewById(R.id.no_trips);
         
