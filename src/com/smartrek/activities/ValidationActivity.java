@@ -1027,7 +1027,12 @@ public final class ValidationActivity extends Activity implements OnInitListener
     
     private void arriveAtDestination() {
         saveTrajectory();
-        displayArrivalMsg();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                displayArrivalMsg();
+            }
+        });
     }
     
     private void reportValidation(){
