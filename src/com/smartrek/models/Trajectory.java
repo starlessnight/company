@@ -143,7 +143,7 @@ public class Trajectory {
 		public static Record from(JSONArray array) throws JSONException {
 	        return new Record((float)array.getDouble(0), (float)array.getDouble(1), 
 	            (float)(array.getDouble(2) / 3.2808399f), (float)(array.getDouble(5) / 2.23693629f), 
-	            (float) array.getDouble(3), array.getLong(4), array.optLong(5, DEFAULT_LINK_ID));
+	            (float) array.getDouble(3), array.getLong(4), array.optLong(6, DEFAULT_LINK_ID));
 	    }
 		
 	}
