@@ -29,6 +29,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Html;
 import android.text.format.Time;
 import android.util.Log;
@@ -530,6 +531,9 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         refreshTripsInfo();
         refreshTripUpdateCount();
         refreshTrekpoints();
+        if(findViewById(R.id.collapse_btn).getVisibility() != View.VISIBLE){
+            centerMapByCurrentLocation();
+        }
         uiHelper.onResume();
         if(currentSNTask != null && locationManager != null && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
             currentSNTask.cancelTask();
@@ -589,10 +593,14 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         if(networkLocManager == null){
             networkLocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         }
-        LocationListener networkLocListener = new LocationListener() {
+        class CurrentLocationListener implements LocationListener{
+            
+            boolean changed;
+            
             @Override
             public void onLocationChanged(Location location) {
                 try{
+                    changed = true;
                     networkLocManager.removeUpdates(this);
                     lis.get(location.getLatitude(), location.getLongitude());
                 }catch(Throwable t){}
@@ -603,10 +611,23 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             public void onProviderEnabled(String provider) {}
             @Override
             public void onProviderDisabled(String provider) {}
-        };
+        }
+        final CurrentLocationListener networkLocListener = new CurrentLocationListener();
         networkLocListeners.add(networkLocListener);
         try{
-            networkLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocListener);
+            if (networkLocManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                networkLocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, networkLocListener);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(!networkLocListener.changed){
+                            networkLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocListener);
+                        }
+                    }
+                }, 15000);
+            }else{
+                networkLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocListener);
+            }
         }catch(Throwable t){}
     }
     
