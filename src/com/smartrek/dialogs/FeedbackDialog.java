@@ -23,6 +23,8 @@ import com.smartrek.utils.Misc;
 
 public class FeedbackDialog extends Dialog {
 	
+    public static final String URL = "http://www.smartrekmobile.com/support/contact";
+    
 	public interface ActionListener {
 		void onClickPositiveButton();
 		void onClickNegativeButton();
@@ -69,7 +71,7 @@ public class FeedbackDialog extends Dialog {
         settings.setLoadWithOverviewMode(true);
 		settings.setUseWideViewPort(true);
 		settings.setBuiltInZoomControls(true);
-		webviewContent.loadUrl("http://www.smartrekmobile.com/support/contact");
+		webviewContent.loadUrl(URL);
 		
 		final Button yesButton = (Button) dialogView.findViewById(R.id.yes_button);
 		yesButton.setOnClickListener(new View.OnClickListener() {

@@ -72,6 +72,7 @@ import com.smartrek.SendTrajectoryService;
 import com.smartrek.TripService;
 import com.smartrek.ValidationService;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
+import com.smartrek.dialogs.FeedbackDialog;
 import com.smartrek.dialogs.FloatingMenuDialog;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Reservation;
@@ -1317,17 +1318,14 @@ public final class ValidationActivity extends Activity implements OnInitListener
             saveTrip();
         }
     }
-
-    private String getValidationFailedMsg(){
-        return "Sorry " + User.getCurrentUser(this).getFirstname() 
-            + " that this trip did not earn you any point. Please try again soon.";
-    }
     
     private void showValidationFailedDialog(){
-        //String url = ""; 
-        CharSequence msg = Html.fromHtml(getValidationFailedMsg());
-            /*+ " For more information about how your trip may not be validated please refer to"
-            + "<a href=\"" + url + "\">" + url + "</a>");*/
+        CharSequence msg = Html.fromHtml(
+            "Sorry " + User.getCurrentUser(this).getFirstname() 
+            + " this trip did not earn you any point. Please try again soon."
+            + "<br/>If you feel you should have earned the points,"
+            + " <a href=\"" + FeedbackDialog.URL + "\">tell us why?</a>"
+        );
         NotificationDialog dialog = new NotificationDialog(ValidationActivity.this, msg);
         dialog.setActionListener(new NotificationDialog.ActionListener() {
             @Override
