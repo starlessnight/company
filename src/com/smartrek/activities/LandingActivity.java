@@ -536,7 +536,9 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         }
         uiHelper.onResume();
         if(currentSNTask != null && locationManager != null && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
-            currentSNTask.cancelTask();
+            try{
+                currentSNTask.cancelTask();
+            }catch(Throwable t){}
         }
     }
     

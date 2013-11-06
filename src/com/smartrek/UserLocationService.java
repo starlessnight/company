@@ -30,13 +30,13 @@ public class UserLocationService extends IntentService {
         
         User user = User.getCurrentUser(this);
         if(user != null){
-            LocationInfo info = new LocationInfo(this);
-            Trajectory traj = new Trajectory();
-            traj.accumulate(info.lastLat, info.lastLong, info.lastAltitude, 
-                info.lastSpeed, info.lastHeading, System.currentTimeMillis(), 
-                Trajectory.DEFAULT_LINK_ID);
-            SendTrajectoryRequest request = new SendTrajectoryRequest();
             try {
+                LocationInfo info = new LocationInfo(this);
+                Trajectory traj = new Trajectory();
+                traj.accumulate(info.lastLat, info.lastLong, info.lastAltitude, 
+                    info.lastSpeed, info.lastHeading, System.currentTimeMillis(), 
+                    Trajectory.DEFAULT_LINK_ID);
+                SendTrajectoryRequest request = new SendTrajectoryRequest();
                 if(Request.NEW_API){
                     request.execute(user, traj);
                 }else{
