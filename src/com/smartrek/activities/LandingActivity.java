@@ -466,7 +466,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                     protected void onPostExecute(Boolean result) {
                         if(!result){
                             CharSequence msg = Html.fromHtml(
-                                "Sorry we're only providing service to Los Angels and Phoenix area now. "
+                                "Smartek is currently not available in your area. "
                                 + "<a href=\"http://www.smartrekmobile.com/cities\">"
                                 + "Want us come to your city?"
                                 + "</a>"
