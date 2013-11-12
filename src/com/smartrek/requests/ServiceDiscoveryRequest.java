@@ -6,9 +6,17 @@ import org.json.JSONObject;
 
 import android.content.Context;
 
-import com.smartrek.requests.Request.Link;
+import com.smartrek.requests.ServiceDiscoveryRequest.Result;
 
-public final class ServiceDiscoveryRequest extends FetchRequest<EnumMap<Link, String>> {
+public final class ServiceDiscoveryRequest extends FetchRequest<Result> {
+    
+    public static class Result {
+        
+        public EnumMap<Link, String> links = new EnumMap<Link, String>(Link.class);
+        
+        public EnumMap<Page, String> pages = new EnumMap<Page, String>(Page.class);
+        
+    }
     
     public ServiceDiscoveryRequest(String url) {
         super(url);
@@ -19,16 +27,23 @@ public final class ServiceDiscoveryRequest extends FetchRequest<EnumMap<Link, St
 	}
 	
 	@Override
-	public EnumMap<Link, String> execute(Context ctx) throws Exception {
+	public Result execute(Context ctx) throws Exception {
 		String response = executeFetchRequest(getURL(), ctx);
-		JSONObject json  = new JSONObject(response).getJSONObject("links");
-		EnumMap<Link, String> rs = new EnumMap<Link, String>(Link.class);
+		JSONObject links = new JSONObject(response).getJSONObject("links");
+		Result rs = new Result();
 		for(Link l : Link.values()){
 		    String name = l.name();
-            if(json.has(name)){
-                rs.put(l, json.getString(name));
+            if(links.has(name)){
+                rs.links.put(l, links.getString(name));
             }
 		}
+		JSONObject pages = new JSONObject(response).getJSONObject("pages");
+		for(Page p : Page.values()){
+            String name = p.name();
+            if(pages.has(name)){
+                rs.pages.put(p, pages.getString(name));
+            }
+        }
 		return rs;
 	}
 

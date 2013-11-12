@@ -1324,7 +1324,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
             "Sorry " + User.getCurrentUser(this).getFirstname() 
             + " this trip did not earn you any point. Please try again soon."
             + "<br/>If you feel you should have earned the points,"
-            + " <a href=\"" + FeedbackDialog.URL + "\">tell us why?</a>"
+            + " <a href=\"" + FeedbackDialog.getUrl(this) + "\">tell us why?</a>"
         );
         NotificationDialog dialog = new NotificationDialog(ValidationActivity.this, msg);
         dialog.setActionListener(new NotificationDialog.ActionListener() {

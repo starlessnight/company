@@ -68,7 +68,13 @@ public abstract class Request {
 	    city
 	}
 	
+	public enum Page { 
+	    feedback
+    }
+	
 	private static EnumMap<Link, String> linkUrls = new EnumMap<Link, String>(Link.class);
+	
+	private static EnumMap<Page, String> pageUrls = new EnumMap<Page, String>(Page.class);
 	
 	/**
 	 * Defines what a request can do
@@ -185,6 +191,14 @@ public abstract class Request {
 	        url = linkUrls.get(link);
 	    }
 	    return url;
+	}
+	
+	public static void setPageUrls(EnumMap<Page, String> pageUrls){
+        Request.pageUrls = pageUrls;
+    }
+	
+	public static String getPageUrl(Page page){
+        return pageUrls.get(page);
 	}
 	
 }

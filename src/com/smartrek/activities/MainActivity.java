@@ -1,6 +1,5 @@
 package com.smartrek.activities;
 
-import java.util.EnumMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
@@ -25,8 +24,8 @@ import com.smartrek.UserLocationService;
 import com.smartrek.ValidationService;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
-import com.smartrek.requests.Request.Link;
 import com.smartrek.requests.ServiceDiscoveryRequest;
+import com.smartrek.requests.ServiceDiscoveryRequest.Result;
 import com.smartrek.requests.UserIdRequest;
 import com.smartrek.tasks.LoginTask;
 import com.smartrek.utils.ExceptionHandlingService;
@@ -140,25 +139,25 @@ public class MainActivity extends Activity implements AnimationListener {
 		}
 	}
 	
-	public static AsyncTask<Void, Void, EnumMap<Link, String>> initApiLinks(final Context ctx, final String entrypoint, 
+	public static AsyncTask<Void, Void, Result> initApiLinks(final Context ctx, final String entrypoint, 
 	        final Runnable onSuccess, final Runnable onError){
 	    final ExceptionHandlingService eh = new ExceptionHandlingService(ctx);
-	    AsyncTask<Void, Void, EnumMap<Link, String>> task = new AsyncTask<Void, Void, EnumMap<Link, String>>() {
+	    AsyncTask<Void, Void, Result> task = new AsyncTask<Void, Void, Result>() {
             @Override
-            protected EnumMap<Link, String> doInBackground(Void... params) {
-                EnumMap<Link, String> links = null;
+            protected Result doInBackground(Void... params) {
+                Result rs = null;
                 try {
                     ServiceDiscoveryRequest req = new ServiceDiscoveryRequest(entrypoint);  
                     req.invalidateCache(ctx);
-                    links = req.execute(ctx);
+                    rs = req.execute(ctx);
                 }
                 catch(Exception e) {
                     eh.registerException(e);
                 }
-                return links;
+                return rs;
             }
             @Override
-            protected void onPostExecute(EnumMap<Link, String> result) {
+            protected void onPostExecute(Result result) {
                 if (eh.hasExceptions()) {
                     initApiLinksFailed.set(true);
                     if(onError != null){
@@ -167,7 +166,8 @@ public class MainActivity extends Activity implements AnimationListener {
                 }
                 else {
                     initApiLinksFailed.set(false);
-                    Request.setLinkUrls(result);
+                    Request.setLinkUrls(result.links);
+                    Request.setPageUrls(result.pages);
                     if(onSuccess != null){
                         onSuccess.run();
                     }

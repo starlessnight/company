@@ -1,7 +1,6 @@
 package com.smartrek.activities;
 
 import java.io.File;
-import java.util.EnumMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -28,7 +27,7 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
-import com.smartrek.requests.Request.Link;
+import com.smartrek.requests.ServiceDiscoveryRequest.Result;
 import com.smartrek.utils.Cache;
 
 public final class DebugOptionsActivity extends Activity {
@@ -85,7 +84,7 @@ public final class DebugOptionsActivity extends Activity {
     private Button buttonClearCache;
     private Button buttonCrash;
     
-    private AsyncTask<Void, Void, EnumMap<Link, String>> initApiLinksTask;
+    private AsyncTask<Void, Void, Result> initApiLinksTask;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {

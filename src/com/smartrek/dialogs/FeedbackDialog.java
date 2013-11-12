@@ -17,13 +17,24 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.smartrek.activities.R;
+import com.smartrek.models.User;
+import com.smartrek.requests.Request;
+import com.smartrek.requests.Request.Page;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
 
 public class FeedbackDialog extends Dialog {
-	
-    public static final String URL = "http://www.smartrekmobile.com/support/contact";
+    
+    public static final String getUrl(Context ctx){
+        User user = User.getCurrentUser(ctx);
+        return Request.getPageUrl(Page.feedback)
+            .replaceAll("\\{username\\}", user.getUsername())
+            .replaceAll("\\{first_name\\}", user.getFirstname())
+            .replaceAll("\\{email\\}", user.getEmail())
+            .replaceAll("\\{os\\}", "android")
+            .replaceAll("\\{app_version\\}", ctx.getString(R.string.distribution_date));
+    }
     
 	public interface ActionListener {
 		void onClickPositiveButton();
@@ -68,10 +79,11 @@ public class FeedbackDialog extends Dialog {
 		    }
 		});
 		WebSettings settings = webviewContent.getSettings();
+		settings.setJavaScriptEnabled(true);
         settings.setLoadWithOverviewMode(true);
 		settings.setUseWideViewPort(true);
 		settings.setBuiltInZoomControls(true);
-		webviewContent.loadUrl(URL);
+		webviewContent.loadUrl(getUrl(ctx));
 		
 		final Button yesButton = (Button) dialogView.findViewById(R.id.yes_button);
 		yesButton.setOnClickListener(new View.OnClickListener() {
