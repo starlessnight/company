@@ -64,7 +64,8 @@ public abstract class Request {
 	    achievement,
 	    reward,
 	    claim,
-	    activity
+	    activity,
+	    city
 	}
 	
 	private static EnumMap<Link, String> linkUrls = new EnumMap<Link, String>(Link.class);

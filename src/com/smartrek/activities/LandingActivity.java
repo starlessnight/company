@@ -66,6 +66,7 @@ import com.smartrek.models.Address;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
+import com.smartrek.requests.CityRequest;
 import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.ReservationListFetchRequest;
@@ -451,26 +452,23 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         getCurrentLocation(new CurrentLocationListener() {
             @Override
             public void get(final double lat, final double lon) {
-                AsyncTask<Void, Void, Boolean> checkCityAvailability = new AsyncTask<Void, Void, Boolean>(){
+                AsyncTask<Void, Void, String> checkCityAvailability = new AsyncTask<Void, Void, String>(){
                     @Override
-                    protected Boolean doInBackground(Void... params) {
-                        boolean result;
+                    protected String doInBackground(Void... params) {
+                        String result;
                         try{
-                            result = Geocoding.isCityAvailable(lat, lon);
+                            CityRequest req = new CityRequest(lat, lon);
+                            req.invalidateCache(LandingActivity.this);
+                            result = req.execute(LandingActivity.this);
                         }catch(Throwable t){
-                            result = true;
+                            result = null;
                         }
                         return result;
                     }
                     @Override
-                    protected void onPostExecute(Boolean result) {
-                        if(!result){
-                            CharSequence msg = Html.fromHtml(
-                                "Smartek is currently not available in your area. "
-                                + "<a href=\"http://www.smartrekmobile.com/cities\">"
-                                + "Want us come to your city?"
-                                + "</a>"
-                            );
+                    protected void onPostExecute(String result) {
+                        if(StringUtils.isNotBlank(result)){
+                            CharSequence msg = Html.fromHtml(result);
                             NotificationDialog dialog = new NotificationDialog(LandingActivity.this, msg);
                             dialog.show();
                         }
