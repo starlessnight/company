@@ -40,6 +40,8 @@ public final class MapDisplayActivity extends ActionBarActivity {
     
     private static final String NAVIGATION_TTS = "NAVIGATION_TTS";
     
+    private static final String LOCATION_BASED_SERVICE = "LOCATION_BASED_SERVICE";
+    
     private static final String VALIDATED_TRIPS_COUNT = "VALIDATED_TRIPS_COUNT";
     
     private static final String HOME_ADDRESS = "HOME_ADDRESS";
@@ -57,6 +59,8 @@ public final class MapDisplayActivity extends ActionBarActivity {
     private CheckBox calendarIntegration;
     
     private CheckBox navigationTts;
+    
+    private CheckBox lbs;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -145,6 +149,18 @@ public final class MapDisplayActivity extends ActionBarActivity {
             }
         });
         
+        boolean lbsEnabled = isLocBasedServiceEnabled(this);
+        lbs = (CheckBox) findViewById(R.id.lbs);
+        lbs.setChecked(lbsEnabled);
+        lbs.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                prefs.edit()
+                    .putBoolean(LOCATION_BASED_SERVICE, isChecked)
+                    .commit();
+            }
+        });
+        
         findViewById(R.id.floating_menu_button).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -165,11 +181,13 @@ public final class MapDisplayActivity extends ActionBarActivity {
         Font.setTypeface(boldFont, (TextView)findViewById(R.id.time_heading),
             (TextView)findViewById(R.id.calendar_integration_heading),
             (TextView)findViewById(R.id.navigation_tts_heading),
+            (TextView)findViewById(R.id.lbs_heading),
             (TextView)findViewById(R.id.distribution_heading),
             feedback);
         Font.setTypeface(lightFont, displayTravel, displayArrival,
             (TextView)findViewById(R.id.calendar_integration_text),
             (TextView)findViewById(R.id.navigation_tts_text),
+            (TextView)findViewById(R.id.lbs_text),
             (TextView)findViewById(R.id.distribution_date));
     }
     
@@ -181,6 +199,11 @@ public final class MapDisplayActivity extends ActionBarActivity {
     public static boolean isNavigationTtsEnabled(Context ctx){
         return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
             .getBoolean(NAVIGATION_TTS, true);
+    }
+    
+    public static boolean isLocBasedServiceEnabled(Context ctx){
+        return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
+            .getBoolean(LOCATION_BASED_SERVICE, true);
     }
     
     public static int getValidatedTripsCount(Context ctx){

@@ -172,12 +172,58 @@
 		         android:layout_marginRight="45dp"
 			/>
 		    
+   		   <TextView
+		        android:id="@+id/lbs_heading"
+		        android:text="LOCATION BASED SERVICE"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_below="@id/navigation_tts_text"
+		        android:layout_marginTop="15dp"
+		        android:layout_marginLeft="45dp"
+		        style="@style/MicroText">
+		    </TextView>
+		
+		    <View
+		        android:id="@+id/separator4"
+		        android:layout_width="match_parent"
+		        android:layout_height="2dp"
+		        android:layout_below="@id/lbs_heading"
+		        android:layout_marginTop="12dp"
+		        android:layout_marginLeft="30dp"
+		        android:layout_marginRight="30dp"
+		        android:background="@color/secondary_font"  
+		     />
+		    
+		    <TextView
+		        android:id="@+id/lbs_text"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_below="@id/separator4"
+		        android:text="Enabled"
+		        android:layout_marginTop="12dp"
+		        android:layout_marginLeft="45dp"
+		        android:layout_marginRight="45dp"
+		        style="@style/MediumText"
+			/>
+		    
+		    <CheckBox
+		         android:id="@+id/lbs"
+		         android:layout_width="wrap_content"
+		         android:layout_height="wrap_content"
+		         android:layout_alignParentRight="true"
+		         android:layout_alignBaseline="@id/lbs_text"
+		         android:enabled="true"
+		         android:padding="0dp"
+		         android:layout_marginTop="0dp"
+		         android:layout_marginRight="45dp"
+			/>
+		    
 		    <TextView
 		        android:id="@+id/distribution_heading"
 		        android:text="DISTRUBUTION DATE"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
-		        android:layout_below="@id/navigation_tts_text"
+		        android:layout_below="@id/lbs_text"
 		        android:layout_marginTop="12dp"
 		        android:layout_marginLeft="45dp"
 		        android:layout_marginRight="45dp"

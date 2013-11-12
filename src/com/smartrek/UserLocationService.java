@@ -9,6 +9,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
+import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
@@ -29,7 +30,7 @@ public class UserLocationService extends IntentService {
         Log.i("UserLocationService", "onHandleIntent");
         
         User user = User.getCurrentUser(this);
-        if(user != null){
+        if(user != null && MapDisplayActivity.isLocBasedServiceEnabled(this)){
             try {
                 LocationInfo info = new LocationInfo(this);
                 Trajectory traj = new Trajectory();
