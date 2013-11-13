@@ -3,6 +3,8 @@ package com.smartrek.requests;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.content.Context;
+
 import com.smartrek.models.User;
 import com.smartrek.utils.HTTP.Method;
 
@@ -17,9 +19,9 @@ public class TripValidationRequest extends Request {
         this.rid = rid;
 	}
 	
-	public void execute() throws Exception {
+	public void execute(Context ctx) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("reservation_id", String.valueOf(rid));
-        executeHttpRequest(Method.POST, url, params);
+        executeHttpRequest(Method.POST, url, params, ctx);
 	}
 }

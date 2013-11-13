@@ -11,6 +11,8 @@ import java.util.TimeZone;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
+import android.content.Context;
+
 import com.smartrek.activities.DebugOptionsActivity.NavigationLink;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
@@ -80,7 +82,7 @@ public class ReservationRequest extends Request {
         }
 	}
 	
-	public Long execute() throws Exception {
+	public Long execute(Context ctx) throws Exception {
 	    Long id = null;
 	    if(NEW_API){
 	        this.username = user.getUsername();
@@ -94,7 +96,7 @@ public class ReservationRequest extends Request {
             params.put("destination", destination);
             String res = null;
             try {
-                res = executeHttpRequest(Method.POST, url, params);
+                res = executeHttpRequest(Method.POST, url, params, ctx);
             } catch (Exception e){
                 res = e.getMessage();
             }
@@ -112,7 +114,7 @@ public class ReservationRequest extends Request {
                 id = data.getLong("id");
             }
 	    }else{
-    		String responseBody = executeHttpGetRequest(url);
+    		String responseBody = executeHttpGetRequest(url, ctx);
     		
     		// FIXME: The following code is inherited from the old code so it might not comply with the new conventions
     		// FIXME: This won't be necessary as long as server returns sensible HTTP status code

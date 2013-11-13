@@ -25,7 +25,7 @@ public final class TripListFetchRequest extends FetchRequest<List<Trip>> {
 	}
 	
 	@Override
-	public List<Trip> execute(Context ctx) throws JSONException, IOException {
+	public List<Trip> execute(Context ctx) throws JSONException, IOException, InterruptedException {
 	    List<Trip> trips = new ArrayList<Trip>();
 		String response = executeFetchRequest(getURL(), ctx);
 		

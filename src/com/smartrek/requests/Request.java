@@ -5,12 +5,15 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpResponseException;
 import org.json.JSONObject;
 
 import android.content.Context;
 import android.util.Log;
 
+import com.smartrek.activities.DebugOptionsActivity;
+import com.smartrek.requests.ServiceDiscoveryRequest.Result;
 import com.smartrek.utils.Cache;
 import com.smartrek.utils.HTTP;
 import com.smartrek.utils.HTTP.Method;
@@ -103,30 +106,48 @@ public abstract class Request {
 		
 	}
 	
-	protected String executeHttpGetRequest(String url) throws IOException {
-		return executeHttpGetRequest(url, null);
+	protected String executeHttpGetRequest(String url, Context ctx) throws IOException, InterruptedException {
+		return executeHttpGetRequest(url, null, ctx);
 	}
 	
-	protected String executeHttpGetRequest(String url, Map<String, String> params) throws IOException {
-		return executeHttpRequest(Method.GET, url, params);
+	protected String executeHttpGetRequest(String url, Map<String, String> params, Context ctx) throws IOException, InterruptedException {
+		return executeHttpRequest(Method.GET, url, params, ctx);
 	}
 	
-	protected String executeHttpRequest(Method method, String url) throws IOException {
-	    return executeHttpRequest(method, url, (Object) null);
+	protected String executeHttpRequest(Method method, String url, Context ctx) throws IOException, InterruptedException {
+	    return executeHttpRequest(method, url, (Object) null, ctx);
 	}
 	
 	protected String executeHttpRequest(Method method, String url, 
-            Map<String, String> params) throws IOException {
-	    return executeHttpRequest(method, url, (Object) params);
+            Map<String, String> params, Context ctx) throws IOException, InterruptedException {
+	    return executeHttpRequest(method, url, (Object) params, ctx);
     }
 	
 	protected String executeHttpRequest(Method method, String url, 
-            JSONObject json) throws IOException {
-        return executeHttpRequest(method, url, (Object) json);
+            JSONObject json, Context ctx) throws IOException, InterruptedException {
+        return executeHttpRequest(method, url, (Object) json, ctx);
     }
+	
+	protected boolean skipLinkUrlCheck;
 	
 	private String executeHttpRequest(Method method, String url, 
-	        Object params) throws IOException {
+	        Object params, final Context ctx) throws IOException, InterruptedException {
+	    if(!skipLinkUrlCheck && !Request.hasLinkUrls()){
+	        String entrypoint = DebugOptionsActivity.getEntrypoint(ctx);
+            if(StringUtils.isBlank(entrypoint)){
+                entrypoint = Request.ENTRYPOINT_URL;
+            }
+            ServiceDiscoveryRequest req = new ServiceDiscoveryRequest(entrypoint);
+            req.invalidateCache(ctx);
+            try {
+                Result rs = req.execute(ctx);
+                Request.setLinkUrls(rs.links);
+                Request.setPageUrls(rs.pages);
+            }
+            catch (Exception e) {
+            }
+	    }
+	    
 	    Log.d(LOG_TAG, "executeHttpRequest(): method=" + method + ", url="+url 
             + ", params=" + params);
         
@@ -192,6 +213,10 @@ public abstract class Request {
 	    }
 	    return url;
 	}
+	
+	public static boolean hasLinkUrls(){
+        return !Request.linkUrls.isEmpty();
+    }
 	
 	public static void setPageUrls(EnumMap<Page, String> pageUrls){
         Request.pageUrls = pageUrls;

@@ -302,7 +302,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
                 protected Void doInBackground(Void... params) {
                     try {
                         new UpdateDeviceIdRequest().execute(currentUser.getId(), gcmRegistrationId,
-                            currentUser.getUsername(), currentUser.getPassword());
+                            currentUser.getUsername(), currentUser.getPassword(), HomeActivity.this);
                     }
                     catch (Exception e) {}
                     return null;
@@ -353,7 +353,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
                                                 addressStr,
                                                 address.getLatitude(),
                                                 address.getLongitude());
-                                            request.execute();
+                                            request.execute(HomeActivity.this);
                                         }
                                         catch (Exception e) {
                                             ehs.registerException(e);

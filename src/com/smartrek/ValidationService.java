@@ -33,7 +33,7 @@ public class ValidationService extends IntentService {
             if(ArrayUtils.isNotEmpty(files)){
                 for (File f : files) {
                     try{
-                        new RouteValidationRequest(user, Long.parseLong(f.getName())).execute();
+                        new RouteValidationRequest(user, Long.parseLong(f.getName())).execute(this);
                         FileUtils.deleteQuietly(f);
                     }catch(SmarTrekException e){
                         FileUtils.deleteQuietly(f);

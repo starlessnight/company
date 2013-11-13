@@ -16,29 +16,31 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.utils.HTTP.Method;
 
 public class SendTrajectoryRequest extends Request {
 	
-    public void execute(User user, Trajectory trajectory) throws JSONException, ClientProtocolException, IOException {
+    public void execute(User user, Trajectory trajectory, Context ctx) throws JSONException, ClientProtocolException, IOException, InterruptedException {
         JSONObject params = new JSONObject();
         params.put("trajectory", trajectory.toJSON());
         this.username = user.getUsername();
         this.password = user.getPassword();
         String link = Request.getLinkUrl(Link.activity);
-        executeHttpRequest(Method.POST, link, params);
+        executeHttpRequest(Method.POST, link, params, ctx);
     }
     
-    public void execute(User user, long rid, Trajectory trajectory) throws JSONException, ClientProtocolException, IOException {
+    public void execute(User user, long rid, Trajectory trajectory, Context ctx) throws JSONException, ClientProtocolException, IOException, InterruptedException {
         JSONObject params = new JSONObject();
         params.put("trajectory", trajectory.toJSON());
         this.username = user.getUsername();
         this.password = user.getPassword();
         String link = Request.getLinkUrl(Link.trajectory)
             .replaceAll("\\{reservation_id\\}", String.valueOf(rid));
-        executeHttpRequest(Method.POST, link, params);
+        executeHttpRequest(Method.POST, link, params, ctx);
     }
     
 	public void execute(int seq, int uid, long rid, Trajectory trajectory) throws JSONException, ClientProtocolException, IOException {

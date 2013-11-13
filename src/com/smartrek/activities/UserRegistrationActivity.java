@@ -171,7 +171,7 @@ public final class UserRegistrationActivity extends ActionBarActivity
 			User user = (User) params[0];
 			UserRegistrationRequest request = new UserRegistrationRequest();
 			try {
-				request.execute(user);
+				request.execute(user, ctx);
 			}
 			catch (Exception e) {
 				ehs.registerException(e);

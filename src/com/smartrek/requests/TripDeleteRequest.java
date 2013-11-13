@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import org.json.JSONException;
 
+import android.content.Context;
+
 import com.smartrek.models.User;
 import com.smartrek.utils.HTTP.Method;
 
@@ -24,15 +26,15 @@ public final class TripDeleteRequest extends DeleteRequest {
 		this.link = link;
 	}
 	
-	public void execute() throws IOException, JSONException {
+	public void execute(Context ctx) throws IOException, JSONException, InterruptedException {
 	    if(NEW_API){
             this.username = user.getUsername();
             this.password = user.getPassword();
             String url = link.replaceAll("\\{id\\}", String.valueOf(fid));
-            executeHttpRequest(Method.DELETE, url);
+            executeHttpRequest(Method.DELETE, url, ctx);
         }else{
             String url = String.format("%s/favroutes-delete/?fid=%d", HOST, fid);
-            executeDeleteRequest(url);
+            executeDeleteRequest(url, ctx);
         }
 	}
 

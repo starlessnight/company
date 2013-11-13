@@ -8,6 +8,8 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+
 import com.smartrek.models.User;
 import com.smartrek.utils.HTTP.Method;
 
@@ -27,7 +29,7 @@ public class FavoriteAddressAddRequest extends Request {
 		this.lon = lon;
 	}
 	
-	public int execute() throws IOException, JSONException {
+	public int execute(Context ctx) throws IOException, JSONException, InterruptedException {
 		if(NEW_API){
 		    this.username = user.getUsername();
 		    this.password = user.getPassword();
@@ -38,11 +40,11 @@ public class FavoriteAddressAddRequest extends Request {
             params.put("address", address);
             params.put("lat", String.format("%.7f", lat));
             params.put("lon", String.format("%.7f", lon));
-            return new JSONObject(executeHttpRequest(Method.POST, url, params)).getJSONObject("data").getInt("id");
+            return new JSONObject(executeHttpRequest(Method.POST, url, params, ctx)).getJSONObject("data").getInt("id");
 		}else{
 		    String url = String.format("%s/V0.2/addfavadd/?UID=%d&NAME=%s&ADDRESS=%s&lat=%.7f&lon=%.7f",
 	                HOST, user.getId(), URLEncoder.encode(name), URLEncoder.encode(address), lat, lon);
-		    executeHttpGetRequest(url);
+		    executeHttpGetRequest(url, ctx);
 		    return 0;
 		}
 	}

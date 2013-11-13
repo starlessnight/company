@@ -9,12 +9,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
+
 import com.smartrek.models.User;
 import com.smartrek.utils.HTTP.Method;
 
 public class UserRegistrationRequest extends Request {
 
-	public void execute(User user) throws Exception {
+	public void execute(User user, Context ctx) throws Exception {
 	    String username = user.getUsername();
         String password = user.getPassword();
         String email = user.getEmail();
@@ -30,7 +32,7 @@ public class UserRegistrationRequest extends Request {
 		    params.put("last_name", lastname);
 		    String res = null;
             try {
-                res = executeHttpRequest(Method.POST, url, params);
+                res = executeHttpRequest(Method.POST, url, params, ctx);
             } catch (Exception e){
                 res = e.getMessage();
             }
@@ -55,7 +57,7 @@ public class UserRegistrationRequest extends Request {
 	                URLEncoder.encode(email),
 	                URLEncoder.encode(firstname),
 	                URLEncoder.encode(lastname));
-		    String res = executeHttpGetRequest(url);
+		    String res = executeHttpGetRequest(url, ctx);
 	        try {
 	            JSONObject json = new JSONArray(res).getJSONObject(0);
 	            if("FAILED".equals(json.getString("STATUS"))){

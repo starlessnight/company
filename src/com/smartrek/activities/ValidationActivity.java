@@ -783,7 +783,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
                                         NavigationView.metersToMiles(reservation.getRoute().getLength()
                                             - reservation.getRoute().getValidatedDistance()), 
                                         reservation.getDestinationAddress());
-                                    req.execute();
+                                    req.execute(ValidationActivity.this);
                                 }
                                 catch (Exception e) {
                                     ehs.registerException(e);

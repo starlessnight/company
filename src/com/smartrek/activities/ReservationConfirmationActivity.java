@@ -176,7 +176,7 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 			ReservationRequest request = new ReservationRequest(User.getCurrentUser(ReservationConfirmationActivity.this), 
 		        route, getString(R.string.distribution_date));
 			try {
-			    rs = request.execute();
+			    rs = request.execute(ReservationConfirmationActivity.this);
 			}
 			catch (Exception e) {
 				ehs.registerException(e);

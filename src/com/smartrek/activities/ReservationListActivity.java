@@ -152,7 +152,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	            AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 	            int menuItemIndex = info.position;
 	            Reservation reservation = reservations.get(menuItemIndex);
-	            new ReservationDeleteTask(menuItemIndex).execute(
+	            new ReservationDeleteTask(menuItemIndex, this).execute(
                     User.getCurrentUser(this), reservation.getRid());
 	            return true;
 	            
@@ -293,8 +293,11 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	    
         private int listItemIndex;
         
-        public ReservationDeleteTask(int listItemIndex) {
+        private Context ctx;
+        
+        public ReservationDeleteTask(int listItemIndex, Context ctx) {
             this.listItemIndex = listItemIndex;
+            this.ctx = ctx;
         }
         
         @Override
@@ -314,7 +317,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
             
             ReservationDeleteRequest request = new ReservationDeleteRequest(user, rid);
             try {
-                request.execute();
+                request.execute(ctx);
             }
             catch (Exception e) {
                 ehs.registerException(e);

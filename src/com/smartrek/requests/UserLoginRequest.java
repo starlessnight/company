@@ -41,7 +41,7 @@ public class UserLoginRequest extends FetchRequest<User> {
         newApi = true;
     }
 	
-	public User execute(Context ctx) throws IOException, JSONException {
+	public User execute(Context ctx) throws IOException, JSONException, InterruptedException {
 	    String response = executeFetchRequest(getURL(), ctx).trim();
 	    User user = null;
 	    if(newApi){

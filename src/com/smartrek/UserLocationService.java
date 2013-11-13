@@ -9,15 +9,18 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
+import com.smartrek.activities.DebugOptionsActivity;
+import com.smartrek.activities.DebugOptionsActivity.LatLon;
 import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.SendTrajectoryRequest;
+import com.smartrek.utils.RouteNode;
 
 public class UserLocationService extends IntentService {
 
-    private static final long FIFTHTEEN_MINS = 15 * 60 * 1000 /* 10000 */;
+    private static final long ONE_SEC = 1000;
 
     private static final int RID = 9999;
     
@@ -27,21 +30,25 @@ public class UserLocationService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.i("UserLocationService", "onHandleIntent");
-        
-        User user = User.getCurrentUser(this);
+        final User user = User.getCurrentUser(this);
         if(user != null && MapDisplayActivity.isLocBasedServiceEnabled(this)){
             try {
-                LocationInfo info = new LocationInfo(this);
-                Trajectory traj = new Trajectory();
-                traj.accumulate(info.lastLat, info.lastLong, info.lastAltitude, 
-                    info.lastSpeed, info.lastHeading, System.currentTimeMillis(), 
-                    Trajectory.DEFAULT_LINK_ID);
-                SendTrajectoryRequest request = new SendTrajectoryRequest();
-                if(Request.NEW_API){
-                    request.execute(user, traj);
-                }else{
-                    request.execute(0, user.getId(), RID, traj);
+                LocationInfo info = new LocationInfo(UserLocationService.this);
+                LatLon lastLoc = DebugOptionsActivity.getLastUserLatLon(UserLocationService.this);
+                if(lastLoc == null || RouteNode.distanceBetween(lastLoc.lat, 
+                        lastLoc.lon, info.lastLat, info.lastLong) >= 5.0D){
+                    Log.i("UserLocationService", "onHandleIntent");
+                    DebugOptionsActivity.setLastUserLatLon(UserLocationService.this, info.lastLat, info.lastLong);
+                    Trajectory traj = new Trajectory();
+                    traj.accumulate(info.lastLat, info.lastLong, info.lastAltitude, 
+                        info.lastSpeed, info.lastHeading, System.currentTimeMillis(), 
+                        Trajectory.DEFAULT_LINK_ID);
+                    SendTrajectoryRequest request = new SendTrajectoryRequest();
+                    if(Request.NEW_API){
+                        request.execute(user, traj, this);
+                    }else{
+                        request.execute(0, user.getId(), RID, traj);
+                    }
                 }
             }
             catch (Throwable t) {
@@ -56,7 +63,7 @@ public class UserLocationService extends IntentService {
                 PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
         alarm.setRepeating(AlarmManager.ELAPSED_REALTIME,
-                SystemClock.elapsedRealtime(), FIFTHTEEN_MINS, sendTrajServ);
+                SystemClock.elapsedRealtime(), ONE_SEC, sendTrajServ);
     }
 
 }

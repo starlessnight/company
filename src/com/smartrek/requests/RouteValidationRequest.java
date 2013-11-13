@@ -6,6 +6,8 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.content.Context;
+
 import com.smartrek.exceptions.SmarTrekException;
 import com.smartrek.models.User;
 import com.smartrek.utils.HTTP.Method;
@@ -29,13 +31,13 @@ public class RouteValidationRequest extends Request {
 	    }
 	}
 	
-	public void execute() throws Exception {
+	public void execute(Context ctx) throws Exception {
 	    if(NEW_API){
 	        Map<String, String> params = new HashMap<String, String>();
 	        params.put("reservation_id", String.valueOf(rid));
-	        executeHttpRequest(Method.POST, url, params);
+	        executeHttpRequest(Method.POST, url, params, ctx);
 	    }else{
-	        String res = executeHttpGetRequest(url);
+	        String res = executeHttpGetRequest(url, ctx);
 	        JSONObject json = new JSONArray(res).getJSONObject(0);
 	        if("FAILED".equalsIgnoreCase(json.getString("STATUS"))){
 	            throw new SmarTrekException(json.getString("MESSAGE"));

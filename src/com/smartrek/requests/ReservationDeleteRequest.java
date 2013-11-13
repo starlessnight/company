@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import org.json.JSONException;
 
+import android.content.Context;
+
 import com.smartrek.models.User;
 import com.smartrek.utils.HTTP.Method;
 
@@ -21,15 +23,15 @@ public final class ReservationDeleteRequest extends DeleteRequest {
         this.rid = rid;
     }
     
-    public void execute() throws IOException, JSONException {
+    public void execute(Context ctx) throws IOException, JSONException, InterruptedException {
         if(NEW_API){
             this.username = user.getUsername();
             this.password = user.getPassword();
             String url = getLinkUrl(Link.reservation) + "/" +rid;
-            executeHttpRequest(Method.DELETE, url);
+            executeHttpRequest(Method.DELETE, url, ctx);
         }else{
             String url = String.format("%s/deletereservations/?uid=%d&rid=%d", HOST, user.getId(), rid);
-            executeDeleteRequest(url);
+            executeDeleteRequest(url, ctx);
         }
     }
 }

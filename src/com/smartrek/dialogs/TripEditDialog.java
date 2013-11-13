@@ -348,22 +348,22 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 				    
 				    if(originId == 0){
 				        String addr = origin.getAddress();
-				        originId = new FavoriteAddressAddRequest(user, truncateName(addr), addr, 0, 0).execute();
+				        originId = new FavoriteAddressAddRequest(user, truncateName(addr), addr, 0, 0).execute(context);
 				    }
 				    
 				    if(destId == 0){
 				        String addr = destination.getAddress();
-				        destId = new FavoriteAddressAddRequest(user, truncateName(addr), addr, 0, 0).execute();
+				        destId = new FavoriteAddressAddRequest(user, truncateName(addr), addr, 0, 0).execute(context);
 				    }
 				    
 			        TripAddRequest request = new TripAddRequest(user, name, originId, destId, recurringTime);
-                    request.execute();
+                    request.execute(context);
 				}
 				else {
 					TripUpdateRequest request = new TripUpdateRequest(
 				        new TripLinkRequest(user).execute(getContext()), tid, 
 				        user, name, origin.getId(), destination.getId(), recurringTime);
-					request.execute();
+					request.execute(context);
 				}
 				
 				new TripListFetchRequest(user).invalidateCache(getContext());

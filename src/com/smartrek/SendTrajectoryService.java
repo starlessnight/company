@@ -75,7 +75,7 @@ public class SendTrajectoryService extends IntentService {
                 }
                 SendTrajectoryRequest request = new SendTrajectoryRequest();
                 if(Request.NEW_API){
-                    request.execute(user, routeId, traj);
+                    request.execute(user, routeId, traj, ctx);
                 }else{
                     request.execute(seq, user.getId(), routeId, traj);
                 }

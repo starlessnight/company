@@ -35,7 +35,7 @@ public class TripService extends IntentService {
                     try{
                         long rId = Long.parseLong(f.getName());
                         SendTrajectoryService.send(this, rId);
-                        new TripValidationRequest(user, rId).execute();
+                        new TripValidationRequest(user, rId).execute(this);
                         FileUtils.deleteQuietly(f);
                     }catch(SmarTrekException e){
                         FileUtils.deleteQuietly(f);

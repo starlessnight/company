@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.json.JSONException;
 
+import android.content.Context;
+
 import com.smartrek.models.User;
 import com.smartrek.utils.HTTP.Method;
 import com.smartrek.utils.datetime.RecurringTime;
@@ -50,7 +52,7 @@ public class TripUpdateRequest extends UpdateRequest {
 		this.link = link;
 	}
 
-	public void execute() throws IOException, JSONException {
+	public void execute(Context ctx) throws IOException, JSONException, InterruptedException {
 	    if(NEW_API){
 	        this.username = user.getUsername();
             this.password = user.getPassword();
@@ -62,11 +64,11 @@ public class TripUpdateRequest extends UpdateRequest {
             params.put("destination_id", String.valueOf(did));
             params.put("arrival_time", String.format("%02d:%2d:00", recurringTime.getHour() % 24, recurringTime.getMinute()));
             params.put("datetype", String.format("%d", recurringTime.getWeekdays()));
-            executeHttpRequest(Method.PUT, url, params);
+            executeHttpRequest(Method.PUT, url, params, ctx);
 	    }else{
     		String url = String.format("%s/favroutes-update/?rid=%d&uid=%d&name=%s&oid=%d&did=%d&arrivaltime=%d:%d:00&datetype=%d",
     				HOST, tid, user.getId(), URLEncoder.encode(name), oid, did, recurringTime.getHour(), recurringTime.getMinute(), recurringTime.getWeekdays());
-    		executeUpdateRequest(url);
+    		executeUpdateRequest(url, ctx);
 	    }
 	}
 }

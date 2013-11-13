@@ -305,7 +305,11 @@ public final class RouteActivity extends ActionBarActivity {
                         timeLayout.setColumnState(column, State.InProgress);
                         long departureTime = timeButton.getDepartureTime();
                         
-                        updateRoute(originCoord, destCoord, departureTime, column);
+                        try {
+                            updateRoute(originCoord, destCoord, departureTime, column);
+                        }
+                        catch (InterruptedException e) {
+                        }
                         
 //                        RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime, column, true);
 //                        routeTasks.add(routeTask);
@@ -551,11 +555,12 @@ public final class RouteActivity extends ActionBarActivity {
      * @param destination
      * @param departureTime
      * @param column
+     * @throws InterruptedException 
      * @throws JSONException 
      * @throws IOException 
      * @throws RouteNotFoundException 
      */
-    private void updateRoute(GeoPoint origin, GeoPoint destination, long departureTime, int column) {
+    private void updateRoute(GeoPoint origin, GeoPoint destination, long departureTime, int column) throws InterruptedException {
         RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(this), origin, destination, departureTime);
         if (request.isCached(this)) {
             try {
@@ -760,7 +765,7 @@ public final class RouteActivity extends ActionBarActivity {
         	return request.isCached(RouteActivity.this);
         }
         
-        public List<Route> getData() throws RouteNotFoundException, IOException, JSONException {
+        public List<Route> getData() throws RouteNotFoundException, IOException, JSONException, InterruptedException {
         	RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(RouteActivity.this), origin, destination, departureTime);
         	return request.execute(RouteActivity.this);
         }

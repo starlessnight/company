@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
+import android.content.Context;
+
 import com.smartrek.models.User;
 import com.smartrek.utils.HTTP.Method;
 
@@ -31,7 +33,7 @@ public final class ImComingRequest extends AddRequest {
 		this.destination = destination;
 	}
 	
-	public void execute() throws IOException {
+	public void execute(Context ctx) throws IOException, InterruptedException {
         this.username = user.getUsername();
         this.password = user.getPassword();
         String url = getLinkUrl(Link.message);
@@ -44,6 +46,6 @@ public final class ImComingRequest extends AddRequest {
         params.put("eta", dateFmt.format(new Date(eta)));
         params.put("mile", String.valueOf(Double.valueOf(mile).longValue()));
         params.put("destination", destination); 
-        executeHttpRequest(Method.POST, url, params);
+        executeHttpRequest(Method.POST, url, params, ctx);
 	}
 }

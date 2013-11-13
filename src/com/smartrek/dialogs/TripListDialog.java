@@ -110,7 +110,7 @@ public class TripListDialog extends GenericListDialog<Trip> {
 	    		return true;
 	    		
 	        case R.id.delete:
-	        	new TripDeleteTask(menuItemIndex).execute(listItem.getId());
+	        	new TripDeleteTask(menuItemIndex, getContext()).execute(listItem.getId());
 	            return true;
 	            
 	        default:
@@ -153,8 +153,11 @@ public class TripListDialog extends GenericListDialog<Trip> {
 
 		private int listItemIndex;
 		
-		public TripDeleteTask(int listItemIndex) {
+		private Context ctx;
+		
+		public TripDeleteTask(int listItemIndex, Context ctx) {
 			this.listItemIndex = listItemIndex;
+			this.ctx = ctx;
 		}
 		
 		@Override
@@ -166,7 +169,7 @@ public class TripListDialog extends GenericListDialog<Trip> {
 			    
 			    TripDeleteRequest request = new TripDeleteRequest(
 		            new TripLinkRequest(user).execute(getContext()), fid, user);
-				request.execute();
+				request.execute(ctx);
 				
 				// clear cache
 				new TripListFetchRequest(User.getCurrentUser(getContext())).invalidateCache(getContext());

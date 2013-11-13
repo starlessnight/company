@@ -20,6 +20,7 @@ public final class ServiceDiscoveryRequest extends FetchRequest<Result> {
     
     public ServiceDiscoveryRequest(String url) {
         super(url);
+        skipLinkUrlCheck = true;
     }
     
 	public ServiceDiscoveryRequest() {

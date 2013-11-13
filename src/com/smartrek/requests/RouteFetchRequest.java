@@ -85,7 +85,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
         hasNavUrl = true;
     }
 	
-	public List<Route> execute(Context ctx) throws IOException, JSONException, RouteNotFoundException {
+	public List<Route> execute(Context ctx) throws IOException, JSONException, RouteNotFoundException, InterruptedException {
 		String response = null;
 		try{
 		    response = executeFetchRequest(url, ctx);

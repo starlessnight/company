@@ -145,7 +145,7 @@ public class FavoriteAddressListDialog extends GenericListDialog<Address> {
 			try {
 			    FavoriteAddressDeleteRequest request = new FavoriteAddressDeleteRequest(
 	                new AddressLinkRequest(user).execute(getContext()), user, aid);
-				request.execute();
+				request.execute(activity);
 				
 				// clear cache
 				new FavoriteAddressFetchRequest(user).invalidateCache(getContext());

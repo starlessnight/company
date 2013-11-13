@@ -6,6 +6,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,6 +59,8 @@ public final class DebugOptionsActivity extends Activity {
     public static final String GOOGLE_GEOCODING_PATCHED = "GOOGLE_GEOCODING_PATCHED";
     
     private static final int GOOGLE_GEOCODING_PATCH_NO = 1;
+    
+    private static final String LAST_USER_LAT_LON = "LAST_USER_LAT_LON";
     
     private static final String fakeRoutes = "fakeRouteIds";
     
@@ -359,6 +362,36 @@ public final class DebugOptionsActivity extends Activity {
         getPrefs(ctx).edit()
             .putInt(GOOGLE_GEOCODING_PATCHED, patched?GOOGLE_GEOCODING_PATCH_NO:0)
             .commit();
+    }
+    
+    public static LatLon getLastUserLatLon(Context ctx){
+        LatLon rs = null;
+        try{
+            String latLonStr = getPrefs(ctx).getString(LAST_USER_LAT_LON, "");
+            if(StringUtils.isNotBlank(latLonStr)){
+                LatLon latLon = new LatLon();
+                String[] toks = latLonStr.split(",");
+                latLon.lat = Float.parseFloat(toks[0]);
+                latLon.lon = Float.parseFloat(toks[1]);
+                rs = latLon;
+            }
+        }catch(Throwable t){
+        }
+        return rs;
+    }
+    
+    public static void setLastUserLatLon(Context ctx, float lat, float lon){
+        getPrefs(ctx).edit()
+            .putString(LAST_USER_LAT_LON, lat + "," + lon)
+            .commit();
+    }
+    
+    public static class LatLon {
+        
+        public float lat;
+        
+        public float lon;
+        
     }
     
     private static JSONArray getFakeRoutes(Context ctx){
