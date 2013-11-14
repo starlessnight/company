@@ -174,7 +174,7 @@
 		    
    		   <TextView
 		        android:id="@+id/lbs_heading"
-		        android:text="LOCATION BASED SERVICE"
+		        android:text="LOCATION BASED SERVICE INQUIRY"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:layout_below="@id/navigation_tts_text"

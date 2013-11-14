@@ -732,32 +732,30 @@ public final class ValidationActivity extends Activity implements OnInitListener
     private int seq = 1;
     
     private void saveTrajectory(){
-        if(MapDisplayActivity.isLocBasedServiceEnabled(this)){
-            final File tFile = SendTrajectoryService.getInFile(this, reservation.getRid(), seq++);
-            final JSONArray tJson;
-            try {
-                tJson = trajectory.toJSON();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try{
-                            new AsyncTask<Void, Void, Void>(){
-                                @Override
-                                protected Void doInBackground(Void... params) {
-                                    try {
-                                        FileUtils.write(tFile, tJson.toString());
-                                    }
-                                    catch (IOException e) {
-                                    }
-                                    return null;
+        final File tFile = SendTrajectoryService.getInFile(this, reservation.getRid(), seq++);
+        final JSONArray tJson;
+        try {
+            tJson = trajectory.toJSON();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try{
+                        new AsyncTask<Void, Void, Void>(){
+                            @Override
+                            protected Void doInBackground(Void... params) {
+                                try {
+                                    FileUtils.write(tFile, tJson.toString());
                                 }
-                            }.execute();
-                        }catch(Throwable t){}
-                    }
-                });
-            }
-            catch (JSONException e) {
-            }
+                                catch (IOException e) {
+                                }
+                                return null;
+                            }
+                        }.execute();
+                    }catch(Throwable t){}
+                }
+            });
+        }
+        catch (JSONException e) {
         }
         trajectory.clear();
     }

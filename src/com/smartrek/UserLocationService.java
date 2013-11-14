@@ -11,7 +11,6 @@ import android.util.Log;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
 import com.smartrek.activities.DebugOptionsActivity;
 import com.smartrek.activities.DebugOptionsActivity.LatLon;
-import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
@@ -31,7 +30,7 @@ public class UserLocationService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         final User user = User.getCurrentUser(this);
-        if(user != null && MapDisplayActivity.isLocBasedServiceEnabled(this)){
+        if(user != null){
             try {
                 LocationInfo info = new LocationInfo(UserLocationService.this);
                 LatLon lastLoc = DebugOptionsActivity.getLastUserLatLon(UserLocationService.this);
