@@ -19,7 +19,7 @@ import com.smartrek.utils.RouteNode;
 
 public class UserLocationService extends IntentService {
 
-    private static final long ONE_SEC = 1000;
+    public static final long INTERVAL = 7200;
 
     private static final int RID = 9999;
     
@@ -35,7 +35,7 @@ public class UserLocationService extends IntentService {
                 LocationInfo info = new LocationInfo(UserLocationService.this);
                 LatLon lastLoc = DebugOptionsActivity.getLastUserLatLon(UserLocationService.this);
                 if(lastLoc == null || RouteNode.distanceBetween(lastLoc.lat, 
-                        lastLoc.lon, info.lastLat, info.lastLong) >= 5.0D){
+                        lastLoc.lon, info.lastLat, info.lastLong) >= 100D){
                     Log.i("UserLocationService", "onHandleIntent");
                     DebugOptionsActivity.setLastUserLatLon(UserLocationService.this, info.lastLat, info.lastLong);
                     Trajectory traj = new Trajectory();
@@ -62,7 +62,7 @@ public class UserLocationService extends IntentService {
                 PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
         alarm.setRepeating(AlarmManager.ELAPSED_REALTIME,
-                SystemClock.elapsedRealtime(), ONE_SEC, sendTrajServ);
+                SystemClock.elapsedRealtime(), INTERVAL, sendTrajServ);
     }
 
 }
