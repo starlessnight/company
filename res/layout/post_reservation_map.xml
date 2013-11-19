@@ -12,6 +12,35 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"/>
  
+    <LinearLayout 
+	        android:id="@+id/congrats_panel"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal"
+	        android:background="@color/dark_green"
+	        android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:paddingRight="28dp"
+            android:visibility="invisible"
+	        android:layout_above="@+id/mapview_options">
+        <ImageView
+            android:src="@drawable/trekpoints_get"
+            android:layout_width="wrap_content"
+            android:layout_height="52dp"
+            android:adjustViewBounds="true"
+		/>
+        <TextView
+            android:id="@+id/congrats_msg"
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:gravity="center_horizontal"
+            android:text="Congratulations, your trip has been validated"
+            android:background="@android:color/transparent"
+            android:layout_weight="1"
+            style="@style/SmallerBoldText"
+		/>
+    </LinearLayout>
+    
     <LinearLayout
         android:id="@+id/mapview_options"
         android:layout_width="fill_parent"

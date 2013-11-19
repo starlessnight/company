@@ -59,6 +59,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -635,7 +638,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
         });
         
         Font.setTypeface(lightFont, osmCredit);
-        Font.setTypeface(boldFont, dirSwitch, mapViewSwitch);
+        Font.setTypeface(boldFont, dirSwitch, mapViewSwitch, (TextView) findViewById(R.id.congrats_msg));
     }
     
     private View[] getMapViews(){
@@ -1021,8 +1024,29 @@ public final class ValidationActivity extends Activity implements OnInitListener
     
     private void displayArrivalMsg(){
         if(isTripValidated()){
-            Toast.makeText(this, "Congratulations, your trip has been validated", 
-                Toast.LENGTH_LONG).show();
+            final View panel = findViewById(R.id.congrats_panel);
+            panel.setVisibility(View.VISIBLE);
+            Misc.fadeIn(ValidationActivity.this, panel);
+            panel.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Animation anim = AnimationUtils.loadAnimation(
+                        ValidationActivity.this, android.R.anim.fade_out);
+                    anim.setAnimationListener(new AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+                        }
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+                        }
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            panel.setVisibility(View.INVISIBLE);
+                        }
+                    });
+                    panel.startAnimation(anim);
+                }
+            }, 5000);
         }
     }
     
