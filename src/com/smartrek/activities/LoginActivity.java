@@ -26,6 +26,7 @@ import android.widget.TextView;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
+import com.smartrek.requests.Request.Page;
 import com.smartrek.requests.UserIdRequest;
 import com.smartrek.tasks.LoginTask;
 import com.smartrek.utils.ExceptionHandlingService;
@@ -124,7 +125,7 @@ public final class LoginActivity extends Activity implements OnClickListener,
                             msg = "The server encountered an unexpected condition which prevented it from fulfilling the request.";
                         }else{
                             msg = Html.fromHtml("The username or password you entered is not valid.&nbsp;"
-                                + "<a href=\"http://www.smartrekmobile.com/reset\">Forgot your password?</a>");
+                                + "<a href=\"" + Request.getPageUrl(Page.reset_password) + "\">Forgot your password?</a>");
                         }
                         NotificationDialog notificationDialog = new NotificationDialog(LoginActivity.this, msg);
                         notificationDialog.show();

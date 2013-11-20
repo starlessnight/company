@@ -72,7 +72,8 @@ public abstract class Request {
 	}
 	
 	public enum Page { 
-	    feedback
+	    feedback,
+	    reset_password
     }
 	
 	private static EnumMap<Link, String> linkUrls = new EnumMap<Link, String>(Link.class);
