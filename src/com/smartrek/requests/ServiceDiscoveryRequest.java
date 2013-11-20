@@ -16,6 +16,8 @@ public final class ServiceDiscoveryRequest extends FetchRequest<Result> {
         
         public EnumMap<Page, String> pages = new EnumMap<Page, String>(Page.class);
         
+        public EnumMap<Setting, Object> settings = new EnumMap<Setting, Object>(Setting.class);
+        
     }
     
     public ServiceDiscoveryRequest(String url) {
@@ -43,6 +45,13 @@ public final class ServiceDiscoveryRequest extends FetchRequest<Result> {
             String name = p.name();
             if(pages.has(name)){
                 rs.pages.put(p, pages.getString(name));
+            }
+        }
+		JSONObject settings = new JSONObject(response).getJSONObject("settings");
+        for(Setting s : Setting.values()){
+            String name = s.name();
+            if(settings.has(name)){
+                rs.settings.put(s, settings.get(name));
             }
         }
 		return rs;

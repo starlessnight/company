@@ -18,9 +18,12 @@ import com.smartrek.requests.SendTrajectoryRequest;
 import com.smartrek.utils.RouteNode;
 
 public class UserLocationService extends IntentService {
-
-    public static final long INTERVAL = 7200;
-
+    
+    public static Long getInterval(){
+        Long interval = Request.getActivityDistanceInterval();
+        return interval == null?null:(interval * 3600000 / 60000);
+    }
+    
     private static final int RID = 9999;
     
     public UserLocationService() {
@@ -34,8 +37,9 @@ public class UserLocationService extends IntentService {
             try {
                 LocationInfo info = new LocationInfo(UserLocationService.this);
                 LatLon lastLoc = DebugOptionsActivity.getLastUserLatLon(UserLocationService.this);
-                if(lastLoc == null || RouteNode.distanceBetween(lastLoc.lat, 
-                        lastLoc.lon, info.lastLat, info.lastLong) >= 100D){
+                Long distanceInterval = Request.getActivityDistanceInterval();
+                if(distanceInterval != null && (lastLoc == null || RouteNode.distanceBetween(lastLoc.lat, 
+                        lastLoc.lon, info.lastLat, info.lastLong) >= distanceInterval.doubleValue())){
                     Log.i("UserLocationService", "onHandleIntent");
                     DebugOptionsActivity.setLastUserLatLon(UserLocationService.this, info.lastLat, info.lastLong);
                     Trajectory traj = new Trajectory();
@@ -62,7 +66,7 @@ public class UserLocationService extends IntentService {
                 PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
         alarm.setRepeating(AlarmManager.ELAPSED_REALTIME,
-                SystemClock.elapsedRealtime(), INTERVAL, sendTrajServ);
+                SystemClock.elapsedRealtime(), getInterval(), sendTrajServ);
     }
 
 }

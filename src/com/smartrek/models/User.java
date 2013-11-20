@@ -158,7 +158,6 @@ public final class User implements JSONModel, Parcelable {
 	        try {
 				currentUser = parse(getCurrentUserData(context));
 			} catch (JSONException e) {
-				e.printStackTrace();
 			}
 		}
 		

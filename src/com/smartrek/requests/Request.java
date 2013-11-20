@@ -76,9 +76,16 @@ public abstract class Request {
 	    reset_password
     }
 	
+	public enum Setting {
+	    activity_distance_interval,
+	    gps_accuracy
+	}
+	
 	private static EnumMap<Link, String> linkUrls = new EnumMap<Link, String>(Link.class);
 	
 	private static EnumMap<Page, String> pageUrls = new EnumMap<Page, String>(Page.class);
+	
+	private static EnumMap<Setting, Object> settings = new EnumMap<Setting, Object>(Setting.class);
 	
 	/**
 	 * Defines what a request can do
@@ -144,6 +151,7 @@ public abstract class Request {
                 Result rs = req.execute(ctx);
                 Request.setLinkUrls(rs.links);
                 Request.setPageUrls(rs.pages);
+                Request.setSettings(rs.settings);
             }
             catch (Exception e) {
             }
@@ -226,5 +234,18 @@ public abstract class Request {
 	public static String getPageUrl(Page page){
         return pageUrls.get(page);
 	}
+	
+	public static void setSettings(EnumMap<Setting, Object> settings){
+        Request.settings = settings;
+    }
+    
+    public static Object getSetting(Setting setting){
+        return settings.get(setting);
+    }
+    
+    public static Long getActivityDistanceInterval(){
+        Object interval = settings.get(Setting.activity_distance_interval);
+        return interval == null?null:Long.valueOf(interval.toString());
+    }
 	
 }

@@ -110,30 +110,36 @@ public class MainActivity extends Activity implements AnimationListener {
                         }
                     }
                 };
-	            String url = DebugOptionsActivity.getEntrypoint(MainActivity.this);
-                if(StringUtils.isBlank(url)){
-                    url = Request.ENTRYPOINT_URL;
-                }
-	            initApiLinks(this, url, onSuccess, new Runnable() {
-                    @Override
-                    public void run() {
-                        initApiLinks(MainActivity.this, Request.ENTRYPOINT_URL,
-                            onSuccess, 
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    finish();
-                                }
-                            }
-                        );
+                if(Request.hasLinkUrls()){
+                    initApiLinksFailed.set(false);
+                    if(onSuccess != null){
+                        onSuccess.run();
                     }
-                });
+                }else{
+    	            String url = DebugOptionsActivity.getEntrypoint(MainActivity.this);
+                    if(StringUtils.isBlank(url)){
+                        url = Request.ENTRYPOINT_URL;
+                    }
+    	            initApiLinks(this, url, onSuccess, new Runnable() {
+                        @Override
+                        public void run() {
+                            initApiLinks(MainActivity.this, Request.ENTRYPOINT_URL,
+                                onSuccess, 
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        finish();
+                                    }
+                                }
+                            );
+                        }
+                    });
+                }
 	        }else if(loginTask != null){
 	            loginTask.execute();
 	        }
 	        SendTrajectoryService.schedule(this);
 	        CalendarService.schedule(this);
-	        UserLocationService.schedule(this);
 	        ValidationService.schedule(this);
 	        TripService.schedule(this);
 		}
@@ -168,6 +174,7 @@ public class MainActivity extends Activity implements AnimationListener {
                     initApiLinksFailed.set(false);
                     Request.setLinkUrls(result.links);
                     Request.setPageUrls(result.pages);
+                    Request.setSettings(result.settings);
                     if(onSuccess != null){
                         onSuccess.run();
                     }
