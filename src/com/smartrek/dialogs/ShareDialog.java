@@ -43,6 +43,8 @@ public class ShareDialog extends DialogFragment {
 	
 	private UiLifecycleHelper uiHelper;
 	
+	private String title;
+	
 	private String shareText;
 	
 	private boolean fbPending;
@@ -81,8 +83,10 @@ public class ShareDialog extends DialogFragment {
 	    
         dialogView = (ViewGroup) inflater.inflate(R.layout.share_dialog, null);
         
+        title = args.getString(TITLE);
+        
         TextView titleView = (TextView) dialogView.findViewById(R.id.title);
-        titleView.setText(args.getString(TITLE));
+        titleView.setText(title);
         
         TextView facebookButton = (TextView) dialogView.findViewById(R.id.facebook_button);
         facebookButton.setOnClickListener(new View.OnClickListener() {
@@ -146,6 +150,35 @@ public class ShareDialog extends DialogFragment {
             }
         });
         
+        TextView smsButton = (TextView) dialogView.findViewById(R.id.sms_button);
+        smsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isNotLoading()){
+                    Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+                    sendIntent.putExtra("sms_body", shareText); 
+                    sendIntent.setType("vnd.android-dir/mms-sms");
+                    startActivity(Intent.createChooser(sendIntent, title));
+                    dismissQuietly();
+                }
+            }
+        });
+        
+        TextView emailButton = (TextView) dialogView.findViewById(R.id.email_button);
+        emailButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isNotLoading()){
+                    Intent sendIntent = new Intent(Intent.ACTION_SEND);
+                    sendIntent.putExtra(Intent.EXTRA_SUBJECT, title); 
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, shareText); 
+                    sendIntent.setType("message/rfc822");
+                    startActivity(Intent.createChooser(sendIntent, title));
+                    dismissQuietly();
+                }
+            }
+        });
+        
         View closeIcon = dialogView.findViewById(R.id.close_icon);
         closeIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -156,7 +189,7 @@ public class ShareDialog extends DialogFragment {
         
         AssetManager assets = getActivity().getAssets();
         Font.setTypeface(Font.getBold(assets), titleView, facebookButton, 
-            twitterButton, googlePlusButton);
+            twitterButton, googlePlusButton, smsButton, emailButton);
         
         uiHelper = new UiLifecycleHelper(getActivity(), fbCallback);
         uiHelper.onCreate(savedInstanceState);

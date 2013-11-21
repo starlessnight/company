@@ -95,6 +95,30 @@
 		                android:textColor="@color/dashboard_dark_gray"
 		                style="@style/SmallerBoldText"
 					/>
+			        
+			        <TextView
+		                android:id="@+id/sms_button"
+		                android:layout_height="39dp"
+		                android:layout_width="match_parent"
+		                android:text="SMS"
+		                android:gravity="center_vertical"
+		                android:layout_marginTop="22dp"
+		                android:paddingLeft="74dp"
+		                android:textColor="@color/dashboard_dark_gray"
+		                style="@style/SmallerBoldText"
+					/>
+			        
+			        <TextView
+		                android:id="@+id/email_button"
+		                android:layout_height="39dp"
+		                android:layout_width="match_parent"
+		                android:text="Email"
+		                android:gravity="center_vertical"
+		                android:layout_marginTop="22dp"
+		                android:paddingLeft="74dp"
+		                android:textColor="@color/dashboard_dark_gray"
+		                style="@style/SmallerBoldText"
+					/>
 			    </LinearLayout>
 			    
 		        <ProgressBar
