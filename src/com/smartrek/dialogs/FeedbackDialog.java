@@ -90,7 +90,7 @@ public class FeedbackDialog extends Dialog {
             @Override
             public void onClick(View v) {
                 getContext().startActivity(new Intent(Intent.ACTION_VIEW, 
-                    Uri.parse("https://play.google.com/store/apps/details?id=" + getContext().getApplicationContext().getPackageName())));
+                    Uri.parse(Misc.getGooglePlayAppUrl(getContext()))));
                 if (listener != null) {
                     listener.onClickPositiveButton();
                 }

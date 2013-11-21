@@ -15,10 +15,12 @@ import com.actionbarsherlock.view.MenuItem;
 import com.google.ads.AdRequest;
 import com.google.ads.AdView;
 import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.dialogs.ShareDialog;
 import com.smartrek.models.Route;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
+import com.smartrek.utils.Misc;
 
 public final class ValidationReportActivity extends ActionBarActivity {
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
@@ -62,8 +64,17 @@ public final class ValidationReportActivity extends ActionBarActivity {
             }
         });
         
+        Button shareBtn = (Button) findViewById(R.id.share_button);
+        shareBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ShareDialog.newInstance("Share Smartrek", Misc.getGooglePlayAppUrl(ValidationReportActivity.this))
+                    .show(getSupportFragmentManager(), null);
+            }
+        });
+        
         Font.setTypeface(lightFont, textViewPoints);
-        Font.setTypeface(boldFont, okBtn);
+        Font.setTypeface(boldFont, okBtn, shareBtn);
         
         MediaPlayer validationMusicPlayer = new MediaPlayer();
         validationMusicPlayer.setAudioStreamType(AudioManager.STREAM_NOTIFICATION);

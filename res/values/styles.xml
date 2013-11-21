@@ -137,6 +137,9 @@
 	<style name="ShareButton" parent="LargeTextButton">
 		<item name="android:background">@drawable/share_button</item>
 	</style>
+	<style name="ShareBlueButton" parent="LargeTextButton">
+		<item name="android:background">@drawable/share_blue_button</item>
+	</style>
 	<style name="SmallerTextButton">
 	    <item name="android:textSize">@dimen/smaller_font</item>
 	    <item name="android:textColor">@color/button_text</item>

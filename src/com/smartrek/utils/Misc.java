@@ -105,4 +105,8 @@ public class Misc {
         v.startAnimation(anim);
     }
     
+    public static String getGooglePlayAppUrl(Context ctx){
+        return "https://play.google.com/store/apps/details?id=" + ctx.getApplicationContext().getPackageName();
+    }
+    
 }
