@@ -124,8 +124,7 @@ public final class LoginActivity extends Activity implements OnClickListener,
                         else if(exc instanceof HttpResponseException && ((HttpResponseException)exc).getStatusCode() == 500){
                             msg = "The server encountered an unexpected condition which prevented it from fulfilling the request.";
                         }else{
-                            msg = Html.fromHtml("The username or password you entered is not valid.&nbsp;"
-                                + "<a href=\"" + Request.getPageUrl(Page.reset_password) + "\">Forgot your password?</a>");
+                            msg = Html.fromHtml(getAccountPwdErrorMsg());
                         }
                         NotificationDialog notificationDialog = new NotificationDialog(LoginActivity.this, msg);
                         notificationDialog.show();
@@ -151,14 +150,26 @@ public final class LoginActivity extends Activity implements OnClickListener,
                         return id;
                     }
                     protected void onPostExecute(Integer userId) {
-                        loginTask.setUserId(userId)
-                            .execute();
+                        if(userId == null){
+                            loginTask.hideDialog();
+                            NotificationDialog notificationDialog = new NotificationDialog(LoginActivity.this, 
+                                Html.fromHtml(getAccountPwdErrorMsg()));
+                            notificationDialog.show();
+                        }else{
+                            loginTask.setUserId(userId)
+                                .execute();
+                        }
                     }
                 }.execute();
     		}else{
     		    loginTask.execute();
     		}
         }
+	}
+	
+	private static String getAccountPwdErrorMsg(){
+	    return "The username or password you entered is not valid.&nbsp;"
+                + "<a href=\"" + Request.getPageUrl(Page.reset_password) + "\">Forgot your password?</a>";
 	}
 	
 	Button.OnClickListener registerButtonClickListener = new Button.OnClickListener() {

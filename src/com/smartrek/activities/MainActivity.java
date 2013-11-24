@@ -20,7 +20,6 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.CalendarService;
 import com.smartrek.SendTrajectoryService;
 import com.smartrek.TripService;
-import com.smartrek.UserLocationService;
 import com.smartrek.ValidationService;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
@@ -86,8 +85,8 @@ public class MainActivity extends Activity implements AnimationListener {
                     @Override
                     public void run() {
                         if(loginTask != null){
+                            loginTask.setDialogEnabled(splashEnded);
                             loginTask.showDialog();
-                            loginTask.setDialogEnabled(true);
                             new AsyncTask<Void, Void, Integer>() {
                                 @Override
                                 protected Integer doInBackground(Void... params) {
@@ -103,8 +102,16 @@ public class MainActivity extends Activity implements AnimationListener {
                                     return id;
                                 }
                                 protected void onPostExecute(Integer userId) {
-                                    loginTask.setUserId(userId)
-                                        .execute();
+                                    if(userId == null){
+                                        loginTaskEnded = true;
+                                        loggedIn = false;
+                                        if(splashEnded){
+                                            startLoginActivity();
+                                        }
+                                    }else{
+                                        loginTask.setUserId(userId)
+                                            .execute();
+                                    }
                                 }
                             }.execute();
                         }

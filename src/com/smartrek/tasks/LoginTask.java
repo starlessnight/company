@@ -99,7 +99,14 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
     }
     
     public void showDialog(){
-        dialog.show();
+        if(dialogEnabled){
+            dialog.show();
+        }
     }
+    
+    public void hideDialog(){
+        dialog.cancel();
+    }
+    
 	
 }

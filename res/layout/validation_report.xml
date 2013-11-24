@@ -38,6 +38,7 @@
 	        android:layout_marginRight="30dp"
             android:text="Share"
             style="@style/ShareBlueButton"
+            android:visibility="gone"
          />
 	    	        	
 	     <Button

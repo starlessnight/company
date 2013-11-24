@@ -106,6 +106,7 @@
 		                android:paddingLeft="74dp"
 		                android:textColor="@color/dashboard_dark_gray"
 		                style="@style/SmallerBoldText"
+		                android:visibility="gone"
 					/>
 			        
 			        <TextView
@@ -118,6 +119,7 @@
 		                android:paddingLeft="74dp"
 		                android:textColor="@color/dashboard_dark_gray"
 		                style="@style/SmallerBoldText"
+		                android:visibility="gone"
 					/>
 			    </LinearLayout>
 			    
