@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.smartrek.activities"
-    android:versionCode="20"
+    android:versionCode="21"
     android:versionName="1.1.0" >
 
     <!-- http://stackoverflow.com/questions/9629125/regarding-version-code-and-version-name-android-manifest -->
