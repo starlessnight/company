@@ -257,7 +257,7 @@ public final class MapDisplayActivity extends ActionBarActivity {
     public static void setProfileSelection(Context ctx, ProfileSelectionDialog.Type type){
         ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
             .edit()
-            .putString(PROFILE_SELECTION, type.name())
+            .putString(PROFILE_SELECTION, type==null?null:type.name())
             .commit();
     }
     

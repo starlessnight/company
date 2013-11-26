@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.utils.Preferences;
 
 public final class User implements JSONModel, Parcelable {
@@ -188,6 +189,8 @@ public final class User implements JSONModel, Parcelable {
 		editor.remove(USERNAME);
 		editor.remove(PASSWORD);
 		editor.commit();
+		MapDisplayActivity.setProfileSelection(context, null);
+		MapDisplayActivity.setValidatedTripsCount(context, 0);
 	}
 
 	@Override
