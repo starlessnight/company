@@ -62,6 +62,8 @@ public final class DebugOptionsActivity extends Activity {
     
     private static final String LAST_USER_LAT_LON = "LAST_USER_LAT_LON";
     
+    private static final String LAST_USER_LAT_SENT = "LAST_USER_LAT_SENT";
+    
     private static final String fakeRoutes = "fakeRouteIds";
     
     private static final int fakeRouteSize = 10;
@@ -362,6 +364,16 @@ public final class DebugOptionsActivity extends Activity {
         getPrefs(ctx).edit()
             .putInt(GOOGLE_GEOCODING_PATCHED, patched?GOOGLE_GEOCODING_PATCH_NO:0)
             .commit();
+    }
+    
+    public static void setLastUserLatLonSent(Context ctx,long time){
+        getPrefs(ctx).edit()
+            .putLong(LAST_USER_LAT_SENT, time)
+            .commit();
+    }
+    
+    public static long getLastUserLatLonSent(Context ctx){
+        return getPrefs(ctx).getLong(LAST_USER_LAT_SENT, 0);
     }
     
     public static LatLon getLastUserLatLon(Context ctx){
