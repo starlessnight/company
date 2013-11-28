@@ -23,7 +23,6 @@
         android:layout_marginLeft="12dp"
         android:layout_marginRight="12dp"
         android:id="@+id/webview_content"
-        android:visibility="invisible"
     />
     
     <LinearLayout 

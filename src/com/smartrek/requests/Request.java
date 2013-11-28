@@ -73,7 +73,8 @@ public abstract class Request {
 	
 	public enum Page { 
 	    feedback,
-	    reset_password
+	    reset_password,
+	    eula
     }
 	
 	public enum Setting {

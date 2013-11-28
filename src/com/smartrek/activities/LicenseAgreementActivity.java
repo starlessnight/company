@@ -1,18 +1,13 @@
 package com.smartrek.activities;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.net.Uri;
-import android.os.Build;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -22,7 +17,11 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.requests.Request;
+import com.smartrek.requests.Request.Page;
+import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
+import com.smartrek.utils.HTTP;
 import com.smartrek.utils.Preferences;
 
 public class LicenseAgreementActivity extends Activity {
@@ -44,6 +43,8 @@ public class LicenseAgreementActivity extends Activity {
     
     private WebView webviewContent;
     private Button buttonAgree;
+    
+    private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,38 +68,44 @@ public class LicenseAgreementActivity extends Activity {
             
         });
         
-        InputStream is = null;
-        try {
-            is = getResources().getAssets().open("license.html");
-            webviewContent = (WebView) findViewById(R.id.webview_content);
-            webviewContent.setWebViewClient(new WebViewClient() {
-                @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-				public void onPageFinished(WebView view, String url) {
-                    view.setBackgroundColor(0x00000000);
-                    if (Build.VERSION.SDK_INT >= 11) {
-                        view.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
-                    }
-                    webviewContent.setVisibility(View.VISIBLE);
+        webviewContent = (WebView) findViewById(R.id.webview_content);
+        webviewContent.setWebViewClient(new WebViewClient() {
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                String emailProtocol = "mailto:";
+                if (url != null && url.startsWith("http://")) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                } else if(url != null && url.startsWith(emailProtocol)){
+                    Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                        "mailto", StringUtils.substringAfter(url, emailProtocol), null));
+                    startActivity(emailIntent);
                 }
-                public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                    String emailProtocol = "mailto:";
-                    if (url != null && url.startsWith("http://")) {
-                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-                    } else if(url != null && url.startsWith(emailProtocol)){
-                        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                            "mailto", StringUtils.substringAfter(url, emailProtocol), null));
-                        startActivity(emailIntent);
-                    }
-                    return true;
+                return true;
+            }
+         });
+        new AsyncTask<Void, Void, String>() {
+            @Override
+            protected String doInBackground(Void... params) {
+                String html = null;
+                try{
+                    HTTP http = new HTTP(Request.getPageUrl(Page.eula));
+                    http.connect();
+                    html = http.getResponseBody(); 
+                }catch(Exception e){
+                    ehs.registerException(e);
                 }
-             });
-            webviewContent.loadDataWithBaseURL("file:///android_asset/", 
-                IOUtils.toString(is), "text/html", "utf-8", null);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(is);
-        }
+                return html;
+            }
+            @Override
+            protected void onPostExecute(String html) {
+                if (ehs.hasExceptions()) {
+                    ehs.reportExceptions();
+                }
+                else {
+                    webviewContent.loadDataWithBaseURL("file:///android_asset/", 
+                        html, "text/html", "utf-8", null);
+                }
+            }
+        }.execute();        
         
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getBold(assets), (TextView)findViewById(R.id.title),
