@@ -64,6 +64,8 @@ public final class DebugOptionsActivity extends Activity {
     
     private static final String LAST_USER_LAT_SENT = "LAST_USER_LAT_SENT";
     
+    private static final String EULA_ETAG = "EULA_ETAG";
+    
     private static final String fakeRoutes = "fakeRouteIds";
     
     private static final int fakeRouteSize = 10;
@@ -374,6 +376,16 @@ public final class DebugOptionsActivity extends Activity {
     
     public static long getLastUserLatLonSent(Context ctx){
         return getPrefs(ctx).getLong(LAST_USER_LAT_SENT, 0);
+    }
+    
+    public static void setEulaEtag(Context ctx, String eTag){
+        getPrefs(ctx).edit()
+            .putString(EULA_ETAG, eTag)
+            .commit();
+    }
+    
+    public static String getEulaEtag(Context ctx){
+        return getPrefs(ctx).getString(EULA_ETAG, "");
     }
     
     public static LatLon getLastUserLatLon(Context ctx){

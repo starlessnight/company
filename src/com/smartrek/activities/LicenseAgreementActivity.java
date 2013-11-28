@@ -31,6 +31,8 @@ public class LicenseAgreementActivity extends Activity {
      */
     public static final int LICENSE_AGREEMENT_ACTIVITY = 1;
     
+    public static final int LICENSE_AGREEMENT_UPDATED = 2;
+    
     /**
      * Preference value
      */
@@ -45,6 +47,8 @@ public class LicenseAgreementActivity extends Activity {
     private Button buttonAgree;
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
+    
+    private String eTag;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,6 +64,8 @@ public class LicenseAgreementActivity extends Activity {
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putInt(Preferences.Global.LICENSE_AGREEMENT, AGREED);
                 editor.commit();
+                
+                DebugOptionsActivity.setEulaEtag(LicenseAgreementActivity.this, eTag);
                 
                 setResult(AGREED);
                 //finishActivity(LICENSE_AGREEMENT);
@@ -82,27 +88,30 @@ public class LicenseAgreementActivity extends Activity {
                 return true;
             }
          });
-        new AsyncTask<Void, Void, String>() {
+        new AsyncTask<Void, Void, Result>() {
             @Override
-            protected String doInBackground(Void... params) {
-                String html = null;
+            protected Result doInBackground(Void... params) {
+                Result rs = new Result();
                 try{
                     HTTP http = new HTTP(Request.getPageUrl(Page.eula));
                     http.connect();
-                    html = http.getResponseBody(); 
+                    rs.html = http.getResponseBody();
+                    rs.eTag = http.getETag();
                 }catch(Exception e){
                     ehs.registerException(e);
                 }
-                return html;
+                return rs;
             }
             @Override
-            protected void onPostExecute(String html) {
+            protected void onPostExecute(Result rs) {
                 if (ehs.hasExceptions()) {
                     ehs.reportExceptions();
                 }
                 else {
                     webviewContent.loadDataWithBaseURL("file:///android_asset/", 
-                        html, "text/html", "utf-8", null);
+                        rs.html, "text/html", "utf-8", null);
+                    eTag = rs.eTag;
+                    buttonAgree.setEnabled(true);
                 }
             }
         }.execute();        
@@ -124,4 +133,13 @@ public class LicenseAgreementActivity extends Activity {
 		super.onStop();
 		EasyTracker.getInstance().activityStop(this);
 	}
+	
+	private static class Result {
+        
+        String eTag;
+        
+        String html;
+        
+    }
+	
 }

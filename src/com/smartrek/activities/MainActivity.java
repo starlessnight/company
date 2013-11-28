@@ -23,11 +23,13 @@ import com.smartrek.TripService;
 import com.smartrek.ValidationService;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
+import com.smartrek.requests.Request.Page;
 import com.smartrek.requests.ServiceDiscoveryRequest;
 import com.smartrek.requests.ServiceDiscoveryRequest.Result;
 import com.smartrek.requests.UserIdRequest;
 import com.smartrek.tasks.LoginTask;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.HTTP;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
 
@@ -205,19 +207,15 @@ public class MainActivity extends Activity implements AnimationListener {
                 }
                 loginTaskEnded = true;
                 if(splashEnded){
-                    if(loggedIn){
-                        startLandingActivity();
-                    }else{
-                        startLoginActivity();
-                    }
+                    checkEulaAndProceedToNextScreen();
                 }
            }
         }.setDialogEnabled(false);
 	}
 	
 	private void startLandingActivity(){
-        Intent intent = new Intent(this, LandingActivity.class);
-        startActivity(intent);
+	    Intent intent = new Intent(this, LandingActivity.class);        
+	    startActivity(intent);
         finish();
 	}
 	
@@ -246,7 +244,7 @@ public class MainActivity extends Activity implements AnimationListener {
             int licenseAgreement = prefs.getInt(Preferences.Global.LICENSE_AGREEMENT, LicenseAgreementActivity.DISAGREED);
             
             if (licenseAgreement == LicenseAgreementActivity.AGREED) {
-                startLoginActivity();
+                checkEulaAndProceedToNextScreen();
             }
             else {
                 Intent intent = new Intent(this, LicenseAgreementActivity.class);
@@ -254,15 +252,43 @@ public class MainActivity extends Activity implements AnimationListener {
             }
 		}else{   
 		    if(loginTaskEnded){
-		        if(loggedIn){
-		            startLandingActivity();
-	            }else{
-	                startLoginActivity();
-	            }
+		        checkEulaAndProceedToNextScreen();
 		    }else if(!initApiLinksFailed.get()){
 		        loginTask.showDialog();
 	            loginTask.setDialogEnabled(true);
 		    }
+        }
+	}
+	
+	private void checkEulaAndProceedToNextScreen(){
+	    new AsyncTask<Void, Void, Boolean>(){
+            @Override
+            protected Boolean doInBackground(Void... params) {
+                boolean updated = false;
+                try{
+                    HTTP http = new HTTP(Request.getPageUrl(Page.eula))
+                        .setIfNoneMatch(DebugOptionsActivity.getEulaEtag(MainActivity.this));
+                    http.connect();
+                    updated = http.getResponseCode() == 200;
+                }catch(Throwable t){}
+                return updated;
+            }
+            protected void onPostExecute(Boolean updated) {
+                if(updated){
+                    Intent intent = new Intent(MainActivity.this, LicenseAgreementActivity.class);
+                    startActivityForResult(intent, LicenseAgreementActivity.LICENSE_AGREEMENT_UPDATED);
+                }else{
+                    proceedToNextScreen();
+                }
+            }
+        }.execute();
+	}
+	
+	private void proceedToNextScreen(){
+	    if(loggedIn){
+            startLandingActivity();
+        }else{
+            startLoginActivity();
         }
 	}
 
@@ -280,19 +306,18 @@ public class MainActivity extends Activity implements AnimationListener {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
     	Log.d("MainActivity", String.format("onActivityResult: %d, %d", requestCode, resultCode));
         super.onActivityResult(requestCode, resultCode, intent);
-        
-        switch (requestCode) {
-        case LicenseAgreementActivity.LICENSE_AGREEMENT_ACTIVITY:
-        	if (resultCode == LicenseAgreementActivity.AGREED) {
-                startActivity(new Intent(this, TutorialActivity.class));
-                
+       
+    	if (resultCode == LicenseAgreementActivity.AGREED) {
+    	    if(requestCode == LicenseAgreementActivity.LICENSE_AGREEMENT_ACTIVITY){
+    	        startActivity(new Intent(this, TutorialActivity.class));
                 finish();
-        	}
-        	else {
-        		finish();
-        	}
-        	break;
-        }
+    	    }else if(requestCode == LicenseAgreementActivity.LICENSE_AGREEMENT_UPDATED){
+    	        proceedToNextScreen();
+    	    }
+    	}
+    	else {
+    		finish();
+    	}
     }
     
     private void startLoginActivity() {

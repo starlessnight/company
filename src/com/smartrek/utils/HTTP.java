@@ -23,6 +23,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 import android.util.Base64;
@@ -54,6 +55,8 @@ public final class HTTP {
 	
 	private JSONObject json;
 	
+	private String ifNoneMatch;
+	
 	public HTTP(String urlString) throws IOException {
 		httpConn = openHttpConnection(urlString);
 	}
@@ -76,6 +79,11 @@ public final class HTTP {
 	
 	public HTTP set(JSONObject json){
 	    this.json = json;
+	    return this;
+	}
+	
+	public HTTP setIfNoneMatch(String ifNoneMatch){
+	    this.ifNoneMatch = ifNoneMatch;
 	    return this;
 	}
 	
@@ -130,6 +138,9 @@ public final class HTTP {
                     IOUtils.closeQuietly(output);
                 }
             }
+			if(StringUtils.isNotEmpty(ifNoneMatch)){
+			    httpConn.setRequestProperty("If-None-Match", ifNoneMatch);
+			}
 			httpConn.connect();
 		}
 	}
@@ -144,6 +155,10 @@ public final class HTTP {
 			return httpConn.getHeaderField(key);
 		}
 		return null;
+	}
+	
+	public String getETag(){
+	    return getHeaderField("ETag");
 	}
 	
 	/**
