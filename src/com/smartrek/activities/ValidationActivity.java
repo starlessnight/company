@@ -1033,6 +1033,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
                     panel.startAnimation(anim);
                 }
             }, 5000);
+            speakIfTtsEnabled("Congratulations! You've earned " + route.getCredits() + " points using Smartrek Mobile!");
         }
     }
     
@@ -1041,6 +1042,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                speakIfTtsEnabled("arrive at destination");
                 displayArrivalMsg();
             }
         });
@@ -1292,18 +1294,31 @@ public final class ValidationActivity extends Activity implements OnInitListener
             navigationView.setListener(new CheckPointListener() {
                 @Override
                 public void onCheckPoint(final String navText) {
-                    if(MapDisplayActivity.isNavigationTtsEnabled(ValidationActivity.this)
-                            && !arrived.get()){
-                        HashMap<String, String> params = new HashMap<String, String>();
-                        params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
-                        params.put(TextToSpeech.Engine.KEY_PARAM_STREAM,
-                            String.valueOf(AudioManager.STREAM_NOTIFICATION));
-                        AudioManager am = (AudioManager)ValidationActivity.this.getSystemService(Context.AUDIO_SERVICE);
-                        am.setStreamMute(AudioManager.STREAM_MUSIC, true);
-                        mTts.speak(navText, TextToSpeech.QUEUE_ADD, params);
+                    if(!arrived.get()){                        
+                        speakIfTtsEnabled(navText);
                     }
                 }
             });
+        }
+    }
+    
+    private void speakIfTtsEnabled(String text){
+        if(MapDisplayActivity.isNavigationTtsEnabled(this)){
+            speak(text);
+        }
+    }
+    
+    private void speak(String text){
+        if(mTts != null){
+            try{
+                HashMap<String, String> params = new HashMap<String, String>();
+                params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
+                params.put(TextToSpeech.Engine.KEY_PARAM_STREAM,
+                    String.valueOf(AudioManager.STREAM_NOTIFICATION));
+                AudioManager am = (AudioManager)ValidationActivity.this.getSystemService(Context.AUDIO_SERVICE);
+                am.setStreamMute(AudioManager.STREAM_MUSIC, true);
+                mTts.speak(text, TextToSpeech.QUEUE_ADD, params);
+            }catch(Throwable t){}
         }
     }
     
