@@ -38,8 +38,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -183,8 +181,6 @@ public final class ValidationActivity extends Activity implements OnInitListener
     private Typeface lightFont;
     
     private int savedPollCnt;
-    
-    private MediaPlayer validationMusicPlayer;
     
     private String emails;
     
@@ -391,15 +387,6 @@ public final class ValidationActivity extends Activity implements OnInitListener
                 });
                 dialog.show();
             }
-        }
-        
-        validationMusicPlayer = new MediaPlayer();
-        validationMusicPlayer.setAudioStreamType(AudioManager.STREAM_NOTIFICATION);
-        try{
-            validationMusicPlayer.setDataSource(this,
-                Uri.parse("android.resource://" + getPackageName() + "/"+R.raw.validation_music));
-            validationMusicPlayer.prepare();
-        }catch (Throwable t) {
         }
     }
     
@@ -965,7 +952,6 @@ public final class ValidationActivity extends Activity implements OnInitListener
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        validationMusicPlayer.start();
                         saveValidation();
                     }
                 });
