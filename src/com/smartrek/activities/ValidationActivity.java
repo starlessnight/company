@@ -593,6 +593,9 @@ public final class ValidationActivity extends Activity implements OnInitListener
                 for (View mView : getMapViews()) {
                     mView.setVisibility(View.VISIBLE);
                 }
+                if(arrived.get()){
+                    navigationView.setVisibility(View.GONE);
+                }
                 findViewById(R.id.directions_view).setVisibility(View.INVISIBLE);
             }
         });
@@ -624,8 +627,12 @@ public final class ValidationActivity extends Activity implements OnInitListener
             }
         });
         
+        TextView destAddr = (TextView) findViewById(R.id.dest_addr);
+        destAddr.setText(reservation.getDestinationAddress());
+        
         Font.setTypeface(lightFont, osmCredit);
-        Font.setTypeface(boldFont, dirSwitch, mapViewSwitch, (TextView) findViewById(R.id.congrats_msg));
+        Font.setTypeface(boldFont, dirSwitch, mapViewSwitch, (TextView) findViewById(R.id.congrats_msg),
+            destAddr);
     }
     
     private View[] getMapViews(){
@@ -1042,6 +1049,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                navigationView.setVisibility(View.GONE);
+                findViewById(R.id.dest_panel).setVisibility(View.VISIBLE);
                 speakIfTtsEnabled("arrive at destination");
                 displayArrivalMsg();
             }
