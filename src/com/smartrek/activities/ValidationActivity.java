@@ -1018,6 +1018,8 @@ public final class ValidationActivity extends Activity implements OnInitListener
     private void displayArrivalMsg(){
         if(isTripValidated()){
             final View panel = findViewById(R.id.congrats_panel);
+            String msg = "Congratulations! You've earned " + route.getCredits() + " points using Smartrek Mobile!";
+            ((TextView) findViewById(R.id.congrats_msg)).setText(msg);
             panel.setVisibility(View.VISIBLE);
             Misc.fadeIn(ValidationActivity.this, panel);
             panel.postDelayed(new Runnable() {
@@ -1040,7 +1042,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
                     panel.startAnimation(anim);
                 }
             }, 5000);
-            speakIfTtsEnabled("Congratulations! You've earned " + route.getCredits() + " points using Smartrek Mobile!");
+            speakIfTtsEnabled(msg);
         }
     }
     

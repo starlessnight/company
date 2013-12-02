@@ -53,10 +53,10 @@
 		/>
         <TextView
             android:id="@+id/congrats_msg"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_width="0dp"
             android:gravity="center_horizontal"
-            android:text="Congratulations, your trip has been validated"
+            android:text="@string/placeholder"
             android:background="@android:color/transparent"
             android:layout_weight="1"
             style="@style/SmallerBoldText"
