@@ -20,6 +20,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.sessionm.api.SessionM;
 import com.smartrek.activities.R;
 import com.smartrek.models.Address;
 import com.smartrek.models.User;
@@ -238,6 +239,7 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 				if (listener != null) {
 	                listener.onClickPositiveButton();
 	            }
+				SessionM.getInstance().logAction("save_location");
 			}
 		}
 		

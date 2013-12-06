@@ -15,6 +15,7 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
+import com.sessionm.api.SessionM;
 import com.smartrek.dialogs.FeedbackDialog;
 import com.smartrek.dialogs.FloatingMenuDialog;
 import com.smartrek.dialogs.ProfileSelectionDialog;
@@ -183,6 +184,7 @@ public final class MapDisplayActivity extends ActionBarActivity {
             (TextView)findViewById(R.id.navigation_tts_heading),
             (TextView)findViewById(R.id.lbs_heading),
             (TextView)findViewById(R.id.distribution_heading),
+            (TextView)findViewById(R.id.mpoints_heading),
             feedback);
         Font.setTypeface(lightFont, displayTravel, displayArrival,
             (TextView)findViewById(R.id.calendar_integration_text),
@@ -265,12 +267,14 @@ public final class MapDisplayActivity extends ActionBarActivity {
 	public void onStart() {
 		super.onStart();
 		EasyTracker.getInstance().activityStart(this);
+		SessionM.getInstance().onActivityStart(this);
 	}
 	
 	@Override
 	public void onStop() {
 		super.onStop();
 		EasyTracker.getInstance().activityStop(this);
+		SessionM.getInstance().onActivityStop(this);
 	}
     
     @Override
@@ -281,4 +285,17 @@ public final class MapDisplayActivity extends ActionBarActivity {
         
         finish();
     }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SessionM.getInstance().onActivityResume(this);
+    }
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SessionM.getInstance().onActivityPause(this);
+    }
+    
 }

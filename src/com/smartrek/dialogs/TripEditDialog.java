@@ -20,6 +20,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.sessionm.api.SessionM;
 import com.smartrek.activities.R;
 import com.smartrek.models.Address;
 import com.smartrek.models.Trip;
@@ -401,6 +402,10 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 		    if (actionListener != null) {
                 actionListener.onClickPositiveButton(name, getOrigin(), getDestination());
             }
+		    
+		    if (tid == 0) {
+		        SessionM.getInstance().logAction("save_trip");
+		    }
 		}
 		
 		private String truncateName(String addr){

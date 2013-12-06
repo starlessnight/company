@@ -69,6 +69,7 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.analytics.tracking.android.EasyTracker;
+import com.sessionm.api.SessionM;
 import com.smartrek.SendTrajectoryService;
 import com.smartrek.TripService;
 import com.smartrek.ValidationService;
@@ -433,6 +434,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
     @Override
     protected void onStart() {
     	super.onStart();
+    	SessionM.getInstance().onActivityStart(this);
     	
     	EasyTracker.getInstance().activityStart(this);
     	
@@ -441,13 +443,15 @@ public final class ValidationActivity extends Activity implements OnInitListener
 	@Override
 	public void onStop() {
 		super.onStop();
+		SessionM.getInstance().onActivityStop(this);
 		EasyTracker.getInstance().activityStop(this);
 	}
     
     @Override
     protected void onResume() {
         super.onResume();
-
+        SessionM.getInstance().onActivityResume(this);
+        
         SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
 
         // Register the listener with the Location Manager to receive location updates
@@ -479,7 +483,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
     @Override
     protected void onPause() {
         super.onPause();
-        
+        SessionM.getInstance().onActivityPause(this);
         // TODO: Pause location service
     }
     
@@ -1108,6 +1112,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
                 if(isTripValidated()){
                     ValidationActivity.this.finish();
                 }else{
+                    SessionM.getInstance().logAction("trip_failed");
                     showValidationFailedDialog();
                 }
             }

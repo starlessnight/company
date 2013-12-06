@@ -36,6 +36,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
+import com.sessionm.api.SessionM;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
 import com.smartrek.dialogs.FloatingMenuDialog;
@@ -382,12 +383,14 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	public void onStart() {
 		super.onStart();
 		EasyTracker.getInstance().activityStart(this);
+		SessionM.getInstance().onActivityStart(this);
 	}
 	
 	@Override
 	public void onStop() {
 		super.onStop();
 		EasyTracker.getInstance().activityStop(this);
+		SessionM.getInstance().onActivityStop(this);
 	}
 	
 	private TripListDialog tripListDialog;
@@ -797,6 +800,18 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
         if(locationManager != null && locationListener != null){
             locationManager.removeUpdates(locationListener); 
         }
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SessionM.getInstance().onActivityResume(this);
+    }
+    
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SessionM.getInstance().onActivityPause(this);
     }
     
 }

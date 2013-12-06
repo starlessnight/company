@@ -55,6 +55,7 @@ import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailed
 import com.google.android.gms.plus.PlusClient;
 import com.google.android.gms.plus.model.people.Person;
 import com.google.android.gms.plus.model.people.Person.Image;
+import com.sessionm.api.SessionM;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.ContactsDialog;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
@@ -427,7 +428,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                 d.setActionListener(new ProfileSelectionDialog.ActionListener() {
                     @Override
                     public void onClickPositiveButton(Type type) {
-                        loadProfile(type);
+                        loadProfile(type, true);
                         MapDisplayActivity.setProfileSelection(LandingActivity.this, type);
                     }
                     @Override
@@ -495,6 +496,13 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     }
     
     private void loadProfile(Type type){
+        loadProfile(type, false);
+    }
+    
+    private boolean doLog;
+    
+    private void loadProfile(Type type, boolean doLog){
+        this.doLog = doLog;
         if(type == Type.facebook){
             fbClicked = true; 
             if(isNotLoading()){
@@ -525,6 +533,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     @Override
     protected void onResume() {
         super.onResume();
+        SessionM.getInstance().onActivityResume(this);
         refreshDate();
         refreshTripsInfo();
         refreshTripUpdateCount();
@@ -1038,6 +1047,18 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         Misc.parallelExecute(task);
     }
     
+    @Override
+    protected void onStart() {
+        super.onStart();
+        SessionM.getInstance().onActivityStart(this);
+    }
+    
+    @Override
+    protected void onStop() {
+        super.onStop();
+        SessionM.getInstance().onActivityStop(this);
+    }
+    
     private static class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
 
         CancelableProgressDialog dialog;
@@ -1344,6 +1365,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             updateAvatar(url);
         }
         mPlusClient.disconnect();
+        logLinkSocial();
     }
     
     @Override
@@ -1415,6 +1437,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                             updateAvatar("http://graph.facebook.com/" + user.getId() + "/picture?type=large");
                             // Set the Textview's text to the user's name.
                             updateTitle(user.getFirstName());
+                            logLinkSocial();
                         }
                     }
                     if (response.getError() != null) {
@@ -1427,10 +1450,18 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         }
     }
     
+    private void logLinkSocial(){
+        if(doLog){
+            doLog = false;
+            SessionM.getInstance().logAction("link_social");
+        }
+    }
+    
     @Override
     protected void onPause() {
         super.onPause();
         uiHelper.onPause();
+        SessionM.getInstance().onActivityPause(this);
     }
     
 }
