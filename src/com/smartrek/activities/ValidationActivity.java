@@ -1026,9 +1026,9 @@ public final class ValidationActivity extends Activity implements OnInitListener
             ((TextView) findViewById(R.id.congrats_msg)).setText(msg);
             panel.setVisibility(View.VISIBLE);
             Misc.fadeIn(ValidationActivity.this, panel);
-            panel.postDelayed(new Runnable() {
+            panel.setOnClickListener(new OnClickListener() {
                 @Override
-                public void run() {
+                public void onClick(View v) {
                     Animation anim = AnimationUtils.loadAnimation(
                         ValidationActivity.this, android.R.anim.fade_out);
                     anim.setAnimationListener(new AnimationListener() {
@@ -1045,7 +1045,7 @@ public final class ValidationActivity extends Activity implements OnInitListener
                     });
                     panel.startAnimation(anim);
                 }
-            }, 5000);
+            });
             speakIfTtsEnabled(msg);
         }
     }
