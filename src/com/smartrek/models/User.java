@@ -190,7 +190,6 @@ public final class User implements JSONModel, Parcelable {
 		editor.remove(PASSWORD);
 		editor.commit();
 		MapDisplayActivity.setProfileSelection(context, null);
-		MapDisplayActivity.setValidatedTripsCount(context, 0);
 	}
 
 	@Override
