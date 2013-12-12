@@ -16,63 +16,64 @@
 		    android:focusable="true"
 		    android:focusableInTouchMode="true">
 			
+		    <View
+		        android:id="@+id/separator6"
+		        android:layout_width="match_parent"
+		        android:layout_height="2dp"
+		        android:layout_marginTop="12dp"
+		        android:layout_marginLeft="30dp"
+		        android:layout_marginRight="30dp"
+		        android:background="@color/secondary_font"  
+		     />
+		    
 		    <TextView
 		        android:id="@+id/mpoints_heading"
 		        android:text="mPOINTS"
+		        android:layout_below="@id/separator6"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:layout_marginTop="15dp"
 		        android:layout_marginLeft="45dp"
 		        style="@style/MicroText">
 		    </TextView>
-		
-		    <View
-		        android:id="@+id/separator6"
-		        android:layout_width="match_parent"
-		        android:layout_height="2dp"
-		        android:layout_below="@id/mpoints_heading"
-		        android:layout_marginTop="12dp"
-		        android:layout_marginLeft="30dp"
-		        android:layout_marginRight="30dp"
-		        android:background="@color/secondary_font"  
-		     />
 		    		
 		    <com.sessionm.api.PortalButton 
 				android:id="@+id/portalButton" 
 				android:layout_width="55dp" 
 				android:layout_height="55dp"
-				android:layout_below="@id/separator6"
+				android:layout_below="@id/mpoints_heading"
 				android:layout_marginTop="12dp"
 				android:layout_marginLeft="30dp" 
 				android:scaleType="fitStart" 
 			/>
+		    
+		    <View
+		        android:id="@+id/separator"
+		        android:layout_width="match_parent"
+		        android:layout_height="2dp"
+		        android:layout_below="@id/portalButton"
+		        android:layout_marginTop="12dp"
+		        android:layout_marginLeft="30dp"
+		        android:layout_marginRight="30dp"
+		        android:background="@color/secondary_font"  
+		     />
 		    
 		    <TextView
 		        android:id="@+id/time_heading"
 		        android:text="@string/time_display"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
+		        android:layout_marginTop="12dp"
 		        android:layout_marginLeft="45dp"
-		        android:layout_below="@id/portalButton"
+		        android:layout_below="@id/separator"
 		        style="@style/MicroText">
 		    </TextView>
-		
-		    <View
-		        android:id="@+id/separator"
-		        android:layout_width="match_parent"
-		        android:layout_height="2dp"
-		        android:layout_below="@id/time_heading"
-		        android:layout_marginTop="12dp"
-		        android:layout_marginLeft="30dp"
-		        android:layout_marginRight="30dp"
-		        android:background="@color/secondary_font"  
-		     />
 		    
 		    <RelativeLayout
 		        android:id="@+id/group1"
 		        android:layout_width="fill_parent"
 		        android:layout_height="wrap_content"
-		        android:layout_below="@id/separator"
+		        android:layout_below="@id/time_heading"
 		        android:layout_marginLeft="45dp"
 		        android:layout_marginRight="45dp">
 		
@@ -111,22 +112,11 @@
 		        </RadioGroup>
 		    </RelativeLayout>
 		
-		    <TextView
-		        android:id="@+id/calendar_integration_heading"
-		        android:text="CALENDAR INTEGRATION"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_below="@id/group1"
-		        android:layout_marginTop="15dp"
-		        android:layout_marginLeft="45dp"
-		        style="@style/MicroText">
-		    </TextView>
-		
 		    <View
 		        android:id="@+id/separator2"
 		        android:layout_width="match_parent"
 		        android:layout_height="2dp"
-		        android:layout_below="@id/calendar_integration_heading"
+		        android:layout_below="@id/group1"
 		        android:layout_marginTop="12dp"
 		        android:layout_marginLeft="30dp"
 		        android:layout_marginRight="30dp"
@@ -134,10 +124,23 @@
 		     />
 		    
 		    <TextView
-		        android:id="@+id/calendar_integration_text"
+		        android:id="@+id/calendar_integration_heading"
+		        android:text="CALENDAR INTEGRATION"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:layout_below="@id/separator2"
+		        android:layout_marginTop="15dp"
+		        android:layout_marginLeft="45dp"
+		        style="@style/MicroText">
+		    </TextView>
+		
+		    
+		    
+		    <TextView
+		        android:id="@+id/calendar_integration_text"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_below="@id/calendar_integration_heading"
 		        android:text="Enabled"
 		        android:layout_marginTop="12dp"
 		        android:layout_marginLeft="45dp"
@@ -157,33 +160,34 @@
 		         android:layout_marginRight="45dp"
 			/>
 		    
-		    <TextView
-		        android:id="@+id/navigation_tts_heading"
-		        android:text="VOICE-GUIDED NAVIGATION"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_below="@id/calendar_integration_text"
-		        android:layout_marginTop="15dp"
-		        android:layout_marginLeft="45dp"
-		        style="@style/MicroText">
-		    </TextView>
-		
 		    <View
 		        android:id="@+id/separator3"
 		        android:layout_width="match_parent"
 		        android:layout_height="2dp"
-		        android:layout_below="@id/navigation_tts_heading"
+		        android:layout_below="@id/calendar_integration_text"
 		        android:layout_marginTop="12dp"
 		        android:layout_marginLeft="30dp"
 		        android:layout_marginRight="30dp"
 		        android:background="@color/secondary_font"  
 		     />
 		    
+		    
+		    <TextView
+		        android:id="@+id/navigation_tts_heading"
+		        android:text="VOICE-GUIDED NAVIGATION"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_below="@id/separator3"
+		        android:layout_marginTop="15dp"
+		        android:layout_marginLeft="45dp"
+		        style="@style/MicroText">
+		    </TextView>
+		    
 		    <TextView
 		        android:id="@+id/navigation_tts_text"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
-		        android:layout_below="@id/separator3"
+		        android:layout_below="@id/navigation_tts_heading"
 		        android:text="Enabled"
 		        android:layout_marginTop="12dp"
 		        android:layout_marginLeft="45dp"
@@ -203,33 +207,35 @@
 		         android:layout_marginRight="45dp"
 			/>
 		    
-   		   <TextView
-		        android:id="@+id/lbs_heading"
-		        android:text="LOCATION BASED SERVICE INQUIRY"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_below="@id/navigation_tts_text"
-		        android:layout_marginTop="15dp"
-		        android:layout_marginLeft="45dp"
-		        style="@style/MicroText">
-		    </TextView>
-		
-		    <View
+		     <View
 		        android:id="@+id/separator4"
 		        android:layout_width="match_parent"
 		        android:layout_height="2dp"
-		        android:layout_below="@id/lbs_heading"
+		        android:layout_below="@id/navigation_tts_text"
 		        android:layout_marginTop="12dp"
 		        android:layout_marginLeft="30dp"
 		        android:layout_marginRight="30dp"
 		        android:background="@color/secondary_font"  
 		     />
 		    
+   		   <TextView
+		        android:id="@+id/lbs_heading"
+		        android:text="LOCATION BASED SERVICE INQUIRY"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_below="@id/separator4"
+		        android:layout_marginTop="15dp"
+		        android:layout_marginLeft="45dp"
+		        style="@style/MicroText">
+		    </TextView>
+		
+		   
+		    
 		    <TextView
 		        android:id="@+id/lbs_text"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
-		        android:layout_below="@id/separator4"
+		        android:layout_below="@id/lbs_heading"
 		        android:text="Enabled"
 		        android:layout_marginTop="12dp"
 		        android:layout_marginLeft="45dp"
@@ -249,23 +255,11 @@
 		         android:layout_marginRight="45dp"
 			/>
 		    
-		    <TextView
-		        android:id="@+id/distribution_heading"
-		        android:text="DISTRUBUTION DATE"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:layout_below="@id/lbs_text"
-		        android:layout_marginTop="12dp"
-		        android:layout_marginLeft="45dp"
-		        android:layout_marginRight="45dp"
-		        style="@style/MicroText">
-		    </TextView>
-		
 		    <View
 		        android:id="@+id/separator5"
 		        android:layout_width="match_parent"
 		        android:layout_height="2dp"
-		        android:layout_below="@id/distribution_heading"
+		        android:layout_below="@id/lbs_text"
 		        android:layout_marginTop="12dp"
 		        android:layout_marginLeft="30dp"
 		        android:layout_marginRight="30dp"
@@ -273,16 +267,41 @@
 		     />
 		    
 		    <TextView
+		        android:id="@+id/distribution_heading"
+		        android:text="DISTRUBUTION DATE"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_below="@id/separator5"
+		        android:layout_marginTop="12dp"
+		        android:layout_marginLeft="45dp"
+		        android:layout_marginRight="45dp"
+		        style="@style/MicroText">
+		    </TextView>
+		
+		    
+		    
+		    <TextView
 		        android:id="@+id/distribution_date"
 		        android:layout_width="match_parent"
 		        android:layout_height="wrap_content"
-		        android:layout_below="@id/separator5"
+		        android:layout_below="@id/distribution_heading"
 		        android:text="@string/distribution_date"
 		        android:layout_marginTop="12dp"
 		        android:layout_marginLeft="45dp"
 		        android:layout_marginRight="45dp"
 		        style="@style/MediumText"
 			/>
+		    
+		    <View
+		        android:id="@+id/separator7"
+		        android:layout_width="match_parent"
+		        android:layout_height="2dp"
+		        android:layout_below="@id/distribution_date"
+		        android:layout_marginTop="12dp"
+		        android:layout_marginLeft="30dp"
+		        android:layout_marginRight="30dp"
+		        android:background="@color/secondary_font"  
+		     />
 		    
 		    <Button
 	            android:id="@+id/feedback"
@@ -292,7 +311,7 @@
 	      		android:layout_marginRight="30dp"
 	      		android:layout_marginTop="15dp"
 	           	android:layout_marginBottom="15dp"
-	           	android:layout_below="@id/distribution_date"
+	           	android:layout_below="@id/separator7"
 	            android:text="Give Feedback"
 	            style="@style/NextActionButton"
 	        />
