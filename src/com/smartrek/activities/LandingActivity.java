@@ -477,7 +477,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                 };
                 Misc.parallelExecute(checkCityAvailability);
             }
-        });
+        }, true);
         
         TextView vNoTrips = (TextView) findViewById(R.id.no_trips);
         
@@ -599,6 +599,10 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     }
     
     private void getCurrentLocation(final CurrentLocationListener lis){
+        getCurrentLocation(lis, false);
+    }
+    
+    private void getCurrentLocation(final CurrentLocationListener lis, boolean forceNetworkLocation){
         if(networkLocManager == null){
             networkLocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         }
@@ -624,7 +628,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         final CurrentLocationListener networkLocListener = new CurrentLocationListener();
         networkLocListeners.add(networkLocListener);
         try{
-            if (networkLocManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            if (!forceNetworkLocation && networkLocManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 networkLocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, networkLocListener);
                 new Handler().postDelayed(new Runnable() {
                     @Override
