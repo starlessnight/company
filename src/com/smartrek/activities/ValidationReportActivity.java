@@ -1,7 +1,6 @@
 package com.smartrek.activities;
 
 import android.os.Bundle;
-import android.text.format.Time;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -13,19 +12,16 @@ import com.google.ads.AdRequest;
 import com.google.ads.AdView;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.dialogs.ShareDialog;
+import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
+import com.smartrek.models.User;
 import com.smartrek.ui.menu.MainMenu;
-import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
 
 public final class ValidationReportActivity extends ActionBarActivity {
-    private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
 	private Route route;
-	
-    private Time startTime;
-    private Time endTime;
     
     private TextView textViewPoints;
     
@@ -36,10 +32,6 @@ public final class ValidationReportActivity extends ActionBarActivity {
         
         Bundle extras = getIntent().getExtras();
         route = extras.getParcelable("route");
-        startTime = new Time();
-        startTime.set(extras.getLong("startTime"));
-        endTime = new Time();
-        endTime.set(extras.getLong("endTime"));
         
         String msg = null;
         if (extras.getBoolean("timedout")) {
@@ -65,7 +57,13 @@ public final class ValidationReportActivity extends ActionBarActivity {
         shareBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ShareDialog.newInstance("Share Smartrek", Misc.getGooglePlayAppUrl(ValidationReportActivity.this))
+                User user = User.getCurrentUser(ValidationReportActivity.this);
+                
+                ShareDialog.newInstance(user.getFirstname() + " " + user.getLastname() + " is on the way",
+                     "I earned " + route.getCredits() + " points for traveling at " 
+                     + Reservation.formatTime(route.getDepartureTime(), true) + " to help solve traffic congestion "
+                     + "using Smartrek Mobile!"
+                     + "\n\n" + Misc.getGooglePlayAppUrl(ValidationReportActivity.this))
                     .show(getSupportFragmentManager(), null);
             }
         });
