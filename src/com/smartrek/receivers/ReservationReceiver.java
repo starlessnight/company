@@ -11,8 +11,8 @@ import android.location.Location;
 import android.text.format.Time;
 import android.util.Log;
 
+import com.smartrek.activities.LandingActivity;
 import com.smartrek.activities.R;
-import com.smartrek.activities.ReservationDetailsActivity;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.utils.ValidationParameters;
@@ -27,8 +27,6 @@ public final class ReservationReceiver extends BroadcastReceiver {
 	public static final String LOG_TAG = "ReservationReceiver";
 	
 	public static final String RESERVATION_ID = "reservationId";
-	
-	public static final String RESERVATION = "reservation";
 	
 	public static final int ID = 0;
 	
@@ -64,16 +62,16 @@ public final class ReservationReceiver extends BroadcastReceiver {
 	    Log.d(LOG_TAG, "onReceive");
 		
 	    Route route = intent.getExtras().getParcelable("route");
-	    Reservation reservation = intent.getExtras().getParcelable("reservation");
 	    long reservationId = intent.getExtras().getLong(RESERVATION_ID);
-		
-        Intent reservationIntent = new Intent(context, ReservationDetailsActivity.class);
-        reservationIntent.putExtra(RESERVATION_ID, reservationId);
-        reservationIntent.putExtra("route", route);
-        reservationIntent.putExtra(RESERVATION, reservation);
         
-        if(reservation != null && reservation.isEligibleTrip()){
-            PendingIntent sender = PendingIntent.getActivity(context, 0, reservationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent landingIntent = new Intent(context, LandingActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        landingIntent.putExtra(LandingActivity.RESERVATION_ID, reservationId);
+        
+        long departureTime = route.getDepartureTime();
+        
+        if(route != null && Reservation.isEligibleTrip(departureTime)){
+            PendingIntent sender = PendingIntent.getActivity(context, 0, landingIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             
@@ -87,7 +85,7 @@ public final class ReservationReceiver extends BroadcastReceiver {
             PendingIntent pendingExpiry = PendingIntent.getBroadcast(context, 0, 
                 expiry, PendingIntent.FLAG_UPDATE_CURRENT);
             AlarmManager expiryMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            expiryMgr.set(AlarmManager.RTC, reservation.getExpiryTime(), pendingExpiry);
+            expiryMgr.set(AlarmManager.RTC, Reservation.getExpiryTime(departureTime), pendingExpiry);
         }
 		
 		/*

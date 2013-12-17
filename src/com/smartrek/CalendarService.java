@@ -22,6 +22,7 @@ import android.os.SystemClock;
 import android.provider.BaseColumns;
 import android.util.Log;
 
+import com.smartrek.activities.LandingActivity;
 import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.models.User;
 import com.smartrek.receivers.CalendarNotification;
@@ -45,57 +46,62 @@ public class CalendarService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.i("CalendarService", "onHandleIntent");
-        User user = User.getCurrentUser(this);
-        if (user != null && MapDisplayActivity.isCalendarIntegrationEnabled(this)) {
-            try {
-                long now = System.currentTimeMillis();
-                Uri.Builder eventsUriBuilder = Instances.CONTENT_URI.buildUpon();
-                ContentUris.appendId(eventsUriBuilder, now);
-                ContentUris.appendId(eventsUriBuilder, now + FOUR_HOURS);
-                Cursor events = getContentResolver().query(eventsUriBuilder.build(), new String[] { BaseColumns._ID, Instances.TITLE,
-                    Instances.BEGIN, Instances.EVENT_LOCATION}, null, null, Instances.BEGIN + " asc");
-                boolean hasNotification = false;
-                while(events.moveToNext()) {
-                   String eventId = events.getString(0);
-                   File file = getFile(eventId);
-                   long start = Long.parseLong(events.getString(2));
-                   String location = events.getString(3);
-                   long notiTime = start - TWO_AND_A_HALF_HOURS;
-                   if((!file.exists() || file.length() == 0) && StringUtils.isNotBlank(location) 
-                           && canBeGeocoded(location) && System.currentTimeMillis() < notiTime /* true */){
-                       hasNotification = true;
-                       Intent noti = new Intent(CalendarService.this, 
-                           CalendarNotification.class);
-                       noti.putExtra(CalendarNotification.EVENT_ID, Integer.parseInt(eventId));
-                       PendingIntent pendingNoti = PendingIntent.getBroadcast(
-                           CalendarService.this, Integer.parseInt(eventId), noti, 
-                           PendingIntent.FLAG_UPDATE_CURRENT);
-                       AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-                       am.set(AlarmManager.RTC_WAKEUP, notiTime /* System.currentTimeMillis() */, pendingNoti);
-                   }
-                   JSONObject eventJson = new JSONObject()
-                       .put(BaseColumns._ID, eventId)
-                       .put(Instances.TITLE, events.getString(1))
-                       .put(Instances.BEGIN, start)
-                       .put(Instances.EVENT_LOCATION, location);
-                   FileUtils.write(file, eventJson.toString());
-                   if(hasNotification){
-                       break;
-                   }
+        LandingActivity.initializeIfNeccessary(this, new Runnable() {
+            @Override
+            public void run() {
+                User user = User.getCurrentUser(CalendarService.this);
+                if (user != null && MapDisplayActivity.isCalendarIntegrationEnabled(CalendarService.this)) {
+                    try {
+                        long now = System.currentTimeMillis();
+                        Uri.Builder eventsUriBuilder = Instances.CONTENT_URI.buildUpon();
+                        ContentUris.appendId(eventsUriBuilder, now);
+                        ContentUris.appendId(eventsUriBuilder, now + FOUR_HOURS);
+                        Cursor events = getContentResolver().query(eventsUriBuilder.build(), new String[] { BaseColumns._ID, Instances.TITLE,
+                            Instances.BEGIN, Instances.EVENT_LOCATION}, null, null, Instances.BEGIN + " asc");
+                        boolean hasNotification = false;
+                        while(events.moveToNext()) {
+                           String eventId = events.getString(0);
+                           File file = getFile(eventId);
+                           long start = Long.parseLong(events.getString(2));
+                           String location = events.getString(3);
+                           long notiTime = start - TWO_AND_A_HALF_HOURS;
+                           if((!file.exists() || file.length() == 0) && StringUtils.isNotBlank(location) 
+                                   && canBeGeocoded(location) && System.currentTimeMillis() < notiTime /* true */){
+                               hasNotification = true;
+                               Intent noti = new Intent(CalendarService.this, 
+                                   CalendarNotification.class);
+                               noti.putExtra(CalendarNotification.EVENT_ID, Integer.parseInt(eventId));
+                               PendingIntent pendingNoti = PendingIntent.getBroadcast(
+                                   CalendarService.this, Integer.parseInt(eventId), noti, 
+                                   PendingIntent.FLAG_UPDATE_CURRENT);
+                               AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+                               am.set(AlarmManager.RTC_WAKEUP, notiTime /* System.currentTimeMillis() */, pendingNoti);
+                           }
+                           JSONObject eventJson = new JSONObject()
+                               .put(BaseColumns._ID, eventId)
+                               .put(Instances.TITLE, events.getString(1))
+                               .put(Instances.BEGIN, start)
+                               .put(Instances.EVENT_LOCATION, location);
+                           FileUtils.write(file, eventJson.toString());
+                           if(hasNotification){
+                               break;
+                           }
+                        }
+                        events.close();
+                    }catch (Throwable t) {
+                        Log.w("CalendarService", Log.getStackTraceString(t));
+                    }
                 }
-                events.close();
-            }catch (Throwable t) {
-                Log.w("CalendarService", Log.getStackTraceString(t));
-            }
-        }
-        File[] oFiles = getDir().listFiles();
-        if(ArrayUtils.isNotEmpty(oFiles)){
-            for (File f : oFiles) {
-                if(f.lastModified() < System.currentTimeMillis() - ONE_DAY){
-                    FileUtils.deleteQuietly(f);
+                File[] oFiles = getDir().listFiles();
+                if(ArrayUtils.isNotEmpty(oFiles)){
+                    for (File f : oFiles) {
+                        if(f.lastModified() < System.currentTimeMillis() - ONE_DAY){
+                            FileUtils.deleteQuietly(f);
+                        }
+                    }
                 }
             }
-        }
+        }, false);
     }
     
     private static boolean canBeGeocoded(String location){

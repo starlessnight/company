@@ -20,6 +20,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.IntentSender.SendIntentException;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -75,8 +76,11 @@ import com.smartrek.requests.ReservationRequest;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.requests.TrekpointFetchRequest;
 import com.smartrek.requests.TrekpointFetchRequest.Trekpoint;
+import com.smartrek.requests.UserIdRequest;
 import com.smartrek.requests.ValidatedReservationsFetchRequest;
+import com.smartrek.tasks.LoginTask;
 import com.smartrek.ui.EditAddress;
+import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RouteInfoOverlay;
 import com.smartrek.ui.overlays.RouteOverlayCallback;
@@ -90,6 +94,7 @@ import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Geocoding;
 import com.smartrek.utils.HTTP;
 import com.smartrek.utils.Misc;
+import com.smartrek.utils.Preferences;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.RouteRect;
 import com.smartrek.utils.SmartrekTileProvider;
@@ -104,6 +109,8 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     public static final String LON = "lon";
     
     public static final String MSG = "msg";
+    
+    public static final String RESERVATION_ID = "reservationId";
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
@@ -159,7 +166,6 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         
         TextView vTitle = (TextView) findViewById(R.id.title);
         TextView vDate = (TextView) findViewById(R.id.date);
-        refreshDate();
         
         TextView vClock = (TextView) findViewById(R.id.clock);
         TextView vWeather = (TextView) findViewById(R.id.weather);
@@ -167,7 +173,6 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         vTrip1.setOnClickListener(newTripOnClickListener());
         TextView vTrip2 = (TextView) findViewById(R.id.trip_two);
         vTrip2.setOnClickListener(newTripOnClickListener());
-        refreshTripsInfo();
         
         TextView vPlanATrip = (TextView) findViewById(R.id.plan_a_trip);
         vPlanATrip.setOnClickListener(new OnClickListener(){
@@ -296,9 +301,8 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         });
         
         TextView vTrekpoints = (TextView) findViewById(R.id.trekpoints);
-        refreshTrekpoints();
+        
         TextView vValidatedTripsUpdateCount = (TextView) findViewById(R.id.validated_trips_update_count);
-        refreshTripUpdateCount();
         
         MapView mapView = (MapView) findViewById(R.id.mapview);
         Misc.disableHardwareAcceleration(mapView);
@@ -439,45 +443,58 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             }
         });
         
-        Intent intent = getIntent();
-        String imComingMsg = intent.getStringExtra(MSG);
-        if(StringUtils.isBlank(imComingMsg)){
-            centerMapByCurrentLocation();
-        }else{
-            handleImComing(imComingMsg, intent.getDoubleExtra(LAT, 0), 
-                intent.getDoubleExtra(LON, 0));
-        }
-        
-        loadProfile(MapDisplayActivity.getProfileSelection(this));
-        
-        getCurrentLocation(new CurrentLocationListener() {
+        initializeIfNeccessary(this, new Runnable() {
             @Override
-            public void get(final double lat, final double lon) {
-                AsyncTask<Void, Void, String> checkCityAvailability = new AsyncTask<Void, Void, String>(){
+            public void run() {
+                refreshDate();
+                refreshTripsInfo();
+                refreshTrekpoints();
+                refreshTripUpdateCount();
+                
+                Intent intent = getIntent();
+                String imComingMsg = intent.getStringExtra(MSG);
+                long reservId = intent.getLongExtra(RESERVATION_ID, 0);
+                if(reservId > 0){
+                    handleReservNotification(reservId);
+                }else if(StringUtils.isBlank(imComingMsg)){
+                    centerMapByCurrentLocation();
+                }else{
+                    handleImComing(imComingMsg, intent.getDoubleExtra(LAT, 0), 
+                        intent.getDoubleExtra(LON, 0));
+                }
+                
+                loadProfile(MapDisplayActivity.getProfileSelection(LandingActivity.this));
+                
+                getCurrentLocation(new CurrentLocationListener() {
                     @Override
-                    protected String doInBackground(Void... params) {
-                        String result;
-                        try{
-                            CityRequest req = new CityRequest(lat, lon);
-                            req.invalidateCache(LandingActivity.this);
-                            result = req.execute(LandingActivity.this);
-                        }catch(Throwable t){
-                            result = null;
-                        }
-                        return result;
+                    public void get(final double lat, final double lon) {
+                        AsyncTask<Void, Void, String> checkCityAvailability = new AsyncTask<Void, Void, String>(){
+                            @Override
+                            protected String doInBackground(Void... params) {
+                                String result;
+                                try{
+                                    CityRequest req = new CityRequest(lat, lon);
+                                    req.invalidateCache(LandingActivity.this);
+                                    result = req.execute(LandingActivity.this);
+                                }catch(Throwable t){
+                                    result = null;
+                                }
+                                return result;
+                            }
+                            @Override
+                            protected void onPostExecute(String result) {
+                                if(StringUtils.isNotBlank(result)){
+                                    CharSequence msg = Html.fromHtml(result);
+                                    NotificationDialog dialog = new NotificationDialog(LandingActivity.this, msg);
+                                    dialog.show();
+                                }
+                            }
+                        };
+                        Misc.parallelExecute(checkCityAvailability);
                     }
-                    @Override
-                    protected void onPostExecute(String result) {
-                        if(StringUtils.isNotBlank(result)){
-                            CharSequence msg = Html.fromHtml(result);
-                            NotificationDialog dialog = new NotificationDialog(LandingActivity.this, msg);
-                            dialog.show();
-                        }
-                    }
-                };
-                Misc.parallelExecute(checkCityAvailability);
+                }, true);
             }
-        }, true);
+        });
         
         TextView vNoTrips = (TextView) findViewById(R.id.no_trips);
         
@@ -493,6 +510,75 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         
         uiHelper = new UiLifecycleHelper(this, fbCallback);
         uiHelper.onCreate(savedInstanceState);
+    }
+    
+    public static void initializeIfNeccessary(Context ctx, final Runnable callback){
+        initializeIfNeccessary(ctx, callback, true);
+    }
+    
+    public static void initializeIfNeccessary(final Context ctx, final Runnable callback, 
+            final boolean canLogout){
+        Runnable loginAndDoCallback = new Runnable() {
+            @Override
+            public void run() {
+                if(User.getCurrentUser(ctx) != null){
+                    callback.run();
+                }else{
+                    SharedPreferences loginPrefs = Preferences.getAuthPreferences(ctx);
+                    final String username = loginPrefs.getString(User.USERNAME, "");
+                    final String password = loginPrefs.getString(User.PASSWORD, "");
+                    if (!username.equals("") && !password.equals("")) {
+                        final String gcmRegistrationId = Preferences.getGlobalPreferences(ctx)
+                                .getString("GCMRegistrationID", "");
+                        final LoginTask loginTask = new LoginTask(ctx, username, password, gcmRegistrationId) {
+                            @Override
+                            protected void onPostLogin(final User user) {
+                                if(user != null && user.getId() != -1){
+                                    User.setCurrentUser(ctx, user);
+                                    callback.run();
+                                }else if(canLogout && ctx instanceof Activity){
+                                    MainMenu.onMenuItemSelected((Activity) ctx, 0, R.id.logout_option);
+                                }
+                           }
+                        }.setDialogEnabled(false);
+                        new AsyncTask<Void, Void, Integer>() {
+                            @Override
+                            protected Integer doInBackground(Void... params) {
+                                Integer id = null;
+                                try {
+                                    UserIdRequest req = new UserIdRequest(username); 
+                                    req.invalidateCache(ctx);
+                                    id = req.execute(ctx);
+                                }
+                                catch(Exception e) {
+                                }
+                                return id;
+                            }
+                            protected void onPostExecute(Integer userId) {
+                                if(canLogout && ctx instanceof Activity && userId == null){                                    
+                                    MainMenu.onMenuItemSelected((Activity)ctx, 0, R.id.logout_option);
+                                }else{
+                                    loginTask.setUserId(userId)
+                                        .execute();
+                                }
+                            }
+                        }.execute();
+                    }else if(canLogout && ctx instanceof Activity){
+                        MainMenu.onMenuItemSelected((Activity) ctx, 0, R.id.logout_option);
+                    }
+                }
+            }
+        };
+        
+        if(Request.hasLinkUrls()){
+            loginAndDoCallback.run();
+        }else{
+            String url = DebugOptionsActivity.getEntrypoint(ctx);
+            if(StringUtils.isBlank(url)){
+                url = Request.ENTRYPOINT_URL;
+            }
+            MainActivity.initApiLinks(ctx, url, loginAndDoCallback, null);
+        }
     }
     
     private void loadProfile(Type type){
@@ -534,19 +620,24 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     protected void onResume() {
         super.onResume();
         SessionM.getInstance().onActivityResume(this);
-        refreshDate();
-        refreshTripsInfo();
-        refreshTripUpdateCount();
-        refreshTrekpoints();
-        if(findViewById(R.id.collapse_btn).getVisibility() != View.VISIBLE){
-            centerMapByCurrentLocation();
-        }
         uiHelper.onResume();
-        if(currentSNTask != null && locationManager != null && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
-            try{
-                currentSNTask.cancelTask();
-            }catch(Throwable t){}
-        }
+        initializeIfNeccessary(this, new Runnable() {
+            @Override
+            public void run() {
+                refreshDate();
+                refreshTripsInfo();
+                refreshTripUpdateCount();
+                refreshTrekpoints();
+                if(findViewById(R.id.collapse_btn).getVisibility() != View.VISIBLE){
+                    centerMapByCurrentLocation();
+                }
+                if(currentSNTask != null && locationManager != null && !locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+                    try{
+                        currentSNTask.cancelTask();
+                    }catch(Throwable t){}
+                }
+            }
+        });
     }
     
     @Override
@@ -563,6 +654,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         String imComingMsg = intent.getStringExtra(MSG);
+        long reservId = intent.getLongExtra(RESERVATION_ID, 0);
         if(intent.getBooleanExtra(LOGOUT, false)){
             startActivity(new Intent(this, LoginActivity.class));
             finish();
@@ -570,6 +662,8 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         }else if(StringUtils.isNotBlank(imComingMsg)){
             handleImComing(imComingMsg, intent.getDoubleExtra(LAT, 0), 
                 intent.getDoubleExtra(LON, 0));
+        }else if(reservId > 0){
+            handleReservNotification(reservId);
         }
     }
     
@@ -909,6 +1003,71 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         Misc.parallelExecute(tripTask);
     }
     
+    private void handleReservNotification(final long id){
+        AsyncTask<Void, Void, List<Reservation>> tripTask = new AsyncTask<Void, Void, List<Reservation>>(){
+            @Override
+            protected List<Reservation> doInBackground(Void... params) {
+                User user = User.getCurrentUser(LandingActivity.this);
+                List<Reservation> reservations= Collections.emptyList();
+                try {
+                    ReservationListFetchRequest resReq = new ReservationListFetchRequest(user);
+                    resReq.invalidateCache(LandingActivity.this);
+                    FavoriteAddressFetchRequest addReq = new FavoriteAddressFetchRequest(user);
+                    addReq.invalidateCache(LandingActivity.this);
+                    List<Address> addresses = addReq.execute(LandingActivity.this);
+                    reservations = resReq.execute(LandingActivity.this);
+                    for(Reservation r:reservations){
+                        if(r.getOriginName() == null){
+                            for (Address a : addresses) {
+                                if(a.getAddress().equals(r.getOriginAddress())){
+                                    r.setOriginName(a.getName());
+                                    break;
+                                }
+                            }
+                        }
+                        if(r.getDestinationName() == null){
+                            for (Address a : addresses) {
+                                if(a.getAddress().equals(r.getDestinationAddress())){
+                                    r.setDestinationName(a.getName());
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (NullPointerException e){}
+                catch (Exception e) {
+                    ehs.registerException(e);
+                }
+                return reservations;
+            }
+            @Override
+            protected void onPostExecute(List<Reservation> reservations) {
+                if (ehs.hasExceptions()) { 
+                    ehs.reportExceptions();
+                } 
+                else{
+                    for(Reservation r:reservations){
+                        if(r.getRid() == id){
+                            final MapView mapView = (MapView) findViewById(R.id.mapview);
+                            final List<Overlay> mapOverlays = mapView.getOverlays();
+                            if(infoOverlay != null){
+                                infoOverlay.hide();
+                            }
+                            mapOverlays.clear();
+                            mapView.postInvalidate();
+                            expandMap(true);
+                            findViewById(R.id.get_going).setTag(r);
+                            displayReservation(r);
+                            break;
+                        }
+                    }
+                }
+            }
+        };
+        Misc.parallelExecute(tripTask);
+    }
+    
     private void refreshDate(){
         TextView vDate = (TextView) findViewById(R.id.date);
         Time now = new Time();
@@ -1185,7 +1344,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                             ReservationRequest reservReq = new ReservationRequest(user, 
                                 route, ctx.getString(R.string.distribution_date));
                             Long id = reservReq.execute(ctx);
-                            ReservationConfirmationActivity.scheduleNotification(ctx, route);
+                            ReservationConfirmationActivity.scheduleNotification(ctx, id, route);
                             ReservationListFetchRequest reservListReq = new ReservationListFetchRequest(user);
                             reservListReq.invalidateCache(ctx);
                             List<Reservation> reservs = reservListReq.execute(ctx);

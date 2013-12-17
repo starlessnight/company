@@ -704,7 +704,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 		
 		Intent intent = new Intent(this, ReservationReceiver.class);
 		
-		intent.putExtra(ReservationReceiver.RESERVATION, reservation);
+		intent.putExtra(ReservationReceiver.RESERVATION_ID, reservation.getRid());
 		intent.putExtra("route", reservation.getRoute());
 		
 		// In reality, you would want to have a static variable for the

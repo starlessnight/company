@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
@@ -107,6 +109,18 @@ public class Misc {
     
     public static String getGooglePlayAppUrl(Context ctx){
         return "https://play.google.com/store/apps/details?id=" + ctx.getApplicationContext().getPackageName();
+    }
+    
+    public static void wakeUpScreen(Context ctx, String tag){
+        PowerManager pm = (PowerManager)ctx.getSystemService(Context.POWER_SERVICE);
+        if(!pm.isScreenOn()){
+           WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK |PowerManager.ACQUIRE_CAUSES_WAKEUP |PowerManager.ON_AFTER_RELEASE, 
+               tag + "Lock");
+           wl.acquire(10000);
+           WakeLock wl_cpu = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
+               tag + "CpuLock");
+           wl_cpu.acquire(10000);
+        }
     }
     
 }

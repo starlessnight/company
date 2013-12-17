@@ -147,7 +147,7 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
     /**
      * Creates a system alarm for a single route
      */
-	public static void scheduleNotification(Context ctx, Route route) {
+	public static void scheduleNotification(Context ctx, long reservationId, Route route) {
 		
 		long departureTime = route.getDepartureTime();
 		
@@ -159,7 +159,7 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 		// NOTE: It appears custom Parcelable objects cannot passed across
 		// different processes. Since a PendingIntent launched by AlarmManager
 		// is on a separate process, we cannot pack a Route object.
-		intent.putExtra(ReservationReceiver.RESERVATION_ID, route.getId());
+		intent.putExtra(ReservationReceiver.RESERVATION_ID, reservationId);
 		
 		// In reality, you would want to have a static variable for the
 		// request code instead of 192837
@@ -208,7 +208,7 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 		        ehs.reportExceptions();
 		    }
 		    else {
-				scheduleNotification(ReservationConfirmationActivity.this, route);
+				scheduleNotification(ReservationConfirmationActivity.this, result, route);
 				
 				if(route.isFake()){
 				    FakeRoute fakeRoute = new FakeRoute();

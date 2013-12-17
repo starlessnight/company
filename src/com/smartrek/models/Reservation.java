@@ -181,11 +181,19 @@ public final class Reservation implements Parcelable {
 	 * @return True if (the current system time) > (departure time) + (grace period)
 	 */
 	public boolean hasExpired() {
-		return getExpiryTime() < System.currentTimeMillis();
+		return hasExpired(getExpiryTime());
+	}
+	
+	public static boolean hasExpired(long expiryTime){
+	    return expiryTime < System.currentTimeMillis();
 	}
 	
     public long getExpiryTime() {
-        return getDepartureTimeUtc() + (15*60*1000);
+        return getExpiryTime(getDepartureTimeUtc());
+    }
+    
+    public static long getExpiryTime(long departureTime){
+        return departureTime + (15*60*1000);
     }
 	
 	/**
@@ -196,11 +204,19 @@ public final class Reservation implements Parcelable {
 	 * @return
 	 */
 	public boolean isTooEarlyToStart() {
-		return getDepartureTimeUtc() - (15*60*1000) > System.currentTimeMillis();
+		return isTooEarlyToStart(getDepartureTimeUtc());
 	}
+	
+	public static boolean isTooEarlyToStart(long departureTime) {
+        return departureTime - (15*60*1000) > System.currentTimeMillis();
+    }
 	
 	public boolean isEligibleTrip() {
 		return !hasExpired() && !isTooEarlyToStart();
+	}
+	
+	public static boolean isEligibleTrip(long departureTime){
+	    return !hasExpired(getExpiryTime(departureTime)) && !isTooEarlyToStart(departureTime);
 	}
 	
 	/**

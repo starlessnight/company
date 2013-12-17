@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.os.SystemClock;
 import android.util.Log;
 
+import com.smartrek.activities.LandingActivity;
 import com.smartrek.exceptions.SmarTrekException;
 import com.smartrek.models.User;
 import com.smartrek.requests.RouteValidationRequest;
@@ -27,22 +28,27 @@ public class ValidationService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        User user = User.getCurrentUser(this);
-        if(user != null){
-            File[] files = getDir(this).listFiles();
-            if(ArrayUtils.isNotEmpty(files)){
-                for (File f : files) {
-                    try{
-                        new RouteValidationRequest(user, Long.parseLong(f.getName())).execute(this);
-                        FileUtils.deleteQuietly(f);
-                    }catch(SmarTrekException e){
-                        FileUtils.deleteQuietly(f);
-                    }catch(Throwable t){
-                        Log.w("ValidationService", Log.getStackTraceString(t));
+        LandingActivity.initializeIfNeccessary(this, new Runnable() {
+            @Override
+            public void run() {
+                User user = User.getCurrentUser(ValidationService.this);
+                if(user != null){
+                    File[] files = getDir(ValidationService.this).listFiles();
+                    if(ArrayUtils.isNotEmpty(files)){
+                        for (File f : files) {
+                            try{
+                                new RouteValidationRequest(user, Long.parseLong(f.getName())).execute(ValidationService.this);
+                                FileUtils.deleteQuietly(f);
+                            }catch(SmarTrekException e){
+                                FileUtils.deleteQuietly(f);
+                            }catch(Throwable t){
+                                Log.w("ValidationService", Log.getStackTraceString(t));
+                            }
+                        }
                     }
                 }
             }
-        }
+        }, false);
     }
     
     private static File getDir(Context ctx){

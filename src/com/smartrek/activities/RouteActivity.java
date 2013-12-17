@@ -376,41 +376,47 @@ public final class RouteActivity extends ActionBarActivity {
             destCoord = new GeoPoint(pDestCoord);
         }
         
-        if(currentLocation){
-            final CancelableProgressDialog currentLocDialog = new CancelableProgressDialog(RouteActivity.this, "Getting current location...");
-            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            locationListener = new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    try{
-                        locationManager.removeUpdates(this);
-                        currentLocDialog.dismiss();
-                        originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
-                        doRouteTask();
-                    }catch(Throwable t){}
+        final boolean _currentLocation = currentLocation;
+        LandingActivity.initializeIfNeccessary(this, new Runnable() {
+            @Override
+            public void run() {
+                if(_currentLocation){
+                    final CancelableProgressDialog currentLocDialog = new CancelableProgressDialog(RouteActivity.this, "Getting current location...");
+                    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                    locationListener = new LocationListener() {
+                        @Override
+                        public void onLocationChanged(Location location) {
+                            try{
+                                locationManager.removeUpdates(this);
+                                currentLocDialog.dismiss();
+                                originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
+                                doRouteTask();
+                            }catch(Throwable t){}
+                        }
+                        @Override
+                        public void onStatusChanged(String provider, int status, Bundle extras) {}
+                        @Override
+                        public void onProviderEnabled(String provider) {}
+                        @Override
+                        public void onProviderDisabled(String provider) {}
+                    };
+                    currentLocDialog.setActionListener(new CancelableProgressDialog.ActionListener() {
+                        @Override
+                        public void onClickNegativeButton() {
+                            locationManager.removeUpdates(locationListener);
+                            goBackToWhereTo.run();
+                        }
+                    });
+                    currentLocDialog.show();
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, locationListener);
+                    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                        SystemService.alertNoGPS(RouteActivity.this);
+                    }
+                }else{
+                    doRouteTask();
                 }
-                @Override
-                public void onStatusChanged(String provider, int status, Bundle extras) {}
-                @Override
-                public void onProviderEnabled(String provider) {}
-                @Override
-                public void onProviderDisabled(String provider) {}
-            };
-            currentLocDialog.setActionListener(new CancelableProgressDialog.ActionListener() {
-                @Override
-                public void onClickNegativeButton() {
-                    locationManager.removeUpdates(locationListener);
-                    goBackToWhereTo.run();
-                }
-            });
-            currentLocDialog.show();
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, locationListener);
-            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                SystemService.alertNoGPS(this);
             }
-        }else{
-            doRouteTask();
-        }
+        });
         
         findViewById(R.id.floating_menu_button).setOnClickListener(new OnClickListener() {
             @Override

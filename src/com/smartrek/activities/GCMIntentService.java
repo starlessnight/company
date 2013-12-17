@@ -6,8 +6,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
@@ -76,15 +74,7 @@ public class GCMIntentService extends GCMBaseIntentService {
             notification.flags = Notification.FLAG_AUTO_CANCEL;
             notificationManager.notify(0, notification);
             
-            PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
-            if(!pm.isScreenOn()){
-               WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK |PowerManager.ACQUIRE_CAUSES_WAKEUP |PowerManager.ON_AFTER_RELEASE, 
-                   GCMIntentService.class.getSimpleName() + "Lock");
-               wl.acquire(10000);
-               WakeLock wl_cpu = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                   GCMIntentService.class.getSimpleName() + "CpuLock");
-               wl_cpu.acquire(10000);
-            }
+            Misc.wakeUpScreen(context, GCMIntentService.class.getSimpleName());
 	    }
         catch (Throwable t) {
             Log.d("GCMIntentService", Log.getStackTraceString(t));

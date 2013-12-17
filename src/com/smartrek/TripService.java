@@ -13,6 +13,7 @@ import android.content.Intent;
 import android.os.SystemClock;
 import android.util.Log;
 
+import com.smartrek.activities.LandingActivity;
 import com.smartrek.exceptions.SmarTrekException;
 import com.smartrek.models.User;
 import com.smartrek.requests.TripValidationRequest;
@@ -27,24 +28,29 @@ public class TripService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        User user = User.getCurrentUser(this);
-        if(user != null){
-            File[] files = getDir(this).listFiles();
-            if(ArrayUtils.isNotEmpty(files)){
-                for (File f : files) {
-                    try{
-                        long rId = Long.parseLong(f.getName());
-                        SendTrajectoryService.send(this, rId);
-                        new TripValidationRequest(user, rId).execute(this);
-                        FileUtils.deleteQuietly(f);
-                    }catch(SmarTrekException e){
-                        FileUtils.deleteQuietly(f);
-                    }catch(Throwable t){
-                        Log.w("TripService", Log.getStackTraceString(t));
+        LandingActivity.initializeIfNeccessary(this, new Runnable() {
+            @Override
+            public void run() {
+                User user = User.getCurrentUser(TripService.this);
+                if(user != null){
+                    File[] files = getDir(TripService.this).listFiles();
+                    if(ArrayUtils.isNotEmpty(files)){
+                        for (File f : files) {
+                            try{
+                                long rId = Long.parseLong(f.getName());
+                                SendTrajectoryService.send(TripService.this, rId);
+                                new TripValidationRequest(user, rId).execute(TripService.this);
+                                FileUtils.deleteQuietly(f);
+                            }catch(SmarTrekException e){
+                                FileUtils.deleteQuietly(f);
+                            }catch(Throwable t){
+                                Log.w("TripService", Log.getStackTraceString(t));
+                            }
+                        }
                     }
                 }
             }
-        }
+        }, false);
     }
     
     private static File getDir(Context ctx){
