@@ -20,7 +20,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.sessionm.api.SessionM;
 import com.smartrek.activities.R;
 import com.smartrek.models.Address;
 import com.smartrek.models.User;
@@ -33,6 +32,7 @@ import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
+import com.smartrek.utils.SessionM;
 
 /**
  * The purpose of this dialog is to provide an interface to add a favorite
@@ -239,7 +239,7 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 				if (listener != null) {
 	                listener.onClickPositiveButton();
 	            }
-				SessionM.getInstance().logAction("save_location");
+				SessionM.logAction("save_location");
 			}
 		}
 		

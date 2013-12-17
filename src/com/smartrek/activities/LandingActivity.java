@@ -56,7 +56,6 @@ import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailed
 import com.google.android.gms.plus.PlusClient;
 import com.google.android.gms.plus.model.people.Person;
 import com.google.android.gms.plus.model.people.Person.Image;
-import com.sessionm.api.SessionM;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.ContactsDialog;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
@@ -97,6 +96,7 @@ import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.RouteRect;
+import com.smartrek.utils.SessionM;
 import com.smartrek.utils.SmartrekTileProvider;
 import com.smartrek.utils.SystemService;
 
@@ -619,7 +619,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     @Override
     protected void onResume() {
         super.onResume();
-        SessionM.getInstance().onActivityResume(this);
+        SessionM.onActivityResume(this);
         uiHelper.onResume();
         initializeIfNeccessary(this, new Runnable() {
             @Override
@@ -1213,13 +1213,13 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     @Override
     protected void onStart() {
         super.onStart();
-        SessionM.getInstance().onActivityStart(this);
+        SessionM.onActivityStart(this);
     }
     
     @Override
     protected void onStop() {
         super.onStop();
-        SessionM.getInstance().onActivityStop(this);
+        SessionM.onActivityStop(this);
     }
     
     private static class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
@@ -1616,7 +1616,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     private void logLinkSocial(){
         if(doLog){
             doLog = false;
-            SessionM.getInstance().logAction("link_social");
+            SessionM.logAction("link_social");
         }
     }
     
@@ -1624,7 +1624,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     protected void onPause() {
         super.onPause();
         uiHelper.onPause();
-        SessionM.getInstance().onActivityPause(this);
+        SessionM.onActivityPause(this);
     }
     
 }

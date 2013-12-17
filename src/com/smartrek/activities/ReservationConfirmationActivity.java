@@ -18,7 +18,6 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
-import com.sessionm.api.SessionM;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Reservation;
@@ -30,6 +29,7 @@ import com.smartrek.requests.ReservationRequest;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
+import com.smartrek.utils.SessionM;
 import com.smartrek.utils.datetime.HumanReadableTime;
 
 /**
@@ -106,26 +106,26 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 	public void onStart() {
 		super.onStart();
 		EasyTracker.getInstance().activityStart(this);
-		SessionM.getInstance().onActivityStart(this);
+		SessionM.onActivityStart(this);
 	}
 	
 	@Override
 	public void onStop() {
 		super.onStop();
 		EasyTracker.getInstance().activityStop(this);
-		SessionM.getInstance().onActivityStop(this);
+		SessionM.onActivityStop(this);
 	}
 	
 	@Override
 	protected void onResume() {
 	    super.onResume();
-	    SessionM.getInstance().onActivityResume(this);
+	    SessionM.onActivityResume(this);
 	}
 	
 	@Override
 	protected void onPause() {
 	    super.onPause();
-	    SessionM.getInstance().onActivityPause(this);
+	    SessionM.onActivityPause(this);
 	}
 	
     @Override
@@ -217,7 +217,7 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 				    DebugOptionsActivity.addFakeRoute(ReservationConfirmationActivity.this, fakeRoute);
 				}
 				
-				SessionM.getInstance().logAction("make_reservation");
+				SessionM.logAction("make_reservation");
 				
 				NotificationDialog dialog = new NotificationDialog(ReservationConfirmationActivity.this, "You have successfully reserved a route.");
 				dialog.setActionListener(new NotificationDialog.ActionListener() {

@@ -15,11 +15,11 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
-import com.sessionm.api.SessionM;
 import com.smartrek.dialogs.FeedbackDialog;
 import com.smartrek.dialogs.FloatingMenuDialog;
 import com.smartrek.dialogs.ProfileSelectionDialog;
 import com.smartrek.utils.Font;
+import com.smartrek.utils.SessionM;
 
 public final class MapDisplayActivity extends ActionBarActivity {
     
@@ -179,12 +179,20 @@ public final class MapDisplayActivity extends ActionBarActivity {
             }
         });
         
+        TextView mPointsHeading = (TextView)findViewById(R.id.mpoints_heading);
+        
+        if(!SessionM.ENABLED){
+            findViewById(R.id.separator6).setVisibility(View.GONE);
+            mPointsHeading.setVisibility(View.GONE);
+            findViewById(R.id.portalButton).setVisibility(View.GONE);
+        }
+        
         Font.setTypeface(boldFont, (TextView)findViewById(R.id.time_heading),
             (TextView)findViewById(R.id.calendar_integration_heading),
             (TextView)findViewById(R.id.navigation_tts_heading),
             (TextView)findViewById(R.id.lbs_heading),
             (TextView)findViewById(R.id.distribution_heading),
-            (TextView)findViewById(R.id.mpoints_heading),
+            mPointsHeading,
             feedback);
         Font.setTypeface(lightFont, displayTravel, displayArrival,
             (TextView)findViewById(R.id.calendar_integration_text),
@@ -267,14 +275,14 @@ public final class MapDisplayActivity extends ActionBarActivity {
 	public void onStart() {
 		super.onStart();
 		EasyTracker.getInstance().activityStart(this);
-		SessionM.getInstance().onActivityStart(this);
+		SessionM.onActivityStart(this);
 	}
 	
 	@Override
 	public void onStop() {
 		super.onStop();
 		EasyTracker.getInstance().activityStop(this);
-		SessionM.getInstance().onActivityStop(this);
+		SessionM.onActivityStop(this);
 	}
     
     @Override
@@ -289,13 +297,13 @@ public final class MapDisplayActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        SessionM.getInstance().onActivityResume(this);
+        SessionM.onActivityResume(this);
     }
     
     @Override
     protected void onPause() {
         super.onPause();
-        SessionM.getInstance().onActivityPause(this);
+        SessionM.onActivityPause(this);
     }
     
 }

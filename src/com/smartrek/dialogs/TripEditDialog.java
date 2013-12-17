@@ -20,7 +20,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.sessionm.api.SessionM;
 import com.smartrek.activities.R;
 import com.smartrek.models.Address;
 import com.smartrek.models.Trip;
@@ -33,6 +32,7 @@ import com.smartrek.requests.TripListFetchRequest;
 import com.smartrek.requests.TripUpdateRequest;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
+import com.smartrek.utils.SessionM;
 import com.smartrek.utils.datetime.RecurringTime;
 
 public final class TripEditDialog extends Dialog implements TextWatcher {
@@ -404,7 +404,7 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
             }
 		    
 		    if (tid == 0) {
-		        SessionM.getInstance().logAction("save_trip");
+		        SessionM.logAction("save_trip");
 		    }
 		}
 		
