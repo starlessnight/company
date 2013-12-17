@@ -15,6 +15,7 @@ import com.smartrek.activities.LandingActivity;
 import com.smartrek.activities.R;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
+import com.smartrek.utils.Misc;
 import com.smartrek.utils.ValidationParameters;
 import com.smartrek.utils.datetime.TimeRange;
 
@@ -79,6 +80,8 @@ public final class ReservationReceiver extends BroadcastReceiver {
             notification.setLatestEventInfo(context, "Smartrek", "Your reserved trip is about to start", sender);
             notification.flags = Notification.FLAG_AUTO_CANCEL;
             notificationManager.notify(ID, notification);
+            
+            Misc.wakeUpScreen(context, ReservationReceiver.class.getSimpleName());
             
             Intent expiry = new Intent(context, NotificationExpiry.class);
             expiry.putExtra(NotificationExpiry.NOTIFICATION_ID, ID);

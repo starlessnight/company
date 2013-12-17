@@ -22,6 +22,7 @@ import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.activities.R;
 import com.smartrek.activities.RouteActivity;
 import com.smartrek.utils.CalendarContract.Instances;
+import com.smartrek.utils.Misc;
 
 public final class CalendarNotification extends BroadcastReceiver {
 	
@@ -82,6 +83,8 @@ public final class CalendarNotification extends BroadcastReceiver {
                 notification.flags = Notification.FLAG_AUTO_CANCEL;
                 NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                 notificationManager.notify(eventId, notification);
+                
+                Misc.wakeUpScreen(context, CalendarNotification.class.getSimpleName());
                 
                 AlarmManager expiryMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                 expiryMgr.set(AlarmManager.RTC, expiryTime, pendingExpiry);
