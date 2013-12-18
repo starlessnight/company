@@ -28,6 +28,9 @@ import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -510,6 +513,12 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         
         uiHelper = new UiLifecycleHelper(this, fbCallback);
         uiHelper.onCreate(savedInstanceState);
+        
+        try {
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+            r.play();
+        } catch (Throwable e) {}
     }
     
     public static void initializeIfNeccessary(Context ctx, final Runnable callback){
