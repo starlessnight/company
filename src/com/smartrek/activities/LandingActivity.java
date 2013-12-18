@@ -513,12 +513,6 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         
         uiHelper = new UiLifecycleHelper(this, fbCallback);
         uiHelper.onCreate(savedInstanceState);
-        
-        try {
-            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-            r.play();
-        } catch (Throwable e) {}
     }
     
     public static void initializeIfNeccessary(Context ctx, final Runnable callback){

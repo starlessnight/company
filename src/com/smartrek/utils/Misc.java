@@ -5,6 +5,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -121,6 +123,14 @@ public class Misc {
                tag + "CpuLock");
            wl_cpu.acquire(10000);
         }
+    }
+    
+    public static void playDefaultNotificationSound(Context ctx){
+        try {
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            Ringtone r = RingtoneManager.getRingtone(ctx, notification);
+            r.play();
+        } catch (Throwable e) {}
     }
     
 }

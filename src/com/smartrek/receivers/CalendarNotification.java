@@ -84,6 +84,7 @@ public final class CalendarNotification extends BroadcastReceiver {
                 NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                 notificationManager.notify(eventId, notification);
                 
+                Misc.playDefaultNotificationSound(context);
                 Misc.wakeUpScreen(context, CalendarNotification.class.getSimpleName());
                 
                 AlarmManager expiryMgr = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);

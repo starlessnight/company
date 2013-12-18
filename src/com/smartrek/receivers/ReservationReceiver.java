@@ -81,6 +81,7 @@ public final class ReservationReceiver extends BroadcastReceiver {
             notification.flags = Notification.FLAG_AUTO_CANCEL;
             notificationManager.notify(ID, notification);
             
+            Misc.playDefaultNotificationSound(context);
             Misc.wakeUpScreen(context, ReservationReceiver.class.getSimpleName());
             
             Intent expiry = new Intent(context, NotificationExpiry.class);
