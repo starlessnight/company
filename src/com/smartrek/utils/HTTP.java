@@ -34,9 +34,11 @@ import android.util.Base64;
  */
 public final class HTTP {
 	
-    public enum Method { GET, POST, PUT, DELETE }
+    public enum Method { GET, POST, PUT, DELETE, HEAD }
     
 	private static final int BUF_SIZE = 4096;
+	
+	private static final int defaultTimeout = 15000;
 	
 	/**
 	 * Maximum content size that getResponseBody() can handle.
@@ -56,6 +58,8 @@ public final class HTTP {
 	private JSONObject json;
 	
 	private String ifNoneMatch;
+	
+	private int timeout = defaultTimeout;
 	
 	public HTTP(String urlString) throws IOException {
 		httpConn = openHttpConnection(urlString);
@@ -97,8 +101,8 @@ public final class HTTP {
 			httpConn.setAllowUserInteraction(false);
 			httpConn.setInstanceFollowRedirects(true);
 			httpConn.setRequestMethod(method.name());
-			httpConn.setConnectTimeout(15000);
-			httpConn.setReadTimeout(15000);
+			httpConn.setConnectTimeout(timeout);
+			httpConn.setReadTimeout(timeout);
 			if(username != null && password != null){
     			String encoding = "iso-8859-1";
     			String authHeader = new String(Base64.encode((username + ':' + password).getBytes(encoding), 
@@ -259,6 +263,18 @@ public final class HTTP {
         }
         
         return (HttpURLConnection) conn;     
+    }
+
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+        if(httpConn != null) {
+            httpConn.setConnectTimeout(timeout);
+            httpConn.setReadTimeout(timeout);
+        }
     }
 	
 //    public static InputStream openHttpConnection(String urlString) throws IOException {

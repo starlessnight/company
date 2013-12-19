@@ -5,6 +5,8 @@ import java.io.IOException;
 import org.osmdroid.tileprovider.MapTile;
 import org.osmdroid.tileprovider.tilesource.XYTileSource;
 
+import com.smartrek.utils.HTTP.Method;
+
 /**
  * This is a tile source for a map view.
  *
@@ -27,8 +29,10 @@ final public class SmartrekTileProvider extends XYTileSource {
 	    String url = baseUrl + zoomLevel + "/" + aTile.getX() + "/" + aTile.getY() + imageFilenameEnding;	    
         try {
             HTTP http = new HTTP(url);
-            http.connect();
-            if(http.getResponseCode() == 404){
+            http.setMethod(Method.HEAD);
+            http.setTimeout(7500);
+            int responseCode = http.getResponseCode();
+            if(!(200 <= responseCode && responseCode <= 399)){
                 baseUrl = osmHost;
                 imageFilenameEnding = osmImgFilenameEnding;
                 url = baseUrl + zoomLevel + "/" + aTile.getX() + "/" + aTile.getY() + imageFilenameEnding;
