@@ -3,7 +3,9 @@ package com.smartrek.activities;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -282,6 +284,9 @@ public final class ValidationActivity extends Activity implements OnInitListener
                     || StringUtils.equalsIgnoreCase(item.roadName, "null"))
                     ?"":item.roadName);
                 vRoad.requestLayout();
+                view.setPadding(0, 0, 0, position == getCount() - 1?
+                    Dimension.dpToPx(200, getResources().getDisplayMetrics())
+                    :0);
                 return view;
             }
         };
@@ -634,9 +639,49 @@ public final class ValidationActivity extends Activity implements OnInitListener
         TextView destAddr = (TextView) findViewById(R.id.dest_addr);
         destAddr.setText(reservation.getDestinationAddress());
         
+        final TextView timeInfo = (TextView) findViewById(R.id.time_info);
+        timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(reservation.getArrivalTime()));
+        timeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(reservation.getDuration()));
+        refreshTimeInfo();
+        timeInfo.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Boolean isRemainingTime = (Boolean) timeInfo.getTag();
+                if(isRemainingTime == null || !isRemainingTime){
+                    timeInfo.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
+                    isRemainingTime = true;
+                }else{
+                    timeInfo.setText(timeInfo.getTag(R.id.estimated_arrival_time).toString());
+                    isRemainingTime = false;
+                }
+                timeInfo.setTag(isRemainingTime);
+            }
+        });
+        
         Font.setTypeface(lightFont, osmCredit);
         Font.setTypeface(boldFont, dirSwitch, mapViewSwitch, (TextView) findViewById(R.id.congrats_msg),
-            destAddr);
+            destAddr, timeInfo);
+    }    
+    
+    private void refreshTimeInfo(){
+        final TextView timeInfo = (TextView) findViewById(R.id.time_info);
+        Boolean isRemainingTime = (Boolean) timeInfo.getTag();
+        if(isRemainingTime == null || !isRemainingTime){
+            timeInfo.setText(timeInfo.getTag(R.id.estimated_arrival_time).toString());
+        }else{
+            timeInfo.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
+        }
+    }
+    
+    private static final String timeFormat = "hh:mm a";
+    
+    private static String getFormatedEstimateArrivalTime(long time){
+        return "Estimated arrival time: " + new SimpleDateFormat(timeFormat).format(new Date(time));
+    }
+    
+    private static String getFormatedRemainingTime(long seconds){
+        long minute = Double.valueOf(Math.ceil(seconds / 60.0D)).longValue();
+        return "Remaining travel time: " + minute + " min" + (minute == 1?"":"s");
     }
     
     private View[] getMapViews(){
@@ -994,6 +1039,24 @@ public final class ValidationActivity extends Activity implements OnInitListener
             if(navigationView.getStatus() == Status.InRoute){
                 linkId = nearestLink.getStartNode().getLinkId();
             }
+            
+            long passedNodeTime = 0;
+            long remainingNodeTime = 0;
+            for (RouteNode node : route.getNodes()) {
+                int time = node.getTime();
+                if (node.getNodeIndex() > nearestNode.getNodeIndex()) {
+                    remainingNodeTime += time;
+                }else{
+                    passedNodeTime += time;
+                }
+            }
+            Time currentTime = new Time();
+            currentTime.setToNow();
+            long delay = currentTime.toMillis(false) - startTime - passedNodeTime * 1000;
+            final TextView timeInfo = (TextView) findViewById(R.id.time_info);
+            timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(reservation.getArrivalTime() + delay));
+            timeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(remainingNodeTime));
+            refreshTimeInfo();
         }
         
         trajectory.accumulate(location, linkId);

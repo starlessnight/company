@@ -181,6 +181,7 @@ public final class Route implements Parcelable {
                 if (ro.has(linkIdAttr)) {
                     node.setLinkId(ro.getLong(linkIdAttr));
                 }
+                node.setTime(ro.optInt("time"));
                 routeNodes.add(node);
             }
         }

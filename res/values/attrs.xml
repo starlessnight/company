@@ -79,4 +79,7 @@
         See {@link android.widget.GridLayout.LayoutParams#setGravity(int)}. -->
         <attr name="android:layout_gravity" />
     </declare-styleable>
+    
+    <item type="id" name="estimated_arrival_time" />
+    <item type="id" name="remaining_travel_time" />
 </resources>

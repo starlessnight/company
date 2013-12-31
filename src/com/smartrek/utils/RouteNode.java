@@ -105,6 +105,8 @@ public final class RouteNode implements Parcelable, JSONModel {
 	
 	private long linkId = Trajectory.DEFAULT_LINK_ID;
 	
+	private int time;
+	
     /**
      * A reference to the previous node. A link consists of two route nodes. A
      * route node belongs to at least one link, at most two links.
@@ -143,6 +145,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		direction = in.readString();
 		roadName = in.readString();
 		linkId = in.readLong();
+		time = in.readInt();
 	}
 	
 	public RouteNode(double latitude, double longitude, int routeNum, int nodeNum) {
@@ -290,6 +293,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 	    dest.writeString(direction);
 		dest.writeString(roadName);
 		dest.writeLong(linkId);
+		dest.writeInt(time);
 	}
 	
 	@Override
@@ -336,5 +340,13 @@ public final class RouteNode implements Parcelable, JSONModel {
 
     public void setLinkId(long linkId) {
         this.linkId = linkId;
+    }
+
+    public int getTime() {
+        return time;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
     }
 }
