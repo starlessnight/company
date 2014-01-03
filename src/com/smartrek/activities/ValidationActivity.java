@@ -664,13 +664,18 @@ public final class ValidationActivity extends Activity implements OnInitListener
     }    
     
     private void refreshTimeInfo(){
-        final TextView timeInfo = (TextView) findViewById(R.id.time_info);
-        Boolean isRemainingTime = (Boolean) timeInfo.getTag();
-        if(isRemainingTime == null || !isRemainingTime){
-            timeInfo.setText(timeInfo.getTag(R.id.estimated_arrival_time).toString());
-        }else{
-            timeInfo.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
-        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final TextView timeInfo = (TextView) findViewById(R.id.time_info);
+                Boolean isRemainingTime = (Boolean) timeInfo.getTag();
+                if(isRemainingTime == null || !isRemainingTime){
+                    timeInfo.setText(timeInfo.getTag(R.id.estimated_arrival_time).toString());
+                }else{
+                    timeInfo.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
+                }
+            }
+        });
     }
     
     private static final String timeFormat = "hh:mm a";
