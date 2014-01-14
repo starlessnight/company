@@ -26,7 +26,9 @@ final public class SmartrekTileProvider extends XYTileSource {
 	    int zoomLevel = aTile.getZoomLevel();
 	    String baseUrl = getBaseUrl();
 	    String imageFilenameEnding = mImageFilenameEnding;
-	    String url = baseUrl + zoomLevel + "/" + aTile.getX() + "/" + aTile.getY() + imageFilenameEnding;	    
+	    String url = baseUrl + zoomLevel + "/" + aTile.getX() + "/" + aTile.getY() + imageFilenameEnding;
+	    // url = "http://api.decarta.com/v1/814192d44ada190313e7639881bf7226/tile/" // deCarta images tiles
+        //    + aTile.getX() + "/" + aTile.getY() + "/" + aTile.getZoomLevel() + ".png"; 
         try {
             HTTP http = new HTTP(url);
             http.setMethod(Method.HEAD);
