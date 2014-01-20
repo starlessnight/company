@@ -70,7 +70,7 @@ public class MainActivity extends Activity implements AnimationListener {
 		    setContentView(R.layout.main);
 
 	        logo = (ImageView) findViewById(R.id.imageViewLogo);
-	        Animation fadeAnimation = AnimationUtils.loadAnimation(this, R.anim.fade);
+	        Animation fadeAnimation = AnimationUtils.loadAnimation(this, R.anim.show);
 	        fadeAnimation.setAnimationListener(this);
 	        logo.startAnimation(fadeAnimation);
 	        
@@ -237,7 +237,6 @@ public class MainActivity extends Activity implements AnimationListener {
 	@Override
 	public void onAnimationEnd(Animation animation) {
 	    splashEnded = true;
-		logo.setAlpha(0);
 		
 		if(loginTask == null){
 		    SharedPreferences prefs = Preferences.getGlobalPreferences(this);
