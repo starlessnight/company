@@ -686,7 +686,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         expandMap();
     }
     
-    private interface CurrentLocationListener {
+    public interface CurrentLocationListener {
         
         void get(double lat, double lon);
         

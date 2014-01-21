@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@null"
+    android:orientation="vertical" >
+
+    <ImageView
+        android:id="@+id/skyline_bg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:src="@drawable/skyline" />
+    
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="5dp"
+        android:background="#929497"
+	/>
+    
+    <RelativeLayout 
+			android:id="@+id/map_panel"
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1">
+    	<include layout="@layout/mapview" />
+    	
+    	<EditText
+    	    android:id="@+id/search_box"
+    	    android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+           	android:layout_marginRight="45dp"
+           	android:layout_alignParentTop="true"
+           	android:layout_centerHorizontal="true"
+           	android:hint="Search..."
+           	android:drawableLeft="@drawable/search_icon"
+           	android:drawablePadding="10dp"
+           	style="@style/SearchTextField"
+		/>
+    	
+    	<ImageView 
+    	    android:id="@+id/center_map_icon"
+    	    android:layout_width="wrap_content"
+    	    android:layout_height="wrap_content"
+    	    android:src="@drawable/center_map_icon"
+    	    android:layout_alignParentRight="true"
+    	    android:layout_alignParentBottom="true"
+    	    android:layout_marginRight="10dp"
+    	    android:layout_marginBottom="30dp"
+		/>
+    	
+   	</RelativeLayout>
+   	
+    <LinearLayout 
+        	android:layout_width="match_parent"
+        	android:layout_height="wrap_content"
+        	android:background="#6d6e71"
+        	android:orientation="horizontal"
+        	android:paddingTop="5dp"
+        	android:paddingLeft="20dp"
+        	android:paddingBottom="5dp">
+    	
+        <ImageView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:src="@drawable/reward_icon"
+	        android:visibility="visible"
+        />
+        
+        <ImageView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="10dp"
+	        android:src="@drawable/message_icon"
+	        android:visibility="visible"
+        />
+        
+        <ImageView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="10dp"
+	        android:src="@drawable/warning_icon"
+	        android:visibility="visible"
+        />
+        
+        <ImageView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="10dp"
+	        android:src="@drawable/tree_icon"
+	        android:visibility="visible"
+        />
+        
+        <ImageView
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="10dp"
+	        android:src="@drawable/car_icon"
+	        android:visibility="visible"
+        />
+        
+        <TextView
+            android:id="@+id/next_trip_info"
+            android:layout_width="match_parent"
+        	android:layout_height="wrap_content"
+            android:textSize="@dimen/smaller_font"
+           	android:textColor="@android:color/white"
+           	android:ellipsize="marquee"
+           	android:singleLine="true"
+           	android:layout_marginLeft="10dp"
+           	android:visibility="visible"
+        />
+        
+    </LinearLayout>
+
+</LinearLayout>

@@ -8,6 +8,7 @@ import com.smartrek.activities.DashboardActivity;
 import com.smartrek.activities.DebugOptionsActivity;
 import com.smartrek.activities.HomeActivity;
 import com.smartrek.activities.LandingActivity;
+import com.smartrek.activities.LandingActivity2;
 import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.activities.R;
 import com.smartrek.activities.ReservationConfirmationActivity;
@@ -36,8 +37,8 @@ public final class MainMenu {
            switch (itemId) {
            
            case R.id.home:
-               if (!activity.getClass().equals(LandingActivity.class)) {
-                   intent = new Intent(activity, LandingActivity.class);
+               if (!activity.getClass().equals(LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class)) {
+                   intent = new Intent(activity, LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                    activity.startActivity(intent);
                    activity.finish();

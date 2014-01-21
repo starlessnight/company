@@ -204,7 +204,7 @@ public final class UserRegistrationActivity extends ActionBarActivity
 					    
 					    User.setCurrentUser(UserRegistrationActivity.this, result);
 					    
-	                    Intent intent = new Intent(UserRegistrationActivity.this, LandingActivity.class);
+	                    Intent intent = new Intent(UserRegistrationActivity.this, LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
 	                    UserRegistrationActivity.this.startActivity(intent);
 	                    finish();
 					}

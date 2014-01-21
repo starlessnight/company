@@ -88,6 +88,13 @@
             android:theme="@android:style/Theme.NoTitleBar"
             android:launchMode="singleTask" />
         <activity
+            android:name=".LandingActivity2"
+            android:hardwareAccelerated="false"
+            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:launchMode="singleTask" />
+        <activity
             android:name=".HomeActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
             android:theme="@style/Theme.smartrek"
