@@ -17,6 +17,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
@@ -112,6 +113,15 @@ public final class LandingActivity2 extends Activity {
             @Override
             public void onClick(View v) {
                 mc.animateTo(myPointOverlay.getLocation());
+            }
+        });
+        
+        final DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        View drawerIcon = findViewById(R.id.drawer_menu_icon);
+        drawerIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDrawerLayout.openDrawer(findViewById(R.id.left_drawer));
             }
         });
         
