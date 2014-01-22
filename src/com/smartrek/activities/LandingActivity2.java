@@ -125,9 +125,16 @@ public final class LandingActivity2 extends Activity {
             }
         });
         
+        TextView rewardsMenu = (TextView) findViewById(R.id.rewards_menu);
+        TextView shareMenu = (TextView) findViewById(R.id.share_menu);
+        TextView feedbackMenu = (TextView) findViewById(R.id.feedback_menu);
+        TextView settingsMenu = (TextView) findViewById(R.id.settings_menu);
+        TextView logoutMenu = (TextView) findViewById(R.id.logout_menu);
+        
         AssetManager assets = getAssets();
 //        Font.setTypeface(Font.getBold(assets));
-        Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, nextTripInfo);
+        Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, nextTripInfo,
+            rewardsMenu, shareMenu, feedbackMenu, settingsMenu, logoutMenu);
     }
     
     private void getCurrentLocation(final CurrentLocationListener lis){
