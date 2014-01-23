@@ -1,9 +1,11 @@
 package com.smartrek.activities;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
 import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
@@ -19,7 +21,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import com.smartrek.activities.LandingActivity.CurrentLocationListener;
@@ -33,6 +37,8 @@ import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
+import com.smartrek.utils.Geocoding;
+import com.smartrek.utils.Geocoding.Address;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.RouteRect;
 import com.smartrek.utils.SmartrekTileProvider;
@@ -57,7 +63,7 @@ public final class LandingActivity2 extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.landing2);
         
-        MapView mapView = (MapView) findViewById(R.id.mapview);
+        final MapView mapView = (MapView) findViewById(R.id.mapview);
         Misc.disableHardwareAcceleration(mapView);
         mapView.setBuiltInZoomControls(false);
         mapView.setMultiTouchControls(true);
@@ -108,6 +114,46 @@ public final class LandingActivity2 extends Activity {
         });
         
         TextView searchBox = (TextView) findViewById(R.id.search_box);
+        searchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                final String addrInput = v.getText().toString();
+                boolean handled = StringUtils.isNotBlank(addrInput);
+                if(handled){
+                    AsyncTask<Void, Void, GeoPoint> task = new AsyncTask<Void, Void, GeoPoint>(){
+                        @Override
+                        protected GeoPoint doInBackground(Void... params) {
+                            GeoPoint gp = null;
+                            try {
+                                List<Address> addrs = Geocoding.lookup(addrInput);
+                                for (Address a : addrs) {
+                                    gp = new GeoPoint(a.getLatitude(), a.getLongitude());
+                                    break;
+                                }
+                            }
+                            catch (IOException e) {
+                            }
+                            catch (JSONException e) {
+                            }
+                            return gp;
+                        }
+                        @Override
+                        protected void onPostExecute(GeoPoint gp) {
+                            if(gp != null){
+                                refreshPOIMarker(mapView, gp.getLatitude(), gp.getLongitude());
+                                mc.animateTo(gp);
+                            }
+                        }
+                    };
+                    Misc.parallelExecute(task);
+                    InputMethodManager imm = (InputMethodManager)getSystemService(
+                            Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+                return handled;
+            }
+        });
+        
         TextView nextTripInfo = (TextView) findViewById(R.id.next_trip_info);
         nextTripInfo.setSelected(true);
         
@@ -252,25 +298,28 @@ public final class LandingActivity2 extends Activity {
     private void bindLongPressFunctions(final MapView mapView){
         LongPressOverlay longPressOverlay = new LongPressOverlay(this);
         longPressOverlay.setActionListener(new LongPressOverlay.ActionListener() {
-            
-            POIOverlay curMarker;
-            
             @Override
             public void onLongPress(double lat, double lon) {
-                List<Overlay> overlays = mapView.getOverlays();
-                for (Overlay overlay : overlays) {
-                    if(overlay == curMarker){
-                        overlays.remove(overlay);
-                    }
-                }
-                POIOverlay marker = new POIOverlay(LandingActivity2.this, new GeoPoint(lat, lon), 
-                    R.drawable.marker_poi);
-                overlays.add(marker);
-                curMarker = marker;
-                mapView.postInvalidate();
+                refreshPOIMarker(mapView, lat, lon);
             }
         });
         mapView.getOverlays().add(longPressOverlay);
+    }
+    
+    private POIOverlay curMarker;
+    
+    private void refreshPOIMarker(MapView mapView, double lat, double lon){
+        List<Overlay> overlays = mapView.getOverlays();
+        for (Overlay overlay : overlays) {
+            if(overlay == curMarker){
+                overlays.remove(overlay);
+            }
+        }
+        POIOverlay marker = new POIOverlay(LandingActivity2.this, new GeoPoint(lat, lon), 
+            R.drawable.marker_poi);
+        overlays.add(marker);
+        curMarker = marker;
+        mapView.postInvalidate();
     }
     
     private synchronized RouteRect drawPOIs(final MapView mapView, List<com.smartrek.requests.WhereToGoRequest.Location> locs) {

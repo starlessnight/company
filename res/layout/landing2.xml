@@ -41,6 +41,7 @@
 	           	android:layout_alignParentTop="true"
 	           	android:layout_centerHorizontal="true"
 	           	android:hint="Search..."
+	           	android:singleLine="true"
 	           	android:drawableLeft="@drawable/search_icon"
 	           	android:drawablePadding="10dp"
 	           	style="@style/SearchTextField"
