@@ -12,6 +12,13 @@ public class RouteRect {
 	int latMin;
 	int lonMin;
 	
+	public RouteRect(int latMax, int lonMax, int latMin, int lonMin) {
+	    this.latMax = latMax;
+	    this.lonMax = lonMax;
+	    this.latMin = latMin;
+	    this.lonMin = lonMin;
+	}
+	
 	public RouteRect(List<RouteNode> nodes) {
         int latMax = (int) (-81 * 1E6);
         int lonMax = (int) (-181 * 1E6);

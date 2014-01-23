@@ -24,12 +24,16 @@ import android.widget.TextView;
 
 import com.smartrek.activities.LandingActivity.CurrentLocationListener;
 import com.smartrek.dialogs.NotificationDialog;
+import com.smartrek.models.User;
 import com.smartrek.requests.CityRequest;
+import com.smartrek.requests.WhereToGoRequest;
+import com.smartrek.ui.overlays.POIOverlay;
 import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Misc;
+import com.smartrek.utils.RouteRect;
 import com.smartrek.utils.SmartrekTileProvider;
 
 public final class LandingActivity2 extends Activity {
@@ -154,7 +158,12 @@ public final class LandingActivity2 extends Activity {
                 try{
                     changed = true;
                     networkLocManager.removeUpdates(this);
-                    lis.get(location.getLatitude(), location.getLongitude());
+                    double lon = location.getLongitude();
+                    double lat = location.getLatitude();
+                    // debug lat lon
+                    lat = 34.0291747;
+                    lon = -118.2734106;
+                    lis.get(lat, lon);
                 }catch(Throwable t){}
             }
             @Override
@@ -199,6 +208,82 @@ public final class LandingActivity2 extends Activity {
             }
         });
     }
+    
+    private void refreshWhereToGo(){
+        getCurrentLocation(new CurrentLocationListener() {
+            @Override
+            public void get(final double lat, final double lon) {
+                final User user = User.getCurrentUser(LandingActivity2.this);
+                AsyncTask<Void, Void, List<com.smartrek.requests.WhereToGoRequest.Location>> task = 
+                        new AsyncTask<Void, Void, List<com.smartrek.requests.WhereToGoRequest.Location>>() {
+                    @Override
+                    protected List<com.smartrek.requests.WhereToGoRequest.Location> doInBackground(Void... params) {
+                        List<com.smartrek.requests.WhereToGoRequest.Location> locs = null;
+                        WhereToGoRequest req = new WhereToGoRequest(user, lat, lon);
+                        req.invalidateCache(LandingActivity2.this);
+                        try {
+                            locs = req.execute(LandingActivity2.this);
+                        }
+                        catch (Exception e) {
+                            ehs.registerException(e);
+                        }
+                        return locs;
+                    }
+                    @Override
+                    protected void onPostExecute(List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
+                        if (ehs.hasExceptions()) {
+                            ehs.reportExceptions();
+                        }
+                        else {
+                            MapView mapView = (MapView) findViewById(R.id.mapview);
+                            MapController mc = mapView.getController();
+                            myPointOverlay.setLocation((float) lat, (float) lon);
+                            if(locs.isEmpty()){
+                                mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+                                mc.setCenter(new GeoPoint(lat, lon));
+                                final List<Overlay> mapOverlays = mapView.getOverlays();
+                                mapOverlays.clear();
+                                mapOverlays.add(myPointOverlay);
+                                mapView.postInvalidate();
+                            }else{
+                                RouteRect routeRect = drawPOIs(mapView, locs);
+                                GeoPoint mid = routeRect.getMidPoint();
+                                int[] range = routeRect.getRange();
+                                mc.zoomToSpan(range[0], range[1]);
+                                mc.setCenter(mid);
+                            }
+                        }
+                    }
+                };
+                Misc.parallelExecute(task);
+            }
+        });
+    }
+    
+    private synchronized RouteRect drawPOIs(final MapView mapView, List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
+        List<Overlay> mapOverlays = mapView.getOverlays();
+        mapOverlays.clear();
+        
+        int latMax = (int)(-81 * 1E6);
+        int lonMax = (int)(-181 * 1E6);
+        int latMin = (int)(+81 * 1E6);
+        int lonMin = (int)(+181 * 1E6);
+        
+        for(com.smartrek.requests.WhereToGoRequest.Location l:locs){
+            GeoPoint gp = new GeoPoint(l.lat, l.lon);
+            POIOverlay poi = new POIOverlay(this, gp, R.drawable.bulb_poi);
+            mapOverlays.add(poi);
+            int curLat = gp.getLatitudeE6();
+            int curLon = gp.getLongitudeE6();
+            latMax = Math.max(latMax, curLat);
+            lonMax = Math.max(lonMax, curLon);
+            latMin = Math.min(latMin, curLat);
+            lonMin = Math.min(lonMin, curLon);
+        }
+        mapOverlays.add(myPointOverlay);
+        
+        return new RouteRect(latMax, lonMax, latMin, lonMin);
+    }
 
     @Override
     protected void onResume() {
@@ -206,7 +291,7 @@ public final class LandingActivity2 extends Activity {
         LandingActivity.initializeIfNeccessary(this, new Runnable() {
             @Override
             public void run() {
-                centerMapByCurrentLocation();
+                refreshWhereToGo();
             }
         });
     }
