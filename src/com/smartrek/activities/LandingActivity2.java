@@ -27,6 +27,7 @@ import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.User;
 import com.smartrek.requests.CityRequest;
 import com.smartrek.requests.WhereToGoRequest;
+import com.smartrek.ui.overlays.LongPressOverlay;
 import com.smartrek.ui.overlays.POIOverlay;
 import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.utils.ExceptionHandlingService;
@@ -55,9 +56,6 @@ public final class LandingActivity2 extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.landing2);
-        
-        myPointOverlay = new PointOverlay(LandingActivity2.this, 0, 0);
-        myPointOverlay.setColor(0xCC2020DF);
         
         MapView mapView = (MapView) findViewById(R.id.mapview);
         Misc.disableHardwareAcceleration(mapView);
@@ -105,6 +103,7 @@ public final class LandingActivity2 extends Activity {
                         Misc.parallelExecute(checkCityAvailability);
                     }
                 }, true);
+                refreshWhereToGo();
             }
         });
         
@@ -116,7 +115,9 @@ public final class LandingActivity2 extends Activity {
         centerMapIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mc.animateTo(myPointOverlay.getLocation());
+                if(myPointOverlay != null){
+                    mc.animateTo(myPointOverlay.getLocation());
+                }
             }
         });
         
@@ -192,23 +193,6 @@ public final class LandingActivity2 extends Activity {
         }catch(Throwable t){}
     }
     
-    private void centerMapByCurrentLocation(){
-        getCurrentLocation(new CurrentLocationListener() {
-            @Override
-            public void get(double lat, double lon) {
-                MapView mapView = (MapView) findViewById(R.id.mapview);
-                MapController mc = mapView.getController();
-                mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
-                mc.setCenter(new GeoPoint(lat, lon));
-                final List<Overlay> mapOverlays = mapView.getOverlays();
-                mapOverlays.clear();
-                myPointOverlay.setLocation((float) lat, (float) lon);
-                mapOverlays.add(myPointOverlay);
-                mapView.postInvalidate();
-            }
-        });
-    }
-    
     private void refreshWhereToGo(){
         getCurrentLocation(new CurrentLocationListener() {
             @Override
@@ -237,6 +221,10 @@ public final class LandingActivity2 extends Activity {
                         else {
                             MapView mapView = (MapView) findViewById(R.id.mapview);
                             MapController mc = mapView.getController();
+                            if(myPointOverlay == null){
+                                myPointOverlay = new PointOverlay(LandingActivity2.this, 0, 0);
+                                myPointOverlay.setColor(0xCC2020DF);
+                            }
                             myPointOverlay.setLocation((float) lat, (float) lon);
                             if(locs.isEmpty()){
                                 mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
@@ -252,12 +240,37 @@ public final class LandingActivity2 extends Activity {
                                 mc.zoomToSpan(range[0], range[1]);
                                 mc.setCenter(mid);
                             }
+                            bindLongPressFunctions(mapView);
                         }
                     }
                 };
                 Misc.parallelExecute(task);
             }
         });
+    }
+    
+    private void bindLongPressFunctions(final MapView mapView){
+        LongPressOverlay longPressOverlay = new LongPressOverlay(this);
+        longPressOverlay.setActionListener(new LongPressOverlay.ActionListener() {
+            
+            POIOverlay curMarker;
+            
+            @Override
+            public void onLongPress(double lat, double lon) {
+                List<Overlay> overlays = mapView.getOverlays();
+                for (Overlay overlay : overlays) {
+                    if(overlay == curMarker){
+                        overlays.remove(overlay);
+                    }
+                }
+                POIOverlay marker = new POIOverlay(LandingActivity2.this, new GeoPoint(lat, lon), 
+                    R.drawable.marker_poi);
+                overlays.add(marker);
+                curMarker = marker;
+                mapView.postInvalidate();
+            }
+        });
+        mapView.getOverlays().add(longPressOverlay);
     }
     
     private synchronized RouteRect drawPOIs(final MapView mapView, List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
@@ -283,17 +296,6 @@ public final class LandingActivity2 extends Activity {
         mapOverlays.add(myPointOverlay);
         
         return new RouteRect(latMax, lonMax, latMin, lonMin);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        LandingActivity.initializeIfNeccessary(this, new Runnable() {
-            @Override
-            public void run() {
-                refreshWhereToGo();
-            }
-        });
     }
     
     @Override
