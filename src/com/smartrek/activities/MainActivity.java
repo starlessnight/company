@@ -70,9 +70,9 @@ public class MainActivity extends Activity implements AnimationListener {
 		    setContentView(R.layout.main);
 
 	        logo = (ImageView) findViewById(R.id.imageViewLogo);
-	        Animation fadeAnimation = AnimationUtils.loadAnimation(this, R.anim.show);
-	        fadeAnimation.setAnimationListener(this);
-	        logo.startAnimation(fadeAnimation);
+	        Animation showAnimation = AnimationUtils.loadAnimation(this, R.anim.show);
+	        showAnimation.setAnimationListener(this);
+	        logo.startAnimation(showAnimation);
 	        
 	        /* Check Shared memory to see if login info has already been entered on this phone */
             SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
