@@ -15,6 +15,7 @@ import org.osmdroid.views.overlay.OverlayItem;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -42,7 +43,6 @@ import com.smartrek.requests.WhereToGoRequest;
 import com.smartrek.ui.overlays.EventOverlay;
 import com.smartrek.ui.overlays.OverlayCallback;
 import com.smartrek.ui.overlays.POIActionOverlay;
-import com.smartrek.ui.overlays.POIOverlay;
 import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.utils.Dimension;
 import com.smartrek.utils.ExceptionHandlingService;
@@ -120,7 +120,7 @@ public final class LandingActivity2 extends Activity {
                         Misc.parallelExecute(checkCityAvailability);
                     }
                 }, true);
-                refreshWhereToGo();
+                refreshBulbPOIs();
             }
         });
         
@@ -234,8 +234,8 @@ public final class LandingActivity2 extends Activity {
                     double lon = location.getLongitude();
                     double lat = location.getLatitude();
                     // debug lat lon
-                    lat = 34.0291747;
-                    lon = -118.2734106;
+//                    lat = 34.0291747;
+//                    lon = -118.2734106;
                     lis.get(lat, lon);
                 }catch(Throwable t){}
             }
@@ -265,7 +265,20 @@ public final class LandingActivity2 extends Activity {
         }catch(Throwable t){}
     }
     
-    private void refreshStarredPOI(){
+    Typeface boldFont;
+    
+    Typeface lightFont;
+    
+    private void initFontsIfNecessary(){
+        if(boldFont == null){
+            boldFont = Font.getBold(getAssets());
+        }
+        if(lightFont == null){
+            lightFont = Font.getLight(getAssets());
+        }
+    }
+    
+    private void refreshStarredPOIs(){
         AsyncTask<Void, Void, List<com.smartrek.models.Address>> task = new AsyncTask<Void, Void, List<com.smartrek.models.Address>>(){
             @Override
             protected List<com.smartrek.models.Address> doInBackground(
@@ -301,11 +314,12 @@ public final class LandingActivity2 extends Activity {
                                 }
                             }
                         }
+                        initFontsIfNecessary();
                         for(final com.smartrek.models.Address a : result){
                             final POIActionOverlay star = new POIActionOverlay(mapView, 
                                 new GeoPoint(a.getLatitude(), a.getLongitude()), 
-                                Font.getBold(getAssets()), Font.getLight(getAssets()),
-                                a.getAddress(), a.getName(), R.drawable.star_poi);
+                                boldFont, lightFont, a.getAddress(), a.getName(), 
+                                R.drawable.star_poi);
                             star.setAid(a.getId());
                             star.setBalloonOffsetY(Dimension.dpToPx(-17, getResources().getDisplayMetrics()));
                             star.setCallback(new OverlayCallback() {
@@ -316,6 +330,7 @@ public final class LandingActivity2 extends Activity {
                                 @Override
                                 public boolean onLongPress(int index, OverlayItem item) {
                                     hideStarredBalloon();
+                                    hideBulbBalloon();
                                     removePOIMarker(mapView);
                                     star.showBalloonOverlay();  
                                     final View balloonView = (View) star.getBalloonView();
@@ -356,7 +371,7 @@ public final class LandingActivity2 extends Activity {
                                                             }
                                                             else {
                                                                 removePOIMarker(mapView);
-                                                                refreshStarredPOI();
+                                                                refreshStarredPOIs();
                                                             }
                                                         }
                                                    };
@@ -404,7 +419,20 @@ public final class LandingActivity2 extends Activity {
         }
     }
     
-    private void refreshWhereToGo(){
+    private void hideBulbBalloon(){
+        MapView mapView = (MapView) findViewById(R.id.mapview);
+        List<Overlay> overlays = mapView.getOverlays();
+        for (Overlay overlay : overlays) {
+            if(overlay instanceof POIActionOverlay){
+                POIActionOverlay poiOverlay = (POIActionOverlay)overlay;
+                if(poiOverlay.getMarker() == R.drawable.bulb_poi){
+                    poiOverlay.hideBalloon();
+                }
+            }
+        }
+    }
+    
+    private void refreshBulbPOIs(){
         getCurrentLocation(new CurrentLocationListener() {
             @Override
             public void get(final double lat, final double lon) {
@@ -437,22 +465,22 @@ public final class LandingActivity2 extends Activity {
                                 myPointOverlay.setColor(0xCC2020DF);
                             }
                             myPointOverlay.setLocation((float) lat, (float) lon);
+                            final List<Overlay> mapOverlays = mapView.getOverlays();
+                            mapOverlays.clear();
+                            bindMapFunctions(mapView);
                             if(locs.isEmpty()){
                                 mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
                                 mc.setCenter(new GeoPoint(lat, lon));
-                                final List<Overlay> mapOverlays = mapView.getOverlays();
-                                mapOverlays.clear();
-                                mapOverlays.add(myPointOverlay);
-                                mapView.postInvalidate();
                             }else{
-                                RouteRect routeRect = drawPOIs(mapView, locs);
+                                RouteRect routeRect = drawBulbPOIs(mapView, locs);
                                 GeoPoint mid = routeRect.getMidPoint();
                                 int[] range = routeRect.getRange();
                                 mc.zoomToSpan(range[0], range[1]);
                                 mc.setCenter(mid);
                             }
-                            bindLongPressFunctions(mapView);
-                            refreshStarredPOI();
+                            mapOverlays.add(myPointOverlay);
+                            mapView.postInvalidate();
+                            refreshStarredPOIs();
                         }
                     }
                 };
@@ -461,15 +489,16 @@ public final class LandingActivity2 extends Activity {
         });
     }
     
-    private void bindLongPressFunctions(final MapView mapView){
-        EventOverlay longPressOverlay = new EventOverlay(this);
-        longPressOverlay.setActionListener(new EventOverlay.ActionListener() {
+    private void bindMapFunctions(final MapView mapView){
+        EventOverlay eventOverlay = new EventOverlay(this);
+        eventOverlay.setActionListener(new EventOverlay.ActionListener() {
             @Override
             public void onLongPress(final double lat, final double lon) {
                 ReverseGeocodingTask task = new ReverseGeocodingTask(lat, lon){
                     @Override
                     protected void onPostExecute(String result) {
                         hideStarredBalloon();
+                        hideBulbBalloon();
                         refreshPOIMarker(mapView, lat, lon, result, "");
                     }
                 };
@@ -478,10 +507,11 @@ public final class LandingActivity2 extends Activity {
             @Override
             public void onSingleTap() {
                 hideStarredBalloon();
+                hideBulbBalloon();
                 removePOIMarker(mapView);
             }
         });
-        mapView.getOverlays().add(longPressOverlay);
+        mapView.getOverlays().add(eventOverlay);
     }
     
     private static abstract class ReverseGeocodingTask extends AsyncTask<Void, Void, String> {
@@ -562,7 +592,7 @@ public final class LandingActivity2 extends Activity {
                             }
                             else {
                                 removePOIMarker(mapView);
-                                refreshStarredPOI();
+                                refreshStarredPOIs();
                             }
                         }
                    };
@@ -572,19 +602,98 @@ public final class LandingActivity2 extends Activity {
         });
     }
     
-    private synchronized RouteRect drawPOIs(final MapView mapView, List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
-        List<Overlay> mapOverlays = mapView.getOverlays();
-        mapOverlays.clear();
+    private synchronized RouteRect drawBulbPOIs(final MapView mapView, List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
+        List<Overlay> overlays = mapView.getOverlays();
+        for (Overlay overlay : overlays) {
+            if(overlay instanceof POIActionOverlay){
+                POIActionOverlay poiOverlay = (POIActionOverlay)overlay;
+                if(poiOverlay.getMarker() == R.drawable.bulb_poi){
+                    poiOverlay.hideBalloon();
+                    overlays.remove(overlay);
+                }
+            }
+        }
         
         int latMax = (int)(-81 * 1E6);
         int lonMax = (int)(-181 * 1E6);
         int latMin = (int)(+81 * 1E6);
         int lonMin = (int)(+181 * 1E6);
         
-        for(com.smartrek.requests.WhereToGoRequest.Location l:locs){
+        initFontsIfNecessary();
+        for(final com.smartrek.requests.WhereToGoRequest.Location l:locs){
             GeoPoint gp = new GeoPoint(l.lat, l.lon);
-            POIOverlay poi = new POIOverlay(this, gp, R.drawable.bulb_poi);
-            mapOverlays.add(poi);
+            final POIActionOverlay bulb = new POIActionOverlay(mapView, gp, boldFont, lightFont, 
+                    l.addr, l.debug, R.drawable.bulb_poi);
+            bulb.setBalloonOffsetY(Dimension.dpToPx(-17, getResources().getDisplayMetrics()));
+            bulb.setCallback(new OverlayCallback() {
+                @Override
+                public boolean onTap(int index) {
+                    return false;
+                }
+                @Override
+                public boolean onLongPress(int index, OverlayItem item) {
+                    hideStarredBalloon();
+                    hideBulbBalloon();
+                    removePOIMarker(mapView);
+                    bulb.showBalloonOverlay();  
+                    final View balloonView = (View) bulb.getBalloonView();
+                    View saveIcon = balloonView.findViewById(R.id.save);
+                    final EditText lblView = (EditText)balloonView.findViewById(R.id.label);
+                    lblView.setText(l.debug);
+                    if(saveIcon.getTag() == null){
+                        saveIcon.setTag(true);
+                        saveIcon.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                final String lbl = lblView.getText().toString();
+                                final String addr = ((TextView)balloonView.findViewById(R.id.address)).getText().toString();
+                                if(StringUtils.isNotBlank(lbl)){
+                                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+                                        @Override
+                                        protected Void doInBackground(Void... params) {
+                                            FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
+                                                User.getCurrentUser(LandingActivity2.this), lbl, addr, l.lat, l.lon);
+                                            try {
+                                                request.execute(LandingActivity2.this);
+                                            }
+                                            catch (Exception e) {
+                                                ehs.registerException(e);
+                                            }
+                                            return null;
+                                        }
+                                        protected void onPostExecute(Void result) {
+                                            if (ehs.hasExceptions()) {
+                                                ehs.reportExceptions();
+                                            }
+                                            else {
+                                                removePOIMarker(mapView);
+                                                hideBulbBalloon();
+                                                refreshStarredPOIs();
+                                            }
+                                        }
+                                   };
+                                   Misc.parallelExecute(task);
+                                }
+                            }
+                        });
+                    }
+                    mapView.postInvalidate();
+                    return true;
+                }
+                @Override
+                public boolean onClose() {
+                    return false;
+                }
+                @Override
+                public void onChange() {
+                }
+                @Override
+                public boolean onBalloonTap(int index, OverlayItem item) {
+                    return false;
+                }
+            });
+            overlays.add(bulb);
+            bulb.showOverlay();
             int curLat = gp.getLatitudeE6();
             int curLon = gp.getLongitudeE6();
             latMax = Math.max(latMax, curLat);
@@ -592,7 +701,6 @@ public final class LandingActivity2 extends Activity {
             latMin = Math.min(latMin, curLat);
             lonMin = Math.min(lonMin, curLon);
         }
-        mapOverlays.add(myPointOverlay);
         
         return new RouteRect(latMax, lonMax, latMin, lonMin);
     }

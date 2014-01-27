@@ -105,7 +105,10 @@ public class POIActionOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	}
 
 	public void showBalloonOverlay(){
-	    onTap(0);
+        currentFocussedIndex = 0;
+        currentFocussedItem = createItem(0);
+        
+        createAndDisplayBalloonOverlay();
 	}
 	
 	@Override
@@ -115,10 +118,10 @@ public class POIActionOverlay extends BalloonItemizedOverlay<OverlayItem> {
 		}
 		
 		// FIXME: Move the following code to RouteActivity
-		currentFocussedIndex = index;
-		currentFocussedItem = createItem(index);
-		
-		createAndDisplayBalloonOverlay();
+//		currentFocussedIndex = index;
+//		currentFocussedItem = createItem(index);
+//		
+//		createAndDisplayBalloonOverlay();
 		
 		if (callback != null) {
 			return callback.onTap(index);
