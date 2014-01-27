@@ -2,9 +2,10 @@ package com.smartrek.ui.overlays;
 
 import org.osmdroid.views.overlay.OverlayItem;
 
-public interface RouteOverlayCallback {
+public interface OverlayCallback {
 	boolean onBalloonTap(int index, OverlayItem item);
 	boolean onTap(int index);
 	boolean onClose();
 	void onChange();
+	boolean onLongPress(int index, OverlayItem item);
 }

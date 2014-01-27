@@ -28,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.smartrek.activities.R;
+import com.smartrek.ui.overlays.BalloonItemizedOverlay.IBalloonOverlayView;
 import com.smartrek.utils.Font;
 
 /**
@@ -46,7 +47,7 @@ import com.smartrek.utils.Font;
  * @author Jeff Gilfelt
  *
  */
-public class BalloonOverlayView<Item extends OverlayItem> extends FrameLayout {
+public class BalloonOverlayView<Item extends OverlayItem> extends FrameLayout implements IBalloonOverlayView<Item> {
 
 	private LinearLayout layout;
 	private TextView title;

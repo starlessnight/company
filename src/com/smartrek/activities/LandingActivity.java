@@ -36,6 +36,7 @@ import android.text.format.Time;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
@@ -82,7 +83,7 @@ import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RouteInfoOverlay;
-import com.smartrek.ui.overlays.RouteOverlayCallback;
+import com.smartrek.ui.overlays.OverlayCallback;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.ui.timelayout.AdjustableTime;
 import com.smartrek.utils.Cache;
@@ -1135,7 +1136,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         
         infoOverlay = new RouteInfoOverlay(mapView, route, routeNum, new GeoPoint(lat, lon), boldFont, lightFont);
         infoOverlay.setShowArrow(false);
-        infoOverlay.setCallback(new RouteOverlayCallback(){
+        infoOverlay.setCallback(new OverlayCallback(){
             @Override
             public boolean onBalloonTap(int index, OverlayItem item) {
                 return false;
@@ -1153,6 +1154,10 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             public boolean onClose() {
                 mapView.invalidate();
                 return true;
+            }
+            @Override
+            public boolean onLongPress(int index, OverlayItem item) {
+                return false;
             }
         });
         mapOverlays.add(infoOverlay);

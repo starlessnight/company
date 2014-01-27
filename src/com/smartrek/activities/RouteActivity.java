@@ -31,6 +31,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
@@ -51,7 +52,7 @@ import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.RouteInfoOverlay;
-import com.smartrek.ui.overlays.RouteOverlayCallback;
+import com.smartrek.ui.overlays.OverlayCallback;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.ui.timelayout.ScrollableTimeLayout;
 import com.smartrek.ui.timelayout.TimeButton;
@@ -858,7 +859,7 @@ public final class RouteActivity extends ActionBarActivity {
         }
     }
     
-    private class RouteOverlayCallbackImpl implements RouteOverlayCallback {
+    private class RouteOverlayCallbackImpl implements OverlayCallback {
 
         private Route route;
         private int routeNum;
@@ -912,5 +913,10 @@ public final class RouteActivity extends ActionBarActivity {
 			
 			return true;
 		}
+
+        @Override
+        public boolean onLongPress(int index, OverlayItem item) {
+            return false;
+        }
     }
 }

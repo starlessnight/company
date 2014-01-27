@@ -10,17 +10,18 @@ import android.view.MotionEvent;
 
 import com.smartrek.utils.GeoPoint;
 
-public class LongPressOverlay extends Overlay {
+public class EventOverlay extends Overlay {
 	
 	public interface ActionListener {
 		void onLongPress(double latitude, double longitude);
+		void onSingleTap();
 	}
 	
 	private ActionListener actionListener;
 	
 	private GeoPoint lastTouchedPoint;
 	
-	public LongPressOverlay(Context context) {
+	public EventOverlay(Context context) {
 		super(context);
 	}
 	
@@ -36,6 +37,14 @@ public class LongPressOverlay extends Overlay {
 			actionListener.onLongPress(lastTouchedPoint.getLatitude(), lastTouchedPoint.getLongitude());
 		}
 		return false;
+	}
+	
+	@Override
+	public boolean onSingleTapConfirmed(MotionEvent e, MapView mapView) {
+	    if (actionListener != null) {
+            actionListener.onSingleTap();
+        }
+	    return false;
 	}
 
 	@Override

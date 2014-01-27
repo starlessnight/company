@@ -196,16 +196,14 @@ public final class Geocoding {
         return new GeoPoint(lat, lng);
     }
     
-    private static String[] availableCities = {"Los Angeles", "Phoenix"};
-    
-    public static boolean isCityAvailable(double lat, double lon) throws IOException, JSONException {
+    public static String lookup(double lat, double lon) throws IOException, JSONException {
         String url = String.format("%s?latlng=%f,%f&language=en&sensor=false", GOOGLE_URL, lat, lon);
         Log.d("Geocoding", "url = " + url);
         
         HTTP http = new HTTP(url);
         http.connect();
         
-        boolean available = false;
+        String address = null;
         
         int responseCode = http.getResponseCode();
         if (responseCode == 200) {
@@ -218,30 +216,12 @@ public final class Geocoding {
                 JSONArray results = (JSONArray) object.get("results");
                 if(results.length() > 0) {
                     JSONObject result = (JSONObject) results.get(0);
-                    JSONArray comps = result.getJSONArray("address_components");
-                    for(int i=0; i<comps.length(); i++){
-                        JSONObject c = comps.getJSONObject(i);
-                        JSONArray types = c.getJSONArray("types");
-                        for(int j=0; j<types.length(); j++){
-                            if("locality".equals(types.getString(j))){
-                                for(String ci : availableCities){
-                                    if(ci.equalsIgnoreCase(c.getString("long_name"))){
-                                        available = true;
-                                        break;
-                                    }
-                                }
-                                break;
-                            }
-                        }
-                        if(available){
-                            break;
-                        }
-                    }
+                    address = result.getString("formatted_address");
                 }
             }
         }
         
-        return available ;
+        return address;
     }
 	
 }

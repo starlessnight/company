@@ -28,7 +28,7 @@ import com.smartrek.utils.datetime.HumanReadableTime;
 
 public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	
-	private RouteOverlayCallback callback;
+	private OverlayCallback callback;
 
 	private Route route;
 	private GeoPoint geoPoint;
@@ -75,7 +75,7 @@ public class RouteInfoOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	 * 
 	 * @param callback
 	 */
-	public void setCallback(RouteOverlayCallback callback) {
+	public void setCallback(OverlayCallback callback) {
 		this.callback = callback;
 	}
 	

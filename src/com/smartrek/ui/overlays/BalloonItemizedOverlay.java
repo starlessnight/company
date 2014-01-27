@@ -31,6 +31,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.smartrek.activities.R;
@@ -45,7 +48,7 @@ import com.smartrek.utils.GeoPoint;
 public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends ItemizedIconOverlay<Item> {
 
 	protected MapView mapView;
-	protected BalloonOverlayView<Item> balloonView;
+	protected IBalloonOverlayView<Item> balloonView;
 	protected View clickRegion;
 	protected int viewOffset;
 	protected final MapController mc;
@@ -102,6 +105,8 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 		return false;
 	}
 
+	protected boolean centerOnTap = true; 
+	
 	/* (non-Javadoc)
 	 * @see com.google.android.maps.ItemizedOverlay#onTap(int)
 	 */
@@ -111,8 +116,10 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 		currentFocussedItem = createItem(index);
 
 		createAndDisplayBalloonOverlay();
-
-		mc.animateTo(currentFocussedItem.getPoint());
+		
+		if(centerOnTap){
+		    mc.animateTo(currentFocussedItem.getPoint());
+		}
 
 		return true;
 	}
@@ -121,7 +128,7 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 	 * Creates the balloon view. Override to create a sub-classed view that
 	 * can populate additional sub-views.
 	 */
-	protected BalloonOverlayView<Item> createBalloonOverlayView() {
+	protected IBalloonOverlayView<Item> createBalloonOverlayView() {
 		return new BalloonOverlayView<Item>(getMapView().getContext(), 
 	        getBalloonBottomOffset(), headerFont, bodyFont);
 	}
@@ -137,9 +144,9 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 	/**
 	 * Sets the visibility of this overlay's balloon view to GONE. 
 	 */
-	protected void hideBalloon() {
+	public void hideBalloon() {
 		if (balloonView != null) {
-			balloonView.setVisibility(View.GONE);
+		    ((FrameLayout)balloonView).setVisibility(View.GONE);
 		}
 	}
 
@@ -237,6 +244,10 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 	}
 
 
+	protected int balloonOffsetX;
+	
+	protected int balloonOffsetY;
+	
 	/**
 	 * Creates and displays the balloon overlay by recycling the current 
 	 * balloon or by inflating it from xml. 
@@ -250,16 +261,21 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 			
 			
 			
-			clickRegion = (View) balloonView.findViewById(R.id.balloon_item_snippet);
-			clickRegion.setOnTouchListener(createBalloonTouchListener());
+			clickRegion = (View) ((FrameLayout)balloonView).findViewById(R.id.balloon_item_snippet);
+			if(clickRegion != null){
+			    clickRegion.setOnTouchListener(createBalloonTouchListener());
+			}
 			isRecycled = false;
 		} else {
 			isRecycled = true;
 		}
-
-		((TextView)clickRegion).setCompoundDrawablesWithIntrinsicBounds(0, 0, 
-	        showArrow?R.drawable.icon_more_small:0, 0);
-		balloonView.setVisibility(View.GONE);
+		
+		if(clickRegion != null){
+    		((TextView)clickRegion).setCompoundDrawablesWithIntrinsicBounds(0, 0, 
+    	        showArrow?R.drawable.icon_more_small:0, 0);
+		}
+		
+		((FrameLayout)balloonView).setVisibility(View.GONE);
 
 		List<Overlay> mapOverlays = mapView.getOverlays();
 		if (mapOverlays.size() > 1) {
@@ -272,15 +288,15 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 		GeoPoint point = (GeoPoint) currentFocussedItem.getPoint();
 		MapView.LayoutParams params = new MapView.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, point,
-				MapView.LayoutParams.BOTTOM_CENTER, 0, 0);
+				MapView.LayoutParams.BOTTOM_CENTER, balloonOffsetX, balloonOffsetY);
 		//params.mode = MapView.LayoutParams.MODE_MAP;
 
-		balloonView.setVisibility(View.VISIBLE);
+		((FrameLayout)balloonView).setVisibility(View.VISIBLE);
 
 		if (isRecycled) {
-			balloonView.setLayoutParams(params);
+		    ((FrameLayout)balloonView).setLayoutParams(params);
 		} else {
-			mapView.addView(balloonView, params);
+			mapView.addView((FrameLayout)balloonView, params);
 		}
 
 		return isRecycled;
@@ -305,4 +321,34 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 //		return false;
 //	}
 
+    public interface IBalloonOverlayView<Item> {
+        
+        void setData(Item item);
+        
+        ImageView getCloseView();
+        
+        LinearLayout getLayout();
+        
+    }
+
+    public IBalloonOverlayView<Item> getBalloonView() {
+        return balloonView;
+    }
+
+    public int getBalloonOffsetX() {
+        return balloonOffsetX;
+    }
+
+    public void setBalloonOffsetX(int balloonOffsetX) {
+        this.balloonOffsetX = balloonOffsetX;
+    }
+
+    public int getBalloonOffsetY() {
+        return balloonOffsetY;
+    }
+
+    public void setBalloonOffsetY(int balloonOffsetY) {
+        this.balloonOffsetY = balloonOffsetY;
+    }
+    
 }
