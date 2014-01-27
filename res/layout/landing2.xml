@@ -208,7 +208,7 @@
 		        android:layout_marginLeft="28dp"
 			/>
 	        <TextView 
-	       	    android:id="@+id/settings_menu"
+	       	    android:id="@+id/map_display_options"
 	       	    android:layout_width="match_parent"
 		        android:layout_height="wrap_content"
 	        	android:text="Settings"
@@ -228,7 +228,7 @@
 		        android:layout_marginLeft="28dp"
 			/>
 	        <TextView 
-	       	    android:id="@+id/logout_menu"
+	       	    android:id="@+id/logout_option"
 	       	    android:layout_width="match_parent"
 		        android:layout_height="wrap_content"
 	        	android:text="Logout"

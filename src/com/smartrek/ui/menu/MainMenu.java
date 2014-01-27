@@ -92,7 +92,7 @@ public final class MainMenu {
            case R.id.logout_option:
                User.logout(activity);
 
-               intent = new Intent(activity, LandingActivity.class);
+               intent = new Intent(activity, LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
                intent.putExtra(LandingActivity.LOGOUT, true);
                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                activity.startActivity(intent);

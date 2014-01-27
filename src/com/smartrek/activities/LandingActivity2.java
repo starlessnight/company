@@ -12,8 +12,8 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.location.Location;
@@ -22,17 +22,22 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.smartrek.activities.LandingActivity.CurrentLocationListener;
+import com.smartrek.dialogs.FeedbackDialog;
 import com.smartrek.dialogs.NotificationDialog;
+import com.smartrek.dialogs.ShareDialog;
 import com.smartrek.models.User;
 import com.smartrek.requests.AddressLinkRequest;
 import com.smartrek.requests.CityRequest;
@@ -40,6 +45,7 @@ import com.smartrek.requests.FavoriteAddressAddRequest;
 import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.requests.FavoriteAddressUpdateRequest;
 import com.smartrek.requests.WhereToGoRequest;
+import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.EventOverlay;
 import com.smartrek.ui.overlays.OverlayCallback;
 import com.smartrek.ui.overlays.POIActionOverlay;
@@ -54,7 +60,7 @@ import com.smartrek.utils.Misc;
 import com.smartrek.utils.RouteRect;
 import com.smartrek.utils.SmartrekTileProvider;
 
-public final class LandingActivity2 extends Activity {
+public final class LandingActivity2 extends FragmentActivity {
     
     public static final boolean ENABLED = false;
     
@@ -193,12 +199,47 @@ public final class LandingActivity2 extends Activity {
                 mDrawerLayout.openDrawer(findViewById(R.id.left_drawer));
             }
         });
-        
         TextView rewardsMenu = (TextView) findViewById(R.id.rewards_menu);
         TextView shareMenu = (TextView) findViewById(R.id.share_menu);
+        shareMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                User user = User.getCurrentUser(LandingActivity2.this);
+                ShareDialog.newInstance(user.getFirstname() + " " + user.getLastname() + " is on the way",
+                     "I helped solve traffic congestion using Smartrek Mobile!"
+                     + "\n\n" + Misc.getGooglePlayAppUrl(LandingActivity2.this))
+                    .show(getSupportFragmentManager(), null);
+            }
+        });
         TextView feedbackMenu = (TextView) findViewById(R.id.feedback_menu);
-        TextView settingsMenu = (TextView) findViewById(R.id.settings_menu);
-        TextView logoutMenu = (TextView) findViewById(R.id.logout_menu);
+        feedbackMenu.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FeedbackDialog d = new FeedbackDialog(LandingActivity2.this);
+                d.show();
+            }
+        });
+        TextView settingsMenu = (TextView) findViewById(R.id.map_display_options);
+        settingsMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainMenu.onMenuItemSelected(LandingActivity2.this, 0, v.getId());
+            }
+        });
+        settingsMenu.setOnLongClickListener(new OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                MainMenu.onMenuItemSelected(LandingActivity2.this, 0, R.id.debug_options);
+                return true;
+            }                
+        });
+        TextView logoutMenu = (TextView) findViewById(R.id.logout_option);
+        logoutMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MainMenu.onMenuItemSelected(LandingActivity2.this, 0, v.getId());
+            }
+        });
         
         final View activityRootView = findViewById(android.R.id.content);
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
@@ -212,6 +253,16 @@ public final class LandingActivity2 extends Activity {
 //        Font.setTypeface(Font.getBold(assets));
         Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, nextTripInfo,
             rewardsMenu, shareMenu, feedbackMenu, settingsMenu, logoutMenu);
+    }
+    
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if(intent.getBooleanExtra(LandingActivity.LOGOUT, false)){
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
     }
     
     private void getCurrentLocation(final CurrentLocationListener lis){
