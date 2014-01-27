@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -45,6 +46,7 @@ import com.smartrek.requests.FavoriteAddressAddRequest;
 import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.requests.FavoriteAddressUpdateRequest;
 import com.smartrek.requests.WhereToGoRequest;
+import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.EventOverlay;
 import com.smartrek.ui.overlays.OverlayCallback;
@@ -62,7 +64,7 @@ import com.smartrek.utils.SmartrekTileProvider;
 
 public final class LandingActivity2 extends FragmentActivity {
     
-    public static final boolean ENABLED = false;
+    public static final boolean ENABLED = true;
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
@@ -329,6 +331,30 @@ public final class LandingActivity2 extends FragmentActivity {
         }
     }
     
+    private AtomicBoolean poiTapThrottle = new AtomicBoolean();
+    
+    private void startRouteActivity(String address, GeoPoint gp){
+        if(!poiTapThrottle.get()){
+            poiTapThrottle.set(true);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    poiTapThrottle.set(false);
+                }
+            }, 500);
+            Intent intent = new Intent(this, RouteActivity.class);
+            intent.putExtra(RouteActivity.CURRENT_LOCATION, true /*false*/);
+            Bundle extras = new Bundle();
+            extras.putString("originAddr", EditAddress.CURRENT_LOCATION);
+            extras.putParcelable(RouteActivity.ORIGIN_COORD, 
+                new GeoPoint(0, 0 /*34.0291747, -118.2734106*/));
+            extras.putString("destAddr", address);
+            extras.putParcelable(RouteActivity.DEST_COORD, gp);
+            intent.putExtras(extras);
+            startActivity(intent);
+        }
+    }
+    
     private void refreshStarredPOIs(){
         AsyncTask<Void, Void, List<com.smartrek.models.Address>> task = new AsyncTask<Void, Void, List<com.smartrek.models.Address>>(){
             @Override
@@ -367,8 +393,9 @@ public final class LandingActivity2 extends FragmentActivity {
                         }
                         initFontsIfNecessary();
                         for(final com.smartrek.models.Address a : result){
+                            final GeoPoint gp = new GeoPoint(a.getLatitude(), a.getLongitude());
                             final POIActionOverlay star = new POIActionOverlay(mapView, 
-                                new GeoPoint(a.getLatitude(), a.getLongitude()), 
+                                gp, 
                                 boldFont, lightFont, a.getAddress(), a.getName(), 
                                 R.drawable.star_poi);
                             star.setAid(a.getId());
@@ -376,7 +403,8 @@ public final class LandingActivity2 extends FragmentActivity {
                             star.setCallback(new OverlayCallback() {
                                 @Override
                                 public boolean onTap(int index) {
-                                    return false;
+                                    startRouteActivity(a.getAddress(), gp);
+                                    return true;
                                 }
                                 @Override
                                 public boolean onLongPress(int index, OverlayItem item) {
@@ -428,6 +456,12 @@ public final class LandingActivity2 extends FragmentActivity {
                                                    };
                                                    Misc.parallelExecute(task);
                                                 }
+                                            }
+                                        });
+                                        balloonView.findViewById(R.id.proceed).setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                startRouteActivity(a.getAddress(), gp);
                                             }
                                         });
                                     }
@@ -606,10 +640,11 @@ public final class LandingActivity2 extends FragmentActivity {
     }
     
     private void refreshPOIMarker(final MapView mapView, final double lat, final double lon,
-            String address, String label){
+            final String address, String label){
         removePOIMarker(mapView);
+        final GeoPoint gp = new GeoPoint(lat, lon);
         POIActionOverlay marker = new POIActionOverlay(mapView, 
-            new GeoPoint(lat, lon), Font.getBold(getAssets()), Font.getLight(getAssets()),
+            gp, Font.getBold(getAssets()), Font.getLight(getAssets()),
             address, label, R.drawable.marker_poi);
         List<Overlay> overlays = mapView.getOverlays();
         overlays.add(marker);
@@ -651,6 +686,12 @@ public final class LandingActivity2 extends FragmentActivity {
                 }
             }
         });
+        balloonView.findViewById(R.id.proceed).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startRouteActivity(address, gp);
+            }
+        });
     }
     
     private synchronized RouteRect drawBulbPOIs(final MapView mapView, List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
@@ -672,14 +713,15 @@ public final class LandingActivity2 extends FragmentActivity {
         
         initFontsIfNecessary();
         for(final com.smartrek.requests.WhereToGoRequest.Location l:locs){
-            GeoPoint gp = new GeoPoint(l.lat, l.lon);
+            final GeoPoint gp = new GeoPoint(l.lat, l.lon);
             final POIActionOverlay bulb = new POIActionOverlay(mapView, gp, boldFont, lightFont, 
                     l.addr, l.debug, R.drawable.bulb_poi);
             bulb.setBalloonOffsetY(Dimension.dpToPx(-17, getResources().getDisplayMetrics()));
             bulb.setCallback(new OverlayCallback() {
                 @Override
                 public boolean onTap(int index) {
-                    return false;
+                    startRouteActivity(l.addr, gp);
+                    return true;
                 }
                 @Override
                 public boolean onLongPress(int index, OverlayItem item) {
@@ -725,6 +767,12 @@ public final class LandingActivity2 extends FragmentActivity {
                                    };
                                    Misc.parallelExecute(task);
                                 }
+                            }
+                        });
+                        balloonView.findViewById(R.id.proceed).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                startRouteActivity(l.addr, gp);
                             }
                         });
                     }
