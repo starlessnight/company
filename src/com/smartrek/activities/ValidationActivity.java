@@ -22,7 +22,6 @@ import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -45,6 +44,7 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
+import android.support.v4.app.FragmentActivity;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -74,6 +74,7 @@ import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.dialogs.FeedbackDialog;
 import com.smartrek.dialogs.FloatingMenuDialog;
 import com.smartrek.dialogs.NotificationDialog;
+import com.smartrek.dialogs.ShareDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
@@ -104,7 +105,7 @@ import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.SystemService;
 import com.smartrek.utils.ValidationParameters;
 
-public class ValidationActivity extends Activity implements OnInitListener {
+public class ValidationActivity extends FragmentActivity implements OnInitListener {
 	public static final int DEFAULT_ZOOM_LEVEL = 18;
 
 	private static final String RESERVATION = "reservation";
@@ -231,17 +232,8 @@ public class ValidationActivity extends Activity implements OnInitListener {
 					@Override
 					public void onClickDismiss() {
 						if (tripValidated) {
-							Intent rIntent = new Intent(
-									ValidationActivity.this,
-									ValidationReportActivity.class);
-							rIntent.putExtra(ROUTE, route);
-							rIntent.putExtra(START_TIME, startTime);
-							Time now = new Time();
-							now.setToNow();
-							rIntent.putExtra("endTime", now.toMillis(false));
-							startActivity(rIntent);
-						}
-						if (!isFinishing()) {
+						    displayArrivalMsg();
+						}else if (!isFinishing()) {
 							finish();
 						}
 					}
@@ -663,6 +655,20 @@ public class ValidationActivity extends Activity implements OnInitListener {
 				ValidationActivity.this.finish();
 			}
 		});
+		
+		View shareButton = findViewById(R.id.share);
+		shareButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                User user = User.getCurrentUser(ValidationActivity.this);
+                ShareDialog.newInstance(user.getFirstname() + " " + user.getLastname() + " is on the way",
+                     "I earned " + route.getCredits() + " points for traveling at " 
+                     + Reservation.formatTime(route.getDepartureTime(), true) + " to help solve traffic congestion "
+                     + "using Smartrek Mobile!"
+                     + "\n\n" + Misc.getGooglePlayAppUrl(ValidationActivity.this))
+                    .show(getSupportFragmentManager(), null);
+            }
+        });
 
 		TextView destAddr = (TextView) findViewById(R.id.dest_addr);
 		destAddr.setText(reservation.getDestinationAddress());
@@ -1144,7 +1150,7 @@ public class ValidationActivity extends Activity implements OnInitListener {
 			((TextView) findViewById(R.id.congrats_msg)).setText(msg);
 			
 			TextView co2 = (TextView) findViewById(R.id.co2);
-			String co2Value = "";  //getCO2
+			String co2Value = "1.3";  //getCO2
 			co2.setText(formatCO2Desc(ValidationActivity.this, co2Value));
 
 			TextView mpoint = (TextView) findViewById(R.id.mPoint);
@@ -1175,13 +1181,12 @@ public class ValidationActivity extends Activity implements OnInitListener {
 			reported.set(true);
 
 			if (isTripValidated()) {
-				Time now = new Time();
-				now.setToNow();
-				Intent intent = new Intent(this, ValidationReportActivity.class);
-				intent.putExtra(ROUTE, route);
-				intent.putExtra(START_TIME, startTime);
-				intent.putExtra("endTime", now.toMillis(false));
-				startActivity(intent);
+			    runOnUiThread(new Runnable() {
+		            @Override
+		            public void run() {
+		                displayArrivalMsg();
+		            }
+			    });
 			}
 		}
 	}
@@ -1219,9 +1224,7 @@ public class ValidationActivity extends Activity implements OnInitListener {
 								reportValidation();
 
 								// Stop the activity
-								if (isTripValidated()) {
-									ValidationActivity.this.finish();
-								} else {
+								if (!isTripValidated()) {
 									SessionM.logAction("trip_failed");
 									showValidationFailedDialog();
 								}
