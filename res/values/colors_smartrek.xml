@@ -19,4 +19,11 @@
 <resources>
     <color name="pressed_smartrek">#CC6cbd44</color>
     <color name="pressed_smartrek_inverse">#CC555658</color>
+    <color name="navigation_gray">#808184</color>
+    <color name="navigation_bottom_gray">#6D6E70</color>
+    <color name="navigation_menu_gray">#505050</color>
+    <color name="metropia_red">#BE1E2D</color>
+    <color name="metropia_orange">#FF5F00</color>
+    <color name="metropia_green">#95D500</color>
+    <color name="metropia_blue">#0098CE</color>
 </resources>

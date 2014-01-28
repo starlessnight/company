@@ -82,4 +82,5 @@
     
     <item type="id" name="estimated_arrival_time" />
     <item type="id" name="remaining_travel_time" />
+    <item type="id" name="menu_panel_status" />
 </resources>
