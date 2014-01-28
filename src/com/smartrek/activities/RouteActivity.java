@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osmdroid.views.MapController;
@@ -21,37 +22,44 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.text.format.Time;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.CalendarService;
+import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
+import com.smartrek.activities.LandingActivity.ShortcutNavigationTask;
 import com.smartrek.dialogs.CancelableProgressDialog;
-import com.smartrek.dialogs.FloatingMenuDialog;
+import com.smartrek.dialogs.ContactsDialog;
+import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.exceptions.RouteNotFoundException;
+import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
+import com.smartrek.requests.ReservationRequest;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.tasks.GeocodingTask;
 import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.OverlayCallback;
-import com.smartrek.ui.overlays.RouteInfoOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.ui.timelayout.ScrollableTimeLayout;
 import com.smartrek.ui.timelayout.TimeButton;
@@ -69,6 +77,7 @@ import com.smartrek.utils.Geocoding;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.RouteRect;
+import com.smartrek.utils.SessionM;
 import com.smartrek.utils.SmartrekTileProvider;
 import com.smartrek.utils.SystemService;
 
@@ -76,7 +85,7 @@ import com.smartrek.utils.SystemService;
  * 
  *
  */
-public final class RouteActivity extends ActionBarActivity {
+public final class RouteActivity extends FragmentActivity {
 
     public static final String EVENT_ID = "event_id";
     
@@ -96,7 +105,11 @@ public final class RouteActivity extends ActionBarActivity {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
-    private RouteInfoOverlay[] routeInfoOverlays = new RouteInfoOverlay[3];
+    private Typeface boldFont;
+    
+    private Typeface lightFont;
+    
+    //private RouteInfoOverlay[] routeInfoOverlays = new RouteInfoOverlay[3];
     private RoutePathOverlay[] routePathOverlays = new RoutePathOverlay[3];
     
     private String originAddr;
@@ -291,13 +304,13 @@ public final class RouteActivity extends ActionBarActivity {
                 Log.d(LOG_TAG, "Column state: " + timeLayout.getColumnState(column));
                 
                 // FIXME: Refactor this. (Close all route info overlays)
-                for (int i = 0; i < routeInfoOverlays.length; i++) {
+                /*for (int i = 0; i < routeInfoOverlays.length; i++) {
                 	RouteInfoOverlay routeInfoOverlay = routeInfoOverlays[i];
                 	
                 	if (routeInfoOverlay != null) {
                 		routeInfoOverlay.hide();
                 	}
-                }
+                }*/
                 
                 if (!timeLayout.getColumnState(column).equals(State.InProgress)) {
                     
@@ -418,13 +431,172 @@ public final class RouteActivity extends ActionBarActivity {
             }
         });
         
-        findViewById(R.id.floating_menu_button).setOnClickListener(new OnClickListener() {
+        AssetManager assets = getAssets();
+        boldFont = Font.getBold(assets);
+        lightFont = Font.getLight(assets);
+        
+        TextView destView = (TextView) findViewById(R.id.destination);
+        destView.setText(destAddr);
+        
+        final TextView reserveView = (TextView) findViewById(R.id.reserve);
+        reserveView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FloatingMenuDialog dialog = new FloatingMenuDialog(RouteActivity.this);
-                dialog.show();
+                final Route route = (Route) reserveView.getTag();
+                AsyncTask<Void, Void, Long> task = new AsyncTask<Void, Void, Long>(){
+                    
+                    private ProgressDialog dialog;
+
+                    @Override
+                    protected void onPreExecute() {
+                        dialog = new ProgressDialog(RouteActivity.this);
+                        dialog.setMessage("Making reservation...");
+                        dialog.setIndeterminate(true);
+                        dialog.setCancelable(false);
+                        dialog.setCanceledOnTouchOutside(false);
+                        dialog.show();
+                    }
+                    
+                    @Override
+                    protected Long doInBackground(Void... params) {
+                        Long rs = null;
+                        ReservationRequest request = new ReservationRequest(User.getCurrentUser(RouteActivity.this), 
+                            route, getString(R.string.distribution_date));
+                        try {
+                            rs = request.execute(RouteActivity.this);
+                        }
+                        catch (Exception e) {
+                            ehs.registerException(e);
+                        }
+                        return rs;
+                    }
+                    
+                    @Override
+                    protected void onPostExecute(Long result) {
+                        dialog.cancel();
+                        
+                        if (ehs.hasExceptions()) {
+                            ehs.reportExceptions();
+                        }
+                        else {
+                            ReservationConfirmationActivity.scheduleNotification(RouteActivity.this, result, route);
+                            
+                            if(route.isFake()){
+                                FakeRoute fakeRoute = new FakeRoute();
+                                fakeRoute.id = route.getId();
+                                fakeRoute.seq = route.getSeq();
+                                DebugOptionsActivity.addFakeRoute(RouteActivity.this, fakeRoute);
+                            }
+                            
+                            SessionM.logAction("make_reservation");
+                            
+                            NotificationDialog dialog = new NotificationDialog(RouteActivity.this, "You have successfully reserved a route.");
+                            dialog.setActionListener(new NotificationDialog.ActionListener() {
+                                
+                                @Override
+                                public void onClickDismiss() {
+                                    Intent intent = new Intent(RouteActivity.this, 
+                                        LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            });
+                            dialog.show();
+                        }
+                    }
+                    
+                };
+                Misc.parallelExecute(task);
             }
         });
+        
+        TextView onMyWayView = (TextView) findViewById(R.id.on_my_way);
+        onMyWayView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ContactsDialog d = new ContactsDialog(RouteActivity.this);
+                d.setActionListener(new ContactsDialog.ActionListener() {
+                    @Override
+                    public void onClickPositiveButton(final List<String> emails) {
+                        final Route route = (Route) reserveView.getTag();
+                        ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs);
+                        task.callback = new ShortcutNavigationTask.Callback() {
+                            @Override
+                            public void run(Reservation reservation) {
+                                if(reservation.isEligibleTrip()){
+                                    Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
+                                    intent.putExtra("route", reservation.getRoute());
+                                    intent.putExtra("reservation", reservation);
+                                    intent.putExtra(ValidationActivity.EMAILS, StringUtils.join(emails, ","));
+                                    startActivity(intent);
+                                    finish();
+                                }else{
+                                    String msg = null;
+                                    if (reservation.hasExpired()) {
+                                        msg = getString(R.string.trip_has_expired);
+                                    }
+                                    else if (reservation.isTooEarlyToStart()) {
+                                        long minutes = (reservation.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
+                                        msg = getString(R.string.trip_too_early_to_start, minutes);
+                                        if(minutes != 1){
+                                            msg += "s";
+                                        }
+                                    }
+                                    if(msg != null){
+                                        NotificationDialog dialog = new NotificationDialog(RouteActivity.this, msg);
+                                        dialog.show();
+                                    }
+                                }
+                            }
+                        };
+                        Misc.parallelExecute(task);
+                    }
+                    @Override
+                    public void onClickNegativeButton() {}
+                });
+                d.show();
+            }
+        });
+        TextView letsGoView = (TextView) findViewById(R.id.lets_go);
+        letsGoView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Route route = (Route) reserveView.getTag();
+                ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs);
+                task.callback = new ShortcutNavigationTask.Callback() {
+                    @Override
+                    public void run(Reservation reservation) {
+                        if(reservation.isEligibleTrip()){
+                            Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
+                            intent.putExtra("route", reservation.getRoute());
+                            intent.putExtra("reservation", reservation);
+                            startActivity(intent);
+                            finish();
+                        }else{
+                            String msg = null;
+                            if (reservation.hasExpired()) {
+                                msg = getString(R.string.trip_has_expired);
+                            }
+                            else if (reservation.isTooEarlyToStart()) {
+                                long minutes = (reservation.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
+                                msg = getString(R.string.trip_too_early_to_start, minutes);
+                                if(minutes != 1){
+                                    msg += "s";
+                                }
+                            }
+                            if(msg != null){
+                                NotificationDialog dialog = new NotificationDialog(RouteActivity.this, msg);
+                                dialog.show();
+                            }
+                        }
+                    }
+                };
+                Misc.parallelExecute(task);
+            }
+        });
+        
+        Font.setTypeface(lightFont, destView, onMyWayView, letsGoView, reserveView);
     }
     
     private void updateTimetableScreenWidth(){
@@ -530,9 +702,9 @@ public final class RouteActivity extends ActionBarActivity {
             for (int i = 0; i < possibleRoutes.size(); i++) {
             	mapOverlays.add(routePathOverlays[i]);
             }
-            for (int i = 0; i < possibleRoutes.size(); i++) {
+            /*for (int i = 0; i < possibleRoutes.size(); i++) {
             	mapOverlays.add(routeInfoOverlays[i]);
-            }
+            }*/
             
             fitRouteToMap();
             
@@ -567,6 +739,8 @@ public final class RouteActivity extends ActionBarActivity {
      * @throws RouteNotFoundException 
      */
     private void updateRoute(GeoPoint origin, GeoPoint destination, long departureTime, int column) throws InterruptedException {
+        int letsGoPanelVis = column == 0?View.VISIBLE:View.GONE;
+        int reservePanelVis = column == 0?View.GONE:View.VISIBLE;
         RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(this), origin, destination, departureTime);
         if (request.isCached(this)) {
             try {
@@ -591,7 +765,11 @@ public final class RouteActivity extends ActionBarActivity {
             RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
             routeTasks.add(routeTask);
             routeTask.execute();
+            letsGoPanelVis = View.VISIBLE;
+            reservePanelVis = View.GONE;
         }
+        findViewById(R.id.lets_go_panel).setVisibility(letsGoPanelVis);
+        findViewById(R.id.reserve_panel).setVisibility(reservePanelVis);
     }
 
     private List<Overlay> mapOverlays;
@@ -654,8 +832,9 @@ public final class RouteActivity extends ActionBarActivity {
         // FIXME:
         route.setUserId(User.getCurrentUser(this).getId());
         
-        routeInfoOverlays[routeNum] = new RouteInfoOverlay(mapView, route, routeNum, new GeoPoint(lat, lon), boldFont, lightFont);
-        routeInfoOverlays[routeNum].setCallback(new RouteOverlayCallbackImpl(route, routeNum));
+        findViewById(R.id.reserve).setTag(route);
+//        routeInfoOverlays[routeNum] = new RouteInfoOverlay(mapView, route, routeNum, new GeoPoint(lat, lon), boldFont, lightFont);
+//        routeInfoOverlays[routeNum].setCallback(new RouteOverlayCallbackImpl(route, routeNum));
         //mapOverlays.add(routeOverlays[routeNum]);
         
         /* Add offset of 1000 to range so that map displays extra space around route. */
@@ -666,20 +845,20 @@ public final class RouteActivity extends ActionBarActivity {
     }
     
     private void setHighlightedRoutePathOverlays(boolean highlighted) {
-        for (int i = 0; i < routeInfoOverlays.length; i++) {
+        /*for (int i = 0; i < routeInfoOverlays.length; i++) {
             RoutePathOverlay overlay = routePathOverlays[i];
             
             if (overlay != null) {
                 overlay.setHighlighted(highlighted);
             }
-        }
+        }*/
     }
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
-        MenuInflater mi = getSupportMenuInflater();
+        MenuInflater mi = getMenuInflater();
         //mi.inflate(R.menu.main, menu);
         return true;
     }
@@ -885,12 +1064,12 @@ public final class RouteActivity extends ActionBarActivity {
 
         @Override
         public void onChange() {
-            for (int i = 0; i < routeInfoOverlays.length; i++) {
+            /*for (int i = 0; i < routeInfoOverlays.length; i++) {
                 RouteInfoOverlay routeInfoOverlay = routeInfoOverlays[i];
                 if (routeInfoOverlay != null) {
                     routeInfoOverlay.showOverlay();
                 }
-            }
+            }*/
         }
         
         @Override
@@ -899,7 +1078,7 @@ public final class RouteActivity extends ActionBarActivity {
             // Highlight selected route path
         	setHighlightedRoutePathOverlays(false);
             routePathOverlays[routeNum].setHighlighted(true);
-            mapView.getController().setCenter(routeInfoOverlays[routeNum].getGeoPoint());
+            //mapView.getController().setCenter(routeInfoOverlays[routeNum].getGeoPoint());
             
             return true;
         }

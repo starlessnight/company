@@ -4,21 +4,88 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
+    <include layout="@layout/time_layout" />
+    
     <FrameLayout android:layout_weight="1"
 	        android:layout_width="match_parent"
 	        android:layout_height="0dp">
         <include layout="@layout/mapview" />
-        <ImageView
-		    android:id="@+id/floating_menu_button"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:src="@drawable/floating_menu_icon"
-			android:layout_gravity="bottom|right"
-			android:layout_marginRight="15dp"
-	        android:layout_marginBottom="30dp"
+        
+        <TextView
+    	    android:id="@+id/destination"
+    	    android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+           	android:layout_marginLeft="15dp"
+           	android:layout_marginRight="15dp"
+           	android:singleLine="true"
+           	style="@style/SearchTextField"
+           	android:layout_gravity="top|center_horizontal"
 		/>
     </FrameLayout>
-
-    <include layout="@layout/time_layout" />
-
+    
+    <LinearLayout
+          	android:id="@+id/lets_go_panel"
+	       	android:layout_width="match_parent"
+	       	android:layout_height="56dp"
+	       	android:orientation="horizontal">
+      	<FrameLayout
+      	    	android:layout_width="0dp"
+	        	android:layout_height="match_parent"
+      	    	android:background="#0098ce"
+      	    	android:layout_weight="1">
+	       	<TextView
+	       	    android:id="@+id/on_my_way"
+	       	    android:layout_width="wrap_content"
+	        	android:layout_height="wrap_content"
+	        	android:text="On My Way"
+	        	android:layout_gravity="center"
+	        	android:textSize="@dimen/smaller_font"
+       			android:textColor="@android:color/white"
+       			android:paddingLeft="8dp"
+       			android:paddingRight="8dp"
+	        	android:singleLine="true"
+			/>
+      	</FrameLayout>
+      	<FrameLayout
+      	    	android:layout_width="0dp"
+        		android:layout_height="match_parent"
+      	    	android:background="#95d600"
+      	    	android:layout_weight="1">
+	       	<TextView 
+	       	    android:id="@+id/lets_go"
+	       	    android:layout_width="wrap_content"
+	        	android:layout_height="wrap_content"
+	        	android:text="Let's Go"
+	        	android:layout_gravity="center"
+	        	android:textSize="@dimen/smaller_font"
+	  			android:textColor="@android:color/white"
+	  			android:paddingLeft="8dp"
+	  			android:paddingRight="8dp"
+	        	android:singleLine="true"
+			/>
+   		</FrameLayout>
+	</LinearLayout>
+	
+    <FrameLayout
+	       	android:id="@+id/reserve_panel"
+	      	android:layout_width="match_parent"
+	      	android:layout_height="56dp"
+	      	android:orientation="horizontal"
+	      	android:background="#ff5f00"
+	      	android:visibility="gone">
+      	<TextView 
+       	    android:id="@+id/reserve"
+       	    android:layout_width="wrap_content"
+        	android:layout_height="wrap_content"
+        	android:text="Reserve Trip"
+        	android:layout_gravity="center"
+        	android:textSize="@dimen/smaller_font"
+  			android:textColor="@android:color/white"
+  			android:paddingLeft="8dp"
+  			android:paddingRight="8dp"
+        	android:singleLine="true"
+		/>
+	</FrameLayout>
+        
 </LinearLayout>

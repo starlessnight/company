@@ -1226,13 +1226,21 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         SessionM.onActivityStop(this);
     }
     
-    private static class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
-
+    static class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
+        
+        interface Callback {
+            
+            void run(Reservation reserv);
+            
+        }
+        
         CancelableProgressDialog dialog;
         
         String address;
         
-        LandingActivity ctx;
+        LandingActivity activity;
+        
+        Context ctx;
         
         GeoPoint origin;
         
@@ -1240,72 +1248,96 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         
         ExceptionHandlingService ehs;
         
+        Route _route;
+        
         boolean startedMakingReserv;
+        
+        Callback callback = new Callback() {
+            @Override
+            public void run(Reservation reserv) {
+                Intent intent = new Intent(activity, ValidationActivity.class);
+                intent.putExtra("route", reserv.getRoute());
+                intent.putExtra("reservation", reserv);
+                activity.startActivity(intent);
+            }
+        };
         
         ShortcutNavigationTask(LandingActivity ctx, ExceptionHandlingService ehs){
             this.ehs = ehs;
+            this.activity = ctx;
             this.ctx = ctx;
             dialog = new CancelableProgressDialog(ctx, "Getting current location...");
             dialog.setActionListener(new CancelableProgressDialog.ActionListener() {
                 @Override
                 public void onClickNegativeButton() {
-                    ShortcutNavigationTask.this.ctx.removeLocationUpdates();
+                    ShortcutNavigationTask.this.activity.removeLocationUpdates();
                 }
             });
             dialog.setOnCancelListener(new OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
-                    ShortcutNavigationTask.this.ctx.removeLocationUpdates();
+                    ShortcutNavigationTask.this.activity.removeLocationUpdates();
                 }
             });
+        }
+        
+        ShortcutNavigationTask(Context ctx, Route route, ExceptionHandlingService ehs){
+            this.ehs = ehs;
+            this.ctx = ctx;
+            _route = route;
+            dialog = new CancelableProgressDialog(ctx, "Loading...");
         }
         
         @Override
         protected void onPreExecute() {
             dialog.show();
-            ctx.locationManager = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
-            if (!ctx.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                SystemService.alertNoGPS(ctx, true, new SystemService.Callback() {
-                    @Override
-                    public void onNo() {
-                        if (dialog.isShowing()) {
-                            dialog.cancel();
+            if(this._route == null){
+                activity.locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+                if (!activity.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    SystemService.alertNoGPS(activity, true, new SystemService.Callback() {
+                        @Override
+                        public void onNo() {
+                            if (dialog.isShowing()) {
+                                dialog.cancel();
+                            }
                         }
-                    }
-                });
-            }
-            ctx.locationListener = new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    try{
-                        ctx.locationManager.removeUpdates(this);
-                        dialog.dismiss();
-                        origin = new GeoPoint(location.getLatitude(), 
-                            location.getLongitude());
-                        makeReservation();
-                    }catch(Throwable t){}
+                    });
                 }
-                @Override
-                public void onStatusChanged(String provider, int status, Bundle extras) {}
-                @Override
-                public void onProviderEnabled(String provider) {}
-                @Override
-                public void onProviderDisabled(String provider) {}
-            };
-            ctx.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, ctx.locationListener);
+                activity.locationListener = new LocationListener() {
+                    @Override
+                    public void onLocationChanged(Location location) {
+                        try{
+                            activity.locationManager.removeUpdates(this);
+                            dialog.dismiss();
+                            origin = new GeoPoint(location.getLatitude(), 
+                                location.getLongitude());
+                            makeReservation();
+                        }catch(Throwable t){}
+                    }
+                    @Override
+                    public void onStatusChanged(String provider, int status, Bundle extras) {}
+                    @Override
+                    public void onProviderEnabled(String provider) {}
+                    @Override
+                    public void onProviderDisabled(String provider) {}
+                };
+                activity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, activity.locationListener);
+            }
         }
         
         @Override
         protected Void doInBackground(Void... params) {
-            try {
-                dest = Geocoding.lookup(address).get(0).getGeoPoint();
-                String curLoc = DebugOptionsActivity.getCurrentLocation(ctx);
-                if(StringUtils.isNotBlank(curLoc)){ 
-                    origin = Geocoding.lookup(curLoc).get(0).getGeoPoint();
+            if(this._route == null){
+                try {
+                    dest = Geocoding.lookup(address).get(0).getGeoPoint();
+                    String curLoc = DebugOptionsActivity.getCurrentLocation(ctx);
+                    if(StringUtils.isNotBlank(curLoc)){ 
+                        origin = Geocoding.lookup(curLoc).get(0).getGeoPoint();
+                    }
                 }
-            }
-            catch (Exception e) {
-                ehs.registerException(e);
+                catch (Exception e) {
+                    ehs.registerException(e);
+                }
             }
             return null;
         }
@@ -1330,7 +1362,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         }
         
         void makeReservation(){
-            if(!startedMakingReserv && origin != null && dest != null){
+            if(!startedMakingReserv && ((origin != null && dest != null) || _route != null)){
                 startedMakingReserv = true;
                 new AsyncTask<Void, Void, Reservation>(){
                     @Override
@@ -1339,16 +1371,20 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                         AdjustableTime departureTime = new AdjustableTime();
                         departureTime.setToNow();
                         User user = User.getCurrentUser(ctx);
-                        RouteFetchRequest routeReq = new RouteFetchRequest(user, 
-                            origin, dest, departureTime.initTime().toMillis(false));
                         try {
-                            Route route = routeReq.execute(ctx).get(0);
-                            route.setAddresses(EditAddress.CURRENT_LOCATION, address);
-                            route.setUserId(user.getId());
+                            Route route;
+                            if(_route == null){
+                                RouteFetchRequest routeReq = new RouteFetchRequest(user, 
+                                        origin, dest, departureTime.initTime().toMillis(false));
+                                route = routeReq.execute(ctx).get(0);
+                                route.setAddresses(EditAddress.CURRENT_LOCATION, address);
+                                route.setUserId(user.getId());
+                            }else{
+                               route = _route; 
+                            }
                             ReservationRequest reservReq = new ReservationRequest(user, 
                                 route, ctx.getString(R.string.distribution_date));
                             Long id = reservReq.execute(ctx);
-                            ReservationConfirmationActivity.scheduleNotification(ctx, id, route);
                             ReservationListFetchRequest reservListReq = new ReservationListFetchRequest(user);
                             reservListReq.invalidateCache(ctx);
                             List<Reservation> reservs = reservListReq.execute(ctx);
@@ -1369,11 +1405,8 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                         }
                         if (ehs.hasExceptions()) {
                             ehs.reportExceptions();
-                        }else if(reserv != null){
-                            Intent intent = new Intent(ctx, ValidationActivity.class);
-                            intent.putExtra("route", reserv.getRoute());
-                            intent.putExtra("reservation", reserv);
-                            ctx.startActivity(intent);
+                        }else if(reserv != null && callback != null){
+                            callback.run(reserv);
                         }
                     }
                 }.execute();
