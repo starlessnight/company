@@ -14,40 +14,24 @@
 	        android:focusable="true"
 	        android:focusableInTouchMode="true">
     
-	    <RelativeLayout 
+	    <FrameLayout 
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content">
 	        
-		    <ImageView
-		        android:id="@+id/smartrek"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:src="@drawable/login_logo"
-		        android:layout_marginTop="40dp"
-		        android:layout_marginLeft="45dp"
-		        android:layout_marginRight="45dp"
-		        android:layout_centerHorizontal="true" />
-	    
-		    <TextView
-		        android:id="@+id/subtitle"
-		        android:layout_alignRight="@id/smartrek"
-		        android:layout_alignBottom="@id/smartrek"
-		        android:layout_width="wrap_content"
-		        android:layout_height="wrap_content"
-		        android:text="@string/login_logo_subtitle"
-		        android:textSize="11dp"
-		        style="@style/SmallestText"
-		        android:visibility="gone"
-		    />
+	        <ImageView
+	            android:layout_width="match_parent"
+	            android:layout_height="match_parent"
+	            android:src="@drawable/login_bg"
+	            android:scaleType="centerCrop" 
+			/>
 		    
 		    <LinearLayout
 		        android:layout_width="fill_parent"
 		        android:layout_height="wrap_content"
 		        android:orientation="vertical"
-		        android:layout_marginTop="60dp"
-		        android:layout_marginLeft="30dp"
-		        android:layout_marginRight="30dp"
-		        android:layout_below="@id/smartrek">
+		        android:paddingTop="220dp"
+		        android:paddingLeft="30dp"
+		        android:paddingRight="30dp">
 		    
 			    <EditText
 			        android:id="@+id/username_box"
@@ -56,7 +40,7 @@
 			        android:layout_gravity="right"
 			        android:hint="@string/username"
 			        android:singleLine="true"
-			        style="@style/DualTextFieldFirst" />
+					style="@style/SearchTextField" />
 			
 			    <EditText
 			        android:id="@+id/pwd_box"
@@ -65,37 +49,52 @@
 			        android:layout_gravity="right"
 			        android:hint="@string/password"
 			        android:inputType="textPassword"
-			        style="@style/DualTextFieldSecond" />
+			        style="@style/SearchTextField"
+			        android:layout_marginTop="5dp" />
 			    
-			    <Button
+			    <TextView
+		           android:id="@+id/forget_pwd"
+		           android:layout_width="wrap_content"
+		           android:layout_height="wrap_content"
+		           android:layout_gravity="right"
+		           android:textColor="@android:color/white"
+		           android:layout_marginTop="5dp"
+		           style="@style/SmallestText"
+				/>
+			    
+			    <TextView
+		           android:id="@+id/new_user_button"
+		           android:layout_width="match_parent"
+		           android:layout_height="wrap_content"
+		           android:layout_marginTop="15dp"
+		           android:text="Join"
+		           style="@style/OrangeButton"
+				/>
+			    
+			    <TextView
 		            android:id="@+id/login_button"
 		            android:layout_width="match_parent"
 		            android:layout_height="wrap_content"
-		            android:layout_marginTop="15dp"
+		            android:layout_marginTop="5dp" 
 		            android:text="@string/sign_in"
 		            android:enabled="false"
-		            style="@style/NextActionButton"
+		            android:textColor="@color/lighter_gray"
+		            style="@style/GreenButton"
+				/>
+			    
+			    <TextView
+		           android:id="@+id/terms"
+		           android:layout_width="wrap_content"
+		           android:layout_height="wrap_content"
+		           android:layout_gravity="center"
+		           android:textColor="@android:color/white"
+		           android:layout_marginTop="5dp"
+		           style="@style/SmallestText"
 				/>
 			    
 			</LinearLayout>
 		    
-		</RelativeLayout>
-	
-	    <FrameLayout 
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent">
-		    
-			<TextView
-	           android:id="@+id/new_user_button"
-	           android:layout_width="wrap_content"
-	           android:layout_height="60dp"
-	           android:layout_gravity="bottom|center_horizontal"
-	           android:gravity="bottom"
-	           android:paddingBottom="15dp"
-	           style="@style/SmallestText"
-			/>
-			
-	    </FrameLayout>
+		</FrameLayout>
 	    
   	</LinearLayout>
 

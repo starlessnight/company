@@ -23,13 +23,11 @@ import com.smartrek.TripService;
 import com.smartrek.ValidationService;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
-import com.smartrek.requests.Request.Page;
 import com.smartrek.requests.ServiceDiscoveryRequest;
 import com.smartrek.requests.ServiceDiscoveryRequest.Result;
 import com.smartrek.requests.UserIdRequest;
 import com.smartrek.tasks.LoginTask;
 import com.smartrek.utils.ExceptionHandlingService;
-import com.smartrek.utils.HTTP;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
 
@@ -207,7 +205,7 @@ public class MainActivity extends Activity implements AnimationListener {
                 }
                 loginTaskEnded = true;
                 if(splashEnded){
-                    checkEulaAndProceedToNextScreen();
+                    proceedToNextScreen();
                 }
            }
         }.setDialogEnabled(false);
@@ -242,8 +240,8 @@ public class MainActivity extends Activity implements AnimationListener {
 		    SharedPreferences prefs = Preferences.getGlobalPreferences(this);
             int licenseAgreement = prefs.getInt(Preferences.Global.LICENSE_AGREEMENT, LicenseAgreementActivity.DISAGREED);
             
-            if (licenseAgreement == LicenseAgreementActivity.AGREED) {
-                checkEulaAndProceedToNextScreen();
+            if (true || licenseAgreement == LicenseAgreementActivity.AGREED) {
+                proceedToNextScreen();
             }
             else {
                 Intent intent = new Intent(this, LicenseAgreementActivity.class);
@@ -251,7 +249,7 @@ public class MainActivity extends Activity implements AnimationListener {
             }
 		}else{   
 		    if(loginTaskEnded){
-		        checkEulaAndProceedToNextScreen();
+		        proceedToNextScreen();
 		    }else if(!initApiLinksFailed.get()){
 		        loginTask.showDialog();
 	            loginTask.setDialogEnabled(true);
@@ -259,6 +257,7 @@ public class MainActivity extends Activity implements AnimationListener {
         }
 	}
 	
+	/*
 	private void checkEulaAndProceedToNextScreen(){
 	    new AsyncTask<Void, Void, Boolean>(){
             @Override
@@ -282,6 +281,7 @@ public class MainActivity extends Activity implements AnimationListener {
             }
         }.execute();
 	}
+	*/
 	
 	private void proceedToNextScreen(){
 	    if(loggedIn){

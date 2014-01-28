@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -49,12 +50,30 @@ public final class LoginActivity extends Activity implements OnClickListener,
         
         /* If it hasn't set up the login screen */
         
-        Button login = (Button) findViewById(R.id.login_button);
+        TextView login = (TextView) findViewById(R.id.login_button);
         login.setOnClickListener(this);
         
         TextView new_user = (TextView) findViewById(R.id.new_user_button);
-        new_user.setText(Html.fromHtml(getString(R.string.create_account_link_text)));
         new_user.setOnClickListener(registerButtonClickListener);
+        
+        TextView forgetPwd = (TextView) findViewById(R.id.forget_pwd);
+        forgetPwd.setText(Html.fromHtml("<u>Forgot your password?</u>"));
+        forgetPwd.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(Request.getPageUrl(Page.reset_password))));
+            }
+        });
+        
+        TextView terms = (TextView) findViewById(R.id.terms);
+        terms.setText(Html.fromHtml("By signing up, you agree to the <u>Terms & Conditions</u>"));
+        terms.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, LicenseAgreementActivity.class);
+                startActivity(intent);
+            }
+        });
         
         editTextUsername = (EditText) findViewById(R.id.username_box);
         editTextUsername.addTextChangedListener(this);
@@ -62,9 +81,8 @@ public final class LoginActivity extends Activity implements OnClickListener,
         editTextPassword.addTextChangedListener(this);
         
         AssetManager assets = getAssets();
-        Font.setTypeface(Font.getBold(assets), (TextView)findViewById(R.id.subtitle),
-            login, new_user);
-        Font.setTypeface(Font.getLight(assets), editTextUsername, editTextPassword);
+        //Font.setTypeface(Font.getBold(assets));
+        Font.setTypeface(Font.getLight(assets), editTextUsername, editTextPassword, login, new_user);
     }
     
     @Override
@@ -196,9 +214,10 @@ public final class LoginActivity extends Activity implements OnClickListener,
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        Button login = (Button) findViewById(R.id.login_button);
-        login.setEnabled(StringUtils.isNotBlank(editTextUsername.getText()) 
-            && StringUtils.isNotBlank(editTextPassword.getText()));
+        TextView login = (TextView) findViewById(R.id.login_button);
+        boolean enabled = StringUtils.isNotBlank(editTextUsername.getText()) && StringUtils.isNotBlank(editTextPassword.getText());
+        login.setEnabled(enabled);
+        login.setTextColor(getResources().getColor(enabled?android.R.color.white:R.color.lighter_gray));
     }
 
 }

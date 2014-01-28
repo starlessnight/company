@@ -75,6 +75,7 @@
         <activity
             android:name=".LoginActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
+            android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
             android:name=".TutorialActivity"
