@@ -394,36 +394,58 @@ public final class RouteActivity extends FragmentActivity {
             @Override
             public void run() {
                 if(_currentLocation){
-                    final CancelableProgressDialog currentLocDialog = new CancelableProgressDialog(RouteActivity.this, "Getting current location...");
-                    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                    locationListener = new LocationListener() {
-                        @Override
-                        public void onLocationChanged(Location location) {
-                            try{
-                                locationManager.removeUpdates(this);
-                                currentLocDialog.dismiss();
-                                originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
-                                doRouteTask();
-                            }catch(Throwable t){}
+                    final String curLoc = DebugOptionsActivity.getCurrentLocation(RouteActivity.this);
+                    if(StringUtils.isNotBlank(curLoc)){
+                        AsyncTask<Void, Void, GeoPoint> task = new AsyncTask<Void, Void, GeoPoint>(){
+                            @Override
+                            protected GeoPoint doInBackground(Void... params) {
+                                GeoPoint rs = null;
+                                try{
+                                    rs = Geocoding.lookup(curLoc).get(0).getGeoPoint();
+                                }catch(Throwable t){}
+                                return rs;
+                            }
+                            @Override
+                            protected void onPostExecute(GeoPoint result) {
+                                if(result != null){
+                                    originCoord = result;
+                                    doRouteTask();
+                                }
+                            }
+                        };
+                        Misc.parallelExecute(task);
+                    }else{
+                        final CancelableProgressDialog currentLocDialog = new CancelableProgressDialog(RouteActivity.this, "Getting current location...");
+                        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                        locationListener = new LocationListener() {
+                            @Override
+                            public void onLocationChanged(Location location) {
+                                try{
+                                    locationManager.removeUpdates(this);
+                                    currentLocDialog.dismiss();
+                                    originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
+                                    doRouteTask();
+                                }catch(Throwable t){}
+                            }
+                            @Override
+                            public void onStatusChanged(String provider, int status, Bundle extras) {}
+                            @Override
+                            public void onProviderEnabled(String provider) {}
+                            @Override
+                            public void onProviderDisabled(String provider) {}
+                        };
+                        currentLocDialog.setActionListener(new CancelableProgressDialog.ActionListener() {
+                            @Override
+                            public void onClickNegativeButton() {
+                                locationManager.removeUpdates(locationListener);
+                                goBackToWhereTo.run();
+                            }
+                        });
+                        currentLocDialog.show();
+                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, locationListener);
+                        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                            SystemService.alertNoGPS(RouteActivity.this);
                         }
-                        @Override
-                        public void onStatusChanged(String provider, int status, Bundle extras) {}
-                        @Override
-                        public void onProviderEnabled(String provider) {}
-                        @Override
-                        public void onProviderDisabled(String provider) {}
-                    };
-                    currentLocDialog.setActionListener(new CancelableProgressDialog.ActionListener() {
-                        @Override
-                        public void onClickNegativeButton() {
-                            locationManager.removeUpdates(locationListener);
-                            goBackToWhereTo.run();
-                        }
-                    });
-                    currentLocDialog.show();
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, locationListener);
-                    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                        SystemService.alertNoGPS(RouteActivity.this);
                     }
                 }else{
                     doRouteTask();
