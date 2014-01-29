@@ -618,7 +618,17 @@ public final class RouteActivity extends FragmentActivity {
             }
         });
         
-        Font.setTypeface(lightFont, destView, onMyWayView, letsGoView, reserveView);
+        TextView header = (TextView) findViewById(R.id.header);
+        TextView backButton = (TextView) findViewById(R.id.back_button);
+        backButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+        Font.setTypeface(boldFont, header);
+        Font.setTypeface(lightFont, destView, onMyWayView, letsGoView, reserveView,
+            backButton);
     }
     
     private void updateTimetableScreenWidth(){
