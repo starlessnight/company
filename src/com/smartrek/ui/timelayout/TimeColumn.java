@@ -40,6 +40,8 @@ public final class TimeColumn extends FrameLayout {
 	private State state = State.Unknown;
 	private DisplayMode displayMode = DisplayMode.Time;
 	
+	private int btnum;
+	
 	/**
 	 * 
 	 * @param timelayout Container
@@ -52,6 +54,7 @@ public final class TimeColumn extends FrameLayout {
 		super(timelayout.getContext());
 		
 		this.timzoneOffset = timzoneOffset;
+		this.btnum = btnum;
 		
 		setTag(btnum);
 		
@@ -110,7 +113,7 @@ public final class TimeColumn extends FrameLayout {
 		}
 		else {
 			progressBar.setVisibility(View.INVISIBLE);
-			bgColor = getResources().getColor(android.R.color.transparent);
+			bgColor = TimeButton.IN_PREGRESS_BACKGROUND_COLOR;
 		}
 		setBackgroundColor(bgColor);
 		bottomStripe.setVisibility(State.Selected.equals(state)?View.VISIBLE:View.INVISIBLE);
@@ -131,7 +134,7 @@ public final class TimeColumn extends FrameLayout {
 		
 		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
         dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone(timzoneOffset)));
-		departureTimeButton.setText(dateFormat.format(new Date(time)));
+		departureTimeButton.setText(btnum == 0?"Now":dateFormat.format(new Date(time)));
 		
 		postInvalidate();
 	}

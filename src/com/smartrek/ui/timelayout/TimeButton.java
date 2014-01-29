@@ -21,7 +21,7 @@ public final class TimeButton extends TextView {
 	public static final int WIDTH = 115;
 	public static final int HEIGHT = 20;
 	public static final int SMALL_HEIGHT = 18;
-	public static final int IN_PREGRESS_BACKGROUND_COLOR = Color.parseColor("#5f5e60");
+	public static final int IN_PREGRESS_BACKGROUND_COLOR = Color.parseColor("#f1f1f2");
 	
 	private static final int largeTopOffset = 8;
 	private static final int smallTopOffset = 8;
@@ -34,13 +34,13 @@ public final class TimeButton extends TextView {
 		
 		public int getTextColor() {
 			if(Disabled.equals(this)) {
-				return Color.parseColor("#C0C0C0");
+				return Color.parseColor("#606163");
 			}
 			else if(InProgress.equals(this)) {
-				return Color.parseColor("#C0C0C0");
+				return Color.parseColor("#606163");
 			}
 			else {
-				return Color.parseColor("#FFFFFF");
+				return Color.parseColor("#606163");
 			}
 		}
 		
@@ -49,7 +49,7 @@ public final class TimeButton extends TextView {
 				return IN_PREGRESS_BACKGROUND_COLOR;
 			}
 			else {
-				return res.getColor(R.color.dark_gray);
+				return IN_PREGRESS_BACKGROUND_COLOR;
 			}
 		}
 	}
@@ -129,7 +129,7 @@ public final class TimeButton extends TextView {
         
         // vertical border
         float borderX = width - getResources().getDimension(R.dimen.timetable_separator_width);
-        canvas.drawLine(borderX, large?0:height*4f/5, borderX, height, paint);
+        //canvas.drawLine(borderX, large?0:height*4f/5, borderX, height, paint);
         
         // horizontal border
         if (row == 0) {

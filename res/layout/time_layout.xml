@@ -1,15 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.smartrek.ui.timelayout.ScrollableTimeLayout
+<LinearLayout
     	xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/scrollTime"
-        android:layout_width="fill_parent"
+    	android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="@color/dark_gray"
-        android:scrollbars="horizontal" >
-        
-        <com.smartrek.ui.timelayout.TimeLayout
-            android:id="@+id/timelayout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            display="time" />
-</com.smartrek.ui.timelayout.ScrollableTimeLayout>
+        android:orientation="horizontal"
+        android:background="#6d6e70">
+    <LinearLayout 
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="vertical"
+	        android:layout_weight="1">
+	    <View
+	        android:layout_width="fill_parent"
+	        android:layout_height="5dp"
+	        android:background="#929497" 
+		/>
+	    <LinearLayout 
+	        	android:layout_width="match_parent"
+	        	android:layout_height="wrap_content"
+	        	android:orientation="horizontal">
+	        <LinearLayout 
+		            android:layout_height="match_parent"
+		            android:layout_width="60dp"
+		            android:orientation="vertical">
+	            <TextView
+		            android:id="@+id/departure_row"
+		            android:layout_height="25dp"
+		            android:layout_width="match_parent"
+		            android:background="#808184"
+		            android:textColor="@android:color/white"
+		            android:text="Leaving"
+		            android:gravity="bottom|center_horizontal"
+		            android:textSize="@dimen/micro_font"
+		            android:paddingBottom="5dp" 
+				/>
+	            <TextView
+		            android:id="@+id/duration_row"
+		            android:layout_height="match_parent"
+		            android:layout_width="match_parent"
+		            android:background="#6d6e70"
+		            android:textColor="@android:color/white"
+		            android:text="Duration"
+		            android:gravity="top|center_horizontal"
+		            android:textSize="@dimen/micro_font"
+		            android:paddingBottom="5dp" 
+				/>
+	        </LinearLayout>
+	        <com.smartrek.ui.timelayout.ScrollableTimeLayout
+			        android:id="@+id/scrollTime"
+			        android:layout_width="fill_parent"
+			        android:layout_height="wrap_content"
+			        android:background="@color/dark_gray"
+			        android:scrollbars="horizontal" >
+			        
+			        <com.smartrek.ui.timelayout.TimeLayout
+			            android:id="@+id/timelayout"
+			            android:layout_width="wrap_content"
+			            android:layout_height="wrap_content"
+			            display="time" />
+			</com.smartrek.ui.timelayout.ScrollableTimeLayout>
+	    </LinearLayout>
+	</LinearLayout>
+	
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/timetable_right_arrow"
+	/>
+    
+</LinearLayout>

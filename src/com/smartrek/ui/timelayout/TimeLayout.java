@@ -11,7 +11,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import com.smartrek.activities.R;
 import com.smartrek.models.Route;
 import com.smartrek.ui.timelayout.TimeButton.DisplayMode;
 import com.smartrek.ui.timelayout.TimeButton.State;

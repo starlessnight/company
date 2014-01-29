@@ -626,9 +626,23 @@ public final class RouteActivity extends FragmentActivity {
                 onBackPressed();
             }
         });
+        
+        final TextView durationRow = (TextView)findViewById(R.id.duration_row);
+        durationRow.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DisplayMode curDisplayMode = (DisplayMode) durationRow.getTag();
+                DisplayMode newDisplayMode = (curDisplayMode == null || curDisplayMode.equals(DisplayMode.Duration)) 
+                    ? DisplayMode.Time:DisplayMode.Duration;
+                durationRow.setTag(newDisplayMode);
+                timeLayout.setDisplayMode(newDisplayMode);
+                durationRow.setText(newDisplayMode.name());
+            }
+        });
+        
         Font.setTypeface(boldFont, header);
         Font.setTypeface(lightFont, destView, onMyWayView, letsGoView, reserveView,
-            backButton);
+            backButton, (TextView)findViewById(R.id.departure_row), durationRow);
     }
     
     private void updateTimetableScreenWidth(){
