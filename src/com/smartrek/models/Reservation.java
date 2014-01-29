@@ -24,6 +24,8 @@ public final class Reservation implements Parcelable {
     private static final String TIME_FORMAT = "EEEE MMM dd, yyyy\nhh:mm a";
     
     private static final String TIME_FORMAT_SINGLE_LINE = "EEEE MMM dd, yyyy hh:mm a";
+
+    public static final long GRACE_INTERVAL = 10*60*1000L;
     
 	/**
 	 * Reservation ID
@@ -193,7 +195,7 @@ public final class Reservation implements Parcelable {
     }
     
     public static long getExpiryTime(long departureTime){
-        return departureTime + (15*60*1000);
+        return departureTime + (GRACE_INTERVAL);
     }
 	
 	/**
@@ -208,7 +210,7 @@ public final class Reservation implements Parcelable {
 	}
 	
 	public static boolean isTooEarlyToStart(long departureTime) {
-        return departureTime - (15*60*1000) > System.currentTimeMillis();
+        return departureTime - (GRACE_INTERVAL) > System.currentTimeMillis();
     }
 	
 	public boolean isEligibleTrip() {

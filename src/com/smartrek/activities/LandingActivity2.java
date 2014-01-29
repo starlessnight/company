@@ -13,8 +13,12 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.location.Location;
@@ -23,6 +27,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
@@ -39,12 +44,15 @@ import com.smartrek.activities.LandingActivity.CurrentLocationListener;
 import com.smartrek.dialogs.FeedbackDialog;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.dialogs.ShareDialog;
+import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
 import com.smartrek.requests.AddressLinkRequest;
 import com.smartrek.requests.CityRequest;
 import com.smartrek.requests.FavoriteAddressAddRequest;
 import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.requests.FavoriteAddressUpdateRequest;
+import com.smartrek.requests.ReservationDeleteRequest;
+import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.requests.WhereToGoRequest;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
@@ -52,6 +60,7 @@ import com.smartrek.ui.overlays.EventOverlay;
 import com.smartrek.ui.overlays.OverlayCallback;
 import com.smartrek.ui.overlays.POIActionOverlay;
 import com.smartrek.ui.overlays.PointOverlay;
+import com.smartrek.ui.timelayout.TimeColumn;
 import com.smartrek.utils.Dimension;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
@@ -65,6 +74,8 @@ import com.smartrek.utils.SmartrekTileProvider;
 public final class LandingActivity2 extends FragmentActivity {
     
     public static final boolean ENABLED = true;
+    
+    public static final String NO_TRIPS = "No Upcoming Trips";
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
@@ -182,6 +193,7 @@ public final class LandingActivity2 extends FragmentActivity {
         
         TextView nextTripInfo = (TextView) findViewById(R.id.next_trip_info);
         nextTripInfo.setSelected(true);
+        nextTripInfo.setText(NO_TRIPS);
         
         View centerMapIcon = findViewById(R.id.center_map_icon);
         centerMapIcon.setOnClickListener(new View.OnClickListener() {
@@ -257,10 +269,203 @@ public final class LandingActivity2 extends FragmentActivity {
              }
         });
         
+        TextView tripAddr = (TextView) findViewById(R.id.trip_address);
+        TextView tripDetails = (TextView) findViewById(R.id.trip_details);
+        TextView getGoingBtn = (TextView) findViewById(R.id.get_going_button);
+        getGoingBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Reservation reserv = (Reservation) findViewById(R.id.trip_panel).getTag();
+                Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
+                intent.putExtra("route", reserv.getRoute());
+                intent.putExtra("reservation", reserv);
+                startActivity(intent);
+            }
+        });
+        TextView rescheBtn = (TextView) findViewById(R.id.reschedule_button);
+        rescheBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Reservation reserv = (Reservation) findViewById(R.id.trip_panel).getTag();
+                AsyncTask<Void, Void, Void> delTask = new AsyncTask<Void, Void, Void>(){
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        ReservationDeleteRequest request = new ReservationDeleteRequest(
+                            User.getCurrentUser(LandingActivity2.this), reserv.getRid());
+                        try {
+                            request.execute(LandingActivity2.this);
+                        }
+                        catch (Exception e) {
+                        }
+                        return null;
+                    }
+                };
+                Misc.parallelExecute(delTask);
+                final String addr = reserv.getDestinationAddress();
+                AsyncTask<Void, Void, GeoPoint> geoCodeTask = new AsyncTask<Void, Void, GeoPoint>(){
+                    @Override
+                    protected GeoPoint doInBackground(Void... params) {
+                        GeoPoint gp = null;
+                        try {
+                            List<Address> addrs = Geocoding.lookup(addr);
+                            for (Address a : addrs) {
+                                gp = new GeoPoint(a.getLatitude(), a.getLongitude());
+                                break;
+                            }
+                        }
+                        catch (IOException e) {
+                        }
+                        catch (JSONException e) {
+                        }
+                        return gp;
+                    }
+                    @Override
+                    protected void onPostExecute(GeoPoint gp) {
+                        if(gp != null){
+                            startRouteActivity(addr, gp);
+                        }
+                    }
+                };
+                Misc.parallelExecute(geoCodeTask);
+            }
+        });
+        
+        scheduleNextTripInfoUpdates();
+        
         AssetManager assets = getAssets();
-//        Font.setTypeface(Font.getBold(assets));
+        Font.setTypeface(Font.getBold(assets), tripAddr);
         Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, nextTripInfo,
-            rewardsMenu, shareMenu, feedbackMenu, settingsMenu, logoutMenu);
+            rewardsMenu, shareMenu, feedbackMenu, settingsMenu, logoutMenu,
+            tripDetails, getGoingBtn, rescheBtn);
+    }
+    
+    private static final String TRIP_INFO_UPDATES = "TRIP_INFO_UPDATES"; 
+    
+    private void scheduleNextTripInfoUpdates(){
+        AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
+        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), 6000, 
+            PendingIntent.getBroadcast(this, 0, new Intent(TRIP_INFO_UPDATES), PendingIntent.FLAG_UPDATE_CURRENT));
+    }
+    
+    private BroadcastReceiver tripInfoUpdater = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            LandingActivity.initializeIfNeccessary(context, new Runnable() {
+                @Override
+                public void run() {
+                    refreshTripsInfo();
+                }
+            });
+        }
+    };
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(tripInfoUpdater, new IntentFilter(TRIP_INFO_UPDATES));
+    }
+    
+    @Override
+    protected void onPause() {
+      unregisterReceiver(tripInfoUpdater);
+      super.onPause();
+    } 
+    
+    private void refreshTripsInfo(){
+        AsyncTask<Void, Void, List<Reservation>> tripTask = new AsyncTask<Void, Void, List<Reservation>>(){
+            @Override
+            protected List<Reservation> doInBackground(Void... params) {
+                User user = User.getCurrentUser(LandingActivity2.this);
+                List<Reservation> reservations= Collections.emptyList();
+                try {
+                    ReservationListFetchRequest resReq = new ReservationListFetchRequest(user);
+                    resReq.invalidateCache(LandingActivity2.this);
+                    FavoriteAddressFetchRequest addReq = new FavoriteAddressFetchRequest(user);
+                    addReq.invalidateCache(LandingActivity2.this);
+                    List<com.smartrek.models.Address> addresses = addReq.execute(LandingActivity2.this);
+                    reservations = resReq.execute(LandingActivity2.this);
+                    for(Reservation r:reservations){
+                        if(r.getOriginName() == null){
+                            for (com.smartrek.models.Address a : addresses) {
+                                if(a.getAddress().equals(r.getOriginAddress())){
+                                    r.setOriginName(a.getName());
+                                    break;
+                                }
+                            }
+                        }
+                        if(r.getDestinationName() == null){
+                            for (com.smartrek.models.Address a : addresses) {
+                                if(a.getAddress().equals(r.getDestinationAddress())){
+                                    r.setDestinationName(a.getName());
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    Collections.sort(reservations, Reservation.orderByDepartureTime());
+                }
+                catch (NullPointerException e){}
+                catch (Exception e) {
+                    ehs.registerException(e);
+                }
+                return reservations;
+            }
+            @Override
+            protected void onPostExecute(List<Reservation> reservations) {
+                if (ehs.hasExceptions()) { 
+                    ehs.reportExceptions();
+                } 
+                else{
+                    View tripPanel = findViewById(R.id.trip_panel);
+                    TextView nextTripInfo = (TextView) findViewById(R.id.next_trip_info);
+                    View carIcon = findViewById(R.id.car_icon);
+                    if(reservations == null || reservations.isEmpty()){
+                        tripPanel.setTag(null);
+                        nextTripInfo.setText(NO_TRIPS);
+                        tripPanel.setVisibility(View.GONE);
+                        carIcon.setVisibility(View.INVISIBLE);
+                    }else{
+                        Reservation reserv = reservations.get(0);
+                        tripPanel.setTag(reserv);
+                        TextView tripAddr = (TextView) findViewById(R.id.trip_address);
+                        tripAddr.setText(reserv.getDestinationAddress());
+                        TextView tripDetails = (TextView) findViewById(R.id.trip_details);
+                        tripDetails.setText("Duration: " + TimeColumn.getFormattedDuration(reserv.getDuration()));
+                        int getGoingBtnVis = View.GONE;
+                        int rescheBtnVis = View.VISIBLE;
+                        int carIconVis = View.VISIBLE;
+                        int tripPanelVis = View.VISIBLE;
+                        String nextTripInfoText;
+                        long timeUntilDepart = reserv.getDepartureTimeUtc() - System.currentTimeMillis();
+                        if(reserv.isEligibleTrip()){
+                            nextTripInfoText = "Get Going";
+                            getGoingBtnVis = View.VISIBLE;
+                            rescheBtnVis = View.GONE;
+                        }else if(timeUntilDepart > 60 * 60 * 1000L){
+                            nextTripInfoText = "Next Trip at "
+                                + TimeColumn.formatTime(reserv.getDepartureTime());
+                        }else if(timeUntilDepart > Reservation.GRACE_INTERVAL){
+                            nextTripInfoText = "Next Trip in "
+                                + TimeColumn.getFormattedDuration((int)timeUntilDepart / 1000);
+                        }else if(timeUntilDepart > -2 * 60 * 60 * 1000L){
+                            nextTripInfoText = "Trip has expired";
+                        }else{
+                            nextTripInfoText = NO_TRIPS;
+                            carIconVis = View.INVISIBLE;
+                            tripPanelVis = View.GONE;
+                        }
+                        nextTripInfo.setText(nextTripInfoText);
+                        TextView getGoingBtn = (TextView) findViewById(R.id.get_going_button);
+                        getGoingBtn.setVisibility(getGoingBtnVis);
+                        TextView rescheBtn = (TextView) findViewById(R.id.reschedule_button);
+                        rescheBtn.setVisibility(rescheBtnVis);
+                        carIcon.setVisibility(carIconVis);
+                        tripPanel.setVisibility(tripPanelVis);
+                    }
+                }
+            }
+        };
+        Misc.parallelExecute(tripTask);
     }
     
     @Override

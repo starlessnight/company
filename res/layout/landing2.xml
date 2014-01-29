@@ -85,7 +85,7 @@
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:src="@drawable/reward_icon"
-		        android:visibility="visible"
+		        android:visibility="invisible"
 	        />
 	        
 	        <ImageView
@@ -93,7 +93,7 @@
 		        android:layout_height="wrap_content"
 		        android:layout_marginLeft="10dp"
 		        android:src="@drawable/message_icon"
-		        android:visibility="visible"
+		        android:visibility="invisible"
 	        />
 	        
 	        <ImageView
@@ -101,7 +101,7 @@
 		        android:layout_height="wrap_content"
 		        android:layout_marginLeft="10dp"
 		        android:src="@drawable/warning_icon"
-		        android:visibility="visible"
+		        android:visibility="invisible"
 	        />
 	        
 	        <ImageView
@@ -109,15 +109,16 @@
 		        android:layout_height="wrap_content"
 		        android:layout_marginLeft="10dp"
 		        android:src="@drawable/tree_icon"
-		        android:visibility="visible"
+		        android:visibility="invisible"
 	        />
 	        
 	        <ImageView
+	            android:id="@+id/car_icon"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:layout_marginLeft="10dp"
 		        android:src="@drawable/car_icon"
-		        android:visibility="visible"
+		        android:visibility="invisible"
 	        />
 	        
 	        <TextView
@@ -133,6 +134,64 @@
 	        />
 	        
 	    </LinearLayout>
+	    
+	    <LinearLayout 
+	        	android:id="@+id/trip_panel"
+	        	android:layout_width="match_parent"
+	        	android:layout_height="82dp"
+	        	android:background="#808184"
+	        	android:orientation="horizontal"
+	        	android:paddingTop="5dp"
+	        	android:paddingLeft="20dp"
+	        	android:paddingRight="20dp"
+	        	android:visibility="gone">
+	        
+	        <LinearLayout 
+	            	android:layout_width="match_parent"
+	        		android:layout_height="match_parent"
+	        		android:orientation="vertical"
+	        		android:layout_weight="1">
+	            <TextView
+		            android:id="@+id/trip_address"
+		            android:layout_width="match_parent"
+		        	android:layout_height="wrap_content"
+		            android:textSize="@dimen/smaller_font"
+		           	android:textColor="@android:color/white"
+		           	android:lines="2"
+		           	android:visibility="visible"
+		        />
+	            <TextView
+		            android:id="@+id/trip_details"
+		            android:layout_width="match_parent"
+		        	android:layout_height="wrap_content"
+		            android:textSize="@dimen/smaller_font"
+		           	android:textColor="@android:color/white"
+		           	android:singleLine="true"
+		        />
+	        </LinearLayout>
+	        
+	        <TextView
+	           android:id="@+id/get_going_button"
+	           android:layout_width="135dp"
+	           android:layout_height="wrap_content"
+	           android:text="Get Going"
+	           android:layout_marginLeft="5dp"
+	           android:layout_gravity="center_vertical"
+	           style="@style/GreenButton"
+			/>
+	        
+	        <TextView
+	           android:id="@+id/reschedule_button"
+	           android:layout_width="135dp"
+	           android:layout_height="wrap_content"
+	           android:text="Reschedule"
+	           android:layout_marginLeft="5dp"
+	           android:layout_gravity="center_vertical"
+	           style="@style/RedButton"
+	           android:visibility="gone"
+			/>
+	        
+        </LinearLayout>
 	
 	</LinearLayout>
 

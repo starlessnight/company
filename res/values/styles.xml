@@ -80,6 +80,11 @@
 		<item name="android:background">@drawable/orange_button</item>
 		<item name="android:gravity">center_horizontal</item>
 	</style>
+	<style name="RedButton" parent="NormalTextField">
+	    <item name="android:textColor">@android:color/white</item>
+		<item name="android:background">@drawable/red_button</item>
+		<item name="android:gravity">center_horizontal</item>
+	</style>
 	<style name="GreenButton" parent="NormalTextField">
 	    <item name="android:textColor">@android:color/white</item>
 		<item name="android:background">@drawable/new_green_button</item>

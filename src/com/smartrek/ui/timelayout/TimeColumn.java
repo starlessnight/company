@@ -148,17 +148,29 @@ public final class TimeColumn extends FrameLayout {
 		
 		if (time != 0) {
     		if (displayMode.equals(DisplayMode.Duration)) {
-    			arrivalTimeButton.setText(String.format("%d m", getDuration()/60));
+    			arrivalTimeButton.setText(getFormattedDuration(getDuration()));
     		}
     		else {
-    		    SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
-    	        dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone(timzoneOffset)));
-    			arrivalTimeButton.setText(dateFormat.format(new Date(time)));
+    			arrivalTimeButton.setText(formatTime(time, timzoneOffset));
     		}
     		
     		postInvalidate();
 		}
 	}
+	
+	public static String getFormattedDuration(int duration){
+	    return String.format("%d m", duration/60);
+	}
+	
+	public static String formatTime(long time, int timzoneOffset){
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+        dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone(timzoneOffset)));
+        return dateFormat.format(new Date(time));
+	}
+	
+	public static String formatTime(long time){
+        return formatTime(time, 0);
+    }
 	
 	/**
 	 * Returns (arrival time) - (departure time) in seconds.
