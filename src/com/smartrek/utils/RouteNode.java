@@ -349,4 +349,8 @@ public final class RouteNode implements Parcelable, JSONModel {
     public void setTime(int time) {
         this.time = time;
     }
+
+    public int getNodeNum() {
+        return nodeNum;
+    }
 }

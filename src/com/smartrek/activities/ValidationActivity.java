@@ -3,10 +3,13 @@ package com.smartrek.activities;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -81,6 +84,7 @@ import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.ImComingRequest;
 import com.smartrek.requests.Request;
+import com.smartrek.requests.ReservationFetchRequest;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.ui.NavigationView;
 import com.smartrek.ui.NavigationView.CheckPointListener;
@@ -286,12 +290,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						.equalsIgnoreCase(item.roadName, "null")) ? ""
 						: item.roadName);
 				vRoad.requestLayout();
-				view.setPadding(
-						0,
-						0,
-						0,
-						position == getCount() - 1 ? Dimension.dpToPx(200,
-								getResources().getDisplayMetrics()) : 0);
 				return view;
 			}
 		};
@@ -318,6 +316,22 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 									reservation.getDuration());
 						}
 						routes = request.execute(ValidationActivity.this);
+						if (routes != null && routes.size() > 0) {
+						    List<RouteNode> timeNodes = new ReservationFetchRequest(User.getCurrentUser(ValidationActivity.this), reservation.getRid())
+                                .execute(ValidationActivity.this).getRoute().getNodes();
+						    Map<Integer, Integer> nodeTimes = new HashMap<Integer, Integer>();
+						    for(RouteNode n:timeNodes){
+						        nodeTimes.put(n.getNodeNum(), n.getTime());
+						    }
+						    Route route = routes.get(0);
+						    for(RouteNode n : route.getNodes()){
+						        Integer time = nodeTimes.get(n.getNodeNum());
+						        if(time != null){
+						            n.setTime(time);
+						        }
+						    }
+						    
+						}
 					} catch (Exception e) {
 						ehs.registerException(e);
 					}
@@ -673,8 +687,53 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		TextView destAddr = (TextView) findViewById(R.id.dest_addr);
 		destAddr.setText(reservation.getDestinationAddress());
 
-		Font.setTypeface(lightFont, osmCredit);
+		final TextView timeInfo = (TextView) findViewById(R.id.remain_times);
+        timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(reservation.getArrivalTime()));
+        timeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(reservation.getDuration()));
+        refreshTimeInfo();
+        timeInfo.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Boolean isRemainingTime = (Boolean) timeInfo.getTag();
+                if(isRemainingTime == null || !isRemainingTime){
+                    timeInfo.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
+                    isRemainingTime = true;
+                }else{
+                    timeInfo.setText(timeInfo.getTag(R.id.estimated_arrival_time).toString());
+                    isRemainingTime = false;
+                }
+                timeInfo.setTag(isRemainingTime);
+            }
+        });
+		
+		Font.setTypeface(lightFont, osmCredit, timeInfo);
 	}
+	
+	   private void refreshTimeInfo(){
+	        runOnUiThread(new Runnable() {
+	            @Override
+	            public void run() {
+	                final TextView timeInfo = (TextView) findViewById(R.id.remain_times);
+	                Boolean isRemainingTime = (Boolean) timeInfo.getTag();
+	                if(isRemainingTime == null || !isRemainingTime){
+	                    timeInfo.setText(timeInfo.getTag(R.id.estimated_arrival_time).toString());
+	                }else{
+	                    timeInfo.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
+	                }
+	            }
+	        });
+	    }
+	    
+	    private static final String timeFormat = "hh:mm a";
+	    
+	    private static String getFormatedEstimateArrivalTime(long time){
+	        return new SimpleDateFormat(timeFormat).format(new Date(time));
+	    }
+	    
+	    private static String getFormatedRemainingTime(long seconds){
+	        long minute = Double.valueOf(Math.ceil(seconds / 60.0D)).longValue();
+	        return minute + "min";
+	    }
 
 	private SpannableString formatCO2Desc(Context ctx, String co2Value) {
 		String desc = co2Value + "lbs\nCO2 Reduced";
@@ -1116,6 +1175,24 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			if (navigationView.getStatus() == Status.InRoute) {
 				linkId = nearestLink.getStartNode().getLinkId();
 			}
+			
+			long passedNodeTime = 0;
+            long remainingNodeTime = 0;
+            for (RouteNode node : route.getNodes()) {
+                int time = node.getTime();
+                if (node.getNodeIndex() > nearestNode.getNodeIndex()) {
+                    remainingNodeTime += time;
+                }else{
+                    passedNodeTime += time;
+                }
+            }
+            Time currentTime = new Time();
+            currentTime.setToNow();
+            long delay = currentTime.toMillis(false) - startTime - passedNodeTime * 1000;
+            final TextView timeInfo = (TextView) findViewById(R.id.remain_times);
+            timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(reservation.getArrivalTime() + delay));
+            timeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(remainingNodeTime));
+            refreshTimeInfo();
 
 		}
 

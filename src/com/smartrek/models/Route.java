@@ -99,6 +99,7 @@ public final class Route implements Parcelable {
             if (ro.has("ROADNAME")) {
             	node.setRoadName(ro.getString("ROADNAME"));
             }
+            node.setTime(Long.valueOf(Math.round(ro.optDouble("time") * 60)).intValue());
             
             routeNodes.add(node);
         }
@@ -181,7 +182,7 @@ public final class Route implements Parcelable {
                 if (ro.has(linkIdAttr)) {
                     node.setLinkId(ro.getLong(linkIdAttr));
                 }
-                node.setTime(ro.optInt("time"));
+                
                 routeNodes.add(node);
             }
         }

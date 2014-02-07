@@ -1,5 +1,7 @@
 package com.smartrek.requests;
 
+import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -8,6 +10,7 @@ import java.util.TimeZone;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -43,31 +46,7 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
 		    JSONArray array = new JSONObject(response).getJSONArray("data");
             for(int i = 0; i < array.length(); i++) {
                 JSONObject object = (JSONObject) array.get(i);
-                Reservation r = new Reservation();
-                String id = object.getString("id");
-                String separator = "_";
-                r.setRid(Long.parseLong(StringUtils.contains(id, separator)?
-                    StringUtils.substringAfter(id, separator):id));
-                
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone()));
-                long departureTime = dateFormat.parse(object.getString(start_datetime_attr)).getTime();
-                r.setDepartureTime(departureTime);
-                
-                SimpleDateFormat dateFormatUtc = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                dateFormatUtc.setTimeZone(TimeZone.getTimeZone(UTC_TIMEZONE));
-                long departureTimeUtc = dateFormatUtc.parse(object.getString(start_datetime_utc_attr)).getTime();
-                r.setDepartureTimeUtc(departureTimeUtc);
-
-                // travel duration
-                r.setDuration(object.getInt("estimated_travel_time") * 60);
-                
-                r.setOriginAddress(object.optString("origin"));
-                r.setDestinationAddress(object.optString("destination"));
-                r.setCredits(object.optInt("credit"));
-                r.setValidatedFlag(object.optInt("validated"));
-                r.setRoute(Route.parse(object, departureTime, true));
-                r.setNavLink(object.optString("navigation_url"));
+                Reservation r = parse(object);
                 
                 reservations.add(r);
             }
@@ -96,6 +75,35 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
 	        url = String.format("%s/getreservations/%d", FetchRequest.HOST, user.getId());
 	    }
 	    return url; 
+	}
+	
+	static Reservation parse(JSONObject object) throws JSONException, ParseException, IOException {
+        Reservation r = new Reservation();
+        String id = object.getString("id");
+        String separator = "_";
+        r.setRid(Long.parseLong(StringUtils.contains(id, separator)?
+            StringUtils.substringAfter(id, separator):id));
+        
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone()));
+        long departureTime = dateFormat.parse(object.getString(start_datetime_attr)).getTime();
+        r.setDepartureTime(departureTime);
+        
+        SimpleDateFormat dateFormatUtc = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        dateFormatUtc.setTimeZone(TimeZone.getTimeZone(UTC_TIMEZONE));
+        long departureTimeUtc = dateFormatUtc.parse(object.getString(start_datetime_utc_attr)).getTime();
+        r.setDepartureTimeUtc(departureTimeUtc);
+
+        // travel duration
+        r.setDuration(object.getInt("estimated_travel_time") * 60);
+        
+        r.setOriginAddress(object.optString("origin"));
+        r.setDestinationAddress(object.optString("destination"));
+        r.setCredits(object.optInt("credit"));
+        r.setValidatedFlag(object.optInt("validated"));
+        r.setRoute(Route.parse(object, departureTime, true));
+        r.setNavLink(object.optString("navigation_url"));
+        return r;
 	}
 
 }
