@@ -11,6 +11,8 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
@@ -38,6 +40,7 @@ public class MainActivity extends Activity implements AnimationListener {
 	private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
 	private ImageView logo;
+	private ImageView logoMask;
 	
 	private boolean splashEnded;
 	
@@ -68,9 +71,23 @@ public class MainActivity extends Activity implements AnimationListener {
 		    setContentView(R.layout.main);
 
 	        logo = (ImageView) findViewById(R.id.imageViewLogo);
-	        Animation showAnimation = AnimationUtils.loadAnimation(this, R.anim.show);
-	        showAnimation.setAnimationListener(this);
-	        logo.startAnimation(showAnimation);
+	        logoMask = (ImageView) findViewById(R.id.logoMask);
+	        ViewTreeObserver vto = logo.getViewTreeObserver();
+	        vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+				@Override
+				public boolean onPreDraw() {
+					int logoHeight = Double.valueOf(logo.getMeasuredHeight() * 0.65).intValue();
+					int logoWidth = logo.getMeasuredWidth();
+					logoMask.setMaxHeight(logoHeight);
+					logoMask.setMinimumHeight(logoHeight);
+					logoMask.setMaxWidth(logoWidth);
+					logoMask.setMinimumWidth(logoWidth);
+					return true;
+				}
+			});
+	        Animation slideUpAnimation = AnimationUtils.loadAnimation(this, R.anim.slideup);
+	        slideUpAnimation.setAnimationListener(this);
+	        logoMask.startAnimation(slideUpAnimation);
 	        
 	        /* Check Shared memory to see if login info has already been entered on this phone */
             SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
@@ -235,7 +252,7 @@ public class MainActivity extends Activity implements AnimationListener {
 	@Override
 	public void onAnimationEnd(Animation animation) {
 	    splashEnded = true;
-		
+		logoMask.setVisibility(View.GONE);
 		if(loginTask == null){
 		    SharedPreferences prefs = Preferences.getGlobalPreferences(this);
             int licenseAgreement = prefs.getInt(Preferences.Global.LICENSE_AGREEMENT, LicenseAgreementActivity.DISAGREED);
