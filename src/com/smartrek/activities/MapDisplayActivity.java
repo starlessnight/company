@@ -50,6 +50,8 @@ public final class MapDisplayActivity extends ActionBarActivity {
 	private static final String WORK_ADDRESS = "WORK_ADDRESS";
 
 	private static final String PROFILE_SELECTION = "PROFILE_SELECTION";
+	
+	private static final String PREDICT_DESTINATION = "PREDICT_DESTINATION";
 
 	private RadioButton displayTravel;
 	private RadioButton displayArrival;
@@ -62,6 +64,8 @@ public final class MapDisplayActivity extends ActionBarActivity {
 	private CheckBox navigationTts;
 
 	private CheckBox lbs;
+	
+	private CheckBox predictDest;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -153,7 +157,7 @@ public final class MapDisplayActivity extends ActionBarActivity {
 				prefs.edit().putBoolean(NAVIGATION_TTS, isChecked).commit();
 			}
 		});
-
+		
 		boolean lbsEnabled = isLocBasedServiceEnabled(this);
 		lbs = (CheckBox) findViewById(R.id.lbs);
 		lbs.setChecked(lbsEnabled);
@@ -163,6 +167,15 @@ public final class MapDisplayActivity extends ActionBarActivity {
 					boolean isChecked) {
 				prefs.edit().putBoolean(LOCATION_BASED_SERVICE, isChecked)
 						.commit();
+			}
+		});
+		
+		boolean predictDestEnabled = isPredictDestEnabled(this);
+		predictDest = (CheckBox) findViewById(R.id.predict_destination);
+		predictDest.setChecked(predictDestEnabled);
+		predictDest.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				prefs.edit().putBoolean(PREDICT_DESTINATION, isChecked).commit();
 			}
 		});
 
@@ -176,12 +189,37 @@ public final class MapDisplayActivity extends ActionBarActivity {
 					}
 				});
 
+		/*
 		TextView feedback = (TextView) findViewById(R.id.feedback);
 		feedback.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				FeedbackDialog d = new FeedbackDialog(MapDisplayActivity.this);
 				d.show();
+			}
+		});
+		*/
+		
+		TextView tutorial = (TextView) findViewById(R.id.tutorial);
+		tutorial.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startActivity(new Intent(MapDisplayActivity.this, TutorialActivity.class));
+			}
+		});
+		
+		TextView termsAndConditions = (TextView) findViewById(R.id.terms_and_conditions);
+		termsAndConditions.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				
+			}
+		});
+		
+		TextView helpOurResearch = (TextView) findViewById(R.id.help_our_research);
+		helpOurResearch.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				
 			}
 		});
 
@@ -198,11 +236,13 @@ public final class MapDisplayActivity extends ActionBarActivity {
 				(TextView) findViewById(R.id.navigation_tts_heading),
 				(TextView) findViewById(R.id.lbs_heading),
 				(TextView) findViewById(R.id.distribution_heading),
-				mPointsHeading, feedback);
+				(TextView) findViewById(R.id.predict_destination_heading), 
+				mPointsHeading, tutorial, termsAndConditions, helpOurResearch);
 		Font.setTypeface(lightFont, displayTravel, displayArrival,
 				(TextView) findViewById(R.id.calendar_integration_text),
 				(TextView) findViewById(R.id.navigation_tts_text),
 				(TextView) findViewById(R.id.lbs_text),
+				(TextView) findViewById(R.id.predict_destination_text),
 				(TextView) findViewById(R.id.distribution_date));
 	}
 
@@ -215,10 +255,14 @@ public final class MapDisplayActivity extends ActionBarActivity {
 		return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
 				.getBoolean(NAVIGATION_TTS, true);
 	}
-
+	
 	public static void setNavigationTts(Context ctx, boolean isEnabled) {
 		ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE).edit()
 				.putBoolean(NAVIGATION_TTS, isEnabled).commit();
+	}
+	
+	public static boolean isPredictDestEnabled(Context ctx) {
+		return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE).getBoolean(PREDICT_DESTINATION, true);
 	}
 
 	public static boolean isLocBasedServiceEnabled(Context ctx) {

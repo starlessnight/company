@@ -267,11 +267,59 @@
 		     />
 		    
 		    <TextView
+		        android:id="@+id/predict_destination_heading"
+		        android:text="PREDICT DESTINATION"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_below="@id/separator5"
+		        android:layout_marginTop="15dp"
+		        android:layout_marginLeft="45dp"
+		        style="@style/MicroText">
+		    </TextView>
+		
+		   
+		    
+		    <TextView
+		        android:id="@+id/predict_destination_text"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_below="@id/predict_destination_heading"
+		        android:text="Enabled"
+		        android:layout_marginTop="12dp"
+		        android:layout_marginLeft="45dp"
+		        android:layout_marginRight="45dp"
+		        style="@style/MediumText"
+			/>
+		    
+		    <CheckBox
+		         android:id="@+id/predict_destination"
+		         android:layout_width="wrap_content"
+		         android:layout_height="wrap_content"
+		         android:layout_alignParentRight="true"
+		         android:layout_alignBaseline="@id/predict_destination_text"
+		         android:enabled="true"
+		         android:padding="0dp"
+		         android:layout_marginTop="0dp"
+		         android:layout_marginRight="45dp"
+			/>
+		    
+		    <View
+		        android:id="@+id/separator8"
+		        android:layout_width="match_parent"
+		        android:layout_height="2dp"
+		        android:layout_below="@id/predict_destination_text"
+		        android:layout_marginTop="12dp"
+		        android:layout_marginLeft="30dp"
+		        android:layout_marginRight="30dp"
+		        android:background="@color/secondary_font"  
+		     />
+		    
+		    <TextView
 		        android:id="@+id/distribution_heading"
 		        android:text="DISTRUBUTION DATE"
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
-		        android:layout_below="@id/separator5"
+		        android:layout_below="@id/separator8"
 		        android:layout_marginTop="12dp"
 		        android:layout_marginLeft="45dp"
 		        android:layout_marginRight="45dp"
@@ -303,8 +351,9 @@
 		        android:background="@color/secondary_font"  
 		     />
 		    
+		    
 		    <Button
-	            android:id="@+id/feedback"
+	            android:id="@+id/tutorial"
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
 	      		android:layout_marginLeft="30dp"
@@ -312,7 +361,57 @@
 	      		android:layout_marginTop="15dp"
 	           	android:layout_marginBottom="15dp"
 	           	android:layout_below="@id/separator7"
-	            android:text="Give Feedback"
+	            android:text="Tutorial"
+	            style="@style/NextActionButton"
+	        />
+		    
+		    <View
+		        android:id="@+id/separator9"
+		        android:layout_width="match_parent"
+		        android:layout_height="2dp"
+		        android:layout_below="@id/tutorial"
+		        android:layout_marginTop="12dp"
+		        android:layout_marginLeft="30dp"
+		        android:layout_marginRight="30dp"
+		        android:background="@color/secondary_font"  
+		     />
+		    
+		    
+		    <Button
+	            android:id="@+id/terms_and_conditions"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	      		android:layout_marginLeft="30dp"
+	      		android:layout_marginRight="30dp"
+	      		android:layout_marginTop="15dp"
+	           	android:layout_marginBottom="15dp"
+	           	android:layout_below="@id/separator9"
+	            android:text="Terms and Conditions"
+	            style="@style/NextActionButton"
+	        />
+		    
+		    <View
+		        android:id="@+id/separator10"
+		        android:layout_width="match_parent"
+		        android:layout_height="2dp"
+		        android:layout_below="@id/terms_and_conditions"
+		        android:layout_marginTop="12dp"
+		        android:layout_marginLeft="30dp"
+		        android:layout_marginRight="30dp"
+		        android:background="@color/secondary_font"  
+		     />
+		    
+		    
+		    <Button
+	            android:id="@+id/help_our_research"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	      		android:layout_marginLeft="30dp"
+	      		android:layout_marginRight="30dp"
+	      		android:layout_marginTop="15dp"
+	           	android:layout_marginBottom="15dp"
+	           	android:layout_below="@id/separator10"
+	            android:text="Help our Research"
 	            style="@style/NextActionButton"
 	        />
 		    
