@@ -205,7 +205,7 @@ public final class MapDisplayActivity extends ActionBarActivity {
 			@Override
 			public void onClick(View v) {
 				Intent tutorialActivity = new Intent(MapDisplayActivity.this, TutorialActivity.class);
-				tutorialActivity.putExtra("fromSetting", "true");
+				tutorialActivity.putExtra(TutorialActivity.FROM, "setting");
 				startActivity(tutorialActivity);
 			}
 		});

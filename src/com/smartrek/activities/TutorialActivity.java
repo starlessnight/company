@@ -20,6 +20,8 @@ import android.widget.TextView;
 import com.smartrek.utils.Font;
 
 public class TutorialActivity extends FragmentActivity implements OnPageChangeListener {
+	
+	public static final String FROM = "from";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -60,8 +62,8 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
             }
         });
         
-        String fromSetting = getIntent().getStringExtra("fromSetting");
-        if(StringUtils.isNotBlank(fromSetting)) {
+        String from = getIntent().getStringExtra(FROM);
+        if(StringUtils.isNotBlank(from)) {
         	findViewById(R.id.login_options).setVisibility(View.INVISIBLE);
         }
     }
