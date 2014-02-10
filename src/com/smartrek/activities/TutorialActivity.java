@@ -1,5 +1,7 @@
 package com.smartrek.activities;
 
+import org.apache.commons.lang3.StringUtils;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -57,6 +59,11 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
                 finish();
             }
         });
+        
+        String fromSetting = getIntent().getStringExtra("fromSetting");
+        if(StringUtils.isNotBlank(fromSetting)) {
+        	findViewById(R.id.login_options).setVisibility(View.INVISIBLE);
+        }
     }
     
     public static class SlideFragment extends Fragment {
