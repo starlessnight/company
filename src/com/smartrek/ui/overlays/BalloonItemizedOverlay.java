@@ -149,6 +149,14 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 		    ((FrameLayout)balloonView).setVisibility(View.GONE);
 		}
 	}
+	
+    public boolean isBalloonVisible() {
+        boolean visible = false;
+        if (balloonView != null) {
+            visible = ((FrameLayout)balloonView).getVisibility() == View.VISIBLE;
+        }
+        return visible;
+    }
 
 	/**
 	 * Hides the balloon view for any other BalloonItemizedOverlay instances

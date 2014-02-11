@@ -38,6 +38,7 @@ import android.view.View.OnLongClickListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.smartrek.activities.LandingActivity.CurrentLocationListener;
@@ -702,30 +703,40 @@ public final class LandingActivity2 extends FragmentActivity {
         Misc.parallelExecute(task);
     }
     
-    private void hideStarredBalloon(){
+    private boolean hideStarredBalloon(){
+        boolean handled = false;
         MapView mapView = (MapView) findViewById(R.id.mapview);
         List<Overlay> overlays = mapView.getOverlays();
         for (Overlay overlay : overlays) {
             if(overlay instanceof POIActionOverlay){
                 POIActionOverlay poiOverlay = (POIActionOverlay)overlay;
                 if(poiOverlay.getMarker() == R.drawable.star_poi){
-                    poiOverlay.hideBalloon();
+                    if(poiOverlay.isBalloonVisible()){
+                        poiOverlay.hideBalloon();
+                        handled = true;
+                    }
                 }
             }
         }
+        return handled;
     }
     
-    private void hideBulbBalloon(){
+    private boolean hideBulbBalloon(){
+        boolean handled = false;
         MapView mapView = (MapView) findViewById(R.id.mapview);
         List<Overlay> overlays = mapView.getOverlays();
         for (Overlay overlay : overlays) {
             if(overlay instanceof POIActionOverlay){
                 POIActionOverlay poiOverlay = (POIActionOverlay)overlay;
                 if(poiOverlay.getMarker() == R.drawable.bulb_poi){
-                    poiOverlay.hideBalloon();
+                    if(poiOverlay.isBalloonVisible()){
+                        poiOverlay.hideBalloon();
+                        handled = true;
+                    }
                 }
             }
         }
+        return handled;
     }
     
     private void refreshBulbPOIs(){
@@ -802,9 +813,20 @@ public final class LandingActivity2 extends FragmentActivity {
             }
             @Override
             public void onSingleTap() {
-                hideStarredBalloon();
-                hideBulbBalloon();
-                removePOIMarker(mapView);
+                boolean handledStarred = hideStarredBalloon();
+                boolean handledBulb = hideBulbBalloon();
+                boolean handledPOI = removePOIMarker(mapView);
+                if(!handledStarred && !handledBulb && !handledPOI){
+                    Boolean collapsedTag = (Boolean) mapView.getTag();
+                    boolean collapsed = collapsedTag == null?true:collapsedTag.booleanValue();
+                    mapView.setTag(!collapsed);
+                    findViewById(R.id.skyline_bg).setVisibility(collapsed?View.GONE:View.VISIBLE);
+                    findViewById(R.id.bottom_bar).setVisibility(collapsed?View.GONE:View.VISIBLE);
+                    View menuIcon = findViewById(R.id.drawer_menu_icon_opened);
+                    LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) menuIcon.getLayoutParams();
+                    lp.bottomMargin = Dimension.dpToPx(collapsed?30:68, getResources().getDisplayMetrics());
+                    menuIcon.setLayoutParams(lp);
+                }
             }
         });
         mapView.getOverlays().add(eventOverlay);
@@ -838,16 +860,21 @@ public final class LandingActivity2 extends FragmentActivity {
     
     private POIActionOverlay curMarker;
     
-    private void removePOIMarker(MapView mapView){
+    private boolean removePOIMarker(MapView mapView){
+        boolean handled = false;
         List<Overlay> overlays = mapView.getOverlays();
         for (Overlay overlay : overlays) {
             if(overlay == curMarker){
-                curMarker.hideBalloon();
+                if(curMarker.isBalloonVisible()){
+                    curMarker.hideBalloon();
+                    handled = true;
+                }
                 overlays.remove(overlay);
                 mapView.postInvalidate();
                 break;
             }
         }
+        return handled;
     }
     
     private void refreshPOIMarker(final MapView mapView, final double lat, final double lon,
