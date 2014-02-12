@@ -13,6 +13,20 @@
         android:layout_height="wrap_content"
     />
     
+    <ToggleButton
+	    android:id="@+id/center_map_icon"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:background="@drawable/center_map"
+	    android:checked="true"
+	    android:textOff=""
+	    android:textOn=""
+	    android:layout_alignParentRight="true"
+	    android:layout_alignParentBottom="true"
+	    android:layout_marginRight="10dp"
+	    android:layout_marginBottom="60dp"
+	    android:layout_above="@+id/mapview_options" />
+    
     <FrameLayout
         android:id="@+id/dest_panel"
 	    android:layout_width="fill_parent"

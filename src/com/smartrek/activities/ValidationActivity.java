@@ -58,8 +58,10 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -129,6 +131,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private MapView mapView;
 	private NavigationView navigationView;
 	private ToggleButton volumnControl;
+	private ToggleButton buttonFollow;
 
 	/**
 	 * @deprecated
@@ -569,6 +572,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		mapView.setBuiltInZoomControls(false);
 		mapView.setMultiTouchControls(true);
 		mapView.setTileSource(new SmartrekTileProvider());
+		
+		mapView.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                buttonFollow.setChecked(false);
+                return false;
+            }
+        });
 
 		TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
 		Misc.initOsmCredit(osmCredit);
@@ -576,6 +587,33 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				.getLayoutParams();
 		osmCreditLp.bottomMargin += Dimension.dpToPx(52, getResources()
 				.getDisplayMetrics());
+		
+		buttonFollow = (ToggleButton) findViewById(R.id.center_map_icon);
+        buttonFollow.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (buttonFollow.isChecked()) {
+                    if (lastKnownLocation != null) {
+                    	double latitude = lastKnownLocation.getLatitude();
+                    	double longitude = lastKnownLocation.getLongitude();
+                    	MapController mc = mapView.getController();
+                    	mc.setZoom(DEFAULT_ZOOM_LEVEL);
+                    	mc.animateTo(latitude, longitude);
+                    }
+                }
+                else if(routeRect != null){
+                    /* Get a midpoint to center the view of  the routes */
+                    GeoPoint mid = routeRect.getMidPoint();
+                    /* range holds 2 points consisting of the lat/lon range to be displayed */
+                    int[] range = routeRect.getRange();
+                    /* Get the MapController set the midpoint and range */
+                    MapController mc = mapView.getController();
+                    mc.zoomToSpan(range[0], range[1]);
+                    mc.setCenter(mid); // setCenter only works properly after zoomToSpan
+                }
+            }
+        });
 
 		navigationView = (NavigationView) findViewById(R.id.navigation_view);
 		navigationView.setTypeface(boldFont);
@@ -1085,7 +1123,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		GeoPoint oldLoc = pointOverlay.getLocation();
 		if (oldLoc.isEmpty()) {
-			mapView.getController().animateTo(lat, lng);
+			if (buttonFollow.isChecked()) {
+				mapView.getController().animateTo(lat, lng);
+			}
 			pointOverlay.setLocation((float) lat, (float) lng);
 			mapView.postInvalidate();
 		} else {
@@ -1110,8 +1150,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						pointOverlay
 								.setLocation((float) newLat, (float) newLng);
 						mapView.postInvalidate();
-						mapView.getController().setCenter(
-								new GeoPoint(newLat, newLng));
+						if (buttonFollow.isChecked()) {
+                            mapView.getController().setCenter(new GeoPoint(newLat, newLng));
+                        }
 					}
 				}, startTimeMillis + Math.round(i * timeInterval));
 			}
