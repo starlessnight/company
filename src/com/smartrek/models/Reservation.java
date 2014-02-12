@@ -53,6 +53,8 @@ public final class Reservation implements Parcelable {
 	
 	private int credits;
 	
+	private int mpoint;
+	
 	private int validatedFlag;
 	
 	private String navLink;
@@ -83,6 +85,7 @@ public final class Reservation implements Parcelable {
 		originAddress = in.readString();
 		destinationAddress = in.readString();
 		credits = in.readInt();
+		mpoint = in.readInt();
 		validatedFlag = in.readInt();
 		navLink = in.readString();
 	}
@@ -280,6 +283,7 @@ public final class Reservation implements Parcelable {
 		dest.writeString(originAddress);
 		dest.writeString(destinationAddress);
 		dest.writeInt(credits);
+		dest.writeInt(mpoint);
 		dest.writeInt(validatedFlag);
 		dest.writeString(navLink);
 	}
@@ -343,6 +347,14 @@ public final class Reservation implements Parcelable {
 
     public void setDepartureTimeUtc(long departureTimeUtc) {
         this.departureTimeUtc = departureTimeUtc;
+    }
+
+    public int getMpoint() {
+        return mpoint;
+    }
+
+    public void setMpoint(int mpoint) {
+        this.mpoint = mpoint;
     }
 	
 }

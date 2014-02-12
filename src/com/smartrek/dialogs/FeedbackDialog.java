@@ -17,6 +17,7 @@ import com.smartrek.models.User;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.Request.Page;
 import com.smartrek.utils.Misc;
+import com.smartrek.utils.SessionM;
 
 public class FeedbackDialog extends Dialog {
     
@@ -83,6 +84,7 @@ public class FeedbackDialog extends Dialog {
 		closeIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SessionM.logAction("feedback");
                 dismiss();
             }
         });

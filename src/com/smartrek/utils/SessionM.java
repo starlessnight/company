@@ -6,7 +6,7 @@ import android.app.Activity;
 
 public class SessionM {
 
-    public static final boolean ENABLED = false;
+    public static final boolean ENABLED = true;
     
     public static void logAction(String action){
         if(ENABLED){

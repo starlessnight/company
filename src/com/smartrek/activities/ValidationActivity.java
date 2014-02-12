@@ -1036,6 +1036,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					}.execute();
 				} catch (Throwable t) {
 				}
+				SessionM.logAction("trip_" + reservation.getMpoint());
 			}
 		});
 	}
@@ -1343,7 +1344,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 								// Stop the activity
 								if (!isTripValidated()) {
-									SessionM.logAction("trip_failed");
 									showValidationFailedDialog();
 								}
 							}

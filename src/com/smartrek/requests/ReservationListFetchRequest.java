@@ -100,6 +100,7 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
         r.setOriginAddress(object.optString("origin"));
         r.setDestinationAddress(object.optString("destination"));
         r.setCredits(object.optInt("credit"));
+        r.setMpoint(object.optInt("mpoint"));
         r.setValidatedFlag(object.optInt("validated"));
         r.setRoute(Route.parse(object, departureTime, true));
         r.setNavLink(object.optString("navigation_url"));

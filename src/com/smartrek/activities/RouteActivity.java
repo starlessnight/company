@@ -573,6 +573,7 @@ public final class RouteActivity extends FragmentActivity {
                             }
                         };
                         Misc.parallelExecute(task);
+                        SessionM.logAction("on_my_way");
                     }
                     @Override
                     public void onClickNegativeButton() {}
@@ -669,17 +670,31 @@ public final class RouteActivity extends FragmentActivity {
         }
     }
     
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SessionM.onActivityResume(this);
+    }
+    
 	@Override
 	public void onStart() {
 		super.onStart();
+		SessionM.onActivityStart(this);
 		EasyTracker.getInstance().activityStart(this);
 	}
 	
 	@Override
 	public void onStop() {
 		super.onStop();
+		SessionM.onActivityStop(this);
 		EasyTracker.getInstance().activityStop(this);
 	}
+	
+	@Override
+    protected void onPause() {
+      SessionM.onActivityPause(this);
+      super.onPause();
+    } 
     
     @Override
     public void onBackPressed() {

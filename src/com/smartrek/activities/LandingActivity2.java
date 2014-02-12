@@ -78,6 +78,7 @@ import com.smartrek.utils.Geocoding.Address;
 import com.smartrek.utils.HTTP;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.RouteRect;
+import com.smartrek.utils.SessionM;
 import com.smartrek.utils.SmartrekTileProvider;
 
 public final class LandingActivity2 extends FragmentActivity {
@@ -399,11 +400,25 @@ public final class LandingActivity2 extends FragmentActivity {
     protected void onResume() {
         super.onResume();
         registerReceiver(tripInfoUpdater, new IntentFilter(TRIP_INFO_UPDATES));
+        SessionM.onActivityResume(this);
+    }
+    
+    @Override
+    protected void onStart() {
+        super.onStart();
+        SessionM.onActivityStart(this);
+    }
+    
+    @Override
+    protected void onStop() {
+        super.onStop();
+        SessionM.onActivityStop(this);
     }
     
     @Override
     protected void onPause() {
       unregisterReceiver(tripInfoUpdater);
+      SessionM.onActivityPause(this);
       super.onPause();
     } 
     
