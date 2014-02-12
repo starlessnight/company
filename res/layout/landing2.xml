@@ -12,13 +12,31 @@
 	    android:background="@null"
 	    android:orientation="vertical" >
 	
-	    <ImageView
-	        android:id="@+id/skyline_bg"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:adjustViewBounds="true"
-	        android:scaleType="fitXY"
-	        android:src="@drawable/skyline" />
+        <FrameLayout 
+            	android:id="@+id/header_panel"
+            	android:layout_width="match_parent"
+	    		android:layout_height="wrap_content">
+            <ImageView
+		        android:id="@+id/skyline_bg"
+		        android:layout_width="match_parent"
+		        android:layout_height="93dp"
+		        android:adjustViewBounds="true"
+		        android:scaleType="fitXY"
+		        android:src="@drawable/skyline" 
+	        />
+            <TextView
+	            android:id="@+id/header_text"
+	            android:layout_width="wrap_content"
+	        	android:layout_height="wrap_content"
+	            android:textSize="@dimen/smallest_font"
+	           	android:textColor="@android:color/white"
+	           	android:singleLine="true"
+	           	android:layout_marginRight="10dp"
+	           	android:layout_marginBottom="5dp"
+	           	android:visibility="visible"
+	           	android:layout_gravity="bottom|right"
+			/>
+        </FrameLayout>
 	    
 	    <View
 	        android:layout_width="match_parent"
@@ -307,6 +325,31 @@
 		        	android:layout_marginTop="15dp"
 				/>
 		    </LinearLayout>
+		    <ImageView
+		        android:id="@+id/city_logo"
+		        android:layout_width="34dp"
+		        android:layout_height="34dp"
+		        android:layout_marginRight="10dp"
+		        android:layout_marginBottom="3dp"
+		        android:layout_alignParentRight="true"
+	           	android:layout_alignParentBottom="true"
+	           	android:adjustViewBounds="true"
+	           	android:visibility="gone"
+	        />
+		    <TextView
+	            android:id="@+id/menu_bottom_text"
+	            android:layout_width="wrap_content"
+	        	android:layout_height="wrap_content"
+	            android:textSize="@dimen/smallest_font"
+	           	android:textColor="@android:color/white"
+	           	android:singleLine="true"
+	           	android:layout_marginRight="10dp"
+	           	android:layout_marginBottom="10dp"
+	           	android:layout_alignParentBottom="true"
+	           	android:layout_toLeftOf="@id/city_logo"
+	           	android:text="Brought to you by"
+	           	android:visibility="gone"
+			/>
 	    </RelativeLayout>
 	    <ImageView 
 	        android:id="@+id/drawer_menu_icon_opened"

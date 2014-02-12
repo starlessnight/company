@@ -1,11 +1,13 @@
 package com.smartrek.activities;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.osmdroid.views.MapController;
@@ -20,6 +22,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
@@ -38,6 +42,7 @@ import android.view.View.OnLongClickListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -49,6 +54,7 @@ import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
 import com.smartrek.requests.AddressLinkRequest;
 import com.smartrek.requests.CityRequest;
+import com.smartrek.requests.CityRequest.City;
 import com.smartrek.requests.FavoriteAddressAddRequest;
 import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.requests.FavoriteAddressUpdateRequest;
@@ -62,12 +68,14 @@ import com.smartrek.ui.overlays.OverlayCallback;
 import com.smartrek.ui.overlays.POIActionOverlay;
 import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.timelayout.TimeColumn;
+import com.smartrek.utils.Cache;
 import com.smartrek.utils.Dimension;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Geocoding;
 import com.smartrek.utils.Geocoding.Address;
+import com.smartrek.utils.HTTP;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.RouteRect;
 import com.smartrek.utils.SmartrekTileProvider;
@@ -115,10 +123,10 @@ public final class LandingActivity2 extends FragmentActivity {
                 getCurrentLocation(new CurrentLocationListener() {
                     @Override
                     public void get(final double lat, final double lon) {
-                        AsyncTask<Void, Void, String> checkCityAvailability = new AsyncTask<Void, Void, String>(){
+                        AsyncTask<Void, Void, City> checkCityAvailability = new AsyncTask<Void, Void, City>(){
                             @Override
-                            protected String doInBackground(Void... params) {
-                                String result;
+                            protected City doInBackground(Void... params) {
+                                City result;
                                 try{
                                     CityRequest req = new CityRequest(lat, lon);
                                     req.invalidateCache(LandingActivity2.this);
@@ -129,11 +137,37 @@ public final class LandingActivity2 extends FragmentActivity {
                                 return result;
                             }
                             @Override
-                            protected void onPostExecute(String result) {
-                                if(StringUtils.isNotBlank(result)){
-                                    CharSequence msg = Html.fromHtml(result);
+                            protected void onPostExecute(City result) {
+                                if(StringUtils.isNotBlank(result.html)){
+                                    CharSequence msg = Html.fromHtml(result.html);
                                     NotificationDialog dialog = new NotificationDialog(LandingActivity2.this, msg);
                                     dialog.show();
+                                }else{
+                                    LoadImageTask skylineTask = new LoadImageTask(LandingActivity2.this, result.skyline) {
+                                        protected void onPostExecute(final Bitmap rs) {
+                                            if(rs != null){
+                                                ImageView skylineView = (ImageView) findViewById(R.id.skyline_bg);
+                                                skylineView.setImageBitmap(rs);
+                                            }
+                                        }
+                                    };
+                                    Misc.parallelExecute(skylineTask);
+                                    LoadImageTask logoTask = new LoadImageTask(LandingActivity2.this, result.logo) {
+                                        protected void onPostExecute(final Bitmap rs) {
+                                            if(rs != null){
+                                                ImageView imgView = (ImageView) findViewById(R.id.city_logo);
+                                                imgView.setVisibility(View.VISIBLE);
+                                                imgView.setImageBitmap(rs);
+                                                View bottomText = findViewById(R.id.menu_bottom_text);
+                                                bottomText.setVisibility(View.VISIBLE);
+                                            }
+                                        }
+                                    };
+                                    Misc.parallelExecute(logoTask);
+                                    TextView headerText = (TextView)findViewById(R.id.header_text);
+                                    headerText.setVisibility(View.VISIBLE);
+                                    headerText.setText(result.name + " | " 
+                                        + Double.valueOf(result.temperature).intValue() + "°" + result.temperatureUnit);
                                 }
                             }
                         };
@@ -337,7 +371,8 @@ public final class LandingActivity2 extends FragmentActivity {
         Font.setTypeface(Font.getBold(assets), tripAddr);
         Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, nextTripInfo,
             rewardsMenu, shareMenu, feedbackMenu, settingsMenu, logoutMenu,
-            tripDetails, getGoingBtn, rescheBtn);
+            tripDetails, getGoingBtn, rescheBtn, (TextView)findViewById(R.id.header_text),
+            (TextView)findViewById(R.id.menu_bottom_text));
     }
     
     private static final String TRIP_INFO_UPDATES = "TRIP_INFO_UPDATES"; 
@@ -820,7 +855,7 @@ public final class LandingActivity2 extends FragmentActivity {
                     Boolean collapsedTag = (Boolean) mapView.getTag();
                     boolean collapsed = collapsedTag == null?true:collapsedTag.booleanValue();
                     mapView.setTag(!collapsed);
-                    findViewById(R.id.skyline_bg).setVisibility(collapsed?View.GONE:View.VISIBLE);
+                    findViewById(R.id.header_panel).setVisibility(collapsed?View.GONE:View.VISIBLE);
                     findViewById(R.id.bottom_bar).setVisibility(collapsed?View.GONE:View.VISIBLE);
                     View menuIcon = findViewById(R.id.drawer_menu_icon_opened);
                     LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) menuIcon.getLayoutParams();
@@ -1051,5 +1086,47 @@ public final class LandingActivity2 extends FragmentActivity {
             }
         }
     }
+    
+    static class LoadImageTask extends AsyncTask<Void, Void, Bitmap> {
+        
+        Context ctx;
+        
+        String url;
+        
+        LoadImageTask(Context ctx, String url){
+            this.ctx = ctx;
+            this.url = url;
+        }
+        
+        @Override
+        protected Bitmap doInBackground(Void... params) {
+            Bitmap rs = null;
+            InputStream is = null;
+            Cache cache = Cache.getInstance(ctx);
+            try{
+                InputStream cachedStream = cache.fetchStream(url);
+                if(cachedStream == null){
+                    HTTP http = new HTTP(url);
+                    http.connect();
+                    InputStream tmpStream = http.getInputStream();
+                    try{
+                        cache.put(url, tmpStream);
+                        is = cache.fetchStream(url);
+                    }finally{
+                        IOUtils.closeQuietly(tmpStream);
+                    }
+                }else{
+                    is = cachedStream;
+                }
+                rs = BitmapFactory.decodeStream(is);
+            }catch(Exception e){
+            }finally{
+                IOUtils.closeQuietly(is);
+            }
+            return rs;
+        }
+        
+    }
+
     
 }

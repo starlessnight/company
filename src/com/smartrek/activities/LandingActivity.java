@@ -68,6 +68,7 @@ import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
 import com.smartrek.requests.CityRequest;
+import com.smartrek.requests.CityRequest.City;
 import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.ReservationListFetchRequest;
@@ -468,10 +469,10 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                 getCurrentLocation(new CurrentLocationListener() {
                     @Override
                     public void get(final double lat, final double lon) {
-                        AsyncTask<Void, Void, String> checkCityAvailability = new AsyncTask<Void, Void, String>(){
+                        AsyncTask<Void, Void, City> checkCityAvailability = new AsyncTask<Void, Void, City>(){
                             @Override
-                            protected String doInBackground(Void... params) {
-                                String result;
+                            protected City doInBackground(Void... params) {
+                                City result;
                                 try{
                                     CityRequest req = new CityRequest(lat, lon);
                                     req.invalidateCache(LandingActivity.this);
@@ -482,9 +483,9 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                                 return result;
                             }
                             @Override
-                            protected void onPostExecute(String result) {
-                                if(StringUtils.isNotBlank(result)){
-                                    CharSequence msg = Html.fromHtml(result);
+                            protected void onPostExecute(City result) {
+                                if(StringUtils.isNotBlank(result.html)){
+                                    CharSequence msg = Html.fromHtml(result.html);
                                     NotificationDialog dialog = new NotificationDialog(LandingActivity.this, msg);
                                     dialog.show();
                                 }
