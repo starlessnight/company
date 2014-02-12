@@ -4,19 +4,23 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.smartrek.activities.R;
 import com.smartrek.requests.Request;
 import com.smartrek.ui.timelayout.TimeButton.DisplayMode;
 import com.smartrek.ui.timelayout.TimeButton.State;
 import com.smartrek.utils.Dimension;
+import com.smartrek.utils.Font;
 
 /**
  * 
@@ -32,6 +36,13 @@ public final class TimeColumn extends FrameLayout {
 	private ProgressBar progressBar;
 	private View bottomSpacing;
 	private View bottomStripe;
+	private View buttonSpacing;
+	private View  topSpacing;
+	
+	private TextView mpointView;
+	
+	private int mpoint;
+	private String color;
 	
 	private long departureTime;
 	private long arrivalTime;
@@ -61,27 +72,55 @@ public final class TimeColumn extends FrameLayout {
 		LinearLayout timeColumnLayout = new LinearLayout(getContext());
 		timeColumnLayout.setOrientation(LinearLayout.VERTICAL);
 
-		departureTimeButton = new TimeButton(getContext(), 0, false, departureTimeFont);
+		DisplayMetrics dm = getResources().getDisplayMetrics();
+		topSpacing = new View(getContext());
+        LinearLayout.LayoutParams topSpacingLp = new LinearLayout.LayoutParams(
+            Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(15, dm)); 
+        topSpacing.setLayoutParams(topSpacingLp);
+        topSpacing.setBackgroundResource(R.drawable.timetable_scale);
+        timeColumnLayout.addView(topSpacing);
+		
+		departureTimeButton = new TimeButton(getContext(), 0, true, departureTimeFont);
+		departureTimeButton.setGravity(Gravity.TOP|Gravity.CENTER);
+		departureTimeButton.setPadding(0, 0, 0, 0);
+		departureTimeButton.setHeight(Dimension.dpToPx(15, dm));
 		timeColumnLayout.addView(departureTimeButton);
+		
+		buttonSpacing = new View(getContext());
+        LinearLayout.LayoutParams buttonSpacingLp = new LinearLayout.LayoutParams(
+            Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(5, dm)); 
+        buttonSpacing.setLayoutParams(buttonSpacingLp);
+        timeColumnLayout.addView(buttonSpacing);
 		
 		arrivalTimeButton = new TimeButton(getContext(), 1, true, arrivalTimeFont);
 		timeColumnLayout.addView(arrivalTimeButton);
 		
 		bottomSpacing = new View(getContext());
-		DisplayMetrics dm = getResources().getDisplayMetrics();
 		LinearLayout.LayoutParams bottomSpacingLp = new LinearLayout.LayoutParams(
 	        Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(spacingHeight, dm)); 
 		bottomSpacing.setLayoutParams(bottomSpacingLp);
 	    timeColumnLayout.addView(bottomSpacing);
-	    
-	    bottomStripe = new View(getContext());
-        LinearLayout.LayoutParams bottomStipeLp = new LinearLayout.LayoutParams(
-            Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(stripeHieght, dm)); 
-        bottomStripe.setLayoutParams(bottomStipeLp);
-        bottomStripe.setBackgroundResource(R.color.light_green);
-        bottomStripe.setVisibility(View.INVISIBLE);
-        timeColumnLayout.addView(bottomStripe);
+        
+        mpointView = new TextView(getContext());
+        mpointView.setTextColor(Color.parseColor("#606163"));
+        mpointView.setTextSize(TypedValue.COMPLEX_UNIT_PX, Dimension.dpToPx(TimeButton.largeFont, dm));
+        mpointView.setIncludeFontPadding(false);
+        mpointView.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.BOTTOM);
+        LinearLayout.LayoutParams mpointViewLp = new LinearLayout.LayoutParams(
+            Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(25, dm)); 
+        mpointView.setLayoutParams(mpointViewLp);
+        Font.setTypeface(arrivalTimeFont, mpointView);
+        timeColumnLayout.addView(mpointView);
 		
+        bottomStripe = new View(getContext());
+        LinearLayout.LayoutParams bottomStipeLp = new LinearLayout.LayoutParams(
+            Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(stripeHieght, dm));
+        int stripeMargin = Dimension.dpToPx(2, getResources().getDisplayMetrics());
+        bottomStipeLp.leftMargin = stripeMargin;
+        bottomStipeLp.rightMargin = stripeMargin;
+        bottomStripe.setLayoutParams(bottomStipeLp);
+        timeColumnLayout.addView(bottomStripe);
+        
 		addView(timeColumnLayout);
 		
 		progressBar = new ProgressBar(getContext());
@@ -94,6 +133,8 @@ public final class TimeColumn extends FrameLayout {
 		params.width = 48;
 		params.height = 48;
 		params.gravity = Gravity.CENTER;
+		
+		setBackgroundColor(TimeButton.IN_PREGRESS_BACKGROUND_COLOR);
 	}
 
 	public State getState() {
@@ -116,7 +157,21 @@ public final class TimeColumn extends FrameLayout {
 			bgColor = TimeButton.IN_PREGRESS_BACKGROUND_COLOR;
 		}
 		setBackgroundColor(bgColor);
-		bottomStripe.setVisibility(State.Selected.equals(state)?View.VISIBLE:View.INVISIBLE);
+		LinearLayout.LayoutParams stripeLp = (LinearLayout.LayoutParams) bottomStripe.getLayoutParams();
+		boolean selected = State.Selected.equals(state);
+		DisplayMetrics dm = getResources().getDisplayMetrics();
+        int stripeMargin = Dimension.dpToPx(2, dm);
+		stripeLp.leftMargin = selected?0:stripeMargin;
+		stripeLp.rightMargin = selected?0:stripeMargin;
+		int width = Dimension.dpToPx(TimeButton.WIDTH, dm) - (selected?0:stripeMargin*2);
+		stripeLp.width = width;
+		bottomStripe.setLayoutParams(stripeLp);
+		mpointView.setBackgroundColor(selected?Color.parseColor(color):bgColor);
+		bottomSpacing.setBackgroundColor(selected?Color.parseColor(color):bgColor);
+        arrivalTimeButton.setBackgroundColor(selected?Color.parseColor(color):bgColor);
+        int textColor = Color.parseColor("#606163");
+        mpointView.setTextColor(selected?Color.WHITE:textColor);
+        arrivalTimeButton.setTextColor(selected?Color.WHITE:textColor);
 	}
 
 	public void setDisplayMode(DisplayMode displayMode) {
@@ -180,4 +235,26 @@ public final class TimeColumn extends FrameLayout {
 	public int getDuration() {
 		return (int) ((arrivalTime - departureTime) / 1000);
 	}
+
+    public int getMpoint() {
+        return mpoint;
+    }
+
+    public void setMpoint(int mpoint) {
+        this.mpoint = mpoint;
+        
+        mpointView.setText(String.valueOf(mpoint));
+        postInvalidate();
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+        
+        bottomStripe.setBackgroundColor(Color.parseColor(color));
+        postInvalidate();
+    }
 }

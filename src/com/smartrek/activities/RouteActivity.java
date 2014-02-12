@@ -642,7 +642,8 @@ public final class RouteActivity extends FragmentActivity {
         
         Font.setTypeface(boldFont, header);
         Font.setTypeface(lightFont, destView, onMyWayView, letsGoView, reserveView,
-            backButton, (TextView)findViewById(R.id.departure_row), durationRow);
+            backButton, (TextView)findViewById(R.id.departure_row), durationRow,
+            (TextView)findViewById(R.id.mpoint_row));
     }
     
     private void updateTimetableScreenWidth(){

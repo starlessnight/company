@@ -20,12 +20,12 @@
 	        	android:layout_height="wrap_content"
 	        	android:orientation="horizontal">
 	        <LinearLayout 
-		            android:layout_height="match_parent"
+		            android:layout_height="wrap_content"
 		            android:layout_width="60dp"
 		            android:orientation="vertical">
 	            <TextView
 		            android:id="@+id/departure_row"
-		            android:layout_height="25dp"
+		            android:layout_height="35dp"
 		            android:layout_width="match_parent"
 		            android:background="#808184"
 		            android:textColor="@android:color/white"
@@ -36,22 +36,31 @@
 				/>
 	            <TextView
 		            android:id="@+id/duration_row"
-		            android:layout_height="match_parent"
+		            android:layout_height="31dp"
 		            android:layout_width="match_parent"
 		            android:background="#6d6e70"
 		            android:textColor="@android:color/white"
 		            android:text="Duration"
-		            android:gravity="top|center_horizontal"
+		            android:gravity="center"
 		            android:textSize="@dimen/micro_font"
-		            android:paddingBottom="5dp" 
+				/>
+	            <TextView
+		            android:id="@+id/mpoint_row"
+		            android:layout_height="25dp"
+		            android:layout_width="match_parent"
+		            android:background="#6d6e70"
+		            android:textColor="@android:color/white"
+		            android:text="mPoints"
+		            android:gravity="center"
+		            android:textSize="@dimen/micro_font"
 				/>
 	        </LinearLayout>
 	        <com.smartrek.ui.timelayout.ScrollableTimeLayout
 			        android:id="@+id/scrollTime"
 			        android:layout_width="fill_parent"
 			        android:layout_height="wrap_content"
-			        android:background="@color/dark_gray"
-			        android:scrollbars="horizontal" >
+			        android:background="#f1f1f2"
+			        android:scrollbars="none" >
 			        
 			        <com.smartrek.ui.timelayout.TimeLayout
 			            android:id="@+id/timelayout"

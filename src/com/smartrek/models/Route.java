@@ -43,6 +43,8 @@ public final class Route implements Parcelable {
 	private NavigationLink link;
 	private String rawJSON;
 	private int timezoneOffset;
+	private String color;
+	private int mpoint;
 	
 	
 	public static final Parcelable.Creator<Route> CREATOR = new Parcelable.Creator<Route>() {
@@ -143,6 +145,16 @@ public final class Route implements Parcelable {
             route.timezoneOffset = routeObject.getInt(timezoneOffsetAttr);
         }
         
+        String colorAttr = "color";
+        if (routeObject.has(colorAttr)) {
+            route.color = routeObject.getString(colorAttr);
+        }
+        
+        String mpointAttr = "mpoint";
+        if (routeObject.has(mpointAttr)) {
+            route.mpoint = routeObject.getInt(mpointAttr);
+        }
+        
         return route;
 	}
 	
@@ -220,6 +232,8 @@ public final class Route implements Parcelable {
 		}
 		rawJSON = in.readString();
 		timezoneOffset = in.readInt();
+		color = in.readString();
+		mpoint = in.readInt();
 		
 		buildRouteNodeReferenceChain(routeNodes);
 	}
@@ -242,6 +256,8 @@ public final class Route implements Parcelable {
 		this.departureTime = bundle.getLong("departureTime");
 		this.rawJSON = bundle.getString("rawJSON");
 		this.timezoneOffset = bundle.getInt("timezoneOffset");
+		this.color = bundle.getString("color");
+		this.mpoint = bundle.getInt("mpoint");
 	}
 	
 	public void setAddresses(String origin, String destination) {
@@ -506,6 +522,8 @@ public final class Route implements Parcelable {
 		
 		bundle.putString("rawJSON", rawJSON);
 		bundle.putInt("timezoneOffset", timezoneOffset);
+		bundle.putString("color", color);
+		bundle.putInt("mpoint", mpoint);
 		
 		putRouteNodeListOnToBundle(bundle);
 		
@@ -598,6 +616,8 @@ public final class Route implements Parcelable {
 		dest.writeString(link == null?null:link.url);
 		dest.writeString(rawJSON);
 		dest.writeInt(timezoneOffset);
+		dest.writeString(color);
+		dest.writeInt(mpoint);
 	}
 
 //	/**
@@ -691,5 +711,21 @@ public final class Route implements Parcelable {
 
     public void setTimezoneOffset(int timezoneOffset) {
         this.timezoneOffset = timezoneOffset;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public int getMpoint() {
+        return mpoint;
+    }
+
+    public void setMpoint(int mpoint) {
+        this.mpoint = mpoint;
     }
 }

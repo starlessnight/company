@@ -18,7 +18,7 @@ import com.smartrek.utils.Font;
 
 public final class TimeButton extends TextView {
 	
-	public static final int WIDTH = 115;
+	public static final int WIDTH = 77;
 	public static final int HEIGHT = 20;
 	public static final int SMALL_HEIGHT = 18;
 	public static final int IN_PREGRESS_BACKGROUND_COLOR = Color.parseColor("#f1f1f2");
@@ -26,7 +26,7 @@ public final class TimeButton extends TextView {
 	private static final int largeTopOffset = 8;
 	private static final int smallTopOffset = 8;
 	
-	private static final int largeFont = 15;
+	public static final int largeFont = 15;
     private static final int smallFont = 13;
 	
 	public enum State {

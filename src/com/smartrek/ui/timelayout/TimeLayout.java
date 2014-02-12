@@ -11,9 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import com.smartrek.activities.R;
 import com.smartrek.models.Route;
 import com.smartrek.ui.timelayout.TimeButton.DisplayMode;
 import com.smartrek.ui.timelayout.TimeButton.State;
@@ -90,7 +88,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
         columnCount = adjustableTime.getNumTimeBoxes();
         
         for (int i = 0; i < columnCount; i++) {
-             TimeColumn timeColumn = new TimeColumn(this, i, lightFont, boldFont, timzoneOffset);
+             TimeColumn timeColumn = new TimeColumn(this, i, lightFont, lightFont, timzoneOffset);
              timeColumn.setDepartureTime(adjustableTime.initTime().toMillis(false));
              timeColumn.setOnClickListener(this);
              adjustableTime.incrementBy(15);
@@ -170,6 +168,8 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     	
     	TimeColumn timeButton = (TimeColumn) getChildAt(column);
     	timeButton.setArrivalTime(model.getArrivalTime());
+    	timeButton.setMpoint(model.getMpoint());
+    	timeButton.setColor(model.getColor());
     }
     
     public long getDepartureTime(int column) {
