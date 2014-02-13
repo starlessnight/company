@@ -5,23 +5,26 @@ import org.apache.commons.lang3.StringUtils;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.google.analytics.tracking.android.EasyTracker;
-import com.smartrek.dialogs.FeedbackDialog;
 import com.smartrek.dialogs.FloatingMenuDialog;
 import com.smartrek.dialogs.ProfileSelectionDialog;
+import com.smartrek.models.User;
 import com.smartrek.utils.Font;
+import com.smartrek.utils.Preferences;
 import com.smartrek.utils.SessionM;
 
-public final class MapDisplayActivity extends ActionBarActivity {
+public final class MapDisplayActivity extends FragmentActivity {
 
 	/**
 	 * Name of the shared preference file
@@ -50,94 +53,50 @@ public final class MapDisplayActivity extends ActionBarActivity {
 	private static final String WORK_ADDRESS = "WORK_ADDRESS";
 
 	private static final String PROFILE_SELECTION = "PROFILE_SELECTION";
-	
+
 	private static final String PREDICT_DESTINATION = "PREDICT_DESTINATION";
 
-	private RadioButton displayTravel;
-	private RadioButton displayArrival;
-	private RadioButton timeIncrement5;
-	private RadioButton timeIncrement15;
-	private RadioButton timeIncrement60;
+	private ToggleButton calendarIntegration;
 
-	private CheckBox calendarIntegration;
+	private ToggleButton predictDest;
 
-	private CheckBox navigationTts;
+	private Typeface boldFont;
 
-	private CheckBox lbs;
-	
-	private CheckBox predictDest;
+	private Typeface lightFont;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.mapdisplayoptions);
 
-		displayTravel = (RadioButton) findViewById(R.id.mdoradio1);
-		displayArrival = (RadioButton) findViewById(R.id.mdoradio2);
+		AssetManager assets = getAssets();
+		boldFont = Font.getBold(assets);
+		lightFont = Font.getLight(assets);
 
-		timeIncrement5 = (RadioButton) findViewById(R.id.time_increment_5min);
-		timeIncrement15 = (RadioButton) findViewById(R.id.time_increment_15min);
-		timeIncrement60 = (RadioButton) findViewById(R.id.time_increment_60min);
+		TextView backButton = (TextView) findViewById(R.id.back_button);
+		backButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				finish();
+			}
+		});
 
 		final SharedPreferences prefs = getSharedPreferences(MAP_DISPLAY_PREFS,
 				MODE_PRIVATE);
-		int timeDisplayMode = prefs.getInt(TIME_DISPLAY_MODE,
-				TIME_DISPLAY_DEFAULT);
+		SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
 
-		displayTravel.setChecked((timeDisplayMode & TIME_DISPLAY_TRAVEL) != 0);
-		displayArrival.setChecked(!displayTravel.isChecked());
+		String username = loginPrefs.getString(User.USERNAME, "");
+		TextView userNameView = (TextView) findViewById(R.id.user_name);
+		userNameView.setText(username);
 
-		displayTravel.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				SharedPreferences.Editor editor = prefs.edit();
-				editor.putInt(TIME_DISPLAY_MODE, TIME_DISPLAY_TRAVEL);
-				editor.commit();
-			}
-		});
-
-		displayArrival.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				SharedPreferences.Editor editor = prefs.edit();
-				editor.putInt(TIME_DISPLAY_MODE, TIME_DISPLAY_ARRIVAL);
-				editor.commit();
-			}
-		});
-
-		int timeIncrement = prefs
-				.getInt(TIME_INCREMENT, TIME_INCREMENT_DEFAULT);
-		switch (timeIncrement) {
-		case 5:
-			timeIncrement5.setChecked(true);
-			break;
-
-		case 60:
-			timeIncrement60.setChecked(true);
-			break;
-
-		default:
-			timeIncrement15.setChecked(true);
-		}
-
-		OnClickListener timeIncrementListener = new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				SharedPreferences.Editor editor = prefs.edit();
-				int tag = Integer.valueOf((String) v.getTag());
-				editor.putInt(TIME_INCREMENT, tag);
-				editor.commit();
-			}
-		};
-		timeIncrement5.setOnClickListener(timeIncrementListener);
-		timeIncrement15.setOnClickListener(timeIncrementListener);
-		timeIncrement60.setOnClickListener(timeIncrementListener);
+		String email = loginPrefs.getString(User.EMAIL, "");
+		TextView emailView = (TextView) findViewById(R.id.user_email);
+		emailView.setText(email);
 
 		boolean calIntEnabled = isCalendarIntegrationEnabled(this);
-		calendarIntegration = (CheckBox) findViewById(R.id.calendar_integration);
+		calendarIntegration = (ToggleButton) findViewById(R.id.calendar_integration);
 		calendarIntegration.setChecked(calIntEnabled);
-		calendarIntegration
-				.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+		calendarIntegration.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 					@Override
 					public void onCheckedChanged(CompoundButton buttonView,
 							boolean isChecked) {
@@ -147,35 +106,14 @@ public final class MapDisplayActivity extends ActionBarActivity {
 					}
 				});
 
-		boolean navTtsEnabled = isNavigationTtsEnabled(this);
-		navigationTts = (CheckBox) findViewById(R.id.navigation_tts);
-		navigationTts.setChecked(navTtsEnabled);
-		navigationTts.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView,
-					boolean isChecked) {
-				prefs.edit().putBoolean(NAVIGATION_TTS, isChecked).commit();
-			}
-		});
-		
-		boolean lbsEnabled = isLocBasedServiceEnabled(this);
-		lbs = (CheckBox) findViewById(R.id.lbs);
-		lbs.setChecked(lbsEnabled);
-		lbs.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView,
-					boolean isChecked) {
-				prefs.edit().putBoolean(LOCATION_BASED_SERVICE, isChecked)
-						.commit();
-			}
-		});
-		
 		boolean predictDestEnabled = isPredictDestEnabled(this);
-		predictDest = (CheckBox) findViewById(R.id.predict_destination);
+		predictDest = (ToggleButton) findViewById(R.id.predict_destination);
 		predictDest.setChecked(predictDestEnabled);
 		predictDest.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				prefs.edit().putBoolean(PREDICT_DESTINATION, isChecked).commit();
+			public void onCheckedChanged(CompoundButton buttonView,
+					boolean isChecked) {
+				prefs.edit().putBoolean(PREDICT_DESTINATION, isChecked)
+						.commit();
 			}
 		});
 
@@ -189,63 +127,40 @@ public final class MapDisplayActivity extends ActionBarActivity {
 					}
 				});
 
-		/*
-		TextView feedback = (TextView) findViewById(R.id.feedback);
-		feedback.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				FeedbackDialog d = new FeedbackDialog(MapDisplayActivity.this);
-				d.show();
-			}
-		});
-		*/
-		
-		TextView tutorial = (TextView) findViewById(R.id.tutorial);
+		View tutorial = findViewById(R.id.tutorial);
 		tutorial.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent tutorialActivity = new Intent(MapDisplayActivity.this, TutorialActivity.class);
+				Intent tutorialActivity = new Intent(MapDisplayActivity.this,
+						TutorialActivity.class);
 				tutorialActivity.putExtra(TutorialActivity.FROM, "setting");
 				startActivity(tutorialActivity);
 			}
 		});
-		
-		TextView termsAndConditions = (TextView) findViewById(R.id.terms_and_conditions);
+
+		View termsAndConditions = findViewById(R.id.terms_and_conditions);
 		termsAndConditions.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				
+
 			}
 		});
-		
-		TextView helpOurResearch = (TextView) findViewById(R.id.help_our_research);
+
+		View helpOurResearch = findViewById(R.id.help_our_research);
 		helpOurResearch.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				
+
 			}
 		});
 
-		TextView mPointsHeading = (TextView) findViewById(R.id.mpoints_heading);
-
-		if (!SessionM.ENABLED) {
-			findViewById(R.id.separator6).setVisibility(View.GONE);
-			mPointsHeading.setVisibility(View.GONE);
-			findViewById(R.id.portalButton).setVisibility(View.GONE);
-		}
-
-		Font.setTypeface(boldFont, (TextView) findViewById(R.id.time_heading),
-				(TextView) findViewById(R.id.calendar_integration_heading),
-				(TextView) findViewById(R.id.navigation_tts_heading),
-				(TextView) findViewById(R.id.lbs_heading),
-				(TextView) findViewById(R.id.distribution_heading),
-				(TextView) findViewById(R.id.predict_destination_heading), 
-				mPointsHeading, tutorial, termsAndConditions, helpOurResearch);
-		Font.setTypeface(lightFont, displayTravel, displayArrival,
-				(TextView) findViewById(R.id.calendar_integration_text),
-				(TextView) findViewById(R.id.navigation_tts_text),
-				(TextView) findViewById(R.id.lbs_text),
+		Font.setTypeface(boldFont, (TextView) findViewById(R.id.header));
+		Font.setTypeface(lightFont, userNameView, emailView,
+				(TextView) findViewById(R.id.version_number),
 				(TextView) findViewById(R.id.predict_destination_text),
-				(TextView) findViewById(R.id.distribution_date));
+				(TextView) findViewById(R.id.calendar_integration_text),
+				(TextView) findViewById(R.id.tutorial),
+				(TextView) findViewById(R.id.terms_and_conditions),
+				(TextView) findViewById(R.id.help_our_research));
 	}
 
 	public static boolean isCalendarIntegrationEnabled(Context ctx) {
@@ -257,14 +172,15 @@ public final class MapDisplayActivity extends ActionBarActivity {
 		return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
 				.getBoolean(NAVIGATION_TTS, true);
 	}
-	
+
 	public static void setNavigationTts(Context ctx, boolean isEnabled) {
 		ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE).edit()
 				.putBoolean(NAVIGATION_TTS, isEnabled).commit();
 	}
-	
+
 	public static boolean isPredictDestEnabled(Context ctx) {
-		return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE).getBoolean(PREDICT_DESTINATION, true);
+		return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
+				.getBoolean(PREDICT_DESTINATION, true);
 	}
 
 	public static boolean isLocBasedServiceEnabled(Context ctx) {
