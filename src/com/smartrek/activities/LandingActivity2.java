@@ -312,7 +312,7 @@ public final class LandingActivity2 extends FragmentActivity {
             @Override
             public void onClick(View v) {
                 Reservation reserv = (Reservation) findViewById(R.id.trip_panel).getTag();
-                Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
+                Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
                 intent.putExtra("route", reserv.getRoute());
                 intent.putExtra("reservation", reserv);
                 startActivity(intent);

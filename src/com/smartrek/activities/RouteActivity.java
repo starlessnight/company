@@ -103,6 +103,8 @@ public final class RouteActivity extends FragmentActivity {
     
     public static final String CURRENT_LOCATION = "CURRENT_LOCATION";
     
+    public static final String RESERVATION = "reservation";
+    
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
     private Typeface boldFont;
@@ -116,6 +118,8 @@ public final class RouteActivity extends FragmentActivity {
     private String destAddr;
     private GeoPoint originCoord;
     private GeoPoint destCoord;
+    
+    private Reservation reservation;
     
     // TODO: 'dialog' isn't really meaningful. Rename this variable.
     private ProgressDialog dialog;
@@ -297,161 +301,212 @@ public final class RouteActivity extends FragmentActivity {
         timeLayout = (TimeLayout) findViewById(R.id.timelayout);
         scrollableTimeLayout = (ScrollableTimeLayout) findViewById(R.id.scrollTime);
         
-        // What happens when user selects a specific time
-        timeLayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
-            @Override
-            public void onSelect(int column, TimeColumn timeButton) {
-                Log.d(LOG_TAG, "Column state: " + timeLayout.getColumnState(column));
+        TextView header = (TextView) findViewById(R.id.header);
+        reservation = extras.getParcelable(RESERVATION);
+        final boolean hasReserv = reservation != null; 
+        if(hasReserv){
+            header.setText("Let's Go");
+            destAddr = reservation.getDestinationAddress();
+            findViewById(R.id.time_layout).setVisibility(View.GONE);
+            AsyncTask<Void, Void, List<Route>> task = new AsyncTask<Void, Void, List<Route>>() {
                 
-                // FIXME: Refactor this. (Close all route info overlays)
-                /*for (int i = 0; i < routeInfoOverlays.length; i++) {
-                	RouteInfoOverlay routeInfoOverlay = routeInfoOverlays[i];
-                	
-                	if (routeInfoOverlay != null) {
-                		routeInfoOverlay.hide();
-                	}
-                }*/
+                CancelableProgressDialog progressDialog;
                 
-                if (!timeLayout.getColumnState(column).equals(State.InProgress)) {
-                    
-//                  if (timeLayout.getColumnState(column).equals(State.Unknown)) {
-                        timeLayout.setColumnState(column, State.InProgress);
-                        long departureTime = timeButton.getDepartureTime();
-                        
-                        try {
-                            updateRoute(originCoord, destCoord, departureTime, column);
-                        }
-                        catch (InterruptedException e) {
-                        }
-                        
-//                        RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime, column, true);
-//                        routeTasks.add(routeTask);
-//                        routeTask.execute();
-//                  }
-//                  else {
-//                      timeLayout.setColumnState(column, State.Selected);
-//                  }
+                @Override
+                protected void onPreExecute() {
+                    progressDialog = new CancelableProgressDialog(RouteActivity.this, "Loading...");
+                    progressDialog.show();
                 }
-            }
-        });
-        
-        // What happens when user scrolls time layout
-        timeLayout.setTimeLayoutListener(new TimeLayoutListener() {
-            
-            private Map<Integer, RouteTask> loadingTasks = new HashMap<Integer, RouteTask>();
-            
-            @Override
-            public void updateTimeLayout(TimeLayout timeLayout, int column, boolean visible) {
-                State columnState = timeLayout.getColumnState(column);
-                RouteTask task;
-                if(visible){
-                    if (originCoord != null && !originCoord.isEmpty() 
-                            && destCoord != null && !destCoord.isEmpty() 
-                            && (State.Unknown.equals(columnState))) {
-                        timeLayout.setColumnState(column, State.InProgress);
-                        long departureTime = timeLayout.getDepartureTime(column);
-                        
-                        RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime, column, false);
-                        routeTasks.add(routeTask);
-                        loadingTasks.put(column, routeTask);
-                        routeTask.execute();
+                
+                @Override
+                protected List<Route> doInBackground(Void... params) {
+                    List<Route> routes = null;
+                    try {
+                        RouteFetchRequest request = new RouteFetchRequest(
+                            reservation.getNavLink(), reservation.getDepartureTime(), 
+                            reservation.getDuration());
+                        routes = request.execute(RouteActivity.this);
                     }
-                }else{
-                    if(State.InProgress.equals(columnState) && (task = loadingTasks.remove(column)) != null){
-                        task.cancel(true);
-                        timeLayout.setColumnState(column, State.Unknown);
-                    }
+                    catch(Exception e) {
+                        ehs.registerException(e);
+                    }                                
+                    return routes;
                 }
-            }
-        });
-
-        ScrollableTimeLayout scrollableTimeLayout = (ScrollableTimeLayout) findViewById(R.id.scrollTime);
-        scrollableTimeLayout.setTimeLayout(timeLayout);
-        
-        updateTimetableScreenWidth();
-
-        // FIXME: Should store values in a different preference file
-        int timeDisplayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
-        
-        // FIXME: Sloppy
-        timeLayout.setDisplayMode((timeDisplayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? DisplayMode.Duration : DisplayMode.Time);
-        
-        // FIXME: Temporary solution
-        selectedTime = new Time();
-        selectedTime.setToNow();
-        
-        org.osmdroid.util.GeoPoint pOriginCoord = extras.getParcelable(ORIGIN_COORD);
-        if(pOriginCoord != null){
-            originCoord = new GeoPoint(pOriginCoord);
-        }
-        org.osmdroid.util.GeoPoint pDestCoord = extras.getParcelable(DEST_COORD);
-        if(pOriginCoord != null){
-            destCoord = new GeoPoint(pDestCoord);
-        }
-        
-        final boolean _currentLocation = currentLocation;
-        LandingActivity.initializeIfNeccessary(this, new Runnable() {
-            @Override
-            public void run() {
-                if(_currentLocation){
-                    final String curLoc = DebugOptionsActivity.getCurrentLocation(RouteActivity.this);
-                    if(StringUtils.isNotBlank(curLoc)){
-                        AsyncTask<Void, Void, GeoPoint> task = new AsyncTask<Void, Void, GeoPoint>(){
+                protected void onPostExecute(java.util.List<Route> routes) {
+                    progressDialog.cancel();
+                    if (ehs.hasExceptions()) {
+                        ehs.reportExceptions(new Runnable() {
                             @Override
-                            protected GeoPoint doInBackground(Void... params) {
-                                GeoPoint rs = null;
-                                try{
-                                    rs = Geocoding.lookup(curLoc).get(0).getGeoPoint();
-                                }catch(Throwable t){}
-                                return rs;
-                            }
-                            @Override
-                            protected void onPostExecute(GeoPoint result) {
-                                if(result != null){
-                                    originCoord = result;
-                                    doRouteTask();
-                                }
-                            }
-                        };
-                        Misc.parallelExecute(task);
-                    }else{
-                        final CancelableProgressDialog currentLocDialog = new CancelableProgressDialog(RouteActivity.this, "Getting current location...");
-                        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                        locationListener = new LocationListener() {
-                            @Override
-                            public void onLocationChanged(Location location) {
-                                try{
-                                    locationManager.removeUpdates(this);
-                                    currentLocDialog.dismiss();
-                                    originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
-                                    doRouteTask();
-                                }catch(Throwable t){}
-                            }
-                            @Override
-                            public void onStatusChanged(String provider, int status, Bundle extras) {}
-                            @Override
-                            public void onProviderEnabled(String provider) {}
-                            @Override
-                            public void onProviderDisabled(String provider) {}
-                        };
-                        currentLocDialog.setActionListener(new CancelableProgressDialog.ActionListener() {
-                            @Override
-                            public void onClickNegativeButton() {
-                                locationManager.removeUpdates(locationListener);
-                                goBackToWhereTo.run();
+                            public void run() {
+                                finish();
                             }
                         });
-                        currentLocDialog.show();
-                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, locationListener);
-                        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                            SystemService.alertNoGPS(RouteActivity.this);
+                    }else if(routes != null && routes.size() > 0) {
+                        Route route = routes.get(0);
+                        route.setCredits(reservation.getCredits());
+                        route.preprocessNodes();
+                        updateMap(routes);
+                    }
+                }
+            };
+            Misc.parallelExecute(task);
+        }else{
+            // What happens when user selects a specific time
+            timeLayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
+                @Override
+                public void onSelect(int column, TimeColumn timeButton) {
+                    Log.d(LOG_TAG, "Column state: " + timeLayout.getColumnState(column));
+                    
+                    // FIXME: Refactor this. (Close all route info overlays)
+                    /*for (int i = 0; i < routeInfoOverlays.length; i++) {
+                    	RouteInfoOverlay routeInfoOverlay = routeInfoOverlays[i];
+                    	
+                    	if (routeInfoOverlay != null) {
+                    		routeInfoOverlay.hide();
+                    	}
+                    }*/
+                    
+                    if (!timeLayout.getColumnState(column).equals(State.InProgress)) {
+                        
+    //                  if (timeLayout.getColumnState(column).equals(State.Unknown)) {
+                            timeLayout.setColumnState(column, State.InProgress);
+                            long departureTime = timeButton.getDepartureTime();
+                            
+                            try {
+                                updateRoute(originCoord, destCoord, departureTime, column);
+                            }
+                            catch (InterruptedException e) {
+                            }
+                            
+    //                        RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime, column, true);
+    //                        routeTasks.add(routeTask);
+    //                        routeTask.execute();
+    //                  }
+    //                  else {
+    //                      timeLayout.setColumnState(column, State.Selected);
+    //                  }
+                    }
+                }
+            });
+            
+            // What happens when user scrolls time layout
+            timeLayout.setTimeLayoutListener(new TimeLayoutListener() {
+                
+                private Map<Integer, RouteTask> loadingTasks = new HashMap<Integer, RouteTask>();
+                
+                @Override
+                public void updateTimeLayout(TimeLayout timeLayout, int column, boolean visible) {
+                    State columnState = timeLayout.getColumnState(column);
+                    RouteTask task;
+                    if(visible){
+                        if (originCoord != null && !originCoord.isEmpty() 
+                                && destCoord != null && !destCoord.isEmpty() 
+                                && (State.Unknown.equals(columnState))) {
+                            timeLayout.setColumnState(column, State.InProgress);
+                            long departureTime = timeLayout.getDepartureTime(column);
+                            
+                            RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime, column, false);
+                            routeTasks.add(routeTask);
+                            loadingTasks.put(column, routeTask);
+                            routeTask.execute();
+                        }
+                    }else{
+                        if(State.InProgress.equals(columnState) && (task = loadingTasks.remove(column)) != null){
+                            task.cancel(true);
+                            timeLayout.setColumnState(column, State.Unknown);
                         }
                     }
-                }else{
-                    doRouteTask();
                 }
+            });
+    
+            ScrollableTimeLayout scrollableTimeLayout = (ScrollableTimeLayout) findViewById(R.id.scrollTime);
+            scrollableTimeLayout.setTimeLayout(timeLayout);
+            
+            updateTimetableScreenWidth();
+    
+            // FIXME: Should store values in a different preference file
+            int timeDisplayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
+            
+            // FIXME: Sloppy
+            timeLayout.setDisplayMode((timeDisplayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? DisplayMode.Duration : DisplayMode.Time);
+            
+            // FIXME: Temporary solution
+            selectedTime = new Time();
+            selectedTime.setToNow();
+            
+            org.osmdroid.util.GeoPoint pOriginCoord = extras.getParcelable(ORIGIN_COORD);
+            if(pOriginCoord != null){
+                originCoord = new GeoPoint(pOriginCoord);
             }
-        });
+            org.osmdroid.util.GeoPoint pDestCoord = extras.getParcelable(DEST_COORD);
+            if(pOriginCoord != null){
+                destCoord = new GeoPoint(pDestCoord);
+            }
+            
+            final boolean _currentLocation = currentLocation;
+            LandingActivity.initializeIfNeccessary(this, new Runnable() {
+                @Override
+                public void run() {
+                    if(_currentLocation){
+                        final String curLoc = DebugOptionsActivity.getCurrentLocation(RouteActivity.this);
+                        if(StringUtils.isNotBlank(curLoc)){
+                            AsyncTask<Void, Void, GeoPoint> task = new AsyncTask<Void, Void, GeoPoint>(){
+                                @Override
+                                protected GeoPoint doInBackground(Void... params) {
+                                    GeoPoint rs = null;
+                                    try{
+                                        rs = Geocoding.lookup(curLoc).get(0).getGeoPoint();
+                                    }catch(Throwable t){}
+                                    return rs;
+                                }
+                                @Override
+                                protected void onPostExecute(GeoPoint result) {
+                                    if(result != null){
+                                        originCoord = result;
+                                        doRouteTask();
+                                    }
+                                }
+                            };
+                            Misc.parallelExecute(task);
+                        }else{
+                            final CancelableProgressDialog currentLocDialog = new CancelableProgressDialog(RouteActivity.this, "Getting current location...");
+                            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                            locationListener = new LocationListener() {
+                                @Override
+                                public void onLocationChanged(Location location) {
+                                    try{
+                                        locationManager.removeUpdates(this);
+                                        currentLocDialog.dismiss();
+                                        originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
+                                        doRouteTask();
+                                    }catch(Throwable t){}
+                                }
+                                @Override
+                                public void onStatusChanged(String provider, int status, Bundle extras) {}
+                                @Override
+                                public void onProviderEnabled(String provider) {}
+                                @Override
+                                public void onProviderDisabled(String provider) {}
+                            };
+                            currentLocDialog.setActionListener(new CancelableProgressDialog.ActionListener() {
+                                @Override
+                                public void onClickNegativeButton() {
+                                    locationManager.removeUpdates(locationListener);
+                                    goBackToWhereTo.run();
+                                }
+                            });
+                            currentLocDialog.show();
+                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, locationListener);
+                            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                                SystemService.alertNoGPS(RouteActivity.this);
+                            }
+                        }
+                    }else{
+                        doRouteTask();
+                    }
+                }
+            });
+        }
         
         AssetManager assets = getAssets();
         boldFont = Font.getBold(assets);
@@ -541,38 +596,46 @@ public final class RouteActivity extends FragmentActivity {
                 d.setActionListener(new ContactsDialog.ActionListener() {
                     @Override
                     public void onClickPositiveButton(final List<String> emails) {
-                        final Route route = (Route) reserveView.getTag();
-                        ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs);
-                        task.callback = new ShortcutNavigationTask.Callback() {
-                            @Override
-                            public void run(Reservation reservation) {
-                                if(reservation.isEligibleTrip()){
-                                    Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
-                                    intent.putExtra("route", reservation.getRoute());
-                                    intent.putExtra("reservation", reservation);
-                                    intent.putExtra(ValidationActivity.EMAILS, StringUtils.join(emails, ","));
-                                    startActivity(intent);
-                                    finish();
-                                }else{
-                                    String msg = null;
-                                    if (reservation.hasExpired()) {
-                                        msg = getString(R.string.trip_has_expired);
-                                    }
-                                    else if (reservation.isTooEarlyToStart()) {
-                                        long minutes = (reservation.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
-                                        msg = getString(R.string.trip_too_early_to_start, minutes);
-                                        if(minutes != 1){
-                                            msg += "s";
+                        if(hasReserv){
+                            Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
+                            intent.putExtra("route", reservation.getRoute());
+                            intent.putExtra("reservation", reservation);
+                            startActivity(intent);
+                            finish();
+                        }else{
+                            final Route route = (Route) reserveView.getTag();
+                            ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs);
+                            task.callback = new ShortcutNavigationTask.Callback() {
+                                @Override
+                                public void run(Reservation reservation) {
+                                    if(reservation.isEligibleTrip()){
+                                        Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
+                                        intent.putExtra("route", reservation.getRoute());
+                                        intent.putExtra("reservation", reservation);
+                                        intent.putExtra(ValidationActivity.EMAILS, StringUtils.join(emails, ","));
+                                        startActivity(intent);
+                                        finish();
+                                    }else{
+                                        String msg = null;
+                                        if (reservation.hasExpired()) {
+                                            msg = getString(R.string.trip_has_expired);
+                                        }
+                                        else if (reservation.isTooEarlyToStart()) {
+                                            long minutes = (reservation.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
+                                            msg = getString(R.string.trip_too_early_to_start, minutes);
+                                            if(minutes != 1){
+                                                msg += "s";
+                                            }
+                                        }
+                                        if(msg != null){
+                                            NotificationDialog dialog = new NotificationDialog(RouteActivity.this, msg);
+                                            dialog.show();
                                         }
                                     }
-                                    if(msg != null){
-                                        NotificationDialog dialog = new NotificationDialog(RouteActivity.this, msg);
-                                        dialog.show();
-                                    }
                                 }
-                            }
-                        };
-                        Misc.parallelExecute(task);
+                            };
+                            Misc.parallelExecute(task);
+                        }
                         SessionM.logAction("on_my_way");
                     }
                     @Override
@@ -585,41 +648,48 @@ public final class RouteActivity extends FragmentActivity {
         letsGoView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Route route = (Route) reserveView.getTag();
-                ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs);
-                task.callback = new ShortcutNavigationTask.Callback() {
-                    @Override
-                    public void run(Reservation reservation) {
-                        if(reservation.isEligibleTrip()){
-                            Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
-                            intent.putExtra("route", reservation.getRoute());
-                            intent.putExtra("reservation", reservation);
-                            startActivity(intent);
-                            finish();
-                        }else{
-                            String msg = null;
-                            if (reservation.hasExpired()) {
-                                msg = getString(R.string.trip_has_expired);
-                            }
-                            else if (reservation.isTooEarlyToStart()) {
-                                long minutes = (reservation.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
-                                msg = getString(R.string.trip_too_early_to_start, minutes);
-                                if(minutes != 1){
-                                    msg += "s";
+                if(hasReserv){
+                    Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
+                    intent.putExtra("route", reservation.getRoute());
+                    intent.putExtra("reservation", reservation);
+                    startActivity(intent);
+                    finish();
+                }else{
+                    final Route route = (Route) reserveView.getTag();
+                    ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs);
+                    task.callback = new ShortcutNavigationTask.Callback() {
+                        @Override
+                        public void run(Reservation reservation) {
+                            if(reservation.isEligibleTrip()){
+                                Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
+                                intent.putExtra("route", reservation.getRoute());
+                                intent.putExtra("reservation", reservation);
+                                startActivity(intent);
+                                finish();
+                            }else{
+                                String msg = null;
+                                if (reservation.hasExpired()) {
+                                    msg = getString(R.string.trip_has_expired);
+                                }
+                                else if (reservation.isTooEarlyToStart()) {
+                                    long minutes = (reservation.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
+                                    msg = getString(R.string.trip_too_early_to_start, minutes);
+                                    if(minutes != 1){
+                                        msg += "s";
+                                    }
+                                }
+                                if(msg != null){
+                                    NotificationDialog dialog = new NotificationDialog(RouteActivity.this, msg);
+                                    dialog.show();
                                 }
                             }
-                            if(msg != null){
-                                NotificationDialog dialog = new NotificationDialog(RouteActivity.this, msg);
-                                dialog.show();
-                            }
                         }
-                    }
-                };
-                Misc.parallelExecute(task);
+                    };
+                    Misc.parallelExecute(task);
+                }
             }
         });
         
-        TextView header = (TextView) findViewById(R.id.header);
         TextView backButton = (TextView) findViewById(R.id.back_button);
         backButton.setOnClickListener(new OnClickListener() {
             @Override

@@ -166,9 +166,11 @@ public final class TimeColumn extends FrameLayout {
 		int width = Dimension.dpToPx(TimeButton.WIDTH, dm) - (selected?0:stripeMargin*2);
 		stripeLp.width = width;
 		bottomStripe.setLayoutParams(stripeLp);
-		mpointView.setBackgroundColor(selected?Color.parseColor(color):bgColor);
-		bottomSpacing.setBackgroundColor(selected?Color.parseColor(color):bgColor);
-        arrivalTimeButton.setBackgroundColor(selected?Color.parseColor(color):bgColor);
+		if(color != null){
+    		mpointView.setBackgroundColor(selected?Color.parseColor(color):bgColor);
+    		bottomSpacing.setBackgroundColor(selected?Color.parseColor(color):bgColor);
+            arrivalTimeButton.setBackgroundColor(selected?Color.parseColor(color):bgColor);
+		}
         int textColor = Color.parseColor("#606163");
         mpointView.setTextColor(selected?Color.WHITE:textColor);
         arrivalTimeButton.setTextColor(selected?Color.WHITE:textColor);
@@ -253,8 +255,9 @@ public final class TimeColumn extends FrameLayout {
 
     public void setColor(String color) {
         this.color = color;
-        
-        bottomStripe.setBackgroundColor(Color.parseColor(color));
-        postInvalidate();
+        if(color != null){
+            bottomStripe.setBackgroundColor(Color.parseColor(color));
+            postInvalidate();
+        }
     }
 }
