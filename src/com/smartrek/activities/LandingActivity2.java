@@ -21,6 +21,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -60,6 +61,7 @@ import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.requests.FavoriteAddressUpdateRequest;
 import com.smartrek.requests.ReservationDeleteRequest;
 import com.smartrek.requests.ReservationListFetchRequest;
+import com.smartrek.requests.UpdateDeviceIdRequest;
 import com.smartrek.requests.WhereToGoRequest;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
@@ -74,6 +76,7 @@ import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Geocoding;
+import com.smartrek.utils.Preferences;
 import com.smartrek.utils.Geocoding.Address;
 import com.smartrek.utils.HTTP;
 import com.smartrek.utils.Misc;
@@ -121,6 +124,7 @@ public final class LandingActivity2 extends FragmentActivity {
         LandingActivity.initializeIfNeccessary(this, new Runnable() {
             @Override
             public void run() {
+                updateDeviceId();
                 getCurrentLocation(new CurrentLocationListener() {
                     @Override
                     public void get(final double lat, final double lon) {
@@ -374,6 +378,27 @@ public final class LandingActivity2 extends FragmentActivity {
             rewardsMenu, shareMenu, feedbackMenu, settingsMenu, logoutMenu,
             tripDetails, getGoingBtn, rescheBtn, (TextView)findViewById(R.id.header_text),
             (TextView)findViewById(R.id.menu_bottom_text));
+    }
+    
+    private void updateDeviceId(){
+        SharedPreferences globalPrefs = Preferences.getGlobalPreferences(this);
+        final String gcmRegistrationId = globalPrefs.getString(Preferences.Global.GCM_REG_ID, "");
+        final User currentUser = User.getCurrentUser(this);
+        if(!gcmRegistrationId.equals(currentUser.getDeviceId())){
+            currentUser.setDeviceId(gcmRegistrationId);
+            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+                @Override
+                protected Void doInBackground(Void... params) {
+                    try {
+                        new UpdateDeviceIdRequest().execute(currentUser.getId(), gcmRegistrationId,
+                            currentUser.getUsername(), currentUser.getPassword(), LandingActivity2.this);
+                    }
+                    catch (Exception e) {}
+                    return null;
+                }
+            };
+            Misc.parallelExecute(task);
+        }
     }
     
     private static final String TRIP_INFO_UPDATES = "TRIP_INFO_UPDATES"; 
