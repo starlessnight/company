@@ -1274,7 +1274,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 			TextView mpoint = (TextView) findViewById(R.id.mPoint);
 			mpoint.setText(formatMPointDesc(ValidationActivity.this,
-					route.getCredits() + ""));
+				reservation.getMpoint() + ""));
 			
 			panel.setVisibility(View.VISIBLE);
 			Misc.fadeIn(ValidationActivity.this, panel);

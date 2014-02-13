@@ -481,7 +481,9 @@ public final class LandingActivity2 extends FragmentActivity {
                         TextView tripAddr = (TextView) findViewById(R.id.trip_address);
                         tripAddr.setText(reserv.getDestinationAddress());
                         TextView tripDetails = (TextView) findViewById(R.id.trip_details);
-                        tripDetails.setText("Duration: " + TimeColumn.getFormattedDuration(reserv.getDuration()));
+                        tripDetails.setText("Duration: " + TimeColumn.getFormattedDuration(reserv.getDuration())
+                            + "·mPOINTS: " + reserv.getMpoint());
+                        tripDetails.setSelected(true);
                         int getGoingBtnVis = View.GONE;
                         int rescheBtnVis = View.VISIBLE;
                         int carIconVis = View.VISIBLE;
@@ -578,6 +580,7 @@ public final class LandingActivity2 extends FragmentActivity {
                 networkLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocListener);
             }
         }catch(Throwable t){}
+        //lis.get(34.0291747, -118.2734106);
     }
     
     Typeface boldFont;

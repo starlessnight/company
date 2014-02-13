@@ -186,6 +186,7 @@
 		            android:textSize="@dimen/smaller_font"
 		           	android:textColor="@android:color/white"
 		           	android:singleLine="true"
+		           	android:ellipsize="marquee"
 		        />
 	        </LinearLayout>
 	        
