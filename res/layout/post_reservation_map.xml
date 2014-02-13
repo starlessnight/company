@@ -187,38 +187,7 @@
             android:background="@color/navigation_bottom_gray"
             style="@style/LargeBoldText"/>
         
-        <LinearLayout
-            android:layout_height="10dp"
-            android:layout_width="fill_parent"
-            android:orientation="horizontal"
-            >
-            
-            <TextView 
-                android:layout_height="match_parent"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:visibility="visible"
-                android:background="@color/metropia_red"/>
-            <TextView
-                android:layout_height="match_parent"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:visibility="visible"
-                android:background="@color/metropia_orange"/>
-            <TextView
-                android:layout_height="match_parent"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:visibility="visible"
-                android:background="@color/metropia_green"/>
-            <TextView
-                android:layout_height="match_parent"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:visibility="visible"
-                android:background="@color/metropia_blue"/>
-            
-        </LinearLayout>
+        <include layout="@layout/metropia_color_bar" />
         
         <LinearLayout
             android:layout_height="wrap_content"
