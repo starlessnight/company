@@ -53,12 +53,10 @@ import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.dialogs.ShareDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
-import com.smartrek.requests.AddressLinkRequest;
 import com.smartrek.requests.CityRequest;
 import com.smartrek.requests.CityRequest.City;
 import com.smartrek.requests.FavoriteAddressAddRequest;
 import com.smartrek.requests.FavoriteAddressFetchRequest;
-import com.smartrek.requests.FavoriteAddressUpdateRequest;
 import com.smartrek.requests.ReservationDeleteRequest;
 import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.requests.UpdateDeviceIdRequest;
@@ -370,6 +368,50 @@ public final class LandingActivity2 extends FragmentActivity {
             }
         });
         
+        final View balloonView = (View) findViewById(R.id.balloon_panel);
+        balloonView.findViewById(R.id.save).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String lbl = ((EditText)balloonView.findViewById(R.id.label)).getText().toString();
+                final String addr = ((TextView)balloonView.findViewById(R.id.address)).getText().toString();
+                if(StringUtils.isNotBlank(lbl)){
+                    final BalloonModel model = (BalloonModel) balloonView.getTag();
+                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+                        @Override
+                        protected Void doInBackground(Void... params) {
+                            FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
+                                User.getCurrentUser(LandingActivity2.this), lbl, addr, model.lat, model.lon);
+                            try {
+                                request.execute(LandingActivity2.this);
+                            }
+                            catch (Exception e) {
+                                ehs.registerException(e);
+                            }
+                            return null;
+                        }
+                        protected void onPostExecute(Void result) {
+                            if (ehs.hasExceptions()) {
+                                ehs.reportExceptions();
+                            }
+                            else {
+                                removePOIMarker(mapView);
+                                hideBalloonPanel();
+                                refreshStarredPOIs();
+                            }
+                        }
+                   };
+                   Misc.parallelExecute(task);
+                }
+            }
+        });
+        balloonView.findViewById(R.id.proceed).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                BalloonModel model = (BalloonModel) balloonView.getTag();
+                startRouteActivity(model.address, model.geopoint);
+            }
+        });
+        
         scheduleNextTripInfoUpdates();
         
         AssetManager assets = getAssets();
@@ -378,6 +420,18 @@ public final class LandingActivity2 extends FragmentActivity {
             rewardsMenu, shareMenu, feedbackMenu, settingsMenu, logoutMenu,
             tripDetails, getGoingBtn, rescheBtn, (TextView)findViewById(R.id.header_text),
             (TextView)findViewById(R.id.menu_bottom_text));
+    }
+    
+    private static class BalloonModel {
+        
+        double lat;
+        
+        double lon;
+        
+        String address;
+        
+        GeoPoint geopoint;
+        
     }
     
     private void updateDeviceId(){
@@ -706,61 +760,19 @@ public final class LandingActivity2 extends FragmentActivity {
                                 public boolean onLongPress(int index, OverlayItem item) {
                                     hideStarredBalloon();
                                     hideBulbBalloon();
-                                    removePOIMarker(mapView);
-                                    star.showBalloonOverlay();  
-                                    final View balloonView = (View) star.getBalloonView();
-                                    View saveIcon = balloonView.findViewById(R.id.save);
-                                    final EditText lblView = (EditText)balloonView.findViewById(R.id.label);
-                                    lblView.setText(a.getName());
-                                    if(saveIcon.getTag() == null){
-                                        saveIcon.setTag(true);
-                                        saveIcon.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                final String lbl = lblView.getText().toString();
-                                                final String addr = ((TextView)balloonView.findViewById(R.id.address)).getText().toString();
-                                                if(StringUtils.isNotBlank(lbl)){
-                                                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
-                                                        @Override
-                                                        protected Void doInBackground(Void... params) {
-                                                            User user = User.getCurrentUser(LandingActivity2.this);
-                                                            try {
-                                                                FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
-                                                                    new AddressLinkRequest(user).execute(LandingActivity2.this),
-                                                                    a.getId(),
-                                                                    user,
-                                                                    lbl,
-                                                                    addr,
-                                                                    a.getLatitude(),
-                                                                    a.getLongitude());
-                                                                request.execute(LandingActivity2.this);
-                                                            }
-                                                            catch (Exception e) {
-                                                                ehs.registerException(e);
-                                                            }
-                                                            return null;
-                                                        }
-                                                        protected void onPostExecute(Void result) {
-                                                            if (ehs.hasExceptions()) {
-                                                                ehs.reportExceptions();
-                                                            }
-                                                            else {
-                                                                removePOIMarker(mapView);
-                                                                refreshStarredPOIs();
-                                                            }
-                                                        }
-                                                   };
-                                                   Misc.parallelExecute(task);
-                                                }
-                                            }
-                                        });
-                                        balloonView.findViewById(R.id.proceed).setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                startRouteActivity(a.getAddress(), gp);
-                                            }
-                                        });
-                                    }
+                                    removePOIMarker(mapView); 
+                                    BalloonModel model = new BalloonModel();
+                                    model.lat = a.getLatitude();
+                                    model.lon = a.getLongitude();
+                                    model.address = a.getAddress();
+                                    model.geopoint = gp;
+                                    final View balloonView = (View) findViewById(R.id.balloon_panel);
+                                    TextView addrView = ((TextView)balloonView.findViewById(R.id.address));
+                                    addrView.setText(a.getAddress());
+                                    TextView labelView = ((TextView)balloonView.findViewById(R.id.label));
+                                    labelView.setText(a.getName());
+                                    balloonView.setTag(model);
+                                    balloonView.setVisibility(View.VISIBLE);
                                     mapView.postInvalidate();
                                     return true;
                                 }
@@ -795,8 +807,8 @@ public final class LandingActivity2 extends FragmentActivity {
             if(overlay instanceof POIActionOverlay){
                 POIActionOverlay poiOverlay = (POIActionOverlay)overlay;
                 if(poiOverlay.getMarker() == R.drawable.star_poi){
-                    if(poiOverlay.isBalloonVisible()){
-                        poiOverlay.hideBalloon();
+                    if(isBalloonPanelVisible()){
+                        hideBalloonPanel();
                         handled = true;
                     }
                 }
@@ -813,8 +825,8 @@ public final class LandingActivity2 extends FragmentActivity {
             if(overlay instanceof POIActionOverlay){
                 POIActionOverlay poiOverlay = (POIActionOverlay)overlay;
                 if(poiOverlay.getMarker() == R.drawable.bulb_poi){
-                    if(poiOverlay.isBalloonVisible()){
-                        poiOverlay.hideBalloon();
+                    if(isBalloonPanelVisible()){
+                        hideBalloonPanel();
                         handled = true;
                     }
                 }
@@ -952,8 +964,8 @@ public final class LandingActivity2 extends FragmentActivity {
         List<Overlay> overlays = mapView.getOverlays();
         for (Overlay overlay : overlays) {
             if(overlay == curMarker){
-                if(curMarker.isBalloonVisible()){
-                    curMarker.hideBalloon();
+                if(isBalloonPanelVisible()){
+                    hideBalloonPanel();
                     handled = true;
                 }
                 overlays.remove(overlay);
@@ -974,49 +986,28 @@ public final class LandingActivity2 extends FragmentActivity {
         List<Overlay> overlays = mapView.getOverlays();
         overlays.add(marker);
         marker.showOverlay();
-        marker.showBalloonOverlay();
         curMarker = marker;
         mapView.postInvalidate();
-        final View balloonView = (View) marker.getBalloonView();
-        balloonView.findViewById(R.id.save).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String lbl = ((EditText)balloonView.findViewById(R.id.label)).getText().toString();
-                final String addr = ((TextView)balloonView.findViewById(R.id.address)).getText().toString();
-                if(StringUtils.isNotBlank(lbl)){
-                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
-                        @Override
-                        protected Void doInBackground(Void... params) {
-                            FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
-                                User.getCurrentUser(LandingActivity2.this), lbl, addr, lat, lon);
-                            try {
-                                request.execute(LandingActivity2.this);
-                            }
-                            catch (Exception e) {
-                                ehs.registerException(e);
-                            }
-                            return null;
-                        }
-                        protected void onPostExecute(Void result) {
-                            if (ehs.hasExceptions()) {
-                                ehs.reportExceptions();
-                            }
-                            else {
-                                removePOIMarker(mapView);
-                                refreshStarredPOIs();
-                            }
-                        }
-                   };
-                   Misc.parallelExecute(task);
-                }
-            }
-        });
-        balloonView.findViewById(R.id.proceed).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startRouteActivity(address, gp);
-            }
-        });
+        BalloonModel model = new BalloonModel();
+        model.lat = lat;
+        model.lon = lon;
+        model.address = address;
+        model.geopoint = gp;
+        final View balloonView = (View) findViewById(R.id.balloon_panel);
+        TextView addrView = ((TextView)balloonView.findViewById(R.id.address));
+        addrView.setText(address);
+        TextView labelView = ((TextView)balloonView.findViewById(R.id.label));
+        labelView.setText(label);
+        balloonView.setTag(model);
+        balloonView.setVisibility(View.VISIBLE);
+    }
+    
+    private boolean isBalloonPanelVisible(){
+        return findViewById(R.id.balloon_panel).getVisibility() == View.VISIBLE;
+    }
+    
+    private void hideBalloonPanel(){
+        findViewById(R.id.balloon_panel).setVisibility(View.GONE);
     }
     
     private synchronized RouteRect drawBulbPOIs(final MapView mapView, List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
@@ -1053,54 +1044,18 @@ public final class LandingActivity2 extends FragmentActivity {
                     hideStarredBalloon();
                     hideBulbBalloon();
                     removePOIMarker(mapView);
-                    bulb.showBalloonOverlay();  
-                    final View balloonView = (View) bulb.getBalloonView();
-                    View saveIcon = balloonView.findViewById(R.id.save);
-                    final EditText lblView = (EditText)balloonView.findViewById(R.id.label);
-                    lblView.setText(l.debug);
-                    if(saveIcon.getTag() == null){
-                        saveIcon.setTag(true);
-                        saveIcon.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                final String lbl = lblView.getText().toString();
-                                final String addr = ((TextView)balloonView.findViewById(R.id.address)).getText().toString();
-                                if(StringUtils.isNotBlank(lbl)){
-                                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
-                                        @Override
-                                        protected Void doInBackground(Void... params) {
-                                            FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
-                                                User.getCurrentUser(LandingActivity2.this), lbl, addr, l.lat, l.lon);
-                                            try {
-                                                request.execute(LandingActivity2.this);
-                                            }
-                                            catch (Exception e) {
-                                                ehs.registerException(e);
-                                            }
-                                            return null;
-                                        }
-                                        protected void onPostExecute(Void result) {
-                                            if (ehs.hasExceptions()) {
-                                                ehs.reportExceptions();
-                                            }
-                                            else {
-                                                removePOIMarker(mapView);
-                                                hideBulbBalloon();
-                                                refreshStarredPOIs();
-                                            }
-                                        }
-                                   };
-                                   Misc.parallelExecute(task);
-                                }
-                            }
-                        });
-                        balloonView.findViewById(R.id.proceed).setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                startRouteActivity(l.addr, gp);
-                            }
-                        });
-                    }
+                    BalloonModel model = new BalloonModel();
+                    model.lat = l.lat;
+                    model.lon = l.lon;
+                    model.address = l.addr;
+                    model.geopoint = gp;
+                    final View balloonView = (View) findViewById(R.id.balloon_panel);
+                    TextView addrView = ((TextView)balloonView.findViewById(R.id.address));
+                    addrView.setText(l.addr);
+                    TextView labelView = ((TextView)balloonView.findViewById(R.id.label));
+                    labelView.setText(l.debug);
+                    balloonView.setTag(model);
+                    balloonView.setVisibility(View.VISIBLE);
                     mapView.postInvalidate();
                     return true;
                 }

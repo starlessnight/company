@@ -44,52 +44,71 @@
 	        android:background="#929497"
 		/>
 	    
-	    <RelativeLayout 
-				android:id="@+id/map_panel"
-				android:layout_width="match_parent"
+	    <FrameLayout 
+	        	android:layout_width="match_parent"
 				android:layout_height="0dp"
 				android:layout_weight="1">
-	    	<include layout="@layout/mapview" />
-	    	
-	    	<EditText
-	    	    android:id="@+id/search_box"
-	    	    android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_marginTop="5dp"
-	            android:layout_marginLeft="15dp"
-	           	android:layout_marginRight="15dp"
-	           	android:layout_alignParentTop="true"
-	           	android:layout_centerHorizontal="true"
-	           	android:hint="Search..."
-	           	android:singleLine="true"
-	           	android:drawableLeft="@drawable/search_icon"
-	           	android:drawablePadding="10dp"
-	           	style="@style/SearchTextField"
-			/>
-	    	
-	    	<ImageView 
-	    	    android:id="@+id/center_map_icon"
-	    	    android:layout_width="wrap_content"
-	    	    android:layout_height="wrap_content"
-	    	    android:src="@drawable/center_map_icon"
-	    	    android:layout_alignParentRight="true"
-	    	    android:layout_alignParentBottom="true"
-	    	    android:layout_marginRight="10dp"
-	    	    android:layout_marginBottom="30dp"
-			/>
-	    	
-	    	<ImageView 
+		    <LinearLayout 
+		        	android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:orientation="vertical">
+		    
+			    <RelativeLayout 
+						android:id="@+id/map_panel"
+						android:layout_width="match_parent"
+						android:layout_height="0dp"
+						android:layout_weight="1">
+			    	<include layout="@layout/mapview" />
+			    	
+			    	<EditText
+			    	    android:id="@+id/search_box"
+			    	    android:layout_width="match_parent"
+			            android:layout_height="wrap_content"
+			            android:layout_marginTop="5dp"
+			            android:layout_marginLeft="15dp"
+			           	android:layout_marginRight="15dp"
+			           	android:layout_alignParentTop="true"
+			           	android:layout_centerHorizontal="true"
+			           	android:hint="Search..."
+			           	android:singleLine="true"
+			           	android:drawableLeft="@drawable/search_icon"
+			           	android:drawablePadding="10dp"
+			           	style="@style/SearchTextField"
+					/>
+			    	
+			    	<ImageView 
+			    	    android:id="@+id/center_map_icon"
+			    	    android:layout_width="wrap_content"
+			    	    android:layout_height="wrap_content"
+			    	    android:src="@drawable/center_map_icon"
+			    	    android:layout_alignParentRight="true"
+			    	    android:layout_alignParentBottom="true"
+			    	    android:layout_marginRight="10dp"
+			    	    android:layout_marginBottom="30dp"
+					/>
+			    	
+			   	</RelativeLayout>
+			    
+			    <FrameLayout 
+			        	android:id="@+id/balloon_panel"
+			        	android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:visibility="gone">
+		        	<include layout="@layout/poi_action_overlay" />
+		    	</FrameLayout>
+		    
+			</LinearLayout>
+			
+			<ImageView 
 	    	    android:id="@+id/drawer_menu_icon"
 	    	    android:layout_width="wrap_content"
 	    	    android:layout_height="wrap_content"
 	    	    android:src="@drawable/drawer_menu_icon"
-	    	    android:layout_alignParentLeft="true"
-	    	    android:layout_alignParentBottom="true"
+				android:layout_gravity="bottom|left"
 	    	    android:layout_marginBottom="30dp"
 			/>
-	    	
-	   	</RelativeLayout>
-	   	
+		</FrameLayout>
+		    
 	    <LinearLayout 
 	        	android:id="@+id/bottom_bar"
 	        	android:layout_width="match_parent"
