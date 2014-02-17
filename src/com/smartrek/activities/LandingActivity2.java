@@ -76,10 +76,10 @@ import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Geocoding;
-import com.smartrek.utils.Preferences;
 import com.smartrek.utils.Geocoding.Address;
 import com.smartrek.utils.HTTP;
 import com.smartrek.utils.Misc;
+import com.smartrek.utils.Preferences;
 import com.smartrek.utils.RouteRect;
 import com.smartrek.utils.SessionM;
 import com.smartrek.utils.SmartrekTileProvider;
@@ -426,6 +426,12 @@ public final class LandingActivity2 extends FragmentActivity {
         super.onResume();
         registerReceiver(tripInfoUpdater, new IntentFilter(TRIP_INFO_UPDATES));
         SessionM.onActivityResume(this);
+        LandingActivity.initializeIfNeccessary(this, new Runnable() {
+            @Override
+            public void run() {
+                refreshBulbPOIs();
+            }
+        });
     }
     
     @Override
@@ -843,7 +849,10 @@ public final class LandingActivity2 extends FragmentActivity {
                             ehs.reportExceptions();
                         }
                         else {
+                            hideStarredBalloon();
+                            hideBulbBalloon();
                             MapView mapView = (MapView) findViewById(R.id.mapview);
+                            removePOIMarker(mapView);
                             MapController mc = mapView.getController();
                             if(myPointOverlay == null){
                                 myPointOverlay = new PointOverlay(LandingActivity2.this, 0, 0);
