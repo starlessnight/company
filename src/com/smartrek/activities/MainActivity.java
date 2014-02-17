@@ -134,31 +134,24 @@ public class MainActivity extends Activity implements AnimationListener {
                         }
                     }
                 };
-                if(Request.hasLinkUrls()){
-                    initApiLinksFailed.set(false);
-                    if(onSuccess != null){
-                        onSuccess.run();
-                    }
-                }else{
-    	            String url = DebugOptionsActivity.getEntrypoint(MainActivity.this);
-                    if(StringUtils.isBlank(url)){
-                        url = Request.ENTRYPOINT_URL;
-                    }
-    	            initApiLinks(this, url, onSuccess, new Runnable() {
-                        @Override
-                        public void run() {
-                            initApiLinks(MainActivity.this, Request.ENTRYPOINT_URL,
-                                onSuccess, 
-                                new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        finish();
-                                    }
-                                }
-                            );
-                        }
-                    });
+	            String url = DebugOptionsActivity.getEntrypoint(MainActivity.this);
+                if(StringUtils.isBlank(url)){
+                    url = Request.ENTRYPOINT_URL;
                 }
+	            initApiLinks(this, url, onSuccess, new Runnable() {
+                    @Override
+                    public void run() {
+                        initApiLinks(MainActivity.this, Request.ENTRYPOINT_URL,
+                            onSuccess, 
+                            new Runnable() {
+                                @Override
+                                public void run() {
+                                    finish();
+                                }
+                            }
+                        );
+                    }
+                });
 	        }else if(loginTask != null){
 	            loginTask.execute();
 	        }
