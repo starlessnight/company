@@ -53,6 +53,10 @@ public final class SmarTrekApplication extends Application {
                     LocationLibrary.initialiseLibrary(getBaseContext(), interval, 
                         interval.intValue(), true, "com.smartrek.activities");
                     UserLocationService.schedule(getBaseContext());
+                    SendTrajectoryService.schedule(getBaseContext());
+                    CalendarService.schedule(getBaseContext());
+                    ValidationService.schedule(getBaseContext());
+                    TripService.schedule(getBaseContext());
                 }
             }
         }.execute();

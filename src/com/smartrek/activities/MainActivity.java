@@ -19,10 +19,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import com.google.analytics.tracking.android.EasyTracker;
-import com.smartrek.CalendarService;
-import com.smartrek.SendTrajectoryService;
-import com.smartrek.TripService;
-import com.smartrek.ValidationService;
+import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary;
+import com.smartrek.UserLocationService;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.ServiceDiscoveryRequest;
@@ -101,6 +99,10 @@ public class MainActivity extends Activity implements AnimationListener {
 	            final Runnable onSuccess = new Runnable() {
                     @Override
                     public void run() {
+                        Long interval = UserLocationService.getInterval();
+                        LocationLibrary.initialiseLibrary(getBaseContext(), interval, 
+                            interval.intValue(), true, "com.smartrek.activities");
+                        UserLocationService.schedule(getBaseContext());
                         if(loginTask != null){
                             loginTask.setDialogEnabled(splashEnded);
                             loginTask.showDialog();
@@ -155,10 +157,6 @@ public class MainActivity extends Activity implements AnimationListener {
 	        }else if(loginTask != null){
 	            loginTask.execute();
 	        }
-	        SendTrajectoryService.schedule(this);
-	        CalendarService.schedule(this);
-	        ValidationService.schedule(this);
-	        TripService.schedule(this);
 		}
 	}
 	
