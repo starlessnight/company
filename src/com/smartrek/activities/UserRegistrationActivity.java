@@ -158,7 +158,7 @@ public final class UserRegistrationActivity extends ActionBarActivity
         protected void onPreExecute() {
             super.onPreExecute();
             dialog = new ProgressDialog(ctx);
-            dialog.setTitle("Smartrek");
+            dialog.setTitle("Metropia");
             dialog.setMessage("Signing up ...");
             dialog.setCanceledOnTouchOutside(false);
             dialog.setCancelable(false);

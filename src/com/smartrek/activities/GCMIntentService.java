@@ -56,7 +56,7 @@ public class GCMIntentService extends GCMBaseIntentService {
             
     		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             
-            Notification notification = new Notification(R.drawable.icon_small, "Smartrek", departureTime);
+            Notification notification = new Notification(R.drawable.icon_small, "Metropia", departureTime);
             PendingIntent pendingIntent;
             if(eta != null){
                 String msg = message + "\n" + mile + " miles to go estimated arrival time: " + eta;
@@ -69,7 +69,7 @@ public class GCMIntentService extends GCMBaseIntentService {
             }else{
                 pendingIntent = PendingIntent.getActivity(context, 0, routeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             }
-            notification.setLatestEventInfo(context, "Smartrek", message, pendingIntent);
+            notification.setLatestEventInfo(context, "Metropia", message, pendingIntent);
             
             notification.flags = Notification.FLAG_AUTO_CANCEL;
             notificationManager.notify(0, notification);

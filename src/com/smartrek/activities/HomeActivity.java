@@ -724,7 +724,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 			super();
 			
 			dialog = new ProgressDialog(HomeActivity.this);
-			dialog.setTitle("Smartrek");
+			dialog.setTitle("Metropia");
 			dialog.setMessage("Fetching existing reservations...");
 			dialog.setCancelable(false);
 			dialog.setCanceledOnTouchOutside(false);

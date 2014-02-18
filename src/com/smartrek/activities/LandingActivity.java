@@ -1440,7 +1440,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             this.name = name;
             this.callback = callback;
             dialog = new ProgressDialog(ctx);
-            dialog.setTitle("Smartrek");
+            dialog.setTitle("Metropia");
             dialog.setMessage("Loading...");
             dialog.setCancelable(true);
             dialog.setCanceledOnTouchOutside(false);

@@ -65,7 +65,7 @@ public final class CalendarNotification extends BroadcastReceiver {
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
                     notification = new Notification.BigTextStyle(
                             new Notification.Builder(context)
-                               .setContentTitle("Smartrek")
+                               .setContentTitle("Metropia")
                                .setContentText(notiInfo)
                                .setContentIntent(sender)
                                .setWhen(startTime)
@@ -77,8 +77,8 @@ public final class CalendarNotification extends BroadcastReceiver {
                         .bigText(notiInfo)
                         .build();
                 }else{
-                    notification = new Notification(R.drawable.icon_small, "Smartrek", startTime);
-                    notification.setLatestEventInfo(context, "Smartrek", notiInfo, sender);
+                    notification = new Notification(R.drawable.icon_small, "Metropia", startTime);
+                    notification.setLatestEventInfo(context, "Metropia", notiInfo, sender);
                 }
                 notification.flags = Notification.FLAG_AUTO_CANCEL;
                 NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);

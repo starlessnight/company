@@ -34,7 +34,7 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
 		ehs = new ExceptionHandlingService(ctx);
 		
 		dialog = new ProgressDialog(ctx);
-        dialog.setTitle("Smartrek");
+        dialog.setTitle("Metropia");
         dialog.setMessage(String.format("Logging in as '%s'...", username));
         dialog.setCanceledOnTouchOutside(false);
         dialog.setCancelable(false);

@@ -76,8 +76,8 @@ public final class ReservationReceiver extends BroadcastReceiver {
             
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             
-            Notification notification = new Notification(R.drawable.icon_small, "Smartrek", route.getDepartureTime());
-            notification.setLatestEventInfo(context, "Smartrek", "Your reserved trip is about to start", sender);
+            Notification notification = new Notification(R.drawable.icon_small, "Metropia", route.getDepartureTime());
+            notification.setLatestEventInfo(context, "Metropia", "Your reserved trip is about to start", sender);
             notification.flags = Notification.FLAG_AUTO_CANCEL;
             notificationManager.notify(ID, notification);
             

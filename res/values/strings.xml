@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="smartrek">Smartrek</string>
-    <string name="app_name">Smartrek - Beta</string>
+    <string name="smartrek">Metropia</string>
+    <string name="app_name">Metropia - Beta</string>
     <string name="distribution_date">20140214</string>
     <string name="version">Version 1.1.1</string>
     <string name="fb_app_id">202039786615562</string>
@@ -12,7 +12,7 @@
 
     <!-- General terms -->
     <string name="placeholder">(placeholder)</string>
-    <string name="terms_of_use">Smartrek Terms of Use</string>
+    <string name="terms_of_use">Metropia Terms of Use</string>
     <string name="agree_terms_of_use">By clicking continue you agree to these terms and conditions</string>
     <string name="sign_up_msg">Sign up today and work collectively to reduce traffic and pollution!</string>
     <string name="firstname">first name</string>
@@ -52,7 +52,7 @@
     <string name="tutorial_slide1">Swipe to learn more about avoiding traffic congestion while getting there faster!</string>
     <string name="tutorial_slide2">Load your trip with your departure location and destination</string>
     <string name="tutorial_slide3">Select the best route for your trip</string>
-    <string name="tutorial_slide4">Load your route and Smartrek will remind you when it\'s time to leave</string>
+    <string name="tutorial_slide4">Load your route and Metropia will remind you when it\'s time to leave</string>
     <string name="tutorial_slide5">Follow your route and earn Trekpoints you can redeem for epic rewards!</string>
     
     <!-- Trip -->
@@ -63,7 +63,7 @@
     <!-- *************************************************************************************** -->
     <!-- *************************************************************************************** -->
     <!-- *************************************************************************************** -->
-    <string name="welcome">welcome to smartrek</string>
+    <string name="welcome">welcome to Metropia</string>
     <string name="new_user">create a new account</string>
     <string name="failed_login">Sorry, the username or password you entered is not valid.</string>
     <!-- *************************************************************************************** -->
@@ -134,7 +134,7 @@
     <string name="crash_notif_ticker_text">Unexpected error, please send a report.</string>
     <string name="crash_notif_title">CrashTest has crashed.</string>
     <string name="crash_notif_text">Please click here to help fix the issue.</string>
-    <string name="crash_dialog_title">smartrek has crashed</string>
+    <string name="crash_dialog_title">Metropia has crashed</string>
     <string name="crash_dialog_text">An unexpected error occurred forcing the
     application to stop. Please help us fix this by sending us error data,
     all you have to do is click \'OK\'.</string>

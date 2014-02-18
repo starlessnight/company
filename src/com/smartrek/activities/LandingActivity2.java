@@ -264,7 +264,7 @@ public final class LandingActivity2 extends FragmentActivity {
             public void onClick(View v) {
                 User user = User.getCurrentUser(LandingActivity2.this);
                 ShareDialog.newInstance(user.getFirstname() + " " + user.getLastname() + " is on the way",
-                     "I helped solve traffic congestion using Smartrek Mobile!"
+                     "I helped solve traffic congestion using Metropia Mobile!"
                      + "\n\n" + Misc.getGooglePlayAppUrl(LandingActivity2.this))
                     .show(getSupportFragmentManager(), null);
             }

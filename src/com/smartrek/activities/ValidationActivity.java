@@ -716,7 +716,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                 ShareDialog.newInstance(user.getFirstname() + " " + user.getLastname() + " is on the way",
                      "I earned " + route.getCredits() + " points for traveling at " 
                      + Reservation.formatTime(route.getDepartureTime(), true) + " to help solve traffic congestion "
-                     + "using Smartrek Mobile!"
+                     + "using Metropia Mobile!"
                      + "\n\n" + Misc.getGooglePlayAppUrl(ValidationActivity.this))
                     .show(getSupportFragmentManager(), null);
             }

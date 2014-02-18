@@ -49,7 +49,7 @@ public class Misc {
     public static void showGoogleAccountDialog(final Context ctx){
         AlertDialog.Builder helpBuilder = new AlertDialog.Builder(ctx);
         helpBuilder.setTitle("Add Google account");
-        helpBuilder.setMessage("Smartrek relies on a Google account,"
+        helpBuilder.setMessage("Metropia relies on a Google account,"
             + " would you like to configure one now?");
         helpBuilder.setPositiveButton("yes",
         new DialogInterface.OnClickListener() {

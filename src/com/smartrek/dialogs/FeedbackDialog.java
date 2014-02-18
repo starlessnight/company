@@ -51,7 +51,7 @@ public class FeedbackDialog extends Dialog {
 		dialogView = (ViewGroup) inflater.inflate(R.layout.feedback_dialog, null);
 		
 		TextView titleView = (TextView) dialogView.findViewById(R.id.title);
-		titleView.setText("Do you love Smartrek?");
+		titleView.setText("Do you love Metropia?");
 		
 		setContentView(dialogView);
 		
