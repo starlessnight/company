@@ -1031,7 +1031,7 @@ public final class LandingActivity2 extends FragmentActivity {
         for(final com.smartrek.requests.WhereToGoRequest.Location l:locs){
             final GeoPoint gp = new GeoPoint(l.lat, l.lon);
             final POIActionOverlay bulb = new POIActionOverlay(mapView, gp, boldFont, lightFont, 
-                    l.addr, l.debug, R.drawable.bulb_poi);
+                    l.addr, l.label, R.drawable.bulb_poi);
             bulb.setBalloonOffsetY(Dimension.dpToPx(-17, getResources().getDisplayMetrics()));
             bulb.setCallback(new OverlayCallback() {
                 @Override
@@ -1053,7 +1053,7 @@ public final class LandingActivity2 extends FragmentActivity {
                     TextView addrView = ((TextView)balloonView.findViewById(R.id.address));
                     addrView.setText(l.addr);
                     TextView labelView = ((TextView)balloonView.findViewById(R.id.label));
-                    labelView.setText(l.debug);
+                    labelView.setText(l.label);
                     balloonView.setTag(model);
                     balloonView.setVisibility(View.VISIBLE);
                     mapView.postInvalidate();

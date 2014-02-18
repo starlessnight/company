@@ -17,7 +17,7 @@ public final class WhereToGoRequest extends FetchRequest<List<Location>> {
 
     public static class Location {
         
-        public String debug;
+        public String label;
         
         public double lat;
         
@@ -47,7 +47,7 @@ public final class WhereToGoRequest extends FetchRequest<List<Location>> {
             JSONObject json = list.getJSONObject(j);
             Location l = new Location();
             l.addr = json.getString("addr");
-            l.debug = json.getString("debug");
+            l.label = json.getString("label");
             l.lat = json.getDouble("lat");
             l.lon = json.getDouble("lon");
             locs.add(l);
