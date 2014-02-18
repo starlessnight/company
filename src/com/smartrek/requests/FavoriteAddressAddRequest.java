@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,7 +37,7 @@ public class FavoriteAddressAddRequest extends Request {
 		    String url = getLinkUrl(Link.address);
 		    Map<String, String> params = new HashMap<String, String>();
             params.put("user_id", String.valueOf(user.getId()));
-            params.put("name", name);
+            params.put("name", StringUtils.substring(name, 0, 30));
             params.put("address", address);
             params.put("lat", String.format("%.7f", lat));
             params.put("lon", String.format("%.7f", lon));

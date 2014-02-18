@@ -53,10 +53,13 @@ import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.dialogs.ShareDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
+import com.smartrek.requests.AddressLinkRequest;
 import com.smartrek.requests.CityRequest;
 import com.smartrek.requests.CityRequest.City;
 import com.smartrek.requests.FavoriteAddressAddRequest;
+import com.smartrek.requests.FavoriteAddressDeleteRequest;
 import com.smartrek.requests.FavoriteAddressFetchRequest;
+import com.smartrek.requests.FavoriteAddressUpdateRequest;
 import com.smartrek.requests.ReservationDeleteRequest;
 import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.requests.UpdateDeviceIdRequest;
@@ -379,10 +382,23 @@ public final class LandingActivity2 extends FragmentActivity {
                     AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
                         @Override
                         protected Void doInBackground(Void... params) {
-                            FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
-                                User.getCurrentUser(LandingActivity2.this), lbl, addr, model.lat, model.lon);
+                            User user = User.getCurrentUser(LandingActivity2.this);
                             try {
-                                request.execute(LandingActivity2.this);
+                                if(model.id == 0){
+                                    FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
+                                        user, lbl, addr, model.lat, model.lon);
+                                    request.execute(LandingActivity2.this);
+                                }else{
+                                    FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
+                                        new AddressLinkRequest(user).execute(LandingActivity2.this),
+                                        model.id,
+                                        user,
+                                        lbl,
+                                        addr,
+                                        model.lat, 
+                                        model.lon);
+                                    request.execute(LandingActivity2.this);
+                                }
                             }
                             catch (Exception e) {
                                 ehs.registerException(e);
@@ -395,12 +411,12 @@ public final class LandingActivity2 extends FragmentActivity {
                             }
                             else {
                                 removePOIMarker(mapView);
-                                hideBalloonPanel();
                                 refreshStarredPOIs();
                             }
                         }
                    };
                    Misc.parallelExecute(task);
+                   hideBalloonPanel();
                 }
             }
         });
@@ -409,6 +425,34 @@ public final class LandingActivity2 extends FragmentActivity {
             public void onClick(View v) {
                 BalloonModel model = (BalloonModel) balloonView.getTag();
                 startRouteActivity(model.address, model.geopoint);
+            }
+        });
+        balloonView.findViewById(R.id.delete).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final BalloonModel model = (BalloonModel) balloonView.getTag();
+                if(model.id > 0){
+                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+                        @Override
+                        protected Void doInBackground(Void... params) {
+                            User user = User.getCurrentUser(LandingActivity2.this);
+                            try {
+                                FavoriteAddressDeleteRequest request = new FavoriteAddressDeleteRequest(
+                                    new AddressLinkRequest(user).execute(LandingActivity2.this), user, model.id);
+                                request.execute(LandingActivity2.this);
+                            }
+                            catch (Exception e) {
+                            }
+                            return null;
+                        }
+                        protected void onPostExecute(Void result) {
+                            refreshStarredPOIs();
+                        }
+                   };
+                   Misc.parallelExecute(task);
+                }
+                removePOIMarker(mapView);
+                hideBalloonPanel();
             }
         });
         
@@ -423,6 +467,8 @@ public final class LandingActivity2 extends FragmentActivity {
     }
     
     private static class BalloonModel {
+        
+        int id;
         
         double lat;
         
@@ -635,9 +681,6 @@ public final class LandingActivity2 extends FragmentActivity {
                     networkLocManager.removeUpdates(this);
                     double lon = location.getLongitude();
                     double lat = location.getLatitude();
-                    // debug lat lon
-//                    lat = 34.0291747;
-//                    lon = -118.2734106;
                     lis.get(lat, lon);
                 }catch(Throwable t){}
             }
@@ -736,7 +779,6 @@ public final class LandingActivity2 extends FragmentActivity {
                             if(overlay instanceof POIActionOverlay){
                                 POIActionOverlay poiOverlay = (POIActionOverlay)overlay;
                                 if(poiOverlay.getMarker() == R.drawable.star_poi){
-                                    poiOverlay.hideBalloon();
                                     overlays.remove(overlay);
                                 }
                             }
@@ -762,6 +804,7 @@ public final class LandingActivity2 extends FragmentActivity {
                                     hideBulbBalloon();
                                     removePOIMarker(mapView); 
                                     BalloonModel model = new BalloonModel();
+                                    model.id = a.getId();
                                     model.lat = a.getLatitude();
                                     model.lon = a.getLongitude();
                                     model.address = a.getAddress();
@@ -1016,7 +1059,6 @@ public final class LandingActivity2 extends FragmentActivity {
             if(overlay instanceof POIActionOverlay){
                 POIActionOverlay poiOverlay = (POIActionOverlay)overlay;
                 if(poiOverlay.getMarker() == R.drawable.bulb_poi){
-                    poiOverlay.hideBalloon();
                     overlays.remove(overlay);
                 }
             }
