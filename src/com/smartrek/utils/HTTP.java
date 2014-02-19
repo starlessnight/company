@@ -61,6 +61,8 @@ public final class HTTP {
 	
 	private int timeout = defaultTimeout;
 	
+	private String referer;
+	
 	public HTTP(String urlString) throws IOException {
 		httpConn = openHttpConnection(urlString);
 	}
@@ -145,6 +147,9 @@ public final class HTTP {
 			if(StringUtils.isNotEmpty(ifNoneMatch)){
 			    httpConn.setRequestProperty("If-None-Match", ifNoneMatch);
 			}
+			if(StringUtils.isNotEmpty(referer)){
+			    httpConn.setRequestProperty("Referer", referer);
+            }
 			httpConn.connect();
 		}
 	}
@@ -275,6 +280,10 @@ public final class HTTP {
             httpConn.setConnectTimeout(timeout);
             httpConn.setReadTimeout(timeout);
         }
+    }
+
+    public void setReferer(String referer) {
+        this.referer = referer;
     }
 	
 //    public static InputStream openHttpConnection(String urlString) throws IOException {

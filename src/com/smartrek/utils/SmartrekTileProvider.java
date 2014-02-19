@@ -27,12 +27,20 @@ final public class SmartrekTileProvider extends XYTileSource {
 	    String baseUrl = getBaseUrl();
 	    String imageFilenameEnding = mImageFilenameEnding;
 	    String url = baseUrl + zoomLevel + "/" + aTile.getX() + "/" + aTile.getY() + imageFilenameEnding;
-	    // url = "http://api.decarta.com/v1/814192d44ada190313e7639881bf7226/tile/" // deCarta images tiles
-        //    + aTile.getX() + "/" + aTile.getY() + "/" + aTile.getZoomLevel() + ".png"; 
+	    
+	    // deCarta images tiles
+	    // url = "http://api.decarta.com/v1/814192d44ada190313e7639881bf7226/tile/"
+        //    + aTile.getX() + "/" + aTile.getY() + "/" + aTile.getZoomLevel() + ".png";
+	    
+	    // Skobbler images tiles
+	    url = "http://tiles1.api.skobbler.net/tiles/" + aTile.getZoomLevel() + "/" 
+            + aTile.getX() + "/" + aTile.getY() + ".png?api_key=97c7a512253c388d252fa4a141aba82b";
+	            
         try {
             HTTP http = new HTTP(url);
             http.setMethod(Method.HEAD);
             http.setTimeout(7500);
+            http.setReferer("http://www.smartrekmobile.com");
             int responseCode = http.getResponseCode();
             if(!(200 <= responseCode && responseCode <= 399)){
                 baseUrl = osmHost;
