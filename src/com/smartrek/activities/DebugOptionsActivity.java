@@ -1,6 +1,8 @@
 package com.smartrek.activities;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -73,6 +75,10 @@ public final class DebugOptionsActivity extends Activity {
     private static final String navLinks = "navLinks";
     
     private static final int navLinksSize = 100;
+    
+    private static final String recentAddresses = "recentAddresses";
+    
+    private static final int recentAddressesSize = 30;
     
     private static final String osmdroidCacheDir = "osmdroid";
     
@@ -552,6 +558,43 @@ public final class DebugOptionsActivity extends Activity {
             return l;
         }
         
+    }
+    
+    private static void saveRecentAddresses(Context ctx, List<String> addrs){
+        JSONArray array = new JSONArray();
+        for(String a : addrs){
+            array.put(a);
+        }
+        SharedPreferences.Editor editor = getPrefs(ctx).edit();
+        editor.putString(recentAddresses, array.toString());
+        editor.commit();
+    }
+    
+    public static void addRecentAddress(Context ctx, String addr){
+        List<String> list = getRecentAddresses(ctx);
+        while(list.size() > recentAddressesSize - 1){
+            list.remove(list.size());
+        }
+        list.add(0, addr);
+        saveRecentAddresses(ctx, list);
+    }
+    
+    public static List<String> getRecentAddresses(Context ctx){
+        List<String> list = new ArrayList<String>();
+        JSONArray array = null;
+        try {
+            array = new JSONArray(getPrefs(ctx).getString(recentAddresses, "[]"));
+        }
+        catch (Throwable t) {
+            array = new JSONArray();
+        }
+        for (int i=0; i < array.length(); i++) {
+            String addr = array.optString(i);
+            if(StringUtils.isNotBlank(addr)){
+                list.add(addr);
+            }
+        }
+        return list;
     }
     
 }

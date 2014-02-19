@@ -60,7 +60,7 @@
 						android:layout_weight="1">
 			    	<include layout="@layout/mapview" />
 			    	
-			    	<EditText
+			    	<AutoCompleteTextView
 			    	    android:id="@+id/search_box"
 			    	    android:layout_width="match_parent"
 			            android:layout_height="wrap_content"

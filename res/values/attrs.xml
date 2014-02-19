@@ -83,4 +83,6 @@
     <item type="id" name="estimated_arrival_time" />
     <item type="id" name="remaining_travel_time" />
     <item type="id" name="menu_panel_status" />
+    <item type="id" name="starred_addresses" />
+    <item type="id" name="where_to_addresses" />
 </resources>

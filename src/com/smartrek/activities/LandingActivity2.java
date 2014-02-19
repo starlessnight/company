@@ -42,6 +42,8 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -185,7 +187,8 @@ public final class LandingActivity2 extends FragmentActivity {
             }
         });
         
-        TextView searchBox = (TextView) findViewById(R.id.search_box);
+        AutoCompleteTextView searchBox = (AutoCompleteTextView) findViewById(R.id.search_box);
+        refreshSearchAutoCompleteData();
         searchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -212,6 +215,8 @@ public final class LandingActivity2 extends FragmentActivity {
                         @Override
                         protected void onPostExecute(GeoPoint gp) {
                             if(gp != null){
+                                DebugOptionsActivity.addRecentAddress(LandingActivity2.this, addrInput);
+                                refreshSearchAutoCompleteData();
                                 ReverseGeocodingTask task = new ReverseGeocodingTask(
                                         gp.getLatitude(), gp.getLongitude()){
                                     @Override
@@ -468,6 +473,25 @@ public final class LandingActivity2 extends FragmentActivity {
             rewardsMenu, shareMenu, feedbackMenu, settingsMenu, logoutMenu,
             tripDetails, getGoingBtn, rescheBtn, (TextView)findViewById(R.id.header_text),
             (TextView)findViewById(R.id.menu_bottom_text));
+    }
+    
+    private void refreshSearchAutoCompleteData(){
+        AutoCompleteTextView searchBox = (AutoCompleteTextView) findViewById(R.id.search_box);
+        List<String> searchData = new ArrayList<String>();
+        @SuppressWarnings("unchecked")
+        List<String> starred = (List<String>) searchBox.getTag(R.id.starred_addresses);
+        if(starred != null){
+            searchData.addAll(starred);
+        }
+        searchData.addAll(DebugOptionsActivity.getRecentAddresses(this));
+        @SuppressWarnings("unchecked")
+        List<String> whereTo = (List<String>) searchBox.getTag(R.id.where_to_addresses);
+        if(whereTo != null){
+            searchData.addAll(whereTo);
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+            android.R.layout.simple_dropdown_item_1line, searchData);
+        searchBox.setAdapter(adapter);
     }
     
     private static class BalloonModel {
@@ -776,6 +800,7 @@ public final class LandingActivity2 extends FragmentActivity {
                     ehs.reportExceptions();
                 }
                 else {
+                    List<String> addrList = new ArrayList<String>();
                     if (result != null && result.size() > 0) {
                         final MapView mapView = (MapView) findViewById(R.id.mapview);
                         List<Overlay> overlays = mapView.getOverlays();
@@ -837,8 +862,11 @@ public final class LandingActivity2 extends FragmentActivity {
                             });
                             overlays.add(star);
                             star.showOverlay();
+                            addrList.add(a.getAddress());
                         }
                         mapView.postInvalidate();
+                        findViewById(R.id.search_box).setTag(R.id.starred_addresses, addrList);
+                        refreshSearchAutoCompleteData();
                     }
                 }
             }
@@ -921,6 +949,7 @@ public final class LandingActivity2 extends FragmentActivity {
                             final List<Overlay> mapOverlays = mapView.getOverlays();
                             mapOverlays.clear();
                             bindMapFunctions(mapView);
+                            List<String> addrList = new ArrayList<String>();
                             if(locs.isEmpty()){
                                 mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
                                 mc.setCenter(new GeoPoint(lat, lon));
@@ -930,9 +959,14 @@ public final class LandingActivity2 extends FragmentActivity {
                                 int[] range = routeRect.getRange();
                                 mc.zoomToSpan(range[0], range[1]);
                                 mc.setCenter(mid);
+                                for(com.smartrek.requests.WhereToGoRequest.Location l : locs){
+                                    addrList.add(l.addr);
+                                }
                             }
                             mapOverlays.add(myPointOverlay);
                             mapView.postInvalidate();
+                            findViewById(R.id.search_box).setTag(R.id.where_to_addresses, addrList);
+                            refreshSearchAutoCompleteData();
                             refreshStarredPOIs();
                         }
                     }
