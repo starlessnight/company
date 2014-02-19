@@ -34,7 +34,7 @@ public class FavoriteAddressAddRequest extends Request {
 		if(NEW_API){
 		    this.username = user.getUsername();
 		    this.password = user.getPassword();
-		    String url = getLinkUrl(Link.address);
+		    url = getLinkUrl(Link.address);
 		    Map<String, String> params = new HashMap<String, String>();
             params.put("user_id", String.valueOf(user.getId()));
             params.put("name", StringUtils.substring(name, 0, 30));

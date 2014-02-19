@@ -249,5 +249,9 @@ public abstract class Request {
         Object interval = settings.get(Setting.activity_distance_interval);
         return interval == null?null:Long.valueOf(interval.toString());
     }
+
+    public String getUrl() {
+        return url;
+    }
 	
 }

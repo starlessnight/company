@@ -60,6 +60,7 @@ import com.smartrek.requests.FavoriteAddressAddRequest;
 import com.smartrek.requests.FavoriteAddressDeleteRequest;
 import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.requests.FavoriteAddressUpdateRequest;
+import com.smartrek.requests.Request;
 import com.smartrek.requests.ReservationDeleteRequest;
 import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.requests.UpdateDeviceIdRequest;
@@ -382,11 +383,13 @@ public final class LandingActivity2 extends FragmentActivity {
                     AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
                         @Override
                         protected Void doInBackground(Void... params) {
+                            Request req = null;
                             User user = User.getCurrentUser(LandingActivity2.this);
                             try {
                                 if(model.id == 0){
                                     FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
                                         user, lbl, addr, model.lat, model.lon);
+                                    req = request;
                                     request.execute(LandingActivity2.this);
                                 }else{
                                     FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
@@ -397,11 +400,12 @@ public final class LandingActivity2 extends FragmentActivity {
                                         addr,
                                         model.lat, 
                                         model.lon);
+                                    req = request;
                                     request.execute(LandingActivity2.this);
                                 }
                             }
                             catch (Exception e) {
-                                ehs.registerException(e);
+                                ehs.registerException(e, "[" + req==null?"":req.getUrl() + "]\n" + e.getMessage());
                             }
                             return null;
                         }
@@ -559,11 +563,11 @@ public final class LandingActivity2 extends FragmentActivity {
             protected List<Reservation> doInBackground(Void... params) {
                 User user = User.getCurrentUser(LandingActivity2.this);
                 List<Reservation> reservations= Collections.emptyList();
+                ReservationListFetchRequest resReq = new ReservationListFetchRequest(user);
+                resReq.invalidateCache(LandingActivity2.this);
+                FavoriteAddressFetchRequest addReq = new FavoriteAddressFetchRequest(user);
+                addReq.invalidateCache(LandingActivity2.this);
                 try {
-                    ReservationListFetchRequest resReq = new ReservationListFetchRequest(user);
-                    resReq.invalidateCache(LandingActivity2.this);
-                    FavoriteAddressFetchRequest addReq = new FavoriteAddressFetchRequest(user);
-                    addReq.invalidateCache(LandingActivity2.this);
                     List<com.smartrek.models.Address> addresses = addReq.execute(LandingActivity2.this);
                     reservations = resReq.execute(LandingActivity2.this);
                     for(Reservation r:reservations){
@@ -588,7 +592,7 @@ public final class LandingActivity2 extends FragmentActivity {
                 }
                 catch (NullPointerException e){}
                 catch (Exception e) {
-                    ehs.registerException(e);
+                    ehs.registerException(e, "[" + resReq.getURL() + ", " + addReq.getURL() + "]\n" + e.getMessage());
                 }
                 return reservations;
             }
@@ -761,7 +765,7 @@ public final class LandingActivity2 extends FragmentActivity {
                     addrs = request.execute(LandingActivity2.this);
                 }
                 catch (Exception e) {
-                    ehs.registerException(e);
+                    ehs.registerException(e, "[" + request.getURL() + "]\n" + e.getMessage());
                 }
                 return addrs;
             }
@@ -894,7 +898,7 @@ public final class LandingActivity2 extends FragmentActivity {
                             locs = req.execute(LandingActivity2.this);
                         }
                         catch (Exception e) {
-                            ehs.registerException(e);
+                            ehs.registerException(e, "[" + req.getURL() + "]\n" + e.getMessage());
                         }
                         return locs;
                     }
