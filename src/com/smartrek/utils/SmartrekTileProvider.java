@@ -1,11 +1,7 @@
 package com.smartrek.utils;
 
-import java.io.IOException;
-
 import org.osmdroid.tileprovider.MapTile;
 import org.osmdroid.tileprovider.tilesource.XYTileSource;
-
-import com.smartrek.utils.HTTP.Method;
 
 /**
  * This is a tile source for a map view.
@@ -35,8 +31,9 @@ final public class SmartrekTileProvider extends XYTileSource {
 	    // Skobbler images tiles
 	    url = "http://tiles1.api.skobbler.net/tiles/" + aTile.getZoomLevel() + "/" 
             + aTile.getX() + "/" + aTile.getY() + ".png?api_key=97c7a512253c388d252fa4a141aba82b";
-	            
-        try {
+	     
+	    // fallback
+        /*try {
             HTTP http = new HTTP(url);
             http.setMethod(Method.HEAD);
             http.setTimeout(7500);
@@ -49,7 +46,8 @@ final public class SmartrekTileProvider extends XYTileSource {
             }
         }
         catch (IOException e) {
-        }
+        }*/
+	    
         return url;
     }
 
