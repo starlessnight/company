@@ -3,6 +3,9 @@ package com.smartrek.utils;
 import org.osmdroid.tileprovider.MapTile;
 import org.osmdroid.tileprovider.tilesource.XYTileSource;
 
+import com.smartrek.requests.Request;
+import com.smartrek.requests.Request.Setting;
+
 /**
  * This is a tile source for a map view.
  *
@@ -22,15 +25,18 @@ final public class SmartrekTileProvider extends XYTileSource {
 	    int zoomLevel = aTile.getZoomLevel();
 	    String baseUrl = getBaseUrl();
 	    String imageFilenameEnding = mImageFilenameEnding;
-	    String url = baseUrl + zoomLevel + "/" + aTile.getX() + "/" + aTile.getY() + imageFilenameEnding;
+	    String url = ((String)Request.getSetting(Setting.tile))
+            .replaceAll("\\{x\\}", String.valueOf(aTile.getX()))
+            .replaceAll("\\{y\\}", String.valueOf(aTile.getY()))
+            .replaceAll("\\{z\\}", String.valueOf(zoomLevel));
 	    
 	    // deCarta images tiles
 	    // url = "http://api.decarta.com/v1/814192d44ada190313e7639881bf7226/tile/"
-        //    + aTile.getX() + "/" + aTile.getY() + "/" + aTile.getZoomLevel() + ".png";
+        //    + aTile.getX() + "/" + aTile.getY() + "/" + zoomLevel + ".png";
 	    
 	    // Skobbler images tiles
-	    url = "http://tiles1.api.skobbler.net/tiles/" + aTile.getZoomLevel() + "/" 
-            + aTile.getX() + "/" + aTile.getY() + ".png?api_key=97c7a512253c388d252fa4a141aba82b";
+	    //url = "http://tiles1.api.skobbler.net/tiles/" + zoomLevel + "/" 
+        //    + aTile.getX() + "/" + aTile.getY() + ".png?api_key=97c7a512253c388d252fa4a141aba82b";
 	     
 	    // fallback
         /*try {
