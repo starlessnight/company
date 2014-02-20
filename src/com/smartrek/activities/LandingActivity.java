@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.osmdroid.views.MapController;
+import org.osmdroid.api.IMapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
@@ -311,7 +311,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         mapView.setMultiTouchControls(true);
         mapView.setTileSource(new SmartrekTileProvider());
         
-        MapController mc = mapView.getController();
+        IMapController mc = mapView.getController();
         int lat = (int) Math.round(38.27268853598097f*1E6);
         int lon = (int) Math.round(-99.1406250000000f*1E6);
         mc.setZoom(4); 
@@ -681,7 +681,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         othersPointOverlay.setLocation((float) lat, (float)lon);
         mapOverlays.add(othersPointOverlay);
         mapView.postInvalidate();
-        MapController mc = mapView.getController();
+        IMapController mc = mapView.getController();
         mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
         mc.setCenter(new GeoPoint(lat, lon));
         expandMap();
@@ -744,7 +744,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             @Override
             public void get(double lat, double lon) {
                 MapView mapView = (MapView) findViewById(R.id.mapview);
-                MapController mc = mapView.getController();
+                IMapController mc = mapView.getController();
                 mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
                 mc.setCenter(new GeoPoint(lat, lon));
                 final List<Overlay> mapOverlays = mapView.getOverlays();
@@ -1206,7 +1206,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                     RouteRect routeRect = ValidationActivity.initRouteRect(route);
                     GeoPoint mid = routeRect.getMidPoint();
                     int[] range = routeRect.getRange();
-                    MapController mc = mapView.getController();
+                    IMapController mc = mapView.getController();
                     mc.zoomToSpan(range[0], range[1]);
                     mc.setCenter(mid);
                 }

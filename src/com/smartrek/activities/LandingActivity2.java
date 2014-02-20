@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
-import org.osmdroid.views.MapController;
+import org.osmdroid.api.IMapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
@@ -116,7 +116,7 @@ public final class LandingActivity2 extends FragmentActivity {
         mapView.setMultiTouchControls(true);
         mapView.setTileSource(new SmartrekTileProvider());
         
-        final MapController mc = mapView.getController();
+        final IMapController mc = mapView.getController();
         int lat = (int) Math.round(38.27268853598097f*1E6);
         int lon = (int) Math.round(-99.1406250000000f*1E6);
         mc.setZoom(4); 
@@ -940,7 +940,7 @@ public final class LandingActivity2 extends FragmentActivity {
                             hideBulbBalloon();
                             MapView mapView = (MapView) findViewById(R.id.mapview);
                             removePOIMarker(mapView);
-                            MapController mc = mapView.getController();
+                            IMapController mc = mapView.getController();
                             if(myPointOverlay == null){
                                 myPointOverlay = new PointOverlay(LandingActivity2.this, 0, 0);
                                 myPointOverlay.setColor(0xCC2020DF);

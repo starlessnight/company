@@ -18,7 +18,7 @@ final public class SmartrekTileProvider extends XYTileSource {
     private static final String osmImgFilenameEnding = ".png"; 
     
 	public SmartrekTileProvider() {
-		super("Custom", null, 3, 18, 256, "", "http://tile.smartrekmobile.com/osm/");
+		super("Custom", null, 3, 18, 256, "", new String[]{"http://tile.smartrekmobile.com/osm/"});
 	}
 	
 	@Override

@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.osmdroid.DefaultResourceProxyImpl;
-import org.osmdroid.views.MapController;
+import org.osmdroid.api.IMapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.Overlay;
@@ -51,7 +51,7 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 	protected IBalloonOverlayView<Item> balloonView;
 	protected View clickRegion;
 	protected int viewOffset;
-	protected final MapController mc;
+	protected final IMapController mc;
 	protected Item currentFocussedItem;
 	protected int currentFocussedIndex;
 	protected Typeface headerFont;

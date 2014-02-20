@@ -10,7 +10,7 @@ import java.util.Vector;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.osmdroid.views.MapController;
+import org.osmdroid.api.IMapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
@@ -281,7 +281,7 @@ public final class RouteActivity extends FragmentActivity {
         Misc.initOsmCredit(osmCredit);
         
         /* Set the map view for a view of North America before zooming in on route */
-        MapController mc = mapView.getController();
+        IMapController mc = mapView.getController();
         int lat = (int) Math.round(38.27268853598097f*1E6);
         int lon = (int) Math.round(-99.1406250000000f*1E6);
         mc.setZoom(4); 
@@ -800,7 +800,7 @@ public final class RouteActivity extends FragmentActivity {
             /* range holds 2 points consisting of the lat/lon range to be displayed */
             int[] range = routeRect.getRange();
             /* Get the MapController set the midpoint and range */
-            MapController mc = mapView.getController();
+            IMapController mc = mapView.getController();
             mc.zoomToSpan(range[0], range[1]);
             mc.setCenter(mid); // setCenter only works properly after zoomToSpan
         }

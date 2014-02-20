@@ -20,8 +20,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.osmdroid.api.IGeoPoint;
+import org.osmdroid.api.IMapController;
 import org.osmdroid.tileprovider.util.CloudmadeUtil;
-import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 
@@ -425,7 +425,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 	}
 
-	private static void centerMap(MapController mc, boolean isOnRecreate,
+	private static void centerMap(IMapController mc, boolean isOnRecreate,
 			Bundle savedInstanceState, Route route) {
 		mc.setZoom(DEFAULT_ZOOM_LEVEL);
 		GeoPoint center = null;
@@ -597,9 +597,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     if (lastKnownLocation != null) {
                     	double latitude = lastKnownLocation.getLatitude();
                     	double longitude = lastKnownLocation.getLongitude();
-                    	MapController mc = mapView.getController();
+                    	IMapController mc = mapView.getController();
                     	mc.setZoom(DEFAULT_ZOOM_LEVEL);
-                    	mc.animateTo(latitude, longitude);
+                    	mc.animateTo(new GeoPoint(latitude, longitude));
                     }
                 }
                 else if(routeRect != null){
@@ -608,7 +608,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     /* range holds 2 points consisting of the lat/lon range to be displayed */
                     int[] range = routeRect.getRange();
                     /* Get the MapController set the midpoint and range */
-                    MapController mc = mapView.getController();
+                    IMapController mc = mapView.getController();
                     mc.zoomToSpan(range[0], range[1]);
                     mc.setCenter(mid); // setCenter only works properly after zoomToSpan
                 }
@@ -693,9 +693,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				if (lastKnownLocation != null) {
 					double latitude = lastKnownLocation.getLatitude();
 					double longitude = lastKnownLocation.getLongitude();
-					MapController mc = mapView.getController();
+					IMapController mc = mapView.getController();
 					mc.setZoom(DEFAULT_ZOOM_LEVEL);
-					mc.animateTo(latitude, longitude);
+					mc.animateTo(new GeoPoint(latitude, longitude));
 				}
 			}
 		});
@@ -1125,7 +1125,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		GeoPoint oldLoc = pointOverlay.getLocation();
 		if (oldLoc.isEmpty()) {
 			if (buttonFollow.isChecked()) {
-				mapView.getController().animateTo(lat, lng);
+				mapView.getController().animateTo(new GeoPoint(lat, lng));
 			}
 			pointOverlay.setLocation((float) lat, (float) lng);
 			mapView.postInvalidate();
