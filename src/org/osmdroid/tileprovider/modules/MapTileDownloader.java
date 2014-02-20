@@ -3,6 +3,7 @@ package org.osmdroid.tileprovider.modules;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +11,7 @@ import java.io.OutputStream;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -179,6 +181,8 @@ public class MapTileDownloader extends MapTileModuleProviderBase {
 				if (TextUtils.isEmpty(tileURLString)) {
 					return null;
 				}
+				
+				long startTime = System.currentTimeMillis();
 
 				final HttpClient client = HttpClientFactory.createHttpClient();
 				final HttpUriRequest head = new HttpGet(tileURLString);
@@ -202,6 +206,13 @@ public class MapTileDownloader extends MapTileModuleProviderBase {
 				out = new BufferedOutputStream(dataStream, StreamUtils.IO_BUFFER_SIZE);
 				StreamUtils.copy(in, out);
 				out.flush();
+				
+				try{
+				    FileUtils.writeStringToFile(new File(OSMDROID_PATH, "download.log"),
+			            startTime + "," + tileURLString + "," + (System.currentTimeMillis() - startTime) + "\n"
+			            , true);
+				} catch(Throwable t){}
+				
 				final byte[] data = dataStream.toByteArray();
 				final ByteArrayInputStream byteStream = new ByteArrayInputStream(data);
 
