@@ -271,11 +271,7 @@ public final class LandingActivity2 extends FragmentActivity {
         shareMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                User user = User.getCurrentUser(LandingActivity2.this);
-                ShareDialog.newInstance(user.getFirstname() + " " + user.getLastname() + " is on the way",
-                     "I helped solve traffic congestion using Metropia Mobile!"
-                     + "\n\n" + Misc.getGooglePlayAppUrl(LandingActivity2.this))
-                    .show(getSupportFragmentManager(), null);
+            	MainMenu.onMenuItemSelected(LandingActivity2.this, 0, v.getId());
             }
         });
         TextView feedbackMenu = (TextView) findViewById(R.id.feedback_menu);

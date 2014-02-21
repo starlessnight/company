@@ -14,6 +14,7 @@ import com.smartrek.activities.R;
 import com.smartrek.activities.ReservationConfirmationActivity;
 import com.smartrek.activities.ReservationListActivity;
 import com.smartrek.activities.RouteActivity;
+import com.smartrek.activities.ShareActivity;
 import com.smartrek.models.User;
 
 /**
@@ -113,6 +114,14 @@ public final class MainMenu {
                    activity.startActivity(intent);
                }
                break;
+               
+           case R.id.share_menu:
+        	   if(!activity.getClass().equals(ShareActivity.class)) {
+        		   intent = new Intent(activity, ShareActivity.class);
+                   activity.startActivity(intent);
+        	   }
+        	   break;
+        	   
            default:
                activity.setResult(Activity.RESULT_CANCELED);
            }

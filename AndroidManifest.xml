@@ -181,6 +181,10 @@
 			android:configChanges="keyboard|orientation|screenSize" 
 			android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" 
 			android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".ShareActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
+            android:theme="@android:style/Theme.NoTitleBar" />
 		<receiver android:name="com.sessionm.api.ConnectionReceiver"> 
 		  <intent-filter> 
 		    <action android:name="android.net.conn.CONNECTIVITY_CHANGE"> 
