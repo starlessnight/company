@@ -18,7 +18,7 @@
 		    
 		    <FrameLayout 
 		        	android:layout_width="match_parent"
-		        	android:layout_height="wrap_content"
+		        	android:layout_height="24dp"
 		        	android:background="@android:color/white">
 		        <TextView 
 		            android:id="@+id/header"
@@ -27,11 +27,9 @@
 		            android:gravity="center"
 		            android:layout_gravity="center_vertical"
 		            android:textColor="#6d6e70"
-		            android:textSize="@dimen/smaller_font"
-		            android:text="Settings"
-		            android:paddingTop="5dp"
-		            android:paddingBottom="5dp"
-				/>
+		            android:textSize="16dp"
+		            android:text="Settings"/>
+		        
 		        <TextView 
 		            android:id="@+id/back_button"
 		            android:layout_width="match_parent"
@@ -41,8 +39,6 @@
 		            android:textSize="@dimen/smallest_font"
 		            android:text="Back"
 		            android:layout_gravity="center_vertical"
-		            android:paddingTop="5dp"
-		            android:paddingBottom="5dp"
 		            android:paddingLeft="10dp"
 		            android:drawableLeft="@drawable/back_left_arrow"
 		            android:drawablePadding="5dp"
@@ -57,32 +53,30 @@
 		    
 		    <LinearLayout 
 		        android:layout_width="fill_parent"
-		        android:layout_height="wrap_content"
+		        android:layout_height="64dp"
 		        android:background="@android:color/white"
 		        android:orientation="vertical"
 		    >
 		        <TextView 
 		            android:id="@+id/user_name"
 		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:gravity="center"
+		            android:layout_height="32dp"
+		            android:gravity="bottom"
 		            android:layout_gravity="center_horizontal"
 		            android:text=""
 		            android:textSize="@dimen/medium_font"
 		            android:textColor="@color/gray"
-		            android:paddingTop="5dp"
 		        />
 		        
 		        <TextView 
 		            android:id="@+id/user_email"
 		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:gravity="center"
+		            android:layout_height="32dp"
+		            android:gravity="top"
 		            android:layout_gravity="center_horizontal"
 		            android:text=""
-		            android:textSize="@dimen/smaller_font"
+		            android:textSize="@dimen/smallest_font"
 		            android:textColor="@color/gray"
-		            android:paddingBottom="5dp"
 		        />
 		    </LinearLayout>
 		    
@@ -91,31 +85,30 @@
 		    <TextView 
 		        android:id="@+id/version_number"
 		        android:layout_width="fill_parent"
-		        android:layout_height="wrap_content"
+		        android:layout_height="32dp"
 		        android:background="@color/gray"
 		        android:padding="2dp"
 		        android:text="@string/version"
 		        android:textSize="@dimen/medium_font"
 		        android:textColor="@android:color/white"
 		        android:gravity="center"
-		        android:layout_gravity="center_horizontal"/>
+		        android:layout_gravity="center_vertical"/>
 		    
 		    <LinearLayout
 		        android:layout_width="fill_parent"
-		        android:layout_height="wrap_content"
-		        android:layout_marginTop="20dp"
-		        android:layout_marginLeft="20dp"
-		        android:layout_marginRight="20dp"
-		        android:layout_marginBottom="10dp"
+		        android:layout_height="118dp"
+		        android:layout_marginTop="31dp"
+		        android:layout_marginLeft="18dp"
+		        android:layout_marginRight="18dp"
+		        android:layout_marginBottom="15dp"
 		        android:background="@android:color/white"
 		        android:orientation="vertical">
 		        
 		        <FrameLayout
 		            android:layout_width="fill_parent"
-		            android:layout_height="wrap_content"
-		            android:paddingLeft="10dp"
-		            android:paddingRight="10dp"
-		            android:paddingTop="10dp"
+		            android:layout_height="58dp"
+		            android:paddingLeft="25dp"
+		            android:paddingRight="26dp"
 		            >
 		            <TextView 
 		                android:id="@+id/predict_destination_text"
@@ -126,18 +119,15 @@
 		                android:textColor="@color/gray"
 		                android:gravity="left"
 		                android:layout_gravity="center_vertical"
-		                android:singleLine="true"
-		                android:paddingLeft="5dp"/>
+		                android:singleLine="true"/>
 		            
 		            <ToggleButton 
 		                android:id="@+id/predict_destination"
-		                android:layout_width="wrap_content"
-			            android:layout_height="match_parent"
-			            android:layout_marginBottom="5dp"
-			            android:layout_marginTop="5dp"
+		                android:layout_width="46dp"
+			            android:layout_height="30dp"
 			            android:background="@drawable/setting_toggle_button"
 			            android:gravity="right"
-			            android:layout_gravity="right"
+			            android:layout_gravity="center|right"
 			            android:checked="true"
 			            android:textOff=""
 			            android:textOn=""
@@ -148,18 +138,15 @@
 		        <View 
 		            android:layout_height="2dp"
 		            android:layout_width="fill_parent"
-		            android:layout_marginLeft="15dp"
-		            android:layout_marginTop="5dp"
-		            android:layout_marginBottom="5dp"
-		            android:layout_marginRight="10dp"
+		            android:layout_marginLeft="25dp"
+		            android:layout_marginRight="26dp"
 		            android:background="@color/lighter_gray"/>
 		        
 		        <FrameLayout
 		            android:layout_width="fill_parent"
-		            android:layout_height="wrap_content"
-		            android:paddingLeft="10dp"
-		            android:paddingRight="10dp"
-		            android:paddingBottom="10dp"
+		            android:layout_height="58dp"
+		            android:paddingLeft="25dp"
+		            android:paddingRight="26dp"
 		            >
 		            <TextView 
 		                android:id="@+id/calendar_integration_text"
@@ -170,18 +157,15 @@
 		                android:textColor="@color/gray"
 		                android:gravity="left"
 		                android:layout_gravity="center_vertical"
-		                android:singleLine="true"
-		                android:padding="5dp"/>
+		                android:singleLine="true"/>
 		            
 		            <ToggleButton 
 		                android:id="@+id/calendar_integration"
-		                android:layout_width="wrap_content"
-			            android:layout_height="match_parent"
-			            android:layout_marginBottom="5dp"
-			            android:layout_marginTop="5dp"
+		                android:layout_width="46dp"
+			            android:layout_height="30dp"
 			            android:background="@drawable/setting_toggle_button"
 			            android:gravity="right"
-			            android:layout_gravity="right"
+			            android:layout_gravity="center|right"
 			            android:checked="true"
 			            android:textOff=""
 			            android:textOn=""
@@ -193,77 +177,66 @@
 		    
 		    <LinearLayout
 		        android:layout_width="fill_parent"
-		        android:layout_height="wrap_content"
-		        android:layout_marginTop="10dp"
-		        android:layout_marginLeft="20dp"
-		        android:layout_marginRight="20dp"
-		        android:layout_marginBottom="20dp"
+		        android:layout_height="184dp"
+		        android:layout_marginTop="15dp"
+		        android:layout_marginLeft="18dp"
+		        android:layout_marginRight="18dp"
 		        android:background="@android:color/white"
 		        android:orientation="vertical">
 		        
 		        <TextView 
 		            android:id="@+id/tutorial"
 		            android:layout_width="fill_parent"
-		            android:layout_height="wrap_content"
+		            android:layout_height="60dp"
+		            android:layout_marginLeft="25dp"
+		            android:layout_marginRight="26dp"
 		            android:text="Tutorial"
 		            android:textSize="@dimen/smaller_font"
 		            android:textColor="@color/gray"
-		            android:gravity="left"
+		            android:gravity="center_vertical"
 		            android:layout_gravity="center_vertical"
-		            android:drawableRight="@drawable/menu_right_arrow"
-		            android:paddingLeft="15dp"
-		            android:paddingRight="15dp"
-		            android:paddingTop="15dp"
-		            android:paddingBottom="5dp"/>
+		            android:drawableRight="@drawable/menu_right_arrow"/>
 		        
 		        <View 
 		            android:layout_height="2dp"
 		            android:layout_width="fill_parent"
-		            android:layout_marginLeft="15dp"
-		            android:layout_marginTop="5dp"
-		            android:layout_marginBottom="5dp"
-		            android:layout_marginRight="10dp"
+		            android:layout_marginLeft="25dp"
+		            android:layout_marginRight="22dp"
 		            android:background="@color/lighter_gray"/>
 		        
 		        <TextView 
 		            android:id="@+id/terms_and_conditions"
 		            android:layout_width="fill_parent"
-		            android:layout_height="wrap_content"
+		            android:layout_height="60dp"
+		            android:layout_marginLeft="25dp"
+		            android:layout_marginRight="26dp"
 		            android:text="Terms &amp; Conditions"
 		            android:textSize="@dimen/smaller_font"
 		            android:textColor="@color/gray"
-		            android:gravity="left"
+		            android:gravity="center_vertical"
 		            android:layout_gravity="center_vertical"
-		            android:drawableRight="@drawable/menu_right_arrow"
-		            android:paddingLeft="15dp"
-		            android:paddingRight="15dp"
-		            android:paddingTop="5dp"
-		            android:paddingBottom="5dp"/>
+		            android:drawableRight="@drawable/menu_right_arrow"/>
 		            
 		        
 		        <View 
 		            android:layout_height="2dp"
 		            android:layout_width="fill_parent"
-		            android:layout_marginLeft="15dp"
-		            android:layout_marginTop="5dp"
-		            android:layout_marginBottom="5dp"
-		            android:layout_marginRight="10dp"
+		            android:layout_marginLeft="25dp"
+		            android:layout_marginRight="22dp"
 		            android:background="@color/lighter_gray"/>
 		        
 		        <TextView 
 		            android:id="@+id/help_our_research"
 		            android:layout_width="fill_parent"
-		            android:layout_height="wrap_content"
+		            android:layout_height="60dp"
+		            android:layout_marginLeft="25dp"
+		            android:layout_marginRight="26dp"
 		            android:text="Help our Research"
 		            android:textSize="@dimen/smaller_font"
 		            android:textColor="@color/gray"
-		            android:gravity="left"
+		            android:gravity="center_vertical"
 		            android:layout_gravity="center_vertical"
-		            android:drawableRight="@drawable/menu_right_arrow"
-		            android:paddingLeft="15dp"
-		            android:paddingRight="15dp"
-		            android:paddingTop="5dp"
-		            android:paddingBottom="15dp"/>
+		            android:drawableRight="@drawable/menu_right_arrow"/>
 		    </LinearLayout>
 		</LinearLayout>
 	</ScrollView>
