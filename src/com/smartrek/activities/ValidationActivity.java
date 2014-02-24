@@ -192,6 +192,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	private BroadcastReceiver timeoutReceiver;
 
+	private AtomicBoolean isOnRecreate = new AtomicBoolean(); 
+	
+	private GeoPoint lastCenter;
+	
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -203,13 +207,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		animator = new Handler(Looper.getMainLooper());
 
-		final boolean isOnRecreate = savedInstanceState != null;
+		isOnRecreate.set(savedInstanceState != null);
 
 		Bundle extras = getIntent().getExtras();
 
 		reservation = extras.getParcelable(RESERVATION);
 
-		route = (isOnRecreate ? savedInstanceState : extras)
+		route = (isOnRecreate.get() ? savedInstanceState : extras)
 				.getParcelable(ROUTE);
 		route.setCredits(reservation.getCredits());
 		reservation.setRoute(route);
@@ -217,7 +221,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		// Define a listener that responds to location updates
 		locationListener = new ValidationLocationListener();
 
-		if (isOnRecreate) {
+		if (isOnRecreate.get()) {
 			startTime = savedInstanceState.getLong(START_TIME);
 			savedPollCnt = savedInstanceState.getInt(POLL_CNT);
 			emails = savedInstanceState.getString(EMAILS);
@@ -297,86 +301,25 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 		};
 
-		final String navLink = reservation.getNavLink();
-		boolean hasNavLink = navLink != null;
 		final FakeRoute fakeRoute = DebugOptionsActivity.getFakeRoute(
-				ValidationActivity.this, route.getId());
-		isDebugging = fakeRoute != null;
-		boolean loadRoute = !isOnRecreate && (isDebugging || hasNavLink);
-		if (loadRoute) {
-			new AsyncTask<Void, Void, List<Route>>() {
-				@Override
-				protected List<Route> doInBackground(Void... params) {
-					List<Route> routes = null;
-					try {
-						RouteFetchRequest request;
-						if (isDebugging) {
-							request = new RouteFetchRequest(
-									route.getDepartureTime());
-						} else {
-							request = new RouteFetchRequest(navLink,
-									reservation.getDepartureTime(),
-									reservation.getDuration());
-						}
-						routes = request.execute(ValidationActivity.this);
-						if (routes != null && routes.size() > 0) {
-						    List<RouteNode> timeNodes = new ReservationFetchRequest(User.getCurrentUser(ValidationActivity.this), reservation.getRid())
-                                .execute(ValidationActivity.this).getRoute().getNodes();
-						    Map<Integer, Integer> nodeTimes = new HashMap<Integer, Integer>();
-						    for(RouteNode n:timeNodes){
-						        nodeTimes.put(n.getNodeNum(), n.getTime());
-						    }
-						    Route route = routes.get(0);
-						    for(RouteNode n : route.getNodes()){
-						        Integer time = nodeTimes.get(n.getNodeNum());
-						        if(time != null){
-						            n.setTime(time);
-						        }
-						    }
-						    
-						}
-					} catch (Exception e) {
-						ehs.registerException(e);
-					}
-					return routes;
-				}
-
-				protected void onPostExecute(java.util.List<Route> routes) {
-					if (ehs.hasExceptions()) {
-						ehs.reportExceptions(new Runnable() {
-							@Override
-							public void run() {
-								if (!isFinishing()) {
-									finish();
-								}
-							}
-						});
-					} else if (routes != null && routes.size() > 0) {
-						Route oldRoute = route;
-						route = routes.get(isDebugging ? fakeRoute.seq : 0);
-						route.setId(oldRoute.getId());
-						reservation.setRoute(route);
-						route.setCredits(reservation.getCredits());
-						route.preprocessNodes();
-						routeRect = initRouteRect(route);
-						updateDirectionsList();
-						centerMap(mapView.getController(), isOnRecreate,
-								savedInstanceState, route);
-						drawRoute(mapView, route, 0);
-					}
-				}
-			}.execute();
-		} else {
-			route.preprocessNodes();
-			routeRect = initRouteRect(route);
-			updateDirectionsList();
+                ValidationActivity.this, route.getId());
+        isDebugging = fakeRoute != null;
+		boolean loadRoute = isLoadRoute();
+		
+		if(!loadRoute){
+		    route.preprocessNodes();
+            routeRect = initRouteRect(route);
+            updateDirectionsList();
 		}
 
 		initViews();
 
+		if (isOnRecreate.get()) {
+            lastCenter = new GeoPoint((IGeoPoint) savedInstanceState.getParcelable(GEO_POINT));
+        }
+		
 		if (!loadRoute) {
-			centerMap(mapView.getController(), isOnRecreate,
-					savedInstanceState, route);
+			centerMap(mapView.getController(), isOnRecreate.get(), lastCenter, route);
 			drawRoute(mapView, route, 0);
 		}
 
@@ -389,7 +332,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		setVolumeControlStream(AudioManager.STREAM_NOTIFICATION);
 
-		if (!isOnRecreate) {
+		if (!isOnRecreate.get()) {
 			if (reservation.hasExpired()) {
 				stopValidation.set(true);
 				NotificationDialog dialog = new NotificationDialog(this,
@@ -424,14 +367,17 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 		}
 	}
+	
+	private boolean isLoadRoute(){
+        return !isOnRecreate.get() && (isDebugging || reservation.getNavLink() != null);
+	}
 
 	private static void centerMap(IMapController mc, boolean isOnRecreate,
-			Bundle savedInstanceState, Route route) {
+			GeoPoint lastCenter, Route route) {
 		mc.setZoom(DEFAULT_ZOOM_LEVEL);
 		GeoPoint center = null;
 		if (isOnRecreate) {
-			center = new GeoPoint(
-					(IGeoPoint) savedInstanceState.getParcelable(GEO_POINT));
+		    center = lastCenter;
 		} else if (route.getFirstNode() != null) {
 			center = route.getFirstNode().getGeoPoint();
 		}
@@ -1110,13 +1056,93 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 		return items;
 	}
+	
+	private AtomicBoolean routeLoaded = new AtomicBoolean();
+	
+	private synchronized void locationChanged(final Location location) {
+	    if (!routeLoaded.get() && isLoadRoute()) {
+            routeLoaded.set(true);
+            runOnUiThread(new Runnable(){
+                @Override
+                public void run() {
+                    AsyncTask<Void, Void, List<Route>> task = new AsyncTask<Void, Void, List<Route>>() {
+                        @Override
+                        protected List<Route> doInBackground(Void... params) {
+                            List<Route> routes = null;
+                            try {
+                                RouteFetchRequest request;
+                                if (isDebugging) {
+                                    request = new RouteFetchRequest(
+                                            route.getDepartureTime());
+                                } else {
+                                    request = new RouteFetchRequest(
+                                        reservation.getNavLink()
+                                           .replaceAll("\\{speed_in_mph\\}", String.valueOf(Trajectory.msToMph(location.getSpeed())))
+                                           .replaceAll("\\{course_angle_clockwise\\}", String.valueOf(location.getBearing())),
+                                        reservation.getDepartureTime(),
+                                        reservation.getDuration());
+                                }
+                                routes = request.execute(ValidationActivity.this);
+                                if (routes != null && routes.size() > 0) {
+                                    List<RouteNode> timeNodes = new ReservationFetchRequest(
+                                            User.getCurrentUser(ValidationActivity.this), 
+                                            reservation.getRid())
+                                        .execute(ValidationActivity.this).getRoute().getNodes();
+                                    Map<Integer, Integer> nodeTimes = new HashMap<Integer, Integer>();
+                                    for(RouteNode n:timeNodes){
+                                        nodeTimes.put(n.getNodeNum(), n.getTime());
+                                    }
+                                    Route route = routes.get(0);
+                                    for(RouteNode n : route.getNodes()){
+                                        Integer time = nodeTimes.get(n.getNodeNum());
+                                        if(time != null){
+                                            n.setTime(time);
+                                        }
+                                    }
+                                    
+                                }
+                            } catch (Exception e) {
+                                ehs.registerException(e);
+                            }
+                            return routes;
+                        }
 
-	private synchronized void locationChanged(Location location) {
-
+                        protected void onPostExecute(java.util.List<Route> routes) {
+                            if (ehs.hasExceptions()) {
+                                ehs.reportExceptions(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (!isFinishing()) {
+                                            finish();
+                                        }
+                                    }
+                                });
+                            } else if (routes != null && routes.size() > 0) {
+                                final FakeRoute fakeRoute = DebugOptionsActivity.getFakeRoute(
+                                    ValidationActivity.this, route.getId());
+                                Route oldRoute = route;
+                                route = routes.get(isDebugging ? fakeRoute.seq : 0);
+                                route.setId(oldRoute.getId());
+                                reservation.setRoute(route);
+                                route.setCredits(reservation.getCredits());
+                                route.preprocessNodes();
+                                routeRect = initRouteRect(route);
+                                updateDirectionsList();
+                                centerMap(mapView.getController(), isOnRecreate.get(),
+                                    lastCenter, route);
+                                drawRoute(mapView, route, 0);
+                            }
+                        }
+                    };
+                    Misc.parallelExecute(task);
+                }
+            });
+	    }
+	    
 		if (pointOverlay == null) {
 			return;
 		}
-
+		
 		double lat = location.getLatitude();
 		double lng = location.getLongitude();
 

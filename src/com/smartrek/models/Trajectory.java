@@ -134,7 +134,7 @@ public class Trajectory {
 			array.put(getAltitude() * 3.2808399f); // conversion from meter to feet
 			array.put(getHeading());
 			array.put(getTime());
-			array.put(getSpeed() * 2.23693629f); // conversion from m/s to mph
+			array.put(msToMph(getSpeed())); // conversion from m/s to mph
 			array.put(linkId);
 			
 			return array;
@@ -142,11 +142,17 @@ public class Trajectory {
 		
 		public static Record from(JSONArray array) throws JSONException {
 	        return new Record((float)array.getDouble(0), (float)array.getDouble(1), 
-	            (float)(array.getDouble(2) / 3.2808399f), (float)(array.getDouble(5) / 2.23693629f), 
+	            (float)(array.getDouble(2) / 3.2808399f), (float)(array.getDouble(5) / msToMphFactor), 
 	            (float) array.getDouble(3), array.getLong(4), array.optLong(6, DEFAULT_LINK_ID));
 	    }
 		
 	}
+	
+	public static final double msToMph(float speed){
+	    return speed * msToMphFactor;
+	}
+	
+	private static final float msToMphFactor = 2.2369356f; 
 	
 	private List<Record> records = new Vector<Record>();
 	
