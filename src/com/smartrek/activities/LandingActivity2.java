@@ -39,6 +39,7 @@ import android.text.Html;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.inputmethod.InputMethodManager;
@@ -52,7 +53,6 @@ import android.widget.TextView;
 import com.smartrek.activities.LandingActivity.CurrentLocationListener;
 import com.smartrek.dialogs.FeedbackDialog;
 import com.smartrek.dialogs.NotificationDialog;
-import com.smartrek.dialogs.ShareDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
 import com.smartrek.requests.AddressLinkRequest;
@@ -374,7 +374,7 @@ public final class LandingActivity2 extends FragmentActivity {
         });
         
         final View balloonView = (View) findViewById(R.id.balloon_panel);
-        balloonView.findViewById(R.id.save).setOnClickListener(new View.OnClickListener() {
+        balloonView.findViewById(R.id.saveOrDelete).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final String lbl = ((EditText)balloonView.findViewById(R.id.label)).getText().toString();
@@ -393,15 +393,9 @@ public final class LandingActivity2 extends FragmentActivity {
                                     req = request;
                                     request.execute(LandingActivity2.this);
                                 }else{
-                                    FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
-                                        new AddressLinkRequest(user).execute(LandingActivity2.this),
-                                        model.id,
-                                        user,
-                                        lbl,
-                                        addr,
-                                        model.lat, 
-                                        model.lon);
-                                    req = request;
+                                	FavoriteAddressDeleteRequest request = new FavoriteAddressDeleteRequest(
+                                            new AddressLinkRequest(user).execute(LandingActivity2.this), user, model.id);
+                                	req = request;
                                     request.execute(LandingActivity2.this);
                                 }
                             }
@@ -432,36 +426,58 @@ public final class LandingActivity2 extends FragmentActivity {
                 startRouteActivity(model.address, model.geopoint);
             }
         });
-        balloonView.findViewById(R.id.delete).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final BalloonModel model = (BalloonModel) balloonView.getTag();
-                if(model.id > 0){
-                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
-                        @Override
-                        protected Void doInBackground(Void... params) {
-                            User user = User.getCurrentUser(LandingActivity2.this);
-                            try {
-                                FavoriteAddressDeleteRequest request = new FavoriteAddressDeleteRequest(
-                                    new AddressLinkRequest(user).execute(LandingActivity2.this), user, model.id);
-                                request.execute(LandingActivity2.this);
-                            }
-                            catch (Exception e) {
-                            }
-                            return null;
-                        }
-                        protected void onPostExecute(Void result) {
-                            refreshStarredPOIs();
-                        }
-                   };
-                   Misc.parallelExecute(task);
-                }
-                removePOIMarker(mapView);
-                hideBalloonPanel();
-            }
-        });
         
-        scheduleNextTripInfoUpdates();
+        balloonView.findViewById(R.id.label).setOnFocusChangeListener(new OnFocusChangeListener() {
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if(!hasFocus) {
+					final String lbl = ((EditText)balloonView.findViewById(R.id.label)).getText().toString();
+	                final String addr = ((TextView)balloonView.findViewById(R.id.address)).getText().toString();
+					final BalloonModel model = (BalloonModel) balloonView.getTag();
+					if(StringUtils.isNotBlank(lbl)) {
+	                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+	                        @Override
+	                        protected Void doInBackground(Void... params) {
+	                            Request req = null;
+	                            User user = User.getCurrentUser(LandingActivity2.this);
+	                            try {
+	                            	if(model.id > 0) {
+		                                FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
+		                                    new AddressLinkRequest(user).execute(LandingActivity2.this),
+		                                        model.id, user, lbl, addr, model.lat, model.lon);
+		                                    req = request;
+		                                    request.execute(LandingActivity2.this);
+	                            	}
+	                            	else {
+	                            	    FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
+	                                        user, lbl, addr, model.lat, model.lon);
+	                                    req = request;
+	                                    request.execute(LandingActivity2.this);
+	                            	}
+	                            }
+	                            catch (Exception e) {
+	                                ehs.registerException(e, "[" + req==null?"":req.getUrl() + "]\n" + e.getMessage());
+	                            }
+	                            return null;
+	                        }
+	                        protected void onPostExecute(Void result) {
+	                            if (ehs.hasExceptions()) {
+	                                ehs.reportExceptions();
+	                            }
+	                            else {
+	                                removePOIMarker(mapView);
+	                                refreshStarredPOIs();
+	                            }
+	                        }
+	                    };
+	                    Misc.parallelExecute(task);
+	                    hideBalloonPanel();
+			        }
+		        }
+		    }
+	    });
+        
+    scheduleNextTripInfoUpdates();
         
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getBold(assets), tripAddr);
@@ -839,6 +855,8 @@ public final class LandingActivity2 extends FragmentActivity {
                                     addrView.setText(a.getAddress());
                                     TextView labelView = ((TextView)balloonView.findViewById(R.id.label));
                                     labelView.setText(a.getName());
+                                    ImageView startImg = (ImageView) balloonView.findViewById(R.id.saveOrDelete);
+                                    startImg.setImageResource(R.drawable.del_star_poi);
                                     balloonView.setTag(model);
                                     balloonView.setVisibility(View.VISIBLE);
                                     mapView.postInvalidate();
@@ -1075,6 +1093,8 @@ public final class LandingActivity2 extends FragmentActivity {
         addrView.setText(address);
         TextView labelView = ((TextView)balloonView.findViewById(R.id.label));
         labelView.setText(label);
+        ImageView saveOrDelView = (ImageView)balloonView.findViewById(R.id.saveOrDelete);
+        saveOrDelView.setImageResource(R.drawable.star_poi);
         balloonView.setTag(model);
         balloonView.setVisibility(View.VISIBLE);
     }

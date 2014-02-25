@@ -34,18 +34,11 @@
 			    	android:orientation="horizontal"
 			    	android:layout_marginTop="5dp">
 			    <ImageView
-			        android:id="@+id/save"
+			        android:id="@+id/saveOrDelete"
 		        	android:layout_height="wrap_content"
 		        	android:layout_width="wrap_content" 
 		        	android:src="@drawable/star_poi"
 			    />
-			    <ImageView
-				    android:id="@+id/delete"
-					android:layout_width="20dp"
-					android:layout_height="20dp"
-					android:layout_marginLeft="5dp"
-					android:src="@drawable/floating_menu_close_button"
-				/>
 			    <EditText
 			        android:id="@+id/label"
 			        android:layout_height="wrap_content"
