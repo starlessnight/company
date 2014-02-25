@@ -323,7 +323,10 @@ public final class RouteActivity extends FragmentActivity {
                     List<Route> routes = null;
                     try {
                         RouteFetchRequest request = new RouteFetchRequest(
-                            reservation.getNavLink(), reservation.getDepartureTime(), 
+                            reservation.getNavLink()
+                                .replaceAll("\\[speed_in_mph\\]", "0.0")
+                                .replaceAll("\\[course_angle_clockwise\\]", "0.0"), 
+                            reservation.getDepartureTime(), 
                             reservation.getDuration());
                         routes = request.execute(RouteActivity.this);
                     }

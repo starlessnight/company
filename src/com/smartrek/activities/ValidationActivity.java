@@ -1077,8 +1077,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                                 } else {
                                     request = new RouteFetchRequest(
                                         reservation.getNavLink()
-                                           .replaceAll("\\{speed_in_mph\\}", String.valueOf(Trajectory.msToMph(location.getSpeed())))
-                                           .replaceAll("\\{course_angle_clockwise\\}", String.valueOf(location.getBearing())),
+                                           .replaceAll("\\[speed_in_mph\\]", String.valueOf(Trajectory.msToMph(location.getSpeed())))
+                                           .replaceAll("\\[course_angle_clockwise\\]", String.valueOf(location.getBearing())),
                                         reservation.getDepartureTime(),
                                         reservation.getDuration());
                                 }
