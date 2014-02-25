@@ -337,6 +337,8 @@ public final class RouteActivity extends FragmentActivity {
                     try {
                         RouteFetchRequest request = new RouteFetchRequest(
                             reservation.getNavLink()
+                                .replaceAll("\\{speed_in_mph\\}", "0.0")
+                                .replaceAll("\\{course_angle_clockwise\\}", "0.0")
                                 .replaceAll("\\[speed_in_mph\\]", "0.0")
                                 .replaceAll("\\[course_angle_clockwise\\]", "0.0"), 
                             reservation.getDepartureTime(), 
