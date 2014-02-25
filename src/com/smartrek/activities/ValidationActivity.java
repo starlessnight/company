@@ -14,6 +14,7 @@ import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -927,7 +928,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 											emails,
 											loc.getLatitude(),
 											loc.getLongitude(),
-											reservation.getArrivalTime(),
+											reservation.getArrivalTime() + etaDelay.get(),
 											NavigationView
 													.metersToMiles(reservation
 															.getRoute()
@@ -1256,9 +1257,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             }
             Time currentTime = new Time();
             currentTime.setToNow();
-            long delay = currentTime.toMillis(false) - startTime - passedNodeTime * 1000;
+            etaDelay.set(currentTime.toMillis(false) - startTime - passedNodeTime * 1000);
             final TextView timeInfo = (TextView) findViewById(R.id.remain_times);
-            timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(reservation.getArrivalTime() + delay));
+            timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(reservation.getArrivalTime() + etaDelay.get()));
             timeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(remainingNodeTime));
             refreshTimeInfo();
 
@@ -1287,6 +1288,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 		lastKnownLocation = location;
 	}
+	
+	private AtomicLong etaDelay = new AtomicLong(); 
 
 	private void displayArrivalMsg() {
 		if (isTripValidated()) {

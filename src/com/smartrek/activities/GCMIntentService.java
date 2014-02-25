@@ -60,11 +60,11 @@ public class GCMIntentService extends GCMBaseIntentService {
             PendingIntent pendingIntent;
             if(eta != null){
                 String msg = message + "\n" + mile + " miles to go estimated arrival time: " + eta;
-                Intent landingIntent = new Intent(context, LandingActivity.class);
+                Intent landingIntent = new Intent(context, RouteActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                landingIntent.putExtra(LandingActivity.LAT, lat);
-                landingIntent.putExtra(LandingActivity.LON, lon);
-                landingIntent.putExtra(LandingActivity.MSG, msg);
+                landingIntent.putExtra(RouteActivity.LAT, lat);
+                landingIntent.putExtra(RouteActivity.LON, lon);
+                landingIntent.putExtra(RouteActivity.MSG, msg);
                 pendingIntent = PendingIntent.getActivity(context, 0, landingIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             }else{
                 pendingIntent = PendingIntent.getActivity(context, 0, routeIntent, PendingIntent.FLAG_UPDATE_CURRENT);

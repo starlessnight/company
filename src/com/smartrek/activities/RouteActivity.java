@@ -60,6 +60,7 @@ import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.OverlayCallback;
+import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.ui.timelayout.ScrollableTimeLayout;
 import com.smartrek.ui.timelayout.TimeButton;
@@ -87,6 +88,12 @@ import com.smartrek.utils.SystemService;
  */
 public final class RouteActivity extends FragmentActivity {
 
+    public static final String LAT = "lat";
+    
+    public static final String LON = "lon";
+    
+    public static final String MSG = "msg";
+    
     public static final String EVENT_ID = "event_id";
     
     public static final int RESERVATION_CONFIRM = 3;
@@ -247,7 +254,10 @@ public final class RouteActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.pre_reservation_map);    
+        setContentView(R.layout.pre_reservation_map); 
+        
+        othersPointOverlay = new PointOverlay(this, 0, 0);
+        othersPointOverlay.setColor(0xCC2020DF);
         
         SharedPreferences prefs = getSharedPreferences(MapDisplayActivity.MAP_DISPLAY_PREFS, MODE_PRIVATE);
         
@@ -302,6 +312,9 @@ public final class RouteActivity extends FragmentActivity {
         scrollableTimeLayout = (ScrollableTimeLayout) findViewById(R.id.scrollTime);
         
         TextView header = (TextView) findViewById(R.id.header);
+        
+        final String imComingMsg = extras.getString(MSG);
+        final boolean hasImComingMsg = StringUtils.isNotBlank(imComingMsg);
         reservation = extras.getParcelable(RESERVATION);
         final boolean hasReserv = reservation != null; 
         if(hasReserv){
@@ -353,6 +366,9 @@ public final class RouteActivity extends FragmentActivity {
                 }
             };
             Misc.parallelExecute(task);
+        }else if(hasImComingMsg){
+            handleImComing(imComingMsg, extras.getDouble(LAT, 0), 
+                extras.getDouble(LON, 0));
         }else{
             // What happens when user selects a specific time
             timeLayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
@@ -504,7 +520,7 @@ public final class RouteActivity extends FragmentActivity {
                                 SystemService.alertNoGPS(RouteActivity.this);
                             }
                         }
-                    }else{
+                    }else if(!hasImComingMsg){
                         doRouteTask();
                     }
                 }
@@ -516,7 +532,9 @@ public final class RouteActivity extends FragmentActivity {
         lightFont = Font.getLight(assets);
         
         TextView destView = (TextView) findViewById(R.id.destination);
-        destView.setText(destAddr);
+        if(!hasImComingMsg){
+            destView.setText(destAddr);
+        }
         
         final TextView reserveView = (TextView) findViewById(R.id.reserve);
         reserveView.setOnClickListener(new View.OnClickListener() {
@@ -720,6 +738,37 @@ public final class RouteActivity extends FragmentActivity {
             (TextView)findViewById(R.id.mpoint_row));
     }
     
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        String imComingMsg = intent.getStringExtra(MSG);
+        if(StringUtils.isNotBlank(imComingMsg)){
+            handleImComing(imComingMsg, intent.getDoubleExtra(LAT, 0), 
+                intent.getDoubleExtra(LON, 0));
+        }
+    }
+    
+    PointOverlay othersPointOverlay;
+    
+    private void handleImComing(String msg, final double lat, final double lon){
+        TextView header = (TextView) findViewById(R.id.header);
+        header.setText("On The Way");
+        findViewById(R.id.time_layout).setVisibility(View.GONE);
+        findViewById(R.id.lets_go_panel).setVisibility(View.GONE);
+        TextView destView = (TextView) findViewById(R.id.destination);
+        destView.setSingleLine(false);
+        destView.setText(msg);
+        final MapView mapView = (MapView) findViewById(R.id.mapview);
+        final List<Overlay> mapOverlays = mapView.getOverlays();
+        mapOverlays.clear();
+        othersPointOverlay.setLocation((float) lat, (float)lon);
+        mapOverlays.add(othersPointOverlay);
+        mapView.postInvalidate();
+        IMapController mc = mapView.getController();
+        mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+        mc.setCenter(new GeoPoint(lat, lon));
+    }
+    
     private void updateTimetableScreenWidth(){
         if(scrollableTimeLayout != null){
             scrollableTimeLayout.setScreenWidth(getWindowManager().getDefaultDisplay().getWidth());
@@ -771,19 +820,22 @@ public final class RouteActivity extends FragmentActivity {
     
     @Override
     public void onBackPressed() {
-    	Resources res = getResources();
-    	
-    	boolean reverseButtons = Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB;
-    	String rightButtonText = res.getString(R.string.yes);
-    	String leftButtonText = res.getString(R.string.no); 
-    	DialogInterface.OnClickListener rightButtonOnClick = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                goBackToWhereTo.run();
-            }
-        }; 
-        // Ask the user if they want to quit
-        new AlertDialog.Builder(this)
+        if(StringUtils.isNotBlank(getIntent().getStringExtra(MSG))){
+            goBackToWhereTo.run();
+        }else{
+        	Resources res = getResources();
+        	
+        	boolean reverseButtons = Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB;
+        	String rightButtonText = res.getString(R.string.yes);
+        	String leftButtonText = res.getString(R.string.no); 
+        	DialogInterface.OnClickListener rightButtonOnClick = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    goBackToWhereTo.run();
+                }
+            }; 
+            // Ask the user if they want to quit
+            new AlertDialog.Builder(this)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle("Confirm")
                 .setMessage("Are you sure you want to go back to previous screen?")
@@ -792,6 +844,7 @@ public final class RouteActivity extends FragmentActivity {
                 .setNegativeButton(reverseButtons?rightButtonText:leftButtonText, 
                     reverseButtons?rightButtonOnClick:null)
                 .show();
+        }
     }
     
     private RouteRect routeRect;
