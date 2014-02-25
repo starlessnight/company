@@ -15,7 +15,7 @@ import com.smartrek.utils.Preferences;
 
 public class GCMIntentService extends GCMBaseIntentService {
 
-	public static final String GCM_SENDER_ID = "968174328058";
+	public static final String GCM_SENDER_ID = "5407850735";
 	public static final String LOG_TAG = "GCMIntentService";
 
 	public GCMIntentService() {
