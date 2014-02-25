@@ -171,10 +171,10 @@ public final class ShareActivity extends FragmentActivity {
 			}
 		});
 
-		Font.setTypeface(boldFont, facebookButton, twitterButton, 
-				googlePlusButton, smsButton, emailButton);
 		Font.setTypeface(lightFont, userNameView, (TextView) findViewById(R.id.share_good_news),
-				(TextView) findViewById(R.id.metropians_less_traffic));
+				                    (TextView) findViewById(R.id.metropians_less_traffic), 
+				                    facebookButton, twitterButton,googlePlusButton, smsButton, 
+				                    emailButton);
 
 		uiHelper = new UiLifecycleHelper(ShareActivity.this, fbCallback);
 		uiHelper.onCreate(savedInstanceState);
