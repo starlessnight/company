@@ -66,6 +66,11 @@ public class GCMIntentService extends GCMBaseIntentService {
                 landingIntent.putExtra(RouteActivity.LON, lon);
                 landingIntent.putExtra(RouteActivity.MSG, msg);
                 pendingIntent = PendingIntent.getActivity(context, 0, landingIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                Intent onTheWayIntent = new Intent(LandingActivity2.ON_THE_WAY_NOTICE);
+                onTheWayIntent.putExtra(LandingActivity2.LAT, lat);
+                onTheWayIntent.putExtra(LandingActivity2.LON, lon);
+                onTheWayIntent.putExtra(LandingActivity2.MSG, msg);
+                sendBroadcast(onTheWayIntent);
             }else{
                 pendingIntent = PendingIntent.getActivity(context, 0, routeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             }

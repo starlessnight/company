@@ -85,4 +85,7 @@
     <item type="id" name="menu_panel_status" />
     <item type="id" name="starred_addresses" />
     <item type="id" name="where_to_addresses" />
+    <item type="id" name="on_the_way_msg" />
+    <item type="id" name="on_the_way_lat" />
+    <item type="id" name="on_the_way_lon" />
 </resources>

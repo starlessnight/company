@@ -90,6 +90,12 @@ import com.smartrek.utils.SmartrekTileProvider;
 
 public final class LandingActivity2 extends FragmentActivity {
     
+    public static final String LAT = "lat";
+    
+    public static final String LON = "lon";
+    
+    public static final String MSG = "msg";
+    
     public static final boolean ENABLED = true;
     
     public static final String NO_TRIPS = "No Upcoming Trips";
@@ -477,14 +483,30 @@ public final class LandingActivity2 extends FragmentActivity {
 		    }
 	    });
         
-    scheduleNextTripInfoUpdates();
+        final TextView onTheWayBtn = (TextView) findViewById(R.id.on_the_way_button);
+        onTheWayBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent otwIntent = new Intent(LandingActivity2.this, RouteActivity.class);
+                otwIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                otwIntent.putExtra(RouteActivity.LAT, (Double) onTheWayBtn.getTag(R.id.on_the_way_lat));
+                otwIntent.putExtra(RouteActivity.LON, (Double) onTheWayBtn.getTag(R.id.on_the_way_lon));
+                otwIntent.putExtra(RouteActivity.MSG, (String) onTheWayBtn.getTag(R.id.on_the_way_msg));
+                startActivity(otwIntent);
+                findViewById(R.id.on_the_way_icon).setVisibility(View.INVISIBLE);
+                findViewById(R.id.on_the_way_panel).setVisibility(View.GONE);
+            }
+        });
+        
+        scheduleNextTripInfoUpdates();
         
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getBold(assets), tripAddr);
         Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, nextTripInfo,
             rewardsMenu, shareMenu, feedbackMenu, settingsMenu, logoutMenu,
             tripDetails, getGoingBtn, rescheBtn, (TextView)findViewById(R.id.header_text),
-            (TextView)findViewById(R.id.menu_bottom_text));
+            (TextView)findViewById(R.id.menu_bottom_text),
+            (TextView)findViewById(R.id.on_the_way_msg), onTheWayBtn);
     }
     
     private void refreshSearchAutoCompleteData(){
@@ -561,10 +583,27 @@ public final class LandingActivity2 extends FragmentActivity {
         }
     };
     
+    public static final String ON_THE_WAY_NOTICE = "ON_THE_WAY_NOTICE"; 
+    
+    private BroadcastReceiver onTheWayNotifier = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String msg = intent.getStringExtra(MSG);
+            ((TextView)findViewById(R.id.on_the_way_msg)).setText(msg);
+            View otwButton = findViewById(R.id.on_the_way_button);
+            otwButton.setTag(R.id.on_the_way_msg, msg);
+            otwButton.setTag(R.id.on_the_way_lat, intent.getDoubleExtra(LAT, 0));
+            otwButton.setTag(R.id.on_the_way_lon, intent.getDoubleExtra(LON, 0));
+            findViewById(R.id.on_the_way_icon).setVisibility(View.VISIBLE);
+            findViewById(R.id.on_the_way_panel).setVisibility(View.VISIBLE);
+        }
+    };
+    
     @Override
     protected void onResume() {
         super.onResume();
         registerReceiver(tripInfoUpdater, new IntentFilter(TRIP_INFO_UPDATES));
+        registerReceiver(onTheWayNotifier, new IntentFilter(ON_THE_WAY_NOTICE));
         SessionM.onActivityResume(this);
         LandingActivity.initializeIfNeccessary(this, new Runnable() {
             @Override
@@ -589,6 +628,7 @@ public final class LandingActivity2 extends FragmentActivity {
     @Override
     protected void onPause() {
       unregisterReceiver(tripInfoUpdater);
+      unregisterReceiver(onTheWayNotifier);
       SessionM.onActivityPause(this);
       super.onPause();
     } 
