@@ -79,8 +79,7 @@ public final class ShareActivity extends FragmentActivity {
 		TextView userNameView = (TextView) findViewById(R.id.user_name);
 		userNameView.setText(user.getFirstname() + " " + user.getLastname());
 
-		TextView facebookButton = (TextView) findViewById(R.id.facebook);
-		facebookButton.setOnClickListener(new View.OnClickListener() {
+		findViewById(R.id.facebook).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				fbClicked = true;
@@ -114,8 +113,7 @@ public final class ShareActivity extends FragmentActivity {
 				updateTwitterStatus();
 			}
 		});
-		TextView twitterButton = (TextView) findViewById(R.id.twitter);
-		twitterButton.setOnClickListener(new View.OnClickListener() {
+		findViewById(R.id.twitter).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (isNotLoading()) {
@@ -124,8 +122,7 @@ public final class ShareActivity extends FragmentActivity {
 			}
 		});
 
-		TextView googlePlusButton = (TextView) findViewById(R.id.google_plus);
-		googlePlusButton.setOnClickListener(new View.OnClickListener() {
+		findViewById(R.id.google_plus).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (isNotLoading()) {
@@ -144,8 +141,7 @@ public final class ShareActivity extends FragmentActivity {
 			}
 		});
 
-		TextView smsButton = (TextView) findViewById(R.id.sms);
-		smsButton.setOnClickListener(new View.OnClickListener() {
+		findViewById(R.id.text_message).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (isNotLoading()) {
@@ -157,8 +153,7 @@ public final class ShareActivity extends FragmentActivity {
 			}
 		});
 
-		TextView emailButton = (TextView) findViewById(R.id.email);
-		emailButton.setOnClickListener(new View.OnClickListener() {
+		findViewById(R.id.email).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if (isNotLoading()) {
@@ -173,8 +168,11 @@ public final class ShareActivity extends FragmentActivity {
 
 		Font.setTypeface(lightFont, userNameView, (TextView) findViewById(R.id.share_good_news),
 				                    (TextView) findViewById(R.id.metropians_less_traffic), 
-				                    facebookButton, twitterButton,googlePlusButton, smsButton, 
-				                    emailButton);
+				                    (TextView) findViewById(R.id.facebook_text), 
+				                    (TextView) findViewById(R.id.twitter_text),
+				                    (TextView) findViewById(R.id.google_plus_text), 
+				                    (TextView) findViewById(R.id.text_message_text), 
+				                    (TextView) findViewById(R.id.email_text));
 
 		uiHelper = new UiLifecycleHelper(ShareActivity.this, fbCallback);
 		uiHelper.onCreate(savedInstanceState);
