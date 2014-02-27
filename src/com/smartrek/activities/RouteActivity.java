@@ -2,6 +2,7 @@ package com.smartrek.activities;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,7 @@ import com.smartrek.exceptions.RouteNotFoundException;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
+import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.requests.ReservationRequest;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.tasks.GeocodingTask;
@@ -88,6 +90,8 @@ import com.smartrek.utils.SystemService;
  */
 public final class RouteActivity extends FragmentActivity {
 
+    public static final String RESERVATION_ID = "reservationId";
+    
     public static final String LAT = "lat";
     
     public static final String LON = "lon";
@@ -316,58 +320,112 @@ public final class RouteActivity extends FragmentActivity {
         final String imComingMsg = extras.getString(MSG);
         final boolean hasImComingMsg = StringUtils.isNotBlank(imComingMsg);
         reservation = extras.getParcelable(RESERVATION);
-        final boolean hasReserv = reservation != null; 
+        final long reservId = extras.getLong(RESERVATION_ID, 0);
+        final boolean hasReservId = reservId > 0;
+        final boolean hasReserv = reservation != null || hasReservId;
         if(hasReserv){
             header.setText("Let's Go");
-            destAddr = reservation.getDestinationAddress();
             findViewById(R.id.time_layout).setVisibility(View.GONE);
-            AsyncTask<Void, Void, List<Route>> task = new AsyncTask<Void, Void, List<Route>>() {
-                
-                CancelableProgressDialog progressDialog;
-                
-                @Override
-                protected void onPreExecute() {
-                    progressDialog = new CancelableProgressDialog(RouteActivity.this, "Loading...");
-                    progressDialog.show();
-                }
-                
-                @Override
-                protected List<Route> doInBackground(Void... params) {
-                    List<Route> routes = null;
-                    try {
-                        RouteFetchRequest request = new RouteFetchRequest(
-                            reservation.getNavLink()
-                                .replaceAll("\\{speed_in_mph\\}", "0.0")
-                                .replaceAll("\\{course_angle_clockwise\\}", "0.0")
-                                .replaceAll("\\[speed_in_mph\\]", "0.0")
-                                .replaceAll("\\[course_angle_clockwise\\]", "0.0"), 
-                            reservation.getDepartureTime(), 
-                            reservation.getDuration());
-                        routes = request.execute(RouteActivity.this);
+            if(hasReserv){
+                final CancelableProgressDialog progressDialog = new CancelableProgressDialog(RouteActivity.this, "Loading...");
+                final AsyncTask<Void, Void, List<Route>> routeTask = new AsyncTask<Void, Void, List<Route>>() {
+                    
+                    @Override
+                    protected void onPreExecute() {
+                        if(!progressDialog.isShowing()){
+                            progressDialog.show();
+                        }
+                        destAddr = reservation.getDestinationAddress();
+                        TextView destView = (TextView) findViewById(R.id.destination);
+                        destView.setText(destAddr);
                     }
-                    catch(Exception e) {
-                        ehs.registerException(e);
-                    }                                
-                    return routes;
-                }
-                protected void onPostExecute(java.util.List<Route> routes) {
-                    progressDialog.cancel();
-                    if (ehs.hasExceptions()) {
-                        ehs.reportExceptions(new Runnable() {
-                            @Override
-                            public void run() {
-                                finish();
-                            }
-                        });
-                    }else if(routes != null && routes.size() > 0) {
-                        Route route = routes.get(0);
-                        route.setCredits(reservation.getCredits());
-                        route.preprocessNodes();
-                        updateMap(routes);
+                    
+                    @Override
+                    protected List<Route> doInBackground(Void... params) {
+                        List<Route> routes = null;
+                        try {
+                            RouteFetchRequest request = new RouteFetchRequest(
+                                reservation.getNavLink()
+                                    .replaceAll("\\{speed_in_mph\\}", "0.0")
+                                    .replaceAll("\\{course_angle_clockwise\\}", "0.0")
+                                    .replaceAll("\\[speed_in_mph\\]", "0.0")
+                                    .replaceAll("\\[course_angle_clockwise\\]", "0.0"), 
+                                reservation.getDepartureTime(), 
+                                reservation.getDuration());
+                            routes = request.execute(RouteActivity.this);
+                        }
+                        catch(Exception e) {
+                            ehs.registerException(e);
+                        }                                
+                        return routes;
                     }
+                    protected void onPostExecute(java.util.List<Route> routes) {
+                        progressDialog.cancel();
+                        if (ehs.hasExceptions()) {
+                            ehs.reportExceptions(new Runnable() {
+                                @Override
+                                public void run() {
+                                    finish();
+                                }
+                            });
+                        }else if(routes != null && routes.size() > 0) {
+                            Route route = routes.get(0);
+                            route.setCredits(reservation.getCredits());
+                            route.preprocessNodes();
+                            updateMap(routes);
+                        }
+                    }
+                };
+                if(hasReservId){
+                    LandingActivity.initializeIfNeccessary(this, new Runnable() {
+                        @Override
+                        public void run() {
+                            AsyncTask<Void, Void, List<Reservation>> tripTask = new AsyncTask<Void, Void, List<Reservation>>(){
+                                
+                                @Override
+                                protected void onPreExecute() {
+                                    progressDialog.show();
+                                }
+                                
+                                @Override
+                                protected List<Reservation> doInBackground(Void... params) {
+                                    User user = User.getCurrentUser(RouteActivity.this);
+                                    List<Reservation> reservations= Collections.emptyList();
+                                    try {
+                                        ReservationListFetchRequest resReq = new ReservationListFetchRequest(user);
+                                        resReq.invalidateCache(RouteActivity.this);
+                                        reservations = resReq.execute(RouteActivity.this);
+                                    }
+                                    catch (NullPointerException e){}
+                                    catch (Exception e) {
+                                        ehs.registerException(e);
+                                    }
+                                    return reservations;
+                                }
+                                @Override
+                                protected void onPostExecute(List<Reservation> reservations) {
+                                    if (ehs.hasExceptions()) { 
+                                        progressDialog.cancel();
+                                        ehs.reportExceptions();
+                                    } 
+                                    else{
+                                        for(Reservation r:reservations){
+                                            if(r.getRid() == reservId){
+                                                reservation = r;
+                                                Misc.parallelExecute(routeTask);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            };
+                            Misc.parallelExecute(tripTask);
+                        }
+                    });
+                }else{
+                    Misc.parallelExecute(routeTask);
                 }
-            };
-            Misc.parallelExecute(task);
+            }
         }else if(hasImComingMsg){
             handleImComing(imComingMsg, extras.getDouble(LAT, 0), 
                 extras.getDouble(LON, 0));
@@ -522,7 +580,7 @@ public final class RouteActivity extends FragmentActivity {
                                 SystemService.alertNoGPS(RouteActivity.this);
                             }
                         }
-                    }else if(!hasImComingMsg){
+                    }else{
                         doRouteTask();
                     }
                 }

@@ -11,8 +11,8 @@ import android.location.Location;
 import android.text.format.Time;
 import android.util.Log;
 
-import com.smartrek.activities.LandingActivity;
 import com.smartrek.activities.R;
+import com.smartrek.activities.RouteActivity;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.utils.Misc;
@@ -65,9 +65,9 @@ public final class ReservationReceiver extends BroadcastReceiver {
 	    Route route = intent.getExtras().getParcelable("route");
 	    long reservationId = intent.getExtras().getLong(RESERVATION_ID);
         
-        Intent landingIntent = new Intent(context, LandingActivity.class);
+        Intent landingIntent = new Intent(context, RouteActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        landingIntent.putExtra(LandingActivity.RESERVATION_ID, reservationId);
+        landingIntent.putExtra(RouteActivity.RESERVATION_ID, reservationId);
         
         long departureTime = route.getDepartureTime();
         
