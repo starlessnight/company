@@ -3,6 +3,7 @@ package com.smartrek.activities;
 import java.util.Arrays;
 
 import twitter4j.TwitterException;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
@@ -287,5 +288,38 @@ public final class ShareActivity extends FragmentActivity {
 					.show();
 		}
 	}
+	
+   @Override
+    public void onResume() {
+        super.onResume();
+        uiHelper.onResume();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        uiHelper.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == GOOGLE_PLUS_REQ && resultCode == Activity.RESULT_OK){
+            //finish();
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        uiHelper.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        uiHelper.onDestroy();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        uiHelper.onSaveInstanceState(outState);
+    }
 
 }
