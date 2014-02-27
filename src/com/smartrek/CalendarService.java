@@ -2,6 +2,7 @@ package com.smartrek;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -57,16 +58,19 @@ public class CalendarService extends IntentService {
                         ContentUris.appendId(eventsUriBuilder, now);
                         ContentUris.appendId(eventsUriBuilder, now + FOUR_HOURS);
                         Cursor events = getContentResolver().query(eventsUriBuilder.build(), new String[] { BaseColumns._ID, Instances.TITLE,
-                            Instances.BEGIN, Instances.EVENT_LOCATION}, null, null, Instances.BEGIN + " asc");
+                            Instances.BEGIN, Instances.EVENT_LOCATION, Instances.END}, null, null, Instances.BEGIN + " asc");
                         boolean hasNotification = false;
                         while(events.moveToNext()) {
                            String eventId = events.getString(0);
                            File file = getFile(eventId);
                            long start = Long.parseLong(events.getString(2));
+                           long end = Long.parseLong(events.getString(4));
                            String location = events.getString(3);
                            long notiTime = start - TWO_AND_A_HALF_HOURS;
+                           String title = events.getString(1);
                            if((!file.exists() || file.length() == 0) && StringUtils.isNotBlank(location) 
-                                   && canBeGeocoded(location) && System.currentTimeMillis() < notiTime /* true */){
+                                   && canBeGeocoded(location) && !isDuplicate(CalendarService.this, eventId, title, start, end) 
+                                   && System.currentTimeMillis() < notiTime/* true */){
                                hasNotification = true;
                                Intent noti = new Intent(CalendarService.this, 
                                    CalendarNotification.class);
@@ -75,12 +79,13 @@ public class CalendarService extends IntentService {
                                    CalendarService.this, Integer.parseInt(eventId), noti, 
                                    PendingIntent.FLAG_UPDATE_CURRENT);
                                AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-                               am.set(AlarmManager.RTC_WAKEUP, notiTime /* System.currentTimeMillis() */, pendingNoti);
+                               am.set(AlarmManager.RTC_WAKEUP, notiTime /* System.currentTimeMillis() + 3000 */, pendingNoti);
                            }
                            JSONObject eventJson = new JSONObject()
                                .put(BaseColumns._ID, eventId)
-                               .put(Instances.TITLE, events.getString(1))
+                               .put(Instances.TITLE, title)
                                .put(Instances.BEGIN, start)
+                               .put(Instances.END, end)
                                .put(Instances.EVENT_LOCATION, location);
                            FileUtils.write(file, eventJson.toString());
                            if(hasNotification){
@@ -144,6 +149,42 @@ public class CalendarService extends IntentService {
             }
         }
         return event;
+    }
+    
+    private static boolean isDuplicate(Context ctx, String eventId, String title,
+            long start, long end){
+        boolean duplicate = false;
+        for(JSONObject event : getEvents(ctx)){
+            if(!eventId.equals(event.optString(BaseColumns._ID))){
+                String eTitle = event.optString(Instances.TITLE);
+                long eStart = event.optLong(Instances.BEGIN);
+                long eEnd = event.optLong(Instances.END);
+                if(duplicate = title.equals(eTitle) && start == eStart && end == eEnd){
+                    break;
+                }
+            }
+        }
+        return duplicate;
+    }
+    
+    private static List<JSONObject> getEvents(Context ctx){
+        List<JSONObject> events = new ArrayList<JSONObject>();
+        File[] files = getDir(ctx).listFiles();
+        if(files != null){
+            for(File file:files){
+                if(file.length() != 0){
+                    try {
+                        JSONObject event = new JSONObject(FileUtils.readFileToString(file));
+                        events.add(event);
+                    }
+                    catch (JSONException e) {
+                    }
+                    catch (IOException e) {
+                    }
+                }
+            }
+        }
+        return events;
     }
 
     public static void schedule(Context ctx) {
