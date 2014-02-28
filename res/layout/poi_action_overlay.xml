@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
     	xmlns:android="http://schemas.android.com/apk/res/android" 
-	    android:layout_height="80dp"
+	    android:layout_height="100dp"
 	    android:layout_width="match_parent"
-	    android:background="@android:color/white"
-	    android:paddingLeft="20dp"
-	    android:paddingRight="20dp"
+	    android:paddingLeft="10dp"
+	    android:paddingRight="10dp"
 	    android:paddingTop="7dp"
+		android:background="#DDD1D3D4"
 	    android:id="@+id/balloon_main_layout">
 	<LinearLayout 
-	    	android:layout_height="65dp" 
+	    	android:layout_height="match_parent" 
 	    	android:layout_width="match_parent"
-	    	android:layout_gravity="top"
+	    	android:layout_gravity="center_vertical"
 	    	android:orientation="horizontal">
 		<LinearLayout
 		    	android:layout_height="match_parent" 
@@ -26,24 +26,27 @@
 		        android:layout_width="match_parent"
 		        android:layout_height="wrap_content"
 		        android:text="address"
-		        android:singleLine="true"
-		    />
+		        android:textColor="@android:color/black"
+		        android:paddingBottom="5dp"/>
 		    <LinearLayout
 			    	android:layout_height="wrap_content" 
 			    	android:layout_width="match_parent"
 			    	android:orientation="horizontal"
-			    	android:layout_marginTop="5dp">
+			    	android:gravity="bottom"
+			    	android:layout_gravity="center|bottom"
+			    	android:layout_marginBottom="10dp">
 			    <ImageView
 			        android:id="@+id/saveOrDelete"
 		        	android:layout_height="wrap_content"
 		        	android:layout_width="wrap_content" 
 		        	android:src="@drawable/star_poi"
+		        	android:layout_gravity="center"
 			    />
 			    <EditText
 			        android:id="@+id/label"
 			        android:layout_height="wrap_content"
 		        	android:layout_width="match_parent"
-		        	android:hint="Label Favorite..."
+		        	android:hint="Label Here..."
 		        	android:layout_gravity="center_vertical"
 		        	android:layout_marginLeft="5dp"
 		        	android:paddingLeft="5dp"
@@ -52,14 +55,42 @@
 				/>
 			</LinearLayout>
 		</LinearLayout>
-		<ImageView
-		    android:id="@+id/proceed"
-		    android:layout_height="26dp"
-		    android:layout_width="16dp"
-		    android:src="@drawable/menu_right_arrow"
-		    android:layout_marginLeft="5dp"
-		    android:layout_marginRight="5dp"
-		    android:layout_gravity="center_vertical"
-		/>
+		
+		<View 
+		    android:layout_height="match_parent"
+		    android:layout_width="2dp"
+		    android:background="@color/light_gray"
+		    android:layout_marginTop="10dp"
+		    android:layout_marginBottom="10dp"/>
+		
+		<LinearLayout
+		    android:id="@+id/get_going"
+		    android:layout_height="match_parent"
+		    android:layout_width="wrap_content"
+		    android:paddingTop="10dp"
+		    android:paddingLeft="5dp"
+		    android:paddingBottom="10dp"
+		    android:orientation="vertical">
+		    
+		    <ImageView 
+		        android:layout_width="wrap_content"
+		        android:layout_height="0dp"
+		        android:layout_weight="1"
+		        android:src="@drawable/get_going"
+		        android:gravity="center"
+		        android:layout_gravity="center"
+		        />
+		    
+		    <TextView
+			    android:layout_width="wrap_content"
+			    android:layout_height="0dp"
+			    android:layout_weight="1"
+			    android:text="Get Going"
+			    android:textColor="#54AFD0"
+			    android:gravity="top"
+			    android:layout_gravity="center|top"
+		     />
+		</LinearLayout>
+		
 	</LinearLayout>
 </FrameLayout>

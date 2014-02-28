@@ -9,7 +9,6 @@
 	    android:id="@+id/content_frame"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
-	    android:background="@null"
 	    android:orientation="vertical" >
 	
         <FrameLayout 
@@ -87,16 +86,17 @@
 			    	    android:layout_marginBottom="30dp"
 					/>
 			    	
-			   	</RelativeLayout>
-			    
-			    <FrameLayout 
-			        	android:id="@+id/balloon_panel"
-			        	android:layout_width="match_parent"
+			    	<FrameLayout 
+					    android:id="@+id/balloon_panel"
+					    android:layout_width="match_parent"
 						android:layout_height="wrap_content"
+						android:layout_alignParentBottom="true"
 						android:visibility="gone">
-		        	<include layout="@layout/poi_action_overlay" />
-		    	</FrameLayout>
-		    
+			    		<include layout="@layout/poi_action_overlay" />
+		           </FrameLayout>
+			    	
+			   	</RelativeLayout>
+			   	
 			</LinearLayout>
 			
 			<ImageView 
@@ -108,7 +108,7 @@
 	    	    android:layout_marginBottom="30dp"
 			/>
 		</FrameLayout>
-		    
+		
 	    <LinearLayout 
 	        	android:id="@+id/bottom_bar"
 	        	android:layout_width="match_parent"

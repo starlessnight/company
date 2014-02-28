@@ -393,12 +393,13 @@ public final class LandingActivity2 extends FragmentActivity {
                             Request req = null;
                             User user = User.getCurrentUser(LandingActivity2.this);
                             try {
-                                if(model.id == 0){
+                                if (model.id == 0){
                                     FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
                                         user, lbl, addr, model.lat, model.lon);
                                     req = request;
                                     request.execute(LandingActivity2.this);
-                                }else{
+                                }
+                                else {
                                 	FavoriteAddressDeleteRequest request = new FavoriteAddressDeleteRequest(
                                             new AddressLinkRequest(user).execute(LandingActivity2.this), user, model.id);
                                 	req = request;
@@ -425,7 +426,7 @@ public final class LandingActivity2 extends FragmentActivity {
                 }
             }
         });
-        balloonView.findViewById(R.id.proceed).setOnClickListener(new View.OnClickListener() {
+        balloonView.findViewById(R.id.get_going).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 BalloonModel model = (BalloonModel) balloonView.getTag();
@@ -447,18 +448,12 @@ public final class LandingActivity2 extends FragmentActivity {
 	                            Request req = null;
 	                            User user = User.getCurrentUser(LandingActivity2.this);
 	                            try {
-	                            	if(model.id > 0) {
+	                            	if (model.id > 0) {
 		                                FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
 		                                    new AddressLinkRequest(user).execute(LandingActivity2.this),
 		                                        model.id, user, lbl, addr, model.lat, model.lon);
 		                                    req = request;
 		                                    request.execute(LandingActivity2.this);
-	                            	}
-	                            	else {
-	                            	    FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
-	                                        user, lbl, addr, model.lat, model.lon);
-	                                    req = request;
-	                                    request.execute(LandingActivity2.this);
 	                            	}
 	                            }
 	                            catch (Exception e) {
@@ -896,9 +891,10 @@ public final class LandingActivity2 extends FragmentActivity {
                                     TextView labelView = ((TextView)balloonView.findViewById(R.id.label));
                                     labelView.setText(a.getName());
                                     ImageView startImg = (ImageView) balloonView.findViewById(R.id.saveOrDelete);
-                                    startImg.setImageResource(R.drawable.del_star_poi);
+                                    startImg.setImageResource(R.drawable.star_poi);
                                     balloonView.setTag(model);
                                     balloonView.setVisibility(View.VISIBLE);
+                                    hideBottomBar();
                                     mapView.postInvalidate();
                                     return true;
                                 }
@@ -1134,9 +1130,10 @@ public final class LandingActivity2 extends FragmentActivity {
         TextView labelView = ((TextView)balloonView.findViewById(R.id.label));
         labelView.setText(label);
         ImageView saveOrDelView = (ImageView)balloonView.findViewById(R.id.saveOrDelete);
-        saveOrDelView.setImageResource(R.drawable.star_poi);
+        saveOrDelView.setImageResource(R.drawable.save_star_poi);
         balloonView.setTag(model);
         balloonView.setVisibility(View.VISIBLE);
+        hideBottomBar();
     }
     
     private boolean isBalloonPanelVisible(){
@@ -1145,6 +1142,17 @@ public final class LandingActivity2 extends FragmentActivity {
     
     private void hideBalloonPanel(){
         findViewById(R.id.balloon_panel).setVisibility(View.GONE);
+        if(!isBottomBarVisible()) {
+            findViewById(R.id.bottom_bar).setVisibility(View.VISIBLE);
+        }
+    }
+    
+    private boolean isBottomBarVisible() {
+    	return findViewById(R.id.bottom_bar).getVisibility() == View.VISIBLE;
+    }
+    
+    private void hideBottomBar() {
+    	findViewById(R.id.bottom_bar).setVisibility(View.GONE);
     }
     
     private synchronized RouteRect drawBulbPOIs(final MapView mapView, List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
