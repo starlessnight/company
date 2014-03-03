@@ -744,13 +744,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private SpannableString formatMPointDesc(Context ctx, String mpoint) {
 		String desc = mpoint + " \nmPoints earned";
 		int indexOfSpace = desc.indexOf(" ");
-		SpannableString co2ValueSpan = SpannableString.valueOf(desc);
-		co2ValueSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
+		SpannableString mpointValueSpan = SpannableString.valueOf(desc);
+		mpointValueSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
 				.getDimensionPixelSize(R.dimen.smaller_font)), indexOfSpace,
 				indexOfSpace + " \nmPoints earned".length(),
 				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-		return co2ValueSpan;
+		return mpointValueSpan;
 	}
 
 	private View[] getMapViews() {
@@ -1312,6 +1312,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			panel.setVisibility(View.VISIBLE);
 			Misc.fadeIn(ValidationActivity.this, panel);
 			speakIfTtsEnabled(msg);
+			// turn off GPS
+			if(locationManager != null) {
+				locationManager.removeUpdates(locationListener);
+			}
 		}
 	}
 
