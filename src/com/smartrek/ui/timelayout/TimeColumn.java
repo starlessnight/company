@@ -216,7 +216,7 @@ public final class TimeColumn extends FrameLayout {
 	}
 	
 	public static String getFormattedDuration(int duration){
-	    return String.format("%d m", duration/60);
+	    return String.format("%d min", duration/60);
 	}
 	
 	public static String formatTime(long time, int timzoneOffset){
