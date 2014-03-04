@@ -249,7 +249,7 @@ public class NavigationView extends LinearLayout {
 		return dir;
 	}
 
-	private static double metersToFeet(double meters) {
+	public static double metersToFeet(double meters) {
 		return meters * 3.28084;
 	}
 

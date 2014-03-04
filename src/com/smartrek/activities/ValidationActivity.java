@@ -14,6 +14,7 @@ import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.io.FileUtils;
@@ -138,6 +139,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	 * @deprecated
 	 */
 	private Route route;
+	
+	private Route reroute;
 
 	private Reservation reservation;
 
@@ -1009,13 +1012,17 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		});
 	}
 
+	private Route getRouteOrReroute(){
+	    return reroute == null?route:reroute;
+	}
+	
 	private void showNavigationInformation(final Location location,
 			final RouteNode node) {
 		Log.d("ValidationActivity", "showNavigationInformation()");
 		runOnUiThread(new Runnable() {
 			public void run() {
 				List<DirectionItem> items = updateDirectionsList(node, location);
-				navigationView.update(route, location, node, items);
+				navigationView.update(getRouteOrReroute(), location, node, items);
 			}
 		});
 	}
@@ -1030,14 +1037,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		dirListadapter.clear();
 		RouteNode nextNode = node;
 		if (nextNode == null) {
-			nextNode = route.getFirstNode();
+			nextNode = getRouteOrReroute().getFirstNode();
 		}
 		if (nextNode != null) {
 			double distance = 0;
 			do {
 				if (nextNode.getFlag() != 0) {
 					if (nextNode == node && location != null) {
-						distance = route
+						distance = getRouteOrReroute()
 								.getDistanceToNextTurn(location.getLatitude(),
 										location.getLongitude());
 					}
@@ -1057,9 +1064,84 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		return items;
 	}
 	
+	private static final int countOutOfRouteThreshold = 3;
+	
+	private static final double distanceOutOfRouteThreshold = 150;
+	
+	private static final double speedOutOfRouteThreshold = 10;
+	
+	private AtomicInteger routeOfRouteCnt = new AtomicInteger();
+	
+	private void reroute(final double lat, final double lon, final double speedInMph,
+	        final float bearing){
+	    runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AsyncTask<Void, Void, Route> task = new AsyncTask<Void, Void, Route>(){
+                    @Override
+                    protected Route doInBackground(Void... params) {
+                        Route navRoute = null;
+                        RouteFetchRequest routeReq = new RouteFetchRequest(
+                            User.getCurrentUser(ValidationActivity.this), 
+                            new GeoPoint(lat, lon), route.getLastNode().getGeoPoint(), 
+                            System.currentTimeMillis());
+                        try{
+                            List<Route> list = routeReq.execute(ValidationActivity.this);
+                            if(list != null && !list.isEmpty()){
+                                Route resRoute = list.get(0);
+                                String speedInMphStr = String.valueOf(speedInMph);
+                                String courseAngleClockwise = String.valueOf(bearing);
+                                RouteFetchRequest navReq = new RouteFetchRequest(
+                                        resRoute.getLink().url
+                                           .replaceAll("\\{speed_in_mph\\}", speedInMphStr)
+                                           .replaceAll("\\{course_angle_clockwise\\}", courseAngleClockwise)
+                                           .replaceAll("\\[speed_in_mph\\]", speedInMphStr)
+                                           .replaceAll("\\[course_angle_clockwise\\]", courseAngleClockwise),
+                                        System.currentTimeMillis(),
+                                        0);
+                                List<Route> routes = navReq.execute(ValidationActivity.this);
+                                if (routes != null && routes.size() > 0) {
+                                    navRoute = routes.get(0);
+                                    Map<Integer, Integer> nodeTimes = new HashMap<Integer, Integer>();
+                                    for(RouteNode n:resRoute.getNodes()){
+                                        nodeTimes.put(n.getNodeNum(), n.getTime());
+                                    }
+                                    for(RouteNode n : navRoute.getNodes()){
+                                        Integer time = nodeTimes.get(n.getNodeNum());
+                                        if(time != null){
+                                            n.setTime(time);
+                                        }
+                                    }
+                                }
+                            }
+                        }catch(Throwable t){
+                            Log.d("reroute", Log.getStackTraceString(t));
+                        }
+                        return navRoute;
+                    }
+                    @Override
+                    protected void onPostExecute(Route result) {
+                        if(result != null){
+                            Log.i("reroute", "success");
+                            reroute = result;
+                            reroute.preprocessNodes();
+                            routeRect = initRouteRect(reroute);
+                            updateDirectionsList();
+                            drawRoute(mapView, reroute, 0);
+                            routeOfRouteCnt.set(0);
+                        }
+                    }
+                };
+                Misc.parallelExecute(task);
+            }
+        });
+	}
+	
 	private AtomicBoolean routeLoaded = new AtomicBoolean();
 	
 	private synchronized void locationChanged(final Location location) {
+	    final double speedInMph = Trajectory.msToMph(location.getSpeed());
+	    final float bearing = location.getBearing();
 	    if (!routeLoaded.get() && isLoadRoute()) {
             routeLoaded.set(true);
             runOnUiThread(new Runnable(){
@@ -1075,13 +1157,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                                     request = new RouteFetchRequest(
                                             route.getDepartureTime());
                                 } else {
-                                    String speedInMph = String.valueOf(Trajectory.msToMph(location.getSpeed()));
-                                    String courseAngleClockwise = String.valueOf(location.getBearing());
+                                    String speedInMphStr = String.valueOf(speedInMph);
+                                    String courseAngleClockwise = String.valueOf(bearing);
                                     request = new RouteFetchRequest(
                                         reservation.getNavLink()
-                                           .replaceAll("\\{speed_in_mph\\}", speedInMph)
+                                           .replaceAll("\\{speed_in_mph\\}", speedInMphStr)
                                            .replaceAll("\\{course_angle_clockwise\\}", courseAngleClockwise)
-                                           .replaceAll("\\[speed_in_mph\\]", speedInMph)
+                                           .replaceAll("\\[speed_in_mph\\]", speedInMphStr)
                                            .replaceAll("\\[course_angle_clockwise\\]", courseAngleClockwise),
                                         reservation.getDepartureTime(),
                                         reservation.getDuration());
@@ -1103,7 +1185,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                                             n.setTime(time);
                                         }
                                     }
-                                    
                                 }
                             } catch (Exception e) {
                                 ehs.registerException(e);
@@ -1197,7 +1278,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		if (!route.getNodes().isEmpty()) {
 			nearestLink = route.getNearestLink(lat, lng);
 
-			nearestNode = nearestLink.getEndNode();
+			RouteLink rerouteNearestLink = getRouteOrReroute().getNearestLink(lat, lng);
+			nearestNode = rerouteNearestLink.getEndNode();
 
 			ValidationParameters params = ValidationParameters.getInstance();
 
@@ -1244,13 +1326,25 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				}
 			}
 
-			if (navigationView.getStatus() == Status.InRoute) {
-				linkId = nearestLink.getStartNode().getLinkId();
+			boolean inRoute;
+			if (inRoute = navigationView.getStatus() == Status.InRoute) {
+				linkId = rerouteNearestLink.getStartNode().getLinkId();
+			}
+			
+			if(!inRoute && NavigationView.metersToFeet(distanceToLink) > distanceOutOfRouteThreshold
+			        && speedInMph > speedOutOfRouteThreshold){
+			    Log.i("reroute", routeOfRouteCnt + ", " + NavigationView.metersToFeet(distanceToLink) 
+		            + ", " + speedInMph);
+			    if(routeOfRouteCnt.incrementAndGet() == countOutOfRouteThreshold){
+			        reroute(lat, lng, speedInMph, bearing);
+			    }
+			}else{
+			    routeOfRouteCnt.set(0);
 			}
 			
 			long passedNodeTime = 0;
             long remainingNodeTime = 0;
-            for (RouteNode node : route.getNodes()) {
+            for (RouteNode node : getRouteOrReroute().getNodes()) {
                 int time = node.getTime();
                 if (node.getNodeIndex() > nearestNode.getNodeIndex()) {
                     remainingNodeTime += time;
@@ -1276,8 +1370,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		sendImComingMsg();
 
-		if (!arrived.get() && !route.getNodes().isEmpty()
-				&& route.hasArrivedAtDestination(lat, lng)) {
+		if (!arrived.get() && !getRouteOrReroute().getNodes().isEmpty()
+				&& getRouteOrReroute().hasArrivedAtDestination(lat, lng)) {
 			arrived.set(true);
 			arriveAtDestination();
 			Log.d("ValidationActivity", "Arriving at destination");
