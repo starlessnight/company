@@ -529,7 +529,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         });
 
 		TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
-		Misc.initOsmCredit(osmCredit);
 		RelativeLayout.LayoutParams osmCreditLp = (RelativeLayout.LayoutParams) osmCredit
 				.getLayoutParams();
 		osmCreditLp.bottomMargin += Dimension.dpToPx(52, getResources()

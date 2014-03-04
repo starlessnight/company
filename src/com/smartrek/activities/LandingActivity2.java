@@ -129,7 +129,6 @@ public final class LandingActivity2 extends FragmentActivity {
         mc.setCenter(new GeoPoint(lat, lon));
         
         TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
-        Misc.initOsmCredit(osmCredit);
         
         LandingActivity.initializeIfNeccessary(this, new Runnable() {
             @Override

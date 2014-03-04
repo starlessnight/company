@@ -318,7 +318,6 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         mc.setCenter(new GeoPoint(lat, lon));
         
         TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
-        Misc.initOsmCredit(osmCredit);
         RelativeLayout.LayoutParams osmCreditLp = (RelativeLayout.LayoutParams) osmCredit.getLayoutParams();
         osmCreditLp.rightMargin += Dimension.dpToPx(52, getResources().getDisplayMetrics());
         

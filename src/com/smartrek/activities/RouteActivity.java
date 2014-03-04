@@ -292,7 +292,6 @@ public final class RouteActivity extends FragmentActivity {
         
         TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
         Font.setTypeface(lightFont, osmCredit);
-        Misc.initOsmCredit(osmCredit);
         
         /* Set the map view for a view of North America before zooming in on route */
         IMapController mc = mapView.getController();
