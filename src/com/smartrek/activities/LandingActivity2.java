@@ -111,6 +111,8 @@ public final class LandingActivity2 extends FragmentActivity {
     LocationManager networkLocManager;
     List<LocationListener> networkLocListeners = new ArrayList<LocationListener>();
     
+    private AtomicBoolean locationInited = new AtomicBoolean();
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,6 +136,20 @@ public final class LandingActivity2 extends FragmentActivity {
             @Override
             public void run() {
                 updateDeviceId();
+                getCurrentLocation(new CurrentLocationListener() {
+                    @Override
+                    public void get(double lat, double lon) {
+                        locationInited.set(true);
+                        refreshBulbPOIs(lat , lon, true);
+                        refreshCobranding(lat, lon, true);
+                        scheduleLocationUpdates();
+                    }
+                    @Override
+                    public void adjusted(double lat, double lon) {
+                        refreshBulbPOIs(lat , lon, false);
+                        refreshCobranding(lat, lon, false);
+                    }
+                });
             }
         });
         
@@ -199,8 +215,13 @@ public final class LandingActivity2 extends FragmentActivity {
                 getCurrentLocation(new CurrentLocationListener() {
                     @Override
                     public void get(double lat, double lon) {
-                        refreshBulbPOIs(lat , lon);
-                        refreshCobranding(lat, lon);
+                        refreshBulbPOIs(lat , lon, true);
+                        refreshCobranding(lat, lon, true);
+                    }
+                    @Override
+                    public void adjusted(double lat, double lon) {
+                        refreshBulbPOIs(lat , lon, false);
+                        refreshCobranding(lat, lon, false);
                     }
                 });
             }
@@ -542,24 +563,65 @@ public final class LandingActivity2 extends FragmentActivity {
         }
     };
     
+    public static final String LOCATION_UPDATES = "LOCATION_UPDATES"; 
+    
+    private void scheduleLocationUpdates(){
+        AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
+        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), 15000, 
+            PendingIntent.getBroadcast(this, 0, new Intent(LOCATION_UPDATES), PendingIntent.FLAG_UPDATE_CURRENT));
+    }
+    
+    private BroadcastReceiver locationUpdater = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            LandingActivity.initializeIfNeccessary(context, new Runnable() {
+                @Override
+                public void run() {
+                    getCurrentLocation(new CurrentLocationListener() {
+                        @Override
+                        public void get(double lat, double lon) {
+                            refreshBulbPOIs(lat , lon, false);
+                            refreshCobranding(lat, lon, false);
+                        }
+                        @Override
+                        public void adjusted(double lat, double lon) {
+                            refreshBulbPOIs(lat , lon, false);
+                            refreshCobranding(lat, lon, false);
+                        }
+                    });
+                }
+            });
+        }
+    };
+    
     @Override
     protected void onResume() {
         super.onResume();
         registerReceiver(tripInfoUpdater, new IntentFilter(TRIP_INFO_UPDATES));
         registerReceiver(onTheWayNotifier, new IntentFilter(ON_THE_WAY_NOTICE));
         SessionM.onActivityResume(this);
-        LandingActivity.initializeIfNeccessary(this, new Runnable() {
-            @Override
-            public void run() {
-                getCurrentLocation(new CurrentLocationListener() {
-                    @Override
-                    public void get(double lat, double lon) {
-                        refreshBulbPOIs(lat , lon);
-                        refreshCobranding(lat, lon);
-                    }
-                });
-            }
-        });
+        if(locationInited.get()){
+            LandingActivity.initializeIfNeccessary(this, new Runnable() {
+                @Override
+                public void run() {
+                    getCurrentLocation(new CurrentLocationListener() {
+                        @Override
+                        public void get(double lat, double lon) {
+                            refreshBulbPOIs(lat , lon, true);
+                            refreshCobranding(lat, lon, true);
+                            registerReceiver(locationUpdater, new IntentFilter(LOCATION_UPDATES));
+                        }
+                        @Override
+                        public void adjusted(double lat, double lon) {
+                            refreshBulbPOIs(lat , lon, false);
+                            refreshCobranding(lat, lon, false);
+                        }
+                    });
+                }
+            });
+        }else{
+            registerReceiver(locationUpdater, new IntentFilter(LOCATION_UPDATES));
+        }
     }
     
     @Override
@@ -578,6 +640,7 @@ public final class LandingActivity2 extends FragmentActivity {
     protected void onPause() {
       unregisterReceiver(tripInfoUpdater);
       unregisterReceiver(onTheWayNotifier);
+      unregisterReceiver(locationUpdater);
       SessionM.onActivityPause(this);
       super.onPause();
     } 
@@ -695,18 +758,22 @@ public final class LandingActivity2 extends FragmentActivity {
         if(networkLocManager == null){
             networkLocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         }
-        class CurrentLocationListener implements LocationListener{
+        class AdjustedLocationListener implements LocationListener {
             
-            boolean changed;
+            private AtomicBoolean init = new AtomicBoolean();
             
             @Override
             public void onLocationChanged(Location location) {
                 try{
-                    changed = true;
-                    networkLocManager.removeUpdates(this);
                     double lon = location.getLongitude();
                     double lat = location.getLatitude();
-                    lis.get(lat, lon);
+                    if(!init.get()){
+                        init.set(true); 
+                        lis.get(lat, lon);
+                    }else if(LocationManager.GPS_PROVIDER.equals(location.getProvider())){
+                        networkLocManager.removeUpdates(this);
+                        lis.adjusted(lat, lon);
+                    }
                 }catch(Throwable t){}
             }
             @Override
@@ -716,22 +783,19 @@ public final class LandingActivity2 extends FragmentActivity {
             @Override
             public void onProviderDisabled(String provider) {}
         }
-        final CurrentLocationListener networkLocListener = new CurrentLocationListener();
+        final AdjustedLocationListener networkLocListener = new AdjustedLocationListener();
         networkLocListeners.add(networkLocListener);
         try{
             if (networkLocManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 networkLocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, networkLocListener);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(!networkLocListener.changed){
-                            networkLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocListener);
-                        }
-                    }
-                }, 10000);
-            }else{
-                networkLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocListener);
             }
+            networkLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocListener);
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    networkLocManager.removeUpdates(networkLocListener);
+                }
+            }, 10000);
         }catch(Throwable t){}
         //lis.get(34.0291747, -118.2734106);
     }
@@ -910,7 +974,8 @@ public final class LandingActivity2 extends FragmentActivity {
         return handled;
     }
     
-    private void refreshCobranding(final double lat, final double lon){
+    private void refreshCobranding(final double lat, final double lon, 
+            final boolean alertAvailability){
         AsyncTask<Void, Void, City> checkCityAvailability = new AsyncTask<Void, Void, City>(){
             @Override
             protected City doInBackground(Void... params) {
@@ -930,10 +995,14 @@ public final class LandingActivity2 extends FragmentActivity {
                 final ImageView cityImgView = (ImageView) findViewById(R.id.city_logo);
                 final View bottomText = findViewById(R.id.menu_bottom_text);
                 final TextView headerText = (TextView)findViewById(R.id.header_text);
-                if(StringUtils.isNotBlank(result.html)){
-                    CharSequence msg = Html.fromHtml(result.html);
-                    NotificationDialog dialog = new NotificationDialog(LandingActivity2.this, msg);
-                    dialog.show();
+                if(result != null && StringUtils.isNotBlank(result.html)){
+                    if(alertAvailability){
+                        CharSequence msg = Html.fromHtml(result.html);
+                        NotificationDialog dialog = new NotificationDialog(LandingActivity2.this, msg);
+                        try{
+                            dialog.show();
+                        }catch(Throwable t){}
+                    }
                     skylineView.setImageResource(R.drawable.skyline);
                     cityImgView.setVisibility(View.GONE);
                     bottomText.setVisibility(View.GONE);
@@ -972,7 +1041,7 @@ public final class LandingActivity2 extends FragmentActivity {
         Misc.parallelExecute(checkCityAvailability);
     }
     
-    private void refreshBulbPOIs(final double lat, final double lon){
+    private void refreshBulbPOIs(final double lat, final double lon, final boolean recenter){
         final User user = User.getCurrentUser(LandingActivity2.this);
         AsyncTask<Void, Void, List<com.smartrek.requests.WhereToGoRequest.Location>> task = 
                 new AsyncTask<Void, Void, List<com.smartrek.requests.WhereToGoRequest.Location>>() {
@@ -1010,14 +1079,18 @@ public final class LandingActivity2 extends FragmentActivity {
                     bindMapFunctions(mapView);
                     List<String> addrList = new ArrayList<String>();
                     if(locs.isEmpty()){
-                        mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
-                        mc.setCenter(new GeoPoint(lat, lon));
+                        if(recenter){
+                            mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+                            mc.setCenter(new GeoPoint(lat, lon));
+                        }
                     }else{
-                        RouteRect routeRect = drawBulbPOIs(mapView, locs);
-                        GeoPoint mid = routeRect.getMidPoint();
-                        int[] range = routeRect.getRange();
-                        mc.zoomToSpan(range[0], range[1]);
-                        mc.setCenter(mid);
+                        if(recenter){
+                            RouteRect routeRect = drawBulbPOIs(mapView, locs);
+                            GeoPoint mid = routeRect.getMidPoint();
+                            int[] range = routeRect.getRange();
+                            mc.zoomToSpan(range[0], range[1]);
+                            mc.setCenter(mid);
+                        }
                         for(com.smartrek.requests.WhereToGoRequest.Location l : locs){
                             addrList.add(l.addr);
                         }
