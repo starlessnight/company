@@ -134,61 +134,6 @@ public final class LandingActivity2 extends FragmentActivity {
             @Override
             public void run() {
                 updateDeviceId();
-                getCurrentLocation(new CurrentLocationListener() {
-                    @Override
-                    public void get(final double lat, final double lon) {
-                        AsyncTask<Void, Void, City> checkCityAvailability = new AsyncTask<Void, Void, City>(){
-                            @Override
-                            protected City doInBackground(Void... params) {
-                                City result;
-                                try{
-                                    CityRequest req = new CityRequest(lat, lon);
-                                    req.invalidateCache(LandingActivity2.this);
-                                    result = req.execute(LandingActivity2.this);
-                                }catch(Throwable t){
-                                    result = null;
-                                }
-                                return result;
-                            }
-                            @Override
-                            protected void onPostExecute(City result) {
-                                if(StringUtils.isNotBlank(result.html)){
-                                    CharSequence msg = Html.fromHtml(result.html);
-                                    NotificationDialog dialog = new NotificationDialog(LandingActivity2.this, msg);
-                                    dialog.show();
-                                }else{
-                                    LoadImageTask skylineTask = new LoadImageTask(LandingActivity2.this, result.skyline) {
-                                        protected void onPostExecute(final Bitmap rs) {
-                                            if(rs != null){
-                                                ImageView skylineView = (ImageView) findViewById(R.id.skyline_bg);
-                                                skylineView.setImageBitmap(rs);
-                                            }
-                                        }
-                                    };
-                                    Misc.parallelExecute(skylineTask);
-                                    LoadImageTask logoTask = new LoadImageTask(LandingActivity2.this, result.logo) {
-                                        protected void onPostExecute(final Bitmap rs) {
-                                            if(rs != null){
-                                                ImageView imgView = (ImageView) findViewById(R.id.city_logo);
-                                                imgView.setVisibility(View.VISIBLE);
-                                                imgView.setImageBitmap(rs);
-                                                View bottomText = findViewById(R.id.menu_bottom_text);
-                                                bottomText.setVisibility(View.VISIBLE);
-                                            }
-                                        }
-                                    };
-                                    Misc.parallelExecute(logoTask);
-                                    TextView headerText = (TextView)findViewById(R.id.header_text);
-                                    headerText.setVisibility(View.VISIBLE);
-                                    headerText.setText(result.name + " | " 
-                                        + Double.valueOf(result.temperature).intValue() + "°" + result.temperatureUnit);
-                                }
-                            }
-                        };
-                        Misc.parallelExecute(checkCityAvailability);
-                    }
-                }, true);
-                refreshBulbPOIs();
             }
         });
         
@@ -602,7 +547,13 @@ public final class LandingActivity2 extends FragmentActivity {
         LandingActivity.initializeIfNeccessary(this, new Runnable() {
             @Override
             public void run() {
-                refreshBulbPOIs();
+                getCurrentLocation(new CurrentLocationListener() {
+                    @Override
+                    public void get(double lat, double lon) {
+                        refreshBulbPOIs(lat , lon);
+                        refreshCobranding(lat, lon);
+                    }
+                });
             }
         });
     }
@@ -737,10 +688,6 @@ public final class LandingActivity2 extends FragmentActivity {
     }
     
     private void getCurrentLocation(final CurrentLocationListener lis){
-        getCurrentLocation(lis, false);
-    }
-    
-    private void getCurrentLocation(final CurrentLocationListener lis, boolean forceNetworkLocation){
         if(networkLocManager == null){
             networkLocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         }
@@ -768,7 +715,7 @@ public final class LandingActivity2 extends FragmentActivity {
         final CurrentLocationListener networkLocListener = new CurrentLocationListener();
         networkLocListeners.add(networkLocListener);
         try{
-            if (!forceNetworkLocation && networkLocManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            if (networkLocManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 networkLocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, networkLocListener);
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -959,70 +906,127 @@ public final class LandingActivity2 extends FragmentActivity {
         return handled;
     }
     
-    private void refreshBulbPOIs(){
-        getCurrentLocation(new CurrentLocationListener() {
+    private void refreshCobranding(final double lat, final double lon){
+        AsyncTask<Void, Void, City> checkCityAvailability = new AsyncTask<Void, Void, City>(){
             @Override
-            public void get(final double lat, final double lon) {
-                final User user = User.getCurrentUser(LandingActivity2.this);
-                AsyncTask<Void, Void, List<com.smartrek.requests.WhereToGoRequest.Location>> task = 
-                        new AsyncTask<Void, Void, List<com.smartrek.requests.WhereToGoRequest.Location>>() {
-                    @Override
-                    protected List<com.smartrek.requests.WhereToGoRequest.Location> doInBackground(Void... params) {
-                        List<com.smartrek.requests.WhereToGoRequest.Location> locs = null;
-                        WhereToGoRequest req = new WhereToGoRequest(user, lat, lon);
-                        req.invalidateCache(LandingActivity2.this);
-                        try {
-                            locs = req.execute(LandingActivity2.this);
-                        }
-                        catch (Exception e) {
-                            ehs.registerException(e, "[" + req.getURL() + "]\n" + e.getMessage());
-                        }
-                        return locs;
-                    }
-                    @Override
-                    protected void onPostExecute(List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
-                        if (ehs.hasExceptions()) {
-                            ehs.reportExceptions();
-                        }
-                        else {
-                            hideStarredBalloon();
-                            hideBulbBalloon();
-                            MapView mapView = (MapView) findViewById(R.id.mapview);
-                            removePOIMarker(mapView);
-                            IMapController mc = mapView.getController();
-                            if(myPointOverlay == null){
-                                myPointOverlay = new PointOverlay(LandingActivity2.this, 0, 0);
-                                myPointOverlay.setColor(0xCC2020DF);
-                            }
-                            myPointOverlay.setLocation((float) lat, (float) lon);
-                            final List<Overlay> mapOverlays = mapView.getOverlays();
-                            mapOverlays.clear();
-                            bindMapFunctions(mapView);
-                            List<String> addrList = new ArrayList<String>();
-                            if(locs.isEmpty()){
-                                mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
-                                mc.setCenter(new GeoPoint(lat, lon));
-                            }else{
-                                RouteRect routeRect = drawBulbPOIs(mapView, locs);
-                                GeoPoint mid = routeRect.getMidPoint();
-                                int[] range = routeRect.getRange();
-                                mc.zoomToSpan(range[0], range[1]);
-                                mc.setCenter(mid);
-                                for(com.smartrek.requests.WhereToGoRequest.Location l : locs){
-                                    addrList.add(l.addr);
-                                }
-                            }
-                            mapOverlays.add(myPointOverlay);
-                            mapView.postInvalidate();
-                            findViewById(R.id.search_box).setTag(R.id.where_to_addresses, addrList);
-                            refreshSearchAutoCompleteData();
-                            refreshStarredPOIs();
-                        }
-                    }
-                };
-                Misc.parallelExecute(task);
+            protected City doInBackground(Void... params) {
+                City result;
+                try{
+                    CityRequest req = new CityRequest(lat, lon);
+                    req.invalidateCache(LandingActivity2.this);
+                    result = req.execute(LandingActivity2.this);
+                }catch(Throwable t){
+                    result = null;
+                }
+                return result;
             }
-        });
+            @Override
+            protected void onPostExecute(City result) {
+                final ImageView skylineView = (ImageView) findViewById(R.id.skyline_bg);
+                final ImageView cityImgView = (ImageView) findViewById(R.id.city_logo);
+                final View bottomText = findViewById(R.id.menu_bottom_text);
+                final TextView headerText = (TextView)findViewById(R.id.header_text);
+                if(StringUtils.isNotBlank(result.html)){
+                    CharSequence msg = Html.fromHtml(result.html);
+                    NotificationDialog dialog = new NotificationDialog(LandingActivity2.this, msg);
+                    dialog.show();
+                    skylineView.setImageResource(R.drawable.skyline);
+                    cityImgView.setVisibility(View.GONE);
+                    bottomText.setVisibility(View.GONE);
+                    headerText.setVisibility(View.GONE);
+                }else{
+                    LoadImageTask skylineTask = new LoadImageTask(LandingActivity2.this, result.skyline) {
+                        protected void onPostExecute(final Bitmap rs) {
+                            if(rs != null){
+                                skylineView.setImageBitmap(rs);
+                            }else{
+                                skylineView.setImageResource(R.drawable.skyline);
+                            }
+                        }
+                    };
+                    Misc.parallelExecute(skylineTask);
+                    LoadImageTask logoTask = new LoadImageTask(LandingActivity2.this, result.logo) {
+                        protected void onPostExecute(final Bitmap rs) {
+                            if(rs != null){
+                                cityImgView.setVisibility(View.VISIBLE);
+                                cityImgView.setImageBitmap(rs);
+                                bottomText.setVisibility(View.VISIBLE);
+                            }else{
+                                cityImgView.setVisibility(View.GONE);
+                                bottomText.setVisibility(View.GONE);
+                            }
+                        }
+                    };
+                    Misc.parallelExecute(logoTask);
+                    headerText.setVisibility(View.VISIBLE);
+                    headerText.setText(result.name + " | " 
+                        + Double.valueOf(result.temperature).intValue() + "°" 
+                        + result.temperatureUnit);
+                }
+            }
+        };
+        Misc.parallelExecute(checkCityAvailability);
+    }
+    
+    private void refreshBulbPOIs(final double lat, final double lon){
+        final User user = User.getCurrentUser(LandingActivity2.this);
+        AsyncTask<Void, Void, List<com.smartrek.requests.WhereToGoRequest.Location>> task = 
+                new AsyncTask<Void, Void, List<com.smartrek.requests.WhereToGoRequest.Location>>() {
+            @Override
+            protected List<com.smartrek.requests.WhereToGoRequest.Location> doInBackground(Void... params) {
+                List<com.smartrek.requests.WhereToGoRequest.Location> locs = null;
+                WhereToGoRequest req = new WhereToGoRequest(user, lat, lon);
+                req.invalidateCache(LandingActivity2.this);
+                try {
+                    locs = req.execute(LandingActivity2.this);
+                }
+                catch (Exception e) {
+                    ehs.registerException(e, "[" + req.getURL() + "]\n" + e.getMessage());
+                }
+                return locs;
+            }
+            @Override
+            protected void onPostExecute(List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
+                if (ehs.hasExceptions()) {
+                    ehs.reportExceptions();
+                }
+                else {
+                    hideStarredBalloon();
+                    hideBulbBalloon();
+                    MapView mapView = (MapView) findViewById(R.id.mapview);
+                    removePOIMarker(mapView);
+                    IMapController mc = mapView.getController();
+                    if(myPointOverlay == null){
+                        myPointOverlay = new PointOverlay(LandingActivity2.this, 0, 0);
+                        myPointOverlay.setColor(0xCC2020DF);
+                    }
+                    myPointOverlay.setLocation((float) lat, (float) lon);
+                    final List<Overlay> mapOverlays = mapView.getOverlays();
+                    mapOverlays.clear();
+                    bindMapFunctions(mapView);
+                    List<String> addrList = new ArrayList<String>();
+                    if(locs.isEmpty()){
+                        mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+                        mc.setCenter(new GeoPoint(lat, lon));
+                    }else{
+                        RouteRect routeRect = drawBulbPOIs(mapView, locs);
+                        GeoPoint mid = routeRect.getMidPoint();
+                        int[] range = routeRect.getRange();
+                        mc.zoomToSpan(range[0], range[1]);
+                        mc.setCenter(mid);
+                        for(com.smartrek.requests.WhereToGoRequest.Location l : locs){
+                            addrList.add(l.addr);
+                        }
+                    }
+                    mapOverlays.add(myPointOverlay);
+                    mapView.postInvalidate();
+                    findViewById(R.id.search_box).setTag(R.id.where_to_addresses, addrList);
+                    refreshSearchAutoCompleteData();
+                    refreshStarredPOIs();
+                }
+            }
+        };
+        Misc.parallelExecute(task);
     }
     
     private void bindMapFunctions(final MapView mapView){
