@@ -196,9 +196,13 @@ public final class LandingActivity2 extends FragmentActivity {
         centerMapIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(myPointOverlay != null){
-                    mc.animateTo(myPointOverlay.getLocation());
-                }
+                getCurrentLocation(new CurrentLocationListener() {
+                    @Override
+                    public void get(double lat, double lon) {
+                        refreshBulbPOIs(lat , lon);
+                        refreshCobranding(lat, lon);
+                    }
+                });
             }
         });
         
