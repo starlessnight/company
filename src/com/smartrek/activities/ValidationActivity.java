@@ -88,6 +88,7 @@ import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.ImComingRequest;
 import com.smartrek.requests.Request;
+import com.smartrek.requests.ReservationDeleteRequest;
 import com.smartrek.requests.ReservationFetchRequest;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.ui.NavigationView;
@@ -1479,6 +1480,20 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 								// Stop the activity
 								if (!isTripValidated()) {
 									showValidationFailedDialog();
+									AsyncTask<Void, Void, Void> delTask = new AsyncTask<Void, Void, Void>(){
+					                    @Override
+					                    protected Void doInBackground(Void... params) {
+					                        ReservationDeleteRequest request = new ReservationDeleteRequest(
+					                            User.getCurrentUser(ValidationActivity.this), reservation.getRid());
+					                        try {
+					                            request.execute(ValidationActivity.this);
+					                        }
+					                        catch (Exception e) {
+					                        }
+					                        return null;
+					                    }
+					                };
+					                Misc.parallelExecute(delTask);
 								}
 							}
 
