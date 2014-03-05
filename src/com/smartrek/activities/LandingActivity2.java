@@ -728,7 +728,7 @@ public final class LandingActivity2 extends FragmentActivity {
                             networkLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocListener);
                         }
                     }
-                }, 15000);
+                }, 10000);
             }else{
                 networkLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocListener);
             }

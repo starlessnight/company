@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -33,6 +34,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.text.format.Time;
 import android.util.Log;
@@ -553,6 +555,7 @@ public final class RouteActivity extends FragmentActivity {
                                 @Override
                                 public void onLocationChanged(Location location) {
                                     try{
+                                        locationChanged.set(true);
                                         locationManager.removeUpdates(this);
                                         currentLocDialog.dismiss();
                                         originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
@@ -574,9 +577,20 @@ public final class RouteActivity extends FragmentActivity {
                                 }
                             });
                             currentLocDialog.show();
-                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, locationListener);
+                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    requestNetworkLocation();
+                                }
+                            }, 10000);
                             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                                SystemService.alertNoGPS(RouteActivity.this);
+                                SystemService.alertNoGPS(RouteActivity.this, true, new SystemService.Callback(){
+                                    @Override
+                                    public void onNo() {
+                                        requestNetworkLocation();
+                                    }
+                                });
                             }
                         }
                     }else{
@@ -795,6 +809,16 @@ public final class RouteActivity extends FragmentActivity {
         Font.setTypeface(lightFont, destView, onMyWayView, letsGoView, reserveView,
             backButton, (TextView)findViewById(R.id.departure_row), durationRow,
             (TextView)findViewById(R.id.mpoint_row));
+    }
+    
+    private AtomicBoolean locationChanged = new AtomicBoolean();
+    
+    private void requestNetworkLocation(){
+        if(locationManager != null && locationListener != null){
+            if(!locationChanged.get()){
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+            }
+        }
     }
     
     @Override
