@@ -93,7 +93,6 @@ import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.ui.NavigationView;
 import com.smartrek.ui.NavigationView.CheckPointListener;
 import com.smartrek.ui.NavigationView.DirectionItem;
-import com.smartrek.ui.NavigationView.Status;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RouteDebugOverlay;
@@ -1079,6 +1078,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             public void run() {
                 AsyncTask<Void, Void, Route> task = new AsyncTask<Void, Void, Route>(){
                     @Override
+                    protected void onPreExecute() {
+                        navigationView.setRerouting(true);
+                    }
+                    @Override
                     protected Route doInBackground(Void... params) {
                         Route navRoute = null;
                         RouteFetchRequest routeReq = new RouteFetchRequest(
@@ -1121,8 +1124,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     }
                     @Override
                     protected void onPostExecute(Route result) {
+                        navigationView.setRerouting(false);
                         if(result != null){
-                            Log.i("reroute", "success");
                             reroute = result;
                             reroute.preprocessNodes();
                             routeRect = initRouteRect(reroute);
@@ -1312,6 +1315,23 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			Log.d("ValidationActivity", String.format("%d/%d",
 					numberOfValidatedNodes, route.getNodes().size()));
 
+			boolean inRoute;
+	        if (inRoute = rerouteNearestLink.distanceTo(lat, lng) <= params
+	                .getInRouteDistanceThreshold()) {
+	            linkId = rerouteNearestLink.getStartNode().getLinkId();
+	        }
+	        
+	        if(!inRoute && NavigationView.metersToFeet(distanceToLink) > distanceOutOfRouteThreshold
+                    && speedInMph > speedOutOfRouteThreshold){
+                Log.i("reroute", routeOfRouteCnt + ", " + NavigationView.metersToFeet(distanceToLink) 
+                    + ", " + speedInMph);
+                if(routeOfRouteCnt.incrementAndGet() == countOutOfRouteThreshold){
+                    reroute(lat, lng, speedInMph, bearing);
+                }
+            }else{
+                routeOfRouteCnt.set(0);
+            }
+			
 			if (nearestNode.getFlag() != 0) {
 				showNavigationInformation(location, nearestNode);
 			} else {
@@ -1324,22 +1344,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						break;
 					}
 				}
-			}
-
-			boolean inRoute;
-			if (inRoute = navigationView.getStatus() == Status.InRoute) {
-				linkId = rerouteNearestLink.getStartNode().getLinkId();
-			}
-			
-			if(!inRoute && NavigationView.metersToFeet(distanceToLink) > distanceOutOfRouteThreshold
-			        && speedInMph > speedOutOfRouteThreshold){
-			    Log.i("reroute", routeOfRouteCnt + ", " + NavigationView.metersToFeet(distanceToLink) 
-		            + ", " + speedInMph);
-			    if(routeOfRouteCnt.incrementAndGet() == countOutOfRouteThreshold){
-			        reroute(lat, lng, speedInMph, bearing);
-			    }
-			}else{
-			    routeOfRouteCnt.set(0);
 			}
 			
 			long passedNodeTime = 0;

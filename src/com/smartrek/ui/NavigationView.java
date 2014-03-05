@@ -77,7 +77,11 @@ public class NavigationView extends LinearLayout {
 	private CheckPointListener listener;
 
 	private boolean everInRoute;
+	
+	private boolean rerouting;
 
+	private boolean lastRerouting;
+	
 	private RouteNode lastEnd;
 
 	private List<DirectionItem> items = Collections.emptyList();
@@ -418,7 +422,7 @@ public class NavigationView extends LinearLayout {
 				}
 			}
 		} else {
-			String outOfRouteMsg = "Out of route. Please go back to route.";
+			String routeMsg = rerouting?"Rerouting":"Out of route. Please go back to route."; 
 			String startFromRouteMsg = "Proceed to";
 			RouteNode roaddNode = route.getFirstNode();
 			while (roaddNode != null) {
@@ -429,16 +433,17 @@ public class NavigationView extends LinearLayout {
 				}
 				roaddNode = roaddNode.getNextNode();
 			}
-			if (everInRoute && status != Status.OutOfRoute && listener != null) {
-				listener.onCheckPoint(outOfRouteMsg);
+			if (everInRoute && (status != Status.OutOfRoute || !lastRerouting) 
+			        && listener != null) {
+				listener.onCheckPoint(routeMsg);
 			} else if (!everInRoute
 					&& (status == null || status == Status.WaitingForGPS)
 					&& listener != null) {
 				listener.onCheckPoint(startFromRouteMsg);
 			}
+			lastRerouting = rerouting;
 			setStatus(Status.OutOfRoute);
-			textViewGenericMessage.setText(everInRoute ? outOfRouteMsg
-					: startFromRouteMsg);
+			textViewGenericMessage.setText(everInRoute?routeMsg:startFromRouteMsg);
 		}
 	}
 
@@ -484,5 +489,13 @@ public class NavigationView extends LinearLayout {
 		Font.setTypeface(font, textViewGenericMessage, textViewWaiting,
 				textViewDistance, textViewRoad);
 	}
+
+    public boolean isRerouting() {
+        return rerouting;
+    }
+
+    public void setRerouting(boolean rerouting) {
+        this.rerouting = rerouting;
+    }
 
 }
