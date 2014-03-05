@@ -38,7 +38,7 @@ public abstract class Request {
 	
 	public static final String REDEEM_URL = "http://www.smartrekmobile.com/dashboard/rewards";
 	
-	public static final String ENTRYPOINT_URL = "https://api.smartrekmobile.com";
+	public static final String ENTRYPOINT_URL = "https://api.metropia.com";
 	
 	public static String getTimeZone(){
 	    return TimeZone.getDefault().getID();
