@@ -1072,7 +1072,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private AtomicInteger routeOfRouteCnt = new AtomicInteger();
 	
 	private void reroute(final double lat, final double lon, final double speedInMph,
-	        final float bearing){
+	        final float bearing, final long passedTime){
 	    runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -1126,6 +1126,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     protected void onPostExecute(Route result) {
                         navigationView.setRerouting(false);
                         if(result != null){
+                            passedNodeTimeOffset.addAndGet(passedTime);
                             reroute = result;
                             reroute.preprocessNodes();
                             routeRect = initRouteRect(reroute);
@@ -1141,6 +1142,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 	
 	private AtomicBoolean routeLoaded = new AtomicBoolean();
+	
+	private AtomicLong passedNodeTimeOffset = new AtomicLong(); 
 	
 	private synchronized void locationChanged(final Location location) {
 	    final double speedInMph = Trajectory.msToMph(location.getSpeed());
@@ -1281,9 +1284,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		if (!route.getNodes().isEmpty()) {
 			nearestLink = route.getNearestLink(lat, lng);
 
-			RouteLink rerouteNearestLink = getRouteOrReroute().getNearestLink(lat, lng);
-			nearestNode = rerouteNearestLink.getEndNode();
-
 			ValidationParameters params = ValidationParameters.getInstance();
 
 			boolean alreadyValidated = isTripValidated();
@@ -1314,23 +1314,42 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 			Log.d("ValidationActivity", String.format("%d/%d",
 					numberOfValidatedNodes, route.getNodes().size()));
-
-			boolean inRoute;
-	        if (inRoute = rerouteNearestLink.distanceTo(lat, lng) <= params
-	                .getInRouteDistanceThreshold()) {
-	            linkId = rerouteNearestLink.getStartNode().getLinkId();
+			
+	        if (nearestLink.distanceTo(lat, lng) <= params.getInRouteDistanceThreshold()) {
+	            linkId = nearestLink.getStartNode().getLinkId();
 	        }
 	        
-	        if(!inRoute && NavigationView.metersToFeet(distanceToLink) > distanceOutOfRouteThreshold
+	        RouteLink rerouteNearestLink = getRouteOrReroute().getNearestLink(lat, lng);
+            nearestNode = rerouteNearestLink.getEndNode();
+	        
+	        long passedNodeTime = passedNodeTimeOffset.get();
+            long remainingNodeTime = 0;
+            for (RouteNode node : getRouteOrReroute().getNodes()) {
+                int time = node.getTime();
+                if (node.getNodeIndex() > nearestNode.getNodeIndex()) {
+                    remainingNodeTime += time;
+                }else{
+                    passedNodeTime += time;
+                }
+            }
+            Time currentTime = new Time();
+            currentTime.setToNow();
+            
+	        if(rerouteNearestLink.distanceTo(lat, lng) > params.getInRouteDistanceThreshold() 
+	                && NavigationView.metersToFeet(distanceToLink) > distanceOutOfRouteThreshold
                     && speedInMph > speedOutOfRouteThreshold){
-                Log.i("reroute", routeOfRouteCnt + ", " + NavigationView.metersToFeet(distanceToLink) 
-                    + ", " + speedInMph);
                 if(routeOfRouteCnt.incrementAndGet() == countOutOfRouteThreshold){
-                    reroute(lat, lng, speedInMph, bearing);
+                    reroute(lat, lng, speedInMph, bearing, passedNodeTime);
                 }
             }else{
                 routeOfRouteCnt.set(0);
             }
+	        
+            etaDelay.set(currentTime.toMillis(false) - startTime - passedNodeTime * 1000);
+            final TextView timeInfo = (TextView) findViewById(R.id.remain_times);
+            timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(reservation.getArrivalTime() + etaDelay.get()));
+            timeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(remainingNodeTime));
+            refreshTimeInfo();
 			
 			if (nearestNode.getFlag() != 0) {
 				showNavigationInformation(location, nearestNode);
@@ -1345,24 +1364,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					}
 				}
 			}
-			
-			long passedNodeTime = 0;
-            long remainingNodeTime = 0;
-            for (RouteNode node : getRouteOrReroute().getNodes()) {
-                int time = node.getTime();
-                if (node.getNodeIndex() > nearestNode.getNodeIndex()) {
-                    remainingNodeTime += time;
-                }else{
-                    passedNodeTime += time;
-                }
-            }
-            Time currentTime = new Time();
-            currentTime.setToNow();
-            etaDelay.set(currentTime.toMillis(false) - startTime - passedNodeTime * 1000);
-            final TextView timeInfo = (TextView) findViewById(R.id.remain_times);
-            timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(reservation.getArrivalTime() + etaDelay.get()));
-            timeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(remainingNodeTime));
-            refreshTimeInfo();
 
 		}
 
