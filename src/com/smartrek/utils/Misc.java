@@ -23,6 +23,8 @@ import com.google.android.gcm.GCMRegistrar;
 import com.smartrek.activities.GCMIntentService;
 
 public class Misc {
+
+    public static final String APP_DOWNLOAD_LINK = "http://www.metropia.com/download";
     
     public static final String LOG_TAG = "Misc";
     

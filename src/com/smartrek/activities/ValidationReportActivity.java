@@ -63,7 +63,7 @@ public final class ValidationReportActivity extends ActionBarActivity {
                      "I earned " + route.getCredits() + " points for traveling at " 
                      + Reservation.formatTime(route.getDepartureTime(), true) + " to help solve traffic congestion "
                      + "using Metropia Mobile!"
-                     + "\n\n" + Misc.getGooglePlayAppUrl(ValidationReportActivity.this))
+                     + "\n\n" + Misc.APP_DOWNLOAD_LINK)
                     .show(getSupportFragmentManager(), null);
             }
         });
