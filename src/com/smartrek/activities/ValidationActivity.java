@@ -81,7 +81,6 @@ import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.dialogs.FeedbackDialog;
 import com.smartrek.dialogs.FloatingMenuDialog;
 import com.smartrek.dialogs.NotificationDialog;
-import com.smartrek.dialogs.ShareDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
@@ -661,13 +660,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		shareButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                User user = User.getCurrentUser(ValidationActivity.this);
-                ShareDialog.newInstance(user.getFirstname() + " " + user.getLastname() + " is on the way",
-                     "I earned " + route.getCredits() + " points for traveling at " 
-                     + Reservation.formatTime(route.getDepartureTime(), true) + " to help solve traffic congestion "
-                     + "using Metropia Mobile!"
-                     + "\n\n" + Misc.getGooglePlayAppUrl(ValidationActivity.this))
-                    .show(getSupportFragmentManager(), null);
+                Intent intent = new Intent(ValidationActivity.this, ShareActivity.class);
+                intent.putExtra(ShareActivity.TITLE, "More Metropians = Less Traffic");
+                intent.putExtra(ShareActivity.SHARE_TEXT, "I earned " + reservation.getMpoint() + " points for traveling at " 
+                    + Reservation.formatTime(route.getDepartureTime(), true) + " to help solve traffic congestion "
+                    + "using Metropia Mobile!"
+                    + "\n\n" + Misc.getGooglePlayAppUrl(ValidationActivity.this));
+                startActivity(intent);
             }
         });
 
@@ -1395,8 +1394,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	private AtomicBoolean turnOffGPS = new AtomicBoolean();
 	
+	private AtomicBoolean arrivalMsgDisplayed = new AtomicBoolean();
+	
 	private void displayArrivalMsg() {
 		if (isTripValidated()) {
+		    arrivalMsgDisplayed.set(true);
 			final View panel = findViewById(R.id.congrats_panel);
 			String msg = "Arrive at Destination";
 			((TextView) findViewById(R.id.congrats_msg)).setText(msg);
@@ -1465,42 +1467,48 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 
 	private void cancelValidation() {
-		// Ask the user if they want to quit
-		new AlertDialog.Builder(this)
-				.setIcon(android.R.drawable.ic_dialog_alert)
-				.setTitle("Confirm")
-				.setMessage("Are you sure you want to stop this trip?")
-				.setPositiveButton("No", null)
-				.setNegativeButton("Yes",
-						new DialogInterface.OnClickListener() {
-
-							@Override
-							public void onClick(DialogInterface dialog,
-									int which) {
-
-								reportValidation();
-
-								// Stop the activity
-								if (!isTripValidated()) {
-									showValidationFailedDialog();
-									AsyncTask<Void, Void, Void> delTask = new AsyncTask<Void, Void, Void>(){
-					                    @Override
-					                    protected Void doInBackground(Void... params) {
-					                        ReservationDeleteRequest request = new ReservationDeleteRequest(
-					                            User.getCurrentUser(ValidationActivity.this), reservation.getRid());
-					                        try {
-					                            request.execute(ValidationActivity.this);
-					                        }
-					                        catch (Exception e) {
-					                        }
-					                        return null;
-					                    }
-					                };
-					                Misc.parallelExecute(delTask);
-								}
-							}
-
-						}).show();
+	    if(arrivalMsgDisplayed.get()){
+            if (!isFinishing()) {
+                finish();
+            }
+        }else{
+    		// Ask the user if they want to quit
+    		new AlertDialog.Builder(this)
+    			.setIcon(android.R.drawable.ic_dialog_alert)
+    			.setTitle("Confirm")
+    			.setMessage("Are you sure you want to stop this trip?")
+    			.setPositiveButton("No", null)
+    			.setNegativeButton("Yes",
+    					new DialogInterface.OnClickListener() {
+    
+    						@Override
+    						public void onClick(DialogInterface dialog,
+    								int which) {
+    
+    							reportValidation();
+    
+    							// Stop the activity
+    							if (!isTripValidated()) {
+    								showValidationFailedDialog();
+    								AsyncTask<Void, Void, Void> delTask = new AsyncTask<Void, Void, Void>(){
+    				                    @Override
+    				                    protected Void doInBackground(Void... params) {
+    				                        ReservationDeleteRequest request = new ReservationDeleteRequest(
+    				                            User.getCurrentUser(ValidationActivity.this), reservation.getRid());
+    				                        try {
+    				                            request.execute(ValidationActivity.this);
+    				                        }
+    				                        catch (Exception e) {
+    				                        }
+    				                        return null;
+    				                    }
+    				                };
+    				                Misc.parallelExecute(delTask);
+    							}
+    						}
+    
+    					}).show();
+        }
 	}
 
 	private class ValidationLocationListener implements LocationListener {

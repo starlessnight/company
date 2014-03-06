@@ -31,6 +31,10 @@ import com.twitter.android.TwitterApp.TwDialogListener;
 
 public final class ShareActivity extends FragmentActivity {
 
+    public static final String TITLE = "TITLE";
+    
+    public static final String SHARE_TEXT = "SHARE_TEXT";
+    
 	private static final String FB_PERMISSIONS = "publish_actions";
 	private static final int GOOGLE_PLUS_REQ = 7;
 
@@ -64,10 +68,9 @@ public final class ShareActivity extends FragmentActivity {
 
 		User user = User.getCurrentUser(ShareActivity.this);
 
-		shareText = "I helped solve traffic congestion using Metropia Mobile!"
-				+ "\n\n" + Misc.getGooglePlayAppUrl(ShareActivity.this);
-		title = user.getFirstname() + " " + user.getLastname()
-				+ " is on the way";
+		Intent intent = getIntent();
+		shareText = intent.getStringExtra(SHARE_TEXT);
+		title = intent.getStringExtra(TITLE);
 
 		TextView backButton = (TextView) findViewById(R.id.back_button);
 		backButton.setOnClickListener(new OnClickListener() {

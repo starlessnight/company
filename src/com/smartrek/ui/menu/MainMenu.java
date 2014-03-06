@@ -16,6 +16,7 @@ import com.smartrek.activities.ReservationListActivity;
 import com.smartrek.activities.RouteActivity;
 import com.smartrek.activities.ShareActivity;
 import com.smartrek.models.User;
+import com.smartrek.utils.Misc;
 
 /**
  * A common interface to bring up the application menu
@@ -118,6 +119,9 @@ public final class MainMenu {
            case R.id.share_menu:
         	   if(!activity.getClass().equals(ShareActivity.class)) {
         		   intent = new Intent(activity, ShareActivity.class);
+        		   intent.putExtra(ShareActivity.TITLE, "More Metropians = Less Traffic");
+        		   intent.putExtra(ShareActivity.SHARE_TEXT, "I helped solve traffic congestion using Metropia Mobile!"
+        		           + "\n\n" + Misc.getGooglePlayAppUrl(activity));
                    activity.startActivity(intent);
         	   }
         	   break;
