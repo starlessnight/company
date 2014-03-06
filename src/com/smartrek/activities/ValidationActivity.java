@@ -790,7 +790,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			// TODO: Turn on GSP early
 			locationManager.requestLocationUpdates(
 					LocationManager.GPS_PROVIDER,
-					DebugOptionsActivity.getGpsUpdateInterval(this), 5,
+					DebugOptionsActivity.getGpsUpdateInterval(this), 0,
 					locationListener);
 		}
 		locationManager.requestLocationUpdates(

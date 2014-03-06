@@ -1327,7 +1327,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                     @Override
                     public void onProviderDisabled(String provider) {}
                 };
-                activity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, activity.locationListener);
+                activity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, activity.locationListener);
             }
         }
         
