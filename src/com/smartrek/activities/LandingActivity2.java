@@ -805,7 +805,7 @@ public final class LandingActivity2 extends FragmentActivity {
             if (networkLocManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 networkLocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, networkLocListener);
             }
-        }catch(Throwable t){}
+        }catch(Throwable t){ }
     }
     
     Typeface boldFont;
