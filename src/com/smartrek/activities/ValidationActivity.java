@@ -1413,7 +1413,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			
 			panel.setVisibility(View.VISIBLE);
 			Misc.fadeIn(ValidationActivity.this, panel);
-			speakIfTtsEnabled(msg);
+			
 			turnOffGPS.set(true);
 			// turn off GPS
 			if(locationManager != null) {
@@ -1429,7 +1429,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			public void run() {
 				navigationView.setVisibility(View.GONE);
 				findViewById(R.id.dest_panel).setVisibility(View.VISIBLE);
-				speakIfTtsEnabled("Arrive at Destination");
+				speakIfTtsEnabled("Arrive at Destination", false);
 				displayArrivalMsg();
 			}
 		});
@@ -1695,6 +1695,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				pollCnt++;
 				location.setLatitude(geoPoint.getLatitude());
 				location.setLongitude(geoPoint.getLongitude());
+				location.setSpeed(9999f);
 				listener.onLocationChanged(location);
 			}
 		}
@@ -1719,22 +1720,22 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			});
 			navigationView.setListener(new CheckPointListener() {
 				@Override
-				public void onCheckPoint(final String navText) {
+				public void onCheckPoint(String navText, boolean flush) {
 					if (!arrived.get()) {
-						speakIfTtsEnabled(navText);
+						speakIfTtsEnabled(navText, flush);
 					}
 				}
 			});
 		}
 	}
 
-	private void speakIfTtsEnabled(String text) {
+	private void speakIfTtsEnabled(String text, boolean flush) {
 		if (MapDisplayActivity.isNavigationTtsEnabled(this)) {
-			speak(text);
+			speak(text, flush);
 		}
 	}
 
-	private void speak(String text) {
+	private void speak(String text, boolean flush) {
 		if (mTts != null) {
 			try {
 				HashMap<String, String> params = new HashMap<String, String>();
@@ -1745,7 +1746,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				AudioManager am = (AudioManager) ValidationActivity.this
 						.getSystemService(Context.AUDIO_SERVICE);
 				am.setStreamMute(AudioManager.STREAM_MUSIC, true);
-				mTts.speak(text, TextToSpeech.QUEUE_ADD, params);
+				mTts.speak(text, flush?TextToSpeech.QUEUE_FLUSH:TextToSpeech.QUEUE_ADD, params);
 			} catch (Throwable t) {
 			}
 		}

@@ -359,7 +359,7 @@ public class NavigationView extends LinearLayout {
 							prevNode = end;
 						}
 						listener.onCheckPoint(getContinueDirection(prevNode,
-								formattedDist));
+								formattedDist), false);
 					}
 				} else {
 					double linkDistance = 0;
@@ -416,7 +416,7 @@ public class NavigationView extends LinearLayout {
 
 					if (listener != null && checkpointDistance != null) {
 						listener.onCheckPoint(getDirection(node,
-								checkpointDistance, actionOnly));
+								checkpointDistance, actionOnly), false);
 					}
 
 				}
@@ -435,11 +435,11 @@ public class NavigationView extends LinearLayout {
 			}
 			if (everInRoute && (status != Status.OutOfRoute || !lastRerouting) 
 			        && listener != null) {
-				listener.onCheckPoint(routeMsg);
+				listener.onCheckPoint(routeMsg, false);
 			} else if (!everInRoute
 					&& (status == null || status == Status.WaitingForGPS)
 					&& listener != null) {
-				listener.onCheckPoint(startFromRouteMsg);
+				listener.onCheckPoint(startFromRouteMsg, false);
 			}
 			lastRerouting = rerouting;
 			setStatus(Status.OutOfRoute);
@@ -473,7 +473,7 @@ public class NavigationView extends LinearLayout {
 	
 	public static interface CheckPointListener {
 
-		void onCheckPoint(String navText);
+		void onCheckPoint(String navText, boolean flush);
 
 	}
 
