@@ -445,7 +445,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		// updates
 		int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE,
 				DebugOptionsActivity.GPS_MODE_DEFAULT);
-		if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL) {
+		if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL && !turnOffGPS.get()) {
 			prepareGPS();
 		} else if (gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED
 				|| gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA
@@ -1393,6 +1393,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private AtomicLong etaDelay = new AtomicLong(); 
 
+	private AtomicBoolean turnOffGPS = new AtomicBoolean();
+	
 	private void displayArrivalMsg() {
 		if (isTripValidated()) {
 			final View panel = findViewById(R.id.congrats_panel);
@@ -1410,6 +1412,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			panel.setVisibility(View.VISIBLE);
 			Misc.fadeIn(ValidationActivity.this, panel);
 			speakIfTtsEnabled(msg);
+			turnOffGPS.set(true);
 			// turn off GPS
 			if(locationManager != null) {
 				locationManager.removeUpdates(locationListener);
