@@ -430,7 +430,7 @@ public class NavigationView extends LinearLayout {
 				if (StringUtils.isNotBlank(roadName)) {
 					startFromRouteMsg += " " + roadName;
 					break;
-				}
+				} 
 				roaddNode = roaddNode.getNextNode();
 			}
 			boolean speakRerouting = rerouting && !lastRerouting;
