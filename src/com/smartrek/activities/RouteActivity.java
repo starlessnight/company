@@ -908,7 +908,7 @@ public final class RouteActivity extends FragmentActivity {
         }else{
         	Resources res = getResources();
         	
-        	boolean reverseButtons = Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB;
+        	boolean reverseButtons = true;
         	String rightButtonText = res.getString(R.string.yes);
         	String leftButtonText = res.getString(R.string.no); 
         	DialogInterface.OnClickListener rightButtonOnClick = new DialogInterface.OnClickListener() {

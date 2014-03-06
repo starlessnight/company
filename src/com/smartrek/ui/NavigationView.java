@@ -433,9 +433,10 @@ public class NavigationView extends LinearLayout {
 				}
 				roaddNode = roaddNode.getNextNode();
 			}
-			if (everInRoute && (status != Status.OutOfRoute || !lastRerouting) 
+			boolean speakRerouting = rerouting && !lastRerouting;
+			if (everInRoute && (status != Status.OutOfRoute || speakRerouting) 
 			        && listener != null) {
-				listener.onCheckPoint(routeMsg, false);
+				listener.onCheckPoint(routeMsg, speakRerouting);
 			} else if (!everInRoute
 					&& (status == null || status == Status.WaitingForGPS)
 					&& listener != null) {

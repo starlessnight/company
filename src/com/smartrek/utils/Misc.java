@@ -53,17 +53,17 @@ public class Misc {
         helpBuilder.setTitle("Add Google account");
         helpBuilder.setMessage("Metropia relies on a Google account,"
             + " would you like to configure one now?");
-        helpBuilder.setPositiveButton("yes",
+        helpBuilder.setPositiveButton("No",
         new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ctx.startActivity(new Intent(Settings.ACTION_ADD_ACCOUNT));
+                // close the dialog, return to activity
             }
         });
-        helpBuilder.setNegativeButton("no", new DialogInterface.OnClickListener() {
+        helpBuilder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
            @Override
            public void onClick(DialogInterface dialog, int which) {
-                // close the dialog, return to activity
+                ctx.startActivity(new Intent(Settings.ACTION_ADD_ACCOUNT));
             }
         });
         helpBuilder.setCancelable(false);
