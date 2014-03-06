@@ -385,13 +385,15 @@ public final class LandingActivity2 extends FragmentActivity {
                                 ehs.reportExceptions();
                             }
                             else {
-                                removePOIMarker(mapView);
-                                refreshStarredPOIs();
+                                GeoPoint location = myPointOverlay.getLocation();
+                                refreshBulbPOIs(location.getLatitude() , 
+                                    location.getLongitude(), false);
                             }
                         }
                    };
                    Misc.parallelExecute(task);
                    hideBalloonPanel();
+                   removePOIMarker(mapView);
                 }
             }
         });
@@ -435,12 +437,12 @@ public final class LandingActivity2 extends FragmentActivity {
 	                                ehs.reportExceptions();
 	                            }
 	                            else {
-	                                removePOIMarker(mapView);
 	                                refreshStarredPOIs();
 	                            }
 	                        }
 	                    };
 	                    Misc.parallelExecute(task);
+	                    removePOIMarker(mapView);
 	                    hideBalloonPanel();
 			        }
 		        }
@@ -580,19 +582,24 @@ public final class LandingActivity2 extends FragmentActivity {
                     getCurrentLocation(new CurrentLocationListener() {
                         @Override
                         public void get(double lat, double lon) {
-                            refreshBulbPOIs(lat , lon, false);
-                            refreshCobranding(lat, lon, false);
+                            refreshMyLocation(lat, lon);
                         }
                         @Override
                         public void adjusted(double lat, double lon) {
-                            refreshBulbPOIs(lat , lon, false);
-                            refreshCobranding(lat, lon, false);
+                            refreshMyLocation(lat, lon);
                         }
                     });
                 }
             });
         }
     };
+    
+    private void refreshMyLocation(double lat, double lon){
+        if(myPointOverlay != null){
+            myPointOverlay.setLocation((float) lat, (float) lon);
+            findViewById(R.id.mapview).postInvalidate();
+        }
+    }
     
     @Override
     protected void onResume() {
@@ -687,7 +694,7 @@ public final class LandingActivity2 extends FragmentActivity {
             @Override
             protected void onPostExecute(List<Reservation> reservations) {
                 if (ehs.hasExceptions()) { 
-                    ehs.reportExceptions();
+                    //ehs.reportExceptions();
                 } 
                 else{
                     View tripPanel = findViewById(R.id.trip_panel);
@@ -767,6 +774,8 @@ public final class LandingActivity2 extends FragmentActivity {
                 try{
                     double lon = location.getLongitude();
                     double lat = location.getLatitude();
+//                    lat = 34.0291747; 
+//                    lon = -118.2734106;
                     if(!init.get()){
                         init.set(true); 
                         lis.get(lat, lon);
@@ -786,9 +795,6 @@ public final class LandingActivity2 extends FragmentActivity {
         final AdjustedLocationListener networkLocListener = new AdjustedLocationListener();
         networkLocListeners.add(networkLocListener);
         try{
-            if (networkLocManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                networkLocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, networkLocListener);
-            }
             networkLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocListener);
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -796,8 +802,10 @@ public final class LandingActivity2 extends FragmentActivity {
                     networkLocManager.removeUpdates(networkLocListener);
                 }
             }, 10000);
+            if (networkLocManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                networkLocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, networkLocListener);
+            }
         }catch(Throwable t){}
-        //lis.get(34.0291747, -118.2734106);
     }
     
     Typeface boldFont;
@@ -858,7 +866,7 @@ public final class LandingActivity2 extends FragmentActivity {
             protected void onPostExecute(
                     List<com.smartrek.models.Address> result) {
                 if (ehs.hasExceptions()) {
-                    ehs.reportExceptions();
+                    //ehs.reportExceptions();
                 }
                 else {
                     List<String> addrList = new ArrayList<String>();
@@ -1061,7 +1069,7 @@ public final class LandingActivity2 extends FragmentActivity {
             @Override
             protected void onPostExecute(List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
                 if (ehs.hasExceptions()) {
-                    ehs.reportExceptions();
+                    //ehs.reportExceptions();
                 }
                 else {
                     hideStarredBalloon();
@@ -1073,7 +1081,7 @@ public final class LandingActivity2 extends FragmentActivity {
                         myPointOverlay = new PointOverlay(LandingActivity2.this, 0, 0);
                         myPointOverlay.setColor(0xCC2020DF);
                     }
-                    myPointOverlay.setLocation((float) lat, (float) lon);
+                    refreshMyLocation(lat, lon);
                     final List<Overlay> mapOverlays = mapView.getOverlays();
                     mapOverlays.clear();
                     bindMapFunctions(mapView);
@@ -1084,8 +1092,8 @@ public final class LandingActivity2 extends FragmentActivity {
                             mc.setCenter(new GeoPoint(lat, lon));
                         }
                     }else{
+                        RouteRect routeRect = drawBulbPOIs(mapView, locs);
                         if(recenter){
-                            RouteRect routeRect = drawBulbPOIs(mapView, locs);
                             GeoPoint mid = routeRect.getMidPoint();
                             int[] range = routeRect.getRange();
                             mc.zoomToSpan(range[0], range[1]);
