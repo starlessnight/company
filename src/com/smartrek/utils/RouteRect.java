@@ -1,5 +1,6 @@
 package com.smartrek.utils;
 
+import java.util.Collection;
 import java.util.List;
 
 
@@ -26,6 +27,25 @@ public class RouteRect {
         int lonMin = (int) (+181 * 1E6);
         for (int i = 0; i < nodes.size() - 1; i++) {
             GeoPoint point = nodes.get(i).getGeoPoint();
+            int curLat = point.getLatitudeE6();
+            int curLon = point.getLongitudeE6();
+            latMax = Math.max(latMax, curLat);
+            lonMax = Math.max(lonMax, curLon);
+            latMin = Math.min(latMin, curLat);
+            lonMin = Math.min(lonMin, curLon);
+        }
+        this.latMax = latMax;
+        this.lonMax = lonMax;
+        this.latMin = latMin;
+        this.lonMin = lonMin;
+    }
+	
+	public RouteRect(Collection<GeoPoint> nodes) {
+        int latMax = (int) (-81 * 1E6);
+        int lonMax = (int) (-181 * 1E6);
+        int latMin = (int) (+81 * 1E6);
+        int lonMin = (int) (+181 * 1E6);
+        for (GeoPoint point : nodes) {
             int curLat = point.getLatitudeE6();
             int curLon = point.getLongitudeE6();
             latMax = Math.max(latMax, curLat);

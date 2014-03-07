@@ -1091,7 +1091,13 @@ public final class LandingActivity2 extends FragmentActivity {
                             mc.setCenter(new GeoPoint(lat, lon));
                         }
                     }else{
-                        RouteRect routeRect = drawBulbPOIs(mapView, locs);
+                        drawBulbPOIs(mapView, locs);
+                        List<GeoPoint> points = new ArrayList<GeoPoint>();
+                        points.add(new GeoPoint(lat, lon));
+                        for(com.smartrek.requests.WhereToGoRequest.Location l : locs){
+                            points.add(new GeoPoint(l.lat, l.lon));
+                        }
+                        RouteRect routeRect = new RouteRect(points);
                         if(recenter){
                             GeoPoint mid = routeRect.getMidPoint();
                             int[] range = routeRect.getRange();
@@ -1242,7 +1248,7 @@ public final class LandingActivity2 extends FragmentActivity {
     	findViewById(R.id.bottom_bar).setVisibility(View.GONE);
     }
     
-    private synchronized RouteRect drawBulbPOIs(final MapView mapView, List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
+    private synchronized void drawBulbPOIs(final MapView mapView, List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
         List<Overlay> overlays = mapView.getOverlays();
         for (Overlay overlay : overlays) {
             if(overlay instanceof POIActionOverlay){
@@ -1252,11 +1258,6 @@ public final class LandingActivity2 extends FragmentActivity {
                 }
             }
         }
-        
-        int latMax = (int)(-81 * 1E6);
-        int lonMax = (int)(-181 * 1E6);
-        int latMin = (int)(+81 * 1E6);
-        int lonMin = (int)(+181 * 1E6);
         
         initFontsIfNecessary();
         for(final com.smartrek.requests.WhereToGoRequest.Location l:locs){
@@ -1304,15 +1305,7 @@ public final class LandingActivity2 extends FragmentActivity {
             });
             overlays.add(bulb);
             bulb.showOverlay();
-            int curLat = gp.getLatitudeE6();
-            int curLon = gp.getLongitudeE6();
-            latMax = Math.max(latMax, curLat);
-            lonMax = Math.max(lonMax, curLon);
-            latMin = Math.min(latMin, curLat);
-            lonMin = Math.min(lonMin, curLon);
         }
-        
-        return new RouteRect(latMax, lonMax, latMin, lonMin);
     }
     
     @Override
