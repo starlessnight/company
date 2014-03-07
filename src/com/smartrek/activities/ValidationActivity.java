@@ -717,7 +717,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    }
 	    
 	    private static String getFormatedRemainingTime(long seconds){
-	        long minute = Double.valueOf(Math.ceil(seconds / 60.0D)).longValue();
+	        long minute = Double.valueOf(Math.round(seconds / 60.0D)).longValue();
 	        return minute + "min";
 	    }
 
@@ -929,7 +929,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 											emails,
 											loc.getLatitude(),
 											loc.getLongitude(),
-											reservation.getArrivalTime() + etaDelay.get(),
+											getETA(),
 											NavigationView
 													.metersToMiles(reservation
 															.getRoute()
@@ -1335,6 +1335,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             Time currentTime = new Time();
             currentTime.setToNow();
             
+            remainingTime.set(remainingNodeTime);
+            
 	        if(rerouteNearestLink.distanceTo(lat, lng) > params.getInRouteDistanceThreshold() 
 	                && NavigationView.metersToFeet(distanceToLink) > distanceOutOfRouteThreshold
                     && speedInMph > speedOutOfRouteThreshold){
@@ -1347,8 +1349,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	        
             etaDelay.set(currentTime.toMillis(false) - startTime - passedNodeTime * 1000);
             final TextView timeInfo = (TextView) findViewById(R.id.remain_times);
-            timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(reservation.getArrivalTime() + etaDelay.get()));
-            timeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(remainingNodeTime));
+            timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(getETA()));
+            timeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(remainingTime.get()));
             refreshTimeInfo();
 			
 			if (nearestNode.getFlag() != 0) {
@@ -1391,8 +1393,16 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		lastKnownLocation = location;
 	}
 	
-	private AtomicLong etaDelay = new AtomicLong(); 
+	private AtomicLong etaDelay = new AtomicLong();
+	
+	private AtomicLong remainingTime = new AtomicLong(); 
 
+	private long getETA(){
+	    Time currentTime = new Time();
+        currentTime.setToNow();
+	    return currentTime.toMillis(false) + remainingTime.get() * 1000; 
+	}
+	
 	private AtomicBoolean turnOffGPS = new AtomicBoolean();
 	
 	private AtomicBoolean arrivalMsgDisplayed = new AtomicBoolean();
