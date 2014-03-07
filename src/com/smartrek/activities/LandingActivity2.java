@@ -90,7 +90,7 @@ import com.smartrek.utils.SmartrekTileProvider;
 
 public final class LandingActivity2 extends FragmentActivity {
     
-    public static final String LAT = "lat"; 
+    public static final String LAT = "lat";
     
     public static final String LON = "lon";
     
