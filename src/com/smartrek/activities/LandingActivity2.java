@@ -354,47 +354,45 @@ public final class LandingActivity2 extends FragmentActivity {
             public void onClick(View v) {
                 final String lbl = ((EditText)balloonView.findViewById(R.id.label)).getText().toString();
                 final String addr = ((TextView)balloonView.findViewById(R.id.address)).getText().toString();
-                if(StringUtils.isNotBlank(lbl)){
-                    final BalloonModel model = (BalloonModel) balloonView.getTag();
-                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
-                        @Override
-                        protected Void doInBackground(Void... params) {
-                            Request req = null;
-                            User user = User.getCurrentUser(LandingActivity2.this);
-                            try {
-                                if (model.id == 0){
-                                    FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
-                                        user, lbl, addr, model.lat, model.lon);
-                                    req = request;
-                                    request.execute(LandingActivity2.this);
-                                }
-                                else {
-                                	FavoriteAddressDeleteRequest request = new FavoriteAddressDeleteRequest(
-                                            new AddressLinkRequest(user).execute(LandingActivity2.this), user, model.id);
-                                	req = request;
-                                    request.execute(LandingActivity2.this);
-                                }
-                            }
-                            catch (Exception e) {
-                                ehs.registerException(e, "[" + req==null?"":req.getUrl() + "]\n" + e.getMessage());
-                            }
-                            return null;
-                        }
-                        protected void onPostExecute(Void result) {
-                            if (ehs.hasExceptions()) {
-                                ehs.reportExceptions();
+                final BalloonModel model = (BalloonModel) balloonView.getTag();
+                AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        Request req = null;
+                        User user = User.getCurrentUser(LandingActivity2.this);
+                        try {
+                            if (model.id == 0){
+                                FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
+                                    user, lbl, addr, model.lat, model.lon);
+                                req = request;
+                                request.execute(LandingActivity2.this);
                             }
                             else {
-                                GeoPoint location = myPointOverlay.getLocation();
-                                refreshBulbPOIs(location.getLatitude() , 
-                                    location.getLongitude(), false);
+                            	FavoriteAddressDeleteRequest request = new FavoriteAddressDeleteRequest(
+                                        new AddressLinkRequest(user).execute(LandingActivity2.this), user, model.id);
+                            	req = request;
+                                request.execute(LandingActivity2.this);
                             }
                         }
-                   };
-                   Misc.parallelExecute(task);
-                   hideBalloonPanel();
-                   removePOIMarker(mapView);
-                }
+                        catch (Exception e) {
+                            ehs.registerException(e, "[" + req==null?"":req.getUrl() + "]\n" + e.getMessage());
+                        }
+                        return null;
+                    }
+                    protected void onPostExecute(Void result) {
+                        if (ehs.hasExceptions()) {
+                            ehs.reportExceptions();
+                        }
+                        else {
+                            GeoPoint location = myPointOverlay.getLocation();
+                            refreshBulbPOIs(location.getLatitude() , 
+                                location.getLongitude(), false);
+                        }
+                    }
+               };
+               Misc.parallelExecute(task);
+               hideBalloonPanel();
+               removePOIMarker(mapView);
             }
         });
         balloonView.findViewById(R.id.get_going).setOnClickListener(new View.OnClickListener() {
@@ -412,39 +410,37 @@ public final class LandingActivity2 extends FragmentActivity {
 					final String lbl = ((EditText)balloonView.findViewById(R.id.label)).getText().toString();
 	                final String addr = ((TextView)balloonView.findViewById(R.id.address)).getText().toString();
 					final BalloonModel model = (BalloonModel) balloonView.getTag();
-					if(StringUtils.isNotBlank(lbl)) {
-	                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
-	                        @Override
-	                        protected Void doInBackground(Void... params) {
-	                            Request req = null;
-	                            User user = User.getCurrentUser(LandingActivity2.this);
-	                            try {
-	                            	if (model.id > 0) {
-		                                FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
-		                                    new AddressLinkRequest(user).execute(LandingActivity2.this),
-		                                        model.id, user, lbl, addr, model.lat, model.lon);
-		                                    req = request;
-		                                    request.execute(LandingActivity2.this);
-	                            	}
-	                            }
-	                            catch (Exception e) {
-	                                ehs.registerException(e, "[" + req==null?"":req.getUrl() + "]\n" + e.getMessage());
-	                            }
-	                            return null;
-	                        }
-	                        protected void onPostExecute(Void result) {
-	                            if (ehs.hasExceptions()) {
-	                                ehs.reportExceptions();
-	                            }
-	                            else {
-	                                refreshStarredPOIs();
-	                            }
-	                        }
-	                    };
-	                    Misc.parallelExecute(task);
-	                    removePOIMarker(mapView);
-	                    hideBalloonPanel();
-			        }
+                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+                        @Override
+                        protected Void doInBackground(Void... params) {
+                            Request req = null;
+                            User user = User.getCurrentUser(LandingActivity2.this);
+                            try {
+                            	if (model.id > 0) {
+	                                FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
+	                                    new AddressLinkRequest(user).execute(LandingActivity2.this),
+	                                        model.id, user, lbl, addr, model.lat, model.lon);
+	                                    req = request;
+	                                    request.execute(LandingActivity2.this);
+                            	}
+                            }
+                            catch (Exception e) {
+                                ehs.registerException(e, "[" + req==null?"":req.getUrl() + "]\n" + e.getMessage());
+                            }
+                            return null;
+                        }
+                        protected void onPostExecute(Void result) {
+                            if (ehs.hasExceptions()) {
+                                ehs.reportExceptions();
+                            }
+                            else {
+                                refreshStarredPOIs();
+                            }
+                        }
+                    };
+                    Misc.parallelExecute(task);
+                    removePOIMarker(mapView);
+                    hideBalloonPanel();
 		        }
 		    }
 	    });

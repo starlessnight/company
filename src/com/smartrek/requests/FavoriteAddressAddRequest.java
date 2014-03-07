@@ -38,7 +38,7 @@ public class FavoriteAddressAddRequest extends Request {
 		    Map<String, String> params = new HashMap<String, String>();
             params.put("user_id", String.valueOf(user.getId()));
             params.put("name", StringUtils.substring(name, 0, 30));
-            params.put("address", address);
+            params.put("address", StringUtils.substring(address, 0, 80));
             params.put("lat", String.format("%.7f", lat));
             params.put("lon", String.format("%.7f", lon));
             return new JSONObject(executeHttpRequest(Method.POST, url, params, ctx)).getJSONObject("data").getInt("id");
