@@ -714,14 +714,15 @@ public final class LandingActivity2 extends FragmentActivity {
                         int carIconVis = View.VISIBLE;
                         int tripPanelVis = View.VISIBLE;
                         String nextTripInfoText;
-                        long timeUntilDepart = reserv.getDepartureTimeUtc() - System.currentTimeMillis();
+                        long departureTimeUtc = reserv.getDepartureTimeUtc();
+                        long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
                         if(reserv.isEligibleTrip()){
                             nextTripInfoText = "Get Going";
                             getGoingBtnVis = View.VISIBLE;
                             rescheBtnVis = View.GONE;
                         }else if(timeUntilDepart > 60 * 60 * 1000L){
                             nextTripInfoText = "Next Trip at "
-                                + TimeColumn.formatTime(reserv.getDepartureTime());
+                                + TimeColumn.formatTime(departureTimeUtc, reserv.getRoute().getTimezoneOffset());
                         }else if(timeUntilDepart > Reservation.GRACE_INTERVAL){
                             nextTripInfoText = "Next Trip in "
                                 + TimeColumn.getFormattedDuration((int)timeUntilDepart / 1000);

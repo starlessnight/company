@@ -138,6 +138,10 @@ public final class Reservation implements Parcelable {
     public long getArrivalTime() {
         return departureTime + duration*1000;
 	}
+    
+    public long getArrivalTimeUtc() {
+        return departureTimeUtc + duration*1000;
+    }
 
 	public String getOriginAddress() {
 		return originAddress;

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
+import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -674,7 +675,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		destAddr.setText(reservation.getDestinationAddress());
 
 		final TextView timeInfo = (TextView) findViewById(R.id.remain_times);
-        timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(reservation.getArrivalTime()));
+        timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(
+            reservation.getArrivalTimeUtc(), route.getTimezoneOffset()));
         timeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(reservation.getDuration()));
         refreshTimeInfo();
         timeInfo.setOnClickListener(new OnClickListener() {
@@ -712,8 +714,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    
 	    private static final String timeFormat = "hh:mm a";
 	    
-	    private static String getFormatedEstimateArrivalTime(long time){
-	        return new SimpleDateFormat(timeFormat).format(new Date(time));
+	    private static String getFormatedEstimateArrivalTime(long time, int timzoneOffset){
+	        SimpleDateFormat dateFormat = new SimpleDateFormat(timeFormat);
+	        dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone(timzoneOffset)));
+	        return dateFormat.format(new Date(time));
 	    }
 	    
 	    private static String getFormatedRemainingTime(long seconds){
@@ -937,7 +941,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 															- reservation
 																	.getRoute()
 																	.getValidatedDistance()),
-											reservation.getDestinationAddress());
+											reservation.getDestinationAddress(),
+											route.getTimezoneOffset());
 									req.execute(ValidationActivity.this);
 								} catch (Exception e) {
 									ehs.registerException(e);
@@ -1214,6 +1219,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                                 Route oldRoute = route;
                                 route = routes.get(isDebugging ? fakeRoute.seq : 0);
                                 route.setId(oldRoute.getId());
+                                route.setTimezoneOffset(oldRoute.getTimezoneOffset());
                                 reservation.setRoute(route);
                                 route.setCredits(reservation.getCredits());
                                 route.preprocessNodes();
@@ -1349,7 +1355,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	        
             etaDelay.set(currentTime.toMillis(false) - startTime - passedNodeTime * 1000);
             final TextView timeInfo = (TextView) findViewById(R.id.remain_times);
-            timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(getETA()));
+            timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(getETA(), route.getTimezoneOffset()));
             timeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(remainingTime.get()));
             refreshTimeInfo();
 			

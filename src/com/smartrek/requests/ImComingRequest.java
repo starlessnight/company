@@ -22,8 +22,10 @@ public final class ImComingRequest extends AddRequest {
     private long eta;
     private double mile;
     private String destination;
+    private int timzoneOffset;
     
-	public ImComingRequest(User user, String to, double lat, double lon, long eta, double mile, String destination) {
+	public ImComingRequest(User user, String to, double lat, double lon, long eta, double mile, 
+	        String destination, int timzoneOffset) {
 		this.user = user;
 		this.to = to;
 		this.lat = lat;
@@ -31,6 +33,7 @@ public final class ImComingRequest extends AddRequest {
 		this.eta = eta;
 		this.mile = mile;
 		this.destination = destination;
+		this.timzoneOffset = timzoneOffset;
 	}
 	
 	public void execute(Context ctx) throws IOException, InterruptedException {
@@ -38,7 +41,7 @@ public final class ImComingRequest extends AddRequest {
         this.password = user.getPassword();
         String url = getLinkUrl(Link.message);
         SimpleDateFormat dateFmt = new SimpleDateFormat("HH:mm");
-        dateFmt.setTimeZone(TimeZone.getTimeZone(getTimeZone()));
+        dateFmt.setTimeZone(TimeZone.getTimeZone(getTimeZone(timzoneOffset)));
         Map<String, String> params = new HashMap<String, String>();
         params.put("to", to);
         params.put("lat", String.valueOf(lat));
