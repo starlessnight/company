@@ -146,8 +146,7 @@ public final class LandingActivity2 extends FragmentActivity {
                     }
                     @Override
                     public void adjusted(double lat, double lon) {
-                        refreshBulbPOIs(lat , lon, false);
-                        refreshCobranding(lat, lon, false);
+                        refreshMyLocation(lat, lon);
                     }
                 });
             }
@@ -215,13 +214,14 @@ public final class LandingActivity2 extends FragmentActivity {
                 getCurrentLocation(new CurrentLocationListener() {
                     @Override
                     public void get(double lat, double lon) {
-                        refreshBulbPOIs(lat , lon, true);
-                        refreshCobranding(lat, lon, true);
+                        refreshMyLocation(lat, lon);
+                        if(myPointOverlay != null){
+                            mc.animateTo(myPointOverlay.getLocation());
+                        }
                     }
                     @Override
                     public void adjusted(double lat, double lon) {
-                        refreshBulbPOIs(lat , lon, false);
-                        refreshCobranding(lat, lon, false);
+                        refreshMyLocation(lat, lon);
                     }
                 });
             }
@@ -614,14 +614,13 @@ public final class LandingActivity2 extends FragmentActivity {
                     getCurrentLocation(new CurrentLocationListener() {
                         @Override
                         public void get(double lat, double lon) {
-                            refreshBulbPOIs(lat , lon, true);
+                            refreshBulbPOIs(lat , lon, false);
                             refreshCobranding(lat, lon, true);
                             registerReceiver(locationUpdater, new IntentFilter(LOCATION_UPDATES));
                         }
                         @Override
                         public void adjusted(double lat, double lon) {
-                            refreshBulbPOIs(lat , lon, false);
-                            refreshCobranding(lat, lon, false);
+                            refreshMyLocation(lat, lon);
                         }
                     });
                 }
@@ -767,7 +766,7 @@ public final class LandingActivity2 extends FragmentActivity {
         }
         class AdjustedLocationListener implements LocationListener {
             
-            private AtomicBoolean init = new AtomicBoolean();
+            private String lastProvider;
             
             @Override
             public void onLocationChanged(Location location) {
@@ -776,12 +775,16 @@ public final class LandingActivity2 extends FragmentActivity {
                     double lat = location.getLatitude();
 //                    lat = 34.0291747; 
 //                    lon = -118.2734106;
-                    if(!init.get()){
-                        init.set(true); 
+                    String provider = location.getProvider();
+                    if(lastProvider == null){
+                        lastProvider = provider;
                         lis.get(lat, lon);
-                    }else if(LocationManager.GPS_PROVIDER.equals(location.getProvider())){
+                    }
+                    else if(LocationManager.GPS_PROVIDER.equals(provider)){
                         networkLocManager.removeUpdates(this);
-                        lis.adjusted(lat, lon);
+                        if(!provider.equals(lastProvider)){
+                            lis.adjusted(lat, lon);
+                        }
                     }
                 }catch(Throwable t){}
             }
