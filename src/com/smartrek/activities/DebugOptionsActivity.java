@@ -573,7 +573,7 @@ public final class DebugOptionsActivity extends Activity {
     public static void addRecentAddress(Context ctx, String addr){
         List<String> list = getRecentAddresses(ctx);
         while(list.size() > recentAddressesSize - 1){
-            list.remove(list.size());
+            list.remove(list.size() - 1);
         }
         list.add(0, addr);
         saveRecentAddresses(ctx, list);
