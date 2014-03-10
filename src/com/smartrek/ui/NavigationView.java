@@ -88,7 +88,9 @@ public class NavigationView extends LinearLayout {
 
 	private int currentItemIdx;
 	
-	boolean lastCheckPointContinue;
+	private boolean lastCheckPointContinue;
+	
+	private double lastCheckPointDistanceInMile;
 
 	public NavigationView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -362,6 +364,7 @@ public class NavigationView extends LinearLayout {
 						listener.onCheckPoint(getContinueDirection(prevNode,
 								formattedDist), false);
 					}
+					lastCheckPointDistanceInMile = distanceInMile;
 					lastCheckPointContinue = true;
 				} else {
 					double linkDistance = 0;
@@ -392,15 +395,19 @@ public class NavigationView extends LinearLayout {
 						metadata.pingFlags[2] = true;
 						metadata.pingFlags[3] = true;
 						metadata.pingFlags[4] = true;
-						checkpointDistance = linkDistanceInMile >= 0.2 ? "0.2 miles"
-								: formattedDist;
+						if(lastCheckPointDistanceInMile - distanceInMile >= 0.5){
+    						checkpointDistance = linkDistanceInMile >= 0.2 ? "0.2 miles"
+    								: formattedDist;
+						}
 					} else if (!metadata.pingFlags[2]
 							&& distanceInMile <= 0.5 + checkPointMilesOffset) {
 						metadata.pingFlags[2] = true;
 						metadata.pingFlags[3] = true;
 						metadata.pingFlags[4] = true;
-						checkpointDistance = linkDistanceInMile >= 0.5 ? "0.5 miles"
-								: formattedDist;
+						if(lastCheckPointDistanceInMile - distanceInMile >= 1.0){
+    						checkpointDistance = linkDistanceInMile >= 0.5 ? "0.5 miles"
+    								: formattedDist;
+						}
 					} else if (!metadata.pingFlags[3]
 							&& distanceInMile <= 1.0 + checkPointMilesOffset) {
 						metadata.pingFlags[3] = true;
@@ -418,6 +425,7 @@ public class NavigationView extends LinearLayout {
 					if (listener != null && checkpointDistance != null) {
 						listener.onCheckPoint(getDirection(node, checkpointDistance, 
 					        actionOnly, lastCheckPointContinue), false);
+						lastCheckPointDistanceInMile = distanceInMile;
 					}
 					
 					lastCheckPointContinue = false;
