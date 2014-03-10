@@ -1577,7 +1577,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	 *            The current Location fix, to which you want to compare the new
 	 *            one
 	 */
-	private static boolean isBetterLocation(Location location,
+	public static boolean isBetterLocation(Location location,
 			Location currentBestLocation) {
 		if (currentBestLocation == null) {
 			// A new location is always better than no location

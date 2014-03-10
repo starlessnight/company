@@ -492,8 +492,6 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                         };
                         Misc.parallelExecute(checkCityAvailability);
                     }
-                    @Override
-                    public void adjusted(double lat, double lon) {}
                 }, true);
             }
         });
@@ -692,8 +690,6 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         
         void get(double lat, double lon);
         
-        void adjusted(double lat, double lon);
-        
     }
     
     private void getCurrentLocation(final CurrentLocationListener lis){
@@ -759,8 +755,6 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                 mapOverlays.add(myPointOverlay);
                 mapView.postInvalidate();
             }
-            @Override
-            public void adjusted(double lat, double lon) {}
         });
     }
     

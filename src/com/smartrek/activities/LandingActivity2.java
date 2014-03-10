@@ -50,7 +50,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.smartrek.activities.LandingActivity.CurrentLocationListener;
 import com.smartrek.dialogs.FeedbackDialog;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Reservation;
@@ -104,14 +103,19 @@ public final class LandingActivity2 extends FragmentActivity {
 	
     PointOverlay myPointOverlay;
     
-    LocationManager locationManager;
+    private LocationManager locationManager;
 
-    LocationListener locationListener;
+    private LocationListener locationListener;
     
-    LocationManager networkLocManager;
-    List<LocationListener> networkLocListeners = new ArrayList<LocationListener>();
+    private Location lastLocation;
     
-    private AtomicBoolean locationInited = new AtomicBoolean();
+    private AtomicBoolean mapRezoom = new AtomicBoolean(true);
+    
+    private AtomicBoolean mapRecenter = new AtomicBoolean();
+    
+    private AtomicBoolean mapRefresh = new AtomicBoolean(true);
+    
+    private AtomicBoolean mapAlertAvailability = new AtomicBoolean(true);
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -123,6 +127,7 @@ public final class LandingActivity2 extends FragmentActivity {
         mapView.setBuiltInZoomControls(false);
         mapView.setMultiTouchControls(true);
         mapView.setTileSource(new SmartrekTileProvider());
+        bindMapFunctions(mapView);
         
         final IMapController mc = mapView.getController();
         int lat = (int) Math.round(38.27268853598097f*1E6);
@@ -132,23 +137,52 @@ public final class LandingActivity2 extends FragmentActivity {
         
         TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
         
+        locationListener = new LocationListener(){
+            @Override
+            public void onLocationChanged(Location location) {
+                if (ValidationActivity.isBetterLocation(location, lastLocation)) {
+                    lastLocation = location;
+                    final boolean refresh = mapRefresh.getAndSet(false);
+                    final boolean alertAvailability = mapAlertAvailability.getAndSet(false);
+                    final boolean rezoom = mapRezoom.getAndSet(false);
+                    final double lat = location.getLatitude();
+                    final double lon = location.getLongitude();
+//                    final double lat = 34.0291747; 
+//                    final double lon = -118.2734106;
+                    refreshMyLocation(lat, lon);
+                    if(mapRecenter.getAndSet(false)){
+                        if(myPointOverlay != null){
+                            mc.animateTo(myPointOverlay.getLocation());
+                        }
+                    }
+                    LandingActivity.initializeIfNeccessary(LandingActivity2.this, new Runnable() {
+                        @Override
+                        public void run() {
+                            if(refresh){
+                                refreshBulbPOIs(lat , lon, rezoom);
+                                refreshStarredPOIs();
+                                refreshCobranding(lat, lon, alertAvailability);
+                            }
+                        }
+                    });
+                }
+            }
+            @Override
+            public void onProviderDisabled(String provider) {
+            }
+            @Override
+            public void onProviderEnabled(String provider) {
+            }
+            @Override
+            public void onStatusChanged(String provider, int status,
+                    Bundle extras) {
+            }
+        };
+        
         LandingActivity.initializeIfNeccessary(this, new Runnable() {
             @Override
             public void run() {
                 updateDeviceId();
-                getCurrentLocation(new CurrentLocationListener() {
-                    @Override
-                    public void get(double lat, double lon) {
-                        locationInited.set(true);
-                        refreshBulbPOIs(lat , lon, true);
-                        refreshCobranding(lat, lon, true);
-                        scheduleLocationUpdates();
-                    }
-                    @Override
-                    public void adjusted(double lat, double lon) {
-                        refreshMyLocation(lat, lon);
-                    }
-                });
             }
         });
         
@@ -211,19 +245,8 @@ public final class LandingActivity2 extends FragmentActivity {
         centerMapIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getCurrentLocation(new CurrentLocationListener() {
-                    @Override
-                    public void get(double lat, double lon) {
-                        refreshMyLocation(lat, lon);
-                        if(myPointOverlay != null){
-                            mc.animateTo(myPointOverlay.getLocation());
-                        }
-                    }
-                    @Override
-                    public void adjusted(double lat, double lon) {
-                        refreshMyLocation(lat, lon);
-                    }
-                });
+                lastLocation = null;
+                mapRecenter.set(true);
             }
         });
         
@@ -384,9 +407,9 @@ public final class LandingActivity2 extends FragmentActivity {
                             ehs.reportExceptions();
                         }
                         else {
-                            GeoPoint location = myPointOverlay.getLocation();
-                            refreshBulbPOIs(location.getLatitude() , 
-                                location.getLongitude(), false);
+                            for(int i=0;i<3;i++){
+                                refreshStarredPOIs();
+                            }
                         }
                     }
                };
@@ -561,40 +584,15 @@ public final class LandingActivity2 extends FragmentActivity {
         }
     };
     
-    public static final String LOCATION_UPDATES = "LOCATION_UPDATES"; 
-    
-    private void scheduleLocationUpdates(){
-        AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
-        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), 15000, 
-            PendingIntent.getBroadcast(this, 0, new Intent(LOCATION_UPDATES), PendingIntent.FLAG_UPDATE_CURRENT));
-    }
-    
-    private BroadcastReceiver locationUpdater = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            LandingActivity.initializeIfNeccessary(context, new Runnable() {
-                @Override
-                public void run() {
-                    getCurrentLocation(new CurrentLocationListener() {
-                        @Override
-                        public void get(double lat, double lon) {
-                            refreshMyLocation(lat, lon);
-                        }
-                        @Override
-                        public void adjusted(double lat, double lon) {
-                            refreshMyLocation(lat, lon);
-                        }
-                    });
-                }
-            });
-        }
-    };
-    
     private void refreshMyLocation(double lat, double lon){
-        if(myPointOverlay != null){
-            myPointOverlay.setLocation((float) lat, (float) lon);
-            findViewById(R.id.mapview).postInvalidate();
+        MapView mapView = (MapView)findViewById(R.id.mapview);
+        if(myPointOverlay == null){
+            myPointOverlay = new PointOverlay(LandingActivity2.this, 0, 0);
+            myPointOverlay.setColor(0xCC2020DF);
+            mapView.getOverlays().add(myPointOverlay);
         }
+        myPointOverlay.setLocation((float) lat, (float) lon);
+        mapView.postInvalidate();
     }
     
     @Override
@@ -603,27 +601,14 @@ public final class LandingActivity2 extends FragmentActivity {
         registerReceiver(tripInfoUpdater, new IntentFilter(TRIP_INFO_UPDATES));
         registerReceiver(onTheWayNotifier, new IntentFilter(ON_THE_WAY_NOTICE));
         SessionM.onActivityResume(this);
-        if(locationInited.get()){
-            LandingActivity.initializeIfNeccessary(this, new Runnable() {
-                @Override
-                public void run() {
-                    getCurrentLocation(new CurrentLocationListener() {
-                        @Override
-                        public void get(double lat, double lon) {
-                            refreshBulbPOIs(lat , lon, false);
-                            refreshCobranding(lat, lon, true);
-                            registerReceiver(locationUpdater, new IntentFilter(LOCATION_UPDATES));
-                        }
-                        @Override
-                        public void adjusted(double lat, double lon) {
-                            refreshMyLocation(lat, lon);
-                        }
-                    });
-                }
-            });
-        }else{
-            registerReceiver(locationUpdater, new IntentFilter(LOCATION_UPDATES));
+        mapRefresh.set(true);
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                15000, 5, locationListener);
         }
+        locationManager.requestLocationUpdates(
+                LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
     }
     
     @Override
@@ -642,9 +627,11 @@ public final class LandingActivity2 extends FragmentActivity {
     protected void onPause() {
       unregisterReceiver(tripInfoUpdater);
       unregisterReceiver(onTheWayNotifier);
-      unregisterReceiver(locationUpdater);
       SessionM.onActivityPause(this);
       super.onPause();
+      if (locationManager != null) {
+          locationManager.removeUpdates(locationListener);
+      }
     } 
     
     private void refreshTripsInfo(){
@@ -757,57 +744,6 @@ public final class LandingActivity2 extends FragmentActivity {
         }
     }
     
-    private void getCurrentLocation(final CurrentLocationListener lis){
-        if(networkLocManager == null){
-            networkLocManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        }
-        class AdjustedLocationListener implements LocationListener {
-            
-            private String lastProvider;
-            
-            @Override
-            public void onLocationChanged(Location location) {
-                try{
-                    double lon = location.getLongitude();
-                    double lat = location.getLatitude();
-//                    lat = 34.0291747; 
-//                    lon = -118.2734106;
-                    String provider = location.getProvider();
-                    if(lastProvider == null){
-                        lastProvider = provider;
-                        lis.get(lat, lon);
-                    }
-                    else if(LocationManager.GPS_PROVIDER.equals(provider)){
-                        networkLocManager.removeUpdates(this);
-                        if(!provider.equals(lastProvider)){
-                            lis.adjusted(lat, lon);
-                        }
-                    }
-                }catch(Throwable t){}
-            }
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {}
-            @Override
-            public void onProviderEnabled(String provider) {}
-            @Override
-            public void onProviderDisabled(String provider) {}
-        }
-        final AdjustedLocationListener networkLocListener = new AdjustedLocationListener();
-        networkLocListeners.add(networkLocListener);
-        try{
-            networkLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, networkLocListener);
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    networkLocManager.removeUpdates(networkLocListener);
-                }
-            }, 10000);
-            if (networkLocManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                networkLocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, networkLocListener);
-            }
-        }catch(Throwable t){ }
-    }
-    
     Typeface boldFont;
     
     Typeface lightFont;
@@ -878,6 +814,7 @@ public final class LandingActivity2 extends FragmentActivity {
                                 POIActionOverlay poiOverlay = (POIActionOverlay)overlay;
                                 if(poiOverlay.getMarker() == R.drawable.star_poi){
                                     overlays.remove(overlay);
+                                    poiOverlay.hide();
                                 }
                             }
                         }
@@ -1049,7 +986,7 @@ public final class LandingActivity2 extends FragmentActivity {
         Misc.parallelExecute(checkCityAvailability);
     }
     
-    private void refreshBulbPOIs(final double lat, final double lon, final boolean recenter){
+    private void refreshBulbPOIs(final double lat, final double lon, final boolean rezoom){
         final User user = User.getCurrentUser(LandingActivity2.this);
         AsyncTask<Void, Void, List<com.smartrek.requests.WhereToGoRequest.Location>> task = 
                 new AsyncTask<Void, Void, List<com.smartrek.requests.WhereToGoRequest.Location>>() {
@@ -1077,17 +1014,18 @@ public final class LandingActivity2 extends FragmentActivity {
                     MapView mapView = (MapView) findViewById(R.id.mapview);
                     removePOIMarker(mapView);
                     IMapController mc = mapView.getController();
-                    if(myPointOverlay == null){
-                        myPointOverlay = new PointOverlay(LandingActivity2.this, 0, 0);
-                        myPointOverlay.setColor(0xCC2020DF);
-                    }
-                    refreshMyLocation(lat, lon);
                     final List<Overlay> mapOverlays = mapView.getOverlays();
-                    mapOverlays.clear();
-                    bindMapFunctions(mapView);
+                    for(Overlay overlay : mapOverlays){
+                        if(overlay instanceof POIActionOverlay){
+                            POIActionOverlay poiOverlay = (POIActionOverlay)overlay;
+                            if(poiOverlay.getMarker() == R.drawable.bulb_poi){
+                                mapOverlays.remove(overlay);
+                            }
+                        }
+                    }
                     List<String> addrList = new ArrayList<String>();
                     if(locs.isEmpty()){
-                        if(recenter){
+                        if(rezoom){
                             mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
                             mc.setCenter(new GeoPoint(lat, lon));
                         }
@@ -1098,8 +1036,8 @@ public final class LandingActivity2 extends FragmentActivity {
                         for(com.smartrek.requests.WhereToGoRequest.Location l : locs){
                             points.add(new GeoPoint(l.lat, l.lon));
                         }
-                        RouteRect routeRect = new RouteRect(points);
-                        if(recenter){
+                        if(rezoom){
+                            RouteRect routeRect = new RouteRect(points);
                             GeoPoint mid = routeRect.getMidPoint();
                             int[] range = routeRect.getRange();
                             mc.zoomToSpan(range[0], range[1]);
@@ -1109,11 +1047,9 @@ public final class LandingActivity2 extends FragmentActivity {
                             addrList.add(l.addr);
                         }
                     }
-                    mapOverlays.add(myPointOverlay);
                     mapView.postInvalidate();
                     findViewById(R.id.search_box).setTag(R.id.where_to_addresses, addrList);
                     refreshSearchAutoCompleteData();
-                    refreshStarredPOIs();
                 }
             }
         };
@@ -1312,10 +1248,8 @@ public final class LandingActivity2 extends FragmentActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(networkLocManager != null){
-            for(LocationListener networkLocListener:networkLocListeners){
-                networkLocManager.removeUpdates(networkLocListener); 
-            }
+        if (locationManager != null) {
+            locationManager.removeUpdates(locationListener);
         }
     }
     
