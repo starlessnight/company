@@ -87,6 +87,8 @@ public class NavigationView extends LinearLayout {
 	private List<DirectionItem> items = Collections.emptyList();
 
 	private int currentItemIdx;
+	
+	boolean lastCheckPointContinue;
 
 	public NavigationView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -154,7 +156,7 @@ public class NavigationView extends LinearLayout {
 	}
 
 	public static String getDirection(RouteNode node, String distance,
-			boolean actionOnly) {
+			boolean actionOnly, boolean skipDistance) {
 		String roadName = node.getRoadName();
 		if (roadName != null) {
 			roadName = roadName.replaceAll("-", "");
@@ -166,8 +168,7 @@ public class NavigationView extends LinearLayout {
 		if (actionOnly) {
 			dir = dir1;
 		} else {
-			dir = (StringUtils.isEmpty(distance) ? ""
-					: ("In " + distance + ", "))
+			dir = (skipDistance? "Then ": (StringUtils.isEmpty(distance) ? "" : ("In " + distance + ", ")))
 					+ dir1
 					+ (StringUtils.isBlank(dir2) ? "" : (" " + dir2))
 					+ (StringUtils.isBlank(roadName)
@@ -361,6 +362,7 @@ public class NavigationView extends LinearLayout {
 						listener.onCheckPoint(getContinueDirection(prevNode,
 								formattedDist), false);
 					}
+					lastCheckPointContinue = true;
 				} else {
 					double linkDistance = 0;
 					while ((end = end.getPrevNode()) != null) {
@@ -375,7 +377,6 @@ public class NavigationView extends LinearLayout {
 
 					String checkpointDistance = null;
 					boolean actionOnly = false;
-
 					if (!metadata.pingFlags[0]
 							&& distanceInFoot <= 100 + checkPointFeetOffset) {
 						metadata.pingFlags[0] = true;
@@ -415,10 +416,11 @@ public class NavigationView extends LinearLayout {
 					}
 
 					if (listener != null && checkpointDistance != null) {
-						listener.onCheckPoint(getDirection(node,
-								checkpointDistance, actionOnly), false);
+						listener.onCheckPoint(getDirection(node, checkpointDistance, 
+					        actionOnly, lastCheckPointContinue), false);
 					}
-
+					
+					lastCheckPointContinue = false;
 				}
 			}
 		} else {
