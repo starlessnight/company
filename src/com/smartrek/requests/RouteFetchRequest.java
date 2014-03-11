@@ -1,6 +1,8 @@
 package com.smartrek.requests;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,6 +44,13 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
         if(NEW_API){
             SimpleDateFormat dateFormatUtc = new SimpleDateFormat("yyyyMMddHHmm");
             dateFormatUtc.setTimeZone(TimeZone.getTimeZone(UTC_TIMEZONE));
+            String originAddrEncoded = StringUtils.defaultString(originAddr);
+            String destAddrEncoded = StringUtils.defaultString(destAddr);
+            try {
+                originAddrEncoded = URLEncoder.encode(originAddrEncoded, "utf-8");
+                destAddrEncoded = URLEncoder.encode(destAddrEncoded, "utf-8");
+            }
+            catch (UnsupportedEncodingException e) {}
 		    url = getLinkUrl(Link.route)
                 .replaceAll("\\{startlat\\}", String.format("%.7f", startlat))
                 .replaceAll("\\{startlon\\}", String.format("%.7f", startlon))
@@ -50,8 +59,8 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
                 .replaceAll("\\{departtime\\}", dateFormatUtc.format(new Date(departureTime)))
                 .replaceAll("\\{speed\\}", String.valueOf(speed))
                 .replaceAll("\\{course\\}", String.valueOf(course))
-                .replaceAll("\\{origin\\}", StringUtils.defaultString(originAddr))
-                .replaceAll("\\{destination\\}", StringUtils.defaultString(destAddr));
+                .replaceAll("\\{origin\\}", originAddrEncoded)
+                .replaceAll("\\{destination\\}", destAddrEncoded);
 		}else{
 		    Time t = new Time();
 	        t.set(departureTime);
