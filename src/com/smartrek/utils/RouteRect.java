@@ -6,7 +6,9 @@ import java.util.List;
 
 public class RouteRect {
 	
-    static final double padding = 1.15; 
+    private static final double padding = 1.15;
+    
+    private static final int minRange = 100;
     
 	int latMax;
 	int lonMax;
@@ -25,7 +27,7 @@ public class RouteRect {
         int lonMax = (int) (-181 * 1E6);
         int latMin = (int) (+81 * 1E6);
         int lonMin = (int) (+181 * 1E6);
-        for (int i = 0; i < nodes.size() - 1; i++) {
+        for (int i = 0; i < nodes.size(); i++) {
             GeoPoint point = nodes.get(i).getGeoPoint();
             int curLat = point.getLatitudeE6();
             int curLon = point.getLongitudeE6();
@@ -64,8 +66,10 @@ public class RouteRect {
     }
     
     public int[] getRange(){
-    	return new int[]{Double.valueOf((latMax - latMin) * padding).intValue(), 
-	        Double.valueOf((lonMax - lonMin) * padding).intValue()};
+    	return new int[]{
+	        Math.max(Double.valueOf((latMax - latMin) * padding).intValue(), minRange), 
+	        Math.max(Double.valueOf((lonMax - lonMin) * padding).intValue(), minRange)
+        };
     }
 	
 }

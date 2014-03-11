@@ -1065,38 +1065,11 @@ public final class RouteActivity extends FragmentActivity {
      * @param routeNum - 
      *
      ****************************************************************************************************************/
-    public int[] drawRoute (MapView mapView, Route route, int routeNum) {
+    public void drawRoute (MapView mapView, Route route, int routeNum) {
         mapOverlays = mapView.getOverlays();
         
         if(routeNum == 0)
             mapOverlays.clear();
-        
-        int latMax = (int)(-81 * 1E6);
-        int lonMax = (int)(-181 * 1E6);
-        int latMin = (int)(+81 * 1E6);
-        int lonMin = (int)(+181 * 1E6);
-         
-        List<RouteNode> routeNodes = route.getNodes();
-        
-        int lat = 0;
-        int lon = 0;
-        
-        for(int i = 0; i < routeNodes.size()-1; i++) {    
-            GeoPoint point = routeNodes.get(i).getGeoPoint();
-            
-            int curLat = point.getLatitudeE6();
-            int curLon = point.getLongitudeE6();
-            
-            if(i == routeNodes.size()/2){
-                lat = curLat + 500;
-                lon = curLon+ 150;
-            }
-            
-            latMax = Math.max(latMax, curLat);
-            lonMax = Math.max(lonMax, curLon);
-            latMin = Math.min(latMin, curLat);
-            lonMin = Math.min(lonMin, curLon);
-        }
         
         routePathOverlays[routeNum] = new RoutePathOverlay(this, route, RoutePathOverlay.COLORS[routeNum]);
         //mapOverlays.add(routePathOverlays[routeNum]);
@@ -1111,12 +1084,6 @@ public final class RouteActivity extends FragmentActivity {
 //        routeInfoOverlays[routeNum] = new RouteInfoOverlay(mapView, route, routeNum, new GeoPoint(lat, lon), boldFont, lightFont);
 //        routeInfoOverlays[routeNum].setCallback(new RouteOverlayCallbackImpl(route, routeNum));
         //mapOverlays.add(routeOverlays[routeNum]);
-        
-        /* Add offset of 1000 to range so that map displays extra space around route. */
-        int [] range = {latMax - latMin + 1500 ,lonMax - lonMin + 1500};
-        
-        /* Return the range to doRoute so that map can be adjusted to range settings */
-        return range;
     }
     
     private void setHighlightedRoutePathOverlays(boolean highlighted) {

@@ -800,41 +800,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
 	}
 
-	public synchronized int[] drawRoute(MapView mapView, Route route,
+	public synchronized void drawRoute(MapView mapView, Route route,
 			int routeNum) {
 		mapOverlays = mapView.getOverlays();
 		Log.d("ValidationActivity",
 				String.format("mapOverlays has %d items", mapOverlays.size()));
 
 		if (routeNum == 0)
-			mapOverlays.clear();
-
-		int latMax = (int) (-81 * 1E6);
-		int lonMax = (int) (-181 * 1E6);
-		int latMin = (int) (+81 * 1E6);
-		int lonMin = (int) (+181 * 1E6);
-
-		List<RouteNode> routeNodes = route.getNodes();
-
-		int lat = 0;
-		int lon = 0;
-
-		for (int i = 0; i < routeNodes.size() - 1; i++) {
-			GeoPoint point = routeNodes.get(i).getGeoPoint();
-
-			int curLat = point.getLatitudeE6();
-			int curLon = point.getLongitudeE6();
-
-			if (i == routeNodes.size() / 2) {
-				lat = curLat + 500;
-				lon = curLon + 150;
-			}
-
-			latMax = Math.max(latMax, curLat);
-			lonMax = Math.max(lonMax, curLon);
-			latMin = Math.min(latMin, curLat);
-			lonMin = Math.min(lonMin, curLon);
-		}
+			mapOverlays.clear();		
 
 		RoutePathOverlay pathOverlay = new RoutePathOverlay(this, route,
 				RoutePathOverlay.GREEN);
@@ -867,18 +840,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		mapOverlays.add(debugOverlay);
 
 		route.setUserId(User.getCurrentUser(this).getId());
-
-		/*
-		 * Add offset of 1000 to range so that map displays extra space around
-		 * route.
-		 */
-		int[] range = { latMax - latMin + 1500, lonMax - lonMin + 1500 };
-
-		/*
-		 * Return the range to doRoute so that map can be adjusted to range
-		 * settings
-		 */
-		return range;
 	}
 
 	private int seq = 1;
