@@ -69,7 +69,8 @@ public abstract class Request {
 	    claim,
 	    activity,
 	    city,
-	    where_to_go
+	    where_to_go,
+	    route
 	}
 	
 	public enum Page { 

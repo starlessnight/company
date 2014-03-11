@@ -1092,21 +1092,18 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                         RouteFetchRequest routeReq = new RouteFetchRequest(
                             User.getCurrentUser(ValidationActivity.this), 
                             new GeoPoint(lat, lon), route.getLastNode().getGeoPoint(), 
-                            System.currentTimeMillis());
+                            System.currentTimeMillis(), speedInMph, bearing, null,
+                            reservation.getDestinationAddress());
                         try{
                             List<Route> list = routeReq.execute(ValidationActivity.this);
                             if(list != null && !list.isEmpty()){
                                 Route resRoute = list.get(0);
-                                String speedInMphStr = String.valueOf(speedInMph);
-                                String courseAngleClockwise = String.valueOf(bearing);
                                 RouteFetchRequest navReq = new RouteFetchRequest(
-                                        resRoute.getLink().url
-                                           .replaceAll("\\{speed_in_mph\\}", speedInMphStr)
-                                           .replaceAll("\\{course_angle_clockwise\\}", courseAngleClockwise)
-                                           .replaceAll("\\[speed_in_mph\\]", speedInMphStr)
-                                           .replaceAll("\\[course_angle_clockwise\\]", courseAngleClockwise),
+                                        resRoute.getLink().url,
                                         System.currentTimeMillis(),
-                                        0);
+                                        0,
+                                        speedInMph,
+                                        bearing);
                                 List<Route> routes = navReq.execute(ValidationActivity.this);
                                 if (routes != null && routes.size() > 0) {
                                     navRoute = routes.get(0);
@@ -1168,16 +1165,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                                     request = new RouteFetchRequest(
                                             route.getDepartureTime());
                                 } else {
-                                    String speedInMphStr = String.valueOf(speedInMph);
-                                    String courseAngleClockwise = String.valueOf(bearing);
                                     request = new RouteFetchRequest(
-                                        reservation.getNavLink()
-                                           .replaceAll("\\{speed_in_mph\\}", speedInMphStr)
-                                           .replaceAll("\\{course_angle_clockwise\\}", courseAngleClockwise)
-                                           .replaceAll("\\[speed_in_mph\\]", speedInMphStr)
-                                           .replaceAll("\\[course_angle_clockwise\\]", courseAngleClockwise),
+                                        reservation.getNavLink(),
                                         reservation.getDepartureTime(),
-                                        reservation.getDuration());
+                                        reservation.getDuration(),
+                                        speedInMph,
+                                        bearing);
                                 }
                                 routes = request.execute(ValidationActivity.this);
                                 if (routes != null && routes.size() > 0) {

@@ -1180,7 +1180,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                 try {
                     RouteFetchRequest request = new RouteFetchRequest(
                         reservation.getNavLink(), reservation.getDepartureTime(), 
-                        reservation.getDuration());
+                        reservation.getDuration(), 0, 0);
                     routes = request.execute(LandingActivity.this);
                 }
                 catch(Exception e) {
@@ -1375,7 +1375,8 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                             Route route;
                             if(_route == null){
                                 RouteFetchRequest routeReq = new RouteFetchRequest(user, 
-                                        origin, dest, departureTime.initTime().toMillis(false));
+                                    origin, dest, departureTime.initTime().toMillis(false),
+                                    0, 0, null, null);
                                 route = routeReq.execute(ctx).get(0);
                                 route.setAddresses(EditAddress.CURRENT_LOCATION, address);
                                 route.setUserId(user.getId());

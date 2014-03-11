@@ -32,7 +32,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
@@ -55,6 +54,7 @@ import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.exceptions.RouteNotFoundException;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
+import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.requests.ReservationRequest;
@@ -131,6 +131,9 @@ public final class RouteActivity extends FragmentActivity {
     private String destAddr;
     private GeoPoint originCoord;
     private GeoPoint destCoord;
+    
+    private double speed;
+    private float course;
     
     private Reservation reservation;
     
@@ -346,13 +349,11 @@ public final class RouteActivity extends FragmentActivity {
                         List<Route> routes = null;
                         try {
                             RouteFetchRequest request = new RouteFetchRequest(
-                                reservation.getNavLink()
-                                    .replaceAll("\\{speed_in_mph\\}", "0.0")
-                                    .replaceAll("\\{course_angle_clockwise\\}", "0.0")
-                                    .replaceAll("\\[speed_in_mph\\]", "0.0")
-                                    .replaceAll("\\[course_angle_clockwise\\]", "0.0"), 
+                                reservation.getNavLink(),
                                 reservation.getDepartureTime(), 
-                                reservation.getDuration());
+                                reservation.getDuration(),
+                                0,
+                                0);
                             routes = request.execute(RouteActivity.this);
                         }
                         catch(Exception e) {
@@ -559,6 +560,8 @@ public final class RouteActivity extends FragmentActivity {
                                         locationManager.removeUpdates(this);
                                         currentLocDialog.dismiss();
                                         originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
+                                        speed = Trajectory.msToMph(location.getSpeed());
+                                        course = location.getBearing();
                                         doRouteTask();
                                     }catch(Throwable t){}
                                 }
@@ -1012,7 +1015,8 @@ public final class RouteActivity extends FragmentActivity {
     private void updateRoute(GeoPoint origin, GeoPoint destination, long departureTime, int column) throws InterruptedException {
         int letsGoPanelVis = column == 0?View.VISIBLE:View.GONE;
         int reservePanelVis = column == 0?View.GONE:View.VISIBLE;
-        RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(this), origin, destination, departureTime);
+        RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(this), 
+            origin, destination, departureTime, speed, course, getOriginAddrRouteReqParam(), destAddr);
         if (request.isCached(this)) {
             try {
                 List<Route> routes = request.execute(this);
@@ -1186,6 +1190,10 @@ public final class RouteActivity extends FragmentActivity {
         return super.onMenuItemSelected(featureId, item);
     }
     
+    private String getOriginAddrRouteReqParam(){
+        return EditAddress.CURRENT_LOCATION.equals(originAddr)?null:originAddr;
+    }
+    
     // FIXME: This should be an inner interface of RouteTask. Probably want to name it 'Listener'.
     public interface RouteTaskCallback {
         public void preCallback();
@@ -1217,12 +1225,14 @@ public final class RouteActivity extends FragmentActivity {
         }
         
         public boolean isCached() {
-        	RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(RouteActivity.this), origin, destination, departureTime);
+        	RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(RouteActivity.this), 
+    	        origin, destination, departureTime, speed, course, getOriginAddrRouteReqParam(), destAddr);
         	return request.isCached(RouteActivity.this);
         }
         
         public List<Route> getData() throws RouteNotFoundException, IOException, JSONException, InterruptedException {
-        	RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(RouteActivity.this), origin, destination, departureTime);
+        	RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(RouteActivity.this), 
+    	        origin, destination, departureTime, speed, course, getOriginAddrRouteReqParam(), destAddr);
         	return request.execute(RouteActivity.this);
         }
         

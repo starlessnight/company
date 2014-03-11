@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,7 +31,9 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 	
 	private int duration;
 	
-	public static String buildUrl(GeoPoint origin, GeoPoint destination, long departureTime) {
+	private static String buildUrl(GeoPoint origin, GeoPoint destination, 
+	        long departureTime, double speed, float course, String originAddr, 
+            String destAddr) {
 		String url;
 		double startlat = origin.getLatitude();
 		double startlon = origin.getLongitude();
@@ -39,12 +42,16 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
         if(NEW_API){
             SimpleDateFormat dateFormatUtc = new SimpleDateFormat("yyyyMMddHHmm");
             dateFormatUtc.setTimeZone(TimeZone.getTimeZone(UTC_TIMEZONE));
-		    url = getLinkUrl(Link.query_route)
+		    url = getLinkUrl(Link.route)
                 .replaceAll("\\{startlat\\}", String.format("%.7f", startlat))
                 .replaceAll("\\{startlon\\}", String.format("%.7f", startlon))
                 .replaceAll("\\{endlat\\}", String.format("%.7f", endlat))
                 .replaceAll("\\{endlon\\}", String.format("%.7f", endlon))
-                .replaceAll("\\{departtime\\}", dateFormatUtc.format(new Date(departureTime)));
+                .replaceAll("\\{departtime\\}", dateFormatUtc.format(new Date(departureTime)))
+                .replaceAll("\\{speed\\}", String.valueOf(speed))
+                .replaceAll("\\{course\\}", String.valueOf(course))
+                .replaceAll("\\{origin\\}", StringUtils.defaultString(originAddr))
+                .replaceAll("\\{destination\\}", StringUtils.defaultString(destAddr));
 		}else{
 		    Time t = new Time();
 	        t.set(departureTime);
@@ -55,8 +62,11 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 		return url;
 	}
 	
-	public RouteFetchRequest(User user, GeoPoint origin, GeoPoint destination, long departureTime) {
-		super(buildUrl(origin, destination, departureTime));
+	public RouteFetchRequest(User user, GeoPoint origin, GeoPoint destination, 
+	        long departureTime, double speed, float course, String originAddr, 
+	        String destAddr) {
+		super(buildUrl(origin, destination, departureTime, speed, course, 
+	        originAddr, destAddr));
 		this.departureTime = departureTime;
 		if(NEW_API){
 		    this.username = user.getUsername();
@@ -78,8 +88,18 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 		fake = true;
 	}
 	
-    public RouteFetchRequest(String url, long departureTime, int duration) {
-        super(url);
+	private static String buildUrl(String rawUrl, double speedInMph, float bearing){
+        String speedInMphStr = String.valueOf(speedInMph);
+        String courseAngleClockwise = String.valueOf(bearing);
+        return rawUrl.replaceAll("\\{speed_in_mph\\}", speedInMphStr)
+                .replaceAll("\\{course_angle_clockwise\\}", courseAngleClockwise)
+                .replaceAll("\\[speed_in_mph\\]", speedInMphStr)
+                .replaceAll("\\[course_angle_clockwise\\]", courseAngleClockwise);
+    }
+	
+    public RouteFetchRequest(String url, long departureTime, int duration, 
+            double speedInMph, float bearing) {
+        super(buildUrl(url, speedInMph, bearing));
         this.departureTime = departureTime;
         this.duration = duration;
         hasNavUrl = true;
