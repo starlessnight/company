@@ -299,11 +299,7 @@ public final class RouteActivity extends FragmentActivity {
         Font.setTypeface(lightFont, osmCredit);
         
         /* Set the map view for a view of North America before zooming in on route */
-        IMapController mc = mapView.getController();
-        int lat = (int) Math.round(38.27268853598097f*1E6);
-        int lon = (int) Math.round(-99.1406250000000f*1E6);
-        mc.setZoom(4); 
-        mc.setCenter(new GeoPoint(lat, lon));
+        setViewToNorthAmerica(mapView);
         
         dialog = new ProgressDialog(RouteActivity.this) {
             @Override
@@ -812,6 +808,14 @@ public final class RouteActivity extends FragmentActivity {
         Font.setTypeface(lightFont, destView, onMyWayView, letsGoView, reserveView,
             backButton, (TextView)findViewById(R.id.departure_row), durationRow,
             (TextView)findViewById(R.id.mpoint_row));
+    }
+    
+    public static void setViewToNorthAmerica(MapView mapView){
+        IMapController mc = mapView.getController();
+        int lat = (int) Math.round(38.27268853598097f*1E6);
+        int lon = (int) Math.round(-99.1406250000000f*1E6);
+        mc.setZoom(4); 
+        mc.setCenter(new GeoPoint(lat, lon));
     }
     
     private AtomicBoolean locationChanged = new AtomicBoolean();

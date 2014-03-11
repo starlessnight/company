@@ -530,7 +530,17 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                 return false;
             }
         });
-
+		
+		RouteActivity.setViewToNorthAmerica(mapView);
+		
+		SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
+        int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
+        if (gpsMode == DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
+            Location location = new Location("");
+            location.setTime(System.currentTimeMillis());
+            locationChanged(location);
+        }
+		
 		TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
 		RelativeLayout.LayoutParams osmCreditLp = (RelativeLayout.LayoutParams) osmCredit
 				.getLayoutParams();
@@ -799,6 +809,29 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		locationManager.requestLocationUpdates(
 				LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
 	}
+	
+	private void bindDebugOverlay(MapView mapView){
+	    RouteDebugOverlay debugOverlay = new RouteDebugOverlay(this);
+        debugOverlay.setActionListener(new RouteDebugOverlay.ActionListener() {
+
+            @Override
+            public void onLongPress(double latitude, double longitude) {
+                SharedPreferences debugPrefs = getSharedPreferences(
+                        DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
+                int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE,
+                        DebugOptionsActivity.GPS_MODE_DEFAULT);
+                if (gpsMode == DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
+                    Location location = new Location("");
+                    location.setLatitude(latitude);
+                    location.setLongitude(longitude);
+                    location.setTime(System.currentTimeMillis());
+                    locationChanged(location);
+                }
+            }
+
+        });
+        mapView.getOverlays().add(debugOverlay);
+	}
 
 	public synchronized void drawRoute(MapView mapView, Route route,
 			int routeNum) {
@@ -817,28 +850,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		pointOverlay.setColor(0xCC2020DF);
 		mapOverlays.add(pointOverlay);
 
-		RouteDebugOverlay debugOverlay = new RouteDebugOverlay(this);
-		debugOverlay.setActionListener(new RouteDebugOverlay.ActionListener() {
-
-			@Override
-			public void onLongPress(double latitude, double longitude) {
-				SharedPreferences debugPrefs = getSharedPreferences(
-						DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
-				int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE,
-						DebugOptionsActivity.GPS_MODE_DEFAULT);
-				if (gpsMode == DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
-					Location location = new Location("");
-					location.setLatitude(latitude);
-					location.setLongitude(longitude);
-					location.setTime(System.currentTimeMillis());
-					locationChanged(location);
-				}
-			}
-
-		});
-
-		mapOverlays.add(debugOverlay);
-
+		bindDebugOverlay(mapView);
+		
 		route.setUserId(User.getCurrentUser(this).getId());
 	}
 
