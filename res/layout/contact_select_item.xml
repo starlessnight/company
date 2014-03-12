@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="88dp"
+    android:orientation="vertical">
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+        
+    	<ToggleButton 
+    	    android:id="@+id/contact_select_button"
+    	    android:layout_width="22dp"
+    	    android:layout_height="22dp"
+			android:background="@drawable/contact_toggle_button"
+			android:gravity="left"
+			android:layout_gravity="center|left"
+			android:checked="false"
+			android:textOff=""
+			android:textOn=""
+			android:layout_margin="10dp"/>
+    	
+    	<TextView 
+    	    android:id="@+id/contactInfo"
+    	    android:layout_width="wrap_content"
+    	    android:layout_height="match_parent"
+    	    android:text=""
+    	    android:textColor="@android:color/black"
+    	    android:textSize="@dimen/medium_font"
+    	    android:gravity="center"
+    	    android:layout_gravity="center|left"/>
+        
+    </LinearLayout>
+    
+    <View
+       android:id="@+id/spliter"
+       android:layout_width="match_parent"
+       android:layout_height="1dp"
+       android:background="@color/secondary_font" 
+       android:layout_marginLeft="10dp" 
+   	/>
+
+</LinearLayout>

@@ -214,7 +214,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		isOnRecreate.set(savedInstanceState != null);
 
 		Bundle extras = getIntent().getExtras();
-
 		reservation = extras.getParcelable(RESERVATION);
 
 		route = (isOnRecreate.get() ? savedInstanceState : extras)

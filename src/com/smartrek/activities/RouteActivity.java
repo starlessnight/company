@@ -17,6 +17,7 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
@@ -49,7 +50,6 @@ import com.smartrek.CalendarService;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.activities.LandingActivity.ShortcutNavigationTask;
 import com.smartrek.dialogs.CancelableProgressDialog;
-import com.smartrek.dialogs.ContactsDialog;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.exceptions.RouteNotFoundException;
 import com.smartrek.models.Reservation;
@@ -91,6 +91,8 @@ import com.smartrek.utils.SystemService;
  *
  */
 public final class RouteActivity extends FragmentActivity {
+	
+	public static final int ON_MY_WAY = 100;
 
     public static final String RESERVATION_ID = "reservationId";
     
@@ -153,6 +155,10 @@ public final class RouteActivity extends FragmentActivity {
     private List<GeocodingTask> geocodingTasks = new ArrayList<GeocodingTask>();
     
     private boolean debugMode;
+    
+    private long reservId;
+    private boolean hasReservId;
+    private boolean hasReserv;
     
     private Runnable goBackToWhereTo = new Runnable() {
         @Override
@@ -320,9 +326,9 @@ public final class RouteActivity extends FragmentActivity {
         final String imComingMsg = extras.getString(MSG);
         final boolean hasImComingMsg = StringUtils.isNotBlank(imComingMsg);
         reservation = extras.getParcelable(RESERVATION);
-        final long reservId = extras.getLong(RESERVATION_ID, 0);
-        final boolean hasReservId = reservId > 0;
-        final boolean hasReserv = reservation != null || hasReservId;
+        reservId = extras.getLong(RESERVATION_ID, 0);
+        hasReservId = reservId > 0;
+        hasReserv = reservation != null || hasReservId;
         if(hasReserv){
             header.setText("Let's Go");
             findViewById(R.id.time_layout).setVisibility(View.GONE);
@@ -685,6 +691,9 @@ public final class RouteActivity extends FragmentActivity {
         onMyWayView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+            	Intent contactSelect = new Intent(RouteActivity.this, ContactsSelectActivity.class);
+            	startActivityForResult(contactSelect, ON_MY_WAY);
+            	/*
                 ContactsDialog d = new ContactsDialog(RouteActivity.this);
                 d.setActionListener(new ContactsDialog.ActionListener() {
                     @Override
@@ -735,6 +744,7 @@ public final class RouteActivity extends FragmentActivity {
                     public void onClickNegativeButton() {}
                 });
                 d.show();
+            	 */
             }
         });
         TextView letsGoView = (TextView) findViewById(R.id.lets_go);
@@ -1137,6 +1147,54 @@ public final class RouteActivity extends FragmentActivity {
             if(resultCode == RESERVATION_CONFIRM_ENDED){
                 goBackToWhereTo.run();
             }
+        }
+        
+        Log.d("RouteActivityResultCode", resultCode + "");
+        if(requestCode == ON_MY_WAY && resultCode == Activity.RESULT_OK) {
+        	final String emails = extras.getString(ValidationActivity.EMAILS);
+        	if(hasReserv){
+                Intent validationActivity = new Intent(RouteActivity.this, ValidationActivity.class);
+                validationActivity.putExtra("route", reservation.getRoute());
+                validationActivity.putExtra("reservation", reservation);
+                validationActivity.putExtra(ValidationActivity.EMAILS, emails);
+                startActivity(validationActivity);
+                finish();
+            }else{
+            	final TextView reserveView = (TextView) findViewById(R.id.reserve);
+                final Route route = (Route) reserveView.getTag();
+                ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs);
+                task.callback = new ShortcutNavigationTask.Callback() {
+                    @Override
+                    public void run(Reservation reservation) {
+                        if(reservation.isEligibleTrip()){
+                            Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
+                            intent.putExtra("route", reservation.getRoute());
+                            intent.putExtra("reservation", reservation);
+                            intent.putExtra(ValidationActivity.EMAILS, emails);
+                            startActivity(intent);
+                            finish();
+                        }else{
+                            String msg = null;
+                            if (reservation.hasExpired()) {
+                                msg = getString(R.string.trip_has_expired);
+                            }
+                            else if (reservation.isTooEarlyToStart()) {
+                                long minutes = (reservation.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
+                                msg = getString(R.string.trip_too_early_to_start, minutes);
+                                if(minutes != 1){
+                                    msg += "s";
+                                }
+                            }
+                            if(msg != null){
+                                NotificationDialog dialog = new NotificationDialog(RouteActivity.this, msg);
+                                dialog.show();
+                            }
+                        }
+                    }
+                };
+                Misc.parallelExecute(task);
+            }
+            SessionM.logAction("on_my_way");
         }
     }
     
