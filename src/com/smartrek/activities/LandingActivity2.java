@@ -1222,7 +1222,7 @@ public final class LandingActivity2 extends FragmentActivity {
                 }
                 @Override
                 public boolean onLongPress(int index, OverlayItem item) {
-                    /*hideStarredBalloon();
+                    hideStarredBalloon();
                     hideBulbBalloon();
                     removePOIMarker(mapView);
                     BalloonModel model = new BalloonModel();
@@ -1237,7 +1237,7 @@ public final class LandingActivity2 extends FragmentActivity {
                     labelView.setText(l.label);
                     balloonView.setTag(model);
                     balloonView.setVisibility(View.VISIBLE);
-                    mapView.postInvalidate();*/
+                    mapView.postInvalidate();
                     return true;
                 }
                 @Override
