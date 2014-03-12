@@ -511,7 +511,7 @@ public final class RouteActivity extends FragmentActivity {
             int timeDisplayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
             
             // FIXME: Sloppy
-            timeLayout.setDisplayMode((timeDisplayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? DisplayMode.Duration : DisplayMode.Time);
+            timeLayout.setDisplayMode((timeDisplayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? DisplayMode.Duration : DisplayMode.Arrival);
             
             // FIXME: Temporary solution
             selectedTime = new Time();
@@ -807,7 +807,7 @@ public final class RouteActivity extends FragmentActivity {
             public void onClick(View v) {
                 DisplayMode curDisplayMode = (DisplayMode) durationRow.getTag();
                 DisplayMode newDisplayMode = (curDisplayMode == null || curDisplayMode.equals(DisplayMode.Duration)) 
-                    ? DisplayMode.Time:DisplayMode.Duration;
+                    ? DisplayMode.Arrival:DisplayMode.Duration;
                 durationRow.setTag(newDisplayMode);
                 timeLayout.setDisplayMode(newDisplayMode);
                 durationRow.setText(newDisplayMode.name());
@@ -1139,7 +1139,7 @@ public final class RouteActivity extends FragmentActivity {
                 int displayMode = prefs.getInt(MapDisplayActivity.TIME_DISPLAY_MODE, MapDisplayActivity.TIME_DISPLAY_DEFAULT);
                 
                 // FIXME: Sloppy
-                timeLayout.setDisplayMode((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? DisplayMode.Duration : DisplayMode.Time);
+                timeLayout.setDisplayMode((displayMode & MapDisplayActivity.TIME_DISPLAY_TRAVEL) != 0 ? DisplayMode.Duration : DisplayMode.Arrival);
             }
         } 
         

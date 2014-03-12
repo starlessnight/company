@@ -28,7 +28,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     /**
      * Display mode. Default display mode is to show travel time.
      */
-    private DisplayMode displayMode = DisplayMode.Time;
+    private DisplayMode displayMode = DisplayMode.Arrival;
     
     /**
      * We know tightly-coupled classes are a bad design, but we'll stick with

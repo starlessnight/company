@@ -49,7 +49,7 @@ public final class TimeColumn extends FrameLayout {
 	private int timzoneOffset;
 	
 	private State state = State.Unknown;
-	private DisplayMode displayMode = DisplayMode.Time;
+	private DisplayMode displayMode = DisplayMode.Arrival;
 	
 	private int btnum;
 	

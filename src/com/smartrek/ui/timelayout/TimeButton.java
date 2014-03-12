@@ -55,11 +55,11 @@ public final class TimeButton extends TextView {
 	}
 	
 	public enum DisplayMode {
-		Time, Duration
+		Arrival, Duration
 	}
 	
 	private State state = State.Unknown;
-	private DisplayMode displayMode = DisplayMode.Time;
+	private DisplayMode displayMode = DisplayMode.Arrival;
 	
 	/**
 	 * To draw column borders
