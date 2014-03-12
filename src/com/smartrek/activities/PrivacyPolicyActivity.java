@@ -58,7 +58,7 @@ private static final String URL = "http://www.metropia.com/privacy";
 		webviewContent.setVisibility(View.VISIBLE);
         webviewContent.requestFocus(View.FOCUS_DOWN);
         
-        Font.setTypeface(boldFont, (TextView) findViewById(R.id.header), backButton);
+        Font.setTypeface(boldFont, (TextView) findViewById(R.id.header));
         
 	}
 }
