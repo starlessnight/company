@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -508,7 +509,8 @@ public final class LandingActivity2 extends FragmentActivity {
             searchData.addAll(whereTo);
         }
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-            android.R.layout.simple_dropdown_item_1line, searchData);
+            android.R.layout.simple_dropdown_item_1line,
+            new ArrayList<String>(new LinkedHashSet<String>(searchData)));
         searchBox.setAdapter(adapter);
     }
     
