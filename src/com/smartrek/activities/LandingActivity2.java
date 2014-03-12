@@ -501,7 +501,7 @@ public final class LandingActivity2 extends FragmentActivity {
         List<String> starred = (List<String>) searchBox.getTag(R.id.starred_addresses);
         if(starred != null){
             searchData.addAll(starred);
-        }
+        } 
         searchData.addAll(DebugOptionsActivity.getRecentAddresses(this));
         @SuppressWarnings("unchecked")
         List<String> whereTo = (List<String>) searchBox.getTag(R.id.where_to_addresses);
