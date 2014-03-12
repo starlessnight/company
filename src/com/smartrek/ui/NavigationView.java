@@ -22,9 +22,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.smartrek.activities.DebugOptionsActivity;
 import com.smartrek.activities.R;
 import com.smartrek.models.Route;
 import com.smartrek.utils.Font;
+import com.smartrek.utils.Misc;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.StringUtil;
@@ -446,7 +448,10 @@ public class NavigationView extends LinearLayout {
 			boolean speakRerouting = rerouting && !lastRerouting;
 			if (everInRoute && (status != Status.OutOfRoute || speakRerouting) 
 			        && listener != null) {
-				listener.onCheckPoint(routeMsg, speakRerouting);
+				listener.onCheckPoint(speakRerouting?"":routeMsg, speakRerouting);
+				if(speakRerouting && DebugOptionsActivity.isReroutingNotificationSoundEnabled(getContext())){
+                    Misc.playDefaultNotificationSound(getContext());
+                }
 			} else if (!everInRoute
 					&& (status == null || status == Status.WaitingForGPS)
 					&& listener != null) {

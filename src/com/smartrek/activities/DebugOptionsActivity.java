@@ -26,6 +26,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
@@ -83,6 +86,8 @@ public final class DebugOptionsActivity extends Activity {
     private static final String osmdroidCacheDir = "osmdroid";
     
     private static final int defaultUpdateInterval = 1000;
+    
+    private static final String REROUTING_NOTIFICATION_SOUND = "REROUTING_NOTIFICATION_SOUND";
     
     private SharedPreferences prefs;
     
@@ -297,6 +302,15 @@ public final class DebugOptionsActivity extends Activity {
                 }
                 initApiLinksTask = MainActivity.initApiLinks(DebugOptionsActivity.this, entrypoint, 
                     null, null);
+            }
+        });
+        
+        CheckBox reroutingNotificationSound = (CheckBox) findViewById(R.id.rerouting_notification_sound);
+        reroutingNotificationSound.setChecked(isReroutingNotificationSoundEnabled(this));
+        reroutingNotificationSound.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setReroutingNotificationSoundEnabled(DebugOptionsActivity.this, isChecked);
             }
         });
     }
@@ -595,6 +609,22 @@ public final class DebugOptionsActivity extends Activity {
             }
         }
         return list;
+    }
+    
+    public static boolean isReroutingNotificationSoundEnabled(Context ctx){
+        boolean enabled;
+        try{
+            enabled = getPrefs(ctx).getBoolean(REROUTING_NOTIFICATION_SOUND, false);
+        }catch(Throwable t){
+            enabled = false;
+        }
+        return enabled;
+    }
+    
+    public static void setReroutingNotificationSoundEnabled(Context ctx, boolean enabled){
+        getPrefs(ctx).edit()
+            .putBoolean(REROUTING_NOTIFICATION_SOUND, enabled)
+            .commit();
     }
     
 }

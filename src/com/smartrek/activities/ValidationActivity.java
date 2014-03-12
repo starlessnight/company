@@ -823,6 +823,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     Location location = new Location("");
                     location.setLatitude(latitude);
                     location.setLongitude(longitude);
+                    location.setSpeed(9999f);
                     location.setTime(System.currentTimeMillis());
                     locationChanged(location);
                 }
