@@ -90,6 +90,8 @@ import com.smartrek.utils.SmartrekTileProvider;
 
 public final class LandingActivity2 extends FragmentActivity { 
     
+    private static final double mapZoomVerticalOffset = 0.15;
+
     public static final String LAT = "lat";
     
     public static final String LON = "lon";
@@ -1046,13 +1048,13 @@ public final class LandingActivity2 extends FragmentActivity {
                         }
                     }else{
                         drawBulbPOIs(mapView, locs);
-                        List<GeoPoint> points = new ArrayList<GeoPoint>();
-                        points.add(new GeoPoint(lat, lon));
-                        for(com.smartrek.requests.WhereToGoRequest.Location l : locs){
-                            points.add(new GeoPoint(l.lat, l.lon));
-                        }
                         if(rezoom){
-                            RouteRect routeRect = new RouteRect(points);
+                            List<GeoPoint> points = new ArrayList<GeoPoint>();
+                            points.add(new GeoPoint(lat, lon));
+                            for(com.smartrek.requests.WhereToGoRequest.Location l : locs){
+                                points.add(new GeoPoint(l.lat, l.lon));
+                            }
+                            RouteRect routeRect = new RouteRect(points, mapZoomVerticalOffset);
                             GeoPoint mid = routeRect.getMidPoint();
                             int[] range = routeRect.getRange();
                             mc.zoomToSpan(range[0], range[1]);
