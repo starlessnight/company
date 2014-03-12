@@ -312,30 +312,41 @@ public final class Route implements Parcelable {
 	}
 	
 	public RouteLink getNearestLink(double latitude, double longitude) {
-	    RouteNode node = getNearestNode(latitude, longitude);
-	    
-	    RouteNode prevNode = node.getPrevNode();
-        RouteNode nextNode = node.getNextNode();
-        
-        if (prevNode != null && nextNode != null) {
-            RouteLink prevLink = new RouteLink(node.getPrevNode(), node);
-            RouteLink nextLink = new RouteLink(node, node.getNextNode()); 
+	    List<RouteLink> links = new ArrayList<RouteLink>();
+	    for (RouteNode node : routeNodes) {
+	        RouteNode prevNode = node.getPrevNode();
+	        RouteNode nextNode = node.getNextNode();
+	        RouteLink link = null;
+	        if (prevNode != null && nextNode != null) {
+	            RouteLink prevLink = new RouteLink(node.getPrevNode(), node);
+	            RouteLink nextLink = new RouteLink(node, node.getNextNode()); 
 
-            double distanceToPrev = prevLink.distanceTo(latitude, longitude);
-            double distanceToNext = nextLink.distanceTo(latitude, longitude);
-            
-            return distanceToPrev < distanceToNext ? new RouteLink(prevNode, node) : new RouteLink(node, nextNode);
+	            double distanceToPrev = prevLink.distanceTo(latitude, longitude);
+	            double distanceToNext = nextLink.distanceTo(latitude, longitude);
+	            
+	            link = distanceToPrev < distanceToNext ? new RouteLink(prevNode, node) : new RouteLink(node, nextNode);
+	        }
+	        else if (node.getPrevNode() != null) {
+	            link = new RouteLink(node.getPrevNode(), node);
+	        }
+	        else if (node.getNextNode() != null) {
+	            link = new RouteLink(node, node.getNextNode());
+	        }
+	        else {
+	            Log.e("Route", "Should not reach here. A route link must have at least one of prevNode and nextNode.");
+	        }
+	        if(link != null){
+	            links.add(link);
+	        }
         }
-        else if (node.getPrevNode() != null) {
-            return new RouteLink(node.getPrevNode(), node);
-        }
-        else if (node.getNextNode() != null) {
-            return new RouteLink(node, node.getNextNode());
-        }
-        else {
-            Log.e("Route", "Should not reach here. A route link must have at least one of prevNode and nextNode.");
-        }
-        return null;
+	    RouteLink nearest = null;
+	    for(RouteLink link:links){
+	        if(nearest == null || link.distanceTo(latitude, longitude) < 
+	                nearest.distanceTo(latitude, longitude)){
+	            nearest = link;
+	        }
+	    }
+	    return nearest;
 	}
 	
 	public RouteNode getNextTurnNode(RouteNode currentNode, int indexOffset) {
@@ -502,8 +513,12 @@ public final class Route implements Parcelable {
 	public boolean hasArrivedAtDestination(double lat, double lng) {
 		RouteNode lastNode = routeNodes.get(routeNodes.size() - 1);
 		ValidationParameters params = ValidationParameters.getInstance();
-		
-		return lastNode.distanceTo(lat, lng) <= params.getArrivalDistanceThreshold();
+		boolean arrived = false;
+		if(lastNode.distanceTo(lat, lng) <= params.getArrivalDistanceThreshold()){
+		    RouteLink nearestLink = getNearestLink(lat, lng);
+		    arrived = nearestLink == null || nearestLink.getEndNode() == lastNode;
+		}
+		return arrived;
 	}
 	
 	///////////////////////////////////////////////////////////////////////////
