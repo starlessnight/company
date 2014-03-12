@@ -600,6 +600,7 @@ public final class LandingActivity2 extends FragmentActivity {
         registerReceiver(tripInfoUpdater, new IntentFilter(TRIP_INFO_UPDATES));
         registerReceiver(onTheWayNotifier, new IntentFilter(ON_THE_WAY_NOTICE));
         SessionM.onActivityResume(this);
+        sendBroadcast(new Intent(TRIP_INFO_UPDATES));
         mapRefresh.set(true);
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
