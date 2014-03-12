@@ -151,7 +151,8 @@ public final class MapDisplayActivity extends FragmentActivity {
 		helpOurResearch.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-
+				Intent intent = new Intent(MapDisplayActivity.this, HelpOurResearchActivity.class);
+				startActivity(intent);
 			}
 		});
 
