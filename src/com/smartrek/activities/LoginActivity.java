@@ -70,7 +70,7 @@ public final class LoginActivity extends Activity implements OnClickListener,
         terms.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, LicenseAgreementActivity.class);
+                Intent intent = new Intent(LoginActivity.this, TermsAndPrivacyActivity.class);
                 startActivity(intent);
             }
         });
