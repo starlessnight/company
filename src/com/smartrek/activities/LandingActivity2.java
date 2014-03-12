@@ -147,6 +147,7 @@ public final class LandingActivity2 extends FragmentActivity {
                     final boolean rezoom = mapRezoom.getAndSet(false);
                     final double lat = location.getLatitude();
                     final double lon = location.getLongitude();
+//                    LA lat-lon
 //                    final double lat = 34.0291747; 
 //                    final double lon = -118.2734106;
                     refreshMyLocation(lat, lon);
@@ -398,7 +399,7 @@ public final class LandingActivity2 extends FragmentActivity {
                             }
                         }
                         catch (Exception e) {
-                            ehs.registerException(e, "[" + req==null?"":req.getUrl() + "]\n" + e.getMessage());
+                            ehs.registerException(e, "[" + (req==null?"":req.getUrl()) + "]\n" + e.getMessage());
                         }
                         return null;
                     }
@@ -407,9 +408,7 @@ public final class LandingActivity2 extends FragmentActivity {
                             ehs.reportExceptions();
                         }
                         else {
-                            for(int i=0;i<3;i++){
-                                refreshStarredPOIs();
-                            }
+                            refreshStarredPOIs();
                         }
                     }
                };
@@ -448,7 +447,7 @@ public final class LandingActivity2 extends FragmentActivity {
                             	}
                             }
                             catch (Exception e) {
-                                ehs.registerException(e, "[" + req==null?"":req.getUrl() + "]\n" + e.getMessage());
+                                ehs.registerException(e, "[" + (req==null?"":req.getUrl()) + "]\n" + e.getMessage());
                             }
                             return null;
                         }
@@ -806,18 +805,24 @@ public final class LandingActivity2 extends FragmentActivity {
                 }
                 else {
                     List<String> addrList = new ArrayList<String>();
-                    if (result != null && result.size() > 0) {
-                        final MapView mapView = (MapView) findViewById(R.id.mapview);
-                        List<Overlay> overlays = mapView.getOverlays();
-                        for (Overlay overlay : overlays) {
-                            if(overlay instanceof POIActionOverlay){
-                                POIActionOverlay poiOverlay = (POIActionOverlay)overlay;
-                                if(poiOverlay.getMarker() == R.drawable.star_poi){
-                                    overlays.remove(overlay);
-                                    poiOverlay.hide();
-                                }
-                            }
+                    final MapView mapView = (MapView) findViewById(R.id.mapview);
+                    List<Overlay> overlays = mapView.getOverlays();
+                    List<Overlay> otherOverlays = new ArrayList<Overlay>();
+                    for (Overlay overlay : overlays) {
+                        boolean isOther;
+                        if(overlay instanceof POIActionOverlay){
+                            POIActionOverlay poiOverlay = (POIActionOverlay)overlay;
+                            isOther = poiOverlay.getMarker() != R.drawable.star_poi;
+                        }else{
+                            isOther = true;
                         }
+                        if(isOther){
+                            otherOverlays.add(overlay);
+                        }
+                    }
+                    overlays.clear();
+                    overlays.addAll(otherOverlays);
+                    if (result != null && result.size() > 0) {
                         initFontsIfNecessary();
                         for(final com.smartrek.models.Address a : result){
                             final GeoPoint gp = new GeoPoint(a.getLatitude(), a.getLongitude());
@@ -873,10 +878,10 @@ public final class LandingActivity2 extends FragmentActivity {
                             star.showOverlay();
                             addrList.add(a.getAddress());
                         }
-                        mapView.postInvalidate();
-                        findViewById(R.id.search_box).setTag(R.id.starred_addresses, addrList);
-                        refreshSearchAutoCompleteData();
                     }
+                    mapView.postInvalidate();
+                    findViewById(R.id.search_box).setTag(R.id.starred_addresses, addrList);
+                    refreshSearchAutoCompleteData();
                 }
             }
         };
@@ -1013,16 +1018,23 @@ public final class LandingActivity2 extends FragmentActivity {
                     hideBulbBalloon();
                     MapView mapView = (MapView) findViewById(R.id.mapview);
                     removePOIMarker(mapView);
-                    IMapController mc = mapView.getController();
-                    final List<Overlay> mapOverlays = mapView.getOverlays();
-                    for(Overlay overlay : mapOverlays){
+                    List<Overlay> overlays = mapView.getOverlays();
+                    List<Overlay> otherOverlays = new ArrayList<Overlay>();
+                    for (Overlay overlay : overlays) {
+                        boolean isOther;
                         if(overlay instanceof POIActionOverlay){
                             POIActionOverlay poiOverlay = (POIActionOverlay)overlay;
-                            if(poiOverlay.getMarker() == R.drawable.bulb_poi){
-                                mapOverlays.remove(overlay);
-                            }
+                            isOther = poiOverlay.getMarker() != R.drawable.bulb_poi;
+                        }else{
+                            isOther = true;
+                        }
+                        if(isOther){
+                            otherOverlays.add(overlay);
                         }
                     }
+                    overlays.clear();
+                    overlays.addAll(otherOverlays);
+                    IMapController mc = mapView.getController();
                     List<String> addrList = new ArrayList<String>();
                     if(locs.isEmpty()){
                         if(rezoom){
