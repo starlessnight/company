@@ -88,7 +88,7 @@ import com.smartrek.utils.RouteRect;
 import com.smartrek.utils.SessionM;
 import com.smartrek.utils.SmartrekTileProvider;
 
-public final class LandingActivity2 extends FragmentActivity {
+public final class LandingActivity2 extends FragmentActivity { 
     
     public static final String LAT = "lat";
     
