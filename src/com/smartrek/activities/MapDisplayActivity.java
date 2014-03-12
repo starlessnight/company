@@ -85,9 +85,10 @@ public final class MapDisplayActivity extends FragmentActivity {
 				MODE_PRIVATE);
 		SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
 
-		String username = loginPrefs.getString(User.USERNAME, "");
+		String userFirstname = loginPrefs.getString(User.FIRSTNAME, "");
+		String userLastname = loginPrefs.getString(User.LASTNAME, "");
 		TextView userNameView = (TextView) findViewById(R.id.user_name);
-		userNameView.setText(username);
+		userNameView.setText(userFirstname + " " + userLastname);
 
 		String email = loginPrefs.getString(User.EMAIL, "");
 		TextView emailView = (TextView) findViewById(R.id.user_email);
@@ -141,7 +142,8 @@ public final class MapDisplayActivity extends FragmentActivity {
 		View termsAndConditions = findViewById(R.id.terms_and_conditions);
 		termsAndConditions.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-
+				Intent intent = new Intent(MapDisplayActivity.this, TermsAndPrivacyActivity.class);
+				startActivity(intent);
 			}
 		});
 
