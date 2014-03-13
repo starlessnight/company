@@ -51,7 +51,7 @@ private static final String URL = "http://www.metropia.com/privacy";
 		    }
 		});
 		WebSettings settings = webviewContent.getSettings();
-        settings.setLoadWithOverviewMode(false);
+        settings.setLoadWithOverviewMode(true);
 		settings.setUseWideViewPort(true);
 		settings.setBuiltInZoomControls(true);
 		webviewContent.loadUrl(URL);
