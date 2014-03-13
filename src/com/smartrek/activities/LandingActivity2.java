@@ -30,6 +30,7 @@ import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -140,6 +141,38 @@ public final class LandingActivity2 extends FragmentActivity {
         
         TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
         
+        final AutoCompleteTextView searchBox = (AutoCompleteTextView) findViewById(R.id.search_box);
+        refreshSearchAutoCompleteData();
+        searchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                final String addrInput = v.getText().toString();
+                boolean handled = StringUtils.isNotBlank(addrInput);
+                if(handled){
+                    searchAddress(addrInput, false);
+                    InputMethodManager imm = (InputMethodManager)getSystemService(
+                            Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+                return handled;
+            }
+        });
+        
+        String intentAddress = getIntentAddress(getIntent());
+        boolean hasIntentAddr = StringUtils.isNotBlank(intentAddress); 
+        mapRezoom.set(!hasIntentAddr);
+        if(hasIntentAddr){
+            searchBox.setText(intentAddress);
+            searchAddress(intentAddress, true);
+        }
+        
+        LandingActivity.initializeIfNeccessary(this, new Runnable() {
+            @Override
+            public void run() {
+                updateDeviceId();
+            }
+        });
+        
         locationListener = new LocationListener(){
             @Override
             public void onLocationChanged(Location location) {
@@ -182,64 +215,6 @@ public final class LandingActivity2 extends FragmentActivity {
                     Bundle extras) {
             }
         };
-        
-        LandingActivity.initializeIfNeccessary(this, new Runnable() {
-            @Override
-            public void run() {
-                updateDeviceId();
-            }
-        });
-        
-        AutoCompleteTextView searchBox = (AutoCompleteTextView) findViewById(R.id.search_box);
-        refreshSearchAutoCompleteData();
-        searchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                final String addrInput = v.getText().toString();
-                boolean handled = StringUtils.isNotBlank(addrInput);
-                if(handled){
-                    AsyncTask<Void, Void, GeoPoint> task = new AsyncTask<Void, Void, GeoPoint>(){
-                        @Override
-                        protected GeoPoint doInBackground(Void... params) {
-                            GeoPoint gp = null;
-                            try {
-                                List<Address> addrs = Geocoding.lookup(addrInput);
-                                for (Address a : addrs) {
-                                    gp = new GeoPoint(a.getLatitude(), a.getLongitude());
-                                    break;
-                                }
-                            }
-                            catch (IOException e) {
-                            }
-                            catch (JSONException e) {
-                            }
-                            return gp;
-                        }
-                        @Override
-                        protected void onPostExecute(GeoPoint gp) {
-                            if(gp != null){
-                                DebugOptionsActivity.addRecentAddress(LandingActivity2.this, addrInput);
-                                refreshSearchAutoCompleteData();
-                                ReverseGeocodingTask task = new ReverseGeocodingTask(
-                                        gp.getLatitude(), gp.getLongitude()){
-                                    @Override
-                                    protected void onPostExecute(String result) {
-                                        refreshPOIMarker(mapView, lat, lon, result, "");
-                                    }
-                                };
-                                Misc.parallelExecute(task);
-                                mc.animateTo(gp);
-                            }
-                        }
-                    };
-                    Misc.parallelExecute(task);
-                    InputMethodManager imm = (InputMethodManager)getSystemService(
-                            Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                }
-                return handled;
-            }
-        });
         
         TextView nextTripInfo = (TextView) findViewById(R.id.next_trip_info);
         nextTripInfo.setSelected(true);
@@ -496,6 +471,51 @@ public final class LandingActivity2 extends FragmentActivity {
             (TextView)findViewById(R.id.on_the_way_msg), onTheWayBtn);
     }
     
+    private void searchAddress(final String addr, final boolean zoomIn){
+        AsyncTask<Void, Void, GeoPoint> task = new AsyncTask<Void, Void, GeoPoint>(){
+            @Override
+            protected GeoPoint doInBackground(Void... params) {
+                GeoPoint gp = null;
+                try {
+                    List<Address> addrs = Geocoding.lookup(addr);
+                    for (Address a : addrs) {
+                        gp = new GeoPoint(a.getLatitude(), a.getLongitude());
+                        break;
+                    }
+                }
+                catch (IOException e) {
+                }
+                catch (JSONException e) {
+                }
+                return gp;
+            }
+            @Override
+            protected void onPostExecute(GeoPoint gp) {
+                if(gp != null){
+                    DebugOptionsActivity.addRecentAddress(LandingActivity2.this, addr);
+                    refreshSearchAutoCompleteData();
+                    final MapView mapView = (MapView) findViewById(R.id.mapview);
+                    ReverseGeocodingTask task = new ReverseGeocodingTask(
+                            gp.getLatitude(), gp.getLongitude()){
+                        @Override
+                        protected void onPostExecute(String result) {
+                            refreshPOIMarker(mapView, lat, lon, result, "");
+                        }
+                    };
+                    Misc.parallelExecute(task);
+                    IMapController mc = mapView.getController();
+                    if(zoomIn){
+                        mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+                        mc.setCenter(gp);
+                    }else{
+                        mc.animateTo(gp);
+                    }
+                }
+            }
+        };
+        Misc.parallelExecute(task);
+    }
+    
     private void refreshSearchAutoCompleteData(){
         AutoCompleteTextView searchBox = (AutoCompleteTextView) findViewById(R.id.search_box);
         List<String> searchData = new ArrayList<String>();
@@ -741,11 +761,25 @@ public final class LandingActivity2 extends FragmentActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
+        String intentAddress = getIntentAddress(intent);
         if(intent.getBooleanExtra(LandingActivity.LOGOUT, false)){
             startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
+        }else if(StringUtils.isNotBlank(intentAddress)){
+            TextView searchBox = (TextView) findViewById(R.id.search_box);
+            searchBox.setText(intentAddress);
+            searchAddress(intentAddress, true);
         }
+    }
+    
+    private String getIntentAddress(Intent intent){
+        String address = null;
+        Uri uri = intent.getData();
+        if(uri != null){
+            address = Uri.decode(StringUtils.substringAfterLast(uri.toString(), "?q="));
+        }
+        return address;
     }
     
     Typeface boldFont;
@@ -1020,10 +1054,7 @@ public final class LandingActivity2 extends FragmentActivity {
                     //ehs.reportExceptions();
                 }
                 else {
-                    hideStarredBalloon();
-                    hideBulbBalloon();
                     MapView mapView = (MapView) findViewById(R.id.mapview);
-                    removePOIMarker(mapView);
                     List<Overlay> overlays = mapView.getOverlays();
                     List<Overlay> otherOverlays = new ArrayList<Overlay>();
                     for (Overlay overlay : overlays) {

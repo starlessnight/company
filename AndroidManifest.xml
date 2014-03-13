@@ -95,7 +95,13 @@
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar"
-            android:launchMode="singleTask" />
+            android:launchMode="singleTask">
+            <intent-filter>
+		        <action android:name="android.intent.action.VIEW" />
+		        <data android:scheme="geo" />
+		        <category android:name="android.intent.category.DEFAULT" />
+		    </intent-filter>
+        </activity>
         <activity
             android:name=".HomeActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
