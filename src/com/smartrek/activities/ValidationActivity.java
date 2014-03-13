@@ -731,7 +731,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    
 	    private static String getFormatedRemainingTime(long seconds){
 	        long minute = Double.valueOf(Math.round(seconds / 60.0D)).longValue();
-	        return minute + "min";
+	        return minute + " min";
 	    }
 
 	private SpannableString formatCO2Desc(Context ctx, String co2Value) {
