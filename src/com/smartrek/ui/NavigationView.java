@@ -448,7 +448,9 @@ public class NavigationView extends LinearLayout {
 			boolean speakRerouting = rerouting && !lastRerouting;
 			if (everInRoute && (status != Status.OutOfRoute || speakRerouting) 
 			        && listener != null) {
-				listener.onCheckPoint(speakRerouting?"":routeMsg, speakRerouting);
+			    if(speakRerouting){
+			        listener.onCheckPoint("", speakRerouting);
+			    }
 				if(speakRerouting && DebugOptionsActivity.isReroutingNotificationSoundEnabled(getContext())){
                     Misc.playDefaultNotificationSound(getContext());
                 }
