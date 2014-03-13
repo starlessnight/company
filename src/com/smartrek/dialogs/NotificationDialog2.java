@@ -15,7 +15,17 @@ import com.smartrek.utils.Font;
 
 public class NotificationDialog2 extends Dialog {
 	
+	public static final String ERROR = "Oops!";
+	public static final String NOTIFICATION = "Notification";
+	
+	public interface ActionListener {
+        void onClickDismiss();
+    }
+    
+    private ActionListener actionListener;
+	
 	private CharSequence message;
+	private CharSequence title = ERROR;
 	private ViewGroup dialogView;
 	private Typeface boldFont;
 	private Typeface lightFont;
@@ -36,6 +46,9 @@ public class NotificationDialog2 extends Dialog {
 		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		dialogView = (ViewGroup) inflater.inflate(R.layout.notification_dialog, null);
 		
+		TextView titleView = (TextView)dialogView.findViewById(R.id.title);
+		titleView.setText(title);
+		
 		TextView messageView = (TextView) dialogView.findViewById(R.id.message);
 		messageView.setText(message);
 		
@@ -43,16 +56,27 @@ public class NotificationDialog2 extends Dialog {
 		dismissView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if(actionListener != null) {
+					actionListener.onClickDismiss();
+				}
 				dismiss();
 			}
 		});
 		
-		Font.setTypeface(boldFont, (TextView)dialogView.findViewById(R.id.title), dismissView);
+		Font.setTypeface(boldFont, titleView, dismissView);
 		Font.setTypeface(lightFont, messageView);
 		
 		setContentView(dialogView);
 		
 		super.onCreate(savedInstanceState);
+	}
+	
+	public void setActionListener(ActionListener listener) {
+	    this.actionListener = listener;
+	}
+	
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 }

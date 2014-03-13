@@ -19,7 +19,7 @@ import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
-import com.smartrek.dialogs.NotificationDialog;
+import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
@@ -219,8 +219,9 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 				
 				SessionM.logAction("make_reservation");
 				
-				NotificationDialog dialog = new NotificationDialog(ReservationConfirmationActivity.this, "You have successfully reserved a route.");
-				dialog.setActionListener(new NotificationDialog.ActionListener() {
+				NotificationDialog2 dialog = new NotificationDialog2(ReservationConfirmationActivity.this, "You have successfully reserved a route.");
+				dialog.setTitle(NotificationDialog2.NOTIFICATION);
+				dialog.setActionListener(new NotificationDialog2.ActionListener() {
                     
                     @Override
                     public void onClickDismiss() {

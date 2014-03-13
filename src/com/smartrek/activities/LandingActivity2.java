@@ -52,7 +52,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.smartrek.dialogs.FeedbackDialog;
-import com.smartrek.dialogs.NotificationDialog;
+import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
 import com.smartrek.requests.AddressLinkRequest;
@@ -953,7 +953,8 @@ public final class LandingActivity2 extends FragmentActivity {
                 if(result != null && StringUtils.isNotBlank(result.html)){
                     if(alertAvailability){
                         CharSequence msg = Html.fromHtml(result.html);
-                        NotificationDialog dialog = new NotificationDialog(LandingActivity2.this, msg);
+                        NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, msg);
+                        dialog.setTitle(NotificationDialog2.NOTIFICATION);
                         try{
                             dialog.show();
                         }catch(Throwable t){}

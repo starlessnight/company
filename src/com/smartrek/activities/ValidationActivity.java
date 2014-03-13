@@ -81,7 +81,7 @@ import com.smartrek.ValidationService;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.dialogs.FeedbackDialog;
 import com.smartrek.dialogs.FloatingMenuDialog;
-import com.smartrek.dialogs.NotificationDialog;
+import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
@@ -240,9 +240,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			public void onReceive(Context context, Intent intent) {
 				stopValidation.set(true);
 				final boolean tripValidated = isTripValidated();
-				NotificationDialog dialog = new NotificationDialog(
+				NotificationDialog2 dialog = new NotificationDialog2(
 						ValidationActivity.this, "Timed out!");
-				dialog.setActionListener(new NotificationDialog.ActionListener() {
+				dialog.setActionListener(new NotificationDialog2.ActionListener() {
 					@Override
 					public void onClickDismiss() {
 						if (tripValidated) {
@@ -338,9 +338,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		if (!isOnRecreate.get()) {
 			if (reservation.hasExpired()) {
 				stopValidation.set(true);
-				NotificationDialog dialog = new NotificationDialog(this,
+				NotificationDialog2 dialog = new NotificationDialog2(this,
 						getResources().getString(R.string.trip_has_expired));
-				dialog.setActionListener(new NotificationDialog.ActionListener() {
+				dialog.setActionListener(new NotificationDialog2.ActionListener() {
 
 					@Override
 					public void onClickDismiss() {
@@ -354,10 +354,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				stopValidation.set(true);
 				long minutes = (reservation.getDepartureTimeUtc() - System
 						.currentTimeMillis()) / 60000;
-				NotificationDialog dialog = new NotificationDialog(this,
+				NotificationDialog2 dialog = new NotificationDialog2(this,
 						getResources().getString(
 								R.string.trip_too_early_to_start, minutes));
-				dialog.setActionListener(new NotificationDialog.ActionListener() {
+				dialog.setActionListener(new NotificationDialog2.ActionListener() {
 
 					@Override
 					public void onClickDismiss() {
@@ -1767,9 +1767,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						+ "<br/>If you feel you should have earned the points,"
 						+ " <a href=\"" + FeedbackDialog.getUrl(this)
 						+ "\">tell us why?</a>");
-		NotificationDialog dialog = new NotificationDialog(
+		NotificationDialog2 dialog = new NotificationDialog2(
 				ValidationActivity.this, msg);
-		dialog.setActionListener(new NotificationDialog.ActionListener() {
+		dialog.setTitle(NotificationDialog2.NOTIFICATION);
+		dialog.setActionListener(new NotificationDialog2.ActionListener() {
 			@Override
 			public void onClickDismiss() {
 				if (!isFinishing()) {

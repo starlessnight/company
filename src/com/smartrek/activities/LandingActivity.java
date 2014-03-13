@@ -59,7 +59,7 @@ import com.google.android.gms.plus.model.people.Person.Image;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.ContactsDialog;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
-import com.smartrek.dialogs.NotificationDialog;
+import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.dialogs.ProfileSelectionDialog;
 import com.smartrek.dialogs.ProfileSelectionDialog.Type;
 import com.smartrek.dialogs.ShortcutAddressDialog;
@@ -360,7 +360,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                                 }
                             }
                             if(msg != null){
-                                NotificationDialog dialog = new NotificationDialog(LandingActivity.this, msg);
+                                NotificationDialog2 dialog = new NotificationDialog2(LandingActivity.this, msg);
                                 dialog.show();
                             }
                         }
@@ -406,7 +406,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                         }
                     }
                     if(msg != null){
-                        NotificationDialog dialog = new NotificationDialog(LandingActivity.this, msg);
+                        NotificationDialog2 dialog = new NotificationDialog2(LandingActivity.this, msg);
                         dialog.show();
                     }
                 }
@@ -485,7 +485,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                             protected void onPostExecute(City result) {
                                 if(StringUtils.isNotBlank(result.html)){
                                     CharSequence msg = Html.fromHtml(result.html);
-                                    NotificationDialog dialog = new NotificationDialog(LandingActivity.this, msg);
+                                    NotificationDialog2 dialog = new NotificationDialog2(LandingActivity.this, msg);
                                     dialog.show();
                                 }
                             }

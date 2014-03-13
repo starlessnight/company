@@ -50,7 +50,7 @@ import com.smartrek.CalendarService;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.activities.LandingActivity.ShortcutNavigationTask;
 import com.smartrek.dialogs.CancelableProgressDialog;
-import com.smartrek.dialogs.NotificationDialog;
+import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.exceptions.RouteNotFoundException;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
@@ -666,8 +666,9 @@ public final class RouteActivity extends FragmentActivity {
                             
                             SessionM.logAction("make_reservation");
                             
-                            NotificationDialog dialog = new NotificationDialog(RouteActivity.this, "You have successfully reserved a route.");
-                            dialog.setActionListener(new NotificationDialog.ActionListener() {
+                            NotificationDialog2 dialog = new NotificationDialog2(RouteActivity.this, "You have successfully reserved a route.");
+                            dialog.setTitle(NotificationDialog2.NOTIFICATION);
+                            dialog.setActionListener(new NotificationDialog2.ActionListener() {
                                 
                                 @Override
                                 public void onClickDismiss() {
@@ -782,7 +783,7 @@ public final class RouteActivity extends FragmentActivity {
                                     }
                                 }
                                 if(msg != null){
-                                    NotificationDialog dialog = new NotificationDialog(RouteActivity.this, msg);
+                                    NotificationDialog2 dialog = new NotificationDialog2(RouteActivity.this, msg);
                                     dialog.show();
                                 }
                             }
@@ -1186,7 +1187,7 @@ public final class RouteActivity extends FragmentActivity {
                                 }
                             }
                             if(msg != null){
-                                NotificationDialog dialog = new NotificationDialog(RouteActivity.this, msg);
+                                NotificationDialog2 dialog = new NotificationDialog2(RouteActivity.this, msg);
                                 dialog.show();
                             }
                         }

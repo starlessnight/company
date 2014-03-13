@@ -7,6 +7,7 @@
     <RelativeLayout
         android:layout_width="270dp"
         android:layout_height="143dp"
+        android:maxHeight="200dp"
         android:orientation="vertical"
         android:layout_gravity="center"
        	android:background="@drawable/popup_dialog"
@@ -18,8 +19,8 @@
 	            android:layout_height="wrap_content"
 	            android:layout_width="fill_parent"
 	            android:layout_alignParentTop="true"
-	            android:layout_marginTop="20dp"
-	            android:layout_marginBottom="10dp"
+	            android:layout_marginTop="10dp"
+	            android:layout_marginBottom="5dp"
 	            android:text="Oops!"
 	            android:textSize="@dimen/smaller_font"
 	            android:textColor="@android:color/black"
@@ -31,6 +32,7 @@
 	        android:layout_height="wrap_content"
 	        android:layout_width="fill_parent"
 	        android:layout_below="@+id/title"
+	        android:layout_above="@+id/seperator"
 	        android:layout_marginLeft="27dp"
 	        android:layout_marginRight="27dp"
 	        android:text=""
@@ -39,6 +41,7 @@
 	    />
 	    
 	    <View 
+	        android:id="@+id/seperator"
 	        android:layout_width="fill_parent"
 	        android:layout_height="1dp"
 	        android:background="@color/light_gray"
@@ -51,8 +54,8 @@
 	        android:layout_alignParentBottom="true"
 	        android:gravity="center"
 	        android:text="Dismiss"
-	        android:textColor="@color/light_blue"
-	        android:textSize="@dimen/smaller_font"/>"
+	        android:textColor="#4E79BB"
+	        android:textSize="@dimen/smaller_font"/>
 	 	
 	</RelativeLayout>
     

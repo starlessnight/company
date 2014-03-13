@@ -24,7 +24,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.smartrek.dialogs.NotificationDialog;
+import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.Request.Page;
@@ -144,7 +144,7 @@ public final class LoginActivity extends Activity implements OnClickListener,
                         }else{
                             msg = Html.fromHtml(getAccountPwdErrorMsg());
                         }
-                        NotificationDialog notificationDialog = new NotificationDialog(LoginActivity.this, msg);
+                        NotificationDialog2 notificationDialog = new NotificationDialog2(LoginActivity.this, msg);
                         notificationDialog.show();
                     }                
                 }
@@ -170,7 +170,7 @@ public final class LoginActivity extends Activity implements OnClickListener,
                     protected void onPostExecute(Integer userId) {
                         if(userId == null){
                             loginTask.hideDialog();
-                            NotificationDialog notificationDialog = new NotificationDialog(LoginActivity.this, 
+                            NotificationDialog2 notificationDialog = new NotificationDialog2(LoginActivity.this, 
                                 Html.fromHtml(getAccountPwdErrorMsg()));
                             notificationDialog.show();
                         }else{

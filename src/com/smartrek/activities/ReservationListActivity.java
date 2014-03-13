@@ -24,7 +24,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.analytics.tracking.android.EasyTracker;
-import com.smartrek.dialogs.NotificationDialog;
+import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
 import com.smartrek.requests.ReservationDeleteRequest;
@@ -110,7 +110,7 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
                 }
             }
 	        if(msg != null){
-    	        NotificationDialog dialog = new NotificationDialog(ReservationListActivity.this, msg);
+    	        NotificationDialog2 dialog = new NotificationDialog2(ReservationListActivity.this, msg);
                 dialog.show();
 	        }
 	    }
