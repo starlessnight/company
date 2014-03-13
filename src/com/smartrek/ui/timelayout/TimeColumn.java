@@ -2,6 +2,7 @@ package com.smartrek.ui.timelayout;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import android.graphics.Color;
@@ -189,7 +190,7 @@ public final class TimeColumn extends FrameLayout {
 	public void setDepartureTime(long time) {
 		this.departureTime = time;
 		
-		SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mma", Locale.US);
         dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone(timzoneOffset)));
 		departureTimeButton.setText(btnum == 0?"Now":dateFormat.format(new Date(time)));
 		
@@ -220,7 +221,7 @@ public final class TimeColumn extends FrameLayout {
 	}
 	
 	public static String formatTime(long time, int timzoneOffset){
-	    SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mma", Locale.US);
         dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone(timzoneOffset)));
         return dateFormat.format(new Date(time));
 	}
