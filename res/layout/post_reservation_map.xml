@@ -72,15 +72,15 @@
         </FrameLayout>
         
 		<FrameLayout 
-	            android:layout_width="wrap_content"
-	            android:layout_marginLeft="15dp"
+	            android:layout_width="0dp"
 	            android:layout_marginRight="15dp"
 		        android:layout_height="match_parent"
+		        android:layout_weight="1"
 		        >
 	         
 	         <ToggleButton
 	            android:id="@+id/volumn_control"
-	            android:layout_width="30dp"
+	            android:layout_width="46dp"
 	            android:layout_height="38dp"
 	            android:background="@drawable/volumn_control_toggle"
 	            android:checked="true"
@@ -94,16 +94,15 @@
             android:layout_height="match_parent"
             android:layout_width="0dp"
             android:layout_marginLeft="0dp"
-            android:paddingTop="13dp"
-            android:gravity="center_horizontal"
-            android:text=""
+            android:gravity="left|center_vertical"
+            android:text="@string/placeholder"
             android:layout_weight="1"
             style="@style/MediumText"
 		/>
         
         <FrameLayout 
 	            android:id="@+id/menu_button"
-	            android:layout_width="32dp"
+	            android:layout_width="40dp"
 	            android:layout_marginLeft="0dp"
 		        android:layout_height="match_parent"
 		        >
