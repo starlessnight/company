@@ -49,7 +49,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.smartrek.dialogs.FeedbackDialog;
@@ -91,7 +91,7 @@ import com.smartrek.utils.SmartrekTileProvider;
 
 public final class LandingActivity2 extends FragmentActivity { 
     
-    private static final double mapZoomVerticalOffset = 0.15;
+    private static final double mapZoomVerticalOffset = 0.25;
 
     public static final String LAT = "lat";
     
@@ -138,8 +138,6 @@ public final class LandingActivity2 extends FragmentActivity {
         int lon = (int) Math.round(-99.1406250000000f*1E6);
         mc.setZoom(4); 
         mc.setCenter(new GeoPoint(lat, lon));
-        
-        TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
         
         final AutoCompleteTextView searchBox = (AutoCompleteTextView) findViewById(R.id.search_box);
         refreshSearchAutoCompleteData();
@@ -460,6 +458,24 @@ public final class LandingActivity2 extends FragmentActivity {
             }
         });
         
+        final View carIcon = findViewById(R.id.car_icon);
+        OnClickListener tripPanelToggler = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(carIcon.getVisibility() == View.VISIBLE){
+                    View tripPanel = findViewById(R.id.trip_panel);
+                    tripPanel.setVisibility(tripPanel.getVisibility() == View.GONE?View.VISIBLE:View.GONE);
+                }
+            }
+        };
+        carIcon.setOnClickListener(tripPanelToggler);
+        nextTripInfo.setOnClickListener(tripPanelToggler);
+        
+        TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
+        RelativeLayout.LayoutParams osmCreditLp = (RelativeLayout.LayoutParams) osmCredit.getLayoutParams();
+        osmCreditLp.bottomMargin = Dimension.dpToPx(48, getResources().getDisplayMetrics());
+        osmCredit.setLayoutParams(osmCreditLp);
+        
         scheduleNextTripInfoUpdates();
         
         AssetManager assets = getAssets();
@@ -723,7 +739,6 @@ public final class LandingActivity2 extends FragmentActivity {
                         int getGoingBtnVis = View.GONE;
                         int rescheBtnVis = View.VISIBLE;
                         int carIconVis = View.VISIBLE;
-                        int tripPanelVis = View.VISIBLE;
                         String nextTripInfoText;
                         long departureTimeUtc = reserv.getDepartureTimeUtc();
                         long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
@@ -742,7 +757,7 @@ public final class LandingActivity2 extends FragmentActivity {
                         }else{
                             nextTripInfoText = NO_TRIPS;
                             carIconVis = View.INVISIBLE;
-                            tripPanelVis = View.GONE;
+                            tripPanel.setVisibility(View.GONE);
                         }
                         nextTripInfo.setText(nextTripInfoText);
                         TextView getGoingBtn = (TextView) findViewById(R.id.get_going_button);
@@ -750,7 +765,6 @@ public final class LandingActivity2 extends FragmentActivity {
                         TextView rescheBtn = (TextView) findViewById(R.id.reschedule_button);
                         rescheBtn.setVisibility(rescheBtnVis);
                         carIcon.setVisibility(carIconVis);
-                        tripPanel.setVisibility(tripPanelVis);
                     }
                 }
             }
@@ -1130,11 +1144,11 @@ public final class LandingActivity2 extends FragmentActivity {
                     boolean collapsed = collapsedTag == null?true:collapsedTag.booleanValue();
                     mapView.setTag(!collapsed);
                     findViewById(R.id.header_panel).setVisibility(collapsed?View.GONE:View.VISIBLE);
-                    findViewById(R.id.bottom_bar).setVisibility(collapsed?View.GONE:View.VISIBLE);
-                    View menuIcon = findViewById(R.id.drawer_menu_icon_opened);
-                    LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) menuIcon.getLayoutParams();
-                    lp.bottomMargin = Dimension.dpToPx(collapsed?30:68, getResources().getDisplayMetrics());
-                    menuIcon.setLayoutParams(lp);
+                    if(collapsed){
+                        hideBottomBar();
+                    }else{
+                        findViewById(R.id.bottom_bar).setVisibility(View.VISIBLE);
+                    }
                 }
             }
         });
@@ -1193,6 +1207,28 @@ public final class LandingActivity2 extends FragmentActivity {
         POIActionOverlay marker = new POIActionOverlay(mapView, 
             gp, Font.getBold(getAssets()), Font.getLight(getAssets()),
             address, label, R.drawable.marker_poi);
+        marker.setCallback(new OverlayCallback() {
+            @Override
+            public boolean onTap(int index) {
+                return true;
+            }
+            @Override
+            public boolean onLongPress(int index, OverlayItem item) {
+                return false;
+            }
+            
+            @Override
+            public boolean onClose() {
+                return false;
+            }
+            @Override
+            public void onChange() {
+            }
+            @Override
+            public boolean onBalloonTap(int index, OverlayItem item) {
+                return false;
+            }
+        });
         List<Overlay> overlays = mapView.getOverlays();
         overlays.add(marker);
         marker.showOverlay();
@@ -1232,6 +1268,7 @@ public final class LandingActivity2 extends FragmentActivity {
     
     private void hideBottomBar() {
     	findViewById(R.id.bottom_bar).setVisibility(View.GONE);
+    	findViewById(R.id.trip_panel).setVisibility(View.GONE);
     }
     
     private synchronized void drawBulbPOIs(final MapView mapView, List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
@@ -1274,6 +1311,7 @@ public final class LandingActivity2 extends FragmentActivity {
                     labelView.setText(l.label);
                     balloonView.setTag(model);
                     balloonView.setVisibility(View.VISIBLE);
+                    hideBottomBar();
                     mapView.postInvalidate();
                     return true;
                 }
