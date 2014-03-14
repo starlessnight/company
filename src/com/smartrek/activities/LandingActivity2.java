@@ -101,7 +101,7 @@ public final class LandingActivity2 extends FragmentActivity {
     
     public static final boolean ENABLED = true;
     
-    public static final String NO_TRIPS = "No Upcoming Trips";
+    public static final String NO_TRIPS = "No Upcoming Trip";
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
@@ -459,17 +459,30 @@ public final class LandingActivity2 extends FragmentActivity {
         });
         
         final View carIcon = findViewById(R.id.car_icon);
+        final View tripPanel = findViewById(R.id.trip_panel);
+        final View onTheWayPanel = findViewById(R.id.on_the_way_panel); 
         OnClickListener tripPanelToggler = new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(carIcon.getVisibility() == View.VISIBLE){
-                    View tripPanel = findViewById(R.id.trip_panel);
                     tripPanel.setVisibility(tripPanel.getVisibility() == View.GONE?View.VISIBLE:View.GONE);
+                    onTheWayPanel.setVisibility(View.GONE);
                 }
             }
         };
         carIcon.setOnClickListener(tripPanelToggler);
         nextTripInfo.setOnClickListener(tripPanelToggler);
+        
+        final View onTheWayIcon = findViewById(R.id.on_the_way_icon);
+        onTheWayIcon.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(onTheWayIcon.getVisibility() == View.VISIBLE){
+                    onTheWayPanel.setVisibility(onTheWayPanel.getVisibility() == View.GONE?View.VISIBLE:View.GONE);
+                    tripPanel.setVisibility(View.GONE);
+                }
+            }
+        });
         
         TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
         RelativeLayout.LayoutParams osmCreditLp = (RelativeLayout.LayoutParams) osmCredit.getLayoutParams();
@@ -619,7 +632,6 @@ public final class LandingActivity2 extends FragmentActivity {
             otwButton.setTag(R.id.on_the_way_lat, intent.getDoubleExtra(LAT, 0));
             otwButton.setTag(R.id.on_the_way_lon, intent.getDoubleExtra(LON, 0));
             findViewById(R.id.on_the_way_icon).setVisibility(View.VISIBLE);
-            findViewById(R.id.on_the_way_panel).setVisibility(View.VISIBLE);
         }
     };
     
@@ -1269,6 +1281,7 @@ public final class LandingActivity2 extends FragmentActivity {
     private void hideBottomBar() {
     	findViewById(R.id.bottom_bar).setVisibility(View.GONE);
     	findViewById(R.id.trip_panel).setVisibility(View.GONE);
+    	findViewById(R.id.on_the_way_panel).setVisibility(View.GONE);
     }
     
     private synchronized void drawBulbPOIs(final MapView mapView, List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
