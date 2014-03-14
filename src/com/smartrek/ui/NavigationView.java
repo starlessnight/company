@@ -90,8 +90,6 @@ public class NavigationView extends LinearLayout {
 
 	private int currentItemIdx;
 	
-	private boolean lastCheckPointContinue;
-	
 	private double lastCheckPointDistanceInMile;
 
 	public NavigationView(Context context, AttributeSet attrs) {
@@ -363,11 +361,10 @@ public class NavigationView extends LinearLayout {
 						if (prevNode == null) {
 							prevNode = end;
 						}
-						listener.onCheckPoint(getContinueDirection(prevNode,
-								formattedDist), false);
+						listener.onCheckPoint(getContinueDirection(prevNode, formattedDist) 
+					        + ". " + getDirection(node, null, false, true), false);
 					}
 					lastCheckPointDistanceInMile = distanceInMile;
-					lastCheckPointContinue = true;
 				} else {
 					double linkDistance = 0;
 					while ((end = end.getPrevNode()) != null) {
@@ -414,23 +411,24 @@ public class NavigationView extends LinearLayout {
 							&& distanceInMile <= 1.0 + checkPointMilesOffset) {
 						metadata.pingFlags[3] = true;
 						metadata.pingFlags[4] = true;
-						checkpointDistance = linkDistanceInMile >= 1.0 ? "1 mile"
-								: formattedDist;
+						if(lastCheckPointDistanceInMile - distanceInMile >= 1.0){
+    						checkpointDistance = linkDistanceInMile >= 1.0 ? "1 mile"
+    								: formattedDist;
+						}
 					} else if (!metadata.pingFlags[4]
 							&& distanceInMile <= 2.0 + checkPointMilesOffset) {
 						metadata.pingFlags[4] = true;
-						checkpointDistance = "2 miles";
-						checkpointDistance = linkDistanceInMile >= 2.0 ? "2 miles"
-								: formattedDist;
+						if(lastCheckPointDistanceInMile - distanceInMile >= 1.0){
+    						checkpointDistance = linkDistanceInMile >= 2.0 ? "2 miles"
+    								: formattedDist;
+						}
 					}
 
 					if (listener != null && checkpointDistance != null) {
 						listener.onCheckPoint(getDirection(node, checkpointDistance, 
-					        actionOnly, lastCheckPointContinue), false);
+					        actionOnly, false), false);
 						lastCheckPointDistanceInMile = distanceInMile;
 					}
-					
-					lastCheckPointContinue = false;
 				}
 			}
 		} else {
