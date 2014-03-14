@@ -1,15 +1,13 @@
 package com.smartrek.requests;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
 
 import android.content.Context;
 
 import com.smartrek.models.User;
+import com.smartrek.ui.timelayout.TimeColumn;
 import com.smartrek.utils.HTTP.Method;
 
 public final class ImComingRequest extends AddRequest {
@@ -40,13 +38,11 @@ public final class ImComingRequest extends AddRequest {
         this.username = user.getUsername();
         this.password = user.getPassword();
         String url = getLinkUrl(Link.message);
-        SimpleDateFormat dateFmt = new SimpleDateFormat("HH:mm");
-        dateFmt.setTimeZone(TimeZone.getTimeZone(getTimeZone(timzoneOffset)));
         Map<String, String> params = new HashMap<String, String>();
         params.put("to", to);
         params.put("lat", String.valueOf(lat));
         params.put("lon", String.valueOf(lon));
-        params.put("eta", dateFmt.format(new Date(eta)));
+        params.put("eta", TimeColumn.formatTime(eta, timzoneOffset));
         params.put("mile", String.valueOf(Double.valueOf(mile).longValue()));
         params.put("destination", destination); 
         executeHttpRequest(Method.POST, url, params, ctx);

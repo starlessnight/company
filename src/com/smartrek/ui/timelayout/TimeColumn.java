@@ -190,9 +190,7 @@ public final class TimeColumn extends FrameLayout {
 	public void setDepartureTime(long time) {
 		this.departureTime = time;
 		
-		SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mma", Locale.US);
-        dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone(timzoneOffset)));
-		departureTimeButton.setText(btnum == 0?"Now":dateFormat.format(new Date(time)));
+		departureTimeButton.setText(btnum == 0?"Now":formatTime(time, timzoneOffset));
 		
 		postInvalidate();
 	}
@@ -221,7 +219,7 @@ public final class TimeColumn extends FrameLayout {
 	}
 	
 	public static String formatTime(long time, int timzoneOffset){
-	    SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mma", Locale.US);
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("h:mma", Locale.US);
         dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone(timzoneOffset)));
         return dateFormat.format(new Date(time));
 	}
