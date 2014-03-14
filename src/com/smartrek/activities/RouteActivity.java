@@ -921,31 +921,7 @@ public final class RouteActivity extends FragmentActivity {
     
     @Override
     public void onBackPressed() {
-        if(StringUtils.isNotBlank(getIntent().getStringExtra(MSG))){
-            goBackToWhereTo.run();
-        }else{
-        	Resources res = getResources();
-        	
-        	boolean reverseButtons = true;
-        	String rightButtonText = res.getString(R.string.yes);
-        	String leftButtonText = res.getString(R.string.no); 
-        	DialogInterface.OnClickListener rightButtonOnClick = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    goBackToWhereTo.run();
-                }
-            }; 
-            // Ask the user if they want to quit
-            new AlertDialog.Builder(this)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle("Confirm")
-                .setMessage("Are you sure you want to go back to previous screen?")
-                .setPositiveButton(reverseButtons?leftButtonText:rightButtonText, 
-                    reverseButtons?null:rightButtonOnClick)
-                .setNegativeButton(reverseButtons?rightButtonText:leftButtonText, 
-                    reverseButtons?rightButtonOnClick:null)
-                .show();
-        }
+        goBackToWhereTo.run();
     }
     
     private RouteRect routeRect;
