@@ -43,6 +43,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
+import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -113,7 +114,7 @@ import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.SystemService;
 import com.smartrek.utils.ValidationParameters;
 
-public class ValidationActivity extends FragmentActivity implements OnInitListener {
+public class ValidationActivity extends FragmentActivity implements OnInitListener, OnAudioFocusChangeListener {
 	public static final int DEFAULT_ZOOM_LEVEL = 18;
 
 	private static final String RESERVATION = "reservation";
@@ -174,7 +175,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	private ArrayAdapter<DirectionItem> dirListadapter;
 
-	private static String utteranceId = "utteranceId";
+	private static AtomicInteger utteranceCnt = new AtomicInteger();
+	
+	private static AtomicInteger utteranceCompletedCnt = new AtomicInteger();
 
 	private AtomicBoolean reported = new AtomicBoolean(false);
 
@@ -332,8 +335,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 
 		lastLocChanged = SystemClock.elapsedRealtime();
-
-		setVolumeControlStream(AudioManager.STREAM_NOTIFICATION);
 
 		if (!isOnRecreate.get()) {
 			if (reservation.hasExpired()) {
@@ -1699,7 +1700,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			mTts.setOnUtteranceCompletedListener(new TextToSpeech.OnUtteranceCompletedListener() {
 				@Override
 				public void onUtteranceCompleted(String utteranceId) {
-					unmuteMusic();
+				    if(String.valueOf(utteranceCompletedCnt.incrementAndGet()).equals(
+				            String.valueOf(utteranceCnt.get()))){
+				        restoreMusic();
+				    }
 				}
 			});
 			navigationView.setListener(new CheckPointListener() {
@@ -1718,34 +1722,35 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			speak(text, flush);
 		}
 	}
-
+	
 	private void speak(String text, boolean flush) {
 		if (mTts != null) {
 			try {
 				HashMap<String, String> params = new HashMap<String, String>();
 				params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,
-						utteranceId);
+			        String.valueOf(utteranceCnt.incrementAndGet()));
 				params.put(TextToSpeech.Engine.KEY_PARAM_STREAM,
-						String.valueOf(AudioManager.STREAM_NOTIFICATION));
+						String.valueOf(AudioManager.STREAM_MUSIC));
 				AudioManager am = (AudioManager) ValidationActivity.this
-						.getSystemService(Context.AUDIO_SERVICE);
-				am.setStreamMute(AudioManager.STREAM_MUSIC, true);
+			        .getSystemService(Context.AUDIO_SERVICE);
+				am.requestAudioFocus(this, AudioManager.STREAM_MUSIC, 
+			        AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
 				mTts.speak(text, flush?TextToSpeech.QUEUE_FLUSH:TextToSpeech.QUEUE_ADD, params);
 			} catch (Throwable t) {
 			}
 		}
 	}
 
-	private void unmuteMusic() {
-		AudioManager am = (AudioManager) ValidationActivity.this
-				.getSystemService(Context.AUDIO_SERVICE);
-		am.setStreamMute(AudioManager.STREAM_MUSIC, false);
+	private void restoreMusic() {
+	    AudioManager am = (AudioManager) ValidationActivity.this
+            .getSystemService(Context.AUDIO_SERVICE);
+	    am.abandonAudioFocus(this);
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		unmuteMusic();
+		restoreMusic();
 		unregisterReceiver(timeoutReceiver);
 		if (locationManager != null) {
 			locationManager.removeUpdates(locationListener);
@@ -1780,5 +1785,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		});
 		dialog.show();
 	}
+
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        
+    }
 
 }
