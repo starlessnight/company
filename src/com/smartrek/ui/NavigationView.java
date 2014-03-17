@@ -140,11 +140,18 @@ public class NavigationView extends LinearLayout {
 			setBackgroundResource(R.color.transparent_gray);
 			this.status = status;
 		} else if (Status.OutOfRoute.equals(status)) {
-			currentItemIdx = 0;
-			textViewWaiting.setVisibility(View.GONE);
-			textViewGenericMessage.setVisibility(View.VISIBLE);
-			navigationDisplay.setVisibility(View.GONE);
-			setBackgroundResource(R.color.transparent_light_red);
+		    if(everInRoute && !rerouting){
+		        textViewWaiting.setVisibility(View.GONE);
+	            textViewGenericMessage.setVisibility(View.GONE);
+	            navigationDisplay.setVisibility(View.VISIBLE);
+	            setBackgroundResource(android.R.color.transparent);
+		    }else{
+    			currentItemIdx = 0;
+    			textViewWaiting.setVisibility(View.GONE);
+    			textViewGenericMessage.setVisibility(View.VISIBLE);
+    			navigationDisplay.setVisibility(View.GONE);
+    			setBackgroundResource(R.color.transparent_light_red);
+		    }
 			this.status = status;
 		} else if (Status.InRoute.equals(status)) {
 			textViewWaiting.setVisibility(View.GONE);
