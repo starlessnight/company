@@ -592,8 +592,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 			@Override
 			public void onClick(View v) {
-				MapDisplayActivity.setNavigationTts(ValidationActivity.this,
-						volumnControl.isChecked());
+				boolean enabled = volumnControl.isChecked();
+                MapDisplayActivity.setNavigationTts(ValidationActivity.this,
+						enabled);
+                if(enabled){
+                    utteranceCompletedCnt.set(utteranceCnt.get());
+                }else{
+                    speak("", true);
+                }
 			}
 		});
 
@@ -1735,6 +1741,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			        .getSystemService(Context.AUDIO_SERVICE);
 				am.requestAudioFocus(this, AudioManager.STREAM_MUSIC, 
 			        AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
+				if(flush){
+				    utteranceCompletedCnt.set(utteranceCnt.get() - 1);
+				}
 				mTts.speak(text, flush?TextToSpeech.QUEUE_FLUSH:TextToSpeech.QUEUE_ADD, params);
 			} catch (Throwable t) {
 			}
