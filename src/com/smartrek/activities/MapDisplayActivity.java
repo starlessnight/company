@@ -55,10 +55,16 @@ public final class MapDisplayActivity extends FragmentActivity {
 	private static final String PROFILE_SELECTION = "PROFILE_SELECTION";
 
 	private static final String PREDICT_DESTINATION = "PREDICT_DESTINATION";
+	
+	private static final String DISPLAY_DURATION = "DISPLAY_DURATION";
 
 	private ToggleButton calendarIntegration;
 
 	private ToggleButton predictDest;
+	
+	private TextView displayDurationView;
+	
+	private TextView displayTimeOfArrivalView;
 
 	private Typeface boldFont;
 
@@ -117,6 +123,36 @@ public final class MapDisplayActivity extends FragmentActivity {
 						.commit();
 			}
 		});
+		
+		displayDurationView = (TextView) findViewById(R.id.display_duration);
+		displayDurationView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				displayDurationView.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.checked, 0);
+				displayTimeOfArrivalView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+				prefs.edit().putBoolean(DISPLAY_DURATION, true).commit();
+			}
+		});
+		
+		displayTimeOfArrivalView = (TextView) findViewById(R.id.display_time_of_arrival);
+		displayTimeOfArrivalView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				displayTimeOfArrivalView.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.checked, 0);
+				displayDurationView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+				prefs.edit().putBoolean(DISPLAY_DURATION, false).commit();
+			}
+		});
+		
+		boolean displayDuration = isDisplayDuration(this);
+		if(displayDuration) {
+			displayDurationView.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.checked, 0);
+			displayTimeOfArrivalView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+		}
+		else {
+			displayTimeOfArrivalView.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.checked, 0);
+			displayDurationView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+		}
 
 		findViewById(R.id.floating_menu_button).setOnClickListener(
 				new OnClickListener() {
@@ -157,7 +193,7 @@ public final class MapDisplayActivity extends FragmentActivity {
 		});
 
 		Font.setTypeface(boldFont, (TextView) findViewById(R.id.header));
-		Font.setTypeface(lightFont, userNameView, emailView,
+		Font.setTypeface(lightFont, userNameView, emailView, displayDurationView, displayTimeOfArrivalView,
 				(TextView) findViewById(R.id.version_number),
 				(TextView) findViewById(R.id.predict_destination_text),
 				(TextView) findViewById(R.id.calendar_integration_text),
@@ -189,6 +225,10 @@ public final class MapDisplayActivity extends FragmentActivity {
 	public static boolean isLocBasedServiceEnabled(Context ctx) {
 		return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
 				.getBoolean(LOCATION_BASED_SERVICE, true);
+	}
+	
+	public static boolean isDisplayDuration(Context ctx) {
+		return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE).getBoolean(DISPLAY_DURATION, true);
 	}
 
 	public static int getValidatedTripsCount(Context ctx) {

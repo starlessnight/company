@@ -18,16 +18,13 @@ import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
@@ -814,6 +811,17 @@ public final class RouteActivity extends FragmentActivity {
                 durationRow.setText(newDisplayMode.name());
             }
         });
+        
+        if (MapDisplayActivity.isDisplayDuration(this)) {
+            durationRow.setTag(DisplayMode.Duration);
+            timeLayout.setDisplayMode(DisplayMode.Duration);
+            durationRow.setText(DisplayMode.Duration.name());
+        }
+        else {
+        	durationRow.setTag(DisplayMode.Arrival);
+            timeLayout.setDisplayMode(DisplayMode.Arrival);
+            durationRow.setText(DisplayMode.Arrival.name());
+        }
         
         Font.setTypeface(boldFont, header);
         Font.setTypeface(lightFont, destView, onMyWayView, letsGoView, reserveView,
