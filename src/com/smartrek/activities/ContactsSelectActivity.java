@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.ContactsContract.PhoneLookup;
@@ -38,6 +39,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.smartrek.utils.Font;
+import com.smartrek.utils.Misc;
 
 public class ContactsSelectActivity extends FragmentActivity {
 	
@@ -84,9 +86,8 @@ public class ContactsSelectActivity extends FragmentActivity {
 			@Override
 			public void afterTextChanged(Editable s) {
 				String filter = s.toString();
-				int num = updateContactList(filter);
-				if(num == 0) {
-					/*
+				updateContactList(filter);
+				/*if(num == 0) {
 					addButton.setEnabled(true);
 					addButton.setBackgroundResource(R.drawable.icon_add);
 					addButton.setOnClickListener(new OnClickListener() {
@@ -109,8 +110,7 @@ public class ContactsSelectActivity extends FragmentActivity {
 							}
 						}
 					});
-					*/
-				}
+				}*/
 			}
 
 			@Override
@@ -177,68 +177,78 @@ public class ContactsSelectActivity extends FragmentActivity {
 		return string.toString();
 	}
 	
-	private int updateContactList(String filter) {
-		List<Contact> contacts = new ArrayList<Contact>();
-		Map<String, Contact> contactsMap = new LinkedHashMap<String, Contact>();
-        List<String> ids = new ArrayList<String>(); 
-        Cursor people = ContactsSelectActivity.this.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
-        while(people.moveToNext()) {
-           int nameFieldColumnIndex = people.getColumnIndex(PhoneLookup.DISPLAY_NAME);
-           String name = people.getString(nameFieldColumnIndex);
-           int idFieldColumnIndex = people.getColumnIndex(PhoneLookup._ID);
-           String contactId = people.getString(idFieldColumnIndex);
-           Contact contact = new Contact();
-           contact.id = contactId;
-           contact.name = name;
-           contactsMap.put(contactId, contact);
-           ids.add(contactId);
-        }
-        people.close();
-        Cursor emails = ContactsSelectActivity.this.getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null, 
-            ContactsContract.CommonDataKinds.Email.CONTACT_ID + " in (" + StringUtils.join(ids, ",") + ")", null, null); 
-        while (emails.moveToNext()) {
-            String id = emails.getString(emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.CONTACT_ID));
-            String email = emails.getString(emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
-            Contact contact = contactsMap.get(id);
-            if(contact != null && contact.email == null){
-                contact.email = email;
-                if(StringUtils.isBlank(contact.name)) {
-                	contact.name = email;
-                }
-            }
-        }
-        emails.close();
-        for(Contact contact : contactsMap.values()){
-            if(contact.email != null){
-                contacts.add(contact);
-            }
-        }
-        if(!manualInputEmail.isEmpty()) {
-        	for(String email : manualInputEmail) {
-	        	Contact manual = new Contact();
-	        	manual.name = email;
-	        	manual.email = email;
-	        	contacts.add(manual);
-        	}
-        }
-        Collections.sort(contacts, new Comparator<Contact>() {
+	private void updateContactList(final String filter) {
+	    AsyncTask<Void, Void, List<Contact>> task = new AsyncTask<Void, Void, List<Contact>>() {
             @Override
-            public int compare(Contact lhs, Contact rhs) {
-                return lhs.name.toLowerCase().compareTo(rhs.name.toLowerCase());
+            protected List<Contact> doInBackground(Void... params) {
+                List<Contact> contacts = new ArrayList<Contact>();
+                Map<String, Contact> contactsMap = new LinkedHashMap<String, Contact>();
+                List<String> ids = new ArrayList<String>(); 
+                Cursor people = ContactsSelectActivity.this.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
+                while(people.moveToNext()) {
+                   int nameFieldColumnIndex = people.getColumnIndex(PhoneLookup.DISPLAY_NAME);
+                   String name = people.getString(nameFieldColumnIndex);
+                   int idFieldColumnIndex = people.getColumnIndex(PhoneLookup._ID);
+                   String contactId = people.getString(idFieldColumnIndex);
+                   Contact contact = new Contact();
+                   contact.id = contactId;
+                   contact.name = name;
+                   contactsMap.put(contactId, contact);
+                   ids.add(contactId);
+                }
+                people.close();
+                Cursor emails = ContactsSelectActivity.this.getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null, 
+                    ContactsContract.CommonDataKinds.Email.CONTACT_ID + " in (" + StringUtils.join(ids, ",") + ")", null, null); 
+                while (emails.moveToNext()) {
+                    String id = emails.getString(emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.CONTACT_ID));
+                    String email = emails.getString(emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
+                    Contact contact = contactsMap.get(id);
+                    if(contact != null && contact.email == null){
+                        contact.email = email;
+                        if(StringUtils.isBlank(contact.name)) {
+                            contact.name = email;
+                        }
+                    }
+                }
+                emails.close();
+                for(Contact contact : contactsMap.values()){
+                    if(contact.email != null){
+                        contacts.add(contact);
+                    }
+                }
+                /*if(!manualInputEmail.isEmpty()) {
+                    for(String email : manualInputEmail) {
+                        Contact manual = new Contact();
+                        manual.name = email;
+                        manual.email = email;
+                        contacts.add(manual);
+                    }
+                }*/
+                List<Contact> filteredList = new ArrayList<ContactsSelectActivity.Contact>();
+                for(Contact contact : contacts) {
+                    if(StringUtils.isBlank(filter) || StringUtils.containsIgnoreCase(contact.name, filter) 
+                            || StringUtils.containsIgnoreCase(contact.email, filter)) {
+                        filteredList.add(contact);
+                    }
+                }
+                Collections.sort(filteredList, new Comparator<Contact>() {
+                    @Override
+                    public int compare(Contact lhs, Contact rhs) {
+                        return lhs.name.toLowerCase().compareTo(rhs.name.toLowerCase());
+                    }
+                });
+                return filteredList;
             }
-        });
-        
-        contactListAdapter.clear();
-        int filtedCnt = 0;
-        for(Contact contact : contacts) {
-        	if(StringUtils.isBlank(filter) || StringUtils.containsIgnoreCase(contact.name, filter) 
-        			|| StringUtils.containsIgnoreCase(contact.email, filter)) {
-        		contactListAdapter.add(contact);
-        		filtedCnt++;
-        	}
-        }
-        contactListAdapter.notifyDataSetChanged();
-        return filtedCnt;
+	        @Override
+	        protected void onPostExecute(List<Contact> contacts) {
+	            contactListAdapter.clear();
+	            for(Contact contact : contacts) {
+                    contactListAdapter.add(contact);
+	            }
+	            contactListAdapter.notifyDataSetChanged();
+	        }
+        };
+        Misc.parallelExecute(task);
 	}
 	
 	private boolean emailFormatIsGood(String email) {
