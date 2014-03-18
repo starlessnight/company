@@ -62,21 +62,36 @@
 				        android:layout_below="@+id/header_panel"
 					/>
 			    	
-			    	<AutoCompleteTextView
-			    	    android:id="@+id/search_box"
-			    	    android:layout_width="match_parent"
-			            android:layout_height="wrap_content"
-			            android:layout_marginTop="5dp"
-			            android:layout_marginLeft="15dp"
-			           	android:layout_marginRight="15dp"
-			           	android:layout_below="@+id/header_border"
-			           	android:layout_centerHorizontal="true"
-			           	android:hint="Search..."
-			           	android:singleLine="true"
-			           	android:drawableLeft="@drawable/search_icon"
-			           	android:drawablePadding="10dp"
-			           	style="@style/SearchTextField"
-					/>
+				    <RelativeLayout 
+					        android:layout_width="match_parent"
+				            android:layout_height="wrap_content"
+				            android:layout_marginTop="5dp"
+				            android:layout_marginLeft="15dp"
+				           	android:layout_marginRight="15dp"
+				           	android:layout_below="@+id/header_border"
+			           		android:layout_centerHorizontal="true">
+				        <AutoCompleteTextView
+				    	    android:id="@+id/search_box"
+				    	    android:layout_width="match_parent"
+				            android:layout_height="wrap_content"
+				           	android:hint="Search..."
+				           	android:singleLine="true"
+				           	android:drawableLeft="@drawable/search_icon"
+				           	android:drawablePadding="10dp"
+				           	android:paddingRight="30dp"
+				           	style="@style/SearchTextField"
+						/>
+				        <ImageView 
+				            android:id="@+id/search_box_clear"
+				        	android:layout_width="wrap_content"
+				            android:layout_height="wrap_content"
+				            android:layout_alignRight="@+id/search_box"
+	    					android:layout_centerVertical="true"
+	    					android:layout_marginRight="15dp"
+	    					android:src="@drawable/search_box_clear"
+	    					android:visibility="gone"	
+						/>
+				    </RelativeLayout>
 			    	
 			    	<ImageView 
 			    	    android:id="@+id/center_map_icon"

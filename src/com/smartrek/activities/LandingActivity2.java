@@ -37,7 +37,9 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
+import android.text.Editable;
 import android.text.Html;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -155,7 +157,26 @@ public final class LandingActivity2 extends FragmentActivity {
                 return handled;
             }
         });
-        
+        final View searchBoxClear = findViewById(R.id.search_box_clear);
+        searchBox.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                searchBoxClear.setVisibility(StringUtils.isBlank(s)?View.GONE:View.VISIBLE);               
+            }
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count,
+                    int after) {
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+        searchBoxClear.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchBox.setText("");
+            }
+        });
         String intentAddress = getIntentAddress(getIntent());
         boolean hasIntentAddr = StringUtils.isNotBlank(intentAddress); 
         mapRezoom.set(!hasIntentAddr);
