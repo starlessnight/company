@@ -299,9 +299,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 										.formatImperialDistance(item.distance,
 												true)));
 				vDistance.requestLayout();
-				vRoad.setText((StringUtils.isBlank(item.roadName) || StringUtils
-						.equalsIgnoreCase(item.roadName, "null")) ? ""
-						: item.roadName);
+				vRoad.setText((StringUtils.isBlank(item.roadName) 
+			        || StringUtils.equalsIgnoreCase(item.roadName, "null")) ? ""
+					: (StringUtils.capitalize(item.roadName.substring(0, 1)) 
+			        + item.roadName.substring(1))
+		        );
 				vRoad.requestLayout();
 				return view;
 			}

@@ -304,8 +304,11 @@ public class NavigationView extends LinearLayout {
 		String distance = StringUtil
 				.formatImperialDistance(item.distance, true);
 		textViewDistance.setText(distance);
-		textViewRoad.setText((StringUtils.isBlank(item.roadName) || StringUtils
-				.equalsIgnoreCase(item.roadName, "null")) ? "" : item.roadName);
+		textViewRoad.setText((StringUtils.isBlank(item.roadName) 
+	        || StringUtils.equalsIgnoreCase(item.roadName, "null")) ? "" 
+            :(StringUtils.capitalize(item.roadName.substring(0, 1)) 
+            + item.roadName.substring(1))
+		);
 		btnPrevItem.setVisibility(currentItemIdx == 0 ? View.INVISIBLE
 				: View.VISIBLE);
 		int itemSize = items.size();
