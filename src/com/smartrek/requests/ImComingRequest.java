@@ -1,6 +1,7 @@
 package com.smartrek.requests;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,7 +44,7 @@ public final class ImComingRequest extends AddRequest {
         params.put("lat", String.valueOf(lat));
         params.put("lon", String.valueOf(lon));
         params.put("eta", TimeColumn.formatTime(eta, timzoneOffset));
-        params.put("mile", String.valueOf(Double.valueOf(mile).longValue()));
+        params.put("mile", new DecimalFormat("0.#").format(mile));
         params.put("destination", destination); 
         executeHttpRequest(Method.POST, url, params, ctx);
 	}
