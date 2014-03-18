@@ -128,7 +128,17 @@
 				android:layout_height="wrap_content"
 				android:background="@android:color/white"
 				android:orientation="horizontal">
-				        
+				
+		        <TextView
+				    android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_marginLeft="4dp"
+					android:text="Then"
+					android:textColor="@color/navigation_gray"
+					android:gravity="center_vertical"
+					style="@style/SmallerText"
+			    />
+		        
 			    <ImageView
 				    android:id="@+id/img_view_next_direction"
 				    android:layout_height="wrap_content"
@@ -137,16 +147,6 @@
 				    android:layout_gravity="center_vertical"
 				    android:src="@drawable/make_a_u_turn" 
 	            />
-			            
-			    <TextView
-				    android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:layout_marginRight="4dp"
-					android:text="Then"
-					android:textColor="@color/navigation_gray"
-					android:gravity="center_vertical"
-					style="@style/SmallerText"
-			    />
 			        
 			</LinearLayout>
 			
