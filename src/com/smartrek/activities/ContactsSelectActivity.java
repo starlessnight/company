@@ -39,7 +39,6 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.smartrek.utils.Font;
-import com.smartrek.utils.Misc;
 
 public class ContactsSelectActivity extends FragmentActivity {
 	
@@ -248,7 +247,7 @@ public class ContactsSelectActivity extends FragmentActivity {
 	            contactListAdapter.notifyDataSetChanged();
 	        }
         };
-        Misc.parallelExecute(task);
+        task.execute();
 	}
 	
 	private boolean emailFormatIsGood(String email) {
