@@ -513,8 +513,8 @@ public final class LandingActivity2 extends FragmentActivity {
         scheduleNextTripInfoUpdates();
         
         AssetManager assets = getAssets();
-        Font.setTypeface(Font.getBold(assets), tripAddr);
-        Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, nextTripInfo,
+//        Font.setTypeface(Font.getBold(assets), tripAddr);
+        Font.setTypeface(Font.getLight(assets), tripAddr, osmCredit, searchBox, nextTripInfo,
             rewardsMenu, shareMenu, feedbackMenu, settingsMenu, logoutMenu,
             tripDetails, getGoingBtn, rescheBtn, (TextView)findViewById(R.id.header_text),
             (TextView)findViewById(R.id.menu_bottom_text),

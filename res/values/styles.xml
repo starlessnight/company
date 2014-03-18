@@ -82,25 +82,25 @@
 		<item name="android:paddingBottom">5dp</item>
 		<item name="android:background">@drawable/contact_search_text_field</item>
 	</style>
-	<style name="OrangeButton" parent="NormalTextField">
+	<style name="OrangeButton">
 	    <item name="android:textColor">@android:color/white</item>
 		<item name="android:background">@drawable/orange_button</item>
-		<item name="android:gravity">center_horizontal</item>
+		<item name="android:gravity">center</item>
 	</style>
-	<style name="RedButton" parent="NormalTextField">
+	<style name="RedButton">
 	    <item name="android:textColor">@android:color/white</item>
 		<item name="android:background">@drawable/red_button</item>
-		<item name="android:gravity">center_horizontal</item>
+		<item name="android:gravity">center</item>
 	</style>
-	<style name="GreenButton" parent="NormalTextField">
+	<style name="GreenButton">
 	    <item name="android:textColor">@android:color/white</item>
 		<item name="android:background">@drawable/new_green_button</item>
-		<item name="android:gravity">center_horizontal</item>
+		<item name="android:gravity">center</item>
 	</style>
-	<style name="BlueButton" parent="NormalTextField">
+	<style name="BlueButton">
 	    <item name="android:textColor">@android:color/white</item>
 		<item name="android:background">@drawable/new_blue_button</item>
-		<item name="android:gravity">center_horizontal</item>
+		<item name="android:gravity">center</item>
 	</style>
 	<style name="POITextField">
 	    <item name="android:textColor">@android:color/black</item>
