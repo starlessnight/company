@@ -1225,11 +1225,18 @@ public final class LandingActivity2 extends FragmentActivity {
                     boolean collapsed = collapsedTag == null?true:collapsedTag.booleanValue();
                     mapView.setTag(!collapsed);
                     findViewById(R.id.header_panel).setVisibility(collapsed?View.GONE:View.VISIBLE);
+                    int centerMapIconBottomMargin;
                     if(collapsed){
                         hideBottomBar();
+                        centerMapIconBottomMargin = 10;
                     }else{
                         findViewById(R.id.bottom_bar).setVisibility(View.VISIBLE);
+                        centerMapIconBottomMargin = 48;
                     }
+                    View centerMapIcon = findViewById(R.id.center_map_icon);
+                    RelativeLayout.LayoutParams centerMapIconLp = (RelativeLayout.LayoutParams) centerMapIcon.getLayoutParams();
+                    centerMapIconLp.bottomMargin = Dimension.dpToPx(centerMapIconBottomMargin, getResources().getDisplayMetrics());
+                    centerMapIcon.setLayoutParams(centerMapIconLp);
                 }
             }
         });
