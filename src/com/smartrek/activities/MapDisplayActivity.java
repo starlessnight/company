@@ -89,16 +89,14 @@ public final class MapDisplayActivity extends FragmentActivity {
 
 		final SharedPreferences prefs = getSharedPreferences(MAP_DISPLAY_PREFS,
 				MODE_PRIVATE);
-		SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
+		
+		User user = User.getCurrentUser(MapDisplayActivity.this);
 
-		String userFirstname = loginPrefs.getString(User.FIRSTNAME, "");
-		String userLastname = loginPrefs.getString(User.LASTNAME, "");
 		TextView userNameView = (TextView) findViewById(R.id.user_name);
-		userNameView.setText(userFirstname + " " + userLastname);
+		userNameView.setText(user.getFirstname() + " " + user.getLastname());
 
-		String email = loginPrefs.getString(User.EMAIL, "");
 		TextView emailView = (TextView) findViewById(R.id.user_email);
-		emailView.setText(email);
+		emailView.setText(user.getEmail());
 
 		boolean calIntEnabled = isCalendarIntegrationEnabled(this);
 		calendarIntegration = (ToggleButton) findViewById(R.id.calendar_integration);
