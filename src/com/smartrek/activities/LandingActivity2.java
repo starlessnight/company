@@ -239,7 +239,7 @@ public final class LandingActivity2 extends FragmentActivity {
         rewardsMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainMenu.onMenuItemSelected(LandingActivity2.this, 0, v.getId());
+//                MainMenu.onMenuItemSelected(LandingActivity2.this, 0, v.getId());
             }
         });
         TextView shareMenu = (TextView) findViewById(R.id.share_menu);
