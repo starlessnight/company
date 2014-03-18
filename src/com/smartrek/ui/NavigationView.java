@@ -91,6 +91,8 @@ public class NavigationView extends LinearLayout {
 	private int currentItemIdx;
 	
 	private double lastCheckPointDistanceInMile;
+	
+	private String destinationAddress;
 
 	public NavigationView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -304,17 +306,25 @@ public class NavigationView extends LinearLayout {
 		String distance = StringUtil
 				.formatImperialDistance(item.distance, true);
 		textViewDistance.setText(distance);
-		textViewRoad.setText((StringUtils.isBlank(item.roadName) 
-	        || StringUtils.equalsIgnoreCase(item.roadName, "null")) ? "" 
+		CharSequence roadText = (StringUtils.isBlank(item.roadName) 
+            || StringUtils.equalsIgnoreCase(item.roadName, "null")) ? "" 
             :(StringUtils.capitalize(item.roadName.substring(0, 1)) 
-            + item.roadName.substring(1))
-		);
+            + item.roadName.substring(1));
+		int itemSize = items.size();
+        boolean isLastItem = itemSize == 1 || currentItemIdx == itemSize - 1;
+		if(isLastItem){
+		    SpannableStringBuilder roadTextSpan = new SpannableStringBuilder()
+		        .append(roadText + "\n")
+		        .append(spannable(destinationAddress, 
+	                new AbsoluteSizeSpan(getResources().getDimensionPixelSize(R.dimen.smaller_font))));
+		    roadText = roadTextSpan;
+		}
+		textViewRoad.setText(roadText);
+		
 		btnPrevItem.setVisibility(currentItemIdx == 0 ? View.INVISIBLE
 				: View.VISIBLE);
-		int itemSize = items.size();
-		btnNextItem
-				.setVisibility((itemSize == 1 || currentItemIdx == itemSize - 1) ? View.INVISIBLE
-						: View.VISIBLE);
+		btnNextItem.setVisibility(isLastItem? View.INVISIBLE:View.VISIBLE);
+		
 	}
 
 	public static SpannableString adjustDistanceFontSize(Context ctx,
@@ -522,6 +532,14 @@ public class NavigationView extends LinearLayout {
 
     public void setRerouting(boolean rerouting) {
         this.rerouting = rerouting;
+    }
+
+    public String getDestinationAddress() {
+        return destinationAddress;
+    }
+
+    public void setDestinationAddress(String destinationAddress) {
+        this.destinationAddress = destinationAddress;
     }
 
 }

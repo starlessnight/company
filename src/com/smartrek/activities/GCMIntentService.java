@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
 import com.google.android.gcm.GCMConstants;
+import com.smartrek.models.Reservation;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
 
@@ -47,8 +48,12 @@ public class GCMIntentService extends GCMBaseIntentService {
             double lon = Double.parseDouble(intent.getStringExtra("lon"));
             String eta = intent.getStringExtra("eta");
             String mile = intent.getStringExtra("mile");
+            String name = intent.getStringExtra("name");
     		
     		long departureTime = intent.getLongExtra("time", 0) * 1000;
+    		if(departureTime == 0){
+    		    departureTime = System.currentTimeMillis();
+    		}
     		
     		Intent routeIntent = new Intent(context, RouteActivity.class);
             routeIntent.putExtra(RouteActivity.ORIGIN_ADDR, origin);
@@ -59,7 +64,8 @@ public class GCMIntentService extends GCMBaseIntentService {
             Notification notification = new Notification(R.drawable.icon_small, "Metropia", departureTime);
             PendingIntent pendingIntent;
             if(eta != null){
-                String msg = message + "\n" + mile + " miles to go estimated arrival time: " + eta;
+                String msg = name + " is about " + mile + " miles away, and should arrive at "
+                    + destination + " at approximately " + eta + ".\n" + Reservation.formatTime(departureTime, true);
                 Intent landingIntent = new Intent(context, RouteActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 landingIntent.putExtra(RouteActivity.LAT, lat);

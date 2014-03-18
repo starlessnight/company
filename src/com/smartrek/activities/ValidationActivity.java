@@ -577,6 +577,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         });
 
 		navigationView = (NavigationView) findViewById(R.id.navigation_view);
+		navigationView.setDestinationAddress(reservation.getDestinationAddress());
 		navigationView.setTypeface(boldFont);
 
 		View mapViewEndTripBtn = findViewById(R.id.map_view_end_trip_btn);
