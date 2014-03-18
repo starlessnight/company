@@ -7,10 +7,12 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
+import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
@@ -123,6 +125,10 @@ public final class LandingActivity2 extends FragmentActivity {
     
     private AtomicBoolean mapAlertAvailability = new AtomicBoolean(true);
     
+    private AtomicInteger mapCenterLat = new AtomicInteger();
+    
+    private AtomicInteger mapCenterLon = new AtomicInteger();
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -195,6 +201,10 @@ public final class LandingActivity2 extends FragmentActivity {
         locationListener = new LocationListener(){
             @Override
             public void onLocationChanged(Location location) {
+//              LA lat-lon
+//                location = new Location(location.getProvider());
+//                location.setLatitude(34.0291747);
+//                location.setLongitude(-118.2734106);
                 if (ValidationActivity.isBetterLocation(location, lastLocation)) {
                     lastLocation = location;
                     final boolean refresh = mapRefresh.getAndSet(false);
@@ -202,13 +212,15 @@ public final class LandingActivity2 extends FragmentActivity {
                     final boolean rezoom = mapRezoom.getAndSet(false);
                     final double lat = location.getLatitude();
                     final double lon = location.getLongitude();
-//                    LA lat-lon
-//                    final double lat = 34.0291747; 
-//                    final double lon = -118.2734106;
                     refreshMyLocation(lat, lon);
                     if(mapRecenter.getAndSet(false)){
                         if(myPointOverlay != null){
-                            mc.animateTo(myPointOverlay.getLocation());
+                            GeoPoint loc = myPointOverlay.getLocation();
+                            int latE6 = loc.getLatitudeE6();
+                            int lonE6 = loc.getLongitudeE6();
+                            mc.animateTo(new GeoPoint(latE6, lonE6));
+                            mapCenterLat.set(latE6);
+                            mapCenterLon.set(lonE6);
                         }
                     }
                     LandingActivity.initializeIfNeccessary(LandingActivity2.this, new Runnable() {
@@ -243,8 +255,24 @@ public final class LandingActivity2 extends FragmentActivity {
         centerMapIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                lastLocation = null;
-                mapRecenter.set(true);
+                IGeoPoint mapCenter = mapView.getMapCenter();
+                int latE6 = mapCenter.getLatitudeE6();
+                int lonE6 = mapCenter.getLongitudeE6();
+                int lastLatE6 = mapCenterLat.get();
+                int lastLonE6 = mapCenterLon.get();
+                double threshold = 0.00001;
+                if(Math.abs(latE6 - lastLatE6) / Double.valueOf(lastLatE6) < threshold
+                        && Math.abs(lonE6 - lastLonE6) / Double.valueOf(lastLonE6) < threshold){
+                    if(mapView.getZoomLevel() == ValidationActivity.DEFAULT_ZOOM_LEVEL){
+                        zoomMapToFitBulbPOIs();
+                    }else{
+                        mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+                    }
+                }else{
+                    lastLocation = null;
+                    mapRecenter.set(true);
+                    prepareGPS();
+                }
             }
         });
         
@@ -667,6 +695,23 @@ public final class LandingActivity2 extends FragmentActivity {
         mapView.postInvalidate();
     }
     
+    private void prepareGPS(){
+        closeGPS();
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                15000, 5, locationListener);
+        }
+        locationManager.requestLocationUpdates(
+            LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+    }
+    
+    private void closeGPS(){
+        if (locationManager != null) {
+            locationManager.removeUpdates(locationListener);
+        }
+    }
+    
     @Override
     protected void onResume() {
         super.onResume();
@@ -675,13 +720,7 @@ public final class LandingActivity2 extends FragmentActivity {
         SessionM.onActivityResume(this);
         sendBroadcast(new Intent(TRIP_INFO_UPDATES));
         mapRefresh.set(true);
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                15000, 5, locationListener);
-        }
-        locationManager.requestLocationUpdates(
-                LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        prepareGPS();
     }
     
     @Override
@@ -701,10 +740,8 @@ public final class LandingActivity2 extends FragmentActivity {
       unregisterReceiver(tripInfoUpdater);
       unregisterReceiver(onTheWayNotifier);
       SessionM.onActivityPause(this);
+      closeGPS();
       super.onPause();
-      if (locationManager != null) {
-          locationManager.removeUpdates(locationListener);
-      }
     } 
     
     private void refreshTripsInfo(){
@@ -1078,6 +1115,19 @@ public final class LandingActivity2 extends FragmentActivity {
         Misc.parallelExecute(checkCityAvailability);
     }
     
+    private RouteRect routeRect;
+    
+    private void zoomMapToFitBulbPOIs(){
+        if(routeRect != null){
+            MapView mapView = (MapView) findViewById(R.id.mapview);
+            IMapController mc = mapView.getController();
+            GeoPoint mid = routeRect.getMidPoint();
+            int[] range = routeRect.getRange();
+            mc.zoomToSpan(range[0], range[1]);
+            mc.setCenter(mid);
+        }
+    }
+    
     private void refreshBulbPOIs(final double lat, final double lon, final boolean rezoom){
         final User user = User.getCurrentUser(LandingActivity2.this);
         AsyncTask<Void, Void, List<com.smartrek.requests.WhereToGoRequest.Location>> task = 
@@ -1121,23 +1171,21 @@ public final class LandingActivity2 extends FragmentActivity {
                     IMapController mc = mapView.getController();
                     List<String> addrList = new ArrayList<String>();
                     if(locs.isEmpty()){
+                        routeRect = null;
                         if(rezoom){
                             mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
                             mc.setCenter(new GeoPoint(lat, lon));
                         }
                     }else{
                         drawBulbPOIs(mapView, locs);
+                        List<GeoPoint> points = new ArrayList<GeoPoint>();
+                        points.add(new GeoPoint(lat, lon));
+                        for(com.smartrek.requests.WhereToGoRequest.Location l : locs){
+                            points.add(new GeoPoint(l.lat, l.lon));
+                        }
+                        routeRect = new RouteRect(points, mapZoomVerticalOffset);
                         if(rezoom){
-                            List<GeoPoint> points = new ArrayList<GeoPoint>();
-                            points.add(new GeoPoint(lat, lon));
-                            for(com.smartrek.requests.WhereToGoRequest.Location l : locs){
-                                points.add(new GeoPoint(l.lat, l.lon));
-                            }
-                            RouteRect routeRect = new RouteRect(points, mapZoomVerticalOffset);
-                            GeoPoint mid = routeRect.getMidPoint();
-                            int[] range = routeRect.getRange();
-                            mc.zoomToSpan(range[0], range[1]);
-                            mc.setCenter(mid);
+                            zoomMapToFitBulbPOIs();
                         }
                         for(com.smartrek.requests.WhereToGoRequest.Location l : locs){
                             addrList.add(l.addr);
