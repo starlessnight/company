@@ -166,6 +166,7 @@ public class ContactsSelectActivity extends FragmentActivity {
 		updateContactList(null);
 		contactListView = (ListView) findViewById(R.id.contacts_list);
 		contactListView.setAdapter(contactListAdapter);
+		contactListView.setFastScrollEnabled(true);
 	}
 	
 	private String listToString(Collection<String> list) {
