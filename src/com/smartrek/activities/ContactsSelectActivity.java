@@ -144,6 +144,16 @@ public class ContactsSelectActivity extends FragmentActivity {
 	
 	private void updateContactList(final String filter) {
 	    AsyncTask<Void, Void, List<Contact>> task = new AsyncTask<Void, Void, List<Contact>>() {
+	        
+	        Set<String> inputEmails = new HashSet<String>();
+	        
+	        @Override
+	        protected void onPreExecute() {
+	            for(String email : manualInputEmail) {
+	                inputEmails.add(email);
+	            }
+	        }
+	        
             @Override
             protected List<Contact> doInBackground(Void... params) {
                 List<Contact> contacts = new ArrayList<Contact>();
@@ -170,6 +180,15 @@ public class ContactsSelectActivity extends FragmentActivity {
                     }
                 }
                 people.close();
+                
+                if(!inputEmails.isEmpty()) {
+                    for(String email : inputEmails) {
+                        Contact manual = new Contact();
+                        manual.name = email;
+                        manual.email = email;
+                        contacts.add(manual);
+                    }
+                }
                 List<Contact> filteredList = new ArrayList<ContactsSelectActivity.Contact>();
                 for(Contact contact : contacts) {
                     if(StringUtils.isBlank(filter) || StringUtils.containsIgnoreCase(contact.name, filter) 
@@ -177,25 +196,17 @@ public class ContactsSelectActivity extends FragmentActivity {
                         filteredList.add(contact);
                     }
                 }
-                return filteredList;
-            }
-	        @Override
-	        protected void onPostExecute(List<Contact> contacts) {
-	            if(!manualInputEmail.isEmpty()) {
-                    for(String email : manualInputEmail) {
-                        Contact manual = new Contact();
-                        manual.name = email;
-                        manual.email = email;
-                        contacts.add(manual);
-                    }
-                }
-	            Collections.sort(contacts, new Comparator<Contact>() {
+                Collections.sort(filteredList, new Comparator<Contact>() {
                     @Override
                     public int compare(Contact lhs, Contact rhs) {
                         return (lhs.lastnameInitial + " " + lhs.name).compareTo(
                             rhs.lastnameInitial + " " + rhs.name);
                     }
                 });
+                return filteredList;
+            }
+	        @Override
+	        protected void onPostExecute(List<Contact> contacts) {
 	            contactListAdapter.clear();
 	            for(Contact contact : contacts) {
                     contactListAdapter.add(contact);
