@@ -93,6 +93,7 @@ public class ContactsSelectActivity extends FragmentActivity {
                     if(emailFormatIsGood(newEmail)) {
                         manualInputEmail.add(newEmail);
                         selectedContactEmails.add(newEmail);
+                        updateContactList(newEmail);
                     }
                     else {
                         NotificationDialog dialog = new NotificationDialog(ContactsSelectActivity.this, 
