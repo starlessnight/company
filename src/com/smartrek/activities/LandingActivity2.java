@@ -447,6 +447,9 @@ public final class LandingActivity2 extends FragmentActivity {
             public void onClick(View v) {
                 BalloonModel model = (BalloonModel) balloonView.getTag();
                 startRouteActivity(model.address, model.geopoint);
+                hideStarredBalloon();
+                hideBulbBalloon();
+                removePOIMarker(mapView); 
             }
         });
         
@@ -959,6 +962,9 @@ public final class LandingActivity2 extends FragmentActivity {
                                 @Override
                                 public boolean onTap(int index) {
                                     startRouteActivity(a.getAddress(), gp);
+                                    hideStarredBalloon();
+                                    hideBulbBalloon();
+                                    removePOIMarker(mapView);
                                     return true;
                                 }
                                 @Override
@@ -1345,7 +1351,9 @@ public final class LandingActivity2 extends FragmentActivity {
     
     private void hideBalloonPanel(){
         findViewById(R.id.balloon_panel).setVisibility(View.GONE);
-        if(!isBottomBarVisible()) {
+        Boolean collapsedTag = (Boolean) findViewById(R.id.mapview).getTag();
+        boolean collapsed = collapsedTag == null?true:collapsedTag.booleanValue();
+        if(collapsed && !isBottomBarVisible()) {
             findViewById(R.id.bottom_bar).setVisibility(View.VISIBLE);
         }
     }
@@ -1381,6 +1389,9 @@ public final class LandingActivity2 extends FragmentActivity {
                 @Override
                 public boolean onTap(int index) {
                     startRouteActivity(l.addr, gp);
+                    hideStarredBalloon();
+                    hideBulbBalloon();
+                    removePOIMarker(mapView); 
                     return true;
                 }
                 @Override
