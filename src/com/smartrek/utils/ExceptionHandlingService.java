@@ -16,6 +16,7 @@ import android.util.Log;
 
 import com.smartrek.activities.R;
 import com.smartrek.dialogs.ExceptionDialog;
+import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.exceptions.RouteNotFoundException;
 
 public class ExceptionHandlingService {
@@ -108,21 +109,27 @@ public class ExceptionHandlingService {
      */
     public synchronized void reportException(String message, final Runnable callback) {
         try{
-            AlertDialog dialog = new AlertDialog.Builder(context).create();
-            dialog.setTitle("An error has occurred");
-            dialog.setMessage(message);
-            dialog.setButton(context.getResources().getString(R.string.close), new Dialog.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                    if(callback != null){
-                        callback.run();
-                    }
-                }
-            });
-            dialog.setCancelable(false);
-            dialog.setCanceledOnTouchOutside(false);
-            dialog.show();
+        	if(callback != null) {
+	            AlertDialog dialog = new AlertDialog.Builder(context).create();
+	            dialog.setTitle("An error has occurred");
+	            dialog.setMessage(message);
+	            dialog.setButton(context.getResources().getString(R.string.close), new Dialog.OnClickListener() {
+	                @Override
+	                public void onClick(DialogInterface dialog, int which) {
+	                    dialog.cancel();
+	                    if(callback != null){
+	                        callback.run();
+	                    }
+	                }
+	            });
+	            dialog.setCancelable(false);
+	            dialog.setCanceledOnTouchOutside(false);
+	            dialog.show();
+        	}
+        	else {
+	        	NotificationDialog2 dialog = new NotificationDialog2(context, message);
+	        	dialog.show();
+        	}
         }catch(Throwable t){}
     }
     

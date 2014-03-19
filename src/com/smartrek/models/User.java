@@ -22,6 +22,7 @@ public final class User implements JSONModel, Parcelable {
 	public static final String PASSWORD = "PASSWORD";
 	public static final String CREDIT = "CREDIT";
 	public static final String TRIP = "TRIP";
+	public static final String ZIP_CODE = "ZIP_CODE";
 	
 	private static User currentUser;
 
@@ -34,6 +35,7 @@ public final class User implements JSONModel, Parcelable {
 	private String deviceId;
 	private int credit;
 	private int trip;
+	private String zipCode;
 	
 	public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
 		public User createFromParcel(Parcel in) {
@@ -56,6 +58,7 @@ public final class User implements JSONModel, Parcelable {
 		deviceId = in.readString();
 		credit = in.readInt();
 		trip = in.readInt();
+		zipCode = in.readString();
 	}
 	
 	public User(int id, String username) {
@@ -122,6 +125,7 @@ public final class User implements JSONModel, Parcelable {
 		obj.put(PASSWORD, getPassword());
 		obj.put(CREDIT, getCredit());
 		obj.put(TRIP, getTrip());
+		obj.put(ZIP_CODE, getZipCode());
 		
 		return obj.toString();
 	}
@@ -140,6 +144,7 @@ public final class User implements JSONModel, Parcelable {
 		if (object.has(PASSWORD)) user.password = object.getString(PASSWORD);
 		if (object.has(CREDIT)) user.credit = object.getInt(CREDIT);
 		if (object.has(TRIP)) user.trip = object.getInt(TRIP);
+		if (object.has(ZIP_CODE)) user.zipCode = object.getString(ZIP_CODE);
 		
 		return user;
 	}
@@ -208,6 +213,7 @@ public final class User implements JSONModel, Parcelable {
 		dest.writeString(deviceId);
 		dest.writeInt(credit);
 		dest.writeInt(trip);
+		dest.writeString(zipCode);
 	}
 
     public void setId(int id) {
@@ -236,6 +242,14 @@ public final class User implements JSONModel, Parcelable {
 
     public void setTrip(int trip) {
         this.trip = trip;
+    }
+    
+    public String getZipCode() {
+    	return zipCode;
+    }
+    
+    public void setZipCode(String zipCode) {
+    	this.zipCode = zipCode;
     }
     
 }

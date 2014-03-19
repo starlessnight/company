@@ -8,36 +8,40 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.models.User;
 import com.smartrek.requests.UserRegistrationRequest;
+import com.smartrek.utils.Dimension;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
 
-public final class UserRegistrationActivity extends ActionBarActivity
+public final class UserRegistrationActivity extends FragmentActivity
         implements TextWatcher {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
-	private EditText editTextUsername;
 	private EditText editTextFirstname;
 	private EditText editTextLastname;
+	private EditText editTextZipCode;
 	private EditText editTextEmail;
 	private EditText editTextPassword;
 	private EditText editTextPasswordConfirm;
-	private Button buttonRegister;
+	private TextView buttonRegister;
 	
     /** Called when the activity is first created. */
     @Override
@@ -45,12 +49,20 @@ public final class UserRegistrationActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_registration);
         
-        editTextUsername = (EditText) findViewById(R.id.editTextUsername);
-        editTextUsername.addTextChangedListener(this);
+        TextView backButton = (TextView) findViewById(R.id.back_button);
+		backButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				finish();
+			}
+		});
+        
         editTextFirstname = (EditText) findViewById(R.id.editTextFirstname);
         editTextFirstname.addTextChangedListener(this);
         editTextLastname = (EditText) findViewById(R.id.editTextLastname);
         editTextLastname.addTextChangedListener(this);
+        editTextZipCode = (EditText) findViewById(R.id.editTextZipCode);
+        editTextZipCode.addTextChangedListener(this);
         editTextEmail = (EditText) findViewById(R.id.editTextEmail);
         editTextEmail.addTextChangedListener(this);
         editTextPassword = (EditText) findViewById(R.id.editTextPassword);
@@ -58,7 +70,7 @@ public final class UserRegistrationActivity extends ActionBarActivity
         editTextPasswordConfirm = (EditText) findViewById(R.id.editTextPasswordConfirm);
         editTextPasswordConfirm.addTextChangedListener(this);
         
-        buttonRegister = (Button) findViewById(R.id.buttonRegister);
+        buttonRegister = (TextView) findViewById(R.id.buttonRegister);
         buttonRegister.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -72,10 +84,16 @@ public final class UserRegistrationActivity extends ActionBarActivity
 
         });
         
-        Font.setTypeface(lightFont, (TextView)findViewById(R.id.smartrek), editTextEmail,
-            editTextFirstname, editTextLastname, editTextPassword, editTextPasswordConfirm,
-            editTextUsername);
-        Font.setTypeface(boldFont, buttonRegister);
+        TextView terms = (TextView) findViewById(R.id.terms);
+        terms.setText(LoginActivity.getTermsDescription(UserRegistrationActivity.this));
+        terms.setMovementMethod(LinkMovementMethod.getInstance());
+        terms.setLinkTextColor(Color.BLACK);
+        
+        AssetManager assets = getAssets();
+        
+        Font.setTypeface(Font.getLight(assets), editTextEmail, editTextFirstname, editTextLastname, 
+        		editTextPassword, editTextPasswordConfirm, editTextZipCode, terms);
+        Font.setTypeface(Font.getBold(assets), buttonRegister, (TextView) findViewById(R.id.header));
     }
     
 	@Override
@@ -98,28 +116,32 @@ public final class UserRegistrationActivity extends ActionBarActivity
     private boolean checkUserInput() {
     	// TODO: Define a common interface to validate your input
     	
-    	String username = editTextUsername.getText().toString().trim();
-    	if (username.equals("")) {
-    		ehs.reportException("Please enter your username.");
-    		return false;
-    	}
-    	
     	String firstname = editTextFirstname.getText().toString().trim();
     	String lastname = editTextLastname.getText().toString().trim();
     	// TODO: Check firstname and lastname
     	
     	if (firstname.equals("")) {
     		ehs.reportException("Please enter your first name.");
+    		setEditTextAlert(editTextFirstname);
     		return false;
     	}
     	if (lastname.equals("")) {
     		ehs.reportException("Please enter your last name.");
+    		setEditTextAlert(editTextLastname);
+    		return false;
+    	}
+    	
+    	String zipCode = editTextZipCode.getText().toString().trim();
+    	if(zipCode.equals("")) {
+    		ehs.reportException("Please enter your zip code.");
+    		setEditTextAlert(editTextZipCode);
     		return false;
     	}
     	
     	String email = editTextEmail.getText().toString().trim();
     	if (email.equals("")) {
     		ehs.reportException("Please enter your email address.");
+    		setEditTextAlert(editTextEmail);
     		return false;
     	}
     	// TODO: Validate email address
@@ -127,21 +149,37 @@ public final class UserRegistrationActivity extends ActionBarActivity
     	String password = editTextPassword.getText().toString().trim();
     	String passwordConfirm = editTextPasswordConfirm.getText().toString().trim();
     	
+    	if(password.equals("")) {
+    		ehs.reportException("Please enter your password.");
+    		setEditTextAlert(editTextPassword);
+    		return false;
+    	}
+    	
     	if (!password.equals(passwordConfirm)) {
     		ehs.reportException("The two passwords you entered do not match.");
+    		setEditTextAlert(editTextPasswordConfirm);
     		return false;
     	}
     	
     	User user = new User();
-    	user.setUsername(username);
+    	user.setUsername("");
     	user.setFirstname(firstname);
     	user.setLastname(lastname);
     	user.setEmail(email);
     	user.setPassword(password);
+    	user.setZipCode(zipCode);
     	
 		new UserRegistrationTask(this).execute(user);
 		
 		return true;
+    }
+    
+    private void setEditTextAlert(EditText edit) {
+    	edit.setBackgroundResource(R.drawable.alert_registration_text_field);
+    	edit.setPadding(Dimension.dpToPx(15, getResources().getDisplayMetrics()), 
+    			Dimension.dpToPx(10, getResources().getDisplayMetrics()), 
+    			Dimension.dpToPx(15, getResources().getDisplayMetrics()), 
+    			Dimension.dpToPx(10, getResources().getDisplayMetrics()));
     }
 
     private class UserRegistrationTask extends AsyncTask<Object, Object, User> {
@@ -232,7 +270,7 @@ public final class UserRegistrationActivity extends ActionBarActivity
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         boolean enabled = true;
         EditText[] inputs = {editTextEmail, editTextFirstname, editTextLastname, 
-            editTextPassword, editTextPasswordConfirm, editTextUsername};
+            editTextPassword, editTextPasswordConfirm, editTextZipCode};
         for (EditText input : inputs) {
             enabled &= StringUtils.isNotBlank(input.getText());
         }

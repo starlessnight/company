@@ -88,7 +88,7 @@ public final class LoginActivity extends Activity implements OnClickListener,
         terms.setLinkTextColor(Color.BLACK);
         
         TextView newUser = (TextView) findViewById(R.id.new_user);
-        SpannableString createAccount = new SpannableString(Html.fromHtml("Or Create Account"));
+        SpannableString createAccount = new SpannableString("Or Create Account");
         ClickableSpan create = new ClickableSpan() {
 			@Override
 			public void onClick(View view) {
