@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -21,7 +22,6 @@ import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.provider.ContactsContract.PhoneLookup;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -35,10 +35,12 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.smartrek.utils.Font;
+import com.smartrek.utils.Misc;
 
 public class ContactsSelectActivity extends FragmentActivity {
 	
@@ -124,49 +126,12 @@ public class ContactsSelectActivity extends FragmentActivity {
 			
 		});
 		
-		
-		contactListAdapter = new ArrayAdapter<Contact>(this,
-				R.layout.contact_select_item, R.id.contactInfo) {
-			@Override
-			public View getView(int position, View convertView, ViewGroup parent) {
-				View view = super.getView(position, convertView, parent);
-				TextView contactInfo = (TextView) view
-						.findViewById(R.id.contactInfo);
-				Font.setTypeface(boldFont, contactInfo);
-				Contact item = getItem(position);
-				ToggleButton selectButton = (ToggleButton) view.findViewById(R.id.contact_select_button);
-				selectButton.setTag(item.email);
-				if(selectedContactEmails.contains(item.email)) {
-					selectButton.setChecked(true);
-					Log.d("SelectedEmail", listToString(selectedContactEmails));
-				}
-				else {
-					selectButton.setChecked(false);
-				}
-				selectButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-					@Override
-					public void onCheckedChanged(CompoundButton buttonView,
-							boolean isChecked) {
-						String email = (String) buttonView.getTag();
-						if(isChecked) {
-							selectedContactEmails.add(email);
-						}
-						else {
-							selectedContactEmails.remove(email);
-						}
-					}
-				});
-				
-				selectButton.requestLayout();
-				contactInfo.setText(item.name);
-				contactInfo.requestLayout();
-				return view;
-			}
-		};
+		contactListAdapter = new ContactsAdapter();
 		updateContactList(null);
 		contactListView = (ListView) findViewById(R.id.contacts_list);
 		contactListView.setAdapter(contactListAdapter);
-		contactListView.setFastScrollEnabled(true);
+	    contactListView.setFastScrollEnabled(true);
+	    Misc.setFastScrollAlwaysVisible(contactListView);
 	}
 	
 	private String listToString(Collection<String> list) {
@@ -182,40 +147,31 @@ public class ContactsSelectActivity extends FragmentActivity {
             @Override
             protected List<Contact> doInBackground(Void... params) {
                 List<Contact> contacts = new ArrayList<Contact>();
-                Map<String, Contact> contactsMap = new LinkedHashMap<String, Contact>();
-                List<String> ids = new ArrayList<String>(); 
-                Cursor people = ContactsSelectActivity.this.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
-                while(people.moveToNext()) {
-                   int nameFieldColumnIndex = people.getColumnIndex(PhoneLookup.DISPLAY_NAME);
-                   String name = people.getString(nameFieldColumnIndex);
-                   int idFieldColumnIndex = people.getColumnIndex(PhoneLookup._ID);
-                   String contactId = people.getString(idFieldColumnIndex);
-                   Contact contact = new Contact();
-                   contact.id = contactId;
-                   contact.name = name;
-                   contactsMap.put(contactId, contact);
-                   ids.add(contactId);
-                }
-                people.close();
-                Cursor emails = ContactsSelectActivity.this.getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null, 
-                    ContactsContract.CommonDataKinds.Email.CONTACT_ID + " in (" + StringUtils.join(ids, ",") + ")", null, null); 
-                while (emails.moveToNext()) {
-                    String id = emails.getString(emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.CONTACT_ID));
-                    String email = emails.getString(emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
-                    Contact contact = contactsMap.get(id);
-                    if(contact != null && contact.email == null){
-                        contact.email = email;
-                        if(StringUtils.isBlank(contact.name)) {
-                            contact.name = email;
-                        }
+                Cursor people = ContactsSelectActivity.this.getContentResolver().query(ContactsContract.Data.CONTENT_URI, null, 
+                    ContactsContract.Data.MIMETYPE + " = ?", 
+                    new String[] { ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE }, null); 
+                while (people.moveToNext()) {
+                    String id = people.getString(people.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.CONTACT_ID));
+                    String firstname = people.getString(people.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME));
+                    String lastname = people.getString(people.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME));
+                    String email = people.getString(people.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
+                    Contact contact = new Contact();
+                    contact.id = id;
+                    contact.name = StringUtils.defaultString(firstname) 
+                        + " " + StringUtils.defaultString(lastname);
+                    contact.lastnameInitial = StringUtils.defaultString(
+                        StringUtils.capitalize(StringUtils.substring(lastname, 0, 1)));
+                    contact.email = email;
+                    if(StringUtils.isBlank(contact.name)) {
+                        contact.name = email;
+                        contact.lastnameInitial = StringUtils.defaultString(
+                            StringUtils.capitalize(StringUtils.substring(email, 0, 1)));
                     }
-                }
-                emails.close();
-                for(Contact contact : contactsMap.values()){
                     if(contact.email != null){
                         contacts.add(contact);
                     }
                 }
+                people.close();
                 /*if(!manualInputEmail.isEmpty()) {
                     for(String email : manualInputEmail) {
                         Contact manual = new Contact();
@@ -234,7 +190,8 @@ public class ContactsSelectActivity extends FragmentActivity {
                 Collections.sort(filteredList, new Comparator<Contact>() {
                     @Override
                     public int compare(Contact lhs, Contact rhs) {
-                        return lhs.name.toLowerCase().compareTo(rhs.name.toLowerCase());
+                        return (lhs.lastnameInitial + " " + lhs.name).compareTo(
+                            rhs.lastnameInitial + " " + rhs.name);
                     }
                 });
                 return filteredList;
@@ -248,7 +205,7 @@ public class ContactsSelectActivity extends FragmentActivity {
 	            contactListAdapter.notifyDataSetChanged();
 	        }
         };
-        task.execute();
+        Misc.parallelExecute(task);
 	}
 	
 	private boolean emailFormatIsGood(String email) {
@@ -268,7 +225,87 @@ public class ContactsSelectActivity extends FragmentActivity {
         
         String name;
         
+        String lastnameInitial;
+        
         String email;
+        
+    }
+    
+    private class ContactsAdapter extends ArrayAdapter<Contact> implements SectionIndexer {
+        
+        ContactsAdapter(){
+            super(ContactsSelectActivity.this, R.layout.contact_select_item, R.id.contactInfo);
+        }
+        
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view = super.getView(position, convertView, parent);
+            TextView contactInfo = (TextView) view
+                    .findViewById(R.id.contactInfo);
+            Font.setTypeface(boldFont, contactInfo);
+            Contact item = getItem(position);
+            ToggleButton selectButton = (ToggleButton) view.findViewById(R.id.contact_select_button);
+            selectButton.setTag(item.email);
+            if(selectedContactEmails.contains(item.email)) {
+                selectButton.setChecked(true);
+                Log.d("SelectedEmail", listToString(selectedContactEmails));
+            }
+            else {
+                selectButton.setChecked(false);
+            }
+            selectButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView,
+                        boolean isChecked) {
+                    String email = (String) buttonView.getTag();
+                    if(isChecked) {
+                        selectedContactEmails.add(email);
+                    }
+                    else {
+                        selectedContactEmails.remove(email);
+                    }
+                }
+            });
+            
+            selectButton.requestLayout();
+            contactInfo.setText(item.name);
+            contactInfo.requestLayout();
+            return view;
+        }
+        
+        private Map<String, Integer> sections = new LinkedHashMap<String, Integer>(); 
+        
+        @Override
+        public Object[] getSections() {
+            Map<String, Integer> map = new LinkedHashMap<String, Integer>();
+            for(int i=0; i<getCount(); i++){
+                String s = getItem(i).lastnameInitial;
+                if(!map.containsKey(s)){
+                    map.put(s, i);
+                }
+            }
+            sections = map;
+            return sections.keySet().toArray();
+        }
+        
+        @Override
+        public int getPositionForSection(int section) {
+            String[] keys = sections.keySet().toArray(new String[0]);
+            return keys.length > 0?sections.get(keys[Math.min(section, keys.length - 1)]):0;
+        }
+        
+        @Override
+        public int getSectionForPosition(int position) {
+            int section = 0;
+            for (Entry<String, Integer> e : sections.entrySet()) {
+                int s = e.getValue();
+                if(position >= s){
+                    section = s;
+                    break;
+                }
+            }
+            return section;
+        }
         
     }
 

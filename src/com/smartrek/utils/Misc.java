@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.gcm.GCMRegistrar;
@@ -34,6 +35,13 @@ public class Misc {
 	public static void disableHardwareAcceleration(View v){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
             v.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        }
+    }
+    
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static void setFastScrollAlwaysVisible(ListView v){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+            v.setFastScrollAlwaysVisible(true);
         }
     }
     
