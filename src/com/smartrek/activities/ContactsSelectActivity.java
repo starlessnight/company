@@ -186,6 +186,8 @@ public class ContactsSelectActivity extends FragmentActivity {
                         Contact manual = new Contact();
                         manual.name = email;
                         manual.email = email;
+                        manual.lastnameInitial = StringUtils.defaultString(
+                            StringUtils.capitalize(StringUtils.substring(email, 0, 1)));
                         contacts.add(manual);
                     }
                 }
