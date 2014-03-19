@@ -39,6 +39,7 @@ import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
 
@@ -80,7 +81,28 @@ public class ContactsSelectActivity extends FragmentActivity {
 			}
 		});
 		
-//		addButton = (ImageView) findViewById(R.id.add_button);
+		addButton = (ImageView) findViewById(R.id.add_button);
+		addButton.setEnabled(true);
+        addButton.setBackgroundResource(R.drawable.icon_add);
+        addButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("ClickAdd", "true");
+                String newEmail = searchTextView.getText().toString();
+                if(StringUtils.isNotBlank(newEmail)) {
+                    if(emailFormatIsGood(newEmail)) {
+                        manualInputEmail.add(newEmail);
+                        selectedContactEmails.add(newEmail);
+                    }
+                    else {
+                        NotificationDialog dialog = new NotificationDialog(ContactsSelectActivity.this, 
+                                "Error email format!");
+                        dialog.show();
+                    }
+                }
+            }
+        });
+
 		searchTextView = (EditText) findViewById(R.id.search);
 		searchTextView.addTextChangedListener(new TextWatcher() {
 
@@ -88,30 +110,7 @@ public class ContactsSelectActivity extends FragmentActivity {
 			public void afterTextChanged(Editable s) {
 				String filter = s.toString();
 				updateContactList(filter);
-				/*if(num == 0) {
-					addButton.setEnabled(true);
-					addButton.setBackgroundResource(R.drawable.icon_add);
-					addButton.setOnClickListener(new OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							Log.d("ClickAdd", "true");
-							String newEmail = searchTextView.getText().toString();
-							if(StringUtils.isNotBlank(newEmail)) {
-								if(emailFormatIsGood(newEmail)) {
-									manualInputEmail.add(newEmail);
-									selectedContactEmails.add(newEmail);
-									searchTextView.setText("");
-									updateContactList("");
-								}
-								else {
-									NotificationDialog dialog = new NotificationDialog(ContactsSelectActivity.this, 
-											"Error email format!");
-			                        dialog.show();
-								}
-							}
-						}
-					});
-				}*/
+				addButton.setVisibility(emailFormatIsGood(filter)?View.VISIBLE:View.GONE);
 			}
 
 			@Override
@@ -151,35 +150,25 @@ public class ContactsSelectActivity extends FragmentActivity {
                     ContactsContract.Data.MIMETYPE + " = ?", 
                     new String[] { ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE }, null); 
                 while (people.moveToNext()) {
-                    String id = people.getString(people.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.CONTACT_ID));
                     String firstname = people.getString(people.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME));
                     String lastname = people.getString(people.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME));
                     String email = people.getString(people.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
-                    Contact contact = new Contact();
-                    contact.id = id;
-                    contact.name = StringUtils.defaultString(firstname) 
-                        + " " + StringUtils.defaultString(lastname);
-                    contact.lastnameInitial = StringUtils.defaultString(
-                        StringUtils.capitalize(StringUtils.substring(lastname, 0, 1)));
-                    contact.email = email;
-                    if(StringUtils.isBlank(contact.name)) {
-                        contact.name = email;
+                    if(email != null){
+                        Contact contact = new Contact();
+                        contact.name = StringUtils.defaultString(firstname) 
+                            + " " + StringUtils.defaultString(lastname);
                         contact.lastnameInitial = StringUtils.defaultString(
-                            StringUtils.capitalize(StringUtils.substring(email, 0, 1)));
-                    }
-                    if(contact.email != null){
+                            StringUtils.capitalize(StringUtils.substring(lastname, 0, 1)));
+                        contact.email = email;
+                        if(StringUtils.isBlank(contact.name)) {
+                            contact.name = email;
+                            contact.lastnameInitial = StringUtils.defaultString(
+                                StringUtils.capitalize(StringUtils.substring(email, 0, 1)));
+                        }
                         contacts.add(contact);
                     }
                 }
                 people.close();
-                /*if(!manualInputEmail.isEmpty()) {
-                    for(String email : manualInputEmail) {
-                        Contact manual = new Contact();
-                        manual.name = email;
-                        manual.email = email;
-                        contacts.add(manual);
-                    }
-                }*/
                 List<Contact> filteredList = new ArrayList<ContactsSelectActivity.Contact>();
                 for(Contact contact : contacts) {
                     if(StringUtils.isBlank(filter) || StringUtils.containsIgnoreCase(contact.name, filter) 
@@ -187,17 +176,25 @@ public class ContactsSelectActivity extends FragmentActivity {
                         filteredList.add(contact);
                     }
                 }
-                Collections.sort(filteredList, new Comparator<Contact>() {
+                return filteredList;
+            }
+	        @Override
+	        protected void onPostExecute(List<Contact> contacts) {
+	            if(!manualInputEmail.isEmpty()) {
+                    for(String email : manualInputEmail) {
+                        Contact manual = new Contact();
+                        manual.name = email;
+                        manual.email = email;
+                        contacts.add(manual);
+                    }
+                }
+	            Collections.sort(contacts, new Comparator<Contact>() {
                     @Override
                     public int compare(Contact lhs, Contact rhs) {
                         return (lhs.lastnameInitial + " " + lhs.name).compareTo(
                             rhs.lastnameInitial + " " + rhs.name);
                     }
                 });
-                return filteredList;
-            }
-	        @Override
-	        protected void onPostExecute(List<Contact> contacts) {
 	            contactListAdapter.clear();
 	            for(Contact contact : contacts) {
                     contactListAdapter.add(contact);
@@ -220,8 +217,6 @@ public class ContactsSelectActivity extends FragmentActivity {
 	}
 	
     private static class Contact {
-        
-        String id;
         
         String name;
         
