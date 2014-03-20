@@ -14,8 +14,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -85,7 +89,7 @@ public final class UserRegistrationActivity extends FragmentActivity
         });
         
         TextView terms = (TextView) findViewById(R.id.terms);
-        terms.setText(LoginActivity.getTermsDescription(UserRegistrationActivity.this));
+        terms.setText(getTermsDescription(UserRegistrationActivity.this));
         terms.setMovementMethod(LinkMovementMethod.getInstance());
         terms.setLinkTextColor(Color.BLACK);
         
@@ -181,6 +185,30 @@ public final class UserRegistrationActivity extends FragmentActivity
     			Dimension.dpToPx(15, getResources().getDisplayMetrics()), 
     			Dimension.dpToPx(10, getResources().getDisplayMetrics()));
     }
+    
+    private SpannableString getTermsDescription(final Context ctx) {
+		SpannableString termsString = new SpannableString("By using this application, you agree to the Terms & Conditions and Privacy Policy");
+        ClickableSpan termsAndCondition = new ClickableSpan() {
+			@Override
+			public void onClick(View view) {
+				Log.d("LoginActivity", "click terms and condition");
+				Intent intent = new Intent(ctx, TermOfUseActivity.class);
+				ctx.startActivity(intent);
+			}
+        };
+        termsString.setSpan(termsAndCondition, 44, 62, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        
+        ClickableSpan privacyPolicy = new ClickableSpan() {
+			@Override
+			public void onClick(View view) {
+				Log.d("LoginActivity", "click privacy policy");
+				Intent intent = new Intent(ctx, PrivacyPolicyActivity.class);
+				ctx.startActivity(intent);
+			}
+        };
+        termsString.setSpan(privacyPolicy, 67, 81, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return termsString;
+	}
 
     private class UserRegistrationTask extends AsyncTask<Object, Object, User> {
     	

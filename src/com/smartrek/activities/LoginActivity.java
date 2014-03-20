@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpResponseException;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
@@ -20,7 +19,6 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.TextPaint;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
@@ -31,7 +29,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.smartrek.activities.R.color;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
@@ -61,31 +58,14 @@ public final class LoginActivity extends Activity implements OnClickListener,
         TextView login = (TextView) findViewById(R.id.login_button);
         login.setOnClickListener(this);
         
-//        TextView new_user = (TextView) findViewById(R.id.new_user_button);
-//        new_user.setOnClickListener(registerButtonClickListener);
-        
         TextView forgetPwd = (TextView) findViewById(R.id.forget_pwd);
-        forgetPwd.setText(Html.fromHtml("<u>Forgot password?</u>"));
+        forgetPwd.setText(Html.fromHtml("<u>Forgot Password?</u>"));
         forgetPwd.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(Request.getPageUrl(Page.reset_password))));
             }
         });
-        
-        TextView terms = (TextView) findViewById(R.id.terms);
-//        terms.setText(Html.fromHtml("By signing up, you agree to the <u>Terms & Conditions</u>"));
-//        terms.setText("By using this application, you agree to the ");;
-//        terms.setOnClickListener(new OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(LoginActivity.this, TermsAndPrivacyActivity.class);
-//                startActivity(intent);
-//            }
-//        });
-        terms.setText(getTermsDescription(LoginActivity.this));
-        terms.setMovementMethod(LinkMovementMethod.getInstance());
-        terms.setLinkTextColor(Color.BLACK);
         
         TextView newUser = (TextView) findViewById(R.id.new_user);
         SpannableString createAccount = new SpannableString("Or Create Account");
@@ -109,7 +89,7 @@ public final class LoginActivity extends Activity implements OnClickListener,
         AssetManager assets = getAssets();
         //Font.setTypeface(Font.getBold(assets));
         Font.setTypeface(Font.getLight(assets), editTextUsername, 
-        		editTextPassword, login, terms, newUser, 
+        		editTextPassword, login, newUser, 
         		(TextView) findViewById(R.id.forget_pwd));
     }
     
@@ -211,30 +191,6 @@ public final class LoginActivity extends Activity implements OnClickListener,
     		    loginTask.execute();
     		}
         }
-	}
-	
-	public static SpannableString getTermsDescription(final Context ctx) {
-		SpannableString termsString = new SpannableString("By using this application, you agree to the Terms & Conditions and Privacy Policy");
-        ClickableSpan termsAndCondition = new ClickableSpan() {
-			@Override
-			public void onClick(View view) {
-				Log.d("LoginActivity", "click terms and condition");
-				Intent intent = new Intent(ctx, TermOfUseActivity.class);
-				ctx.startActivity(intent);
-			}
-        };
-        termsString.setSpan(termsAndCondition, 44, 62, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        
-        ClickableSpan privacyPolicy = new ClickableSpan() {
-			@Override
-			public void onClick(View view) {
-				Log.d("LoginActivity", "click privacy policy");
-				Intent intent = new Intent(ctx, PrivacyPolicyActivity.class);
-				ctx.startActivity(intent);
-			}
-        };
-        termsString.setSpan(privacyPolicy, 67, 81, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        return termsString;
 	}
 	
 	private static String getAccountPwdErrorMsg(){

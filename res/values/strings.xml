@@ -19,8 +19,9 @@
     <string name="lastname">Last name</string>
     <string name="zip_code">Zip Code</string>
     <string name="login_logo_subtitle">working together to reduce traffic</string>
-    <string name="username">username</string>
-    <string name="password">Choose Password</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="choose_password">Choose password</string>
     <string name="password_confirmation">Confirm password</string>
     <string name="login">Log In</string>
     <string name="create_account_link_text">Don\'t have an account?</string>

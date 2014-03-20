@@ -115,7 +115,7 @@
 	            android:layout_marginTop="20dp"
 	            android:layout_marginLeft="10dp" 
 		      	android:layout_marginRight="10dp"
-	            android:hint="@string/password"
+	            android:hint="@string/choose_password"
 	            android:ems="10"
 	            android:inputType="textPassword"
 	            android:singleLine="true"

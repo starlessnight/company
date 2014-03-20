@@ -62,17 +62,6 @@
 		           style="@style/SmallestText"
 				/>
 			    
-			    <!-- 
-			    <TextView
-		           android:id="@+id/new_user_button"
-		           android:layout_width="match_parent"
-		           android:layout_height="wrap_content"
-		           android:layout_marginTop="15dp"
-		           android:text="Join"
-		           style="@style/OrangeButton"
-				/>
-			    -->
-			    
 			    <TextView
 		            android:id="@+id/login_button"
 		            android:layout_width="match_parent"
@@ -84,17 +73,6 @@
 		            android:paddingTop="10dp"
 		            android:paddingBottom="10dp"
 		            style="@style/GreenButton"
-				/>
-			    
-			    <TextView
-		           android:id="@+id/terms"
-		           android:layout_width="wrap_content"
-		           android:layout_height="wrap_content"
-		           android:layout_gravity="center"
-		           android:gravity="center"
-		           android:textColor="@android:color/black"
-		           android:layout_marginTop="5dp"
-		           style="@style/SmallestText"
 				/>
 			    
 			    <TextView
