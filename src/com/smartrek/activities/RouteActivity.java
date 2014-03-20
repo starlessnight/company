@@ -33,6 +33,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
+import android.text.Html;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.Menu;
@@ -808,19 +809,19 @@ public final class RouteActivity extends FragmentActivity {
                     ? DisplayMode.Arrival:DisplayMode.Duration;
                 durationRow.setTag(newDisplayMode);
                 timeLayout.setDisplayMode(newDisplayMode);
-                durationRow.setText(newDisplayMode.name());
+                durationRow.setText(Html.fromHtml("<u>" + newDisplayMode.name() + "</u>"));
             }
         });
         
         if (MapDisplayActivity.isDisplayDuration(this)) {
             durationRow.setTag(DisplayMode.Duration);
             timeLayout.setDisplayMode(DisplayMode.Duration);
-            durationRow.setText(DisplayMode.Duration.name());
+            durationRow.setText(Html.fromHtml("<u>" + DisplayMode.Duration.name() + "</u>"));
         }
         else {
         	durationRow.setTag(DisplayMode.Arrival);
             timeLayout.setDisplayMode(DisplayMode.Arrival);
-            durationRow.setText(DisplayMode.Arrival.name());
+            durationRow.setText(Html.fromHtml("<u>" + DisplayMode.Arrival.name() + "</u>"));
         }
         
         Font.setTypeface(boldFont, header);

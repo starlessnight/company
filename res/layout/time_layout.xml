@@ -22,7 +22,7 @@
 	        	android:orientation="horizontal">
 	        <LinearLayout 
 		            android:layout_height="wrap_content"
-		            android:layout_width="60dp"
+		            android:layout_width="70dp"
 		            android:orientation="vertical">
 	            <TextView
 		            android:id="@+id/departure_row"
@@ -32,9 +32,13 @@
 		            android:textColor="@android:color/white"
 		            android:text="Leaving"
 		            android:gravity="bottom|center_horizontal"
-		            android:textSize="@dimen/micro_font"
+		            android:textSize="@dimen/smallest_font"
 		            android:paddingBottom="5dp" 
 				/>
+	            <View 
+	                android:layout_width="match_parent"
+	                android:layout_height="5dp"
+	                android:background="#f1f1f2"/>
 	            <TextView
 		            android:id="@+id/duration_row"
 		            android:layout_height="31dp"
@@ -43,17 +47,17 @@
 		            android:textColor="@android:color/white"
 		            android:text="Duration"
 		            android:gravity="center"
-		            android:textSize="@dimen/micro_font"
+		            android:textSize="@dimen/smallest_font"
 				/>
 	            <TextView
 		            android:id="@+id/mpoint_row"
-		            android:layout_height="25dp"
+		            android:layout_height="31dp"
 		            android:layout_width="match_parent"
 		            android:background="#6d6e70"
 		            android:textColor="@android:color/white"
 		            android:text="mPoints"
 		            android:gravity="center"
-		            android:textSize="@dimen/micro_font"
+		            android:textSize="@dimen/smallest_font"
 				/>
 	        </LinearLayout>
 	        <com.smartrek.ui.timelayout.ScrollableTimeLayout

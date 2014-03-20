@@ -87,6 +87,12 @@ public final class TimeColumn extends FrameLayout {
 		departureTimeButton.setHeight(Dimension.dpToPx(15, dm));
 		timeColumnLayout.addView(departureTimeButton);
 		
+		View centerSpacing = new View(getContext());
+		LinearLayout.LayoutParams centerSpacingLp = new LinearLayout.LayoutParams(
+	            Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(5, dm));
+		centerSpacing.setLayoutParams(centerSpacingLp);
+		timeColumnLayout.addView(centerSpacing);
+		
 		buttonSpacing = new View(getContext());
         LinearLayout.LayoutParams buttonSpacingLp = new LinearLayout.LayoutParams(
             Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(5, dm)); 
