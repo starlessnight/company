@@ -15,9 +15,6 @@ import com.smartrek.utils.Font;
 
 public class NotificationDialog2 extends Dialog {
 	
-	public static final String ERROR = "Oops!";
-	public static final String NOTIFICATION = "Notification";
-	
 	public interface ActionListener {
         void onClickDismiss();
     }
@@ -25,10 +22,11 @@ public class NotificationDialog2 extends Dialog {
     private ActionListener actionListener;
 	
 	private CharSequence message;
-	private CharSequence title = ERROR;
+	private CharSequence title = "Oops!";
 	private ViewGroup dialogView;
 	private Typeface boldFont;
 	private Typeface lightFont;
+	private CharSequence buttonText = "Dismiss";
 
 	public NotificationDialog2(Context context, CharSequence message) {
 		super(context, R.style.PopUpDialog);
@@ -62,6 +60,7 @@ public class NotificationDialog2 extends Dialog {
 				dismiss();
 			}
 		});
+		dismissView.setText(buttonText);
 		
 		Font.setTypeface(boldFont, titleView, dismissView);
 		Font.setTypeface(lightFont, messageView);
@@ -75,8 +74,12 @@ public class NotificationDialog2 extends Dialog {
 	    this.actionListener = listener;
 	}
 	
-	public void setTitle(String title) {
+	public void setTitle(CharSequence title) {
 		this.title = title;
+	}
+	
+	public void setButtonText(CharSequence buttonText) {
+		this.buttonText = buttonText;
 	}
 
 }

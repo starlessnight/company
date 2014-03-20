@@ -143,7 +143,6 @@
 		            android:layout_marginLeft="10dp" 
 		      	    android:layout_marginRight="10dp" 
 		            android:text="@string/signup"
-		            android:enabled="false"
 		            android:textColor="@android:color/white"
 		            android:textSize="@dimen/smaller_font"
 		            android:paddingTop="10dp"

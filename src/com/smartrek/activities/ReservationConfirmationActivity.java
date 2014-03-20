@@ -220,7 +220,7 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 				SessionM.logAction("make_reservation");
 				
 				NotificationDialog2 dialog = new NotificationDialog2(ReservationConfirmationActivity.this, "You have successfully reserved a route.");
-				dialog.setTitle(NotificationDialog2.NOTIFICATION);
+				dialog.setTitle("Notification");
 				dialog.setActionListener(new NotificationDialog2.ActionListener() {
                     
                     @Override

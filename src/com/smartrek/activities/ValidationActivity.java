@@ -1786,7 +1786,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						+ "\">tell us why?</a>");
 		NotificationDialog2 dialog = new NotificationDialog2(
 				ValidationActivity.this, msg);
-		dialog.setTitle(NotificationDialog2.NOTIFICATION);
+		dialog.setTitle("Notification");
 		dialog.setActionListener(new NotificationDialog2.ActionListener() {
 			@Override
 			public void onClickDismiss() {

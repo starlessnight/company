@@ -1078,7 +1078,7 @@ public final class LandingActivity2 extends FragmentActivity {
                     if(alertAvailability){
                         CharSequence msg = Html.fromHtml(result.html);
                         NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, msg);
-                        dialog.setTitle(NotificationDialog2.NOTIFICATION);
+                        dialog.setTitle("Notification");
                         try{
                             dialog.show();
                         }catch(Throwable t){}

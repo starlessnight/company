@@ -1,5 +1,8 @@
 package com.smartrek.activities;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
 import android.app.AlertDialog;
@@ -26,6 +29,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.User;
 import com.smartrek.requests.UserRegistrationRequest;
 import com.smartrek.utils.Dimension;
@@ -79,6 +83,7 @@ public final class UserRegistrationActivity extends FragmentActivity
 
 			@Override
 			public void onClick(View view) {
+				resetEditText();
 			    if(Misc.isAddGoogleAccount(UserRegistrationActivity.this)){
 		            Misc.showGoogleAccountDialog(UserRegistrationActivity.this);
 		        }else{
@@ -122,31 +127,23 @@ public final class UserRegistrationActivity extends FragmentActivity
     	
     	String firstname = editTextFirstname.getText().toString().trim();
     	String lastname = editTextLastname.getText().toString().trim();
+    	List<EditText> missInfoEditText = new ArrayList<EditText>();
     	// TODO: Check firstname and lastname
-    	
     	if (firstname.equals("")) {
-    		ehs.reportException("Please enter your first name.");
-    		setEditTextAlert(editTextFirstname);
-    		return false;
+    		missInfoEditText.add(editTextFirstname);
     	}
     	if (lastname.equals("")) {
-    		ehs.reportException("Please enter your last name.");
-    		setEditTextAlert(editTextLastname);
-    		return false;
+    		missInfoEditText.add(editTextLastname);
     	}
     	
     	String zipCode = editTextZipCode.getText().toString().trim();
     	if(zipCode.equals("")) {
-    		ehs.reportException("Please enter your zip code.");
-    		setEditTextAlert(editTextZipCode);
-    		return false;
+    		missInfoEditText.add(editTextZipCode);
     	}
     	
     	String email = editTextEmail.getText().toString().trim();
     	if (email.equals("")) {
-    		ehs.reportException("Please enter your email address.");
-    		setEditTextAlert(editTextEmail);
-    		return false;
+    		missInfoEditText.add(editTextEmail);
     	}
     	// TODO: Validate email address
     	
@@ -154,36 +151,51 @@ public final class UserRegistrationActivity extends FragmentActivity
     	String passwordConfirm = editTextPasswordConfirm.getText().toString().trim();
     	
     	if(password.equals("")) {
-    		ehs.reportException("Please enter your password.");
-    		setEditTextAlert(editTextPassword);
-    		return false;
+    		missInfoEditText.add(editTextPassword);
     	}
     	
     	if (!password.equals(passwordConfirm)) {
-    		ehs.reportException("The two passwords you entered do not match.");
-    		setEditTextAlert(editTextPasswordConfirm);
-    		return false;
+    		missInfoEditText.add(editTextPasswordConfirm);
     	}
     	
-    	User user = new User();
-    	user.setUsername("");
-    	user.setFirstname(firstname);
-    	user.setLastname(lastname);
-    	user.setEmail(email);
-    	user.setPassword(password);
-    	user.setZipCode(zipCode);
-    	
-		new UserRegistrationTask(this).execute(user);
-		
-		return true;
+    	if(missInfoEditText.isEmpty()) {
+	    	User user = new User();
+	    	user.setUsername("");
+	    	user.setFirstname(firstname);
+	    	user.setLastname(lastname);
+	    	user.setEmail(email);
+	    	user.setPassword(password);
+	    	user.setZipCode(zipCode);
+			new UserRegistrationTask(this).execute(user);
+			return true;
+    	}
+    	else {
+    		showMissingInfoMessage();
+    		setEditTextAlert(missInfoEditText);
+    		return false;
+    	}
     }
     
-    private void setEditTextAlert(EditText edit) {
-    	edit.setBackgroundResource(R.drawable.alert_registration_text_field);
-    	edit.setPadding(Dimension.dpToPx(15, getResources().getDisplayMetrics()), 
-    			Dimension.dpToPx(10, getResources().getDisplayMetrics()), 
-    			Dimension.dpToPx(15, getResources().getDisplayMetrics()), 
-    			Dimension.dpToPx(10, getResources().getDisplayMetrics()));
+    private void setEditTextAlert(List<EditText> edits) {
+    	for(EditText edit : edits) {
+	    	edit.setBackgroundResource(R.drawable.alert_registration_text_field);
+	    	edit.setPadding(Dimension.dpToPx(15, getResources().getDisplayMetrics()), 
+	    			Dimension.dpToPx(10, getResources().getDisplayMetrics()), 
+	    			Dimension.dpToPx(15, getResources().getDisplayMetrics()), 
+	    			Dimension.dpToPx(10, getResources().getDisplayMetrics()));
+    	}
+    }
+    
+    private void resetEditText() {
+    	EditText[] edits = new EditText[] { editTextFirstname, editTextLastname, editTextZipCode, 
+    			editTextEmail, editTextPassword, editTextPasswordConfirm};
+    	for(EditText edit : edits) {
+	    	edit.setBackgroundResource(R.drawable.registration_text_field);
+	    	edit.setPadding(Dimension.dpToPx(15, getResources().getDisplayMetrics()), 
+	    			Dimension.dpToPx(10, getResources().getDisplayMetrics()), 
+	    			Dimension.dpToPx(15, getResources().getDisplayMetrics()), 
+	    			Dimension.dpToPx(10, getResources().getDisplayMetrics()));
+    	}
     }
     
     private SpannableString getTermsDescription(final Context ctx) {
@@ -209,6 +221,13 @@ public final class UserRegistrationActivity extends FragmentActivity
         termsString.setSpan(privacyPolicy, 67, 81, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return termsString;
 	}
+    
+    private void showMissingInfoMessage() {
+    	NotificationDialog2 dialog = new NotificationDialog2(UserRegistrationActivity.this, "Please complete the fields marked in red");
+    	dialog.setTitle("Missing some stuff");
+    	dialog.setButtonText("OK");
+    	dialog.show();
+    }
 
     private class UserRegistrationTask extends AsyncTask<Object, Object, User> {
     	
@@ -296,13 +315,13 @@ public final class UserRegistrationActivity extends FragmentActivity
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        boolean enabled = true;
-        EditText[] inputs = {editTextEmail, editTextFirstname, editTextLastname, 
-            editTextPassword, editTextPasswordConfirm, editTextZipCode};
-        for (EditText input : inputs) {
-            enabled &= StringUtils.isNotBlank(input.getText());
-        }
-        buttonRegister.setEnabled(enabled);
+//        boolean enabled = true;
+//        EditText[] inputs = {editTextEmail, editTextFirstname, editTextLastname, 
+//            editTextPassword, editTextPasswordConfirm, editTextZipCode};
+//        for (EditText input : inputs) {
+//            enabled &= StringUtils.isNotBlank(input.getText());
+//        }
+//        buttonRegister.setEnabled(enabled);
     }
     
     @Override
