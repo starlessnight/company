@@ -253,7 +253,7 @@ public class ContactsSelectActivity extends FragmentActivity {
                     .findViewById(R.id.contactInfo);
             Font.setTypeface(boldFont, contactInfo);
             Contact item = getItem(position);
-            ToggleButton selectButton = (ToggleButton) view.findViewById(R.id.contact_select_button);
+            final ToggleButton selectButton = (ToggleButton) view.findViewById(R.id.contact_select_button);
             selectButton.setTag(item.email);
             if(selectedContactEmails.contains(item.email)) {
                 selectButton.setChecked(true);
@@ -273,6 +273,12 @@ public class ContactsSelectActivity extends FragmentActivity {
                     else {
                         selectedContactEmails.remove(email);
                     }
+                }
+            });
+            view.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    selectButton.setChecked(!selectButton.isChecked());
                 }
             });
             
