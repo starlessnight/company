@@ -52,7 +52,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -347,6 +349,8 @@ public final class LandingActivity2 extends FragmentActivity {
                 intent.putExtra("route", reserv.getRoute());
                 intent.putExtra("reservation", reserv);
                 startActivity(intent);
+                findViewById(R.id.trip_panel).setVisibility(View.GONE);
+                relayoutIcons();
             }
         });
         TextView rescheBtn = (TextView) findViewById(R.id.reschedule_button);
@@ -390,6 +394,8 @@ public final class LandingActivity2 extends FragmentActivity {
                     protected void onPostExecute(GeoPoint gp) {
                         if(gp != null){
                             startRouteActivity(addr, gp);
+                            findViewById(R.id.trip_panel).setVisibility(View.GONE);
+                            relayoutIcons();
                         }
                     }
                 };
@@ -438,7 +444,6 @@ public final class LandingActivity2 extends FragmentActivity {
                     }
                };
                Misc.parallelExecute(task);
-               hideBalloonPanel();
                removePOIMarker(mapView);
             }
         });
@@ -449,7 +454,8 @@ public final class LandingActivity2 extends FragmentActivity {
                 startRouteActivity(model.address, model.geopoint);
                 hideStarredBalloon();
                 hideBulbBalloon();
-                removePOIMarker(mapView); 
+                removePOIMarker(mapView);
+                resizeMap(true);
             }
         });
         
@@ -490,7 +496,6 @@ public final class LandingActivity2 extends FragmentActivity {
                     };
                     Misc.parallelExecute(task);
                     removePOIMarker(mapView);
-                    hideBalloonPanel();
 		        }
 		    }
 	    });
@@ -519,6 +524,7 @@ public final class LandingActivity2 extends FragmentActivity {
                 if(carIcon.getVisibility() == View.VISIBLE){
                     tripPanel.setVisibility(tripPanel.getVisibility() == View.GONE?View.VISIBLE:View.GONE);
                     onTheWayPanel.setVisibility(View.GONE);
+                    relayoutIcons();
                 }
             }
         };
@@ -532,6 +538,7 @@ public final class LandingActivity2 extends FragmentActivity {
                 if(onTheWayIcon.getVisibility() == View.VISIBLE){
                     onTheWayPanel.setVisibility(onTheWayPanel.getVisibility() == View.GONE?View.VISIBLE:View.GONE);
                     tripPanel.setVisibility(View.GONE);
+                    relayoutIcons();
                 }
             }
         });
@@ -550,6 +557,29 @@ public final class LandingActivity2 extends FragmentActivity {
             tripDetails, getGoingBtn, rescheBtn, (TextView)findViewById(R.id.header_text),
             (TextView)findViewById(R.id.menu_bottom_text),
             (TextView)findViewById(R.id.on_the_way_msg), onTheWayBtn);
+    }
+    
+    private void relayoutIcons(){
+        View mapView = findViewById(R.id.mapview);
+        Boolean collapsedTag = (Boolean) mapView.getTag();
+        boolean collapsed = collapsedTag == null?true:collapsedTag.booleanValue();
+        View tripPanel = findViewById(R.id.trip_panel);
+        View onTheWayPanel = findViewById(R.id.on_the_way_panel);
+        View balloonView = (View) findViewById(R.id.balloon_panel);
+        int bottomMargin = tripPanel.getVisibility() == View.GONE && onTheWayPanel.getVisibility() == View.GONE
+            && balloonView.getVisibility() == View.GONE ?(collapsed?53:10):135;
+        View centerMapIcon = findViewById(R.id.center_map_icon);
+        RelativeLayout.LayoutParams centerMapIconLp = (RelativeLayout.LayoutParams) centerMapIcon.getLayoutParams();
+        centerMapIconLp.bottomMargin = Dimension.dpToPx(bottomMargin, getResources().getDisplayMetrics());
+        centerMapIcon.setLayoutParams(centerMapIconLp);
+        View menuIcon = findViewById(R.id.drawer_menu_icon);
+        FrameLayout.LayoutParams menuIconLp = (FrameLayout.LayoutParams) menuIcon.getLayoutParams();
+        menuIconLp.bottomMargin = Dimension.dpToPx(bottomMargin, getResources().getDisplayMetrics());
+        menuIcon.setLayoutParams(menuIconLp);
+        View openedMenuIcon = findViewById(R.id.drawer_menu_icon_opened);
+        LinearLayout.LayoutParams openedMenuIconLp = (LinearLayout.LayoutParams) openedMenuIcon.getLayoutParams();
+        openedMenuIconLp.bottomMargin = Dimension.dpToPx(bottomMargin, getResources().getDisplayMetrics());
+        openedMenuIcon.setLayoutParams(openedMenuIconLp);
     }
     
     private void searchAddress(final String addr, final boolean zoomIn){
@@ -965,6 +995,7 @@ public final class LandingActivity2 extends FragmentActivity {
                                     hideStarredBalloon();
                                     hideBulbBalloon();
                                     removePOIMarker(mapView);
+                                    resizeMap(true);
                                     return true;
                                 }
                                 @Override
@@ -989,6 +1020,7 @@ public final class LandingActivity2 extends FragmentActivity {
                                     balloonView.setVisibility(View.VISIBLE);
                                     hideBottomBar();
                                     mapView.postInvalidate();
+                                    relayoutIcons();
                                     return true;
                                 }
                                 @Override
@@ -1214,8 +1246,6 @@ public final class LandingActivity2 extends FragmentActivity {
                 ReverseGeocodingTask task = new ReverseGeocodingTask(lat, lon){
                     @Override
                     protected void onPostExecute(String result) {
-                        hideStarredBalloon();
-                        hideBulbBalloon();
                         refreshPOIMarker(mapView, lat, lon, result, "");
                     }
                 };
@@ -1227,26 +1257,32 @@ public final class LandingActivity2 extends FragmentActivity {
                 boolean handledBulb = hideBulbBalloon();
                 boolean handledPOI = removePOIMarker(mapView);
                 if(!handledStarred && !handledBulb && !handledPOI){
-                    Boolean collapsedTag = (Boolean) mapView.getTag();
-                    boolean collapsed = collapsedTag == null?true:collapsedTag.booleanValue();
-                    mapView.setTag(!collapsed);
-                    findViewById(R.id.header_panel).setVisibility(collapsed?View.GONE:View.VISIBLE);
-                    int centerMapIconBottomMargin;
-                    if(collapsed){
-                        hideBottomBar();
-                        centerMapIconBottomMargin = 10;
-                    }else{
-                        findViewById(R.id.bottom_bar).setVisibility(View.VISIBLE);
-                        centerMapIconBottomMargin = 48;
-                    }
-                    View centerMapIcon = findViewById(R.id.center_map_icon);
-                    RelativeLayout.LayoutParams centerMapIconLp = (RelativeLayout.LayoutParams) centerMapIcon.getLayoutParams();
-                    centerMapIconLp.bottomMargin = Dimension.dpToPx(centerMapIconBottomMargin, getResources().getDisplayMetrics());
-                    centerMapIcon.setLayoutParams(centerMapIconLp);
+                    resizeMap(!isMapCollapsed());
+                }else{
+                    relayoutIcons();
                 }
             }
         });
         mapView.getOverlays().add(eventOverlay);
+    }
+    
+    private boolean isMapCollapsed(){
+        View mapView = findViewById(R.id.mapview);
+        Boolean collapsedTag = (Boolean) mapView.getTag();
+        boolean collapsed = collapsedTag == null?true:collapsedTag.booleanValue();
+        return collapsed;
+    }
+    
+    private void resizeMap(boolean collapsed){
+        View mapView = findViewById(R.id.mapview);
+        mapView.setTag(collapsed);
+        findViewById(R.id.header_panel).setVisibility(collapsed?View.VISIBLE:View.GONE);
+        if(collapsed){
+            findViewById(R.id.bottom_bar).setVisibility(View.VISIBLE);
+        }else{
+            hideBottomBar();
+        }
+        relayoutIcons();
     }
     
     private static abstract class ReverseGeocodingTask extends AsyncTask<Void, Void, String> {
@@ -1343,6 +1379,7 @@ public final class LandingActivity2 extends FragmentActivity {
         balloonView.setTag(model);
         balloonView.setVisibility(View.VISIBLE);
         hideBottomBar();
+        relayoutIcons();
     }
     
     private boolean isBalloonPanelVisible(){
@@ -1391,7 +1428,8 @@ public final class LandingActivity2 extends FragmentActivity {
                     startRouteActivity(l.addr, gp);
                     hideStarredBalloon();
                     hideBulbBalloon();
-                    removePOIMarker(mapView); 
+                    removePOIMarker(mapView);
+                    resizeMap(true);
                     return true;
                 }
                 @Override
@@ -1413,6 +1451,7 @@ public final class LandingActivity2 extends FragmentActivity {
                     balloonView.setVisibility(View.VISIBLE);
                     hideBottomBar();
                     mapView.postInvalidate();
+                    relayoutIcons();
                     return true;
                 }
                 @Override

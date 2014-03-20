@@ -28,7 +28,10 @@
 		        android:layout_height="wrap_content"
 		        android:text="address"
 		        android:textColor="@android:color/black"
-		        android:paddingBottom="5dp"/>
+		        android:paddingBottom="5dp"
+		        android:maxLines="2"
+		        android:lines="2"
+		    />
 		    <LinearLayout
 			    	android:layout_height="wrap_content" 
 			    	android:layout_width="match_parent"

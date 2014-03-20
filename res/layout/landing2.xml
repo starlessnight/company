@@ -104,7 +104,7 @@
 			    	    android:layout_alignParentRight="true"
 			    	    android:layout_alignParentBottom="true"
 			    	    android:layout_marginRight="10dp"
-			    	    android:layout_marginBottom="48dp"
+			    	    android:layout_marginBottom="53dp"
 					/>
 			    	
 			      <FrameLayout 
@@ -303,7 +303,7 @@
 	    	    android:layout_height="wrap_content"
 	    	    android:src="@drawable/drawer_menu_icon"
 				android:layout_gravity="bottom|left"
-	    	    android:layout_marginBottom="125dp"
+	    	    android:layout_marginBottom="53dp"
 			/>
 		</FrameLayout>
 	
@@ -452,7 +452,7 @@
 	   	    android:layout_height="wrap_content"
 	   	    android:src="@drawable/drawer_menu_icon"
 	   	   	android:layout_gravity="bottom"
-	   	    android:layout_marginBottom="125dp"
+	   	    android:layout_marginBottom="53dp"
 		/>
     </LinearLayout>
 </android.support.v4.widget.DrawerLayout>
