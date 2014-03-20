@@ -548,6 +548,16 @@ public final class LandingActivity2 extends FragmentActivity {
         osmCreditLp.bottomMargin = Dimension.dpToPx(48, getResources().getDisplayMetrics());
         osmCredit.setLayoutParams(osmCreditLp);
         
+        OnClickListener noopClick = new OnClickListener() {
+            @Override
+            public void onClick(View v) {}
+        };
+        findViewById(R.id.header_panel).setOnClickListener(noopClick);
+        findViewById(R.id.bottom_bar).setOnClickListener(noopClick);
+        findViewById(R.id.left_drawer).setOnClickListener(noopClick);
+        tripPanel.setOnClickListener(noopClick);
+        onTheWayPanel.setOnClickListener(noopClick);
+        
         scheduleNextTripInfoUpdates();
         
         AssetManager assets = getAssets();
