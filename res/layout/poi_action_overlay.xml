@@ -4,9 +4,9 @@
 	    android:layout_height="wrap_content"
 	    android:layout_width="match_parent"
 	    android:minHeight="100dp"
-	    android:paddingLeft="10dp"
-	    android:paddingRight="10dp"
-	    android:paddingTop="7dp"
+	    android:paddingLeft="15dp"
+	    android:paddingTop="15dp"
+	    android:paddingBottom="15dp"
 		android:background="#DDD1D3D4"
 	    android:id="@+id/balloon_main_layout">
 	<LinearLayout 
@@ -21,7 +21,7 @@
 		    	android:layout_weight="1"
 		    	android:paddingTop="5dp"
 		    	android:paddingLeft="5dp"
-		    	android:paddingRight="5dp">
+		    	android:paddingRight="15dp">
 	    	<TextView
 		        android:id="@+id/address"
 		        android:layout_width="match_parent"
@@ -38,14 +38,14 @@
 			    	android:layout_marginBottom="10dp">
 			    <ImageView
 			        android:id="@+id/saveOrDelete"
-		        	android:layout_height="wrap_content"
-		        	android:layout_width="wrap_content" 
+		        	android:layout_height="40dp"
+		        	android:layout_width="40dp" 
 		        	android:src="@drawable/star_poi"
 		        	android:layout_gravity="center"
 			    />
 			    <EditText
 			        android:id="@+id/label"
-			        android:layout_height="wrap_content"
+			        android:layout_height="30dp"
 		        	android:layout_width="match_parent"
 		        	android:hint="Label Here..."
 		        	android:layout_gravity="center_vertical"
@@ -64,34 +64,14 @@
 		    android:layout_marginTop="5dp"
 		    android:layout_marginBottom="5dp"/>
 		
-		<LinearLayout
+		<ImageView 
 		    android:id="@+id/get_going"
-		    android:layout_height="fill_parent"
-		    android:layout_width="wrap_content"
-		    android:paddingTop="10dp"
-		    android:paddingLeft="5dp"
-		    android:paddingBottom="10dp"
-		    android:orientation="vertical">
-		    
-		    <ImageView 
-		        android:layout_width="wrap_content"
-		        android:layout_height="0dp"
-		        android:layout_weight="1"
-		        android:src="@drawable/get_going"
-		        android:gravity="bottom"
-		        android:layout_gravity="center|bottom"
-		        />
-		    
-		    <TextView
-			    android:layout_width="wrap_content"
-			    android:layout_height="0dp"
-			    android:layout_weight="1"
-			    android:text="Get Going"
-			    android:textColor="#54AFD0"
-			    android:gravity="top"
-			    android:layout_gravity="center|top"
-		     />
-		</LinearLayout>
+		    android:layout_height="38dp"
+		    android:layout_width="70dp"
+		    android:layout_marginLeft="11dp"
+		    android:layout_marginRight="11dp"
+		    android:src="@drawable/get_going_next"
+		    android:layout_gravity="center"/>
 		
 	</LinearLayout>
 </FrameLayout>
