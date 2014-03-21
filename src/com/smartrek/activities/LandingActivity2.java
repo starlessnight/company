@@ -462,12 +462,37 @@ public final class LandingActivity2 extends FragmentActivity {
         balloonView.findViewById(R.id.get_going).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BalloonModel model = (BalloonModel) balloonView.getTag();
+                final BalloonModel model = (BalloonModel) balloonView.getTag();
                 startRouteActivity(model.address, model.geopoint);
                 hideStarredBalloon();
                 hideBulbBalloon();
                 removePOIMarker(mapView);
                 resizeMap(true);
+                final String lbl = ((EditText)balloonView.findViewById(R.id.label)).getText().toString();
+                if(model.id == 0 && StringUtils.isNotBlank(lbl)){
+                    final String addr = ((TextView)balloonView.findViewById(R.id.address)).getText().toString();
+                    AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>(){
+                        @Override
+                        protected Integer doInBackground(Void... params) {
+                            Integer id = null;
+                            User user = User.getCurrentUser(LandingActivity2.this);
+                            try {
+                                FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
+                                    user, lbl, addr, model.lat, model.lon);
+                                id = request.execute(LandingActivity2.this);
+                            }
+                            catch (Exception e) {
+                            }
+                            return id;
+                        }
+                        protected void onPostExecute(Integer id) {
+                            if (!ehs.hasExceptions()) {
+                                refreshStarredPOIs();
+                            }
+                        }
+                   };
+                   Misc.parallelExecute(task);
+                }
             }
         });
         
