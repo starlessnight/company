@@ -410,17 +410,19 @@ public final class LandingActivity2 extends FragmentActivity {
                 final String lbl = ((EditText)balloonView.findViewById(R.id.label)).getText().toString();
                 final String addr = ((TextView)balloonView.findViewById(R.id.address)).getText().toString();
                 final BalloonModel model = (BalloonModel) balloonView.getTag();
-                AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+                final boolean isSave = model.id == 0;
+                AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>(){
                     @Override
-                    protected Void doInBackground(Void... params) {
+                    protected Integer doInBackground(Void... params) {
+                        Integer id = null;
                         Request req = null;
                         User user = User.getCurrentUser(LandingActivity2.this);
                         try {
-                            if (model.id == 0){
+                            if (isSave){
                                 FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
                                     user, lbl, addr, model.lat, model.lon);
                                 req = request;
-                                request.execute(LandingActivity2.this);
+                                id = request.execute(LandingActivity2.this);
                             }
                             else {
                             	FavoriteAddressDeleteRequest request = new FavoriteAddressDeleteRequest(
@@ -432,19 +434,29 @@ public final class LandingActivity2 extends FragmentActivity {
                         catch (Exception e) {
                             ehs.registerException(e, "[" + (req==null?"":req.getUrl()) + "]\n" + e.getMessage());
                         }
-                        return null;
+                        return id;
                     }
-                    protected void onPostExecute(Void result) {
+                    protected void onPostExecute(Integer id) {
                         if (ehs.hasExceptions()) {
                             ehs.reportExceptions();
                         }
                         else {
                             refreshStarredPOIs();
+                            if(isSave){
+                                removePOIMarker(mapView);
+                                balloonView.setVisibility(View.VISIBLE);
+                                hideBottomBar();
+                                model.id = id;
+                                ImageView saveOrDelView = (ImageView)balloonView.findViewById(R.id.saveOrDelete);
+                                saveOrDelView.setImageResource(R.drawable.star_poi);
+                            }else{
+                                model.id = 0;
+                                refreshPOIMarker(mapView, model.lat, model.lon, addr, lbl);
+                            }
                         }
                     }
                };
                Misc.parallelExecute(task);
-               removePOIMarker(mapView);
             }
         });
         balloonView.findViewById(R.id.get_going).setOnClickListener(new View.OnClickListener() {
