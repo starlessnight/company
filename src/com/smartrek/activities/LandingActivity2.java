@@ -1279,7 +1279,15 @@ public final class LandingActivity2 extends FragmentActivity {
                 boolean handledBulb = hideBulbBalloon();
                 boolean handledPOI = removePOIMarker(mapView);
                 if(!handledStarred && !handledBulb && !handledPOI){
-                    resizeMap(!isMapCollapsed());
+                    View tripPanel = findViewById(R.id.trip_panel);
+                    View onTheWayPanel = findViewById(R.id.on_the_way_panel);
+                    if(tripPanel.getVisibility() == View.VISIBLE || onTheWayPanel.getVisibility() == View.VISIBLE){
+                        tripPanel.setVisibility(View.GONE);
+                        onTheWayPanel.setVisibility(View.GONE);
+                        relayoutIcons();
+                    }else{
+                        resizeMap(!isMapCollapsed());
+                    }
                 }else{
                     relayoutIcons();
                 }
