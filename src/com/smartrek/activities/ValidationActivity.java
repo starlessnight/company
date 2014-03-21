@@ -1111,6 +1111,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     @Override
                     protected void onPostExecute(Route result) {
                         navigationView.setRerouting(false);
+                        routeOfRouteCnt.set(0);
                         if(result != null){
                             passedNodeTimeOffset.addAndGet(passedTime);
                             reroute = result;
@@ -1118,7 +1119,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                             routeRect = initRouteRect(reroute);
                             updateDirectionsList();
                             drawRoute(mapView, reroute, 0);
-                            routeOfRouteCnt.set(0);
                         }
                     }
                 };
