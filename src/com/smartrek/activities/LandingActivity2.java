@@ -358,20 +358,6 @@ public final class LandingActivity2 extends FragmentActivity {
             @Override
             public void onClick(View v) {
                 final Reservation reserv = (Reservation) findViewById(R.id.trip_panel).getTag();
-                AsyncTask<Void, Void, Void> delTask = new AsyncTask<Void, Void, Void>(){
-                    @Override
-                    protected Void doInBackground(Void... params) {
-                        ReservationDeleteRequest request = new ReservationDeleteRequest(
-                            User.getCurrentUser(LandingActivity2.this), reserv.getRid());
-                        try {
-                            request.execute(LandingActivity2.this);
-                        }
-                        catch (Exception e) {
-                        }
-                        return null;
-                    }
-                };
-                Misc.parallelExecute(delTask);
                 final String addr = reserv.getDestinationAddress();
                 AsyncTask<Void, Void, GeoPoint> geoCodeTask = new AsyncTask<Void, Void, GeoPoint>(){
                     @Override
@@ -393,7 +379,16 @@ public final class LandingActivity2 extends FragmentActivity {
                     @Override
                     protected void onPostExecute(GeoPoint gp) {
                         if(gp != null){
-                            startRouteActivity(addr, gp);
+                            Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
+                            intent.putExtra(RouteActivity.CURRENT_LOCATION, true);
+                            Bundle extras = new Bundle();
+                            extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
+                            extras.putString("originAddr", EditAddress.CURRENT_LOCATION);
+                            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(0, 0 ));
+                            extras.putString("destAddr", addr);
+                            extras.putParcelable(RouteActivity.DEST_COORD, gp);
+                            intent.putExtras(extras);
+                            startActivity(intent);
                             findViewById(R.id.trip_panel).setVisibility(View.GONE);
                             relayoutIcons();
                         }

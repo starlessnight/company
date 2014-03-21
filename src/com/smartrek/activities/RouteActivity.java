@@ -54,6 +54,7 @@ import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
+import com.smartrek.requests.ReservationDeleteRequest;
 import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.requests.ReservationRequest;
 import com.smartrek.requests.RouteFetchRequest;
@@ -117,6 +118,8 @@ public final class RouteActivity extends FragmentActivity {
     public static final String CURRENT_LOCATION = "CURRENT_LOCATION";
     
     public static final String RESERVATION = "reservation";
+    
+    public static final String RESCHEDULE_RESERVATION_ID = "RESCHEDULE_RESERVATION_ID";
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
@@ -612,6 +615,8 @@ public final class RouteActivity extends FragmentActivity {
             destView.setText(destAddr);
         }
         
+        rescheduleReservId = extras.getLong(RESCHEDULE_RESERVATION_ID);
+        
         final TextView reserveView = (TextView) findViewById(R.id.reserve);
         reserveView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -653,6 +658,7 @@ public final class RouteActivity extends FragmentActivity {
                             ehs.reportExceptions();
                         }
                         else {
+                            deleteRescheduledReservation();
                             ReservationConfirmationActivity.scheduleNotification(RouteActivity.this, result, route);
                             
                             if(route.isFake()){
@@ -751,6 +757,7 @@ public final class RouteActivity extends FragmentActivity {
             @Override
             public void onClick(View v) {
                 if(hasReserv){
+                    deleteRescheduledReservation();
                     Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
                     intent.putExtra("route", reservation.getRoute());
                     intent.putExtra("reservation", reservation);
@@ -763,6 +770,7 @@ public final class RouteActivity extends FragmentActivity {
                         @Override
                         public void run(Reservation reservation) {
                             if(reservation.isEligibleTrip()){
+                                deleteRescheduledReservation();
                                 Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
                                 intent.putExtra("route", reservation.getRoute());
                                 intent.putExtra("reservation", reservation);
@@ -828,6 +836,27 @@ public final class RouteActivity extends FragmentActivity {
         Font.setTypeface(lightFont, destView, onMyWayView, letsGoView, reserveView,
             backButton, (TextView)findViewById(R.id.departure_row), durationRow,
             (TextView)findViewById(R.id.mpoint_row));
+    }
+    
+    private long rescheduleReservId;
+    
+    private void deleteRescheduledReservation(){
+        if(rescheduleReservId > 0){
+            AsyncTask<Void, Void, Void> delTask = new AsyncTask<Void, Void, Void>(){
+                @Override
+                protected Void doInBackground(Void... params) {
+                    ReservationDeleteRequest request = new ReservationDeleteRequest(
+                        User.getCurrentUser(RouteActivity.this), rescheduleReservId);
+                    try {
+                        request.execute(RouteActivity.this);
+                    }
+                    catch (Exception e) {
+                    }
+                    return null;
+                }
+            };
+            Misc.parallelExecute(delTask);
+        }
     }
     
     public static void setViewToNorthAmerica(MapView mapView){
@@ -1139,6 +1168,7 @@ public final class RouteActivity extends FragmentActivity {
         if(requestCode == ON_MY_WAY && resultCode == Activity.RESULT_OK) {
         	final String emails = extras.getString(ValidationActivity.EMAILS);
         	if(hasReserv){
+        	    deleteRescheduledReservation();
                 Intent validationActivity = new Intent(RouteActivity.this, ValidationActivity.class);
                 validationActivity.putExtra("route", reservation.getRoute());
                 validationActivity.putExtra("reservation", reservation);
@@ -1153,6 +1183,7 @@ public final class RouteActivity extends FragmentActivity {
                     @Override
                     public void run(Reservation reservation) {
                         if(reservation.isEligibleTrip()){
+                            deleteRescheduledReservation();
                             Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
                             intent.putExtra("route", reservation.getRoute());
                             intent.putExtra("reservation", reservation);
