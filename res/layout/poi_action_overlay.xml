@@ -43,7 +43,7 @@
 			        android:id="@+id/saveOrDelete"
 		        	android:layout_height="40dp"
 		        	android:layout_width="40dp" 
-		        	android:src="@drawable/star_poi"
+		        	android:src="@drawable/delete_star_poi"
 		        	android:layout_gravity="center"
 			    />
 			    <EditText

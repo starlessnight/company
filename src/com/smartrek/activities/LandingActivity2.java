@@ -442,7 +442,7 @@ public final class LandingActivity2 extends FragmentActivity {
                                 hideBottomBar();
                                 model.id = id;
                                 ImageView saveOrDelView = (ImageView)balloonView.findViewById(R.id.saveOrDelete);
-                                saveOrDelView.setImageResource(R.drawable.star_poi);
+                                saveOrDelView.setImageResource(R.drawable.delete_star_poi);
                             }else{
                                 model.id = 0;
                                 refreshPOIMarker(mapView, model.lat, model.lon, addr, lbl);
@@ -1056,7 +1056,7 @@ public final class LandingActivity2 extends FragmentActivity {
                                     TextView labelView = ((TextView)balloonView.findViewById(R.id.label));
                                     labelView.setText(a.getName());
                                     ImageView startImg = (ImageView) balloonView.findViewById(R.id.saveOrDelete);
-                                    startImg.setImageResource(R.drawable.star_poi);
+                                    startImg.setImageResource(R.drawable.delete_star_poi);
                                     balloonView.setTag(model);
                                     balloonView.setVisibility(View.VISIBLE);
                                     hideBottomBar();
