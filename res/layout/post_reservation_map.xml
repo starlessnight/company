@@ -41,7 +41,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:orientation="horizontal"
-        android:background="@color/navigation_bottom_gray" >
+        android:background="@drawable/top_shadow" >
         
         <FrameLayout 
             android:id="@+id/map_view_end_trip_btn"
@@ -50,10 +50,10 @@
 	    >
 	        
 	         <View 
-	             android:layout_width="match_parent"
-	             android:layout_height="match_parent"
+	             android:layout_width="20dp"
+	             android:layout_height="20dp"
 	             android:layout_gravity="center"
-	             android:background="@drawable/balloon_overlay_close"
+	             android:background="@drawable/close"
 	         />
         </FrameLayout>
         
@@ -66,8 +66,8 @@
 	         
 	         <ToggleButton
 	            android:id="@+id/volumn_control"
-	            android:layout_width="46dp"
-	            android:layout_height="38dp"
+	            android:layout_width="29dp"
+	            android:layout_height="24dp"
 	            android:background="@drawable/volumn_control_toggle"
 	            android:checked="true"
 	            android:textOff=""
@@ -83,18 +83,20 @@
             android:gravity="left|center_vertical"
             android:text="@string/placeholder"
             android:layout_weight="1"
+            android:textColor="@android:color/black"
             style="@style/MediumText"
 		/>
         
         <FrameLayout 
 	            android:id="@+id/menu_button"
-	            android:layout_width="40dp"
-	            android:layout_marginLeft="0dp"
+	            android:layout_width="wrap_content"
+	            android:paddingLeft="10dp"
+	            android:paddingRight="10dp"
 		        android:layout_height="match_parent"
 		        >
 	        <View
-	            android:layout_width="7dp"
-	            android:layout_height="30dp"
+	            android:layout_width="20dp"
+	            android:layout_height="17dp"
 	            android:background="@drawable/menu_button"
 	            android:layout_gravity="center" 
             />
@@ -310,7 +312,7 @@
 	        android:layout_alignParentBottom="true"
 	        android:layout_alignParentRight="true"
             android:orientation="vertical"
-            android:background="@color/navigation_menu_gray"
+            android:background="@color/transparent_light_gray"
             >
             
             <TextView 
@@ -321,7 +323,7 @@
 		        android:layout_marginBottom="5dp"
 	        	android:text="Route View"
 	        	android:textSize="@dimen/medium_font"
-       			android:textColor="@android:color/white"
+       			android:textColor="@android:color/black"
        			android:drawablePadding="10dp"
        			android:drawableLeft="@drawable/route_view"
        			android:drawableRight="@drawable/menu_right_arrow"
@@ -342,7 +344,7 @@
 		        android:layout_marginBottom="20dp"
 	        	android:text="Directions List"
 	        	android:textSize="@dimen/medium_font"
-       			android:textColor="@android:color/white"
+       			android:textColor="@android:color/black"
        			android:drawablePadding="10dp"
        			android:drawableLeft="@drawable/directions_list"
        			android:drawableRight="@drawable/menu_right_arrow"
