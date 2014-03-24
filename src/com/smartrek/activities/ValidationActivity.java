@@ -788,13 +788,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				.toString();
 		Log.d("menuStatus", currentStatus);
 		if ("open".equals(currentStatus)) {
-			menuButton.setBackgroundColor(getResources().getColor(
-					R.color.navigation_bottom_gray));
 			findViewById(R.id.menu_panel).setVisibility(View.INVISIBLE);
 			menuButton.setTag(R.id.menu_panel_status, "close");
 		} else {
-			menuButton.setBackgroundColor(getResources().getColor(
-					R.color.navigation_menu_gray));
 			findViewById(R.id.menu_panel).setVisibility(View.VISIBLE);
 			menuButton.setTag(R.id.menu_panel_status, "open");
 		}
