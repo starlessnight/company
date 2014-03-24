@@ -70,7 +70,6 @@ import com.smartrek.requests.FavoriteAddressDeleteRequest;
 import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.requests.FavoriteAddressUpdateRequest;
 import com.smartrek.requests.Request;
-import com.smartrek.requests.ReservationDeleteRequest;
 import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.requests.UpdateDeviceIdRequest;
 import com.smartrek.requests.WhereToGoRequest;
