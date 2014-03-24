@@ -337,6 +337,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 
 		lastLocChanged = SystemClock.elapsedRealtime();
+		
+		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
 		if (!isOnRecreate.get()) {
 			if (reservation.hasExpired()) {
