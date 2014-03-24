@@ -16,10 +16,12 @@ import com.smartrek.utils.Font;
 public class NotificationDialog2 extends Dialog {
 	
 	public interface ActionListener {
-        void onClickDismiss();
+        void onClick();
     }
     
-    private ActionListener actionListener;
+    private ActionListener positiveActionListener;
+    private ActionListener reportProblemActionListener;
+    private ActionListener negativeActionListener;
 	
 	private CharSequence message;
 	private CharSequence title = "Oops!";
@@ -54,13 +56,41 @@ public class NotificationDialog2 extends Dialog {
 		dismissView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if(actionListener != null) {
-					actionListener.onClickDismiss();
+				if(positiveActionListener != null) {
+					positiveActionListener.onClick();
 				}
 				dismiss();
 			}
 		});
 		dismissView.setText(buttonText);
+		
+		if(reportProblemActionListener != null) {
+			dialogView.findViewById(R.id.seperator2).setVisibility(View.VISIBLE);
+			TextView reportProblemView = (TextView) dialogView.findViewById(R.id.reportProblem);
+			reportProblemView.setVisibility(View.VISIBLE);
+			reportProblemView.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View arg0) {
+					reportProblemActionListener.onClick();
+					dismiss();
+				}
+		   });
+			Font.setTypeface(boldFont, reportProblemView);
+		}
+		
+		if(negativeActionListener != null) {
+		   dialogView.findViewById(R.id.seperator3).setVisibility(View.VISIBLE);
+		   TextView cancelView = (TextView) dialogView.findViewById(R.id.cancel);
+		   cancelView.setVisibility(View.VISIBLE);
+		   cancelView.setOnClickListener(new View.OnClickListener() {
+		       @Override
+			   public void onClick(View v) {
+		    	   negativeActionListener.onClick();
+			       dismiss();
+			   }
+		   });
+		   Font.setTypeface(boldFont, cancelView);
+		}
 		
 		Font.setTypeface(boldFont, titleView, dismissView);
 		Font.setTypeface(lightFont, messageView);
@@ -70,8 +100,8 @@ public class NotificationDialog2 extends Dialog {
 		super.onCreate(savedInstanceState);
 	}
 	
-	public void setActionListener(ActionListener listener) {
-	    this.actionListener = listener;
+	public void setPositiveActionListener(ActionListener listener) {
+	    this.positiveActionListener = listener;
 	}
 	
 	public void setTitle(CharSequence title) {
@@ -80,6 +110,15 @@ public class NotificationDialog2 extends Dialog {
 	
 	public void setButtonText(CharSequence buttonText) {
 		this.buttonText = buttonText;
+	}
+
+	public void setReportProblemActionListener(
+			ActionListener reportProblemActionListener) {
+		this.reportProblemActionListener = reportProblemActionListener;
+	}
+
+	public void setNegativeActionListener(ActionListener negativeActionListener) {
+		this.negativeActionListener = negativeActionListener;
 	}
 
 }

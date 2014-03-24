@@ -28,6 +28,7 @@ import org.osmdroid.tileprovider.util.CloudmadeUtil;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -128,6 +129,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private static final String GEO_POINT = "geoPoint";
 
 	public static final String EMAILS = "emails";
+	
+	public static final Integer REPORT_PROBLEM = new Integer(100);
 
 	private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 
@@ -245,9 +248,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				final boolean tripValidated = isTripValidated();
 				NotificationDialog2 dialog = new NotificationDialog2(
 						ValidationActivity.this, "Timed out!");
-				dialog.setActionListener(new NotificationDialog2.ActionListener() {
+				dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
 					@Override
-					public void onClickDismiss() {
+					public void onClick() {
 						if (tripValidated) {
 						    displayArrivalMsg();
 						}else if (!isFinishing()) {
@@ -343,10 +346,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				stopValidation.set(true);
 				NotificationDialog2 dialog = new NotificationDialog2(this,
 						getResources().getString(R.string.trip_has_expired));
-				dialog.setActionListener(new NotificationDialog2.ActionListener() {
+				dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
 
 					@Override
-					public void onClickDismiss() {
+					public void onClick() {
 						if (!isFinishing()) {
 							finish();
 						}
@@ -360,10 +363,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				NotificationDialog2 dialog = new NotificationDialog2(this,
 						getResources().getString(
 								R.string.trip_too_early_to_start, minutes));
-				dialog.setActionListener(new NotificationDialog2.ActionListener() {
+				dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
 
 					@Override
-					public void onClickDismiss() {
+					public void onClick() {
 						if (!isFinishing()) {
 							finish();
 						}
@@ -1467,6 +1470,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             }
         }else{
     		// Ask the user if they want to quit
+        	/*
     		new AlertDialog.Builder(this)
     			.setIcon(android.R.drawable.ic_dialog_alert)
     			.setTitle("Confirm")
@@ -1502,6 +1506,51 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     						}
     
     					}).show();
+    		*/
+        	NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "Points won't validate if exiting too soon. You sure?");
+        	dialog.setTitle("Exit?");
+        	dialog.setButtonText("OK");
+        	dialog.setNegativeActionListener(new NotificationDialog2.ActionListener() {
+				@Override
+				public void onClick() {
+					// do nothing
+				}
+			});
+        	dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
+
+				@Override
+				public void onClick() {
+					reportValidation();
+				    
+					// Stop the activity
+					if (!isTripValidated()) {
+						showValidationFailedDialog();
+						AsyncTask<Void, Void, Void> delTask = new AsyncTask<Void, Void, Void>(){
+		                    @Override
+		                    protected Void doInBackground(Void... params) {
+		                        ReservationDeleteRequest request = new ReservationDeleteRequest(
+		                            User.getCurrentUser(ValidationActivity.this), reservation.getRid());
+		                        try {
+		                            request.execute(ValidationActivity.this);
+		                        }
+		                        catch (Exception e) {
+		                        }
+		                        return null;
+		                    }
+		                };
+		                Misc.parallelExecute(delTask);
+					}
+				}
+			});
+        	
+        	dialog.setReportProblemActionListener(new NotificationDialog2.ActionListener() {
+				@Override
+				public void onClick() {
+					Intent intent = new Intent(ValidationActivity.this, ReportProblemActivity.class);
+					startActivityForResult(intent, REPORT_PROBLEM);
+				}
+			});
+        	dialog.show();
         }
 	}
 
@@ -1787,9 +1836,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		NotificationDialog2 dialog = new NotificationDialog2(
 				ValidationActivity.this, msg);
 		dialog.setTitle("Notification");
-		dialog.setActionListener(new NotificationDialog2.ActionListener() {
+		dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
 			@Override
-			public void onClickDismiss() {
+			public void onClick() {
 				if (!isFinishing()) {
 					finish();
 				}
@@ -1801,6 +1850,29 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     @Override
     public void onAudioFocusChange(int focusChange) {
         
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        Log.d("ValidationActivity", "Request Code : " + requestCode + " result Code : " + resultCode);
+        if(requestCode == REPORT_PROBLEM && resultCode == Activity.RESULT_OK) {
+        	showValidationFailedDialog();
+        	AsyncTask<Void, Void, Void> delTask = new AsyncTask<Void, Void, Void>(){
+                @Override
+                protected Void doInBackground(Void... params) {
+                    ReservationDeleteRequest request = new ReservationDeleteRequest(
+                        User.getCurrentUser(ValidationActivity.this), reservation.getRid());
+                    try {
+                        request.execute(ValidationActivity.this);
+                    }
+                    catch (Exception e) {
+                    }
+                    return null;
+                }
+            };
+            Misc.parallelExecute(delTask);
+        }
     }
 
 }

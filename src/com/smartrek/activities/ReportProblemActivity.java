@@ -1,19 +1,22 @@
 package com.smartrek.activities;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.utils.Font;
 
 public class ReportProblemActivity extends FragmentActivity{
 	
-	private EditText descView;
 	private TextView selectedView;
 	
 	private TextView badRouteView;
@@ -41,19 +44,29 @@ public class ReportProblemActivity extends FragmentActivity{
 			@Override
 			public void onClick(View v) {
 				Integer selected = (Integer) selectedView.getTag();
+				if(selected == null) {
+					NotificationDialog2 dialog = new NotificationDialog2(ReportProblemActivity.this, "Please select a problem.");
+					dialog.show();
+					return;
+				}
+				Log.d("ReportProblem", selected + "");
+				EditText descView = (EditText) findViewById(R.id.description);
 				String desc = descView.getText().toString();
 				// TODO
+				Intent resultIntent = new Intent();
+				setResult(Activity.RESULT_OK, resultIntent);
+				finish();
 			}
 		});
 		
 		selectMenu = (LinearLayout) findViewById(R.id.selectMenu);
 		
-		TextView selectButton = (TextView) findViewById(R.id.select_problem);
-		selectButton.setOnClickListener(new OnClickListener() {
+		selectedView = (TextView) findViewById(R.id.select_problem);
+		selectedView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Integer selected = (Integer) v.getTag();
-				if(selected != 0) {
+				if(selected != null) {
 					selectOne(selected);
 				}
 				selectMenu.setVisibility(View.VISIBLE);
@@ -84,13 +97,13 @@ public class ReportProblemActivity extends FragmentActivity{
 		AssetManager assets = getAssets();
 		
 		Font.setTypeface(Font.getBold(assets), (TextView) findViewById(R.id.header));
-		Font.setTypeface(Font.getLight(assets), backButton, sendButton, descView, selectedView, 
+		Font.setTypeface(Font.getLight(assets), backButton, sendButton, selectedView, 
 				badRouteView, streetIncorrectView, missingLocationView, mPointNotValidateView, otherView);
 	}
 	
 	private void selectOne(Integer id) {
-		TextView[] selections = new TextView[] {badRouteView, streetIncorrectView, 
-				missingLocationView, mPointNotValidateView, otherView};
+		TextView[] selections = new TextView[] { badRouteView, streetIncorrectView, 
+				missingLocationView, mPointNotValidateView, otherView };
 		
 		for(TextView selection : selections) {
 			selection.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);

@@ -28,6 +28,7 @@
 		            android:paddingTop="5dp"
 		            android:paddingBottom="5dp"
 				/>
+		        
 		        <TextView 
 		            android:id="@+id/back_button"
 		            android:layout_width="wrap_content"
@@ -82,7 +83,7 @@
 		        android:layout_marginLeft="20dp"
 		        android:layout_marginRight="20dp"
 		        android:background="@android:color/white"
-		        android:text="Bad route"
+		        android:text="Select a Problem"
 		        android:textColor="@color/gray"
 		        android:paddingLeft="5dp"
 		        android:gravity="center|left"
@@ -97,9 +98,12 @@
 		         android:layout_height="184dp"
 		         android:layout_marginTop="24dp"
 		         android:padding="5dp"
+		         android:lines="6"
+		         android:minLines="6"
+		         android:scrollbars="vertical"
 		         android:hint="Description"
-		         android:inputType="text"
-		         android:gravity="top|left" />"
+		         android:inputType="textCapSentences|textMultiLine"
+		         android:gravity="top|left" />
 		    
 		</LinearLayout>
 		
@@ -127,6 +131,13 @@
 		        style="@style/RegistrationTextField"
 		     />
 		    
+		    <View 
+		        android:layout_width="match_parent"
+		        android:layout_height="1dp"
+		        android:layout_marginLeft="20dp"
+		        android:layout_marginRight="20dp"
+		        android:background="@color/light_gray"/>
+		    
 		    <TextView 
 		        android:id="@+id/bad_route"
 		        android:layout_width="match_parent"
@@ -138,8 +149,16 @@
 		        android:textColor="@android:color/black"
 		        android:paddingLeft="5dp"
 		        android:gravity="center|left"
+		        android:drawablePadding="5dp"
 		        style="@style/RegistrationTextField"
 		     />
+		    
+		    <View 
+		        android:layout_width="match_parent"
+		        android:layout_height="1dp"
+		        android:layout_marginLeft="20dp"
+		        android:layout_marginRight="20dp"
+		        android:background="@color/light_gray"/>
 		    
 		    <TextView 
 		        android:id="@+id/street_incorrect"
@@ -151,9 +170,17 @@
 		        android:text="Street or other label is incorrect"
 		        android:textColor="@android:color/black"
 		        android:paddingLeft="5dp"
+		        android:drawablePadding="5dp"
 		        android:gravity="center|left"
 		        style="@style/RegistrationTextField"
 		     />
+		    
+		    <View 
+		        android:layout_width="match_parent"
+		        android:layout_height="1dp"
+		        android:layout_marginLeft="20dp"
+		        android:layout_marginRight="20dp"
+		        android:background="@color/light_gray"/>
 		    
 		    <TextView 
 		        android:id="@+id/missing_location"
@@ -165,9 +192,17 @@
 		        android:text="Missing location"
 		        android:textColor="@android:color/black"
 		        android:paddingLeft="5dp"
+		        android:drawablePadding="5dp"
 		        android:gravity="center|left"
 		        style="@style/RegistrationTextField"
 		     />
+		    
+		    <View 
+		        android:layout_width="match_parent"
+		        android:layout_height="1dp"
+		        android:layout_marginLeft="20dp"
+		        android:layout_marginRight="20dp"
+		        android:background="@color/light_gray"/>
 		    
 		    <TextView 
 		        android:id="@+id/mpoint_not_validate"
@@ -179,9 +214,17 @@
 		        android:text="mPOINTS didn't validate"
 		        android:textColor="@android:color/black"
 		        android:paddingLeft="5dp"
+		        android:drawablePadding="5dp"
 		        android:gravity="center|left"
 		        style="@style/RegistrationTextField"
 		     />
+		    
+		    <View 
+		        android:layout_width="match_parent"
+		        android:layout_height="1dp"
+		        android:layout_marginLeft="20dp"
+		        android:layout_marginRight="20dp"
+		        android:background="@color/light_gray"/>
 		    
 		    <TextView 
 		        android:id="@+id/other"
@@ -193,6 +236,7 @@
 		        android:text="Other..."
 		        android:textColor="@android:color/black"
 		        android:paddingLeft="5dp"
+		        android:drawablePadding="5dp"
 		        android:gravity="center|left"
 		        style="@style/RegistrationTextField"
 		     />

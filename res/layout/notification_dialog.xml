@@ -39,7 +39,7 @@
 	    />
 	    
 	    <View 
-	        android:id="@+id/seperator"
+	        android:id="@+id/seperator1"
 	        android:layout_width="fill_parent"
 	        android:layout_height="1dp"
 	        android:background="@color/light_gray"
@@ -53,6 +53,42 @@
 	        android:text="Dismiss"
 	        android:textColor="@color/light_blue"
 	        android:textSize="@dimen/smaller_font"/>
+	    
+	    <View 
+	        android:id="@+id/seperator2"
+	        android:layout_width="fill_parent"
+	        android:layout_height="1dp"
+	        android:background="@color/light_gray"
+	        android:visibility="gone"
+	        />
+	    
+	    <TextView 
+	        android:id="@+id/reportProblem"
+	        android:layout_height="44dp"
+	        android:layout_width="fill_parent"
+	        android:gravity="center"
+	        android:text="Report a Problem"
+	        android:textColor="@color/light_blue"
+	        android:textSize="@dimen/smaller_font"
+	        android:visibility="gone"/>
+	    
+	    <View 
+	        android:id="@+id/seperator3"
+	        android:layout_width="fill_parent"
+	        android:layout_height="1dp"
+	        android:background="@color/light_gray"
+	        android:visibility="gone"
+	        />
+	    
+	    <TextView 
+	        android:id="@+id/cancel"
+	        android:layout_height="44dp"
+	        android:layout_width="fill_parent"
+	        android:gravity="center"
+	        android:text="Cancel"
+	        android:textColor="@color/light_blue"
+	        android:textSize="@dimen/smaller_font"
+	        android:visibility="gone"/>
 	 	
 	</LinearLayout>
     

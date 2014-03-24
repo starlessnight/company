@@ -672,10 +672,10 @@ public final class RouteActivity extends FragmentActivity {
                             
                             NotificationDialog2 dialog = new NotificationDialog2(RouteActivity.this, "You have successfully reserved a route.");
                             dialog.setTitle("Notification");
-                            dialog.setActionListener(new NotificationDialog2.ActionListener() {
+                            dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
                                 
                                 @Override
-                                public void onClickDismiss() {
+                                public void onClick() {
                                     Intent intent = new Intent(RouteActivity.this, 
                                         LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
                                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

@@ -86,6 +86,7 @@
 	    <item name="android:textColor">@android:color/black</item>
 	    <item name="android:paddingTop">10dp</item>
 	    <item name="android:paddingBottom">10dp</item>
+	    <item name="android:paddingRight">0dp</item>
 	    <item name="android:background">@drawable/registration_text_field</item>
 	</style>
 	<style name="OrangeButton">
