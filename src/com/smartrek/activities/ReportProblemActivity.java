@@ -13,12 +13,6 @@ import com.smartrek.utils.Font;
 
 public class ReportProblemActivity extends FragmentActivity{
 	
-	public interface ActionListener {
-		public void onClickDone();
-	}
-	
-	private ActionListener actionListener;
-	
 	private EditText descView;
 	private TextView selectedView;
 	
@@ -49,9 +43,6 @@ public class ReportProblemActivity extends FragmentActivity{
 				Integer selected = (Integer) selectedView.getTag();
 				String desc = descView.getText().toString();
 				// TODO
-				if(actionListener != null) {
-					actionListener.onClickDone();
-				}
 			}
 		});
 		
@@ -107,10 +98,6 @@ public class ReportProblemActivity extends FragmentActivity{
 		
 		TextView selected = (TextView) findViewById(id);
 		selected.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.checked, 0);
-	}
-	
-	public void setActionListener(ActionListener actionListener) {
-		this.actionListener = actionListener;
 	}
 	
 }
