@@ -13,6 +13,7 @@
         android:paddingTop="5dp"
     	android:paddingLeft="5dp"
     	android:paddingRight="5dp"
+    	android:maxLines="3"
         android:text="@string/placeholder"
     />
 </FrameLayout>

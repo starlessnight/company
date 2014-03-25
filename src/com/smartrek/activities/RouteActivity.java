@@ -890,13 +890,16 @@ public final class RouteActivity extends FragmentActivity {
         header.setText("On The Way");
         findViewById(R.id.time_layout).setVisibility(View.GONE);
         findViewById(R.id.lets_go_panel).setVisibility(View.GONE);
-        //destView.setSingleLine(false);
-        //destView.setText(msg);
         final MapView mapView = (MapView) findViewById(R.id.mapview);
         final List<Overlay> mapOverlays = mapView.getOverlays();
         mapOverlays.clear();
         othersPointOverlay.setLocation((float) lat, (float)lon);
         mapOverlays.add(othersPointOverlay);
+        RouteDestinationOverlay msgView = new RouteDestinationOverlay(mapView, 
+            new GeoPoint(lat, lon), lightFont, msg, android.R.color.transparent);
+        msgView.setBalloonOffsetY(0);
+        mapOverlays.add(msgView);
+        msgView.showBalloonOverlay();
         mapView.postInvalidate();
         IMapController mc = mapView.getController();
         mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
