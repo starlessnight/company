@@ -64,6 +64,7 @@ import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.OverlayCallback;
 import com.smartrek.ui.overlays.PointOverlay;
+import com.smartrek.ui.overlays.RouteDestinationOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.ui.timelayout.ScrollableTimeLayout;
 import com.smartrek.ui.timelayout.TimeButton;
@@ -129,6 +130,8 @@ public final class RouteActivity extends FragmentActivity {
     
     //private RouteInfoOverlay[] routeInfoOverlays = new RouteInfoOverlay[3];
     private RoutePathOverlay[] routePathOverlays = new RoutePathOverlay[3];
+    
+    private RouteDestinationOverlay[] routeDestOverlays = new RouteDestinationOverlay[3];
     
     private String originAddr;
     private String destAddr;
@@ -343,8 +346,6 @@ public final class RouteActivity extends FragmentActivity {
                             progressDialog.show();
                         }
                         destAddr = reservation.getDestinationAddress();
-                        TextView destView = (TextView) findViewById(R.id.destination);
-                        destView.setText(destAddr);
                     }
                     
                     @Override
@@ -610,11 +611,6 @@ public final class RouteActivity extends FragmentActivity {
         boldFont = Font.getBold(assets);
         lightFont = Font.getLight(assets);
         
-        TextView destView = (TextView) findViewById(R.id.destination);
-        if(!hasImComingMsg){
-            destView.setText(destAddr);
-        }
-        
         rescheduleReservId = extras.getLong(RESCHEDULE_RESERVATION_ID);
         
         final TextView reserveView = (TextView) findViewById(R.id.reserve);
@@ -833,7 +829,7 @@ public final class RouteActivity extends FragmentActivity {
         }
         
         Font.setTypeface(boldFont, header);
-        Font.setTypeface(lightFont, destView, onMyWayView, letsGoView, reserveView,
+        Font.setTypeface(lightFont, onMyWayView, letsGoView, reserveView,
             backButton, (TextView)findViewById(R.id.departure_row), durationRow,
             (TextView)findViewById(R.id.mpoint_row));
     }
@@ -894,9 +890,8 @@ public final class RouteActivity extends FragmentActivity {
         header.setText("On The Way");
         findViewById(R.id.time_layout).setVisibility(View.GONE);
         findViewById(R.id.lets_go_panel).setVisibility(View.GONE);
-        TextView destView = (TextView) findViewById(R.id.destination);
-        destView.setSingleLine(false);
-        destView.setText(msg);
+        //destView.setSingleLine(false);
+        //destView.setText(msg);
         final MapView mapView = (MapView) findViewById(R.id.mapview);
         final List<Overlay> mapOverlays = mapView.getOverlays();
         mapOverlays.clear();
@@ -1004,6 +999,36 @@ public final class RouteActivity extends FragmentActivity {
             // Overlays must be drawn in orders
             for (int i = 0; i < possibleRoutes.size(); i++) {
             	mapOverlays.add(routePathOverlays[i]);
+            	mapOverlays.add(routeDestOverlays[i]);
+            	final int _i = i;
+            	routeDestOverlays[i].setCallback(new OverlayCallback() {
+                    @Override
+                    public boolean onTap(int index) {
+                        if(routeDestOverlays[_i].isBalloonVisible()){
+                            routeDestOverlays[_i].hideBalloon();
+                        }else{
+                            routeDestOverlays[_i].showBalloonOverlay();
+                        }
+                        return false;
+                    }
+                    @Override
+                    public boolean onLongPress(int index, OverlayItem item) {
+                        return false;
+                    }
+                    
+                    @Override
+                    public boolean onClose() {
+                        return false;
+                    }
+                    @Override
+                    public void onChange() {
+                    }
+                    @Override
+                    public boolean onBalloonTap(int index, OverlayItem item) {
+                        return false;
+                    }
+                });
+            	routeDestOverlays[i].showBalloonOverlay();
             }
             /*for (int i = 0; i < possibleRoutes.size(); i++) {
             	mapOverlays.add(routeInfoOverlays[i]);
@@ -1102,6 +1127,9 @@ public final class RouteActivity extends FragmentActivity {
         
         routePathOverlays[routeNum] = new RoutePathOverlay(this, route, RoutePathOverlay.COLORS[routeNum]);
         //mapOverlays.add(routePathOverlays[routeNum]);
+        
+        routeDestOverlays[routeNum] = new RouteDestinationOverlay(mapView, route.getLastNode().getGeoPoint(), 
+            lightFont, destAddr, R.drawable.pin_destination);
         
         /* Set values into route to be passed to next Activity */
         route.setAddresses(originAddr, destAddr);

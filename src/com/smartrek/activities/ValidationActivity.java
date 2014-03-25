@@ -27,14 +27,13 @@ import org.osmdroid.api.IMapController;
 import org.osmdroid.tileprovider.util.CloudmadeUtil;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
+import org.osmdroid.views.overlay.OverlayItem;
 
 import android.app.Activity;
 import android.app.AlarmManager;
-import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -97,8 +96,10 @@ import com.smartrek.ui.NavigationView;
 import com.smartrek.ui.NavigationView.CheckPointListener;
 import com.smartrek.ui.NavigationView.DirectionItem;
 import com.smartrek.ui.menu.MainMenu;
+import com.smartrek.ui.overlays.OverlayCallback;
 import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RouteDebugOverlay;
+import com.smartrek.ui.overlays.RouteDestinationOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.utils.Dimension;
 import com.smartrek.utils.ExceptionHandlingService;
@@ -898,6 +899,33 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		RoutePathOverlay pathOverlay = new RoutePathOverlay(this, route,
 				RoutePathOverlay.GREEN);
 		mapOverlays.add(pathOverlay);
+		
+		RouteDestinationOverlay destOverlay = new RouteDestinationOverlay(mapView, 
+	        route.getLastNode().getGeoPoint(), lightFont, reservation.getDestinationAddress(), 
+	        R.drawable.pin_destination);
+		destOverlay.setCallback(new OverlayCallback() {
+            @Override
+            public boolean onTap(int index) {
+                return true;
+            }
+            @Override
+            public boolean onLongPress(int index, OverlayItem item) {
+                return false;
+            }
+            
+            @Override
+            public boolean onClose() {
+                return false;
+            }
+            @Override
+            public void onChange() {
+            }
+            @Override
+            public boolean onBalloonTap(int index, OverlayItem item) {
+                return false;
+            }
+        });
+		mapOverlays.add(destOverlay);
 
 		pointOverlay = new PointOverlay(this, 0, 0);
 		pointOverlay.setColor(0xCC2020DF);

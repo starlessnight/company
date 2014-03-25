@@ -42,19 +42,7 @@
     <FrameLayout android:layout_weight="1"
 	        android:layout_width="match_parent"
 	        android:layout_height="0dp">
-        <include layout="@layout/mapview" />
-        
-        <TextView
-    	    android:id="@+id/destination"
-    	    android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-           	android:layout_marginLeft="15dp"
-           	android:layout_marginRight="15dp"
-           	android:singleLine="true"
-           	style="@style/SearchTextField"
-           	android:layout_gravity="top|center_horizontal"
-		/>
+        <include layout="@layout/mapview" />        
     </FrameLayout>
     
     <LinearLayout
