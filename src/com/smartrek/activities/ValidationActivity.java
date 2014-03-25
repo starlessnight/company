@@ -793,26 +793,28 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    }
 
 	private SpannableString formatCO2Desc(Context ctx, String co2Value) {
-		String desc = co2Value + "lbs\nCO2 Reduced";
+		String desc = co2Value + "lbs";
 		int lbsIndex = desc.indexOf("lbs");
 		SpannableString co2ValueSpan = SpannableString.valueOf(desc);
 		co2ValueSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
 				.getDimensionPixelSize(R.dimen.smallest_font)), lbsIndex,
 				lbsIndex + "lbs".length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-		int newLineIndex = desc.indexOf("\n");
-		co2ValueSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
-				.getDimensionPixelSize(R.dimen.smaller_font)), newLineIndex,
-				newLineIndex + "\nCO2 Reduced".length(),
-				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-		int twoIndex = desc.indexOf("2");
-		co2ValueSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
-				.getDimensionPixelSize(R.dimen.smallest_font)), twoIndex,
-				twoIndex + "2".length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		return co2ValueSpan;
 	}
+	
+	private SpannableString formatCongrMessage(Context ctx, String message) {
+		int indexOfNewline = message.indexOf("\n");
+		SpannableString congrSpan = SpannableString.valueOf(message);
+		congrSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
+				.getDimensionPixelSize(R.dimen.smaller_font)), indexOfNewline,
+				message.length(),
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
+		return congrSpan;
+	}
+
+	/*
 	private SpannableString formatMPointDesc(Context ctx, String mpoint) {
 		String desc = mpoint + " \nmPoints earned";
 		int indexOfSpace = desc.indexOf(" ");
@@ -824,6 +826,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		return mpointValueSpan;
 	}
+	*/
 
 	private View[] getMapViews() {
 		return new View[] { findViewById(R.id.mapview),
@@ -1474,16 +1477,24 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		if (isTripValidated()) {
 		    arrivalMsgDisplayed.set(true);
 			final View panel = findViewById(R.id.congrats_panel);
-			String msg = "Arrive at Destination";
-			((TextView) findViewById(R.id.congrats_msg)).setText(msg);
+			String msg = "Arrive at Destination" + "\n" + reservation.getDestinationAddress();
+			((TextView) findViewById(R.id.congrats_msg)).setText(formatCongrMessage(ValidationActivity.this, msg));
 			
 			TextView co2 = (TextView) findViewById(R.id.co2);
 			String co2Value = "1.3";  //getCO2
 			co2.setText(formatCO2Desc(ValidationActivity.this, co2Value));
+			
+			TextView co2Desc = (TextView) findViewById(R.id.co2_desc);
+			String co2DescString = co2Desc.getText().toString();
+			SpannableString co2DescSpan = SpannableString.valueOf(co2DescString);
+			int twoIndex = co2DescString.indexOf("2");
+			co2DescSpan.setSpan(new AbsoluteSizeSpan(ValidationActivity.this.getResources()
+					.getDimensionPixelSize(R.dimen.micro_font)), twoIndex,
+					twoIndex + "2".length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			co2Desc.setText(co2DescSpan);
 
 			TextView mpoint = (TextView) findViewById(R.id.mPoint);
-			mpoint.setText(formatMPointDesc(ValidationActivity.this,
-				reservation.getMpoint() + ""));
+			mpoint.setText(reservation.getMpoint() + "");
 			
 			panel.setVisibility(View.VISIBLE);
 			Misc.fadeIn(ValidationActivity.this, panel);
