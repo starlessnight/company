@@ -672,6 +672,24 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				}
 			}
 		});
+		
+		TextView reportProblemView = (TextView) findViewById(R.id.report_problem);
+		reportProblemView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				toggleMenuPanel();
+				Intent intent = new Intent(ValidationActivity.this, ReportProblemActivity.class);
+				startActivityForResult(intent, REPORT_PROBLEM);
+			}
+		});
+		
+		TextView cancelView = (TextView) findViewById(R.id.cancel);
+		cancelView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				toggleMenuPanel();
+			}
+		});
 
 		View finishButton = findViewById(R.id.finish);
 		finishButton.setOnClickListener(new OnClickListener() {
@@ -718,6 +736,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             }
         });
 		
+        Font.setTypeface(boldFont, cancelView);
 		Font.setTypeface(lightFont, osmCredit, timeInfo);
 	}
 	

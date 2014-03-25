@@ -294,61 +294,75 @@
 	        android:orientation="horizontal"
             android:background="@color/transparent_gray"
             android:visibility="invisible"
-	        android:layout_above="@+id/mapview_options">
-        
-        <LinearLayout
-            android:layout_width="52dp"
-            android:layout_height="fill_parent"
-            android:background="@android:color/transparent"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true">
-        </LinearLayout>
+            >
         
         <LinearLayout
             android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:layout_marginLeft="52dp"
-	        android:paddingLeft="10dp"
 	        android:layout_alignParentBottom="true"
-	        android:layout_alignParentRight="true"
             android:orientation="vertical"
-            android:background="@color/transparent_light_gray"
+            android:background="@android:color/white"
             >
             
             <TextView 
 	       	    android:id="@+id/route_view"
 	       	    android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:layout_marginTop="20dp"
-		        android:layout_marginBottom="5dp"
-	        	android:text="Route View"
+		        android:layout_height="50dp"
+	        	android:text="Route Preview"
 	        	android:textSize="@dimen/medium_font"
        			android:textColor="@android:color/black"
-       			android:drawablePadding="10dp"
-       			android:drawableLeft="@drawable/route_view"
-       			android:drawableRight="@drawable/menu_right_arrow"
 	        	android:singleLine="true"
+	        	android:gravity="center"
 			/>
 	        <View
             	android:layout_width="match_parent"
-		        android:layout_height="2dp" 
+		        android:layout_height="1dp" 
 		        android:background="#929497"
-		        android:layout_marginTop="15dp"
-		        android:layout_marginLeft="28dp"
+		        android:layout_marginLeft="20dp"
+		        android:layout_marginRight="20dp"
 			/>
 	        <TextView 
 	       	    android:id="@+id/directions_list_menu"
 	       	    android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
-		        android:layout_marginTop="20dp"
-		        android:layout_marginBottom="20dp"
+		        android:layout_height="50dp"
 	        	android:text="Directions List"
 	        	android:textSize="@dimen/medium_font"
        			android:textColor="@android:color/black"
-       			android:drawablePadding="10dp"
-       			android:drawableLeft="@drawable/directions_list"
-       			android:drawableRight="@drawable/menu_right_arrow"
 	        	android:singleLine="true"
+	        	android:gravity="center"
+			/>
+	        <View
+            	android:layout_width="match_parent"
+		        android:layout_height="1dp" 
+		        android:background="#929497"
+		        android:layout_marginLeft="20dp"
+		        android:layout_marginRight="20dp"
+			/>
+	        <TextView 
+	       	    android:id="@+id/report_problem"
+	       	    android:layout_width="match_parent"
+		        android:layout_height="50dp"
+	        	android:text="Report a Problem"
+	        	android:textSize="@dimen/medium_font"
+       			android:textColor="@android:color/black"
+	        	android:singleLine="true"
+	        	android:gravity="center"
+			/>
+	        <View
+            	android:layout_width="match_parent"
+		        android:layout_height="1dp" 
+		        android:background="#929497"
+			/>
+	        <TextView 
+	       	    android:id="@+id/cancel"
+	       	    android:layout_width="match_parent"
+		        android:layout_height="50dp"
+		        android:background="@color/light_gray"
+	        	android:text="Cancel"
+	        	android:textSize="@dimen/medium_font"
+       			android:textColor="@color/light_blue"
+	        	android:singleLine="true"
+	        	android:gravity="center"
 			/>
             
          </LinearLayout>
