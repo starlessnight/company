@@ -206,6 +206,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private GeoPoint lastCenter;
 	
+	private TextView remainDistDirecListView;
+	private TextView remainTimesDirectListView;
+	
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -271,8 +274,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
 		am.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime()
 				+ (900 + reservation.getDuration() * 3) * 1000, pendingTimeout);
+		
+		remainDistDirecListView = (TextView) findViewById(R.id.remain_dist_direc_list);
+		remainTimesDirectListView = (TextView) findViewById(R.id.remain_times_direc_list);
 
-		dirListadapter = new ArrayAdapter<DirectionItem>(this,
+ 		dirListadapter = new ArrayAdapter<DirectionItem>(this,
 				R.layout.direction_list_item, R.id.text_view_road) {
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
@@ -282,11 +288,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				TextView vDistance = (TextView) view
 						.findViewById(R.id.text_view_distance);
 				Font.setTypeface(boldFont, vRoad, vDistance);
-				for (View v : new View[] { view.findViewById(R.id.left_panel),
-						vRoad }) {
-					v.setBackgroundResource(position == 0 ? R.color.light_green
-							: 0);
-				}
+			    view.findViewById(R.id.dir_list_item).setBackgroundResource(position == 0 ? 
+			    		R.color.pink : 0);
 				DirectionItem item = getItem(position);
 				ImageView vDirection = (ImageView) view
 						.findViewById(R.id.img_view_direction);
@@ -653,7 +656,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 		});
 
-		View routeViewMenu = findViewById(R.id.route_view);
+		final View routeViewMenu = findViewById(R.id.route_view);
 		routeViewMenu.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -712,6 +715,25 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                 startActivity(intent);
             }
         });
+		
+		TextView doneButton = (TextView) findViewById(R.id.done);
+		doneButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				for (View mView : getMapViews()) {
+					mView.setVisibility(View.VISIBLE);
+				}
+				findViewById(R.id.directions_view)
+						.setVisibility(View.INVISIBLE);
+				if (lastKnownLocation != null) {
+					double latitude = lastKnownLocation.getLatitude();
+					double longitude = lastKnownLocation.getLongitude();
+					IMapController mc = mapView.getController();
+					mc.setZoom(DEFAULT_ZOOM_LEVEL);
+					mc.animateTo(new GeoPoint(latitude, longitude));
+				}
+			}
+		});
 
 		TextView destAddr = (TextView) findViewById(R.id.dest_addr);
 		destAddr.setText(reservation.getDestinationAddress());
@@ -736,8 +758,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             }
         });
 		
-        Font.setTypeface(boldFont, cancelView);
-		Font.setTypeface(lightFont, osmCredit, timeInfo);
+        Font.setTypeface(boldFont, cancelView, remainDistDirecListView);
+		Font.setTypeface(lightFont, osmCredit, timeInfo, remainTimesDirectListView);
 	}
 	
 	   private void refreshTimeInfo(){
@@ -751,6 +773,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	                }else{
 	                    timeInfo.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
 	                }
+	                remainTimesDirectListView.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
 	            }
 	        });
 	    }
@@ -1069,7 +1092,16 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				distance += nextNode.getDistance();
 			} while ((nextNode = nextNode.getNextNode()) != null);
 		}
+		updateDirectListViewRemainDists(items);
 		return items;
+	}
+	
+	private void updateDirectListViewRemainDists(List<DirectionItem> items) {
+		double distance = 0;
+		for(DirectionItem item : items) {
+			distance = distance + item.distance;
+		}
+		remainDistDirecListView.setText(StringUtil.formatImperialDistance(distance, false));
 	}
 	
 	private static final int countOutOfRouteThreshold = 3;
