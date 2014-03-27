@@ -813,19 +813,19 @@ public final class RouteActivity extends FragmentActivity {
                     ? DisplayMode.Arrival:DisplayMode.Duration;
                 durationRow.setTag(newDisplayMode);
                 timeLayout.setDisplayMode(newDisplayMode);
-                durationRow.setText(Html.fromHtml("<u>" + newDisplayMode.name() + "</u>"));
+                durationRow.setText(newDisplayMode.name());
             }
         });
         
         if (MapDisplayActivity.isDisplayDuration(this)) {
             durationRow.setTag(DisplayMode.Duration);
             timeLayout.setDisplayMode(DisplayMode.Duration);
-            durationRow.setText(Html.fromHtml("<u>" + DisplayMode.Duration.name() + "</u>"));
+            durationRow.setText(DisplayMode.Duration.name());
         }
         else {
         	durationRow.setTag(DisplayMode.Arrival);
             timeLayout.setDisplayMode(DisplayMode.Arrival);
-            durationRow.setText(Html.fromHtml("<u>" + DisplayMode.Arrival.name() + "</u>"));
+            durationRow.setText(DisplayMode.Arrival.name());
         }
         
         Font.setTypeface(boldFont, header);

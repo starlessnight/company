@@ -43,7 +43,7 @@
 		            android:id="@+id/duration_row"
 		            android:layout_height="31dp"
 		            android:layout_width="match_parent"
-		            android:background="#6d6e70"
+		            android:background="@color/metropia_orange"
 		            android:textColor="@android:color/white"
 		            android:text="Duration"
 		            android:gravity="center"
