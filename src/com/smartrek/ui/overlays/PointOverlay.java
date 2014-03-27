@@ -5,8 +5,11 @@ import org.osmdroid.views.MapView.Projection;
 import org.osmdroid.views.overlay.Overlay;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
 
@@ -22,9 +25,14 @@ public class PointOverlay extends Overlay {
 	private GeoPoint geoPoint;
 	private int color = Color.GREEN;
 	
-	public PointOverlay(Context context, float lat, float lng) {
+	private Bitmap icon;
+	
+	private float degrees;
+	
+	public PointOverlay(Context context, float lat, float lng, int drawableId) {
 		super(context);
 		setLocation(lat, lng);
+		icon = BitmapFactory.decodeResource(context.getResources(), drawableId);
 	}
 	
 	public void setLocation(float lat, float lng) {
@@ -44,11 +52,24 @@ public class PointOverlay extends Overlay {
 		Projection projection = mapView.getProjection();
 		Paint paint = new Paint();
 		paint.setAntiAlias(true);
-		paint.setColor(color);
 		
 		Point point = new Point();
 		projection.toPixels(geoPoint, point);
 		
-		canvas.drawCircle(point.x, point.y, RADIUS, paint);
+		//paint.setColor(color);
+		//canvas.drawCircle(point.x, point.y, RADIUS, paint);
+		
+		Matrix matrix = new Matrix();
+		matrix.postRotate(degrees);
+		Bitmap rotatedIcon = Bitmap.createBitmap(icon, 0, 0, icon.getWidth(), icon.getHeight(), matrix, true);
+		canvas.drawBitmap(rotatedIcon, point.x - (rotatedIcon.getWidth()/2), point.y - rotatedIcon.getHeight()/2, paint);
 	}
+
+    public float getDegrees() {
+        return degrees;
+    }
+
+    public void setDegrees(float degrees) {
+        this.degrees = degrees;
+    }
 }

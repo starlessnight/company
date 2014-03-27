@@ -29,6 +29,10 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -94,7 +98,7 @@ import com.smartrek.utils.RouteRect;
 import com.smartrek.utils.SessionM;
 import com.smartrek.utils.SmartrekTileProvider;
 
-public final class LandingActivity2 extends FragmentActivity { 
+public final class LandingActivity2 extends FragmentActivity implements SensorEventListener { 
     
     private static final double mapZoomVerticalOffset = 0.25;
 
@@ -130,10 +134,19 @@ public final class LandingActivity2 extends FragmentActivity {
     
     private AtomicInteger mapCenterLon = new AtomicInteger();
     
+    private SensorManager mSensorManager;
+    
+    public static Sensor accelerometer;
+    public static Sensor magnetometer;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.landing2);
+        
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         
         final MapView mapView = (MapView) findViewById(R.id.mapview);
         Misc.disableHardwareAcceleration(mapView);
@@ -761,7 +774,7 @@ public final class LandingActivity2 extends FragmentActivity {
     private void refreshMyLocation(double lat, double lon){
         MapView mapView = (MapView)findViewById(R.id.mapview);
         if(myPointOverlay == null){
-            myPointOverlay = new PointOverlay(LandingActivity2.this, 0, 0);
+            myPointOverlay = new PointOverlay(LandingActivity2.this, 0, 0, R.drawable.landing_page_current_location);
             myPointOverlay.setColor(0xCC2020DF);
             mapView.getOverlays().add(myPointOverlay);
         }
@@ -795,6 +808,8 @@ public final class LandingActivity2 extends FragmentActivity {
         sendBroadcast(new Intent(TRIP_INFO_UPDATES));
         mapRefresh.set(true);
         prepareGPS();
+        mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_GAME);
     }
     
     @Override
@@ -816,6 +831,8 @@ public final class LandingActivity2 extends FragmentActivity {
       SessionM.onActivityPause(this);
       closeGPS();
       super.onPause();
+      mSensorManager.unregisterListener(this, accelerometer);
+      mSensorManager.unregisterListener(this, magnetometer);
     } 
     
     private void refreshTripsInfo(){
@@ -1567,6 +1584,36 @@ public final class LandingActivity2 extends FragmentActivity {
             return rs;
         }
         
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        
+    }
+
+    float[] mGravity;
+    float[] mGeomagnetic;
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+            mGravity = event.values;
+        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
+            mGeomagnetic = event.values;
+        if (mGravity != null && mGeomagnetic != null) {
+            float r[] = new float[9];
+            float i[] = new float[9];
+            boolean success = SensorManager.getRotationMatrix(r, i, mGravity,
+                    mGeomagnetic);
+            if (success) {
+                float orientation[] = new float[3];
+                SensorManager.getOrientation(r, orientation);
+                float azimut = Double.valueOf(Math.toDegrees(orientation[0])).floatValue();
+                if(myPointOverlay != null){
+                    myPointOverlay.setDegrees(azimut);
+                    MapView mapView = (MapView)findViewById(R.id.mapview);
+                    mapView.postInvalidate();
+                }
+            }
+        }
     }
 
     

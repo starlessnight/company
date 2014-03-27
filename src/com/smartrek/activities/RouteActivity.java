@@ -33,7 +33,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
-import android.text.Html;
 import android.text.format.Time;
 import android.util.Log;
 import android.view.Menu;
@@ -275,7 +274,7 @@ public final class RouteActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pre_reservation_map); 
         
-        othersPointOverlay = new PointOverlay(this, 0, 0);
+        othersPointOverlay = new PointOverlay(this, 0, 0, R.drawable.landing_page_current_location);
         othersPointOverlay.setColor(0xCC2020DF);
         
         SharedPreferences prefs = getSharedPreferences(MapDisplayActivity.MAP_DISPLAY_PREFS, MODE_PRIVATE);

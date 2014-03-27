@@ -159,10 +159,10 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.landing);
         
-        myPointOverlay = new PointOverlay(LandingActivity.this, 0, 0);
+        myPointOverlay = new PointOverlay(LandingActivity.this, 0, 0, R.drawable.landing_page_current_location);
         myPointOverlay.setColor(0xCC2020DF);
         
-        othersPointOverlay = new PointOverlay(LandingActivity.this, 0, 0);
+        othersPointOverlay = new PointOverlay(LandingActivity.this, 0, 0, R.drawable.landing_page_current_location);
         othersPointOverlay.setColor(0xCC2020DF);
         
         TextView vTitle = (TextView) findViewById(R.id.title);

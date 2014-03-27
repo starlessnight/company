@@ -930,7 +930,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         });
 		mapOverlays.add(destOverlay);
 
-		pointOverlay = new PointOverlay(this, 0, 0);
+		pointOverlay = new PointOverlay(this, 0, 0, R.drawable.navigation_current_location);
 		pointOverlay.setColor(0xCC2020DF);
 		mapOverlays.add(pointOverlay);
 
@@ -1311,6 +1311,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				mapView.getController().animateTo(new GeoPoint(lat, lng));
 			}
 			pointOverlay.setLocation((float) lat, (float) lng);
+			pointOverlay.setDegrees(location.getBearing());
 			mapView.postInvalidate();
 		} else {
 			animator.removeCallbacksAndMessages(null);
