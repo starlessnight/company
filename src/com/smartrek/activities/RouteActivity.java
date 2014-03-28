@@ -858,7 +858,7 @@ public final class RouteActivity extends FragmentActivity {
         IMapController mc = mapView.getController();
         int lat = (int) Math.round(38.27268853598097f*1E6);
         int lon = (int) Math.round(-99.1406250000000f*1E6);
-        mc.setZoom(4); 
+        mc.setZoom(3); 
         mc.setCenter(new GeoPoint(lat, lon));
     }
     

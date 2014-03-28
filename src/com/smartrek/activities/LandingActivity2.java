@@ -154,12 +154,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         mapView.setMultiTouchControls(true);
         mapView.setTileSource(new SmartrekTileProvider());
         bindMapFunctions(mapView);
-        
-        final IMapController mc = mapView.getController();
-        int lat = (int) Math.round(38.27268853598097f*1E6);
-        int lon = (int) Math.round(-99.1406250000000f*1E6);
-        mc.setZoom(4); 
-        mc.setCenter(new GeoPoint(lat, lon));
+        RouteActivity.setViewToNorthAmerica(mapView);
         
         final AutoCompleteTextView searchBox = (AutoCompleteTextView) findViewById(R.id.search_box);
         refreshSearchAutoCompleteData();
@@ -211,6 +206,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 updateDeviceId();
             }
         });
+        
+        final IMapController mc = mapView.getController();
         
         locationListener = new LocationListener(){
             @Override
