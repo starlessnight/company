@@ -1153,9 +1153,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		remainDistDirecListView.setText(StringUtil.formatImperialDistance(distance, false));
 	}
 	
-	private static final int countOutOfRouteThreshold = 3;
+	private static final int countOutOfRouteThreshold = 2;
 	
-	private static final double distanceOutOfRouteThreshold = 150;
+	private static final double distanceOutOfRouteThreshold = 35;
 	
 	private static final double speedOutOfRouteThreshold = 10;
 	
