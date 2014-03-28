@@ -10,6 +10,7 @@ import com.smartrek.activities.HomeActivity;
 import com.smartrek.activities.LandingActivity;
 import com.smartrek.activities.LandingActivity2;
 import com.smartrek.activities.MapDisplayActivity;
+import com.smartrek.activities.MyMetropiaActivity;
 import com.smartrek.activities.R;
 import com.smartrek.activities.ReservationConfirmationActivity;
 import com.smartrek.activities.ReservationListActivity;
@@ -74,11 +75,17 @@ public final class MainMenu {
                break;
                
            case R.id.dashboard:
-               if (!activity.getClass().equals(DashboardActivity.class)) {
-                   intent = new Intent(activity, DashboardActivity.class);
+//               if (!activity.getClass().equals(DashboardActivity.class)) {
+//                   intent = new Intent(activity, DashboardActivity.class);
+//                   intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                   activity.startActivity(intent);
+//                   activity.finish();
+//               }
+        	   if (!activity.getClass().equals(MyMetropiaActivity.class)) {
+                   intent = new Intent(activity, MyMetropiaActivity.class);
                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                    activity.startActivity(intent);
-                   activity.finish();
+//                   activity.finish();
                }
                break;
 

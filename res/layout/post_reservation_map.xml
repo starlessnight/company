@@ -278,6 +278,7 @@
             >
             
             <LinearLayout
+                android:id="@+id/co2_panel"
                 android:layout_height="match_parent"
                 android:layout_width="0dp"
                 android:layout_weight="1"
@@ -311,6 +312,7 @@
                 android:background="@color/light_gray"/>
             
             <LinearLayout
+                android:id="@+id/driving_score_panel"
                 android:layout_height="match_parent"
                 android:layout_width="0dp"
                 android:layout_weight="1"
@@ -343,6 +345,7 @@
                 android:background="@color/light_gray"/>
             
             <LinearLayout
+                android:id="@+id/mpoint_panel"
                 android:layout_height="match_parent"
                 android:layout_width="0dp"
                 android:layout_weight="1"

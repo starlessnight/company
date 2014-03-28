@@ -758,6 +758,24 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                 timeInfo.setTag(isRemainingTime);
             }
         });
+        
+        findViewById(R.id.co2_panel).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
+				intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.CO2_SAVING_TAB);
+				startActivity(intent);
+			}
+        });
+        
+        findViewById(R.id.driving_score_panel).setOnClickListener(new OnClickListener() {
+        	@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
+				intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.DRIVE_SCORE_TAB);
+				startActivity(intent);
+			}
+        });
 		
         Font.setTypeface(boldFont, cancelView, remainDistDirecListView);
 		Font.setTypeface(lightFont, osmCredit, timeInfo, remainTimesDirectListView);

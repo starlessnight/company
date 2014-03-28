@@ -1,0 +1,583 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    	android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:background="@android:color/white">
+	    
+    <LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:focusable="true"
+		android:focusableInTouchMode="true"
+		android:orientation="vertical"
+		android:background="@android:color/transparent">
+		    
+		    <FrameLayout 
+		        	android:layout_width="match_parent"
+		        	android:layout_height="wrap_content"
+		        	android:background="@android:color/white">
+		        <TextView 
+		            android:id="@+id/header"
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content"
+		            android:gravity="center"
+		            android:layout_gravity="center_vertical"
+		            android:textColor="#6d6e70"
+		            android:textSize="@dimen/smaller_font"
+		            android:text="My Metropia"
+		            android:paddingTop="5dp"
+		            android:paddingBottom="5dp"
+				/>
+		        <TextView 
+		            android:id="@+id/back_button"
+		            android:layout_width="match_parent"
+		            android:layout_height="wrap_content"
+		            android:gravity="left"
+		            android:textColor="#33add8"
+		            android:textSize="@dimen/smaller_font"
+		            android:text="Back"
+		            android:layout_gravity="center_vertical"
+		            android:paddingTop="5dp"
+		            android:paddingBottom="5dp"
+		            android:paddingLeft="10dp"
+		            android:drawableLeft="@drawable/back_left_arrow"
+		            android:drawablePadding="5dp"
+				/>
+		    </FrameLayout>
+		    
+		    <include layout="@layout/metropia_color_bar" />
+		    
+		    <ScrollView
+		        android:layout_height="0dp"
+		        android:layout_width="fill_parent"
+		        android:layout_weight="1"
+		        android:fillViewport="true">
+		        
+		        <FrameLayout 
+		            android:layout_width="fill_parent"
+		            android:layout_height="wrap_content">
+		            
+			        <LinearLayout 
+			            android:id="@+id/drive_score_panel"
+			            android:layout_height="wrap_content"
+			            android:layout_width="fill_parent"
+			            android:orientation="vertical"
+			            android:background="@android:color/transparent">
+			    
+						<FrameLayout 
+						    android:layout_width="fill_parent"
+						    android:layout_height="170dp"
+						>
+					        <ImageView 
+					            android:id="@+id/circle"
+					            android:layout_height="130dp"
+					            android:layout_width="130dp"
+					            android:src="@drawable/circle"
+					            android:layout_gravity="center"/>
+					        
+					        <ImageView 
+					            android:layout_height="130dp"
+					            android:layout_width="130dp"
+					            android:src="@drawable/circle_get"
+					            android:layout_gravity="center"
+					            android:layout_marginRight="5dp"/>
+					        
+					        <ImageView 
+					            android:layout_height="130dp"
+					            android:layout_width="130dp"
+					            android:src="@drawable/circle_avg"
+					            android:layout_gravity="center"/>
+					        
+					        <TextView 
+					            android:id="@+id/total_score"
+					            android:layout_width="wrap_content"
+					            android:layout_height="wrap_content"
+					            android:text="70"
+					            android:textColor="@color/metropia_orange"
+					            android:textSize="52dp"
+					            android:layout_gravity="center"
+					            />
+					        
+					        <TextView 
+					            android:layout_width="wrap_content"
+					            android:layout_height="wrap_content"
+					            android:text="Total Score"
+					            android:textColor="@color/gray"
+					            android:textSize="@dimen/smaller_font"
+					            android:layout_gravity="center_horizontal|bottom"/>
+					        
+					        <LinearLayout 
+					            android:layout_width="wrap_content"
+						        android:layout_height="wrap_content"
+						        android:layout_gravity="right|bottom"
+						        android:layout_marginBottom="50dp"
+						        android:layout_marginRight="5dp"
+						        android:orientation="horizontal">
+					            
+					            <ImageView 
+					                android:layout_width="14dp"
+					                android:layout_height="14dp"
+					                android:src="@drawable/cube"
+					                android:layout_gravity="center"/>
+					            
+						        <TextView 
+						            android:layout_width="wrap_content"
+						            android:layout_height="wrap_content"
+						            android:paddingLeft="5dp"
+						            android:text="City avg."
+						            android:textColor="@color/gray"
+						            android:textSize="@dimen/smallest_font"
+						            android:gravity="center"
+						        />
+					        </LinearLayout>
+					        
+					        <TextView
+					            android:id="@+id/city_avg_score" 
+					            android:layout_width="wrap_content"
+					            android:layout_height="wrap_content"
+					            android:text="67"
+					            android:textColor="@color/metropia_red"
+					            android:textSize="@dimen/large_font"
+					            android:layout_gravity="right|bottom"
+					            android:layout_marginBottom="10dp"
+					            android:layout_marginRight="15dp"
+					            />
+						    
+						</FrameLayout>	
+						
+						<View 
+						    android:layout_width="fill_parent"
+						    android:layout_height="1dp"
+						    android:background="@color/gray" />	
+						    
+						<LinearLayout
+						    android:layout_width="match_parent"
+						    android:layout_height="215dp"
+						    android:layout_marginLeft="11dp"
+						    android:layout_marginRight="17dp"
+						    android:orientation="vertical"
+						    android:background="@android:color/white">
+					        
+					        <LinearLayout 
+					            android:layout_width="match_parent"
+					            android:layout_height="42dp"
+					            android:orientation="horizontal"
+					            android:background="@android:color/transparent">
+					            
+					            <TextView 
+					                android:layout_height="match_parent"
+					                android:layout_width="0dp"
+					                android:layout_weight="2"
+					                android:text="Speeding"
+					                android:textColor="@color/gray"
+					                android:textSize="@dimen/smaller_font"
+					                android:singleLine="true"
+					                android:gravity="center|left"/>
+					            
+					            <ImageView 
+					                android:layout_height="match_parent"
+					                android:layout_width="0dp"
+					                android:layout_weight="2"
+					                android:src="@drawable/speeding_value"
+					                android:layout_marginTop="7dp"
+					                android:layout_marginBottom="7dp"
+					                android:gravity="center"/>
+					            
+					            <TextView 
+					                android:id="@+id/speeding"
+					                android:layout_height="match_parent"
+					                android:layout_width="0dp"
+					                android:layout_weight="1"
+					                android:text="92"
+					                android:textColor="@color/metropia_orange"
+					                android:textSize="@dimen/large_font"
+					                android:gravity="center|right"/>
+					        </LinearLayout>
+					        
+					        <LinearLayout 
+					            android:layout_width="match_parent"
+					            android:layout_height="42dp"
+					            android:orientation="horizontal"
+					            android:background="@android:color/transparent">
+					            
+					            <TextView 
+					                android:layout_height="match_parent"
+					                android:layout_width="0dp"
+					                android:layout_weight="2"
+					                android:text="Relative Speed"
+					                android:textColor="@color/gray"
+					                android:textSize="@dimen/smaller_font"
+					                android:singleLine="true"
+					                android:gravity="center|left"/>
+					            
+					            <ImageView 
+					                android:layout_height="match_parent"
+					                android:layout_width="0dp"
+					                android:layout_weight="2"
+					                android:src="@drawable/relative_speed_value"
+					                android:layout_marginTop="7dp"
+					                android:layout_marginBottom="7dp"
+					                android:gravity="center"/>
+					            
+					            <TextView 
+					                android:id="@+id/relative_speed"
+					                android:layout_height="match_parent"
+					                android:layout_width="0dp"
+					                android:layout_weight="1"
+					                android:text="63"
+					                android:textColor="@color/metropia_orange"
+					                android:textSize="@dimen/large_font"
+					                android:gravity="center|right"/>
+					        </LinearLayout>
+					        
+					        <LinearLayout 
+					            android:layout_width="match_parent"
+					            android:layout_height="42dp"
+					            android:orientation="horizontal"
+					            android:background="@android:color/transparent">
+					            
+					            <TextView 
+					                android:layout_height="match_parent"
+					                android:layout_width="0dp"
+					                android:layout_weight="2"
+					                android:text="Braking"
+					                android:textColor="@color/gray"
+					                android:textSize="@dimen/smaller_font"
+					                android:singleLine="true"
+					                android:gravity="center|left"/>
+					            
+					            <ImageView 
+					                android:layout_height="match_parent"
+					                android:layout_width="0dp"
+					                android:layout_weight="2"
+					                android:src="@drawable/braking_value"
+					                android:layout_marginTop="7dp"
+					                android:layout_marginBottom="7dp"
+					                android:gravity="center"/>
+					            
+					            <TextView 
+					                android:id="@+id/braking"
+					                android:layout_height="match_parent"
+					                android:layout_width="0dp"
+					                android:layout_weight="1"
+					                android:text="67"
+					                android:textColor="@color/metropia_orange"
+					                android:textSize="@dimen/large_font"
+					                android:gravity="center|right"/>
+					        </LinearLayout>
+					        
+					        <LinearLayout 
+					            android:layout_width="match_parent"
+					            android:layout_height="42dp"
+					            android:orientation="horizontal"
+					            android:background="@android:color/transparent">
+					            
+					            <TextView 
+					                android:layout_height="match_parent"
+					                android:layout_width="0dp"
+					                android:layout_weight="2"
+					                android:text="In Traffic"
+					                android:textColor="@color/gray"
+					                android:textSize="@dimen/smaller_font"
+					                android:singleLine="true"
+					                android:gravity="center|left"/>
+					            
+					            <ImageView 
+					                android:layout_height="match_parent"
+					                android:layout_width="0dp"
+					                android:layout_weight="2"
+					                android:src="@drawable/in_traffic_value"
+					                android:layout_marginTop="7dp"
+					                android:layout_marginBottom="7dp"
+					                android:gravity="center"/>
+					            
+					            <TextView 
+					                android:id="@+id/in_traffic"
+					                android:layout_height="match_parent"
+					                android:layout_width="0dp"
+					                android:layout_weight="1"
+					                android:text="24"
+					                android:textColor="@color/metropia_orange"
+					                android:textSize="@dimen/large_font"
+					                android:gravity="center|right"/>
+					        </LinearLayout>
+					        
+					        <LinearLayout 
+					            android:layout_width="match_parent"
+					            android:layout_height="42dp"
+					            android:orientation="horizontal"
+					            android:background="@android:color/transparent">
+					            
+					            <TextView 
+					                android:layout_height="match_parent"
+					                android:layout_width="0dp"
+					                android:layout_weight="2"
+					                android:text="Jackrabbit Start"
+					                android:textColor="@color/gray"
+					                android:textSize="@dimen/smaller_font"
+					                android:singleLine="true"
+					                android:gravity="center|left"/>
+					            
+					            <ImageView 
+					                android:layout_height="match_parent"
+					                android:layout_width="0dp"
+					                android:layout_weight="2"
+					                android:src="@drawable/jackrabbit_start_value"
+					                android:layout_marginTop="7dp"
+					                android:layout_marginBottom="7dp"
+					                android:gravity="center"/>
+					            
+					            <TextView 
+					                android:id="@+id/jackrabbit_start" 
+					                android:layout_height="match_parent"
+					                android:layout_width="0dp"
+					                android:layout_weight="1"
+					                android:text="76"
+					                android:textColor="@color/metropia_orange"
+					                android:textSize="@dimen/large_font"
+					                android:gravity="center|right"/>
+					        </LinearLayout>
+					        
+						</LinearLayout>
+						
+						<View 
+						    android:layout_width="fill_parent"
+						    android:layout_height="1dp"
+						    android:background="@color/gray" />	
+						
+						<LinearLayout 
+						    android:id="@+id/share_my_score_panel"
+						    android:layout_width="fill_parent"
+						    android:layout_height="40dp"
+						    android:orientation="horizontal">
+					        
+						    <FrameLayout 
+						        android:layout_width="0dp"
+						        android:layout_height="match_parent"
+						        android:layout_weight="1">
+					            
+						        <ImageView 
+						            android:layout_width="27dp"
+						            android:layout_height="27dp"
+						            android:src="@drawable/my_metropia_share"
+						            android:layout_gravity="center|left"
+						            android:layout_marginLeft="35dp"/>
+					        </FrameLayout>
+						    
+							<TextView 
+							    android:id="@+id/share_my_score" 
+							    android:layout_width="0dp"
+							    android:layout_height="match_parent"
+							    android:layout_weight="2"
+							    android:text="Share My Score"
+							    android:textColor="@color/gray"
+							    android:textSize="@dimen/medium_font"
+							    android:gravity="center|left"
+							    android:drawableRight="@drawable/menu_right_arrow"
+							    android:paddingRight="30dp"/>
+						</LinearLayout>
+						
+						<View 
+			                android:layout_width="fill_parent"
+			                android:layout_height="75dp"
+			                android:background="@android:color/transparent"/>
+				
+				    </LinearLayout>
+				    
+			        <LinearLayout
+			            android:id="@+id/co2_savings_panel"
+			            android:layout_width="match_parent"
+			            android:layout_height="wrap_content"
+			            android:orientation="vertical"
+			            android:background="@android:color/transparent"
+			            android:visibility="gone">
+						
+			            <LinearLayout 
+			                android:layout_width="match_parent"
+			                android:layout_height="90dp"
+			                android:orientation="horizontal"
+			                android:background="@android:color/white">
+			                
+			                <TextView 
+			                    android:id="@+id/co2_reduce_desc"
+			                    android:layout_height="match_parent"
+			                    android:layout_width="0dp"
+			                    android:layout_weight="1"
+			                    android:text=""
+			                    android:textColor="@color/gray"
+			                    android:textSize="@dimen/medium_font"
+			                    android:gravity="center"
+			                />
+			                
+			                <View 
+			                    android:layout_height="fill_parent"
+			                    android:layout_width="1dp"
+			                    android:background="@color/gray"/>
+			                
+			                <TextView 
+			                    android:id="@+id/tree_planted"
+			                    android:layout_height="match_parent"
+			                    android:layout_width="0dp"
+			                    android:layout_weight="1"
+			                    android:text=""
+			                    android:textColor="@color/gray"
+			                    android:textSize="@dimen/medium_font"
+			                    android:gravity="center"
+			                />
+			            </LinearLayout>
+			            
+			            <View 
+			                android:layout_width="fill_parent"
+			                android:layout_height="1dp"
+			                android:background="@color/gray"/>
+			            
+			            <ImageView 
+			                android:layout_height="270dp"
+			                android:layout_width="match_parent"
+			                android:src="@drawable/my_next_tree"/>
+			            
+			            <View 
+			                android:layout_height="5dp"
+			                android:layout_width="fill_parent"
+			                android:background="@color/metropia_blue"/>
+			            
+			            <LinearLayout 
+			                android:layout_width="fill_parent"
+			                android:layout_height="90dp"
+			                android:orientation="horizontal">
+			            
+				            <TextView 
+				                android:id="@+id/co2_to_tree_rule_desc"
+				                android:layout_width="0dp"
+				                android:layout_height="wrap_content"
+				                android:layout_weight="1"
+				                android:text=""
+				                android:textColor="@color/gray"
+				                android:textSize="@dimen/smaller_font"
+				                android:gravity="center|left"
+				                android:padding="10dp"/>
+				            
+				            <ImageView 
+				                android:layout_width="50dp"
+				                android:layout_height="50dp"
+				                android:src="@drawable/american_forests"
+				                android:layout_marginRight="5dp"
+				                android:layout_marginBottom="5dp"
+				                android:layout_gravity="right|bottom"/>
+			            
+			            </LinearLayout>
+			            
+			            <View 
+			                android:layout_height="1dp"
+			                android:layout_width="fill_parent"
+			                android:background="@color/gray"/>
+			            
+			            <LinearLayout 
+			                android:id="@+id/share_my_co2_panel"
+			                android:layout_width="fill_parent"
+			                android:layout_height="44dp"
+			                android:orientation="horizontal">
+				            
+			                <FrameLayout 
+			                    android:layout_height="fill_parent"
+			                    android:layout_width="0dp"
+			                    android:layout_weight="1">
+				                <ImageView 
+				                    android:layout_width="27dp"
+				                    android:layout_height="27dp"
+				                    android:src="@drawable/my_metropia_share"
+				                    android:layout_gravity="center|left"
+				                    android:layout_marginLeft="35dp"/>
+			                </FrameLayout>
+			                
+				            <TextView 
+				                android:id="@+id/share_my_co2_saving"
+				                android:layout_width="0dp"
+				                android:layout_height="wrap_content"
+				                android:layout_weight="2"
+				                android:text="Share My CO2 Savings"
+				                android:textColor="@android:color/black"
+				                android:textSize="@dimen/smaller_font"
+				                android:layout_gravity="center|right"
+				                android:gravity="center|left"
+				                android:drawableRight="@drawable/menu_right_arrow"
+				                android:paddingRight="30dp"/>
+				            
+			            </LinearLayout>
+			            
+			            <View 
+			                android:layout_width="fill_parent"
+			                android:layout_height="75dp"
+			                android:background="@android:color/transparent"/>
+			            
+			        </LinearLayout>
+			        
+				</FrameLayout>
+			</ScrollView>
+		    
+	</LinearLayout>
+	
+    <LinearLayout 
+        android:layout_height="75dp"
+        android:layout_width="fill_parent"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:background="@android:color/transparent">
+			
+        <FrameLayout 
+            android:id="@+id/drive_score_button"
+            android:layout_height="fill_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/drive_score">
+            
+            <TextView 
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="Driving Score"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/smallest_font"
+                android:background="@android:color/transparent"
+                android:layout_gravity="center|bottom"/>
+            
+        </FrameLayout>
+        
+        <FrameLayout 
+            android:id="@+id/mPoint_button"
+            android:layout_height="fill_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/mpoint">
+            
+            <TextView 
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="mPOINTS"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/smallest_font"
+                android:background="@android:color/transparent"
+                android:layout_gravity="center|bottom"/>
+            
+        </FrameLayout>
+        
+        <FrameLayout 
+            android:id="@+id/co2_savings_button"
+            android:layout_height="fill_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/co2_saving">
+            
+            <TextView 
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="CO2 Savings"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/smallest_font"
+                android:background="@android:color/transparent"
+                android:layout_gravity="center|bottom"/>
+            
+        </FrameLayout>
+        
+    </LinearLayout>
+	
+</RelativeLayout>
