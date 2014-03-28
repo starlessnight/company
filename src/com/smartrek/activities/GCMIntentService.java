@@ -10,7 +10,6 @@ import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
 import com.google.android.gcm.GCMConstants;
-import com.smartrek.models.Reservation;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
 
@@ -44,11 +43,6 @@ public class GCMIntentService extends GCMBaseIntentService {
     		String origin = intent.getStringExtra("origin");
     		String destination = intent.getStringExtra("destination");
     		String message = intent.getStringExtra("message");
-    		double lat = Double.parseDouble(intent.getStringExtra("lat"));
-            double lon = Double.parseDouble(intent.getStringExtra("lon"));
-            String eta = intent.getStringExtra("eta");
-            String mile = intent.getStringExtra("mile");
-            String name = intent.getStringExtra("name");
     		
     		long departureTime = intent.getLongExtra("time", 0) * 1000;
     		if(departureTime == 0){
@@ -63,19 +57,21 @@ public class GCMIntentService extends GCMBaseIntentService {
             
             Notification notification = new Notification(R.drawable.icon_small, "Metropia", departureTime);
             PendingIntent pendingIntent;
-            if(eta != null){
-                String msg = name + " is about " + mile + " miles away, and should arrive at "
-                    + destination + " at approximately " + eta + ".\n" + Reservation.formatTime(departureTime, true);
+            
+            String body = intent.getStringExtra("body");
+            if(body != null){
+                double lat = Double.parseDouble(intent.getStringExtra("lat"));
+                double lon = Double.parseDouble(intent.getStringExtra("lon"));
                 Intent landingIntent = new Intent(context, RouteActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 landingIntent.putExtra(RouteActivity.LAT, lat);
                 landingIntent.putExtra(RouteActivity.LON, lon);
-                landingIntent.putExtra(RouteActivity.MSG, msg);
+                landingIntent.putExtra(RouteActivity.MSG, body);
                 pendingIntent = PendingIntent.getActivity(context, 0, landingIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 Intent onTheWayIntent = new Intent(LandingActivity2.ON_THE_WAY_NOTICE);
                 onTheWayIntent.putExtra(LandingActivity2.LAT, lat);
                 onTheWayIntent.putExtra(LandingActivity2.LON, lon);
-                onTheWayIntent.putExtra(LandingActivity2.MSG, msg);
+                onTheWayIntent.putExtra(LandingActivity2.MSG, body);
                 sendBroadcast(onTheWayIntent);
             }else{
                 pendingIntent = PendingIntent.getActivity(context, 0, routeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
