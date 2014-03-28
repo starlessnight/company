@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     	android:layout_width="match_parent"
 	    android:layout_height="match_parent"
-	    android:background="@drawable/setting_bg">
+	    android:background="@color/light_gray_background">
 	    
     <ScrollView
 		    android:layout_width="match_parent"
@@ -38,7 +38,7 @@
 		            android:layout_height="wrap_content"
 		            android:gravity="left"
 		            android:textColor="#33add8"
-		            android:textSize="@dimen/smallest_font"
+		            android:textSize="@dimen/smaller_font"
 		            android:text="Back"
 		            android:layout_gravity="center_vertical"
 		            android:paddingTop="5dp"
@@ -49,69 +49,31 @@
 				/>
 		    </FrameLayout>
 		    
-		    <View
-			   android:layout_width="fill_parent"
-			   android:layout_height="5dp"
-			   android:background="#929497" 
-		    />
-		    
-		    <LinearLayout 
-		        android:layout_width="fill_parent"
-		        android:layout_height="wrap_content"
-		        android:background="@android:color/white"
-		        android:orientation="vertical"
-		    >
-		        <TextView 
-		            android:id="@+id/user_name"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:gravity="center"
-		            android:layout_gravity="center_horizontal"
-		            android:text=""
-		            android:textSize="@dimen/medium_font"
-		            android:textColor="@color/gray"
-		            android:paddingTop="5dp"
-		        />
-		        
-		        <TextView 
-		            android:id="@+id/share_good_news"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:gravity="center"
-		            android:layout_gravity="center_horizontal"
-		            android:text="Share the good news!"
-		            android:textSize="@dimen/smaller_font"
-		            android:textColor="@color/gray"
-		            android:paddingBottom="5dp"
-		        />
-		    </LinearLayout>
-		    
 		    <include layout="@layout/metropia_color_bar" />
 		    
 		    <TextView 
-		        android:id="@+id/metropians_less_traffic"
-		        android:layout_width="fill_parent"
-		        android:layout_height="63dp"
-		        android:background="@color/gray"
-		        android:padding="2dp"
-		        android:text="More Metropians = Less Traffic"
-		        android:textSize="@dimen/medium_font"
-		        android:textColor="@android:color/white"
-		        android:singleLine="true"
+		        android:id="@+id/share_good_news"
+		        android:layout_width="wrap_content"
+		        android:layout_height="60dp"
 		        android:gravity="center"
-		        android:layout_gravity="center_horizontal"/>
+		        android:layout_gravity="center_horizontal"
+		        android:text="Share the Good News!"
+		        android:textSize="@dimen/smaller_font"
+		        android:textColor="@color/gray"
+		        android:paddingBottom="5dp"
+		    />
+		    
+		    <View 
+		        android:layout_width="fill_parent"
+		        android:layout_height="1dp"
+		        android:background="@color/light_gray"/>
 		    
 		    <LinearLayout 
 		        android:id="@+id/facebook"
 		        android:layout_width="fill_parent"
 		        android:layout_height="52dp"
-		        android:layout_marginTop="12dp"
-		        android:layout_marginLeft="17dp"
-		        android:layout_marginRight="17dp"
-		        android:layout_marginBottom="8dp"
 		        android:background="@android:color/white"
-		        android:orientation="horizontal"
-		        >
+		        android:orientation="horizontal">
 		        
 		        <ImageView 
 		            android:layout_height="fill_parent"
@@ -137,14 +99,17 @@
 		        
 		    </LinearLayout>
 		    
+		    <View 
+		        android:layout_width="fill_parent"
+		        android:layout_height="1dp"
+		        android:background="@color/light_gray"
+		        android:layout_marginLeft="5dp"
+		        android:layout_marginRight="5dp"/>
+		    
 		    <LinearLayout 
 		        android:id="@+id/twitter"
 		        android:layout_width="fill_parent"
 		        android:layout_height="52dp"
-		        android:layout_marginTop="8dp"
-		        android:layout_marginLeft="17dp"
-		        android:layout_marginRight="17dp"
-		        android:layout_marginBottom="8dp"
 		        android:background="@android:color/white"
 		        android:orientation="horizontal"
 		        >
@@ -173,17 +138,19 @@
 		        
 		    </LinearLayout>
 		    
+		    <View 
+		        android:layout_width="fill_parent"
+		        android:layout_height="1dp"
+		        android:background="@color/light_gray"
+		        android:layout_marginLeft="5dp"
+		        android:layout_marginRight="5dp"/>
+		    
 		    <LinearLayout 
 		        android:id="@+id/google_plus"
 		        android:layout_width="fill_parent"
 		        android:layout_height="52dp"
-		        android:layout_marginTop="8dp"
-		        android:layout_marginLeft="17dp"
-		        android:layout_marginRight="17dp"
-		        android:layout_marginBottom="8dp"
 		        android:background="@android:color/white"
-		        android:orientation="horizontal"
-		        >
+		        android:orientation="horizontal">
 		        
 		        <ImageView 
 		            android:layout_height="fill_parent"
@@ -198,7 +165,7 @@
 		            android:layout_height="fill_parent"
 		            android:layout_width="0dp"
 		            android:layout_weight="2"
-		            android:text="Google Plus"
+		            android:text="Google +"
 		            android:textSize="@dimen/medium_font"
 		            android:textColor="@color/gray"
 		            android:gravity="center|left"
@@ -209,14 +176,17 @@
 		        
 		    </LinearLayout>
 		    
+		    <View 
+		        android:layout_width="fill_parent"
+		        android:layout_height="1dp"
+		        android:background="@color/light_gray"
+		        android:layout_marginLeft="5dp"
+		        android:layout_marginRight="5dp"/>
+		    
 		    <LinearLayout 
 		        android:id="@+id/text_message"
 		        android:layout_width="fill_parent"
 		        android:layout_height="52dp"
-		        android:layout_marginTop="8dp"
-		        android:layout_marginLeft="17dp"
-		        android:layout_marginRight="17dp"
-		        android:layout_marginBottom="8dp"
 		        android:background="@android:color/white"
 		        android:orientation="horizontal"
 		        >
@@ -245,14 +215,17 @@
 		        
 		    </LinearLayout>
 		    
+		    <View 
+		        android:layout_width="fill_parent"
+		        android:layout_height="1dp"
+		        android:background="@color/light_gray"
+		        android:layout_marginLeft="5dp"
+		        android:layout_marginRight="5dp"/>
+		    
 		    <LinearLayout 
 		        android:id="@+id/email"
 		        android:layout_width="fill_parent"
 		        android:layout_height="52dp"
-		        android:layout_marginTop="8dp"
-		        android:layout_marginLeft="17dp"
-		        android:layout_marginRight="17dp"
-		        android:layout_marginBottom="8dp"
 		        android:background="@android:color/white"
 		        android:orientation="horizontal"
 		        >
@@ -280,6 +253,11 @@
 		            />
 		        
 		    </LinearLayout>
+		    
+		    <View 
+		        android:layout_width="fill_parent"
+		        android:layout_height="1dp"
+		        android:background="@color/light_gray"/>
 		    
 		</LinearLayout>
 	</ScrollView>

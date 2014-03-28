@@ -66,7 +66,7 @@ public final class ShareActivity extends FragmentActivity {
 		boldFont = Font.getBold(assets);
 		lightFont = Font.getLight(assets);
 
-		User user = User.getCurrentUser(ShareActivity.this);
+//		User user = User.getCurrentUser(ShareActivity.this);
 
 		Intent intent = getIntent();
 		shareText = intent.getStringExtra(SHARE_TEXT);
@@ -80,8 +80,8 @@ public final class ShareActivity extends FragmentActivity {
 			}
 		});
 
-		TextView userNameView = (TextView) findViewById(R.id.user_name);
-		userNameView.setText(user.getFirstname() + " " + user.getLastname());
+//		TextView userNameView = (TextView) findViewById(R.id.user_name);
+//		userNameView.setText(user.getFirstname() + " " + user.getLastname());
 
 		findViewById(R.id.facebook).setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -170,13 +170,10 @@ public final class ShareActivity extends FragmentActivity {
 			}
 		});
 
-		Font.setTypeface(lightFont, userNameView, (TextView) findViewById(R.id.share_good_news),
-				                    (TextView) findViewById(R.id.metropians_less_traffic), 
-				                    (TextView) findViewById(R.id.facebook_text), 
-				                    (TextView) findViewById(R.id.twitter_text),
-				                    (TextView) findViewById(R.id.google_plus_text), 
-				                    (TextView) findViewById(R.id.text_message_text), 
-				                    (TextView) findViewById(R.id.email_text));
+		Font.setTypeface(lightFont, (TextView) findViewById(R.id.share_good_news),
+				    (TextView) findViewById(R.id.facebook_text), (TextView) findViewById(R.id.twitter_text),
+				    (TextView) findViewById(R.id.google_plus_text), (TextView) findViewById(R.id.text_message_text), 
+				    (TextView) findViewById(R.id.email_text));
 
 		uiHelper = new UiLifecycleHelper(ShareActivity.this, fbCallback);
 		uiHelper.onCreate(savedInstanceState);
