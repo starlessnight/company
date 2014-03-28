@@ -162,7 +162,7 @@
 		            android:layout_height="wrap_content"
 		            android:gravity="right"
 		            android:textColor="#33add8"
-		            android:textSize="@dimen/smallest_font"
+		            android:textSize="@dimen/smaller_font"
 		            android:text="Done"
 		            android:layout_gravity="center_vertical"
 		            android:paddingTop="5dp"
@@ -178,7 +178,7 @@
             android:layout_width="match_parent"
             android:layout_height="30dp"
             android:text="12 min"
-            android:textSize="@dimen/smallest_font"
+            android:textSize="@dimen/smaller_font"
             android:textColor="@color/gray"
             android:gravity="center"/>
         
@@ -187,7 +187,7 @@
             android:layout_width="match_parent"
             android:layout_height="30dp"
             android:text="9.8 miles"
-            android:textSize="@dimen/smallest_font"
+            android:textSize="@dimen/smaller_font"
             android:textColor="@color/gray"
             android:gravity="center"/>
         

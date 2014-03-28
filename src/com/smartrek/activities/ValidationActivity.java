@@ -294,10 +294,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				DirectionItem item = getItem(position);
 				ImageView vDirection = (ImageView) view
 						.findViewById(R.id.img_view_direction);
-				if (item.drawableId == 0) {
+				if (item.smallDrawableId == 0) {
 					vDirection.setVisibility(View.INVISIBLE);
 				} else {
-					vDirection.setImageResource(item.drawableId);
+					vDirection.setImageResource(item.smallDrawableId);
 					vDirection.setVisibility(View.VISIBLE);
 				}
 				vDistance
