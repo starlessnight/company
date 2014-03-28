@@ -1300,6 +1300,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			return;
 		}
 		
+		pointOverlay.setDegrees(bearing);
+		
 		double lat = location.getLatitude();
 		double lng = location.getLongitude();
 
@@ -1311,7 +1313,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				mapView.getController().animateTo(new GeoPoint(lat, lng));
 			}
 			pointOverlay.setLocation((float) lat, (float) lng);
-			pointOverlay.setDegrees(location.getBearing());
 			mapView.postInvalidate();
 		} else {
 			animator.removeCallbacksAndMessages(null);
@@ -1332,8 +1333,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						double deltaX = seq * stepSize;
 						double newLng = oldLng + deltaX;
 						double newLat = oldLat + deltaX * slop;
-						pointOverlay
-								.setLocation((float) newLat, (float) newLng);
+						pointOverlay.setLocation((float) newLat, (float) newLng);
 						mapView.postInvalidate();
 						if (buttonFollow.isChecked()) {
                             mapView.getController().setCenter(new GeoPoint(newLat, newLng));
