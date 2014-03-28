@@ -2,12 +2,14 @@ package com.smartrek.activities;
 
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
@@ -94,8 +96,8 @@ public class MyMetropiaActivity extends FragmentActivity{
 		});
 		
 		TextView co2ToTree = (TextView) findViewById(R.id.co2_to_tree_rule_desc);
-		co2ToTree.setText(formatCO2("For every 200 lbs of CO2 emissions that you save by " + 
-		"using metropia a tree will be planted for you!"));
+		co2ToTree.setText(formatMetropia(formatCO2("For every 200 lbs of CO2 emissions that you save by " + 
+		"using metropia a tree will be planted for you!")));
 		
 		AssetManager assets = getAssets();
 		
@@ -146,6 +148,14 @@ public class MyMetropiaActivity extends FragmentActivity{
 		SpannableString msgSpan = SpannableString.valueOf(msg);
 		msgSpan.setSpan(new AbsoluteSizeSpan(MyMetropiaActivity.this.getResources().getDimensionPixelSize(R.dimen.smallest_font)), 
 				twoIndex, twoIndex + "2".length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		return msgSpan;
+	}
+	
+	private CharSequence formatMetropia(CharSequence msg) {
+		int metropiaIndex = msg.toString().indexOf("metropia");
+		SpannableString msgSpan = SpannableString.valueOf(msg);
+		msgSpan.setSpan(new StyleSpan(Typeface.BOLD), metropiaIndex, metropiaIndex + "metropia".length(), 
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		return msgSpan;
 	}
 
