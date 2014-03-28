@@ -65,11 +65,14 @@
 			    <TextView
 		            android:id="@+id/login_button"
 		            android:layout_width="match_parent"
-		            android:layout_height="35dp"
-		            android:layout_marginTop="20dp" 
+		            android:layout_height="wrap_content"
+		            android:layout_marginTop="20dp"
+		            android:paddingTop="10dp"
+		            android:paddingBottom="10dp"		            
 		            android:text="@string/sign_in"
 		            android:enabled="false"
 		            android:textColor="@android:color/white"
+		            android:textSize="@dimen/smaller_font"
 		            style="@style/GreenButton"
 				/>
 			    
