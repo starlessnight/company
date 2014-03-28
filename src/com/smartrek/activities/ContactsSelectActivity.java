@@ -26,7 +26,11 @@ import android.provider.ContactsContract;
 import android.provider.ContactsContract.PhoneLookup;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextWatcher;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -250,6 +254,21 @@ public class ContactsSelectActivity extends FragmentActivity {
 		return Pattern.matches("^[\\w-\\+]+(\\.[\\w-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$", email);
 	}
 	
+	private CharSequence formatContactInfo(String name, String email) {
+		String contactInfo = name + "\n" + email;
+		int indexOfNewline = contactInfo.indexOf("\n");
+		SpannableString contactInfoSpan = SpannableString.valueOf(contactInfo);
+		contactInfoSpan.setSpan(new AbsoluteSizeSpan(ContactsSelectActivity.this.getResources()
+				.getDimensionPixelSize(R.dimen.smaller_font)), indexOfNewline, contactInfo.length(),
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		
+		contactInfoSpan.setSpan(new ForegroundColorSpan(ContactsSelectActivity.this.getResources()
+				.getColor(R.color.light_gray)), indexOfNewline, contactInfo.length(),
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+		return contactInfoSpan;
+	}
+	
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -310,7 +329,7 @@ public class ContactsSelectActivity extends FragmentActivity {
             });
             
             selectButton.requestLayout();
-            contactInfo.setText(item.name);
+            contactInfo.setText(formatContactInfo(item.name, item.email));
             contactInfo.requestLayout();
             return view;
         }
