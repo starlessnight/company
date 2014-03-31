@@ -3,18 +3,24 @@ package com.smartrek.activities;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.SpannableString;
@@ -98,11 +104,54 @@ public final class UserRegistrationActivity extends FragmentActivity
         terms.setMovementMethod(LinkMovementMethod.getInstance());
         terms.setLinkTextColor(Color.BLACK);
         
+        queryUserInfo();
+        
         AssetManager assets = getAssets();
         
         Font.setTypeface(Font.getLight(assets), editTextEmail, editTextFirstname, editTextLastname, 
         		editTextPassword, editTextPasswordConfirm, editTextZipCode, terms);
         Font.setTypeface(Font.getBold(assets), buttonRegister, (TextView) findViewById(R.id.header));
+    }
+    
+    private void queryUserInfo(){
+        final AccountManager manager = AccountManager.get(this);
+        final Account[] accounts = manager.getAccountsByType("com.google");
+        if (accounts[0].name != null) {
+            String accountName = accounts[0].name;
+
+            ContentResolver cr = getContentResolver();
+            Cursor emailCur = cr.query(
+                    ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
+                    ContactsContract.CommonDataKinds.Email.DATA + " = ?",
+                    new String[] { accountName }, null);
+            while (emailCur.moveToNext()) {
+                String email = emailCur
+                        .getString(emailCur
+                                .getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
+                editTextEmail.setText(email);
+                
+                String newName = emailCur
+                        .getString(emailCur
+                                .getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                String name = null;
+                if (name == null || newName.length() > name.length())
+                    name = newName;
+                
+                String[] nameToks = StringUtils.split(name, " ");
+                String firstname;
+                String lastname = null;
+                if(nameToks.length > 1){
+                   firstname = StringUtils.join(ArrayUtils.subarray(nameToks, 0, nameToks.length - 1), " ");
+                   lastname = nameToks[nameToks.length - 1];
+                }else{
+                   firstname = nameToks[0];
+                }
+                editTextFirstname.setText(firstname);
+                editTextLastname.setText(lastname);
+            }
+
+            emailCur.close();
+        }
     }
     
 	@Override
