@@ -1462,7 +1462,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		    ttsDelayCnt.set(0);
 		}else if(ttsDelayCnt.incrementAndGet() > countOutOfRouteThreshold){
 		    speakIfTtsEnabled(ttsBuffer.remove(0), false);
-		    ttsDelayCnt.set(0);               
+		    ttsDelayCnt.set(0);             
 		}
 
 		trajectory.accumulate(location, linkId);
