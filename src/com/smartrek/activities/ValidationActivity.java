@@ -1232,6 +1232,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private AtomicLong passedNodeTimeOffset = new AtomicLong(); 
 	
+	private List<String> ttsBuffer = new ArrayList<String>();
+	
+	private AtomicInteger ttsDelayCnt = new AtomicInteger(); 
+	
 	private synchronized void locationChanged(final Location location) {
 	    final double speedInMph = Trajectory.msToMph(location.getSpeed());
 	    final float bearing = location.getBearing();
@@ -1452,6 +1456,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				}
 			}
 
+		}
+		
+		if(ttsBuffer.isEmpty()){
+		    ttsDelayCnt.set(0);
+		}else if(ttsDelayCnt.incrementAndGet() > countOutOfRouteThreshold){
+		    speakIfTtsEnabled(ttsBuffer.remove(0), false);
+		    ttsDelayCnt.set(0);               
 		}
 
 		trajectory.accumulate(location, linkId);
@@ -1874,7 +1885,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				@Override
 				public void onCheckPoint(String navText, boolean flush) {
 					if (!arrived.get()) {
-						speakIfTtsEnabled(navText, flush);
+					    if(flush){
+					        speakIfTtsEnabled(navText, flush);
+					        ttsBuffer.clear();
+					    }else{
+					        ttsBuffer.add(navText);
+					    }
 					}
 				}
 			});
