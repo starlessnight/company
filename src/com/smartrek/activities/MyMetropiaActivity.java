@@ -12,8 +12,11 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
 
+import com.smartrek.utils.Dimension;
 import com.smartrek.utils.Font;
 
 public class MyMetropiaActivity extends FragmentActivity{
@@ -96,8 +99,17 @@ public class MyMetropiaActivity extends FragmentActivity{
 		});
 		
 		TextView co2ToTree = (TextView) findViewById(R.id.co2_to_tree_rule_desc);
-		co2ToTree.setText(formatMetropia(formatCO2("For every 200 lbs of CO2 emissions that you save by " + 
-		"using metropia a tree will be planted for you!")));
+		co2ToTree.setText(formatMetropia(formatCO2("For every 200 lbs of CO2 emissions" + 
+		    " that you save by using metropia a tree will be planted for you!")));
+		
+		TextView co2ValueMask = (TextView) findViewById(R.id.co2_value_mask);
+		String co2Value = "50";  //query co2
+		co2ValueMask.setText(co2Value + " lbs");
+		Animation slideup = new TranslateAnimation(0, 0, 0, 
+				-1 * Dimension.dpToPx(Integer.valueOf(co2Value)*134/200, getResources().getDisplayMetrics()));
+		slideup.setDuration(10);
+		co2ValueMask.startAnimation(slideup);
+		slideup.setFillAfter(true);
 		
 		AssetManager assets = getAssets();
 		
@@ -106,7 +118,7 @@ public class MyMetropiaActivity extends FragmentActivity{
 		Font.setTypeface(Font.getLight(assets), (TextView) findViewById(R.id.back_button), 
 				co2Reduce, treePlanted, co2ToTree, backButton);
 	}
-
+	
 	private CharSequence formatCO2Desc(String co2ReduceValue) {
 		String msg = co2ReduceValue + "lbs\nCO2 Reduced";
 		int lbsIndex = msg.indexOf("lbs");
