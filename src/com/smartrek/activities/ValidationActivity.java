@@ -1494,6 +1494,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private void displayArrivalMsg() {
 		if (isTripValidated()) {
+		    navigationView.setVisibility(View.GONE);
 		    arrivalMsgDisplayed.set(true);
 			final View panel = findViewById(R.id.congrats_panel);
 			String msg = "Arrive at Destination" + "\n" + reservation.getDestinationAddress();
@@ -1531,8 +1532,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				navigationView.setVisibility(View.GONE);
-				findViewById(R.id.dest_panel).setVisibility(View.VISIBLE);
 				speakIfTtsEnabled("Arrive at Destination", false);
 				displayArrivalMsg();
 			}
