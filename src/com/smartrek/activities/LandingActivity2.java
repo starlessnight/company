@@ -1046,15 +1046,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             star.setCallback(new OverlayCallback() {
                                 @Override
                                 public boolean onTap(int index) {
-                                    startRouteActivity(a.getAddress(), gp);
-                                    hideStarredBalloon();
-                                    hideBulbBalloon();
-                                    removePOIMarker(mapView);
-                                    resizeMap(true);
-                                    return true;
-                                }
-                                @Override
-                                public boolean onLongPress(int index, OverlayItem item) {
                                     hideStarredBalloon();
                                     hideBulbBalloon();
                                     removePOIMarker(mapView); 
@@ -1076,6 +1067,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                     hideBottomBar();
                                     mapView.postInvalidate();
                                     relayoutIcons();
+                                    return true;
+                                }
+                                @Override
+                                public boolean onLongPress(int index, OverlayItem item) {
                                     return true;
                                 }
                                 @Override
@@ -1488,15 +1483,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             bulb.setCallback(new OverlayCallback() {
                 @Override
                 public boolean onTap(int index) {
-                    startRouteActivity(l.addr, gp);
-                    hideStarredBalloon();
-                    hideBulbBalloon();
-                    removePOIMarker(mapView);
-                    resizeMap(true);
-                    return true;
-                }
-                @Override
-                public boolean onLongPress(int index, OverlayItem item) {
                     hideStarredBalloon();
                     hideBulbBalloon();
                     removePOIMarker(mapView);
@@ -1515,6 +1501,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     hideBottomBar();
                     mapView.postInvalidate();
                     relayoutIcons();
+                    return true;
+                }
+                @Override
+                public boolean onLongPress(int index, OverlayItem item) {
                     return true;
                 }
                 @Override
