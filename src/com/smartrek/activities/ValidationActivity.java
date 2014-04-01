@@ -39,6 +39,10 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -116,7 +120,8 @@ import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.SystemService;
 import com.smartrek.utils.ValidationParameters;
 
-public class ValidationActivity extends FragmentActivity implements OnInitListener, OnAudioFocusChangeListener {
+public class ValidationActivity extends FragmentActivity implements OnInitListener, 
+        OnAudioFocusChangeListener, SensorEventListener {
 	public static final int DEFAULT_ZOOM_LEVEL = 18;
 
 	private static final String RESERVATION = "reservation";
@@ -210,10 +215,19 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private TextView remainDistDirecListView;
 	private TextView remainTimesDirectListView;
 	
+	private SensorManager mSensorManager;
+    
+    public static Sensor accelerometer;
+    public static Sensor magnetometer;
+	
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.post_reservation_map);
+		
+		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
 		AssetManager assets = getAssets();
 		boldFont = Font.getBold(assets);
@@ -477,6 +491,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		} else {
 
 		}
+		
+		mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+        mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_GAME);
 	}
 
 	@Override
@@ -484,6 +501,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		super.onPause();
 		SessionM.onActivityPause(this);
 		// TODO: Pause location service
+		mSensorManager.unregisterListener(this, accelerometer);
+		mSensorManager.unregisterListener(this, magnetometer);
 	}
 
 	@Override
@@ -1322,8 +1341,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			return;
 		}
 		
-		pointOverlay.setDegrees(bearing);
-		
 		double lat = location.getLatitude();
 		double lng = location.getLongitude();
 
@@ -1995,6 +2012,36 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                 }
             };
             Misc.parallelExecute(delTask);
+        }
+    }
+    
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        
+    }
+
+    float[] mGravity;
+    float[] mGeomagnetic;
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+            mGravity = event.values;
+        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
+            mGeomagnetic = event.values;
+        if (mGravity != null && mGeomagnetic != null) {
+            float r[] = new float[9];
+            float i[] = new float[9];
+            boolean success = SensorManager.getRotationMatrix(r, i, mGravity,
+                    mGeomagnetic);
+            if (success) {
+                float orientation[] = new float[3];
+                SensorManager.getOrientation(r, orientation);
+                float azimut = Double.valueOf(Math.toDegrees(orientation[0])).floatValue();
+                if(pointOverlay != null){
+                    pointOverlay.setDegrees(azimut);
+                    MapView mapView = (MapView)findViewById(R.id.mapview);
+                    mapView.postInvalidate();
+                }
+            }
         }
     }
 
