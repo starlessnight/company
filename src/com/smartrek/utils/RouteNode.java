@@ -18,6 +18,8 @@ public final class RouteNode implements Parcelable, JSONModel {
 		
 		private boolean validated;
 		
+		private boolean passed;
+		
 		public static final Parcelable.Creator<Metadata> CREATOR = new Parcelable.Creator<Metadata>() {
 			public Metadata createFromParcel(Parcel in) {
 				return new Metadata(in);
@@ -35,6 +37,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		public Metadata(Parcel in) {
 			in.readBooleanArray(pingFlags);
 			validated = (in.readByte() == 1);
+			passed = (in.readByte() == 1);
 		}
 		
 		public void resetPingFlags() {
@@ -53,6 +56,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		public void writeToParcel(Parcel dest, int flags) {
 			dest.writeBooleanArray(pingFlags);
 			dest.writeByte((byte)(validated ? 1 : 0));
+			dest.writeByte((byte)(passed ? 1 : 0));
 		}
 
 		public boolean isValidated() {
@@ -62,7 +66,14 @@ public final class RouteNode implements Parcelable, JSONModel {
 		public void setValidated(boolean validated) {
 			this.validated = validated;
 		}
-		
+
+        public boolean isPassed() {
+            return passed;
+        }
+
+        public void setPassed(boolean passed) {
+            this.passed = passed;
+        }
 		
 	}
 	

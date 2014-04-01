@@ -1410,7 +1410,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	        
 	        RouteLink rerouteNearestLink = getRouteOrReroute().getNearestLink(lat, lng);
             nearestNode = rerouteNearestLink.getEndNode();
-	        
+            nearestNode.getMetadata().setPassed(true);
+            
 	        long passedNodeTime = passedNodeTimeOffset.get();
             long remainingNodeTime = 0;
             for (RouteNode node : getRouteOrReroute().getNodes()) {

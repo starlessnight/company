@@ -516,7 +516,8 @@ public final class Route implements Parcelable {
 		boolean arrived = false;
 		if(lastNode.distanceTo(lat, lng) <= params.getArrivalDistanceThreshold()){
 		    RouteLink nearestLink = getNearestLink(lat, lng);
-		    arrived = nearestLink == null || nearestLink.getEndNode() == lastNode;
+		    arrived = nearestLink == null || nearestLink.getEndNode() == lastNode 
+	            && nearestLink.getStartNode().getMetadata().isPassed();
 		}
 		return arrived;
 	}
