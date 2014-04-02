@@ -27,6 +27,8 @@ public class PointOverlay extends Overlay {
 	
 	private Bitmap icon;
 	
+	private float currentDegrees;
+	
 	private float degrees;
 	
 	public PointOverlay(Context context, float lat, float lng, int drawableId) {
@@ -59,10 +61,26 @@ public class PointOverlay extends Overlay {
 		//paint.setColor(color);
 		//canvas.drawCircle(point.x, point.y, RADIUS, paint);
 		
+		if(currentDegrees != degrees){
+		    float diff = degrees - currentDegrees;
+		    if(Math.abs(diff) > 180){
+		        diff += diff > 0?-360:360;
+		    }
+		    float step = diff / 3;
+		    if(Math.abs(diff) <= 6){
+                currentDegrees = degrees; 
+            }else{
+                currentDegrees = currentDegrees + step;
+                if(Math.abs(currentDegrees) > 180){
+                    currentDegrees += currentDegrees > 0?-360:360;
+                }
+            }
+		}
+		
 		Matrix matrix = new Matrix();
-		matrix.postRotate(degrees);
-		Bitmap rotatedIcon = Bitmap.createBitmap(icon, 0, 0, icon.getWidth(), icon.getHeight(), matrix, true);
-		canvas.drawBitmap(rotatedIcon, point.x - (rotatedIcon.getWidth()/2), point.y - rotatedIcon.getHeight()/2, paint);
+        matrix.setRotate(Math.round(currentDegrees));
+        Bitmap rotatedIcon = Bitmap.createBitmap(icon, 0, 0, icon.getWidth(), icon.getHeight(), matrix, true);
+        canvas.drawBitmap(rotatedIcon, point.x - (rotatedIcon.getWidth()/2), point.y - rotatedIcon.getHeight()/2, paint);
 	}
 
     public float getDegrees() {
