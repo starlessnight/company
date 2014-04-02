@@ -74,7 +74,7 @@ public class MainActivity extends Activity implements AnimationListener {
 	        vto.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
 				@Override
 				public boolean onPreDraw() {
-					int logoHeight = Double.valueOf(logo.getMeasuredHeight() * 0.65).intValue();
+					int logoHeight = Double.valueOf(logo.getMeasuredHeight() * 0.55).intValue();
 					int logoWidth = logo.getMeasuredWidth();
 					logoMask.setMaxHeight(logoHeight);
 					logoMask.setMinimumHeight(logoHeight);
