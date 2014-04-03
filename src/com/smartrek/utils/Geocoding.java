@@ -93,6 +93,8 @@ public final class Geocoding {
 	
 	public static final String URL = "http://nominatim.openstreetmap.org/search";
 	
+	public static final String DECARTA_URL = "http://api.decarta.com/v1/814192d44ada190313e7639881bf7226";
+	
 
 	/**
 	 * Converts an address into a geographic coordinate. This function does not
@@ -140,7 +142,7 @@ public final class Geocoding {
 	    
 	    List<Address> addresses = new ArrayList<Address>();
         //if(addresses.isEmpty()){
-            GeoPoint gp = googleLookup(query, usOnly);
+            GeoPoint gp = decartaLookup(query, usOnly);
             Address address = new Address();
             address.setLatitude(gp.getLatitude());
             address.setLongitude(gp.getLongitude());
@@ -196,7 +198,39 @@ public final class Geocoding {
         return new GeoPoint(lat, lng);
     }
     
+    private static GeoPoint decartaLookup(String address, boolean usOnly) throws IOException, JSONException {
+    	String url = String.format("%s/geocode/%s.json?limit=1" + (usOnly?"&countrySet=US":""), DECARTA_URL, URLEncoder.encode(address));
+    	Log.d("Geocoding", "url = " + url);
+    	
+    	double lat = 0.0;
+        double lng = 0.0;
+        
+        HTTP http = new HTTP(url);
+        http.connect();
+        
+        int responseCode = http.getResponseCode();
+        if (responseCode == 200) {
+            String response = http.getResponseBody();
+            JSONObject object = new JSONObject(response);
+            JSONObject summary = object.getJSONObject("summary");
+            // if status == "OK"
+            if(summary.getInt("numResults") > 0) {
+                JSONArray results = (JSONArray) object.get("results");
+                if(results.length() > 0) {
+                    JSONObject result = (JSONObject) results.get(0);
+                    JSONObject position = result.getJSONObject("position");
+                
+                    lat = position.getDouble("lat");
+                    lng = position.getDouble("lon");
+                }
+            }
+        }
+        
+        return new GeoPoint(lat, lng);
+    }
+    
     public static String lookup(double lat, double lon) throws IOException, JSONException {
+    	/*
         String url = String.format("%s?latlng=%f,%f&language=en&sensor=false", GOOGLE_URL, lat, lon);
         Log.d("Geocoding", "url = " + url);
         
@@ -222,6 +256,56 @@ public final class Geocoding {
         }
         
         return address;
+        */
+    	String url = String.format("%s/reverseGeocode/%f,%f.json", DECARTA_URL, lat, lon);
+    	Log.d("Geocoding", "url = " + url);
+    	
+    	HTTP http = new HTTP(url);
+        http.connect();
+        
+        String address = null;
+        
+        int responseCode = http.getResponseCode();
+        if (responseCode == 200) {
+            String response = http.getResponseBody();
+            
+            JSONObject object = new JSONObject(response);
+            
+            JSONArray results = (JSONArray) object.get("addresses");
+            if(results.length() > 0) {
+                JSONObject result = (JSONObject) results.get(0);
+                JSONObject addressObject = result.getJSONObject("address");
+                address = addressObject.getString("freeformAddress");
+            }
+        }
+        
+        return address;
     }
-	
+    
+    public static List<String> searchPoi(String address, boolean usOnly) throws IOException, JSONException {
+    	String url = String.format("%s/search/poi/%s.json" + (usOnly?"?countrySet=US":""), DECARTA_URL, URLEncoder.encode(address));
+    	Log.d("Geocoding", "url = " + url);
+    	
+    	HTTP http = new HTTP(url);
+        http.connect();
+        
+        List<String> addresses = new ArrayList<String>();
+        
+        int responseCode = http.getResponseCode();
+        if (responseCode == 200) {
+            String response = http.getResponseBody();
+            
+            JSONObject object = new JSONObject(response);
+            
+            JSONArray results = (JSONArray) object.get("results");
+            for (int i = 0 ; i < results.length() ; i++) {
+            	JSONObject resultObject = (JSONObject) results.get(i);
+                JSONObject addressObject = resultObject.getJSONObject("address");
+                addresses.add(addressObject.getString("freeformAddress"));
+            }
+        }
+        
+        return addresses;
+    }
+    
 }
