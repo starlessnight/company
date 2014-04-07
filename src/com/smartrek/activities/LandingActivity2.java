@@ -725,6 +725,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             android.R.layout.simple_dropdown_item_1line,
             new ArrayList<String>(new LinkedHashSet<String>(searchAddresses)));
         searchBox.setAdapter(adapter);
+        if(!searchBox.getAdapter().isEmpty()) {
+        	searchBox.showDropDown();
+        }
+    
     }
     
     private static class BalloonModel {
