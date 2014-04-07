@@ -109,10 +109,10 @@ public class CalendarService extends IntentService {
         }, false);
     }
     
-    private static boolean canBeGeocoded(String location){
+    private boolean canBeGeocoded(String location){
         boolean rs;
         try {
-            List<Geocoding.Address> addresses = Geocoding.lookup(location, false);
+            List<Geocoding.Address> addresses = Geocoding.lookup(this, location);
             rs = addresses != null && !addresses.isEmpty() && !addresses.get(0).getGeoPoint().isEmpty();
         }catch(Throwable t){
             rs = false;
