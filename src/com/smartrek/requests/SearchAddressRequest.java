@@ -15,7 +15,7 @@ import com.smartrek.utils.GeoPoint;
 public class SearchAddressRequest extends FetchRequest<List<GeoPoint>>{
 	
 	public SearchAddressRequest(User user, String addrInput, String lat, String lon) {
-		super(getLinkUrl(Link.search).replaceAll("\\{dont_use_this\\}", "")
+		super(getLinkUrl(Link.search)
 				.replaceAll("\\{lat\\}", lat).replaceAll("\\{lon\\}", lon)
 				.replaceAll("\\{query\\}", URLEncoder.encode(addrInput))
 				.replaceAll("\\{radius_in_meters\\}", ""));

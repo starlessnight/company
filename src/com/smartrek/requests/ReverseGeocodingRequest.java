@@ -11,7 +11,6 @@ public class ReverseGeocodingRequest extends FetchRequest<String>{
 	
 	public ReverseGeocodingRequest(User user, double lat, double lon) {
 		super(getLinkUrl(Link.reverse_geocoding)
-				.replaceAll("\\{dont_use_this\\}", "")
 				.replaceAll("\\{lat\\}", String.valueOf(lat))
 				.replaceAll("\\{lon\\}", String.valueOf(lon)));
 		username = user.getUsername();
