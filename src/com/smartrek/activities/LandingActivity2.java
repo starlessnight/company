@@ -46,6 +46,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -139,6 +140,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     public static Sensor accelerometer;
     public static Sensor magnetometer;
     
+    private List<String> searchAddresses = new ArrayList<String>();
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -176,7 +179,34 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         searchBox.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                searchBoxClear.setVisibility(StringUtils.isBlank(s)?View.GONE:View.VISIBLE);               
+                searchBoxClear.setVisibility(StringUtils.isBlank(s)?View.GONE:View.VISIBLE); 
+                final String addrInput = s.toString();
+                if(StringUtils.isNotBlank(addrInput)) {
+                	AsyncTask<Void, Void, List<String>> searchPoiTask = new AsyncTask<Void, Void, List<String>>(){
+        				@Override
+        				protected List<String> doInBackground(Void... params) {
+        					List<String> addresses = new ArrayList<String>();
+        					try {
+        						addresses = Geocoding.searchPoi(addrInput, true);
+        					}
+        					catch(Exception e) {
+        						Log.e("LandingActivity2", "search error!");
+        					}
+        					return addresses;
+        				}
+        				
+        				@Override
+        				protected void onPostExecute(List<String> addresses) {
+        					searchAddresses.clear();
+        					searchAddresses.addAll(addresses);
+        					refreshSearchAutoCompleteData();
+        				}
+                	};
+                	Misc.parallelExecute(searchPoiTask); 
+                }
+                else {
+                	searchAddresses.clear();
+                }
             }
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count,
@@ -373,15 +403,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     protected GeoPoint doInBackground(Void... params) {
                         GeoPoint gp = null;
                         try {
-                            List<Address> addrs = Geocoding.lookup(addr);
+                            List<Address> addrs = Geocoding.lookup(LandingActivity2.this, addr);
                             for (Address a : addrs) {
                                 gp = new GeoPoint(a.getLatitude(), a.getLongitude());
                                 break;
                             }
                         }
-                        catch (IOException e) {
-                        }
-                        catch (JSONException e) {
+                        catch (Exception e) {
                         }
                         return gp;
                     }
@@ -639,15 +667,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             protected GeoPoint doInBackground(Void... params) {
                 GeoPoint gp = null;
                 try {
-                    List<Address> addrs = Geocoding.lookup(addr);
+                    List<Address> addrs = Geocoding.lookup(LandingActivity2.this, addr);
                     for (Address a : addrs) {
                         gp = new GeoPoint(a.getLatitude(), a.getLongitude());
                         break;
                     }
                 }
-                catch (IOException e) {
-                }
-                catch (JSONException e) {
+                catch (Exception e) {
                 }
                 return gp;
             }
@@ -657,7 +683,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     DebugOptionsActivity.addRecentAddress(LandingActivity2.this, addr);
                     refreshSearchAutoCompleteData();
                     final MapView mapView = (MapView) findViewById(R.id.mapview);
-                    ReverseGeocodingTask task = new ReverseGeocodingTask(
+                    ReverseGeocodingTask task = new ReverseGeocodingTask(LandingActivity2.this, 
                             gp.getLatitude(), gp.getLongitude()){
                         @Override
                         protected void onPostExecute(String result) {
@@ -692,9 +718,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         if(whereTo != null){
             searchData.addAll(whereTo);
         }
+        
+        searchData.addAll(searchAddresses);
+        
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
             android.R.layout.simple_dropdown_item_1line,
-            new ArrayList<String>(new LinkedHashSet<String>(searchData)));
+            new ArrayList<String>(new LinkedHashSet<String>(searchAddresses)));
         searchBox.setAdapter(adapter);
     }
     
@@ -1293,7 +1322,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         eventOverlay.setActionListener(new EventOverlay.ActionListener() {
             @Override
             public void onLongPress(final double lat, final double lon) {
-                ReverseGeocodingTask task = new ReverseGeocodingTask(lat, lon){
+                ReverseGeocodingTask task = new ReverseGeocodingTask(LandingActivity2.this, lat, lon){
                     @Override
                     protected void onPostExecute(String result) {
                         refreshPOIMarker(mapView, lat, lon, result, "");
@@ -1349,7 +1378,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         double lon;
         
-        ReverseGeocodingTask(double lat, double lon){
+        Context ctx;
+        
+        ReverseGeocodingTask(Context ctx, double lat, double lon){
+        	this.ctx = ctx;
             this.lat = lat;
             this.lon = lon;
         }
@@ -1358,11 +1390,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         protected String doInBackground(Void... params) {
             String address = null;
             try {
-                address = Geocoding.lookup(lat, lon);
+                address = Geocoding.lookup(ctx, lat, lon);
             }
-            catch (IOException e) {
-            }
-            catch (JSONException e) {
+            catch (Exception e) {
             }
             return address;
         }

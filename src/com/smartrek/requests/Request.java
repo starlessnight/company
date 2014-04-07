@@ -70,7 +70,9 @@ public abstract class Request {
 	    activity,
 	    city,
 	    where_to_go,
-	    route
+	    route, 
+	    search, 
+	    reverse_geocoding
 	}
 	
 	public enum Page { 

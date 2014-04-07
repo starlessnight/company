@@ -9,7 +9,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.util.Log;
+
+import com.smartrek.models.User;
+import com.smartrek.requests.ReverseGeocodingRequest;
+import com.smartrek.requests.SearchAddressRequest;
 
 
 /**
@@ -105,8 +110,35 @@ public final class Geocoding {
 	 * @throws IOException 
 	 * @throws JSONException 
 	 */
-	public static List<Address> lookup(String query) throws IOException, JSONException {
-	    return lookup(query, true);
+//	public static List<Address> lookup(String query) throws IOException, JSONException {
+//	    return lookup(query, true);
+//	}
+	
+	/**
+	 * Converts an address into a geographic coordinate. This function does not
+	 * make use of multithreading for networking.
+	 * 
+	 * @param query A postal address
+	 * @param lat user current location lat
+	 * @param lon user current location lon
+	 * @return A geographic coordinate (latitude, longitude)
+	 * @throws IOException 
+	 * @throws JSONException 
+	 */
+	public static List<Address> lookup(Context ctx, String query) throws Exception {
+		User user = User.getCurrentUser(ctx);
+		SearchAddressRequest request = new SearchAddressRequest(user, query, "", "");
+		List<GeoPoint> result = request.execute(ctx);
+		
+		List<Address> addresses = new ArrayList<Address>();
+		if(!result.isEmpty()) {
+			Address address = new Address();
+			GeoPoint gp = result.get(0);
+			address.latitude = gp.getLatitude();
+			address.longitude = gp.getLongitude();
+			addresses.add(address);
+		}
+		return addresses;
 	}
 	
 	public static List<Address> lookup(String query, boolean usOnly) throws IOException, JSONException {
@@ -229,7 +261,7 @@ public final class Geocoding {
         return new GeoPoint(lat, lng);
     }
     
-    public static String lookup(double lat, double lon) throws IOException, JSONException {
+    public static String lookup(Context ctx, double lat, double lon) throws Exception {
     	/*
         String url = String.format("%s?latlng=%f,%f&language=en&sensor=false", GOOGLE_URL, lat, lon);
         Log.d("Geocoding", "url = " + url);
@@ -257,33 +289,14 @@ public final class Geocoding {
         
         return address;
         */
-    	String url = String.format("%s/reverseGeocode/%f,%f.json", DECARTA_URL, lat, lon);
-    	Log.d("Geocoding", "url = " + url);
-    	
-    	HTTP http = new HTTP(url);
-        http.connect();
-        
-        String address = null;
-        
-        int responseCode = http.getResponseCode();
-        if (responseCode == 200) {
-            String response = http.getResponseBody();
-            
-            JSONObject object = new JSONObject(response);
-            
-            JSONArray results = (JSONArray) object.get("addresses");
-            if(results.length() > 0) {
-                JSONObject result = (JSONObject) results.get(0);
-                JSONObject addressObject = result.getJSONObject("address");
-                address = addressObject.getString("freeformAddress");
-            }
-        }
-        
+    	User user = User.getCurrentUser(ctx);
+        ReverseGeocodingRequest request = new ReverseGeocodingRequest(user, lat, lon);
+        String address = request.execute(ctx);
         return address;
     }
     
     public static List<String> searchPoi(String address, boolean usOnly) throws IOException, JSONException {
-    	String url = String.format("%s/search/poi/%s.json" + (usOnly?"?countrySet=US":""), DECARTA_URL, URLEncoder.encode(address));
+    	String url = String.format("%s/search/poi/%s.json?typeahead=true" + (usOnly?"&countrySet=US":""), DECARTA_URL, URLEncoder.encode(address));
     	Log.d("Geocoding", "url = " + url);
     	
     	HTTP http = new HTTP(url);

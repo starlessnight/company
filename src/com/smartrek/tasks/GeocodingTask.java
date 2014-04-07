@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.json.JSONException;
 
+import android.content.Context;
 import android.os.AsyncTask;
 
 import com.smartrek.utils.ExceptionHandlingService;
@@ -18,17 +19,19 @@ public final class GeocodingTask extends AsyncTask<String, Void, Void> {
     private boolean registerException;
 	private ExceptionHandlingService ehs;
 	private GeocodingTaskCallback callback;
+	private Context ctx;
 	
-	public GeocodingTask(ExceptionHandlingService ehs, GeocodingTaskCallback callback, 
+	public GeocodingTask(Context ctx, ExceptionHandlingService ehs, GeocodingTaskCallback callback, 
 	        boolean registerException) {
 		super();
+		this.ctx = ctx;
 		this.ehs = ehs;
 		this.callback = callback;
 		this.registerException = registerException;
 	}
 	
-	public GeocodingTask(ExceptionHandlingService ehs, GeocodingTaskCallback callback) {
-        this(ehs, callback, true);
+	public GeocodingTask(Context ctx, ExceptionHandlingService ehs, GeocodingTaskCallback callback) {
+        this(ctx, ehs, callback, true);
     }
     
     @Override
@@ -43,7 +46,7 @@ public final class GeocodingTask extends AsyncTask<String, Void, Void> {
         String postalAddress = args[0];
         List<Geocoding.Address> addresses = null;
 		try {
-			addresses = Geocoding.lookup(postalAddress);
+			addresses = Geocoding.lookup(ctx, postalAddress);
 			
 	        if(addresses == null || addresses.size() == 0) {
 	            if(registerException){

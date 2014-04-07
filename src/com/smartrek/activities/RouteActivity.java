@@ -207,7 +207,7 @@ public final class RouteActivity extends FragmentActivity {
 			    ehs.reportExceptions(goBackToWhereTo);
 			}
 			else if(destCoord == null || destCoord.isEmpty()){
-				GeocodingTask task = new GeocodingTask(ehs, destGeocodingTaskCallback);
+				GeocodingTask task = new GeocodingTask(getBaseContext(), ehs, destGeocodingTaskCallback);
 				task.execute(destAddr);
                 geocodingTasks.add(task);
 			}else{
@@ -539,7 +539,7 @@ public final class RouteActivity extends FragmentActivity {
                                 protected GeoPoint doInBackground(Void... params) {
                                     GeoPoint rs = null;
                                     try{
-                                        rs = Geocoding.lookup(curLoc).get(0).getGeoPoint();
+                                        rs = Geocoding.lookup(getBaseContext(), curLoc).get(0).getGeoPoint();
                                     }catch(Throwable t){}
                                     return rs;
                                 }
@@ -914,11 +914,11 @@ public final class RouteActivity extends FragmentActivity {
     
     private void doRouteTask(){
         if(originCoord == null || originCoord.isEmpty()){
-            GeocodingTask task = new GeocodingTask(ehs, originGeocodingTaskCallback);
+            GeocodingTask task = new GeocodingTask(getBaseContext(), ehs, originGeocodingTaskCallback);
             task.execute(originAddr);
             geocodingTasks.add(task);
         }else if(destCoord == null || destCoord.isEmpty()){
-            GeocodingTask task = new GeocodingTask(ehs, destGeocodingTaskCallback);
+            GeocodingTask task = new GeocodingTask(getBaseContext(), ehs, destGeocodingTaskCallback);
             task.execute(destAddr);
             geocodingTasks.add(task);
         }else{

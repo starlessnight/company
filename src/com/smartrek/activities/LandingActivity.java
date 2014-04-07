@@ -1329,10 +1329,10 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         protected Void doInBackground(Void... params) {
             if(this._route == null){
                 try {
-                    dest = Geocoding.lookup(address).get(0).getGeoPoint();
+                    dest = Geocoding.lookup(ctx, address).get(0).getGeoPoint();
                     String curLoc = DebugOptionsActivity.getCurrentLocation(ctx);
                     if(StringUtils.isNotBlank(curLoc)){ 
-                        origin = Geocoding.lookup(curLoc).get(0).getGeoPoint();
+                        origin = Geocoding.lookup(ctx, curLoc).get(0).getGeoPoint();
                     }
                 }
                 catch (Exception e) {
