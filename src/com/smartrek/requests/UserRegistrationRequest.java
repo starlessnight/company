@@ -22,14 +22,16 @@ public class UserRegistrationRequest extends Request {
         String email = user.getEmail();
         String firstname = user.getFirstname();
         String lastname = user.getLastname();
+        String zipcode = user.getZipCode();
 		if(NEW_API){
 		    String url = getLinkUrl(Link.auth_user);
 		    Map<String, String> params = new HashMap<String, String>();
-		    params.put("username", username);
+		    params.put("username", email);
 		    params.put("password", password);
 		    params.put("email", email);
 		    params.put("first_name", firstname);
 		    params.put("last_name", lastname);
+		    params.put("zipcode", zipcode);
 		    String res = null;
             try {
                 res = executeHttpRequest(Method.POST, url, params, ctx);
@@ -50,13 +52,14 @@ public class UserRegistrationRequest extends Request {
                 user.setId(data.getInt("id"));
             }
 		}else{
-            String url = String.format("%s/adduser/username=%s&password=%s&email=%s&firstname=%s&lastname=%s",
+            String url = String.format("%s/adduser/username=%s&password=%s&email=%s&firstname=%s&lastname=%s&zipcode=%s",
 	                HOST,
-	                URLEncoder.encode(username),
+	                URLEncoder.encode(email),
 	                URLEncoder.encode(password),
 	                URLEncoder.encode(email),
 	                URLEncoder.encode(firstname),
-	                URLEncoder.encode(lastname));
+	                URLEncoder.encode(lastname), 
+	                URLEncoder.encode(zipcode));
 		    String res = executeHttpGetRequest(url, ctx);
 	        try {
 	            JSONObject json = new JSONArray(res).getJSONObject(0);
