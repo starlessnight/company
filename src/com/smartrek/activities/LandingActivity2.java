@@ -308,7 +308,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 if(Math.abs(latE6 - lastLatE6) / Double.valueOf(lastLatE6) < threshold
                         && Math.abs(lonE6 - lastLonE6) / Double.valueOf(lastLonE6) < threshold){
                     if(mapView.getZoomLevel() == ValidationActivity.DEFAULT_ZOOM_LEVEL){
-                        zoomMapToFitBulbPOIs();
+                    	if(routeRect != null) {
+                    		zoomMapToFitBulbPOIs();
+                    	}
+                    	else {
+                    		zoomMapToFitCity();
+                    	}
                     }else{
                         mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
                     }
@@ -1156,6 +1161,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         return handled;
     }
     
+    private RouteRect cityRange;
+    
     private void refreshCobranding(final double lat, final double lon, 
             final boolean alertAvailability){
         AsyncTask<Void, Void, City> checkCityAvailability = new AsyncTask<Void, Void, City>(){
@@ -1218,6 +1225,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     headerText.setText(result.name + " | " 
                         + Double.valueOf(result.temperature).intValue() + "°" 
                         + result.temperatureUnit);
+                    
+                    cityRange = new RouteRect(Double.valueOf(result.maxLat).intValue(), 
+                    		Double.valueOf(result.maxLon).intValue(), Double.valueOf(result.minLat).intValue(), 
+                    		Double.valueOf(result.minLon).intValue());
                 }
             }
         };
@@ -1228,13 +1239,24 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private void zoomMapToFitBulbPOIs(){
         if(routeRect != null){
-            MapView mapView = (MapView) findViewById(R.id.mapview);
+        	MapView mapView = (MapView) findViewById(R.id.mapview);
             IMapController mc = mapView.getController();
             GeoPoint mid = routeRect.getMidPoint();
             int[] range = routeRect.getRange();
             mc.zoomToSpan(range[0], range[1]);
             mc.setCenter(mid);
         }
+    }
+    
+    private void zoomMapToFitCity() {
+    	if(cityRange != null) {
+    		MapView mapView = (MapView) findViewById(R.id.mapview);
+            IMapController mc = mapView.getController();
+            GeoPoint mid = cityRange.getMidPoint();
+            int[] range = cityRange.getRange();
+            mc.zoomToSpan(range[0], range[1]);
+            mc.setCenter(mid);
+    	}
     }
     
     private void refreshBulbPOIs(final double lat, final double lon, final boolean rezoom){

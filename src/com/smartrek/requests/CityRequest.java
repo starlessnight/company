@@ -22,6 +22,14 @@ public final class CityRequest extends FetchRequest<City> {
         
         public String html;
         
+        public double maxLat;
+        
+        public double maxLon;
+        
+        public double minLat;
+        
+        public double minLon;
+        
     }
     
 	public CityRequest(double lat, double lon) {
@@ -43,6 +51,10 @@ public final class CityRequest extends FetchRequest<City> {
 		    city.skyline = data.optString("skyline");
 		    city.temperature = data.optDouble("temperature");
 		    city.temperatureUnit = data.optString("temperature_unit");
+		    city.maxLat = data.getDouble("MaxLat");
+		    city.minLat = data.getDouble("MinLat");
+		    city.maxLon = data.getDouble("MaxLon");
+		    city.minLon = data.getDouble("MinLon");
 		}else{
 		    city.html = json.optString("html");
 		}
