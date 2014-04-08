@@ -140,6 +140,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private List<String> searchAddresses = new ArrayList<String>();
     
+    private AtomicBoolean showDropDown = new AtomicBoolean(true);
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -169,6 +171,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     InputMethodManager imm = (InputMethodManager)getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    searchBox.dismissDropDown();
+                    showDropDown.set(false);
                 }
                 return handled;
             }
@@ -205,6 +209,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 else {
                 	searchAddresses.clear();
                 }
+                showDropDown.set(true);
             }
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count,
@@ -708,7 +713,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             android.R.layout.simple_dropdown_item_1line,
             new ArrayList<String>(new LinkedHashSet<String>(searchAddresses)));
         searchBox.setAdapter(adapter);
-        if(!searchBox.getAdapter().isEmpty()) {
+        if(!searchBox.getAdapter().isEmpty() && showDropDown.get()) {
         	searchBox.showDropDown();
         }
     
