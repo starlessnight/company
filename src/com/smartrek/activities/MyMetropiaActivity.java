@@ -16,8 +16,10 @@ import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
 
+import com.sessionm.api.PortalButton;
 import com.smartrek.utils.Dimension;
 import com.smartrek.utils.Font;
+import com.smartrek.utils.SessionM;
 
 public class MyMetropiaActivity extends FragmentActivity{
 	
@@ -111,6 +113,13 @@ public class MyMetropiaActivity extends FragmentActivity{
 		co2ValueMask.startAnimation(slideup);
 		slideup.setFillAfter(true);
 		
+		findViewById(R.id.mPoint_button).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((PortalButton)findViewById(R.id.portalButton)).getButton().performClick();
+            }
+        });
+		
 		AssetManager assets = getAssets();
 		
 		Font.setTypeface(Font.getBold(assets), (TextView) findViewById(R.id.header), 
@@ -170,5 +179,29 @@ public class MyMetropiaActivity extends FragmentActivity{
 				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		return msgSpan;
 	}
+	
+    @Override
+    public void onStart() {
+        super.onStart();
+        SessionM.onActivityStart(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        SessionM.onActivityStop(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SessionM.onActivityResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SessionM.onActivityPause(this);
+    }
 
 }

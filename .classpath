@@ -12,8 +12,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/slf4j-android-1.6.1-RC1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/GoogleAdMobAdsSdk-6.4.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gcm.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/SessionM.1.7.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/apache-mime4j-0.6.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/httpmime-4.3.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/SessionM.1.8.1.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
