@@ -127,16 +127,12 @@ public final class Geocoding {
 	 */
 	public static List<Address> lookup(Context ctx, String query) throws Exception {
 		User user = User.getCurrentUser(ctx);
-		SearchAddressRequest request = new SearchAddressRequest(user, query, "", "");
-		List<GeoPoint> result = request.execute(ctx);
+		SearchAddressRequest request = new SearchAddressRequest(user, query, null, null);
+		List<Address> result = request.execute(ctx);
 		
 		List<Address> addresses = new ArrayList<Address>();
 		if(!result.isEmpty()) {
-			Address address = new Address();
-			GeoPoint gp = result.get(0);
-			address.latitude = gp.getLatitude();
-			address.longitude = gp.getLongitude();
-			addresses.add(address);
+			addresses.add(result.get(0));
 		}
 		return addresses;
 	}
@@ -295,30 +291,16 @@ public final class Geocoding {
         return address;
     }
     
-    public static List<String> searchPoi(String address, boolean usOnly) throws IOException, JSONException {
-    	String url = String.format("%s/search/poi/%s.json?typeahead=true" + (usOnly?"&countrySet=US":""), DECARTA_URL, URLEncoder.encode(address));
-    	Log.d("Geocoding", "url = " + url);
-    	
-    	HTTP http = new HTTP(url);
-        http.connect();
-        
-        List<String> addresses = new ArrayList<String>();
-        
-        int responseCode = http.getResponseCode();
-        if (responseCode == 200) {
-            String response = http.getResponseBody();
-            
-            JSONObject object = new JSONObject(response);
-            
-            JSONArray results = (JSONArray) object.get("results");
-            for (int i = 0 ; i < results.length() ; i++) {
-            	JSONObject resultObject = (JSONObject) results.get(i);
-                JSONObject addressObject = resultObject.getJSONObject("address");
-                addresses.add(addressObject.getString("freeformAddress"));
-            }
-        }
-        
-        return addresses;
+    public static List<String> searchPoi(Context ctx, String address) throws Exception {
+    	User user = User.getCurrentUser(ctx);
+		SearchAddressRequest request = new SearchAddressRequest(user, address, null, null);
+		List<Address> result = request.execute(ctx);
+		
+		List<String> addresses = new ArrayList<String>();
+		for(Address addr : result) {
+			addresses.add(addr.getName());
+		}
+		return addresses;
     }
     
 }

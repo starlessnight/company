@@ -10,13 +10,14 @@ import org.json.JSONObject;
 import android.content.Context;
 
 import com.smartrek.models.User;
-import com.smartrek.utils.GeoPoint;
+import com.smartrek.utils.Geocoding.Address;
 
-public class SearchAddressRequest extends FetchRequest<List<GeoPoint>>{
+public class SearchAddressRequest extends FetchRequest<List<Address>>{
 	
-	public SearchAddressRequest(User user, String addrInput, String lat, String lon) {
+	public SearchAddressRequest(User user, String addrInput, Double lat, Double lon) {
 		super(getLinkUrl(Link.search)
-				.replaceAll("\\{lat\\}", lat).replaceAll("\\{lon\\}", lon)
+				.replaceAll("\\{lat\\}", lat!=null?lat.toString():"")
+				.replaceAll("\\{lon\\}", lon!=null?lon.toString():"")
 				.replaceAll("\\{query\\}", URLEncoder.encode(addrInput))
 				.replaceAll("\\{radius_in_meters\\}", ""));
 		username = user.getUsername();
@@ -24,8 +25,8 @@ public class SearchAddressRequest extends FetchRequest<List<GeoPoint>>{
 	}
 
 	@Override
-	public List<GeoPoint> execute(Context ctx) throws Exception {
-		List<GeoPoint> result = new ArrayList<GeoPoint>();
+	public List<Address> execute(Context ctx) throws Exception {
+		List<Address> result = new ArrayList<Address>();
 		String response = executeFetchRequest(getURL(), ctx);
 		JSONObject json  = new JSONObject(response);
 		if("success".equalsIgnoreCase(json.optString("status"))){
@@ -34,8 +35,12 @@ public class SearchAddressRequest extends FetchRequest<List<GeoPoint>>{
 		    	JSONObject data = datas.getJSONObject(i);
 		    	double lat = data.getDouble("lat");
 		    	double lon = data.getDouble("lon");
-		    	GeoPoint point = new GeoPoint(lat, lon);
-		    	result.add(point);
+		    	String addr = data.getString("name");
+		    	Address address = new Address();
+		    	address.setLatitude(lat);
+		    	address.setLongitude(lon);
+		    	address.setName(addr);
+		    	result.add(address);
 		    }
 		}
 		return result;

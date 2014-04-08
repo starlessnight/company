@@ -1,6 +1,5 @@
 package com.smartrek.activities;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,7 +10,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONException;
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.views.MapView;
@@ -187,7 +185,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         				protected List<String> doInBackground(Void... params) {
         					List<String> addresses = new ArrayList<String>();
         					try {
-        						addresses = Geocoding.searchPoi(addrInput, true);
+        						addresses = Geocoding.searchPoi(LandingActivity2.this, addrInput);
         					}
         					catch(Exception e) {
         						Log.e("LandingActivity2", "search error!");
@@ -706,21 +704,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private void refreshSearchAutoCompleteData(){
         AutoCompleteTextView searchBox = (AutoCompleteTextView) findViewById(R.id.search_box);
-        List<String> searchData = new ArrayList<String>();
-        @SuppressWarnings("unchecked")
-        List<String> starred = (List<String>) searchBox.getTag(R.id.starred_addresses);
-        if(starred != null){
-            searchData.addAll(starred);
-        }
-        searchData.addAll(DebugOptionsActivity.getRecentAddresses(this));
-        @SuppressWarnings("unchecked")
-        List<String> whereTo = (List<String>) searchBox.getTag(R.id.where_to_addresses);
-        if(whereTo != null){
-            searchData.addAll(whereTo);
-        }
-        
-        searchData.addAll(searchAddresses);
-        
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
             android.R.layout.simple_dropdown_item_1line,
             new ArrayList<String>(new LinkedHashSet<String>(searchAddresses)));
