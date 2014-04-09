@@ -119,6 +119,8 @@ import com.smartrek.utils.ValidationParameters;
 public class ValidationActivity extends FragmentActivity implements OnInitListener, 
         OnAudioFocusChangeListener {
 	public static final int DEFAULT_ZOOM_LEVEL = 18;
+	
+	public static final int NAVIGATION_ZOOM_LEVEL = 15;
 
 	private static final String RESERVATION = "reservation";
 
@@ -161,6 +163,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	// FIXME: Temporary
 	private RouteLink nearestLink;
+	
+	private RouteNode firstNode;
 
 	private Trajectory trajectory = new Trajectory();
 
@@ -337,6 +341,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		if (!loadRoute) {
 			centerMap(mapView.getController(), isOnRecreate.get(), lastCenter, route);
 			drawRoute(mapView, route, 0);
+			firstNode = route.getFirstNode();
 		}
 
 		try {
@@ -1151,6 +1156,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		for(DirectionItem item : items) {
 			distance = distance + item.distance;
 		}
+		remainDistance = distance;
 		remainDistDirecListView.setText(StringUtil.formatImperialDistance(distance, false));
 	}
 	
@@ -1159,6 +1165,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private static final double distanceOutOfRouteThreshold = 35;
 	
 	private static final double speedOutOfRouteThreshold = 10;
+	
+	private static final double distanceOfZoomLevelThreshold = 800; //feet
 	
 	private AtomicInteger routeOfRouteCnt = new AtomicInteger();
 	
@@ -1237,9 +1245,15 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private AtomicInteger ttsDelayCnt = new AtomicInteger(); 
 	
+	private AtomicBoolean distanceToStartNodeOverThreshold = new AtomicBoolean(false);
+	
+	private double remainDistance = -1;
+	
 	private synchronized void locationChanged(final Location location) {
 	    final double speedInMph = Trajectory.msToMph(location.getSpeed());
 	    final float bearing = location.getBearing();
+	    final double lat = location.getLatitude();
+	    final double lng = location.getLongitude();
 	    if (!routeLoaded.get() && isLoadRoute()) {
             routeLoaded.set(true);
             runOnUiThread(new Runnable(){
@@ -1311,13 +1325,33 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                                 centerMap(mapView.getController(), isOnRecreate.get(),
                                     lastCenter, route);
                                 drawRoute(mapView, route, 0);
+                                if(firstNode == null) {
+                                	firstNode = route.getFirstNode();
+                                }
                             }
+                            
                         }
                     };
                     Misc.parallelExecute(task);
                 }
             });
 	    }
+	    
+	    runOnUiThread(new Runnable(){
+			@Override
+			public void run() {
+                if(!distanceToStartNodeOverThreshold.get() && firstNode != null &&
+                		NavigationView.metersToFeet(firstNode.distanceTo(lat, lng)) > distanceOfZoomLevelThreshold) {
+        			distanceToStartNodeOverThreshold.set(true);
+        			mapView.getController().setZoom(NAVIGATION_ZOOM_LEVEL);
+        		}
+                
+                if(remainDistance > 0 && 
+                		NavigationView.metersToFeet(remainDistance) < distanceOfZoomLevelThreshold) {
+                	mapView.getController().setZoom(DEFAULT_ZOOM_LEVEL);
+                }
+			}
+	    });
 	    
 		if (pointOverlay == null) {
 			return;
@@ -1327,9 +1361,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		    pointOverlay.setDegrees(bearing);
 		}
 		
-		double lat = location.getLatitude();
-		double lng = location.getLongitude();
-
 		long now = SystemClock.elapsedRealtime();
 
 		GeoPoint oldLoc = pointOverlay.getLocation();
@@ -1369,7 +1400,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 
 		lastLocChanged = now;
-
+		
 		long linkId = Trajectory.DEFAULT_LINK_ID;
 
 		// nearestNode = route.getNearestNode(lat, lng);
