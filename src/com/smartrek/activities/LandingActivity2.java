@@ -205,16 +205,22 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         				@Override
         				protected void onPostExecute(List<String> addresses) {
         					searchAddresses.clear();
-        					searchAddresses.addAll(addresses);
+        					for(String a:addresses){
+        					    if(StringUtils.isNotBlank(a)){
+        					        searchAddresses.add(a);
+        					    }
+        					}
         					refreshSearchAutoCompleteData();
         				}
                 	};
+                	showDropDown.set(true);
                 	Misc.parallelExecute(searchPoiTask); 
                 }
                 else {
                 	searchAddresses.clear();
+                	showDropDown.set(false);
+                	refreshSearchAutoCompleteData();
                 }
-                showDropDown.set(true);
             }
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count,
@@ -742,6 +748,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         searchBox.setAdapter(adapter);
         if(!searchBox.getAdapter().isEmpty() && showDropDown.get()) {
         	searchBox.showDropDown();
+        }else{
+            searchBox.dismissDropDown();
         }
     
     }
