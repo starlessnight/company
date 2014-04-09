@@ -177,6 +177,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 return handled;
             }
         });
+        searchBox.setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus) {
+                    searchBox.dismissDropDown();
+                }
+            }
+        });
         final View searchBoxClear = findViewById(R.id.search_box_clear);
         searchBox.addTextChangedListener(new TextWatcher() {
             @Override
