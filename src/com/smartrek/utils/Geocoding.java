@@ -126,8 +126,12 @@ public final class Geocoding {
 	 * @throws JSONException 
 	 */
 	public static List<Address> lookup(Context ctx, String query) throws Exception {
+		return lookup(ctx, query, null, null);
+	}
+	
+	public static List<Address> lookup(Context ctx, String query, Double lat, Double lon) throws Exception{
 		User user = User.getCurrentUser(ctx);
-		SearchAddressRequest request = new SearchAddressRequest(user, query, null, null);
+		SearchAddressRequest request = new SearchAddressRequest(user, query, lat, lon);
 		List<Address> result = request.execute(ctx);
 		
 		List<Address> addresses = new ArrayList<Address>();
@@ -136,7 +140,7 @@ public final class Geocoding {
 		}
 		return addresses;
 	}
-	
+	 
 	public static List<Address> lookup(String query, boolean usOnly) throws IOException, JSONException {
         /*String url = String.format("%s?q=%s&format=json", URL, URLEncoder.encode(
             replaceLaInitials(query)));
@@ -292,8 +296,12 @@ public final class Geocoding {
     }
     
     public static List<String> searchPoi(Context ctx, String address) throws Exception {
+    	return searchPoi(ctx, address, null, null);
+    }
+    
+    public static List<String> searchPoi(Context ctx, String query, Double lat, Double lon) throws Exception{
     	User user = User.getCurrentUser(ctx);
-		SearchAddressRequest request = new SearchAddressRequest(user, address, null, null);
+		SearchAddressRequest request = new SearchAddressRequest(user, query, lat, lon);
 		List<Address> result = request.execute(ctx);
 		
 		List<String> addresses = new ArrayList<String>();

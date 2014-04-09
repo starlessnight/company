@@ -189,7 +189,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         				protected List<String> doInBackground(Void... params) {
         					List<String> addresses = new ArrayList<String>();
         					try {
-        						addresses = Geocoding.searchPoi(LandingActivity2.this, addrInput);
+        						if(lastLocation != null) {
+        							addresses = Geocoding.searchPoi(LandingActivity2.this, addrInput, lastLocation.getLatitude(), lastLocation.getLongitude());
+        						}
+        						else {
+        							addresses = Geocoding.searchPoi(LandingActivity2.this, addrInput);
+        						}
         					}
         					catch(Exception e) {
         						Log.e("LandingActivity2", "search error!");
@@ -411,7 +416,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     protected GeoPoint doInBackground(Void... params) {
                         GeoPoint gp = null;
                         try {
-                            List<Address> addrs = Geocoding.lookup(LandingActivity2.this, addr);
+                        	List<Address> addrs;
+                        	if(lastLocation != null) {
+                                addrs = Geocoding.lookup(LandingActivity2.this, addr, lastLocation.getLatitude(), lastLocation.getLongitude());
+                        	}
+                        	else {
+                        		addrs = Geocoding.lookup(LandingActivity2.this, addr);
+                        	}
                             for (Address a : addrs) {
                                 gp = new GeoPoint(a.getLatitude(), a.getLongitude());
                                 break;
@@ -675,7 +686,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             protected GeoPoint doInBackground(Void... params) {
                 GeoPoint gp = null;
                 try {
-                    List<Address> addrs = Geocoding.lookup(LandingActivity2.this, addr);
+                	List<Address> addrs;
+                	if(lastLocation == null) {
+                		addrs = Geocoding.lookup(LandingActivity2.this, addr);
+                	}
+                	else {
+                		addrs = Geocoding.lookup(LandingActivity2.this, addr, lastLocation.getLatitude(), lastLocation.getLongitude());
+                	}
                     for (Address a : addrs) {
                         gp = new GeoPoint(a.getLatitude(), a.getLongitude());
                         break;

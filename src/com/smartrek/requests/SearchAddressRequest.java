@@ -8,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.smartrek.models.User;
 import com.smartrek.utils.Geocoding.Address;
@@ -28,6 +29,7 @@ public class SearchAddressRequest extends FetchRequest<List<Address>>{
 	public List<Address> execute(Context ctx) throws Exception {
 		List<Address> result = new ArrayList<Address>();
 		String response = executeFetchRequest(getURL(), ctx);
+		Log.d("SearchAddressRequest", getURL());
 		JSONObject json  = new JSONObject(response);
 		if("success".equalsIgnoreCase(json.optString("status"))){
 		    JSONArray datas = json.getJSONArray("data");
