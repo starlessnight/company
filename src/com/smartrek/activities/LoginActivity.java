@@ -194,8 +194,7 @@ public final class LoginActivity extends Activity implements OnClickListener,
 	}
 	
 	private static String getAccountPwdErrorMsg(){
-	    return "The username or password you entered is not valid.&nbsp;"
-                + "<a href=\"" + Request.getPageUrl(Page.reset_password) + "\">Forgot your password?</a>";
+	    return "The username or password you entered is not valid.";
 	}
 	
 	Button.OnClickListener registerButtonClickListener = new Button.OnClickListener() {
