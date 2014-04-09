@@ -257,7 +257,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             @Override
             public void onLocationChanged(Location location) {
 //                fake lat-lon
-//                location = new Location(location.getProvider());
 //                location.setLatitude(34.0291747); // LA
 //                location.setLongitude(-118.2734106);
 //                location.setLatitude(32.1559094); // Tucson

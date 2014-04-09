@@ -163,8 +163,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	// FIXME: Temporary
 	private RouteLink nearestLink;
-	
-	private RouteNode firstNode;
 
 	private Trajectory trajectory = new Trajectory();
 
@@ -341,7 +339,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		if (!loadRoute) {
 			centerMap(mapView.getController(), isOnRecreate.get(), lastCenter, route);
 			drawRoute(mapView, route, 0);
-			firstNode = route.getFirstNode();
 		}
 
 		try {
@@ -574,7 +571,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     	double latitude = lastKnownLocation.getLatitude();
                     	double longitude = lastKnownLocation.getLongitude();
                     	IMapController mc = mapView.getController();
-                    	mc.setZoom(DEFAULT_ZOOM_LEVEL);
+                    	mc.setZoom(isNearOriginOrDestination(latitude, longitude)
+                	        ?DEFAULT_ZOOM_LEVEL:NAVIGATION_ZOOM_LEVEL);
                     	mc.animateTo(new GeoPoint(latitude, longitude));
                     }
                 }
@@ -1156,7 +1154,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		for(DirectionItem item : items) {
 			distance = distance + item.distance;
 		}
-		remainDistance = distance;
 		remainDistDirecListView.setText(StringUtil.formatImperialDistance(distance, false));
 	}
 	
@@ -1243,11 +1240,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private List<String> ttsBuffer = new ArrayList<String>();
 	
-	private AtomicInteger ttsDelayCnt = new AtomicInteger(); 
+	private AtomicInteger ttsDelayCnt = new AtomicInteger();
 	
-	private AtomicBoolean distanceToStartNodeOverThreshold = new AtomicBoolean(false);
-	
-	private double remainDistance = -1;
+	private boolean isNearOriginOrDestination(double lat, double lng){
+	    return !route.getNodes().isEmpty() && NavigationView.metersToFeet(route.getFirstNode().distanceTo(lat, lng)) 
+            <= distanceOfZoomLevelThreshold || !getRouteOrReroute().getNodes().isEmpty() 
+            && NavigationView.metersToFeet(getRouteOrReroute().getLastNode().distanceTo(lat, lng)) 
+            <= distanceOfZoomLevelThreshold;
+	}
 	
 	private synchronized void locationChanged(final Location location) {
 	    final double speedInMph = Trajectory.msToMph(location.getSpeed());
@@ -1325,9 +1325,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                                 centerMap(mapView.getController(), isOnRecreate.get(),
                                     lastCenter, route);
                                 drawRoute(mapView, route, 0);
-                                if(firstNode == null) {
-                                	firstNode = route.getFirstNode();
-                                }
                             }
                             
                         }
@@ -1337,25 +1334,19 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             });
 	    }
 	    
-	    runOnUiThread(new Runnable(){
-			@Override
-			public void run() {
-                if(!distanceToStartNodeOverThreshold.get() && firstNode != null &&
-                		NavigationView.metersToFeet(firstNode.distanceTo(lat, lng)) > distanceOfZoomLevelThreshold) {
-        			distanceToStartNodeOverThreshold.set(true);
-        			mapView.getController().setZoom(NAVIGATION_ZOOM_LEVEL);
-        		}
-                
-                if(remainDistance > 0 && 
-                		NavigationView.metersToFeet(remainDistance) < distanceOfZoomLevelThreshold) {
-                	mapView.getController().setZoom(DEFAULT_ZOOM_LEVEL);
-                }
-			}
-	    });
-	    
 		if (pointOverlay == null) {
 			return;
 		}
+		
+		runOnUiThread(new Runnable(){
+            @Override
+            public void run() {
+                if (buttonFollow.isChecked()) {
+                    mapView.getController().setZoom(isNearOriginOrDestination(lat, lng)?
+                        DEFAULT_ZOOM_LEVEL:NAVIGATION_ZOOM_LEVEL);
+                }
+            }
+        });
 		
 		if(speedInMph > speedOutOfRouteThreshold){
 		    pointOverlay.setDegrees(bearing);
