@@ -99,7 +99,7 @@ import com.smartrek.utils.SmartrekTileProvider;
 
 public final class LandingActivity2 extends FragmentActivity implements SensorEventListener { 
     
-    private static final double mapZoomVerticalOffset = 0.25;
+    private static final double mapZoomVerticalOffset = 0.3;
 
     public static final String LAT = "lat";
     
@@ -250,10 +250,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         locationListener = new LocationListener(){
             @Override
             public void onLocationChanged(Location location) {
-//              LA lat-lon
+//                fake lat-lon
 //                location = new Location(location.getProvider());
-//                location.setLatitude(34.0291747);
+//                location.setLatitude(34.0291747); // LA
 //                location.setLongitude(-118.2734106);
+//                location.setLatitude(32.1559094); // Tucson
+//                location.setLongitude(-110.883805);
+                
                 if (ValidationActivity.isBetterLocation(location, lastLocation)) {
                     lastLocation = location;
                     final boolean refresh = mapRefresh.getAndSet(false);
@@ -309,9 +312,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 int lonE6 = mapCenter.getLongitudeE6();
                 int lastLatE6 = mapCenterLat.get();
                 int lastLonE6 = mapCenterLon.get();
-                double threshold = 0.00001;
-                if(Math.abs(latE6 - lastLatE6) / Double.valueOf(lastLatE6) < threshold
-                        && Math.abs(lonE6 - lastLonE6) / Double.valueOf(lastLonE6) < threshold){
+                int threshold = 100 + 2300 * (Math.max(18 - mapView.getZoomLevel(), 0));
+                if(Math.abs(latE6 - lastLatE6) < threshold && Math.abs(lonE6 - lastLonE6) < threshold){
                     if(mapView.getZoomLevel() == ValidationActivity.DEFAULT_ZOOM_LEVEL){
                     	if(routeRect != null) {
                     		zoomMapToFitBulbPOIs();
@@ -321,6 +323,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     	}
                     }else{
                         mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+                        if(myPointOverlay != null){
+                            mc.setCenter(myPointOverlay.getLocation());
+                        }
                     }
                 }else{
                     lastLocation = null;
@@ -1243,9 +1248,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         + Double.valueOf(result.temperature).intValue() + "°" 
                         + result.temperatureUnit);
                     
-                    cityRange = new RouteRect(Double.valueOf(result.maxLat).intValue(), 
-                    		Double.valueOf(result.maxLon).intValue(), Double.valueOf(result.minLat).intValue(), 
-                    		Double.valueOf(result.minLon).intValue());
+                    cityRange = new RouteRect(Double.valueOf(result.maxLat * 1E6).intValue(), 
+                    		Double.valueOf(result.maxLon * 1E6).intValue(), Double.valueOf(result.minLat * 1E6).intValue(), 
+                    		Double.valueOf(result.minLon * 1E6).intValue());
                 }
             }
         };
@@ -1321,8 +1326,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     if(locs.isEmpty()){
                         routeRect = null;
                         if(rezoom){
-                            mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
-                            mc.setCenter(new GeoPoint(lat, lon));
+                            if(cityRange != null) {
+                                zoomMapToFitCity();
+                            }else{
+                                mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+                                mc.setCenter(new GeoPoint(lat, lon));
+                            }
                         }
                     }else{
                         drawBulbPOIs(mapView, locs);
