@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,6 +52,10 @@ public class NotificationDialog2 extends Dialog {
 		
 		TextView messageView = (TextView) dialogView.findViewById(R.id.message);
 		messageView.setText(message);
+		
+		try{
+		    messageView.setMovementMethod(LinkMovementMethod.getInstance());
+        }catch(Throwable t){}
 		
 		TextView dismissView = (TextView) dialogView.findViewById(R.id.dismiss);
 		dismissView.setOnClickListener(new View.OnClickListener() {
