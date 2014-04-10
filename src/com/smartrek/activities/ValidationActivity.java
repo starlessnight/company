@@ -1394,7 +1394,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		
 		long linkId = Trajectory.DEFAULT_LINK_ID;
 
-		// nearestNode = route.getNearestNode(lat, lng);
 		if (!route.getNodes().isEmpty()) {
 			nearestLink = route.getNearestLink(lat, lng);
 
@@ -1433,9 +1432,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	            linkId = nearestLink.getStartNode().getLinkId();
 	        }
 	        
+	        getRouteOrReroute().getNearestNode(lat, lng).getMetadata().setPassed(true);
+	        
 	        RouteLink rerouteNearestLink = getRouteOrReroute().getNearestLink(lat, lng);
             nearestNode = rerouteNearestLink.getEndNode();
-            nearestNode.getMetadata().setPassed(true);
             
 	        long passedNodeTime = passedNodeTimeOffset.get();
             long remainingNodeTime = 0;
