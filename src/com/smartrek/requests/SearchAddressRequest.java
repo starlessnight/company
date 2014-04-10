@@ -37,7 +37,7 @@ public class SearchAddressRequest extends FetchRequest<List<Address>>{
 		    	JSONObject data = datas.getJSONObject(i);
 		    	double lat = data.getDouble("lat");
 		    	double lon = data.getDouble("lon");
-		    	String addr = data.getString("name");
+		    	String addr = data.getString("address");
 		    	Address address = new Address();
 		    	address.setLatitude(lat);
 		    	address.setLongitude(lon);
