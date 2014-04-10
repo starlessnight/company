@@ -1534,7 +1534,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		    navigationView.setVisibility(View.GONE);
 		    arrivalMsgDisplayed.set(true);
 			final View panel = findViewById(R.id.congrats_panel);
-			String msg = "Arrive at Destination" + "\n" + reservation.getDestinationAddress();
+			String dest = reservation.getDestinationAddress();
+			String msg = "Arrive at Destination" + "\n" + 
+			    dest.substring(0, dest.indexOf(",")>-1?dest.indexOf(","):dest.length());
 			((TextView) findViewById(R.id.congrats_msg)).setText(formatCongrMessage(ValidationActivity.this, msg));
 			
 			TextView co2 = (TextView) findViewById(R.id.co2);
