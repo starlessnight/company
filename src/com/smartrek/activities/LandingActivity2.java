@@ -52,6 +52,8 @@ import android.view.View.OnFocusChangeListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -182,7 +184,19 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             public void onFocusChange(View v, boolean hasFocus) {
                 if(!hasFocus) {
                     searchBox.dismissDropDown();
+                    showDropDown.set(false);
                 }
+            }
+        });
+        searchBox.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                searchAddress((String)parent.getItemAtPosition(position), false);
+                InputMethodManager imm = (InputMethodManager)getSystemService(
+                        Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
+                searchBox.dismissDropDown();
+                showDropDown.set(false);
             }
         });
         final View searchBoxClear = findViewById(R.id.search_box_clear);
