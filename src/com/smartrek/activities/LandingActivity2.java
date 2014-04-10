@@ -307,7 +307,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         public void run() {
                             if(refresh){
                                 refreshBulbPOIs(lat , lon, rezoom);
-                                refreshStarredPOIs();
                                 refreshCobranding(lat, lon, alertAvailability);
                             }
                         }
@@ -1069,6 +1068,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void refreshStarredPOIs(){
+        refreshStarredPOIs(null);
+    }
+    
+    private void refreshStarredPOIs(final Runnable callback){
         AsyncTask<Void, Void, List<com.smartrek.models.Address>> task = new AsyncTask<Void, Void, List<com.smartrek.models.Address>>(){
             @Override
             protected List<com.smartrek.models.Address> doInBackground(
@@ -1092,6 +1095,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     //ehs.reportExceptions();
                 }
                 else {
+                    if(callback != null){
+                        callback.run();
+                    }
                     List<String> addrList = new ArrayList<String>();
                     final MapView mapView = (MapView) findViewById(R.id.mapview);
                     List<Overlay> overlays = mapView.getOverlays();
@@ -1328,58 +1334,63 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 return locs;
             }
             @Override
-            protected void onPostExecute(List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
+            protected void onPostExecute(final List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
                 if (ehs.hasExceptions()) {
                     //ehs.reportExceptions();
                 }
                 else {
-                    MapView mapView = (MapView) findViewById(R.id.mapview);
-                    List<Overlay> overlays = mapView.getOverlays();
-                    List<Overlay> otherOverlays = new ArrayList<Overlay>();
-                    for (Overlay overlay : overlays) {
-                        boolean isOther;
-                        if(overlay instanceof POIActionOverlay){
-                            POIActionOverlay poiOverlay = (POIActionOverlay)overlay;
-                            isOther = poiOverlay.getMarker() != R.drawable.bulb_poi;
-                        }else{
-                            isOther = true;
-                        }
-                        if(isOther){
-                            otherOverlays.add(overlay);
-                        }
-                    }
-                    overlays.clear();
-                    overlays.addAll(otherOverlays);
-                    IMapController mc = mapView.getController();
-                    List<String> addrList = new ArrayList<String>();
-                    if(locs.isEmpty()){
-                        routeRect = null;
-                        if(rezoom){
-                            if(cityRange != null) {
-                                zoomMapToFitCity();
-                            }else{
-                                mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
-                                mc.setCenter(new GeoPoint(lat, lon));
+                    refreshStarredPOIs(new Runnable() {
+                        @Override
+                        public void run() {
+                            MapView mapView = (MapView) findViewById(R.id.mapview);
+                            List<Overlay> overlays = mapView.getOverlays();
+                            List<Overlay> otherOverlays = new ArrayList<Overlay>();
+                            for (Overlay overlay : overlays) {
+                                boolean isOther;
+                                if(overlay instanceof POIActionOverlay){
+                                    POIActionOverlay poiOverlay = (POIActionOverlay)overlay;
+                                    isOther = poiOverlay.getMarker() != R.drawable.bulb_poi;
+                                }else{
+                                    isOther = true;
+                                }
+                                if(isOther){
+                                    otherOverlays.add(overlay);
+                                }
                             }
+                            overlays.clear();
+                            overlays.addAll(otherOverlays);
+                            IMapController mc = mapView.getController();
+                            List<String> addrList = new ArrayList<String>();
+                            if(locs.isEmpty()){
+                                routeRect = null;
+                                if(rezoom){
+                                    if(cityRange != null) {
+                                        zoomMapToFitCity();
+                                    }else{
+                                        mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+                                        mc.setCenter(new GeoPoint(lat, lon));
+                                    }
+                                }
+                            }else{
+                                drawBulbPOIs(mapView, locs);
+                                List<GeoPoint> points = new ArrayList<GeoPoint>();
+                                points.add(new GeoPoint(lat, lon));
+                                for(com.smartrek.requests.WhereToGoRequest.Location l : locs){
+                                    points.add(new GeoPoint(l.lat, l.lon));
+                                }
+                                routeRect = new RouteRect(points, mapZoomVerticalOffset);
+                                if(rezoom){
+                                    zoomMapToFitBulbPOIs();
+                                }
+                                for(com.smartrek.requests.WhereToGoRequest.Location l : locs){
+                                    addrList.add(l.addr);
+                                }
+                            }
+                            mapView.postInvalidate();
+                            findViewById(R.id.search_box).setTag(R.id.where_to_addresses, addrList);
+                            refreshSearchAutoCompleteData();
                         }
-                    }else{
-                        drawBulbPOIs(mapView, locs);
-                        List<GeoPoint> points = new ArrayList<GeoPoint>();
-                        points.add(new GeoPoint(lat, lon));
-                        for(com.smartrek.requests.WhereToGoRequest.Location l : locs){
-                            points.add(new GeoPoint(l.lat, l.lon));
-                        }
-                        routeRect = new RouteRect(points, mapZoomVerticalOffset);
-                        if(rezoom){
-                            zoomMapToFitBulbPOIs();
-                        }
-                        for(com.smartrek.requests.WhereToGoRequest.Location l : locs){
-                            addrList.add(l.addr);
-                        }
-                    }
-                    mapView.postInvalidate();
-                    findViewById(R.id.search_box).setTag(R.id.where_to_addresses, addrList);
-                    refreshSearchAutoCompleteData();
+                    });
                 }
             }
         };
