@@ -120,7 +120,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         OnAudioFocusChangeListener {
 	public static final int DEFAULT_ZOOM_LEVEL = 18;
 	
-	public static final int NAVIGATION_ZOOM_LEVEL = 15;
+	public static final int NAVIGATION_ZOOM_LEVEL = 16;
 
 	private static final String RESERVATION = "reservation";
 
@@ -675,7 +675,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					double latitude = lastKnownLocation.getLatitude();
 					double longitude = lastKnownLocation.getLongitude();
 					IMapController mc = mapView.getController();
-					mc.setZoom(DEFAULT_ZOOM_LEVEL);
+					mc.setZoom(isNearOriginOrDestination(latitude, longitude)
+                        ?DEFAULT_ZOOM_LEVEL:NAVIGATION_ZOOM_LEVEL);
 					mc.animateTo(new GeoPoint(latitude, longitude));
 				}
 			}
@@ -734,7 +735,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					double latitude = lastKnownLocation.getLatitude();
 					double longitude = lastKnownLocation.getLongitude();
 					IMapController mc = mapView.getController();
-					mc.setZoom(DEFAULT_ZOOM_LEVEL);
+					mc.setZoom(isNearOriginOrDestination(latitude, longitude)
+                        ?DEFAULT_ZOOM_LEVEL:NAVIGATION_ZOOM_LEVEL);
 					mc.animateTo(new GeoPoint(latitude, longitude));
 				}
 			}
@@ -1163,7 +1165,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private static final double speedOutOfRouteThreshold = 10;
 	
-	private static final double distanceOfZoomLevelThreshold = 800; //feet
+	private static final double distanceOfZoomLevelThreshold = 1200; //feet
 	
 	private AtomicInteger routeOfRouteCnt = new AtomicInteger();
 	
