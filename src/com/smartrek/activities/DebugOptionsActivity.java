@@ -89,6 +89,8 @@ public final class DebugOptionsActivity extends Activity {
     
     private static final String REROUTING_NOTIFICATION_SOUND = "REROUTING_NOTIFICATION_SOUND";
     
+    private static final String REROUTING_DEBUG_MSG = "REROUTING_DEBUG_MSG";
+    
     private SharedPreferences prefs;
     
     private RadioButton radioRealGPS;
@@ -311,6 +313,15 @@ public final class DebugOptionsActivity extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 setReroutingNotificationSoundEnabled(DebugOptionsActivity.this, isChecked);
+            }
+        });
+        
+        CheckBox reroutingDebugMsg = (CheckBox) findViewById(R.id.rerouting_debug_msg);
+        reroutingDebugMsg.setChecked(isReroutingDebugMsgEnabled(this));
+        reroutingDebugMsg.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setReroutingDebugMsgEnabled(DebugOptionsActivity.this, isChecked);
             }
         });
     }
@@ -624,6 +635,22 @@ public final class DebugOptionsActivity extends Activity {
     public static void setReroutingNotificationSoundEnabled(Context ctx, boolean enabled){
         getPrefs(ctx).edit()
             .putBoolean(REROUTING_NOTIFICATION_SOUND, enabled)
+            .commit();
+    }
+    
+    public static boolean isReroutingDebugMsgEnabled(Context ctx){
+        boolean enabled;
+        try{
+            enabled = getPrefs(ctx).getBoolean(REROUTING_DEBUG_MSG, false);
+        }catch(Throwable t){
+            enabled = false;
+        }
+        return enabled;
+    }
+    
+    public static void setReroutingDebugMsgEnabled(Context ctx, boolean enabled){
+        getPrefs(ctx).edit()
+            .putBoolean(REROUTING_DEBUG_MSG, enabled)
             .commit();
     }
     

@@ -782,6 +782,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				startActivity(intent);
 			}
         });
+        
+        if(DebugOptionsActivity.isReroutingDebugMsgEnabled(this)){
+            findViewById(R.id.rerouting_debug_msg).setVisibility(View.VISIBLE);
+        }
 		
         Font.setTypeface(boldFont, cancelView, remainDistDirecListView);
 		Font.setTypeface(lightFont, osmCredit, timeInfo, remainTimesDirectListView);
@@ -1169,6 +1173,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private AtomicInteger routeOfRouteCnt = new AtomicInteger();
 	
+	private String lastRerutingApiCallStatus = "none";
+	
 	private void reroute(final double lat, final double lon, final double speedInMph,
 	        final float bearing, final long passedTime){
 	    runOnUiThread(new Runnable() {
@@ -1178,6 +1184,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     @Override
                     protected void onPreExecute() {
                         navigationView.setRerouting(true);
+                        lastRerutingApiCallStatus = "waiting";
                     }
                     @Override
                     protected Route doInBackground(Void... params) {
@@ -1228,6 +1235,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                             routeRect = initRouteRect(reroute);
                             updateDirectionsList();
                             drawRoute(mapView, reroute, 0);
+                            lastRerutingApiCallStatus = "success";
+                        }else{
+                            lastRerutingApiCallStatus = "failed";
                         }
                     }
                 };
@@ -1436,7 +1446,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	        
 	        getRouteOrReroute().getNearestNode(lat, lng).getMetadata().setPassed(true);
 	        
-	        RouteLink rerouteNearestLink = getRouteOrReroute().getNearestLink(lat, lng);
+	        final RouteLink rerouteNearestLink = getRouteOrReroute().getNearestLink(lat, lng);
             nearestNode = rerouteNearestLink.getEndNode();
             
 	        long passedNodeTime = passedNodeTimeOffset.get();
@@ -1462,6 +1472,20 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             }else{
                 routeOfRouteCnt.set(0);
             }
+	        
+	        if(DebugOptionsActivity.isReroutingDebugMsgEnabled(this)){
+    	        runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String msg = "distance from route: " 
+                            + Double.valueOf(NavigationView.metersToFeet(rerouteNearestLink.distanceTo(lat, lng))).intValue() + " ft\n" 
+                            + "speed: " + Double.valueOf(speedInMph).intValue() + " mph\n" 
+                            + "consecutive out of route count: " + routeOfRouteCnt.get() + "\n"
+                            + "last API call status: " + lastRerutingApiCallStatus;
+                        ((TextView)findViewById(R.id.rerouting_debug_msg)).setText(msg);
+                    }
+                });
+		    }
 	        
             etaDelay.set(currentTime.toMillis(false) - startTime - passedNodeTime * 1000);
             final TextView timeInfo = (TextView) findViewById(R.id.remain_times);
