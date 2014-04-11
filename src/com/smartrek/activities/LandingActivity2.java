@@ -306,8 +306,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         @Override
                         public void run() {
                             if(refresh){
-                                refreshBulbPOIs(lat , lon, rezoom);
-                                refreshCobranding(lat, lon, alertAvailability);
+                                refreshCobranding(lat, lon, alertAvailability, new Runnable() {
+                                    public void run() {
+                                        refreshBulbPOIs(lat , lon, rezoom);
+                                    }
+                                });
                             }
                         }
                     });
@@ -1091,13 +1094,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             @Override
             protected void onPostExecute(
                     List<com.smartrek.models.Address> result) {
+                if(callback != null){
+                    callback.run();
+                }
                 if (ehs.hasExceptions()) {
                     //ehs.reportExceptions();
                 }
                 else {
-                    if(callback != null){
-                        callback.run();
-                    }
                     List<String> addrList = new ArrayList<String>();
                     final MapView mapView = (MapView) findViewById(R.id.mapview);
                     List<Overlay> overlays = mapView.getOverlays();
@@ -1221,7 +1224,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private RouteRect cityRange;
     
     private void refreshCobranding(final double lat, final double lon, 
-            final boolean alertAvailability){
+            final boolean alertAvailability, final Runnable callback){
         AsyncTask<Void, Void, City> checkCityAvailability = new AsyncTask<Void, Void, City>(){
             @Override
             protected City doInBackground(Void... params) {
@@ -1287,6 +1290,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     		Double.valueOf(result.maxLon * 1E6).intValue(), Double.valueOf(result.minLat * 1E6).intValue(), 
                     		Double.valueOf(result.minLon * 1E6).intValue());
                 }
+                if(callback != null){
+                    callback.run();
+                }
             }
         };
         Misc.parallelExecute(checkCityAvailability);
@@ -1335,14 +1341,24 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
             @Override
             protected void onPostExecute(final List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
+                final MapView mapView = (MapView) findViewById(R.id.mapview);
+                final IMapController mc = mapView.getController();
                 if (ehs.hasExceptions()) {
                     //ehs.reportExceptions();
+                    routeRect = null;
+                    if(rezoom){
+                        if(cityRange != null) {
+                            zoomMapToFitCity();
+                        }else{
+                            mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+                            mc.setCenter(new GeoPoint(lat, lon));
+                        }
+                    }
                 }
                 else {
                     refreshStarredPOIs(new Runnable() {
                         @Override
                         public void run() {
-                            MapView mapView = (MapView) findViewById(R.id.mapview);
                             List<Overlay> overlays = mapView.getOverlays();
                             List<Overlay> otherOverlays = new ArrayList<Overlay>();
                             for (Overlay overlay : overlays) {
@@ -1359,7 +1375,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             }
                             overlays.clear();
                             overlays.addAll(otherOverlays);
-                            IMapController mc = mapView.getController();
                             List<String> addrList = new ArrayList<String>();
                             if(locs.isEmpty()){
                                 routeRect = null;
