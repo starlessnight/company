@@ -60,6 +60,7 @@ public final class SmarTrekApplication extends Application {
                 }
             }
         }.execute();
+        ContactListService.schedule(getBaseContext());
         //Utility.metadataApplicationId = "202039786615562";
         super.onCreate();
     }

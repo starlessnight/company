@@ -1,5 +1,8 @@
 package com.smartrek.models;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -39,6 +42,22 @@ public class Contact implements Parcelable {
         dest.writeString(name);
         dest.writeString(lastnameInitial);
         dest.writeString(email);
+    }
+    
+    public JSONObject toJSON() throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("name", name);
+        json.put("lastnameInitial", lastnameInitial);
+        json.put("email", email);
+        return json;
+    }
+    
+    public static Contact fromJSON(JSONObject json) throws JSONException {
+        Contact c = new Contact();
+        c.name = json.getString("name");
+        c.lastnameInitial = json.getString("lastnameInitial");
+        c.email = json.getString("email");
+        return c;
     }
     
 }

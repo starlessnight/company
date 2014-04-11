@@ -251,6 +251,7 @@
         <service android:name="com.smartrek.SendTrajectoryService" />
         <service android:name="com.smartrek.CalendarService" />
         <service android:name="com.smartrek.UserLocationService" />
+        <service android:name="com.smartrek.ContactListService" />
         <service android:name="com.smartrek.ValidationService" />
         <service android:name="com.smartrek.TripService" />
         <service android:name="com.littlefluffytoys.littlefluffylocationlibrary.LocationBroadcastService" />

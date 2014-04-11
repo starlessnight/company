@@ -44,6 +44,7 @@ import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.CalendarService;
+import com.smartrek.ContactListService;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.activities.LandingActivity.ShortcutNavigationTask;
 import com.smartrek.dialogs.CancelableProgressDialog;
@@ -843,7 +844,7 @@ public final class RouteActivity extends FragmentActivity {
         AsyncTask<Void, Void, ArrayList<Contact>> task = new AsyncTask<Void, Void, ArrayList<Contact>>(){
             @Override
             protected ArrayList<Contact> doInBackground(Void... params) {
-                return ContactsSelectActivity.loadContactList(RouteActivity.this);
+                return ContactListService.getSyncedContactList(RouteActivity.this);
             }
             @Override
             protected void onPostExecute(ArrayList<Contact> result) {

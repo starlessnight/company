@@ -183,7 +183,8 @@ public class ContactsSelectActivity extends FragmentActivity {
 		return string.toString();
 	}
 	
-	static ArrayList<Contact> loadContactList(Context ctx){
+	public static ArrayList<Contact> loadContactList(Context ctx){
+	    ArrayList<Contact> contacts = new ArrayList<Contact>();
         Map<String, Contact> contactsIdMap = new HashMap<String, Contact>();
         List<String> ids = new ArrayList<String>(); 
         Cursor people = ctx.getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
@@ -230,7 +231,8 @@ public class ContactsSelectActivity extends FragmentActivity {
                 contactsEmailMap.put(contact.email, contact);
             }
         }
-        return new ArrayList<Contact>(contactsEmailMap.values());
+        contacts.addAll(contactsEmailMap.values());
+        return contacts;
 	}
 	
 	AsyncTask<Void, Void, List<Contact>> updateTask;
