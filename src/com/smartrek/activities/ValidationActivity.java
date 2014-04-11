@@ -1428,7 +1428,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			Log.d("ValidationActivity", String.format("%d/%d",
 					numberOfValidatedNodes, route.getNodes().size()));
 			
-	        if (nearestLink.distanceTo(lat, lng) <= params.getInRouteDistanceThreshold()) {
+	        if (distanceToLink <= params.getInRouteDistanceThreshold()) {
 	            linkId = nearestLink.getStartNode().getLinkId();
 	        }
 	        
@@ -1452,8 +1452,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             
             remainingTime.set(remainingNodeTime);
             
-	        if(rerouteNearestLink.distanceTo(lat, lng) > params.getInRouteDistanceThreshold() 
-	                && NavigationView.metersToFeet(distanceToLink) > distanceOutOfRouteThreshold
+	        if(NavigationView.metersToFeet(rerouteNearestLink.distanceTo(lat, lng)) > distanceOutOfRouteThreshold
                     && speedInMph > speedOutOfRouteThreshold){
                 if(routeOfRouteCnt.incrementAndGet() == countOutOfRouteThreshold){
                     reroute(lat, lng, speedInMph, bearing, passedNodeTime);
