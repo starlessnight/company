@@ -101,6 +101,8 @@ import com.smartrek.utils.SmartrekTileProvider;
 
 public final class LandingActivity2 extends FragmentActivity implements SensorEventListener { 
     
+    private static final int DEFAULT_ZOOM_LEVEL = 13;
+    
     private static final double mapZoomVerticalOffset = 0.3;
 
     public static final String LAT = "lat";
@@ -343,7 +345,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 int lastLonE6 = mapCenterLon.get();
                 int threshold = 100 + 2300 * (Math.max(18 - mapView.getZoomLevel(), 0));
                 if(Math.abs(latE6 - lastLatE6) < threshold && Math.abs(lonE6 - lastLonE6) < threshold){
-                    if(mapView.getZoomLevel() == ValidationActivity.DEFAULT_ZOOM_LEVEL){
+                    if(mapView.getZoomLevel() == DEFAULT_ZOOM_LEVEL){
                     	if(routeRect != null) {
                     		zoomMapToFitBulbPOIs();
                     	}
@@ -351,7 +353,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     		zoomMapToFitCity();
                     	}
                     }else{
-                        mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+                        mc.setZoom(DEFAULT_ZOOM_LEVEL);
                         if(myPointOverlay != null){
                             mc.setCenter(myPointOverlay.getLocation());
                         }
@@ -752,7 +754,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     Misc.parallelExecute(task);
                     IMapController mc = mapView.getController();
                     if(zoomIn){
-                        mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+                        mc.setZoom(DEFAULT_ZOOM_LEVEL);
                         mc.setCenter(gp);
                     }else{
                         mc.animateTo(gp);
@@ -1347,12 +1349,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     //ehs.reportExceptions();
                     routeRect = null;
                     if(rezoom){
-                        if(cityRange != null) {
-                            zoomMapToFitCity();
-                        }else{
-                            mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
-                            mc.setCenter(new GeoPoint(lat, lon));
-                        }
+                        mc.setZoom(DEFAULT_ZOOM_LEVEL);
+                        mc.setCenter(new GeoPoint(lat, lon));
                     }
                 }
                 else {
@@ -1379,12 +1377,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             if(locs.isEmpty()){
                                 routeRect = null;
                                 if(rezoom){
-                                    if(cityRange != null) {
-                                        zoomMapToFitCity();
-                                    }else{
-                                        mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
-                                        mc.setCenter(new GeoPoint(lat, lon));
-                                    }
+                                    mc.setZoom(DEFAULT_ZOOM_LEVEL);
+                                    mc.setCenter(new GeoPoint(lat, lon));
                                 }
                             }else{
                                 drawBulbPOIs(mapView, locs);
