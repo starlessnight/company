@@ -1690,6 +1690,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 				@Override
 				public void onClick() {
+				    restoreMusic();
+				    if (mTts != null) {
+			            mTts.shutdown();
+			            mTts = null;
+			        }
+				    
 					reportValidation();
 				    
 					// Stop the activity
