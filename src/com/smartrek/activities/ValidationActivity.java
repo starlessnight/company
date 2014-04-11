@@ -480,13 +480,15 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		} else {
 
 		}
+		
+		registerReceiver(timeInfoCycler, new IntentFilter(TIME_INFO_CYCLE));
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 		SessionM.onActivityPause(this);
-		// TODO: Pause location service
+		unregisterReceiver(timeInfoCycler);
 	}
 
 	@Override
@@ -753,15 +755,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         timeInfo.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Boolean isRemainingTime = (Boolean) timeInfo.getTag();
-                if(isRemainingTime == null || !isRemainingTime){
-                    timeInfo.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
-                    isRemainingTime = true;
-                }else{
-                    timeInfo.setText(timeInfo.getTag(R.id.estimated_arrival_time).toString());
-                    isRemainingTime = false;
-                }
-                timeInfo.setTag(isRemainingTime);
+                timeInfo.setTag(R.id.clicked, true);
+                toggleTimeInfo();
             }
         });
         
@@ -787,8 +782,23 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             findViewById(R.id.rerouting_debug_msg).setVisibility(View.VISIBLE);
         }
 		
+        scheduleTimeInfoCycle();
+        
         Font.setTypeface(boldFont, cancelView, remainDistDirecListView);
 		Font.setTypeface(lightFont, osmCredit, timeInfo, remainTimesDirectListView);
+	}
+	
+	private void toggleTimeInfo(){
+	    TextView timeInfo = (TextView) findViewById(R.id.remain_times);
+	    Boolean isRemainingTime = (Boolean) timeInfo.getTag();
+        if(isRemainingTime == null || !isRemainingTime){
+            timeInfo.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
+            isRemainingTime = true;
+        }else{
+            timeInfo.setText(timeInfo.getTag(R.id.estimated_arrival_time).toString());
+            isRemainingTime = false;
+        }
+        timeInfo.setTag(isRemainingTime);
 	}
 	
 	   private void refreshTimeInfo(){
@@ -2055,5 +2065,22 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             Misc.parallelExecute(delTask);
         }
     }
+    
+    private static final String TIME_INFO_CYCLE = "TIME_INFO_CYCLE"; 
+    
+    private void scheduleTimeInfoCycle(){
+        AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
+        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), 5000, 
+            PendingIntent.getBroadcast(this, 0, new Intent(TIME_INFO_CYCLE), PendingIntent.FLAG_UPDATE_CURRENT));
+    }
+    
+    private BroadcastReceiver timeInfoCycler = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(findViewById(R.id.remain_times).getTag(R.id.clicked) == null){
+                toggleTimeInfo();
+            }
+        }
+    };
 
 }
