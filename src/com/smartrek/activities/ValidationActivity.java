@@ -89,6 +89,7 @@ import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.ImComingRequest;
 import com.smartrek.requests.Request;
+import com.smartrek.requests.Request.Setting;
 import com.smartrek.requests.ReservationDeleteRequest;
 import com.smartrek.requests.ReservationFetchRequest;
 import com.smartrek.requests.RouteFetchRequest;
@@ -1173,9 +1174,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		remainDistDirecListView.setText(StringUtil.formatImperialDistance(distance, false));
 	}
 	
-	private static final int countOutOfRouteThreshold = 2;
-	
-	private static final double distanceOutOfRouteThreshold = 35;
+	private int countOutOfRouteThreshold = ((Number)Request.getSetting(Setting.reroute_after_N_deviated_samples)).intValue();
+    
+    private double distanceOutOfRouteThreshold = ((Number)Request.getSetting(Setting.reroute_trigger_distance_in_meter)).doubleValue();
 	
 	private static final double speedOutOfRouteThreshold = 10;
 	
@@ -1417,7 +1418,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		lastLocChanged = now;
 		
 		long linkId = Trajectory.DEFAULT_LINK_ID;
-
+		
 		if (!route.getNodes().isEmpty()) {
 			nearestLink = route.getNearestLink(lat, lng);
 
@@ -1476,7 +1477,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             
             remainingTime.set(remainingNodeTime);
             
-	        if(NavigationView.metersToFeet(rerouteNearestLink.distanceTo(lat, lng)) > distanceOutOfRouteThreshold
+	        if(rerouteNearestLink.distanceTo(lat, lng) > distanceOutOfRouteThreshold
                     && speedInMph > speedOutOfRouteThreshold){
                 if(routeOfRouteCnt.incrementAndGet() == countOutOfRouteThreshold){
                     reroute(lat, lng, speedInMph, bearing, passedNodeTime);

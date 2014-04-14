@@ -84,7 +84,9 @@ public abstract class Request {
 	public enum Setting {
 	    activity_distance_interval,
 	    gps_accuracy,
-	    tile
+	    tile,
+	    reroute_after_N_deviated_samples,
+	    reroute_trigger_distance_in_meter
 	}
 	
 	private static EnumMap<Link, String> linkUrls = new EnumMap<Link, String>(Link.class);
