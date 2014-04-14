@@ -770,7 +770,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private void refreshSearchAutoCompleteData(){
         AutoCompleteTextView searchBox = (AutoCompleteTextView) findViewById(R.id.search_box);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-            android.R.layout.simple_dropdown_item_1line,
+        		R.layout.dropdown_select,
             new ArrayList<String>(new LinkedHashSet<String>(searchAddresses)));
         searchBox.setAdapter(adapter);
         if(!searchBox.getAdapter().isEmpty() && showDropDown.get()) {
