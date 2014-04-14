@@ -103,6 +103,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private static final int DEFAULT_ZOOM_LEVEL = 13;
     
+    private static final int SEARCH_ZOOM_LEVEL = 16;
+    
     private static final double mapZoomVerticalOffset = 0.3;
 
     public static final String LAT = "lat";
@@ -171,7 +173,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 final String addrInput = v.getText().toString();
                 boolean handled = StringUtils.isNotBlank(addrInput);
                 if(handled){
-                    searchAddress(addrInput, false);
+                    searchAddress(addrInput, true);
                     InputMethodManager imm = (InputMethodManager)getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
@@ -193,7 +195,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         searchBox.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                searchAddress((String)parent.getItemAtPosition(position), false);
+                searchAddress((String)parent.getItemAtPosition(position), true);
                 InputMethodManager imm = (InputMethodManager)getSystemService(
                         Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
@@ -753,8 +755,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     };
                     Misc.parallelExecute(task);
                     IMapController mc = mapView.getController();
-                    if(zoomIn){
-                        mc.setZoom(DEFAULT_ZOOM_LEVEL);
+                    if(zoomIn && mapView.getZoomLevel() < SEARCH_ZOOM_LEVEL){
+                        mc.setZoom(SEARCH_ZOOM_LEVEL);
                         mc.setCenter(gp);
                     }else{
                         mc.animateTo(gp);
@@ -768,7 +770,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private void refreshSearchAutoCompleteData(){
         AutoCompleteTextView searchBox = (AutoCompleteTextView) findViewById(R.id.search_box);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-            android.R.layout.simple_dropdown_item_1line,
+        		R.layout.dropdown_select,
             new ArrayList<String>(new LinkedHashSet<String>(searchAddresses)));
         searchBox.setAdapter(adapter);
         if(!searchBox.getAdapter().isEmpty() && showDropDown.get()) {
