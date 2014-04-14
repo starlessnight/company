@@ -1246,6 +1246,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                             updateDirectionsList();
                             drawRoute(mapView, reroute, 0);
                             lastRerutingApiCallStatus = "success";
+                            navigationView.setHasVoice(reroute.hasVoice());
                         }else{
                             lastRerutingApiCallStatus = "failed";
                         }
@@ -1347,6 +1348,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                                 centerMap(mapView.getController(), isOnRecreate.get(),
                                     lastCenter, route);
                                 drawRoute(mapView, route, 0);
+                                navigationView.setHasVoice(route.hasVoice());
                             }
                             
                         }

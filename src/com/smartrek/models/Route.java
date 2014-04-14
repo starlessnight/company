@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -194,6 +195,7 @@ public final class Route implements Parcelable {
                 if (ro.has(linkIdAttr)) {
                     node.setLinkId(ro.getLong(linkIdAttr));
                 }
+                node.setVoice(ro.optString("voice"));
                 
                 routeNodes.add(node);
             }
@@ -743,5 +745,18 @@ public final class Route implements Parcelable {
 
     public void setMpoint(int mpoint) {
         this.mpoint = mpoint;
+    }
+    
+    public boolean hasVoice(){
+        boolean rs = false;
+        if(routeNodes != null && !routeNodes.isEmpty()){
+            for(RouteNode n:routeNodes){
+                if(StringUtils.isNotBlank(n.getVoice())){
+                    rs = true;
+                    break;
+                }
+            }
+        }
+        return rs;
     }
 }

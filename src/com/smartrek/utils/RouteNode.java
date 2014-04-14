@@ -118,6 +118,8 @@ public final class RouteNode implements Parcelable, JSONModel {
 	
 	private int time;
 	
+	private String voice;
+	
     /**
      * A reference to the previous node. A link consists of two route nodes. A
      * route node belongs to at least one link, at most two links.
@@ -157,6 +159,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		roadName = in.readString();
 		linkId = in.readLong();
 		time = in.readInt();
+		voice = in.readString();
 	}
 	
 	public RouteNode(double latitude, double longitude, int routeNum, int nodeNum) {
@@ -305,6 +308,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		dest.writeString(roadName);
 		dest.writeLong(linkId);
 		dest.writeInt(time);
+		dest.writeString(voice);
 	}
 	
 	@Override
@@ -364,4 +368,13 @@ public final class RouteNode implements Parcelable, JSONModel {
     public int getNodeNum() {
         return nodeNum;
     }
+
+    public String getVoice() {
+        return voice;
+    }
+
+    public void setVoice(String voice) {
+        this.voice = voice;
+    }
+    
 }

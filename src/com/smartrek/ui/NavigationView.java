@@ -93,6 +93,8 @@ public class NavigationView extends LinearLayout {
 	private double lastCheckPointDistanceInMile;
 	
 	private String destinationAddress;
+	
+	private boolean hasVoice;
 
 	public NavigationView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -372,83 +374,104 @@ public class NavigationView extends LinearLayout {
 				}
 				lastEnd = end;
 
-				String formattedDist = StringUtil
-						.formatImperialDistance(distance);
-
-				if (continueDir) {
-					if (listener != null) {
-						RouteNode prevNode = end.getPrevNode();
-						if (prevNode == null) {
-							prevNode = end;
-						}
-						listener.onCheckPoint(getContinueDirection(prevNode, formattedDist) 
-					        + ". " + getDirection(node, null, false, true), false);
-					}
-					lastCheckPointDistanceInMile = distanceInMile;
-				} else {
-					double linkDistance = 0;
-					while ((end = end.getPrevNode()) != null) {
-						linkDistance += end.getDistance();
-						if (end.getFlag() != 0) {
-							break;
-						}
-					}
-
-					double linkDistanceInMile = metersToMiles(linkDistance);
-					RouteNode.Metadata metadata = node.getMetadata();
-
-					String checkpointDistance = null;
-					boolean actionOnly = false;
-					if (!metadata.pingFlags[0]
-							&& distanceInFoot <= 100 + checkPointFeetOffset) {
-						metadata.pingFlags[0] = true;
-						metadata.pingFlags[1] = true;
-						metadata.pingFlags[2] = true;
-						metadata.pingFlags[3] = true;
-						metadata.pingFlags[4] = true;
-						checkpointDistance = "";
-						actionOnly = true;
-					} else if (!metadata.pingFlags[1]
-							&& distanceInMile <= 0.2 + checkPointMilesOffset) {
-						metadata.pingFlags[1] = true;
-						metadata.pingFlags[2] = true;
-						metadata.pingFlags[3] = true;
-						metadata.pingFlags[4] = true;
-						if(lastCheckPointDistanceInMile - distanceInMile >= 0.5){
-    						checkpointDistance = linkDistanceInMile >= 0.2 ? "0.2 miles"
-    								: formattedDist;
-						}
-					} else if (!metadata.pingFlags[2]
-							&& distanceInMile <= 0.5 + checkPointMilesOffset) {
-						metadata.pingFlags[2] = true;
-						metadata.pingFlags[3] = true;
-						metadata.pingFlags[4] = true;
-						if(lastCheckPointDistanceInMile - distanceInMile >= 1.0){
-    						checkpointDistance = linkDistanceInMile >= 0.5 ? "0.5 miles"
-    								: formattedDist;
-						}
-					} else if (!metadata.pingFlags[3]
-							&& distanceInMile <= 1.0 + checkPointMilesOffset) {
-						metadata.pingFlags[3] = true;
-						metadata.pingFlags[4] = true;
-						if(lastCheckPointDistanceInMile - distanceInMile >= 1.0){
-    						checkpointDistance = linkDistanceInMile >= 1.0 ? "1 mile"
-    								: formattedDist;
-						}
-					} else if (!metadata.pingFlags[4]
-							&& distanceInMile <= 2.0 + checkPointMilesOffset) {
-						metadata.pingFlags[4] = true;
-						if(lastCheckPointDistanceInMile - distanceInMile >= 1.0){
-    						checkpointDistance = linkDistanceInMile >= 2.0 ? "2 miles"
-    								: formattedDist;
-						}
-					}
-
-					if (listener != null && checkpointDistance != null) {
-						listener.onCheckPoint(getDirection(node, checkpointDistance, 
-					        actionOnly, false), false);
-						lastCheckPointDistanceInMile = distanceInMile;
-					}
+				if(hasVoice){
+				    RouteNode nearestNode = nearestLink.getEndNode();
+				    RouteNode.Metadata metadata = nearestNode.getMetadata();
+				    String text = null;
+				    if (!metadata.pingFlags[0]
+                            && distanceInFoot <= 35) {
+                        metadata.pingFlags[0] = true;
+                        metadata.pingFlags[1] = true;
+                        text = nearestNode.getVoice();
+                    } else if (!metadata.pingFlags[1]
+                            && distanceInFoot <= 50) {
+                        metadata.pingFlags[1] = true;
+                        if(nearestNode.getFlag() == 1){
+                            text = nearestNode.getDirection();
+                        }
+                    }
+				    if(listener != null && StringUtils.isNotBlank(text)){
+				        listener.onCheckPoint(text, false);
+				    }
+				}else{
+    				String formattedDist = StringUtil
+    						.formatImperialDistance(distance);
+    
+    				if (continueDir) {
+    					if (listener != null) {
+    						RouteNode prevNode = end.getPrevNode();
+    						if (prevNode == null) {
+    							prevNode = end;
+    						}
+    						listener.onCheckPoint(getContinueDirection(prevNode, formattedDist) 
+    					        + ". " + getDirection(node, null, false, true), false);
+    					}
+    					lastCheckPointDistanceInMile = distanceInMile;
+    				} else {
+    					double linkDistance = 0;
+    					while ((end = end.getPrevNode()) != null) {
+    						linkDistance += end.getDistance();
+    						if (end.getFlag() != 0) {
+    							break;
+    						}
+    					}
+    
+    					double linkDistanceInMile = metersToMiles(linkDistance);
+    					RouteNode.Metadata metadata = node.getMetadata();
+    
+    					String checkpointDistance = null;
+    					boolean actionOnly = false;
+    					if (!metadata.pingFlags[0]
+    							&& distanceInFoot <= 100 + checkPointFeetOffset) {
+    						metadata.pingFlags[0] = true;
+    						metadata.pingFlags[1] = true;
+    						metadata.pingFlags[2] = true;
+    						metadata.pingFlags[3] = true;
+    						metadata.pingFlags[4] = true;
+    						checkpointDistance = "";
+    						actionOnly = true;
+    					} else if (!metadata.pingFlags[1]
+    							&& distanceInMile <= 0.2 + checkPointMilesOffset) {
+    						metadata.pingFlags[1] = true;
+    						metadata.pingFlags[2] = true;
+    						metadata.pingFlags[3] = true;
+    						metadata.pingFlags[4] = true;
+    						if(lastCheckPointDistanceInMile - distanceInMile >= 0.5){
+        						checkpointDistance = linkDistanceInMile >= 0.2 ? "0.2 miles"
+        								: formattedDist;
+    						}
+    					} else if (!metadata.pingFlags[2]
+    							&& distanceInMile <= 0.5 + checkPointMilesOffset) {
+    						metadata.pingFlags[2] = true;
+    						metadata.pingFlags[3] = true;
+    						metadata.pingFlags[4] = true;
+    						if(lastCheckPointDistanceInMile - distanceInMile >= 1.0){
+        						checkpointDistance = linkDistanceInMile >= 0.5 ? "0.5 miles"
+        								: formattedDist;
+    						}
+    					} else if (!metadata.pingFlags[3]
+    							&& distanceInMile <= 1.0 + checkPointMilesOffset) {
+    						metadata.pingFlags[3] = true;
+    						metadata.pingFlags[4] = true;
+    						if(lastCheckPointDistanceInMile - distanceInMile >= 1.0){
+        						checkpointDistance = linkDistanceInMile >= 1.0 ? "1 mile"
+        								: formattedDist;
+    						}
+    					} else if (!metadata.pingFlags[4]
+    							&& distanceInMile <= 2.0 + checkPointMilesOffset) {
+    						metadata.pingFlags[4] = true;
+    						if(lastCheckPointDistanceInMile - distanceInMile >= 1.0){
+        						checkpointDistance = linkDistanceInMile >= 2.0 ? "2 miles"
+        								: formattedDist;
+    						}
+    					}
+    
+    					if (listener != null && checkpointDistance != null) {
+    						listener.onCheckPoint(getDirection(node, checkpointDistance, 
+    					        actionOnly, false), false);
+    						lastCheckPointDistanceInMile = distanceInMile;
+    					}
+    				}
 				}
 			}
 		} else {
@@ -540,6 +563,14 @@ public class NavigationView extends LinearLayout {
 
     public void setDestinationAddress(String destinationAddress) {
         this.destinationAddress = destinationAddress;
+    }
+
+    public boolean isHasVoice() {
+        return hasVoice;
+    }
+
+    public void setHasVoice(boolean hasVoice) {
+        this.hasVoice = hasVoice;
     }
 
 }
