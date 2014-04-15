@@ -176,7 +176,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
         }
 		
 		if (routes.size() == 0) {
-			//throw new RouteNotFoundException("Could not find a route.");
+			throw new RouteNotFoundException("Could not find route for this trip.");
 		}
 		
 		return routes;
