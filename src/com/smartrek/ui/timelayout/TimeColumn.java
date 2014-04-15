@@ -8,13 +8,16 @@ import java.util.TimeZone;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.FrameLayout.LayoutParams;
 
 import com.smartrek.activities.R;
 import com.smartrek.requests.Request;
@@ -39,6 +42,8 @@ public final class TimeColumn extends FrameLayout {
 	private View bottomStripe;
 	private View buttonSpacing;
 	private View  topSpacing;
+	private FrameLayout timeButtonLayout;
+	private View mask;
 	
 	private TextView mpointView;
 	
@@ -99,14 +104,35 @@ public final class TimeColumn extends FrameLayout {
         buttonSpacing.setLayoutParams(buttonSpacingLp);
         timeColumnLayout.addView(buttonSpacing);
 		
+        timeButtonLayout = new FrameLayout(getContext());
+        LinearLayout.LayoutParams timeButtonLp = new LinearLayout.LayoutParams(Dimension.dpToPx(TimeButton.WIDTH, dm), LayoutParams.WRAP_CONTENT, 0);
+        int stripeMargin = Dimension.dpToPx(2, dm);
+        timeButtonLp.leftMargin = stripeMargin;
+        timeButtonLp.rightMargin = stripeMargin;
+        timeButtonLayout.setLayoutParams(timeButtonLp);
+        
+        mask = new View(getContext());
+        int maskHeight = TimeButton.HEIGHT /*arrivalTimeButton height*/ + 25 /*mpointView height*/ + spacingHeight; 
+        FrameLayout.LayoutParams maskLp = new FrameLayout.LayoutParams(Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(maskHeight, dm));
+        maskLp.gravity = Gravity.TOP;
+        mask.setLayoutParams(maskLp);
+        mask.setBackgroundColor(TimeButton.IN_PREGRESS_BACKGROUND_COLOR);
+        
+        timeButtonLayout.addView(mask);
+        
+        LinearLayout lowerPart = new LinearLayout(getContext());
+        LinearLayout.LayoutParams lowerPartLp = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+        lowerPart.setLayoutParams(lowerPartLp);
+        lowerPart.setOrientation(LinearLayout.VERTICAL);
+        
 		arrivalTimeButton = new TimeButton(getContext(), 1, true, arrivalTimeFont);
-		timeColumnLayout.addView(arrivalTimeButton);
+		lowerPart.addView(arrivalTimeButton);
 		
 		bottomSpacing = new View(getContext());
 		LinearLayout.LayoutParams bottomSpacingLp = new LinearLayout.LayoutParams(
 	        Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(spacingHeight, dm)); 
 		bottomSpacing.setLayoutParams(bottomSpacingLp);
-	    timeColumnLayout.addView(bottomSpacing);
+		lowerPart.addView(bottomSpacing);
         
         mpointView = new TextView(getContext());
         mpointView.setTextColor(Color.parseColor("#606163"));
@@ -117,16 +143,19 @@ public final class TimeColumn extends FrameLayout {
             Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(25, dm)); 
         mpointView.setLayoutParams(mpointViewLp);
         Font.setTypeface(arrivalTimeFont, mpointView);
-        timeColumnLayout.addView(mpointView);
+        lowerPart.addView(mpointView);
 		
         bottomStripe = new View(getContext());
         LinearLayout.LayoutParams bottomStipeLp = new LinearLayout.LayoutParams(
             Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(stripeHieght, dm));
-        int stripeMargin = Dimension.dpToPx(2, getResources().getDisplayMetrics());
         bottomStipeLp.leftMargin = stripeMargin;
         bottomStipeLp.rightMargin = stripeMargin;
         bottomStripe.setLayoutParams(bottomStipeLp);
-        timeColumnLayout.addView(bottomStripe);
+        lowerPart.addView(bottomStripe);
+        
+        timeButtonLayout.addView(lowerPart);
+        
+        timeColumnLayout.addView(timeButtonLayout);
         
 		addView(timeColumnLayout);
 		
@@ -149,6 +178,7 @@ public final class TimeColumn extends FrameLayout {
 	}
 	
 	public void setState(State state) {
+		String originalState = this.state.name();
 		this.state = state;
 		
 		departureTimeButton.setState(state);
@@ -173,11 +203,23 @@ public final class TimeColumn extends FrameLayout {
 		int width = Dimension.dpToPx(TimeButton.WIDTH, dm) - (selected?0:stripeMargin*2);
 		stripeLp.width = width;
 		bottomStripe.setLayoutParams(stripeLp);
-		if(color != null){
-    		mpointView.setBackgroundColor(selected?Color.parseColor(color):bgColor);
-    		bottomSpacing.setBackgroundColor(selected?Color.parseColor(color):bgColor);
-            arrivalTimeButton.setBackgroundColor(selected?Color.parseColor(color):bgColor);
-		}
+        if(color != null){
+        	if(State.Unknown.name().equals(originalState) && selected) { // initial
+        		mask.setVisibility(View.INVISIBLE);
+        	}
+        	else if(selected) {
+	        	TranslateAnimation slideUp = new TranslateAnimation(0, 0, 0, Dimension.dpToPx(-1 * mask.getHeight(), dm));
+	        	slideUp.setDuration(700);
+	        	mask.startAnimation(slideUp);
+	        	slideUp.setFillAfter(true);
+        	}
+        	else if(State.Selected.name().equals(originalState)){
+        		TranslateAnimation slideDown = new TranslateAnimation(0, 0, Dimension.dpToPx(-1 * mask.getHeight(), dm), 0);
+            	slideDown.setDuration(700);
+            	mask.startAnimation(slideDown);
+            	slideDown.setFillAfter(true);
+        	}
+        }
         int textColor = Color.parseColor("#606163");
         mpointView.setTextColor(selected?Color.WHITE:textColor);
         arrivalTimeButton.setTextColor(selected?Color.WHITE:textColor);
@@ -261,7 +303,8 @@ public final class TimeColumn extends FrameLayout {
     public void setColor(String color) {
         this.color = color;
         if(color != null){
-            bottomStripe.setBackgroundColor(Color.parseColor(color));
+//            bottomStripe.setBackgroundColor(Color.parseColor(color));
+        	timeButtonLayout.setBackgroundColor(Color.parseColor(color));
             postInvalidate();
         }
     }

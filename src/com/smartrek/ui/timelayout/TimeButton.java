@@ -148,7 +148,7 @@ public final class TimeButton extends TextView {
 		@Override
 		public void run() {
 			setTextColor(buttonState.getTextColor());
-			setBackgroundColor(buttonState.getBackgroundColor(getResources()));
+//			setBackgroundColor(buttonState.getBackgroundColor(getResources()));
 		}
 	}
 }
