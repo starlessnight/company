@@ -867,7 +867,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                15000, 5, locationListener);
+                DebugOptionsActivity.getGpsUpdateInterval(this), 0, locationListener);
         }
         locationManager.requestLocationUpdates(
             LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
@@ -909,7 +909,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
       unregisterReceiver(tripInfoUpdater);
       unregisterReceiver(onTheWayNotifier);
       SessionM.onActivityPause(this);
-      closeGPS();
       super.onPause();
       mSensorManager.unregisterListener(this, accelerometer);
       mSensorManager.unregisterListener(this, magnetometer);
@@ -1648,9 +1647,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (locationManager != null) {
-            locationManager.removeUpdates(locationListener);
-        }
+        closeGPS();
     }
     
     static class LoadImageTask extends AsyncTask<Void, Void, Bitmap> {
