@@ -92,31 +92,24 @@
 		    
 		    <include layout="@layout/metropia_color_bar" />
 		    
-		<ScrollView
-		    android:layout_width="match_parent"
-		    android:layout_height="match_parent"
-		    android:fillViewport="true">
-		    
 		    <LinearLayout
 		        android:id="@+id/contacts_view"
-		        android:layout_height="wrap_content"
+		        android:layout_height="match_parent"
 		        android:layout_width="match_parent" 
 		        android:orientation="vertical"
 		        android:visibility="visible">
         
-		        <ListView
-		            android:id="@+id/contacts_list"
-		        	android:layout_height="0dp"
-		        	android:layout_width="match_parent"     
-		            android:layout_weight="1" 
-		            android:cacheColorHint="#00000000"
-		            android:divider="@null"
-					android:dividerHeight="0dp"
-		        />
-        
+			        <ListView
+			            android:id="@+id/contacts_list"
+			        	android:layout_height="0dp"
+			        	android:layout_width="match_parent"     
+			            android:layout_weight="1" 
+			            android:cacheColorHint="#00000000"
+			            android:divider="@null"
+						android:dividerHeight="0dp"
+			        />
+			        
     		</LinearLayout>
-		    
-		</ScrollView>
 		    
 	</LinearLayout>
 	
