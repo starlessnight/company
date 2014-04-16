@@ -63,7 +63,6 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.smartrek.dialogs.FeedbackDialog;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
@@ -394,8 +393,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         feedbackMenu.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                FeedbackDialog d = new FeedbackDialog(LandingActivity2.this);
-                d.show();
+                Intent intent = new Intent(LandingActivity2.this, FeedbackActivity.class);
+                startActivity(intent);
             }
         });
         TextView settingsMenu = (TextView) findViewById(R.id.map_display_options);
