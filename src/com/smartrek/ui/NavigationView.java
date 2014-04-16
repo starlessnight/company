@@ -499,7 +499,7 @@ public class NavigationView extends LinearLayout {
 			} else if (!everInRoute
 					&& (status == null || status == Status.WaitingForGPS)
 					&& listener != null) {
-				listener.onCheckPoint(startFromRouteMsg, false);
+				listener.onCheckPoint(startFromRouteMsg, true);
 			}
 			lastRerouting = rerouting;
 			setStatus(Status.OutOfRoute);
