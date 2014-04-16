@@ -196,6 +196,8 @@ public final class Route implements Parcelable {
                     node.setLinkId(ro.getLong(linkIdAttr));
                 }
                 node.setVoice(ro.optString("voice"));
+                node.setVoiceRadius(ro.optDouble("voice_radius", 0));
+                node.setVoiceForLink(ro.optString("voice_for_link"));
                 
                 routeNodes.add(node);
             }

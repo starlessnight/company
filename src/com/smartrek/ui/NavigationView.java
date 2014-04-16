@@ -379,17 +379,13 @@ public class NavigationView extends LinearLayout {
 				    RouteNode.Metadata metadata = nearestNode.getMetadata();
 				    double dist = metersToFeet(nearestNode.distanceTo(latitude, longitude));
 				    String text = null;
-				    if (!metadata.pingFlags[0]
-                            && dist <= 35) {
+				    if (!metadata.pingFlags[0]) {
                         metadata.pingFlags[0] = true;
+                        text = nearestNode.getVoiceForLink();
+                    }else if (!metadata.pingFlags[1]
+                            && dist <= nearestNode.getVoiceRadius()) {
                         metadata.pingFlags[1] = true;
                         text = nearestNode.getVoice();
-                    } else if (!metadata.pingFlags[1]
-                            && dist <= 50) {
-                        metadata.pingFlags[1] = true;
-                        if(nearestNode.getFlag() == 1){
-                            text = nearestNode.getDirection();
-                        }
                     }
 				    if(listener != null && StringUtils.isNotBlank(text)){
 				        listener.onCheckPoint(text, false);
