@@ -8,7 +8,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
@@ -23,7 +22,6 @@ public class PointOverlay extends Overlay {
 	public static final float RADIUS = 12.0f;
 	
 	private GeoPoint geoPoint;
-	private int color = Color.GREEN;
 	
 	private Bitmap icon;
 	
@@ -45,10 +43,6 @@ public class PointOverlay extends Overlay {
 	    return geoPoint;
 	}
 	
-	public void setColor(int color) {
-		this.color = color;
-	}
-
 	@Override
 	protected void draw(Canvas canvas, MapView mapView, boolean shadow) {
 		Projection projection = mapView.getProjection();
@@ -58,29 +52,28 @@ public class PointOverlay extends Overlay {
 		Point point = new Point();
 		projection.toPixels(geoPoint, point);
 		
-		//paint.setColor(color);
-		//canvas.drawCircle(point.x, point.y, RADIUS, paint);
-		
 		if(currentDegrees != degrees){
 		    float diff = degrees - currentDegrees;
 		    if(Math.abs(diff) > 180){
 		        diff += diff > 0?-360:360;
 		    }
-		    float step = diff / 3;
-		    if(Math.abs(diff) <= 6){
-                currentDegrees = degrees; 
-            }else{
-                currentDegrees = currentDegrees + step;
-                if(Math.abs(currentDegrees) > 180){
-                    currentDegrees += currentDegrees > 0?-360:360;
-                }
+		    float step = diff / 5;
+            currentDegrees = currentDegrees + step;
+            if(Math.abs(currentDegrees) > 180){
+                currentDegrees += currentDegrees > 0?-360:360;
             }
 		}
 		
 		Matrix matrix = new Matrix();
-        matrix.setRotate(Math.round(currentDegrees));
+        matrix.setRotate(round(currentDegrees, 9));
         Bitmap rotatedIcon = Bitmap.createBitmap(icon, 0, 0, icon.getWidth(), icon.getHeight(), matrix, true);
-        canvas.drawBitmap(rotatedIcon, point.x - (rotatedIcon.getWidth()/2), point.y - rotatedIcon.getHeight()/2, paint);
+        canvas.drawBitmap(rotatedIcon, point.x - rotatedIcon.getWidth()/2.0f, 
+            point.y - rotatedIcon.getHeight()/2.0f, paint);
+	}
+	
+	public static int round(float input, int step) 
+	{
+	  return ((Math.round(input / step)) * step);
 	}
 
     public float getDegrees() {

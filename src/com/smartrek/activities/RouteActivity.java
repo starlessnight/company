@@ -277,7 +277,6 @@ public final class RouteActivity extends FragmentActivity {
         setContentView(R.layout.pre_reservation_map); 
         
         othersPointOverlay = new PointOverlay(this, 0, 0, R.drawable.landing_page_current_location);
-        othersPointOverlay.setColor(0xCC2020DF);
         
         SharedPreferences prefs = getSharedPreferences(MapDisplayActivity.MAP_DISPLAY_PREFS, MODE_PRIVATE);
         

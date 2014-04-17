@@ -854,7 +854,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         MapView mapView = (MapView)findViewById(R.id.mapview);
         if(myPointOverlay == null){
             myPointOverlay = new PointOverlay(LandingActivity2.this, 0, 0, R.drawable.landing_page_current_location);
-            myPointOverlay.setColor(0xCC2020DF);
             mapView.getOverlays().add(myPointOverlay);
         }
         myPointOverlay.setLocation((float) lat, (float) lon);

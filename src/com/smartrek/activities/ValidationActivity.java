@@ -970,7 +970,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		mapOverlays.add(destOverlay);
 
 		pointOverlay = new PointOverlay(this, 0, 0, R.drawable.navigation_current_location);
-		pointOverlay.setColor(0xCC2020DF);
 		mapOverlays.add(pointOverlay);
 
 		bindDebugOverlay(mapView);
