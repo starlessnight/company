@@ -51,6 +51,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -63,6 +64,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
+import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.AnimatorListener;
+import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
@@ -146,6 +150,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private List<String> searchAddresses = new ArrayList<String>();
     
     private AtomicBoolean showDropDown = new AtomicBoolean(true);
+    
+    private View bottomPanel;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -640,16 +646,28 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
         });
         
+        bottomPanel = findViewById(R.id.bottom_panel);
         final View carIcon = findViewById(R.id.car_icon);
         final View tripPanel = findViewById(R.id.trip_panel);
         final View onTheWayPanel = findViewById(R.id.on_the_way_panel); 
         OnClickListener tripPanelToggler = new OnClickListener() {
             @Override
             public void onClick(View v) {
+            	Log.d("bottomPanelIsOpen", isBottomPanelOpen() + "");
                 if(carIcon.getVisibility() == View.VISIBLE){
-                    tripPanel.setVisibility(tripPanel.getVisibility() == View.GONE?View.VISIBLE:View.GONE);
-                    onTheWayPanel.setVisibility(View.GONE);
-                    relayoutIcons();
+                	if(isBottomPanelOpen() && onTheWayPanel.getVisibility() == View.VISIBLE) {
+                		tripPanel.setVisibility(View.VISIBLE);
+                		onTheWayPanel.setVisibility(View.GONE);
+                	}
+                	else {
+                		if(!isBottomPanelOpen()) {
+                			slideUpBottomPanel(tripPanel);
+                			relayoutIcons();
+                		}
+                		else {
+                			slideDownBottomPanel();
+                		}
+                	}
                 }
             }
         };
@@ -661,9 +679,20 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             @Override
             public void onClick(View v) {
                 if(onTheWayIcon.getVisibility() == View.VISIBLE){
-                    onTheWayPanel.setVisibility(onTheWayPanel.getVisibility() == View.GONE?View.VISIBLE:View.GONE);
-                    tripPanel.setVisibility(View.GONE);
-                    relayoutIcons();
+                	if(isBottomPanelOpen() && tripPanel.getVisibility() == View.VISIBLE) {
+                		onTheWayPanel.setVisibility(View.VISIBLE);
+                		tripPanel.setVisibility(View.GONE);
+                	}
+                	else {
+                		if(!isBottomPanelOpen()) {
+                			slideUpBottomPanel(onTheWayPanel);
+                			bottomPanel.setTag("open");
+                			relayoutIcons();
+                		}
+                		else {
+                			slideDownBottomPanel();
+                		}
+                	}
                 }
             }
         });
@@ -678,10 +707,31 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             public void onClick(View v) {}
         };
         findViewById(R.id.header_panel).setOnClickListener(noopClick);
-        findViewById(R.id.bottom_bar).setOnClickListener(noopClick);
         findViewById(R.id.left_drawer).setOnClickListener(noopClick);
         tripPanel.setOnClickListener(noopClick);
         onTheWayPanel.setOnClickListener(noopClick);
+        
+        findViewById(R.id.bottom_bar).setOnClickListener(new OnClickListener() {
+        	@Override
+        	public void onClick(View v) {
+        		if(isBottomPanelOpen()) {
+        			slideDownBottomPanel();
+        		}
+        		else {
+        			if(carIcon.getVisibility() == View.VISIBLE) {
+        				if(onTheWayIcon.getVisibility() != View.VISIBLE) {
+        					onTheWayPanel.setVisibility(View.GONE);
+        					slideUpBottomPanel(tripPanel);
+        				}
+        			}
+        			else if(onTheWayIcon.getVisibility() == View.VISIBLE) {
+        				tripPanel.setVisibility(View.GONE);
+        				slideUpBottomPanel(onTheWayPanel);
+        			}
+        		}
+        		relayoutIcons();
+        	}
+        });
         
         scheduleNextTripInfoUpdates();
         
@@ -694,15 +744,55 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             (TextView)findViewById(R.id.on_the_way_msg), onTheWayBtn);
     }
     
+    private boolean isBottomPanelOpen() {
+    	return "open".equals(bottomPanel.getTag());
+    }
+    
+    private void slideUpBottomPanel(View show) {
+    	show.setVisibility(View.VISIBLE);
+    	ObjectAnimator slideUp = ObjectAnimator.ofFloat(bottomPanel, "translationY", Dimension.dpToPx(70, getResources().getDisplayMetrics()), 0.0f);
+		slideUp.setDuration(500);
+		slideUp.setInterpolator(new AccelerateDecelerateInterpolator());
+		slideUp.start();
+		bottomPanel.setTag("open");
+    }
+    
+    private void slideDownBottomPanel() {
+    	ObjectAnimator slideDown = ObjectAnimator.ofFloat(bottomPanel, "translationY", 0.0f, Dimension.dpToPx(70, getResources().getDisplayMetrics()));
+		slideDown.setDuration(500);
+		slideDown.setInterpolator(new AccelerateDecelerateInterpolator());
+		slideDown.removeAllListeners();
+		slideDown.addListener(new AnimatorListener() {
+			@Override
+			public void onAnimationStart(Animator animation) {
+			}
+
+			@Override
+			public void onAnimationEnd(Animator animation) {
+				bottomPanel.setTag("close");
+				relayoutIcons();
+			}
+
+			@Override
+			public void onAnimationCancel(Animator animation) {
+			}
+
+			@Override
+			public void onAnimationRepeat(Animator animation) {
+			}
+		});
+		slideDown.start();
+    }
+    
     private void relayoutIcons(){
         View mapView = findViewById(R.id.mapview);
         Boolean collapsedTag = (Boolean) mapView.getTag();
         boolean collapsed = collapsedTag == null?true:collapsedTag.booleanValue();
-        View tripPanel = findViewById(R.id.trip_panel);
-        View onTheWayPanel = findViewById(R.id.on_the_way_panel);
+//        View tripPanel = findViewById(R.id.trip_panel);
+//        View onTheWayPanel = findViewById(R.id.on_the_way_panel);
         View balloonView = (View) findViewById(R.id.balloon_panel);
-        int bottomMargin = tripPanel.getVisibility() == View.GONE && onTheWayPanel.getVisibility() == View.GONE
-            && balloonView.getVisibility() == View.GONE ?(collapsed?53:10):135;
+        int bottomMargin = "close".equals(findViewById(R.id.bottom_panel).getTag()) 
+        		&& balloonView.getVisibility() == View.GONE ?(collapsed?53:10):135;
         View centerMapIcon = findViewById(R.id.center_map_icon);
         RelativeLayout.LayoutParams centerMapIconLp = (RelativeLayout.LayoutParams) centerMapIcon.getLayoutParams();
         centerMapIconLp.bottomMargin = Dimension.dpToPx(bottomMargin, getResources().getDisplayMetrics());
@@ -1424,11 +1514,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 boolean handledBulb = hideBulbBalloon();
                 boolean handledPOI = removePOIMarker(mapView);
                 if(!handledStarred && !handledBulb && !handledPOI){
-                    View tripPanel = findViewById(R.id.trip_panel);
-                    View onTheWayPanel = findViewById(R.id.on_the_way_panel);
-                    if(tripPanel.getVisibility() == View.VISIBLE || onTheWayPanel.getVisibility() == View.VISIBLE){
-                        tripPanel.setVisibility(View.GONE);
-                        onTheWayPanel.setVisibility(View.GONE);
+//                    View tripPanel = findViewById(R.id.trip_panel);
+//                    View onTheWayPanel = findViewById(R.id.on_the_way_panel);
+                    if(isBottomPanelOpen()){
+                        slideDownBottomPanel();
                         relayoutIcons();
                     }else{
                         resizeMap(!isMapCollapsed());
@@ -1579,6 +1668,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	findViewById(R.id.bottom_bar).setVisibility(View.GONE);
     	findViewById(R.id.trip_panel).setVisibility(View.GONE);
     	findViewById(R.id.on_the_way_panel).setVisibility(View.GONE);
+    	bottomPanel.setTag("close");
     }
     
     private synchronized void drawBulbPOIs(final MapView mapView, List<com.smartrek.requests.WhereToGoRequest.Location> locs) {

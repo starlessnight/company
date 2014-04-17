@@ -117,10 +117,12 @@
 		           </FrameLayout>
 		           
 			      <LinearLayout
-						android:layout_width="match_parent"
-					    android:layout_height="wrap_content"
-					    android:orientation="vertical" 
-						android:layout_alignParentBottom="true">
+			          android:id="@+id/bottom_panel"
+					  android:layout_width="match_parent"
+					  android:layout_height="wrap_content"
+					  android:orientation="vertical" 
+				      android:layout_alignParentBottom="true"
+				      android:tag="close">
 			    		
 			          <LinearLayout 
 				        	android:id="@+id/bottom_bar"
