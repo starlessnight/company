@@ -375,17 +375,19 @@ public class NavigationView extends LinearLayout {
 				lastEnd = end;
 
 				if(hasVoice){
-				    RouteNode nearestNode = nearestLink.getEndNode();
-				    RouteNode.Metadata metadata = nearestNode.getMetadata();
-				    double dist = metersToFeet(nearestNode.distanceTo(latitude, longitude));
+				    RouteNode startNode = nearestLink.getStartNode();
+                    RouteNode.Metadata startMetadata = startNode.getMetadata();
+				    RouteNode endNode = nearestLink.getEndNode();
+				    RouteNode.Metadata endMetadata = endNode.getMetadata();
+				    double dist = metersToFeet(endNode.distanceTo(latitude, longitude));
 				    String text = null;
-				    if (!metadata.pingFlags[0]) {
-                        metadata.pingFlags[0] = true;
-                        text = nearestNode.getVoiceForLink();
-                    }else if (!metadata.pingFlags[1]
-                            && dist <= nearestNode.getVoiceRadius()) {
-                        metadata.pingFlags[1] = true;
-                        text = nearestNode.getVoice();
+				    if (!startMetadata.pingFlags[0]) {
+				        startMetadata.pingFlags[0] = true;
+                        text = startNode.getVoiceForLink();
+                    }else if (!endMetadata.pingFlags[1]
+                            && dist <= endNode.getVoiceRadius()) {
+                        endMetadata.pingFlags[1] = true;
+                        text = endNode.getVoice();
                     }
 				    if(listener != null && StringUtils.isNotBlank(text)){
 				        listener.onCheckPoint(text, false);
