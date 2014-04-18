@@ -384,7 +384,8 @@ public class NavigationView extends LinearLayout {
 				    if (!startMetadata.pingFlags[0]) {
 				        startMetadata.pingFlags[0] = true;
                         text = startNode.getVoiceForLink();
-                    }else if (!endMetadata.pingFlags[1]
+                    }
+				    if (!endMetadata.pingFlags[1]
                             && dist <= endNode.getVoiceRadius()) {
                         endMetadata.pingFlags[1] = true;
                         text = endNode.getVoice();
