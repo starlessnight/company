@@ -779,7 +779,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
         });
         
-        if(DebugOptionsActivity.isReroutingDebugMsgEnabled(this)){
+        if(DebugOptionsActivity.isReroutingDebugMsgEnabled(this) || DebugOptionsActivity.isVoiceDebugMsgEnabled(this)){
             findViewById(R.id.rerouting_debug_msg).setVisibility(View.VISIBLE);
         }
 		
@@ -1485,15 +1485,27 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                 routeOfRouteCnt.set(0);
             }
 	        
-	        if(DebugOptionsActivity.isReroutingDebugMsgEnabled(this)){
+	        if(DebugOptionsActivity.isReroutingDebugMsgEnabled(this) || DebugOptionsActivity.isVoiceDebugMsgEnabled(this)){
     	        runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        String msg = "distance from route: " 
-                            + Double.valueOf(NavigationView.metersToFeet(rerouteNearestLink.distanceTo(lat, lng))).intValue() + " ft\n" 
-                            + "speed: " + Double.valueOf(speedInMph).intValue() + " mph\n" 
-                            + "consecutive out of route count: " + routeOfRouteCnt.get() + "\n"
-                            + "last API call status: " + lastRerutingApiCallStatus;
+                        String msg = "";
+                        if(DebugOptionsActivity.isReroutingDebugMsgEnabled(ValidationActivity.this)){
+                            msg += "distance from route: " 
+                                + Double.valueOf(NavigationView.metersToFeet(rerouteNearestLink.distanceTo(lat, lng))).intValue() + " ft" 
+                                + ", speed: " + Double.valueOf(speedInMph).intValue() + " mph" 
+                                + "\nconsecutive out of route count: " + routeOfRouteCnt.get()
+                                + "\nlast API call status: " + lastRerutingApiCallStatus;
+                        }
+                        if(DebugOptionsActivity.isVoiceDebugMsgEnabled(ValidationActivity.this)){
+                            RouteNode endNode = rerouteNearestLink.getEndNode();
+                            msg += (StringUtils.isBlank("")?"":"\n")
+                                + "node: " + endNode.getNodeNum()
+                                + ", voice radius: " + Double.valueOf(endNode.getVoiceRadius()).intValue() + " ft"
+                                + "\ndistance from node: " + Double.valueOf(NavigationView.metersToFeet(endNode.distanceTo(lat, lng))).intValue() + " ft"
+                                + "\nvoice for link: " + endNode.getVoiceForLink()
+                                + "\nvoice:" + endNode.getVoice();
+                        }
                         ((TextView)findViewById(R.id.rerouting_debug_msg)).setText(msg);
                     }
                 });
