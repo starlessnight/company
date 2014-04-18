@@ -445,6 +445,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	public void onStop() {
 		super.onStop();
 		SessionM.onActivityStop(this);
+		NavigationView.removeNotification(this);
 		EasyTracker.getInstance().activityStop(this);
 	}
 
@@ -1148,12 +1149,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 								.getDistanceToNextTurn(location.getLatitude(),
 										location.getLongitude());
 					}
-					DirectionItem item = new DirectionItem(
-							NavigationView.getDirectionDrawableId(
-									nextNode.getDirection(), false), distance,
-							nextNode.getRoadName(),
-							NavigationView.getDirectionDrawableId(
-									nextNode.getDirection(), true));
+					DirectionItem item = new DirectionItem(nextNode.getDirection(), distance, nextNode.getRoadName());
 					dirListadapter.add(item);
 					items.add(item);
 					distance = 0;

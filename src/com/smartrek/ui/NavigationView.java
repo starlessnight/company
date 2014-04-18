@@ -6,7 +6,11 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.text.Spannable;
@@ -23,7 +27,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.smartrek.activities.DebugOptionsActivity;
+import com.smartrek.activities.LandingActivity2;
 import com.smartrek.activities.R;
+import com.smartrek.activities.ValidationActivity;
 import com.smartrek.models.Route;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
@@ -44,11 +50,38 @@ public class NavigationView extends LinearLayout {
 		
 		public int smallDrawableId;
 		
-		public DirectionItem(int drawableId, double distance, String roadName, int smallDrawableId) {
-			this.drawableId = drawableId;
+		public String direction;
+		
+		public DirectionItem(String direction, double distance, String roadName) {
+			this.direction = direction;
+			this.drawableId = getDirectionDrawableId(direction, false);
 			this.distance = distance;
 			this.roadName = roadName;
-			this.smallDrawableId = smallDrawableId;
+			this.smallDrawableId = getDirectionDrawableId(direction, true);
+		}
+		
+		private int getDirectionDrawableId(String direction, boolean smallOne) {
+			int id;
+			if (StringUtils.equalsIgnoreCase("slightly left", direction)) {
+				id = smallOne?R.drawable.small_slightly_left:R.drawable.slightly_left;
+			} else if (StringUtils.equalsIgnoreCase("curve left", direction)) {
+				id = smallOne?R.drawable.small_curve_left:R.drawable.curve_left;
+			} else if (StringUtils.equalsIgnoreCase("turn left", direction)) {
+				id = smallOne?R.drawable.small_turn_left:R.drawable.turn_left;
+			} else if (StringUtils.equalsIgnoreCase("slightly right", direction)) {
+				id = smallOne?R.drawable.small_slightly_right:R.drawable.slightly_right;
+			} else if (StringUtils.equalsIgnoreCase("curve right", direction)) {
+				id = smallOne?R.drawable.small_curve_right:R.drawable.curve_right;
+			} else if (StringUtils.equalsIgnoreCase("turn right", direction)) {
+				id = smallOne?R.drawable.small_turn_right:R.drawable.turn_right;
+			} else if (StringUtils.equalsIgnoreCase("make a u turn", direction)) {
+				id = smallOne?R.drawable.small_make_a_u_turn:R.drawable.make_a_u_turn;
+			} else if (StringUtils.equalsIgnoreCase("go straight", direction)) {
+				id = smallOne?R.drawable.small_go_straight:R.drawable.go_straight;
+			} else {
+				id = smallOne?R.drawable.small_go_straight:R.drawable.go_straight;
+			}
+			return id;
 		}
 
 	}
@@ -95,6 +128,8 @@ public class NavigationView extends LinearLayout {
 	private String destinationAddress;
 	
 	private boolean hasVoice;
+	
+	private String notifiedMsg = "";
 
 	public NavigationView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -327,6 +362,10 @@ public class NavigationView extends LinearLayout {
 				: View.VISIBLE);
 		btnNextItem.setVisibility(isLastItem? View.INVISIBLE:View.VISIBLE);
 		
+		if(nextItem != null) {
+			notifyIfNecessary(nextItem.direction + " on " + nextItem.roadName);
+		}
+		
 	}
 
 	public static SpannableString adjustDistanceFontSize(Context ctx,
@@ -385,7 +424,7 @@ public class NavigationView extends LinearLayout {
 				        startMetadata.pingFlags[0] = true;
                         text = startNode.getVoiceForLink();
                     }
-				    if (!endMetadata.pingFlags[1]
+                    if (!endMetadata.pingFlags[1]
                             && dist <= endNode.getVoiceRadius()) {
                         endMetadata.pingFlags[1] = true;
                         text = endNode.getVoice();
@@ -476,6 +515,9 @@ public class NavigationView extends LinearLayout {
 			}
 		} else {
 			String routeMsg = rerouting?"Rerouting":"Out of route. Please go back to route."; 
+			if(rerouting) {
+				notifyIfNecessary(routeMsg);
+			}
 			String startFromRouteMsg = "Proceed to";
 			RouteNode roaddNode = route.getFirstNode();
 			while (roaddNode != null) {
@@ -505,31 +547,30 @@ public class NavigationView extends LinearLayout {
 			textViewGenericMessage.setText(everInRoute?routeMsg:startFromRouteMsg);
 		}
 	}
-
-	public static int getDirectionDrawableId(String direction, boolean smallOne) {
-		int id;
-		if (StringUtils.equalsIgnoreCase("slightly left", direction)) {
-			id = smallOne?R.drawable.small_slightly_left:R.drawable.slightly_left;
-		} else if (StringUtils.equalsIgnoreCase("curve left", direction)) {
-			id = smallOne?R.drawable.small_curve_left:R.drawable.curve_left;
-		} else if (StringUtils.equalsIgnoreCase("turn left", direction)) {
-			id = smallOne?R.drawable.small_turn_left:R.drawable.turn_left;
-		} else if (StringUtils.equalsIgnoreCase("slightly right", direction)) {
-			id = smallOne?R.drawable.small_slightly_right:R.drawable.slightly_right;
-		} else if (StringUtils.equalsIgnoreCase("curve right", direction)) {
-			id = smallOne?R.drawable.small_curve_right:R.drawable.curve_right;
-		} else if (StringUtils.equalsIgnoreCase("turn right", direction)) {
-			id = smallOne?R.drawable.small_turn_right:R.drawable.turn_right;
-		} else if (StringUtils.equalsIgnoreCase("make a u turn", direction)) {
-			id = smallOne?R.drawable.small_make_a_u_turn:R.drawable.make_a_u_turn;
-		} else if (StringUtils.equalsIgnoreCase("go straight", direction)) {
-			id = smallOne?R.drawable.small_go_straight:R.drawable.go_straight;
-		} else {
-			id = smallOne?R.drawable.small_go_straight:R.drawable.go_straight;
+	
+	private static final Integer ID = 123451;
+	
+	private void notifyIfNecessary(String message) {
+		if(!notifiedMsg.equalsIgnoreCase(message)) {
+			notifiedMsg = message;
+			Intent validationIntent = new Intent();
+	        PendingIntent sender = PendingIntent.getActivity(getContext(), ID, validationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            NotificationManager notificationManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            Notification notification = new Notification(R.drawable.icon_small, "Metropia", System.currentTimeMillis());
+            notification.setLatestEventInfo(getContext(), "Metropia", message, sender);
+            notification.flags = Notification.FLAG_AUTO_CANCEL;
+            notificationManager.notify(ID, notification);
+            
+            Misc.playDefaultNotificationSound(getContext());
+            Misc.wakeUpScreen(getContext(), ValidationActivity.class.getSimpleName());
 		}
-		return id;
 	}
 	
+	public static void removeNotification(Context ctx) {
+		NotificationManager notificationManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.cancel(ID);
+	}
+
 	public static interface CheckPointListener {
 
 		void onCheckPoint(String navText, boolean flush);
