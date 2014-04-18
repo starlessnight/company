@@ -444,7 +444,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 intent.putExtra("route", reserv.getRoute());
                 intent.putExtra("reservation", reserv);
                 startActivity(intent);
-                findViewById(R.id.trip_panel).setVisibility(View.GONE);
+                slideDownBottomPanel();
                 relayoutIcons();
             }
         });
@@ -488,7 +488,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             extras.putParcelable(RouteActivity.DEST_COORD, gp);
                             intent.putExtras(extras);
                             startActivity(intent);
-                            findViewById(R.id.trip_panel).setVisibility(View.GONE);
+                            slideDownBottomPanel();
                             relayoutIcons();
                         }
                     }
@@ -686,7 +686,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 	else {
                 		if(!isBottomPanelOpen()) {
                 			slideUpBottomPanel(onTheWayPanel);
-                			bottomPanel.setTag("open");
                 			relayoutIcons();
                 		}
                 		else {
@@ -750,38 +749,42 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private void slideUpBottomPanel(View show) {
     	show.setVisibility(View.VISIBLE);
-    	ObjectAnimator slideUp = ObjectAnimator.ofFloat(bottomPanel, "translationY", Dimension.dpToPx(70, getResources().getDisplayMetrics()), 0.0f);
-		slideUp.setDuration(500);
-		slideUp.setInterpolator(new AccelerateDecelerateInterpolator());
-		slideUp.start();
-		bottomPanel.setTag("open");
+    	if(!isBottomPanelOpen()) {
+	    	ObjectAnimator slideUp = ObjectAnimator.ofFloat(bottomPanel, "translationY", Dimension.dpToPx(70, getResources().getDisplayMetrics()), 0.0f);
+			slideUp.setDuration(500);
+			slideUp.setInterpolator(new AccelerateDecelerateInterpolator());
+			slideUp.start();
+			bottomPanel.setTag("open");
+    	}
     }
     
     private void slideDownBottomPanel() {
-    	ObjectAnimator slideDown = ObjectAnimator.ofFloat(bottomPanel, "translationY", 0.0f, Dimension.dpToPx(70, getResources().getDisplayMetrics()));
-		slideDown.setDuration(500);
-		slideDown.setInterpolator(new AccelerateDecelerateInterpolator());
-		slideDown.removeAllListeners();
-		slideDown.addListener(new AnimatorListener() {
-			@Override
-			public void onAnimationStart(Animator animation) {
-			}
-
-			@Override
-			public void onAnimationEnd(Animator animation) {
-				bottomPanel.setTag("close");
-				relayoutIcons();
-			}
-
-			@Override
-			public void onAnimationCancel(Animator animation) {
-			}
-
-			@Override
-			public void onAnimationRepeat(Animator animation) {
-			}
-		});
-		slideDown.start();
+    	if(isBottomPanelOpen()) {
+	    	ObjectAnimator slideDown = ObjectAnimator.ofFloat(bottomPanel, "translationY", 0.0f, Dimension.dpToPx(70, getResources().getDisplayMetrics()));
+			slideDown.setDuration(500);
+			slideDown.setInterpolator(new AccelerateDecelerateInterpolator());
+			slideDown.removeAllListeners();
+			slideDown.addListener(new AnimatorListener() {
+				@Override
+				public void onAnimationStart(Animator animation) {
+				}
+	
+				@Override
+				public void onAnimationEnd(Animator animation) {
+					bottomPanel.setTag("close");
+					relayoutIcons();
+				}
+	
+				@Override
+				public void onAnimationCancel(Animator animation) {
+				}
+	
+				@Override
+				public void onAnimationRepeat(Animator animation) {
+				}
+			});
+			slideDown.start();
+    	}
     }
     
     private void relayoutIcons(){
@@ -1053,8 +1056,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     if(reservations == null || reservations.isEmpty()){
                         tripPanel.setTag(null);
                         nextTripInfo.setText(NO_TRIPS);
-                        tripPanel.setVisibility(View.GONE);
+                        if(tripPanel.getVisibility() == View.VISIBLE) {
+                        	slideDownBottomPanel();
+                        }
                         carIcon.setVisibility(View.INVISIBLE);
+                        relayoutIcons();
+                        
                     }else{
                         Reservation reserv = reservations.get(0);
                         tripPanel.setTag(reserv);
