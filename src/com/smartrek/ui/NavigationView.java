@@ -27,7 +27,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.smartrek.activities.DebugOptionsActivity;
-import com.smartrek.activities.LandingActivity2;
+import com.smartrek.activities.MainActivity;
 import com.smartrek.activities.R;
 import com.smartrek.activities.ValidationActivity;
 import com.smartrek.models.Route;
@@ -130,6 +130,8 @@ public class NavigationView extends LinearLayout {
 	private boolean hasVoice;
 	
 	private String notifiedMsg = "";
+	
+	private boolean needNotification; 
 
 	public NavigationView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -551,9 +553,11 @@ public class NavigationView extends LinearLayout {
 	private static final Integer ID = 123451;
 	
 	private void notifyIfNecessary(String message) {
-		if(!notifiedMsg.equalsIgnoreCase(message)) {
+		if(!notifiedMsg.equalsIgnoreCase(message) && needNotification) {
 			notifiedMsg = message;
-			Intent validationIntent = new Intent();
+			Intent validationIntent = new Intent(getContext(), MainActivity.class);
+			validationIntent.setAction(Intent.ACTION_MAIN);
+			validationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 	        PendingIntent sender = PendingIntent.getActivity(getContext(), ID, validationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             NotificationManager notificationManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
             Notification notification = new Notification(R.drawable.icon_small, "Metropia", System.currentTimeMillis());
@@ -569,6 +573,14 @@ public class NavigationView extends LinearLayout {
 	public static void removeNotification(Context ctx) {
 		NotificationManager notificationManager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
 		notificationManager.cancel(ID);
+	}
+	
+	public void startNotification() {
+		this.needNotification = true;
+	}
+	
+	public void stopNotification() {
+		this.needNotification = false;
 	}
 
 	public static interface CheckPointListener {

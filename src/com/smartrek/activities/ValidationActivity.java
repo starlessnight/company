@@ -135,7 +135,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	public static final String EMAILS = "emails";
 	
-	public static final Integer REPORT_PROBLEM = new Integer(100);
+	public static final Integer REPORT_PROBLEM = Integer.valueOf(100);
 
 	private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 
@@ -484,6 +484,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 		
 		registerReceiver(timeInfoCycler, new IntentFilter(TIME_INFO_CYCLE));
+		navigationView.stopNotification();
 	}
 
 	@Override
@@ -491,6 +492,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		super.onPause();
 		SessionM.onActivityPause(this);
 		unregisterReceiver(timeInfoCycler);
+		navigationView.startNotification();
 	}
 
 	@Override
