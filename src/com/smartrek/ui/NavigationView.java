@@ -421,19 +421,21 @@ public class NavigationView extends LinearLayout {
 				    RouteNode endNode = nearestLink.getEndNode();
 				    RouteNode.Metadata endMetadata = endNode.getMetadata();
 				    double dist = metersToFeet(endNode.distanceTo(latitude, longitude));
-				    String text = null;
 				    if (!startMetadata.pingFlags[0]) {
 				        startMetadata.pingFlags[0] = true;
-                        text = startNode.getVoiceForLink();
+				        String text = startNode.getVoiceForLink();
+				        if(listener != null && StringUtils.isNotBlank(text)){
+	                        listener.onCheckPoint(text, false, true);
+	                    }
                     }
                     if (!endMetadata.pingFlags[1]
                             && dist <= endNode.getVoiceRadius()) {
                         endMetadata.pingFlags[1] = true;
-                        text = endNode.getVoice();
+                        String text = endNode.getVoice();
+                        if(listener != null && StringUtils.isNotBlank(text)){
+                            listener.onCheckPoint(text, false, false);
+                        }
                     }
-				    if(listener != null && StringUtils.isNotBlank(text)){
-				        listener.onCheckPoint(text, false);
-				    }
 				}else{
     				String formattedDist = StringUtil
     						.formatImperialDistance(distance);
@@ -445,7 +447,7 @@ public class NavigationView extends LinearLayout {
     							prevNode = end;
     						}
     						listener.onCheckPoint(getContinueDirection(prevNode, formattedDist) 
-    					        + ". " + getDirection(node, null, false, true), false);
+    					        + ". " + getDirection(node, null, false, true), false, true);
     					}
     					lastCheckPointDistanceInMile = distanceInMile;
     				} else {
@@ -509,7 +511,7 @@ public class NavigationView extends LinearLayout {
     
     					if (listener != null && checkpointDistance != null) {
     						listener.onCheckPoint(getDirection(node, checkpointDistance, 
-    					        actionOnly, false), false);
+    					        actionOnly, false), false, true);
     						lastCheckPointDistanceInMile = distanceInMile;
     					}
     				}
@@ -534,7 +536,7 @@ public class NavigationView extends LinearLayout {
 			if (everInRoute && (status != Status.OutOfRoute || speakRerouting) 
 			        && listener != null) {
 			    if(speakRerouting){
-			        listener.onCheckPoint("", speakRerouting);
+			        listener.onCheckPoint("", speakRerouting, true);
 			    }
 				if(speakRerouting && DebugOptionsActivity.isReroutingNotificationSoundEnabled(getContext())){
                     Misc.playDefaultNotificationSound(getContext());
@@ -542,7 +544,7 @@ public class NavigationView extends LinearLayout {
 			} else if (!everInRoute
 					&& (status == null || status == Status.WaitingForGPS)
 					&& listener != null) {
-				listener.onCheckPoint(startFromRouteMsg, true);
+				listener.onCheckPoint(startFromRouteMsg, true, true);
 			}
 			lastRerouting = rerouting;
 			setStatus(Status.OutOfRoute);
@@ -585,7 +587,7 @@ public class NavigationView extends LinearLayout {
 
 	public static interface CheckPointListener {
 
-		void onCheckPoint(String navText, boolean flush);
+		void onCheckPoint(String navText, boolean flush, boolean delay);
 
 	}
 

@@ -1963,13 +1963,15 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			});
 			navigationView.setListener(new CheckPointListener() {
 				@Override
-				public void onCheckPoint(String navText, boolean flush) {
+				public void onCheckPoint(String navText, boolean flush, boolean delayed) {
 					if (!arrived.get()) {
 					    if(flush){
 					        speakIfTtsEnabled(navText, flush);
 					        ttsBuffer.clear();
-					    }else{
+					    }else if(delayed){
 					        ttsBuffer.add(navText);
+					    }else{
+					        speakIfTtsEnabled(navText, false);
 					    }
 					}
 				}
