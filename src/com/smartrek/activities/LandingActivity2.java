@@ -810,42 +810,36 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         openedMenuIcon.setLayoutParams(openedMenuIconLp);
     }
     
-    private void searchAddress(final String addr, final boolean zoomIn){
-        AsyncTask<Void, Void, GeoPoint> task = new AsyncTask<Void, Void, GeoPoint>(){
+    private void searchAddress(final String addrStr, final boolean zoomIn){
+        AsyncTask<Void, Void, Address> task = new AsyncTask<Void, Void, Address>(){
             @Override
-            protected GeoPoint doInBackground(Void... params) {
-                GeoPoint gp = null;
+            protected Address doInBackground(Void... params) {
+                Address addr = null;
                 try {
-                	List<Address> addrs;
-                	if(lastLocation == null) {
-                		addrs = Geocoding.lookup(LandingActivity2.this, addr);
-                	}
-                	else {
-                		addrs = Geocoding.lookup(LandingActivity2.this, addr, lastLocation.getLatitude(), lastLocation.getLongitude());
-                	}
+                    List<Address> addrs;
+                    if(lastLocation == null) {
+                        addrs = Geocoding.lookup(LandingActivity2.this, addrStr);
+                    }
+                    else {
+                        addrs = Geocoding.lookup(LandingActivity2.this, addrStr, lastLocation.getLatitude(), lastLocation.getLongitude());
+                    }
                     for (Address a : addrs) {
-                        gp = new GeoPoint(a.getLatitude(), a.getLongitude());
+                        addr = a;
                         break;
                     }
                 }
                 catch (Exception e) {
                 }
-                return gp;
+                return addr;
             }
             @Override
-            protected void onPostExecute(GeoPoint gp) {
-                if(gp != null){
-                    DebugOptionsActivity.addRecentAddress(LandingActivity2.this, addr);
+            protected void onPostExecute(Address addr) {
+                if(addr != null){
+                    GeoPoint gp = addr.getGeoPoint();
+                    DebugOptionsActivity.addRecentAddress(LandingActivity2.this, addrStr);
                     refreshSearchAutoCompleteData();
                     final MapView mapView = (MapView) findViewById(R.id.mapview);
-                    ReverseGeocodingTask task = new ReverseGeocodingTask(LandingActivity2.this, 
-                            gp.getLatitude(), gp.getLongitude()){
-                        @Override
-                        protected void onPostExecute(String result) {
-                            refreshPOIMarker(mapView, lat, lon, result, "");
-                        }
-                    };
-                    Misc.parallelExecute(task);
+                    refreshPOIMarker(mapView, gp.getLatitude(), gp.getLongitude(), addr.getName(), "");
                     IMapController mc = mapView.getController();
                     if(zoomIn && mapView.getZoomLevel() < SEARCH_ZOOM_LEVEL){
                         mc.setZoom(SEARCH_ZOOM_LEVEL);
