@@ -444,7 +444,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 intent.putExtra("route", reserv.getRoute());
                 intent.putExtra("reservation", reserv);
                 startActivity(intent);
-                slideDownBottomPanel();
+                slideDownBottomPanel(false);
                 relayoutIcons();
             }
         });
@@ -488,7 +488,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             extras.putParcelable(RouteActivity.DEST_COORD, gp);
                             intent.putExtras(extras);
                             startActivity(intent);
-                            slideDownBottomPanel();
+                            slideDownBottomPanel(false);
                             relayoutIcons();
                         }
                     }
@@ -665,7 +665,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 			relayoutIcons();
                 		}
                 		else {
-                			slideDownBottomPanel();
+                			slideDownBottomPanel(false);
                 		}
                 	}
                 }
@@ -689,7 +689,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 			relayoutIcons();
                 		}
                 		else {
-                			slideDownBottomPanel();
+                			slideDownBottomPanel(false);
                 		}
                 	}
                 }
@@ -714,7 +714,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         	@Override
         	public void onClick(View v) {
         		if(isBottomPanelOpen()) {
-        			slideDownBottomPanel();
+        			slideDownBottomPanel(false);
         		}
         		else {
         			if(carIcon.getVisibility() == View.VISIBLE) {
@@ -758,10 +758,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	}
     }
     
-    private void slideDownBottomPanel() {
+    private void slideDownBottomPanel(boolean faster) {
     	if(isBottomPanelOpen()) {
 	    	ObjectAnimator slideDown = ObjectAnimator.ofFloat(bottomPanel, "translationY", 0.0f, Dimension.dpToPx(70, getResources().getDisplayMetrics()));
-			slideDown.setDuration(500);
+			slideDown.setDuration(faster?0:500);
 			slideDown.setInterpolator(new AccelerateDecelerateInterpolator());
 			slideDown.removeAllListeners();
 			slideDown.addListener(new AnimatorListener() {
@@ -1057,7 +1057,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         tripPanel.setTag(null);
                         nextTripInfo.setText(NO_TRIPS);
                         if(tripPanel.getVisibility() == View.VISIBLE) {
-                        	slideDownBottomPanel();
+                        	slideDownBottomPanel(false);
                         }
                         carIcon.setVisibility(View.INVISIBLE);
                         relayoutIcons();
@@ -1524,7 +1524,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 //                    View tripPanel = findViewById(R.id.trip_panel);
 //                    View onTheWayPanel = findViewById(R.id.on_the_way_panel);
                     if(isBottomPanelOpen()){
-                        slideDownBottomPanel();
+                        slideDownBottomPanel(false);
                         relayoutIcons();
                     }else{
                         resizeMap(!isMapCollapsed());
@@ -1672,10 +1672,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void hideBottomBar() {
+    	if(isBottomPanelOpen()) {
+    		slideDownBottomPanel(true);
+    	}
     	findViewById(R.id.bottom_bar).setVisibility(View.GONE);
-    	findViewById(R.id.trip_panel).setVisibility(View.GONE);
-    	findViewById(R.id.on_the_way_panel).setVisibility(View.GONE);
-    	bottomPanel.setTag("close");
     }
     
     private synchronized void drawBulbPOIs(final MapView mapView, List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
