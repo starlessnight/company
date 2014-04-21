@@ -2,6 +2,7 @@ package com.smartrek.ui.overlays;
 
 import java.util.List;
 
+import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.MapView.Projection;
 import org.osmdroid.views.overlay.Overlay;
@@ -10,13 +11,16 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
+import android.view.MotionEvent;
 
 import com.smartrek.activities.R;
 import com.smartrek.models.Route;
 import com.smartrek.utils.Dimension;
+import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
 
 public class RoutePathOverlay extends Overlay {
@@ -37,6 +41,14 @@ public class RoutePathOverlay extends Overlay {
 	private Bitmap originFlag;
 	private Bitmap destinationFlag;
 	
+	private boolean dashEffect;
+	
+	private RoutePathCallback callback;
+	
+	public interface RoutePathCallback {
+		public void onTap();
+	}
+	
 	public RoutePathOverlay(Context context, Route route, int color) {
 		super(context);
 		this.route = route;
@@ -52,6 +64,14 @@ public class RoutePathOverlay extends Overlay {
 	public void setHighlighted(boolean highlighted) {
 		this.highlighted = highlighted;
 	}
+	
+	public void setDashEffect() {
+		this.dashEffect = true;
+	}
+	
+	public void setCallback(RoutePathCallback callback) {
+		this.callback = callback;
+	}
 
 	@Override
 	protected void draw(Canvas canvas, MapView mapView, boolean shadow) {
@@ -61,6 +81,9 @@ public class RoutePathOverlay extends Overlay {
 		Paint paint = new Paint();
 		paint.setAntiAlias(true);
 		paint.setStyle(Paint.Style.STROKE);
+		if(dashEffect) {
+			paint.setPathEffect(new DashPathEffect(new float[] {20, 10}, 0));
+		}
 		
 		int thickness = 1 + zoom/2 + (highlighted ? 1 : -1);
 		paint.setStrokeWidth(Dimension.dpToPx(thickness, mapView.getResources().getDisplayMetrics()));
@@ -97,5 +120,21 @@ public class RoutePathOverlay extends Overlay {
 		canvas.drawPath(path, paint);
 		canvas.drawBitmap(originFlag, originPiont.x - (originFlag.getWidth()/2), originPiont.y - originFlag.getHeight() * 85 / 100, paint);
 		//canvas.drawBitmap(destinationFlag, point.x - (originFlag.getWidth()/2), point.y - destinationFlag.getHeight() * 85 / 100, paint);
+	}
+	
+	private Integer distanceToPathThreshold = 100; //meter
+	
+	@Override
+	public boolean onSingleTapConfirmed(final MotionEvent e, final MapView mapView) {
+		if(callback != null) {
+			IGeoPoint fromPixels = mapView.getProjection().fromPixels(e.getX(), e.getY());
+			RouteLink nearestLink = route.getNearestLink(fromPixels.getLatitude(), fromPixels.getLongitude());
+			double dist = nearestLink.distanceTo(fromPixels.getLatitude(), fromPixels.getLongitude());
+			if(dist < distanceToPathThreshold) {
+				callback.onTap();
+				return true;
+			}
+		}
+		return super.onSingleTapConfirmed(e, mapView);
 	}
 }
