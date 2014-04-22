@@ -419,6 +419,9 @@ public class NavigationView extends LinearLayout {
 				    RouteNode startNode = nearestLink.getStartNode();
                     RouteNode.Metadata startMetadata = startNode.getMetadata();
 				    RouteNode endNode = nearestLink.getEndNode();
+				    while(StringUtils.isBlank(endNode.getVoice()) && endNode.getNextNode() != null){
+				        endNode = endNode.getNextNode();
+				    }
 				    RouteNode.Metadata endMetadata = endNode.getMetadata();
 				    double dist = metersToFeet(endNode.distanceTo(latitude, longitude));
 				    if (!startMetadata.pingFlags[0]) {

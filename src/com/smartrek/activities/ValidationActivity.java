@@ -1496,13 +1496,17 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                                 + "\nlast API call status: " + lastRerutingApiCallStatus;
                         }
                         if(DebugOptionsActivity.isVoiceDebugMsgEnabled(ValidationActivity.this)){
-                            RouteNode endNode = rerouteNearestLink.getEndNode();
+                            RouteNode endNodeForLink = rerouteNearestLink.getEndNode();
+                            RouteNode endNode = endNodeForLink;
+                            while(StringUtils.isBlank(endNode.getVoice()) && endNode.getNextNode() != null){
+                                endNode = endNode.getNextNode();
+                            }
                             msg += (StringUtils.isBlank("")?"":"\n")
                                 + "node: " + endNode.getNodeNum()
                                 + ", voice radius: " + Double.valueOf(endNode.getVoiceRadius()).intValue() + " ft"
                                 + "\ndistance from node: " + Double.valueOf(NavigationView.metersToFeet(endNode.distanceTo(lat, lng))).intValue() + " ft"
-                                + "\nvoice for link: " + endNode.getVoiceForLink()
-                                + "\nvoice:" + endNode.getVoice();
+                                + "\nvoice:" + endNode.getVoice()
+                                + "\nvoice for link (nearest node): " + endNodeForLink.getVoiceForLink();
                         }
                         ((TextView)findViewById(R.id.rerouting_debug_msg)).setText(msg);
                     }
