@@ -1007,6 +1007,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
       super.onPause();
       mSensorManager.unregisterListener(this, accelerometer);
       mSensorManager.unregisterListener(this, magnetometer);
+      closeGPS();
     } 
     
     private void refreshTripsInfo(){
