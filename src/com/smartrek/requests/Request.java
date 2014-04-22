@@ -86,7 +86,8 @@ public abstract class Request {
 	    gps_accuracy,
 	    tile,
 	    reroute_after_N_deviated_samples,
-	    reroute_trigger_distance_in_meter
+	    reroute_trigger_distance_in_meter,
+	    remaining_percentage_to_trigger_OMW_message
 	}
 	
 	private static EnumMap<Link, String> linkUrls = new EnumMap<Link, String>(Link.class);

@@ -1011,59 +1011,75 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		trajectory.clear();
 	}
 
-	private long lastSendImComingMsg;
-
-	private static final long TEN_MINS = 10 * 60 * 1000;
-
+	private JSONArray omwPercentages = (JSONArray) Request.getSetting(Setting.remaining_percentage_to_trigger_OMW_message);
+	
+	private boolean[] omwSent = new boolean[omwPercentages.length()];
+	
 	private void sendImComingMsg() {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				if (emails != null
-						&& System.currentTimeMillis() - lastSendImComingMsg > TEN_MINS) {
-					try {
-						new AsyncTask<Void, Void, Void>() {
-							@Override
-							protected Void doInBackground(Void... params) {
-								try {
-									GeoPoint loc = pointOverlay.getLocation();
-									ImComingRequest req = new ImComingRequest(
-											User.getCurrentUser(ValidationActivity.this),
-											emails,
-											loc.getLatitude(),
-											loc.getLongitude(),
-											getETA(),
-											NavigationView
-													.metersToMiles(reservation
-															.getRoute()
-															.getLength()
-															- reservation
-																	.getRoute()
-																	.getValidatedDistance()),
-											reservation.getDestinationAddress(),
-											route.getTimezoneOffset());
-									req.execute(ValidationActivity.this);
-								} catch (Exception e) {
-									ehs.registerException(e);
-								}
-								return null;
-							}
-
-							protected void onPostExecute(Void result) {
-								String msg;
-								if (ehs.hasExceptions()) {
-									msg = "msg not sent, "
-											+ ehs.popException().getMessage();
-								} else {
-									msg = "the On My Way msg sent";
-								}
-								Toast.makeText(ValidationActivity.this, msg,
-										Toast.LENGTH_LONG).show();
-							}
-						}.execute();
-					} catch (Throwable t) {
-					}
-					lastSendImComingMsg = System.currentTimeMillis();
+				if (emails != null) {
+				    double distance = 0;
+	                for(int i=0; i<dirListadapter.getCount(); i++){
+	                    distance += dirListadapter.getItem(i).distance;
+	                }
+	                double percentage = distance * 100 / getRouteOrReroute().getLength();
+	                boolean toSent = false;
+	                for(int i=0; i<omwPercentages.length(); i++){
+	                    try {
+                            if(!omwSent[i] && percentage <= omwPercentages.getDouble(i)){
+                                omwSent[i] = true;
+                                toSent = true;
+                            }
+                        }
+                        catch (JSONException e) {
+                        }
+	                }
+	                if(toSent){
+    					try {
+    						new AsyncTask<Void, Void, Void>() {
+    							@Override
+    							protected Void doInBackground(Void... params) {
+    								try {
+    									GeoPoint loc = pointOverlay.getLocation();
+    									ImComingRequest req = new ImComingRequest(
+    											User.getCurrentUser(ValidationActivity.this),
+    											emails,
+    											loc.getLatitude(),
+    											loc.getLongitude(),
+    											getETA(),
+    											NavigationView
+    													.metersToMiles(reservation
+    															.getRoute()
+    															.getLength()
+    															- reservation
+    																	.getRoute()
+    																	.getValidatedDistance()),
+    											reservation.getDestinationAddress(),
+    											route.getTimezoneOffset());
+    									req.execute(ValidationActivity.this);
+    								} catch (Exception e) {
+    									ehs.registerException(e);
+    								}
+    								return null;
+    							}
+    
+    							protected void onPostExecute(Void result) {
+    								String msg;
+    								if (ehs.hasExceptions()) {
+    									msg = "msg not sent, "
+    											+ ehs.popException().getMessage();
+    								} else {
+    									msg = "the On My Way msg sent";
+    								}
+    								Toast.makeText(ValidationActivity.this, msg,
+    										Toast.LENGTH_LONG).show();
+    							}
+    						}.execute();
+    					} catch (Throwable t) {
+    					}
+	                }
 				}
 			}
 		});
