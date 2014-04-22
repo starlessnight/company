@@ -29,7 +29,6 @@ import android.widget.TextView;
 import com.smartrek.activities.DebugOptionsActivity;
 import com.smartrek.activities.MainActivity;
 import com.smartrek.activities.R;
-import com.smartrek.activities.ValidationActivity;
 import com.smartrek.models.Route;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
@@ -153,7 +152,7 @@ public class NavigationView extends LinearLayout {
 			@Override
 			public void onClick(View v) {
 				currentItemIdx = Math.max(currentItemIdx - 1, 0);
-				refresh();
+				refresh(false);
 			}
 		});
 		btnNextItem = (ImageView) findViewById(R.id.btn_next_item);
@@ -161,7 +160,7 @@ public class NavigationView extends LinearLayout {
 			@Override
 			public void onClick(View v) {
 				currentItemIdx = Math.min(currentItemIdx + 1, items.size() - 1);
-				refresh();
+				refresh(false);
 			}
 		});
 
@@ -312,7 +311,11 @@ public class NavigationView extends LinearLayout {
 		return meters * 0.000621371;
 	}
 
-	private void refresh() {
+	private void refresh(boolean forceNoti) {
+	    if(items.isEmpty()){
+	        return;
+	    }
+	    
 		DirectionItem item = items.get(currentItemIdx);
 
 		if (item.drawableId == 0) {
@@ -365,7 +368,7 @@ public class NavigationView extends LinearLayout {
 		btnNextItem.setVisibility(isLastItem? View.INVISIBLE:View.VISIBLE);
 		
 		if(nextItem != null) {
-			notifyIfNecessary(nextItem.direction + " on " + nextItem.roadName);
+			notifyIfNecessary(item.direction + ", " + distance + ", " + roadText.toString(), forceNoti);
 		}
 		
 	}
@@ -398,7 +401,7 @@ public class NavigationView extends LinearLayout {
 				.getInRouteDistanceThreshold()) {
 			setStatus(Status.InRoute);
 
-			refresh();
+			refresh(false);
 
 			// FIXME: Temporary
 			if (node.hasMetadata()) {
@@ -523,7 +526,7 @@ public class NavigationView extends LinearLayout {
 		} else {
 			String routeMsg = rerouting?"Rerouting":"Out of route. Please go back to route."; 
 			if(rerouting) {
-				notifyIfNecessary(routeMsg);
+				notifyIfNecessary(routeMsg, false);
 			}
 			String startFromRouteMsg = "Proceed to";
 			RouteNode roaddNode = route.getFirstNode();
@@ -557,8 +560,8 @@ public class NavigationView extends LinearLayout {
 	
 	private static final Integer ID = 123451;
 	
-	private void notifyIfNecessary(String message) {
-		if(!notifiedMsg.equalsIgnoreCase(message) && needNotification) {
+	private void notifyIfNecessary(String message, boolean force) {
+		if(force || !notifiedMsg.equalsIgnoreCase(message) && needNotification) {
 			notifiedMsg = message;
 			Intent validationIntent = new Intent(getContext(), MainActivity.class);
 			validationIntent.setAction(Intent.ACTION_MAIN);
@@ -567,11 +570,8 @@ public class NavigationView extends LinearLayout {
             NotificationManager notificationManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
             Notification notification = new Notification(R.drawable.icon_small, "Metropia", System.currentTimeMillis());
             notification.setLatestEventInfo(getContext(), "Metropia", message, sender);
-            notification.flags = Notification.FLAG_AUTO_CANCEL;
+            notification.flags = Notification.FLAG_NO_CLEAR | Notification.FLAG_ONLY_ALERT_ONCE | Notification.FLAG_AUTO_CANCEL;            
             notificationManager.notify(ID, notification);
-            
-            Misc.playDefaultNotificationSound(getContext());
-            Misc.wakeUpScreen(getContext(), ValidationActivity.class.getSimpleName());
 		}
 	}
 	
@@ -582,10 +582,12 @@ public class NavigationView extends LinearLayout {
 	
 	public void startNotification() {
 		this.needNotification = true;
+		refresh(true);
 	}
 	
 	public void stopNotification() {
 		this.needNotification = false;
+		removeNotification(getContext());
 	}
 
 	public static interface CheckPointListener {

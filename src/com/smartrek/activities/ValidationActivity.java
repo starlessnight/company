@@ -445,7 +445,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	public void onStop() {
 		super.onStop();
 		SessionM.onActivityStop(this);
-		NavigationView.removeNotification(this);
 		EasyTracker.getInstance().activityStop(this);
 	}
 
@@ -2034,19 +2033,20 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	protected void onDestroy() {
-		super.onDestroy();
 		restoreMusic();
 		unregisterReceiver(timeoutReceiver);
 		if (locationManager != null) {
 			locationManager.removeUpdates(locationListener);
 		}
 		deactivateLocationService();
+		NavigationView.removeNotification(this);
 		if (mTts != null) {
 			mTts.shutdown();
 		}
 		if (Request.NEW_API && isTripValidated()) {
 			saveTrip();
 		}
+		super.onDestroy();
 	}
 
 	private void showValidationFailedDialog() {
