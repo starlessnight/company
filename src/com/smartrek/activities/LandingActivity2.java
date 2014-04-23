@@ -962,7 +962,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                DebugOptionsActivity.getGpsUpdateInterval(this), 0, locationListener);
+                10000, 5, locationListener);
         }
         locationManager.requestLocationUpdates(
             LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
