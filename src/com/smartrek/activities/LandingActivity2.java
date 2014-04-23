@@ -158,7 +158,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private View bottomPanel;
     
-    private AtomicBoolean startShowReservInfo = new AtomicBoolean(false);
+    private AtomicBoolean showReservRoute = new AtomicBoolean();
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -299,7 +299,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 //                location.setLongitude(-118.2734106);
 //                location.setLatitude(32.1559094); // Tucson
 //                location.setLongitude(-110.883805);
-                
                 if (ValidationActivity.isBetterLocation(location, lastLocation)) {
                     lastLocation = location;
                     final boolean refresh = mapRefresh.getAndSet(false);
@@ -325,7 +324,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                 refreshCobranding(lat, lon, alertAvailability, new Runnable() {
                                     public void run() {
                                         refreshBulbPOIs(lat , lon, rezoom);
-                                        if(!startShowReservInfo.getAndSet(true)) {
+                                        if(!showReservRoute.getAndSet(true)) {
                                         	refreshTripsInfo();
                                         }
                                     }
@@ -1011,114 +1010,119 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     } 
     
     private void refreshTripsInfo(){
-    	if(startShowReservInfo.get()) {
-	        AsyncTask<Void, Void, List<Reservation>> tripTask = new AsyncTask<Void, Void, List<Reservation>>(){
-	            @Override
-	            protected List<Reservation> doInBackground(Void... params) {
-	                User user = User.getCurrentUser(LandingActivity2.this);
-	                List<Reservation> reservations= Collections.emptyList();
-	                ReservationListFetchRequest resReq = new ReservationListFetchRequest(user);
-	                resReq.invalidateCache(LandingActivity2.this);
-	                FavoriteAddressFetchRequest addReq = new FavoriteAddressFetchRequest(user);
-	                addReq.invalidateCache(LandingActivity2.this);
-	                try {
-	                    List<com.smartrek.models.Address> addresses = addReq.execute(LandingActivity2.this);
-	                    reservations = resReq.execute(LandingActivity2.this);
-	                    for(Reservation r:reservations){
-	                        if(r.getOriginName() == null){
-	                            for (com.smartrek.models.Address a : addresses) {
-	                                if(a.getAddress().equals(r.getOriginAddress())){
-	                                    r.setOriginName(a.getName());
-	                                    break;
-	                                }
-	                            }
-	                        }
-	                        if(r.getDestinationName() == null){
-	                            for (com.smartrek.models.Address a : addresses) {
-	                                if(a.getAddress().equals(r.getDestinationAddress())){
-	                                    r.setDestinationName(a.getName());
-	                                    break;
-	                                }
+	    AsyncTask<Void, Void, List<Reservation>> tripTask = new AsyncTask<Void, Void, List<Reservation>>(){
+	        @Override
+	        protected List<Reservation> doInBackground(Void... params) {
+	            User user = User.getCurrentUser(LandingActivity2.this);
+	            List<Reservation> reservations= Collections.emptyList();
+	            ReservationListFetchRequest resReq = new ReservationListFetchRequest(user);
+	            resReq.invalidateCache(LandingActivity2.this);
+	            FavoriteAddressFetchRequest addReq = new FavoriteAddressFetchRequest(user);
+	            addReq.invalidateCache(LandingActivity2.this);
+	            try {
+	                List<com.smartrek.models.Address> addresses = addReq.execute(LandingActivity2.this);
+	                reservations = resReq.execute(LandingActivity2.this);
+	                for(Reservation r:reservations){
+	                    if(r.getOriginName() == null){
+	                        for (com.smartrek.models.Address a : addresses) {
+	                            if(a.getAddress().equals(r.getOriginAddress())){
+	                                r.setOriginName(a.getName());
+	                                break;
 	                            }
 	                        }
 	                    }
-	                    Collections.sort(reservations, Reservation.orderByDepartureTime());
-	                }
-	                catch (NullPointerException e){}
-	                catch (Exception e) {
-	                    ehs.registerException(e, "[" + resReq.getURL() + ", " + addReq.getURL() + "]\n" + e.getMessage());
-	                }
-	                return reservations;
-	            }
-	            @Override
-	            protected void onPostExecute(List<Reservation> reservations) {
-	                if (ehs.hasExceptions()) { 
-	                    //ehs.reportExceptions();
-	                } 
-	                else{
-	                    View tripPanel = findViewById(R.id.trip_panel);
-	                    TextView nextTripInfo = (TextView) findViewById(R.id.next_trip_info);
-	                    View carIcon = findViewById(R.id.car_icon);
-	                    if(reservations == null || reservations.isEmpty()){
-	                        tripPanel.setTag(null);
-	                        nextTripInfo.setText(NO_TRIPS);
-	                        if(tripPanel.getVisibility() == View.VISIBLE) {
-	                        	slideDownBottomPanel(false);
+	                    if(r.getDestinationName() == null){
+	                        for (com.smartrek.models.Address a : addresses) {
+	                            if(a.getAddress().equals(r.getDestinationAddress())){
+	                                r.setDestinationName(a.getName());
+	                                break;
+	                            }
 	                        }
-	                        carIcon.setVisibility(View.INVISIBLE);
-	                        relayoutIcons();
-	                        
+	                    }
+	                }
+	                Collections.sort(reservations, Reservation.orderByDepartureTime());
+	            }
+	            catch (NullPointerException e){}
+	            catch (Exception e) {
+	                ehs.registerException(e, "[" + resReq.getURL() + ", " + addReq.getURL() + "]\n" + e.getMessage());
+	            }
+	            return reservations;
+	        }
+	        @Override
+	        protected void onPostExecute(List<Reservation> reservations) {
+	            if (ehs.hasExceptions()) { 
+	                //ehs.reportExceptions();
+	            } 
+	            else{
+	                View tripPanel = findViewById(R.id.trip_panel);
+	                TextView nextTripInfo = (TextView) findViewById(R.id.next_trip_info);
+	                View carIcon = findViewById(R.id.car_icon);
+	                if(reservations == null || reservations.isEmpty()){
+	                    tripPanel.setTag(null);
+	                    nextTripInfo.setText(NO_TRIPS);
+	                    if(tripPanel.getVisibility() == View.VISIBLE) {
+	                    	slideDownBottomPanel(false);
+	                    }
+	                    carIcon.setVisibility(View.INVISIBLE);
+	                    MapView mapView = (MapView) findViewById(R.id.mapview);
+	                    List<Overlay> mapOverlays = mapView.getOverlays();
+	                    List<Overlay> need2Remove = getDrawedRouteOverlays(mapOverlays);
+	                    if(!need2Remove.isEmpty()) {
+	                     	mapOverlays.removeAll(need2Remove);
+	                     	mapView.postInvalidate();
+	                    }
+	                    relayoutIcons();
+	                     
+	                }else{
+	                    Reservation reserv = reservations.get(0);
+	                    tripPanel.setTag(reserv);
+	                    drawRoute(reserv);
+	                    TextView tripAddr = (TextView) findViewById(R.id.trip_address);
+	                    tripAddr.setText(reserv.getDestinationAddress());
+	                    TextView tripDetails = (TextView) findViewById(R.id.trip_details);
+	                    tripDetails.setText("Duration: " + TimeColumn.getFormattedDuration(reserv.getDuration())
+	                        + "·mPOINTS: " + reserv.getMpoint());
+	                    tripDetails.setSelected(true);
+	                    int getGoingBtnVis = View.GONE;
+	                    int rescheBtnVis = View.VISIBLE;
+	                    int carIconVis = View.VISIBLE;
+	                    String nextTripInfoText;
+	                    long departureTimeUtc = reserv.getDepartureTimeUtc();
+	                    long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
+	                    if(reserv.isEligibleTrip()){
+	                        nextTripInfoText = "Get Going";
+	                        getGoingBtnVis = View.VISIBLE;
+	                        rescheBtnVis = View.GONE;
+	                    }else if(timeUntilDepart > 60 * 60 * 1000L){
+	                        nextTripInfoText = "Next Trip at "
+	                            + TimeColumn.formatTime(departureTimeUtc, reserv.getRoute().getTimezoneOffset());
+	                    }else if(timeUntilDepart > Reservation.GRACE_INTERVAL){
+	                        nextTripInfoText = "Next Trip in "
+	                            + TimeColumn.getFormattedDuration((int)timeUntilDepart / 1000);
+	                    }else if(timeUntilDepart > -2 * 60 * 60 * 1000L){
+	                        nextTripInfoText = "Trip has expired";
 	                    }else{
-	                        Reservation reserv = reservations.get(0);
-	                        tripPanel.setTag(reserv);
-	                        drawMap(reserv);
-	                        TextView tripAddr = (TextView) findViewById(R.id.trip_address);
-	                        tripAddr.setText(reserv.getDestinationAddress());
-	                        TextView tripDetails = (TextView) findViewById(R.id.trip_details);
-	                        tripDetails.setText("Duration: " + TimeColumn.getFormattedDuration(reserv.getDuration())
-	                            + "·mPOINTS: " + reserv.getMpoint());
-	                        tripDetails.setSelected(true);
-	                        int getGoingBtnVis = View.GONE;
-	                        int rescheBtnVis = View.VISIBLE;
-	                        int carIconVis = View.VISIBLE;
-	                        String nextTripInfoText;
-	                        long departureTimeUtc = reserv.getDepartureTimeUtc();
-	                        long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
-	                        if(reserv.isEligibleTrip()){
-	                            nextTripInfoText = "Get Going";
-	                            getGoingBtnVis = View.VISIBLE;
-	                            rescheBtnVis = View.GONE;
-	                        }else if(timeUntilDepart > 60 * 60 * 1000L){
-	                            nextTripInfoText = "Next Trip at "
-	                                + TimeColumn.formatTime(departureTimeUtc, reserv.getRoute().getTimezoneOffset());
-	                        }else if(timeUntilDepart > Reservation.GRACE_INTERVAL){
-	                            nextTripInfoText = "Next Trip in "
-	                                + TimeColumn.getFormattedDuration((int)timeUntilDepart / 1000);
-	                        }else if(timeUntilDepart > -2 * 60 * 60 * 1000L){
-	                            nextTripInfoText = "Trip has expired";
-	                        }else{
-	                            nextTripInfoText = NO_TRIPS;
-	                            carIconVis = View.INVISIBLE;
-	                            tripPanel.setVisibility(View.GONE);
-	                        }
-	                        nextTripInfo.setText(nextTripInfoText);
-	                        TextView getGoingBtn = (TextView) findViewById(R.id.get_going_button);
-	                        getGoingBtn.setVisibility(getGoingBtnVis);
-	                        TextView rescheBtn = (TextView) findViewById(R.id.reschedule_button);
-	                        rescheBtn.setVisibility(rescheBtnVis);
-	                        carIcon.setVisibility(carIconVis);
+	                        nextTripInfoText = NO_TRIPS;
+	                        carIconVis = View.INVISIBLE;
+	                        tripPanel.setVisibility(View.GONE);
 	                    }
+	                    nextTripInfo.setText(nextTripInfoText);
+	                    TextView getGoingBtn = (TextView) findViewById(R.id.get_going_button);
+	                    getGoingBtn.setVisibility(getGoingBtnVis);
+	                    TextView rescheBtn = (TextView) findViewById(R.id.reschedule_button);
+	                    rescheBtn.setVisibility(rescheBtnVis);
+	                    carIcon.setVisibility(carIconVis);
 	                }
 	            }
-	        };
-	        Misc.parallelExecute(tripTask);
-    	}
+	        }
+	    };
+	    Misc.parallelExecute(tripTask);
     }
     
     private Long drawedReservId = Long.valueOf(-1);
     
-    private void drawMap(final Reservation reserv) {
-    	if(!drawedReservId.equals(reserv.getRid())) {
+    private void drawRoute(final Reservation reserv) {
+    	if(!drawedReservId.equals(reserv.getRid()) && showReservRoute.get()) {
     		drawedReservId = reserv.getRid();
 			final AsyncTask<Void, Void, List<Route>> routeTask = new AsyncTask<Void, Void, List<Route>>() {
 	            @Override
@@ -1156,8 +1160,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	if(!possibleRoutes.isEmpty()) {
     		final MapView mapView = (MapView) findViewById(R.id.mapview);
     		Route route = possibleRoutes.get(0);
-    		Log.d("drawRoute", "color : " + route.getColor());
+    		
+    		// remove previous drew route
     		List<Overlay> mapOverlays = mapView.getOverlays();
+    		List<Overlay> need2Remove = getDrawedRouteOverlays(mapOverlays);
+    		mapOverlays.removeAll(need2Remove);
+    		
     		RoutePathOverlay path = new RoutePathOverlay(this, route, RoutePathOverlay.GREEN);
     		path.setDashEffect();
     		path.setCallback(new RoutePathCallback() {
@@ -1215,12 +1223,22 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		
     		RouteRect routeRect = new RouteRect(route.getNodes());
     		GeoPoint center = routeRect.getMidPoint();
-    		int[] range = routeRect.getRange();
+//    		int[] range = routeRect.getRange();
     		IMapController imc = mapView.getController();
-    		imc.zoomToSpan(range[0], range[1]);
+//    		imc.zoomToSpan(range[0], range[1]);
     		imc.setCenter(center);
     		mapView.postInvalidate();
     	}
+    }
+    
+    private List<Overlay> getDrawedRouteOverlays(List<Overlay> currentOverlays) {
+    	List<Overlay> routeOverlays = new ArrayList<Overlay>();
+    	for(Overlay overlay : currentOverlays) {
+    		if(overlay instanceof RoutePathOverlay || overlay instanceof RouteDestinationOverlay) {
+    			routeOverlays.add(overlay);
+    		}
+    	}
+    	return routeOverlays;
     }
     
     @Override
