@@ -104,6 +104,8 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
         r.setValidatedFlag(object.optInt("validated"));
         r.setRoute(Route.parse(object, departureTime));
         r.setNavLink(object.optString("navigation_url"));
+        r.setEndlat(object.optDouble("endlat", 0));
+        r.setEndlon(object.optDouble("endlon", 0));
         return r;
 	}
 

@@ -59,6 +59,10 @@ public final class Reservation implements Parcelable {
 	
 	private String navLink;
 	
+	private double endlat;
+	
+	private double endlon;
+	
 	public static int COMPLETED = 0x0001;
 	public static int VALIDATED = 0x0002;
 	
@@ -88,6 +92,8 @@ public final class Reservation implements Parcelable {
 		mpoint = in.readInt();
 		validatedFlag = in.readInt();
 		navLink = in.readString();
+		endlat = in.readDouble();
+		endlon = in.readDouble();
 	}
 
 	public long getRid() {
@@ -290,6 +296,8 @@ public final class Reservation implements Parcelable {
 		dest.writeInt(mpoint);
 		dest.writeInt(validatedFlag);
 		dest.writeString(navLink);
+		dest.writeDouble(endlat);
+		dest.writeDouble(endlon);
 	}
 	
 	public static String formatTime(long time, TimeZone timezone){
@@ -359,6 +367,22 @@ public final class Reservation implements Parcelable {
 
     public void setMpoint(int mpoint) {
         this.mpoint = mpoint;
+    }
+
+    public double getEndlat() {
+        return endlat;
+    }
+
+    public void setEndlat(double endlat) {
+        this.endlat = endlat;
+    }
+
+    public double getEndlon() {
+        return endlon;
+    }
+
+    public void setEndlon(double endlon) {
+        this.endlon = endlon;
     }
 	
 }

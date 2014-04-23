@@ -1214,7 +1214,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                         Route navRoute = null;
                         RouteFetchRequest routeReq = new RouteFetchRequest(
                             User.getCurrentUser(ValidationActivity.this), 
-                            new GeoPoint(lat, lon), route.getLastNode().getGeoPoint(), 
+                            new GeoPoint(lat, lon), new GeoPoint(reservation.getEndlat(), reservation.getEndlon()), 
                             System.currentTimeMillis(), speedInMph, bearing, null,
                             reservation.getDestinationAddress());
                         try{
@@ -1314,10 +1314,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                                 }
                                 routes = request.execute(ValidationActivity.this);
                                 if (routes != null && routes.size() > 0) {
-                                    List<RouteNode> timeNodes = new ReservationFetchRequest(
+                                    Reservation reser = new ReservationFetchRequest(
                                             User.getCurrentUser(ValidationActivity.this), 
                                             reservation.getRid())
-                                        .execute(ValidationActivity.this).getRoute().getNodes();
+                                        .execute(ValidationActivity.this);
+                                    reservation.setEndlat(reser.getEndlat());
+                                    reservation.setEndlon(reser.getEndlon());
+                                    List<RouteNode> timeNodes = reser.getRoute().getNodes();
                                     Map<Integer, Integer> nodeTimes = new HashMap<Integer, Integer>();
                                     for(RouteNode n:timeNodes){
                                         nodeTimes.put(n.getNodeNum(), n.getTime());
