@@ -274,7 +274,7 @@ public final class UserRegistrationActivity extends FragmentActivity
     private void showMissingInfoMessage() {
     	NotificationDialog2 dialog = new NotificationDialog2(UserRegistrationActivity.this, "Please complete the fields marked in red");
     	dialog.setTitle("Missing some stuff");
-    	dialog.setButtonText("OK");
+    	dialog.setPositiveButtonText("OK");
     	dialog.show();
     }
 

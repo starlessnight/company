@@ -30,6 +30,7 @@ public class NotificationDialog2 extends Dialog {
 	private Typeface boldFont;
 	private Typeface lightFont;
 	private CharSequence buttonText = "Dismiss";
+	private CharSequence negativeButtonText = "Cancel";
 
 	public NotificationDialog2(Context context, CharSequence message) {
 		super(context, R.style.PopUpDialog);
@@ -94,6 +95,7 @@ public class NotificationDialog2 extends Dialog {
 			       dismiss();
 			   }
 		   });
+		   cancelView.setText(negativeButtonText);
 		   Font.setTypeface(boldFont, cancelView);
 		}
 		
@@ -113,13 +115,17 @@ public class NotificationDialog2 extends Dialog {
 		this.title = title;
 	}
 	
-	public void setButtonText(CharSequence buttonText) {
+	public void setPositiveButtonText(CharSequence buttonText) {
 		this.buttonText = buttonText;
 	}
 
 	public void setReportProblemActionListener(
 			ActionListener reportProblemActionListener) {
 		this.reportProblemActionListener = reportProblemActionListener;
+	}
+	
+	public void setNegativeButtonText(CharSequence negativeButtonText) {
+		this.negativeButtonText = negativeButtonText;
 	}
 
 	public void setNegativeActionListener(ActionListener negativeActionListener) {

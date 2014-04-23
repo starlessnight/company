@@ -1719,7 +1719,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     		*/
         	NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "Points won't validate if exiting too soon. You sure?");
         	dialog.setTitle("Exit?");
-        	dialog.setButtonText("OK");
+        	dialog.setPositiveButtonText("OK");
         	dialog.setNegativeActionListener(new NotificationDialog2.ActionListener() {
 				@Override
 				public void onClick() {
