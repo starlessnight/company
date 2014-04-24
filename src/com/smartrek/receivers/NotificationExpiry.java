@@ -16,7 +16,7 @@ public final class NotificationExpiry extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 	    Log.d(LOG_TAG, "onReceive");
 	    NotificationManager nMgr = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-	    nMgr.cancel(intent.getIntExtra(NOTIFICATION_ID, 0));
+	    nMgr.cancel(intent.getIntExtra(NOTIFICATION_ID, ReservationReceiver.ID));
 	}
 
 }

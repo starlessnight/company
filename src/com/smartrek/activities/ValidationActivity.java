@@ -218,7 +218,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.post_reservation_map);
-
+		
+		ReservationConfirmationActivity.cancelNotification(this);
+		
 		AssetManager assets = getAssets();
 		boldFont = Font.getBold(assets);
 		lightFont = Font.getLight(assets);

@@ -3,6 +3,7 @@ package com.smartrek.activities;
 import java.util.TimeZone;
 
 import android.app.AlarmManager;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -169,6 +170,13 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 		// Get the AlarmManager service
 		AlarmManager am = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
 		am.set(AlarmManager.RTC_WAKEUP, departureTime - 60000*5, pendingOperation); // 5 min earlier than departure time
+	}
+	
+	public static void cancelNotification(Context ctx){
+        Intent intent = new Intent(ctx, ReservationReceiver.class);
+        PendingIntent.getBroadcast(ctx, 192837, intent, PendingIntent.FLAG_UPDATE_CURRENT).cancel();
+        NotificationManager nMgr = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+        nMgr.cancel(ReservationReceiver.ID);
 	}
 	
 	private final class ReservationTask extends AsyncTask<Object, Object, Long> {
