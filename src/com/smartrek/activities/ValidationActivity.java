@@ -983,33 +983,39 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	private int seq = 1;
 
-	private void saveTrajectory() {
-		final File tFile = SendTrajectoryService.getInFile(this,
-				reservation.getRid(), seq++);
-		final JSONArray tJson;
-		try {
-			tJson = trajectory.toJSON();
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						new AsyncTask<Void, Void, Void>() {
-							@Override
-							protected Void doInBackground(Void... params) {
-								try {
-									FileUtils.write(tFile, tJson.toString());
-								} catch (IOException e) {
-								}
-								return null;
+	private void saveTrajectory(final Runnable callback) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+				    final File tFile = SendTrajectoryService.getInFile(ValidationActivity.this,
+			                reservation.getRid(), seq++);
+			        final JSONArray tJson = trajectory.toJSON();
+			        trajectory.clear();
+					Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
+						@Override
+						protected Void doInBackground(Void... params) {
+							try {
+								FileUtils.write(tFile, tJson.toString());
+							} catch (IOException e) {
 							}
-						}.execute();
-					} catch (Throwable t) {
-					}
+							return null;
+						}
+						@Override
+						protected void onPostExecute(Void result) {
+						    if(callback != null){
+						        callback.run();
+						    }
+						}
+					});
+				} catch (Throwable t) {
 				}
-			});
-		} catch (JSONException e) {
-		}
-		trajectory.clear();
+			}
+		});
+	}
+	
+	private void saveTrajectory() {
+	    saveTrajectory(null);
 	}
 
 	private JSONArray omwPercentages = (JSONArray) Request.getSetting(Setting.remaining_percentage_to_trigger_OMW_message);
@@ -1039,7 +1045,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	                }
 	                if(toSent){
     					try {
-    						new AsyncTask<Void, Void, Void>() {
+    						Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
     							@Override
     							protected Void doInBackground(Void... params) {
     								try {
@@ -1077,7 +1083,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     								Toast.makeText(ValidationActivity.this, msg,
     										Toast.LENGTH_LONG).show();
     							}
-    						}.execute();
+    						});
     					} catch (Throwable t) {
     					}
 	                }
@@ -1087,13 +1093,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 
 	private void saveValidation() {
-		final File tFile = ValidationService
-				.getFile(this, reservation.getRid());
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					new AsyncTask<Void, Void, Void>() {
+				    final File tFile = ValidationService.getFile(ValidationActivity.this, reservation.getRid());
+					Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
 						@Override
 						protected Void doInBackground(Void... params) {
 							try {
@@ -1102,7 +1107,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 							}
 							return null;
 						}
-					}.execute();
+					});
 				} catch (Throwable t) {
 				}
 				SessionM.logAction("trip_" + reservation.getMpoint());
@@ -1111,12 +1116,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 
 	private void saveTrip() {
-		final File tFile = TripService.getFile(this, reservation.getRid());
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					new AsyncTask<Void, Void, Void>() {
+				    final File tFile = TripService.getFile(ValidationActivity.this, reservation.getRid());
+					Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
 						@Override
 						protected Void doInBackground(Void... params) {
 							try {
@@ -1125,7 +1130,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 							}
 							return null;
 						}
-					}.execute();
+					});
 				} catch (Throwable t) {
 				}
 			}
@@ -2049,7 +2054,16 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			mTts.shutdown();
 		}
 		if (Request.NEW_API && isTripValidated()) {
-			saveTrip();
+		    if(arrived.get()){
+		        saveTrip();
+		    }else{
+		        saveTrajectory(new Runnable() {
+                    @Override
+                    public void run() {
+                        saveTrip();
+                    }
+                });
+		    }
 		}
 		super.onDestroy();
 	}

@@ -9,6 +9,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 
 import android.app.AlarmManager;
@@ -42,7 +43,12 @@ public class SendTrajectoryService extends IntentService {
     private static void send(Context ctx, File routeDir){
         User user = User.getCurrentUser(ctx);
         if(user != null && ArrayUtils.isNotEmpty(routeDir.list())){
+            String originalName = routeDir.getName();
+            String newName = "_" + originalName;
             try {
+                File newDir = new File(routeDir.getParentFile(), newName);
+                routeDir.renameTo(newDir);
+                routeDir = newDir;
                 File[] files = routeDir.listFiles();
                 Arrays.sort(files, LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);
                 Trajectory traj = new Trajectory();
@@ -62,7 +68,7 @@ public class SendTrajectoryService extends IntentService {
                         break;
                     }
                 }
-                long routeId = Long.parseLong(routeDir.getName());
+                long routeId = Long.parseLong(originalName);
                 File outFile = getOutFile(ctx, routeId);
                 int seq = 1;
                 if(outFile.exists()){
@@ -90,6 +96,9 @@ public class SendTrajectoryService extends IntentService {
             catch (Exception e) {
                 Log.d("SendTrajectoryService", Log.getStackTraceString(e));
             }
+            finally{
+                routeDir.renameTo(new File(routeDir.getParentFile(), originalName));
+            }
         }
     }
     
@@ -113,7 +122,7 @@ public class SendTrajectoryService extends IntentService {
                                 FileUtils.deleteQuietly(d);
                             }
                         }
-                        if(routeDir != null){
+                        if(routeDir != null && StringUtils.isNumeric(routeDir.getName())){
                             send(SendTrajectoryService.this, routeDir);
                         }
                     }   
