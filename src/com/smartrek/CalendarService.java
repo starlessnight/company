@@ -23,16 +23,20 @@ import android.os.SystemClock;
 import android.provider.BaseColumns;
 import android.util.Log;
 
+import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
 import com.smartrek.activities.LandingActivity;
 import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.models.User;
 import com.smartrek.receivers.CalendarNotification;
+import com.smartrek.ui.NavigationView;
 import com.smartrek.utils.CalendarContract.Instances;
 import com.smartrek.utils.Geocoding;
+import com.smartrek.utils.Geocoding.Address;
+import com.smartrek.utils.RouteNode;
 
 public class CalendarService extends IntentService {
 
-    private static final long FIFTHTEEN_MINS = 15 * 60 * 1000 /*10000*/;
+    private static final long FIFTHTEEN_MINS = 15 * 60 * 1000/*10000*/;
     
     private static final long FOUR_HOURS = 4 * 60 * 60 * 1000;
     
@@ -68,8 +72,11 @@ public class CalendarService extends IntentService {
                            String location = events.getString(3);
                            long notiTime = start - TWO_AND_A_HALF_HOURS;
                            String title = events.getString(1);
+                           Address address = geocode(location);
                            if((!file.exists() || file.length() == 0) && StringUtils.isNotBlank(location) 
-                                   && canBeGeocoded(location) && !isDuplicate(CalendarService.this, eventId, title, start, end) 
+                                   && canBeGeocoded(address)
+                                   && isNotNear(address)
+                                   && !isDuplicate(CalendarService.this, eventId, title, start, end) 
                                    && System.currentTimeMillis() < notiTime/* true */){
                                hasNotification = true;
                                Intent noti = new Intent(CalendarService.this, 
@@ -79,7 +86,7 @@ public class CalendarService extends IntentService {
                                    CalendarService.this, Integer.parseInt(eventId), noti, 
                                    PendingIntent.FLAG_UPDATE_CURRENT);
                                AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-                               am.set(AlarmManager.RTC_WAKEUP, notiTime /* System.currentTimeMillis() + 3000 */, pendingNoti);
+                               am.set(AlarmManager.RTC_WAKEUP, notiTime /*System.currentTimeMillis() + 3000*/, pendingNoti);
                            }
                            JSONObject eventJson = new JSONObject()
                                .put(BaseColumns._ID, eventId)
@@ -109,15 +116,26 @@ public class CalendarService extends IntentService {
         }, false);
     }
     
-    private boolean canBeGeocoded(String location){
-        boolean rs;
+    private static boolean canBeGeocoded(Geocoding.Address address){
+        return address != null && !address.getGeoPoint().isEmpty();
+    }
+    
+    private Geocoding.Address geocode(String location){
+        Geocoding.Address rs = null;
         try {
-            List<Geocoding.Address> addresses = Geocoding.lookup(this, location);
-            rs = addresses != null && !addresses.isEmpty() && !addresses.get(0).getGeoPoint().isEmpty();
-        }catch(Throwable t){
-            rs = false;
-        }
+            LocationInfo loc = new LocationInfo(CalendarService.this);
+            List<Geocoding.Address> addresses = Geocoding.lookup(this, location, 
+                Float.valueOf(loc.lastLat).doubleValue(), Float.valueOf(loc.lastLong).doubleValue());
+            rs = (addresses != null && !addresses.isEmpty())?addresses.get(0):null;
+        }catch(Throwable t){}
         return rs;
+    }
+    
+    private boolean isNotNear(Address address) {
+        LocationInfo loc = new LocationInfo(CalendarService.this);
+        double distance = NavigationView.metersToFeet(RouteNode.distanceBetween(
+            loc.lastLat, loc.lastLong, address.getLatitude(), address.getLongitude()));
+        return distance > 500;
     }
     
     private File getDir(){
