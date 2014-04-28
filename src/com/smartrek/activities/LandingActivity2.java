@@ -167,6 +167,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private ArrayAdapter<Address> autoCompleteAdapter;
     
+    private static final String NO_AUTOCOMPLETE_RESULT = "No results found.";
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -212,7 +214,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         	@Override
         	public Filter getFilter() {
         		Filter filter = new Filter() {
-
 					@Override
 					protected FilterResults performFiltering(CharSequence constraint) {
 						List<Address> all = new ArrayList<Address>();
@@ -247,6 +248,16 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			                }
 			                notifyDataSetChanged();
 			            }
+					}
+					
+					@Override
+					public CharSequence convertResultToString(Object selected) {
+						String selectedAddr = ((Address)selected).getAddress();
+						String selectedName = ((Address)selected).getName();
+						if(NO_AUTOCOMPLETE_RESULT.equals(selectedName) && StringUtils.isBlank(selectedAddr)) {
+							return searchBox.getText();
+						}
+						return selectedAddr;
 					}
         			
         		};
@@ -285,13 +296,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             	Address selected = (Address)parent.getItemAtPosition(position);
-            	searchBox.setText(selected.getAddress());
-                searchAddress(selected.getAddress(), true);
-                InputMethodManager imm = (InputMethodManager)getSystemService(
-                        Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
-                searchBox.dismissDropDown();
-                showDropDown.set(false);
+            	if(StringUtils.isNotBlank(selected.getAddress())) {
+	                searchAddress(selected.getAddress(), true);
+	                InputMethodManager imm = (InputMethodManager)getSystemService(
+	                        Context.INPUT_METHOD_SERVICE);
+	                imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
+	                searchBox.dismissDropDown();
+	                showDropDown.set(false);
+            	}
             }
         });
         final View searchBoxClear = findViewById(R.id.search_box_clear);
@@ -337,6 +349,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         					    if(StringUtils.isNotBlank(a.getAddress())){
         					        searchAddresses.add(a);
         					    }
+        					}
+        					if(searchAddresses.isEmpty()) {
+        						Address notFound = new Address();
+        						notFound.setName(NO_AUTOCOMPLETE_RESULT);
+        						notFound.setAddress("");
+        						searchAddresses.add(notFound);
         					}
         					refreshSearchAutoCompleteData();
         				}
