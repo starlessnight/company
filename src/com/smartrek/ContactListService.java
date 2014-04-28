@@ -47,7 +47,7 @@ public class ContactListService extends IntentService {
                 PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
         alarm.setRepeating(AlarmManager.ELAPSED_REALTIME,
-                SystemClock.elapsedRealtime(), 60000, saveContactList);
+                SystemClock.elapsedRealtime(), 3600000L, saveContactList);
     }
     
     public static ArrayList<Contact> getSyncedContactList(Context ctx) {
