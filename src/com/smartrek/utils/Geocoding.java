@@ -44,6 +44,10 @@ public final class Geocoding {
 		 * e.g. "house", "residential", ...
 		 */
 		private String type;
+		
+		private String address;
+		
+		private String distance;
 
 		public double getLatitude() {
 			return latitude;
@@ -89,6 +93,22 @@ public final class Geocoding {
 			this.type = type;
 		}
 
+		public String getAddress() {
+			return address;
+		}
+
+		public void setAddress(String address) {
+			this.address = address;
+		}
+
+		public String getDistance() {
+			return distance;
+		}
+
+		public void setDistance(String distance) {
+			this.distance = distance;
+		}
+
 	}
 	
 	/**
@@ -132,6 +152,7 @@ public final class Geocoding {
 	public static List<Address> lookup(Context ctx, String query, Double lat, Double lon) throws Exception{
 		User user = User.getCurrentUser(ctx);
 		SearchAddressRequest request = new SearchAddressRequest(user, query, lat, lon);
+//		SearchAddressRequest request = new SearchAddressRequest(user, query, null, null);
 		List<Address> result = request.execute(ctx);
 		
 		List<Address> addresses = new ArrayList<Address>();
@@ -295,20 +316,16 @@ public final class Geocoding {
         return address;
     }
     
-    public static List<String> searchPoi(Context ctx, String address) throws Exception {
+    public static List<Address> searchPoi(Context ctx, String address) throws Exception {
     	return searchPoi(ctx, address, null, null);
     }
     
-    public static List<String> searchPoi(Context ctx, String query, Double lat, Double lon) throws Exception{
+    public static List<Address> searchPoi(Context ctx, String query, Double lat, Double lon) throws Exception{
     	User user = User.getCurrentUser(ctx);
 		SearchAddressRequest request = new SearchAddressRequest(user, query, lat, lon);
-		List<Address> result = request.execute(ctx);
+//    	SearchAddressRequest request = new SearchAddressRequest(user, query, null, null);
+		return request.execute(ctx);
 		
-		List<String> addresses = new ArrayList<String>();
-		for(Address addr : result) {
-			addresses.add(addr.getName());
-		}
-		return addresses;
     }
     
 }

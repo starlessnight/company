@@ -3,7 +3,7 @@ package com.smartrek.activities;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -50,6 +50,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnLongClickListener;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
@@ -58,6 +59,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.Filter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -152,13 +154,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     public static Sensor accelerometer;
     public static Sensor magnetometer;
     
-    private List<String> searchAddresses = new ArrayList<String>();
+    private List<Address> searchAddresses = new ArrayList<Address>();
     
     private AtomicBoolean showDropDown = new AtomicBoolean(true);
     
     private View bottomPanel;
     
     private AtomicBoolean showReservRoute = new AtomicBoolean();
+    
+    private AutoCompleteTextView searchBox; 
+    
+    private ArrayAdapter<Address> autoCompleteAdapter;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -177,7 +183,77 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         bindMapFunctions(mapView);
         RouteActivity.setViewToNorthAmerica(mapView);
         
-        final AutoCompleteTextView searchBox = (AutoCompleteTextView) findViewById(R.id.search_box);
+        searchBox = (AutoCompleteTextView) findViewById(R.id.search_box);
+        autoCompleteAdapter = new ArrayAdapter<Address>(LandingActivity2.this, R.layout.dropdown_select, R.id.name) {
+        	@Override
+        	public View getView(int position, View convertView, ViewGroup parent) {
+        		View view = super.getView(position, convertView, parent);
+                Address item = getItem(position);
+                TextView name = (TextView) view.findViewById(R.id.name);
+                name.setText(item.getName());
+                TextView address = (TextView) view.findViewById(R.id.address);
+                address.setText(item.getAddress());
+                TextView distance = (TextView) view.findViewById(R.id.distance);
+                if(StringUtils.isBlank(item.getDistance())) {
+                	distance.setVisibility(View.GONE);
+                }
+                else {
+                	distance.setText(item.getDistance() + " miles away.");
+                }
+                Font.setTypeface(boldFont, name, distance);
+                Font.setTypeface(lightFont, address);
+                name.requestLayout();
+                address.requestLayout();
+                distance.requestLayout();
+                return view;
+        	}
+        	
+        	@Override
+        	public Filter getFilter() {
+        		Filter filter = new Filter() {
+
+					@Override
+					protected FilterResults performFiltering(CharSequence constraint) {
+						List<Address> all = new ArrayList<Address>();
+						List<Address> result = new ArrayList<Address>();
+						for(int i = 0 ; i < getCount() ; i++) {
+							all.add(getItem(i));
+						}
+						if(constraint != null) {
+				            result.clear();
+				            for (Address addr : all) {
+				                if(addr.getName().toLowerCase().startsWith(constraint.toString().toLowerCase()) 
+				               		|| addr.getAddress().toLowerCase().startsWith(constraint.toString().toLowerCase())){
+				                    result.add(addr);
+				                }
+				            }
+				            FilterResults filterResults = new FilterResults();
+				            filterResults.values = result;
+				            filterResults.count = result.size();
+				            return filterResults;
+				        } else {
+				            return new FilterResults();
+				        }
+					}
+
+					@Override
+					protected void publishResults(CharSequence constraint,	FilterResults results) {
+						ArrayList<Address> filteredList = (ArrayList<Address>) results.values;
+			            if(results != null && results.count > 0) {
+			                clear();
+			                for (Address c : filteredList) {
+			                    add(c);
+			                }
+			                notifyDataSetChanged();
+			            }
+					}
+        			
+        		};
+        		return filter;
+        	}
+        };
+        searchBox.setAdapter(autoCompleteAdapter);
+        
         refreshSearchAutoCompleteData();
         searchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -207,7 +283,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         searchBox.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                searchAddress((String)parent.getItemAtPosition(position), true);
+            	Address selected = (Address)parent.getItemAtPosition(position);
+            	searchBox.setText(selected.getAddress());
+                searchAddress(selected.getAddress(), true);
                 InputMethodManager imm = (InputMethodManager)getSystemService(
                         Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
@@ -222,10 +300,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 searchBoxClear.setVisibility(StringUtils.isBlank(s)?View.GONE:View.VISIBLE); 
                 final String addrInput = s.toString();
                 if(StringUtils.isNotBlank(addrInput)) {
-                	AsyncTask<Void, Void, List<String>> searchPoiTask = new AsyncTask<Void, Void, List<String>>(){
+                	AsyncTask<Void, Void, List<Address>> searchPoiTask = new AsyncTask<Void, Void, List<Address>>(){
         				@Override
-        				protected List<String> doInBackground(Void... params) {
-        					List<String> addresses = new ArrayList<String>();
+        				protected List<Address> doInBackground(Void... params) {
+        					List<Address> addresses = new ArrayList<Address>();
         					try {
         						if(lastLocation != null) {
         							addresses = Geocoding.searchPoi(LandingActivity2.this, addrInput, lastLocation.getLatitude(), lastLocation.getLongitude());
@@ -241,10 +319,21 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         				}
         				
         				@Override
-        				protected void onPostExecute(List<String> addresses) {
+        				protected void onPostExecute(List<Address> addresses) {
         					searchAddresses.clear();
-        					for(String a:addresses){
-        					    if(StringUtils.isNotBlank(a)){
+        					Collections.sort(addresses, new Comparator<Address>() {
+								@Override
+								public int compare(Address lhs, Address rhs) {
+									if(StringUtils.isNotBlank(lhs.getDistance()) && StringUtils.isNotBlank(rhs.getDistance())) {
+										return Double.valueOf(lhs.getDistance()).compareTo(Double.valueOf(rhs.getDistance()));
+									}
+									else {
+										return StringUtils.isBlank(lhs.getDistance()) ? (StringUtils.isBlank(rhs.getDistance()) ? 0 : -1) : 1;
+									}
+								}
+							});
+        					for(Address a:addresses){
+        					    if(StringUtils.isNotBlank(a.getAddress())){
         					        searchAddresses.add(a);
         					    }
         					}
@@ -274,6 +363,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 searchBox.setText("");
             }
         });
+        
         String intentAddress = getIntentAddress(getIntent());
         boolean hasIntentAddr = StringUtils.isNotBlank(intentAddress); 
         mapRezoom.set(!hasIntentAddr);
@@ -863,11 +953,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void refreshSearchAutoCompleteData(){
-        AutoCompleteTextView searchBox = (AutoCompleteTextView) findViewById(R.id.search_box);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-        		R.layout.dropdown_select,
-            new ArrayList<String>(new LinkedHashSet<String>(searchAddresses)));
-        searchBox.setAdapter(adapter);
+    	autoCompleteAdapter.clear();
+        for(Address a : searchAddresses) {
+        	autoCompleteAdapter.add(a);
+        }
         if(!searchBox.getAdapter().isEmpty() && showDropDown.get()) {
         	searchBox.showDropDown();
         }else{
