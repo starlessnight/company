@@ -105,6 +105,7 @@ import com.smartrek.utils.Geocoding.Address;
 import com.smartrek.utils.HTTP;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
+import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.RouteRect;
 import com.smartrek.utils.SessionM;
 import com.smartrek.utils.SmartrekTileProvider;
@@ -940,9 +941,23 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     final MapView mapView = (MapView) findViewById(R.id.mapview);
                     refreshPOIMarker(mapView, gp.getLatitude(), gp.getLongitude(), addr.getName(), "");
                     IMapController mc = mapView.getController();
-                    if(zoomIn && mapView.getZoomLevel() < SEARCH_ZOOM_LEVEL){
-                        mc.setZoom(SEARCH_ZOOM_LEVEL);
-                        mc.setCenter(gp);
+                    if(zoomIn){
+                    	if(lastLocation != null) {
+                    		List<RouteNode> fakeRouteNodes = new ArrayList<RouteNode>();
+                    		fakeRouteNodes.add(new RouteNode(lastLocation.getLatitude(), lastLocation.getLongitude(), -1, -1));
+                    		fakeRouteNodes.add(new RouteNode(gp.getLatitude(), gp.getLongitude(), -1, -1));
+                    		RouteRect routeRect = new RouteRect(fakeRouteNodes);
+                    		int[] range = routeRect.getRange();
+                    		mc.zoomToSpan(range[0], range[1]);
+                    		if(mapView.getZoomLevel() > SEARCH_ZOOM_LEVEL) {
+                    			mc.setZoom(SEARCH_ZOOM_LEVEL);
+                    		}
+                    		mc.setCenter(routeRect.getMidPoint());
+                    	}
+                    	else {
+	                        mc.setZoom(SEARCH_ZOOM_LEVEL);
+	                        mc.setCenter(gp);
+                    	}
                     }else{
                         mc.animateTo(gp);
                     }
