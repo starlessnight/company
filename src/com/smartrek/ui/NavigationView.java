@@ -20,6 +20,7 @@ import android.text.style.AbsoluteSizeSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -131,6 +132,9 @@ public class NavigationView extends LinearLayout {
 	private String notifiedMsg = "";
 	
 	private boolean needNotification; 
+	
+	private int mStartingX = -1000;
+	private boolean move = false;
 
 	public NavigationView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -161,6 +165,36 @@ public class NavigationView extends LinearLayout {
 			public void onClick(View v) {
 				currentItemIdx = Math.min(currentItemIdx + 1, items.size() - 1);
 				refresh(false);
+			}
+		});
+		
+		LinearLayout roadPanel = (LinearLayout) findViewById(R.id.road_panel);
+		
+		roadPanel.setOnTouchListener(new OnTouchListener(){
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				final int X = (int) event.getX();
+
+			    switch (event.getAction() & MotionEvent.ACTION_MASK) {
+				    case MotionEvent.ACTION_DOWN:
+				        mStartingX = X;
+				        break;
+				    case MotionEvent.ACTION_MOVE:
+				    	move = true;
+				    	break;
+				    case MotionEvent.ACTION_UP:
+				        if (mStartingX != -1000 && move && X >= mStartingX - 10 && btnPrevItem.getVisibility() == View.VISIBLE) {
+				        	currentItemIdx = Math.max(currentItemIdx - 1, 0);
+				        	refresh(false);
+				        } else if (mStartingX != -1000 && move && X < mStartingX - 10 && btnNextItem.getVisibility() == View.VISIBLE) {
+				        	currentItemIdx = Math.min(currentItemIdx + 1, items.size() - 1);
+				        	refresh(false);
+				        }
+				        mStartingX = -1000;
+				        move = false;
+				        break;
+			    }
+				return true;
 			}
 		});
 
