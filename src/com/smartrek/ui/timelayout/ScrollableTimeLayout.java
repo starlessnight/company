@@ -1,6 +1,7 @@
 package com.smartrek.ui.timelayout;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 
 import com.smartrek.ui.ObservableScrollView;
@@ -52,6 +53,7 @@ public final class ScrollableTimeLayout extends ObservableScrollView implements 
 	public void onScrollChanged(ObservableScrollView scrollView, int x, int y,	int oldx, int oldy) {
 	    scrollX = x;
 	    notifyScrollChanged();
+	    updateVisibleColumns();
 	}
 	
 	public void notifyScrollChanged(){
@@ -67,6 +69,20 @@ public final class ScrollableTimeLayout extends ObservableScrollView implements 
             }
             timeLayout.notifyColumns(columns);
         }
+	}
+	
+	private void updateVisibleColumns() {
+		if(timeLayout != null) {
+			Rect rect = new Rect();
+			getHitRect(rect);
+			int visibleColumnCnt = Double.valueOf(Math.ceil((rect.right - rect.left) / timeLayout.getColumnWidth())).intValue();
+			int leftInvisibleColumnCnt = Double.valueOf(Math.floor(scrollX / timeLayout.getColumnWidth())).intValue();
+			int[] visibleColumn = new int[visibleColumnCnt];
+			for(int i = 0 ; i < visibleColumnCnt ; i++) {
+				visibleColumn[i] = leftInvisibleColumnCnt + i + 1;
+			}
+			timeLayout.setCurrentVisibleColumns(visibleColumn);
+		}
 	}
 
 }

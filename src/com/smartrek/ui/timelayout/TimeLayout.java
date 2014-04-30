@@ -47,6 +47,8 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     private Typeface boldFont;
     
     private int timzoneOffset;
+    
+    private int[] currentVisibleColumns = {-1};
 
     public interface TimeLayoutListener {
     	public void updateTimeLayout(TimeLayout timeLayout, int column, boolean visible);
@@ -133,7 +135,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     public void setColumnState(int column, State state) {
     	TimeColumn col = (TimeColumn) getChildAt(column);
     	if(col != null){
-    	    col.setState(state);
+    	    col.setState(state, true);
     	}
     }
 
@@ -192,7 +194,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
 	        for (int i = 0; i < this.getChildCount(); i++) {
 	        	TimeColumn timeColumn = (TimeColumn) getChildAt(i);
 	        	if (timeColumn.getState().equals(State.Selected)) {
-	        		timeColumn.setState(State.None);
+	        		timeColumn.setState(State.None, Arrays.asList(ArrayUtils.toObject(currentVisibleColumns)).contains(i));
 	        	}
 //	        	((TimeButton) getChildAt(i)).setState(TimeButton.State.None);
 	        }
@@ -241,5 +243,9 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
             refresh();
         }
     }
+
+	public void setCurrentVisibleColumns(int[] currentVisibleColumns) {
+		this.currentVisibleColumns = currentVisibleColumns;
+	}
     
 }

@@ -8,7 +8,6 @@ import java.util.TimeZone;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -17,7 +16,6 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.FrameLayout.LayoutParams;
 
 import com.smartrek.activities.R;
 import com.smartrek.requests.Request;
@@ -177,7 +175,7 @@ public final class TimeColumn extends FrameLayout {
 		return state;
 	}
 	
-	public void setState(State state) {
+	public void setState(State state, boolean animation) {
 		String originalState = this.state.name();
 		this.state = state;
 		
@@ -209,13 +207,13 @@ public final class TimeColumn extends FrameLayout {
         	}
         	else if(selected) {
 	        	TranslateAnimation slideUp = new TranslateAnimation(0, 0, 0, Dimension.dpToPx(-1 * mask.getHeight(), dm));
-	        	slideUp.setDuration(700);
+	        	slideUp.setDuration(200);
 	        	mask.startAnimation(slideUp);
 	        	slideUp.setFillAfter(true);
         	}
         	else if(State.Selected.name().equals(originalState)){
         		TranslateAnimation slideDown = new TranslateAnimation(0, 0, Dimension.dpToPx(-1 * mask.getHeight(), dm), 0);
-            	slideDown.setDuration(700);
+            	slideDown.setDuration(animation?200:0);
             	mask.startAnimation(slideDown);
             	slideDown.setFillAfter(true);
         	}
