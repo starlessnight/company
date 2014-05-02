@@ -8,6 +8,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Point;
@@ -19,7 +20,11 @@ import com.smartrek.utils.GeoPoint;
  * @author Sumin Byeon
  */
 public class PointOverlay extends Overlay {
-	public static final float RADIUS = 12.0f;
+	private static final int MAX_RADIUS = 100;
+    
+	private int MIN_RAIDUS = 32;
+	
+    private int MAX_OPACITY = 225;
 	
 	private GeoPoint geoPoint;
 	
@@ -43,6 +48,10 @@ public class PointOverlay extends Overlay {
 	    return geoPoint;
 	}
 	
+	private int radius = MIN_RAIDUS;
+	
+	private int opacity = MAX_OPACITY;
+	
 	@Override
 	protected void draw(Canvas canvas, MapView mapView, boolean shadow) {
 		Projection projection = mapView.getProjection();
@@ -51,6 +60,11 @@ public class PointOverlay extends Overlay {
 		
 		Point point = new Point();
 		projection.toPixels(geoPoint, point);
+		
+		Paint circlePaint = new Paint();
+		circlePaint.setAntiAlias(true);
+		circlePaint.setColor(Color.parseColor("#" + Integer.toHexString(opacity)  + "d4ebf5"));
+        canvas.drawCircle(point.x, point.y, radius, circlePaint);
 		
 		if(currentDegrees != degrees){
 		    float diff = degrees - currentDegrees;
@@ -69,6 +83,13 @@ public class PointOverlay extends Overlay {
         Bitmap rotatedIcon = Bitmap.createBitmap(icon, 0, 0, icon.getWidth(), icon.getHeight(), matrix, true);
         canvas.drawBitmap(rotatedIcon, point.x - rotatedIcon.getWidth()/2.0f, 
             point.y - rotatedIcon.getHeight()/2.0f, paint);
+        
+        radius++;
+        opacity -= 3;
+        if(radius > MAX_RADIUS){
+            radius = MIN_RAIDUS;
+            opacity = MAX_OPACITY;
+        }
 	}
 	
 	public static int round(float input, int step) 
