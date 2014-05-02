@@ -980,6 +980,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         mc.animateTo(gp);
                     }
                 }
+                else {
+                	NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, "No results");
+                	dialog.setTitle("");
+                	dialog.setPositiveButtonText("OK");
+                	dialog.show();
+                }
             }
         };
         Misc.parallelExecute(task);
