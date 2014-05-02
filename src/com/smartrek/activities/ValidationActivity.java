@@ -2044,7 +2044,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		if (mTts != null) {
 			mTts.shutdown();
 		}
-		if (Request.NEW_API) {
+		if (Request.NEW_API && isTripValidated()) {
 	        saveTrajectory(new Runnable() {
                 @Override
                 public void run() {
