@@ -71,7 +71,7 @@ public final class ScrollableTimeLayout extends ObservableScrollView implements 
         }
 	}
 	
-	private void updateVisibleColumns() {
+	public void updateVisibleColumns() {
 		if(timeLayout != null) {
 			Rect rect = new Rect();
 			getHitRect(rect);
@@ -79,7 +79,7 @@ public final class ScrollableTimeLayout extends ObservableScrollView implements 
 			int leftInvisibleColumnCnt = Double.valueOf(Math.floor(scrollX / timeLayout.getColumnWidth())).intValue();
 			int[] visibleColumn = new int[visibleColumnCnt];
 			for(int i = 0 ; i < visibleColumnCnt ; i++) {
-				visibleColumn[i] = leftInvisibleColumnCnt + i + 1;
+				visibleColumn[i] = leftInvisibleColumnCnt + i;
 			}
 			timeLayout.setCurrentVisibleColumns(visibleColumn);
 		}

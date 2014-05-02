@@ -929,6 +929,7 @@ public final class RouteActivity extends FragmentActivity {
         if(scrollableTimeLayout != null){
             scrollableTimeLayout.setScreenWidth(getWindowManager().getDefaultDisplay().getWidth());
             scrollableTimeLayout.notifyScrollChanged();
+            scrollableTimeLayout.updateVisibleColumns();
         }
     }
     
@@ -1410,6 +1411,7 @@ public final class RouteActivity extends FragmentActivity {
 
                 if (selectedColumn == 0) {
                     scrollableTimeLayout.notifyScrollChanged();
+                    scrollableTimeLayout.updateVisibleColumns();
                 }
             }
         }

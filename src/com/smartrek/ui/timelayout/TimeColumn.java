@@ -110,7 +110,7 @@ public final class TimeColumn extends FrameLayout {
         timeButtonLayout.setLayoutParams(timeButtonLp);
         
         mask = new View(getContext());
-        int maskHeight = TimeButton.HEIGHT /*arrivalTimeButton height*/ + 25 /*mpointView height*/ + spacingHeight; 
+        int maskHeight = TimeButton.HEIGHT + 25 + spacingHeight;                
         FrameLayout.LayoutParams maskLp = new FrameLayout.LayoutParams(Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(maskHeight, dm));
         maskLp.gravity = Gravity.TOP;
         mask.setLayoutParams(maskLp);
@@ -175,6 +175,8 @@ public final class TimeColumn extends FrameLayout {
 		return state;
 	}
 	
+	private static final long animationDuration = 400;
+	
 	public void setState(State state, boolean animation) {
 		String originalState = this.state.name();
 		this.state = state;
@@ -203,19 +205,19 @@ public final class TimeColumn extends FrameLayout {
 		bottomStripe.setLayoutParams(stripeLp);
         if(color != null){
         	if(State.Unknown.name().equals(originalState) && selected) { // initial
-        		mask.setVisibility(View.INVISIBLE);
+    	        mask.setVisibility(View.INVISIBLE);
         	}
         	else if(selected) {
 	        	TranslateAnimation slideUp = new TranslateAnimation(0, 0, 0, Dimension.dpToPx(-1 * mask.getHeight(), dm));
-	        	slideUp.setDuration(200);
-	        	mask.startAnimation(slideUp);
+	        	slideUp.setDuration(animationDuration);
 	        	slideUp.setFillAfter(true);
+	        	mask.startAnimation(slideUp);
         	}
         	else if(State.Selected.name().equals(originalState)){
         		TranslateAnimation slideDown = new TranslateAnimation(0, 0, Dimension.dpToPx(-1 * mask.getHeight(), dm), 0);
-            	slideDown.setDuration(animation?200:0);
-            	mask.startAnimation(slideDown);
+            	slideDown.setDuration(animation?animationDuration:0);
             	slideDown.setFillAfter(true);
+            	mask.startAnimation(slideDown);
         	}
         }
         int textColor = Color.parseColor("#606163");
