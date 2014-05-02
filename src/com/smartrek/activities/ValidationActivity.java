@@ -44,6 +44,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -134,6 +135,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	public static final String EMAILS = "emails";
 	
+	public static final String PHONES = "phones";
+	
 	public static final Integer REPORT_PROBLEM = Integer.valueOf(100);
 
 	private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
@@ -203,6 +206,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private int savedPollCnt;
 
 	private String emails;
+	
+	private String phones;
 
 	private BroadcastReceiver timeoutReceiver;
 
@@ -243,11 +248,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			startTime = savedInstanceState.getLong(START_TIME);
 			savedPollCnt = savedInstanceState.getInt(POLL_CNT);
 			emails = savedInstanceState.getString(EMAILS);
+			phones = savedInstanceState.getString(PHONES);
 		} else {
 			Time now = new Time();
 			now.setToNow();
 			startTime = now.toMillis(false);
 			emails = extras.getString(EMAILS);
+			phones = extras.getString(PHONES);
 		}
 
 		timeoutReceiver = new BroadcastReceiver() {
@@ -386,6 +393,30 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				dialog.show();
 			}
 		}
+		
+		if(!stopValidation.get() && StringUtils.isNotBlank(phones)) {
+			Log.d("ValidationActivity", reservation.getRoute().getLength() + "");
+			StringBuilder uri = new StringBuilder("smsto:");
+		    uri.append(phones);
+			Intent smsIntent = new Intent(Intent.ACTION_VIEW);
+			smsIntent.putExtra("sms_body", getTextMessage());
+			smsIntent.setType("vnd.android-dir/mms-sms");
+			smsIntent.setData(Uri.parse(uri.toString()));
+			startActivity(smsIntent);
+		}
+	}
+	
+	private String getTextMessage() {
+		StringBuffer msg = new StringBuffer();
+		User user = User.getCurrentUser(ValidationActivity.this);
+		msg.append(user.getFirstname()).append(" ").append(user.getLastname()).append(" is ")
+		   .append(remainDistDirecListView.getText())
+		   .append(" miles away, and will arrive at ")
+		   .append(reservation.getDestinationAddress()).append(" at ");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("h:mma", Locale.US);
+        String arriveTime  = dateFormat.format(new Date(reservation.getArrivalTime()));
+        msg.append(arriveTime).append(".");
+        return msg.toString();
 	}
 	
 	private boolean isLoadRoute(){
@@ -431,6 +462,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			outState.putParcelable(GEO_POINT, geoPoint);
 		}
 		outState.putString(EMAILS, emails);
+		outState.putString(PHONES, phones);
 	}
 
 	@Override

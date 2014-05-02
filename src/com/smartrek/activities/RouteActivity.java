@@ -93,8 +93,8 @@ import com.smartrek.utils.SystemService;
  */
 public final class RouteActivity extends FragmentActivity {
 	
-	public static final int ON_MY_WAY = 100;
-
+	public static final int ON_MY_WAY = Integer.valueOf(100);
+	
     public static final String RESERVATION_ID = "reservationId";
     
     public static final String LAT = "lat";
@@ -1158,7 +1158,6 @@ public final class RouteActivity extends FragmentActivity {
         
         // FIXME:
         route.setUserId(User.getCurrentUser(this).getId());
-        
         findViewById(R.id.reserve).setTag(route);
 //        routeInfoOverlays[routeNum] = new RouteInfoOverlay(mapView, route, routeNum, new GeoPoint(lat, lon), boldFont, lightFont);
 //        routeInfoOverlays[routeNum].setCallback(new RouteOverlayCallbackImpl(route, routeNum));
@@ -1214,15 +1213,16 @@ public final class RouteActivity extends FragmentActivity {
             }
         }
         
-        Log.d("RouteActivityResultCode", resultCode + "");
         if(requestCode == ON_MY_WAY && resultCode == Activity.RESULT_OK) {
         	final String emails = extras.getString(ValidationActivity.EMAILS);
+        	final String phones = extras.getString(ValidationActivity.PHONES);
         	if(hasReserv){
         	    deleteRescheduledReservation();
                 Intent validationActivity = new Intent(RouteActivity.this, ValidationActivity.class);
                 validationActivity.putExtra("route", reservation.getRoute());
                 validationActivity.putExtra("reservation", reservation);
                 validationActivity.putExtra(ValidationActivity.EMAILS, emails);
+                validationActivity.putExtra(ValidationActivity.PHONES, phones);
                 startActivity(validationActivity);
                 finish();
             }else{
@@ -1238,6 +1238,7 @@ public final class RouteActivity extends FragmentActivity {
                             intent.putExtra("route", reservation.getRoute());
                             intent.putExtra("reservation", reservation);
                             intent.putExtra(ValidationActivity.EMAILS, emails);
+                            intent.putExtra(ValidationActivity.PHONES, phones);
                             startActivity(intent);
                             finish();
                         }else{

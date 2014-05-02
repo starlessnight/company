@@ -13,6 +13,8 @@ public class Contact implements Parcelable {
     public String lastnameInitial;
     
     public String email;
+    
+    public String phone;
 
     public static final Parcelable.Creator<Contact> CREATOR = new Parcelable.Creator<Contact>() {
         public Contact createFromParcel(Parcel in) {
@@ -30,6 +32,7 @@ public class Contact implements Parcelable {
         name = in.readString();
         lastnameInitial = in.readString();
         email = in.readString();
+        phone = in.readString();
     }
     
     @Override
@@ -42,6 +45,7 @@ public class Contact implements Parcelable {
         dest.writeString(name);
         dest.writeString(lastnameInitial);
         dest.writeString(email);
+        dest.writeString(phone);
     }
     
     public JSONObject toJSON() throws JSONException {
@@ -49,6 +53,7 @@ public class Contact implements Parcelable {
         json.put("name", name);
         json.put("lastnameInitial", lastnameInitial);
         json.put("email", email);
+        json.put("phone", phone);
         return json;
     }
     
@@ -57,7 +62,17 @@ public class Contact implements Parcelable {
         c.name = json.getString("name");
         c.lastnameInitial = json.getString("lastnameInitial");
         c.email = json.getString("email");
+        c.phone = json.getString("phone");
         return c;
+    }
+    
+    public Contact clone() {
+    	Contact copy = new Contact();
+    	copy.name = this.name;
+    	copy.lastnameInitial = this.lastnameInitial;
+    	copy.email = this.email;
+    	copy.phone = this.phone;
+    	return copy;
     }
     
 }

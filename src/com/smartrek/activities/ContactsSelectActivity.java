@@ -48,6 +48,7 @@ import android.widget.ToggleButton;
 
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.NotificationDialog;
+import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.Contact;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
@@ -62,6 +63,7 @@ public class ContactsSelectActivity extends FragmentActivity {
 	private ImageView addButton;
 	private ArrayAdapter<Contact> contactListAdapter;
 	private Set<String> selectedContactEmails = new HashSet<String>();
+	private Set<String> selectedContactPhones = new HashSet<String>();
 	private Set<String> manualInputEmail = new HashSet<String>();
 	private List<Contact> contactList = new ArrayList<Contact>();
 	
@@ -86,8 +88,9 @@ public class ContactsSelectActivity extends FragmentActivity {
 		doneButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-			    Intent resultIntent = new Intent();
+				Intent resultIntent = new Intent();
 				resultIntent.putExtra(ValidationActivity.EMAILS, StringUtils.join(selectedContactEmails, ","));
+				resultIntent.putExtra(ValidationActivity.PHONES, StringUtils.join(selectedContactPhones, ","));
 				setResult(Activity.RESULT_OK, resultIntent);
 				finish();
 			}
@@ -212,26 +215,53 @@ public class ContactsSelectActivity extends FragmentActivity {
         }
         names.close();
         Cursor emails = ctx.getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null, 
-            ContactsContract.CommonDataKinds.Email.CONTACT_ID + " in (" + StringUtils.join(ids, ",") + ")", null, null); 
+            ContactsContract.CommonDataKinds.Email.CONTACT_ID + " in (" + StringUtils.join(ids, ",") + ")", null, null);
+        List<Contact> emailContacts = new ArrayList<Contact>();
         while (emails.moveToNext()) {
             String id = emails.getString(emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.CONTACT_ID));
             String email = emails.getString(emails.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
-            Contact contact = contactsIdMap.get(id);
-            if(contact != null && contact.email == null){
+            Contact contact = contactsIdMap.get(id).clone();
+            if(StringUtils.isNotBlank(email)){
                 contact.email = email;
                 if(StringUtils.isBlank(contact.name)) {
                     contact.name = email;
                 }
             }
+            emailContacts.add(contact);
         }
         emails.close();
+        Cursor phones = ctx.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, 
+        		ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " in (" + StringUtils.join(ids, ",") + ") " 
+                + " and " + ContactsContract.CommonDataKinds.Phone.TYPE + "=" + ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE
+                , null, null);
+        List<Contact> phoneContacts = new ArrayList<Contact>();
+        while (phones.moveToNext()) {
+        	String id = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID));
+        	String phone = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+        	Contact contact = contactsIdMap.get(id).clone();
+            if(StringUtils.isNotBlank(phone)){
+                contact.phone = phone;
+                if(StringUtils.isBlank(contact.name)) {
+                	contact.name = phone;
+                }
+                phoneContacts.add(contact);
+            }
+        }
+        phones.close();
         Map<String, Contact> contactsEmailMap = new HashMap<String, Contact>();
-        for(Contact contact : contactsIdMap.values()){
+        for(Contact contact : emailContacts){
             if(contact.email != null){
                 contactsEmailMap.put(contact.email, contact);
             }
         }
         contacts.addAll(contactsEmailMap.values());
+        Map<String, Contact> contactsPhoneMap = new HashMap<String, Contact>();
+        for(Contact contact : phoneContacts) {
+        	if(contact.phone != null) {
+        		contactsPhoneMap.put(contact.phone, contact);
+        	}
+        }
+        contacts.addAll(contactsPhoneMap.values());
         return contacts;
 	}
 	
@@ -267,7 +297,8 @@ public class ContactsSelectActivity extends FragmentActivity {
                 }
                 for(Contact contact : contactList) {
                     if(StringUtils.isBlank(filter) || StringUtils.containsIgnoreCase(contact.name, filter) 
-                            || StringUtils.containsIgnoreCase(contact.email, filter)) {
+                            || StringUtils.containsIgnoreCase(contact.email, filter) 
+                            || StringUtils.containsIgnoreCase(contact.phone,  filter)) {
                         filteredList.add(contact);
                     }
                 }
@@ -296,8 +327,8 @@ public class ContactsSelectActivity extends FragmentActivity {
 		return Pattern.matches("^[\\w-\\+]+(\\.[\\w-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$", email);
 	}
 	
-	private CharSequence formatContactInfo(String name, String email) {
-		String contactInfo = name + "\n" + email;
+	private CharSequence formatContactInfo(String name, String email, String phone) {
+		String contactInfo = name + "\n" + (StringUtils.isBlank(email)? phone : email);
 		int indexOfNewline = contactInfo.indexOf("\n");
 		SpannableString contactInfoSpan = SpannableString.valueOf(contactInfo);
 		contactInfoSpan.setSpan(new AbsoluteSizeSpan(ContactsSelectActivity.this.getResources()
@@ -332,24 +363,30 @@ public class ContactsSelectActivity extends FragmentActivity {
             Font.setTypeface(boldFont, contactInfo);
             Contact item = getItem(position);
             final ToggleButton selectButton = (ToggleButton) view.findViewById(R.id.contact_select_button);
-            selectButton.setTag(item.email);
-            if(selectedContactEmails.contains(item.email)) {
+            selectButton.setTag(StringUtils.isBlank(item.email)?item.phone:item.email);
+            if(selectedContactEmails.contains(item.email) || selectedContactPhones.contains(item.phone)) {
                 selectButton.setChecked(true);
                 Log.d("SelectedEmail", listToString(selectedContactEmails));
+                Log.d("SelectedPhone", listToString(selectedContactPhones));
             }
             else {
                 selectButton.setChecked(false);
             }
             selectButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
                 @Override
-                public void onCheckedChanged(CompoundButton buttonView,
-                        boolean isChecked) {
-                    String email = (String) buttonView.getTag();
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    String contactInfo = (String) buttonView.getTag();
                     if(isChecked) {
-                        selectedContactEmails.add(email);
+                    	if(StringUtils.contains(contactInfo, "@")) {
+                    		selectedContactEmails.add(contactInfo);
+                    	}
+                    	else {
+                    		selectedContactPhones.add(contactInfo);
+                    	}
                     }
                     else {
-                        selectedContactEmails.remove(email);
+                        selectedContactEmails.remove(contactInfo);
+                        selectedContactPhones.remove(contactInfo);
                     }
                 }
             });
@@ -361,7 +398,7 @@ public class ContactsSelectActivity extends FragmentActivity {
             });
             
             selectButton.requestLayout();
-            contactInfo.setText(formatContactInfo(item.name, item.email));
+            contactInfo.setText(formatContactInfo(item.name, item.email, item.phone));
             contactInfo.requestLayout();
             return view;
         }
