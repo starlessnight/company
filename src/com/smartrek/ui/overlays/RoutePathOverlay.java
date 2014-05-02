@@ -15,6 +15,7 @@ import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Point;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 
 import com.smartrek.activities.R;
@@ -81,12 +82,16 @@ public class RoutePathOverlay extends Overlay {
 		Paint paint = new Paint();
 		paint.setAntiAlias(true);
 		paint.setStyle(Paint.Style.STROKE);
+		paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStrokeJoin(Paint.Join.ROUND);
+		
 		if(dashEffect) {
-			paint.setPathEffect(new DashPathEffect(new float[] {20, 10}, 0));
+			paint.setPathEffect(new DashPathEffect(new float[] {30, 27}, 0));
 		}
 		
 		int thickness = 1 + zoom/2 + (highlighted ? 1 : -1);
-		paint.setStrokeWidth(Dimension.dpToPx(thickness, mapView.getResources().getDisplayMetrics()));
+        DisplayMetrics dm = mapView.getResources().getDisplayMetrics();
+        paint.setStrokeWidth(Dimension.dpToPx(thickness, dm));
 		
 		// Seems like Paint.setAlpha has no effect
 		int alphaMask = highlighted ? 0x66000000 : 0x4F000000;
