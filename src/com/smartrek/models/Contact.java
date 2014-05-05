@@ -61,8 +61,8 @@ public class Contact implements Parcelable {
         Contact c = new Contact();
         c.name = json.getString("name");
         c.lastnameInitial = json.getString("lastnameInitial");
-        c.email = json.getString("email");
-        c.phone = json.getString("phone");
+        c.email = json.optString("email");
+        c.phone = json.optString("phone");
         return c;
     }
     

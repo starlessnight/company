@@ -44,13 +44,11 @@ import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.CalendarService;
-import com.smartrek.ContactListService;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.activities.LandingActivity.ShortcutNavigationTask;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.exceptions.RouteNotFoundException;
-import com.smartrek.models.Contact;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
@@ -693,7 +691,6 @@ public final class RouteActivity extends FragmentActivity {
             @Override
             public void onClick(View v) {
             	Intent contactSelect = new Intent(RouteActivity.this, ContactsSelectActivity.class);
-            	contactSelect.putParcelableArrayListExtra(ContactsSelectActivity.CONTACT_LIST, contactList);
             	startActivityForResult(contactSelect, ON_MY_WAY);
             	/*
                 ContactsDialog d = new ContactsDialog(RouteActivity.this);
@@ -829,28 +826,10 @@ public final class RouteActivity extends FragmentActivity {
             durationRow.setText(DisplayMode.Arrival.name());
         }
         
-        preloadContactList();
-        
         Font.setTypeface(boldFont, header);
         Font.setTypeface(lightFont, onMyWayView, letsGoView, reserveView,
             backButton, (TextView)findViewById(R.id.departure_row), durationRow,
             (TextView)findViewById(R.id.mpoint_row));
-    }
-    
-    private ArrayList<Contact> contactList = new ArrayList<Contact>();
-    
-    private void preloadContactList(){
-        AsyncTask<Void, Void, ArrayList<Contact>> task = new AsyncTask<Void, Void, ArrayList<Contact>>(){
-            @Override
-            protected ArrayList<Contact> doInBackground(Void... params) {
-                return ContactListService.getSyncedContactList(RouteActivity.this);
-            }
-            @Override
-            protected void onPostExecute(ArrayList<Contact> result) {
-                contactList = result;
-            }
-        };
-        Misc.parallelExecute(task);
     }
     
     private long rescheduleReservId;

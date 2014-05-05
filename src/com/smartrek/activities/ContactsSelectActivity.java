@@ -46,16 +46,14 @@ import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.smartrek.ContactListService;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.NotificationDialog;
-import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.Contact;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
 
 public class ContactsSelectActivity extends FragmentActivity {
-	
-    public static final String CONTACT_LIST = "CONTACT_LIST";  
     
 	private Typeface boldFont;
 	private EditText searchTextView;
@@ -147,35 +145,46 @@ public class ContactsSelectActivity extends FragmentActivity {
 	    contactListView.setFastScrollEnabled(true);
 	    Misc.setFastScrollAlwaysVisible(contactListView);
 	    
-	    List<Contact> extraContactList = getIntent().getParcelableArrayListExtra(CONTACT_LIST);
-	    if(extraContactList != null && !extraContactList.isEmpty()){
-	        contactList = extraContactList;
-            updateContactList(null);
-	    }else{
-	        AsyncTask<Void, Void, List<Contact>> loadContactList = new AsyncTask<Void, Void, List<Contact>>(){
-	            
-	            CancelableProgressDialog loadingDialog;
-	            
-	            @Override
-	            protected void onPreExecute() {
-	                loadingDialog = new CancelableProgressDialog(ContactsSelectActivity.this, "Loading...");
-	                if(!loadingDialog.isShowing()){
-	                    loadingDialog.show();
-	                }
-	            }
-	            @Override
-	            protected List<Contact> doInBackground(Void... params) {
-	                return loadContactList(ContactsSelectActivity.this);
-	            }
-	            @Override
-	            protected void onPostExecute(List<Contact> result) {
-	                loadingDialog.cancel();
-	                contactList = result;
-	                updateContactList(null);
-	            }
-	        };
-	        Misc.parallelExecute(loadContactList);
-	    }
+	    AsyncTask<Void, Void, ArrayList<Contact>> task = new AsyncTask<Void, Void, ArrayList<Contact>>(){
+            @Override
+            protected ArrayList<Contact> doInBackground(Void... params) {
+                return ContactListService.getSyncedContactList(ContactsSelectActivity.this);
+            }
+            @Override
+            protected void onPostExecute(ArrayList<Contact> extraContactList) {
+                if(extraContactList != null && !extraContactList.isEmpty()){
+                    Log.i("ContactsSelectActivity", "cached");
+                    contactList = extraContactList;
+                    updateContactList(null);
+                }else{
+                    Log.i("ContactsSelectActivity", "not cached");
+                    AsyncTask<Void, Void, List<Contact>> loadContactList = new AsyncTask<Void, Void, List<Contact>>(){
+                        
+                        CancelableProgressDialog loadingDialog;
+                        
+                        @Override
+                        protected void onPreExecute() {
+                            loadingDialog = new CancelableProgressDialog(ContactsSelectActivity.this, "Loading...");
+                            if(!loadingDialog.isShowing()){
+                                loadingDialog.show();
+                            }
+                        }
+                        @Override
+                        protected List<Contact> doInBackground(Void... params) {
+                            return loadContactList(ContactsSelectActivity.this);
+                        }
+                        @Override
+                        protected void onPostExecute(List<Contact> result) {
+                            loadingDialog.cancel();
+                            contactList = result;
+                            updateContactList(null);
+                        }
+                    };
+                    Misc.parallelExecute(loadContactList);
+                }
+            }
+        };
+        Misc.parallelExecute(task);
 	}
 	
 	private String listToString(Collection<String> list) {
