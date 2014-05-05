@@ -85,6 +85,8 @@ import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.requests.UpdateDeviceIdRequest;
 import com.smartrek.requests.WhereToGoRequest;
+import com.smartrek.ui.DelayTextWatcher;
+import com.smartrek.ui.DelayTextWatcher.TextChangeListener;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.EventOverlay;
@@ -307,11 +309,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
         });
         final View searchBoxClear = findViewById(R.id.search_box_clear);
-        searchBox.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                searchBoxClear.setVisibility(StringUtils.isBlank(s)?View.GONE:View.VISIBLE); 
-                final String addrInput = s.toString();
+        DelayTextWatcher delayTextWatcher = new DelayTextWatcher(new TextChangeListener(){
+			@Override
+			public void onTextChanged(CharSequence text) {
+				searchBoxClear.setVisibility(StringUtils.isBlank(text)?View.GONE:View.VISIBLE); 
+                final String addrInput = text.toString();
                 if(StringUtils.isNotBlank(addrInput)) {
                 	AsyncTask<Void, Void, List<Address>> searchPoiTask = new AsyncTask<Void, Void, List<Address>>(){
         				@Override
@@ -367,15 +369,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 	showDropDown.set(false);
                 	refreshSearchAutoCompleteData();
                 }
-            }
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count,
-                    int after) {
-            }
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+			}}, 500);
+        
+        searchBox.addTextChangedListener(delayTextWatcher);
         searchBoxClear.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
