@@ -76,55 +76,67 @@ public class RoutePathOverlay extends Overlay {
 
 	@Override
 	protected void draw(Canvas canvas, MapView mapView, boolean shadow) {
-		Projection projection = mapView.getProjection();
-		int zoom = mapView.getZoomLevel();
-		
-		Paint paint = new Paint();
-		paint.setAntiAlias(true);
-		paint.setStyle(Paint.Style.STROKE);
-		paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setStrokeJoin(Paint.Join.ROUND);
-		
-		if(dashEffect) {
-			paint.setPathEffect(new DashPathEffect(new float[] {30, 27}, 0));
-		}
-		
-		int thickness = 1 + zoom/2 + (highlighted ? 1 : -1);
-        DisplayMetrics dm = mapView.getResources().getDisplayMetrics();
-        paint.setStrokeWidth(Dimension.dpToPx(thickness, dm));
-		
-		// Seems like Paint.setAlpha has no effect
-		int alphaMask = highlighted ? 0x66000000 : 0x4F000000;
-		paint.setColor((color & 0x00FFFFFF) | alphaMask);
-		
-		Point point = new Point();
-		Path path = new Path();
-		
 		List<RouteNode> routeNodes = route.getNodes();
 		
 		if(routeNodes.isEmpty()){
 		    return;
 		}
 		
-		RouteNode firstNode = routeNodes.get(0);
-		projection.toPixels(firstNode.getGeoPoint(), point);
-		path.moveTo(point.x, point.y);
+		Projection projection = mapView.getProjection();
+		int zoom = mapView.getZoomLevel();
+		DisplayMetrics dm = mapView.getResources().getDisplayMetrics();
+        float thickness = Dimension.dpToPx(1 + zoom/2 + (highlighted ? 1 : -1), dm);
+        
+        drawPath(canvas, new Paint(), projection, routeNodes, 
+            thickness, 0x053a16);
+        
+		Paint path = new Paint();
+		Point originPoint = drawPath(canvas, path, projection, routeNodes, 
+	        thickness * 0.7f, color);
 		
+		canvas.drawBitmap(originFlag, originPoint.x - (originFlag.getWidth()/2), originPoint.y - originFlag.getHeight() * 85 / 100, path);
+		//canvas.drawBitmap(destinationFlag, point.x - (destinationFlag.getWidth()/2), point.y - destinationFlag.getHeight() * 85 / 100, paint);
+	}
+	
+	private Point drawPath(Canvas canvas, Paint paint, Projection projection, 
+	        List<RouteNode> routeNodes, float width, int pathColor){	    
+	    paint.setAntiAlias(true);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStrokeJoin(Paint.Join.ROUND);
+	    
+        if(dashEffect) {
+            paint.setPathEffect(new DashPathEffect(new float[] {30, 27}, 0));
+        }
+        
+        paint.setStrokeWidth(width);
+        
+        // Seems like Paint.setAlpha has no effect
+        int alphaMask = highlighted ? 0x66000000 : 0x4F000000;
+        paint.setColor((pathColor & 0x00FFFFFF) | alphaMask);
+	    
+	    Point point = new Point();
+        Path path = new Path();
+	    
+	    RouteNode firstNode = routeNodes.get(0);
+        projection.toPixels(firstNode.getGeoPoint(), point);
+        path.moveTo(point.x, point.y);
+        
         // Copy the initial point because the variable 'point' is not
         // referentially transparent and path has to be drawn before the origin
         // and the destination flags are drawn.
-		Point originPiont = new Point(point);
-		
-		for (int i = 1; i < routeNodes.size(); i++) {
-			RouteNode node = routeNodes.get(i);
-			
-			projection.toPixels(node.getGeoPoint(), point);
-			path.lineTo(point.x, point.y);
-		}
-		
-		canvas.drawPath(path, paint);
-		canvas.drawBitmap(originFlag, originPiont.x - (originFlag.getWidth()/2), originPiont.y - originFlag.getHeight() * 85 / 100, paint);
-		//canvas.drawBitmap(destinationFlag, point.x - (originFlag.getWidth()/2), point.y - destinationFlag.getHeight() * 85 / 100, paint);
+        Point originPiont = new Point(point);
+        
+        for (int i = 1; i < routeNodes.size(); i++) {
+            RouteNode node = routeNodes.get(i);
+            
+            projection.toPixels(node.getGeoPoint(), point);
+            path.lineTo(point.x, point.y);
+        }
+        
+        canvas.drawPath(path, paint);
+        
+        return originPiont;
 	}
 	
 	private Integer distanceToPathThreshold = 100; //meter
