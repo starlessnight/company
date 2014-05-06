@@ -17,12 +17,15 @@ import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 
+import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
 import com.smartrek.CalendarService;
 import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.activities.R;
 import com.smartrek.activities.RouteActivity;
+import com.smartrek.ui.NavigationView;
 import com.smartrek.utils.CalendarContract.Instances;
 import com.smartrek.utils.Misc;
+import com.smartrek.utils.RouteNode;
 
 public final class CalendarNotification extends BroadcastReceiver {
 	
@@ -39,7 +42,10 @@ public final class CalendarNotification extends BroadcastReceiver {
 	    
 	    int eventId = intent.getIntExtra(EVENT_ID, 0);
 	    JSONObject event = CalendarService.getEvent(context, eventId);
-        if(event != null && MapDisplayActivity.isCalendarIntegrationEnabled(context)){
+	    
+	    double lat = event.optDouble(CalendarService.LAT, 0);
+	    double lon = event.optDouble(CalendarService.LON, 0);
+        if(event != null && MapDisplayActivity.isCalendarIntegrationEnabled(context) && isNotNear(context, lat, lon)){
             long startTime = event.optLong(Instances.BEGIN);
             
             String notiInfo = "Title: " + event.optString(Instances.TITLE)
@@ -92,5 +98,12 @@ public final class CalendarNotification extends BroadcastReceiver {
             }
         }
 	}
+	
+	private static boolean isNotNear(Context ctx, double lat, double lon) {
+        LocationInfo loc = new LocationInfo(ctx);
+        double distance = NavigationView.metersToFeet(RouteNode.distanceBetween(
+            loc.lastLat, loc.lastLong, lat, lon));
+        return distance > 500;
+    }
 
 }

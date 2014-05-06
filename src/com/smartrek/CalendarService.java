@@ -28,14 +28,16 @@ import com.smartrek.activities.LandingActivity;
 import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.models.User;
 import com.smartrek.receivers.CalendarNotification;
-import com.smartrek.ui.NavigationView;
 import com.smartrek.utils.CalendarContract.Instances;
 import com.smartrek.utils.Geocoding;
 import com.smartrek.utils.Geocoding.Address;
-import com.smartrek.utils.RouteNode;
 
 public class CalendarService extends IntentService {
 
+    public static final String LAT = "lat";
+    
+    public static final String LON = "lon";
+    
     private static final long FIFTHTEEN_MINS = 15 * 60 * 1000/*10000*/;
     
     private static final long FOUR_HOURS = 4 * 60 * 60 * 1000;
@@ -75,7 +77,6 @@ public class CalendarService extends IntentService {
                            Address address = geocode(location);
                            if((!file.exists() || file.length() == 0) && StringUtils.isNotBlank(location) 
                                    && canBeGeocoded(address)
-                                   && isNotNear(address)
                                    && !isDuplicate(CalendarService.this, eventId, title, start, end) 
                                    && System.currentTimeMillis() < notiTime/* true */){
                                hasNotification = true;
@@ -93,7 +94,9 @@ public class CalendarService extends IntentService {
                                .put(Instances.TITLE, title)
                                .put(Instances.BEGIN, start)
                                .put(Instances.END, end)
-                               .put(Instances.EVENT_LOCATION, location);
+                               .put(Instances.EVENT_LOCATION, location)
+                               .put(LAT, address.getLatitude())
+                               .put(LON, address.getLongitude());
                            FileUtils.write(file, eventJson.toString());
                            if(hasNotification){
                                break;
@@ -129,13 +132,6 @@ public class CalendarService extends IntentService {
             rs = (addresses != null && !addresses.isEmpty())?addresses.get(0):null;
         }catch(Throwable t){}
         return rs;
-    }
-    
-    private boolean isNotNear(Address address) {
-        LocationInfo loc = new LocationInfo(CalendarService.this);
-        double distance = NavigationView.metersToFeet(RouteNode.distanceBetween(
-            loc.lastLat, loc.lastLong, address.getLatitude(), address.getLongitude()));
-        return distance > 500;
     }
     
     private File getDir(){
