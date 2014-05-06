@@ -394,24 +394,62 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 		}
 		
+		
 		if(!stopValidation.get() && StringUtils.isNotBlank(phones)) {
-			Log.d("ValidationActivity", reservation.getRoute().getLength() + "");
-			StringBuilder uri = new StringBuilder("smsto:");
-		    uri.append(phones);
-			Intent smsIntent = new Intent(Intent.ACTION_VIEW);
-			smsIntent.putExtra("sms_body", getTextMessage());
-			smsIntent.setType("vnd.android-dir/mms-sms");
-			smsIntent.setData(Uri.parse(uri.toString()));
-			startActivity(smsIntent);
+			sendOnMyWaySms();
 		}
 	}
 	
-	private String getTextMessage() {
+	private void sendOnMyWaySms() {
+		AsyncTask<Void, Void, List<Route>> task = new AsyncTask<Void, Void, List<Route>>() {
+            @Override
+            protected List<Route> doInBackground(Void... params) {
+                List<Route> routes = null;
+                try {
+                    RouteFetchRequest request = new RouteFetchRequest(
+                            reservation.getNavLink(),
+                            reservation.getDepartureTime(),
+                            reservation.getDuration(),
+                            0, 0);
+                    routes = request.execute(ValidationActivity.this);
+                } catch (Exception e) {
+                    ehs.registerException(e);
+                }
+                return routes;
+            }
+
+            protected void onPostExecute(java.util.List<Route> routes) {
+                if (ehs.hasExceptions()) {
+                    ehs.reportExceptions(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!isFinishing()) {
+                                finish();
+                            }
+                        }
+                    });
+                } else if (routes != null && routes.size() > 0) {
+                    Route route = routes.get(0);
+                    route.preprocessNodes();
+                    StringBuilder uri = new StringBuilder("smsto:");
+        		    uri.append(phones);
+        			Intent smsIntent = new Intent(Intent.ACTION_VIEW);
+        			smsIntent.putExtra("sms_body", getTextMessage(route));
+        			smsIntent.setType("vnd.android-dir/mms-sms");
+        			smsIntent.setData(Uri.parse(uri.toString()));
+        			startActivity(smsIntent);
+                }
+            }
+        };
+        Misc.parallelExecute(task);
+	}
+	
+	private String getTextMessage(Route route) {
 		StringBuffer msg = new StringBuffer();
 		User user = User.getCurrentUser(ValidationActivity.this);
 		msg.append(user.getFirstname()).append(" ").append(user.getLastname()).append(" is ")
-		   .append(remainDistDirecListView.getText())
-		   .append(" miles away, and will arrive at ")
+		   .append(StringUtil.formatImperialDistance(route.getLength(), false))
+		   .append(" away, and will arrive at ")
 		   .append(reservation.getDestinationAddress()).append(" at ");
 		SimpleDateFormat dateFormat = new SimpleDateFormat("h:mma", Locale.US);
         String arriveTime  = dateFormat.format(new Date(reservation.getArrivalTime()));
