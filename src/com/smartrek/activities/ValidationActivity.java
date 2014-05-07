@@ -102,6 +102,7 @@ import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RouteDebugOverlay;
 import com.smartrek.ui.overlays.RouteDestinationOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
+import com.smartrek.ui.timelayout.TimeColumn;
 import com.smartrek.utils.Dimension;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
@@ -451,9 +452,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		   .append(StringUtil.formatImperialDistance(route.getLength(), false))
 		   .append(" away, and will arrive at ")
 		   .append(reservation.getDestinationAddress()).append(" at ");
-		SimpleDateFormat dateFormat = new SimpleDateFormat("h:mma", Locale.US);
-        String arriveTime  = dateFormat.format(new Date(reservation.getArrivalTime()));
-        msg.append(arriveTime).append(".");
+        msg.append(TimeColumn.formatTime(reservation.getArrivalTime(), route.getTimezoneOffset())).append(".");
         return msg.toString();
 	}
 	
