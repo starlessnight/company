@@ -1950,7 +1950,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         for(final com.smartrek.requests.WhereToGoRequest.Location l:locs){
             final GeoPoint gp = new GeoPoint(l.lat, l.lon);
             final POIActionOverlay bulb = new POIActionOverlay(mapView, gp, boldFont, lightFont, 
-                    l.addr, l.label, R.drawable.bulb_poi);
+                    l.addr, "", R.drawable.bulb_poi);
             bulb.setBalloonOffsetY(Dimension.dpToPx(-17, getResources().getDisplayMetrics()));
             bulb.setCallback(new OverlayCallback() {
                 @Override
@@ -1967,7 +1967,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     TextView addrView = ((TextView)balloonView.findViewById(R.id.address));
                     addrView.setText(l.addr);
                     TextView labelView = ((TextView)balloonView.findViewById(R.id.label));
-                    labelView.setText(l.label);
+                    labelView.setText("");
                     balloonView.setTag(model);
                     balloonView.setVisibility(View.VISIBLE);
                     hideBottomBar();
