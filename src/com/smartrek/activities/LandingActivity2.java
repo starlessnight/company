@@ -41,9 +41,7 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
-import android.text.Editable;
 import android.text.Html;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -300,6 +298,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             	Address selected = (Address)parent.getItemAtPosition(position);
             	if(StringUtils.isNotBlank(selected.getAddress())) {
 	                searchAddress(selected.getAddress(), true);
+	                searchBox.setText("");
 	                InputMethodManager imm = (InputMethodManager)getSystemService(
 	                        Context.INPUT_METHOD_SERVICE);
 	                imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
