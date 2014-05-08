@@ -618,7 +618,34 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 final String addr = ((TextView)balloonView.findViewById(R.id.address)).getText().toString();
                 final BalloonModel model = (BalloonModel) balloonView.getTag();
                 final boolean isSave = model.id == 0;
+                final int oldId = model.id;
                 AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>(){
+                    @Override
+                    protected void onPreExecute() {
+                        if(!isSave){
+                            List<Overlay> overlays = mapView.getOverlays();
+                            List<Overlay> overlaysToKeep = new ArrayList<Overlay>();
+                            for (Overlay overlay : overlays) {
+                                boolean toKeep;
+                                if(overlay instanceof POIActionOverlay){
+                                    POIActionOverlay poiOverlay = (POIActionOverlay)overlay;
+                                    toKeep = poiOverlay.getMarker() != R.drawable.star_poi && poiOverlay.getAid() != model.id;
+                                }else{
+                                    toKeep = true;
+                                }
+                                if(toKeep){
+                                    overlaysToKeep.add(overlay);
+                                }
+                            }
+                            overlays.clear();
+                            overlays.addAll(overlaysToKeep);
+                            mapView.postInvalidate();
+                            ImageView saveOrDelView = (ImageView)balloonView.findViewById(R.id.saveOrDelete);
+                            saveOrDelView.setImageResource(R.drawable.save_star_poi);
+                            model.id = 0;
+                            refreshPOIMarker(mapView, model.lat, model.lon, addr, lbl);
+                        }
+                    }
                     @Override
                     protected Integer doInBackground(Void... params) {
                         Integer id = null;
@@ -633,7 +660,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             }
                             else {
                             	FavoriteAddressDeleteRequest request = new FavoriteAddressDeleteRequest(
-                                        new AddressLinkRequest(user).execute(LandingActivity2.this), user, model.id);
+                                        new AddressLinkRequest(user).execute(LandingActivity2.this), user, oldId);
                             	req = request;
                                 request.execute(LandingActivity2.this);
                             }
@@ -644,21 +671,23 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         return id;
                     }
                     protected void onPostExecute(Integer id) {
+                        refreshStarredPOIs();
+                        ImageView saveOrDelView = (ImageView)balloonView.findViewById(R.id.saveOrDelete);
                         if (ehs.hasExceptions()) {
                             ehs.reportExceptions();
+                            if(!isSave){
+                                model.id = oldId;
+                                saveOrDelView.setImageResource(R.drawable.delete_star_poi);
+                                removePOIMarker(mapView);
+                            }
                         }
                         else {
-                            refreshStarredPOIs();
                             if(isSave){
                                 removePOIMarker(mapView);
                                 balloonView.setVisibility(View.VISIBLE);
                                 hideBottomBar();
                                 model.id = id;
-                                ImageView saveOrDelView = (ImageView)balloonView.findViewById(R.id.saveOrDelete);
                                 saveOrDelView.setImageResource(R.drawable.delete_star_poi);
-                            }else{
-                                model.id = 0;
-                                refreshPOIMarker(mapView, model.lat, model.lon, addr, lbl);
                             }
                         }
                     }
