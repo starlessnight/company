@@ -629,7 +629,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                 boolean toKeep;
                                 if(overlay instanceof POIActionOverlay){
                                     POIActionOverlay poiOverlay = (POIActionOverlay)overlay;
-                                    toKeep = poiOverlay.getMarker() != R.drawable.star_poi && poiOverlay.getAid() != model.id;
+                                    toKeep = poiOverlay.getMarker() != R.drawable.star_poi || poiOverlay.getAid() != model.id;
                                 }else{
                                     toKeep = true;
                                 }
