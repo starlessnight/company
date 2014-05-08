@@ -46,7 +46,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="no_connection">Can\'t connect. Check your network.</string>
-    <string name="connection_timeout">The connection to server has timed out.</string>
+    <string name="connection_timeout">The connection to the server has timed out.</string>
     
     <string name="common_datetime_format">MMM dd, yyyy (E) HH:mm:ss</string>
     

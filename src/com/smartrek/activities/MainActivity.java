@@ -144,15 +144,7 @@ public class MainActivity extends Activity implements AnimationListener {
 	            initApiLinks(this, url, onSuccess, new Runnable() {
                     @Override
                     public void run() {
-                        initApiLinks(MainActivity.this, Request.ENTRYPOINT_URL,
-                            onSuccess, 
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    finish();
-                                }
-                            }
-                        );
+                        finish();
                     }
                 });
 	        }else if(loginTask != null){

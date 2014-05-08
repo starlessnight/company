@@ -17,6 +17,7 @@ import android.util.Log;
 import com.smartrek.activities.R;
 import com.smartrek.dialogs.ExceptionDialog;
 import com.smartrek.dialogs.NotificationDialog2;
+import com.smartrek.dialogs.NotificationDialog2.ActionListener;
 import com.smartrek.exceptions.RouteNotFoundException;
 
 public class ExceptionHandlingService {
@@ -102,6 +103,8 @@ public class ExceptionHandlingService {
         exceptions.push(new ExceptionContainer(e));
     }
     
+    private Dialog lastDialog; 
+    
     /**
      * Reports an exception immediately.
      * 
@@ -109,27 +112,21 @@ public class ExceptionHandlingService {
      */
     public synchronized void reportException(String message, final Runnable callback) {
         try{
+            if(lastDialog != null && lastDialog.isShowing()){
+                lastDialog.dismiss();
+                lastDialog = null;
+            }
+        	NotificationDialog2 dialog = new NotificationDialog2(context, message);
         	if(callback != null) {
-	            AlertDialog dialog = new AlertDialog.Builder(context).create();
-	            dialog.setTitle("An error has occurred");
-	            dialog.setMessage(message);
-	            dialog.setButton(context.getResources().getString(R.string.close), new Dialog.OnClickListener() {
-	                @Override
-	                public void onClick(DialogInterface dialog, int which) {
-	                    dialog.cancel();
-	                    if(callback != null){
-	                        callback.run();
-	                    }
-	                }
-	            });
-	            dialog.setCancelable(false);
-	            dialog.setCanceledOnTouchOutside(false);
-	            dialog.show();
+        	    dialog.setPositiveActionListener(new ActionListener() {
+                    @Override
+                    public void onClick() {
+                        callback.run();
+                    }
+                });
         	}
-        	else {
-	        	NotificationDialog2 dialog = new NotificationDialog2(context, message);
-	        	dialog.show();
-        	}
+        	dialog.show();
+        	lastDialog = dialog;
         }catch(Throwable t){}
     }
     
