@@ -35,8 +35,12 @@ public class ReservationRequest extends Request {
     private String navUrl;
     private String routeJSON;
     
-	public ReservationRequest(User user, Route route, String version) {
+    private long rescheduleId;
+    
+	public ReservationRequest(User user, Route route, String version, long rescheduleId) {
 		super();
+		
+		this.rescheduleId = rescheduleId;
 		
 		// TODO: Better way to handle this?
 		StringBuffer buf = new StringBuffer();
@@ -67,7 +71,7 @@ public class ReservationRequest extends Request {
         navUrl = navLink == null?null:navLink.url;
         
         if(NEW_API){
-            url = getLinkUrl(Link.reservation);
+            url = getLinkUrl(Link.reservation) + (rescheduleId > 0?("/" + rescheduleId):"");
             this.routeJSON = route.getRawJSON();
         }else{
             url = String.format("%s/V0.2/addreservations/?rid=%d&credits=%d&uid=%d&start_datetime=%s&estimatedTT=%d&origin_address=%s&destination_address=%s&route=%s&version=%s",
@@ -96,22 +100,26 @@ public class ReservationRequest extends Request {
             params.put("destination", destination);
             String res = null;
             try {
-                res = executeHttpRequest(Method.POST, url, params, ctx);
+                res = executeHttpRequest(rescheduleId > 0?Method.PUT:Method.POST, url, params, ctx);
             } catch (Exception e){
                 res = e.getMessage();
             }
-            JSONObject json = new JSONObject(res);
-            JSONObject data = json.getJSONObject("data");
-            if("fail".equals(json.getString("status"))){
-                String msg = "";
-                Iterator keys = data.keys();
-                while(keys.hasNext()){
-                    Object attr = keys.next();
-                    msg += (msg.length() == 0?"":".\n") + attr +  ": " + data.getString(attr.toString());
-                }
-                throw new Exception(msg);
+            if(rescheduleId > 0){
+                id = rescheduleId;
             }else{
-                id = data.getLong("id");
+                JSONObject json = new JSONObject(res);
+                JSONObject data = json.getJSONObject("data");
+                if("fail".equals(json.getString("status"))){
+                    String msg = "";
+                    Iterator keys = data.keys();
+                    while(keys.hasNext()){
+                        Object attr = keys.next();
+                        msg += (msg.length() == 0?"":".\n") + attr +  ": " + data.getString(attr.toString());
+                    }
+                    throw new Exception(msg);
+                }else{
+                    id = data.getLong("id");
+                }
             }
 	    }else{
     		String responseBody = executeHttpGetRequest(url, ctx);

@@ -197,7 +197,7 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 		protected Long doInBackground(Object... params) {
 		    Long rs = null;
 			ReservationRequest request = new ReservationRequest(User.getCurrentUser(ReservationConfirmationActivity.this), 
-		        route, getString(R.string.distribution_date));
+		        route, getString(R.string.distribution_date), 0);
 			try {
 			    rs = request.execute(ReservationConfirmationActivity.this);
 			}

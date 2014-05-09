@@ -42,7 +42,7 @@ public class GCMIntentService extends GCMBaseIntentService {
     		    //msg = "Your travel time has changed. Would you like to make a new reservation?";
                 Intent alertIntent = new Intent(context, PreTripAlertActivity.class);
                 long rId = intent.getLongExtra("reservation_id", 0);
-                //rId = 201405090800L;
+                //rId = 201405090845L;
                 alertIntent.putExtra(PreTripAlertActivity.ID, rId);
                 alertIntent.putExtra(PreTripAlertActivity.MSG, msg);
                 alertIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

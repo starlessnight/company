@@ -1279,11 +1279,14 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             });
         }
         
-        ShortcutNavigationTask(Context ctx, Route route, ExceptionHandlingService ehs){
+        long id;
+        
+        ShortcutNavigationTask(Context ctx, Route route, ExceptionHandlingService ehs, long id){
             this.ehs = ehs;
             this.ctx = ctx;
             _route = route;
             dialog = new CancelableProgressDialog(ctx, "Loading...");
+            this.id = id;
         }
         
         @Override
@@ -1382,7 +1385,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                                route = _route; 
                             }
                             ReservationRequest reservReq = new ReservationRequest(user, 
-                                route, ctx.getString(R.string.distribution_date));
+                                route, ctx.getString(R.string.distribution_date), id);
                             Long id = reservReq.execute(ctx);
                             ReservationListFetchRequest reservListReq = new ReservationListFetchRequest(user);
                             reservListReq.invalidateCache(ctx);

@@ -53,7 +53,6 @@ import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
-import com.smartrek.requests.ReservationDeleteRequest;
 import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.requests.ReservationRequest;
 import com.smartrek.requests.RouteFetchRequest;
@@ -634,7 +633,7 @@ public final class RouteActivity extends FragmentActivity {
                     protected Long doInBackground(Void... params) {
                         Long rs = null;
                         ReservationRequest request = new ReservationRequest(User.getCurrentUser(RouteActivity.this), 
-                            route, getString(R.string.distribution_date));
+                            route, getString(R.string.distribution_date), rescheduleReservId);
                         try {
                             rs = request.execute(RouteActivity.this);
                         }
@@ -692,58 +691,6 @@ public final class RouteActivity extends FragmentActivity {
             public void onClick(View v) {
             	Intent contactSelect = new Intent(RouteActivity.this, ContactsSelectActivity.class);
             	startActivityForResult(contactSelect, ON_MY_WAY);
-            	/*
-                ContactsDialog d = new ContactsDialog(RouteActivity.this);
-                d.setActionListener(new ContactsDialog.ActionListener() {
-                    @Override
-                    public void onClickPositiveButton(final List<String> emails) {
-                        if(hasReserv){
-                            Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
-                            intent.putExtra("route", reservation.getRoute());
-                            intent.putExtra("reservation", reservation);
-                            startActivity(intent);
-                            finish();
-                        }else{
-                            final Route route = (Route) reserveView.getTag();
-                            ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs);
-                            task.callback = new ShortcutNavigationTask.Callback() {
-                                @Override
-                                public void run(Reservation reservation) {
-                                    if(reservation.isEligibleTrip()){
-                                        Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
-                                        intent.putExtra("route", reservation.getRoute());
-                                        intent.putExtra("reservation", reservation);
-                                        intent.putExtra(ValidationActivity.EMAILS, StringUtils.join(emails, ","));
-                                        startActivity(intent);
-                                        finish();
-                                    }else{
-                                        String msg = null;
-                                        if (reservation.hasExpired()) {
-                                            msg = getString(R.string.trip_has_expired);
-                                        }
-                                        else if (reservation.isTooEarlyToStart()) {
-                                            long minutes = (reservation.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
-                                            msg = getString(R.string.trip_too_early_to_start, minutes);
-                                            if(minutes != 1){
-                                                msg += "s";
-                                            }
-                                        }
-                                        if(msg != null){
-                                            NotificationDialog dialog = new NotificationDialog(RouteActivity.this, msg);
-                                            dialog.show();
-                                        }
-                                    }
-                                }
-                            };
-                            Misc.parallelExecute(task);
-                        }
-                        SessionM.logAction("on_my_way");
-                    }
-                    @Override
-                    public void onClickNegativeButton() {}
-                });
-                d.show();
-            	 */
             }
         });
         TextView letsGoView = (TextView) findViewById(R.id.lets_go);
@@ -759,7 +706,7 @@ public final class RouteActivity extends FragmentActivity {
                     finish();
                 }else{
                     final Route route = (Route) reserveView.getTag();
-                    ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs);
+                    ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs, rescheduleReservId);
                     task.callback = new ShortcutNavigationTask.Callback() {
                         @Override
                         public void run(Reservation reservation) {
@@ -835,6 +782,7 @@ public final class RouteActivity extends FragmentActivity {
     private long rescheduleReservId;
     
     private void deleteRescheduledReservation(){
+        /*
         if(rescheduleReservId > 0){
             AsyncTask<Void, Void, Void> delTask = new AsyncTask<Void, Void, Void>(){
                 @Override
@@ -851,6 +799,7 @@ public final class RouteActivity extends FragmentActivity {
             };
             Misc.parallelExecute(delTask);
         }
+        */
     }
     
     public static void setViewToNorthAmerica(MapView mapView){
@@ -1208,7 +1157,7 @@ public final class RouteActivity extends FragmentActivity {
             }else{
             	final TextView reserveView = (TextView) findViewById(R.id.reserve);
                 final Route route = (Route) reserveView.getTag();
-                ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs);
+                ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs, rescheduleReservId);
                 task.callback = new ShortcutNavigationTask.Callback() {
                     @Override
                     public void run(Reservation reservation) {
