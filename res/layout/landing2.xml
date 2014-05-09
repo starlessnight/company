@@ -15,99 +15,123 @@
 	        	android:layout_width="match_parent"
 				android:layout_height="0dp"
 				android:layout_weight="1">
-		    <LinearLayout 
-		        	android:layout_width="match_parent"
-					android:layout_height="match_parent"
-					android:orientation="vertical">
-		    
-			    <RelativeLayout 
-						android:id="@+id/map_panel"
-						android:layout_width="match_parent"
-						android:layout_height="0dp"
-						android:layout_weight="1">
-			    	<include layout="@layout/mapview" />
-			    	
-			    	<FrameLayout 
-			            	android:id="@+id/header_panel"
-			            	android:layout_width="match_parent"
-				    		android:layout_height="wrap_content"
-				    		android:layout_alignParentTop="true">
-			            <ImageView
-					        android:id="@+id/skyline_bg"
-					        android:layout_width="match_parent"
-					        android:layout_height="93dp"
-					        android:adjustViewBounds="true"
-					        android:scaleType="fitXY"
-					        android:src="@drawable/skyline" 
-				        />
-			            <TextView
-				            android:id="@+id/header_text"
-				            android:layout_width="wrap_content"
-				        	android:layout_height="wrap_content"
-				            android:textSize="@dimen/smallest_font"
-				           	android:textColor="@android:color/white"
-				           	android:singleLine="true"
-				           	android:layout_marginRight="10dp"
-				           	android:layout_marginBottom="5dp"
-				           	android:visibility="visible"
-				           	android:layout_gravity="bottom|right"
-						/>
-			        </FrameLayout>
-				    
-				    <View
-				        android:id="@+id/header_border"
-				        android:layout_width="match_parent"
-				        android:layout_height="5dp"
-				        android:background="#929497"
-				        android:layout_below="@+id/header_panel"
-					/>
-			    	
-				    <RelativeLayout 
-					        android:layout_width="match_parent"
-				            android:layout_height="wrap_content"
-				            android:layout_marginTop="5dp"
-				            android:layout_marginLeft="15dp"
-				           	android:layout_marginRight="15dp"
-				           	android:layout_below="@+id/header_border"
-			           		android:layout_centerHorizontal="true">
-				        <AutoCompleteTextView
-				    	    android:id="@+id/search_box"
-				    	    android:layout_width="match_parent"
-				            android:layout_height="wrap_content"
-				           	android:hint="Search..."
-				           	android:singleLine="true"
-				           	android:drawableLeft="@drawable/search_icon"
-				           	android:drawablePadding="10dp"
-				           	android:paddingRight="40dp"
-				           	style="@style/SearchTextField"
-						/>
-				        <ImageView 
-				            android:id="@+id/search_box_clear"
-				        	android:layout_width="wrap_content"
-				            android:layout_height="wrap_content"
-				            android:layout_alignRight="@+id/search_box"
-	    					android:layout_centerVertical="true"
-	    					android:paddingTop="15dp"
-	    					android:paddingBottom="15dp"
-	    					android:paddingRight="20dp"
-	    					android:paddingLeft="20dp"
-	    					android:src="@drawable/search_box_clear"
-	    					android:visibility="gone"	
-						/>
-				    </RelativeLayout>
-			    	
-			    	<ImageView 
-			    	    android:id="@+id/center_map_icon"
-			    	    android:layout_width="wrap_content"
-			    	    android:layout_height="wrap_content"
-			    	    android:src="@drawable/center_map_icon"
-			    	    android:layout_alignParentRight="true"
-			    	    android:layout_alignParentBottom="true"
-			    	    android:layout_marginRight="10dp"
-			    	    android:layout_marginBottom="53dp"
-					/>
-			    	
-			      <FrameLayout 
+				
+	        <include layout="@layout/mapview" />
+	        
+	        <RelativeLayout
+	            android:layout_width="fill_parent"
+	            android:layout_height="fill_parent">
+	            
+	            <LinearLayout
+	                android:layout_width="match_parent"
+	                android:layout_height="wrap_content"
+	                android:layout_alignParentTop="true"
+	                android:orientation="vertical"
+	                android:background="@color/transparent_white">
+	                
+	                <LinearLayout
+	                    android:layout_width="match_parent"
+	                    android:layout_height="wrap_content"
+	                    android:padding="10dp"
+	                    android:orientation="horizontal">
+	                    
+	                    <ImageView 
+				    	    android:id="@+id/drawer_menu_icon"
+				    	    android:layout_width="wrap_content"
+				    	    android:layout_height="match_parent"
+				    	    android:src="@drawable/drawer_menu_icon_1"
+				    	    android:paddingRight="10dp"/>
+	                    
+	                    <RelativeLayout
+	                        android:layout_height="wrap_content"
+		                    android:layout_width="0dp"
+		                    android:layout_weight="1"
+		                    android:paddingRight="10dp">
+		                    
+		                    <EditText 
+		                        android:id="@+id/search_box"
+		                        android:layout_width="match_parent"
+				            	android:layout_height="wrap_content"
+		                        android:textColor="@color/gray"
+		                        android:textSize="@dimen/smaller_font"
+		                        android:singleLine="true"
+		                        android:background="@android:color/transparent"
+		                        android:paddingLeft="20dp"/>
+		                    
+		                    <ImageView 
+					            android:id="@+id/search_box_clear"
+					        	android:layout_width="wrap_content"
+					            android:layout_height="wrap_content"
+					            android:layout_alignRight="@+id/search_box"
+		    					android:layout_centerVertical="true"
+		    					android:layout_gravity="center"
+		    					android:src="@drawable/search_box_clear"
+		    					android:visibility="gone"/>
+	                    </RelativeLayout>
+	                    
+	                    <ImageView 
+				    	    android:id="@+id/search_button"
+				    	    android:layout_width="wrap_content"
+				    	    android:layout_height="match_parent"
+				    	    android:src="@drawable/search_botton"/>
+	                    
+	                </LinearLayout>
+	                
+	                <LinearLayout
+	                    android:layout_width="match_parent"
+	                    android:layout_height="wrap_content"
+	                    android:orientation="horizontal">
+	                    
+	                    <TextView 
+	                        android:id="@+id/from"
+	                        android:layout_height="wrap_content"
+	                        android:layout_width="0dp"
+	                        android:layout_weight="1"
+	                        android:paddingTop="2dp"
+	                        android:paddingBottom="2dp"
+	                        android:gravity="center"
+	                        android:text="FROM"
+	                        android:textColor="@color/lighter_gray"
+	                        android:textSize="@dimen/smallest_font"
+	                        android:background="@drawable/top_gray_shadow" />
+	                    
+	                    <TextView 
+	                        android:id="@+id/to"
+	                        android:layout_height="wrap_content"
+	                        android:layout_width="0dp"
+	                        android:layout_weight="1"
+	                        android:paddingTop="2dp"
+	                        android:paddingBottom="2dp"
+	                        android:gravity="center"
+	                        android:text="TO"
+	                        android:textColor="@color/light_blue"
+	                        android:textSize="@dimen/smallest_font"/>
+	                    
+	                </LinearLayout>
+	                
+	                <ListView 
+		                android:id="@+id/search_result_list"
+		                android:layout_height="0dp"
+	        			android:layout_width="match_parent"     
+	            		android:layout_weight="1" 
+	            		android:cacheColorHint="#00000000"
+	            		android:divider="@null"
+						android:dividerHeight="0dp"
+						android:visibility="gone"/>
+	                
+	            </LinearLayout>
+	            
+	            <ImageView 
+		            android:id="@+id/center_map_icon"
+				    android:layout_width="wrap_content"
+				    android:layout_height="wrap_content"
+				    android:src="@drawable/compass"
+				    android:layout_alignParentRight="true"
+				    android:layout_alignParentBottom="true"
+				    android:layout_marginRight="20dp"
+				    android:layout_marginBottom="53dp"/>
+	            
+	            <FrameLayout 
 					    android:id="@+id/balloon_panel"
 					    android:layout_width="match_parent"
 						android:layout_height="wrap_content"
@@ -294,31 +318,27 @@
 				                
 			        </LinearLayout>
 			      </LinearLayout>
-			    	
-			   	</RelativeLayout>
-			   	
-			</LinearLayout>
-			
-			<ImageView 
-	    	    android:id="@+id/drawer_menu_icon"
-	    	    android:layout_width="wrap_content"
-	    	    android:layout_height="wrap_content"
-	    	    android:src="@drawable/drawer_menu_icon"
-				android:layout_gravity="bottom|left"
-	    	    android:layout_marginBottom="53dp"
-			/>
+	            
+	            <include
+	                layout="@layout/metropia_color_bar"
+	                android:layout_height="8dp"
+	                android:layout_width="fill_parent"
+	                android:layout_alignParentBottom="true"/>
+	            
+	        </RelativeLayout>
+	        
 		</FrameLayout>
 	
 	</LinearLayout>
     
     <LinearLayout
         	android:id="@+id/left_drawer"
-        	android:layout_width="wrap_content"
+        	android:layout_width="match_parent"
 		    android:layout_height="match_parent"
         	android:layout_gravity="start"
         	android:orientation="horizontal">
 	    <RelativeLayout
-		        android:layout_width="276dp"
+		        android:layout_width="match_parent"
 		        android:layout_height="match_parent"
 		        android:background="@color/light_gray_background">
 			
@@ -460,13 +480,5 @@
 	           	android:visibility="gone"
 			/>
 	    </RelativeLayout>
-	    <ImageView 
-	        android:id="@+id/drawer_menu_icon_opened"
-	   	    android:layout_width="wrap_content"
-	   	    android:layout_height="wrap_content"
-	   	    android:src="@drawable/drawer_menu_icon"
-	   	   	android:layout_gravity="bottom"
-	   	    android:layout_marginBottom="53dp"
-		/>
     </LinearLayout>
 </android.support.v4.widget.DrawerLayout>

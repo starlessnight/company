@@ -55,12 +55,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.Filter;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -163,11 +161,19 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private AtomicBoolean showReservRoute = new AtomicBoolean();
     
-    private AutoCompleteTextView searchBox; 
+    private EditText searchBox; 
+    
+    private ListView searchResultList;
     
     private ArrayAdapter<Address> autoCompleteAdapter;
     
     private static final String NO_AUTOCOMPLETE_RESULT = "No results found.";
+    
+    private static final String TAP_TO_ADD_FAVORITE = "Tap to Add Favorite";
+    
+    private TextView from;
+    
+    private TextView to;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -186,12 +192,15 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         bindMapFunctions(mapView);
         RouteActivity.setViewToNorthAmerica(mapView);
         
-        searchBox = (AutoCompleteTextView) findViewById(R.id.search_box);
+        searchBox = (EditText) findViewById(R.id.search_box);
+        searchBox.setHint(Html.fromHtml("<b>Enter Destination</b>"));
+        searchResultList = (ListView) findViewById(R.id.search_result_list);
         autoCompleteAdapter = new ArrayAdapter<Address>(LandingActivity2.this, R.layout.dropdown_select, R.id.name) {
         	@Override
         	public View getView(int position, View convertView, ViewGroup parent) {
         		View view = super.getView(position, convertView, parent);
                 Address item = getItem(position);
+                View namePanel = view.findViewById(R.id.name_panel);
                 TextView name = (TextView) view.findViewById(R.id.name);
                 name.setText(item.getName());
                 TextView address = (TextView) view.findViewById(R.id.address);
@@ -201,13 +210,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 	distance.setVisibility(View.GONE);
                 }
                 else {
-                	distance.setText(item.getDistance() + " miles away.");
+                	distance.setText(item.getDistance() + "m");
                 }
                 Font.setTypeface(boldFont, name, distance);
                 Font.setTypeface(lightFont, address);
+                namePanel.requestLayout();
                 name.requestLayout();
-                address.requestLayout();
                 distance.requestLayout();
+                address.requestLayout();
                 return view;
         	}
         	
@@ -264,7 +274,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         		return filter;
         	}
         };
-        searchBox.setAdapter(autoCompleteAdapter);
+        searchResultList.setAdapter(autoCompleteAdapter);
         
         refreshSearchAutoCompleteData();
         searchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -277,7 +287,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     InputMethodManager imm = (InputMethodManager)getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    searchBox.dismissDropDown();
+                    hideSearchResultList();
                     showDropDown.set(false);
                 }
                 return handled;
@@ -287,23 +297,39 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if(!hasFocus) {
-                    searchBox.dismissDropDown();
+                	InputMethodManager imm = (InputMethodManager)getSystemService(
+                            Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                	hideSearchResultList();
                     showDropDown.set(false);
+                }
+                else if(StringUtils.isBlank(searchBox.getText())) {
+                	searchAddresses.clear();
+                	Address tapToAdd = new Address();
+                	tapToAdd.setName(TAP_TO_ADD_FAVORITE);
+                	tapToAdd.setAddress("");
+                	searchAddresses.add(tapToAdd);
+                	showDropDown.set(true);
+                	refreshSearchAutoCompleteData();
                 }
             }
         });
-        searchBox.setOnItemClickListener(new OnItemClickListener() {
+        searchResultList.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             	Address selected = (Address)parent.getItemAtPosition(position);
             	if(StringUtils.isNotBlank(selected.getAddress())) {
+            		searchBox.setText(selected.getAddress());
 	                searchAddress(selected.getAddress(), true);
 	                searchBox.setText("");
 	                InputMethodManager imm = (InputMethodManager)getSystemService(
 	                        Context.INPUT_METHOD_SERVICE);
 	                imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
-	                searchBox.dismissDropDown();
+	                hideSearchResultList();
 	                showDropDown.set(false);
+            	}
+            	else if(TAP_TO_ADD_FAVORITE.equals(selected.getName())) {
+            		// open add favorite page
             	}
             }
         });
@@ -377,6 +403,49 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 searchBox.setText("");
             }
         });
+        
+        View searchButton = findViewById(R.id.search_button);
+        searchButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				final String addrInput = searchBox.getText().toString();
+                boolean handled = StringUtils.isNotBlank(addrInput);
+                if(handled){
+                    searchAddress(addrInput, true);
+                    InputMethodManager imm = (InputMethodManager)getSystemService(
+                            Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    hideSearchResultList();
+                    showDropDown.set(false);
+                }
+			}
+		});
+        
+        
+        from = (TextView) findViewById(R.id.from);
+        to = (TextView) findViewById(R.id.to);
+        from.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				searchBox.setHint(Html.fromHtml("<b>Current Location</b>"));
+				from.setBackgroundResource(0);
+				from.setTextColor(getResources().getColor(R.color.light_blue));
+				to.setBackgroundResource(R.drawable.top_gray_shadow);
+				to.setTextColor(getResources().getColor(R.color.lighter_gray));
+			}
+		});
+        
+        to.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				searchBox.setHint(Html.fromHtml("<b>Enter Destination</b>"));
+				to.setBackgroundResource(0);
+				to.setTextColor(getResources().getColor(R.color.light_blue));
+				from.setBackgroundResource(R.drawable.top_gray_shadow);
+				from.setTextColor(getResources().getColor(R.color.lighter_gray));
+
+			}
+		});
         
         String intentAddress = getIntentAddress(getIntent());
         boolean hasIntentAddr = StringUtils.isNotBlank(intentAddress); 
@@ -847,7 +916,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             @Override
             public void onClick(View v) {}
         };
-        findViewById(R.id.header_panel).setOnClickListener(noopClick);
+//        findViewById(R.id.header_panel).setOnClickListener(noopClick);
         findViewById(R.id.left_drawer).setOnClickListener(noopClick);
         tripPanel.setOnClickListener(noopClick);
         onTheWayPanel.setOnClickListener(noopClick);
@@ -880,9 +949,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 //        Font.setTypeface(Font.getBold(assets), tripAddr);
         Font.setTypeface(Font.getLight(assets), tripAddr, osmCredit, searchBox, nextTripInfo,
             rewardsMenu, shareMenu, feedbackMenu, settingsMenu, logoutMenu,
-            tripDetails, getGoingBtn, rescheBtn, (TextView)findViewById(R.id.header_text),
-            (TextView)findViewById(R.id.menu_bottom_text),
+            tripDetails, getGoingBtn, rescheBtn, (TextView)findViewById(R.id.menu_bottom_text),
             (TextView)findViewById(R.id.on_the_way_msg), onTheWayBtn);
+        
     }
     
     private boolean isBottomPanelOpen() {
@@ -942,14 +1011,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         RelativeLayout.LayoutParams centerMapIconLp = (RelativeLayout.LayoutParams) centerMapIcon.getLayoutParams();
         centerMapIconLp.bottomMargin = Dimension.dpToPx(bottomMargin, getResources().getDisplayMetrics());
         centerMapIcon.setLayoutParams(centerMapIconLp);
-        View menuIcon = findViewById(R.id.drawer_menu_icon);
-        FrameLayout.LayoutParams menuIconLp = (FrameLayout.LayoutParams) menuIcon.getLayoutParams();
-        menuIconLp.bottomMargin = Dimension.dpToPx(bottomMargin, getResources().getDisplayMetrics());
-        menuIcon.setLayoutParams(menuIconLp);
-        View openedMenuIcon = findViewById(R.id.drawer_menu_icon_opened);
-        LinearLayout.LayoutParams openedMenuIconLp = (LinearLayout.LayoutParams) openedMenuIcon.getLayoutParams();
-        openedMenuIconLp.bottomMargin = Dimension.dpToPx(bottomMargin, getResources().getDisplayMetrics());
-        openedMenuIcon.setLayoutParams(openedMenuIconLp);
+//        View menuIcon = findViewById(R.id.drawer_menu_icon);
+//        FrameLayout.LayoutParams menuIconLp = (FrameLayout.LayoutParams) menuIcon.getLayoutParams();
+//        menuIconLp.bottomMargin = Dimension.dpToPx(bottomMargin, getResources().getDisplayMetrics());
+//        menuIcon.setLayoutParams(menuIconLp);
+//        View openedMenuIcon = findViewById(R.id.drawer_menu_icon_opened);
+//        LinearLayout.LayoutParams openedMenuIconLp = (LinearLayout.LayoutParams) openedMenuIcon.getLayoutParams();
+//        openedMenuIconLp.bottomMargin = Dimension.dpToPx(bottomMargin, getResources().getDisplayMetrics());
+//        openedMenuIcon.setLayoutParams(openedMenuIconLp);
     }
     
     private void searchAddress(final String addrStr, final boolean zoomIn){
@@ -1020,12 +1089,20 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         for(Address a : searchAddresses) {
         	autoCompleteAdapter.add(a);
         }
-        if(!searchBox.getAdapter().isEmpty() && showDropDown.get()) {
-        	searchBox.showDropDown();
+        if(!searchResultList.getAdapter().isEmpty() && showDropDown.get()) {
+        	showSearchResultList();
         }else{
-            searchBox.dismissDropDown();
+        	hideSearchResultList();
         }
+    }
     
+    private void hideSearchResultList() {
+    	autoCompleteAdapter.clear();
+    	searchResultList.setVisibility(View.GONE);
+    }
+    
+    private void showSearchResultList() {
+    	searchResultList.setVisibility(View.VISIBLE);
     }
     
     private static class BalloonModel {
@@ -1624,10 +1701,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
             @Override
             protected void onPostExecute(City result) {
-                final ImageView skylineView = (ImageView) findViewById(R.id.skyline_bg);
+//                final ImageView skylineView = (ImageView) findViewById(R.id.skyline_bg);
                 final ImageView cityImgView = (ImageView) findViewById(R.id.city_logo);
                 final View bottomText = findViewById(R.id.menu_bottom_text);
-                final TextView headerText = (TextView)findViewById(R.id.header_text);
+//                final TextView headerText = (TextView)findViewById(R.id.header_text);
                 if(result != null && StringUtils.isNotBlank(result.html)){
                     if(alertAvailability){
                         CharSequence msg = Html.fromHtml(result.html);
@@ -1637,18 +1714,18 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             dialog.show();
                         }catch(Throwable t){}
                     }
-                    skylineView.setImageResource(R.drawable.skyline);
+//                    skylineView.setImageResource(R.drawable.skyline);
                     cityImgView.setVisibility(View.GONE);
                     bottomText.setVisibility(View.GONE);
-                    headerText.setVisibility(View.GONE);
+//                    headerText.setVisibility(View.GONE);
                 }else{
                     LoadImageTask skylineTask = new LoadImageTask(LandingActivity2.this, result.skyline) {
                         protected void onPostExecute(final Bitmap rs) {
-                            if(rs != null){
-                                skylineView.setImageBitmap(rs);
-                            }else{
-                                skylineView.setImageResource(R.drawable.skyline);
-                            }
+//                            if(rs != null){
+//                                skylineView.setImageBitmap(rs);
+//                            }else{
+//                                skylineView.setImageResource(R.drawable.skyline);
+//                            }
                         }
                     };
                     Misc.parallelExecute(skylineTask);
@@ -1665,10 +1742,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         }
                     };
                     Misc.parallelExecute(logoTask);
-                    headerText.setVisibility(View.VISIBLE);
-                    headerText.setText(result.name + " | " 
-                        + Double.valueOf(result.temperature).intValue() + "°" 
-                        + result.temperatureUnit);
+//                    headerText.setVisibility(View.VISIBLE);
+//                    headerText.setText(result.name + " | " 
+//                        + Double.valueOf(result.temperature).intValue() + "°" 
+//                        + result.temperatureUnit);
                     
                     cityRange = new RouteRect(Double.valueOf(result.maxLat * 1E6).intValue(), 
                     		Double.valueOf(result.maxLon * 1E6).intValue(), Double.valueOf(result.minLat * 1E6).intValue(), 
@@ -1796,6 +1873,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 ReverseGeocodingTask task = new ReverseGeocodingTask(LandingActivity2.this, lat, lon){
                     @Override
                     protected void onPostExecute(String result) {
+                    	searchBox.clearFocus();
                         refreshPOIMarker(mapView, lat, lon, result, "");
                     }
                 };
@@ -1803,6 +1881,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
             @Override
             public void onSingleTap() {
+            	searchBox.clearFocus();
                 boolean handledStarred = hideStarredBalloon();
                 boolean handledBulb = hideBulbBalloon();
                 boolean handledPOI = removePOIMarker(mapView);
@@ -1833,7 +1912,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private void resizeMap(boolean collapsed){
         View mapView = findViewById(R.id.mapview);
         mapView.setTag(collapsed);
-        findViewById(R.id.header_panel).setVisibility(collapsed?View.VISIBLE:View.GONE);
+//        findViewById(R.id.header_panel).setVisibility(collapsed?View.VISIBLE:View.GONE);
         if(collapsed){
             findViewById(R.id.bottom_bar).setVisibility(View.VISIBLE);
         }else{
