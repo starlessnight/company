@@ -35,51 +35,65 @@ public class GCMIntentService extends GCMBaseIntentService {
 	protected void onMessage(Context context, Intent intent) {
 	    try {
     		Log.i(LOG_TAG, "GCMIntentService onMessage called");
-    		Log.i(LOG_TAG, "Origin: " + intent.getStringExtra("origin"));
-    		Log.i(LOG_TAG, "Destination: " + intent.getStringExtra("destination"));
-    		Log.i(LOG_TAG, "Time: " + intent.getStringExtra("time"));
-    		Log.i(LOG_TAG, "Message: " + intent.getStringExtra("message"));
-    		
-    		String origin = intent.getStringExtra("origin");
-    		String destination = intent.getStringExtra("destination");
-    		String message = intent.getStringExtra("message");
-    		
-    		long departureTime = intent.getLongExtra("time", 0) * 1000;
-    		if(departureTime == 0){
-    		    departureTime = System.currentTimeMillis();
-    		}
-    		
-    		Intent routeIntent = new Intent(context, RouteActivity.class);
-            routeIntent.putExtra(RouteActivity.ORIGIN_ADDR, origin);
-            routeIntent.putExtra(RouteActivity.DEST_ADDR, destination);
-            
-    		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            
-            Notification notification = new Notification(R.drawable.icon_small, "Metropia", departureTime);
-            PendingIntent pendingIntent;
-            
-            String body = intent.getStringExtra("body");
-            if(body != null){
-                double lat = Double.parseDouble(intent.getStringExtra("lat"));
-                double lon = Double.parseDouble(intent.getStringExtra("lon"));
-                Intent landingIntent = new Intent(context, RouteActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                landingIntent.putExtra(RouteActivity.LAT, lat);
-                landingIntent.putExtra(RouteActivity.LON, lon);
-                landingIntent.putExtra(RouteActivity.MSG, body);
-                pendingIntent = PendingIntent.getActivity(context, 0, landingIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                Intent onTheWayIntent = new Intent(LandingActivity2.ON_THE_WAY_NOTICE);
-                onTheWayIntent.putExtra(LandingActivity2.LAT, lat);
-                onTheWayIntent.putExtra(LandingActivity2.LON, lon);
-                onTheWayIntent.putExtra(LandingActivity2.MSG, body);
-                sendBroadcast(onTheWayIntent);
-            }else{
-                pendingIntent = PendingIntent.getActivity(context, 0, routeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+    		String type = intent.getStringExtra("type");
+    		//type = "pretrip";
+    		if("pretrip".equalsIgnoreCase(type)){
+    		    String msg = intent.getStringExtra("message");
+    		    //msg = "Your travel time has changed. Would you like to make a new reservation?";
+                Intent alertIntent = new Intent(context, PreTripAlertActivity.class);
+                long rId = intent.getLongExtra("reservation_id", 0);
+                //rId = 201405090800L;
+                alertIntent.putExtra(PreTripAlertActivity.ID, rId);
+                alertIntent.putExtra(PreTripAlertActivity.MSG, msg);
+                alertIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(alertIntent);
+            }else{ 
+                Log.i(LOG_TAG, "Origin: " + intent.getStringExtra("origin"));
+                Log.i(LOG_TAG, "Destination: " + intent.getStringExtra("destination"));
+                Log.i(LOG_TAG, "Time: " + intent.getStringExtra("time"));
+                Log.i(LOG_TAG, "Message: " + intent.getStringExtra("message"));
+                
+                String origin = intent.getStringExtra("origin");
+                String destination = intent.getStringExtra("destination");
+                String message = intent.getStringExtra("message");
+                
+        		long departureTime = intent.getLongExtra("time", 0) * 1000;
+        		if(departureTime == 0){
+        		    departureTime = System.currentTimeMillis();
+        		}
+        		
+        		Intent routeIntent = new Intent(context, RouteActivity.class);
+                routeIntent.putExtra(RouteActivity.ORIGIN_ADDR, origin);
+                routeIntent.putExtra(RouteActivity.DEST_ADDR, destination);
+                
+        		NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                
+                Notification notification = new Notification(R.drawable.icon_small, "Metropia", departureTime);
+                PendingIntent pendingIntent;
+                
+                String body = intent.getStringExtra("body");
+                if(body != null){
+                    double lat = Double.parseDouble(intent.getStringExtra("lat"));
+                    double lon = Double.parseDouble(intent.getStringExtra("lon"));
+                    Intent landingIntent = new Intent(context, RouteActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    landingIntent.putExtra(RouteActivity.LAT, lat);
+                    landingIntent.putExtra(RouteActivity.LON, lon);
+                    landingIntent.putExtra(RouteActivity.MSG, body);
+                    pendingIntent = PendingIntent.getActivity(context, 0, landingIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    Intent onTheWayIntent = new Intent(LandingActivity2.ON_THE_WAY_NOTICE);
+                    onTheWayIntent.putExtra(LandingActivity2.LAT, lat);
+                    onTheWayIntent.putExtra(LandingActivity2.LON, lon);
+                    onTheWayIntent.putExtra(LandingActivity2.MSG, body);
+                    sendBroadcast(onTheWayIntent);
+                }else{
+                    pendingIntent = PendingIntent.getActivity(context, 0, routeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                }
+                notification.setLatestEventInfo(context, "Metropia", message, pendingIntent);
+                
+                notification.flags = Notification.FLAG_AUTO_CANCEL;
+                notificationManager.notify(0, notification);
             }
-            notification.setLatestEventInfo(context, "Metropia", message, pendingIntent);
-            
-            notification.flags = Notification.FLAG_AUTO_CANCEL;
-            notificationManager.notify(0, notification);
             
             Misc.playDefaultNotificationSound(context);
             Misc.wakeUpScreen(context, GCMIntentService.class.getSimpleName());
