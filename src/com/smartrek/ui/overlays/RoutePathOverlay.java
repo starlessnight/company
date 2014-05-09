@@ -26,7 +26,7 @@ import com.smartrek.utils.RouteNode;
 
 public class RoutePathOverlay extends Overlay {
 	
-    public static final int GREEN = 0xFF6CBD44; 
+    public static final int GREEN = 0xFF99CC00; 
     
     public static final int BLUE = 0xFF0089E8;
     
