@@ -1715,10 +1715,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
             @Override
             protected void onPostExecute(City result) {
-//                final ImageView skylineView = (ImageView) findViewById(R.id.skyline_bg);
                 final ImageView cityImgView = (ImageView) findViewById(R.id.city_logo);
                 final View bottomText = findViewById(R.id.menu_bottom_text);
-//                final TextView headerText = (TextView)findViewById(R.id.header_text);
                 if(result != null && StringUtils.isNotBlank(result.html)){
                     if(alertAvailability){
                         CharSequence msg = Html.fromHtml(result.html);
@@ -1728,42 +1726,29 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             dialog.show();
                         }catch(Throwable t){}
                     }
-//                    skylineView.setImageResource(R.drawable.skyline);
                     cityImgView.setVisibility(View.GONE);
                     bottomText.setVisibility(View.GONE);
-//                    headerText.setVisibility(View.GONE);
                 }else{
-                    LoadImageTask skylineTask = new LoadImageTask(LandingActivity2.this, result.skyline) {
-                        protected void onPostExecute(final Bitmap rs) {
-//                            if(rs != null){
-//                                skylineView.setImageBitmap(rs);
-//                            }else{
-//                                skylineView.setImageResource(R.drawable.skyline);
-//                            }
-                        }
-                    };
-                    Misc.parallelExecute(skylineTask);
-                    LoadImageTask logoTask = new LoadImageTask(LandingActivity2.this, result.logo) {
-                        protected void onPostExecute(final Bitmap rs) {
-                            if(rs != null){
-                                cityImgView.setVisibility(View.VISIBLE);
-                                cityImgView.setImageBitmap(rs);
-                                bottomText.setVisibility(View.VISIBLE);
-                            }else{
-                                cityImgView.setVisibility(View.GONE);
-                                bottomText.setVisibility(View.GONE);
+                    try{
+                        LoadImageTask logoTask = new LoadImageTask(LandingActivity2.this, result.logo) {
+                            protected void onPostExecute(final Bitmap rs) {
+                                if(rs != null){
+                                    cityImgView.setVisibility(View.VISIBLE);
+                                    cityImgView.setImageBitmap(rs);
+                                    bottomText.setVisibility(View.VISIBLE);
+                                }else{
+                                    cityImgView.setVisibility(View.GONE);
+                                    bottomText.setVisibility(View.GONE);
+                                }
                             }
-                        }
-                    };
-                    Misc.parallelExecute(logoTask);
-//                    headerText.setVisibility(View.VISIBLE);
-//                    headerText.setText(result.name + " | " 
-//                        + Double.valueOf(result.temperature).intValue() + "°" 
-//                        + result.temperatureUnit);
-                    
-                    cityRange = new RouteRect(Double.valueOf(result.maxLat * 1E6).intValue(), 
+                        };
+                        Misc.parallelExecute(logoTask);
+                    }catch(Throwable t){}
+                    try{
+                        cityRange = new RouteRect(Double.valueOf(result.maxLat * 1E6).intValue(), 
                     		Double.valueOf(result.maxLon * 1E6).intValue(), Double.valueOf(result.minLat * 1E6).intValue(), 
                     		Double.valueOf(result.minLon * 1E6).intValue());
+                    }catch(Throwable t){}
                 }
                 if(callback != null){
                     callback.run();
