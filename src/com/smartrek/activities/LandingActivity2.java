@@ -44,10 +44,12 @@ import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnLongClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -334,6 +336,15 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             	}
             }
         });
+        searchResultList.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				InputMethodManager imm = (InputMethodManager)getSystemService(
+                        Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
+                return false;
+			}
+		});
         final View searchBoxClear = findViewById(R.id.search_box_clear);
         DelayTextWatcher delayTextWatcher = new DelayTextWatcher(new TextChangeListener(){
 			@Override
