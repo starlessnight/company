@@ -1714,7 +1714,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				speakIfTtsEnabled("Arrive at Destination", false);
 				displayArrivalMsg();
 			}
 		});
