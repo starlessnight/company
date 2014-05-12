@@ -159,7 +159,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private View bottomPanel;
     
-    private AtomicBoolean showReservRoute = new AtomicBoolean();
+    private AtomicBoolean drawReservRoute = new AtomicBoolean(true);
     
     private EditText searchBox; 
     
@@ -497,7 +497,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                 refreshCobranding(lat, lon, alertAvailability, new Runnable() {
                                     public void run() {
                                         refreshBulbPOIs(lat , lon, rezoom);
-                                        if(!showReservRoute.getAndSet(true)) {
+                                        if(drawReservRoute.getAndSet(false)) {
                                         	refreshTripsInfo();
                                         }
                                     }
@@ -1211,6 +1211,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         sendBroadcast(new Intent(TRIP_INFO_UPDATES));
         mapRefresh.set(true);
         prepareGPS();
+        drawedReservId = Long.valueOf(-1);
+        refreshTripsInfo();
         mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
         mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_GAME);
     }
@@ -1351,7 +1353,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private Long drawedReservId = Long.valueOf(-1);
     
     private void drawRoute(final Reservation reserv) {
-    	if(!drawedReservId.equals(reserv.getRid()) && showReservRoute.get()) {
+    	if(!drawedReservId.equals(reserv.getRid())) {
     		drawedReservId = reserv.getRid();
 			final AsyncTask<Void, Void, List<Route>> routeTask = new AsyncTask<Void, Void, List<Route>>() {
 	            @Override
