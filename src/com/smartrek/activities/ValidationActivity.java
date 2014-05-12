@@ -568,7 +568,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		MenuInflater mi = getMenuInflater();
-		mi.inflate(R.menu.validation, menu);
+		//mi.inflate(R.menu.validation, menu);
 		return true;
 	}
 
