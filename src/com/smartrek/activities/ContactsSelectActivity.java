@@ -33,6 +33,7 @@ import android.text.TextWatcher;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -106,7 +107,7 @@ public class ContactsSelectActivity extends FragmentActivity {
                     if(emailFormatIsGood(newEmail)) {
                         manualInputEmail.add(newEmail);
                         selectedContactEmails.add(newEmail);
-                        updateContactList(newEmail);
+                        searchTextView.setText("");
                     }
                     else {
                         NotificationDialog dialog = new NotificationDialog(ContactsSelectActivity.this, 
@@ -138,6 +139,17 @@ public class ContactsSelectActivity extends FragmentActivity {
 			}
 			
 		});
+		
+		searchTextView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = addButton.getVisibility() == View.VISIBLE;
+                if(handled){
+                    addButton.performClick();
+                }
+                return handled;
+            }
+        });
 		
 		contactListAdapter = new ContactsAdapter();
 		contactListView = (ListView) findViewById(R.id.contacts_list);
