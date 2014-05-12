@@ -966,7 +966,6 @@ public final class RouteActivity extends FragmentActivity {
                     public boolean onLongPress(int index, OverlayItem item) {
                         return false;
                     }
-                    
                     @Override
                     public boolean onClose() {
                         return false;
@@ -979,7 +978,6 @@ public final class RouteActivity extends FragmentActivity {
                         return false;
                     }
                 });
-            	routeDestOverlays[i].showBalloonOverlay();
             }
             /*for (int i = 0; i < possibleRoutes.size(); i++) {
             	mapOverlays.add(routeInfoOverlays[i]);
@@ -1072,6 +1070,12 @@ public final class RouteActivity extends FragmentActivity {
      ****************************************************************************************************************/
     public void drawRoute (MapView mapView, Route route, int routeNum) {
         mapOverlays = mapView.getOverlays();
+        
+        for (Overlay o : mapOverlays) {
+            if(o instanceof RouteDestinationOverlay){
+                ((RouteDestinationOverlay) o).hideBalloon();
+            }
+        }
         
         if(routeNum == 0)
             mapOverlays.clear();
