@@ -11,10 +11,14 @@ import com.smartrek.utils.Cache;
 public class ReservationFetchRequest extends FetchRequest<Reservation> {
     
 	public ReservationFetchRequest(User user, long rid) {
-		super(buildUrl(rid));
-	    username = user.getUsername();
-	    password = user.getPassword();
+		this(user, buildUrl(rid));
 	}
+	
+	public ReservationFetchRequest(User user, String url) {
+        super(url);
+        username = user.getUsername();
+        password = user.getPassword();
+    }
 
 	@Override
 	public Reservation execute(Context ctx) throws Exception {

@@ -36,14 +36,11 @@ public class GCMIntentService extends GCMBaseIntentService {
 	    try {
     		Log.i(LOG_TAG, "GCMIntentService onMessage called");
     		String type = intent.getStringExtra("type");
-    		//type = "pretrip";
     		if("pretrip".equalsIgnoreCase(type)){
     		    String msg = intent.getStringExtra("message");
-    		    //msg = "Your travel time has changed. Would you like to make a new reservation?";
                 Intent alertIntent = new Intent(context, PreTripAlertActivity.class);
-                long rId = intent.getLongExtra("reservation_id", 0);
-                //rId = 201405090845L;
-                alertIntent.putExtra(PreTripAlertActivity.ID, rId);
+                String rUrl = intent.getStringExtra("reservation");
+                alertIntent.putExtra(PreTripAlertActivity.URL, rUrl);
                 alertIntent.putExtra(PreTripAlertActivity.MSG, msg);
                 alertIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(alertIntent);

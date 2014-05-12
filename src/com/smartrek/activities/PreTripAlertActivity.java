@@ -21,7 +21,7 @@ import com.smartrek.utils.Misc;
 
 public final class PreTripAlertActivity extends Activity {
 	
-    public static final String ID = "id";
+    public static final String URL = "url";
     
     public static final String MSG = "msg";
     
@@ -44,7 +44,7 @@ public final class PreTripAlertActivity extends Activity {
         });
         
         TextView next = (TextView)findViewById(R.id.next);
-        final long id = extras.getLong(ID);
+        final String url = extras.getString(URL);
         next.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,7 +62,7 @@ public final class PreTripAlertActivity extends Activity {
                         Reservation reserv = null;
                         try {
                             reserv = new ReservationFetchRequest(
-                                User.getCurrentUser(PreTripAlertActivity.this), id)
+                                User.getCurrentUser(PreTripAlertActivity.this), url)
                                 .execute(PreTripAlertActivity.this);
                         }
                         catch (Exception e) {}
