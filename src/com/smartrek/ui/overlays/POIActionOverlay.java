@@ -3,6 +3,7 @@ package com.smartrek.ui.overlays;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
+import org.osmdroid.views.overlay.OverlayItem.HotspotPlace;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -30,7 +31,7 @@ public class POIActionOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private int aid;
 	
 	public POIActionOverlay(MapView mapview, GeoPoint point, Typeface headerFont, Typeface bodyFont,
-	        String address, String label, int marker) {
+	        String address, String label, int marker, HotspotPlace markerHotspot) {
 		super(pinDrawable(mapview.getContext(), marker),
 	        mapview, null, headerFont, bodyFont);
 		
@@ -49,6 +50,7 @@ public class POIActionOverlay extends BalloonItemizedOverlay<OverlayItem> {
 				"",
 				"",
 				point);
+		item.setMarkerHotspot(markerHotspot);
 		addItem(item);
 		
 		mOnItemGestureListener = new OnItemGestureListener<OverlayItem>() {

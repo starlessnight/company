@@ -14,6 +14,7 @@ import org.osmdroid.api.IMapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
+import org.osmdroid.views.overlay.OverlayItem.HotspotPlace;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -1592,7 +1593,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             final POIActionOverlay star = new POIActionOverlay(mapView, 
                                 gp, 
                                 boldFont, lightFont, a.getAddress(), a.getName(), 
-                                R.drawable.star_poi);
+                                R.drawable.star_poi, HotspotPlace.CENTER);
                             star.setAid(a.getId());
                             star.setBalloonOffsetY(Dimension.dpToPx(-17, getResources().getDisplayMetrics()));
                             star.setCallback(new OverlayCallback() {
@@ -1963,7 +1964,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         final GeoPoint gp = new GeoPoint(lat, lon);
         POIActionOverlay marker = new POIActionOverlay(mapView, 
             gp, Font.getBold(getAssets()), Font.getLight(getAssets()),
-            address, label, R.drawable.marker_poi);
+            address, label, R.drawable.marker_poi, HotspotPlace.BOTTOM_CENTER);
         marker.setCallback(new OverlayCallback() {
             @Override
             public boolean onTap(int index) {
@@ -2048,7 +2049,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         for(final com.smartrek.requests.WhereToGoRequest.Location l:locs){
             final GeoPoint gp = new GeoPoint(l.lat, l.lon);
             final POIActionOverlay bulb = new POIActionOverlay(mapView, gp, boldFont, lightFont, 
-                    l.addr, "", R.drawable.bulb_poi);
+                    l.addr, "", R.drawable.bulb_poi, HotspotPlace.CENTER);
             bulb.setBalloonOffsetY(Dimension.dpToPx(-17, getResources().getDisplayMetrics()));
             bulb.setCallback(new OverlayCallback() {
                 @Override
