@@ -743,7 +743,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         refreshStarredPOIs();
                         ImageView saveOrDelView = (ImageView)balloonView.findViewById(R.id.saveOrDelete);
                         if (ehs.hasExceptions()) {
-                            ehs.reportExceptions();
+                            //ehs.reportExceptions();
                             if(!isSave){
                                 model.id = oldId;
                                 saveOrDelView.setImageResource(R.drawable.delete_star_poi);
