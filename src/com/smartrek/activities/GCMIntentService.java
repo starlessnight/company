@@ -1,5 +1,8 @@
 package com.smartrek.activities;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -70,6 +73,7 @@ public class GCMIntentService extends GCMBaseIntentService {
                 
                 String body = intent.getStringExtra("body");
                 if(body != null){
+                    body += "\n" + new SimpleDateFormat("MMM d, h:m a").format(new Date());
                     double lat = Double.parseDouble(intent.getStringExtra("lat"));
                     double lon = Double.parseDouble(intent.getStringExtra("lon"));
                     Intent landingIntent = new Intent(context, RouteActivity.class);
