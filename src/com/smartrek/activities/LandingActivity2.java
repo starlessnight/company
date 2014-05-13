@@ -3,7 +3,6 @@ package com.smartrek.activities;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -373,17 +372,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         				@Override
         				protected void onPostExecute(List<Address> addresses) {
         					searchAddresses.clear();
-        					Collections.sort(addresses, new Comparator<Address>() {
-								@Override
-								public int compare(Address lhs, Address rhs) {
-									if(StringUtils.isNotBlank(lhs.getDistance()) && StringUtils.isNotBlank(rhs.getDistance())) {
-										return Double.valueOf(lhs.getDistance()).compareTo(Double.valueOf(rhs.getDistance()));
-									}
-									else {
-										return StringUtils.isBlank(lhs.getDistance()) ? (StringUtils.isBlank(rhs.getDistance()) ? 0 : -1) : 1;
-									}
-								}
-							});
         					for(Address a:addresses){
         					    if(StringUtils.isNotBlank(a.getAddress())){
         					        searchAddresses.add(a);
