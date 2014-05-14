@@ -577,119 +577,155 @@
 	    <RelativeLayout
 		        android:layout_width="match_parent"
 		        android:layout_height="match_parent"
-		        android:background="@color/light_gray_background">
+		        android:background="@color/transparent_black">
 			
-	        <FrameLayout 
-		        android:id="@+id/color_bar"
-		        android:layout_height="wrap_content"
-		        android:layout_width="match_parent"
-		        android:layout_alignParentTop="true">
-			    
-	            <include layout="@layout/metropia_color_bar"/>
-	                
-	        </FrameLayout>
-	            
 		    <LinearLayout 
 			        android:layout_width="match_parent"
 			        android:layout_height="wrap_content"
-			        android:layout_below="@+id/color_bar"
 			        android:orientation="vertical"
-			        android:layout_marginTop="93dp"
-			        android:layout_marginLeft="20dp"
-			        android:layout_marginRight="20dp">
-			    
+			        android:layout_alignParentTop="true"
+			        android:layout_marginTop="93dp">
+		        
+		        <TextView 
+		       	    android:id="@+id/new_trip"
+		       	    android:layout_width="match_parent"
+			        android:layout_height="wrap_content"
+		        	android:text="New Trip"
+		        	android:textSize="@dimen/smaller_font"
+	       			android:textColor="@android:color/white"
+	       			android:drawablePadding="10dp"
+	       			android:drawableLeft="@drawable/menu_trip"
+	       			android:drawableRight="@drawable/menu_right_arrow"
+		        	android:singleLine="true"
+			        android:layout_marginLeft="10dp"
+			        android:layout_marginRight="10dp"/>
+		        
+		        <View
+	            	android:layout_width="match_parent"
+			        android:layout_height="1dp" 
+			        android:background="#929497"
+			        android:layout_marginTop="10dp"/>
+		        
 		        <TextView 
 		       	    android:id="@+id/dashboard"
 		       	    android:layout_width="match_parent"
 			        android:layout_height="wrap_content"
 		        	android:text="My metropia"
 		        	android:textSize="@dimen/smaller_font"
-	       			android:textColor="@color/gray"
+	       			android:textColor="@android:color/white"
 	       			android:drawablePadding="10dp"
 	       			android:drawableLeft="@drawable/menu_rewards"
 	       			android:drawableRight="@drawable/menu_right_arrow"
 		        	android:singleLine="true"
-				/>
+		        	android:layout_marginTop="10dp"
+			        android:layout_marginLeft="10dp"
+			        android:layout_marginRight="10dp"/>
+		        
 		        <View
 	            	android:layout_width="match_parent"
-			        android:layout_height="2dp" 
+			        android:layout_height="1dp" 
 			        android:background="#929497"
-			        android:layout_marginTop="15dp"
-			        android:layout_marginLeft="28dp"
-				/>
+			        android:layout_marginTop="10dp"/>
+		        
+		        <TextView 
+		       	    android:id="@+id/reservations"
+		       	    android:layout_width="match_parent"
+			        android:layout_height="wrap_content"
+		        	android:text="Reservations"
+		        	android:textSize="@dimen/smaller_font"
+	       			android:textColor="@android:color/white"
+	       			android:drawablePadding="10dp"
+	       			android:drawableLeft="@drawable/menu_reservations"
+	       			android:drawableRight="@drawable/menu_right_arrow"
+		        	android:singleLine="true"
+		        	android:layout_marginTop="10dp"
+			        android:layout_marginLeft="10dp"
+			        android:layout_marginRight="10dp"/>
+		        
+		        <View
+	            	android:layout_width="match_parent"
+			        android:layout_height="1dp" 
+			        android:background="#929497"
+			        android:layout_marginTop="10dp"/>
+		        
 		        <TextView 
 		       	    android:id="@+id/share_menu"
 		       	    android:layout_width="match_parent"
 			        android:layout_height="wrap_content"
 		        	android:text="Share"
 		        	android:textSize="@dimen/smaller_font"
-	       			android:textColor="@color/gray"
+	       			android:textColor="@android:color/white"
 	       			android:drawablePadding="10dp"
-	       			android:drawableLeft="@drawable/menu_share"
+	       			android:drawableLeft="@drawable/menu_share_new"
 	       			android:drawableRight="@drawable/menu_right_arrow"
 		        	android:singleLine="true"
-		        	android:layout_marginTop="15dp"
-				/>
+		        	android:layout_marginTop="10dp"
+			        android:layout_marginLeft="10dp"
+			        android:layout_marginRight="10dp"/>
+		        
 		        <View
 	            	android:layout_width="match_parent"
-			        android:layout_height="2dp" 
+			        android:layout_height="1dp" 
 			        android:background="#929497"
-			        android:layout_marginTop="15dp"
-			        android:layout_marginLeft="28dp"
-				/>
+			        android:layout_marginTop="10dp"/>
+		        
 		        <TextView 
 		       	    android:id="@+id/feedback_menu"
 		       	    android:layout_width="match_parent"
 			        android:layout_height="wrap_content"
 		        	android:text="Feedback"
 		        	android:textSize="@dimen/smaller_font"
-	       			android:textColor="@color/gray"
+	       			android:textColor="@android:color/white"
 	       			android:drawablePadding="10dp"
 	       			android:drawableLeft="@drawable/menu_feedback"
 	       			android:drawableRight="@drawable/menu_right_arrow"
 		        	android:singleLine="true"
-		        	android:layout_marginTop="15dp"
-				/>
+		        	android:layout_marginTop="10dp"
+			        android:layout_marginLeft="10dp"
+			        android:layout_marginRight="10dp"/>
+		        
 		        <View
 	            	android:layout_width="match_parent"
-			        android:layout_height="2dp" 
+			        android:layout_height="1dp" 
 			        android:background="#929497"
-			        android:layout_marginTop="15dp"
-			        android:layout_marginLeft="28dp"
-				/>
+			        android:layout_marginTop="10dp"/>
+		        
 		        <TextView 
 		       	    android:id="@+id/map_display_options"
 		       	    android:layout_width="match_parent"
 			        android:layout_height="wrap_content"
 		        	android:text="Settings"
 		        	android:textSize="@dimen/smaller_font"
-	       			android:textColor="@color/gray"
+	       			android:textColor="@android:color/white"
 	       			android:drawablePadding="10dp"
 	       			android:drawableLeft="@drawable/menu_settings"
 	       			android:drawableRight="@drawable/menu_right_arrow"
 		        	android:singleLine="true"
-		        	android:layout_marginTop="15dp"
-				/>
+		        	android:layout_marginTop="10dp"
+			        android:layout_marginLeft="10dp"
+			        android:layout_marginRight="10dp"/>
+		        
 		        <View
 	            	android:layout_width="match_parent"
-			        android:layout_height="2dp" 
+			        android:layout_height="1dp" 
 			        android:background="#929497"
-			        android:layout_marginTop="15dp"
-			        android:layout_marginLeft="28dp"
-				/>
+			        android:layout_marginTop="10dp"/>
+		        
 		        <TextView 
 		       	    android:id="@+id/logout_option"
 		       	    android:layout_width="match_parent"
 			        android:layout_height="wrap_content"
 		        	android:text="Logout"
 		        	android:textSize="@dimen/smaller_font"
-	       			android:textColor="@color/gray"
+	       			android:textColor="@android:color/white"
 	       			android:drawablePadding="10dp"
 	       			android:drawableLeft="@drawable/menu_logout"
 	       			android:drawableRight="@drawable/menu_right_arrow"
 		        	android:singleLine="true"
-		        	android:layout_marginTop="15dp"
-				/>
+		        	android:layout_marginTop="10dp"
+			        android:layout_marginLeft="10dp"
+			        android:layout_marginRight="10dp"/>
+		        
 		    </LinearLayout>
 		    <ImageView
 		        android:id="@+id/city_logo"
