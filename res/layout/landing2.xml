@@ -18,11 +18,13 @@
 				
 	        <include layout="@layout/mapview" />
 	        
-	        <RelativeLayout
+	        <RelativeLayout 
+	            android:id="@+id/landing_panel"
 	            android:layout_width="fill_parent"
 	            android:layout_height="fill_parent">
 	            
 	            <LinearLayout
+	                android:id="@+id/landing_panel_content"
 	                android:layout_width="match_parent"
 	                android:layout_height="wrap_content"
 	                android:layout_alignParentTop="true"
@@ -327,6 +329,240 @@
 	            
 	        </RelativeLayout>
 	        
+	        <RelativeLayout
+	            android:id="@+id/fav_opt"
+	            android:layout_width="fill_parent"
+	            android:layout_height="fill_parent"
+	            android:orientation="vertical"
+	            android:visibility="gone">
+	        
+		        <LinearLayout 
+		            android:layout_width="fill_parent"
+		            android:layout_height="fill_parent"
+		            android:orientation="vertical">
+		            
+			            <FrameLayout 
+			                android:id="@+id/header_panel"
+				        	android:layout_width="match_parent"
+				        	android:layout_height="wrap_content"
+				        	android:background="@android:color/white">
+						    
+					        <TextView 
+					            android:id="@+id/header"
+					            android:layout_width="match_parent"
+					            android:layout_height="wrap_content"
+					            android:gravity="center"
+					            android:layout_gravity="center_vertical"
+					            android:textColor="@android:color/black"
+					            android:textSize="@dimen/smaller_font"
+					            android:text="Add Favorite"
+					            android:paddingTop="5dp"
+					            android:paddingBottom="5dp"
+							/>
+					        
+					        <TextView 
+					            android:id="@+id/fav_cancel"
+					            android:layout_width="wrap_content"
+					            android:layout_height="wrap_content"
+					            android:textColor="@color/light_blue"
+					            android:textSize="@dimen/smaller_font"
+					            android:text="Cancel"
+					            android:layout_gravity="left|center"
+					            android:paddingTop="5dp"
+					            android:paddingBottom="5dp"
+					            android:paddingLeft="10dp"/>
+					        
+					        <TextView 
+					            android:id="@+id/fav_save"
+					            android:layout_width="wrap_content"
+					            android:layout_height="wrap_content"
+					            android:textColor="@color/light_blue"
+					            android:textSize="@dimen/smaller_font"
+					            android:text="Save"
+					            android:layout_gravity="right|center"
+					            android:paddingTop="5dp"
+					            android:paddingBottom="5dp"
+					            android:paddingRight="10dp"/>
+				        </FrameLayout>
+				    
+				        <include
+				            android:layout_width="match_parent"
+				            android:layout_height="10dp"
+				            layout="@layout/metropia_color_bar" />
+				        
+				        <LinearLayout
+				            android:layout_width="match_parent"
+				            android:layout_height="wrap_content"
+				            android:background="@android:color/white"
+				            android:orientation="vertical">
+					        
+				            <LinearLayout
+				                android:layout_width="match_parent"
+				                android:layout_height="wrap_content"
+				                android:padding="10dp"
+				                android:orientation="horizontal">
+					        
+				                <ImageView 
+				                    android:id="@+id/favorite_search_button"
+				                    android:layout_width="wrap_content"
+				                    android:layout_height="wrap_content"
+				                    android:src="@drawable/search_botton"
+				                    android:paddingLeft="5dp"
+				                    android:paddingRight="5dp"/>
+				                
+				                <RelativeLayout
+				                      android:layout_width="match_parent"
+						              android:layout_height="match_parent"
+						              android:paddingRight="10dp">
+				                
+					                <EditText 
+					                    android:id="@+id/favorite_search_box"
+				                        android:layout_width="match_parent"
+						            	android:layout_height="match_parent"
+				                        android:textColor="@color/gray"
+				                        android:textSize="@dimen/smaller_font"
+				                        android:singleLine="true"
+				                        android:background="@android:color/transparent"
+				                        android:paddingLeft="10dp"/>
+					                
+					                <ImageView 
+							            android:id="@+id/fav_search_box_clear"
+							        	android:layout_width="wrap_content"
+							            android:layout_height="wrap_content"
+							            android:layout_alignRight="@+id/favorite_search_box"
+				    					android:layout_centerVertical="true"
+				    					android:layout_gravity="center"
+				    					android:src="@drawable/search_box_clear"/>
+				                
+				                </RelativeLayout>
+				                
+				            </LinearLayout>
+				            
+				            <View 
+				                android:layout_width="fill_parent"
+				                android:layout_height="0.5dp"
+				                android:background="@color/light_gray"/>
+				            
+				            <LinearLayout 
+				                android:layout_width="match_parent"
+				                android:layout_height="wrap_content"
+				                android:orientation="horizontal"
+				                android:padding="5dp">
+				                
+				                <TextView 
+				                    android:layout_height="wrap_content"
+				                    android:layout_width="wrap_content"
+				                    android:text="Label:"
+				                    android:textColor="@color/gray"
+				                    android:textSize="@dimen/smaller_font"
+				                    android:paddingLeft="5dp"
+				                    android:paddingRight="10dp"/>
+				                
+				                <EditText 
+				                    android:id="@+id/label_input"
+				                    android:layout_width="0dp"
+					            	android:layout_height="wrap_content"
+					            	android:layout_weight="1"
+					            	android:layout_marginRight="10dp"
+					            	android:hint="Label"
+			                        android:textColor="@color/gray"
+			                        android:textSize="@dimen/smaller_font"
+			                        android:singleLine="true"
+			                        android:paddingLeft="5dp"/>
+				                
+				            </LinearLayout>
+				            
+				            <View 
+				                android:layout_width="fill_parent"
+				                android:layout_height="0.5dp"
+				                android:background="@color/light_gray"/>
+				            
+				            <LinearLayout 
+				                android:layout_width="match_parent"
+				                android:layout_height="wrap_content"
+				                android:padding="5dp"
+				                android:orientation="vertical">
+				                
+				                <TextView 
+				                    android:id="@+id/icon"
+				                    android:layout_width="fill_parent"
+				                    android:layout_height="wrap_content"
+				                    android:padding="5dp"
+				                    android:text="Select Icon:"
+				                    android:textColor="@color/gray"
+				                    android:textSize="@dimen/smaller_font"
+				                    android:gravity="left|center"/>
+				                
+				                <LinearLayout 
+				                    android:layout_width="fill_parent"
+				                    android:layout_height="wrap_content"
+				                    android:orientation="horizontal"
+				                    android:paddingTop="5dp">
+					            
+				                    <TextView
+				                        android:id="@+id/star"
+				                        android:layout_width="0dp"
+				                        android:layout_height="wrap_content"
+				                        android:layout_weight="1"
+				                        android:drawableTop="@drawable/star"
+				                        android:text="Star"
+				                        android:textColor="@color/gray"
+				                        android:textSize="@dimen/smallest_font"
+				                        android:gravity="center"/>
+				                    
+				                    <TextView
+				                        android:id="@+id/home"
+				                        android:layout_width="0dp"
+				                        android:layout_height="wrap_content"
+				                        android:layout_weight="1"
+				                        android:drawableTop="@drawable/home"
+				                        android:text="Home"
+				                        android:textColor="@color/gray"
+				                        android:textSize="@dimen/smallest_font"
+				                        android:gravity="center"/>
+				                    
+				                    <TextView
+				                        android:id="@+id/work"
+				                        android:layout_width="0dp"
+				                        android:layout_height="wrap_content"
+				                        android:layout_weight="1"
+				                        android:drawableTop="@drawable/work"
+				                        android:text="Work"
+				                        android:textColor="@color/gray"
+				                        android:textSize="@dimen/smallest_font"
+				                        android:gravity="center"/>
+				                    
+				                </LinearLayout>
+				                
+				            </LinearLayout>
+				            
+				        </LinearLayout>
+				        
+				        <ListView 
+				            android:id="@+id/fav_search_result"
+			                android:layout_height="0dp"
+		        			android:layout_width="match_parent"     
+		            		android:layout_weight="1" 
+		            		android:cacheColorHint="#00000000"
+		            		android:divider="@null"
+							android:dividerHeight="0dp"
+							android:background="@color/transparent_white"
+							android:visibility="gone"/>
+			        
+		        </LinearLayout>
+		        
+		        <ImageView 
+		            android:id="@+id/fav_del"
+				    android:layout_width="wrap_content"
+				    android:layout_height="wrap_content"
+				    android:src="@drawable/favorite_delete_icon"
+				    android:layout_alignParentLeft="true"
+				    android:layout_alignParentBottom="true"
+				    android:layout_marginLeft="20dp"
+				    android:layout_marginBottom="20dp"
+				    android:visibility="gone"/>
+		        
+	        </RelativeLayout>
 		</FrameLayout>
 	
 	</LinearLayout>
@@ -337,6 +573,7 @@
 		    android:layout_height="match_parent"
         	android:layout_gravity="start"
         	android:orientation="horizontal">
+	    
 	    <RelativeLayout
 		        android:layout_width="match_parent"
 		        android:layout_height="match_parent"

@@ -29,7 +29,7 @@
 	<color name="dark_blue_highlight">#2a7896</color>
 	<color name="dark_blue_shadow">#123642</color>
 	<color name="transparent_light_red">#80E0574F</color>
-	<color name="transparent_white">#ddffffff</color>
+	<color name="transparent_white">#aaffffff</color>
 	<color name="orange">#FF5F00</color>
 	<color name="pink">#F9C3AF</color>
 </resources>
