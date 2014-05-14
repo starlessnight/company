@@ -109,6 +109,10 @@
 		<item name="android:background">@drawable/new_blue_button</item>
 		<item name="android:gravity">center</item>
 	</style>
+	<style name="WhiteButton">
+		<item name="android:background">@drawable/white_button</item>
+		<item name="android:gravity">center</item>
+	</style>
 	<style name="POITextField">
 	    <item name="android:textColor">@android:color/black</item>
 		<item name="android:background">@drawable/poi_text_field</item>

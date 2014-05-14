@@ -765,6 +765,21 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         findViewById(R.id.fav_del).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				findViewById(R.id.confirm_panel).setVisibility(View.VISIBLE);
+			}
+		});
+        
+        OnClickListener noopClick = new OnClickListener() {
+            @Override
+            public void onClick(View v) {}
+        };
+        
+        findViewById(R.id.confirm_panel).setOnClickListener(noopClick);
+        
+        findViewById(R.id.confirm_del).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				findViewById(R.id.confirm_panel).setVisibility(View.GONE);
 				final View favOpterationPanel = findViewById(R.id.fav_opt);
 				final BalloonModel model = (BalloonModel) favOpterationPanel.getTag();
 				final int oldId = model.id;
@@ -819,6 +834,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                reInitFavoriteOperationPanel();
                favOpterationPanel.setVisibility(View.GONE);
 			   findViewById(R.id.landing_panel).setVisibility(View.VISIBLE);
+			}
+        });
+        
+        findViewById(R.id.confirm_cancel).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				findViewById(R.id.confirm_panel).setVisibility(View.GONE);
 			}
 		});
         
@@ -1179,10 +1201,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         osmCreditLp.bottomMargin = Dimension.dpToPx(48, getResources().getDisplayMetrics());
         osmCredit.setLayoutParams(osmCreditLp);
         
-        OnClickListener noopClick = new OnClickListener() {
-            @Override
-            public void onClick(View v) {}
-        };
 //        findViewById(R.id.header_panel).setOnClickListener(noopClick);
         findViewById(R.id.left_drawer).setOnClickListener(noopClick);
         tripPanel.setOnClickListener(noopClick);
@@ -2515,6 +2533,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	favOptPanel.findViewById(R.id.fav_search_box_clear).setVisibility(model.id!=0?View.GONE:View.VISIBLE);
     	favOptPanel.findViewById(R.id.fav_del).setVisibility(model.id!=0?View.VISIBLE:View.GONE);
     	((TextView)favOptPanel.findViewById(R.id.header)).setText(model.id!=0?"Edit Favorite":"Add Favorite");
+    	((TextView)favOptPanel.findViewById(R.id.fav_save)).setText(model.id!=0?"Done":"Save");
     }
     
     private boolean isBottomBarVisible() {

@@ -563,6 +563,48 @@
 				    android:visibility="gone"/>
 		        
 	        </RelativeLayout>
+	        
+	        <RelativeLayout 
+	            android:id="@+id/confirm_panel"
+	            android:layout_width="fill_parent"
+	            android:layout_height="fill_parent"
+	            android:background="@color/transparent_gray"
+	            android:visibility="gone">
+		        
+	            <LinearLayout 
+	                android:layout_width="fill_parent"
+	                android:layout_height="wrap_content"
+	                android:orientation="vertical"
+	                android:layout_alignParentBottom="true"
+	                android:layout_marginLeft="10dp"
+	                android:layout_marginRight="10dp"
+	                android:layout_marginBottom="10dp">
+				        
+	                <TextView 
+	                    android:id="@+id/confirm_del"
+	                    android:layout_width="match_parent"
+	                    android:layout_height="wrap_content"
+	                    android:layout_marginBottom="5dp"
+	                    android:text="Delete"
+	                    android:textColor="@color/metropia_orange"
+	                    android:textSize="@dimen/smaller_font"
+	                    android:padding="10dp"
+	                    style="@style/WhiteButton"/>
+	                
+	                <TextView 
+	                    android:id="@+id/confirm_cancel"
+	                    android:layout_width="match_parent"
+	                    android:layout_height="wrap_content"
+	                    android:text="Cancel"
+	                    android:textColor="@color/metropia_blue"
+	                    android:textSize="@dimen/smaller_font"
+	                    android:padding="10dp"
+	                    style="@style/WhiteButton"/>"
+	                
+	            </LinearLayout>
+	            
+	        </RelativeLayout>
+	        
 		</FrameLayout>
 	
 	</LinearLayout>
