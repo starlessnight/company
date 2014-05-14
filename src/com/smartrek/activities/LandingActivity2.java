@@ -348,11 +348,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         searchButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+			    searchBox.requestFocus();
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(searchBox, InputMethodManager.SHOW_IMPLICIT);
 				final String addrInput = searchBox.getText().toString();
                 boolean handled = StringUtils.isNotBlank(addrInput);
                 if(handled){
                     searchAddress(addrInput, true);
-                    InputMethodManager imm = (InputMethodManager)getSystemService(
+                    imm = (InputMethodManager)getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     clearSearchResult();
