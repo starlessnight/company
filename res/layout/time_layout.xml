@@ -35,18 +35,24 @@
 		            android:textSize="@dimen/smallest_font"
 		            android:paddingBottom="5dp" 
 				/>
-	            <View 
-	                android:layout_width="match_parent"
-	                android:layout_height="5dp"
-	                android:background="#f1f1f2"/>
+	            <TextView
+		            android:id="@+id/arrive_row"
+		            android:layout_height="31dp"
+		            android:layout_width="match_parent"
+		            android:background="@android:color/white"
+		            android:textColor="#6d6e70"
+		            android:text="Arrive"
+		            android:gravity="center"
+		            android:textSize="@dimen/smallest_font"
+				/>
 	            <TextView
 		            android:id="@+id/duration_row"
 		            android:layout_height="31dp"
 		            android:layout_width="match_parent"
-		            android:background="@color/metropia_orange"
-		            android:textColor="@android:color/white"
+		            android:background="@android:color/white"
+		            android:textColor="#6d6e70"
 		            android:text="Duration"
-		            android:gravity="center"
+		            android:gravity="center|top"
 		            android:textSize="@dimen/smallest_font"
 				/>
 	            <TextView

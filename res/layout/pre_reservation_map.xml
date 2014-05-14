@@ -3,47 +3,23 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" >
-
-    <FrameLayout 
-        	android:layout_width="match_parent"
-        	android:layout_height="wrap_content"
-        	android:background="@android:color/white">
-        <TextView 
-            android:id="@+id/header"
-            android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:gravity="center"
-            android:layout_gravity="center_vertical"
-            android:textColor="#6d6e70"
-            android:textSize="@dimen/smaller_font"
-            android:text="Departure Time"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-		/>
-        <TextView 
-            android:id="@+id/back_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="left"
-            android:textColor="#33add8"
-            android:textSize="@dimen/smallest_font"
-            android:text="Back"
-            android:layout_gravity="center_vertical"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:paddingLeft="10dp"
-            android:drawableLeft="@drawable/back_left_arrow"
-            android:drawablePadding="5dp"
-		/>
-    </FrameLayout>
-    
-    <include layout="@layout/time_layout" />
     
     <FrameLayout android:layout_weight="1"
 	        android:layout_width="match_parent"
 	        android:layout_height="0dp">
-        <include layout="@layout/mapview" />        
+        <include layout="@layout/mapview" />
+        <ImageView
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/map_back_arrow"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_gravity="top|left"
+		/>        
     </FrameLayout>
+    
+    <include layout="@layout/time_layout" />
     
     <LinearLayout
           	android:id="@+id/lets_go_panel"

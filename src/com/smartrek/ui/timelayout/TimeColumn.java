@@ -34,7 +34,8 @@ public final class TimeColumn extends FrameLayout {
     private static final int stripeHieght = 7;
     
 	private TimeButton departureTimeButton;
-	private TimeButton arrivalTimeButton;
+	private TimeButton arriveButton;
+	private TimeButton durationButton;
 	private ProgressBar progressBar;
 	private View bottomSpacing;
 	private View bottomStripe;
@@ -90,12 +91,6 @@ public final class TimeColumn extends FrameLayout {
 		departureTimeButton.setHeight(Dimension.dpToPx(15, dm));
 		timeColumnLayout.addView(departureTimeButton);
 		
-		View centerSpacing = new View(getContext());
-		LinearLayout.LayoutParams centerSpacingLp = new LinearLayout.LayoutParams(
-	            Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(5, dm));
-		centerSpacing.setLayoutParams(centerSpacingLp);
-		timeColumnLayout.addView(centerSpacing);
-		
 		buttonSpacing = new View(getContext());
         LinearLayout.LayoutParams buttonSpacingLp = new LinearLayout.LayoutParams(
             Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(5, dm)); 
@@ -110,7 +105,7 @@ public final class TimeColumn extends FrameLayout {
         timeButtonLayout.setLayoutParams(timeButtonLp);
         
         mask = new View(getContext());
-        int maskHeight = TimeButton.HEIGHT + 25 + spacingHeight;                
+        int maskHeight = TimeButton.HEIGHT * 2 + 25 + spacingHeight;                
         FrameLayout.LayoutParams maskLp = new FrameLayout.LayoutParams(Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(maskHeight, dm));
         maskLp.gravity = Gravity.TOP;
         mask.setLayoutParams(maskLp);
@@ -123,8 +118,11 @@ public final class TimeColumn extends FrameLayout {
         lowerPart.setLayoutParams(lowerPartLp);
         lowerPart.setOrientation(LinearLayout.VERTICAL);
         
-		arrivalTimeButton = new TimeButton(getContext(), 1, true, arrivalTimeFont);
-		lowerPart.addView(arrivalTimeButton);
+        arriveButton = new TimeButton(getContext(), 1, true, arrivalTimeFont);
+        lowerPart.addView(arriveButton);
+        
+		durationButton = new TimeButton(getContext(), 1, true, arrivalTimeFont);
+		lowerPart.addView(durationButton);
 		
 		bottomSpacing = new View(getContext());
 		LinearLayout.LayoutParams bottomSpacingLp = new LinearLayout.LayoutParams(
@@ -182,7 +180,9 @@ public final class TimeColumn extends FrameLayout {
 		this.state = state;
 		
 		departureTimeButton.setState(state);
-		arrivalTimeButton.setState(state);
+		arriveButton.setState(state);
+		durationButton.setState(state);
+		
 		
 		int bgColor;
 		if (State.InProgress.equals(state)) {
@@ -222,7 +222,8 @@ public final class TimeColumn extends FrameLayout {
         }
         int textColor = Color.parseColor("#606163");
         mpointView.setTextColor(selected?Color.WHITE:textColor);
-        arrivalTimeButton.setTextColor(selected?Color.WHITE:textColor);
+        arriveButton.setTextColor(selected?Color.WHITE:textColor);
+        durationButton.setTextColor(selected?Color.WHITE:textColor);
 	}
 
 	public void setDisplayMode(DisplayMode displayMode) {
@@ -251,12 +252,8 @@ public final class TimeColumn extends FrameLayout {
 		this.arrivalTime = time;
 		
 		if (time != 0) {
-    		if (displayMode.equals(DisplayMode.Duration)) {
-    			arrivalTimeButton.setText(getFormattedDuration(getDuration()));
-    		}
-    		else {
-    			arrivalTimeButton.setText(formatTime(time, timzoneOffset));
-    		}
+		    arriveButton.setText(formatTime(time, timzoneOffset));
+			durationButton.setText(getFormattedDuration(getDuration()));
     		
     		postInvalidate();
 		}

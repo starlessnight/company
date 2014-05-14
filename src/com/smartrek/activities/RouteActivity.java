@@ -322,8 +322,6 @@ public final class RouteActivity extends FragmentActivity {
         timeLayout = (TimeLayout) findViewById(R.id.timelayout);
         scrollableTimeLayout = (ScrollableTimeLayout) findViewById(R.id.scrollTime);
         
-        TextView header = (TextView) findViewById(R.id.header);
-        
         final String imComingMsg = extras.getString(MSG);
         final boolean hasImComingMsg = StringUtils.isNotBlank(imComingMsg);
         reservation = extras.getParcelable(RESERVATION);
@@ -331,7 +329,6 @@ public final class RouteActivity extends FragmentActivity {
         hasReservId = reservId > 0;
         hasReserv = reservation != null || hasReservId;
         if(hasReserv){
-            header.setText("Let's Go");
             findViewById(R.id.time_layout).setVisibility(View.GONE);
             if(hasReserv){
                 final CancelableProgressDialog progressDialog = new CancelableProgressDialog(RouteActivity.this, "Loading...");
@@ -741,7 +738,7 @@ public final class RouteActivity extends FragmentActivity {
             }
         });
         
-        TextView backButton = (TextView) findViewById(R.id.back_button);
+        View backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -749,34 +746,17 @@ public final class RouteActivity extends FragmentActivity {
             }
         });
         
-        final TextView durationRow = (TextView)findViewById(R.id.duration_row);
-        durationRow.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DisplayMode curDisplayMode = (DisplayMode) durationRow.getTag();
-                DisplayMode newDisplayMode = (curDisplayMode == null || curDisplayMode.equals(DisplayMode.Duration)) 
-                    ? DisplayMode.Arrival:DisplayMode.Duration;
-                durationRow.setTag(newDisplayMode);
-                timeLayout.setDisplayMode(newDisplayMode);
-                durationRow.setText(newDisplayMode.name());
-            }
-        });
+        TextView durationRow = (TextView)findViewById(R.id.duration_row);
+        durationRow.setTag(DisplayMode.Duration);
+        timeLayout.setDisplayMode(DisplayMode.Duration);
+        durationRow.setText(DisplayMode.Duration.name());
         
-        if (MapDisplayActivity.isDisplayDuration(this)) {
-            durationRow.setTag(DisplayMode.Duration);
-            timeLayout.setDisplayMode(DisplayMode.Duration);
-            durationRow.setText(DisplayMode.Duration.name());
-        }
-        else {
-        	durationRow.setTag(DisplayMode.Arrival);
-            timeLayout.setDisplayMode(DisplayMode.Arrival);
-            durationRow.setText(DisplayMode.Arrival.name());
-        }
+        TextView arriveRow = (TextView)findViewById(R.id.arrive_row);
         
-        Font.setTypeface(boldFont, header);
-        Font.setTypeface(lightFont, onMyWayView, letsGoView, reserveView,
-            backButton, (TextView)findViewById(R.id.departure_row), durationRow,
-            (TextView)findViewById(R.id.mpoint_row));
+        
+        Font.setTypeface(boldFont, onMyWayView, letsGoView, reserveView);
+        Font.setTypeface(lightFont, (TextView)findViewById(R.id.departure_row), arriveRow, 
+            durationRow, (TextView)findViewById(R.id.mpoint_row));
     }
     
     private long rescheduleReservId;
