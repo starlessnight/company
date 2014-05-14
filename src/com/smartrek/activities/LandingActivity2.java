@@ -1288,6 +1288,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 name.requestLayout();
                 distance.requestLayout();
                 address.requestLayout();
+                view.setPadding(0, 0, 0, position == getCount() - 1 ? 
+                    Dimension.dpToPx(135, getResources().getDisplayMetrics()) : 0);
                 return view;
         	}
         	
