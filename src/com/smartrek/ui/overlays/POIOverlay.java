@@ -188,4 +188,12 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 		this.aid = aid;
 	}
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
 }

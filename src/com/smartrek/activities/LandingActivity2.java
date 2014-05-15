@@ -1987,6 +1987,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         refreshStarredPOIs(null);
     }
     
+    private POIOverlay curStar;
+    
     private void refreshStarredPOIs(final Runnable callback){
         AsyncTask<Void, Void, List<com.smartrek.models.Address>> task = new AsyncTask<Void, Void, List<com.smartrek.models.Address>>(){
             @Override
@@ -2023,6 +2025,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         if(overlay instanceof POIOverlay){
                             POIOverlay poiOverlay = (POIOverlay)overlay;
                             isOther = poiOverlay.getMarker() != R.drawable.star_poi;
+                            if(!isOther && curStar != null && poiOverlay.getAid() == curStar.getAid() 
+                                    && poiOverlay.isBalloonVisible()){
+                                poiOverlay.hideBalloon();
+                            }
                         }else{
                             isOther = true;
                         }
@@ -2067,6 +2073,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                     hideStarredBalloon();
                                     hideBulbBalloon();
                                     removePOIMarker(mapView); 
+                                    curStar = star;
                                     star.showBalloonOverlay();
                                     mapView.postInvalidate();
                                     return true;
@@ -2089,6 +2096,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             });
                             overlays.add(star);
                             star.showOverlay();
+                            if(curStar != null && star.getAid() == curStar.getAid()){
+                                star.showBalloonOverlay();
+                            }
                             addrList.add(a.getAddress());
                         }
                     }
@@ -2115,6 +2125,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 }
             }
         }
+        curStar = null;
         return handled;
     }
     
@@ -2133,6 +2144,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 }
             }
         }
+        curBulb = null;
         return handled;
     }
     
@@ -2222,6 +2234,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	}
     }
     
+    private POIOverlay curBulb;
+    
     private void refreshBulbPOIs(final double lat, final double lon, final boolean rezoom){
         final User user = User.getCurrentUser(LandingActivity2.this);
         AsyncTask<Void, Void, List<com.smartrek.requests.WhereToGoRequest.Location>> task = 
@@ -2262,6 +2276,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                 if(overlay instanceof POIOverlay){
                                     POIOverlay poiOverlay = (POIOverlay)overlay;
                                     isOther = poiOverlay.getMarker() != R.drawable.bulb_poi;
+                                    if(!isOther && curBulb != null && StringUtils.equals(poiOverlay.getAddress(), curBulb.getAddress()) 
+                                            && poiOverlay.isBalloonVisible()){
+                                        poiOverlay.hideBalloon();
+                                    }
                                 }else{
                                     isOther = true;
                                 }
@@ -2590,6 +2608,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     hideStarredBalloon();
                     hideBulbBalloon();
                     removePOIMarker(mapView);
+                    curBulb = bulb;
                     bulb.showBalloonOverlay();
                     mapView.postInvalidate();
                     return true;
@@ -2612,6 +2631,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             });
             overlays.add(bulb);
             bulb.showOverlay();
+            if(curBulb != null && StringUtils.equals(bulb.getAddress(), curBulb.getAddress())){
+                bulb.showBalloonOverlay();
+            }
         }
     }
     
