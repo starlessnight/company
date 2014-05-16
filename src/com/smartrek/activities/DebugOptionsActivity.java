@@ -93,6 +93,8 @@ public final class DebugOptionsActivity extends Activity {
     
     private static final String VOICE_DEBUG_MSG = "VOICE_DEBUG_MSG";
     
+    private static final String NAV_API_LOG = "NAV_API_LOG";
+    
     private SharedPreferences prefs;
     
     private RadioButton radioRealGPS;
@@ -333,6 +335,15 @@ public final class DebugOptionsActivity extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 setVoiceDebugMsgEnabled(DebugOptionsActivity.this, isChecked);
+            }
+        });
+        
+        CheckBox navAPILog = (CheckBox) findViewById(R.id.nav_api_log);
+        navAPILog.setChecked(isNavApiLogEnabled(this));
+        navAPILog.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setNavApiLogEnabled(DebugOptionsActivity.this, isChecked);
             }
         });
     }
@@ -678,6 +689,22 @@ public final class DebugOptionsActivity extends Activity {
     public static void setVoiceDebugMsgEnabled(Context ctx, boolean enabled){
         getPrefs(ctx).edit()
             .putBoolean(VOICE_DEBUG_MSG, enabled)
+            .commit();
+    }
+    
+    public static boolean isNavApiLogEnabled(Context ctx){
+        boolean enabled;
+        try{
+            enabled = getPrefs(ctx).getBoolean(NAV_API_LOG, false);
+        }catch(Throwable t){
+            enabled = false;
+        }
+        return enabled;
+    }
+    
+    public static void setNavApiLogEnabled(Context ctx, boolean enabled){
+        getPrefs(ctx).edit()
+            .putBoolean(NAV_API_LOG, enabled)
             .commit();
     }
     

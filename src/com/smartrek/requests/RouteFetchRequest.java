@@ -1,5 +1,6 @@
 package com.smartrek.requests;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -9,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,6 +19,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.text.format.Time;
 
+import com.smartrek.activities.DebugOptionsActivity;
 import com.smartrek.activities.DebugOptionsActivity.NavigationLink;
 import com.smartrek.exceptions.RouteNotFoundException;
 import com.smartrek.models.Route;
@@ -32,6 +35,8 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 	private boolean hasNavUrl;
 	
 	private int duration;
+	
+	private boolean toLog;
 	
 	private static String buildUrl(GeoPoint origin, GeoPoint destination, 
 	        long departureTime, double speed, float course, String originAddr, 
@@ -112,12 +117,16 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
         this.departureTime = departureTime;
         this.duration = duration;
         hasNavUrl = true;
+        toLog = true;
     }
 	
 	public List<Route> execute(Context ctx) throws IOException, JSONException, RouteNotFoundException, InterruptedException {
 		String response = null;
 		try{
 		    response = executeFetchRequest(url, ctx);
+		    if(DebugOptionsActivity.isNavApiLogEnabled(ctx) && toLog){
+		        FileUtils.writeStringToFile(getFile(ctx, departureTime), url + "\n\n" + response);
+		    }
 		}catch(IOException e){
 		    String msg = null;
 		    if(responseCode == 400){
@@ -181,6 +190,15 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 		
 		return routes;
 	}
+	
+	private static File getDir(Context ctx){
+        return new File(ctx.getExternalFilesDir(null), "nav_api_responses");
+    }
+    
+    private static File getFile(Context ctx, long departureTime){
+        return new File(getDir(ctx), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            .format(new Date(departureTime)));
+    }
 	
 
 }
