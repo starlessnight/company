@@ -91,7 +91,7 @@ import com.smartrek.ui.overlays.EventOverlay;
 import com.smartrek.ui.overlays.OverlayCallback;
 import com.smartrek.ui.overlays.POIOverlay;
 import com.smartrek.ui.overlays.POIOverlay.POIActionListener;
-import com.smartrek.ui.overlays.PointOverlay;
+import com.smartrek.ui.overlays.CurrentLocationOverlay;
 import com.smartrek.ui.overlays.RouteDestinationOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay.RoutePathCallback;
@@ -130,7 +130,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
-    PointOverlay myPointOverlay;
+    CurrentLocationOverlay myPointOverlay;
     
     private LocationManager locationManager;
 
@@ -1628,7 +1628,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private void refreshMyLocation(double lat, double lon){
         MapView mapView = (MapView)findViewById(R.id.mapview);
         if(myPointOverlay == null){
-            myPointOverlay = new PointOverlay(LandingActivity2.this, 0, 0, R.drawable.landing_page_current_location);
+            myPointOverlay = new CurrentLocationOverlay(LandingActivity2.this, 0, 0, R.drawable.landing_page_current_location);
             mapView.getOverlays().add(myPointOverlay);
         }
         myPointOverlay.setLocation((float) lat, (float) lon);

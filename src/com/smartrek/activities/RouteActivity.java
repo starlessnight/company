@@ -273,7 +273,8 @@ public final class RouteActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pre_reservation_map); 
         
-        othersPointOverlay = new PointOverlay(this, 0, 0, R.drawable.landing_page_current_location);
+        othersPointOverlay = new PointOverlay(this, 0, 0);
+        othersPointOverlay.setColor(0xCC2020DF);
         
         SharedPreferences prefs = getSharedPreferences(MapDisplayActivity.MAP_DISPLAY_PREFS, MODE_PRIVATE);
         
@@ -813,8 +814,6 @@ public final class RouteActivity extends FragmentActivity {
     PointOverlay othersPointOverlay;
     
     private void handleImComing(String msg, final double lat, final double lon){
-        TextView header = (TextView) findViewById(R.id.header);
-        header.setText("On The Way");
         findViewById(R.id.time_layout).setVisibility(View.GONE);
         findViewById(R.id.lets_go_panel).setVisibility(View.GONE);
         final MapView mapView = (MapView) findViewById(R.id.mapview);

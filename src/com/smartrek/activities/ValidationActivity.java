@@ -98,7 +98,7 @@ import com.smartrek.ui.NavigationView.CheckPointListener;
 import com.smartrek.ui.NavigationView.DirectionItem;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.OverlayCallback;
-import com.smartrek.ui.overlays.PointOverlay;
+import com.smartrek.ui.overlays.CurrentLocationOverlay;
 import com.smartrek.ui.overlays.RouteDebugOverlay;
 import com.smartrek.ui.overlays.RouteDestinationOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
@@ -158,7 +158,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	private List<Overlay> mapOverlays;
 
-	private PointOverlay pointOverlay;
+	private CurrentLocationOverlay pointOverlay;
 
 	private long startTime;
 
@@ -1041,7 +1041,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         });
 		mapOverlays.add(destOverlay);
 
-		pointOverlay = new PointOverlay(this, 0, 0, R.drawable.landing_page_current_location);
+		pointOverlay = new CurrentLocationOverlay(this, 0, 0, R.drawable.landing_page_current_location);
 		mapOverlays.add(pointOverlay);
 
 		bindDebugOverlay(mapView);

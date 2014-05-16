@@ -82,7 +82,7 @@ import com.smartrek.tasks.LoginTask;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.OverlayCallback;
-import com.smartrek.ui.overlays.PointOverlay;
+import com.smartrek.ui.overlays.CurrentLocationOverlay;
 import com.smartrek.ui.overlays.RouteInfoOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.ui.timelayout.AdjustableTime;
@@ -148,9 +148,9 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         }
     };
     
-    PointOverlay myPointOverlay;
+    CurrentLocationOverlay myPointOverlay;
     
-    PointOverlay othersPointOverlay;
+    CurrentLocationOverlay othersPointOverlay;
     
     private ShortcutNavigationTask currentSNTask;
     
@@ -159,9 +159,9 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.landing);
         
-        myPointOverlay = new PointOverlay(LandingActivity.this, 0, 0, R.drawable.landing_page_current_location);
+        myPointOverlay = new CurrentLocationOverlay(LandingActivity.this, 0, 0, R.drawable.landing_page_current_location);
         
-        othersPointOverlay = new PointOverlay(LandingActivity.this, 0, 0, R.drawable.landing_page_current_location);
+        othersPointOverlay = new CurrentLocationOverlay(LandingActivity.this, 0, 0, R.drawable.landing_page_current_location);
         
         TextView vTitle = (TextView) findViewById(R.id.title);
         TextView vDate = (TextView) findViewById(R.id.date);
