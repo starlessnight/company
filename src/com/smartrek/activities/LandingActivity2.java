@@ -87,11 +87,11 @@ import com.smartrek.ui.DelayTextWatcher;
 import com.smartrek.ui.DelayTextWatcher.TextChangeListener;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
+import com.smartrek.ui.overlays.CurrentLocationOverlay;
 import com.smartrek.ui.overlays.EventOverlay;
 import com.smartrek.ui.overlays.OverlayCallback;
 import com.smartrek.ui.overlays.POIOverlay;
 import com.smartrek.ui.overlays.POIOverlay.POIActionListener;
-import com.smartrek.ui.overlays.CurrentLocationOverlay;
 import com.smartrek.ui.overlays.RouteDestinationOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay.RoutePathCallback;
@@ -156,16 +156,23 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     public static Sensor magnetometer;
     
     private List<Address> searchAddresses = new ArrayList<Address>();
+    private List<Address> fromSearchAddresses = new ArrayList<Address>();
     
     private View bottomPanel;
     
     private AtomicBoolean canDrawReservRoute = new AtomicBoolean();
     
-    private EditText searchBox; 
+    private EditText searchBox;
+    
+    private EditText fromSearchBox;
     
     private ListView searchResultList;
     
+    private ListView fromSearchResultList;
+    
     private ArrayAdapter<Address> autoCompleteAdapter;
+    
+    private ArrayAdapter<Address> fromAutoCompleteAdapter;
     
     private static final String NO_AUTOCOMPLETE_RESULT = "No results found.";
     
@@ -210,11 +217,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         searchBox = (EditText) findViewById(R.id.search_box);
         searchBox.setHint(Html.fromHtml("<b>Enter Destination</b>"));
+        fromSearchBox = (EditText) findViewById(R.id.from_search_box);
+        fromSearchBox.setHint(Html.fromHtml("<b>Current Location</b>"));
         searchResultList = (ListView) findViewById(R.id.search_result_list);
+        fromSearchResultList = (ListView) findViewById(R.id.from_search_result_list);
         autoCompleteAdapter = createAutoCompleteAdapter(searchBox);
+        fromAutoCompleteAdapter = createAutoCompleteAdapter(fromSearchBox);
         searchResultList.setAdapter(autoCompleteAdapter);
+        fromSearchResultList.setAdapter(fromAutoCompleteAdapter);
         
         refreshSearchAutoCompleteData();
+        refreshFromSearchAutoCompleteData();
         searchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -226,6 +239,20 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     clearSearchResult();
+                }
+                return handled;
+            }
+        });
+        fromSearchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                final String addrInput = v.getText().toString();
+                boolean handled = StringUtils.isNotBlank(addrInput);
+                if(handled){
+                    InputMethodManager imm = (InputMethodManager)getSystemService(
+                            Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    clearFromSearchResult();
                 }
                 return handled;
             }
@@ -249,6 +276,29 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     	tapToAdd.setAddress("");
                     	searchAddresses.add(tapToAdd);
                     	refreshSearchAutoCompleteData();
+                    }
+                }
+            }
+        });
+        fromSearchBox.setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(!hasFocus) {
+                    InputMethodManager imm = (InputMethodManager)getSystemService(
+                            Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    showAutoComplete.set(false);
+                    clearFromSearchResult();
+                }
+                else {
+                    showAutoComplete.set(true);
+                    if(StringUtils.isBlank(fromSearchBox.getText())) {
+                        fromSearchAddresses.clear();
+                        Address tapToAdd = new Address();
+                        tapToAdd.setName(TAP_TO_ADD_FAVORITE);
+                        tapToAdd.setAddress("");
+                        fromSearchAddresses.add(tapToAdd);
+                        refreshFromSearchAutoCompleteData();
                     }
                 }
             }
@@ -278,6 +328,29 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             	}
             }
         });
+        fromSearchResultList.setOnItemClickListener(new OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Address selected = (Address)parent.getItemAtPosition(position);
+                if(StringUtils.isNotBlank(selected.getAddress())) {
+                    fromSearchBox.setText(selected.getAddress());
+                    InputMethodManager imm = (InputMethodManager)getSystemService(
+                            Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(fromSearchBox.getWindowToken(), 0);
+                    showAutoComplete.set(false);
+                    clearFromSearchResult();
+                }
+                else if(TAP_TO_ADD_FAVORITE.equals(selected.getName())) {
+                    clearFromSearchResult();
+                    removePOIMarker(mapView);
+                    hideBalloonPanel();
+                    hideBulbBalloon();
+                    hideStarredBalloon();
+                    findViewById(R.id.landing_panel).setVisibility(View.GONE);
+                    findViewById(R.id.fav_opt).setVisibility(View.VISIBLE);
+                }
+            }
+        });
         searchResultList.setOnTouchListener(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
@@ -287,6 +360,15 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 return false;
 			}
 		});
+        fromSearchResultList.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                InputMethodManager imm = (InputMethodManager)getSystemService(
+                        Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(fromSearchBox.getWindowToken(), 0);
+                return false;
+            }
+        });
         final View searchBoxClear = findViewById(R.id.search_box_clear);
         DelayTextWatcher delayTextWatcher = new DelayTextWatcher(new TextChangeListener(){
 			@Override
@@ -341,6 +423,73 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             @Override
             public void onClick(View v) {
                 searchBox.setText("");
+                searchBox.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        findViewById(R.id.search_button).performClick();
+                    }
+                }, 600);
+            }
+        });
+        final View fromSearchBoxClear = findViewById(R.id.from_search_box_clear);
+        DelayTextWatcher fromDelayTextWatcher = new DelayTextWatcher(new TextChangeListener(){
+            @Override
+            public void onTextChanged(CharSequence text) {
+                fromSearchBoxClear.setVisibility(StringUtils.isBlank(text)?View.GONE:View.VISIBLE); 
+                final String addrInput = text.toString();
+                if(StringUtils.isNotBlank(addrInput)) {
+                    AsyncTask<Void, Void, List<Address>> searchPoiTask = new AsyncTask<Void, Void, List<Address>>(){
+                        @Override
+                        protected List<Address> doInBackground(Void... params) {
+                            List<Address> addresses = new ArrayList<Address>();
+                            try {
+                                if(lastLocation != null) {
+                                    addresses = Geocoding.searchPoi(LandingActivity2.this, addrInput, lastLocation.getLatitude(), lastLocation.getLongitude());
+                                }
+                                else {
+                                    addresses = Geocoding.searchPoi(LandingActivity2.this, addrInput);
+                                }
+                            }
+                            catch(Exception e) {
+                                Log.e("LandingActivity2", "search error!");
+                            }
+                            return addresses;
+                        }
+                        
+                        @Override
+                        protected void onPostExecute(List<Address> addresses) {
+                            fromSearchAddresses.clear();
+                            for(Address a:addresses){
+                                if(StringUtils.isNotBlank(a.getAddress())){
+                                    fromSearchAddresses.add(a);
+                                }
+                            }
+                            if(fromSearchAddresses.isEmpty()) {
+                                Address notFound = new Address();
+                                notFound.setName(NO_AUTOCOMPLETE_RESULT);
+                                notFound.setAddress("");
+                                fromSearchAddresses.add(notFound);
+                            }
+                            refreshFromSearchAutoCompleteData();
+                        }
+                    };
+                    Misc.parallelExecute(searchPoiTask); 
+                }
+                else {
+                    clearFromSearchResult();
+                }
+            }}, 500);
+        fromSearchBox.addTextChangedListener(fromDelayTextWatcher);
+        fromSearchBoxClear.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fromSearchBox.setText("");
+                fromSearchBox.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        findViewById(R.id.search_button).performClick();
+                    }
+                }, 600);
             }
         });
         
@@ -348,17 +497,26 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         searchButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-			    searchBox.requestFocus();
+			    boolean isTo = searchBox.getVisibility() == View.VISIBLE;
+			    TextView _searchBox = isTo?searchBox:fromSearchBox;
+			    boolean hasFocus = _searchBox.hasFocus();
+			    _searchBox.requestFocus();
                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(searchBox, InputMethodManager.SHOW_IMPLICIT);
-				final String addrInput = searchBox.getText().toString();
-                boolean handled = StringUtils.isNotBlank(addrInput);
+                imm.showSoftInput(_searchBox, InputMethodManager.SHOW_IMPLICIT);
+				final String addrInput = _searchBox.getText().toString();
+                boolean handled = hasFocus && StringUtils.isNotBlank(addrInput);
                 if(handled){
-                    searchAddress(addrInput, true);
+                    if(isTo){
+                        searchAddress(addrInput, true);
+                    }
                     imm = (InputMethodManager)getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    clearSearchResult();
+                    if(isTo){
+                        clearSearchResult();
+                    }else{
+                        clearFromSearchResult();
+                    }
                 }
 			}
 		});
@@ -369,7 +527,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         from.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				searchBox.setHint(Html.fromHtml("<b>Current Location</b>"));
+			    searchBox.setVisibility(View.GONE);
+			    searchBoxClear.setVisibility(View.GONE);
+			    searchResultList.setVisibility(View.GONE);
+				fromSearchBox.setVisibility(View.VISIBLE);
+				fromSearchBoxClear.setVisibility(StringUtils.isBlank(fromSearchBox.getText())?View.GONE:View.VISIBLE);
+				fromSearchResultList.setVisibility(View.VISIBLE);
 				from.setBackgroundResource(0);
 				from.setTextColor(getResources().getColor(R.color.light_blue));
 				to.setBackgroundResource(R.drawable.top_gray_shadow);
@@ -380,7 +543,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         to.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				searchBox.setHint(Html.fromHtml("<b>Enter Destination</b>"));
+			    searchBox.setVisibility(View.VISIBLE);
+                searchBoxClear.setVisibility(StringUtils.isBlank(searchBox.getText())?View.GONE:View.VISIBLE);
+                searchResultList.setVisibility(View.VISIBLE);
+                fromSearchBox.setVisibility(View.GONE);
+                fromSearchBoxClear.setVisibility(View.GONE);
+                fromSearchResultList.setVisibility(View.GONE);
 				to.setBackgroundResource(0);
 				to.setTextColor(getResources().getColor(R.color.light_blue));
 				from.setBackgroundResource(R.drawable.top_gray_shadow);
@@ -1232,8 +1400,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         AssetManager assets = getAssets();
 //        Font.setTypeface(Font.getBold(assets), tripAddr);
-        Font.setTypeface(Font.getLight(assets), tripAddr, osmCredit, searchBox, nextTripInfo,
-            rewardsMenu, shareMenu, feedbackMenu, settingsMenu, logoutMenu,
+        Font.setTypeface(Font.getLight(assets), tripAddr, osmCredit, searchBox, fromSearchBox, 
+            nextTripInfo, rewardsMenu, shareMenu, feedbackMenu, settingsMenu, logoutMenu,
             tripDetails, getGoingBtn, rescheBtn, (TextView)findViewById(R.id.menu_bottom_text),
             (TextView)findViewById(R.id.on_the_way_msg), onTheWayBtn);
         
@@ -1271,6 +1439,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		autoCompleteAdapter.clear();
 		refreshSearchAutoCompleteData();
 		searchBox.clearFocus();
+    }
+    
+    private void clearFromSearchResult() {
+        fromSearchAddresses.clear();
+        fromAutoCompleteAdapter.clear();
+        refreshFromSearchAutoCompleteData();
+        fromSearchBox.clearFocus();
     }
     
     private ArrayAdapter<Address> createAutoCompleteAdapter(final EditText searchBox) {
@@ -1512,6 +1687,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private void refreshSearchAutoCompleteData(){
     	refreshAutoCompleteData(searchResultList, autoCompleteAdapter, searchAddresses);
+    }
+    
+    private void refreshFromSearchAutoCompleteData(){
+        refreshAutoCompleteData(fromSearchResultList, fromAutoCompleteAdapter, fromSearchAddresses);
     }
     
     private void refreshFavAutoCompleteData() {
@@ -1970,13 +2149,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     poiTapThrottle.set(false);
                 }
             }, 500);
+            String fromAddress = fromSearchBox.getText().toString();
+            boolean hasFromAddr = StringUtils.isNotBlank(fromAddress);
             Intent intent = new Intent(this, RouteActivity.class);
-            intent.putExtra(RouteActivity.CURRENT_LOCATION, true /*false*/);
+            intent.putExtra(RouteActivity.CURRENT_LOCATION, !hasFromAddr);
             Bundle extras = new Bundle();
-            extras.putString("originAddr", EditAddress.CURRENT_LOCATION);
-            extras.putParcelable(RouteActivity.ORIGIN_COORD, 
-                new GeoPoint(0, 0 /*34.0291747, -118.2734106*/));
-            extras.putString("destAddr", address);
+            extras.putString(RouteActivity.ORIGIN_ADDR, hasFromAddr?fromAddress:EditAddress.CURRENT_LOCATION);
+            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(0, 0));
+            extras.putString(RouteActivity.DEST_ADDR, address);
             extras.putParcelable(RouteActivity.DEST_COORD, gp);
             intent.putExtras(extras);
             startActivity(intent);
