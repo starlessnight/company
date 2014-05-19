@@ -35,6 +35,7 @@ import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
+import com.smartrek.utils.RouteNode.Metadata;
 import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.ValidationParameters;
 
@@ -453,6 +454,17 @@ public class NavigationView extends LinearLayout {
 				lastEnd = end;
 
 				if(hasVoice){
+				    RouteNode firstNode = route.getFirstNode();
+				    Metadata firstMetadata = firstNode.getMetadata();
+				    double firstNodeDist = metersToFeet(firstNode.distanceTo(latitude, longitude));
+				    if(!firstMetadata.pingFlags[1]
+				            && firstNodeDist <= firstNode.getVoiceRadius()){
+				        firstMetadata.pingFlags[1] = true;
+                        String text = firstNode.getVoice();
+                        if(listener != null && StringUtils.isNotBlank(text)){
+                            listener.onCheckPoint(text, false, false);
+                        }
+				    }
 				    RouteNode startNode = nearestLink.getStartNode();
                     RouteNode.Metadata startMetadata = startNode.getMetadata();
 				    RouteNode endNode = nearestLink.getEndNode();
