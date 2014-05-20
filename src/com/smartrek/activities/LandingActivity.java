@@ -81,8 +81,8 @@ import com.smartrek.requests.ValidatedReservationsFetchRequest;
 import com.smartrek.tasks.LoginTask;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
-import com.smartrek.ui.overlays.OverlayCallback;
 import com.smartrek.ui.overlays.CurrentLocationOverlay;
+import com.smartrek.ui.overlays.OverlayCallback;
 import com.smartrek.ui.overlays.RouteInfoOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.ui.timelayout.AdjustableTime;
@@ -1291,7 +1291,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         
         @Override
         protected void onPreExecute() {
-            dialog.show();
+            //dialog.show();
             if(this._route == null){
                 activity.locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
                 if (!activity.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -1365,7 +1365,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         void makeReservation(){
             if(!startedMakingReserv && ((origin != null && dest != null) || _route != null)){
                 startedMakingReserv = true;
-                new AsyncTask<Void, Void, Reservation>(){
+                Misc.parallelExecute(new AsyncTask<Void, Void, Reservation>(){
                     @Override
                     protected Reservation doInBackground(Void... params) {
                         Reservation reserv = null;
@@ -1411,7 +1411,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                             callback.run(reserv);
                         }
                     }
-                }.execute();
+                });
             }
         }
         
