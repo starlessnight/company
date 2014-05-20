@@ -1475,6 +1475,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 	distance.setVisibility(View.VISIBLE);
                 	distance.setText(item.getDistance() + "m");
                 }
+                initFontsIfNecessary();
                 Font.setTypeface(boldFont, name, distance);
                 Font.setTypeface(lightFont, address);
                 namePanel.requestLayout();
