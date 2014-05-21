@@ -12,17 +12,19 @@ public final class Address {
 	private String address;
 	private double latitude;
 	private double longitude;
+	private String iconName;
 	
 	public Address() {
 	}
 	
-	public Address(int id, int uid, String name, String address, double latitude, double longitude) {
+	public Address(int id, int uid, String name, String address, double latitude, double longitude, String iconName) {
 		this.aid = id;
 		this.uid = uid;
 		this.name = name;
 		this.address = address;
 		this.latitude = latitude;
 		this.longitude = longitude;
+		this.iconName = iconName;
 	}
 	
 	public int getId() {
@@ -71,5 +73,13 @@ public final class Address {
 
 	public void setLongitude(double longitude) {
 		this.longitude = longitude;
+	}
+
+	public String getIconName() {
+		return iconName;
+	}
+
+	public void setIconName(String iconName) {
+		this.iconName = iconName;
 	}
 }

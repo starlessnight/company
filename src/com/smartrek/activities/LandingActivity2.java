@@ -16,6 +16,7 @@ import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.OverlayItem.HotspotPlace;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -42,6 +43,9 @@ import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.AbsoluteSizeSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -79,6 +83,7 @@ import com.smartrek.requests.FavoriteAddressDeleteRequest;
 import com.smartrek.requests.FavoriteAddressFetchRequest;
 import com.smartrek.requests.FavoriteAddressUpdateRequest;
 import com.smartrek.requests.Request;
+import com.smartrek.requests.ReservationDeleteRequest;
 import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.requests.UpdateDeviceIdRequest;
@@ -86,6 +91,8 @@ import com.smartrek.requests.WhereToGoRequest;
 import com.smartrek.ui.DelayTextWatcher;
 import com.smartrek.ui.DelayTextWatcher.TextChangeListener;
 import com.smartrek.ui.EditAddress;
+import com.smartrek.ui.SwipeDismissListViewTouchListener;
+import com.smartrek.ui.SwipeDismissTouchListener;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.CurrentLocationOverlay;
 import com.smartrek.ui.overlays.EventOverlay;
@@ -127,6 +134,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     public static final boolean ENABLED = true;
     
     public static final String NO_TRIPS = "No Upcoming Trip";
+    
+    public static final int ON_MY_WAY = Integer.valueOf(100);
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
@@ -197,6 +206,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private TextView workView;
     
     private AtomicBoolean showAutoComplete = new AtomicBoolean(true);
+    
+    private ListView reservationListView;
+    private ArrayAdapter<Reservation> reservationAdapter;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -534,8 +546,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				fromSearchBoxClear.setVisibility(StringUtils.isBlank(fromSearchBox.getText())?View.GONE:View.VISIBLE);
 				fromSearchResultList.setVisibility(View.VISIBLE);
 				from.setBackgroundResource(0);
+				findViewById(R.id.from_panel).setBackgroundResource(0);
+				findViewById(R.id.from_shadow).setBackgroundResource(0);
 				from.setTextColor(getResources().getColor(R.color.light_blue));
-				to.setBackgroundResource(R.drawable.top_gray_shadow);
+				findViewById(R.id.to_panel).setBackgroundColor(getResources().getColor(R.color.transparent_gray));
+				findViewById(R.id.to_shadow).setBackgroundResource(R.drawable.bottom_shadow);
 				to.setTextColor(getResources().getColor(R.color.lighter_gray));
 			}
 		});
@@ -549,9 +564,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 fromSearchBox.setVisibility(View.GONE);
                 fromSearchBoxClear.setVisibility(View.GONE);
                 fromSearchResultList.setVisibility(View.GONE);
-				to.setBackgroundResource(0);
+                findViewById(R.id.to_panel).setBackgroundResource(0);
+				findViewById(R.id.to_shadow).setBackgroundResource(0);
 				to.setTextColor(getResources().getColor(R.color.light_blue));
-				from.setBackgroundResource(R.drawable.top_gray_shadow);
+				findViewById(R.id.from_panel).setBackgroundColor(getResources().getColor(R.color.transparent_gray));
+				findViewById(R.id.from_shadow).setBackgroundResource(R.drawable.bottom_shadow);
 				from.setTextColor(getResources().getColor(R.color.lighter_gray));
 			}
 		});
@@ -570,6 +587,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 updateDeviceId();
             }
         });
+        
+        initReservationListView();
         
         final IMapController mc = mapView.getController();
         
@@ -1020,12 +1039,27 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 mDrawerLayout.openDrawer(findViewById(R.id.left_drawer));
             }
         });
+        TextView newTripMenu = (TextView) findViewById(R.id.new_trip);
+        newTripMenu.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
+			}
+		});
         TextView rewardsMenu = (TextView) findViewById(R.id.dashboard);
         rewardsMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 MainMenu.onMenuItemSelected(LandingActivity2.this, 0, v.getId());
             }
+        });
+        TextView reservationsMenu = (TextView) findViewById(R.id.reservations);
+        reservationsMenu.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
+				showTripInfoPanel(true);
+			}
         });
         TextView shareMenu = (TextView) findViewById(R.id.share_menu);
         shareMenu.setOnClickListener(new View.OnClickListener() {
@@ -1401,10 +1435,278 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         AssetManager assets = getAssets();
 //        Font.setTypeface(Font.getBold(assets), tripAddr);
         Font.setTypeface(Font.getLight(assets), tripAddr, osmCredit, searchBox, fromSearchBox, 
-            nextTripInfo, rewardsMenu, shareMenu, feedbackMenu, settingsMenu, logoutMenu,
+            nextTripInfo, rewardsMenu, reservationsMenu, shareMenu, feedbackMenu, settingsMenu, logoutMenu,
             tripDetails, getGoingBtn, rescheBtn, (TextView)findViewById(R.id.menu_bottom_text),
             (TextView)findViewById(R.id.on_the_way_msg), onTheWayBtn);
         
+    }
+    
+private Long dismissReservId = Long.valueOf(-1);
+    
+    private void initReservationListView() {
+    	final View tripInfoPanel = findViewById(R.id.trip_info);
+        tripInfoPanel.setOnTouchListener(new SwipeDismissTouchListener(tripInfoPanel, null, new SwipeDismissTouchListener.OnDismissCallback() {
+			@Override
+			public void onDismiss(View view, Object token) {
+				tripInfoPanel.setVisibility(View.GONE);
+				dismissReservId = ((Reservation)tripInfoPanel.getTag()).getRid();
+			}
+		}));
+        
+    	ImageView multipleTripMenu = (ImageView) tripInfoPanel.findViewById(R.id.multiple_trip_menu);
+    	multipleTripMenu.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				findViewById(R.id.reservations_list).setVisibility(View.VISIBLE);
+			}
+		});
+    	
+    	ImageView startTrip = (ImageView) tripInfoPanel.findViewById(R.id.start_trip);
+    	startTrip.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
+				if(reserv.isEligibleTrip()) {
+					Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
+	                intent.putExtra("route", reserv.getRoute());
+	                intent.putExtra("reservation", reserv);
+	                startActivity(intent);
+				}
+				else {
+					String msg = null;
+                    if (reserv.hasExpired()) {
+                        msg = getString(R.string.trip_has_expired);
+                    }
+                    else if (reserv.isTooEarlyToStart()) {
+                        long minutes = (reserv.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
+                        msg = getString(R.string.trip_too_early_to_start, minutes);
+                        if(minutes != 1){
+                            msg += "s";
+                        }
+                    }
+                    if(msg != null){
+                        NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, msg);
+                        dialog.show();
+                    }
+				}
+			}
+    	});
+    	
+    	ImageView reschTrip = (ImageView) tripInfoPanel.findViewById(R.id.reschedule_trip);
+    	reschTrip.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				final Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
+				final String addr = reserv.getDestinationAddress();
+				AsyncTask<Void, Void, GeoPoint> geoCodeTask = new AsyncTask<Void, Void, GeoPoint>(){
+                    @Override
+                    protected GeoPoint doInBackground(Void... params) {
+                        GeoPoint gp = null;
+                        try {
+                        	List<Address> addrs;
+                        	if(lastLocation != null) {
+                                addrs = Geocoding.lookup(LandingActivity2.this, addr, lastLocation.getLatitude(), lastLocation.getLongitude());
+                        	}
+                        	else {
+                        		addrs = Geocoding.lookup(LandingActivity2.this, addr);
+                        	}
+                            for (Address a : addrs) {
+                                gp = new GeoPoint(a.getLatitude(), a.getLongitude());
+                                break;
+                            }
+                        }
+                        catch (Exception e) {
+                        }
+                        return gp;
+                    }
+                    @Override
+                    protected void onPostExecute(GeoPoint gp) {
+                        if(gp != null){
+                            Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
+                            intent.putExtra(RouteActivity.CURRENT_LOCATION, true);
+                            Bundle extras = new Bundle();
+                            extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
+                            extras.putString("originAddr", EditAddress.CURRENT_LOCATION);
+                            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(0, 0 ));
+                            extras.putString("destAddr", addr);
+                            extras.putParcelable(RouteActivity.DEST_COORD, gp);
+                            intent.putExtras(extras);
+                            startActivity(intent);
+                        }
+                    }
+                };
+                Misc.parallelExecute(geoCodeTask);
+			}
+    	});
+    	
+    	ImageView onMyWayTrip = (ImageView) findViewById(R.id.on_my_way_trip);
+    	onMyWayTrip.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
+				if(reserv.isEligibleTrip()) {
+					Intent contactSelect = new Intent(LandingActivity2.this, ContactsSelectActivity.class);
+					startActivityForResult(contactSelect, ON_MY_WAY);
+				}
+				else {
+					String msg = null;
+                    if (reserv.hasExpired()) {
+                        msg = getString(R.string.trip_has_expired);
+                    }
+                    else if (reserv.isTooEarlyToStart()) {
+                        long minutes = (reserv.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
+                        msg = getString(R.string.trip_too_early_to_start, minutes);
+                        if(minutes != 1){
+                            msg += "s";
+                        }
+                    }
+                    if(msg != null){
+                        NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, msg);
+                        dialog.show();
+                    }
+				}
+			}
+    		
+    	});
+    	
+    	findViewById(R.id.reservations_list).setOnClickListener(new OnClickListener() {
+    		@Override
+    		public void onClick(View v) {
+    		}
+    	});
+    	
+    	ImageView reservListBack = (ImageView) findViewById(R.id.reservation_list_back);
+    	reservListBack.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				findViewById(R.id.reservations_list).setVisibility(View.GONE);
+			}
+		});
+        reservationListView = (ListView) findViewById(R.id.reservation_list_view);
+        reservationAdapter = new ArrayAdapter<Reservation>(LandingActivity2.this, R.layout.reservation_list_item2, R.id.od_info) {
+        	@Override
+        	public View getView(int position, View convertView, ViewGroup parent) {
+        		View view = super.getView(position, convertView, parent);
+                Reservation reserv = getItem(position);
+                View reservItemPanel = view.findViewById(R.id.reservation_item);
+                boolean isAbout2Go = false;
+                if(reserv.isEligibleTrip()) {
+                	isAbout2Go = true;
+                	reservItemPanel.setBackgroundColor(LandingActivity2.this.getResources().getColor(R.color.metropia_green));
+                }
+                else {
+                	reservItemPanel.setBackgroundColor(LandingActivity2.this.getResources().getColor(R.color.metropia_orange));
+                }
+                TextView odInfoView = (TextView) view.findViewById(R.id.od_info);
+                StringBuffer odInfo = new StringBuffer();
+                odInfo.append(StringUtils.isNotBlank(reserv.getOriginName())?reserv.getOriginName():reserv.getOriginAddress());
+                odInfo.append(" to ");
+                odInfo.append(StringUtils.isNotBlank(reserv.getDestinationName())?reserv.getDestinationName():reserv.getDestinationAddress());
+                odInfoView.setText(odInfo.toString());
+                
+                TextView leaveInfoView = (TextView) view.findViewById(R.id.leave_info);
+                StringBuffer leaveInfo = new StringBuffer("Leave at: ");
+                leaveInfo.append(isAbout2Go?"NOW":TimeColumn.formatTime(reserv.getDepartureTimeUtc(), reserv.getRoute().getTimezoneOffset()));
+                leaveInfoView.setText(formatTripArrivalTime(leaveInfo.toString()));
+                
+                TextView arriveInfoView = (TextView) view.findViewById(R.id.arrive_info);
+                StringBuffer arriveInfo = new StringBuffer("Arrive at: ");
+                arriveInfo.append(TimeColumn.formatTime(reserv.getArrivalTime(), reserv.getRoute().getTimezoneOffset()));
+                arriveInfoView.setText(formatTripArrivalTime(arriveInfo.toString()));
+
+                Font.setTypeface(lightFont, odInfoView, leaveInfoView, arriveInfoView);
+                reservItemPanel.requestLayout();
+                odInfoView.requestLayout();
+                leaveInfoView.requestLayout();
+                arriveInfoView.requestLayout();
+                return view;
+        	}
+        };
+        reservationListView.setAdapter(reservationAdapter);
+        reservationListView.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				final Reservation reserv = (Reservation) parent.getItemAtPosition(position);
+				final String addr = reserv.getDestinationAddress();
+				if(reserv.isEligibleTrip()) {
+	                Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
+	                intent.putExtra("route", reserv.getRoute());
+	                intent.putExtra("reservation", reserv);
+	                startActivity(intent);
+				}
+				else {
+					AsyncTask<Void, Void, GeoPoint> geoCodeTask = new AsyncTask<Void, Void, GeoPoint>(){
+	                    @Override
+	                    protected GeoPoint doInBackground(Void... params) {
+	                        GeoPoint gp = null;
+	                        try {
+	                        	List<Address> addrs;
+	                        	if(lastLocation != null) {
+	                                addrs = Geocoding.lookup(LandingActivity2.this, addr, lastLocation.getLatitude(), lastLocation.getLongitude());
+	                        	}
+	                        	else {
+	                        		addrs = Geocoding.lookup(LandingActivity2.this, addr);
+	                        	}
+	                            for (Address a : addrs) {
+	                                gp = new GeoPoint(a.getLatitude(), a.getLongitude());
+	                                break;
+	                            }
+	                        }
+	                        catch (Exception e) {
+	                        }
+	                        return gp;
+	                    }
+	                    @Override
+	                    protected void onPostExecute(GeoPoint gp) {
+	                        if(gp != null){
+	                            Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
+	                            intent.putExtra(RouteActivity.CURRENT_LOCATION, true);
+	                            Bundle extras = new Bundle();
+	                            extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
+	                            extras.putString("originAddr", EditAddress.CURRENT_LOCATION);
+	                            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(0, 0 ));
+	                            extras.putString("destAddr", addr);
+	                            extras.putParcelable(RouteActivity.DEST_COORD, gp);
+	                            intent.putExtras(extras);
+	                            startActivity(intent);
+	                        }
+	                    }
+	                };
+	                Misc.parallelExecute(geoCodeTask);
+	            }
+			}
+		});
+        
+        SwipeDismissListViewTouchListener touchListener =
+                new SwipeDismissListViewTouchListener(
+                		reservationListView,
+                        new SwipeDismissListViewTouchListener.OnDismissCallback() {
+                            @Override
+                            public void onDismiss(ListView listView, int[] reverseSortedPositions) {
+                                for (int position : reverseSortedPositions) {
+                                	final Reservation reserv = reservationAdapter.getItem(position);
+                                	reservationAdapter.remove(reserv);
+                                	AsyncTask<Void, Void, Void> delTask = new AsyncTask<Void, Void, Void>(){
+            		                    @Override
+            		                    protected Void doInBackground(Void... params) {
+            		                        ReservationDeleteRequest request = new ReservationDeleteRequest(
+            		                            User.getCurrentUser(LandingActivity2.this), reserv.getRid());
+            		                        try {
+            		                            request.execute(LandingActivity2.this);
+            		                        }
+            		                        catch (Exception e) {
+            		                        }
+            		                        return null;
+            		                    }
+            		                };
+            		                Misc.parallelExecute(delTask);
+                                }
+                                reservationAdapter.notifyDataSetChanged();
+                                refreshTripsInfo();
+                            }
+                         });
+        reservationListView.setOnTouchListener(touchListener);
     }
     
     private void unSelectAllIcon() {
@@ -1715,24 +2017,15 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     public enum IconType {
-    	star(0), home(1), work(2);
+    	star, home, work;
     	
-    	private Integer id;
-    	private IconType(Integer id) {
-    		this.id = id;
-    	}
-    	
-    	public Integer getId() {
-    		return this.id;
-    	}
-    	
-    	public static IconType valueOf(Integer id) {
+    	public static IconType fromName(String name) {
     		for(IconType type : values()) {
-    			if(type.getId().equals(id)) {
+    			if(type.name().equals(name)) {
     				return type;
     			}
     		}
-    		return null;
+    		return star;
     	}
     	
     	public static Integer[] getIconInfos(IconType type) {
@@ -1928,6 +2221,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                    mapView.postInvalidate();
 	                }
 	                relayoutIcons();
+	                setReserMenuAndTripInfoStatus(false);
 	            } 
 	            else{
                     Reservation reserv = reservations.get(0);
@@ -1967,11 +2261,136 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     getGoingBtn.setVisibility(getGoingBtnVis);
                     TextView rescheBtn = (TextView) findViewById(R.id.reschedule_button);
                     rescheBtn.setVisibility(rescheBtnVis);
-	                    carIcon.setVisibility(carIconVis);
+	                carIcon.setVisibility(carIconVis);
+	                drawRoute(reserv);
+                    refreshTripInfoPanel(reservations);
+                    refreshReservationList(reservations);
 	            }
 	        }
 	    };
 	    Misc.parallelExecute(tripTask);
+    }
+    
+    private void refreshTripInfoPanel(List<Reservation> reservations) {
+    	Reservation reserv = null;
+    	int curReservIdx = -1;
+    	while(curReservIdx < reservations.size() && reserv == null) {
+    		curReservIdx++;
+    		Reservation tempReserv = reservations.get(curReservIdx);
+    		long departureTimeUtc = tempReserv.getDepartureTimeUtc();
+    		long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
+    		if(timeUntilDepart > -10 * 60 * 60 * 1000L) {
+    			reserv = tempReserv;
+    		}
+    	}
+    	
+    	View tripInfoPanel = findViewById(R.id.trip_info);
+    	if(reserv != null) {
+	    	String nextTripInfoDesc = "";
+	    	String nextTripStartTime = "";
+	    	String arrivalTime = TimeColumn.formatTime(reserv.getArrivalTime(), reserv.getRoute().getTimezoneOffset());
+	    	int backgroundColor = R.color.metropia_orange;
+	    	long departureTimeUtc = reserv.getDepartureTimeUtc();
+	        long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
+	        long durationTime = reserv.getDuration();
+	        if(reserv.isEligibleTrip()){
+	        	nextTripInfoDesc = "It's Time to Go!\nTrip Duration";
+	            backgroundColor = R.color.metropia_green;
+	            nextTripStartTime = TimeColumn.getFormattedDuration((int)durationTime);
+	            arrivalTime = TimeColumn.formatTime(System.currentTimeMillis() + durationTime, reserv.getRoute().getTimezoneOffset());
+	        }else if(timeUntilDepart > 60 * 60 * 1000L){
+	        	nextTripInfoDesc = "Your Next Trip will be at";
+	            nextTripStartTime = TimeColumn.formatTime(departureTimeUtc, reserv.getRoute().getTimezoneOffset());
+	            backgroundColor = R.color.metropia_orange;
+	        }else if(timeUntilDepart > Reservation.GRACE_INTERVAL){
+	        	nextTripInfoDesc = "Your Next Trip is in";
+	            nextTripStartTime = TimeColumn.getFormattedDuration((int)timeUntilDepart / 1000);
+	            backgroundColor = R.color.metropia_orange;
+	        }
+	        tripInfoPanel.setBackgroundColor(getResources().getColor(backgroundColor));
+	        tripInfoPanel.setTag(reserv);
+	        tripInfoPanel.findViewById(R.id.multiple_trip_menu).setVisibility(reservations.size()-curReservIdx>1?View.VISIBLE:View.GONE);
+	        ((TextView)tripInfoPanel.findViewById(R.id.trip_start_desc)).setText(nextTripInfoDesc);
+	        ((TextView)tripInfoPanel.findViewById(R.id.trip_start_time)).setText(formatTripStartTime(nextTripStartTime));
+	        ((TextView)tripInfoPanel.findViewById(R.id.trip_arrival_time)).setText(formatTripArrivalTime(arrivalTime));
+	        showTripInfoPanel(false);
+	        setReserMenuAndTripInfoStatus(true);
+    	}
+    	else {
+    		Log.d("LandingActivity2", "hideTripInfoPanel");
+    		hideTripInfoPanel();
+    		setReserMenuAndTripInfoStatus(false);
+    	}
+    	refreshReservationList(reservations);
+    }
+    
+    private void refreshReservationList(List<Reservation> reservations) {
+    	reservationAdapter.clear();
+    	int curReservIdx = -1;
+    	boolean cont = true;
+    	while(curReservIdx < reservations.size() && cont) {
+    		curReservIdx++;
+    		Reservation tempReserv = reservations.get(curReservIdx);
+    		long departureTimeUtc = tempReserv.getDepartureTimeUtc();
+    		long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
+    		if(timeUntilDepart > -10 * 60 * 60 * 1000L) {
+    			cont = false;
+    		}
+    	}
+    	
+    	if(!cont) {
+    		for(int i = curReservIdx ; i < reservations.size() ; i++) {
+    			reservationAdapter.add(reservations.get(i));
+    		}
+    	}
+    }
+    
+    private void showTripInfoPanel(boolean force) {
+    	View reservationListPanel = findViewById(R.id.reservations_list);
+    	View tripInfoPanel = findViewById(R.id.trip_info);
+    	if((force && hasReservTrip()) || (reservationListPanel.getVisibility() != View.VISIBLE && hasReservTrip() && !dismissReservId.equals(((Reservation)tripInfoPanel.getTag()).getRid()))) {
+    		tripInfoPanel.setVisibility(View.VISIBLE);
+    	}
+    }
+    
+    private boolean hasReservTrip() {
+    	return findViewById(R.id.trip_info).getTag() != null;
+    }
+    
+    private void hideTripInfoPanel() {
+    	View tripInfoPanel = findViewById(R.id.trip_info);
+    	tripInfoPanel.setVisibility(View.GONE);
+    }
+    
+    private void setReserMenuAndTripInfoStatus(boolean show) {
+    	findViewById(R.id.reservations).setVisibility(show?View.VISIBLE:View.GONE);
+		findViewById(R.id.reservations_spliter).setVisibility(show?View.VISIBLE:View.GONE);
+		if(!show) {
+			findViewById(R.id.trip_info).setTag(null);
+		}
+    }
+    
+    private SpannableString formatTripStartTime(String startTime) {
+    	int indexOfChange = startTime.endsWith("M")?(startTime.indexOf("A")!=-1?startTime.indexOf("A"):startTime.indexOf("P")):startTime.indexOf("m");
+		SpannableString startTimeSpan = SpannableString.valueOf(startTime);
+		if(indexOfChange != -1) {
+			startTimeSpan.setSpan(new AbsoluteSizeSpan(getResources()
+					.getDimensionPixelSize(R.dimen.smallest_font)), indexOfChange,
+					startTime.length(),
+					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		}
+		return startTimeSpan;
+    }
+    
+    private SpannableString formatTripArrivalTime(String arrivalTime) {
+    	int indexOfChange = arrivalTime.indexOf("AM")!=-1?arrivalTime.indexOf("AM"):arrivalTime.indexOf("PM");
+    	SpannableString arrivalTimeSpan = SpannableString.valueOf(arrivalTime);
+    	if(indexOfChange != -1) {
+			arrivalTimeSpan.setSpan(new AbsoluteSizeSpan(getResources()
+					.getDimensionPixelSize(R.dimen.smallest_font)), indexOfChange, arrivalTime.length(),
+					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+    	}
+		return arrivalTimeSpan;
     }
     
     private Long drawedReservId = Long.valueOf(-1);
@@ -2230,7 +2649,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 										model.lon=a.getLongitude();
 										model.address=a.getAddress();
 										model.geopoint=gp;
-										writeInfo2FavoritePanel(model, IconType.star.getId());
+										writeInfo2FavoritePanel(model, a.getIconName());
 										findViewById(R.id.landing_panel).setVisibility(View.GONE);
 										favOpt.setVisibility(View.VISIBLE);
 									}
@@ -2709,11 +3128,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	return StringUtils.isNotBlank(favAddr) && StringUtils.isNotBlank(label) && icon!=null;
     }
     
-    private void writeInfo2FavoritePanel(BalloonModel model, Integer iconTypeId) {
+    private void writeInfo2FavoritePanel(BalloonModel model, String iconName) {
     	View favOptPanel = findViewById(R.id.fav_opt);
     	favOptPanel.setTag(model);
     	((EditText) favOptPanel.findViewById(R.id.label_input)).setText(model.label);
-    	IconType icon = IconType.valueOf(iconTypeId);
+    	IconType icon = IconType.fromName(iconName);
     	if(icon != null) {
     		favOptPanel.findViewById(R.id.icon).setTag(icon);
     		Integer[] iconInfo = IconType.getIconInfos(icon);
@@ -2766,7 +3185,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 						model.lon=l.lon;
 						model.address=l.addr;
 						model.geopoint=gp;
-						writeInfo2FavoritePanel(model, IconType.star.getId());
+						writeInfo2FavoritePanel(model, null);
 						findViewById(R.id.landing_panel).setVisibility(View.GONE);
 						favOpt.setVisibility(View.VISIBLE);
 					}
@@ -2816,6 +3235,30 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     protected void onDestroy() {
         super.onDestroy();
         closeGPS();
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode,Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        
+        if(requestCode == -1) {
+            finish();
+        }
+        
+        Bundle extras = intent == null?null:intent.getExtras();
+        
+        if(requestCode == ON_MY_WAY && resultCode == Activity.RESULT_OK) {
+        	final String emails = extras.getString(ValidationActivity.EMAILS);
+        	final String phones = extras.getString(ValidationActivity.PHONES);
+        	Reservation reservation = (Reservation) findViewById(R.id.trip_info).getTag();
+            Intent validationActivity = new Intent(LandingActivity2.this, ValidationActivity.class);
+            validationActivity.putExtra("route", reservation.getRoute());
+            validationActivity.putExtra("reservation", reservation);
+            validationActivity.putExtra(ValidationActivity.EMAILS, emails);
+            validationActivity.putExtra(ValidationActivity.PHONES, phones);
+            startActivity(validationActivity);
+            SessionM.logAction("on_my_way");
+        }
     }
     
     static class LoadImageTask extends AsyncTask<Void, Void, Bitmap> {

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" >
+
+    <LinearLayout
+        android:id="@+id/reservation_item"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/od_info"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="@string/placeholder"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/medium_font"
+            android:singleLine="true"
+            android:gravity="left|center"/>
+
+        <TextView
+            android:id="@+id/leave_info"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="@string/placeholder"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/smaller_font"
+            android:gravity="left|center"/>
+        
+        <TextView
+            android:id="@+id/arrive_info"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:text="@string/placeholder"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/smaller_font"
+            android:gravity="left|center"/>
+        
+    </LinearLayout>
+    
+    <View 
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:background="@android:color/transparent"/>
+
+</LinearLayout>

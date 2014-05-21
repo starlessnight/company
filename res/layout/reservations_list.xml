@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/reservations_list_panel"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:id="@+id/trip_info"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <include layout="@layout/metropia_color_bar" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp" >
+            
+            <ImageView
+                android:id="@+id/multiple_trip_menu"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:layout_gravity="right|center"
+                android:src="@drawable/menu_button"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/trip_start_desc"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="2"
+                android:gravity="center|bottom"
+                android:text="Your Next Trip is in:"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/medium_font" />
+
+            <TextView
+                android:id="@+id/trip_start_time"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="2"
+                android:gravity="center"
+                android:text="00min"
+                android:textColor="@android:color/white"
+                android:textSize="55dp" />
+
+            <TextView
+                android:id="@+id/trip_arrival_desc"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Arrival Time"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/medium_font" />
+
+            <TextView
+                android:id="@+id/trip_arrival_time"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="2"
+                android:gravity="center"
+                android:text="00:00pm"
+                android:textColor="@android:color/white"
+                android:textSize="55dp" />
+
+            <ImageView
+                android:id="@+id/start_trip"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="2"
+                android:gravity="center"
+                android:src="@drawable/trip_start" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="2"
+                android:gravity="center_vertical"
+                android:orientation="horizontal" >
+
+                <ImageView
+                    android:id="@+id/reschedule_trip"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:src="@drawable/reschedule_icon" />
+
+                <ImageView
+                    android:id="@+id/on_my_way_trip"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:src="@drawable/on_my_way_icon" />
+            </LinearLayout>
+            
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="20dp"
+            android:text="slide to dismiss"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/smaller_font" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/reservations_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <include layout="@layout/metropia_color_bar" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white" >
+
+            <TextView
+                android:id="@+id/reservations_list_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:paddingBottom="5dp"
+                android:paddingTop="5dp"
+                android:text="Reservations List"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/smaller_font" />
+
+            <ImageView
+                android:id="@+id/reservation_list_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left|center"
+                android:paddingBottom="5dp"
+                android:paddingLeft="20dp"
+                android:paddingTop="5dp"
+                android:src="@drawable/back_left_arrow" />
+
+            <!-- 
+            <TextView
+                android:id="@+id/reservation_list_edit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|center"
+                android:paddingBottom="5dp"
+                android:paddingRight="10dp"
+                android:paddingTop="5dp"
+                android:text="Edit"
+                android:textColor="@color/light_blue"
+                android:textSize="@dimen/smaller_font" />
+            -->
+        </FrameLayout>
+
+        <ListView
+            android:id="@+id/reservation_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:cacheColorHint="#00000000"
+            android:divider="@null"
+            android:dividerHeight="0dp" />
+
+        <!-- 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/new_trip"
+            android:gravity="center"
+            android:padding="20dp"
+            android:text="New Trip"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/smaller_font" />
+        -->
+    </LinearLayout>
+
+</FrameLayout>

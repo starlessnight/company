@@ -91,14 +91,15 @@ import com.smartrek.models.User;
 import com.smartrek.requests.ImComingRequest;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.Request.Setting;
+import com.smartrek.requests.ReservationDeleteRequest;
 import com.smartrek.requests.ReservationFetchRequest;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.ui.NavigationView;
 import com.smartrek.ui.NavigationView.CheckPointListener;
 import com.smartrek.ui.NavigationView.DirectionItem;
 import com.smartrek.ui.menu.MainMenu;
-import com.smartrek.ui.overlays.OverlayCallback;
 import com.smartrek.ui.overlays.CurrentLocationOverlay;
+import com.smartrek.ui.overlays.OverlayCallback;
 import com.smartrek.ui.overlays.RouteDebugOverlay;
 import com.smartrek.ui.overlays.RouteDestinationOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
@@ -1824,6 +1825,20 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			                    saveTrip();
 			                }
 			            });
+						AsyncTask<Void, Void, Void> delTask = new AsyncTask<Void, Void, Void>(){
+		                    @Override
+		                    protected Void doInBackground(Void... params) {
+		                        ReservationDeleteRequest request = new ReservationDeleteRequest(
+		                            User.getCurrentUser(ValidationActivity.this), reservation.getRid());
+		                        try {
+		                            request.execute(ValidationActivity.this);
+		                        }
+		                        catch (Exception e) {
+		                        }
+		                        return null;
+		                    }
+		                };
+		                Misc.parallelExecute(delTask);
 					}
 				}
 			});

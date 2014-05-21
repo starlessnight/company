@@ -116,8 +116,8 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
 		
 		// FIXME: I think Trip should have a userID field.
 		int uid = User.getCurrentUser(context).getId();
-		this.origin = new Address(trip.getOriginID(), uid, "", trip.getOrigin(), 0, 0);
-		this.destination = new Address(trip.getDestinationID(), uid, "", trip.getDestination(), 0, 0);
+		this.origin = new Address(trip.getOriginID(), uid, "", trip.getOrigin(), 0, 0, "");
+		this.destination = new Address(trip.getDestinationID(), uid, "", trip.getDestination(), 0, 0, "");
 	}
 	
 	@Override

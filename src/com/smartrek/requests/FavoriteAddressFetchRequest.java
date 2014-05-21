@@ -38,7 +38,7 @@ public final class FavoriteAddressFetchRequest extends FetchRequest<List<Address
                 address.setAddress(object.getString("address"));
                 address.setLatitude(object.optDouble("lat", 0));
                 address.setLongitude(object.optDouble("lon", 0));
-                
+                address.setIconName(object.getString("icon"));
                 addresses.add(address);
             }
 		}else{

@@ -76,7 +76,7 @@ public class ShortcutAddressDialog extends Dialog implements TextWatcher {
                     @Override
                     public void onClickNeutralButton() {
                         final FavoriteAddressEditDialog dialog = new FavoriteAddressEditDialog(getContext());
-                        dialog.setAddress(new Address(0, User.getCurrentUser(getContext()).getId(), "", editTextAddress.getText().toString().trim(), 0, 0));
+                        dialog.setAddress(new Address(0, User.getCurrentUser(getContext()).getId(), "", editTextAddress.getText().toString().trim(), 0, 0, ""));
                         dialog.setActionListener(new FavoriteAddressEditDialog.ActionListener() {
                             
                             @Override

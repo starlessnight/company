@@ -498,7 +498,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	}
 	
 	private Address getRawOriginAddress(){
-	    return new Address(0, User.getCurrentUser(this).getId(), "", editAddressOrigin.getText().toString().trim(), 0, 0);
+	    return new Address(0, User.getCurrentUser(this).getId(), "", editAddressOrigin.getText().toString().trim(), 0, 0, "");
 	}
 	
 	/**
@@ -515,7 +515,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	}
 	
 	private Address getRawDestinationAddress() {
-        return new Address(0, User.getCurrentUser(this).getId(), "", editAddressDest.getText().toString().trim(), 0, 0);
+        return new Address(0, User.getCurrentUser(this).getId(), "", editAddressDest.getText().toString().trim(), 0, 0, "");
     }
 	
 	private TripEditDialog dialog;
