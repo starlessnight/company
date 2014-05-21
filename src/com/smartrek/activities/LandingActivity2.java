@@ -1838,7 +1838,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         registerReceiver(tripInfoUpdater, new IntentFilter(TRIP_INFO_UPDATES));
         registerReceiver(onTheWayNotifier, new IntentFilter(ON_THE_WAY_NOTICE));
         SessionM.onActivityResume(this);
-        sendBroadcast(new Intent(TRIP_INFO_UPDATES));
         mapRefresh.set(true);
         prepareGPS();
         drawedReservId = Long.valueOf(-1);
@@ -1911,69 +1910,64 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	        }
 	        @Override
 	        protected void onPostExecute(List<Reservation> reservations) {
-	            if (ehs.hasExceptions()) { 
-	                //ehs.reportExceptions();
+	            View tripPanel = findViewById(R.id.trip_panel);
+                TextView nextTripInfo = (TextView) findViewById(R.id.next_trip_info);
+                View carIcon = findViewById(R.id.car_icon);
+	            if (ehs.hasExceptions() || reservations == null || reservations.isEmpty()) { 
+	                tripPanel.setTag(null);
+	                nextTripInfo.setText(NO_TRIPS);
+	                if(tripPanel.getVisibility() == View.VISIBLE) {
+	                    slideDownBottomPanel(false);
+	                }
+	                carIcon.setVisibility(View.INVISIBLE);
+	                MapView mapView = (MapView) findViewById(R.id.mapview);
+	                List<Overlay> mapOverlays = mapView.getOverlays();
+	                List<Overlay> need2Remove = getDrawedRouteOverlays(mapOverlays);
+	                if(!need2Remove.isEmpty()) {
+	                    mapOverlays.removeAll(need2Remove);
+	                    mapView.postInvalidate();
+	                }
+	                relayoutIcons();
 	            } 
 	            else{
-	                View tripPanel = findViewById(R.id.trip_panel);
-	                TextView nextTripInfo = (TextView) findViewById(R.id.next_trip_info);
-	                View carIcon = findViewById(R.id.car_icon);
-	                if(reservations == null || reservations.isEmpty()){
-	                    tripPanel.setTag(null);
-	                    nextTripInfo.setText(NO_TRIPS);
-	                    if(tripPanel.getVisibility() == View.VISIBLE) {
-	                    	slideDownBottomPanel(false);
-	                    }
-	                    carIcon.setVisibility(View.INVISIBLE);
-	                    MapView mapView = (MapView) findViewById(R.id.mapview);
-	                    List<Overlay> mapOverlays = mapView.getOverlays();
-	                    List<Overlay> need2Remove = getDrawedRouteOverlays(mapOverlays);
-	                    if(!need2Remove.isEmpty()) {
-	                     	mapOverlays.removeAll(need2Remove);
-	                     	mapView.postInvalidate();
-	                    }
-	                    relayoutIcons();
-	                     
-	                }else{
-	                    Reservation reserv = reservations.get(0);
-	                    tripPanel.setTag(reserv);
-	                    drawRoute(reserv);
-	                    TextView tripAddr = (TextView) findViewById(R.id.trip_address);
-	                    tripAddr.setText(reserv.getDestinationAddress());
-	                    TextView tripDetails = (TextView) findViewById(R.id.trip_details);
-	                    tripDetails.setText("Duration: " + TimeColumn.getFormattedDuration(reserv.getDuration())
-	                        + "·mPOINTS: " + reserv.getMpoint());
-	                    tripDetails.setSelected(true);
-	                    int getGoingBtnVis = View.GONE;
-	                    int rescheBtnVis = View.VISIBLE;
-	                    int carIconVis = View.VISIBLE;
-	                    String nextTripInfoText;
-	                    long departureTimeUtc = reserv.getDepartureTimeUtc();
-	                    long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
-	                    if(reserv.isEligibleTrip()){
-	                        nextTripInfoText = "Get Going";
-	                        getGoingBtnVis = View.VISIBLE;
-	                        rescheBtnVis = View.GONE;
-	                    }else if(timeUntilDepart > 60 * 60 * 1000L){
-	                        nextTripInfoText = "Next Trip at "
-	                            + TimeColumn.formatTime(departureTimeUtc, reserv.getRoute().getTimezoneOffset());
-	                    }else if(timeUntilDepart > Reservation.GRACE_INTERVAL){
-	                        nextTripInfoText = "Next Trip in "
-	                            + TimeColumn.getFormattedDuration((int)timeUntilDepart / 1000);
-	                    }else if(timeUntilDepart > -2 * 60 * 60 * 1000L){
-	                        nextTripInfoText = "Trip has expired";
-	                    }else{
-	                        nextTripInfoText = NO_TRIPS;
-	                        carIconVis = View.INVISIBLE;
-	                        tripPanel.setVisibility(View.GONE);
-	                    }
-	                    nextTripInfo.setText(nextTripInfoText);
-	                    TextView getGoingBtn = (TextView) findViewById(R.id.get_going_button);
-	                    getGoingBtn.setVisibility(getGoingBtnVis);
-	                    TextView rescheBtn = (TextView) findViewById(R.id.reschedule_button);
-	                    rescheBtn.setVisibility(rescheBtnVis);
+                    Reservation reserv = reservations.get(0);
+                    tripPanel.setTag(reserv);
+                    drawRoute(reserv);
+                    TextView tripAddr = (TextView) findViewById(R.id.trip_address);
+                    tripAddr.setText(reserv.getDestinationAddress());
+                    TextView tripDetails = (TextView) findViewById(R.id.trip_details);
+                    tripDetails.setText("Duration: " + TimeColumn.getFormattedDuration(reserv.getDuration())
+                        + "·mPOINTS: " + reserv.getMpoint());
+                    tripDetails.setSelected(true);
+                    int getGoingBtnVis = View.GONE;
+                    int rescheBtnVis = View.VISIBLE;
+                    int carIconVis = View.VISIBLE;
+                    String nextTripInfoText;
+                    long departureTimeUtc = reserv.getDepartureTimeUtc();
+                    long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
+                    if(reserv.isEligibleTrip()){
+                        nextTripInfoText = "Get Going";
+                        getGoingBtnVis = View.VISIBLE;
+                        rescheBtnVis = View.GONE;
+                    }else if(timeUntilDepart > 60 * 60 * 1000L){
+                        nextTripInfoText = "Next Trip at "
+                            + TimeColumn.formatTime(departureTimeUtc, reserv.getRoute().getTimezoneOffset());
+                    }else if(timeUntilDepart > Reservation.GRACE_INTERVAL){
+                        nextTripInfoText = "Next Trip in "
+                            + TimeColumn.getFormattedDuration((int)timeUntilDepart / 1000);
+                    }else if(timeUntilDepart > -2 * 60 * 60 * 1000L){
+                        nextTripInfoText = "Trip has expired";
+                    }else{
+                        nextTripInfoText = NO_TRIPS;
+                        carIconVis = View.INVISIBLE;
+                        tripPanel.setVisibility(View.GONE);
+                    }
+                    nextTripInfo.setText(nextTripInfoText);
+                    TextView getGoingBtn = (TextView) findViewById(R.id.get_going_button);
+                    getGoingBtn.setVisibility(getGoingBtnVis);
+                    TextView rescheBtn = (TextView) findViewById(R.id.reschedule_button);
+                    rescheBtn.setVisibility(rescheBtnVis);
 	                    carIcon.setVisibility(carIconVis);
-	                }
 	            }
 	        }
 	    };
