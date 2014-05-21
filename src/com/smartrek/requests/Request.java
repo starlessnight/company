@@ -147,6 +147,8 @@ public abstract class Request {
 	
 	protected boolean skipLinkUrlCheck;
 	
+	protected int timeout = HTTP.defaultTimeout;
+	
 	private String executeHttpRequest(Method method, String url, 
 	        Object params, final Context ctx) throws IOException, InterruptedException {
 	    if(!skipLinkUrlCheck && !Request.hasLinkUrls()){
@@ -170,6 +172,7 @@ public abstract class Request {
             + ", params=" + params);
         
         HTTP http = new HTTP(url);
+        http.setTimeout(timeout);
         if(username != null && password != null){
             http.setAuthorization(username, password);
         }

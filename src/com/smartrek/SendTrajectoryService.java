@@ -35,12 +35,17 @@ public class SendTrajectoryService extends IntentService {
     public SendTrajectoryService() {
         super(SendTrajectoryService.class.getName());
     }
-
-    public static void send(Context ctx, long rId){
-        send(ctx, new File(getInDir(ctx), String.valueOf(rId)));
+    
+    public static boolean isSending(Context ctx, long rId){
+        return new File(getInDir(ctx), "_" + rId).exists();
     }
     
-    private static void send(Context ctx, File routeDir){
+    public static boolean send(Context ctx, long rId){
+        return send(ctx, new File(getInDir(ctx), String.valueOf(rId)));
+    }
+    
+    private static boolean send(Context ctx, File routeDir){
+        boolean success = true;
         User user = User.getCurrentUser(ctx);
         if(user != null && ArrayUtils.isNotEmpty(routeDir.list())){
             String originalName = routeDir.getName();
@@ -94,12 +99,14 @@ public class SendTrajectoryService extends IntentService {
                 }
             }
             catch (Exception e) {
+                success = false;
                 Log.d("SendTrajectoryService", Log.getStackTraceString(e));
             }
             finally{
                 routeDir.renameTo(new File(routeDir.getParentFile(), originalName));
             }
         }
+        return success;
     }
     
     @Override
@@ -112,18 +119,14 @@ public class SendTrajectoryService extends IntentService {
                     File inDir = getInDir(SendTrajectoryService.this);
                     File[] routeDirs = inDir.listFiles();
                     if(ArrayUtils.isNotEmpty(routeDirs)){
-                        Arrays.sort(routeDirs);
-                        File routeDir = null;
                         for(File d:routeDirs){
                             String[] files = d.list();
-                            if(ArrayUtils.isNotEmpty(files)){
-                                routeDir = d;
-                            }else if(d.lastModified() < System.currentTimeMillis() - sevenDays){
+                            if(d.lastModified() < System.currentTimeMillis() - sevenDays){
                                 FileUtils.deleteQuietly(d);
+                            }else if(ArrayUtils.isNotEmpty(files) && d != null 
+                                    && StringUtils.isNumeric(d.getName())){
+                                send(SendTrajectoryService.this, d);
                             }
-                        }
-                        if(routeDir != null && StringUtils.isNumeric(routeDir.getName())){
-                            send(SendTrajectoryService.this, routeDir);
                         }
                     }   
                 }

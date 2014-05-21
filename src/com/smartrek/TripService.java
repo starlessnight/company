@@ -1,9 +1,13 @@
 package com.smartrek;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import android.app.AlarmManager;
 import android.app.IntentService;
@@ -35,16 +39,39 @@ public class TripService extends IntentService {
                 if(user != null){
                     File[] files = getDir(TripService.this).listFiles();
                     if(ArrayUtils.isNotEmpty(files)){
+                        Map<Long, File> toSendFiles = new HashMap<Long, File>();
                         for (File f : files) {
+                            String name = f.getName();
+                            if(StringUtils.isNumeric(name)){
+                                try{
+                                    File newFile = new File(f.getParentFile(), "_" + name);
+                                    f.renameTo(newFile);
+                                    long rId = Long.parseLong(name);
+                                    toSendFiles.put(rId, newFile);
+                                }catch(Throwable t){
+                                    Log.w("TripService", Log.getStackTraceString(t));
+                                }
+                            }
+                        }
+                        for (Entry<Long, File> e : toSendFiles.entrySet()) {
+                            boolean deleted = false;
+                            File f = e.getValue();
+                            long rId = e.getKey();
                             try{
-                                long rId = Long.parseLong(f.getName());
-                                SendTrajectoryService.send(TripService.this, rId);
-                                new TripValidationRequest(user, rId).execute(TripService.this);
-                                FileUtils.deleteQuietly(f);
-                            }catch(SmarTrekException e){
+                                if(!SendTrajectoryService.isSending(TripService.this, rId)
+                                        && SendTrajectoryService.send(TripService.this, rId)){
+                                    new TripValidationRequest(user, rId).execute(TripService.this);
+                                    FileUtils.deleteQuietly(f);
+                                }
+                            }catch(SmarTrekException ex){
+                                deleted = true;
                                 FileUtils.deleteQuietly(f);
                             }catch(Throwable t){
                                 Log.w("TripService", Log.getStackTraceString(t));
+                            }finally{
+                                if(!deleted){
+                                    f.renameTo(new File(f.getParentFile(), String.valueOf(rId)));
+                                }
                             }
                         }
                     }
