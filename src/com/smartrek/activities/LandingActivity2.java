@@ -3,6 +3,7 @@ package com.smartrek.activities;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -1611,7 +1612,7 @@ private Long dismissReservId = Long.valueOf(-1);
                 
                 TextView arriveInfoView = (TextView) view.findViewById(R.id.arrive_info);
                 StringBuffer arriveInfo = new StringBuffer("Arrive at: ");
-                arriveInfo.append(TimeColumn.formatTime(reserv.getArrivalTime(), reserv.getRoute().getTimezoneOffset()));
+                arriveInfo.append(TimeColumn.formatTime(reserv.getArrivalTimeUtc(), reserv.getRoute().getTimezoneOffset()));
                 arriveInfoView.setText(formatTripArrivalTime(arriveInfo.toString()));
 
                 Font.setTypeface(lightFont, odInfoView, leaveInfoView, arriveInfoView);
@@ -2279,7 +2280,7 @@ private Long dismissReservId = Long.valueOf(-1);
     		Reservation tempReserv = reservations.get(curReservIdx);
     		long departureTimeUtc = tempReserv.getDepartureTimeUtc();
     		long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
-    		if(timeUntilDepart > -10 * 60 * 60 * 1000L) {
+    		if(timeUntilDepart > -1 * Reservation.GRACE_INTERVAL) {
     			reserv = tempReserv;
     		}
     	}
@@ -2288,7 +2289,7 @@ private Long dismissReservId = Long.valueOf(-1);
     	if(reserv != null) {
 	    	String nextTripInfoDesc = "";
 	    	String nextTripStartTime = "";
-	    	String arrivalTime = TimeColumn.formatTime(reserv.getArrivalTime(), reserv.getRoute().getTimezoneOffset());
+	    	String arrivalTime = TimeColumn.formatTime(reserv.getArrivalTimeUtc(), reserv.getRoute().getTimezoneOffset());
 	    	int backgroundColor = R.color.metropia_orange;
 	    	long departureTimeUtc = reserv.getDepartureTimeUtc();
 	        long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
@@ -2307,12 +2308,19 @@ private Long dismissReservId = Long.valueOf(-1);
 	            nextTripStartTime = TimeColumn.getFormattedDuration((int)timeUntilDepart / 1000);
 	            backgroundColor = R.color.metropia_orange;
 	        }
+	        else {
+	        	Log.d("LandingActivity2", "startTime : " + new Date(reserv.getDepartureTimeUtc()) + " arriveTime : " + new Date(reserv.getArrivalTimeUtc()));
+	        }
 	        tripInfoPanel.setBackgroundColor(getResources().getColor(backgroundColor));
 	        tripInfoPanel.setTag(reserv);
 	        tripInfoPanel.findViewById(R.id.multiple_trip_menu).setVisibility(reservations.size()-curReservIdx>1?View.VISIBLE:View.GONE);
-	        ((TextView)tripInfoPanel.findViewById(R.id.trip_start_desc)).setText(nextTripInfoDesc);
-	        ((TextView)tripInfoPanel.findViewById(R.id.trip_start_time)).setText(formatTripStartTime(nextTripStartTime));
-	        ((TextView)tripInfoPanel.findViewById(R.id.trip_arrival_time)).setText(formatTripArrivalTime(arrivalTime));
+	        TextView tripStartDescView = (TextView)tripInfoPanel.findViewById(R.id.trip_start_desc);
+	        tripStartDescView.setText(nextTripInfoDesc);
+	        TextView tripStartTimeView = (TextView)tripInfoPanel.findViewById(R.id.trip_start_time);
+	        tripStartTimeView.setText(formatTripStartTime(nextTripStartTime));
+	        TextView tripArriveTimeView = (TextView)tripInfoPanel.findViewById(R.id.trip_arrival_time);
+	        tripArriveTimeView.setText(formatTripArrivalTime(arrivalTime));
+	        Font.setTypeface(boldFont, tripStartDescView, tripStartTimeView, tripArriveTimeView);
 	        showTripInfoPanel(false);
 	        setReserMenuAndTripInfoStatus(true);
     	}
@@ -2333,7 +2341,7 @@ private Long dismissReservId = Long.valueOf(-1);
     		Reservation tempReserv = reservations.get(curReservIdx);
     		long departureTimeUtc = tempReserv.getDepartureTimeUtc();
     		long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
-    		if(timeUntilDepart > -10 * 60 * 60 * 1000L) {
+    		if(timeUntilDepart > -1 * Reservation.GRACE_INTERVAL) {
     			cont = false;
     		}
     	}

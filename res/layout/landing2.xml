@@ -157,6 +157,11 @@
 	                    
 	                </LinearLayout>
 	                
+	                <View
+                        android:layout_width="match_parent"
+                        android:layout_height="3dp"
+                        android:background="@drawable/bottom_shadow" />
+	                
 	                <ListView 
 		                android:id="@+id/search_result_list"
 		                android:layout_height="0dp"
