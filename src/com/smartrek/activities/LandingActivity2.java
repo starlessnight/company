@@ -2222,6 +2222,7 @@ private Long dismissReservId = Long.valueOf(-1);
 	                    mapView.postInvalidate();
 	                }
 	                relayoutIcons();
+	                hideTripInfoPanel();
 	                setReserMenuAndTripInfoStatus(false);
 	            } 
 	            else{
