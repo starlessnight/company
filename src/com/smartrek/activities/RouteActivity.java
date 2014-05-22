@@ -661,20 +661,11 @@ public final class RouteActivity extends FragmentActivity {
                             
                             SessionM.logAction("make_reservation");
                             
-                            NotificationDialog2 dialog = new NotificationDialog2(RouteActivity.this, "You have successfully reserved a route.");
-                            dialog.setTitle("Notification");
-                            dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
-                                
-                                @Override
-                                public void onClick() {
-                                    Intent intent = new Intent(RouteActivity.this, 
-                                        LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
-                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                    startActivity(intent);
-                                    finish();
-                                }
-                            });
-                            dialog.show();
+                            Intent intent = new Intent(RouteActivity.this, 
+                                LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(intent);
+                            finish();
                         }
                     }
                     
