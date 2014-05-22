@@ -30,7 +30,7 @@
 		            android:layout_width="match_parent"
 		            android:background="#808184"
 		            android:textColor="@android:color/white"
-		            android:text="Leaving"
+		            android:text="Leave"
 		            android:gravity="bottom|center_horizontal"
 		            android:textSize="@dimen/smallest_font"
 		            android:paddingBottom="5dp" 
