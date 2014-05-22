@@ -3154,7 +3154,6 @@ private Long dismissReservId = Long.valueOf(-1);
     	favOptPanel.findViewById(R.id.fav_search_box_clear).setVisibility(model.id!=0?View.GONE:View.VISIBLE);
     	favOptPanel.findViewById(R.id.fav_del).setVisibility(model.id!=0?View.VISIBLE:View.GONE);
     	((TextView)favOptPanel.findViewById(R.id.header)).setText(model.id!=0?"Edit Favorite":"Add Favorite");
-    	((TextView)favOptPanel.findViewById(R.id.fav_save)).setText(model.id!=0?"Done":"Save");
     }
     
     private boolean isBottomBarVisible() {
