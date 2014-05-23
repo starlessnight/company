@@ -118,12 +118,14 @@ public class ContactsSelectActivity extends FragmentActivity {
             }
         });
 
+        final View searchBoxClear = findViewById(R.id.search_box_clear);
 		searchTextView = (EditText) findViewById(R.id.search);
 		searchTextView.addTextChangedListener(new TextWatcher() {
 
 			@Override
 			public void afterTextChanged(Editable s) {
 				String filter = s.toString();
+				searchBoxClear.setVisibility(StringUtils.isBlank(filter)?View.GONE:View.VISIBLE); 
 				updateContactList(filter);
 				addButton.setVisibility(emailFormatIsGood(filter)?View.VISIBLE:View.GONE);
 			}
@@ -139,6 +141,13 @@ public class ContactsSelectActivity extends FragmentActivity {
 			}
 			
 		});
+		
+		searchBoxClear.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchTextView.setText("");
+            }
+        });
 		
 		searchTextView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
