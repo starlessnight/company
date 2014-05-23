@@ -279,6 +279,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     showAutoComplete.set(false);
                     clearSearchResult();
+                    findViewById(R.id.bottom_panel).setVisibility(View.VISIBLE);
+                    findViewById(R.id.metropia_color_bar).setVisibility(View.VISIBLE);
+                    searchResultList.setVisibility(View.GONE);
+                    fromSearchResultList.setVisibility(View.GONE);
                 }
                 else {
                     showAutoComplete.set(true);
@@ -290,6 +294,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     	searchAddresses.add(tapToAdd);
                     	refreshSearchAutoCompleteData();
                     }
+                    findViewById(R.id.bottom_panel).setVisibility(View.GONE);
+                    findViewById(R.id.metropia_color_bar).setVisibility(View.GONE);
+                    searchResultList.setVisibility(View.VISIBLE);
+                    fromSearchResultList.setVisibility(View.GONE);
                 }
             }
         });
@@ -302,6 +310,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     showAutoComplete.set(false);
                     clearFromSearchResult();
+                    findViewById(R.id.bottom_panel).setVisibility(View.VISIBLE);
+                    findViewById(R.id.metropia_color_bar).setVisibility(View.VISIBLE);
+                    searchResultList.setVisibility(View.GONE);
+                    fromSearchResultList.setVisibility(View.GONE);
                 }
                 else {
                     showAutoComplete.set(true);
@@ -313,6 +325,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         fromSearchAddresses.add(tapToAdd);
                         refreshFromSearchAutoCompleteData();
                     }
+                    findViewById(R.id.bottom_panel).setVisibility(View.GONE);
+                    findViewById(R.id.metropia_color_bar).setVisibility(View.GONE);
+                    searchResultList.setVisibility(View.GONE);
+                    fromSearchResultList.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -542,10 +558,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			public void onClick(View v) {
 			    searchBox.setVisibility(View.GONE);
 			    searchBoxClear.setVisibility(View.GONE);
-			    searchResultList.setVisibility(View.GONE);
 				fromSearchBox.setVisibility(View.VISIBLE);
 				fromSearchBoxClear.setVisibility(StringUtils.isBlank(fromSearchBox.getText())?View.GONE:View.VISIBLE);
-				fromSearchResultList.setVisibility(View.VISIBLE);
 				from.setBackgroundResource(0);
 				findViewById(R.id.from_panel).setBackgroundResource(0);
 				findViewById(R.id.from_shadow).setBackgroundResource(0);
@@ -561,10 +575,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			public void onClick(View v) {
 			    searchBox.setVisibility(View.VISIBLE);
                 searchBoxClear.setVisibility(StringUtils.isBlank(searchBox.getText())?View.GONE:View.VISIBLE);
-                searchResultList.setVisibility(View.VISIBLE);
                 fromSearchBox.setVisibility(View.GONE);
                 fromSearchBoxClear.setVisibility(View.GONE);
-                fromSearchResultList.setVisibility(View.GONE);
                 findViewById(R.id.to_panel).setBackgroundResource(0);
 				findViewById(R.id.to_shadow).setBackgroundResource(0);
 				to.setTextColor(getResources().getColor(R.color.light_blue));
