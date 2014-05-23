@@ -38,6 +38,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
+import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
@@ -74,7 +75,6 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.SendTrajectoryService;
@@ -84,6 +84,7 @@ import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.dialogs.FeedbackDialog;
 import com.smartrek.dialogs.FloatingMenuDialog;
 import com.smartrek.dialogs.NotificationDialog2;
+import com.smartrek.dialogs.NotificationDialog2.ActionListener;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
@@ -140,13 +141,16 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	public static final String PHONES = "phones";
 	
 	public static final Integer REPORT_PROBLEM = Integer.valueOf(100);
+	
+	public static final int ON_MY_WAY = Integer.valueOf(110);
 
 	private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 
 	private MapView mapView;
 	private NavigationView navigationView;
-	private ToggleButton volumnControl;
-	private ToggleButton buttonFollow;
+	private ImageView volumnControl;
+	private ImageView buttonFollow;
+	private ImageView onMyWayBtn;
 
 	/**
 	 * @deprecated
@@ -453,7 +457,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		   .append(StringUtil.formatImperialDistance(route.getLength(), false))
 		   .append(" away, and will arrive at ")
 		   .append(reservation.getDestinationAddress()).append(" at ");
-        msg.append(TimeColumn.formatTime(reservation.getArrivalTime(), route.getTimezoneOffset())).append(".");
+        msg.append(TimeColumn.formatTime(reservation.getArrivalTimeUtc(), route.getTimezoneOffset())).append(".");
         return msg.toString();
 	}
 	
@@ -604,6 +608,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	public static RouteRect initRouteRect(Route r) {
 		return new RouteRect(r.getNodes());
 	}
+	
+	private int mStartingX = -1000;
+	private boolean move = false;
 
 	private void initViews() {
 		mapView = (MapView) findViewById(R.id.mapview);
@@ -616,7 +623,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		mapView.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                buttonFollow.setChecked(false);
+                buttonFollow.setTag(Boolean.valueOf(false));
                 return false;
             }
         });
@@ -637,12 +644,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		osmCreditLp.bottomMargin += Dimension.dpToPx(52, getResources()
 				.getDisplayMetrics());
 		
-		buttonFollow = (ToggleButton) findViewById(R.id.center_map_icon);
+		buttonFollow = (ImageView) findViewById(R.id.center_map_icon);
         buttonFollow.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                if (buttonFollow.isChecked()) {
+            	Boolean tagAfterClick = !((Boolean) buttonFollow.getTag());
+            	buttonFollow.setTag(tagAfterClick);
+            	if (tagAfterClick) {
                     if (lastKnownLocation != null) {
                     	double latitude = lastKnownLocation.getLatitude();
                     	double longitude = lastKnownLocation.getLongitude();
@@ -668,6 +677,17 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		navigationView = (NavigationView) findViewById(R.id.navigation_view);
 		navigationView.setDestinationAddress(reservation.getDestinationAddress());
 		navigationView.setTypeface(boldFont);
+		
+		navigationView.setOpenDirectionViewEvent(new Runnable() {
+			@Override
+			public void run() {
+				Log.d("ValidationActivity", "OpenDriectionListView");
+				for(View view : getMapViews()) {
+					view.setVisibility(View.GONE);
+				}
+				findViewById(R.id.directions_view).setVisibility(View.VISIBLE);;
+			}
+		});
 
 		View mapViewEndTripBtn = findViewById(R.id.map_view_end_trip_btn);
 		mapViewEndTripBtn.setOnClickListener(new View.OnClickListener() {
@@ -677,21 +697,52 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 		});
 
-		volumnControl = (ToggleButton) findViewById(R.id.volumn_control);
-		volumnControl.setChecked(MapDisplayActivity
-				.isNavigationTtsEnabled(this));
+		volumnControl = (ImageView) findViewById(R.id.volumn_control);
+		int imageSrc = MapDisplayActivity.isNavigationTtsEnabled(this)?R.drawable.volumn_control_btn:R.drawable.volumn_control_btn_dim;
+		volumnControl.setTag(MapDisplayActivity.isNavigationTtsEnabled(this));
+		volumnControl.setImageResource(imageSrc);
 		volumnControl.setOnClickListener(new OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
-				boolean enabled = volumnControl.isChecked();
-                MapDisplayActivity.setNavigationTts(ValidationActivity.this,
-						enabled);
-                if(enabled){
+				boolean tagAfterClick = !((Boolean) volumnControl.getTag());
+				int imageSrc = tagAfterClick?R.drawable.volumn_control_btn:R.drawable.volumn_control_btn_dim;
+                MapDisplayActivity.setNavigationTts(ValidationActivity.this, tagAfterClick);
+                volumnControl.setTag(tagAfterClick);
+                volumnControl.setImageResource(imageSrc);
+                if(!tagAfterClick){
                     utteranceCompletedCnt.set(utteranceCnt.get());
                 }else{
                     speak("", true);
                 }
+			}
+		});
+		
+		onMyWayBtn = (ImageView) findViewById(R.id.map_view_on_my_way_btn);
+		onMyWayBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Object mark = onMyWayBtn.getTag();
+				if(mark == null) {
+					NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "On My Way availiable only if passanger.");
+					dialog.setTitle("Are you the passanger?");
+					dialog.setPositiveButtonText("Yes");
+					dialog.setPositiveActionListener(new ActionListener() {
+						@Override
+						public void onClick() {
+							Intent contactSelect = new Intent(ValidationActivity.this, ContactsSelectActivity.class);
+							startActivityForResult(contactSelect, ON_MY_WAY);
+							onMyWayBtn.setTag(new Object());
+						}
+					});
+					dialog.setNegativeButtonText("No");
+					dialog.setNegativeActionListener(new ActionListener() {
+						@Override
+						public void onClick() {
+							//do nothing
+						}
+					});
+					dialog.show();
+				}
 			}
 		});
 
@@ -705,78 +756,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					}
 				});
 
-		View menuButton = findViewById(R.id.menu_button);
-		menuButton.setTag(R.id.menu_panel_status, "close");
-		menuButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				toggleMenuPanel();
-			}
-		});
-
-		View menuPanel = findViewById(R.id.menu_panel);
-		menuPanel.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				toggleMenuPanel();
-			}
-		});
 
 		dirListView = (ListView) findViewById(R.id.directions_list);
 		dirListView.setAdapter(dirListadapter);
 
-		View directionsListMenu = findViewById(R.id.directions_list_menu);
-		directionsListMenu.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				for (View mView : getMapViews()) {
-					mView.setVisibility(View.INVISIBLE);
-				}
-				findViewById(R.id.directions_view).setVisibility(View.VISIBLE);
-				toggleMenuPanel();
-			}
-		});
-
-		final View routeViewMenu = findViewById(R.id.route_view);
-		routeViewMenu.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				for (View mView : getMapViews()) {
-					mView.setVisibility(View.VISIBLE);
-				}
-				findViewById(R.id.directions_view)
-						.setVisibility(View.INVISIBLE);
-				toggleMenuPanel();
-				if (lastKnownLocation != null) {
-					double latitude = lastKnownLocation.getLatitude();
-					double longitude = lastKnownLocation.getLongitude();
-					IMapController mc = mapView.getController();
-					mc.setZoom(isNearOriginOrDestination(latitude, longitude)
-                        ?DEFAULT_ZOOM_LEVEL:NAVIGATION_ZOOM_LEVEL);
-					mc.animateTo(new GeoPoint(latitude, longitude));
-				}
-			}
-		});
-		
-		TextView reportProblemView = (TextView) findViewById(R.id.report_problem);
-		reportProblemView.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				toggleMenuPanel();
-				Intent intent = new Intent(ValidationActivity.this, ReportProblemActivity.class);
-				startActivityForResult(intent, REPORT_PROBLEM);
-			}
-		});
-		
-		TextView cancelView = (TextView) findViewById(R.id.cancel);
-		cancelView.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				toggleMenuPanel();
-			}
-		});
-
-		View finishButton = findViewById(R.id.finish);
+		TextView finishButton = (TextView) findViewById(R.id.close);
+		finishButton.setText(Html.fromHtml("<u>Close</u>"));
 		finishButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -797,6 +782,16 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                 startActivity(intent);
             }
         });
+		
+		TextView feedBackButton = (TextView) findViewById(R.id.feedback);
+		feedBackButton.setText(Html.fromHtml("<u>Feedback</u>"));
+		feedBackButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(ValidationActivity.this, FeedbackActivity.class);
+                startActivity(intent);
+			}
+		});
 		
 		TextView doneButton = (TextView) findViewById(R.id.done);
 		doneButton.setOnClickListener(new OnClickListener() {
@@ -826,15 +821,15 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             reservation.getArrivalTimeUtc(), route.getTimezoneOffset()));
         timeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(reservation.getDuration()));
         refreshTimeInfo();
-        timeInfo.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                timeInfo.setTag(R.id.clicked, true);
-                toggleTimeInfo();
-            }
-        });
+//        timeInfo.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                timeInfo.setTag(R.id.clicked, true);
+//                toggleTimeInfo();
+//            }
+//        });
         
-        findViewById(R.id.co2_panel).setOnClickListener(new OnClickListener() {
+        findViewById(R.id.co2_circle).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
@@ -843,7 +838,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
         });
         
-        findViewById(R.id.driving_score_panel).setOnClickListener(new OnClickListener() {
+        findViewById(R.id.drive_score_circle).setOnClickListener(new OnClickListener() {
         	@Override
 			public void onClick(View v) {
 				Intent intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
@@ -858,7 +853,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		
         scheduleTimeInfoCycle();
         
-        Font.setTypeface(boldFont, cancelView, remainDistDirecListView);
+        Font.setTypeface(boldFont, remainDistDirecListView, finishButton, feedBackButton);
 		Font.setTypeface(lightFont, osmCredit, timeInfo, remainTimesDirectListView);
 	}
 	
@@ -866,53 +861,79 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    TextView timeInfo = (TextView) findViewById(R.id.remain_times);
 	    Boolean isRemainingTime = (Boolean) timeInfo.getTag();
         if(isRemainingTime == null || !isRemainingTime){
-            timeInfo.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
+            timeInfo.setText(formatRemainTime(timeInfo.getTag(R.id.remaining_travel_time).toString()));
             isRemainingTime = true;
         }else{
-            timeInfo.setText(timeInfo.getTag(R.id.estimated_arrival_time).toString());
+            timeInfo.setText(formatArrivalTime(timeInfo.getTag(R.id.estimated_arrival_time).toString()));
             isRemainingTime = false;
         }
         timeInfo.setTag(isRemainingTime);
 	}
 	
-	   private void refreshTimeInfo(){
-	        runOnUiThread(new Runnable() {
-	            @Override
-	            public void run() {
-	                final TextView timeInfo = (TextView) findViewById(R.id.remain_times);
-	                Boolean isRemainingTime = (Boolean) timeInfo.getTag();
-	                if(isRemainingTime == null || !isRemainingTime){
-	                    timeInfo.setText(timeInfo.getTag(R.id.estimated_arrival_time).toString());
-	                }else{
-	                    timeInfo.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
-	                }
-	                remainTimesDirectListView.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
+	private SpannableString formatRemainTime(String remainTime) {
+		int indexOfSpace = remainTime.indexOf(" ");
+		SpannableString remainTimeSpan = SpannableString.valueOf(remainTime);
+		remainTimeSpan.setSpan(new AbsoluteSizeSpan(ValidationActivity.this.getResources()
+				.getDimensionPixelSize(R.dimen.smaller_font)), indexOfSpace,
+				remainTime.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		return remainTimeSpan;
+	}
+	
+	private SpannableString formatArrivalTime(String arrivalTime) {
+		String arrivalDesc = "Arrive" + (vertical?"\n":" ") + arrivalTime;
+		SpannableString arrivalTimeSpan = SpannableString.valueOf(arrivalDesc);
+		arrivalTimeSpan.setSpan(new AbsoluteSizeSpan(ValidationActivity.this.getResources()
+				.getDimensionPixelSize(R.dimen.smaller_font)), 0, "Arrival".length(),
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		int secondSpaceIndex = arrivalDesc.lastIndexOf(" ");
+		arrivalTimeSpan.setSpan(new AbsoluteSizeSpan(ValidationActivity.this.getResources()
+				.getDimensionPixelSize(R.dimen.smaller_font)), secondSpaceIndex, arrivalDesc.length(),
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		return arrivalTimeSpan;
+	}
+	
+	private void refreshTimeInfo(){
+	    runOnUiThread(new Runnable() {
+	        @Override
+	        public void run() {
+	            final TextView timeInfo = (TextView) findViewById(R.id.remain_times);
+	            Boolean isRemainingTime = (Boolean) timeInfo.getTag();
+	            if(isRemainingTime == null || !isRemainingTime){
+	                timeInfo.setText(formatArrivalTime(timeInfo.getTag(R.id.estimated_arrival_time).toString()));
+	            }else{
+	                timeInfo.setText(formatRemainTime(timeInfo.getTag(R.id.remaining_travel_time).toString()));
 	            }
-	        });
-	    }
+	            remainTimesDirectListView.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
+	        }
+	    });
+	}
 	    
-	    private static final String timeFormat = "hh:mm a";
+	private static final String timeFormat = "hh:mm a";
 	    
-	    private static String getFormatedEstimateArrivalTime(long time, int timzoneOffset){
-	        SimpleDateFormat dateFormat = new SimpleDateFormat(timeFormat);
-	        dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone(timzoneOffset)));
-	        return dateFormat.format(new Date(time));
-	    }
+	private static String getFormatedEstimateArrivalTime(long time, int timzoneOffset){
+	    SimpleDateFormat dateFormat = new SimpleDateFormat(timeFormat);
+	    dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone(timzoneOffset)));
+	    return dateFormat.format(new Date(time));
+	}
 	    
-	    private static String getFormatedRemainingTime(long seconds){
-	        long minute = Double.valueOf(Math.round(seconds / 60.0D)).longValue();
-	        return minute + " min";
-	    }
+	private static String getFormatedRemainingTime(long seconds){
+	    long minute = Double.valueOf(Math.round(seconds / 60.0D)).longValue();
+	    return minute + " min";
+	}
 
-	private SpannableString formatCO2Desc(Context ctx, String co2Value) {
-		String desc = co2Value + "lbs";
-		int lbsIndex = desc.indexOf("lbs");
-		SpannableString co2ValueSpan = SpannableString.valueOf(desc);
-		co2ValueSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
-				.getDimensionPixelSize(R.dimen.smallest_font)), lbsIndex,
-				lbsIndex + "lbs".length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+	private SpannableString formatCO2Desc(Context ctx, String co2Desc) {
+		int co2Index = co2Desc.indexOf("CO2");
+		SpannableString co2DescSpan = SpannableString.valueOf(co2Desc);
+		co2DescSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
+				.getDimensionPixelSize(R.dimen.smaller_font)), co2Index,
+				co2Index + "CO".length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		
+		int twoIndex = co2Index + "CO".length();
+		co2DescSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
+				.getDimensionPixelSize(R.dimen.micro_font)), twoIndex,
+				twoIndex + "2".length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-		return co2ValueSpan;
+		return co2DescSpan;
 	}
 	
 	private SpannableString formatCongrMessage(Context ctx, String message) {
@@ -924,6 +945,16 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
 		return congrSpan;
+	}
+	
+	private SpannableString formatCongrValueDesc(Context ctx, String valueDesc) {
+		int indexOfNewline = valueDesc.indexOf("\n");
+		SpannableString congrValueSpan = SpannableString.valueOf(valueDesc);
+		congrValueSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
+				.getDimensionPixelSize(R.dimen.smaller_font)), indexOfNewline,
+				valueDesc.length(),
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		return congrValueSpan;
 	}
 
 	/*
@@ -942,22 +973,22 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	private View[] getMapViews() {
 		return new View[] { findViewById(R.id.mapview),
-				findViewById(R.id.navigation_view) };
+				findViewById(R.id.navigation_view), findViewById(R.id.mapview_options) };
 	}
 
-	private void toggleMenuPanel() {
-		View menuButton = findViewById(R.id.menu_button);
-		String currentStatus = menuButton.getTag(R.id.menu_panel_status)
-				.toString();
-		Log.d("menuStatus", currentStatus);
-		if ("open".equals(currentStatus)) {
-			findViewById(R.id.menu_panel).setVisibility(View.INVISIBLE);
-			menuButton.setTag(R.id.menu_panel_status, "close");
-		} else {
-			findViewById(R.id.menu_panel).setVisibility(View.VISIBLE);
-			menuButton.setTag(R.id.menu_panel_status, "open");
-		}
-	}
+//	private void toggleMenuPanel() {
+//		View menuButton = findViewById(R.id.menu_button);
+//		String currentStatus = menuButton.getTag(R.id.menu_panel_status)
+//				.toString();
+//		Log.d("menuStatus", currentStatus);
+//		if ("open".equals(currentStatus)) {
+//			findViewById(R.id.menu_panel).setVisibility(View.INVISIBLE);
+//			menuButton.setTag(R.id.menu_panel_status, "close");
+//		} else {
+//			findViewById(R.id.menu_panel).setVisibility(View.VISIBLE);
+//			menuButton.setTag(R.id.menu_panel_status, "open");
+//		}
+//	}
 
 	private void prepareGPS() {
 		// Acquire a reference to the system Location Manager
@@ -1457,7 +1488,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		runOnUiThread(new Runnable(){
             @Override
             public void run() {
-                if (buttonFollow.isChecked()) {
+                if ((Boolean)buttonFollow.getTag()) {
                     mapView.getController().setZoom(isNearOriginOrDestination(lat, lng)?
                         DEFAULT_ZOOM_LEVEL:NAVIGATION_ZOOM_LEVEL);
                 }
@@ -1472,7 +1503,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		GeoPoint oldLoc = pointOverlay.getLocation();
 		if (oldLoc.isEmpty()) {
-			if (buttonFollow.isChecked()) {
+			if ((Boolean)buttonFollow.getTag()) {
 				mapView.getController().animateTo(new GeoPoint(lat, lng));
 			}
 			pointOverlay.setLocation((float) lat, (float) lng);
@@ -1498,7 +1529,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						double newLat = oldLat + deltaX * slop;
 						pointOverlay.setLocation((float) newLat, (float) newLng);
 						mapView.postInvalidate();
-						if (buttonFollow.isChecked()) {
+						if ((Boolean)buttonFollow.getTag()) {
                             mapView.getController().setCenter(new GeoPoint(newLat, newLng));
                         }
 					}
@@ -1679,26 +1710,26 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		    arrivalMsgDisplayed.set(true);
 			final View panel = findViewById(R.id.congrats_panel);
 			String dest = reservation.getDestinationAddress();
-			String msg = "Arrive at Destination" + "\n" + 
+			String msg = "You Have Arrived!" + "\n" + 
 			    dest.substring(0, dest.indexOf(",")>-1?dest.indexOf(","):dest.length());
 			((TextView) findViewById(R.id.congrats_msg)).setText(formatCongrMessage(ValidationActivity.this, msg));
 			
-			TextView co2 = (TextView) findViewById(R.id.co2);
-			String co2Value = "1.3";  //getCO2
+			
+			TextView co2 = (TextView) findViewById(R.id.co2_circle);
+			String co2Value = "1.3\nCO2";  //getCO2
 			co2.setText(formatCO2Desc(ValidationActivity.this, co2Value));
 			
-			TextView co2Desc = (TextView) findViewById(R.id.co2_desc);
-			String co2DescString = co2Desc.getText().toString();
-			SpannableString co2DescSpan = SpannableString.valueOf(co2DescString);
-			int twoIndex = co2DescString.indexOf("2");
-			co2DescSpan.setSpan(new AbsoluteSizeSpan(ValidationActivity.this.getResources()
-					.getDimensionPixelSize(R.dimen.micro_font)), twoIndex,
-					twoIndex + "2".length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			co2Desc.setText(co2DescSpan);
-
-			TextView mpoint = (TextView) findViewById(R.id.mPoint);
-			mpoint.setText(reservation.getMpoint() + "");
+			TextView mpoint = (TextView) findViewById(R.id.mpoint_circle);
+			mpoint.setText(formatCongrValueDesc(ValidationActivity.this, reservation.getMpoint() + "\nmPoints"));
 			
+			TextView driveScore = (TextView) findViewById(R.id.drive_score_circle);
+			String driveScoreValue = "00\nScore"; //get driving score
+			driveScore.setText(formatCongrValueDesc(ValidationActivity.this, driveScoreValue));
+			
+			Font.setTypeface(boldFont, co2, mpoint, driveScore);
+			
+			//hide map view options
+			findViewById(R.id.mapview_options).setVisibility(View.GONE);;
 			panel.setVisibility(View.VISIBLE);
 			Misc.fadeIn(ValidationActivity.this, panel);
 			
@@ -2177,6 +2208,33 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     saveTrip();
                 }
             });
+        }
+        else if(requestCode == ON_MY_WAY && resultCode == Activity.RESULT_OK) {
+        	Bundle extras = intent == null?null:intent.getExtras();
+        	emails = extras.getString(EMAILS);
+        	phones = extras.getString(PHONES);
+        	if(StringUtils.isNotBlank(phones)) {
+        		sendOnMyWaySms();
+        	}
+            SessionM.logAction("on_my_way");
+        }
+    }
+    
+    private boolean vertical = true;
+    
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        	vertical = false; 
+        	navigationView.setScreenVertical(vertical);
+        	navigationView.refreshDimension();
+        	refreshTimeInfo();
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+        	vertical = true;
+        	navigationView.setScreenVertical(vertical);
+        	navigationView.refreshDimension();
+        	refreshTimeInfo();
         }
     }
     

@@ -31,6 +31,7 @@ import com.smartrek.activities.DebugOptionsActivity;
 import com.smartrek.activities.MainActivity;
 import com.smartrek.activities.R;
 import com.smartrek.models.Route;
+import com.smartrek.utils.Dimension;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.RouteLink;
@@ -136,7 +137,10 @@ public class NavigationView extends LinearLayout {
 	
 	private int mStartingX = -1000;
 	private boolean move = false;
-
+	
+	private Runnable openDirectionViewEvent;
+	private boolean screenVertical = true;
+	
 	public NavigationView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
@@ -184,14 +188,17 @@ public class NavigationView extends LinearLayout {
 				    	move = true;
 				    	break;
 				    case MotionEvent.ACTION_UP:
-				        if (mStartingX != -1000 && move && X >= mStartingX - 10 && btnPrevItem.getVisibility() == View.VISIBLE) {
+				        if (mStartingX != -1000 && move && X >= mStartingX - 20 && btnPrevItem.getVisibility() == View.VISIBLE) {
 				        	currentItemIdx = Math.max(currentItemIdx - 1, 0);
 				        	refresh(false);
-				        } else if (mStartingX != -1000 && move && X < mStartingX - 10 && btnNextItem.getVisibility() == View.VISIBLE) {
+				        } else if (mStartingX != -1000 && move && X < mStartingX - 20 && btnNextItem.getVisibility() == View.VISIBLE) {
 				        	currentItemIdx = Math.min(currentItemIdx + 1, items.size() - 1);
 				        	refresh(false);
 				        }
 				        mStartingX = -1000;
+				        if(!move && openDirectionViewEvent!=null) {
+				        	openDirectionViewEvent.run();
+				        }
 				        move = false;
 				        break;
 			    }
@@ -345,6 +352,9 @@ public class NavigationView extends LinearLayout {
 	public static double metersToMiles(double meters) {
 		return meters * 0.000621371;
 	}
+	
+	private static final Integer SCREEN_VERTICAL_WIDTH = Integer.valueOf(100);
+	private static final Integer SCREEN_HORIENTAL_WIDTH = Integer.valueOf(180);
 
 	private void refresh(boolean forceNoti) {
 	    if(items.isEmpty()){
@@ -352,7 +362,7 @@ public class NavigationView extends LinearLayout {
 	    }
 	    
 		DirectionItem item = items.get(currentItemIdx);
-
+		
 		if (item.drawableId == 0) {
 			imgViewDirection.setVisibility(View.INVISIBLE);
 		} else {
@@ -381,7 +391,8 @@ public class NavigationView extends LinearLayout {
 		}
 
 		String distance = StringUtil
-				.formatImperialDistance(item.distance, true);
+				.formatImperialDistance(item.distance, !screenVertical);
+		distance = distance.replaceFirst(" ", screenVertical?"\n":"");
 		textViewDistance.setText(distance);
 		CharSequence roadText = (StringUtils.isBlank(item.roadName) 
             || StringUtils.equalsIgnoreCase(item.roadName, "null")) ? "" 
@@ -406,6 +417,26 @@ public class NavigationView extends LinearLayout {
 			notifyIfNecessary(item.direction + ", " + distance + ", " + roadText.toString(), forceNoti);
 		}
 		
+	}
+	
+	public void refreshDimension() {
+		LinearLayout directionInfos = (LinearLayout) findViewById(R.id.direction_infos);
+		directionInfos.setOrientation(screenVertical?LinearLayout.VERTICAL:LinearLayout.HORIZONTAL);
+		ViewGroup.LayoutParams params = directionInfos.getLayoutParams();
+		params.width = Dimension.dpToPx(screenVertical?SCREEN_VERTICAL_WIDTH:SCREEN_HORIENTAL_WIDTH, 
+				getContext().getResources().getDisplayMetrics());
+		
+		String distance = textViewDistance.getText().toString();
+		if(distance.endsWith("mi")) {
+			distance = distance.replaceAll("mi", screenVertical?"\nmiles":"mi");
+		}
+		else if(distance.endsWith("\nmiles")){
+			distance = distance.replaceAll("\nmiles", screenVertical?"\nmiles":"mi");
+		}
+		else {
+			distance = distance.replaceAll("\nmile", screenVertical?"\nmile":"mi");
+		}
+		textViewDistance.setText(distance);
 	}
 
 	public static SpannableString adjustDistanceFontSize(Context ctx,
@@ -678,5 +709,13 @@ public class NavigationView extends LinearLayout {
     public void setHasVoice(boolean hasVoice) {
         this.hasVoice = hasVoice;
     }
+    
+    public void setOpenDirectionViewEvent(Runnable event) {
+    	this.openDirectionViewEvent = event;
+    }
+
+	public void setScreenVertical(boolean screenVertical) {
+		this.screenVertical = screenVertical;
+	}
 
 }

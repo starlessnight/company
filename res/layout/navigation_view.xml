@@ -32,18 +32,19 @@
         android:visibility="invisible" />
 
     <LinearLayout
-        android:id="@+id/navigation_display" 
+        android:id="@+id/navigation_display"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:visibility="invisible">
+        android:visibility="invisible" >
         
 	    <LinearLayout
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:orientation="horizontal">
 	        
-	    	<LinearLayout 
+	    	<LinearLayout
+	    	    android:id="@+id/direction_infos" 
 		        android:layout_width="100dp"
 		        android:layout_height="match_parent"
 		        android:background="@color/orange"
@@ -76,9 +77,13 @@
 	    	    android:id="@+id/road_panel"
 		        android:layout_width="match_parent"
 		        android:layout_height="match_parent"
-		        android:layout_marginLeft="2dp"
 		        android:orientation="horizontal"
 		        android:background="@color/orange">
+		        
+	    	    <View 
+	    	        android:layout_width="5dp"
+	    	        android:layout_height="match_parent"
+	    	        android:background="@drawable/left_shadow"/>
 		        
 	    	    <ImageView
 	    	        android:id="@+id/btn_prev_item"
@@ -112,11 +117,16 @@
 	    	        android:paddingLeft="7dp"
 	    	        android:visibility="invisible"
 	    	    />
+		        
+		        <View 
+	    	        android:layout_width="5dp"
+	    	        android:layout_height="match_parent"
+	    	        android:background="@drawable/right_shadow"/>
 	        </LinearLayout>
 	        
 	    </LinearLayout>
 	    
-	    <LinearLayout 
+	    <RelativeLayout 
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:background="@android:color/transparent"
@@ -127,15 +137,17 @@
 				android:layout_width="100dp"
 				android:layout_height="wrap_content"
 				android:background="@android:color/white"
-				android:orientation="horizontal">
+				android:orientation="horizontal"
+				android:gravity="center"
+				android:layout_alignParentLeft="true"
+				android:layout_alignParentTop="true">
 				
 		        <TextView
 				    android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:layout_marginLeft="4dp"
-					android:text="Then"
+					android:text="Next"
 					android:textColor="@color/navigation_gray"
-					android:gravity="center_vertical"
 					style="@style/SmallerText"
 			    />
 		        
@@ -145,12 +157,21 @@
 				    android:layout_width="wrap_content"
 				    android:layout_marginLeft="4dp"
 				    android:layout_gravity="center_vertical"
-				    android:src="@drawable/make_a_u_turn" 
-	            />
+				    android:src="@drawable/small_make_a_u_turn"/>
 			        
 			</LinearLayout>
 			
-	    </LinearLayout>
+		    <TextView 
+		        android:id="@+id/remain_times"
+		        android:layout_height="wrap_content"
+		        android:layout_width="wrap_content"
+		        android:text="Arrive 12:45"
+		        android:textColor="@color/transparent_gray"
+		        android:textSize="@dimen/large_font"
+		        android:layout_alignParentRight="true"
+		        android:layout_alignParentTop="true"/>
+			
+	    </RelativeLayout>
 	    
 	</LinearLayout>
 
