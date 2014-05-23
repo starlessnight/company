@@ -211,6 +211,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private ListView reservationListView;
     private ArrayAdapter<Reservation> reservationAdapter;
     
+    private ImageView tripNotifyIcon;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -1457,6 +1459,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 private Long dismissReservId = Long.valueOf(-1);
     
     private void initReservationListView() {
+    	tripNotifyIcon = (ImageView) findViewById(R.id.trip_notify_icon);
+    	tripNotifyIcon.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				showTripInfoPanel(true);
+			}
+		});
     	final View tripInfoPanel = findViewById(R.id.trip_info);
         tripInfoPanel.setOnTouchListener(new SwipeDismissTouchListener(tripInfoPanel, null, new SwipeDismissTouchListener.OnDismissCallback() {
 			@Override
@@ -1913,6 +1922,10 @@ private Long dismissReservId = Long.valueOf(-1);
         RelativeLayout.LayoutParams centerMapIconLp = (RelativeLayout.LayoutParams) centerMapIcon.getLayoutParams();
         centerMapIconLp.bottomMargin = Dimension.dpToPx(bottomMargin, getResources().getDisplayMetrics());
         centerMapIcon.setLayoutParams(centerMapIconLp);
+        View upcomingTripIcon = findViewById(R.id.trip_notify_icon);
+        RelativeLayout.LayoutParams upcomingTripIconLp = (RelativeLayout.LayoutParams) upcomingTripIcon.getLayoutParams();
+        upcomingTripIconLp.bottomMargin = Dimension.dpToPx(bottomMargin, getResources().getDisplayMetrics());
+        upcomingTripIcon.setLayoutParams(upcomingTripIconLp);
 //        View menuIcon = findViewById(R.id.drawer_menu_icon);
 //        FrameLayout.LayoutParams menuIconLp = (FrameLayout.LayoutParams) menuIcon.getLayoutParams();
 //        menuIconLp.bottomMargin = Dimension.dpToPx(bottomMargin, getResources().getDisplayMetrics());
@@ -2237,6 +2250,7 @@ private Long dismissReservId = Long.valueOf(-1);
 	                relayoutIcons();
 	                hideTripInfoPanel();
 	                setReserMenuAndTripInfoStatus(false);
+	                tripNotifyIcon.setVisibility(View.GONE);
 	            } 
 	            else{
                     Reservation reserv = reservations.get(0);
@@ -2338,10 +2352,12 @@ private Long dismissReservId = Long.valueOf(-1);
 	        		(TextView) tripInfoPanel.findViewById(R.id.trip_arrival_desc));
 	        showTripInfoPanel(false);
 	        setReserMenuAndTripInfoStatus(true);
+	        tripNotifyIcon.setVisibility(View.VISIBLE);
     	}
     	else {
     		Log.d("LandingActivity2", "hideTripInfoPanel");
     		hideTripInfoPanel();
+    		tripNotifyIcon.setVisibility(View.GONE);
     		setReserMenuAndTripInfoStatus(false);
     	}
     	refreshReservationList(reservations);

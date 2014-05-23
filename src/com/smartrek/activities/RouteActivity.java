@@ -1292,7 +1292,7 @@ public final class RouteActivity extends FragmentActivity {
             setHighlightedRoutePathOverlays(true);
             mapView.postInvalidate();
             
-            if (ehs.hasExceptions()) {
+            if (ehs.hasExceptions() && selectedColumn == 0) {
                 ehs.reportExceptions(goBackToWhereTo);
             }
             else {

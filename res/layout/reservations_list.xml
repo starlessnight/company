@@ -23,7 +23,7 @@
                 android:layout_height="match_parent"
                 android:layout_margin="10dp"
                 android:layout_gravity="right|center"
-                android:src="@drawable/menu_button"
+                android:src="@drawable/multi_trip_icon"
                 android:visibility="gone" />
         </FrameLayout>
 
@@ -151,7 +151,7 @@
                 android:paddingBottom="5dp"
                 android:paddingLeft="20dp"
                 android:paddingTop="5dp"
-                android:src="@drawable/back_left_arrow" />
+                android:src="@drawable/reservation_list_back_arrow" />
 
             <!-- 
             <TextView
