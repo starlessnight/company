@@ -1612,7 +1612,8 @@ private Long dismissReservId = Long.valueOf(-1);
                 
                 TextView arriveInfoView = (TextView) view.findViewById(R.id.arrive_info);
                 StringBuffer arriveInfo = new StringBuffer("Arrive at: ");
-                arriveInfo.append(TimeColumn.formatTime(reserv.getArrivalTimeUtc(), reserv.getRoute().getTimezoneOffset()));
+                long arrivalTime = isAbout2Go?(System.currentTimeMillis() + reserv.getDuration()*1000):reserv.getArrivalTimeUtc();
+                arriveInfo.append(TimeColumn.formatTime(arrivalTime, reserv.getRoute().getTimezoneOffset()));
                 arriveInfoView.setText(formatTripArrivalTime(arriveInfo.toString()));
 
                 Font.setTypeface(lightFont, odInfoView, leaveInfoView, arriveInfoView);
@@ -2276,7 +2277,7 @@ private Long dismissReservId = Long.valueOf(-1);
     private void refreshTripInfoPanel(List<Reservation> reservations) {
     	Reservation reserv = null;
     	int curReservIdx = -1;
-    	while(curReservIdx < reservations.size() && reserv == null) {
+    	while(curReservIdx < (reservations.size()-1) && reserv == null) {
     		curReservIdx++;
     		Reservation tempReserv = reservations.get(curReservIdx);
     		long departureTimeUtc = tempReserv.getDepartureTimeUtc();
@@ -2294,12 +2295,12 @@ private Long dismissReservId = Long.valueOf(-1);
 	    	int backgroundColor = R.color.metropia_orange;
 	    	long departureTimeUtc = reserv.getDepartureTimeUtc();
 	        long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
-	        long durationTime = reserv.getDuration();
+	        long durationTime = reserv.getDuration();  //sec
 	        if(reserv.isEligibleTrip()){
 	        	nextTripInfoDesc = "It's Time to Go!\nTrip Duration";
 	            backgroundColor = R.color.metropia_green;
 	            nextTripStartTime = TimeColumn.getFormattedDuration((int)durationTime);
-	            arrivalTime = TimeColumn.formatTime(System.currentTimeMillis() + durationTime, reserv.getRoute().getTimezoneOffset());
+	            arrivalTime = TimeColumn.formatTime(System.currentTimeMillis() + durationTime*1000, reserv.getRoute().getTimezoneOffset());
 	        }else if(timeUntilDepart > 60 * 60 * 1000L){
 	        	nextTripInfoDesc = "Your Next Trip will be at";
 	            nextTripStartTime = TimeColumn.formatTime(departureTimeUtc, reserv.getRoute().getTimezoneOffset());
@@ -2321,7 +2322,8 @@ private Long dismissReservId = Long.valueOf(-1);
 	        tripStartTimeView.setText(formatTripStartTime(nextTripStartTime));
 	        TextView tripArriveTimeView = (TextView)tripInfoPanel.findViewById(R.id.trip_arrival_time);
 	        tripArriveTimeView.setText(formatTripArrivalTime(arrivalTime));
-	        Font.setTypeface(boldFont, tripStartDescView, tripStartTimeView, tripArriveTimeView);
+	        Font.setTypeface(boldFont, tripStartDescView, tripStartTimeView, tripArriveTimeView, 
+	        		(TextView) tripInfoPanel.findViewById(R.id.trip_arrival_desc));
 	        showTripInfoPanel(false);
 	        setReserMenuAndTripInfoStatus(true);
     	}
@@ -2337,12 +2339,12 @@ private Long dismissReservId = Long.valueOf(-1);
     	reservationAdapter.clear();
     	int curReservIdx = -1;
     	boolean cont = true;
-    	while(curReservIdx < reservations.size() && cont) {
+    	while(curReservIdx < (reservations.size()-1) && cont) {
     		curReservIdx++;
     		Reservation tempReserv = reservations.get(curReservIdx);
     		long departureTimeUtc = tempReserv.getDepartureTimeUtc();
     		long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
-    		if(timeUntilDepart > -1 * Reservation.GRACE_INTERVAL) {
+    		if(timeUntilDepart > -1*Reservation.GRACE_INTERVAL) {
     			cont = false;
     		}
     	}
