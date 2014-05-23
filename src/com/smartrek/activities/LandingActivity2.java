@@ -3195,14 +3195,14 @@ private Long dismissReservId = Long.valueOf(-1);
         initFontsIfNecessary();
         for(final com.smartrek.requests.WhereToGoRequest.Location l:locs){
             final GeoPoint gp = new GeoPoint(l.lat, l.lon);
-            final POIOverlay bulb = new POIOverlay(mapView, gp, boldFont, l.label, l.addr, 
+            final POIOverlay bulb = new POIOverlay(mapView, gp, boldFont, "", l.addr, 
             		R.drawable.bulb_poi, HotspotPlace.CENTER, new POIActionListener() {
 	            	@Override
 					public void onClickEdit() {
 						hideBulbBalloon();
 						View favOpt = findViewById(R.id.fav_opt);
 						BalloonModel model = new BalloonModel();
-						model.label=l.label;
+						model.label="";
 						model.lat=l.lat;
 						model.lon=l.lon;
 						model.address=l.addr;
