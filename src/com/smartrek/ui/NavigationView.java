@@ -354,7 +354,7 @@ public class NavigationView extends LinearLayout {
 	}
 	
 	private static final Integer SCREEN_VERTICAL_WIDTH = Integer.valueOf(100);
-	private static final Integer SCREEN_HORIENTAL_WIDTH = Integer.valueOf(180);
+	private static final Integer SCREEN_HORIZONTAL_WIDTH = Integer.valueOf(180);
 
 	private void refresh(boolean forceNoti) {
 	    if(items.isEmpty()){
@@ -422,10 +422,14 @@ public class NavigationView extends LinearLayout {
 	public void refreshDimension() {
 		LinearLayout directionInfos = (LinearLayout) findViewById(R.id.direction_infos);
 		directionInfos.setOrientation(screenVertical?LinearLayout.VERTICAL:LinearLayout.HORIZONTAL);
-		ViewGroup.LayoutParams params = directionInfos.getLayoutParams();
-		params.width = Dimension.dpToPx(screenVertical?SCREEN_VERTICAL_WIDTH:SCREEN_HORIENTAL_WIDTH, 
+		ViewGroup.LayoutParams directionInfosLp = directionInfos.getLayoutParams();
+		directionInfosLp.width = Dimension.dpToPx(screenVertical?SCREEN_VERTICAL_WIDTH:SCREEN_HORIZONTAL_WIDTH, 
 				getContext().getResources().getDisplayMetrics());
-		
+		directionInfos.setLayoutParams(directionInfosLp);
+		ViewGroup.LayoutParams nextDirectionPanelLp = nextDirectionPanel.getLayoutParams();
+		nextDirectionPanelLp.width = Dimension.dpToPx(screenVertical?SCREEN_VERTICAL_WIDTH:SCREEN_HORIZONTAL_WIDTH, 
+				getContext().getResources().getDisplayMetrics());
+		nextDirectionPanel.setLayoutParams(nextDirectionPanelLp);
 		String distance = textViewDistance.getText().toString();
 		if(distance.endsWith("mi")) {
 			distance = distance.replaceAll("mi", screenVertical?"\nmiles":"mi");
