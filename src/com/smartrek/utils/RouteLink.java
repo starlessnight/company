@@ -1,6 +1,5 @@
 package com.smartrek.utils;
 
-import android.util.Log;
 
 /**
  * A class contains two route nodes to form a link.
@@ -65,10 +64,9 @@ public class RouteLink {
         	return node2.distanceTo(lat, lng);
         }
         else {
-            Log.e("RouteLink", "distanceTo(): Should not reach here");
+            return node1.distanceTo(lat, lng);
         }
         
-        return 0.0f;
     }
 
     /**
