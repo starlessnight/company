@@ -2766,6 +2766,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                     hideBulbBalloon();
                                     removePOIMarker(mapView); 
                                     curStar = star;
+                                    IMapController controller = mapView.getController();
+                                    controller.setCenter(star.getGeoPoint());
                                     star.showBalloonOverlay();
                                     mapView.postInvalidate();
                                     return true;
@@ -3300,6 +3302,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     hideBulbBalloon();
                     removePOIMarker(mapView);
                     curBulb = bulb;
+                    IMapController controller = mapView.getController();
+                    controller.setCenter(bulb.getGeoPoint());
                     bulb.showBalloonOverlay();
                     mapView.postInvalidate();
                     return true;
