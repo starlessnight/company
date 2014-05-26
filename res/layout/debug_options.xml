@@ -52,46 +52,6 @@
                 android:textColor="#FFFFFFFF"
                 android:textSize="20dp" >
             </RadioButton>
-            
-            <RadioButton
-                android:id="@+id/radio_prerecorded_gps_la"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:enabled="true"
-                android:text="Pre-recorded LA data"
-                android:textColor="#FFFFFFFF"
-                android:textSize="20dp" >
-            </RadioButton>
-            
-            <RadioButton
-                android:id="@+id/radio_prerecorded_gps_la_2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:enabled="true"
-                android:text="Pre-recorded LA data 2"
-                android:textColor="#FFFFFFFF"
-                android:textSize="20dp" >
-            </RadioButton>
-            
-            <RadioButton
-                android:id="@+id/radio_prerecorded_gps_la_3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:enabled="true"
-                android:text="Pre-recorded LA data 3"
-                android:textColor="#FFFFFFFF"
-                android:textSize="20dp" >
-            </RadioButton>
-            
-            <RadioButton
-                android:id="@+id/radio_prerecorded_gps_la_4"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:enabled="true"
-                android:text="Pre-recorded LA data 4"
-                android:textColor="#FFFFFFFF"
-                android:textSize="20dp" >
-            </RadioButton>
 
             <RadioButton
                 android:id="@+id/radio_long_press"

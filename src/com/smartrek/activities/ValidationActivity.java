@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Queue;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -19,9 +18,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.tileprovider.util.CloudmadeUtil;
@@ -88,6 +89,7 @@ import com.smartrek.dialogs.NotificationDialog2.ActionListener;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.Trajectory;
+import com.smartrek.models.Trajectory.Record;
 import com.smartrek.models.User;
 import com.smartrek.requests.ImComingRequest;
 import com.smartrek.requests.Request;
@@ -110,7 +112,6 @@ import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Misc;
-import com.smartrek.utils.PrerecordedTrajectory;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.RouteRect;
@@ -537,11 +538,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				DebugOptionsActivity.GPS_MODE_DEFAULT);
 		if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL && !turnOffGPS.get()) {
 			prepareGPS();
-		} else if (gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED
-				|| gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA
-				|| gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA2
-				|| gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA3
-				|| gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA4) {
+		} else if (gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED) {
 			int interval = DebugOptionsActivity.getGpsUpdateInterval(this);
 			if (fakeLocationService == null) {
 				fakeLocationService = new FakeLocationService(locationListener,
@@ -645,6 +642,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				.getDisplayMetrics());
 		
 		buttonFollow = (ImageView) findViewById(R.id.center_map_icon);
+		buttonFollow.setTag(true);
         buttonFollow.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -1519,21 +1517,34 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			long numOfSteps = Math.round((now - lastLocChanged) / timeInterval);
 			final double stepSize = x / numOfSteps;
 			long startTimeMillis = SystemClock.uptimeMillis();
-			for (int i = 1; i <= numOfSteps; i++) {
-				final int seq = i;
-				animator.postAtTime(new Runnable() {
-					@Override
-					public void run() {
-						double deltaX = seq * stepSize;
-						double newLng = oldLng + deltaX;
-						double newLat = oldLat + deltaX * slop;
-						pointOverlay.setLocation((float) newLat, (float) newLng);
-						mapView.postInvalidate();
-						if ((Boolean)buttonFollow.getTag()) {
-                            mapView.getController().setCenter(new GeoPoint(newLat, newLng));
+			if(x == 0){
+			    animator.postAtTime(new Runnable() {
+                    @Override
+                    public void run() {
+                        if ((Boolean)buttonFollow.getTag()) {
+                            mapView.getController().setCenter(new GeoPoint(lat, lng));
                         }
-					}
-				}, startTimeMillis + Math.round(i * timeInterval));
+                        pointOverlay.setLocation((float) lat, (float) lng);
+                        mapView.postInvalidate();
+                    }
+			    }, startTimeMillis);
+			}else{
+    			for (int i = 1; i <= numOfSteps; i++) {
+    				final int seq = i;
+    				animator.postAtTime(new Runnable() {
+    					@Override
+    					public void run() {
+    						double deltaX = seq * stepSize;
+    						double newLng = oldLng + deltaX;
+    						double newLat = oldLat + deltaX * slop;
+    						pointOverlay.setLocation((float) newLat, (float) newLng);
+    						mapView.postInvalidate();
+    						if ((Boolean)buttonFollow.getTag()) {
+                                mapView.getController().setCenter(new GeoPoint(newLat, newLng));
+                            }
+    					}
+    				}, startTimeMillis + Math.round(i * timeInterval));
+    			}
 			}
 		}
 
@@ -1998,7 +2009,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		private LocationListener listener;
 		// private Queue<RouteNode> nodes;
 
-		private Queue<GeoPoint> trajectory;
+		private Trajectory trajectory;
 
 		private int interval;
 
@@ -2013,30 +2024,20 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		@SuppressWarnings("unchecked")
 		public FakeLocationService(LocationListener listener, int interval,
-				Queue<GeoPoint> trajectory, int gpsMode) {
+		        Trajectory trajectory, int gpsMode) {
 			this.listener = listener;
 			this.interval = interval;
 			this.gpsMode = gpsMode;
 
 			if (trajectory == null) {
+			    InputStream in = null;
 				try {
-					String tFile;
-					if (gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED) {
-						tFile = "trajectory.csv";
-					} else if (gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA) {
-						tFile = "trajectory-la.csv";
-					} else if (gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA2) {
-						tFile = "trajectory-la-2.csv";
-					} else if (gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED_LA3) {
-						tFile = "trajectory-la-3.csv";
-					} else {
-						tFile = "trajectory-la-4.csv";
-					}
-					InputStream in = getResources().getAssets().open(tFile);
-					this.trajectory = (Queue<GeoPoint>) PrerecordedTrajectory
-							.read(in, gpsMode);
-				} catch (IOException e) {
-					e.printStackTrace();
+					in = getResources().getAssets().open("201405200148.txt");
+					this.trajectory = Trajectory.from(new JSONObject(IOUtils.toString(in)).getJSONArray("trajectory"));
+				} catch (Throwable e) {
+				    Log.e("ValidationActivity", Log.getStackTraceString(e));
+				} finally{
+				    IOUtils.closeQuietly(in);
 				}
 			} else {
 				this.trajectory = trajectory;
@@ -2060,17 +2061,19 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		@Override
 		public void run() {
-			if (trajectory == null || trajectory.isEmpty()) {
+			if (trajectory == null || trajectory.size() == 0) {
 				timer.cancel();
 			} else {
 				Location location = new Location("");
 				location.setTime(System.currentTimeMillis());
-				GeoPoint geoPoint = trajectory.poll();
+				Record record = trajectory.poll();
 				pollCnt++;
-				location.setLatitude(geoPoint.getLatitude());
-				location.setLongitude(geoPoint.getLongitude());
-				location.setSpeed(9999f);
-				listener.onLocationChanged(location);
+				location.setLatitude(record.getLatitude());
+				location.setLongitude(record.getLongitude());
+				location.setSpeed(record.getSpeed());
+				location.setBearing(record.getHeading());
+				Log.i("FakeLocation", pollCnt + "," + location.getLatitude() + "," + location.getLongitude());
+                listener.onLocationChanged(location);
 			}
 		}
 

@@ -204,6 +204,14 @@ public class Trajectory {
 	    records.addAll(traj.records);
 	}
 	
+	public Record poll(){
+	    Record r = null;
+	    if(!records.isEmpty()){
+	        r = records.remove(0);
+	    }
+	    return r;
+	}
+	
 	public Trajectory decimateBy500ft(){
 	    ListIterator<Record> recordIter = records.listIterator();
 	    Record lastRecord = null;
