@@ -9,20 +9,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="gone" >
 
         <include layout="@layout/metropia_color_bar" />
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="40dp" >
-            
+
             <ImageView
                 android:id="@+id/multiple_trip_menu"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_margin="10dp"
                 android:layout_gravity="right|center"
+                android:layout_margin="10dp"
                 android:src="@drawable/multi_trip_icon"
                 android:visibility="gone" />
         </FrameLayout>
@@ -106,14 +106,30 @@
             
         </LinearLayout>
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:padding="20dp"
-            android:text="slide to dismiss"
-            android:textColor="@android:color/white"
-            android:textSize="@dimen/smaller_font" />
+            android:gravity="center"
+            android:orientation="horizontal" >
+            
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingRight="10dp"
+                android:src="@drawable/right_arrow" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="slide to dismiss"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/smaller_font" />
+            
+        </LinearLayout>
+        
     </LinearLayout>
 
     <LinearLayout
@@ -122,7 +138,7 @@
         android:layout_height="match_parent"
         android:background="@android:color/white"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:visibility="gone" >
 
         <include layout="@layout/metropia_color_bar" />
 
@@ -153,19 +169,6 @@
                 android:paddingTop="5dp"
                 android:src="@drawable/reservation_list_back_arrow" />
 
-            <!-- 
-            <TextView
-                android:id="@+id/reservation_list_edit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right|center"
-                android:paddingBottom="5dp"
-                android:paddingRight="10dp"
-                android:paddingTop="5dp"
-                android:text="Edit"
-                android:textColor="@color/light_blue"
-                android:textSize="@dimen/smaller_font" />
-            -->
         </FrameLayout>
 
         <ListView
@@ -177,17 +180,6 @@
             android:divider="@null"
             android:dividerHeight="0dp" />
 
-        <!-- 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableTop="@drawable/new_trip"
-            android:gravity="center"
-            android:padding="20dp"
-            android:text="New Trip"
-            android:textColor="@android:color/black"
-            android:textSize="@dimen/smaller_font" />
-        -->
     </LinearLayout>
 
 </FrameLayout>
