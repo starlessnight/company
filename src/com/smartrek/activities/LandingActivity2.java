@@ -65,6 +65,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -213,6 +214,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private ImageView tripNotifyIcon;
     
+    private LinearLayout searchArea;
+    private TextView cancelSearch;
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -230,6 +234,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         bindMapFunctions(mapView);
         RouteActivity.setViewToNorthAmerica(mapView);
         
+        searchArea = (LinearLayout) findViewById(R.id.search_area);
+        cancelSearch = (TextView) findViewById(R.id.cancel_search);
         searchBox = (EditText) findViewById(R.id.search_box);
         searchBox.setHint(Html.fromHtml("<b>Enter Destination</b>"));
         fromSearchBox = (EditText) findViewById(R.id.from_search_box);
@@ -243,6 +249,32 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         refreshSearchAutoCompleteData();
         refreshFromSearchAutoCompleteData();
+        
+        searchArea.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				searchBox.clearFocus();
+				fromSearchBox.clearFocus();
+				showAutoComplete.set(false);
+				refreshFromSearchAutoCompleteData();
+				refreshSearchAutoCompleteData();
+			}
+        });
+        
+        cancelSearch.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(searchBox.getVisibility() == View.VISIBLE) {
+					searchBox.setText("");
+					searchBox.clearFocus();
+				}
+				else {
+					fromSearchBox.setText("");
+					fromSearchBox.clearFocus();
+				}
+			}
+		});
+        
         searchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -275,12 +307,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         searchBox.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
+            	relayoutSearchArea(hasFocus);
                 if(!hasFocus) {
                 	InputMethodManager imm = (InputMethodManager)getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     showAutoComplete.set(false);
-                    clearSearchResult();
                     findViewById(R.id.bottom_panel).setVisibility(View.VISIBLE);
                     findViewById(R.id.metropia_color_bar).setVisibility(View.VISIBLE);
                     searchResultList.setVisibility(View.GONE);
@@ -294,8 +326,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     	tapToAdd.setName(TAP_TO_ADD_FAVORITE);
                     	tapToAdd.setAddress("");
                     	searchAddresses.add(tapToAdd);
-                    	refreshSearchAutoCompleteData();
                     }
+                    refreshSearchAutoCompleteData();
                     findViewById(R.id.bottom_panel).setVisibility(View.GONE);
                     findViewById(R.id.metropia_color_bar).setVisibility(View.GONE);
                     searchResultList.setVisibility(View.VISIBLE);
@@ -306,12 +338,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         fromSearchBox.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
+            	relayoutSearchArea(hasFocus);
                 if(!hasFocus) {
                     InputMethodManager imm = (InputMethodManager)getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     showAutoComplete.set(false);
-                    clearFromSearchResult();
                     findViewById(R.id.bottom_panel).setVisibility(View.VISIBLE);
                     findViewById(R.id.metropia_color_bar).setVisibility(View.VISIBLE);
                     searchResultList.setVisibility(View.GONE);
@@ -325,8 +357,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         tapToAdd.setName(TAP_TO_ADD_FAVORITE);
                         tapToAdd.setAddress("");
                         fromSearchAddresses.add(tapToAdd);
-                        refreshFromSearchAutoCompleteData();
                     }
+                    refreshFromSearchAutoCompleteData();
                     findViewById(R.id.bottom_panel).setVisibility(View.GONE);
                     findViewById(R.id.metropia_color_bar).setVisibility(View.GONE);
                     searchResultList.setVisibility(View.GONE);
@@ -539,15 +571,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 if(handled){
                     if(isTo){
                         searchAddress(addrInput, true);
+                        _searchBox.setText("");
+                        _searchBox.clearFocus();
                     }
                     imm = (InputMethodManager)getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    if(isTo){
-                        clearSearchResult();
-                    }else{
-                        clearFromSearchResult();
-                    }
                 }
 			}
 		});
@@ -560,15 +589,21 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			public void onClick(View v) {
 			    searchBox.setVisibility(View.GONE);
 			    searchBoxClear.setVisibility(View.GONE);
+			    searchResultList.setVisibility(View.GONE);
 				fromSearchBox.setVisibility(View.VISIBLE);
 				fromSearchBoxClear.setVisibility(StringUtils.isBlank(fromSearchBox.getText())?View.GONE:View.VISIBLE);
-				from.setBackgroundResource(0);
-				findViewById(R.id.from_panel).setBackgroundResource(0);
-				findViewById(R.id.from_shadow).setBackgroundResource(0);
-				from.setTextColor(getResources().getColor(R.color.light_blue));
-				findViewById(R.id.to_panel).setBackgroundColor(getResources().getColor(R.color.transparent_gray));
-				findViewById(R.id.to_shadow).setBackgroundResource(R.drawable.bottom_shadow);
-				to.setTextColor(getResources().getColor(R.color.lighter_gray));
+				if(StringUtils.isBlank(fromSearchBox.getText())) {
+					clearFromSearchResult();
+				}
+				else {
+					fromSearchBox.requestFocus();
+					fromSearchResultList.setVisibility(View.VISIBLE);
+					refreshFromSearchAutoCompleteData();
+				}
+				from.setBackgroundColor(getResources().getColor(R.color.metropia_blue));
+				from.setTextColor(getResources().getColor(android.R.color.white));
+				to.setTextColor(getResources().getColor(R.color.metropia_blue));
+				to.setBackgroundResource(0);
 			}
 		});
         
@@ -576,15 +611,22 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			@Override
 			public void onClick(View v) {
 			    searchBox.setVisibility(View.VISIBLE);
-                searchBoxClear.setVisibility(StringUtils.isBlank(searchBox.getText())?View.GONE:View.VISIBLE);
+			    searchBoxClear.setVisibility(StringUtils.isBlank(searchBox.getText())?View.GONE:View.VISIBLE);
+			    if(StringUtils.isBlank(searchBox.getText())) {
+			    	clearSearchResult();
+			    }
+			    else {
+			    	searchBox.requestFocus();
+			    	searchResultList.setVisibility(View.VISIBLE);
+			    	refreshSearchAutoCompleteData();
+			    }
                 fromSearchBox.setVisibility(View.GONE);
                 fromSearchBoxClear.setVisibility(View.GONE);
-                findViewById(R.id.to_panel).setBackgroundResource(0);
-				findViewById(R.id.to_shadow).setBackgroundResource(0);
-				to.setTextColor(getResources().getColor(R.color.light_blue));
-				findViewById(R.id.from_panel).setBackgroundColor(getResources().getColor(R.color.transparent_gray));
-				findViewById(R.id.from_shadow).setBackgroundResource(R.drawable.bottom_shadow);
-				from.setTextColor(getResources().getColor(R.color.lighter_gray));
+                fromSearchResultList.setVisibility(View.GONE);
+                to.setBackgroundColor(getResources().getColor(R.color.metropia_blue));
+				to.setTextColor(getResources().getColor(android.R.color.white));
+				from.setBackgroundResource(0);
+				from.setTextColor(getResources().getColor(R.color.metropia_blue));
 			}
 		});
         
@@ -1456,7 +1498,24 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
     }
     
-private Long dismissReservId = Long.valueOf(-1);
+    private void relayoutSearchArea(boolean searchBoxFocus) {
+    	View searchButton = searchArea.findViewById(R.id.search_button);
+    	View menuIcon = searchArea.findViewById(R.id.drawer_menu_icon);
+    	if(searchBoxFocus) {
+    		menuIcon.setVisibility(View.GONE);
+    		cancelSearch.setVisibility(View.VISIBLE);
+    		searchArea.removeView(searchButton);
+    		searchArea.addView(searchButton, 0);
+    	}
+    	else {
+    		menuIcon.setVisibility(View.VISIBLE);
+    		cancelSearch.setVisibility(View.GONE);
+    		searchArea.removeViewAt(0);
+    		searchArea.addView(searchButton, searchArea.getChildCount()-1);
+    	}
+    }
+    
+    private Long dismissReservId = Long.valueOf(-1);
     
     private void initReservationListView() {
     	tripNotifyIcon = (ImageView) findViewById(R.id.trip_notify_icon);
@@ -3211,14 +3270,14 @@ private Long dismissReservId = Long.valueOf(-1);
         initFontsIfNecessary();
         for(final com.smartrek.requests.WhereToGoRequest.Location l:locs){
             final GeoPoint gp = new GeoPoint(l.lat, l.lon);
-            final POIOverlay bulb = new POIOverlay(mapView, gp, boldFont, "", l.addr, 
+            final POIOverlay bulb = new POIOverlay(mapView, gp, boldFont, l.label, l.addr, 
             		R.drawable.bulb_poi, HotspotPlace.CENTER, new POIActionListener() {
 	            	@Override
 					public void onClickEdit() {
 						hideBulbBalloon();
 						View favOpt = findViewById(R.id.fav_opt);
 						BalloonModel model = new BalloonModel();
-						model.label="";
+						model.label=l.label;
 						model.lat=l.lat;
 						model.lon=l.lon;
 						model.address=l.addr;
