@@ -43,9 +43,11 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
+import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextWatcher;
 import android.text.style.AbsoluteSizeSpan;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -877,6 +879,37 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     showAutoComplete.set(false);
                     clearFavSearchResult();
                 }
+			}
+		});
+        
+        final EditText labelInput = (EditText) findViewById(R.id.label_input);
+        final View labelInputClear = findViewById(R.id.label_clear);
+        labelInput.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				if(StringUtils.isNotBlank(s.toString())) {
+					labelInputClear.setVisibility(View.VISIBLE);
+				}
+				else {
+					labelInputClear.setVisibility(View.GONE);
+				}
+			}
+		});
+        
+        labelInputClear.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				labelInput.setText("");
 			}
 		});
         
@@ -1815,6 +1848,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	favOptPanel.setTag(null);
     	((EditText)favOptPanel.findViewById(R.id.favorite_search_box)).setText("");
     	((EditText)favOptPanel.findViewById(R.id.label_input)).setText("");
+    	favOptPanel.findViewById(R.id.label_clear).setVisibility(View.GONE);
     	favOptPanel.findViewById(R.id.fav_del).setVisibility(View.GONE);
     	favOptPanel.findViewById(R.id.fav_search_box_clear).setVisibility(View.GONE);
     	favOptPanel.findViewById(R.id.icon).setTag(null);
@@ -3248,6 +3282,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	View favOptPanel = findViewById(R.id.fav_opt);
     	favOptPanel.setTag(model);
     	((EditText) favOptPanel.findViewById(R.id.label_input)).setText(model.label);
+    	if(StringUtils.isNotBlank(model.label)) {
+    		favOptPanel.findViewById(R.id.label_clear).setVisibility(View.VISIBLE);
+    	}
     	IconType icon = IconType.fromName(iconName);
     	if(icon != null) {
     		favOptPanel.findViewById(R.id.icon).setTag(icon);
