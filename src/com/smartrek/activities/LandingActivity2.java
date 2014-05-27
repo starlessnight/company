@@ -1584,7 +1584,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			public void onClick(View v) {
 				Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
 				if(reserv.isEligibleTrip()) {
-					Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
+					Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
 	                intent.putExtra("route", reserv.getRoute());
 	                intent.putExtra("reservation", reserv);
 	                startActivity(intent);
@@ -1748,7 +1748,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				final Reservation reserv = (Reservation) parent.getItemAtPosition(position);
 				final String addr = reserv.getDestinationAddress();
 				if(reserv.isEligibleTrip()) {
-	                Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
+	                Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
 	                intent.putExtra("route", reserv.getRoute());
 	                intent.putExtra("reservation", reserv);
 	                startActivity(intent);
