@@ -118,6 +118,7 @@ import com.smartrek.utils.Preferences;
 import com.smartrek.utils.RouteRect;
 import com.smartrek.utils.SessionM;
 import com.smartrek.utils.SmartrekTileProvider;
+import com.smartrek.utils.SystemService;
 
 public final class LandingActivity2 extends FragmentActivity implements SensorEventListener { 
     
@@ -2212,6 +2213,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                 10000, 5, locationListener);
+        }else{
+            SystemService.alertNoGPS(this, true);
         }
         locationManager.requestLocationUpdates(
             LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
@@ -3285,14 +3288,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         initFontsIfNecessary();
         for(final com.smartrek.requests.WhereToGoRequest.Location l:locs){
             final GeoPoint gp = new GeoPoint(l.lat, l.lon);
-            final POIOverlay bulb = new POIOverlay(mapView, gp, boldFont, l.label, l.addr, 
+            final POIOverlay bulb = new POIOverlay(mapView, gp, boldFont, "", l.addr, 
             		R.drawable.bulb_poi, HotspotPlace.CENTER, new POIActionListener() {
 	            	@Override
 					public void onClickEdit() {
 						hideBulbBalloon();
 						View favOpt = findViewById(R.id.fav_opt);
 						BalloonModel model = new BalloonModel();
-						model.label=l.label;
+						model.label="";
 						model.lat=l.lat;
 						model.lon=l.lon;
 						model.address=l.addr;
