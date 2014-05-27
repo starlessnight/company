@@ -352,6 +352,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
                                                 user,
                                                 address.getName(),
                                                 addressStr,
+                                                "star",
                                                 address.getLatitude(),
                                                 address.getLongitude());
                                             request.execute(HomeActivity.this);

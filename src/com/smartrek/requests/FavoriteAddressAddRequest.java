@@ -21,11 +21,13 @@ public class FavoriteAddressAddRequest extends Request {
 	private String address;
 	private double lat;
 	private double lon;
+	private String icon;
 	
-	public FavoriteAddressAddRequest(User user, String name, String address, double lat, double lon) {
+	public FavoriteAddressAddRequest(User user, String name, String address, String icon, double lat, double lon) {
 		this.user = user;
 		this.name = name;
 		this.address = address;
+		this.icon = icon;
 		this.lat = lat;
 		this.lon = lon;
 	}
@@ -41,6 +43,7 @@ public class FavoriteAddressAddRequest extends Request {
             params.put("address", StringUtils.substring(address, 0, 80));
             params.put("lat", String.format("%.7f", lat));
             params.put("lon", String.format("%.7f", lon));
+            params.put("icon", this.icon);
             return new JSONObject(executeHttpRequest(Method.POST, url, params, ctx)).getJSONObject("data").getInt("id");
 		}else{
 		    String url = String.format("%s/V0.2/addfavadd/?UID=%d&NAME=%s&ADDRESS=%s&lat=%.7f&lon=%.7f",

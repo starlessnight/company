@@ -930,6 +930,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					final BalloonModel model = (BalloonModel) favOptPanel.getTag();
 					final String lbl = ((EditText)favOptPanel.findViewById(R.id.label_input)).getText().toString();
 	                final String addr = ((EditText)favOptPanel.findViewById(R.id.favorite_search_box)).getText().toString();
+	                final IconType icon = (IconType) favOptPanel.findViewById(R.id.icon).getTag();
 	                AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>(){
 	                	@Override
 	                	protected void onPreExecute() {
@@ -966,18 +967,19 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                    protected Integer doInBackground(Void... params) {
 	                        Integer id = null;
 	                        Request req = null;
+	                        String iconName = icon!=null?icon.name():"";
 	                        User user = User.getCurrentUser(LandingActivity2.this);
 	                        try {
 	                        	if(model.id==0) {
 		                            FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
-		                                user, lbl, model.address, model.lat, model.lon);
+		                                user, lbl, model.address, iconName, model.lat, model.lon);
 		                            req = request;
 		                            id = request.execute(LandingActivity2.this);
 	                        	}
 	                        	else {
 	                        		FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
 		                                    new AddressLinkRequest(user).execute(LandingActivity2.this),
-		                                        model.id, user, lbl, addr, model.lat, model.lon);
+		                                        model.id, user, lbl, addr, iconName, model.lat, model.lon);
 		                            req = request;
 		                            request.execute(LandingActivity2.this);
 	                        	}
@@ -1036,7 +1038,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             boolean toKeep;
                             if(overlay instanceof POIOverlay){
                                 POIOverlay poiOverlay = (POIOverlay)overlay;
-                                toKeep = poiOverlay.getMarker() != R.drawable.star_poi || poiOverlay.getAid() != model.id;
+                                toKeep = !isFavoriteMark(poiOverlay.getMarker()) || poiOverlay.getAid() != model.id;
                             }else{
                                 toKeep = true;
                             }
@@ -1246,7 +1248,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                 boolean toKeep;
                                 if(overlay instanceof POIOverlay){
                                     POIOverlay poiOverlay = (POIOverlay)overlay;
-                                    toKeep = poiOverlay.getMarker() != R.drawable.star_poi || poiOverlay.getAid() != model.id;
+                                    toKeep = !isFavoriteMark(poiOverlay.getMarker()) || poiOverlay.getAid() != model.id;
                                 }else{
                                     toKeep = true;
                                 }
@@ -1271,7 +1273,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         try {
                             if (isSave){
                                 FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
-                                    user, lbl, addr, model.lat, model.lon);
+                                    user, lbl, addr, IconType.star.name(), model.lat, model.lon);
                                 req = request;
                                 id = request.execute(LandingActivity2.this);
                             }
@@ -1331,7 +1333,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             User user = User.getCurrentUser(LandingActivity2.this);
                             try {
                                 FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
-                                    user, lbl, addr, model.lat, model.lon);
+                                    user, lbl, addr, IconType.star.name(),model.lat, model.lon);
                                 id = request.execute(LandingActivity2.this);
                             }
                             catch (Exception e) {
@@ -1365,7 +1367,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             	if (model.id > 0) {
 	                                FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
 	                                    new AddressLinkRequest(user).execute(LandingActivity2.this),
-	                                        model.id, user, lbl, addr, model.lat, model.lon);
+	                                        model.id, user, lbl, addr, IconType.star.name(), model.lat, model.lon);
 	                                    req = request;
 	                                    request.execute(LandingActivity2.this);
                             	}
@@ -1795,6 +1797,16 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	starView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.star_dim, 0, 0);
     	homeView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.home_dim, 0, 0);
     	workView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.work_dim, 0, 0);
+    }
+    
+    private boolean isFavoriteMark(int markResourceId) {
+    	Integer[] favIconIds = new Integer[] {R.drawable.star, R.drawable.home, R.drawable.work};
+    	for(Integer iconId : favIconIds) {
+    		if(iconId == markResourceId) {
+    			return true;
+    		}
+    	}
+    	return false;
     }
     
     private void reInitFavoriteOperationPanel() {
@@ -2716,7 +2728,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         boolean isOther;
                         if(overlay instanceof POIOverlay){
                             POIOverlay poiOverlay = (POIOverlay)overlay;
-                            isOther = poiOverlay.getMarker() != R.drawable.star_poi;
+                            isOther = !isFavoriteMark(poiOverlay.getMarker());
                             if(!isOther && curStar != null && poiOverlay.getAid() == curStar.getAid() 
                                     && poiOverlay.isBalloonVisible()){
                                 poiOverlay.hideBalloon();
@@ -2734,8 +2746,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         initFontsIfNecessary();
                         for(final com.smartrek.models.Address a : result){
                             final GeoPoint gp = new GeoPoint(a.getLatitude(), a.getLongitude());
+                            Integer[] iconInfo = IconType.getIconInfos(IconType.fromName(a.getIconName()));
                             final POIOverlay star = new POIOverlay(mapView, gp, boldFont, a.getName(), a.getAddress(), 
-                                R.drawable.star_poi, HotspotPlace.CENTER, new POIActionListener() {
+                                iconInfo[1], HotspotPlace.CENTER, new POIActionListener() {
 									@Override
 									public void onClickEdit() {
 										hideStarredBalloon();
@@ -2811,7 +2824,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         for (Overlay overlay : overlays) {
             if(overlay instanceof POIOverlay){
                 POIOverlay poiOverlay = (POIOverlay)overlay;
-                if(poiOverlay.getMarker() == R.drawable.star_poi){
+                if(isFavoriteMark(poiOverlay.getMarker())){
                     if(poiOverlay.isBalloonVisible()){
                 	    poiOverlay.hideBalloon();
                         handled = true;

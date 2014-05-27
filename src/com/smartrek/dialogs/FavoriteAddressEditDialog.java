@@ -208,7 +208,7 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 			double lat = (Double) params[3];
 			double lon = (Double) params[4];
 			
-			FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(user, name, address, lat, lon);
+			FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(user, name, address, "star", lat, lon);
 			try {
 				request.execute(ctx);
 				
@@ -270,6 +270,7 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 						user,
 						address.getName(),
 						address.getAddress(),
+						address.getIconName(),
 						address.getLatitude(),
 						address.getLongitude());
 				request.execute(getContext());

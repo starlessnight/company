@@ -22,6 +22,7 @@ public final class FavoriteAddressUpdateRequest extends UpdateRequest {
     private String address;
     private double lat;
     private double lon;
+    private String icon;
     
 	/**
 	 * 
@@ -33,12 +34,12 @@ public final class FavoriteAddressUpdateRequest extends UpdateRequest {
 	 * @param longitude
 	 * @throws UnsupportedEncodingException 
 	 */
-	public FavoriteAddressUpdateRequest(String link, int aid, User user, String name, String address, double latitude, double longitude) throws UnsupportedEncodingException {
+	public FavoriteAddressUpdateRequest(String link, int aid, User user, String name, String address, String icon, double latitude, double longitude) throws UnsupportedEncodingException {
 		super(NEW_API?
 		    link.replaceAll("\\{id\\}", String.valueOf(aid))
 	        :
-	        String.format("%s/updatefavadd/?fid=%d&uid=%d&name=%s&address=%s&lat=%.7f&lon=%.7f",
-			HOST, aid, user.getId(), URLEncoder.encode(name, "UTF-8"), URLEncoder.encode(address, "UTF-8"), latitude, longitude)
+	        String.format("%s/updatefavadd/?fid=%d&uid=%d&name=%s&address=%s&lat=%.7f&lon=%.7f&icon=%s",
+			HOST, aid, user.getId(), URLEncoder.encode(name, "UTF-8"), URLEncoder.encode(address, "UTF-8"), latitude, longitude, icon)
         );
 		if(NEW_API){
 		    this.user = user;
@@ -46,6 +47,7 @@ public final class FavoriteAddressUpdateRequest extends UpdateRequest {
 	        this.address = address;
 	        this.lat = latitude;
 	        this.lon = longitude;
+	        this.icon = icon;
 		}
 	}
 	
@@ -59,6 +61,7 @@ public final class FavoriteAddressUpdateRequest extends UpdateRequest {
             params.put("address", StringUtils.substring(address, 0, 80));
             params.put("lat", String.format("%.7f", lat));
             params.put("lon", String.format("%.7f", lon));
+            params.put("icon", icon);
             executeHttpRequest(Method.PUT, url, params, ctx);
 	    }else{
 	        executeUpdateRequest(url, ctx);
