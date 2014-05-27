@@ -1530,17 +1530,22 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			long numOfSteps = Math.round((now - lastLocChanged) / timeInterval);
 			final double stepSize = x / numOfSteps;
 			long startTimeMillis = SystemClock.uptimeMillis();
-			if(x == 0){
-			    animator.postAtTime(new Runnable() {
-                    @Override
-                    public void run() {
-                        if ((Boolean)buttonFollow.getTag()) {
-                            mapView.getController().setCenter(new GeoPoint(lat, lng));
+			if(!isNearOD_or_Intersection(lat, lng) || x == 0){
+			    for (int i = 0; i <= numOfSteps; i++) {
+			        final int seq = i;
+                    animator.postAtTime(new Runnable() {
+                        @Override
+                        public void run() {
+                            if(seq == 0){
+                                if ((Boolean)buttonFollow.getTag()) {
+                                    mapView.getController().setCenter(new GeoPoint(lat, lng));
+                                }
+                                pointOverlay.setLocation((float) lat, (float) lng);
+                            }
+                            mapView.postInvalidate();
                         }
-                        pointOverlay.setLocation((float) lat, (float) lng);
-                        mapView.postInvalidate();
-                    }
-			    }, startTimeMillis);
+                    }, startTimeMillis + Math.round(i * timeInterval));
+                }
 			}else{
     			for (int i = 1; i <= numOfSteps; i++) {
     				final int seq = i;
