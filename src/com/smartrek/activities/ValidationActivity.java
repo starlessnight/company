@@ -654,7 +654,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     	double latitude = lastKnownLocation.getLatitude();
                     	double longitude = lastKnownLocation.getLongitude();
                     	IMapController mc = mapView.getController();
-                    	mc.setZoom(isNearOriginOrDestination(latitude, longitude)
+                    	mc.setZoom(isNearOD_or_Intersection(latitude, longitude)
                 	        ?DEFAULT_ZOOM_LEVEL:NAVIGATION_ZOOM_LEVEL);
                     	mc.animateTo(new GeoPoint(latitude, longitude));
                     }
@@ -804,7 +804,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					double latitude = lastKnownLocation.getLatitude();
 					double longitude = lastKnownLocation.getLongitude();
 					IMapController mc = mapView.getController();
-					mc.setZoom(isNearOriginOrDestination(latitude, longitude)
+					mc.setZoom(isNearOD_or_Intersection(latitude, longitude)
                         ?DEFAULT_ZOOM_LEVEL:NAVIGATION_ZOOM_LEVEL);
 					mc.animateTo(new GeoPoint(latitude, longitude));
 				}
@@ -1297,7 +1297,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private static final double speedOutOfRouteThreshold = 10;
 	
-	private static final double distanceOfZoomLevelThreshold = 1200; //feet
+	private static final double odZoomDistanceLimit = 1200; //feet
+	
+	private static final double intersectZoomDistanceLimit = 1320; // feet
 	
 	private AtomicInteger routeOfRouteCnt = new AtomicInteger();
 	
@@ -1383,11 +1385,22 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private AtomicInteger ttsDelayCnt = new AtomicInteger();
 	
-	private boolean isNearOriginOrDestination(double lat, double lng){
-	    return !route.getNodes().isEmpty() && NavigationView.metersToFeet(route.getFirstNode().distanceTo(lat, lng)) 
-            <= distanceOfZoomLevelThreshold || !getRouteOrReroute().getNodes().isEmpty() 
-            && NavigationView.metersToFeet(getRouteOrReroute().getLastNode().distanceTo(lat, lng)) 
-            <= distanceOfZoomLevelThreshold;
+	private boolean isNearOD_or_Intersection(double lat, double lng){
+	    boolean hasNodes = !getRouteOrReroute().getNodes().isEmpty();
+	    RouteNode intersectNode = null;
+	    if(hasNodes){
+    	    final RouteLink rerouteNearestLink = getRouteOrReroute().getNearestLink(lat, lng);
+    	    intersectNode = rerouteNearestLink.getEndNode();
+            while (intersectNode.getFlag() == 0 && intersectNode.getNextNode() != null) {
+                intersectNode = intersectNode.getNextNode();
+            }
+	    }
+        return !route.getNodes().isEmpty() && NavigationView.metersToFeet(
+	            route.getFirstNode().distanceTo(lat, lng)) <= odZoomDistanceLimit 
+            || hasNodes && NavigationView.metersToFeet(
+                getRouteOrReroute().getLastNode().distanceTo(lat, lng)) <= odZoomDistanceLimit
+            || intersectNode != null && NavigationView.metersToFeet(
+                intersectNode.distanceTo(lat, lng)) <= intersectZoomDistanceLimit;
 	}
 	
 	private synchronized void locationChanged(final Location location) {
@@ -1487,7 +1500,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             @Override
             public void run() {
                 if ((Boolean)buttonFollow.getTag()) {
-                    mapView.getController().setZoom(isNearOriginOrDestination(lat, lng)?
+                    mapView.getController().setZoom(isNearOD_or_Intersection(lat, lng)?
                         DEFAULT_ZOOM_LEVEL:NAVIGATION_ZOOM_LEVEL);
                 }
             }
