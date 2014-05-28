@@ -59,7 +59,6 @@ import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -72,9 +71,6 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
-import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.AnimatorListener;
-import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
@@ -105,7 +101,6 @@ import com.smartrek.ui.overlays.POIOverlay;
 import com.smartrek.ui.overlays.POIOverlay.POIActionListener;
 import com.smartrek.ui.overlays.RouteDestinationOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
-import com.smartrek.ui.overlays.RoutePathOverlay.RoutePathCallback;
 import com.smartrek.ui.timelayout.TimeColumn;
 import com.smartrek.utils.Cache;
 import com.smartrek.utils.Dimension;
@@ -171,8 +166,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private List<Address> searchAddresses = new ArrayList<Address>();
     private List<Address> fromSearchAddresses = new ArrayList<Address>();
-    
-    private View bottomPanel;
     
     private AtomicBoolean canDrawReservRoute = new AtomicBoolean();
     
@@ -316,7 +309,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     showAutoComplete.set(false);
-                    findViewById(R.id.bottom_panel).setVisibility(View.VISIBLE);
+//                    findViewById(R.id.bottom_panel).setVisibility(View.VISIBLE);
                     findViewById(R.id.metropia_color_bar).setVisibility(View.VISIBLE);
                     searchResultList.setVisibility(View.GONE);
                     fromSearchResultList.setVisibility(View.GONE);
@@ -331,7 +324,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     	searchAddresses.add(tapToAdd);
                     }
                     refreshSearchAutoCompleteData();
-                    findViewById(R.id.bottom_panel).setVisibility(View.GONE);
                     findViewById(R.id.metropia_color_bar).setVisibility(View.GONE);
                     searchResultList.setVisibility(View.VISIBLE);
                     fromSearchResultList.setVisibility(View.GONE);
@@ -347,7 +339,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     showAutoComplete.set(false);
-                    findViewById(R.id.bottom_panel).setVisibility(View.VISIBLE);
                     findViewById(R.id.metropia_color_bar).setVisibility(View.VISIBLE);
                     searchResultList.setVisibility(View.GONE);
                     fromSearchResultList.setVisibility(View.GONE);
@@ -362,7 +353,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         fromSearchAddresses.add(tapToAdd);
                     }
                     refreshFromSearchAutoCompleteData();
-                    findViewById(R.id.bottom_panel).setVisibility(View.GONE);
                     findViewById(R.id.metropia_color_bar).setVisibility(View.GONE);
                     searchResultList.setVisibility(View.GONE);
                     fromSearchResultList.setVisibility(View.VISIBLE);
@@ -386,7 +376,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             	else if(TAP_TO_ADD_FAVORITE.equals(selected.getName())) {
             		clearSearchResult();
             		removePOIMarker(mapView);
-            		hideBalloonPanel();
             		hideBulbBalloon();
             		hideStarredBalloon();
             		findViewById(R.id.landing_panel).setVisibility(View.GONE);
@@ -409,7 +398,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 else if(TAP_TO_ADD_FAVORITE.equals(selected.getName())) {
                     clearFromSearchResult();
                     removePOIMarker(mapView);
-                    hideBalloonPanel();
                     hideBulbBalloon();
                     hideStarredBalloon();
                     findViewById(R.id.landing_panel).setVisibility(View.GONE);
@@ -706,10 +694,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     Bundle extras) {
             }
         };
-        
-        TextView nextTripInfo = (TextView) findViewById(R.id.next_trip_info);
-        nextTripInfo.setSelected(true);
-        nextTripInfo.setText(NO_TRIPS);
         
         View centerMapIcon = findViewById(R.id.center_map_icon);
         centerMapIcon.setOnClickListener(new View.OnClickListener() {
@@ -1199,338 +1183,18 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
              }
         });
         
-        TextView tripAddr = (TextView) findViewById(R.id.trip_address);
-        TextView tripDetails = (TextView) findViewById(R.id.trip_details);
-        TextView getGoingBtn = (TextView) findViewById(R.id.get_going_button);
-        getGoingBtn.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Reservation reserv = (Reservation) findViewById(R.id.trip_panel).getTag();
-                Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
-                intent.putExtra("route", reserv.getRoute());
-                intent.putExtra("reservation", reserv);
-                startActivity(intent);
-                slideDownBottomPanel(false);
-                relayoutIcons();
-            }
-        });
-        TextView rescheBtn = (TextView) findViewById(R.id.reschedule_button);
-        rescheBtn.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Reservation reserv = (Reservation) findViewById(R.id.trip_panel).getTag();
-                final String addr = reserv.getDestinationAddress();
-                AsyncTask<Void, Void, GeoPoint> geoCodeTask = new AsyncTask<Void, Void, GeoPoint>(){
-                    @Override
-                    protected GeoPoint doInBackground(Void... params) {
-                        GeoPoint gp = null;
-                        try {
-                        	List<Address> addrs;
-                        	if(lastLocation != null) {
-                                addrs = Geocoding.lookup(LandingActivity2.this, addr, lastLocation.getLatitude(), lastLocation.getLongitude());
-                        	}
-                        	else {
-                        		addrs = Geocoding.lookup(LandingActivity2.this, addr);
-                        	}
-                            for (Address a : addrs) {
-                                gp = new GeoPoint(a.getLatitude(), a.getLongitude());
-                                break;
-                            }
-                        }
-                        catch (Exception e) {
-                        }
-                        return gp;
-                    }
-                    @Override
-                    protected void onPostExecute(GeoPoint gp) {
-                        if(gp != null){
-                            Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
-                            intent.putExtra(RouteActivity.CURRENT_LOCATION, true);
-                            Bundle extras = new Bundle();
-                            extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
-                            extras.putString("originAddr", EditAddress.CURRENT_LOCATION);
-                            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(0, 0 ));
-                            extras.putString("destAddr", addr);
-                            extras.putParcelable(RouteActivity.DEST_COORD, gp);
-                            intent.putExtras(extras);
-                            startActivity(intent);
-                            slideDownBottomPanel(false);
-                            relayoutIcons();
-                        }
-                    }
-                };
-                Misc.parallelExecute(geoCodeTask);
-            }
-        });
-        
-        final View balloonView = (View) findViewById(R.id.balloon_panel);
-        balloonView.findViewById(R.id.saveOrDelete).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final String lbl = ((EditText)balloonView.findViewById(R.id.label)).getText().toString();
-                final String addr = ((TextView)balloonView.findViewById(R.id.address)).getText().toString();
-                final BalloonModel model = (BalloonModel) balloonView.getTag();
-                final boolean isSave = model.id == 0;
-                final int oldId = model.id;
-                AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>(){
-                    @Override
-                    protected void onPreExecute() {
-                        if(!isSave){
-                            List<Overlay> overlays = mapView.getOverlays();
-                            List<Overlay> overlaysToKeep = new ArrayList<Overlay>();
-                            for (Overlay overlay : overlays) {
-                                boolean toKeep;
-                                if(overlay instanceof POIOverlay){
-                                    POIOverlay poiOverlay = (POIOverlay)overlay;
-                                    toKeep = !isFavoriteMark(poiOverlay.getMarker()) || poiOverlay.getAid() != model.id;
-                                }else{
-                                    toKeep = true;
-                                }
-                                if(toKeep){
-                                    overlaysToKeep.add(overlay);
-                                }
-                            }
-                            overlays.clear();
-                            overlays.addAll(overlaysToKeep);
-                            mapView.postInvalidate();
-                            ImageView saveOrDelView = (ImageView)balloonView.findViewById(R.id.saveOrDelete);
-                            saveOrDelView.setImageResource(R.drawable.save_star_poi);
-                            model.id = 0;
-                            refreshPOIMarker(mapView, model.lat, model.lon, addr, lbl);
-                        }
-                    }
-                    @Override
-                    protected Integer doInBackground(Void... params) {
-                        Integer id = null;
-                        Request req = null;
-                        User user = User.getCurrentUser(LandingActivity2.this);
-                        try {
-                            if (isSave){
-                                FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
-                                    user, lbl, addr, IconType.star.name(), model.lat, model.lon);
-                                req = request;
-                                id = request.execute(LandingActivity2.this);
-                            }
-                            else {
-                            	FavoriteAddressDeleteRequest request = new FavoriteAddressDeleteRequest(
-                                        new AddressLinkRequest(user).execute(LandingActivity2.this), user, oldId);
-                            	req = request;
-                                request.execute(LandingActivity2.this);
-                            }
-                        }
-                        catch (Exception e) {
-                            ehs.registerException(e, "[" + (req==null?"":req.getUrl()) + "]\n" + e.getMessage());
-                        }
-                        return id;
-                    }
-                    protected void onPostExecute(Integer id) {
-                        refreshStarredPOIs();
-                        ImageView saveOrDelView = (ImageView)balloonView.findViewById(R.id.saveOrDelete);
-                        if (ehs.hasExceptions()) {
-                            ehs.reportExceptions();
-                            if(!isSave){
-                                model.id = oldId;
-                                saveOrDelView.setImageResource(R.drawable.delete_star_poi);
-                                removePOIMarker(mapView);
-                            }
-                        }
-                        else {
-                            if(isSave){
-                                removePOIMarker(mapView);
-                                balloonView.setVisibility(View.VISIBLE);
-                                hideBottomBar();
-                                model.id = id;
-                                saveOrDelView.setImageResource(R.drawable.delete_star_poi);
-                            }
-                        }
-                    }
-               };
-               Misc.parallelExecute(task);
-            }
-        });
-        balloonView.findViewById(R.id.get_going).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final BalloonModel model = (BalloonModel) balloonView.getTag();
-                startRouteActivity(model.address, model.geopoint);
-                hideStarredBalloon();
-                hideBulbBalloon();
-                removePOIMarker(mapView);
-                resizeMap(true);
-                final String lbl = ((EditText)balloonView.findViewById(R.id.label)).getText().toString();
-                if(model.id == 0 && StringUtils.isNotBlank(lbl)){
-                    final String addr = ((TextView)balloonView.findViewById(R.id.address)).getText().toString();
-                    AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>(){
-                        @Override
-                        protected Integer doInBackground(Void... params) {
-                            Integer id = null;
-                            User user = User.getCurrentUser(LandingActivity2.this);
-                            try {
-                                FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
-                                    user, lbl, addr, IconType.star.name(),model.lat, model.lon);
-                                id = request.execute(LandingActivity2.this);
-                            }
-                            catch (Exception e) {
-                            }
-                            return id;
-                        }
-                        protected void onPostExecute(Integer id) {
-                            if (!ehs.hasExceptions()) {
-                                refreshStarredPOIs();
-                            }
-                        }
-                   };
-                   Misc.parallelExecute(task);
-                }
-            }
-        });
-        
-        balloonView.findViewById(R.id.label).setOnFocusChangeListener(new OnFocusChangeListener() {
-			@Override
-			public void onFocusChange(View v, boolean hasFocus) {
-				if(!hasFocus) {
-					final String lbl = ((EditText)balloonView.findViewById(R.id.label)).getText().toString();
-	                final String addr = ((TextView)balloonView.findViewById(R.id.address)).getText().toString();
-					final BalloonModel model = (BalloonModel) balloonView.getTag();
-                    AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
-                        @Override
-                        protected Void doInBackground(Void... params) {
-                            Request req = null;
-                            User user = User.getCurrentUser(LandingActivity2.this);
-                            try {
-                            	if (model.id > 0) {
-	                                FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
-	                                    new AddressLinkRequest(user).execute(LandingActivity2.this),
-	                                        model.id, user, lbl, addr, IconType.star.name(), model.lat, model.lon);
-	                                    req = request;
-	                                    request.execute(LandingActivity2.this);
-                            	}
-                            }
-                            catch (Exception e) {
-                                ehs.registerException(e, "[" + (req==null?"":req.getUrl()) + "]\n" + e.getMessage());
-                            }
-                            return null;
-                        }
-                        protected void onPostExecute(Void result) {
-                            if (ehs.hasExceptions()) {
-                                ehs.reportExceptions();
-                            }
-                            else {
-                                refreshStarredPOIs();
-                            }
-                        }
-                    };
-                    Misc.parallelExecute(task);
-                    removePOIMarker(mapView);
-		        }
-		    }
-	    });
-        
-        final TextView onTheWayBtn = (TextView) findViewById(R.id.on_the_way_button);
-        onTheWayBtn.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent otwIntent = new Intent(LandingActivity2.this, RouteActivity.class);
-                otwIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                otwIntent.putExtra(RouteActivity.LAT, (Double) onTheWayBtn.getTag(R.id.on_the_way_lat));
-                otwIntent.putExtra(RouteActivity.LON, (Double) onTheWayBtn.getTag(R.id.on_the_way_lon));
-                otwIntent.putExtra(RouteActivity.MSG, (String) onTheWayBtn.getTag(R.id.on_the_way_msg));
-                startActivity(otwIntent);
-                findViewById(R.id.on_the_way_icon).setVisibility(View.INVISIBLE);
-                findViewById(R.id.on_the_way_panel).setVisibility(View.GONE);
-            }
-        });
-        
-        bottomPanel = findViewById(R.id.bottom_panel);
-        final View carIcon = findViewById(R.id.car_icon);
-        final View tripPanel = findViewById(R.id.trip_panel);
-        final View onTheWayPanel = findViewById(R.id.on_the_way_panel); 
-        OnClickListener tripPanelToggler = new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            	Log.d("bottomPanelIsOpen", isBottomPanelOpen() + "");
-                if(carIcon.getVisibility() == View.VISIBLE){
-                	if(isBottomPanelOpen() && onTheWayPanel.getVisibility() == View.VISIBLE) {
-                		tripPanel.setVisibility(View.VISIBLE);
-                		onTheWayPanel.setVisibility(View.GONE);
-                	}
-                	else {
-                		if(!isBottomPanelOpen()) {
-                			slideUpBottomPanel(tripPanel);
-                			relayoutIcons();
-                		}
-                		else {
-                			slideDownBottomPanel(false);
-                		}
-                	}
-                }
-            }
-        };
-        carIcon.setOnClickListener(tripPanelToggler);
-        nextTripInfo.setOnClickListener(tripPanelToggler);
-        
-        final View onTheWayIcon = findViewById(R.id.on_the_way_icon);
-        onTheWayIcon.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(onTheWayIcon.getVisibility() == View.VISIBLE){
-                	if(isBottomPanelOpen() && tripPanel.getVisibility() == View.VISIBLE) {
-                		onTheWayPanel.setVisibility(View.VISIBLE);
-                		tripPanel.setVisibility(View.GONE);
-                	}
-                	else {
-                		if(!isBottomPanelOpen()) {
-                			slideUpBottomPanel(onTheWayPanel);
-                			relayoutIcons();
-                		}
-                		else {
-                			slideDownBottomPanel(false);
-                		}
-                	}
-                }
-            }
-        });
-        
         TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
         RelativeLayout.LayoutParams osmCreditLp = (RelativeLayout.LayoutParams) osmCredit.getLayoutParams();
         osmCreditLp.bottomMargin = Dimension.dpToPx(48, getResources().getDisplayMetrics());
         osmCredit.setLayoutParams(osmCreditLp);
         
-//        findViewById(R.id.header_panel).setOnClickListener(noopClick);
         findViewById(R.id.left_drawer).setOnClickListener(noopClick);
-        tripPanel.setOnClickListener(noopClick);
-        onTheWayPanel.setOnClickListener(noopClick);
-        
-        findViewById(R.id.bottom_bar).setOnClickListener(new OnClickListener() {
-        	@Override
-        	public void onClick(View v) {
-        		if(isBottomPanelOpen()) {
-        			slideDownBottomPanel(false);
-        		}
-        		else {
-        			if(carIcon.getVisibility() == View.VISIBLE) {
-        				if(onTheWayIcon.getVisibility() != View.VISIBLE) {
-        					onTheWayPanel.setVisibility(View.GONE);
-        					slideUpBottomPanel(tripPanel);
-        				}
-        			}
-        			else if(onTheWayIcon.getVisibility() == View.VISIBLE) {
-        				tripPanel.setVisibility(View.GONE);
-        				slideUpBottomPanel(onTheWayPanel);
-        			}
-        		}
-        		relayoutIcons();
-        	}
-        });
         
         scheduleNextTripInfoUpdates();
         
         AssetManager assets = getAssets();
-//        Font.setTypeface(Font.getBold(assets), tripAddr);
-        Font.setTypeface(Font.getLight(assets), tripAddr, osmCredit, searchBox, fromSearchBox, 
-            nextTripInfo, rewardsMenu, reservationsMenu, shareMenu, feedbackMenu, settingsMenu, logoutMenu,
-            tripDetails, getGoingBtn, rescheBtn, (TextView)findViewById(R.id.menu_bottom_text),
-            (TextView)findViewById(R.id.on_the_way_msg), onTheWayBtn);
+        Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, fromSearchBox, rewardsMenu
+        		, reservationsMenu, shareMenu, feedbackMenu, settingsMenu, logoutMenu);
         
     }
     
@@ -1973,75 +1637,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         };
     }
     
-    private boolean isBottomPanelOpen() {
-    	return "open".equals(bottomPanel.getTag());
-    }
-    
-    private void slideUpBottomPanel(View show) {
-    	show.setVisibility(View.VISIBLE);
-    	if(!isBottomPanelOpen()) {
-	    	ObjectAnimator slideUp = ObjectAnimator.ofFloat(bottomPanel, "translationY", Dimension.dpToPx(70, getResources().getDisplayMetrics()), 0.0f);
-			slideUp.setDuration(500);
-			slideUp.setInterpolator(new AccelerateDecelerateInterpolator());
-			slideUp.start();
-			bottomPanel.setTag("open");
-    	}
-    }
-    
-    private void slideDownBottomPanel(boolean faster) {
-    	if(isBottomPanelOpen()) {
-	    	ObjectAnimator slideDown = ObjectAnimator.ofFloat(bottomPanel, "translationY", 0.0f, Dimension.dpToPx(70, getResources().getDisplayMetrics()));
-			slideDown.setDuration(faster?0:500);
-			slideDown.setInterpolator(new AccelerateDecelerateInterpolator());
-			slideDown.removeAllListeners();
-			slideDown.addListener(new AnimatorListener() {
-				@Override
-				public void onAnimationStart(Animator animation) {
-				}
-	
-				@Override
-				public void onAnimationEnd(Animator animation) {
-					bottomPanel.setTag("close");
-					relayoutIcons();
-				}
-	
-				@Override
-				public void onAnimationCancel(Animator animation) {
-				}
-	
-				@Override
-				public void onAnimationRepeat(Animator animation) {
-				}
-			});
-			slideDown.start();
-    	}
-    }
-    
-    private void relayoutIcons(){
-        View mapView = findViewById(R.id.mapview);
-        Boolean collapsedTag = (Boolean) mapView.getTag();
-        boolean collapsed = collapsedTag == null?true:collapsedTag.booleanValue();
-        View balloonView = (View) findViewById(R.id.balloon_panel);
-        int bottomMargin = "close".equals(findViewById(R.id.bottom_panel).getTag()) 
-        		&& balloonView.getVisibility() == View.GONE ?(collapsed?53:20):135;
-        View centerMapIcon = findViewById(R.id.center_map_icon);
-        RelativeLayout.LayoutParams centerMapIconLp = (RelativeLayout.LayoutParams) centerMapIcon.getLayoutParams();
-        centerMapIconLp.bottomMargin = Dimension.dpToPx(bottomMargin, getResources().getDisplayMetrics());
-        centerMapIcon.setLayoutParams(centerMapIconLp);
-        View upcomingTripIcon = findViewById(R.id.trip_notify_icon);
-        RelativeLayout.LayoutParams upcomingTripIconLp = (RelativeLayout.LayoutParams) upcomingTripIcon.getLayoutParams();
-        upcomingTripIconLp.bottomMargin = Dimension.dpToPx(bottomMargin, getResources().getDisplayMetrics());
-        upcomingTripIcon.setLayoutParams(upcomingTripIconLp);
-//        View menuIcon = findViewById(R.id.drawer_menu_icon);
-//        FrameLayout.LayoutParams menuIconLp = (FrameLayout.LayoutParams) menuIcon.getLayoutParams();
-//        menuIconLp.bottomMargin = Dimension.dpToPx(bottomMargin, getResources().getDisplayMetrics());
-//        menuIcon.setLayoutParams(menuIconLp);
-//        View openedMenuIcon = findViewById(R.id.drawer_menu_icon_opened);
-//        LinearLayout.LayoutParams openedMenuIconLp = (LinearLayout.LayoutParams) openedMenuIcon.getLayoutParams();
-//        openedMenuIconLp.bottomMargin = Dimension.dpToPx(bottomMargin, getResources().getDisplayMetrics());
-//        openedMenuIcon.setLayoutParams(openedMenuIconLp);
-    }
-    
     private void searchFavAddress(String addrStr, boolean zoomIn) {
     	searchPOIAddress(addrStr, zoomIn, true);
     }
@@ -2077,12 +1672,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 if(addr != null){
                     GeoPoint gp = addr.getGeoPoint();
                     DebugOptionsActivity.addRecentAddress(LandingActivity2.this, addrStr);
-//                    if(isFavOperation) {
-//                    	refreshFavAutoCompleteData();
-//                    } 
-//                    else {
-//                    	refreshSearchAutoCompleteData();
-//                    }
                     final MapView mapView = (MapView) findViewById(R.id.mapview);
                     refreshPOIMarker(mapView, gp.getLatitude(), gp.getLongitude(), addr.getAddress(), addr.getName());
                     IMapController mc = mapView.getController();
@@ -2221,13 +1810,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private BroadcastReceiver onTheWayNotifier = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String msg = intent.getStringExtra(MSG);
-            ((TextView)findViewById(R.id.on_the_way_msg)).setText(msg);
-            View otwButton = findViewById(R.id.on_the_way_button);
-            otwButton.setTag(R.id.on_the_way_msg, msg);
-            otwButton.setTag(R.id.on_the_way_lat, intent.getDoubleExtra(LAT, 0));
-            otwButton.setTag(R.id.on_the_way_lon, intent.getDoubleExtra(LON, 0));
-            findViewById(R.id.on_the_way_icon).setVisibility(View.VISIBLE);
+//            String msg = intent.getStringExtra(MSG);
+//            ((TextView)findViewById(R.id.on_the_way_msg)).setText(msg);
+//            View otwButton = findViewById(R.id.on_the_way_button);
+//            otwButton.setTag(R.id.on_the_way_msg, msg);
+//            otwButton.setTag(R.id.on_the_way_lat, intent.getDoubleExtra(LAT, 0));
+//            otwButton.setTag(R.id.on_the_way_lon, intent.getDoubleExtra(LON, 0));
+//            findViewById(R.id.on_the_way_icon).setVisibility(View.VISIBLE);
         }
     };
     
@@ -2338,16 +1927,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	        }
 	        @Override
 	        protected void onPostExecute(List<Reservation> reservations) {
-	            View tripPanel = findViewById(R.id.trip_panel);
-                TextView nextTripInfo = (TextView) findViewById(R.id.next_trip_info);
-                View carIcon = findViewById(R.id.car_icon);
 	            if (ehs.hasExceptions() || reservations == null || reservations.isEmpty()) { 
-	                tripPanel.setTag(null);
-	                nextTripInfo.setText(NO_TRIPS);
-	                if(tripPanel.getVisibility() == View.VISIBLE) {
-	                    slideDownBottomPanel(false);
-	                }
-	                carIcon.setVisibility(View.INVISIBLE);
 	                MapView mapView = (MapView) findViewById(R.id.mapview);
 	                List<Overlay> mapOverlays = mapView.getOverlays();
 	                List<Overlay> need2Remove = getDrawedRouteOverlays(mapOverlays);
@@ -2355,50 +1935,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                    mapOverlays.removeAll(need2Remove);
 	                    mapView.postInvalidate();
 	                }
-	                relayoutIcons();
 	                hideTripInfoPanel();
 	                setReserMenuAndTripInfoStatus(false);
 	                tripNotifyIcon.setVisibility(View.GONE);
 	            } 
 	            else{
                     Reservation reserv = reservations.get(0);
-                    tripPanel.setTag(reserv);
-                    drawRoute(reserv);
-                    TextView tripAddr = (TextView) findViewById(R.id.trip_address);
-                    tripAddr.setText(reserv.getDestinationAddress());
-                    TextView tripDetails = (TextView) findViewById(R.id.trip_details);
-                    tripDetails.setText("Duration: " + TimeColumn.getFormattedDuration(reserv.getDuration())
-                        + "·mPOINTS: " + reserv.getMpoint());
-                    tripDetails.setSelected(true);
-                    int getGoingBtnVis = View.GONE;
-                    int rescheBtnVis = View.VISIBLE;
-                    int carIconVis = View.VISIBLE;
-                    String nextTripInfoText;
-                    long departureTimeUtc = reserv.getDepartureTimeUtc();
-                    long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
-                    if(reserv.isEligibleTrip()){
-                        nextTripInfoText = "Get Going";
-                        getGoingBtnVis = View.VISIBLE;
-                        rescheBtnVis = View.GONE;
-                    }else if(timeUntilDepart > 60 * 60 * 1000L){
-                        nextTripInfoText = "Next Trip at "
-                            + TimeColumn.formatTime(departureTimeUtc, reserv.getRoute().getTimezoneOffset());
-                    }else if(timeUntilDepart > Reservation.GRACE_INTERVAL){
-                        nextTripInfoText = "Next Trip in "
-                            + TimeColumn.getFormattedDuration((int)timeUntilDepart / 1000);
-                    }else if(timeUntilDepart > -2 * 60 * 60 * 1000L){
-                        nextTripInfoText = "Trip has expired";
-                    }else{
-                        nextTripInfoText = NO_TRIPS;
-                        carIconVis = View.INVISIBLE;
-                        tripPanel.setVisibility(View.GONE);
-                    }
-                    nextTripInfo.setText(nextTripInfoText);
-                    TextView getGoingBtn = (TextView) findViewById(R.id.get_going_button);
-                    getGoingBtn.setVisibility(getGoingBtnVis);
-                    TextView rescheBtn = (TextView) findViewById(R.id.reschedule_button);
-                    rescheBtn.setVisibility(rescheBtnVis);
-	                carIcon.setVisibility(carIconVis);
 	                drawRoute(reserv);
                     refreshTripInfoPanel(reservations);
                     refreshReservationList(reservations);
@@ -2589,57 +2131,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		
     		RoutePathOverlay path = new RoutePathOverlay(this, route, RoutePathOverlay.GREEN);
     		path.setDashEffect();
-    		path.setCallback(new RoutePathCallback() {
-				@Override
-				public void onTap() {
-					if(isMapCollapsed()) {
-						View tripPanel = findViewById(R.id.trip_panel);
-						slideUpBottomPanel(tripPanel);
-						relayoutIcons();
-					}
-				}
-    		});
     		mapOverlays.add(path);
     		
     		RouteDestinationOverlay destOverlay = new RouteDestinationOverlay(mapView, route.getLastNode().getGeoPoint(), 
     				lightFont, destinationAddr, R.drawable.pin_destination);
-    		destOverlay.setCallback(new OverlayCallback() {
-				
-				@Override
-				public boolean onTap(int index) {
-					if(isMapCollapsed()) {
-						View tripPanel = findViewById(R.id.trip_panel);
-						slideUpBottomPanel(tripPanel);
-						relayoutIcons();
-						return true;
-					}
-					return false;
-				}
-				
-				@Override
-				public boolean onLongPress(int index, OverlayItem item) {
-					// TODO Auto-generated method stub
-					return false;
-				}
-				
-				@Override
-				public boolean onClose() {
-					// TODO Auto-generated method stub
-					return false;
-				}
-				
-				@Override
-				public void onChange() {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public boolean onBalloonTap(int index, OverlayItem item) {
-					// TODO Auto-generated method stub
-					return false;
-				}
-			});
     		mapOverlays.add(destOverlay);
     		
     		RouteRect routeRect = new RouteRect(route.getNodes());
@@ -2911,8 +2406,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
             @Override
             protected void onPostExecute(City result) {
-                final ImageView cityImgView = (ImageView) findViewById(R.id.city_logo);
-                final View bottomText = findViewById(R.id.menu_bottom_text);
                 if(result != null && StringUtils.isNotBlank(result.html)){
                     if(alertAvailability){
                         CharSequence msg = Html.fromHtml(result.html);
@@ -2922,24 +2415,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             dialog.show();
                         }catch(Throwable t){}
                     }
-                    cityImgView.setVisibility(View.GONE);
-                    bottomText.setVisibility(View.GONE);
                 }else{
-                    try{
-                        LoadImageTask logoTask = new LoadImageTask(LandingActivity2.this, result.logo) {
-                            protected void onPostExecute(final Bitmap rs) {
-                                if(rs != null){
-                                    cityImgView.setVisibility(View.VISIBLE);
-                                    cityImgView.setImageBitmap(rs);
-                                    bottomText.setVisibility(View.VISIBLE);
-                                }else{
-                                    cityImgView.setVisibility(View.GONE);
-                                    bottomText.setVisibility(View.GONE);
-                                }
-                            }
-                        };
-                        Misc.parallelExecute(logoTask);
-                    }catch(Throwable t){}
                     try{
                         cityRange = new RouteRect(Double.valueOf(result.maxLat * 1E6).intValue(), 
                     		Double.valueOf(result.maxLon * 1E6).intValue(), Double.valueOf(result.minLat * 1E6).intValue(), 
@@ -3088,14 +2564,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                boolean handledBulb = hideBulbBalloon();
 	                boolean handledPOI = removePOIMarker(mapView);
 	                if(!handledStarred && !handledBulb && !handledPOI){
-	                    if(isBottomPanelOpen()){
-	                        slideDownBottomPanel(false);
-	                        relayoutIcons();
-	                    }else{
-	                        resizeMap(!isMapCollapsed());
-	                    }
-	                }else{
-	                    relayoutIcons();
+	                    resizeMap(!isMapCollapsed());
 	                }
             	}
             	else {
@@ -3118,14 +2587,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private void resizeMap(boolean collapsed){
         View mapView = findViewById(R.id.mapview);
         mapView.setTag(collapsed);
-//        findViewById(R.id.header_panel).setVisibility(collapsed?View.VISIBLE:View.GONE);
         findViewById(R.id.landing_panel_content).setVisibility(collapsed?View.VISIBLE:View.GONE);
-        if(collapsed){
-            findViewById(R.id.bottom_bar).setVisibility(View.VISIBLE);
-        }else{
-            hideBottomBar();
-        }
-        relayoutIcons();
     }
     
     protected static abstract class ReverseGeocodingTask extends AsyncTask<Void, Void, String> {
@@ -3253,19 +2715,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         mapView.postInvalidate();
     }
     
-    private boolean isBalloonPanelVisible(){
-        return findViewById(R.id.balloon_panel).getVisibility() == View.VISIBLE;
-    }
-    
-    private void hideBalloonPanel(){
-        findViewById(R.id.balloon_panel).setVisibility(View.GONE);
-        Boolean collapsedTag = (Boolean) findViewById(R.id.mapview).getTag();
-        boolean collapsed = collapsedTag == null?true:collapsedTag.booleanValue();
-        if(collapsed && !isBottomBarVisible()) {
-            findViewById(R.id.bottom_bar).setVisibility(View.VISIBLE);
-        }
-    }
-    
     private boolean isInFavoriteOperation() {
     	return findViewById(R.id.fav_opt).getVisibility() == View.VISIBLE;
     }
@@ -3298,17 +2747,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	favOptPanel.findViewById(R.id.fav_search_box_clear).setVisibility(model.id!=0?View.GONE:View.VISIBLE);
     	favOptPanel.findViewById(R.id.fav_del).setVisibility(model.id!=0?View.VISIBLE:View.GONE);
     	((TextView)favOptPanel.findViewById(R.id.header)).setText(model.id!=0?"Edit Favorite":"Add Favorite");
-    }
-    
-    private boolean isBottomBarVisible() {
-    	return findViewById(R.id.bottom_bar).getVisibility() == View.VISIBLE;
-    }
-    
-    private void hideBottomBar() {
-    	if(isBottomPanelOpen()) {
-    		slideDownBottomPanel(true);
-    	}
-    	findViewById(R.id.bottom_bar).setVisibility(View.GONE);
     }
     
     private synchronized void drawBulbPOIs(final MapView mapView, List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
