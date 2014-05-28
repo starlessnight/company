@@ -25,7 +25,7 @@ public final class Reservation implements Parcelable {
     
     private static final String TIME_FORMAT_SINGLE_LINE = "EEEE MMM dd, yyyy hh:mm a";
 
-    public static final long GRACE_INTERVAL = 10*60*1000L;
+    public static final long GRACE_INTERVAL = 15*60*1000L;
     
 	/**
 	 * Reservation ID
