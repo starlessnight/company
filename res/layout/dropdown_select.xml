@@ -49,4 +49,9 @@
 	    android:paddingTop="2dp"
 	    android:gravity="center|left"/>
 	
+	<View  
+	    android:layout_width="fill_parent"
+	    android:layout_height="0.5dp"
+	    android:background="@android:color/black"/>
+	
 </LinearLayout>
