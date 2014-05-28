@@ -1691,7 +1691,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		
 		if(ttsBuffer.isEmpty()){
 		    ttsDelayCnt.set(0);
-		}else if(ttsDelayCnt.incrementAndGet() > countOutOfRouteThreshold + 3){
+		}else if(ttsDelayCnt.incrementAndGet() > countOutOfRouteThreshold){
 		    speakIfTtsEnabled(ttsBuffer.remove(0), false);
 		}
 
