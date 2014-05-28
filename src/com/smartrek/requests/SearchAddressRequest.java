@@ -52,7 +52,7 @@ public class SearchAddressRequest extends FetchRequest<List<Address>>{
 		    	address.setName(name);
 		    	address.setAddress(addr);
 		    	if(userLat!=null && userLon!=null) {
-		    		NumberFormat nf = new DecimalFormat("#.##");
+		    		NumberFormat nf = new DecimalFormat("#.#");
 		    		address.setDistance(nf.format(NavigationView.metersToMiles(
 		    				RouteNode.distanceBetween(userLat, userLon, lat, lon))));
 		    	}
