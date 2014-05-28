@@ -1973,16 +1973,16 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	        long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
 	        long durationTime = reserv.getDuration();  //sec
 	        if(reserv.isEligibleTrip()){
-	        	nextTripInfoDesc = "It's Time to Go!\nTrip Duration";
+	        	nextTripInfoDesc = "It's Time to Go!\nTrip Duration:";
 	            backgroundColor = R.color.metropia_green;
 	            nextTripStartTime = TimeColumn.getFormattedDuration((int)durationTime);
 	            arrivalTime = TimeColumn.formatTime(System.currentTimeMillis() + durationTime*1000, reserv.getRoute().getTimezoneOffset());
 	        }else if(timeUntilDepart > 60 * 60 * 1000L){
-	        	nextTripInfoDesc = "Your Next Trip will be at";
+	        	nextTripInfoDesc = "Your Next Trip will be at:";
 	            nextTripStartTime = TimeColumn.formatTime(departureTimeUtc, reserv.getRoute().getTimezoneOffset());
 	            backgroundColor = R.color.metropia_orange;
 	        }else if(timeUntilDepart > Reservation.GRACE_INTERVAL){
-	        	nextTripInfoDesc = "Your Next Trip is in";
+	        	nextTripInfoDesc = "Your Next Trip is in:";
 	            nextTripStartTime = TimeColumn.getFormattedDuration((int)timeUntilDepart / 1000);
 	            backgroundColor = R.color.metropia_orange;
 	        }
