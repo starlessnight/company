@@ -2853,6 +2853,23 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         }
     }
     
+    @Override
+    public boolean onKeyDown(int keycode, KeyEvent e) {
+        switch(keycode) {
+            case KeyEvent.KEYCODE_MENU:
+                final DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+                View drawer = findViewById(R.id.left_drawer);
+                if(mDrawerLayout.isDrawerOpen(drawer)){
+                    mDrawerLayout.closeDrawer(drawer);
+                }else{
+                    mDrawerLayout.openDrawer(drawer);
+                }
+                return true;
+        }
+
+        return super.onKeyDown(keycode, e);
+    }
+    
     static class LoadImageTask extends AsyncTask<Void, Void, Bitmap> {
         
         Context ctx;
