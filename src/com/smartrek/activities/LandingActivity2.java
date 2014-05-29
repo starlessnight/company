@@ -1371,13 +1371,18 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         		View view = super.getView(position, convertView, parent);
                 Reservation reserv = getItem(position);
                 View reservItemPanel = view.findViewById(R.id.reservation_item);
+                View rightArrow = view.findViewById(R.id.right_arrow);
                 boolean isAbout2Go = false;
                 if(reserv.isEligibleTrip()) {
                 	isAbout2Go = true;
-                	reservItemPanel.setBackgroundColor(LandingActivity2.this.getResources().getColor(R.color.metropia_green));
+                	int color = LandingActivity2.this.getResources().getColor(R.color.metropia_green);
+                	reservItemPanel.setBackgroundColor(color);
+                	rightArrow.setBackgroundColor(color);
                 }
                 else {
-                	reservItemPanel.setBackgroundColor(LandingActivity2.this.getResources().getColor(R.color.metropia_orange));
+                	int color = LandingActivity2.this.getResources().getColor(R.color.metropia_orange);
+                	reservItemPanel.setBackgroundColor(color);
+                	rightArrow.setBackgroundColor(color);
                 }
                 TextView odInfoView = (TextView) view.findViewById(R.id.od_info);
                 StringBuffer odInfo = new StringBuffer();
