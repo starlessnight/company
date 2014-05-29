@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
@@ -1050,7 +1051,8 @@ public final class RouteActivity extends FragmentActivity {
         if(routeNum == 0)
             mapOverlays.clear();
         
-        routePathOverlays[routeNum] = new RoutePathOverlay(this, route, RoutePathOverlay.COLORS[routeNum]);
+        int routeColor = route.getColor()!=null?Color.parseColor(route.getColor()):RoutePathOverlay.COLORS[routeNum];
+        routePathOverlays[routeNum] = new RoutePathOverlay(this, route, routeColor);
         //mapOverlays.add(routePathOverlays[routeNum]);
         
         routeDestOverlays[routeNum] = new RouteDestinationOverlay(mapView, route.getLastNode().getGeoPoint(), 

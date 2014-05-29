@@ -28,6 +28,7 @@ import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -2097,13 +2098,22 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	            protected List<Route> doInBackground(Void... params) {
 	                List<Route> routes = null;
 	                try {
-	                    RouteFetchRequest request = new RouteFetchRequest(
+	                    RouteFetchRequest reservRequest = new RouteFetchRequest(
 	                    		reserv.getNavLink(),
 	                    		reserv.getDepartureTime(), 
 	                    		reserv.getDuration(),
 	                        0,
 	                        0);
-	                    routes = request.execute(LandingActivity2.this);
+	                    List<Route> tempRoutes = reservRequest.execute(LandingActivity2.this);
+	                    if(tempRoutes !=null && tempRoutes.size() > 0) {
+	                    	Route route = tempRoutes.get(0);
+		                    route.setCredits(reserv.getCredits());
+		                    route.preprocessNodes();
+	                    	RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(LandingActivity2.this), 
+	                    	        route.getFirstNode().getGeoPoint(), route.getLastNode().getGeoPoint(), 
+	                    	        reserv.getDepartureTimeUtc(), 0, 0, reserv.getOriginAddress(), reserv.getDestinationAddress());
+	                    	routes = request.execute(LandingActivity2.this);
+	                    }
 	                }
 	                catch(Exception e) {
 	                	Log.d("drawRoute", e.getMessage());
@@ -2133,8 +2143,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		List<Overlay> mapOverlays = mapView.getOverlays();
     		List<Overlay> need2Remove = getDrawedRouteOverlays(mapOverlays);
     		mapOverlays.removeAll(need2Remove);
-    		
-    		RoutePathOverlay path = new RoutePathOverlay(this, route, RoutePathOverlay.GREEN);
+    		int routeColor = route.getColor()!=null?Color.parseColor(route.getColor()):RoutePathOverlay.GREEN;
+    		RoutePathOverlay path = new RoutePathOverlay(this, route, routeColor);
     		path.setDashEffect();
     		mapOverlays.add(path);
     		

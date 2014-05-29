@@ -11,6 +11,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -88,7 +89,7 @@ public class RoutePathOverlay extends Overlay {
         float thickness = Dimension.dpToPx(1 + zoom/2 + (highlighted ? 1 : -1), dm);
         
         drawPath(canvas, new Paint(), projection, routeNodes, 
-            thickness, 0x053a16);
+            thickness, getDarkerColor(color));
         
 		Paint path = new Paint();
 		Point originPoint = drawPath(canvas, path, projection, routeNodes, 
@@ -153,5 +154,12 @@ public class RoutePathOverlay extends Overlay {
 			}
 		}
 		return super.onSingleTapConfirmed(e, mapView);
+	}
+	
+	private int getDarkerColor(int color) {
+		float[] hsv = new float[3];
+		Color.colorToHSV(color, hsv);
+		hsv[2] *= 0.5f; // value component
+		return Color.HSVToColor(hsv);
 	}
 }
