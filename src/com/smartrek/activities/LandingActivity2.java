@@ -1229,7 +1229,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         tripInfoPanel.setOnTouchListener(new SwipeDismissTouchListener(tripInfoPanel, null, new SwipeDismissTouchListener.OnDismissCallback() {
 			@Override
 			public void onDismiss(View view, Object token) {
-				tripInfoPanel.setVisibility(View.GONE);
+				hideTripInfoPanel();
 				dismissReservId = ((Reservation)tripInfoPanel.getTag()).getRid();
 			}
 		}));
@@ -1936,7 +1936,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                    mapView.postInvalidate();
 	                }
 	                hideTripInfoPanel();
-	                setReserMenuAndTripInfoStatus(false);
+	                setReservMenuAndTripInfoStatus(false);
 	                tripNotifyIcon.setVisibility(View.GONE);
 	            } 
 	            else{
@@ -2001,14 +2001,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	        Font.setTypeface(boldFont, tripStartDescView, tripStartTimeView, tripArriveTimeView, 
 	        		(TextView) tripInfoPanel.findViewById(R.id.trip_arrival_desc));
 	        showTripInfoPanel(false);
-	        setReserMenuAndTripInfoStatus(true);
+	        setReservMenuAndTripInfoStatus(true);
 	        tripNotifyIcon.setVisibility(View.VISIBLE);
     	}
     	else {
     		Log.d("LandingActivity2", "hideTripInfoPanel");
     		hideTripInfoPanel();
     		tripNotifyIcon.setVisibility(View.GONE);
-    		setReserMenuAndTripInfoStatus(false);
+    		setReservMenuAndTripInfoStatus(false);
     	}
     	refreshReservationList(reservations);
     }
@@ -2037,8 +2037,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private void showTripInfoPanel(boolean force) {
     	View reservationListPanel = findViewById(R.id.reservations_list);
     	View tripInfoPanel = findViewById(R.id.trip_info);
-    	if((force && hasReservTrip()) || (reservationListPanel.getVisibility() != View.VISIBLE && hasReservTrip() && !dismissReservId.equals(((Reservation)tripInfoPanel.getTag()).getRid()))) {
+    	if((force && hasReservTrip()) || 
+    			(reservationListPanel.getVisibility() != View.VISIBLE && hasReservTrip() && !dismissReservId.equals(((Reservation)tripInfoPanel.getTag()).getRid()))) {
     		tripInfoPanel.setVisibility(View.VISIBLE);
+    		DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+    		mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     	}
     }
     
@@ -2049,9 +2052,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private void hideTripInfoPanel() {
     	View tripInfoPanel = findViewById(R.id.trip_info);
     	tripInfoPanel.setVisibility(View.GONE);
+    	DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
     }
     
-    private void setReserMenuAndTripInfoStatus(boolean show) {
+    private void setReservMenuAndTripInfoStatus(boolean show) {
     	findViewById(R.id.reservations).setVisibility(show?View.VISIBLE:View.GONE);
 		findViewById(R.id.reservations_spliter).setVisibility(show?View.VISIBLE:View.GONE);
 		if(!show) {
@@ -2857,12 +2862,16 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     public boolean onKeyDown(int keycode, KeyEvent e) {
         switch(keycode) {
             case KeyEvent.KEYCODE_MENU:
-                final DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-                View drawer = findViewById(R.id.left_drawer);
-                if(mDrawerLayout.isDrawerOpen(drawer)){
-                    mDrawerLayout.closeDrawer(drawer);
-                }else{
-                    mDrawerLayout.openDrawer(drawer);
+            	if(!isInFavoriteOperation() && 
+            			findViewById(R.id.trip_info).getVisibility()!=View.VISIBLE &&
+            			findViewById(R.id.reservations_list).getVisibility()!=View.VISIBLE) {
+	                final DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+	                View drawer = findViewById(R.id.left_drawer);
+	                if(mDrawerLayout.isDrawerOpen(drawer)){
+	                    mDrawerLayout.closeDrawer(drawer);
+	                }else{
+	                    mDrawerLayout.openDrawer(drawer);
+	                }
                 }
                 return true;
         }
