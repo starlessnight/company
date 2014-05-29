@@ -869,11 +869,15 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 	
 	private SpannableString formatRemainTime(String remainTime) {
-		int indexOfSpace = remainTime.indexOf(" ");
-		SpannableString remainTimeSpan = SpannableString.valueOf(remainTime);
+		String remainDesc = "Arrive in" + (vertical?"\n":" ") + remainTime;
+		SpannableString remainTimeSpan = SpannableString.valueOf(remainDesc);
+		remainTimeSpan.setSpan(new AbsoluteSizeSpan(ValidationActivity.this.getResources()
+				.getDimensionPixelSize(R.dimen.smaller_font)), 0, "Arrival in".length(),
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		int indexOfSpace = remainDesc.lastIndexOf(" ");
 		remainTimeSpan.setSpan(new AbsoluteSizeSpan(ValidationActivity.this.getResources()
 				.getDimensionPixelSize(R.dimen.smaller_font)), indexOfSpace,
-				remainTime.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				remainDesc.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		return remainTimeSpan;
 	}
 	

@@ -166,7 +166,7 @@
 		        android:layout_height="wrap_content"
 		        android:layout_width="wrap_content"
 		        android:text="Arrive 12:45"
-		        android:textColor="@color/transparent_gray"
+		        android:textColor="#ad000000"
 		        android:textSize="@dimen/large_font"
 		        android:layout_alignParentRight="true"
 		        android:layout_alignParentTop="true"/>
