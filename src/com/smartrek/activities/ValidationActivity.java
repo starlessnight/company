@@ -606,9 +606,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		return new RouteRect(r.getNodes());
 	}
 	
-	private int mStartingX = -1000;
-	private boolean move = false;
-
 	private void initViews() {
 		mapView = (MapView) findViewById(R.id.mapview);
 		Misc.disableHardwareAcceleration(mapView);
@@ -819,13 +816,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             reservation.getArrivalTimeUtc(), route.getTimezoneOffset()));
         timeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(reservation.getDuration()));
         refreshTimeInfo();
-//        timeInfo.setOnClickListener(new OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                timeInfo.setTag(R.id.clicked, true);
-//                toggleTimeInfo();
-//            }
-//        });
+        timeInfo.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                timeInfo.setTag(R.id.clicked, true);
+                toggleTimeInfo();
+            }
+        });
         
         findViewById(R.id.co2_circle).setOnClickListener(new OnClickListener() {
 			@Override
