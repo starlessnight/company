@@ -711,9 +711,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     	if(routeRect != null) {
                     		zoomMapToFitBulbPOIs();
                     	}
-                    	else {
-                    		zoomMapToFitCity();
-                    	}
                     }else{
                         mc.setZoom(DEFAULT_ZOOM_LEVEL);
                         if(myPointOverlay != null){
@@ -2461,17 +2458,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             mc.zoomToSpan(range[0], range[1]);
             mc.setCenter(mid);
         }
-    }
-    
-    private void zoomMapToFitCity() {
-    	if(cityRange != null) {
-    		MapView mapView = (MapView) findViewById(R.id.mapview);
-            IMapController mc = mapView.getController();
-            GeoPoint mid = cityRange.getMidPoint();
-            int[] range = cityRange.getRange();
-            mc.zoomToSpan(range[0], range[1]);
-            mc.setCenter(mid);
-    	}
     }
     
     private POIOverlay curBulb;
