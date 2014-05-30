@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -33,8 +34,16 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import com.smartrek.activities.LandingActivity.ShortcutNavigationTask;
+import com.smartrek.models.Reservation;
+import com.smartrek.models.Trajectory;
+import com.smartrek.models.Trajectory.Record;
 import com.smartrek.requests.ServiceDiscoveryRequest.Result;
+import com.smartrek.requests.TrajectoryFetchRequest;
 import com.smartrek.utils.Cache;
+import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.GeoPoint;
+import com.smartrek.utils.Misc;
 
 public final class DebugOptionsActivity extends Activity {
     
@@ -47,7 +56,6 @@ public final class DebugOptionsActivity extends Activity {
     public static final String GPS_MODE = "GPSMode";
     
     public static final int GPS_MODE_REAL = 1;
-    public static final int GPS_MODE_PRERECORDED = 2;
     public static final int GPS_MODE_LONG_PRESS = 4;
     public static final int GPS_MODE_DEFAULT = GPS_MODE_REAL;
     
@@ -56,6 +64,8 @@ public final class DebugOptionsActivity extends Activity {
     private static final String CURRENT_LOCATION = "CURRENT_LOCATION";
     
     private static final String ENTRYPOINT = "ENTRYPOINT";
+    
+    private static final String PRE_RECORDED_DATA_URL = "PRE_RECORDED_DATA_URL";
     
     public static final String GOOGLE_GEOCODING_PATCHED = "GOOGLE_GEOCODING_PATCHED";
     
@@ -91,10 +101,11 @@ public final class DebugOptionsActivity extends Activity {
     
     private static final String NAV_API_LOG = "NAV_API_LOG";
     
+    private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
+    
     private SharedPreferences prefs;
     
     private RadioButton radioRealGPS;
-    private RadioButton radioPrerecordedGPS;
     private RadioButton radioLongPress;
     
     private Button buttonClearCache;
@@ -110,7 +121,6 @@ public final class DebugOptionsActivity extends Activity {
         prefs = getSharedPreferences(DEBUG_PREFS, MODE_PRIVATE);
         
         radioRealGPS = (RadioButton) findViewById(R.id.radio_real_gps);
-        radioPrerecordedGPS = (RadioButton) findViewById(R.id.radio_prerecorded_gps);
         radioLongPress = (RadioButton) findViewById(R.id.radio_long_press);
         
         radioRealGPS.setOnClickListener(new OnClickListener() {
@@ -123,16 +133,6 @@ public final class DebugOptionsActivity extends Activity {
             }
         });
         
-        radioPrerecordedGPS.setOnClickListener(new OnClickListener() {
-            
-            @Override
-            public void onClick(View v) {
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.putInt(GPS_MODE, GPS_MODE_PRERECORDED);
-                editor.commit();
-            }
-        });
-        
         radioLongPress.setOnClickListener(new OnClickListener() {
             
             @Override
@@ -140,6 +140,81 @@ public final class DebugOptionsActivity extends Activity {
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putInt(GPS_MODE, GPS_MODE_LONG_PRESS);
                 editor.commit();
+            }
+        });
+        
+        final EditText preRecordedDataUrlView = (EditText) findViewById(R.id.pre_recorded_data_url);
+        preRecordedDataUrlView.setText(String.valueOf(prefs.getString(PRE_RECORDED_DATA_URL, "")));
+        preRecordedDataUrlView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+            
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count,
+                    int after) {
+            }
+            
+            @Override
+            public void afterTextChanged(Editable s) {
+                prefs.edit()
+                    .putString(PRE_RECORDED_DATA_URL, s.toString())
+                    .commit();
+            }
+        });
+        
+        Button buttonReplay = (Button) findViewById(R.id.button_replay);
+        buttonReplay.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Misc.parallelExecute(new AsyncTask<Void, Void, JSONObject>() {
+                    @Override
+                    protected JSONObject doInBackground(Void... params) {
+                        JSONObject rs = null;
+                        try {
+                            TrajectoryFetchRequest req = new TrajectoryFetchRequest(
+                                preRecordedDataUrlView.getText().toString());  
+                            req.invalidateCache(DebugOptionsActivity.this);
+                            rs = req.execute(DebugOptionsActivity.this);
+                        }
+                        catch(Exception e) {
+                            ehs.registerException(e);
+                        }
+                        return rs;
+                    }
+                    @Override
+                    protected void onPostExecute(final JSONObject result) {
+                        if (ehs.hasExceptions()) {
+                            ehs.reportExceptions();
+                        }
+                        else {
+                            try {
+                                List<Record> records = Trajectory.from(result.getJSONArray("trajectory")).getRecords();
+                                Record origin = records.get(0);
+                                Record dest = records.get(records.size() - 1);
+                                ShortcutNavigationTask task = new ShortcutNavigationTask(DebugOptionsActivity.this, 
+                                    new GeoPoint(origin.getLatitude(), origin.getLongitude()), result.optString("origin"), 
+                                    new GeoPoint(dest.getLatitude(), dest.getLongitude()), result.optString("destination"), ehs);
+                                task.callback = new ShortcutNavigationTask.Callback() {
+                                    @Override
+                                    public void run(Reservation reservation) {
+                                        Intent intent = new Intent(DebugOptionsActivity.this, ValidationActivity.class);
+                                        intent.putExtra(ValidationActivity.TRAJECTORY_DATA, result.toString());
+                                        intent.putExtra("route", reservation.getRoute());
+                                        intent.putExtra("reservation", reservation);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                };
+                                Misc.parallelExecute(task);
+                            }
+                            catch (Exception e) {
+                                ehs.registerException(e);
+                                ehs.reportExceptions();
+                            }
+                        }
+                    }
+                });
             }
         });
         
@@ -307,15 +382,12 @@ public final class DebugOptionsActivity extends Activity {
             radioRealGPS.setChecked(true);
             break;
             
-        case GPS_MODE_PRERECORDED:
-            radioPrerecordedGPS.setChecked(true);
-            break;
-            
         case GPS_MODE_LONG_PRESS:
             radioLongPress.setChecked(true);
             break;
             
         default:
+            radioRealGPS.setChecked(true);
             Log.e("DebugOptionsActivity", "Should not reach here.");
         }
     }

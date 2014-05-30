@@ -234,5 +234,9 @@ public class Trajectory {
         }
         return traj;
     }
+
+    public List<Record> getRecords() {
+        return records;
+    }
 	
 }

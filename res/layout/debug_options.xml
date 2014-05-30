@@ -44,16 +44,6 @@
             </RadioButton>
 
             <RadioButton
-                android:id="@+id/radio_prerecorded_gps"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:enabled="true"
-                android:text="Pre-recorded Tucson data"
-                android:textColor="#FFFFFFFF"
-                android:textSize="20dp" >
-            </RadioButton>
-
-            <RadioButton
                 android:id="@+id/radio_long_press"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -64,6 +54,40 @@
             </RadioButton>
         </RadioGroup>
     </RelativeLayout>
+    
+    
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFFFF"
+        android:textSize="18dp"
+        android:gravity="center"
+        android:text="Pre-recorded data URL:"
+	/>
+    <LinearLayout 
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginLeft="30dp"
+       		android:layout_marginRight="30dp">
+	    <EditText
+	        android:id="@+id/pre_recorded_data_url"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:textColor="@android:color/darker_gray"
+	        android:textSize="18dp"
+	        android:layout_weight="1"
+	        android:text="@string/placeholder"
+	        android:singleLine="true"
+		/>
+	    <Button
+	        android:id="@+id/button_replay"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center"
+	        android:layout_margin="4dp"
+	        android:text="Replay" 
+        />
+    </LinearLayout>
     
     <TextView
         android:layout_width="match_parent"

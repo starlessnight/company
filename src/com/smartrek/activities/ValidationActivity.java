@@ -2,7 +2,6 @@ package com.smartrek.activities;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,7 +17,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -141,6 +139,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	public static final String PHONES = "phones";
 	
+	public static final String TRAJECTORY_DATA = "TRAJECTORY_DATA";
+	
 	public static final Integer REPORT_PROBLEM = Integer.valueOf(100);
 	
 	public static final int ON_MY_WAY = Integer.valueOf(110);
@@ -215,6 +215,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private String emails;
 	
 	private String phones;
+	
+	private String trajectoryData;
 
 	private BroadcastReceiver timeoutReceiver;
 
@@ -256,12 +258,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			savedPollCnt = savedInstanceState.getInt(POLL_CNT);
 			emails = savedInstanceState.getString(EMAILS);
 			phones = savedInstanceState.getString(PHONES);
+			trajectoryData = savedInstanceState.getString(TRAJECTORY_DATA);
 		} else {
 			Time now = new Time();
 			now.setToNow();
 			startTime = now.toMillis(false);
 			emails = extras.getString(EMAILS);
 			phones = extras.getString(PHONES);
+			trajectoryData = extras.getString(TRAJECTORY_DATA);
 		}
 
 		timeoutReceiver = new BroadcastReceiver() {
@@ -506,6 +510,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 		outState.putString(EMAILS, emails);
 		outState.putString(PHONES, phones);
+		outState.putString(TRAJECTORY_DATA, trajectoryData);
 	}
 
 	@Override
@@ -538,11 +543,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				DebugOptionsActivity.GPS_MODE_DEFAULT);
 		if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL && !turnOffGPS.get()) {
 			prepareGPS();
-		} else if (gpsMode == DebugOptionsActivity.GPS_MODE_PRERECORDED) {
+		} else if (StringUtils.isNotBlank(trajectoryData)) {
 			int interval = DebugOptionsActivity.getGpsUpdateInterval(this);
 			if (fakeLocationService == null) {
 				fakeLocationService = new FakeLocationService(locationListener,
-						interval, gpsMode);
+						interval, trajectoryData);
 			} else {
 				fakeLocationService = fakeLocationService.setInterval(interval);
 			}
@@ -2032,31 +2037,26 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		private int interval;
 
-		private int gpsMode;
+		private String trajectoryData;
 
 		int pollCnt;
 
 		public FakeLocationService(LocationListener listener, int interva,
-				int gpsMode) {
-			this(listener, interva, null, gpsMode);
+				String trajectoryData) {
+			this(listener, interva, null, trajectoryData);
 		}
 
-		@SuppressWarnings("unchecked")
 		public FakeLocationService(LocationListener listener, int interval,
-		        Trajectory trajectory, int gpsMode) {
+		        Trajectory trajectory, String trajectoryData) {
 			this.listener = listener;
 			this.interval = interval;
-			this.gpsMode = gpsMode;
+			this.trajectoryData = trajectoryData;
 
 			if (trajectory == null) {
-			    InputStream in = null;
 				try {
-					in = getResources().getAssets().open("201405200148.txt");
-					this.trajectory = Trajectory.from(new JSONObject(IOUtils.toString(in)).getJSONArray("trajectory"));
+					this.trajectory = Trajectory.from(new JSONObject(trajectoryData).getJSONArray("trajectory"));
 				} catch (Throwable e) {
 				    Log.e("ValidationActivity", Log.getStackTraceString(e));
-				} finally{
-				    IOUtils.closeQuietly(in);
 				}
 			} else {
 				this.trajectory = trajectory;
@@ -2071,7 +2071,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			if (interval != millisecond) {
 				cancel();
 				rtn = new FakeLocationService(listener, millisecond,
-						trajectory, gpsMode);
+						trajectory, trajectoryData);
 			} else {
 				rtn = this;
 			}

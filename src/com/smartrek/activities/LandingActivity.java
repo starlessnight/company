@@ -80,7 +80,6 @@ import com.smartrek.requests.TrekpointFetchRequest.Trekpoint;
 import com.smartrek.requests.UserIdRequest;
 import com.smartrek.requests.ValidatedReservationsFetchRequest;
 import com.smartrek.tasks.LoginTask;
-import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.CurrentLocationOverlay;
 import com.smartrek.ui.overlays.OverlayCallback;
@@ -1235,6 +1234,8 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         
         CancelableProgressDialog dialog;
         
+        String originAddress;
+        
         String address;
         
         LandingActivity activity;
@@ -1290,10 +1291,21 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             this.id = id;
         }
         
+        ShortcutNavigationTask(Context ctx, GeoPoint origin, String oroginAddress, GeoPoint dest,
+                String destAddress, ExceptionHandlingService ehs){
+            this.ehs = ehs;
+            this.ctx = ctx;
+            this.origin = origin;
+            this.originAddress = originAddress;
+            this.dest = dest;
+            this.address = destAddress;
+            dialog = new CancelableProgressDialog(ctx, "Loading...");
+        }
+        
         @Override
         protected void onPreExecute() {
             //dialog.show();
-            if(this._route == null){
+            if(this._route == null && origin == null){
                 activity.locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
                 if (!activity.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     SystemService.alertNoGPS(activity, true, new SystemService.Callback() {
@@ -1329,7 +1341,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         
         @Override
         protected Void doInBackground(Void... params) {
-            if(this._route == null){
+            if(this._route == null && dest == null){
                 try {
                     dest = Geocoding.lookup(ctx, address).get(0).getGeoPoint();
                     String curLoc = DebugOptionsActivity.getCurrentLocation(ctx);
@@ -1378,9 +1390,9 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                             if(_route == null){
                                 RouteFetchRequest routeReq = new RouteFetchRequest(user, 
                                     origin, dest, departureTime.initTime().toMillis(false),
-                                    0, 0, null, null);
+                                    0, 0, originAddress, address);
                                 route = routeReq.execute(ctx).get(0);
-                                route.setAddresses(EditAddress.CURRENT_LOCATION, address);
+                                route.setAddresses(originAddress, address);
                                 route.setUserId(user.getId());
                             }else{
                                route = _route; 
