@@ -541,9 +541,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		// updates
 		int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE,
 				DebugOptionsActivity.GPS_MODE_DEFAULT);
-		if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL && !turnOffGPS.get()) {
-			prepareGPS();
-		} else if (StringUtils.isNotBlank(trajectoryData)) {
+		if (StringUtils.isNotBlank(trajectoryData)) {
 			int interval = DebugOptionsActivity.getGpsUpdateInterval(this);
 			if (fakeLocationService == null) {
 				fakeLocationService = new FakeLocationService(locationListener,
@@ -555,7 +553,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				fakeLocationService.skip(savedPollCnt);
 				savedPollCnt = 0;
 			}
-		} else {
+		} else if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL && !turnOffGPS.get()) {
+            prepareGPS();
+	    } else {
 
 		}
 		
