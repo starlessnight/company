@@ -89,6 +89,10 @@ public final class DebugOptionsActivity extends Activity {
     
     private static final int recentAddressesSize = 30;
     
+    private static final String terminatedReservIds = "terminatedReservIds";
+    
+    private static final int terminatedReservIdsSize = 30;
+    
     private static final String osmdroidCacheDir = "osmdroid";
     
     private static final int defaultUpdateInterval = 1000;
@@ -643,6 +647,44 @@ public final class DebugOptionsActivity extends Activity {
             String addr = array.optString(i);
             if(StringUtils.isNotBlank(addr)){
                 list.add(addr);
+            }
+        }
+        return list;
+    }
+    
+    private static void saveTerminatedReservIds(Context ctx, List<Long> ids){
+        JSONArray array = new JSONArray();
+        for(Long id : ids){
+            array.put(id.longValue());
+        }
+        SharedPreferences.Editor editor = getPrefs(ctx).edit();
+        editor.putString(terminatedReservIds, array.toString());
+        editor.commit();
+    }
+    
+    public static void addTerminatedReservIds(Context ctx, Long id){
+        List<Long> list = getTerminatedReservIds(ctx);
+        list.remove(id);
+        while(list.size() > terminatedReservIdsSize - 1){
+            list.remove(list.size() - 1);
+        }
+        list.add(0, id);
+        saveTerminatedReservIds(ctx, list);
+    }
+    
+    public static List<Long> getTerminatedReservIds(Context ctx){
+        List<Long> list = new ArrayList<Long>();
+        JSONArray array = null;
+        try {
+            array = new JSONArray(getPrefs(ctx).getString(terminatedReservIds, "[]"));
+        }
+        catch (Throwable t) {
+            array = new JSONArray();
+        }
+        for (int i=0; i < array.length(); i++) {
+            long id = array.optLong(i, 0);
+            if(id != 0){
+                list.add(id);
             }
         }
         return list;

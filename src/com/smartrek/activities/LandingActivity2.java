@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -1920,6 +1921,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                        }
 	                    }
 	                }
+                    removeTerminatedReservs(reservations);
 	                Collections.sort(reservations, Reservation.orderByDepartureTime());
 	            }
 	            catch (NullPointerException e){}
@@ -1951,6 +1953,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	        }
 	    };
 	    Misc.parallelExecute(tripTask);
+    }
+    
+    private void removeTerminatedReservs(List<Reservation> reservations) {
+        List<Long> idsToRemove = DebugOptionsActivity.getTerminatedReservIds(this);
+        Iterator<Reservation> iter = reservations.iterator();
+        while(iter.hasNext()){
+            Reservation r = iter.next();
+            if(idsToRemove.contains(r.getRid())){
+                iter.remove();
+            }
+        }
     }
     
     private void refreshTripInfoPanel(List<Reservation> reservations) {

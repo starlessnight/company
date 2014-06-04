@@ -92,7 +92,6 @@ import com.smartrek.models.User;
 import com.smartrek.requests.ImComingRequest;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.Request.Setting;
-import com.smartrek.requests.ReservationDeleteRequest;
 import com.smartrek.requests.ReservationFetchRequest;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.ui.NavigationView;
@@ -1824,44 +1823,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             }
         }else{
     		// Ask the user if they want to quit
-        	/*
-    		new AlertDialog.Builder(this)
-    			.setIcon(android.R.drawable.ic_dialog_alert)
-    			.setTitle("Confirm")
-    			.setMessage("Are you sure you want to stop this trip?")
-    			.setPositiveButton("No", null)
-    			.setNegativeButton("Yes",
-    					new DialogInterface.OnClickListener() {
-    
-    						@Override
-    						public void onClick(DialogInterface dialog,
-    								int which) {
-    
-    							reportValidation();
-    
-    							// Stop the activity
-    							if (!isTripValidated()) {
-    								showValidationFailedDialog();
-    								AsyncTask<Void, Void, Void> delTask = new AsyncTask<Void, Void, Void>(){
-    				                    @Override
-    				                    protected Void doInBackground(Void... params) {
-    				                        ReservationDeleteRequest request = new ReservationDeleteRequest(
-    				                            User.getCurrentUser(ValidationActivity.this), reservation.getRid());
-    				                        try {
-    				                            request.execute(ValidationActivity.this);
-    				                        }
-    				                        catch (Exception e) {
-    				                        }
-    				                        return null;
-    				                    }
-    				                };
-    				                Misc.parallelExecute(delTask);
-    							}
-    						}
-    
-    					}).show();
-    		*/
-        	NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "Points won't validate if exiting too soon. You sure?");
+            NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "Points won't validate if exiting too soon. You sure?");
         	dialog.setTitle("Exit?");
         	dialog.setPositiveButtonText("OK");
         	dialog.setNegativeActionListener(new NotificationDialog2.ActionListener() {
@@ -1874,38 +1836,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 				@Override
 				public void onClick() {
-				    restoreMusic();
-				    if (mTts != null) {
-			            mTts.shutdown();
-			            mTts = null;
-			        }
-				    
-					reportValidation();
-				    
-					// Stop the activity
-					if (!isTripValidated()) {
-						showValidationFailedDialog();
-						saveTrajectory(new Runnable() {
-			                @Override
-			                public void run() {
-			                    saveTrip();
-			                }
-			            });
-						AsyncTask<Void, Void, Void> delTask = new AsyncTask<Void, Void, Void>(){
-		                    @Override
-		                    protected Void doInBackground(Void... params) {
-		                        ReservationDeleteRequest request = new ReservationDeleteRequest(
-		                            User.getCurrentUser(ValidationActivity.this), reservation.getRid());
-		                        try {
-		                            request.execute(ValidationActivity.this);
-		                        }
-		                        catch (Exception e) {
-		                        }
-		                        return null;
-		                    }
-		                };
-		                Misc.parallelExecute(delTask);
-					}
+				    doCancelValidation();
 				}
 			});
         	
@@ -1919,6 +1850,28 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         	dialog.show();
         }
 	}
+	
+	private void doCancelValidation() {
+        DebugOptionsActivity.addTerminatedReservIds(ValidationActivity.this, reservation.getRid());
+        restoreMusic();
+        if (mTts != null) {
+            mTts.shutdown();
+            mTts = null;
+        }
+        
+        reportValidation();
+        
+        // Stop the activity
+        if (!isTripValidated()) {
+            showValidationFailedDialog();
+            saveTrajectory(new Runnable() {
+                @Override
+                public void run() {
+                    saveTrip();
+                }
+            });
+        }
+    }
 
 	private class ValidationLocationListener implements LocationListener {
 
@@ -2181,6 +2134,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			mTts.shutdown();
 		}
 		if (Request.NEW_API && isTripValidated()) {
+		    DebugOptionsActivity.addTerminatedReservIds(ValidationActivity.this, reservation.getRid());
 	        saveTrajectory(new Runnable() {
                 @Override
                 public void run() {
@@ -2223,13 +2177,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         super.onActivityResult(requestCode, resultCode, intent);
         Log.d("ValidationActivity", "Request Code : " + requestCode + " result Code : " + resultCode);
         if(requestCode == REPORT_PROBLEM && resultCode == Activity.RESULT_OK) {
-        	showValidationFailedDialog();
-        	saveTrajectory(new Runnable() {
-                @Override
-                public void run() {
-                    saveTrip();
-                }
-            });
+            doCancelValidation();
         }
         else if(requestCode == ON_MY_WAY && resultCode == Activity.RESULT_OK) {
         	Bundle extras = intent == null?null:intent.getExtras();
