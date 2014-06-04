@@ -640,8 +640,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
 		RelativeLayout.LayoutParams osmCreditLp = (RelativeLayout.LayoutParams) osmCredit
 				.getLayoutParams();
-		osmCreditLp.bottomMargin += Dimension.dpToPx(52, getResources()
-				.getDisplayMetrics());
+		osmCreditLp.bottomMargin = Dimension.dpToPx(5, getResources().getDisplayMetrics());
 		
 		buttonFollow = (ImageView) findViewById(R.id.center_map_icon);
 		buttonFollow.setTag(true);
