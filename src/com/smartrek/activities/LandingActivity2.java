@@ -2005,6 +2005,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	        		(TextView) tripInfoPanel.findViewById(R.id.trip_arrival_desc));
 	        showTripInfoPanel(false);
 	        setReservMenuAndTripInfoStatus(true);
+	        tripNotifyIcon.setImageResource(reserv.isEligibleTrip()?R.drawable.upcoming_trip_green:R.drawable.upcoming_trip_orange);
 	        tripNotifyIcon.setVisibility(View.VISIBLE);
     	}
     	else {
