@@ -31,6 +31,8 @@ public class NotificationDialog2 extends Dialog {
 	private Typeface lightFont;
 	private CharSequence buttonText = "Dismiss";
 	private CharSequence negativeButtonText = "Cancel";
+	
+	private boolean buttonVerticalOrientation = true;
 
 	public NotificationDialog2(Context context, CharSequence message) {
 		super(context, R.style.PopUpDialog);
@@ -58,7 +60,18 @@ public class NotificationDialog2 extends Dialog {
 		    messageView.setMovementMethod(LinkMovementMethod.getInstance());
         }catch(Throwable t){}
 		
-		TextView dismissView = (TextView) dialogView.findViewById(R.id.dismiss);
+		if(!buttonVerticalOrientation) {
+			dialogView.findViewById(R.id.vertical_button_panel).setVisibility(View.GONE);
+			dialogView.findViewById(R.id.horizontal_button_panel).setVisibility(View.VISIBLE);
+		}
+		
+		int dismissId = buttonVerticalOrientation?R.id.dismiss:R.id.h_dismiss;
+		int seperator2Id = buttonVerticalOrientation?R.id.seperator2:R.id.h_seperator2;
+		int reportProblemId = buttonVerticalOrientation?R.id.reportProblem:R.id.h_reportProblem;
+		int seperator3Id = buttonVerticalOrientation?R.id.seperator3:R.id.h_seperator3;
+		int cancelId = buttonVerticalOrientation?R.id.cancel:R.id.h_cancel;
+		
+		TextView dismissView = (TextView) dialogView.findViewById(dismissId);
 		dismissView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -71,8 +84,8 @@ public class NotificationDialog2 extends Dialog {
 		dismissView.setText(buttonText);
 		
 		if(reportProblemActionListener != null) {
-			dialogView.findViewById(R.id.seperator2).setVisibility(View.VISIBLE);
-			TextView reportProblemView = (TextView) dialogView.findViewById(R.id.reportProblem);
+			dialogView.findViewById(seperator2Id).setVisibility(View.VISIBLE);
+			TextView reportProblemView = (TextView) dialogView.findViewById(reportProblemId);
 			reportProblemView.setVisibility(View.VISIBLE);
 			reportProblemView.setOnClickListener(new View.OnClickListener() {
 				@Override
@@ -85,8 +98,8 @@ public class NotificationDialog2 extends Dialog {
 		}
 		
 		if(negativeActionListener != null) {
-		   dialogView.findViewById(R.id.seperator3).setVisibility(View.VISIBLE);
-		   TextView cancelView = (TextView) dialogView.findViewById(R.id.cancel);
+		   dialogView.findViewById(seperator3Id).setVisibility(View.VISIBLE);
+		   TextView cancelView = (TextView) dialogView.findViewById(cancelId);
 		   cancelView.setVisibility(View.VISIBLE);
 		   cancelView.setOnClickListener(new View.OnClickListener() {
 		       @Override
@@ -130,6 +143,10 @@ public class NotificationDialog2 extends Dialog {
 
 	public void setNegativeActionListener(ActionListener negativeActionListener) {
 		this.negativeActionListener = negativeActionListener;
+	}
+	
+	public void setVerticalOrientation(boolean verticalOrientation) {
+		this.buttonVerticalOrientation = verticalOrientation;
 	}
 
 }

@@ -2,94 +2,150 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/transparent_black">
+    android:background="@color/transparent_black" >
 
     <LinearLayout
         android:layout_width="270dp"
         android:layout_height="wrap_content"
-        android:minHeight="143dp"
-        android:orientation="vertical"
         android:layout_gravity="center"
-       	android:background="@drawable/popup_dialog"
+        android:background="@drawable/popup_dialog"
         android:focusable="true"
-        android:focusableInTouchMode="true">
-        
+        android:focusableInTouchMode="true"
+        android:minHeight="143dp"
+        android:orientation="vertical" >
+
         <TextView
-	            android:id="@+id/title" 
-	            android:layout_height="wrap_content"
-	            android:layout_width="fill_parent"
-	            android:layout_marginTop="10dp"
-	            android:layout_marginBottom="5dp"
-	            android:text="Oops!"
-	            android:textSize="@dimen/smaller_font"
-	            android:textColor="@android:color/black"
-	            android:gravity="center"
-		/>
+            android:id="@+id/title"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="Oops!"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/smaller_font" />
+
+        <TextView
+            android:id="@+id/message"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_marginLeft="27dp"
+            android:layout_marginRight="27dp"
+            android:layout_weight="1"
+            android:text=""
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/smallest_font" />
+
+        <View
+            android:id="@+id/seperator1"
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@color/light_gray" />
+
+        <LinearLayout
+            android:id="@+id/vertical_button_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/dismiss"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:gravity="center"
+                android:text="Dismiss"
+                android:textColor="@color/light_blue"
+                android:textSize="@dimen/smaller_font" />
+
+            <View
+                android:id="@+id/seperator2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/light_gray"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/reportProblem"
+                android:layout_width="fill_parent"
+                android:layout_height="44dp"
+                android:gravity="center"
+                android:text="Report a Problem"
+                android:textColor="@color/light_blue"
+                android:textSize="@dimen/smaller_font"
+                android:visibility="gone" />
+
+            <View
+                android:id="@+id/seperator3"
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:background="@color/light_gray"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/cancel"
+                android:layout_width="fill_parent"
+                android:layout_height="44dp"
+                android:gravity="center"
+                android:text="Cancel"
+                android:textColor="@color/light_blue"
+                android:textSize="@dimen/smaller_font"
+                android:visibility="gone" />
+        </LinearLayout>
         
-	    <TextView 
-	        android:id="@+id/message"
-	        android:layout_height="0dp"
-	        android:layout_width="fill_parent"
-	        android:layout_weight="1"
-	        android:layout_marginLeft="27dp"
-	        android:layout_marginRight="27dp"
-	        android:text=""
-	        android:textColor="@android:color/black"
-	        android:textSize="@dimen/smallest_font"
-	    />
-	    
-	    <View 
-	        android:id="@+id/seperator1"
-	        android:layout_width="fill_parent"
-	        android:layout_height="1dp"
-	        android:background="@color/light_gray"
-	        />
-	    
-	    <TextView 
-	        android:id="@+id/dismiss"
-	        android:layout_height="44dp"
-	        android:layout_width="fill_parent"
-	        android:gravity="center"
-	        android:text="Dismiss"
-	        android:textColor="@color/light_blue"
-	        android:textSize="@dimen/smaller_font"/>
-	    
-	    <View 
-	        android:id="@+id/seperator2"
-	        android:layout_width="fill_parent"
-	        android:layout_height="1dp"
-	        android:background="@color/light_gray"
-	        android:visibility="gone"
-	        />
-	    
-	    <TextView 
-	        android:id="@+id/reportProblem"
-	        android:layout_height="44dp"
-	        android:layout_width="fill_parent"
-	        android:gravity="center"
-	        android:text="Report a Problem"
-	        android:textColor="@color/light_blue"
-	        android:textSize="@dimen/smaller_font"
-	        android:visibility="gone"/>
-	    
-	    <View 
-	        android:id="@+id/seperator3"
-	        android:layout_width="fill_parent"
-	        android:layout_height="1dp"
-	        android:background="@color/light_gray"
-	        android:visibility="gone"
-	        />
-	    
-	    <TextView 
-	        android:id="@+id/cancel"
-	        android:layout_height="44dp"
-	        android:layout_width="fill_parent"
-	        android:gravity="center"
-	        android:text="Cancel"
-	        android:textColor="@color/light_blue"
-	        android:textSize="@dimen/smaller_font"
-	        android:visibility="gone"/>
-	 	
-	</LinearLayout>
-    
+        <LinearLayout
+            android:id="@+id/horizontal_button_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone" >
+
+            <TextView
+                android:id="@+id/h_dismiss"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Dismiss"
+                android:textColor="@color/light_blue"
+                android:textSize="@dimen/smallest_font" />
+
+            <View
+                android:id="@+id/h_seperator2"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/light_gray"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/h_reportProblem"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Report a Problem"
+                android:textColor="@color/light_blue"
+                android:textSize="@dimen/micro_font"
+                android:visibility="gone" />
+
+            <View
+                android:id="@+id/h_seperator3"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/light_gray"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/h_cancel"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Cancel"
+                android:textColor="@color/light_blue"
+                android:textSize="@dimen/smallest_font"
+                android:visibility="gone" />
+        </LinearLayout>
+        
+    </LinearLayout>
+
 </FrameLayout>
