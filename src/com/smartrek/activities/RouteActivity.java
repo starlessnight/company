@@ -614,19 +614,8 @@ public final class RouteActivity extends FragmentActivity {
             @Override
             public void onClick(View v) {
                 final Route route = (Route) reserveView.getTag();
+                reserveView.setClickable(false);
                 AsyncTask<Void, Void, Long> task = new AsyncTask<Void, Void, Long>(){
-                    
-                    private ProgressDialog dialog;
-
-                    @Override
-                    protected void onPreExecute() {
-                        dialog = new ProgressDialog(RouteActivity.this);
-                        dialog.setMessage("Making reservation...");
-                        dialog.setIndeterminate(true);
-                        dialog.setCancelable(false);
-                        dialog.setCanceledOnTouchOutside(false);
-                        dialog.show();
-                    }
                     
                     @Override
                     protected Long doInBackground(Void... params) {
@@ -644,8 +633,6 @@ public final class RouteActivity extends FragmentActivity {
                     
                     @Override
                     protected void onPostExecute(Long result) {
-                        dialog.cancel();
-                        
                         if (ehs.hasExceptions()) {
                             ehs.reportExceptions();
                         }
@@ -683,10 +670,11 @@ public final class RouteActivity extends FragmentActivity {
             	startActivityForResult(contactSelect, ON_MY_WAY);
             }
         });
-        TextView letsGoView = (TextView) findViewById(R.id.lets_go);
+        final TextView letsGoView = (TextView) findViewById(R.id.lets_go);
         letsGoView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+            	letsGoView.setClickable(false);
                 if(hasReserv){
                     deleteRescheduledReservation();
                     Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
@@ -723,6 +711,7 @@ public final class RouteActivity extends FragmentActivity {
                                     NotificationDialog2 dialog = new NotificationDialog2(RouteActivity.this, msg);
                                     dialog.show();
                                 }
+                                letsGoView.setClickable(true);
                             }
                         }
                     };
