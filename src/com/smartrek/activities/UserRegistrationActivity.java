@@ -204,7 +204,17 @@ public final class UserRegistrationActivity extends FragmentActivity
     	}
     	
     	if (!password.equals(passwordConfirm)) {
-    		missInfoEditText.add(editTextPasswordConfirm);
+    		if(missInfoEditText.isEmpty()) {
+    			List<EditText> pswAlert = new ArrayList<EditText>();
+    			pswAlert.add(editTextPassword);
+    			pswAlert.add(editTextPasswordConfirm);
+    			setEditTextAlert(pswAlert);
+    			showPasswordNotMatchMessage();
+    			return false;
+    		}
+    		else {
+    			missInfoEditText.add(editTextPasswordConfirm);
+    		}
     	}
     	
     	if(missInfoEditText.isEmpty()) {
@@ -272,8 +282,14 @@ public final class UserRegistrationActivity extends FragmentActivity
 	}
     
     private void showMissingInfoMessage() {
-    	NotificationDialog2 dialog = new NotificationDialog2(UserRegistrationActivity.this, "Please complete the fields marked in red");
+    	NotificationDialog2 dialog = new NotificationDialog2(UserRegistrationActivity.this, "Required fields are marked in red");
     	dialog.setTitle("Missing some stuff");
+    	dialog.setPositiveButtonText("OK");
+    	dialog.show();
+    }
+    
+    private void showPasswordNotMatchMessage() {
+    	NotificationDialog2 dialog = new NotificationDialog2(UserRegistrationActivity.this, "Your passwords don't match!");
     	dialog.setPositiveButtonText("OK");
     	dialog.show();
     }

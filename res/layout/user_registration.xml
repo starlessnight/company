@@ -39,7 +39,7 @@
 		            android:layout_height="wrap_content"
 		            android:gravity="left"
 		            android:textColor="#33add8"
-		            android:textSize="@dimen/smallest_font"
+		            android:textSize="@dimen/smaller_font"
 		            android:text="Back"
 		            android:layout_gravity="center_vertical"
 		            android:paddingTop="5dp"
