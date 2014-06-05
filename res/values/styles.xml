@@ -77,7 +77,7 @@
 	</style>
 	<style name="ContactSearchTextField" parent="NormalTextField">
 	    <item name="android:textColor">@android:color/black</item>
-	    <item name="android:textSize">@dimen/smallest_font</item>
+	    <item name="android:textSize">@dimen/smaller_font</item>
 	    <item name="android:paddingTop">5dp</item>
 		<item name="android:paddingBottom">5dp</item>
 		<item name="android:background">@drawable/contact_search_text_field</item>
