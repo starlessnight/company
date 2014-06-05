@@ -1863,7 +1863,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         
         // Stop the activity
         if (!isTripValidated()) {
-            showValidationFailedDialog();
+//            showValidationFailedDialog();
             saveTrajectory(new Runnable() {
                 @Override
                 public void run() {
