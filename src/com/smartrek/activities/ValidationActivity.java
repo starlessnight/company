@@ -273,7 +273,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				stopValidation.set(true);
 				final boolean tripValidated = isTripValidated();
 				NotificationDialog2 dialog = new NotificationDialog2(
-						ValidationActivity.this, "Timed out!");
+						ValidationActivity.this, "There might be a connection problem. Please try again later.");
 				dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
 					@Override
 					public void onClick() {
