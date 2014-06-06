@@ -41,6 +41,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
@@ -162,6 +164,8 @@ public final class RouteActivity extends FragmentActivity {
     private long reservId;
     private boolean hasReservId;
     private boolean hasReserv;
+    
+    private Animation clickAnimation;
     
     private Runnable goBackToWhereTo = new Runnable() {
         @Override
@@ -608,12 +612,13 @@ public final class RouteActivity extends FragmentActivity {
         lightFont = Font.getLight(assets);
         
         rescheduleReservId = extras.getLong(RESCHEDULE_RESERVATION_ID);
-        
+        clickAnimation = AnimationUtils.loadAnimation(RouteActivity.this, R.anim.click_animation);
         final TextView reserveView = (TextView) findViewById(R.id.reserve);
         reserveView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final Route route = (Route) reserveView.getTag();
+                v.startAnimation(clickAnimation);
                 reserveView.setClickable(false);
                 AsyncTask<Void, Void, Long> task = new AsyncTask<Void, Void, Long>(){
                     
@@ -666,6 +671,7 @@ public final class RouteActivity extends FragmentActivity {
         onMyWayView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+            	v.startAnimation(clickAnimation);
             	Intent contactSelect = new Intent(RouteActivity.this, ContactsSelectActivity.class);
             	startActivityForResult(contactSelect, ON_MY_WAY);
             }
@@ -674,6 +680,7 @@ public final class RouteActivity extends FragmentActivity {
         letsGoView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+            	v.startAnimation(clickAnimation);
             	letsGoView.setClickable(false);
                 if(hasReserv){
                     deleteRescheduledReservation();

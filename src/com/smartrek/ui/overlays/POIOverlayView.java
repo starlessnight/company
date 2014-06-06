@@ -7,6 +7,7 @@ import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -68,6 +69,7 @@ public class POIOverlayView<Item extends OverlayItem> extends FrameLayout
 		favOptView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				v.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.click_animation));
 				if (listener != null) {
 					listener.onClickEdit();
 				}
@@ -78,6 +80,7 @@ public class POIOverlayView<Item extends OverlayItem> extends FrameLayout
 		nextView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				v.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.click_animation));
 				if (listener != null) {
 					listener.onClickNext();
 				}

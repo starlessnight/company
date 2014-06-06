@@ -61,6 +61,8 @@ import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -214,6 +216,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private LinearLayout searchArea;
     private TextView cancelSearch;
+    
+    private Animation clickAnimation;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -701,6 +705,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         centerMapIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+            	v.startAnimation(AnimationUtils.loadAnimation(LandingActivity2.this, R.anim.click_animation));
                 IGeoPoint mapCenter = mapView.getMapCenter();
                 int latE6 = mapCenter.getLatitudeE6();
                 int lonE6 = mapCenter.getLongitudeE6();
@@ -1028,6 +1033,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         findViewById(R.id.fav_del).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				v.startAnimation(clickAnimation);
 				findViewById(R.id.confirm_panel).setVisibility(View.VISIBLE);
 			}
 		});
@@ -1039,9 +1045,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         findViewById(R.id.confirm_panel).setOnClickListener(noopClick);
         
+        clickAnimation = AnimationUtils.loadAnimation(LandingActivity2.this, R.anim.click_animation);
+        
         findViewById(R.id.confirm_del).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				v.startAnimation(clickAnimation);
 				findViewById(R.id.confirm_panel).setVisibility(View.GONE);
 				final View favOpterationPanel = findViewById(R.id.fav_opt);
 				final BalloonModel model = (BalloonModel) favOpterationPanel.getTag();
@@ -1103,6 +1112,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         findViewById(R.id.confirm_cancel).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				v.startAnimation(clickAnimation);
 				findViewById(R.id.confirm_panel).setVisibility(View.GONE);
 			}
 		});
@@ -1119,6 +1129,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         newTripMenu.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				v.startAnimation(clickAnimation);
 				mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
 			}
 		});
@@ -1126,6 +1137,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         rewardsMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+            	v.startAnimation(clickAnimation);
                 MainMenu.onMenuItemSelected(LandingActivity2.this, 0, v.getId());
             }
         });
@@ -1133,6 +1145,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         reservationsMenu.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				v.startAnimation(clickAnimation);
 				mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
 				showTripInfoPanel(true);
 			}
@@ -1141,6 +1154,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         shareMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+            	v.startAnimation(clickAnimation);
             	MainMenu.onMenuItemSelected(LandingActivity2.this, 0, v.getId());
             }
         });
@@ -1148,6 +1162,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         feedbackMenu.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+            	v.startAnimation(clickAnimation);
                 Intent intent = new Intent(LandingActivity2.this, FeedbackActivity.class);
                 startActivity(intent);
             }
@@ -1156,12 +1171,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         settingsMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+            	v.startAnimation(clickAnimation);
                 MainMenu.onMenuItemSelected(LandingActivity2.this, 0, v.getId());
             }
         });
         settingsMenu.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+            	v.startAnimation(clickAnimation);
                 MainMenu.onMenuItemSelected(LandingActivity2.this, 0, R.id.debug_options);
                 return true;
             }                
@@ -1170,6 +1187,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         logoutMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+            	v.startAnimation(clickAnimation);
                 MainMenu.onMenuItemSelected(LandingActivity2.this, 0, v.getId());
             }
         });
@@ -1221,6 +1239,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	tripNotifyIcon.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				v.startAnimation(clickAnimation);
 				showTripInfoPanel(true);
 			}
 		});
@@ -1245,6 +1264,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	startTrip.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				v.startAnimation(clickAnimation);
 				Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
 				if(reserv.isEligibleTrip()) {
 					Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
@@ -1276,6 +1296,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	reschTrip.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				v.startAnimation(clickAnimation);
 				final Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
 				final String addr = reserv.getDestinationAddress();
 				AsyncTask<Void, Void, GeoPoint> geoCodeTask = new AsyncTask<Void, Void, GeoPoint>(){
@@ -1323,6 +1344,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	onMyWayTrip.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				v.startAnimation(clickAnimation);
 				Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
 				if(reserv.isEligibleTrip()) {
 					Intent contactSelect = new Intent(LandingActivity2.this, ContactsSelectActivity.class);

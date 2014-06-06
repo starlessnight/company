@@ -68,6 +68,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -225,6 +227,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private TextView remainDistDirecListView;
 	private TextView remainTimesDirectListView;
+	
+	private Animation clickAnimation;
 	
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -641,12 +645,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				.getLayoutParams();
 		osmCreditLp.bottomMargin = Dimension.dpToPx(5, getResources().getDisplayMetrics());
 		
+		clickAnimation = AnimationUtils.loadAnimation(ValidationActivity.this, R.anim.click_animation);
+		
 		buttonFollow = (ImageView) findViewById(R.id.center_map_icon);
 		buttonFollow.setTag(true);
         buttonFollow.setOnClickListener(new OnClickListener() {
-
             @Override
             public void onClick(View v) {
+            	v.startAnimation(clickAnimation);
             	Boolean tagAfterClick = !((Boolean) buttonFollow.getTag());
             	buttonFollow.setTag(tagAfterClick);
             	if (tagAfterClick) {
@@ -691,6 +697,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		mapViewEndTripBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				v.startAnimation(clickAnimation);
 				cancelValidation();
 			}
 		});
@@ -702,6 +709,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		volumnControl.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+//				v.startAnimation(clickAnimation);
 				boolean tagAfterClick = !((Boolean) volumnControl.getTag());
 				int imageSrc = tagAfterClick?R.drawable.volumn_control_btn:R.drawable.volumn_control_btn_dim;
                 MapDisplayActivity.setNavigationTts(ValidationActivity.this, tagAfterClick);
@@ -719,6 +727,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		onMyWayBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				v.startAnimation(clickAnimation);
 				Object mark = onMyWayBtn.getTag();
 				if(mark == null) {
 					NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "On My Way is availiable to passangers only.");
