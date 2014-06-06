@@ -224,6 +224,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         super.onCreate(savedInstanceState);
         setContentView(R.layout.landing2);
         
+        registerReceiver(tripInfoCachedUpdater, new IntentFilter(TRIP_INFO_CACHED_UPDATES));
+        
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
@@ -1815,7 +1817,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private void scheduleNextTripInfoUpdates(){
         AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
-        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), 6000, 
+        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), 60000, 
             PendingIntent.getBroadcast(this, 0, new Intent(TRIP_INFO_UPDATES), PendingIntent.FLAG_UPDATE_CURRENT));
     }
     
@@ -1826,6 +1828,20 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 @Override
                 public void run() {
                     refreshTripsInfo();
+                }
+            });
+        }
+    };
+    
+    public static final String TRIP_INFO_CACHED_UPDATES = "TRIP_INFO_CACHED_UPDATES"; 
+    
+    private BroadcastReceiver tripInfoCachedUpdater = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            LandingActivity.initializeIfNeccessary(context, new Runnable() {
+                @Override
+                public void run() {
+                    refreshTripsInfo(true);
                 }
             });
         }
@@ -1913,15 +1929,21 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     } 
     
     private void refreshTripsInfo(){
+        refreshTripsInfo(false);
+    }
+    
+    private void refreshTripsInfo(final boolean cached){
 	    AsyncTask<Void, Void, List<Reservation>> tripTask = new AsyncTask<Void, Void, List<Reservation>>(){
 	        @Override
 	        protected List<Reservation> doInBackground(Void... params) {
 	            User user = User.getCurrentUser(LandingActivity2.this);
 	            List<Reservation> reservations= Collections.emptyList();
 	            ReservationListFetchRequest resReq = new ReservationListFetchRequest(user);
-	            resReq.invalidateCache(LandingActivity2.this);
 	            FavoriteAddressFetchRequest addReq = new FavoriteAddressFetchRequest(user);
-	            addReq.invalidateCache(LandingActivity2.this);
+	            if(!cached){
+                    resReq.invalidateCache(LandingActivity2.this);
+                    addReq.invalidateCache(LandingActivity2.this);
+                }
 	            try {
 	                List<com.smartrek.models.Address> addresses = addReq.execute(LandingActivity2.this);
 	                reservations = resReq.execute(LandingActivity2.this);
@@ -2868,6 +2890,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(tripInfoCachedUpdater);
         closeGPS();
     }
     

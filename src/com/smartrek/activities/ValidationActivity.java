@@ -1604,6 +1604,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
+					    removeTripFromLandingPage();
 						saveValidation();
 					}
 				});
@@ -1860,8 +1861,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         }
 	}
 	
-	private void doCancelValidation() {
+	private void removeTripFromLandingPage(){
         DebugOptionsActivity.addTerminatedReservIds(ValidationActivity.this, reservation.getRid());
+        sendBroadcast(new Intent(LandingActivity2.TRIP_INFO_CACHED_UPDATES));
+    }
+	
+	private void doCancelValidation() {
         restoreMusic();
         if (mTts != null) {
             mTts.shutdown();
@@ -1878,9 +1883,15 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     saveTrip();
                 }
             });
-            if (!isFinishing()) {
-                finish();
-            }
+            removeTripFromLandingPage();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (!isFinishing()) {
+                        finish();
+                    }
+                }
+            }, 2000);
         }
     }
 
@@ -2145,7 +2156,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			mTts.shutdown();
 		}
 		if (Request.NEW_API && isTripValidated()) {
-		    DebugOptionsActivity.addTerminatedReservIds(ValidationActivity.this, reservation.getRid());
 	        saveTrajectory(new Runnable() {
                 @Override
                 public void run() {
