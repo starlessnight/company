@@ -169,7 +169,7 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 
 		// Get the AlarmManager service
 		AlarmManager am = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
-		am.set(AlarmManager.RTC_WAKEUP, departureTime - 60000*5, pendingOperation); // 5 min earlier than departure time
+		am.set(AlarmManager.RTC_WAKEUP, departureTime - Reservation.GRACE_INTERVAL, pendingOperation);
 	}
 	
 	public static void cancelNotification(Context ctx){
