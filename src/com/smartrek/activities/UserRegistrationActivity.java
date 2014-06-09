@@ -219,7 +219,7 @@ public final class UserRegistrationActivity extends FragmentActivity
     	
     	if(missInfoEditText.isEmpty()) {
 	    	User user = new User();
-	    	user.setUsername("");
+	    	user.setUsername(email);
 	    	user.setFirstname(firstname);
 	    	user.setLastname(lastname);
 	    	user.setEmail(email);
