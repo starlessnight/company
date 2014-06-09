@@ -716,9 +716,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                 volumnControl.setTag(tagAfterClick);
                 volumnControl.setImageResource(imageSrc);
                 if(!tagAfterClick){
-                    utteranceCompletedCnt.set(utteranceCnt.get());
-                }else{
                     speak("", true);
+                }else{
+                    utteranceCompletedCnt.set(utteranceCnt.get());
                 }
 			}
 		});
