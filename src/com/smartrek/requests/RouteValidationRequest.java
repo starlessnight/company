@@ -35,7 +35,15 @@ public class RouteValidationRequest extends Request {
 	    if(NEW_API){
 	        Map<String, String> params = new HashMap<String, String>();
 	        params.put("reservation_id", String.valueOf(rid));
-	        executeHttpRequest(Method.POST, url, params, ctx);
+	        try{
+	            executeHttpRequest(Method.POST, url, params, ctx);
+	        }catch(Exception e){
+	            if(responseCode >= 400 && responseCode <= 499){
+	                throw new SmarTrekException(responseCode);
+	            }else{
+	                throw e;
+	            }
+	        }
 	    }else{
 	        String res = executeHttpGetRequest(url, ctx);
 	        JSONObject json = new JSONArray(res).getJSONObject(0);

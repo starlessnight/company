@@ -2,6 +2,8 @@ package com.smartrek.exceptions;
 
 public class SmarTrekException extends Exception {
 
+    int responseCode;
+    
 	/**
 	 * Auto-generated serial UID
 	 */
@@ -14,4 +16,9 @@ public class SmarTrekException extends Exception {
 	public SmarTrekException(String message) {
 		super(message);
 	}
+	
+	public SmarTrekException(int responseCode) {
+        this.responseCode = responseCode;
+    }
+	
 }
