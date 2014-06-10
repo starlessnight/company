@@ -718,7 +718,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		                int lastLonE6 = mapCenterLon.get();
 		                int threshold = 100 + 2300 * (Math.max(18 - mapView.getZoomLevel(), 0));
 		                if(Math.abs(latE6 - lastLatE6) < threshold && Math.abs(lonE6 - lastLonE6) < threshold){
-		                    if(mapView.getZoomLevel() == DEFAULT_ZOOM_LEVEL){
+		                    if(mapView.getZoomLevel() == ValidationActivity.DEFAULT_ZOOM_LEVEL){
 		                    	if(routeRect != null) {
 		                    		zoomMapToFitBulbPOIs();
 		                    	}
@@ -726,7 +726,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		                    		zoomMapToFitCity();
 		                    	}
 		                    }else{
-		                        mc.setZoom(DEFAULT_ZOOM_LEVEL);
+		                        mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
 		                        if(myPointOverlay != null){
 		                            mc.setCenter(myPointOverlay.getLocation());
 		                        }
