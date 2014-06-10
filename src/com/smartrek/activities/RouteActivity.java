@@ -41,8 +41,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
@@ -61,6 +59,8 @@ import com.smartrek.requests.ReservationRequest;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.tasks.GeocodingTask;
 import com.smartrek.tasks.GeocodingTaskCallback;
+import com.smartrek.ui.ClickAnimation;
+import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.OverlayCallback;
@@ -164,8 +164,6 @@ public final class RouteActivity extends FragmentActivity {
     private long reservId;
     private boolean hasReservId;
     private boolean hasReserv;
-    
-    private Animation clickAnimation;
     
     private Runnable goBackToWhereTo = new Runnable() {
         @Override
@@ -612,58 +610,60 @@ public final class RouteActivity extends FragmentActivity {
         lightFont = Font.getLight(assets);
         
         rescheduleReservId = extras.getLong(RESCHEDULE_RESERVATION_ID);
-        clickAnimation = AnimationUtils.loadAnimation(RouteActivity.this, R.anim.click_animation);
         final TextView reserveView = (TextView) findViewById(R.id.reserve);
         reserveView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Route route = (Route) reserveView.getTag();
-                v.startAnimation(clickAnimation);
-                reserveView.setClickable(false);
-                AsyncTask<Void, Void, Long> task = new AsyncTask<Void, Void, Long>(){
-                    
-                    @Override
-                    protected Long doInBackground(Void... params) {
-                        Long rs = null;
-                        ReservationRequest request = new ReservationRequest(User.getCurrentUser(RouteActivity.this), 
-                            route, getString(R.string.distribution_date), rescheduleReservId);
-                        try {
-                            rs = request.execute(RouteActivity.this);
-                        }
-                        catch (Exception e) {
-                            ehs.registerException(e);
-                        }
-                        return rs;
-                    }
-                    
-                    @Override
-                    protected void onPostExecute(Long result) {
-                        if (ehs.hasExceptions()) {
-                            ehs.reportExceptions();
-                        }
-                        else {
-                            deleteRescheduledReservation();
-                            ReservationConfirmationActivity.scheduleNotification(RouteActivity.this, result, route);
-                            
-                            if(route.isFake()){
-                                FakeRoute fakeRoute = new FakeRoute();
-                                fakeRoute.id = route.getId();
-                                fakeRoute.seq = route.getSeq();
-                                DebugOptionsActivity.addFakeRoute(RouteActivity.this, fakeRoute);
-                            }
-                            
-                            SessionM.logAction("make_reservation");
-                            
-                            Intent intent = new Intent(RouteActivity.this, 
-                                LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            startActivity(intent);
-                            finish();
-                        }
-                    }
-                    
-                };
-                Misc.parallelExecute(task);
+            	ClickAnimation clickAnimation = new ClickAnimation(RouteActivity.this, v);
+            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						final Route route = (Route) reserveView.getTag();
+		                AsyncTask<Void, Void, Long> task = new AsyncTask<Void, Void, Long>(){
+		                    @Override
+		                    protected Long doInBackground(Void... params) {
+		                        Long rs = null;
+		                        ReservationRequest request = new ReservationRequest(User.getCurrentUser(RouteActivity.this), 
+		                            route, getString(R.string.distribution_date), rescheduleReservId);
+		                        try {
+		                            rs = request.execute(RouteActivity.this);
+		                        }
+		                        catch (Exception e) {
+		                            ehs.registerException(e);
+		                        }
+		                        return rs;
+		                    }
+		                    
+		                    @Override
+		                    protected void onPostExecute(Long result) {
+		                        if (ehs.hasExceptions()) {
+		                            ehs.reportExceptions();
+		                        }
+		                        else {
+		                            deleteRescheduledReservation();
+		                            ReservationConfirmationActivity.scheduleNotification(RouteActivity.this, result, route);
+		                            
+		                            if(route.isFake()){
+		                                FakeRoute fakeRoute = new FakeRoute();
+		                                fakeRoute.id = route.getId();
+		                                fakeRoute.seq = route.getSeq();
+		                                DebugOptionsActivity.addFakeRoute(RouteActivity.this, fakeRoute);
+		                            }
+		                            
+		                            SessionM.logAction("make_reservation");
+		                            
+		                            Intent intent = new Intent(RouteActivity.this, 
+		                                LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
+		                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		                            startActivity(intent);
+		                            finish();
+		                        }
+		                    }
+		                    
+		                };
+		                Misc.parallelExecute(task);
+					}
+				});
             }
         });
         
@@ -671,59 +671,67 @@ public final class RouteActivity extends FragmentActivity {
         onMyWayView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            	v.startAnimation(clickAnimation);
-            	Intent contactSelect = new Intent(RouteActivity.this, ContactsSelectActivity.class);
-            	startActivityForResult(contactSelect, ON_MY_WAY);
+            	ClickAnimation clickAnimation = new ClickAnimation(RouteActivity.this, v);
+            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						Intent contactSelect = new Intent(RouteActivity.this, ContactsSelectActivity.class);
+		            	startActivityForResult(contactSelect, ON_MY_WAY);
+					}
+				});
             }
         });
         final TextView letsGoView = (TextView) findViewById(R.id.lets_go);
         letsGoView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-            	v.startAnimation(clickAnimation);
-            	letsGoView.setClickable(false);
-                if(hasReserv){
-                    deleteRescheduledReservation();
-                    Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
-                    intent.putExtra("route", reservation.getRoute());
-                    intent.putExtra("reservation", reservation);
-                    startActivity(intent);
-                    finish();
-                }else{
-                    final Route route = (Route) reserveView.getTag();
-                    ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs, rescheduleReservId);
-                    task.callback = new ShortcutNavigationTask.Callback() {
-                        @Override
-                        public void run(Reservation reservation) {
-                            if(reservation.isEligibleTrip()){
-                                deleteRescheduledReservation();
-                                Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
-                                intent.putExtra("route", reservation.getRoute());
-                                intent.putExtra("reservation", reservation);
-                                startActivity(intent);
-                                finish();
-                            }else{
-                                String msg = null;
-                                if (reservation.hasExpired()) {
-                                    msg = getString(R.string.trip_has_expired);
-                                }
-                                else if (reservation.isTooEarlyToStart()) {
-                                    long minutes = (reservation.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
-                                    msg = getString(R.string.trip_too_early_to_start, minutes);
-                                    if(minutes != 1){
-                                        msg += "s";
-                                    }
-                                }
-                                if(msg != null){
-                                    NotificationDialog2 dialog = new NotificationDialog2(RouteActivity.this, msg);
-                                    dialog.show();
-                                }
-                                letsGoView.setClickable(true);
-                            }
-                        }
-                    };
-                    Misc.parallelExecute(task);
-                }
+            	ClickAnimation clickAnimation = new ClickAnimation(RouteActivity.this, v);
+            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						if(hasReserv){
+	                        deleteRescheduledReservation();
+	                        Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
+	                        intent.putExtra("route", reservation.getRoute());
+	                        intent.putExtra("reservation", reservation);
+	                        startActivity(intent);
+	                        finish();
+	                    }else{
+	                        final Route route = (Route) reserveView.getTag();
+	                        ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs, rescheduleReservId);
+	                        task.callback = new ShortcutNavigationTask.Callback() {
+	                            @Override
+	                            public void run(Reservation reservation) {
+	                                if(reservation.isEligibleTrip()){
+	                                    deleteRescheduledReservation();
+	                                    Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
+	                                    intent.putExtra("route", reservation.getRoute());
+	                                    intent.putExtra("reservation", reservation);
+	                                    startActivity(intent);
+	                                    finish();
+	                                }else{
+	                                    String msg = null;
+	                                    if (reservation.hasExpired()) {
+	                                        msg = getString(R.string.trip_has_expired);
+	                                    }
+	                                    else if (reservation.isTooEarlyToStart()) {
+	                                        long minutes = (reservation.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
+	                                        msg = getString(R.string.trip_too_early_to_start, minutes);
+	                                        if(minutes != 1){
+	                                            msg += "s";
+	                                        }
+	                                    }
+	                                    if(msg != null){
+	                                        NotificationDialog2 dialog = new NotificationDialog2(RouteActivity.this, msg);
+	                                        dialog.show();
+	                                    }
+	                                }
+	                            }
+	                        };
+	                        Misc.parallelExecute(task);
+	                    }
+					}
+            	});
             }
         });
         
@@ -731,7 +739,13 @@ public final class RouteActivity extends FragmentActivity {
         backButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                onBackPressed();
+            	ClickAnimation clickAnimation = new ClickAnimation(RouteActivity.this, v);
+            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						onBackPressed();
+					}
+				});
             }
         });
         

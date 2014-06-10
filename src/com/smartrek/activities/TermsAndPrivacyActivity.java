@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.smartrek.utils.Font;
@@ -29,6 +32,7 @@ public class TermsAndPrivacyActivity extends FragmentActivity{
 		backButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				v.startAnimation(AnimationUtils.loadAnimation(TermsAndPrivacyActivity.this, R.anim.click_animation));
 				finish();
 			}
 		});
@@ -37,8 +41,24 @@ public class TermsAndPrivacyActivity extends FragmentActivity{
 		termOfUseView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(TermsAndPrivacyActivity.this, TermOfUseActivity.class);
-				startActivity(intent);
+				Animation clickAnimation = AnimationUtils.loadAnimation(TermsAndPrivacyActivity.this, R.anim.click_animation);
+				clickAnimation.setAnimationListener(new AnimationListener() {
+					@Override
+					public void onAnimationStart(Animation animation) {
+					}
+
+					@Override
+					public void onAnimationEnd(Animation animation) {
+						Intent intent = new Intent(TermsAndPrivacyActivity.this, TermOfUseActivity.class);
+						startActivity(intent);
+					}
+
+					@Override
+					public void onAnimationRepeat(Animation animation) {
+					}
+					
+				});
+				v.startAnimation(clickAnimation);
 			}
 		});
 		
@@ -46,13 +66,29 @@ public class TermsAndPrivacyActivity extends FragmentActivity{
 		privacyPolicyView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(TermsAndPrivacyActivity.this, PrivacyPolicyActivity.class);
-				startActivity(intent);
+				Animation clickAnimation = AnimationUtils.loadAnimation(TermsAndPrivacyActivity.this, R.anim.click_animation);
+				clickAnimation.setAnimationListener(new AnimationListener() {
+					@Override
+					public void onAnimationStart(Animation animation) {
+					}
+
+					@Override
+					public void onAnimationEnd(Animation animation) {
+						Intent intent = new Intent(TermsAndPrivacyActivity.this, PrivacyPolicyActivity.class);
+						startActivity(intent);
+					}
+
+					@Override
+					public void onAnimationRepeat(Animation animation) {
+					}
+					
+				});
+				v.startAnimation(clickAnimation);
 			}
 		});
 		
 		Font.setTypeface(boldFont, (TextView)findViewById(R.id.header));
-		Font.setTypeface(lightFont, termOfUseView, privacyPolicyView);
+		Font.setTypeface(lightFont, termOfUseView, privacyPolicyView, backButton);
 	}
 
 }

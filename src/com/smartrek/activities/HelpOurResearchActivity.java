@@ -13,6 +13,8 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.smartrek.ui.ClickAnimation;
+import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.utils.Font;
 
 public class HelpOurResearchActivity extends FragmentActivity {
@@ -37,7 +39,13 @@ public class HelpOurResearchActivity extends FragmentActivity {
 		backButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				finish();
+				ClickAnimation clickAnimation = new ClickAnimation(HelpOurResearchActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						finish();
+					}
+				});
 			}
 		});
 		

@@ -68,8 +68,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -96,6 +94,8 @@ import com.smartrek.requests.Request;
 import com.smartrek.requests.Request.Setting;
 import com.smartrek.requests.ReservationFetchRequest;
 import com.smartrek.requests.RouteFetchRequest;
+import com.smartrek.ui.ClickAnimation;
+import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.ui.NavigationView;
 import com.smartrek.ui.NavigationView.CheckPointListener;
 import com.smartrek.ui.NavigationView.DirectionItem;
@@ -227,8 +227,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private TextView remainDistDirecListView;
 	private TextView remainTimesDirectListView;
-	
-	private Animation clickAnimation;
 	
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -645,36 +643,41 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				.getLayoutParams();
 		osmCreditLp.bottomMargin = Dimension.dpToPx(5, getResources().getDisplayMetrics());
 		
-		clickAnimation = AnimationUtils.loadAnimation(ValidationActivity.this, R.anim.click_animation);
-		
 		buttonFollow = (ImageView) findViewById(R.id.center_map_icon);
 		buttonFollow.setTag(true);
         buttonFollow.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-            	v.startAnimation(clickAnimation);
-            	Boolean tagAfterClick = !((Boolean) buttonFollow.getTag());
-            	buttonFollow.setTag(tagAfterClick);
-            	if (tagAfterClick) {
-                    if (lastKnownLocation != null) {
-                    	double latitude = lastKnownLocation.getLatitude();
-                    	double longitude = lastKnownLocation.getLongitude();
-                    	IMapController mc = mapView.getController();
-                    	mc.setZoom(isNearOD_or_Intersection(latitude, longitude)
-                	        ?DEFAULT_ZOOM_LEVEL:NAVIGATION_ZOOM_LEVEL);
-                    	mc.animateTo(new GeoPoint(latitude, longitude));
-                    }
-                }
-                else if(routeRect != null){
-                    /* Get a midpoint to center the view of  the routes */
-                    GeoPoint mid = routeRect.getMidPoint();
-                    /* range holds 2 points consisting of the lat/lon range to be displayed */
-                    int[] range = routeRect.getRange();
-                    /* Get the MapController set the midpoint and range */
-                    IMapController mc = mapView.getController();
-                    mc.zoomToSpan(range[0], range[1]);
-                    mc.setCenter(mid); // setCenter only works properly after zoomToSpan
-                }
+            	ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v);
+            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+
+					@Override
+					public void onAnimationEnd() {
+						Boolean tagAfterClick = !((Boolean) buttonFollow.getTag());
+		            	buttonFollow.setTag(tagAfterClick);
+		            	if (tagAfterClick) {
+		                    if (lastKnownLocation != null) {
+		                    	double latitude = lastKnownLocation.getLatitude();
+		                    	double longitude = lastKnownLocation.getLongitude();
+		                    	IMapController mc = mapView.getController();
+		                    	mc.setZoom(isNearOD_or_Intersection(latitude, longitude)
+		                	        ?DEFAULT_ZOOM_LEVEL:NAVIGATION_ZOOM_LEVEL);
+		                    	mc.animateTo(new GeoPoint(latitude, longitude));
+		                    }
+		                }
+		                else if(routeRect != null){
+		                    /* Get a midpoint to center the view of  the routes */
+		                    GeoPoint mid = routeRect.getMidPoint();
+		                    /* range holds 2 points consisting of the lat/lon range to be displayed */
+		                    int[] range = routeRect.getRange();
+		                    /* Get the MapController set the midpoint and range */
+		                    IMapController mc = mapView.getController();
+		                    mc.zoomToSpan(range[0], range[1]);
+		                    mc.setCenter(mid); // setCenter only works properly after zoomToSpan
+		                }
+					}
+            		
+            	});
             }
         });
 
@@ -693,12 +696,19 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 		});
 
-		View mapViewEndTripBtn = findViewById(R.id.map_view_end_trip_btn);
+		final View mapViewEndTripBtn = findViewById(R.id.map_view_end_trip_btn);
 		mapViewEndTripBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				v.startAnimation(clickAnimation);
-				cancelValidation();
+				ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v) ;
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+
+					@Override
+					public void onAnimationEnd() {
+						cancelValidation();
+					}
+					
+				});
 			}
 		});
 
@@ -709,7 +719,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		volumnControl.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-//				v.startAnimation(clickAnimation);
 				boolean tagAfterClick = !((Boolean) volumnControl.getTag());
 				int imageSrc = tagAfterClick?R.drawable.volumn_control_btn:R.drawable.volumn_control_btn_dim;
                 MapDisplayActivity.setNavigationTts(ValidationActivity.this, tagAfterClick);
@@ -727,30 +736,37 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		onMyWayBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				v.startAnimation(clickAnimation);
-				Object mark = onMyWayBtn.getTag();
-				if(mark == null) {
-					NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "On My Way is availiable to passangers only.");
-					dialog.setVerticalOrientation(false);
-					dialog.setTitle("Are you the passanger?");
-					dialog.setPositiveButtonText("Yes");
-					dialog.setPositiveActionListener(new ActionListener() {
-						@Override
-						public void onClick() {
-							Intent contactSelect = new Intent(ValidationActivity.this, ContactsSelectActivity.class);
-							startActivityForResult(contactSelect, ON_MY_WAY);
-							onMyWayBtn.setTag(new Object());
+				ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+
+					@Override
+					public void onAnimationEnd() {
+						Object mark = onMyWayBtn.getTag();
+						if(mark == null) {
+							NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "On My Way is availiable to passangers only.");
+							dialog.setVerticalOrientation(false);
+							dialog.setTitle("Are you the passanger?");
+							dialog.setPositiveButtonText("Yes");
+							dialog.setPositiveActionListener(new ActionListener() {
+								@Override
+								public void onClick() {
+									Intent contactSelect = new Intent(ValidationActivity.this, ContactsSelectActivity.class);
+									startActivityForResult(contactSelect, ON_MY_WAY);
+									onMyWayBtn.setTag(new Object());
+								}
+							});
+							dialog.setNegativeButtonText("No");
+							dialog.setNegativeActionListener(new ActionListener() {
+								@Override
+								public void onClick() {
+									//do nothing
+								}
+							});
+							dialog.show();
 						}
-					});
-					dialog.setNegativeButtonText("No");
-					dialog.setNegativeActionListener(new ActionListener() {
-						@Override
-						public void onClick() {
-							//do nothing
-						}
-					});
-					dialog.show();
-				}
+					}
+					
+				});
 			}
 		});
 
@@ -777,17 +793,25 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 		});
 		
-		View shareButton = findViewById(R.id.share);
+		final View shareButton = findViewById(R.id.share);
 		shareButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ValidationActivity.this, ShareActivity.class);
-                intent.putExtra(ShareActivity.TITLE, "More Metropians = Less Traffic");
-                intent.putExtra(ShareActivity.SHARE_TEXT, "I earned " + reservation.getMpoint() + " points for traveling at " 
-                    + Reservation.formatTime(route.getDepartureTime(), true) + " to help solve traffic congestion "
-                    + "using Metropia Mobile!"
-                    + "\n\n" + Misc.APP_DOWNLOAD_LINK);
-                startActivity(intent);
+            	ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v);
+            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+
+					@Override
+					public void onAnimationEnd() {
+						Intent intent = new Intent(ValidationActivity.this, ShareActivity.class);
+		                intent.putExtra(ShareActivity.TITLE, "More Metropians = Less Traffic");
+		                intent.putExtra(ShareActivity.SHARE_TEXT, "I earned " + reservation.getMpoint() + " points for traveling at " 
+		                    + Reservation.formatTime(route.getDepartureTime(), true) + " to help solve traffic congestion "
+		                    + "using Metropia Mobile!"
+		                    + "\n\n" + Misc.APP_DOWNLOAD_LINK);
+		                startActivity(intent);
+					}
+            		
+            	});
             }
         });
 		
@@ -796,8 +820,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		feedBackButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(ValidationActivity.this, FeedbackActivity.class);
-                startActivity(intent);
+				ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						Intent intent = new Intent(ValidationActivity.this, FeedbackActivity.class);
+						startActivity(intent);
+					}
+				});
 			}
 		});
 		
@@ -805,19 +835,24 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		doneButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				for (View mView : getMapViews()) {
-					mView.setVisibility(View.VISIBLE);
-				}
-				findViewById(R.id.directions_view)
-						.setVisibility(View.INVISIBLE);
-				if (lastKnownLocation != null) {
-					double latitude = lastKnownLocation.getLatitude();
-					double longitude = lastKnownLocation.getLongitude();
-					IMapController mc = mapView.getController();
-					mc.setZoom(isNearOD_or_Intersection(latitude, longitude)
-                        ?DEFAULT_ZOOM_LEVEL:NAVIGATION_ZOOM_LEVEL);
-					mc.animateTo(new GeoPoint(latitude, longitude));
-				}
+				ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						for (View mView : getMapViews()) {
+							mView.setVisibility(View.VISIBLE);
+						}
+						findViewById(R.id.directions_view).setVisibility(View.INVISIBLE);
+						if (lastKnownLocation != null) {
+							double latitude = lastKnownLocation.getLatitude();
+							double longitude = lastKnownLocation.getLongitude();
+							IMapController mc = mapView.getController();
+							mc.setZoom(isNearOD_or_Intersection(latitude, longitude)
+		                        ?DEFAULT_ZOOM_LEVEL:NAVIGATION_ZOOM_LEVEL);
+							mc.animateTo(new GeoPoint(latitude, longitude));
+						}
+					}
+				});
 			}
 		});
 

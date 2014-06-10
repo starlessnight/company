@@ -92,6 +92,8 @@ import com.smartrek.requests.ReservationListFetchRequest;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.requests.UpdateDeviceIdRequest;
 import com.smartrek.requests.WhereToGoRequest;
+import com.smartrek.ui.ClickAnimation;
+import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.ui.DelayTextWatcher;
 import com.smartrek.ui.DelayTextWatcher.TextChangeListener;
 import com.smartrek.ui.EditAddress;
@@ -216,8 +218,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private LinearLayout searchArea;
     private TextView cancelSearch;
-    
-    private Animation clickAnimation;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -707,29 +707,37 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         centerMapIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            	v.startAnimation(AnimationUtils.loadAnimation(LandingActivity2.this, R.anim.click_animation));
-                IGeoPoint mapCenter = mapView.getMapCenter();
-                int latE6 = mapCenter.getLatitudeE6();
-                int lonE6 = mapCenter.getLongitudeE6();
-                int lastLatE6 = mapCenterLat.get();
-                int lastLonE6 = mapCenterLon.get();
-                int threshold = 100 + 2300 * (Math.max(18 - mapView.getZoomLevel(), 0));
-                if(Math.abs(latE6 - lastLatE6) < threshold && Math.abs(lonE6 - lastLonE6) < threshold){
-                    if(mapView.getZoomLevel() == DEFAULT_ZOOM_LEVEL){
-                    	if(routeRect != null) {
-                    		zoomMapToFitBulbPOIs();
-                    	}
-                    }else{
-                        mc.setZoom(DEFAULT_ZOOM_LEVEL);
-                        if(myPointOverlay != null){
-                            mc.setCenter(myPointOverlay.getLocation());
-                        }
-                    }
-                }else{
-                    lastLocation = null;
-                    mapRecenter.set(true);
-                    prepareGPS();
-                }
+            	ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						IGeoPoint mapCenter = mapView.getMapCenter();
+		                int latE6 = mapCenter.getLatitudeE6();
+		                int lonE6 = mapCenter.getLongitudeE6();
+		                int lastLatE6 = mapCenterLat.get();
+		                int lastLonE6 = mapCenterLon.get();
+		                int threshold = 100 + 2300 * (Math.max(18 - mapView.getZoomLevel(), 0));
+		                if(Math.abs(latE6 - lastLatE6) < threshold && Math.abs(lonE6 - lastLonE6) < threshold){
+		                    if(mapView.getZoomLevel() == DEFAULT_ZOOM_LEVEL){
+		                    	if(routeRect != null) {
+		                    		zoomMapToFitBulbPOIs();
+		                    	}
+		                    	else {
+		                    		zoomMapToFitCity();
+		                    	}
+		                    }else{
+		                        mc.setZoom(DEFAULT_ZOOM_LEVEL);
+		                        if(myPointOverlay != null){
+		                            mc.setCenter(myPointOverlay.getLocation());
+		                        }
+		                    }
+		                }else{
+		                    lastLocation = null;
+		                    mapRecenter.set(true);
+		                    prepareGPS();
+		                }
+					}
+				});
             }
         });
         
@@ -1035,8 +1043,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         findViewById(R.id.fav_del).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				v.startAnimation(clickAnimation);
-				findViewById(R.id.confirm_panel).setVisibility(View.VISIBLE);
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						findViewById(R.id.confirm_panel).setVisibility(View.VISIBLE);
+					}
+				});
 			}
 		});
         
@@ -1047,75 +1060,83 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         findViewById(R.id.confirm_panel).setOnClickListener(noopClick);
         
-        clickAnimation = AnimationUtils.loadAnimation(LandingActivity2.this, R.anim.click_animation);
-        
         findViewById(R.id.confirm_del).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				v.startAnimation(clickAnimation);
-				findViewById(R.id.confirm_panel).setVisibility(View.GONE);
-				final View favOpterationPanel = findViewById(R.id.fav_opt);
-				final BalloonModel model = (BalloonModel) favOpterationPanel.getTag();
-				final int oldId = model.id;
-                AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>(){
-                    @Override
-                    protected void onPreExecute() {
-                        List<Overlay> overlays = mapView.getOverlays();
-                        List<Overlay> overlaysToKeep = new ArrayList<Overlay>();
-                        for (Overlay overlay : overlays) {
-                            boolean toKeep;
-                            if(overlay instanceof POIOverlay){
-                                POIOverlay poiOverlay = (POIOverlay)overlay;
-                                toKeep = !isFavoriteMark(poiOverlay.getMarker()) || poiOverlay.getAid() != model.id;
-                            }else{
-                                toKeep = true;
-                            }
-                            if(toKeep){
-                                overlaysToKeep.add(overlay);
-                            }
-                        }
-                        overlays.clear();
-                        overlays.addAll(overlaysToKeep);
-                        mapView.postInvalidate();
-                        model.id = 0;
-                    }
-                    @Override
-                    protected Integer doInBackground(Void... params) {
-                        Integer id = null;
-                        Request req = null;
-                        User user = User.getCurrentUser(LandingActivity2.this);
-                        try {
-                            FavoriteAddressDeleteRequest request = new FavoriteAddressDeleteRequest(
-                                    new AddressLinkRequest(user).execute(LandingActivity2.this), user, oldId);
-                            req = request;
-                            request.execute(LandingActivity2.this);
-                        }
-                        catch (Exception e) {
-                            ehs.registerException(e, "[" + (req==null?"":req.getUrl()) + "]\n" + e.getMessage());
-                        }
-                        return id;
-                    }
-                    protected void onPostExecute(Integer id) {
-                    	favOpterationPanel.setTag(null);
-                        refreshStarredPOIs();
-                        clearFavSearchResult();
-                        if (ehs.hasExceptions()) {
-                            ehs.reportExceptions();
-                        }
-                    }
-               };
-               Misc.parallelExecute(task);
-               reInitFavoriteOperationPanel();
-               favOpterationPanel.setVisibility(View.GONE);
-			   findViewById(R.id.landing_panel).setVisibility(View.VISIBLE);
+				ClickAnimation clickAnimation  = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						findViewById(R.id.confirm_panel).setVisibility(View.GONE);
+						final View favOpterationPanel = findViewById(R.id.fav_opt);
+						final BalloonModel model = (BalloonModel) favOpterationPanel.getTag();
+						final int oldId = model.id;
+		                AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>(){
+		                    @Override
+		                    protected void onPreExecute() {
+		                        List<Overlay> overlays = mapView.getOverlays();
+		                        List<Overlay> overlaysToKeep = new ArrayList<Overlay>();
+		                        for (Overlay overlay : overlays) {
+		                            boolean toKeep;
+		                            if(overlay instanceof POIOverlay){
+		                                POIOverlay poiOverlay = (POIOverlay)overlay;
+		                                toKeep = !isFavoriteMark(poiOverlay.getMarker()) || poiOverlay.getAid() != model.id;
+		                            }else{
+		                                toKeep = true;
+		                            }
+		                            if(toKeep){
+		                                overlaysToKeep.add(overlay);
+		                            }
+		                        }
+		                        overlays.clear();
+		                        overlays.addAll(overlaysToKeep);
+		                        mapView.postInvalidate();
+		                        model.id = 0;
+		                    }
+		                    @Override
+		                    protected Integer doInBackground(Void... params) {
+		                        Integer id = null;
+		                        Request req = null;
+		                        User user = User.getCurrentUser(LandingActivity2.this);
+		                        try {
+		                            FavoriteAddressDeleteRequest request = new FavoriteAddressDeleteRequest(
+		                                    new AddressLinkRequest(user).execute(LandingActivity2.this), user, oldId);
+		                            req = request;
+		                            request.execute(LandingActivity2.this);
+		                        }
+		                        catch (Exception e) {
+		                            ehs.registerException(e, "[" + (req==null?"":req.getUrl()) + "]\n" + e.getMessage());
+		                        }
+		                        return id;
+		                    }
+		                    protected void onPostExecute(Integer id) {
+		                    	favOpterationPanel.setTag(null);
+		                        refreshStarredPOIs();
+		                        clearFavSearchResult();
+		                        if (ehs.hasExceptions()) {
+		                            ehs.reportExceptions();
+		                        }
+		                    }
+		               };
+		               Misc.parallelExecute(task);
+		               reInitFavoriteOperationPanel();
+		               favOpterationPanel.setVisibility(View.GONE);
+					   findViewById(R.id.landing_panel).setVisibility(View.VISIBLE);
+					}
+				});
 			}
         });
         
         findViewById(R.id.confirm_cancel).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				v.startAnimation(clickAnimation);
-				findViewById(R.id.confirm_panel).setVisibility(View.GONE);
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						findViewById(R.id.confirm_panel).setVisibility(View.GONE);
+					}
+				});
 			}
 		});
         
@@ -1131,56 +1152,89 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         newTripMenu.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				v.startAnimation(clickAnimation);
-				mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
+					}
+				});
 			}
 		});
         TextView rewardsMenu = (TextView) findViewById(R.id.dashboard);
         rewardsMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            	v.startAnimation(clickAnimation);
-                MainMenu.onMenuItemSelected(LandingActivity2.this, 0, v.getId());
+            	final int viewId = v.getId();
+            	ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						MainMenu.onMenuItemSelected(LandingActivity2.this, 0, viewId);
+					}
+				});
             }
         });
         TextView reservationsMenu = (TextView) findViewById(R.id.reservations);
         reservationsMenu.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				v.startAnimation(clickAnimation);
-				mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
-				showTripInfoPanel(true);
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
+						showTripInfoPanel(true);
+					}
+				});
 			}
         });
         TextView shareMenu = (TextView) findViewById(R.id.share_menu);
         shareMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            	v.startAnimation(clickAnimation);
-            	MainMenu.onMenuItemSelected(LandingActivity2.this, 0, v.getId());
+            	final int viewId = v.getId();
+            	ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						MainMenu.onMenuItemSelected(LandingActivity2.this, 0, viewId);
+					}
+				});
             }
         });
         TextView feedbackMenu = (TextView) findViewById(R.id.feedback_menu);
         feedbackMenu.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-            	v.startAnimation(clickAnimation);
-                Intent intent = new Intent(LandingActivity2.this, FeedbackActivity.class);
-                startActivity(intent);
+            	ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						Intent intent = new Intent(LandingActivity2.this, FeedbackActivity.class);
+						startActivity(intent);
+					}
+				});
             }
         });
         TextView settingsMenu = (TextView) findViewById(R.id.map_display_options);
         settingsMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            	v.startAnimation(clickAnimation);
-                MainMenu.onMenuItemSelected(LandingActivity2.this, 0, v.getId());
+            	final int viewId = v.getId();
+            	ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						MainMenu.onMenuItemSelected(LandingActivity2.this, 0, viewId);
+					}
+				});
             }
         });
         settingsMenu.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-            	v.startAnimation(clickAnimation);
+            	v.startAnimation(AnimationUtils.loadAnimation(LandingActivity2.this, R.anim.click_animation));
                 MainMenu.onMenuItemSelected(LandingActivity2.this, 0, R.id.debug_options);
                 return true;
             }                
@@ -1189,8 +1243,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         logoutMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            	v.startAnimation(clickAnimation);
-                MainMenu.onMenuItemSelected(LandingActivity2.this, 0, v.getId());
+            	final int viewId = v.getId();
+            	ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						MainMenu.onMenuItemSelected(LandingActivity2.this, 0, viewId);
+					}
+				});
             }
         });
         
@@ -1241,8 +1301,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	tripNotifyIcon.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				v.startAnimation(clickAnimation);
-				showTripInfoPanel(true);
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						showTripInfoPanel(true);
+					}
+				});
 			}
 		});
     	final View tripInfoPanel = findViewById(R.id.trip_info);
@@ -1266,31 +1331,36 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	startTrip.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				v.startAnimation(clickAnimation);
-				Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
-				if(reserv.isEligibleTrip()) {
-					Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
-	                intent.putExtra("route", reserv.getRoute());
-	                intent.putExtra("reservation", reserv);
-	                startActivity(intent);
-				}
-				else {
-					String msg = null;
-                    if (reserv.hasExpired()) {
-                        msg = getString(R.string.trip_has_expired);
-                    }
-                    else if (reserv.isTooEarlyToStart()) {
-                        long minutes = (reserv.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
-                        msg = getString(R.string.trip_too_early_to_start, minutes);
-                        if(minutes != 1){
-                            msg += "s";
-                        }
-                    }
-                    if(msg != null){
-                        NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, msg);
-                        dialog.show();
-                    }
-				}
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
+						if(reserv.isEligibleTrip()) {
+							Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
+			                intent.putExtra("route", reserv.getRoute());
+			                intent.putExtra("reservation", reserv);
+			                startActivity(intent);
+						}
+						else {
+							String msg = null;
+		                    if (reserv.hasExpired()) {
+		                        msg = getString(R.string.trip_has_expired);
+		                    }
+		                    else if (reserv.isTooEarlyToStart()) {
+		                        long minutes = (reserv.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
+		                        msg = getString(R.string.trip_too_early_to_start, minutes);
+		                        if(minutes != 1){
+		                            msg += "s";
+		                        }
+		                    }
+		                    if(msg != null){
+		                        NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, msg);
+		                        dialog.show();
+		                    }
+						}
+					}
+				});
 			}
     	});
     	
@@ -1298,47 +1368,52 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	reschTrip.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				v.startAnimation(clickAnimation);
-				final Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
-				final String addr = reserv.getDestinationAddress();
-				AsyncTask<Void, Void, GeoPoint> geoCodeTask = new AsyncTask<Void, Void, GeoPoint>(){
-                    @Override
-                    protected GeoPoint doInBackground(Void... params) {
-                        GeoPoint gp = null;
-                        try {
-                        	List<Address> addrs;
-                        	if(lastLocation != null) {
-                                addrs = Geocoding.lookup(LandingActivity2.this, addr, lastLocation.getLatitude(), lastLocation.getLongitude());
-                        	}
-                        	else {
-                        		addrs = Geocoding.lookup(LandingActivity2.this, addr);
-                        	}
-                            for (Address a : addrs) {
-                                gp = new GeoPoint(a.getLatitude(), a.getLongitude());
-                                break;
-                            }
-                        }
-                        catch (Exception e) {
-                        }
-                        return gp;
-                    }
-                    @Override
-                    protected void onPostExecute(GeoPoint gp) {
-                        if(gp != null){
-                            Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
-                            intent.putExtra(RouteActivity.CURRENT_LOCATION, true);
-                            Bundle extras = new Bundle();
-                            extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
-                            extras.putString("originAddr", EditAddress.CURRENT_LOCATION);
-                            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(0, 0 ));
-                            extras.putString("destAddr", addr);
-                            extras.putParcelable(RouteActivity.DEST_COORD, gp);
-                            intent.putExtras(extras);
-                            startActivity(intent);
-                        }
-                    }
-                };
-                Misc.parallelExecute(geoCodeTask);
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						final Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
+						final String addr = reserv.getDestinationAddress();
+						AsyncTask<Void, Void, GeoPoint> geoCodeTask = new AsyncTask<Void, Void, GeoPoint>(){
+		                    @Override
+		                    protected GeoPoint doInBackground(Void... params) {
+		                        GeoPoint gp = null;
+		                        try {
+		                        	List<Address> addrs;
+		                        	if(lastLocation != null) {
+		                                addrs = Geocoding.lookup(LandingActivity2.this, addr, lastLocation.getLatitude(), lastLocation.getLongitude());
+		                        	}
+		                        	else {
+		                        		addrs = Geocoding.lookup(LandingActivity2.this, addr);
+		                        	}
+		                            for (Address a : addrs) {
+		                                gp = new GeoPoint(a.getLatitude(), a.getLongitude());
+		                                break;
+		                            }
+		                        }
+		                        catch (Exception e) {
+		                        }
+		                        return gp;
+		                    }
+		                    @Override
+		                    protected void onPostExecute(GeoPoint gp) {
+		                        if(gp != null){
+		                            Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
+		                            intent.putExtra(RouteActivity.CURRENT_LOCATION, true);
+		                            Bundle extras = new Bundle();
+		                            extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
+		                            extras.putString("originAddr", EditAddress.CURRENT_LOCATION);
+		                            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(0, 0 ));
+		                            extras.putString("destAddr", addr);
+		                            extras.putParcelable(RouteActivity.DEST_COORD, gp);
+		                            intent.putExtras(extras);
+		                            startActivity(intent);
+		                        }
+		                    }
+		                };
+		                Misc.parallelExecute(geoCodeTask);
+					}
+				});
 			}
     	});
     	
@@ -1346,31 +1421,35 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	onMyWayTrip.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				v.startAnimation(clickAnimation);
-				Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
-				if(reserv.isEligibleTrip()) {
-					Intent contactSelect = new Intent(LandingActivity2.this, ContactsSelectActivity.class);
-					startActivityForResult(contactSelect, ON_MY_WAY);
-				}
-				else {
-					String msg = null;
-                    if (reserv.hasExpired()) {
-                        msg = getString(R.string.trip_has_expired);
-                    }
-                    else if (reserv.isTooEarlyToStart()) {
-                        long minutes = (reserv.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
-                        msg = getString(R.string.trip_too_early_to_start, minutes);
-                        if(minutes != 1){
-                            msg += "s";
-                        }
-                    }
-                    if(msg != null){
-                        NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, msg);
-                        dialog.show();
-                    }
-				}
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
+						if(reserv.isEligibleTrip()) {
+							Intent contactSelect = new Intent(LandingActivity2.this, ContactsSelectActivity.class);
+							startActivityForResult(contactSelect, ON_MY_WAY);
+						}
+						else {
+							String msg = null;
+		                    if (reserv.hasExpired()) {
+		                        msg = getString(R.string.trip_has_expired);
+		                    }
+		                    else if (reserv.isTooEarlyToStart()) {
+		                        long minutes = (reserv.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
+		                        msg = getString(R.string.trip_too_early_to_start, minutes);
+		                        if(minutes != 1){
+		                            msg += "s";
+		                        }
+		                    }
+		                    if(msg != null){
+		                        NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, msg);
+		                        dialog.show();
+		                    }
+						}
+					}
+				});
 			}
-    		
     	});
     	
     	findViewById(R.id.reservations_list).setOnClickListener(new OnClickListener() {
@@ -2516,6 +2595,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             mc.zoomToSpan(range[0], range[1]);
             mc.setCenter(mid);
         }
+    }
+    
+    private void zoomMapToFitCity() {
+    	if(cityRange != null) {
+    		MapView mapView = (MapView) findViewById(R.id.mapview);
+            IMapController mc = mapView.getController();
+            GeoPoint mid = cityRange.getMidPoint();
+            int[] range = cityRange.getRange();
+            mc.zoomToSpan(range[0], range[1]);
+            mc.setCenter(mid);
+    	}
     }
     
     private POIOverlay curBulb;

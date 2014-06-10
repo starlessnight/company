@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,7 +24,8 @@ import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.google.android.gms.plus.GooglePlusUtil;
 import com.google.android.gms.plus.PlusShare;
-import com.smartrek.models.User;
+import com.smartrek.ui.ClickAnimation;
+import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
 import com.twitter.android.TwitterApp;
@@ -76,6 +78,7 @@ public final class ShareActivity extends FragmentActivity {
 		backButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				v.startAnimation(AnimationUtils.loadAnimation(ShareActivity.this, R.anim.click_animation));
 				finish();
 			}
 		});
@@ -86,16 +89,23 @@ public final class ShareActivity extends FragmentActivity {
 		findViewById(R.id.facebook).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				fbClicked = true;
-				if (isNotLoading()) {
-					Session session = Session.getActiveSession();
-					if (session != null && session.isOpened()) {
-						publishFB();
-					} else {
-						fbPending = true;
-						fbLogin();
+				ClickAnimation clickAnimation = new ClickAnimation(ShareActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						fbClicked = true;
+						if (isNotLoading()) {
+							Session session = Session.getActiveSession();
+							if (session != null && session.isOpened()) {
+								publishFB();
+							} else {
+								fbPending = true;
+								fbLogin();
+							}
+						}
 					}
-				}
+
+				});
 			}
 		});
 
@@ -120,53 +130,77 @@ public final class ShareActivity extends FragmentActivity {
 		findViewById(R.id.twitter).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (isNotLoading()) {
-					updateTwitterStatus();
-				}
+				ClickAnimation clickAnimation = new ClickAnimation(ShareActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						if (isNotLoading()) {
+							updateTwitterStatus();
+						}
+					}
+				});
 			}
 		});
 
 		findViewById(R.id.google_plus).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (isNotLoading()) {
-					int errorCode = GooglePlusUtil
-							.checkGooglePlusApp(ShareActivity.this);
-					if (errorCode != GooglePlusUtil.SUCCESS) {
-						GooglePlusUtil.getErrorDialog(errorCode,
-								ShareActivity.this, 0).show();
-					} else {
-						Intent shareIntent = new PlusShare.Builder(
-								ShareActivity.this).setType("text/plain")
-								.setText(shareText).getIntent();
-						startActivityForResult(shareIntent, GOOGLE_PLUS_REQ);
+				ClickAnimation clickAnimation = new ClickAnimation(ShareActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						if (isNotLoading()) {
+							int errorCode = GooglePlusUtil
+									.checkGooglePlusApp(ShareActivity.this);
+							if (errorCode != GooglePlusUtil.SUCCESS) {
+								GooglePlusUtil.getErrorDialog(errorCode,
+										ShareActivity.this, 0).show();
+							} else {
+								Intent shareIntent = new PlusShare.Builder(
+										ShareActivity.this).setType("text/plain")
+										.setText(shareText).getIntent();
+								startActivityForResult(shareIntent, GOOGLE_PLUS_REQ);
+							}
+						}
 					}
-				}
+				});
 			}
 		});
 
 		findViewById(R.id.text_message).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (isNotLoading()) {
-					Intent sendIntent = new Intent(Intent.ACTION_VIEW);
-					sendIntent.putExtra("sms_body", shareText);
-					sendIntent.setType("vnd.android-dir/mms-sms");
-					startActivity(Intent.createChooser(sendIntent, title));
-				}
+			    ClickAnimation clickAnimation = new ClickAnimation(ShareActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						if (isNotLoading()) {
+							Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+							sendIntent.putExtra("sms_body", shareText);
+							sendIntent.setType("vnd.android-dir/mms-sms");
+							startActivity(Intent.createChooser(sendIntent, title));
+						}
+					}
+				});
 			}
 		});
 
 		findViewById(R.id.email).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (isNotLoading()) {
-					Intent sendIntent = new Intent(Intent.ACTION_SEND);
-					sendIntent.putExtra(Intent.EXTRA_SUBJECT, title);
-					sendIntent.putExtra(Intent.EXTRA_TEXT, shareText);
-					sendIntent.setType("message/rfc822");
-					startActivity(Intent.createChooser(sendIntent, title));
-				}
+				ClickAnimation clickAnimation = new ClickAnimation(ShareActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						if (isNotLoading()) {
+							Intent sendIntent = new Intent(Intent.ACTION_SEND);
+							sendIntent.putExtra(Intent.EXTRA_SUBJECT, title);
+							sendIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+							sendIntent.setType("message/rfc822");
+							startActivity(Intent.createChooser(sendIntent, title));
+						}
+					}
+				});
 			}
 		});
 

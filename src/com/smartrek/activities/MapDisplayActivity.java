@@ -20,6 +20,8 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.dialogs.FloatingMenuDialog;
 import com.smartrek.dialogs.ProfileSelectionDialog;
 import com.smartrek.models.User;
+import com.smartrek.ui.ClickAnimation;
+import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.SessionM;
 
@@ -76,7 +78,13 @@ public final class MapDisplayActivity extends FragmentActivity {
 		backButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				finish();
+				ClickAnimation clickAnimation = new ClickAnimation(MapDisplayActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						finish();
+					}
+				});
 			}
 		});
 
@@ -129,18 +137,30 @@ public final class MapDisplayActivity extends FragmentActivity {
 		tutorial.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent tutorialActivity = new Intent(MapDisplayActivity.this,
-						TutorialActivity.class);
-				tutorialActivity.putExtra(TutorialActivity.FROM, "setting");
-				startActivity(tutorialActivity);
+				ClickAnimation clickAnimation = new ClickAnimation(MapDisplayActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						Intent tutorialActivity = new Intent(MapDisplayActivity.this,
+								TutorialActivity.class);
+						tutorialActivity.putExtra(TutorialActivity.FROM, "setting");
+						startActivity(tutorialActivity);
+					}
+				});
 			}
 		});
 
 		View termsAndConditions = findViewById(R.id.terms_and_conditions);
 		termsAndConditions.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				Intent intent = new Intent(MapDisplayActivity.this, TermsAndPrivacyActivity.class);
-				startActivity(intent);
+				ClickAnimation clickAnimation = new ClickAnimation(MapDisplayActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						Intent intent = new Intent(MapDisplayActivity.this, TermsAndPrivacyActivity.class);
+						startActivity(intent);
+					}
+				});
 			}
 		});
 
@@ -148,8 +168,14 @@ public final class MapDisplayActivity extends FragmentActivity {
 		helpOurResearch.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(MapDisplayActivity.this, HelpOurResearchActivity.class);
-				startActivity(intent);
+				ClickAnimation clickAnimation = new ClickAnimation(MapDisplayActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						Intent intent = new Intent(MapDisplayActivity.this, HelpOurResearchActivity.class);
+						startActivity(intent);
+					}
+				});
 			}
 		});
 

@@ -37,6 +37,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -51,6 +52,8 @@ import com.smartrek.ContactListService;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Contact;
+import com.smartrek.ui.ClickAnimation;
+import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
 
@@ -78,8 +81,14 @@ public class ContactsSelectActivity extends FragmentActivity {
 		backButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				setResult(Activity.RESULT_CANCELED);
-				finish();
+				ClickAnimation clickAnimation = new ClickAnimation(ContactsSelectActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						setResult(Activity.RESULT_CANCELED);
+						finish();
+					}
+				});
 			}
 		});
 		
@@ -87,11 +96,17 @@ public class ContactsSelectActivity extends FragmentActivity {
 		doneButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent resultIntent = new Intent();
-				resultIntent.putExtra(ValidationActivity.EMAILS, StringUtils.join(selectedContactEmails, ","));
-				resultIntent.putExtra(ValidationActivity.PHONES, StringUtils.join(selectedContactPhones, ","));
-				setResult(Activity.RESULT_OK, resultIntent);
-				finish();
+				ClickAnimation clickAnimation = new ClickAnimation(ContactsSelectActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						Intent resultIntent = new Intent();
+						resultIntent.putExtra(ValidationActivity.EMAILS, StringUtils.join(selectedContactEmails, ","));
+						resultIntent.putExtra(ValidationActivity.PHONES, StringUtils.join(selectedContactPhones, ","));
+						setResult(Activity.RESULT_OK, resultIntent);
+						finish();
+					}
+				});
 			}
 		});
 		
@@ -101,20 +116,25 @@ public class ContactsSelectActivity extends FragmentActivity {
         addButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("ClickAdd", "true");
-                String newEmail = searchTextView.getText().toString();
-                if(StringUtils.isNotBlank(newEmail)) {
-                    if(emailFormatIsGood(newEmail)) {
-                        manualInputEmail.add(newEmail);
-                        selectedContactEmails.add(newEmail);
-                        searchTextView.setText("");
-                    }
-                    else {
-                        NotificationDialog dialog = new NotificationDialog(ContactsSelectActivity.this, 
-                                "Error email format!");
-                        dialog.show();
-                    }
-                }
+                ClickAnimation clickAnimation = new ClickAnimation(ContactsSelectActivity.this, v);
+                clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						String newEmail = searchTextView.getText().toString();
+		                if(StringUtils.isNotBlank(newEmail)) {
+		                    if(emailFormatIsGood(newEmail)) {
+		                        manualInputEmail.add(newEmail);
+		                        selectedContactEmails.add(newEmail);
+		                        searchTextView.setText("");
+		                    }
+		                    else {
+		                        NotificationDialog dialog = new NotificationDialog(ContactsSelectActivity.this, 
+		                                "Error email format!");
+		                        dialog.show();
+		                    }
+		                }
+					}
+				});
             }
         });
 

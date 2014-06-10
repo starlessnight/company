@@ -1,7 +1,5 @@
 package com.smartrek.activities;
 
-import com.smartrek.utils.Font;
-
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -12,6 +10,10 @@ import android.view.View.OnClickListener;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.TextView;
+
+import com.smartrek.ui.ClickAnimation;
+import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
+import com.smartrek.utils.Font;
 
 public class PrivacyPolicyActivity extends FragmentActivity {
 
@@ -31,7 +33,13 @@ private static final String URL = "http://www.metropia.com/privacy";
 		backButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				finish();
+				ClickAnimation clickAnimation = new ClickAnimation(PrivacyPolicyActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						finish();
+					}
+				});
 			}
 		});
 		

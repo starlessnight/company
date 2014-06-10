@@ -7,13 +7,14 @@ import android.graphics.Typeface;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.smartrek.activities.R;
+import com.smartrek.ui.ClickAnimation;
+import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.ui.overlays.BalloonItemizedOverlay.IBalloonOverlayView;
 import com.smartrek.ui.overlays.POIOverlay.POIActionListener;
 import com.smartrek.utils.Font;
@@ -69,10 +70,15 @@ public class POIOverlayView<Item extends OverlayItem> extends FrameLayout
 		favOptView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				v.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.click_animation));
-				if (listener != null) {
-					listener.onClickEdit();
-				}
+				ClickAnimation clickAnimation = new ClickAnimation(getContext(), v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						if (listener != null) {
+							listener.onClickEdit();
+						}
+					}
+				});
 			}
 		});
 
@@ -80,10 +86,15 @@ public class POIOverlayView<Item extends OverlayItem> extends FrameLayout
 		nextView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				v.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.click_animation));
-				if (listener != null) {
-					listener.onClickNext();
-				}
+				ClickAnimation clickAnimation = new ClickAnimation(getContext(), v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						if (listener != null) {
+							listener.onClickNext();
+						}
+					}
+				});
 			}
 		});
 

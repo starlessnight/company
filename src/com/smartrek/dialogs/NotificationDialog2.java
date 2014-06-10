@@ -9,9 +9,14 @@ import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.smartrek.activities.R;
+import com.smartrek.ui.ClickAnimation;
+import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.utils.Font;
 
 public class NotificationDialog2 extends Dialog {
@@ -75,10 +80,16 @@ public class NotificationDialog2 extends Dialog {
 		dismissView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if(positiveActionListener != null) {
-					positiveActionListener.onClick();
-				}
-				dismiss();
+				ClickAnimation clickAnimation = new ClickAnimation(getContext(), v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						if(positiveActionListener != null) {
+							positiveActionListener.onClick();
+						}
+						dismiss();
+					}
+				});
 			}
 		});
 		dismissView.setText(buttonText);
@@ -89,9 +100,15 @@ public class NotificationDialog2 extends Dialog {
 			reportProblemView.setVisibility(View.VISIBLE);
 			reportProblemView.setOnClickListener(new View.OnClickListener() {
 				@Override
-				public void onClick(View arg0) {
-					reportProblemActionListener.onClick();
-					dismiss();
+				public void onClick(View v) {
+			    	ClickAnimation clickAnimation = new ClickAnimation(getContext(), v);
+			    	clickAnimation.startAnimation(new ClickAnimationEndCallback(){
+						@Override
+						public void onAnimationEnd() {
+							reportProblemActionListener.onClick();
+							dismiss();
+						}
+					});
 				}
 		   });
 			Font.setTypeface(boldFont, reportProblemView);
@@ -104,9 +121,15 @@ public class NotificationDialog2 extends Dialog {
 		   cancelView.setOnClickListener(new View.OnClickListener() {
 		       @Override
 			   public void onClick(View v) {
-		    	   negativeActionListener.onClick();
-			       dismiss();
-			   }
+		    	   ClickAnimation clickAnimation = new ClickAnimation(getContext(), v);
+		    	   clickAnimation.startAnimation(new ClickAnimationEndCallback(){
+					@Override
+					public void onAnimationEnd() {
+						negativeActionListener.onClick();
+					    dismiss();
+					}
+				});
+			  }
 		   });
 		   cancelView.setText(negativeButtonText);
 		   Font.setTypeface(boldFont, cancelView);

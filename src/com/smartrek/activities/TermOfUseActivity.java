@@ -1,7 +1,5 @@
 package com.smartrek.activities;
 
-import com.smartrek.utils.Font;
-
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -9,9 +7,14 @@ import android.support.v4.app.FragmentActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.AnimationUtils;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.TextView;
+
+import com.smartrek.ui.ClickAnimation;
+import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
+import com.smartrek.utils.Font;
 
 public class TermOfUseActivity extends FragmentActivity {
 	
@@ -31,7 +34,15 @@ public class TermOfUseActivity extends FragmentActivity {
 		backButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				finish();
+				ClickAnimation clickAnimation = new ClickAnimation(TermOfUseActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+
+					@Override
+					public void onAnimationEnd() {
+						finish();
+					}
+					
+				});
 			}
 		});
 		
