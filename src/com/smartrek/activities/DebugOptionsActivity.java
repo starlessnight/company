@@ -103,6 +103,8 @@ public final class DebugOptionsActivity extends Activity {
     
     private static final String VOICE_DEBUG_MSG = "VOICE_DEBUG_MSG";
     
+    private static final String GPS_ACCURACY_DEBUG_MSG = "GPS_ACCURACY_DEBUG_MSG";
+    
     private static final String NAV_API_LOG = "NAV_API_LOG";
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
@@ -362,6 +364,15 @@ public final class DebugOptionsActivity extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 setVoiceDebugMsgEnabled(DebugOptionsActivity.this, isChecked);
+            }
+        });
+        
+        CheckBox gpsAccuracyDebugMsg = (CheckBox) findViewById(R.id.gps_accuracy_debug_msg);
+        gpsAccuracyDebugMsg.setChecked(isGpsAccuracyDebugMsgEnabled(this));
+        gpsAccuracyDebugMsg.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setGpsAccuracyDebugMsgEnabled(DebugOptionsActivity.this, isChecked);
             }
         });
         
@@ -751,6 +762,22 @@ public final class DebugOptionsActivity extends Activity {
     public static void setNavApiLogEnabled(Context ctx, boolean enabled){
         getPrefs(ctx).edit()
             .putBoolean(NAV_API_LOG, enabled)
+            .commit();
+    }
+    
+    public static boolean isGpsAccuracyDebugMsgEnabled(Context ctx){
+        boolean enabled;
+        try{
+            enabled = getPrefs(ctx).getBoolean(GPS_ACCURACY_DEBUG_MSG, false);
+        }catch(Throwable t){
+            enabled = false;
+        }
+        return enabled;
+    }
+    
+    public static void setGpsAccuracyDebugMsgEnabled(Context ctx, boolean enabled){
+        getPrefs(ctx).edit()
+            .putBoolean(GPS_ACCURACY_DEBUG_MSG, enabled)
             .commit();
     }
     

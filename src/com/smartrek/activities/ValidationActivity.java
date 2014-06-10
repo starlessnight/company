@@ -890,7 +890,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
         });
         
-        if(DebugOptionsActivity.isReroutingDebugMsgEnabled(this) || DebugOptionsActivity.isVoiceDebugMsgEnabled(this)){
+        if(DebugOptionsActivity.isReroutingDebugMsgEnabled(this) || DebugOptionsActivity.isVoiceDebugMsgEnabled(this)
+                || DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(this)){
             findViewById(R.id.rerouting_debug_msg).setVisibility(View.VISIBLE);
         }
 		
@@ -1457,6 +1458,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    final float bearing = location.getBearing();
 	    final double lat = location.getLatitude();
 	    final double lng = location.getLongitude();
+	    final float accuracy = location.getAccuracy();
 	    if (!routeLoaded.get() && isLoadRoute()) {
             routeLoaded.set(true);
             runOnUiThread(new Runnable(){
@@ -1687,7 +1689,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                 routeOfRouteCnt.set(0);
             }
 	        
-	        if(DebugOptionsActivity.isReroutingDebugMsgEnabled(this) || DebugOptionsActivity.isVoiceDebugMsgEnabled(this)){
+	        if(DebugOptionsActivity.isReroutingDebugMsgEnabled(this) || DebugOptionsActivity.isVoiceDebugMsgEnabled(this)
+	                || DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(this)){
     	        runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -1711,6 +1714,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                                 + "\ndistance from node: " + Double.valueOf(NavigationView.metersToFeet(endNode.distanceTo(lat, lng))).intValue() + " ft"
                                 + "\nvoice:" + endNode.getVoice()
                                 + "\nvoice for link (nearest node): " + endNodeForLink.getVoiceForLink();
+                        }
+                        if(DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(ValidationActivity.this)){
+                            msg += (StringUtils.isBlank("")?"":"\n")
+                                    + "gps accuracy: " + accuracy;
                         }
                         ((TextView)findViewById(R.id.rerouting_debug_msg)).setText(msg);
                     }
