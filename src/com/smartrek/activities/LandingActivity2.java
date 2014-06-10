@@ -2285,7 +2285,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		int routeColor = route.getColor()!=null?Color.parseColor(route.getColor()):RoutePathOverlay.GREEN;
     		RoutePathOverlay path = new RoutePathOverlay(this, route, routeColor);
     		path.setDashEffect();
-    		mapOverlays.add(path);
+    		mapOverlays.add(0, path);
     		
     		RouteDestinationOverlay destOverlay = new RouteDestinationOverlay(mapView, route.getLastNode().getGeoPoint(), 
     				lightFont, destinationAddr, R.drawable.pin_destination);
