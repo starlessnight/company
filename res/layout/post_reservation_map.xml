@@ -4,8 +4,8 @@
     android:layout_height="fill_parent"
     android:keepScreenOn="true" >
 
-    <include layout="@layout/mapview" >
-    </include>
+    <include layout="@layout/mapview" 
+        android:layout_marginTop="60dp"/>
 
     <com.smartrek.ui.NavigationView
         android:id="@+id/navigation_view"
@@ -71,7 +71,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:src="@drawable/volumn_control_btn" />
+            android:src="@drawable/volumn_control_btn_open" />
 
         <ImageView
             android:id="@+id/center_map_icon"
