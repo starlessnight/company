@@ -2492,7 +2492,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                     return false;
                                 }
                             });
-                            overlays.add(star);
+                            insertBeforeMyPointOverlay(overlays, star);
                             star.showOverlay();
                             if(curStar != null && star.getAid() == curStar.getAid()){
                                 star.showBalloonOverlay();
@@ -2985,12 +2985,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     return false;
                 }
             });
-            overlays.add(bulb);
+            insertBeforeMyPointOverlay(overlays, bulb);
             bulb.showOverlay();
             if(curBulb != null && StringUtils.equals(bulb.getAddress(), curBulb.getAddress())){
                 bulb.showBalloonOverlay();
             }
         }
+    }
+    
+    private void insertBeforeMyPointOverlay(List<Overlay> mapOverlays, Overlay overlay) {
+    	int myCurrentOverlayIdx = mapOverlays.indexOf(myPointOverlay)!=-1?mapOverlays.indexOf(myPointOverlay):mapOverlays.size();
+    	mapOverlays.add(myCurrentOverlayIdx, overlay);
     }
     
     @Override
