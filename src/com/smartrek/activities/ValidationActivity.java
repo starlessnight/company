@@ -719,16 +719,22 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		volumnControl.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				boolean tagAfterClick = !((Boolean) volumnControl.getTag());
-				int imageSrc = tagAfterClick?R.drawable.volumn_control_btn_open:R.drawable.volumn_control_btn_close;
-                MapDisplayActivity.setNavigationTts(ValidationActivity.this, tagAfterClick);
-                volumnControl.setTag(tagAfterClick);
-                volumnControl.setImageResource(imageSrc);
-                if(!tagAfterClick){
-                    speak("", true);
-                }else{
-                    utteranceCompletedCnt.set(utteranceCnt.get());
-                }
+				ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						boolean tagAfterClick = !((Boolean) volumnControl.getTag());
+						int imageSrc = tagAfterClick?R.drawable.volumn_control_btn_open:R.drawable.volumn_control_btn_close;
+		                MapDisplayActivity.setNavigationTts(ValidationActivity.this, tagAfterClick);
+		                volumnControl.setTag(tagAfterClick);
+		                volumnControl.setImageResource(imageSrc);
+		                if(!tagAfterClick){
+		                    speak("", true);
+		                }else{
+		                    utteranceCompletedCnt.set(utteranceCnt.get());
+		                }
+					}
+				});
 			}
 		});
 		
