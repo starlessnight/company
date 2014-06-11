@@ -18,6 +18,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 
+import com.smartrek.exceptions.SmarTrekException;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.utils.HTTP.Method;
@@ -33,7 +34,7 @@ public class SendTrajectoryRequest extends Request {
         executeHttpRequest(Method.POST, link, params, ctx);
     }
     
-    public void execute(User user, long rid, Trajectory trajectory, Context ctx) throws JSONException, ClientProtocolException, IOException, InterruptedException {
+    public void execute(User user, long rid, Trajectory trajectory, Context ctx) throws Exception {
         JSONObject params = new JSONObject();
         params.put("trajectory", trajectory.toJSON());
         this.username = user.getUsername();
@@ -41,7 +42,15 @@ public class SendTrajectoryRequest extends Request {
         String link = Request.getLinkUrl(Link.trajectory)
             .replaceAll("\\{reservation_id\\}", String.valueOf(rid));
         timeout = 30000;
-        executeHttpRequest(Method.POST, link, params, ctx);
+        try{
+            executeHttpRequest(Method.POST, link, params, ctx);
+        }catch(Exception e){
+            if(responseCode >= 400 && responseCode <= 499){
+                throw new SmarTrekException(responseCode);
+            }else{
+                throw e;
+            }
+        }
     }
     
 	public void execute(int seq, int uid, long rid, Trajectory trajectory) throws JSONException, ClientProtocolException, IOException {

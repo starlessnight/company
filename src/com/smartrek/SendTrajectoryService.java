@@ -21,6 +21,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import com.smartrek.activities.LandingActivity;
+import com.smartrek.exceptions.SmarTrekException;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
@@ -87,7 +88,9 @@ public class SendTrajectoryService extends IntentService {
                 }
                 SendTrajectoryRequest request = new SendTrajectoryRequest();
                 if(Request.NEW_API){
-                    request.execute(user, routeId, traj, ctx);
+                    try{
+                        request.execute(user, routeId, traj, ctx);
+                    }catch(SmarTrekException e){}
                 }else{
                     request.execute(seq, user.getId(), routeId, traj);
                 }
