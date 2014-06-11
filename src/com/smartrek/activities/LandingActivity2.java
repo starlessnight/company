@@ -1984,6 +1984,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         mapRefresh.set(true);
         prepareGPS();
         drawedReservId = Long.valueOf(-1);
+        dismissReservId = Long.valueOf(-1);
         refreshTripsInfo();
         mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
         mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_GAME);

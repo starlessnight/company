@@ -1128,7 +1128,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         });
 		mapOverlays.add(destOverlay);
 
-		pointOverlay = new CurrentLocationOverlay(this, 0, 0, R.drawable.landing_page_current_location);
+		pointOverlay = new CurrentLocationOverlay(this, 0, 0, R.drawable.navigation_page_current_location);
+		pointOverlay.disableRadarEffect();
 		mapOverlays.add(pointOverlay);
 
 		bindDebugOverlay(mapView);
