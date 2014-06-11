@@ -34,6 +34,8 @@ public class CurrentLocationOverlay extends Overlay {
 	
 	private float degrees;
 	
+	private boolean radarEffect = true;
+	
 	public CurrentLocationOverlay(Context context, float lat, float lng, int drawableId) {
 		super(context);
 		setLocation(lat, lng);
@@ -64,7 +66,9 @@ public class CurrentLocationOverlay extends Overlay {
 		Paint circlePaint = new Paint();
 		circlePaint.setAntiAlias(true);
 		circlePaint.setColor(Color.parseColor("#" + Integer.toHexString(opacity)  + "d4ebf5"));
-        canvas.drawCircle(point.x, point.y, radius, circlePaint);
+		if(radarEffect) {
+			canvas.drawCircle(point.x, point.y, radius, circlePaint);
+		}
 		
 		if(currentDegrees != degrees){
 		    float diff = degrees - currentDegrees;
@@ -103,5 +107,9 @@ public class CurrentLocationOverlay extends Overlay {
 
     public void setDegrees(float degrees) {
         this.degrees = degrees;
+    }
+    
+    public void disableRadarEffect() {
+    	this.radarEffect = false;
     }
 }

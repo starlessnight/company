@@ -1128,7 +1128,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             lonMin = Math.min(lonMin, curLon);
         }
         
-        RoutePathOverlay pathOverlay = new RoutePathOverlay(this, route, RoutePathOverlay.GREEN);
+        RoutePathOverlay pathOverlay = new RoutePathOverlay(this, route, RoutePathOverlay.GREEN, R.drawable.pin_origin);
         mapOverlays.add(pathOverlay);
         
         infoOverlay = new RouteInfoOverlay(mapView, route, routeNum, new GeoPoint(lat, lon), boldFont, lightFont);

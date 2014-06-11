@@ -1984,6 +1984,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         mapRefresh.set(true);
         prepareGPS();
         drawedReservId = Long.valueOf(-1);
+        dismissReservId = Long.valueOf(-1);
         refreshTripsInfo();
         mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
         mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_GAME);
@@ -2185,6 +2186,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	if((force && hasReservTrip()) || 
     			(reservationListPanel.getVisibility() != View.VISIBLE && hasReservTrip() && !dismissReservId.equals(((Reservation)tripInfoPanel.getTag()).getRid()))) {
     		tripInfoPanel.setVisibility(View.VISIBLE);
+    		if(force){
+	    		ObjectAnimator slideAnimator = ObjectAnimator.ofFloat(tripInfoPanel, "translationX", -1 * tripInfoPanel.getWidth(), 0);
+	    		slideAnimator.setDuration(500);
+	    		slideAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+	    		slideAnimator.start();
+    		}
     		DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
     		mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     	}
@@ -2288,7 +2295,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		List<Overlay> need2Remove = getDrawedRouteOverlays(mapOverlays);
     		mapOverlays.removeAll(need2Remove);
     		int routeColor = route.getColor()!=null?Color.parseColor(route.getColor()):RoutePathOverlay.GREEN;
-    		RoutePathOverlay path = new RoutePathOverlay(this, route, routeColor);
+    		RoutePathOverlay path = new RoutePathOverlay(this, route, routeColor, R.drawable.pin_origin);
     		path.setDashEffect();
     		mapOverlays.add(0, path);
     		
