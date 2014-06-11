@@ -1,10 +1,14 @@
 package com.smartrek.requests;
 
+import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpResponseException;
 import org.json.JSONObject;
@@ -187,6 +191,10 @@ public abstract class Request {
         responseCode = http.getResponseCode();
         String responseBody = http.getResponseBody();
         
+        if(DebugOptionsActivity.isHttp4xx5xxLogEnabled(ctx) && responseCode >= 400 && responseCode <= 599){
+            FileUtils.writeStringToFile(getHttp4xx5xxLogFile(ctx), url + "\n\nHTTP " + responseCode + "\n\n" + responseBody);
+        }
+        
         if (responseCode == 200 || responseCode == 201 || responseCode == 204) {
             return responseBody;
         }
@@ -262,6 +270,15 @@ public abstract class Request {
 
     public String getUrl() {
         return url;
+    }
+    
+    private static File getHttp4xx5xxLogDir(Context ctx){
+        return new File(ctx.getExternalFilesDir(null), "http_4xx_5xx_api_responses");
+    }
+    
+    private static File getHttp4xx5xxLogFile(Context ctx){
+        return new File(getHttp4xx5xxLogDir(ctx), new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            .format(new Date()));
     }
 	
 }

@@ -107,6 +107,8 @@ public final class DebugOptionsActivity extends Activity {
     
     private static final String NAV_API_LOG = "NAV_API_LOG";
     
+    private static final String HTTP_4XX_5XX_LOG = "HTTP_4XX_5XX_LOG";
+    
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
     private SharedPreferences prefs;
@@ -382,6 +384,15 @@ public final class DebugOptionsActivity extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 setNavApiLogEnabled(DebugOptionsActivity.this, isChecked);
+            }
+        });
+        
+        CheckBox http4xx5xxLog = (CheckBox) findViewById(R.id.http_4xx_5xx_log);
+        http4xx5xxLog.setChecked(isHttp4xx5xxLogEnabled(this));
+        http4xx5xxLog.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setHttp4xx5xxLogEnabled(DebugOptionsActivity.this, isChecked);
             }
         });
     }
@@ -762,6 +773,22 @@ public final class DebugOptionsActivity extends Activity {
     public static void setNavApiLogEnabled(Context ctx, boolean enabled){
         getPrefs(ctx).edit()
             .putBoolean(NAV_API_LOG, enabled)
+            .commit();
+    }
+    
+    public static boolean isHttp4xx5xxLogEnabled(Context ctx){
+        boolean enabled;
+        try{
+            enabled = getPrefs(ctx).getBoolean(HTTP_4XX_5XX_LOG, false);
+        }catch(Throwable t){
+            enabled = false;
+        }
+        return enabled;
+    }
+    
+    public static void setHttp4xx5xxLogEnabled(Context ctx, boolean enabled){
+        getPrefs(ctx).edit()
+            .putBoolean(HTTP_4XX_5XX_LOG, enabled)
             .commit();
     }
     
