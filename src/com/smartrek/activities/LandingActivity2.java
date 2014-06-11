@@ -2186,10 +2186,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	if((force && hasReservTrip()) || 
     			(reservationListPanel.getVisibility() != View.VISIBLE && hasReservTrip() && !dismissReservId.equals(((Reservation)tripInfoPanel.getTag()).getRid()))) {
     		tripInfoPanel.setVisibility(View.VISIBLE);
-    		ObjectAnimator slideAnimator = ObjectAnimator.ofFloat(tripInfoPanel, "translationX", -1 * tripInfoPanel.getWidth(), 0);
-    		slideAnimator.setDuration(500);
-    		slideAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-    		slideAnimator.start();
+    		if(force){
+	    		ObjectAnimator slideAnimator = ObjectAnimator.ofFloat(tripInfoPanel, "translationX", -1 * tripInfoPanel.getWidth(), 0);
+	    		slideAnimator.setDuration(500);
+	    		slideAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+	    		slideAnimator.start();
+    		}
     		DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
     		mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     	}
