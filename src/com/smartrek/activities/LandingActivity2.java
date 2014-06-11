@@ -61,7 +61,7 @@ import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.view.animation.Animation;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -75,6 +75,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
@@ -2745,7 +2746,18 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private void resizeMap(boolean collapsed){
         View mapView = findViewById(R.id.mapview);
         mapView.setTag(collapsed);
-        findViewById(R.id.landing_panel_content).setVisibility(collapsed?View.VISIBLE:View.GONE);
+        View landingPanelView = findViewById(R.id.landing_panel_content);
+        int viewHeight = landingPanelView.getHeight();
+        ObjectAnimator animator;
+        if(collapsed) {
+        	animator = ObjectAnimator.ofFloat(landingPanelView, "translationY", -viewHeight, 0); 
+        }
+        else {
+        	animator = ObjectAnimator.ofFloat(landingPanelView, "translationY", 0, -viewHeight);
+        }
+        animator.setDuration(500);
+        animator.setInterpolator(new AccelerateDecelerateInterpolator());
+        animator.start();
     }
     
     protected static abstract class ReverseGeocodingTask extends AsyncTask<Void, Void, String> {
