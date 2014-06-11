@@ -1943,9 +1943,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private void refreshMyLocation(double lat, double lon){
         MapView mapView = (MapView)findViewById(R.id.mapview);
+        List<Overlay> mapOverlays = mapView.getOverlays();
         if(myPointOverlay == null){
             myPointOverlay = new CurrentLocationOverlay(LandingActivity2.this, 0, 0, R.drawable.landing_page_current_location);
-            mapView.getOverlays().add(myPointOverlay);
+            mapOverlays.add(myPointOverlay);
+        }
+        else {
+        	Collections.swap(mapOverlays, mapOverlays.indexOf(myPointOverlay), (mapOverlays.size()-1));
         }
         myPointOverlay.setLocation((float) lat, (float) lon);
         mapView.postInvalidate();
