@@ -233,6 +233,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.post_reservation_map);
 		
+		removeTripFromLandingPage();
 		ReservationConfirmationActivity.cancelNotification(this);
 		
 		AssetManager assets = getAssets();
@@ -1647,7 +1648,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-					    removeTripFromLandingPage();
 						saveValidation();
 					}
 				});
@@ -1931,15 +1931,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     saveTrip();
                 }
             });
-            removeTripFromLandingPage();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (!isFinishing()) {
-                        finish();
-                    }
-                }
-            }, 2000);
+            if (!isFinishing()) {
+                finish();
+            }
         }
     }
 
