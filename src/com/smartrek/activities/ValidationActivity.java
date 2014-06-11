@@ -233,7 +233,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.post_reservation_map);
 		
-		removeTripFromLandingPage();
 		ReservationConfirmationActivity.cancelNotification(this);
 		
 		AssetManager assets = getAssets();
@@ -246,6 +245,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		Bundle extras = getIntent().getExtras();
 		reservation = extras.getParcelable(RESERVATION);
+		removeTripFromLandingPage();
 
 		route = (isOnRecreate.get() ? savedInstanceState : extras)
 				.getParcelable(ROUTE);
@@ -1098,7 +1098,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			mapOverlays.clear();		
 
 		RoutePathOverlay pathOverlay = new RoutePathOverlay(this, route,
-				RoutePathOverlay.GREEN);
+				RoutePathOverlay.GREEN, R.drawable.pin_origin);
 		mapOverlays.add(pathOverlay);
 		
 		RouteDestinationOverlay destOverlay = new RouteDestinationOverlay(mapView, 

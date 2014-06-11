@@ -51,11 +51,11 @@ public class RoutePathOverlay extends Overlay {
 		public void onTap();
 	}
 	
-	public RoutePathOverlay(Context context, Route route, int color) {
+	public RoutePathOverlay(Context context, Route route, int color, int marker) {
 		super(context);
 		this.route = route;
 		this.color = color;
-		this.originFlag = BitmapFactory.decodeResource(context.getResources(), R.drawable.pin_origin);
+		this.originFlag = BitmapFactory.decodeResource(context.getResources(), marker);
 		this.destinationFlag = BitmapFactory.decodeResource(context.getResources(), R.drawable.pin_destination);
 	}
 	

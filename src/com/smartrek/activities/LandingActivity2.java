@@ -2292,7 +2292,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		List<Overlay> need2Remove = getDrawedRouteOverlays(mapOverlays);
     		mapOverlays.removeAll(need2Remove);
     		int routeColor = route.getColor()!=null?Color.parseColor(route.getColor()):RoutePathOverlay.GREEN;
-    		RoutePathOverlay path = new RoutePathOverlay(this, route, routeColor);
+    		RoutePathOverlay path = new RoutePathOverlay(this, route, routeColor, R.drawable.pin_origin);
     		path.setDashEffect();
     		mapOverlays.add(0, path);
     		

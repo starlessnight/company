@@ -1062,7 +1062,7 @@ public final class RouteActivity extends FragmentActivity {
             mapOverlays.clear();
         
         int routeColor = route.getColor()!=null?Color.parseColor(route.getColor()):RoutePathOverlay.COLORS[routeNum];
-        routePathOverlays[routeNum] = new RoutePathOverlay(this, route, routeColor);
+        routePathOverlays[routeNum] = new RoutePathOverlay(this, route, routeColor, R.drawable.landing_page_current_location);
         //mapOverlays.add(routePathOverlays[routeNum]);
         
         routeDestOverlays[routeNum] = new RouteDestinationOverlay(mapView, route.getLastNode().getGeoPoint(), 
