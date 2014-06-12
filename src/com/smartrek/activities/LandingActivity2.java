@@ -75,6 +75,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.Reservation;
@@ -1296,6 +1297,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private Long dismissReservId = Long.valueOf(-1);
+    private Boolean swipeRight = Boolean.FALSE;
     
     private void initReservationListView() {
     	tripNotifyIcon = (ImageView) findViewById(R.id.trip_notify_icon);
@@ -1314,9 +1316,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	final View tripInfoPanel = findViewById(R.id.trip_info);
         tripInfoPanel.setOnTouchListener(new SwipeDismissTouchListener(tripInfoPanel, null, new SwipeDismissTouchListener.OnDismissCallback() {
 			@Override
-			public void onDismiss(View view, Object token) {
+			public void onDismiss(View view, Object token, boolean dismissRight) {
 				hideTripInfoPanel();
 				dismissReservId = ((Reservation)tripInfoPanel.getTag()).getRid();
+				swipeRight = dismissRight;
 			}
 		}));
         
@@ -2186,11 +2189,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	if((force && hasReservTrip()) || 
     			(reservationListPanel.getVisibility() != View.VISIBLE && hasReservTrip() && !dismissReservId.equals(((Reservation)tripInfoPanel.getTag()).getRid()))) {
     		tripInfoPanel.setVisibility(View.VISIBLE);
-    		if(force){
-	    		ObjectAnimator slideAnimator = ObjectAnimator.ofFloat(tripInfoPanel, "translationX", -1 * tripInfoPanel.getWidth(), 0);
+    		if(force) {
+    			float fromX = swipeRight?tripInfoPanel.getWidth():-1*tripInfoPanel.getWidth();
+	    		ObjectAnimator slideAnimator = ObjectAnimator.ofFloat(tripInfoPanel, "translationX", fromX, 0f);
 	    		slideAnimator.setDuration(500);
 	    		slideAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-	    		slideAnimator.start();
+	    		ObjectAnimator alphaAnimator = ObjectAnimator.ofFloat(tripInfoPanel, "alpha", 0f, 1f);
+	    		alphaAnimator.setDuration(500);
+	    		alphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+	    		AnimatorSet animatorSet = new AnimatorSet();
+	    		animatorSet.play(slideAnimator).with(alphaAnimator);
+	    		animatorSet.start();
     		}
     		DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
     		mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
@@ -2299,9 +2308,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		path.setDashEffect();
     		mapOverlays.add(0, path);
     		
-    		RouteDestinationOverlay destOverlay = new RouteDestinationOverlay(mapView, route.getLastNode().getGeoPoint(), 
-    				lightFont, destinationAddr, R.drawable.pin_destination);
-    		mapOverlays.add(destOverlay);
+    		if(!isPoiOverlay(route.getLastNode().getGeoPoint())) {
+	    		RouteDestinationOverlay destOverlay = new RouteDestinationOverlay(mapView, route.getLastNode().getGeoPoint(), 
+	    				lightFont, destinationAddr, R.drawable.pin_destination);
+	    		mapOverlays.add(destOverlay);
+    		}
     		
     		RouteRect routeRect = new RouteRect(route.getNodes());
     		GeoPoint center = routeRect.getMidPoint();
@@ -2418,7 +2429,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     //ehs.reportExceptions();
                 }
                 else {
-                    List<String> addrList = new ArrayList<String>();
+                    List<GeoPoint> geoList = new ArrayList<GeoPoint>();
                     final MapView mapView = (MapView) findViewById(R.id.mapview);
                     List<Overlay> overlays = mapView.getOverlays();
                     List<Overlay> otherOverlays = new ArrayList<Overlay>();
@@ -2504,11 +2515,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             if(curStar != null && star.getAid() == curStar.getAid()){
                                 star.showBalloonOverlay();
                             }
-                            addrList.add(a.getAddress());
+                            geoList.add(new GeoPoint(a.getLatitude(), a.getLongitude()));
                         }
                     }
                     mapView.postInvalidate();
-                    findViewById(R.id.search_box).setTag(R.id.starred_addresses, addrList);
+                    write2SearchBoxTag(geoList);
                 }
             }
         };
@@ -2675,7 +2686,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             }
                             overlays.clear();
                             overlays.addAll(otherOverlays);
-                            List<String> addrList = new ArrayList<String>();
+                            List<GeoPoint> geoList = new ArrayList<GeoPoint>();
                             if(locs.isEmpty()){
                                 routeRect = null;
                                 if(rezoom){
@@ -2694,11 +2705,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                     zoomMapToFitBulbPOIs();
                                 }
                                 for(com.smartrek.requests.WhereToGoRequest.Location l : locs){
-                                    addrList.add(l.addr);
+                                    geoList.add(new GeoPoint(l.lat, l.lon));
                                 }
                             }
                             mapView.postInvalidate();
-                            findViewById(R.id.search_box).setTag(R.id.where_to_addresses, addrList);
+                            write2SearchBoxTag(geoList);
                             refreshSearchAutoCompleteData();
                         }
                     });
@@ -2765,6 +2776,29 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         animator.setDuration(500);
         animator.setInterpolator(new AccelerateDecelerateInterpolator());
         animator.start();
+    }
+    
+    private void write2SearchBoxTag(List<GeoPoint> nGeoPoints) {
+    	List<GeoPoint> oGeoPoints = (List<GeoPoint>) findViewById(R.id.search_box).getTag();
+        if(oGeoPoints == null) {
+        	oGeoPoints = new ArrayList<GeoPoint>();
+        }
+        oGeoPoints.addAll(nGeoPoints);
+        findViewById(R.id.search_box).setTag(oGeoPoints);
+    }
+    
+    private boolean isPoiOverlay(GeoPoint point) {
+    	View searchBox = findViewById(R.id.search_box);
+    	if(searchBox.getTag() != null) {
+    		Iterator<GeoPoint> poiGeoPoints = ((List<GeoPoint>) searchBox.getTag()).iterator();
+    		boolean isPoi = false;
+    		while(poiGeoPoints.hasNext() && !isPoi) {
+    			GeoPoint geoPoint = poiGeoPoints.next();
+    			isPoi = geoPoint.getLatitude() == point.getLatitude() && geoPoint.getLongitude() == point.getLongitude();
+    		}
+    		return isPoi;
+    	}
+    	return false;
     }
     
     protected static abstract class ReverseGeocodingTask extends AsyncTask<Void, Void, String> {

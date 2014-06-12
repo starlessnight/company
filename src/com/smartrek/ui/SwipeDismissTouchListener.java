@@ -49,6 +49,7 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
     private Object mToken;
     private VelocityTracker mVelocityTracker;
     private float mTranslationX;
+    private boolean dismissRight;
 
     /**
 * The callback interface used by {@link SwipeDismissTouchListener} to inform its client
@@ -61,7 +62,7 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
 * @param view The originating {@link View} to be dismissed.
 * @param token The optional token passed to this object's constructor.
 */
-        void onDismiss(View view, Object token);
+        void onDismiss(View view, Object token, boolean dismissRight);
     }
 
     /**
@@ -114,7 +115,6 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
                 float velocityX = Math.abs(mVelocityTracker.getXVelocity());
                 float velocityY = Math.abs(mVelocityTracker.getYVelocity());
                 boolean dismiss = false;
-                boolean dismissRight = false;
                 if (Math.abs(deltaX) > mViewWidth / 8) {
                     dismiss = true;
                     dismissRight = deltaX > 0;
@@ -195,7 +195,7 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                mCallback.onDismiss(mView, mToken);
+                mCallback.onDismiss(mView, mToken, dismissRight);
                 // Reset view presentation
                 setAlpha(mView, 1f);
                 setTranslationX(mView, 0);
