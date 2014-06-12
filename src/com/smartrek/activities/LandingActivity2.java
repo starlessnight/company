@@ -1865,11 +1865,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	public static Integer[] getIconInfos(IconType type) {
     		switch(type) {
     		  case star:
-    			  return new Integer[] {R.id.star, R.drawable.star};
+    			  return new Integer[] {R.id.star, R.drawable.star, R.drawable.star_with_shadow};
     		  case home:
-    			  return new Integer[] {R.id.home, R.drawable.home};
+    			  return new Integer[] {R.id.home, R.drawable.home, R.drawable.home_with_shadow};
     		  case work:
-    			  return new Integer[] {R.id.work, R.drawable.work};
+    			  return new Integer[] {R.id.work, R.drawable.work, R.drawable.work_with_shadow};
     		  default:
     			  return null;
     		}
@@ -2458,7 +2458,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             final GeoPoint gp = new GeoPoint(a.getLatitude(), a.getLongitude());
                             Integer[] iconInfo = IconType.getIconInfos(IconType.fromName(a.getIconName()));
                             final POIOverlay star = new POIOverlay(mapView, gp, boldFont, a.getName(), a.getAddress(), 
-                                iconInfo[1], HotspotPlace.CENTER, new POIActionListener() {
+                                iconInfo[1], iconInfo[2], HotspotPlace.CENTER, new POIActionListener() {
 									@Override
 									public void onClickEdit() {
 										hideStarredBalloon();
@@ -2877,7 +2877,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         model.label = label;
         model.geopoint = gp;
         POIOverlay marker = new POIOverlay(mapView, gp, Font.getBold(getAssets()), label, 
-        		address, R.drawable.marker_poi, HotspotPlace.BOTTOM_CENTER , new POIActionListener() {
+        		address, R.drawable.marker_poi, R.drawable.marker_poi, HotspotPlace.BOTTOM_CENTER , new POIActionListener() {
 					@Override
 					public void onClickEdit() {
 						hidePOIMarkerBalloon(mapView);
@@ -2976,7 +2976,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         for(final com.smartrek.requests.WhereToGoRequest.Location l:locs){
             final GeoPoint gp = new GeoPoint(l.lat, l.lon);
             final POIOverlay bulb = new POIOverlay(mapView, gp, boldFont, "", l.addr, 
-            		R.drawable.bulb_poi, HotspotPlace.CENTER, new POIActionListener() {
+            		R.drawable.bulb_poi, R.drawable.bulb_poi_with_shadow, HotspotPlace.CENTER, new POIActionListener() {
 	            	@Override
 					public void onClickEdit() {
 						hideBulbBalloon();

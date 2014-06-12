@@ -43,8 +43,8 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 	}
 	
 	public POIOverlay(MapView mapview, GeoPoint geoPoint, Typeface font, String label, String address, 
-			int marker, HotspotPlace markerHotspot, POIActionListener listener) {
-		super(pinDrawable(mapview.getContext(), marker), mapview, null, font, font);
+			int marker, int markerWithShadow, HotspotPlace markerHotspot, POIActionListener listener) {
+		super(pinDrawable(mapview.getContext(), markerWithShadow), mapview, null, font, font);
 		
 		this.font = font;
 		this.label = label;
