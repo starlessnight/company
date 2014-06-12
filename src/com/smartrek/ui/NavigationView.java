@@ -156,6 +156,14 @@ public class NavigationView extends LinearLayout {
 		textViewGenericMessage = (TextView) findViewById(R.id.text_view_generic_message);
 		imgViewNextDirection = (ImageView) findViewById(R.id.img_view_next_direction);
 		nextDirectionPanel = (LinearLayout) findViewById(R.id.next_direction_panel);
+		nextDirectionPanel.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(openDirectionViewEvent!=null) {
+					openDirectionViewEvent.run();
+				}
+			}
+		});
 		btnPrevItem = (ImageView) findViewById(R.id.btn_prev_item);
 		btnPrevItem.setOnClickListener(new View.OnClickListener() {
 			@Override
