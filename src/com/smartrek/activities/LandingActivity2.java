@@ -1186,7 +1186,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					@Override
 					public void onAnimationEnd() {
 						mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
-						showTripInfoPanel(true);
+						findViewById(R.id.reservations_list).setVisibility(View.VISIBLE);
+//						showTripInfoPanel(true);
 					}
 				});
 			}
@@ -2218,8 +2219,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void setReservMenuAndTripInfoStatus(boolean show) {
-    	findViewById(R.id.reservations).setVisibility(show?View.VISIBLE:View.GONE);
-		findViewById(R.id.reservations_spliter).setVisibility(show?View.VISIBLE:View.GONE);
+//    	findViewById(R.id.reservations).setVisibility(show?View.VISIBLE:View.GONE);
+//		findViewById(R.id.reservations_spliter).setVisibility(show?View.VISIBLE:View.GONE);
 		if(!show) {
 			findViewById(R.id.trip_info).setTag(null);
 		}

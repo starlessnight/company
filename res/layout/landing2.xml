@@ -652,6 +652,13 @@
                     android:text="Logout"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/smaller_font" />
+                
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="10dp"
+                    android:background="#929497" />
+                
             </LinearLayout>
 
         </RelativeLayout>
