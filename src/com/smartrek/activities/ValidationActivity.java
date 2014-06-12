@@ -904,8 +904,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		
         scheduleTimeInfoCycle();
         
-        Font.setTypeface(boldFont, remainDistDirecListView, finishButton, feedBackButton);
-		Font.setTypeface(lightFont, osmCredit, timeInfo, remainTimesDirectListView);
+        Font.setTypeface(boldFont, remainDistDirecListView, timeInfo, finishButton, feedBackButton);
+		Font.setTypeface(lightFont, osmCredit, remainTimesDirectListView);
 	}
 	
 	private void toggleTimeInfo(){
@@ -922,7 +922,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 	
 	private SpannableString formatRemainTime(String remainTime) {
-		String remainDesc = "Arrive in" + (vertical?"\n":" ") + remainTime;
+		String remainDesc = "Arrive in\n" + remainTime;
 		SpannableString remainTimeSpan = SpannableString.valueOf(remainDesc);
 		remainTimeSpan.setSpan(new AbsoluteSizeSpan(ValidationActivity.this.getResources()
 				.getDimensionPixelSize(R.dimen.smaller_font)), 0, "Arrival in".length(),
@@ -935,7 +935,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 	
 	private SpannableString formatArrivalTime(String arrivalTime) {
-		String arrivalDesc = "Arrive" + (vertical?"\n":" ") + arrivalTime;
+		String arrivalDesc = "Arrive\n" + arrivalTime;
 		SpannableString arrivalTimeSpan = SpannableString.valueOf(arrivalDesc);
 		arrivalTimeSpan.setSpan(new AbsoluteSizeSpan(ValidationActivity.this.getResources()
 				.getDimensionPixelSize(R.dimen.smaller_font)), 0, "Arrival".length(),
