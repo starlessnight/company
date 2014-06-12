@@ -676,6 +676,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		                    mc.zoomToSpan(range[0], range[1]);
 		                    mc.setCenter(mid); // setCenter only works properly after zoomToSpan
 		                }
+		            	navigationView.setToCurrentDireciton();
 					}
             		
             	});

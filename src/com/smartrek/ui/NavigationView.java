@@ -729,5 +729,10 @@ public class NavigationView extends LinearLayout {
 	public void setScreenVertical(boolean screenVertical) {
 		this.screenVertical = screenVertical;
 	}
+	
+	public void setToCurrentDireciton(){
+	    currentItemIdx = 0;
+        refresh(false);
+	}
 
 }
