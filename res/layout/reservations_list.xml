@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/reservations_list_panel"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
 
     <LinearLayout
         android:id="@+id/trip_info"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:orientation="vertical"
         android:visibility="gone" >
 
@@ -28,107 +28,119 @@
         </FrameLayout>
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="fill_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:orientation="vertical" >
 
-            <TextView
-                android:id="@+id/trip_start_desc"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Your Next Trip is in:"
-                android:textColor="@android:color/white"
-                android:textSize="@dimen/medium_font" />
+                <TextView
+                    android:id="@+id/trip_start_desc"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Your Next Trip is in:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/large_font"
+                    android:includeFontPadding="false" />
 
-            <TextView
-                android:id="@+id/trip_start_time"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="2"
-                android:gravity="center_horizontal|top"
-                android:text="00min"
-                android:textColor="@android:color/white"
-                android:textSize="55dp" />
+                <TextView
+                    android:id="@+id/trip_duration_desc"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Trip Duration:"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/medium_font"
+                    android:visibility="invisible"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="5dp"
+                    android:includeFontPadding="false" />
 
-            <TextView
-                android:id="@+id/trip_arrival_desc"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:gravity="center_horizontal|bottom"
-                android:text="Arrival Time"
-                android:textColor="@android:color/white"
-                android:textSize="@dimen/medium_font" />
+                <TextView
+                    android:id="@+id/trip_start_time"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="00min"
+                    android:textColor="@android:color/white"
+                    android:textSize="75dp"
+                    android:includeFontPadding="false" />
 
-            <TextView
-                android:id="@+id/trip_arrival_time"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="2"
-                android:gravity="center_horizontal|top"
-                android:text="00:00pm"
-                android:textColor="@android:color/white"
-                android:textSize="55dp" />
+                <TextView
+                    android:id="@+id/trip_arrival_desc"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Arrival Time"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/medium_font"
+                    android:paddingTop="20dp" 
+                    android:includeFontPadding="false"/>
+
+                <TextView
+                    android:id="@+id/trip_arrival_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_gravity="center|top"
+                    android:text="00:00pm"
+                    android:textColor="@android:color/white"
+                    android:textSize="75dp" 
+                    android:paddingBottom="10dp"
+                    android:includeFontPadding="false"/>
 
             <ImageView
                 android:id="@+id/start_trip"
                 android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:layout_weight="2"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:src="@drawable/trip_start" />
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal" >
 
                 <ImageView
                     android:id="@+id/reschedule_trip"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:layout_gravity="center"
+                    android:layout_weight="1"
                     android:src="@drawable/reschedule_icon" />
 
                 <ImageView
                     android:id="@+id/on_my_way_trip"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:layout_gravity="center"
+                    android:layout_weight="1"
                     android:src="@drawable/on_my_way_icon" />
             </LinearLayout>
             
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="20dp"
-            android:gravity="center"
-            android:orientation="horizontal" >
-            
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:gravity="center"
-                android:paddingRight="10dp"
-                android:src="@drawable/right_arrow" />
+                android:orientation="horizontal" >
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="slide to dismiss"
-                android:textColor="@android:color/white"
-                android:textSize="@dimen/smaller_font" />
-            
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingRight="10dp"
+                    android:src="@drawable/right_arrow" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="slide to dismiss"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/smaller_font" />
+            </LinearLayout>
         </LinearLayout>
-        
     </LinearLayout>
 
     <LinearLayout
@@ -167,7 +179,6 @@
                 android:paddingLeft="20dp"
                 android:paddingTop="5dp"
                 android:src="@drawable/reservation_list_back_arrow" />
-
         </FrameLayout>
 
         <ListView
@@ -178,7 +189,6 @@
             android:cacheColorHint="#00000000"
             android:divider="@null"
             android:dividerHeight="0dp" />
-
     </LinearLayout>
 
 </FrameLayout>

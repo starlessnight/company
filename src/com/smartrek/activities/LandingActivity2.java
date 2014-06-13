@@ -1,11 +1,14 @@
 package com.smartrek.activities;
 
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -2112,27 +2115,29 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		}
     	}
     	
+    	initFontsIfNecessary();
+    	
     	View tripInfoPanel = findViewById(R.id.trip_info);
     	if(reserv != null) {
 	    	String nextTripInfoDesc = "";
 	    	String nextTripStartTime = "";
-	    	String arrivalTime = TimeColumn.formatTime(reserv.getArrivalTimeUtc(), reserv.getRoute().getTimezoneOffset());
+	    	String arrivalTime = formatTime(reserv.getArrivalTimeUtc(), reserv.getRoute().getTimezoneOffset());
 	    	int backgroundColor = R.color.metropia_orange;
 	    	long departureTimeUtc = reserv.getDepartureTimeUtc();
 	        long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
 	        long durationTime = reserv.getDuration();  //sec
 	        if(reserv.isEligibleTrip()){
-	        	nextTripInfoDesc = "It's Time to Go!\nTrip Duration:";
+	        	nextTripInfoDesc = "It's Time to Go!";
 	            backgroundColor = R.color.metropia_green;
-	            nextTripStartTime = TimeColumn.getFormattedDuration((int)durationTime);
-	            arrivalTime = TimeColumn.formatTime(System.currentTimeMillis() + durationTime*1000, reserv.getRoute().getTimezoneOffset());
+	            nextTripStartTime = getFormattedDuration((int)durationTime);
+	            arrivalTime = formatTime(System.currentTimeMillis() + durationTime*1000, reserv.getRoute().getTimezoneOffset());
 	        }else if(timeUntilDepart > 60 * 60 * 1000L){
 	        	nextTripInfoDesc = "Your Next Trip will be at:";
-	            nextTripStartTime = TimeColumn.formatTime(departureTimeUtc, reserv.getRoute().getTimezoneOffset());
+	            nextTripStartTime = formatTime(departureTimeUtc, reserv.getRoute().getTimezoneOffset());
 	            backgroundColor = R.color.metropia_orange;
 	        }else if(timeUntilDepart > Reservation.GRACE_INTERVAL){
 	        	nextTripInfoDesc = "Your Next Trip is in:";
-	            nextTripStartTime = TimeColumn.getFormattedDuration((int)timeUntilDepart / 1000);
+	            nextTripStartTime = getFormattedDuration((int)timeUntilDepart / 1000);
 	            backgroundColor = R.color.metropia_orange;
 	        }
 	        else {
@@ -2143,11 +2148,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	        tripInfoPanel.findViewById(R.id.multiple_trip_menu).setVisibility(reservations.size()-curReservIdx>1?View.VISIBLE:View.GONE);
 	        TextView tripStartDescView = (TextView)tripInfoPanel.findViewById(R.id.trip_start_desc);
 	        tripStartDescView.setText(nextTripInfoDesc);
+	        TextView tripDurationDesc = (TextView)tripInfoPanel.findViewById(R.id.trip_duration_desc);
+	        tripDurationDesc.setVisibility(reserv.isEligibleTrip()?View.VISIBLE:View.INVISIBLE);
 	        TextView tripStartTimeView = (TextView)tripInfoPanel.findViewById(R.id.trip_start_time);
 	        tripStartTimeView.setText(formatTripStartTime(nextTripStartTime));
 	        TextView tripArriveTimeView = (TextView)tripInfoPanel.findViewById(R.id.trip_arrival_time);
 	        tripArriveTimeView.setText(formatTripArrivalTime(arrivalTime));
-	        Font.setTypeface(boldFont, tripStartDescView, tripStartTimeView, tripArriveTimeView, 
+	        Font.setTypeface(boldFont, tripStartTimeView, tripArriveTimeView);
+	        Font.setTypeface(lightFont, tripStartDescView, tripDurationDesc, 
 	        		(TextView) tripInfoPanel.findViewById(R.id.trip_arrival_desc));
 	        showTripInfoPanel(false);
 	        setReservMenuAndTripInfoStatus(true);
@@ -2162,6 +2170,16 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	}
     	refreshReservationList(reservations);
     }
+    
+    private String formatTime(long time, int timzoneOffset){
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mma", Locale.US);
+        dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone(timzoneOffset)));
+        return dateFormat.format(new Date(time));
+	}
+    
+    private String getFormattedDuration(int duration){
+	    return String.format("%dmin", duration/60);
+	}
     
     private void refreshReservationList(List<Reservation> reservations) {
     	reservationAdapter.clear();
@@ -2231,7 +2249,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		SpannableString startTimeSpan = SpannableString.valueOf(startTime);
 		if(indexOfChange != -1) {
 			startTimeSpan.setSpan(new AbsoluteSizeSpan(getResources()
-					.getDimensionPixelSize(R.dimen.smallest_font)), indexOfChange,
+					.getDimensionPixelSize(R.dimen.smaller_font)), indexOfChange,
 					startTime.length(),
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
@@ -2243,7 +2261,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	SpannableString arrivalTimeSpan = SpannableString.valueOf(arrivalTime);
     	if(indexOfChange != -1) {
 			arrivalTimeSpan.setSpan(new AbsoluteSizeSpan(getResources()
-					.getDimensionPixelSize(R.dimen.smallest_font)), indexOfChange, arrivalTime.length(),
+					.getDimensionPixelSize(R.dimen.smaller_font)), indexOfChange, arrivalTime.length(),
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     	}
 		return arrivalTimeSpan;
