@@ -164,6 +164,14 @@ public class NavigationView extends LinearLayout {
 				}
 			}
 		});
+		findViewById(R.id.direction_infos).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(openDirectionViewEvent!=null) {
+					openDirectionViewEvent.run();
+				}
+			}
+		});
 		btnPrevItem = (ImageView) findViewById(R.id.btn_prev_item);
 		btnPrevItem.setOnClickListener(new View.OnClickListener() {
 			@Override
