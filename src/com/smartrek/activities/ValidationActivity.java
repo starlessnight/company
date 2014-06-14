@@ -746,11 +746,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			public void onClick(View v) {
 				ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v);
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-
 					@Override
 					public void onAnimationEnd() {
-						Object mark = onMyWayBtn.getTag();
-						if(mark == null) {
 							NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "On My Way is availiable to passangers only.");
 							dialog.setVerticalOrientation(false);
 							dialog.setTitle("Are you the passanger?");
@@ -771,9 +768,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 								}
 							});
 							dialog.show();
-						}
 					}
-					
 				});
 			}
 		});
