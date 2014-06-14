@@ -570,7 +570,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		super.onPause();
 		SessionM.onActivityPause(this);
 		unregisterReceiver(timeInfoCycler);
-		navigationView.startNotification();
+		if(!cancelTrip) {
+			navigationView.startNotification();
+		}
 	}
 
 	@Override
@@ -1916,7 +1918,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         sendBroadcast(new Intent(LandingActivity2.TRIP_INFO_CACHED_UPDATES));
     }
 	
+	boolean cancelTrip = false;
+	
 	private void doCancelValidation() {
+		cancelTrip = true;
         restoreMusic();
         if (mTts != null) {
             mTts.shutdown();
