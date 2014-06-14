@@ -1667,14 +1667,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 View namePanel = view.findViewById(R.id.name_panel);
                 TextView name = (TextView) view.findViewById(R.id.name);
                 name.setText(item.getName());
-                if(TAP_TO_ADD_FAVORITE.equals(item.getName())) {
-                	name.setCompoundDrawablesWithIntrinsicBounds(R.drawable.star, 0, 0, 0);
-                	name.setCompoundDrawablePadding(Dimension.dpToPx(10, getResources().getDisplayMetrics()));
-                }
-                else {
-                	name.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-                	name.setCompoundDrawablePadding(0);
-                }
                 TextView address = (TextView) view.findViewById(R.id.address);
                 address.setText(item.getAddress());
                 TextView distance = (TextView) view.findViewById(R.id.distance);
@@ -1685,8 +1677,26 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 	distance.setVisibility(View.VISIBLE);
                 	distance.setText(item.getDistance() + "mi");
                 }
+                
                 initFontsIfNecessary();
-                Font.setTypeface(boldFont, name, distance);
+                
+                if(TAP_TO_ADD_FAVORITE.equals(item.getName())) {
+                	name.setCompoundDrawablesWithIntrinsicBounds(R.drawable.star, 0, 0, 0);
+                	name.setCompoundDrawablePadding(Dimension.dpToPx(20, getResources().getDisplayMetrics()));
+                	int paddingSize = Dimension.dpToPx(5, getResources().getDisplayMetrics());
+                	namePanel.setPadding(Dimension.dpToPx(20, getResources().getDisplayMetrics()), paddingSize, 0, paddingSize);
+                	Font.setTypeface(lightFont, name);
+                	address.setVisibility(View.GONE);
+                }
+                else {
+                	name.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+                	name.setCompoundDrawablePadding(0);
+                	int paddingSize = Dimension.dpToPx(5, getResources().getDisplayMetrics());
+                	namePanel.setPadding(paddingSize, paddingSize, 0, 0);
+                	Font.setTypeface(boldFont, name);
+                	address.setVisibility(View.VISIBLE);
+                }
+                Font.setTypeface(boldFont, distance);
                 Font.setTypeface(lightFont, address);
                 namePanel.requestLayout();
                 name.requestLayout();
