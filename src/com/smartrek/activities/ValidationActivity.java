@@ -687,6 +687,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		navigationView.setDestinationAddress(reservation.getDestinationAddress());
 		navigationView.setTypeface(boldFont);
 		
+		Configuration conf = getResources().getConfiguration();
+		if(conf.orientation==Configuration.ORIENTATION_LANDSCAPE) {
+			navigationView.setLandscapMode();
+		}
+		
 		navigationView.setOpenDirectionViewEvent(new Runnable() {
 			@Override
 			public void run() {
@@ -2250,22 +2255,15 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         }
     }
     
-    private boolean vertical = true;
-    
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-        	vertical = false; 
-        	navigationView.setScreenVertical(vertical);
-        	navigationView.refreshDimension();
-        	refreshTimeInfo();
+        	navigationView.setLandscapMode();
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
-        	vertical = true;
-        	navigationView.setScreenVertical(vertical);
-        	navigationView.refreshDimension();
-        	refreshTimeInfo();
+        	navigationView.setPortraitMode();
         }
+        refreshTimeInfo();
     }
     
     private static final String TIME_INFO_CYCLE = "TIME_INFO_CYCLE"; 

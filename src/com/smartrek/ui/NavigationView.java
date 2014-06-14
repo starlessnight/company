@@ -139,7 +139,7 @@ public class NavigationView extends LinearLayout {
 	private boolean move = false;
 	
 	private Runnable openDirectionViewEvent;
-	private boolean screenVertical = true;
+	private boolean portraitMode = true;
 	
 	public NavigationView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -369,8 +369,8 @@ public class NavigationView extends LinearLayout {
 		return meters * 0.000621371;
 	}
 	
-	private static final Integer SCREEN_VERTICAL_WIDTH = Integer.valueOf(100);
-	private static final Integer SCREEN_HORIZONTAL_WIDTH = Integer.valueOf(180);
+	private static final Integer PORTRAIT_WIDTH = Integer.valueOf(100);
+	private static final Integer LANDSCAPE_WIDTH = Integer.valueOf(180);
 
 	private void refresh(boolean forceNoti) {
 	    if(items.isEmpty()){
@@ -407,9 +407,9 @@ public class NavigationView extends LinearLayout {
 		}
 
 		String distance = StringUtil
-				.formatImperialDistance(item.distance, !screenVertical);
-		distance = distance.replaceFirst(" ", screenVertical?"\n":"");
-		textViewDistance.setText(distance);
+				.formatImperialDistance(item.distance, !portraitMode);
+		distance = distance.replaceFirst(" ", portraitMode?"\n":"");
+		textViewDistance.setText(formatDistance(distance));
 		CharSequence roadText = (StringUtils.isBlank(item.roadName) 
             || StringUtils.equalsIgnoreCase(item.roadName, "null")) ? "" 
             :(StringUtils.capitalize(item.roadName.substring(0, 1)) 
@@ -435,28 +435,28 @@ public class NavigationView extends LinearLayout {
 		
 	}
 	
-	public void refreshDimension() {
+	private void refreshDimension() {
 		LinearLayout directionInfos = (LinearLayout) findViewById(R.id.direction_infos);
-		directionInfos.setOrientation(screenVertical?LinearLayout.VERTICAL:LinearLayout.HORIZONTAL);
+		directionInfos.setOrientation(portraitMode?LinearLayout.VERTICAL:LinearLayout.HORIZONTAL);
 		ViewGroup.LayoutParams directionInfosLp = directionInfos.getLayoutParams();
-		directionInfosLp.width = Dimension.dpToPx(screenVertical?SCREEN_VERTICAL_WIDTH:SCREEN_HORIZONTAL_WIDTH, 
+		directionInfosLp.width = Dimension.dpToPx(portraitMode?PORTRAIT_WIDTH:LANDSCAPE_WIDTH, 
 				getContext().getResources().getDisplayMetrics());
 		directionInfos.setLayoutParams(directionInfosLp);
 		ViewGroup.LayoutParams nextDirectionPanelLp = nextDirectionPanel.getLayoutParams();
-		nextDirectionPanelLp.width = Dimension.dpToPx(screenVertical?SCREEN_VERTICAL_WIDTH:SCREEN_HORIZONTAL_WIDTH, 
+		nextDirectionPanelLp.width = Dimension.dpToPx(portraitMode?PORTRAIT_WIDTH:LANDSCAPE_WIDTH, 
 				getContext().getResources().getDisplayMetrics());
 		nextDirectionPanel.setLayoutParams(nextDirectionPanelLp);
 		String distance = textViewDistance.getText().toString();
 		if(distance.endsWith("mi")) {
-			distance = distance.replaceAll("mi", screenVertical?"\nmiles":"mi");
+			distance = distance.replaceAll("mi", portraitMode?"\nmiles":"mi");
 		}
 		else if(distance.endsWith("\nmiles")){
-			distance = distance.replaceAll("\nmiles", screenVertical?"\nmiles":"mi");
+			distance = distance.replaceAll("\nmiles", portraitMode?"\nmiles":"mi");
 		}
 		else {
-			distance = distance.replaceAll("\nmile", screenVertical?"\nmile":"mi");
+			distance = distance.replaceAll("\nmile", portraitMode?"\nmile":"mi");
 		}
-		textViewDistance.setText(distance);
+		textViewDistance.setText(formatDistance(distance));
 	}
 
 	public static SpannableString adjustDistanceFontSize(Context ctx,
@@ -468,6 +468,15 @@ public class NavigationView extends LinearLayout {
 				.getDimensionPixelSize(R.dimen.smallest_font)), indexOfMi,
 				indexOfMi + mi.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		return distanceSpan;
+	}
+	
+	private SpannableString formatDistance(String distance) {
+		int indexOfMi = distance.indexOf("mi");
+		SpannableString distSpan = SpannableString.valueOf(distance);
+		distSpan.setSpan(new AbsoluteSizeSpan(getContext().getResources()
+				.getDimensionPixelSize(R.dimen.smaller_font)), indexOfMi,
+				distance.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		return distSpan;
 	}
 
 	public void update(final Route route, final Location location,
@@ -734,8 +743,14 @@ public class NavigationView extends LinearLayout {
     	this.openDirectionViewEvent = event;
     }
 
-	public void setScreenVertical(boolean screenVertical) {
-		this.screenVertical = screenVertical;
+	public void setLandscapMode() {
+		this.portraitMode = false;
+		refreshDimension();
+	}
+	
+	public void setPortraitMode() {
+		this.portraitMode = true;
+		refreshDimension();
 	}
 	
 	public void setToCurrentDireciton(){
