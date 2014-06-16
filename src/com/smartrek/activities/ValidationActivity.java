@@ -145,6 +145,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	public static final Integer REPORT_PROBLEM = Integer.valueOf(100);
 	
 	public static final int ON_MY_WAY = Integer.valueOf(110);
+	
+	public static final String CURRENT_LOCATION = "CURRENT_LOCATION";
 
 	private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 
@@ -356,9 +358,16 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		
 		SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
         int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
+        org.osmdroid.util.GeoPoint curLoc = extras.getParcelable(CURRENT_LOCATION);
         if (gpsMode == DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
             Location location = new Location("");
             location.setTime(System.currentTimeMillis());
+            locationChanged(location);
+        } else if(curLoc != null){
+            Location location = new Location("");
+            location.setTime(System.currentTimeMillis());
+            location.setLatitude(curLoc.getLatitude());
+            location.setLongitude(curLoc.getLongitude());
             locationChanged(location);
         }
 

@@ -33,6 +33,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.text.format.Time;
 import android.util.Log;
@@ -694,6 +695,7 @@ public final class RouteActivity extends FragmentActivity {
 	                        Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
 	                        intent.putExtra("route", reservation.getRoute());
 	                        intent.putExtra("reservation", reservation);
+	                        intent.putExtra(ValidationActivity.CURRENT_LOCATION, (Parcelable)originCoord);
 	                        startActivity(intent);
 	                        finish();
 	                    }else{
@@ -707,6 +709,7 @@ public final class RouteActivity extends FragmentActivity {
 	                                    Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
 	                                    intent.putExtra("route", reservation.getRoute());
 	                                    intent.putExtra("reservation", reservation);
+	                                    intent.putExtra(ValidationActivity.CURRENT_LOCATION, (Parcelable)originCoord);
 	                                    startActivity(intent);
 	                                    finish();
 	                                }else{
@@ -1136,6 +1139,7 @@ public final class RouteActivity extends FragmentActivity {
                 Intent validationActivity = new Intent(RouteActivity.this, ValidationActivity.class);
                 validationActivity.putExtra("route", reservation.getRoute());
                 validationActivity.putExtra("reservation", reservation);
+                validationActivity.putExtra(ValidationActivity.CURRENT_LOCATION, (Parcelable)originCoord);
                 validationActivity.putExtra(ValidationActivity.EMAILS, emails);
                 validationActivity.putExtra(ValidationActivity.PHONES, phones);
                 startActivity(validationActivity);
@@ -1152,6 +1156,7 @@ public final class RouteActivity extends FragmentActivity {
                             Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
                             intent.putExtra("route", reservation.getRoute());
                             intent.putExtra("reservation", reservation);
+                            intent.putExtra(ValidationActivity.CURRENT_LOCATION, (Parcelable)originCoord);
                             intent.putExtra(ValidationActivity.EMAILS, emails);
                             intent.putExtra(ValidationActivity.PHONES, phones);
                             startActivity(intent);
