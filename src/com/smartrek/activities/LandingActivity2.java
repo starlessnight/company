@@ -1407,11 +1407,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		                    protected void onPostExecute(GeoPoint gp) {
 		                        if(gp != null){
 		                            Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
-		                            intent.putExtra(RouteActivity.CURRENT_LOCATION, true);
 		                            Bundle extras = new Bundle();
 		                            extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
 		                            extras.putString("originAddr", EditAddress.CURRENT_LOCATION);
-		                            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(0, 0 ));
+		                            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(
+	                                    lastLocation.getLatitude(), lastLocation.getLongitude()));
 		                            extras.putString("destAddr", addr);
 		                            extras.putParcelable(RouteActivity.DEST_COORD, gp);
 		                            intent.putExtras(extras);
@@ -1558,11 +1558,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                    protected void onPostExecute(GeoPoint gp) {
 	                        if(gp != null){
 	                            Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
-	                            intent.putExtra(RouteActivity.CURRENT_LOCATION, true);
 	                            Bundle extras = new Bundle();
 	                            extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
 	                            extras.putString("originAddr", EditAddress.CURRENT_LOCATION);
-	                            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(0, 0 ));
+	                            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(
+                                    lastLocation.getLatitude(), lastLocation.getLongitude()));
 	                            extras.putString("destAddr", addr);
 	                            extras.putParcelable(RouteActivity.DEST_COORD, gp);
 	                            intent.putExtras(extras);
@@ -2414,10 +2414,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             String fromAddress = fromSearchBox.getText().toString();
             boolean hasFromAddr = StringUtils.isNotBlank(fromAddress);
             Intent intent = new Intent(this, RouteActivity.class);
-            intent.putExtra(RouteActivity.CURRENT_LOCATION, !hasFromAddr);
             Bundle extras = new Bundle();
             extras.putString(RouteActivity.ORIGIN_ADDR, hasFromAddr?fromAddress:EditAddress.CURRENT_LOCATION);
-            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(0, 0));
+            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(
+                lastLocation.getLatitude(), lastLocation.getLongitude()));
             extras.putString(RouteActivity.DEST_ADDR, address);
             extras.putParcelable(RouteActivity.DEST_COORD, gp);
             intent.putExtras(extras);
