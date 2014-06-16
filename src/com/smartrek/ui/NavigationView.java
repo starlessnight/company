@@ -758,4 +758,8 @@ public class NavigationView extends LinearLayout {
         refresh(false);
 	}
 
+	public void setTextViewWaiting(String text){
+	    textViewWaiting.setText(text);
+	}
+	
 }

@@ -353,6 +353,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 
 		initViews();
+		
+		SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
+        int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
+        if (gpsMode == DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
+            Location location = new Location("");
+            location.setTime(System.currentTimeMillis());
+            locationChanged(location);
+        }
 
 		if (isOnRecreate.get()) {
             lastCenter = new GeoPoint((IGeoPoint) savedInstanceState.getParcelable(GEO_POINT));
@@ -632,14 +640,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         });
 		
 		RouteActivity.setViewToNorthAmerica(mapView);
-		
-		SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
-        int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
-        if (gpsMode == DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
-            Location location = new Location("");
-            location.setTime(System.currentTimeMillis());
-            locationChanged(location);
-        }
 		
 		TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
 		RelativeLayout.LayoutParams osmCreditLp = (RelativeLayout.LayoutParams) osmCredit
@@ -1131,13 +1131,17 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         });
 		mapOverlays.add(destOverlay);
 
-		pointOverlay = new CurrentLocationOverlay(this, 0, 0, R.drawable.navigation_page_current_location);
-		pointOverlay.disableRadarEffect();
-		mapOverlays.add(pointOverlay);
+		drawCurrentLocation();
 
 		bindDebugOverlay(mapView);
 		
 		route.setUserId(User.getCurrentUser(this).getId());
+	}
+	
+	private void drawCurrentLocation(){
+	    pointOverlay = new CurrentLocationOverlay(this, 0, 0, R.drawable.navigation_page_current_location);
+        pointOverlay.disableRadarEffect();
+        (mapOverlays == null?mapView.getOverlays():mapOverlays).add(pointOverlay);
 	}
 
 	private int seq = 1;
@@ -1545,6 +1549,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                                     lastCenter, route);
                                 drawRoute(mapView, route, 0);
                                 navigationView.setHasVoice(route.hasVoice());
+                                SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
+                                int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
+                                if(lastKnownLocation != null && gpsMode != DebugOptionsActivity.GPS_MODE_LONG_PRESS){
+                                    locationChanged(lastKnownLocation);
+                                }
                             }
                             
                         }
@@ -1554,82 +1563,92 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             });
 	    }
 	    
-		if (pointOverlay == null) {
-			return;
-		}
-		
-		runOnUiThread(new Runnable(){
+	    runOnUiThread(new Runnable(){
             @Override
             public void run() {
+                if(pointOverlay == null){
+                    drawCurrentLocation();
+                    SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
+                    int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
+                    if(gpsMode != DebugOptionsActivity.GPS_MODE_LONG_PRESS){
+                        navigationView.setTextViewWaiting("Waiting for the route...");
+                    }
+                }
+                
+                if(speedInMph > speedOutOfRouteThreshold){
+                    pointOverlay.setDegrees(bearing);
+                }
+                
                 if ((Boolean)buttonFollow.getTag()) {
                     mapView.getController().setZoom(isNearOD_or_Intersection(lat, lng)?
                         DEFAULT_ZOOM_LEVEL:NAVIGATION_ZOOM_LEVEL);
                 }
-            }
-        });
-		
-		if(speedInMph > speedOutOfRouteThreshold){
-		    pointOverlay.setDegrees(bearing);
-		}
-		
-		long now = SystemClock.elapsedRealtime();
+                
+                long now = SystemClock.elapsedRealtime();
 
-		GeoPoint oldLoc = pointOverlay.getLocation();
-		if (oldLoc.isEmpty()) {
-			if ((Boolean)buttonFollow.getTag()) {
-				mapView.getController().animateTo(new GeoPoint(lat, lng));
-			}
-			pointOverlay.setLocation((float) lat, (float) lng);
-			mapView.postInvalidate();
-		} else {
-			animator.removeCallbacksAndMessages(null);
-			final double oldLat = oldLoc.getLatitude();
-			double y = lat - oldLat;
-			final double oldLng = oldLoc.getLongitude();
-			double x = lng - oldLng;
-			final double slop = y / x;
-			double timeInterval = 1000 / 30;
-			long numOfSteps = Math.round((now - lastLocChanged) / timeInterval);
-			final double stepSize = x / numOfSteps;
-			long startTimeMillis = SystemClock.uptimeMillis();
-			if(!isNearOD_or_Intersection(lat, lng) || x == 0){
-			    for (int i = 0; i <= numOfSteps; i++) {
-			        final int seq = i;
-                    animator.postAtTime(new Runnable() {
-                        @Override
-                        public void run() {
-                            if(seq == 0){
-                                if ((Boolean)buttonFollow.getTag()) {
-                                    mapView.getController().setCenter(new GeoPoint(lat, lng));
+                GeoPoint oldLoc = pointOverlay.getLocation();
+                if (oldLoc.isEmpty()) {
+                    if ((Boolean)buttonFollow.getTag()) {
+                        mapView.getController().animateTo(new GeoPoint(lat, lng));
+                    }
+                    pointOverlay.setLocation((float) lat, (float) lng);
+                    mapView.postInvalidate();
+                } else {
+                    animator.removeCallbacksAndMessages(null);
+                    final double oldLat = oldLoc.getLatitude();
+                    double y = lat - oldLat;
+                    final double oldLng = oldLoc.getLongitude();
+                    double x = lng - oldLng;
+                    final double slop = y / x;
+                    double timeInterval = 1000 / 30;
+                    long numOfSteps = Math.round((now - lastLocChanged) / timeInterval);
+                    final double stepSize = x / numOfSteps;
+                    long startTimeMillis = SystemClock.uptimeMillis();
+                    if(!isNearOD_or_Intersection(lat, lng) || x == 0){
+                        for (int i = 0; i <= numOfSteps; i++) {
+                            final int seq = i;
+                            animator.postAtTime(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if(seq == 0){
+                                        if ((Boolean)buttonFollow.getTag()) {
+                                            mapView.getController().setCenter(new GeoPoint(lat, lng));
+                                        }
+                                        pointOverlay.setLocation((float) lat, (float) lng);
+                                    }
+                                    mapView.postInvalidate();
                                 }
-                                pointOverlay.setLocation((float) lat, (float) lng);
-                            }
-                            mapView.postInvalidate();
+                            }, startTimeMillis + Math.round(i * timeInterval));
                         }
-                    }, startTimeMillis + Math.round(i * timeInterval));
+                    }else{
+                        for (int i = 1; i <= numOfSteps; i++) {
+                            final int seq = i;
+                            animator.postAtTime(new Runnable() {
+                                @Override
+                                public void run() {
+                                    double deltaX = seq * stepSize;
+                                    double newLng = oldLng + deltaX;
+                                    double newLat = oldLat + deltaX * slop;
+                                    pointOverlay.setLocation((float) newLat, (float) newLng);
+                                    mapView.postInvalidate();
+                                    if ((Boolean)buttonFollow.getTag()) {
+                                        mapView.getController().setCenter(new GeoPoint(newLat, newLng));
+                                    }
+                                }
+                            }, startTimeMillis + Math.round(i * timeInterval));
+                        }
+                    }
                 }
-			}else{
-    			for (int i = 1; i <= numOfSteps; i++) {
-    				final int seq = i;
-    				animator.postAtTime(new Runnable() {
-    					@Override
-    					public void run() {
-    						double deltaX = seq * stepSize;
-    						double newLng = oldLng + deltaX;
-    						double newLat = oldLat + deltaX * slop;
-    						pointOverlay.setLocation((float) newLat, (float) newLng);
-    						mapView.postInvalidate();
-    						if ((Boolean)buttonFollow.getTag()) {
-                                mapView.getController().setCenter(new GeoPoint(newLat, newLng));
-                            }
-    					}
-    				}, startTimeMillis + Math.round(i * timeInterval));
-    			}
-			}
-		}
 
-		lastLocChanged = now;
-		
+                lastLocChanged = now;
+                lastKnownLocation = location;
+            }
+	    });
+	    
+	    if(!routeLoaded.get()){
+	        return;
+	    }
+	    
 		long linkId = Trajectory.DEFAULT_LINK_ID;
 		
 		if (!route.getNodes().isEmpty()) {
@@ -1782,8 +1801,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			} catch (JSONException e) {
 				ehs.registerException(e);
 			}
-		}
-		lastKnownLocation = location;
+		}    
 	}
 	
 	private AtomicLong etaDelay = new AtomicLong();
