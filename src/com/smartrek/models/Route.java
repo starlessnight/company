@@ -110,10 +110,10 @@ public final class Route implements Parcelable {
         buildRouteNodeReferenceChain(routeNodes);
         
         // Route ID
-        int rid = 0;
-        String ridAttr = "RID";
-        if(!newAPI && routeObject.has(ridAttr)){
-            rid = routeObject.getInt(ridAttr);
+        long rid = 0;
+        String ridAttr = newAPI?"id":"RID";
+        if(routeObject.has(ridAttr)){
+            rid = routeObject.getLong(ridAttr);
         }
         
         // Web service returns the estimated travel time in minutes, but we
@@ -242,7 +242,7 @@ public final class Route implements Parcelable {
 		buildRouteNodeReferenceChain(routeNodes);
 	}
 	
-	public Route (ArrayList<RouteNode> locs, int rid, long departureTime, int duration) {
+	public Route (ArrayList<RouteNode> locs, long rid, long departureTime, int duration) {
 		this.routeNodes = locs;
 		this.rid = rid;
 		this.validated = 0;

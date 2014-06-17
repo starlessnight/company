@@ -26,6 +26,8 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -80,6 +82,7 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
+import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
@@ -94,6 +97,7 @@ import com.smartrek.requests.FavoriteAddressUpdateRequest;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.ReservationDeleteRequest;
 import com.smartrek.requests.ReservationListFetchRequest;
+import com.smartrek.requests.ReservationRequest;
 import com.smartrek.requests.RouteFetchRequest;
 import com.smartrek.requests.UpdateDeviceIdRequest;
 import com.smartrek.requests.WhereToGoRequest;
@@ -112,6 +116,7 @@ import com.smartrek.ui.overlays.POIOverlay;
 import com.smartrek.ui.overlays.POIOverlay.POIActionListener;
 import com.smartrek.ui.overlays.RouteDestinationOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
+import com.smartrek.ui.timelayout.AdjustableTime;
 import com.smartrek.ui.timelayout.TimeColumn;
 import com.smartrek.utils.Cache;
 import com.smartrek.utils.Dimension;
@@ -1351,21 +1356,19 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			                startActivity(intent);
 						}
 						else {
-							String msg = null;
-		                    if (reserv.hasExpired()) {
-		                        msg = getString(R.string.trip_has_expired);
-		                    }
-		                    else if (reserv.isTooEarlyToStart()) {
-		                        long minutes = (reserv.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
-		                        msg = getString(R.string.trip_too_early_to_start, minutes);
-		                        if(minutes != 1){
-		                            msg += "s";
-		                        }
-		                    }
-		                    if(msg != null){
-		                        NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, msg);
-		                        dialog.show();
-		                    }
+							RescheduleTripTask rescheduleTask = new RescheduleTripTask(LandingActivity2.this, 
+									new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude()), null, reserv.getDestinationAddress(), 
+					        		reserv.getRid(), ehs);
+							rescheduleTask.callback = new RescheduleTripTask.Callback() {
+	                            @Override
+	                            public void run(Reservation reservation) {
+	                                Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
+	                                intent.putExtra("route", reservation.getRoute());
+	                                intent.putExtra("reservation", reservation);
+	                                startActivity(intent);
+	                            }
+	                        };
+	                        Misc.parallelExecute(rescheduleTask);
 						}
 					}
 				});
@@ -1410,8 +1413,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		                            Bundle extras = new Bundle();
 		                            extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
 		                            extras.putString("originAddr", EditAddress.CURRENT_LOCATION);
-		                            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(
-	                                    lastLocation.getLatitude(), lastLocation.getLongitude()));
+		                            GeoPoint origin = new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude());
+		                            extras.putParcelable(RouteActivity.ORIGIN_COORD, origin);
 		                            extras.putString("destAddr", addr);
 		                            extras.putParcelable(RouteActivity.DEST_COORD, gp);
 		                            intent.putExtras(extras);
@@ -1433,28 +1436,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
-						if(reserv.isEligibleTrip()) {
-							Intent contactSelect = new Intent(LandingActivity2.this, ContactsSelectActivity.class);
-							startActivityForResult(contactSelect, ON_MY_WAY);
-						}
-						else {
-							String msg = null;
-		                    if (reserv.hasExpired()) {
-		                        msg = getString(R.string.trip_has_expired);
-		                    }
-		                    else if (reserv.isTooEarlyToStart()) {
-		                        long minutes = (reserv.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
-		                        msg = getString(R.string.trip_too_early_to_start, minutes);
-		                        if(minutes != 1){
-		                            msg += "s";
-		                        }
-		                    }
-		                    if(msg != null){
-		                        NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, msg);
-		                        dialog.show();
-		                    }
-						}
+					    Intent contactSelect = new Intent(LandingActivity2.this, ContactsSelectActivity.class);
+						startActivityForResult(contactSelect, ON_MY_WAY);
 					}
 				});
 			}
@@ -2416,8 +2399,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             Intent intent = new Intent(this, RouteActivity.class);
             Bundle extras = new Bundle();
             extras.putString(RouteActivity.ORIGIN_ADDR, hasFromAddr?fromAddress:EditAddress.CURRENT_LOCATION);
-            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(
-                lastLocation.getLatitude(), lastLocation.getLongitude()));
+            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude()));
             extras.putString(RouteActivity.DEST_ADDR, address);
             extras.putParcelable(RouteActivity.DEST_COORD, gp);
             intent.putExtras(extras);
@@ -3088,14 +3070,34 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         if(requestCode == ON_MY_WAY && resultCode == Activity.RESULT_OK) {
         	final String emails = extras.getString(ValidationActivity.EMAILS);
         	final String phones = extras.getString(ValidationActivity.PHONES);
-        	Reservation reservation = (Reservation) findViewById(R.id.trip_info).getTag();
-            Intent validationActivity = new Intent(LandingActivity2.this, ValidationActivity.class);
-            validationActivity.putExtra("route", reservation.getRoute());
-            validationActivity.putExtra("reservation", reservation);
-            validationActivity.putExtra(ValidationActivity.EMAILS, emails);
-            validationActivity.putExtra(ValidationActivity.PHONES, phones);
-            startActivity(validationActivity);
-            SessionM.logAction("on_my_way");
+        	Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
+        	if(reserv.isEligibleTrip()) {
+        		Intent validationActivity = new Intent(LandingActivity2.this, ValidationActivity.class);
+                validationActivity.putExtra("route", reserv.getRoute());
+                validationActivity.putExtra("reservation", reserv);
+                validationActivity.putExtra(ValidationActivity.EMAILS, emails);
+                validationActivity.putExtra(ValidationActivity.PHONES, phones);
+                startActivity(validationActivity);
+                SessionM.logAction("on_my_way");
+        	}
+        	else {
+	        	RescheduleTripTask rescheduleTask = new RescheduleTripTask(LandingActivity2.this, 
+	        			new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude()), null, reserv.getDestinationAddress(), 
+		        		reserv.getRid(), ehs);
+				rescheduleTask.callback = new RescheduleTripTask.Callback() {
+	                @Override
+	                public void run(Reservation reservation) {
+	                	Intent validationActivity = new Intent(LandingActivity2.this, ValidationActivity.class);
+	                    validationActivity.putExtra("route", reservation.getRoute());
+	                    validationActivity.putExtra("reservation", reservation);
+	                    validationActivity.putExtra(ValidationActivity.EMAILS, emails);
+	                    validationActivity.putExtra(ValidationActivity.PHONES, phones);
+	                    startActivity(validationActivity);
+	                    SessionM.logAction("on_my_way");
+	                }
+	            };
+	            Misc.parallelExecute(rescheduleTask);
+        	}
         }
     }
     
@@ -3190,6 +3192,193 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
         }
     }
+    
+    static class RescheduleTripTask extends AsyncTask<Void, Void, Void> {
+        
+        interface Callback {
+            
+            void run(Reservation reserv);
+            
+        }
+        
+        CancelableProgressDialog dialog;
+        
+        String originAddress;
+        
+        String address;
+        
+        LandingActivity2 activity;
+        
+        Context ctx;
+        
+        GeoPoint origin;
+        
+        GeoPoint dest;
+        
+        ExceptionHandlingService ehs;
+        
+        Route _route;
+        
+        boolean startedMakingReserv;
+        
+        Callback callback = new Callback() {
+            @Override
+            public void run(Reservation reserv) {
+                Intent intent = new Intent(activity, ValidationActivity.class);
+                intent.putExtra("route", reserv.getRoute());
+                intent.putExtra("reservation", reserv);
+                activity.startActivity(intent);
+            }
+        };
+        
+        long id;
+        
+        RescheduleTripTask(LandingActivity2 ctx, GeoPoint origin, String originAddress, String destAddress, 
+        		long rescheduleId, ExceptionHandlingService ehs){
+            this.ehs = ehs;
+            this.ctx = ctx;
+            this.activity = ctx;
+            this.origin = origin;
+            this.originAddress = originAddress;
+            this.address = destAddress;
+            this.id = rescheduleId;
+            dialog = new CancelableProgressDialog(ctx, "Loading...");
+        }
+        
+        @Override
+        protected void onPreExecute() {
+            dialog.show();
+            if(this._route == null && origin == null){
+                activity.locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+                if (!activity.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    SystemService.alertNoGPS(activity, true, new SystemService.Callback() {
+                        @Override
+                        public void onNo() {
+                            if (dialog.isShowing()) {
+                                dialog.cancel();
+                            }
+                        }
+                    });
+                }
+                activity.locationListener = new LocationListener() {
+                    @Override
+                    public void onLocationChanged(Location location) {
+                        try{
+                            activity.locationManager.removeUpdates(this);
+                            dialog.dismiss();
+                            origin = new GeoPoint(location.getLatitude(), 
+                                location.getLongitude());
+                        }catch(Throwable t){}
+                    }
+                    @Override
+                    public void onStatusChanged(String provider, int status, Bundle extras) {}
+                    @Override
+                    public void onProviderEnabled(String provider) {}
+                    @Override
+                    public void onProviderDisabled(String provider) {}
+                };
+                activity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, activity.locationListener);
+            }
+        }
+        
+        @Override
+        protected Void doInBackground(Void... params) {
+            if(this._route == null && dest == null){
+                try {
+                    dest = Geocoding.lookup(ctx, address).get(0).getGeoPoint();
+                    String curLoc = DebugOptionsActivity.getCurrentLocation(ctx);
+                    if(StringUtils.isNotBlank(curLoc)){ 
+                        origin = Geocoding.lookup(ctx, curLoc).get(0).getGeoPoint();
+                    }
+                }
+                catch (Exception e) {
+                    ehs.registerException(e);
+                }
+            }
+            return null;
+        }
+        
+        @Override
+        protected void onPostExecute(Void result) {
+            if (ehs.hasExceptions()) {
+                if (dialog.isShowing()) {
+                    dialog.cancel();
+                }
+                ehs.reportExceptions();
+            }else{
+                makeReservation();
+            }
+        }
+        
+        void cancelTask(){
+            if (dialog.isShowing()) {
+                dialog.cancel();
+            }
+            cancel(true);
+        }
+        
+        void makeReservation(){
+            if(!startedMakingReserv && ((origin != null && dest != null) || _route != null)){
+                startedMakingReserv = true;
+                Misc.parallelExecute(new AsyncTask<Void, Void, Reservation>(){
+                    @Override
+                    protected Reservation doInBackground(Void... params) {
+                        Reservation reserv = null;
+                        AdjustableTime departureTime = new AdjustableTime();
+                        departureTime.setToNow();
+                        User user = User.getCurrentUser(ctx);
+                        try {
+                            Route route;
+                            if(_route == null){
+                                RouteFetchRequest routeReq = new RouteFetchRequest(user, 
+                                    origin, dest, departureTime.initTime().toMillis(false),
+                                    0, 0, originAddress, address);
+                                route = routeReq.execute(ctx).get(0);
+                                route.setAddresses(originAddress, address);
+                                route.setUserId(user.getId());
+                            }else{
+                               route = _route; 
+                            }
+                            ReservationRequest reservReq = new ReservationRequest(user, 
+                                route, ctx.getString(R.string.distribution_date), id);
+                            reservReq.execute(ctx);
+                            Log.d("LandingActivity2", "new reservation id : " + route.getId());
+                            ReservationListFetchRequest reservListReq = new ReservationListFetchRequest(user);
+                            reservListReq.invalidateCache(ctx);
+                            List<Reservation> reservs = reservListReq.execute(ctx);
+                            
+                            for (Reservation r : reservs) {
+                            	Log.d("LandingActivity2", "reserved id : " + r.getRid());
+                                if(((Long)r.getRid()).equals(route.getId())){
+                                    reserv = r;
+                                }
+                            }
+                        }
+                        catch(Exception e) {
+                            ehs.registerException(e);
+                        }
+                        return reserv;
+                    }
+                    protected void onPostExecute(Reservation reserv) {
+                        if (dialog.isShowing()) {
+                            dialog.cancel();
+                        }
+                        if (ehs.hasExceptions()) {
+                            ehs.reportExceptions();
+                        }else if(reserv != null && callback != null){
+                            callback.run(reserv);
+                        }
+                    }
+                });
+            }
+        }
+        
+    }
 
+    private void removeLocationUpdates(){
+        if(locationManager != null && locationListener != null){
+            locationManager.removeUpdates(locationListener); 
+        }
+    }
     
 }
