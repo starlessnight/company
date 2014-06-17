@@ -947,10 +947,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 	
 	private SpannableString formatArrivalTime(String arrivalTime) {
-		String arrivalDesc = "Arrive\n" + arrivalTime;
+		String arrivalDesc = "Arrive at\n" + arrivalTime;
 		SpannableString arrivalTimeSpan = SpannableString.valueOf(arrivalDesc);
 		arrivalTimeSpan.setSpan(new AbsoluteSizeSpan(ValidationActivity.this.getResources()
-				.getDimensionPixelSize(R.dimen.smaller_font)), 0, "Arrival".length(),
+				.getDimensionPixelSize(R.dimen.smaller_font)), 0, "Arrival at".length(),
 				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		int secondSpaceIndex = arrivalDesc.lastIndexOf(" ");
 		arrivalTimeSpan.setSpan(new AbsoluteSizeSpan(ValidationActivity.this.getResources()
@@ -975,7 +975,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    });
 	}
 	    
-	private static final String timeFormat = "hh:mm a";
+	private static final String timeFormat = "h:mm a";
 	    
 	private static String getFormatedEstimateArrivalTime(long time, int timzoneOffset){
 	    SimpleDateFormat dateFormat = new SimpleDateFormat(timeFormat);
