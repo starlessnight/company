@@ -1755,7 +1755,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                         }
                         if(DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(ValidationActivity.this)){
                             msg += (StringUtils.isBlank("")?"":"\n")
-                                    + "gps accuracy: " + accuracy;
+                                    + "gps accuracy: " + accuracy  + " meters";
                         }
                         ((TextView)findViewById(R.id.rerouting_debug_msg)).setText(msg);
                     }
