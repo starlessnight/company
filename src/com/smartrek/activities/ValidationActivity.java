@@ -1912,28 +1912,21 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             }
         }else{
     		// Ask the user if they want to quit
-            NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "Points won't validate if exiting too soon. You sure?");
+            NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "Your points won't validate if exiting too soon. Are you sure?");
         	dialog.setTitle("Exit?");
-        	dialog.setPositiveButtonText("OK");
+        	dialog.setVerticalOrientation(false);
+        	dialog.setPositiveButtonText("No");
+        	dialog.setNegativeButtonText("Yes");
         	dialog.setNegativeActionListener(new NotificationDialog2.ActionListener() {
 				@Override
 				public void onClick() {
-					// do nothing
+					doCancelValidation();
 				}
 			});
         	dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
-
 				@Override
 				public void onClick() {
-				    doCancelValidation();
-				}
-			});
-        	
-        	dialog.setReportProblemActionListener(new NotificationDialog2.ActionListener() {
-				@Override
-				public void onClick() {
-					Intent intent = new Intent(ValidationActivity.this, ReportProblemActivity.class);
-					startActivityForResult(intent, REPORT_PROBLEM);
+					// do nothing
 				}
 			});
         	dialog.show();
