@@ -2055,13 +2055,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	            }
 	            catch (NullPointerException e){}
 	            catch (Exception e) {
-	                ehs.registerException(e, "[" + resReq.getURL() + ", " + addReq.getURL() + "]\n" + e.getMessage());
+	                //ehs.registerException(e, "[" + resReq.getURL() + ", " + addReq.getURL() + "]\n" + e.getMessage());
 	            }
 	            return reservations;
 	        }
 	        @Override
 	        protected void onPostExecute(List<Reservation> reservations) {
-	            if (ehs.hasExceptions() || reservations == null || reservations.isEmpty()) { 
+	            if (ehs.hasExceptions() || reservations == null || reservations.isEmpty()) {
 	                MapView mapView = (MapView) findViewById(R.id.mapview);
 	                List<Overlay> mapOverlays = mapView.getOverlays();
 	                List<Overlay> need2Remove = getDrawedRouteOverlays(mapOverlays);
@@ -2426,7 +2426,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     addrs = request.execute(LandingActivity2.this);
                 }
                 catch (Exception e) {
-                    ehs.registerException(e, "[" + request.getURL() + "]\n" + e.getMessage());
+                    //ehs.registerException(e, "[" + request.getURL() + "]\n" + e.getMessage());
                 }
                 return addrs;
             }
@@ -2657,7 +2657,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     locs = req.execute(LandingActivity2.this);
                 }
                 catch (Exception e) {
-                    ehs.registerException(e, "[" + req.getURL() + "]\n" + e.getMessage());
+                    //ehs.registerException(e, "[" + req.getURL() + "]\n" + e.getMessage());
                 }
                 return locs;
             }
