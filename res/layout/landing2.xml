@@ -544,7 +544,7 @@
                     android:drawablePadding="10dp"
                     android:drawableRight="@drawable/menu_right_arrow"
                     android:singleLine="true"
-                    android:text="My metropia"
+                    android:text="My Metropia"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/smaller_font" />
 
