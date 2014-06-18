@@ -60,4 +60,16 @@ public class FeedbackActivity extends FragmentActivity{
 		Font.setTypeface(Font.getLight(assets), backButton);
 	}
 	
+	@Override
+	protected void onStop() {
+	    super.onStop();
+	    Misc.tripInfoPanelOnActivityStop(this);
+	}
+	
+	@Override
+	protected void onRestart() {
+	    super.onRestart();
+	    Misc.tripInfoPanelOnActivityRestart(this);
+	}
+	
 }

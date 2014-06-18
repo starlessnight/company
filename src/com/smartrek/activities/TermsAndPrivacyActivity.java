@@ -13,6 +13,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.smartrek.utils.Font;
+import com.smartrek.utils.Misc;
 
 public class TermsAndPrivacyActivity extends FragmentActivity{
 	
@@ -49,6 +50,7 @@ public class TermsAndPrivacyActivity extends FragmentActivity{
 
 					@Override
 					public void onAnimationEnd(Animation animation) {
+					    Misc.suppressTripInfoPanel(TermsAndPrivacyActivity.this);
 						Intent intent = new Intent(TermsAndPrivacyActivity.this, TermOfUseActivity.class);
 						startActivity(intent);
 					}
@@ -74,6 +76,7 @@ public class TermsAndPrivacyActivity extends FragmentActivity{
 
 					@Override
 					public void onAnimationEnd(Animation animation) {
+					    Misc.suppressTripInfoPanel(TermsAndPrivacyActivity.this);
 						Intent intent = new Intent(TermsAndPrivacyActivity.this, PrivacyPolicyActivity.class);
 						startActivity(intent);
 					}
@@ -89,6 +92,18 @@ public class TermsAndPrivacyActivity extends FragmentActivity{
 		
 		Font.setTypeface(boldFont, (TextView)findViewById(R.id.header));
 		Font.setTypeface(lightFont, termOfUseView, privacyPolicyView, backButton);
+	}
+	
+	@Override
+	protected void onStop() {
+	    super.onStop();
+        Misc.tripInfoPanelOnActivityStop(this);
+	}
+	
+	@Override
+	protected void onRestart() {
+	    super.onRestart();
+	    Misc.tripInfoPanelOnActivityRestart(this);
 	}
 
 }

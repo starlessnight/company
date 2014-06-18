@@ -16,6 +16,7 @@ import android.widget.ToggleButton;
 import com.smartrek.ui.ClickAnimation;
 import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.utils.Font;
+import com.smartrek.utils.Misc;
 
 public class HelpOurResearchActivity extends FragmentActivity {
 	
@@ -104,4 +105,17 @@ public class HelpOurResearchActivity extends FragmentActivity {
 		return ctx.getSharedPreferences(HELP_OUR_RESEARCH, MODE_PRIVATE)
 				.getBoolean(DRIVE_SMART, true);
 	}
+	
+	@Override
+	protected void onStop() {
+	    super.onStop();
+	    Misc.tripInfoPanelOnActivityStop(this);
+	}
+	
+	@Override
+	protected void onRestart() {
+	    super.onRestart();
+	    Misc.tripInfoPanelOnActivityRestart(this);
+	}
+	
 }

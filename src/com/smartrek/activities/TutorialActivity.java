@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.smartrek.utils.Font;
+import com.smartrek.utils.Misc;
 
 public class TutorialActivity extends FragmentActivity implements OnPageChangeListener {
 	
@@ -166,6 +167,18 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
 
     @Override
     public void onPageScrolled(int arg0, float arg1, int arg2) {
+    }
+    
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Misc.tripInfoPanelOnActivityStop(this);
+    }
+    
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Misc.tripInfoPanelOnActivityRestart(this);
     }
     
 }

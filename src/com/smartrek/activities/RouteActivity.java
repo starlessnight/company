@@ -656,10 +656,12 @@ public final class RouteActivity extends FragmentActivity {
 		                            
 		                            SessionM.logAction("make_reservation");
 		                            
+		                            Misc.suppressTripInfoPanel(RouteActivity.this);
 		                            Intent intent = new Intent(RouteActivity.this, 
 		                                LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
 		                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		                            startActivity(intent);
+		                            
 		                            finish();
 		                        }
 		                    }
@@ -679,6 +681,7 @@ public final class RouteActivity extends FragmentActivity {
             	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
+					    Misc.suppressTripInfoPanel(RouteActivity.this);
 						Intent contactSelect = new Intent(RouteActivity.this, ContactsSelectActivity.class);
 		            	startActivityForResult(contactSelect, ON_MY_WAY);
 					}
@@ -697,6 +700,7 @@ public final class RouteActivity extends FragmentActivity {
 						v.setClickable(false);
 						if(hasReserv){
 	                        deleteRescheduledReservation();
+	                        Misc.suppressTripInfoPanel(RouteActivity.this);
 	                        Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
 	                        intent.putExtra("route", reservation.getRoute());
 	                        intent.putExtra("reservation", reservation);
@@ -711,6 +715,7 @@ public final class RouteActivity extends FragmentActivity {
 	                            public void run(Reservation reservation) {
 	                                if(reservation.isEligibleTrip()){
 	                                    deleteRescheduledReservation();
+	                                    Misc.suppressTripInfoPanel(RouteActivity.this);
 	                                    Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
 	                                    intent.putExtra("route", reservation.getRoute());
 	                                    intent.putExtra("reservation", reservation);
@@ -890,7 +895,14 @@ public final class RouteActivity extends FragmentActivity {
 		super.onStop();
 		SessionM.onActivityStop(this);
 		EasyTracker.getInstance().activityStop(this);
+        Misc.tripInfoPanelOnActivityStop(this);
 	}
+	
+	@Override
+    protected void onRestart() {
+        super.onRestart();
+        Misc.tripInfoPanelOnActivityRestart(this);
+    }
 	
 	@Override
     protected void onPause() {
@@ -1147,6 +1159,7 @@ public final class RouteActivity extends FragmentActivity {
         	final String phones = extras.getString(ValidationActivity.PHONES);
         	if(hasReserv){
         	    deleteRescheduledReservation();
+        	    Misc.suppressTripInfoPanel(RouteActivity.this);
                 Intent validationActivity = new Intent(RouteActivity.this, ValidationActivity.class);
                 validationActivity.putExtra("route", reservation.getRoute());
                 validationActivity.putExtra("reservation", reservation);
@@ -1164,6 +1177,7 @@ public final class RouteActivity extends FragmentActivity {
                     public void run(Reservation reservation) {
                         if(reservation.isEligibleTrip()){
                             deleteRescheduledReservation();
+                            Misc.suppressTripInfoPanel(RouteActivity.this);
                             Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
                             intent.putExtra("route", reservation.getRoute());
                             intent.putExtra("reservation", reservation);
@@ -1368,12 +1382,12 @@ public final class RouteActivity extends FragmentActivity {
         	for (RouteTask task : routeTasks) {
                 task.cancel(true);
             }
+        	Misc.suppressTripInfoPanel(RouteActivity.this);
             Intent intent = new Intent(RouteActivity.this, ReservationConfirmationActivity.class);
             Bundle extras = new Bundle();
             extras.putParcelable("route", route);
             intent.putExtras(extras);
             startActivityForResult(intent, RESERVATION_CONFIRM);
-            
             return true;
         }
 

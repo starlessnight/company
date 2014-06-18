@@ -99,6 +99,7 @@ public final class ShareActivity extends FragmentActivity {
 							if (session != null && session.isOpened()) {
 								publishFB();
 							} else {
+							    Misc.suppressTripInfoPanel(ShareActivity.this);
 								fbPending = true;
 								fbLogin();
 							}
@@ -156,6 +157,7 @@ public final class ShareActivity extends FragmentActivity {
 								GooglePlusUtil.getErrorDialog(errorCode,
 										ShareActivity.this, 0).show();
 							} else {
+							    Misc.suppressTripInfoPanel(ShareActivity.this);
 								Intent shareIntent = new PlusShare.Builder(
 										ShareActivity.this).setType("text/plain")
 										.setText(shareText).getIntent();
@@ -175,6 +177,7 @@ public final class ShareActivity extends FragmentActivity {
 					@Override
 					public void onAnimationEnd() {
 						if (isNotLoading()) {
+						    Misc.suppressTripInfoPanel(ShareActivity.this);
 							Intent sendIntent = new Intent(Intent.ACTION_VIEW);
 							sendIntent.putExtra("sms_body", shareText);
 							sendIntent.setType("vnd.android-dir/mms-sms");
@@ -193,6 +196,7 @@ public final class ShareActivity extends FragmentActivity {
 					@Override
 					public void onAnimationEnd() {
 						if (isNotLoading()) {
+						    Misc.suppressTripInfoPanel(ShareActivity.this);
 							Intent sendIntent = new Intent(Intent.ACTION_SEND);
 							sendIntent.putExtra(Intent.EXTRA_SUBJECT, title);
 							sendIntent.putExtra(Intent.EXTRA_TEXT, shareText);
@@ -354,6 +358,18 @@ public final class ShareActivity extends FragmentActivity {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         uiHelper.onSaveInstanceState(outState);
+    }
+    
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Misc.tripInfoPanelOnActivityStop(this);
+    }
+    
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Misc.tripInfoPanelOnActivityRestart(this);
     }
 
 }

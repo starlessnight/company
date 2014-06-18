@@ -23,6 +23,7 @@ import com.smartrek.models.User;
 import com.smartrek.ui.ClickAnimation;
 import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.utils.Font;
+import com.smartrek.utils.Misc;
 import com.smartrek.utils.SessionM;
 
 public final class MapDisplayActivity extends FragmentActivity {
@@ -141,6 +142,7 @@ public final class MapDisplayActivity extends FragmentActivity {
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
+					    Misc.suppressTripInfoPanel(MapDisplayActivity.this);
 						Intent tutorialActivity = new Intent(MapDisplayActivity.this,
 								TutorialActivity.class);
 						tutorialActivity.putExtra(TutorialActivity.FROM, "setting");
@@ -157,6 +159,7 @@ public final class MapDisplayActivity extends FragmentActivity {
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
+					    Misc.suppressTripInfoPanel(MapDisplayActivity.this);
 						Intent intent = new Intent(MapDisplayActivity.this, TermsAndPrivacyActivity.class);
 						startActivity(intent);
 					}
@@ -172,6 +175,7 @@ public final class MapDisplayActivity extends FragmentActivity {
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
+					    Misc.suppressTripInfoPanel(MapDisplayActivity.this);
 						Intent intent = new Intent(MapDisplayActivity.this, HelpOurResearchActivity.class);
 						startActivity(intent);
 					}
@@ -277,6 +281,7 @@ public final class MapDisplayActivity extends FragmentActivity {
 		super.onStop();
 		EasyTracker.getInstance().activityStop(this);
 		SessionM.onActivityStop(this);
+        Misc.tripInfoPanelOnActivityStop(this);
 	}
 
 	@Override
@@ -298,6 +303,12 @@ public final class MapDisplayActivity extends FragmentActivity {
 	protected void onPause() {
 		super.onPause();
 		SessionM.onActivityPause(this);
+	}
+	
+	@Override
+	protected void onRestart() {
+	    super.onRestart();
+	    Misc.tripInfoPanelOnActivityRestart(this);
 	}
 
 }

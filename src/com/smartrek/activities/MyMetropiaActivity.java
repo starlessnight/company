@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.sessionm.api.PortalButton;
 import com.smartrek.utils.Dimension;
 import com.smartrek.utils.Font;
+import com.smartrek.utils.Misc;
 import com.smartrek.utils.SessionM;
 
 public class MyMetropiaActivity extends FragmentActivity{
@@ -82,6 +83,7 @@ public class MyMetropiaActivity extends FragmentActivity{
 		findViewById(R.id.share_my_co2_panel).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+			    Misc.suppressTripInfoPanel(MyMetropiaActivity.this);
 				Intent shareIntent = new Intent(MyMetropiaActivity.this, ShareActivity.class);
 				shareIntent.putExtra(ShareActivity.TITLE, "...");
 				shareIntent.putExtra(ShareActivity.SHARE_TEXT, "...");
@@ -93,6 +95,7 @@ public class MyMetropiaActivity extends FragmentActivity{
 		findViewById(R.id.share_my_score_panel).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+			    Misc.suppressTripInfoPanel(MyMetropiaActivity.this);
 				Intent shareIntent = new Intent(MyMetropiaActivity.this, ShareActivity.class);
 				shareIntent.putExtra(ShareActivity.TITLE, "...");
 				shareIntent.putExtra(ShareActivity.SHARE_TEXT, "...");
@@ -116,6 +119,7 @@ public class MyMetropiaActivity extends FragmentActivity{
 		findViewById(R.id.mPoint_button).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                Misc.suppressTripInfoPanel(MyMetropiaActivity.this);
                 ((PortalButton)findViewById(R.id.portalButton)).getButton().performClick();
             }
         });
@@ -190,6 +194,7 @@ public class MyMetropiaActivity extends FragmentActivity{
     public void onStop() {
         super.onStop();
         SessionM.onActivityStop(this);
+        Misc.tripInfoPanelOnActivityStop(this);
     }
 
     @Override
@@ -202,6 +207,12 @@ public class MyMetropiaActivity extends FragmentActivity{
     protected void onPause() {
         super.onPause();
         SessionM.onActivityPause(this);
+    }
+    
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Misc.tripInfoPanelOnActivityRestart(this);
     }
 
 }

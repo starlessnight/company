@@ -1999,7 +1999,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         }
     };
     
-    public static final String TRIP_INFO_CACHED_UPDATES = "TRIP_INFO_CACHED_UPDATES"; 
+    public static final String TRIP_INFO_CACHED_UPDATES = "TRIP_INFO_CACHED_UPDATES";
     
     private BroadcastReceiver tripInfoCachedUpdater = new BroadcastReceiver() {
         @Override
@@ -2007,6 +2007,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             LandingActivity.initializeIfNeccessary(context, new Runnable() {
                 @Override
                 public void run() {
+                    drawedReservId = Long.valueOf(-1);
+                    dismissReservId = Long.valueOf(-1);
                     refreshTripsInfo(true);
                 }
             });
@@ -2097,6 +2099,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
       mSensorManager.unregisterListener(this, accelerometer);
       mSensorManager.unregisterListener(this, magnetometer);
       closeGPS();
+      drawedReservId = Long.valueOf(-1);
+      dismissReservId = Long.valueOf(-1);
+      refreshTripsInfo(true);
     } 
     
     private void refreshTripsInfo(){
@@ -2104,50 +2109,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void refreshTripsInfo(final boolean cached){
-	    AsyncTask<Void, Void, List<Reservation>> tripTask = new AsyncTask<Void, Void, List<Reservation>>(){
-	        @Override
-	        protected List<Reservation> doInBackground(Void... params) {
-	            User user = User.getCurrentUser(LandingActivity2.this);
-	            List<Reservation> reservations= Collections.emptyList();
-	            ReservationListFetchRequest resReq = new ReservationListFetchRequest(user);
-	            FavoriteAddressFetchRequest addReq = new FavoriteAddressFetchRequest(user);
-	            if(!cached){
-                    resReq.invalidateCache(LandingActivity2.this);
-                    addReq.invalidateCache(LandingActivity2.this);
-                }
-	            try {
-	                List<com.smartrek.models.Address> addresses = addReq.execute(LandingActivity2.this);
-	                reservations = resReq.execute(LandingActivity2.this);
-	                for(Reservation r:reservations){
-	                    if(r.getOriginName() == null){
-	                        for (com.smartrek.models.Address a : addresses) {
-	                            if(a.getAddress().equals(r.getOriginAddress())){
-	                                r.setOriginName(a.getName());
-	                                break;
-	                            }
-	                        }
-	                    }
-	                    if(r.getDestinationName() == null){
-	                        for (com.smartrek.models.Address a : addresses) {
-	                            if(a.getAddress().equals(r.getDestinationAddress())){
-	                                r.setDestinationName(a.getName());
-	                                break;
-	                            }
-	                        }
-	                    }
-	                }
-                    removeTerminatedReservs(reservations);
-	                Collections.sort(reservations, Reservation.orderByDepartureTime());
-	            }
-	            catch (NullPointerException e){}
-	            catch (Exception e) {
-	                //ehs.registerException(e, "[" + resReq.getURL() + ", " + addReq.getURL() + "]\n" + e.getMessage());
-	            }
-	            return reservations;
-	        }
+        ReservationListTask task = new ReservationListTask(this, cached){
 	        @Override
 	        protected void onPostExecute(List<Reservation> reservations) {
-	            if (ehs.hasExceptions() || reservations == null || reservations.isEmpty()) {
+	            if (reservations == null || reservations.isEmpty()) {
 	                MapView mapView = (MapView) findViewById(R.id.mapview);
 	                List<Overlay> mapOverlays = mapView.getOverlays();
 	                List<Overlay> need2Remove = getDrawedRouteOverlays(mapOverlays);
@@ -2168,11 +2133,67 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	            }
 	        }
 	    };
-	    Misc.parallelExecute(tripTask);
+	    Misc.parallelExecute(task);
     }
     
-    private void removeTerminatedReservs(List<Reservation> reservations) {
-        List<Long> idsToRemove = DebugOptionsActivity.getTerminatedReservIds(this);
+    public static class ReservationListTask extends AsyncTask<Void, Void, List<Reservation>>{
+        
+        boolean cached;
+        
+        Context ctx;
+        
+        public ReservationListTask(Context ctx){
+            this(ctx, false);
+        }
+        
+        public ReservationListTask(Context ctx, boolean cached){
+            this.ctx = ctx;
+            this.cached = cached;
+        }
+        
+        @Override
+        protected List<Reservation> doInBackground(Void... params) {
+            User user = User.getCurrentUser(ctx);
+            List<Reservation> reservations= Collections.emptyList();
+            ReservationListFetchRequest resReq = new ReservationListFetchRequest(user);
+            FavoriteAddressFetchRequest addReq = new FavoriteAddressFetchRequest(user);
+            if(!cached){
+                resReq.invalidateCache(ctx);
+                addReq.invalidateCache(ctx);
+            }
+            try {
+                List<com.smartrek.models.Address> addresses = addReq.execute(ctx);
+                reservations = resReq.execute(ctx);
+                for(Reservation r:reservations){
+                    if(r.getOriginName() == null){
+                        for (com.smartrek.models.Address a : addresses) {
+                            if(a.getAddress().equals(r.getOriginAddress())){
+                                r.setOriginName(a.getName());
+                                break;
+                            }
+                        }
+                    }
+                    if(r.getDestinationName() == null){
+                        for (com.smartrek.models.Address a : addresses) {
+                            if(a.getAddress().equals(r.getDestinationAddress())){
+                                r.setDestinationName(a.getName());
+                                break;
+                            }
+                        }
+                    }
+                }
+                removeTerminatedReservs(ctx, reservations);
+                Collections.sort(reservations, Reservation.orderByDepartureTime());
+            }
+            catch (NullPointerException e){}
+            catch (Exception e) {
+            }
+            return reservations;
+        }
+    }
+    
+    private static void removeTerminatedReservs(Context ctx, List<Reservation> reservations) {
+        List<Long> idsToRemove = DebugOptionsActivity.getTerminatedReservIds(ctx);
         Iterator<Reservation> iter = reservations.iterator();
         while(iter.hasNext()){
             Reservation r = iter.next();

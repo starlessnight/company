@@ -1,10 +1,14 @@
 package com.smartrek.utils;
 
+import java.util.List;
+
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -22,6 +26,9 @@ import android.widget.TextView;
 
 import com.google.android.gcm.GCMRegistrar;
 import com.smartrek.activities.GCMIntentService;
+import com.smartrek.activities.LandingActivity2;
+import com.smartrek.activities.LandingActivity2.ReservationListTask;
+import com.smartrek.models.Reservation;
 
 public class Misc {
 
@@ -141,6 +148,53 @@ public class Misc {
             Ringtone r = RingtoneManager.getRingtone(ctx, notification);
             r.play();
         } catch (Throwable e) {}
+    }
+    
+    private static final String INIT_TRIP_INFO_PANEL = "INIT_TRIP_INFO_PANEL";
+    
+    private static final String REMOVE_TRIP_INFO_PANEL = "REMOVE_TRIP_INFO_PANEL";
+    
+    public static void suppressTripInfoPanel(Activity activity) {
+        activity.getPreferences(Context.MODE_PRIVATE).edit()
+            .putBoolean(REMOVE_TRIP_INFO_PANEL, true)
+            .commit();
+    }
+    
+    public static void tripInfoPanelOnActivityStop(final Activity activity){
+        final SharedPreferences pref = activity.getPreferences(Context.MODE_PRIVATE);
+        pref.edit()
+            .putBoolean(INIT_TRIP_INFO_PANEL, false)
+            .commit();
+        if(!pref.getBoolean(REMOVE_TRIP_INFO_PANEL, false)){
+            ReservationListTask task = new ReservationListTask(activity, true){
+                @Override
+                protected void onPostExecute(List<Reservation> reservations) {
+                    if (reservations != null && !reservations.isEmpty()) {
+                        pref.edit()
+                            .putBoolean(INIT_TRIP_INFO_PANEL, true)
+                            .commit();
+                        activity.sendBroadcast(new Intent(LandingActivity2.TRIP_INFO_CACHED_UPDATES));
+                    } 
+                }
+            };
+            Misc.parallelExecute(task);
+        }
+        pref.edit()
+            .putBoolean(REMOVE_TRIP_INFO_PANEL, false)
+            .commit();
+    }
+    
+    public static void tripInfoPanelOnActivityRestart(final Activity activity){
+        SharedPreferences pref = activity.getPreferences(Context.MODE_PRIVATE);
+        if(pref.getBoolean(INIT_TRIP_INFO_PANEL, false)){
+            pref.edit()
+                .putBoolean(REMOVE_TRIP_INFO_PANEL, true)
+                .commit();
+            Intent landing= new Intent(activity, LandingActivity2.class);
+            landing.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            activity.startActivity(landing);
+            activity.finish();
+        }
     }
     
 }
