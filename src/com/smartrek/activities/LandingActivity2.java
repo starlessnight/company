@@ -2138,7 +2138,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	        }
 	        tripInfoPanel.setBackgroundColor(getResources().getColor(backgroundColor));
 	        tripInfoPanel.setTag(reserv);
-	        tripInfoPanel.findViewById(R.id.multiple_trip_menu).setVisibility(reservations.size()-curReservIdx>1?View.VISIBLE:View.GONE);
 	        TextView tripStartDescView = (TextView)tripInfoPanel.findViewById(R.id.trip_start_desc);
 	        tripStartDescView.setText(nextTripInfoDesc);
 	        TextView tripDurationDesc = (TextView)tripInfoPanel.findViewById(R.id.trip_duration_desc);

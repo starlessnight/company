@@ -23,8 +23,7 @@
                 android:layout_height="match_parent"
                 android:layout_gravity="right|center"
                 android:layout_margin="10dp"
-                android:src="@drawable/multi_trip_icon"
-                android:visibility="gone" />
+                android:src="@drawable/multi_trip_icon"/>
         </FrameLayout>
 
         <LinearLayout
