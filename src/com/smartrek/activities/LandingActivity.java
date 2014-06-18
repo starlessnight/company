@@ -1230,6 +1230,8 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             
             void run(Reservation reserv);
             
+            void runOnFail();
+            
         }
         
         CancelableProgressDialog dialog;
@@ -1260,6 +1262,10 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                 intent.putExtra("reservation", reserv);
                 activity.startActivity(intent);
             }
+
+			@Override
+			public void runOnFail() {
+			}
         };
         
         ShortcutNavigationTask(LandingActivity ctx, ExceptionHandlingService ehs){
@@ -1420,6 +1426,9 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                         }
                         if (ehs.hasExceptions()) {
                             ehs.reportExceptions();
+                            if(callback!=null) {
+                            	callback.runOnFail();
+                            }
                         }else if(reserv != null && callback != null){
                             callback.run(reserv);
                         }

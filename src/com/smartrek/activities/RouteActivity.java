@@ -614,11 +614,13 @@ public final class RouteActivity extends FragmentActivity {
         final TextView reserveView = (TextView) findViewById(R.id.reserve);
         reserveView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
+            	v.setClickable(false);
             	ClickAnimation clickAnimation = new ClickAnimation(RouteActivity.this, v);
             	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
+						v.setClickable(false);
 						final Route route = (Route) reserveView.getTag();
 		                AsyncTask<Void, Void, Long> task = new AsyncTask<Void, Void, Long>(){
 		                    @Override
@@ -639,6 +641,7 @@ public final class RouteActivity extends FragmentActivity {
 		                    protected void onPostExecute(Long result) {
 		                        if (ehs.hasExceptions()) {
 		                            ehs.reportExceptions();
+		                            v.setClickable(true);
 		                        }
 		                        else {
 		                            deleteRescheduledReservation();
@@ -685,11 +688,13 @@ public final class RouteActivity extends FragmentActivity {
         final TextView letsGoView = (TextView) findViewById(R.id.lets_go);
         letsGoView.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
+            	v.setClickable(false);
             	ClickAnimation clickAnimation = new ClickAnimation(RouteActivity.this, v);
             	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
+						v.setClickable(false);
 						if(hasReserv){
 	                        deleteRescheduledReservation();
 	                        Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
@@ -728,8 +733,14 @@ public final class RouteActivity extends FragmentActivity {
 	                                        NotificationDialog2 dialog = new NotificationDialog2(RouteActivity.this, msg);
 	                                        dialog.show();
 	                                    }
+	                                    v.setClickable(true);
 	                                }
 	                            }
+
+								@Override
+								public void runOnFail() {
+									v.setClickable(true);
+								}
 	                        };
 	                        Misc.parallelExecute(task);
 	                    }
@@ -1179,6 +1190,11 @@ public final class RouteActivity extends FragmentActivity {
                             }
                         }
                     }
+
+					@Override
+					public void runOnFail() {
+						// do nothing
+					}
                 };
                 Misc.parallelExecute(task);
             }

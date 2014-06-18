@@ -213,6 +213,11 @@ public final class DebugOptionsActivity extends Activity {
                                         startActivity(intent);
                                         finish();
                                     }
+
+									@Override
+									public void runOnFail() {
+										//do nothing
+									}
                                 };
                                 Misc.parallelExecute(task);
                             }
