@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     	android:layout_width="match_parent"
 	    android:layout_height="match_parent"
-	    android:background="@color/light_gray_background">
+	    android:background="@android:color/white">
 	    
 	<ScrollView
 	    android:layout_width="match_parent"
@@ -144,11 +144,11 @@
 		      	    android:layout_marginRight="10dp" 
 		            android:text="@string/signup"
 		            android:textColor="@android:color/white"
-		            android:textSize="@dimen/smaller_font"
-		            android:paddingTop="10dp"
-		            android:paddingBottom="10dp"
-		            style="@style/OrangeButton"
-		    />
+		            android:textSize="20dp"
+		            android:paddingTop="7dp"
+		            android:paddingBottom="7dp"
+		            android:gravity="center"
+		            android:background="@drawable/orange_background_with_border"/>
 	        
 	        <TextView
 		           android:id="@+id/terms"
