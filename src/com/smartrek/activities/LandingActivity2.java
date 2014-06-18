@@ -1583,10 +1583,15 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             		                Misc.parallelExecute(delTask);
                                 }
                                 reservationAdapter.notifyDataSetChanged();
+                                if(reservationAdapter.isEmpty()) {
+                                	showNoReservedTrips();
+                                }
                                 refreshTripsInfo();
                             }
                          });
         reservationListView.setOnTouchListener(touchListener);
+        TextView noReservedTripView = (TextView) findViewById(R.id.no_reserved_trips);
+        Font.setTypeface(boldFont, noReservedTripView);
     }
     
     private void unSelectAllIcon() {
@@ -2072,6 +2077,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                hideTripInfoPanel();
 	                setReservMenuAndTripInfoStatus(false);
 	                tripNotifyIcon.setVisibility(View.GONE);
+	                showNoReservedTrips();
 	            } 
 	            else{
                     Reservation reserv = reservations.get(0);
@@ -2191,7 +2197,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		for(int i = curReservIdx ; i < reservations.size() ; i++) {
     			reservationAdapter.add(reservations.get(i));
     		}
+    		reservationListView.setVisibility(View.VISIBLE);
+    		findViewById(R.id.no_reserved_trips).setVisibility(View.GONE);
     	}
+    	else {
+    		showNoReservedTrips();
+    	}
+    }
+    
+    private void showNoReservedTrips() {
+    	reservationListView.setVisibility(View.GONE);
+		findViewById(R.id.no_reserved_trips).setVisibility(View.VISIBLE);
     }
     
     private void showTripInfoPanel(boolean force) {
