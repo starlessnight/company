@@ -199,6 +199,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private static final String NO_AUTOCOMPLETE_RESULT = "No results found.";
     
+    private static final String SEARCHING = "Searching...";
+    
     private static final String TAP_TO_ADD_FAVORITE = "Tap to Add Favorite";
     
     private TextView from;
@@ -381,7 +383,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             	Address selected = (Address)parent.getItemAtPosition(position);
-            	if(StringUtils.isNotBlank(selected.getAddress())) {
+            	if(SEARCHING.equals(selected.getName())) {
+            		//do nothing
+            	}
+            	else if(StringUtils.isNotBlank(selected.getAddress())) {
             		searchBox.setText(selected.getAddress());
 	                searchAddress(selected.getAddress(), true);
 	                searchBox.setText("");
@@ -405,7 +410,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Address selected = (Address)parent.getItemAtPosition(position);
-                if(StringUtils.isNotBlank(selected.getAddress())) {
+                if(SEARCHING.equals(selected.getName())) {
+            		//do nothing
+            	}
+            	else if(StringUtils.isNotBlank(selected.getAddress())) {
                     fromSearchBox.setText(selected.getAddress());
                     InputMethodManager imm = (InputMethodManager)getSystemService(
                             Context.INPUT_METHOD_SERVICE);
@@ -449,6 +457,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 final String addrInput = text.toString();
                 if(StringUtils.isNotBlank(addrInput)) {
                 	AsyncTask<Void, Void, List<Address>> searchPoiTask = new AsyncTask<Void, Void, List<Address>>(){
+                		@Override
+                		protected void onPreExecute() {
+                			
+                		}
+                		
         				@Override
         				protected List<Address> doInBackground(Void... params) {
         					List<Address> addresses = new ArrayList<Address>();
@@ -488,7 +501,29 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 else {
                 	clearSearchResult();
                 }
-			}}, 500);
+			}
+
+			@Override
+			public void onTextChanging() {
+				if(searchAddresses.isEmpty()) {
+					Address searching = new Address();
+					searching.setName(SEARCHING);
+					searching.setAddress("");
+					searchAddresses.add(searching);
+				}
+				else if(searchAddresses.size() == 1) {
+					Address existed = searchAddresses.get(0);
+					if(existed.getName().equals(TAP_TO_ADD_FAVORITE) || existed.getName().equals(NO_AUTOCOMPLETE_RESULT)) {
+						searchAddresses.clear();
+						Address searching = new Address();
+						searching.setName(SEARCHING);
+						searching.setAddress("");
+						searchAddresses.add(searching);
+					}
+				}
+				refreshSearchAutoCompleteData();
+			}
+		}, 500);
         
         searchBox.addTextChangedListener(delayTextWatcher);
         searchBoxClear.setOnClickListener(new OnClickListener() {
@@ -550,7 +585,29 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 else {
                     clearFromSearchResult();
                 }
-            }}, 500);
+            }
+            
+            @Override
+			public void onTextChanging() {
+				if(fromSearchAddresses.isEmpty()) {
+					Address searching = new Address();
+					searching.setName(SEARCHING);
+					searching.setAddress("");
+					fromSearchAddresses.add(searching);
+				}
+				else if(fromSearchAddresses.size() == 1) {
+					Address existed = fromSearchAddresses.get(0);
+					if(existed.getName().equals(TAP_TO_ADD_FAVORITE) || existed.getName().equals(NO_AUTOCOMPLETE_RESULT)) {
+						fromSearchAddresses.clear();
+						Address searching = new Address();
+						searching.setName(SEARCHING);
+						searching.setAddress("");
+						fromSearchAddresses.add(searching);
+					}
+				}
+				refreshFromSearchAutoCompleteData();
+			}
+        }, 500);
         fromSearchBox.addTextChangedListener(fromDelayTextWatcher);
         fromSearchBoxClear.setOnClickListener(new OnClickListener() {
             @Override
@@ -792,7 +849,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             	Address selected = (Address)parent.getItemAtPosition(position);
-            	if(StringUtils.isNotBlank(selected.getAddress())) {
+            	if(SEARCHING.equals(selected.getName())) {
+            		//do nothing
+            	}
+            	else if(StringUtils.isNotBlank(selected.getAddress())) {
             		favSearchBox.setText(selected.getAddress());
             		searchFavAddress(selected.getAddress(), true);
 	                InputMethodManager imm = (InputMethodManager)getSystemService(
@@ -863,6 +923,27 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             		refreshFavAutoCompleteData();
                 }
 			}
+			
+			 @Override
+				public void onTextChanging() {
+					if(favSearchAddresses.isEmpty()) {
+						Address searching = new Address();
+						searching.setName(SEARCHING);
+						searching.setAddress("");
+						favSearchAddresses.add(searching);
+					}
+					else if(favSearchAddresses.size() == 1) {
+						Address existed = favSearchAddresses.get(0);
+						if(existed.getName().equals(NO_AUTOCOMPLETE_RESULT)) {
+							favSearchAddresses.clear();
+							Address searching = new Address();
+							searching.setName(SEARCHING);
+							searching.setAddress("");
+							favSearchAddresses.add(searching);
+						}
+					}
+					refreshFavAutoCompleteData();
+				}
 		}, 500);
         
         favSearchBox.addTextChangedListener(delayFavTextWatcher);

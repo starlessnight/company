@@ -8,6 +8,7 @@ public class DelayTextWatcher implements TextWatcher {
 	
 	public interface TextChangeListener {
 		public void onTextChanged(CharSequence text);
+		public void onTextChanging();
 	}
 	
 	private Handler delayHandler;
@@ -35,6 +36,9 @@ public class DelayTextWatcher implements TextWatcher {
 		delayHandler.removeCallbacks(currentTask);
         currentTask = new NotificationRunnable(s);
         delayHandler.postDelayed(currentTask, delay);
+        if(listener!=null){
+        	listener.onTextChanging();
+        }
 	}
 	
 	private class NotificationRunnable implements Runnable {
