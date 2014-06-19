@@ -4,7 +4,11 @@
     android:layout_height="fill_parent"
     android:keepScreenOn="true" >
 
-    <include layout="@layout/mapview"> 
+    <include layout="@layout/mapview"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/navigation_view"
+        android:layout_marginTop="-65dp"> 
     </include>
 
     <com.smartrek.ui.NavigationView
