@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -32,7 +31,6 @@ import android.widget.TextView;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
-import com.smartrek.requests.Request.Page;
 import com.smartrek.requests.UserIdRequest;
 import com.smartrek.tasks.LoginTask;
 import com.smartrek.utils.ExceptionHandlingService;
@@ -63,7 +61,8 @@ public final class LoginActivity extends Activity implements OnClickListener,
         forgetPwd.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(Request.getPageUrl(Page.reset_password))));
+                Intent intent = new Intent(LoginActivity.this, ForgotPwdActivity.class);
+                startActivity(intent);
             }
         });
         

@@ -226,6 +226,10 @@
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
             android:theme="@android:style/Theme.NoTitleBar" />
         <activity
+            android:name=".ForgotPwdActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
             android:name=".MyMetropiaActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
             android:theme="@android:style/Theme.NoTitleBar"
