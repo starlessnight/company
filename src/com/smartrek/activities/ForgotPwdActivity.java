@@ -31,6 +31,7 @@ public class ForgotPwdActivity extends FragmentActivity{
 		});
 		
 		final WebView webviewContent = (WebView) findViewById(R.id.webview_content);
+		webviewContent.setWebViewClient(Misc.getSSLTolerentWebViewClient());
         webviewContent.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {

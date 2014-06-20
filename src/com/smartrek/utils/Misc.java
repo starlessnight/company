@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.net.http.SslError;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.PowerManager;
@@ -21,6 +22,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.webkit.SslErrorHandler;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -195,6 +199,15 @@ public class Misc {
             activity.startActivity(landing);
             activity.finish();
         }
+    }
+    
+    public static WebViewClient getSSLTolerentWebViewClient(){
+        return new WebViewClient(){
+            @Override
+            public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+                handler.proceed();
+            }  
+        };
     }
     
 }
