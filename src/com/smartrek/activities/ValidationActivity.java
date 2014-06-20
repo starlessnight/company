@@ -1250,7 +1250,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     									msg = "msg not sent, "
     											+ ehs.popException().getMessage();
     								} else {
-    									msg = "the On My Way msg sent";
+    									msg = "On My Way sent";
     								}
     								Toast.makeText(ValidationActivity.this, msg,
     										Toast.LENGTH_LONG).show();
