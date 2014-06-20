@@ -13,6 +13,8 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -78,39 +80,52 @@ public final class TimeColumn extends FrameLayout {
 		timeColumnLayout.setOrientation(LinearLayout.VERTICAL);
 
 		DisplayMetrics dm = getResources().getDisplayMetrics();
-		topSpacing = new View(getContext());
-        LinearLayout.LayoutParams topSpacingLp = new LinearLayout.LayoutParams(
-            Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(15, dm)); 
-        topSpacing.setLayoutParams(topSpacingLp);
-        topSpacing.setBackgroundResource(R.drawable.timetable_scale);
-        timeColumnLayout.addView(topSpacing);
+//		topSpacing = new View(getContext());
+//        LinearLayout.LayoutParams topSpacingLp = new LinearLayout.LayoutParams(
+//            Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(15, dm)); 
+//        topSpacing.setLayoutParams(topSpacingLp);
+//        topSpacing.setBackgroundResource(R.drawable.timetable_scale);
+//        timeColumnLayout.addView(topSpacing);
+		
+		FrameLayout departureTimeLayout = new FrameLayout(getContext());
+		FrameLayout.LayoutParams departureTimeLayoutLp = new FrameLayout.LayoutParams(Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(34, dm));
+		departureTimeLayout.setLayoutParams(departureTimeLayoutLp);
+		departureTimeLayout.setBackgroundColor(Color.parseColor("#AAB3B3B3"));
+		
+		ImageView backgroundImg = new ImageView(getContext());
+		FrameLayout.LayoutParams imgLp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.FILL_PARENT);
+		backgroundImg.setLayoutParams(imgLp);
+		backgroundImg.setScaleType(ScaleType.FIT_XY);
+		backgroundImg.setBackgroundResource(R.drawable.time_table_gradiun);
+		departureTimeLayout.addView(backgroundImg);
 		
 		departureTimeButton = new TimeButton(getContext(), 0, true, departureTimeFont);
-		departureTimeButton.setGravity(Gravity.TOP|Gravity.CENTER);
+		departureTimeButton.setGravity(Gravity.CENTER);
 		departureTimeButton.setPadding(0, 0, 0, 0);
-		departureTimeButton.setHeight(Dimension.dpToPx(15, dm));
-		timeColumnLayout.addView(departureTimeButton);
+		departureTimeButton.setHeight(Dimension.dpToPx(34, dm));
+		departureTimeLayout.addView(departureTimeButton);
+		timeColumnLayout.addView(departureTimeLayout);
 		
 		buttonSpacing = new View(getContext());
         LinearLayout.LayoutParams buttonSpacingLp = new LinearLayout.LayoutParams(
-            Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(5, dm)); 
+            Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(1, dm)); 
         buttonSpacing.setLayoutParams(buttonSpacingLp);
         timeColumnLayout.addView(buttonSpacing);
 		
         timeButtonLayout = new FrameLayout(getContext());
         LinearLayout.LayoutParams timeButtonLp = new LinearLayout.LayoutParams(Dimension.dpToPx(TimeButton.WIDTH, dm), LayoutParams.WRAP_CONTENT, 0);
-        int stripeMargin = Dimension.dpToPx(2, dm);
+        int stripeMargin = Dimension.dpToPx(0, dm);
         timeButtonLp.leftMargin = stripeMargin;
         timeButtonLp.rightMargin = stripeMargin;
         timeButtonLayout.setLayoutParams(timeButtonLp);
         
         mask = new View(getContext());
-        int maskHeight = TimeButton.HEIGHT * 2 + 25 + spacingHeight;                
+        int maskHeight = TimeButton.HEIGHT * 2 + 25 + spacingHeight + stripeHieght;                
         FrameLayout.LayoutParams maskLp = new FrameLayout.LayoutParams(Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(maskHeight, dm));
         maskLp.gravity = Gravity.TOP;
+        maskLp.leftMargin = Dimension.dpToPx(1, dm);
         mask.setLayoutParams(maskLp);
-        mask.setBackgroundColor(TimeButton.IN_PREGRESS_BACKGROUND_COLOR);
-        
+        mask.setY(Dimension.dpToPx(TimeButton.HEIGHT * 2 + spacingHeight, dm));
         timeButtonLayout.addView(mask);
         
         LinearLayout lowerPart = new LinearLayout(getContext());
@@ -131,7 +146,7 @@ public final class TimeColumn extends FrameLayout {
 		lowerPart.addView(bottomSpacing);
         
         mpointView = new TextView(getContext());
-        mpointView.setTextColor(Color.parseColor("#606163"));
+        mpointView.setTextColor(Color.WHITE);
         mpointView.setTextSize(TypedValue.COMPLEX_UNIT_PX, Dimension.dpToPx(TimeButton.largeFont, dm));
         mpointView.setIncludeFontPadding(false);
         mpointView.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.BOTTOM);
@@ -204,24 +219,22 @@ public final class TimeColumn extends FrameLayout {
 		stripeLp.width = width;
 		bottomStripe.setLayoutParams(stripeLp);
         if(color != null){
-        	if(State.Unknown.name().equals(originalState) && selected) { // initial
-    	        mask.setVisibility(View.INVISIBLE);
-        	}
-        	else if(selected) {
-	        	TranslateAnimation slideUp = new TranslateAnimation(0, 0, 0, Dimension.dpToPx(-1 * mask.getHeight(), dm));
+        	if(selected) {
+//        		ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(mask, "translateY", Dimension.dpToPx(TimeButton.HEIGHT * 2 + spacingHeight, dm), 0);
+        		mask.setY(0);
+	        	TranslateAnimation slideUp = new TranslateAnimation(0, 0, Dimension.dpToPx(TimeButton.HEIGHT * 2 + spacingHeight, dm), 0);
 	        	slideUp.setDuration(animationDuration);
 	        	slideUp.setFillAfter(true);
 	        	mask.startAnimation(slideUp);
         	}
         	else if(State.Selected.name().equals(originalState)){
-        		TranslateAnimation slideDown = new TranslateAnimation(0, 0, Dimension.dpToPx(-1 * mask.getHeight(), dm), 0);
+        		TranslateAnimation slideDown = new TranslateAnimation(0, 0, 0, Dimension.dpToPx(TimeButton.HEIGHT * 2 + spacingHeight, dm));
             	slideDown.setDuration(animation?animationDuration:0);
             	slideDown.setFillAfter(true);
             	mask.startAnimation(slideDown);
         	}
         }
         int textColor = Color.parseColor("#606163");
-        mpointView.setTextColor(selected?Color.WHITE:textColor);
         arriveButton.setTextColor(selected?Color.WHITE:textColor);
         durationButton.setTextColor(selected?Color.WHITE:textColor);
 	}
@@ -301,7 +314,8 @@ public final class TimeColumn extends FrameLayout {
         this.color = color;
         if(color != null){
 //            bottomStripe.setBackgroundColor(Color.parseColor(color));
-        	timeButtonLayout.setBackgroundColor(Color.parseColor(color));
+//        	timeButtonLayout.setBackgroundColor(Color.parseColor(color));
+        	mask.setBackgroundColor(Color.parseColor(color));
             postInvalidate();
         }
     }

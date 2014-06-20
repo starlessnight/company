@@ -21,7 +21,7 @@ public final class TimeButton extends TextView {
 	public static final int WIDTH = 65;
 	public static final int HEIGHT = 27;
 	public static final int SMALL_HEIGHT = 18;
-	public static final int IN_PREGRESS_BACKGROUND_COLOR = Color.parseColor("#f1f1f2");
+	public static final int IN_PREGRESS_BACKGROUND_COLOR = Color.parseColor("#aaffffff");
 	
 	private static final int largeTopOffset = 8;
 	private static final int smallTopOffset = 8;
@@ -98,13 +98,13 @@ public final class TimeButton extends TextView {
 		setIncludeFontPadding(false);
 		setPadding(0, Dimension.dpToPx(large?largeTopOffset:smallTopOffset, dm), 0, 0);
 		
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setColor(res.getColor(R.color.secondary_font));
-        paint.setStrokeWidth(res.getDimension(R.dimen.timetable_separator_width));
-        
-        paint2.setStyle(Paint.Style.STROKE);
-        paint2.setColor(0xFFD3E0D3);
-        paint2.setStrokeWidth(1);
+//        paint.setStyle(Paint.Style.STROKE);
+//        paint.setColor(res.getColor(R.color.secondary_font));
+//        paint.setStrokeWidth(res.getDimension(R.dimen.timetable_separator_width));
+//        
+//        paint2.setStyle(Paint.Style.STROKE);
+//        paint2.setColor(0xFFD3E0D3);
+//        paint2.setStrokeWidth(1);
 	}
 	
 	public State getState() {

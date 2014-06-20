@@ -122,6 +122,7 @@
             android:name=".RouteActivity"
             android:hardwareAccelerated="false"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
+            android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar"
             android:label="Select Route" />
         <activity

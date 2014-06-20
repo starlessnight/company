@@ -2,11 +2,13 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:background="@android:color/white" >
     
-    <FrameLayout android:layout_weight="1"
-	        android:layout_width="match_parent"
-	        android:layout_height="0dp">
+    <RelativeLayout 
+        android:layout_weight="1"
+	    android:layout_width="match_parent"
+	    android:layout_height="0dp">
         <include layout="@layout/mapview" />
         <ImageView
             android:id="@+id/back_button"
@@ -16,10 +18,14 @@
             android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:layout_gravity="top|left"
-		/>        
-    </FrameLayout>
-    
-    <include layout="@layout/time_layout" />
+		/>
+        
+        <include
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent" 
+            layout="@layout/time_layout"
+            android:layout_alignParentBottom="true" />
+    </RelativeLayout>
     
     <LinearLayout
           	android:id="@+id/lets_go_panel"
