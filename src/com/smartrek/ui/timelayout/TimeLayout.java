@@ -120,7 +120,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     }
     
     public int getColumnWidth() {
-    	return Dimension.dpToPx(TimeButton.WIDTH, getResources().getDisplayMetrics());
+    	return TimeButton.WIDTH;
     }
     
     public State getColumnState(int column) {

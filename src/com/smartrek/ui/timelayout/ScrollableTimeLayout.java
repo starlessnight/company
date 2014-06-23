@@ -3,9 +3,12 @@ package com.smartrek.ui.timelayout;
 import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
+import android.view.Display;
 
 import com.smartrek.ui.ObservableScrollView;
 import com.smartrek.ui.ScrollViewListener;
+import com.smartrek.utils.Dimension;
 
 /**
  * This is a wrapper around `TimeLayout`. The primary responsibility of this
@@ -16,7 +19,7 @@ import com.smartrek.ui.ScrollViewListener;
 public final class ScrollableTimeLayout extends ObservableScrollView implements ScrollViewListener {
 
 	// FIXME: This must be loaded dynamically
-	private int screenWidth = 450;
+	private static int screenWidth = 450;
 	
 	private TimeLayout timeLayout;
 	
@@ -83,6 +86,10 @@ public final class ScrollableTimeLayout extends ObservableScrollView implements 
 			}
 			timeLayout.setCurrentVisibleColumns(visibleColumn);
 		}
+	}
+	
+	public static void initScreenWidth(DisplayMetrics dm, Display display) {
+		screenWidth = display.getWidth() - Dimension.dpToPx(70, dm);
 	}
 
 }

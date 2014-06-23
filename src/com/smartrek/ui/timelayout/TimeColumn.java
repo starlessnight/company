@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import org.apache.commons.lang3.StringUtils;
+
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.DisplayMetrics;
@@ -32,17 +34,11 @@ import com.smartrek.utils.Font;
  */
 public final class TimeColumn extends FrameLayout {
 	
-    private static final int spacingHeight = 7;
-    private static final int stripeHieght = 7;
-    
 	private TimeButton departureTimeButton;
 	private TimeButton arriveButton;
 	private TimeButton durationButton;
 	private ProgressBar progressBar;
-	private View bottomSpacing;
-	private View bottomStripe;
 	private View buttonSpacing;
-	private View  topSpacing;
 	private FrameLayout timeButtonLayout;
 	private View mask;
 	
@@ -80,15 +76,9 @@ public final class TimeColumn extends FrameLayout {
 		timeColumnLayout.setOrientation(LinearLayout.VERTICAL);
 
 		DisplayMetrics dm = getResources().getDisplayMetrics();
-//		topSpacing = new View(getContext());
-//        LinearLayout.LayoutParams topSpacingLp = new LinearLayout.LayoutParams(
-//            Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(15, dm)); 
-//        topSpacing.setLayoutParams(topSpacingLp);
-//        topSpacing.setBackgroundResource(R.drawable.timetable_scale);
-//        timeColumnLayout.addView(topSpacing);
 		
 		FrameLayout departureTimeLayout = new FrameLayout(getContext());
-		FrameLayout.LayoutParams departureTimeLayoutLp = new FrameLayout.LayoutParams(Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(34, dm));
+		FrameLayout.LayoutParams departureTimeLayoutLp = new FrameLayout.LayoutParams(TimeButton.WIDTH, TimeButton.FIRST_ROW_HEIGHT - Dimension.dpToPx(1, dm));
 		departureTimeLayout.setLayoutParams(departureTimeLayoutLp);
 		departureTimeLayout.setBackgroundColor(Color.parseColor("#AAB3B3B3"));
 		
@@ -102,30 +92,26 @@ public final class TimeColumn extends FrameLayout {
 		departureTimeButton = new TimeButton(getContext(), 0, true, departureTimeFont);
 		departureTimeButton.setGravity(Gravity.CENTER);
 		departureTimeButton.setPadding(0, 0, 0, 0);
-		departureTimeButton.setHeight(Dimension.dpToPx(34, dm));
+		departureTimeButton.setHeight(TimeButton.FIRST_ROW_HEIGHT - Dimension.dpToPx(1, dm));
 		departureTimeLayout.addView(departureTimeButton);
 		timeColumnLayout.addView(departureTimeLayout);
 		
 		buttonSpacing = new View(getContext());
-        LinearLayout.LayoutParams buttonSpacingLp = new LinearLayout.LayoutParams(
-            Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(1, dm)); 
+        LinearLayout.LayoutParams buttonSpacingLp = new LinearLayout.LayoutParams(TimeButton.WIDTH, Dimension.dpToPx(1, dm)); 
         buttonSpacing.setLayoutParams(buttonSpacingLp);
         timeColumnLayout.addView(buttonSpacing);
 		
         timeButtonLayout = new FrameLayout(getContext());
-        LinearLayout.LayoutParams timeButtonLp = new LinearLayout.LayoutParams(Dimension.dpToPx(TimeButton.WIDTH, dm), LayoutParams.WRAP_CONTENT, 0);
-        int stripeMargin = Dimension.dpToPx(0, dm);
-        timeButtonLp.leftMargin = stripeMargin;
-        timeButtonLp.rightMargin = stripeMargin;
+        LinearLayout.LayoutParams timeButtonLp = new LinearLayout.LayoutParams(TimeButton.WIDTH, LayoutParams.WRAP_CONTENT, 0);
         timeButtonLayout.setLayoutParams(timeButtonLp);
         
         mask = new View(getContext());
-        int maskHeight = TimeButton.HEIGHT * 2 + 25 + spacingHeight + stripeHieght;                
-        FrameLayout.LayoutParams maskLp = new FrameLayout.LayoutParams(Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(maskHeight, dm));
+        int maskHeight = TimeButton.HEIGHT * 3;                
+        FrameLayout.LayoutParams maskLp = new FrameLayout.LayoutParams(TimeButton.WIDTH, maskHeight);
         maskLp.gravity = Gravity.TOP;
         maskLp.leftMargin = Dimension.dpToPx(1, dm);
         mask.setLayoutParams(maskLp);
-        mask.setY(Dimension.dpToPx(TimeButton.HEIGHT * 2 + spacingHeight, dm));
+        mask.setY(TimeButton.HEIGHT * 2);
         timeButtonLayout.addView(mask);
         
         LinearLayout lowerPart = new LinearLayout(getContext());
@@ -139,31 +125,16 @@ public final class TimeColumn extends FrameLayout {
 		durationButton = new TimeButton(getContext(), 1, true, arrivalTimeFont);
 		lowerPart.addView(durationButton);
 		
-		bottomSpacing = new View(getContext());
-		LinearLayout.LayoutParams bottomSpacingLp = new LinearLayout.LayoutParams(
-	        Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(spacingHeight, dm)); 
-		bottomSpacing.setLayoutParams(bottomSpacingLp);
-		lowerPart.addView(bottomSpacing);
-        
         mpointView = new TextView(getContext());
         mpointView.setTextColor(Color.WHITE);
         mpointView.setTextSize(TypedValue.COMPLEX_UNIT_PX, Dimension.dpToPx(TimeButton.largeFont, dm));
         mpointView.setIncludeFontPadding(false);
-        mpointView.setGravity(Gravity.CENTER_HORIZONTAL|Gravity.BOTTOM);
-        LinearLayout.LayoutParams mpointViewLp = new LinearLayout.LayoutParams(
-            Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(25, dm)); 
+        mpointView.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams mpointViewLp = new LinearLayout.LayoutParams(TimeButton.WIDTH, TimeButton.HEIGHT); 
         mpointView.setLayoutParams(mpointViewLp);
         Font.setTypeface(arrivalTimeFont, mpointView);
         lowerPart.addView(mpointView);
 		
-        bottomStripe = new View(getContext());
-        LinearLayout.LayoutParams bottomStipeLp = new LinearLayout.LayoutParams(
-            Dimension.dpToPx(TimeButton.WIDTH, dm), Dimension.dpToPx(stripeHieght, dm));
-        bottomStipeLp.leftMargin = stripeMargin;
-        bottomStipeLp.rightMargin = stripeMargin;
-        bottomStripe.setLayoutParams(bottomStipeLp);
-        lowerPart.addView(bottomStripe);
-        
         timeButtonLayout.addView(lowerPart);
         
         timeColumnLayout.addView(timeButtonLayout);
@@ -209,26 +180,20 @@ public final class TimeColumn extends FrameLayout {
 			bgColor = TimeButton.IN_PREGRESS_BACKGROUND_COLOR;
 		}
 		setBackgroundColor(bgColor);
-		LinearLayout.LayoutParams stripeLp = (LinearLayout.LayoutParams) bottomStripe.getLayoutParams();
 		boolean selected = State.Selected.equals(state);
 		DisplayMetrics dm = getResources().getDisplayMetrics();
-        int stripeMargin = Dimension.dpToPx(2, dm);
-		stripeLp.leftMargin = selected?0:stripeMargin;
-		stripeLp.rightMargin = selected?0:stripeMargin;
-		int width = Dimension.dpToPx(TimeButton.WIDTH, dm) - (selected?0:stripeMargin*2);
-		stripeLp.width = width;
-		bottomStripe.setLayoutParams(stripeLp);
         if(color != null){
         	if(selected) {
-//        		ObjectAnimator translateAnimator = ObjectAnimator.ofFloat(mask, "translateY", Dimension.dpToPx(TimeButton.HEIGHT * 2 + spacingHeight, dm), 0);
+        		LayoutParams maskLp = (LayoutParams) mask.getLayoutParams();
+//        		maskLp.topMargin = 0;
         		mask.setY(0);
-	        	TranslateAnimation slideUp = new TranslateAnimation(0, 0, Dimension.dpToPx(TimeButton.HEIGHT * 2 + spacingHeight, dm), 0);
+	        	TranslateAnimation slideUp = new TranslateAnimation(0, 0, TimeButton.HEIGHT * 2, 0);
 	        	slideUp.setDuration(animationDuration);
 	        	slideUp.setFillAfter(true);
 	        	mask.startAnimation(slideUp);
         	}
         	else if(State.Selected.name().equals(originalState)){
-        		TranslateAnimation slideDown = new TranslateAnimation(0, 0, 0, Dimension.dpToPx(TimeButton.HEIGHT * 2 + spacingHeight, dm));
+        		TranslateAnimation slideDown = new TranslateAnimation(0, 0, 0, TimeButton.HEIGHT * 2);
             	slideDown.setDuration(animation?animationDuration:0);
             	slideDown.setFillAfter(true);
             	mask.startAnimation(slideDown);
@@ -252,7 +217,7 @@ public final class TimeColumn extends FrameLayout {
 	public void setDepartureTime(long time) {
 		this.departureTime = time;
 		
-		departureTimeButton.setText(btnum == 0?"Now":formatTime(time, timzoneOffset));
+		departureTimeButton.setText(btnum == 0?"Now":StringUtils.lowerCase(formatTime(time, timzoneOffset)));
 		
 		postInvalidate();
 	}
@@ -265,7 +230,7 @@ public final class TimeColumn extends FrameLayout {
 		this.arrivalTime = time;
 		
 		if (time != 0) {
-		    arriveButton.setText(formatTime(time, timzoneOffset));
+		    arriveButton.setText(StringUtils.lowerCase(formatTime(time, timzoneOffset)));
 			durationButton.setText(getFormattedDuration(getDuration()));
     		
     		postInvalidate();
@@ -273,7 +238,7 @@ public final class TimeColumn extends FrameLayout {
 	}
 	
 	public static String getFormattedDuration(int duration){
-	    return String.format("%d min", duration/60);
+	    return String.format("%dm", duration/60);
 	}
 	
 	public static String formatTime(long time, int timzoneOffset){
@@ -313,8 +278,6 @@ public final class TimeColumn extends FrameLayout {
     public void setColor(String color) {
         this.color = color;
         if(color != null){
-//            bottomStripe.setBackgroundColor(Color.parseColor(color));
-//        	timeButtonLayout.setBackgroundColor(Color.parseColor(color));
         	mask.setBackgroundColor(Color.parseColor(color));
             postInvalidate();
         }

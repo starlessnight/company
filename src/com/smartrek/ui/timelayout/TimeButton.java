@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.Gravity;
 import android.widget.TextView;
 
@@ -18,16 +19,17 @@ import com.smartrek.utils.Font;
 
 public final class TimeButton extends TextView {
 	
-	public static final int WIDTH = 65;
-	public static final int HEIGHT = 27;
-	public static final int SMALL_HEIGHT = 18;
+	public static int WIDTH = 65;
+	public static int HEIGHT = 31;
+	public static int FIRST_ROW_HEIGHT = 35;
+//	public static int SMALL_HEIGHT = 18;
 	public static final int IN_PREGRESS_BACKGROUND_COLOR = Color.parseColor("#aaffffff");
 	
-	private static final int largeTopOffset = 8;
-	private static final int smallTopOffset = 8;
+//	private static final int largeTopOffset = 8;
+//	private static final int smallTopOffset = 8;
 	
 	public static final int largeFont = 15;
-    private static final int smallFont = 13;
+//    private static final int smallFont = 13;
 	
 	public enum State {
 		None, Unknown, InProgress, Selected, Disabled;
@@ -87,16 +89,15 @@ public final class TimeButton extends TextView {
 		Resources res = getResources();
         DisplayMetrics dm = res.getDisplayMetrics();
 		
-		setWidth(Dimension.dpToPx(WIDTH, dm));
-        setHeight(Dimension.dpToPx(large?HEIGHT:SMALL_HEIGHT, dm));
+		setWidth(WIDTH);
+        setHeight(HEIGHT);
 		setGravity(Gravity.CENTER);
 		
-		setTextSize(TypedValue.COMPLEX_UNIT_PX, Dimension.dpToPx(
-	        large?largeFont:smallFont, dm));
+		setTextSize(TypedValue.COMPLEX_UNIT_PX, Dimension.dpToPx(largeFont, dm));
 		
 		Font.setTypeface(font, this);
 		setIncludeFontPadding(false);
-		setPadding(0, Dimension.dpToPx(large?largeTopOffset:smallTopOffset, dm), 0, 0);
+//		setPadding(0, Dimension.dpToPx(large?largeTopOffset:smallTopOffset, dm), 0, 0);
 		
 //        paint.setStyle(Paint.Style.STROKE);
 //        paint.setColor(res.getColor(R.color.secondary_font));
@@ -150,5 +151,14 @@ public final class TimeButton extends TextView {
 			setTextColor(buttonState.getTextColor());
 //			setBackgroundColor(buttonState.getBackgroundColor(getResources()));
 		}
+	}
+	
+	//caculate by default ratio
+	public static void initButtonDimension(DisplayMetrics dm, Display display) {
+		int timeLayoutHeight = Double.valueOf(Math.floor(display.getHeight() / 2.618)).intValue() - Dimension.dpToPx(56, dm);
+    	int ticketHeight = timeLayoutHeight - Dimension.dpToPx(5, dm);
+    	FIRST_ROW_HEIGHT = 35 * ticketHeight /128;
+    	HEIGHT = 31 * ticketHeight / 128;
+    	WIDTH = (display.getWidth() - Dimension.dpToPx(70, dm)) / 3;
 	}
 }

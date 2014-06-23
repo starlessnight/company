@@ -36,12 +36,15 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.text.format.Time;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
@@ -77,6 +80,7 @@ import com.smartrek.ui.timelayout.TimeLayout;
 import com.smartrek.ui.timelayout.TimeLayout.TimeLayoutListener;
 import com.smartrek.ui.timelayout.TimeLayout.TimeLayoutOnSelectListener;
 import com.smartrek.utils.CalendarContract.Instances;
+import com.smartrek.utils.Dimension;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
@@ -775,6 +779,7 @@ public final class RouteActivity extends FragmentActivity {
         
         TextView arriveRow = (TextView)findViewById(R.id.arrive_row);
         
+        initTimeLayout();
         
         Font.setTypeface(boldFont, onMyWayView, letsGoView, reserveView);
         Font.setTypeface(lightFont, (TextView)findViewById(R.id.departure_row), arriveRow, 
@@ -1214,6 +1219,20 @@ public final class RouteActivity extends FragmentActivity {
             }
             SessionM.logAction("on_my_way");
         }
+    }
+    
+    public void initTimeLayout() {
+    	DisplayMetrics dm = getResources().getDisplayMetrics();
+    	LayoutParams timeTicketPanelLp = findViewById(R.id.time_ticket_panel).getLayoutParams();
+    	timeTicketPanelLp.height = TimeButton.FIRST_ROW_HEIGHT + TimeButton.HEIGHT * 3 + Dimension.dpToPx(2, dm);
+    	LayoutParams departureRowLp = findViewById(R.id.departure_row).getLayoutParams();
+    	departureRowLp.height = TimeButton.FIRST_ROW_HEIGHT;
+    	LayoutParams arriveRowLp = findViewById(R.id.arrive_row).getLayoutParams();
+    	arriveRowLp.height = TimeButton.HEIGHT;
+    	LayoutParams durationRowLp = findViewById(R.id.duration_row).getLayoutParams();
+    	durationRowLp.height = TimeButton.HEIGHT;
+    	LayoutParams mpointRowLp = findViewById(R.id.mpoint_row).getLayoutParams();
+    	mpointRowLp.height = TimeButton.HEIGHT;
     }
     
     @Override

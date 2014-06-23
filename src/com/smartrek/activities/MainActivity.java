@@ -10,7 +10,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
@@ -27,6 +29,8 @@ import com.smartrek.requests.ServiceDiscoveryRequest;
 import com.smartrek.requests.ServiceDiscoveryRequest.Result;
 import com.smartrek.requests.UserIdRequest;
 import com.smartrek.tasks.LoginTask;
+import com.smartrek.ui.timelayout.ScrollableTimeLayout;
+import com.smartrek.ui.timelayout.TimeButton;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
@@ -55,6 +59,13 @@ public class MainActivity extends Activity implements AnimationListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		// init select departure time ticket dimension
+	    DisplayMetrics dm = getResources().getDisplayMetrics();
+	    Display display = getWindowManager().getDefaultDisplay();
+	    TimeButton.initButtonDimension(dm, display);
+	    ScrollableTimeLayout.initScreenWidth(dm, display);
+	    //
+		
 		// Possible work around for market launches. See http://code.google.com/p/android/issues/detail?id=2373
 		// for more details. Essentially, the market launches the main activity on top of other activities.
 		// we never want this to happen. Instead, we check if we are the root and if not, we finish.
@@ -67,7 +78,7 @@ public class MainActivity extends Activity implements AnimationListener {
 		    }
 		}else{
 		    setContentView(R.layout.main);
-
+		    
 	        logo = (ImageView) findViewById(R.id.imageViewLogo);
 	        logoMask = (ImageView) findViewById(R.id.logoMask);
 	        ViewTreeObserver vto = logo.getViewTreeObserver();
