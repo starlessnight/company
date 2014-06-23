@@ -9,6 +9,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.AbsoluteSizeSpan;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -217,7 +220,7 @@ public final class TimeColumn extends FrameLayout {
 	public void setDepartureTime(long time) {
 		this.departureTime = time;
 		
-		departureTimeButton.setText(btnum == 0?"Now":StringUtils.lowerCase(formatTime(time, timzoneOffset)));
+		departureTimeButton.setText(btnum == 0?"Now":formatTimeDesc(StringUtils.lowerCase(formatTime(time, timzoneOffset))));
 		
 		postInvalidate();
 	}
@@ -230,15 +233,15 @@ public final class TimeColumn extends FrameLayout {
 		this.arrivalTime = time;
 		
 		if (time != 0) {
-		    arriveButton.setText(StringUtils.lowerCase(formatTime(time, timzoneOffset)));
-			durationButton.setText(getFormattedDuration(getDuration()));
+		    arriveButton.setText(formatTimeDesc(StringUtils.lowerCase(formatTime(time, timzoneOffset))));
+			durationButton.setText(formatDurationTime(getFormattedDuration(getDuration())));
     		
     		postInvalidate();
 		}
 	}
 	
 	public static String getFormattedDuration(int duration){
-	    return String.format("%dm", duration/60);
+	    return String.format("%dmin", duration/60);
 	}
 	
 	public static String formatTime(long time, int timzoneOffset){
@@ -250,6 +253,22 @@ public final class TimeColumn extends FrameLayout {
 	public static String formatTime(long time){
         return formatTime(time, 0);
     }
+	
+	private SpannableString formatDurationTime(String durationTime) {
+		DisplayMetrics dm = getResources().getDisplayMetrics();
+		SpannableString durationSpan = SpannableString.valueOf(durationTime);
+		durationSpan.setSpan(new AbsoluteSizeSpan(Dimension.dpToPx(10, dm)), durationTime.length() - 3,
+				durationTime.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		return durationSpan;
+	}
+	
+	private SpannableString formatTimeDesc(String time) {
+		DisplayMetrics dm = getResources().getDisplayMetrics();
+		SpannableString timeSpan = SpannableString.valueOf(time);
+		timeSpan.setSpan(new AbsoluteSizeSpan(Dimension.dpToPx(10, dm)), time.length() - 2,
+				time.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		return timeSpan;
+	}
 	
 	/**
 	 * Returns (arrival time) - (departure time) in seconds.

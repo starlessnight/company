@@ -781,9 +781,8 @@ public final class RouteActivity extends FragmentActivity {
         
         initTimeLayout();
         
-        Font.setTypeface(boldFont, onMyWayView, letsGoView, reserveView);
         Font.setTypeface(lightFont, (TextView)findViewById(R.id.departure_row), arriveRow, 
-            durationRow, (TextView)findViewById(R.id.mpoint_row));
+            durationRow, (TextView)findViewById(R.id.mpoint_row), onMyWayView, letsGoView, reserveView);
     }
     
     private long rescheduleReservId;
