@@ -195,7 +195,7 @@ public class NavigationView extends LinearLayout {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				final int X = (int) event.getX();
-
+				boolean tap = false;
 			    switch (event.getAction() & MotionEvent.ACTION_MASK) {
 				    case MotionEvent.ACTION_DOWN:
 				        mStartingX = X;
@@ -211,8 +211,11 @@ public class NavigationView extends LinearLayout {
 				        	currentItemIdx = Math.min(currentItemIdx + 1, items.size() - 1);
 				        	refresh(false);
 				        }
+				        else {
+				        	tap = true;
+				        }
 				        mStartingX = -1000;
-				        if(!move && openDirectionViewEvent!=null) {
+				        if(tap && openDirectionViewEvent!=null) {
 				        	openDirectionViewEvent.run();
 				        }
 				        move = false;
