@@ -31,6 +31,8 @@ import com.smartrek.activities.DebugOptionsActivity;
 import com.smartrek.activities.MainActivity;
 import com.smartrek.activities.R;
 import com.smartrek.models.Route;
+import com.smartrek.requests.Request;
+import com.smartrek.requests.Request.Setting;
 import com.smartrek.utils.Dimension;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
@@ -482,6 +484,8 @@ public class NavigationView extends LinearLayout {
 		return distSpan;
 	}
 
+	private List<RouteNode> pendingVoiceForLinkNodes = new ArrayList<RouteNode>();
+	
 	public void update(final Route route, final Location location,
 			final RouteNode node, List<DirectionItem> dirItems) {
 		items = dirItems;
@@ -528,6 +532,12 @@ public class NavigationView extends LinearLayout {
                             listener.onCheckPoint(text, false, false);
                         }
 				    }
+				    for(RouteNode vflNode : pendingVoiceForLinkNodes){
+				        double radius = ((Number)Request.getSetting(Setting.intersection_radius_in_meter)).doubleValue();
+				        if(vflNode.distanceTo(latitude, longitude) >= radius){
+				            pendingVoiceForLinkNodes.remove(vflNode);
+				        }
+				    }
 				    RouteNode startNode = nearestLink.getStartNode();
                     RouteNode.Metadata startMetadata = startNode.getMetadata();
 				    RouteNode endNode = nearestLink.getEndNode();
@@ -540,7 +550,8 @@ public class NavigationView extends LinearLayout {
 				        startMetadata.pingFlags[0] = true;
 				        String text = startNode.getVoiceForLink();
 				        if(listener != null && StringUtils.isNotBlank(text)){
-	                        listener.onCheckPoint(text, false, true);
+				            pendingVoiceForLinkNodes.add(startNode);
+				            listener.onCheckPoint(text, false, false);
 	                    }
                     }
                     if (!endMetadata.pingFlags[1]
@@ -724,6 +735,7 @@ public class NavigationView extends LinearLayout {
 
     public void setRerouting(boolean rerouting) {
         this.rerouting = rerouting;
+        pendingVoiceForLinkNodes.clear();
     }
 
     public String getDestinationAddress() {
