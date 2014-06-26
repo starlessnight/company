@@ -174,12 +174,32 @@
                     android:layout_marginRight="70dp"
                     android:src="@drawable/upcoming_trip_orange"
                     android:visibility="gone" />
-
-                <include
+                
+                <LinearLayout
                     android:layout_width="fill_parent"
-                    android:layout_height="8dp"
-                    android:layout_alignParentBottom="true"
-                    layout="@layout/metropia_color_bar" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_alignParentBottom="true"> 
+
+	                <include
+	                    android:layout_width="fill_parent"
+	                    android:layout_height="8dp"
+	                    layout="@layout/metropia_color_bar" />
+	                
+	                <TextView 
+	                    android:id="@+id/get_route"
+	                    android:layout_width="fill_parent"
+	                    android:layout_height="wrap_content"
+	                    android:background="@color/metropia_green"
+	                    android:gravity="center"
+	                    android:text="Get Route!"
+	                    android:paddingTop="5dp"
+	                    android:paddingBottom="5dp"
+	                    android:textSize="@dimen/medium_font"
+	                    android:textColor="@android:color/white"
+	                    android:visibility="gone"/>
+                
+                </LinearLayout>
 
                 <ListView
                     android:id="@+id/search_result_list"

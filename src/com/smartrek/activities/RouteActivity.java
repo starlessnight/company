@@ -16,6 +16,7 @@ import org.osmdroid.api.IMapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
+import org.osmdroid.views.overlay.OverlayItem.HotspotPlace;
 
 import android.app.Activity;
 import android.app.NotificationManager;
@@ -38,7 +39,6 @@ import android.support.v4.app.FragmentActivity;
 import android.text.format.Time;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -51,6 +51,7 @@ import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.CalendarService;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.activities.LandingActivity.ShortcutNavigationTask;
+import com.smartrek.activities.LandingActivity2.PoiOverlayInfo;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.exceptions.RouteNotFoundException;
@@ -68,6 +69,7 @@ import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.ui.EditAddress;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.ui.overlays.OverlayCallback;
+import com.smartrek.ui.overlays.POIOverlay;
 import com.smartrek.ui.overlays.PointOverlay;
 import com.smartrek.ui.overlays.RouteDestinationOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
@@ -128,6 +130,9 @@ public final class RouteActivity extends FragmentActivity {
     
     public static final String RESCHEDULE_RESERVATION_ID = "RESCHEDULE_RESERVATION_ID";
     
+    public static final String ORIGIN_OVERLAY_INFO = "originOverlayInfo";
+    public static final String DEST_OVERLAY_INFO = "destOverlayInfo";
+    
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
     private Typeface boldFont;
@@ -137,7 +142,7 @@ public final class RouteActivity extends FragmentActivity {
     //private RouteInfoOverlay[] routeInfoOverlays = new RouteInfoOverlay[3];
     private RoutePathOverlay[] routePathOverlays = new RoutePathOverlay[3];
     
-    private RouteDestinationOverlay[] routeDestOverlays = new RouteDestinationOverlay[3];
+//    private RouteDestinationOverlay[] routeDestOverlays = new RouteDestinationOverlay[3];
     
     private String originAddr;
     private String destAddr;
@@ -169,6 +174,9 @@ public final class RouteActivity extends FragmentActivity {
     private long reservId;
     private boolean hasReservId;
     private boolean hasReserv;
+    
+    private PoiOverlayInfo originOverlayInfo;
+    private PoiOverlayInfo destOverlayInfo;
     
     private Runnable goBackToWhereTo = new Runnable() {
         @Override
@@ -293,6 +301,9 @@ public final class RouteActivity extends FragmentActivity {
         originAddr = extras.getString(ORIGIN_ADDR);
         destAddr = extras.getString(DEST_ADDR);
         
+        originOverlayInfo = extras.getParcelable(ORIGIN_OVERLAY_INFO);
+        destOverlayInfo = extras.getParcelable(DEST_OVERLAY_INFO);
+        
         int eventId = extras.getInt(EVENT_ID, 0);
         if(eventId > 0){
             NotificationManager nMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -349,6 +360,7 @@ public final class RouteActivity extends FragmentActivity {
                             progressDialog.show();
                         }
                         destAddr = reservation.getDestinationAddress();
+                        originAddr = reservation.getOriginAddress();
                     }
                     
                     @Override
@@ -961,34 +973,34 @@ public final class RouteActivity extends FragmentActivity {
             // Overlays must be drawn in orders
             for (int i = 0; i < possibleRoutes.size(); i++) {
             	mapOverlays.add(routePathOverlays[i]);
-            	mapOverlays.add(routeDestOverlays[i]);
-            	final int _i = i;
-            	routeDestOverlays[i].setCallback(new OverlayCallback() {
-                    @Override
-                    public boolean onTap(int index) {
-                        if(routeDestOverlays[_i].isBalloonVisible()){
-                            routeDestOverlays[_i].hideBalloon();
-                        }else{
-                            routeDestOverlays[_i].showBalloonOverlay();
-                        }
-                        return false;
-                    }
-                    @Override
-                    public boolean onLongPress(int index, OverlayItem item) {
-                        return false;
-                    }
-                    @Override
-                    public boolean onClose() {
-                        return false;
-                    }
-                    @Override
-                    public void onChange() {
-                    }
-                    @Override
-                    public boolean onBalloonTap(int index, OverlayItem item) {
-                        return false;
-                    }
-                });
+//            	mapOverlays.add(routeDestOverlays[i]);
+//            	final int _i = i;
+//            	routeDestOverlays[i].setCallback(new OverlayCallback() {
+//                    @Override
+//                    public boolean onTap(int index) {
+//                        if(routeDestOverlays[_i].isBalloonVisible()){
+//                            routeDestOverlays[_i].hideBalloon();
+//                        }else{
+//                            routeDestOverlays[_i].showBalloonOverlay();
+//                        }
+//                        return false;
+//                    }
+//                    @Override
+//                    public boolean onLongPress(int index, OverlayItem item) {
+//                        return false;
+//                    }
+//                    @Override
+//                    public boolean onClose() {
+//                        return false;
+//                    }
+//                    @Override
+//                    public void onChange() {
+//                    }
+//                    @Override
+//                    public boolean onBalloonTap(int index, OverlayItem item) {
+//                        return false;
+//                    }
+//                });
             }
             /*for (int i = 0; i < possibleRoutes.size(); i++) {
             	mapOverlays.add(routeInfoOverlays[i]);
@@ -1088,18 +1100,26 @@ public final class RouteActivity extends FragmentActivity {
             }
         }
         
-        if(routeNum == 0)
+        if(routeNum == 0) {
             mapOverlays.clear();
+            needDraw = true;
+        }
         
         int routeColor = route.getColor()!=null?Color.parseColor(route.getColor()):RoutePathOverlay.COLORS[routeNum];
-        routePathOverlays[routeNum] = new RoutePathOverlay(this, route, routeColor, R.drawable.landing_page_current_location);
+        
+        int originDrawableId = 0;
+        if(originOverlayInfo!=null && StringUtils.isEmpty(originOverlayInfo.address)) {
+        	originDrawableId = R.drawable.landing_page_current_location;
+        }
+        routePathOverlays[routeNum] = new RoutePathOverlay(this, route, routeColor, originDrawableId);
         //mapOverlays.add(routePathOverlays[routeNum]);
         
-        routeDestOverlays[routeNum] = new RouteDestinationOverlay(mapView, route.getLastNode().getGeoPoint(), 
-            lightFont, destAddr, R.drawable.pin_destination);
+//        routeDestOverlays[routeNum] = new RouteDestinationOverlay(mapView, route.getLastNode().getGeoPoint(), 
+//            lightFont, destAddr, R.drawable.pin_destination);
         
         /* Set values into route to be passed to next Activity */
         route.setAddresses(originAddr, destAddr);
+        drawODOverlay(mapView, route);
         
         // FIXME:
         route.setUserId(User.getCurrentUser(this).getId());
@@ -1107,6 +1127,118 @@ public final class RouteActivity extends FragmentActivity {
 //        routeInfoOverlays[routeNum] = new RouteInfoOverlay(mapView, route, routeNum, new GeoPoint(lat, lon), boldFont, lightFont);
 //        routeInfoOverlays[routeNum].setCallback(new RouteOverlayCallbackImpl(route, routeNum));
         //mapOverlays.add(routeOverlays[routeNum]);
+    }
+    
+    boolean needDraw = true;
+    private synchronized void drawODOverlay(final MapView mapView, Route route) {
+    	if(needDraw) {
+    		needDraw = false;
+	    	route.preprocessNodes();
+	    	RouteNode origin = route.getFirstNode();
+	    	RouteNode dest = route.getLastNode();
+	    	PoiOverlayInfo fromInfo = null;
+	    	boolean drawOrigin = true;
+	    	if(originOverlayInfo!=null) {
+	    		fromInfo = originOverlayInfo;
+	    		if(StringUtils.isEmpty(originOverlayInfo.address)) {
+	    			drawOrigin = false;
+	    		}
+	    	}
+	    	else {
+	    		fromInfo = new PoiOverlayInfo();
+	    		fromInfo.geopoint = origin.getGeoPoint();
+	    		fromInfo.address = originAddr;
+	    	}
+	    	final POIOverlay from = new POIOverlay(mapView, boldFont, fromInfo,  HotspotPlace.CENTER, null);
+	    	from.setIsFromPoi(true);
+	    	from.setCallback(new OverlayCallback() {
+	
+				@Override
+				public boolean onBalloonTap(int index, OverlayItem item) {
+					from.switchBalloon();
+					mapView.postInvalidate();
+					return true;
+				}
+	
+				@Override
+				public boolean onTap(int index) {
+					from.switchBalloon();
+					mapView.postInvalidate();
+					return true;
+				}
+	
+				@Override
+				public boolean onClose() {
+					// TODO Auto-generated method stub
+					return false;
+				}
+	
+				@Override
+				public void onChange() {
+					// TODO Auto-generated method stub
+					
+				}
+	
+				@Override
+				public boolean onLongPress(int index, OverlayItem item) {
+					// TODO Auto-generated method stub
+					return false;
+				}});
+	    	PoiOverlayInfo toInfo;
+	    	if(destOverlayInfo!=null) {
+	    		toInfo = destOverlayInfo;
+	    	}
+	    	else {
+	    		toInfo = new PoiOverlayInfo();
+	    		toInfo.geopoint = dest.getGeoPoint();
+	    		toInfo.address = destAddr;
+	    	}
+	    	final POIOverlay to = new POIOverlay(mapView, boldFont, toInfo,  HotspotPlace.CENTER, null);
+	    	to.setIsFromPoi(false);
+	    	to.setCallback(new OverlayCallback() {
+	
+				@Override
+				public boolean onBalloonTap(int index, OverlayItem item) {
+					to.switchBalloon();
+					mapView.postInvalidate();
+					return true;
+				}
+	
+				@Override
+				public boolean onTap(int index) {
+					to.switchBalloon();
+					mapView.postInvalidate();
+					return true;
+				}
+	
+				@Override
+				public boolean onClose() {
+					// TODO Auto-generated method stub
+					return false;
+				}
+	
+				@Override
+				public void onChange() {
+					// TODO Auto-generated method stub
+					
+				}
+	
+				@Override
+				public boolean onLongPress(int index, OverlayItem item) {
+					// TODO Auto-generated method stub
+					return false;
+				}
+			});
+	    	if(drawOrigin) {
+	    		from.showOverlay();
+		    	from.showMiniBalloonOverlay();
+		    	mapView.getOverlays().add(from);
+	    	}
+	    	to.showOverlay();
+	    	to.showMiniBalloonOverlay();
+	    	mapView.getOverlays().add(to);
+	    	mapView.postInvalidate();
+    	}
     }
     
     private void setHighlightedRoutePathOverlays(boolean highlighted) {

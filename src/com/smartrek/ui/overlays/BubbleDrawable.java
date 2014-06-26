@@ -99,12 +99,26 @@ public class BubbleDrawable extends Drawable {
         mPointer.setFillType(Path.FillType.EVEN_ODD);
 
         // Set the starting point
-        mPointer.moveTo(pointerHorizontalStart(), mPointerHeight);
+        mPointer.moveTo(pointerHorizontalStart(), mBoxHeight-1);
+
+        // Define the lines
+        mPointer.rLineTo(mPointerWidth - 2, 0);
+        mPointer.rLineTo(-((mPointerWidth -2) / 2), mPointerHeight - 1);
+        mPointer.rLineTo(-((mPointerWidth - 2) / 2), -mPointerHeight + 1);
+        mPointer.close();
+    }
+    
+    private void updatePointerShadow() {
+    	mPointer = new Path();
+        mPointer.setFillType(Path.FillType.EVEN_ODD);
+
+        // Set the starting point
+        mPointer.moveTo(pointerHorizontalStart(), mBoxHeight);
 
         // Define the lines
         mPointer.rLineTo(mPointerWidth, 0);
-        mPointer.rLineTo(-(mPointerWidth / 2), -mPointerHeight);
         mPointer.rLineTo(-(mPointerWidth / 2), mPointerHeight);
+        mPointer.rLineTo(-(mPointerWidth / 2), -mPointerHeight);
         mPointer.close();
     }
     
@@ -128,10 +142,12 @@ public class BubbleDrawable extends Drawable {
 
     @Override
     public void draw(Canvas canvas) {
-    	RectF mShadowRec = new RectF(0.0f, mPointerHeight -1 , mBoxWidth, mBoxHeight);
+    	RectF mShadowRec = new RectF(0.0f, 0.0f , mBoxWidth, mBoxHeight);
     	canvas.drawRoundRect(mShadowRec, mCornerRad, mCornerRad, mShadowPaint);
-        mBoxRect = new RectF(1.0f, mPointerHeight, mBoxWidth - 2, mBoxHeight - 2);
+        mBoxRect = new RectF(1.0f, 1.0f, mBoxWidth - 2, mBoxHeight - 2);
         canvas.drawRoundRect(mBoxRect, mCornerRad, mCornerRad, mPaint);
+        updatePointerShadow();
+        canvas.drawPath(mPointer, mShadowPaint);
         updatePointerPath();
         canvas.drawPath(mPointer, mPaint);
     }

@@ -5,9 +5,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,8 +28,6 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -47,6 +47,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
@@ -230,6 +232,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private LinearLayout searchArea;
     private TextView cancelSearch;
+    
+    private TextView getRouteView;
+    
+    private POIOverlay curFrom;
+    private POIOverlay curTo;
+    
+    //debug
+//    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -415,6 +425,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             	}
             	else if(StringUtils.isNotBlank(selected.getAddress())) {
                     fromSearchBox.setText(selected.getAddress());
+                    searchAddress(selected.getAddress(), true);
+                    fromSearchBox.setText("");
                     InputMethodManager imm = (InputMethodManager)getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(fromSearchBox.getWindowToken(), 0);
@@ -653,6 +665,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         from.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if(curTo!=null) {
+					curTo.showMiniBalloonOverlay();
+				}
 			    searchBox.setVisibility(View.GONE);
 			    searchBoxClear.setVisibility(View.GONE);
 			    searchResultList.setVisibility(View.GONE);
@@ -676,6 +691,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         to.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if(curFrom!=null) {
+					curFrom.showMiniBalloonOverlay();
+				}
 			    searchBox.setVisibility(View.VISIBLE);
 			    searchBoxClear.setVisibility(StringUtils.isBlank(searchBox.getText())?View.GONE:View.VISIBLE);
 			    if(StringUtils.isBlank(searchBox.getText())) {
@@ -1361,6 +1379,20 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         findViewById(R.id.left_drawer).setOnClickListener(noopClick);
         
+        getRouteView = (TextView) findViewById(R.id.get_route);
+        getRouteView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						startRouteActivity(mapView);
+					}
+				});
+			}
+        });
+        
         scheduleNextTripInfoUpdates();
         
         AssetManager assets = getAssets();
@@ -1434,6 +1466,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 							Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
 			                intent.putExtra("route", reserv.getRoute());
 			                intent.putExtra("reservation", reserv);
+			                hideBulbBalloon();
+			                hideStarredBalloon();
+			                removeAllOD();
 			                startActivity(intent);
 						}
 						else {
@@ -1446,6 +1481,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                                Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
 	                                intent.putExtra("route", reservation.getRoute());
 	                                intent.putExtra("reservation", reservation);
+	                                hideBulbBalloon();
+	                                hideStarredBalloon();
+	                                removeAllOD();
 	                                startActivity(intent);
 	                            }
 	                        };
@@ -1499,6 +1537,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		                            extras.putString("destAddr", addr);
 		                            extras.putParcelable(RouteActivity.DEST_COORD, gp);
 		                            intent.putExtras(extras);
+		                            hideBulbBalloon();
+		                            hideStarredBalloon();
+		                            removeAllOD();
 		                            startActivity(intent);
 		                        }
 		                    }
@@ -1832,14 +1873,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void searchFavAddress(String addrStr, boolean zoomIn) {
-    	searchPOIAddress(addrStr, zoomIn, true);
+    	searchPOIAddress(addrStr, zoomIn);
     }
     
     private void searchAddress(String addrStr, boolean zoomIn) {
-    	searchPOIAddress(addrStr, zoomIn, false);
+    	searchPOIAddress(addrStr, zoomIn);
     }
     
-    private void searchPOIAddress(final String addrStr, final boolean zoomIn, final boolean isFavOperation){
+    private void searchPOIAddress(final String addrStr, final boolean zoomIn){
         AsyncTask<Void, Void, Address> task = new AsyncTask<Void, Void, Address>(){
             @Override
             protected Address doInBackground(Void... params) {
@@ -1932,6 +1973,100 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
     }
     
+    public static class PoiOverlayInfo extends BalloonModel implements Parcelable {
+    	
+    	public int marker;
+    	
+    	public int markerWithShadow;
+    	
+    	public static final Parcelable.Creator<PoiOverlayInfo> CREATOR = new Parcelable.Creator<PoiOverlayInfo>() {
+            public PoiOverlayInfo createFromParcel(Parcel in) {
+                return new PoiOverlayInfo(in);
+            }
+
+            public PoiOverlayInfo[] newArray(int size) {
+                return new PoiOverlayInfo[size];
+            }
+        };
+        
+        public PoiOverlayInfo() {}
+    	
+    	public PoiOverlayInfo(Parcel in) {
+    		id = in.readInt();
+            lat = in.readDouble();
+            lon = in.readDouble();
+            address = in.readString();
+            label = in.readString();
+            marker = in.readInt();
+            markerWithShadow = in.readInt();
+            geopoint = new GeoPoint(lat, lon);
+		}
+
+		@Override
+		public int describeContents() {
+			return 0;
+		}
+
+		@Override
+		public void writeToParcel(Parcel dest, int flags) {
+			dest.writeInt(id);
+			dest.writeDouble(lat);
+			dest.writeDouble(lon);
+			dest.writeString(address);
+			dest.writeString(label);
+			dest.writeInt(marker);
+			dest.writeInt(markerWithShadow);
+		}
+    	
+    	public static PoiOverlayInfo fromAddress(com.smartrek.models.Address address) {
+    		PoiOverlayInfo poiInfo = new PoiOverlayInfo();
+    		poiInfo.id = address.getId();
+    		poiInfo.label = address.getName();
+    		poiInfo.address = address.getAddress();
+    		poiInfo.lat = address.getLatitude();
+    		poiInfo.lon = address.getLongitude();
+    		poiInfo.geopoint = new GeoPoint(address.getLatitude(), address.getLongitude());
+    		IconType icon = IconType.fromName(address.getIconName());
+    		poiInfo.marker = icon.getResourceId();
+    		poiInfo.markerWithShadow = icon.getResourceWithShadowId();
+    		return poiInfo;
+    	}
+    	
+    	public static PoiOverlayInfo fromLocation(com.smartrek.requests.WhereToGoRequest.Location location) {
+    		PoiOverlayInfo poiInfo = new PoiOverlayInfo();
+    		poiInfo.label = "";
+    		poiInfo.address = location.addr;
+    		poiInfo.lat = location.lat;
+    		poiInfo.lon = location.lon;
+    		poiInfo.geopoint = new GeoPoint(location.lat, location.lon);
+    		poiInfo.marker = R.drawable.bulb_poi;
+    		poiInfo.markerWithShadow = R.drawable.bulb_poi_with_shadow;
+    		return poiInfo;
+    	}
+    	
+    	public static PoiOverlayInfo fromBalloonModel(BalloonModel model) {
+    		PoiOverlayInfo poiInfo = new PoiOverlayInfo();
+    		poiInfo.id = model.id;
+    		poiInfo.label = model.label;
+    		poiInfo.address = model.address;
+    		poiInfo.lat = model.lat;
+    		poiInfo.lon = model.lon;
+    		poiInfo.geopoint = model.geopoint;
+//    		poiInfo.marker = R.drawable.marker_poi;
+//    		poiInfo.markerWithShadow = R.drawable.marker_poi;
+    		return poiInfo;
+    	}
+    	
+    	public static PoiOverlayInfo fromCurrentLocation(CurrentLocationOverlay currentLoc) {
+    		PoiOverlayInfo poiInfo = new PoiOverlayInfo();
+    		poiInfo.lat = currentLoc.getLocation().getLatitude();
+    		poiInfo.lon = currentLoc.getLocation().getLongitude();
+    		poiInfo.geopoint = currentLoc.getLocation();
+    		return poiInfo;
+    	}
+
+    }
+    
     public enum IconType {
     	star, home, work;
     	
@@ -1944,7 +2079,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		return star;
     	}
     	
-    	public static Integer[] getIconInfos(IconType type) {
+    	private static Integer[] getIconInfos(IconType type) {
     		switch(type) {
     		  case star:
     			  return new Integer[] {R.id.star, R.drawable.star, R.drawable.star_with_shadow};
@@ -1955,6 +2090,23 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		  default:
     			  return null;
     		}
+    	}
+    	
+    	public static Integer[] getIconInfosFromName(String name) {
+    		IconType icon = fromName(name);
+    		return getIconInfos(icon);
+    	}
+    	
+    	public Integer getIconId() {
+    		return getIconInfos(this)[0];
+    	}
+    	
+    	public Integer getResourceId() {
+    		return getIconInfos(this)[1];
+    	}
+    	
+    	public Integer getResourceWithShadowId() {
+    		return getIconInfos(this)[2];
     	}
     }
     
@@ -2437,7 +2589,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		path.setDashEffect();
     		mapOverlays.add(0, path);
     		
-    		if(!isPoiOverlay(route.getLastNode().getGeoPoint())) {
+    		if(!isPoiOverlay(route.getDestination())) {
 	    		RouteDestinationOverlay destOverlay = new RouteDestinationOverlay(mapView, route.getLastNode().getGeoPoint(), 
 	    				lightFont, destinationAddr, R.drawable.pin_destination);
 	    		mapOverlays.add(destOverlay);
@@ -2502,7 +2654,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private AtomicBoolean poiTapThrottle = new AtomicBoolean();
     
-    private void startRouteActivity(String address, GeoPoint gp){
+    private void startRouteActivity(MapView mapView){
         if(!poiTapThrottle.get()){
             poiTapThrottle.set(true);
             new Handler().postDelayed(new Runnable() {
@@ -2511,15 +2663,21 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     poiTapThrottle.set(false);
                 }
             }, 500);
-            String fromAddress = fromSearchBox.getText().toString();
-            boolean hasFromAddr = StringUtils.isNotBlank(fromAddress);
+            boolean hasFromAddr = StringUtils.isNotBlank(curFrom.getAddress());
             Intent intent = new Intent(this, RouteActivity.class);
             Bundle extras = new Bundle();
-            extras.putString(RouteActivity.ORIGIN_ADDR, hasFromAddr?fromAddress:EditAddress.CURRENT_LOCATION);
-            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude()));
-            extras.putString(RouteActivity.DEST_ADDR, address);
-            extras.putParcelable(RouteActivity.DEST_COORD, gp);
+            extras.putString(RouteActivity.ORIGIN_ADDR, hasFromAddr?curFrom.getAddress():EditAddress.CURRENT_LOCATION);
+//            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude()));
+//            extras.putParcelable(RouteActivity.ORIGIN_COORD, debugOrigin);
+            extras.putParcelable(RouteActivity.ORIGIN_COORD, curFrom.getGeoPoint());
+            extras.putString(RouteActivity.DEST_ADDR, curTo.getAddress());
+            extras.putParcelable(RouteActivity.DEST_COORD, curTo.getGeoPoint());
+            extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, curFrom.getPoiOverlayInfo());
+            extras.putParcelable(RouteActivity.DEST_OVERLAY_INFO, curTo.getPoiOverlayInfo());
             intent.putExtras(extras);
+            hideBulbBalloon();
+            hideStarredBalloon();
+            removeAllOD();
             startActivity(intent);
         }
     }
@@ -2557,7 +2715,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     //ehs.reportExceptions();
                 }
                 else {
-                    List<GeoPoint> geoList = new ArrayList<GeoPoint>();
+                    Set<String> addrList = new HashSet<String>();
                     final MapView mapView = (MapView) findViewById(R.id.mapview);
                     List<Overlay> overlays = mapView.getOverlays();
                     List<Overlay> otherOverlays = new ArrayList<Overlay>();
@@ -2583,9 +2741,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         initFontsIfNecessary();
                         for(final com.smartrek.models.Address a : result){
                             final GeoPoint gp = new GeoPoint(a.getLatitude(), a.getLongitude());
-                            Integer[] iconInfo = IconType.getIconInfos(IconType.fromName(a.getIconName()));
-                            final POIOverlay star = new POIOverlay(mapView, gp, boldFont, a.getName(), a.getAddress(), 
-                                iconInfo[1], iconInfo[2], HotspotPlace.CENTER, new POIActionListener() {
+                            PoiOverlayInfo poiInfo = PoiOverlayInfo.fromAddress(a);
+                            final POIOverlay star = new POIOverlay(mapView, boldFont, poiInfo, HotspotPlace.CENTER, new POIActionListener() {
 									@Override
 									public void onClickEdit() {
 										hideStarredBalloon();
@@ -2602,11 +2759,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 										favOpt.setVisibility(View.VISIBLE);
 									}
 
-									@Override
-									public void onClickNext() {
-										hideStarredBalloon();
-										startRouteActivity(a.getAddress(), gp);
-									}
 								});
                             star.setAid(a.getId());
                             star.setCallback(new OverlayCallback() {
@@ -2614,10 +2766,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                 public boolean onTap(int index) {
                                     hideStarredBalloon();
                                     hideBulbBalloon();
-                                    removePOIMarker(mapView); 
+                                    removePOIMarker(mapView);
                                     curStar = star;
                                     IMapController controller = mapView.getController();
                                     controller.setCenter(star.getGeoPoint());
+                                    star.setIsFromPoi(isFromPoi());
+                                    handleOD(mapView, star);
                                     star.showBalloonOverlay();
                                     mapView.postInvalidate();
                                     return true;
@@ -2643,15 +2797,37 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             if(curStar != null && star.getAid() == curStar.getAid()){
                                 star.showBalloonOverlay();
                             }
-                            geoList.add(new GeoPoint(a.getLatitude(), a.getLongitude()));
+                            addrList.add(a.getAddress());
                         }
                     }
                     mapView.postInvalidate();
-                    write2SearchBoxTag(geoList);
+                    write2SearchBoxTag(addrList);
                 }
             }
         };
         Misc.parallelExecute(task);
+    }
+    
+    private void handleOD(MapView mapView, POIOverlay poi) {
+    	removeOldOD(mapView, isFromPoi());
+    	poi.setIsFromPoi(isFromPoi());
+    	poi.markODPoi();
+    	if(isFromPoi()) {
+    		curFrom = poi;
+    	}
+    	else {
+    		curTo = poi;
+    		if(curFrom==null && myPointOverlay!=null) {
+    			curFrom = new POIOverlay(mapView, Font.getBold(getAssets()), 
+    					PoiOverlayInfo.fromCurrentLocation(myPointOverlay), 
+    					HotspotPlace.BOTTOM_CENTER, null);
+    			curFrom.markODPoi();
+    			curFrom.setIsFromPoi(true);
+    			mapView.getOverlays().add(curFrom);
+    			curFrom.showMiniBalloonOverlay();
+    		}
+    		findViewById(R.id.get_route).setVisibility(View.VISIBLE);
+    	}
     }
     
     private boolean hideStarredBalloon(){
@@ -2662,7 +2838,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             if(overlay instanceof POIOverlay){
                 POIOverlay poiOverlay = (POIOverlay)overlay;
                 if(isFavoriteMark(poiOverlay.getMarker())){
-                    if(poiOverlay.isBalloonVisible()){
+                    if(poiOverlay.isBalloonVisible() && !isMarkedOD(poiOverlay)){
                 	    poiOverlay.hideBalloon();
                         handled = true;
                     }
@@ -2681,7 +2857,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             if(overlay instanceof POIOverlay){
                 POIOverlay poiOverlay = (POIOverlay)overlay;
                 if(poiOverlay.getMarker() == R.drawable.bulb_poi){
-                    if(poiOverlay.isBalloonVisible()){
+                    if(poiOverlay.isBalloonVisible() && !isMarkedOD(poiOverlay)){
                     	poiOverlay.hideBalloon();
                         handled = true;
                     }
@@ -2814,7 +2990,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             }
                             overlays.clear();
                             overlays.addAll(otherOverlays);
-                            List<GeoPoint> geoList = new ArrayList<GeoPoint>();
+                            Set<String> addrSet = new HashSet<String>();
                             if(locs.isEmpty()){
                                 routeRect = null;
                                 if(rezoom){
@@ -2833,11 +3009,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                     zoomMapToFitBulbPOIs();
                                 }
                                 for(com.smartrek.requests.WhereToGoRequest.Location l : locs){
-                                    geoList.add(new GeoPoint(l.lat, l.lon));
+                                    addrSet.add(l.addr);
                                 }
                             }
                             mapView.postInvalidate();
-                            write2SearchBoxTag(geoList);
+                            write2SearchBoxTag(addrSet);
                             refreshSearchAutoCompleteData();
                         }
                     });
@@ -2868,7 +3044,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                boolean handledStarred = hideStarredBalloon();
 	                boolean handledBulb = hideBulbBalloon();
 	                boolean handledPOI = removePOIMarker(mapView);
-	                if(!handledStarred && !handledBulb && !handledPOI){
+	                boolean handledOD = removeAllOD();
+	                if(!handledStarred && !handledBulb && !handledPOI && !handledOD){
 	                    resizeMap(!isMapCollapsed());
 	                }
             	}
@@ -2906,28 +3083,25 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         animator.start();
     }
     
-    private void write2SearchBoxTag(List<GeoPoint> nGeoPoints) {
-    	List<GeoPoint> oGeoPoints = (List<GeoPoint>) findViewById(R.id.search_box).getTag();
-        if(oGeoPoints == null) {
-        	oGeoPoints = new ArrayList<GeoPoint>();
+    private void write2SearchBoxTag(Set<String> addresses) {
+    	Set<String> oAddrs = (Set<String>) findViewById(R.id.search_box).getTag();
+        if(oAddrs == null) {
+        	oAddrs = new HashSet<String>();
         }
-        oGeoPoints.addAll(nGeoPoints);
-        findViewById(R.id.search_box).setTag(oGeoPoints);
+        oAddrs.addAll(addresses);
+        findViewById(R.id.search_box).setTag(oAddrs);
     }
     
-    private boolean isPoiOverlay(GeoPoint point) {
+    private boolean isPoiOverlay(String address) {
     	View searchBox = findViewById(R.id.search_box);
     	if(searchBox.getTag() != null) {
-    		Iterator<GeoPoint> poiGeoPoints = ((List<GeoPoint>) searchBox.getTag()).iterator();
-    		boolean isPoi = false;
-    		while(poiGeoPoints.hasNext() && !isPoi) {
-    			GeoPoint geoPoint = poiGeoPoints.next();
-    			isPoi = geoPoint.getLatitude() == point.getLatitude() && geoPoint.getLongitude() == point.getLongitude();
-    		}
-    		return isPoi;
+    		Set<String> poiAddrs = (Set<String>) searchBox.getTag();
+    		return poiAddrs.contains(address);
     	}
     	return false;
     }
+    
+    
     
     protected static abstract class ReverseGeocodingTask extends AsyncTask<Void, Void, String> {
         
@@ -2962,8 +3136,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         boolean handled = false;
         List<Overlay> overlays = mapView.getOverlays();
         for (Overlay overlay : overlays) {
-            if(overlay == curMarker){
+            if(overlay == curMarker && !isMarkedOD(overlay)){
             	POIOverlay curOverlay = (POIOverlay)overlay;
+            	Log.d("LandingActivity2", "removePOIMarker : " + curOverlay.getAddress());
                 if(curOverlay.isBalloonVisible()){
                     curOverlay.hideBalloon();
                     handled = true;
@@ -2974,6 +3149,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
         }
         return handled;
+    }
+    
+    private boolean isMarkedOD(Overlay overlay) {
+    	return overlay==curFrom || overlay==curTo;
     }
     
     private boolean hidePOIMarkerBalloon(MapView mapView){
@@ -2993,6 +3172,46 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         return handled;
     }
     
+    private boolean removeAllOD() {
+    	MapView mapView = (MapView) findViewById(R.id.mapview);
+    	boolean handleFrom = removeOldOD(mapView, true);
+    	boolean handleTo = removeOldOD(mapView, false);
+    	findViewById(R.id.get_route).setVisibility(View.GONE);
+    	return handleFrom || handleTo;
+    }
+    
+    private boolean removeOldOD(MapView mapView, boolean from) {
+    	List<Overlay> overlays = mapView.getOverlays();
+    	if(from) {
+    		curFrom = null;
+    	}
+    	else {
+    		curTo = null;
+    	}
+    	boolean handle = false;
+        for (Overlay overlay : overlays) {
+            if(overlay instanceof POIOverlay){
+                POIOverlay poiOverlay = (POIOverlay)overlay;
+                if(poiOverlay.isMarked() && 
+                		(from && poiOverlay.isFromPoi() || !from && !poiOverlay.isFromPoi())){
+                	handle = true;
+                    if(poiOverlay.isBalloonVisible()){
+                	    poiOverlay.hideBalloon();
+                    }
+                    if(poiOverlay.getMarker() == 0) {
+                    	overlays.remove(poiOverlay);
+                    }
+                    else {
+                    	poiOverlay.cancelMark();
+                    }
+                    mapView.postInvalidate();
+                    break;
+                }
+            }
+        }
+        return handle;
+    }
+    
     private void refreshPOIMarker(final MapView mapView, final double lat, final double lon,
             final String address, final String label){
         removePOIMarker(mapView);
@@ -3003,8 +3222,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         model.address = address;
         model.label = label;
         model.geopoint = gp;
-        POIOverlay marker = new POIOverlay(mapView, gp, Font.getBold(getAssets()), label, 
-        		address, R.drawable.marker_poi, R.drawable.marker_poi, HotspotPlace.BOTTOM_CENTER , new POIActionListener() {
+        PoiOverlayInfo poiInfo = PoiOverlayInfo.fromBalloonModel(model);
+        final POIOverlay marker = new POIOverlay(mapView, Font.getBold(getAssets()), poiInfo, 
+        		HotspotPlace.BOTTOM_CENTER , new POIActionListener() {
 					@Override
 					public void onClickEdit() {
 						hidePOIMarkerBalloon(mapView);
@@ -3012,13 +3232,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 						findViewById(R.id.landing_panel).setVisibility(View.GONE);
 						findViewById(R.id.fav_opt).setVisibility(View.VISIBLE);
 					}
-
-					@Override
-					public void onClickNext() {
-						removePOIMarker(mapView);
-		                startRouteActivity(model.address, model.geopoint);
-					}
         });
+        
         marker.setCallback(new OverlayCallback() {
             @Override
             public boolean onTap(int index) {
@@ -3038,13 +3253,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
             @Override
             public boolean onBalloonTap(int index, OverlayItem item) {
-                return false;
+            	return false;
             }
         });
         List<Overlay> overlays = mapView.getOverlays();
         overlays.add(marker);
         marker.showOverlay();
-        if(!isInFavoriteOperation()) { 
+        if(!isInFavoriteOperation()) {
+        	handleOD(mapView, marker);
         	marker.showBalloonOverlay();
         }
         else {
@@ -3102,8 +3318,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         initFontsIfNecessary();
         for(final com.smartrek.requests.WhereToGoRequest.Location l:locs){
             final GeoPoint gp = new GeoPoint(l.lat, l.lon);
-            final POIOverlay bulb = new POIOverlay(mapView, gp, boldFont, "", l.addr, 
-            		R.drawable.bulb_poi, R.drawable.bulb_poi_with_shadow, HotspotPlace.CENTER, new POIActionListener() {
+            PoiOverlayInfo poiInfo = PoiOverlayInfo.fromLocation(l);
+            final POIOverlay bulb = new POIOverlay(mapView, boldFont, poiInfo, 
+            		HotspotPlace.CENTER, new POIActionListener() {
 	            	@Override
 					public void onClickEdit() {
 						hideBulbBalloon();
@@ -3119,11 +3336,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 						favOpt.setVisibility(View.VISIBLE);
 					}
 	
-					@Override
-					public void onClickNext() {
-						hideBulbBalloon();
-						startRouteActivity(l.addr, gp);
-					}
             });
             bulb.setCallback(new OverlayCallback() {
                 @Override
@@ -3134,7 +3346,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     curBulb = bulb;
                     IMapController controller = mapView.getController();
                     controller.setCenter(bulb.getGeoPoint());
+                    bulb.setIsFromPoi(isFromPoi());
                     bulb.showBalloonOverlay();
+                    handleOD(mapView, bulb);
                     mapView.postInvalidate();
                     return true;
                 }
@@ -3167,6 +3381,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	mapOverlays.add(myCurrentOverlayIdx, overlay);
     }
     
+    private boolean isFromPoi() {
+    	return fromSearchBox.getVisibility()==View.VISIBLE && !isInFavoriteOperation();
+    }
+    
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -3194,6 +3412,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 validationActivity.putExtra("reservation", reserv);
                 validationActivity.putExtra(ValidationActivity.EMAILS, emails);
                 validationActivity.putExtra(ValidationActivity.PHONES, phones);
+                hideBulbBalloon();
+                hideStarredBalloon();
+                removeAllOD();
                 startActivity(validationActivity);
                 SessionM.logAction("on_my_way");
         	}
@@ -3209,6 +3430,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                    validationActivity.putExtra("reservation", reservation);
 	                    validationActivity.putExtra(ValidationActivity.EMAILS, emails);
 	                    validationActivity.putExtra(ValidationActivity.PHONES, phones);
+	                    hideBulbBalloon();
+	                    hideStarredBalloon();
+	                    removeAllOD();
 	                    startActivity(validationActivity);
 	                    SessionM.logAction("on_my_way");
 	                }
@@ -3492,10 +3716,4 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
     }
 
-    private void removeLocationUpdates(){
-        if(locationManager != null && locationListener != null){
-            locationManager.removeUpdates(locationListener); 
-        }
-    }
-    
 }

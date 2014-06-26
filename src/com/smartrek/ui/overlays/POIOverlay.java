@@ -12,8 +12,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.DisplayMetrics;
+import android.view.View;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
-
+import com.smartrek.activities.LandingActivity2.PoiOverlayInfo;
 import com.smartrek.activities.R;
 import com.smartrek.utils.Dimension;
 import com.smartrek.utils.GeoPoint;
@@ -22,42 +27,43 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 	
 	private OverlayCallback callback;
 
-	private String label;
-	
 	private String address;
 	
 	private GeoPoint geoPoint;
-	
-	private Typeface font;
 	
 	private int marker;
 	
 	private int aid;
 	
+	private PoiOverlayInfo poiInfo;
+	
 	private POIActionListener listener;
 	
+	private boolean marked;
+	
+	private boolean fromPoi;
+	
 	public interface POIActionListener {
+		
 		public void onClickEdit();
 		
-		public void onClickNext();
 	}
 	
-	public POIOverlay(MapView mapview, GeoPoint geoPoint, Typeface font, String label, String address, 
-			int marker, int markerWithShadow, HotspotPlace markerHotspot, POIActionListener listener) {
-		super(pinDrawable(mapview.getContext(), markerWithShadow), mapview, null, font, font);
+	public POIOverlay(MapView mapview, Typeface font, PoiOverlayInfo poiInfo, HotspotPlace markerHotspot, POIActionListener listener) {
+		super(pinDrawable(mapview.getContext(), poiInfo.markerWithShadow), mapview, null, font, font);
 		
-		this.font = font;
-		this.label = label;
-		this.address = address;
-		this.marker = marker;
+		this.address = poiInfo.address;
+		this.marker = poiInfo.marker;
+		this.poiInfo = poiInfo;
 		this.listener = listener;
 		
 		centerOnTap = false;
 		
-		balloonOffsetX = Dimension.dpToPx(0, mapview.getContext().getResources().getDisplayMetrics());
-		balloonOffsetY = Dimension.dpToPx(marker==R.drawable.marker_poi?95:105, mapview.getContext().getResources().getDisplayMetrics());
+		balloonOffsetX = 0;
+//		balloonOffsetY = Dimension.dpToPx(marker==R.drawable.marker_poi?95:105, mapview.getContext().getResources().getDisplayMetrics());
+		balloonOffsetY = 0;
 		
-		this.geoPoint = geoPoint;
+		this.geoPoint = poiInfo.geopoint;
 		
 		OverlayItem item = new OverlayItem(
 				"",
@@ -122,8 +128,106 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 	public void showBalloonOverlay(){
         currentFocussedIndex = 0;
         currentFocussedItem = createItem(0);
-        
+        changeToDefault();
         createAndDisplayBalloonOverlay();
+	}
+	
+	public void showMiniBalloonOverlay() {
+        changeToMini();
+	}
+	
+	public void showDetailBalloonOverlay() {
+		changeToDetail();
+	}
+	
+	private void changeToDefault() {
+		if(balloonView!=null) {
+			LinearLayout layout = balloonView.getLayout();
+			layout.findViewById(R.id.poi_content).setVisibility(View.VISIBLE);
+			layout.findViewById(R.id.poi_content_detail).setVisibility(View.GONE);
+			layout.findViewById(R.id.poi_content_mini).setVisibility(View.GONE);
+		}
+	}
+	
+	private void changeToMini() {
+		if(balloonView == null) {
+			currentFocussedIndex = 0;
+	        currentFocussedItem = createItem(0);
+	        createAndDisplayBalloonOverlay();
+		}
+		LinearLayout layout = balloonView.getLayout();
+		DisplayMetrics dm = layout.getResources().getDisplayMetrics();
+		layout.findViewById(R.id.poi_content).setVisibility(View.GONE);
+		layout.findViewById(R.id.poi_content_detail).setVisibility(View.GONE);
+		View poiContentMini = layout.findViewById(R.id.poi_content_mini);
+//		LayoutParams lp = poiContentMini.getLayoutParams();
+//		lp.height=Dimension.dpToPx(30, dm);
+//		lp.width=Dimension.dpToPx(60, dm);
+//		lp.height=82;
+//		lp.width=160;
+		BubbleDrawable bubble = new BubbleDrawable(BubbleDrawable.CENTER);
+		bubble.setCornerRadius(Dimension.dpToPx(5, dm));
+		bubble.setPadding(0, 0, 0, 0);
+		bubble.setPointerWidth(Dimension.dpToPx(11, dm));
+		bubble.setPointerHeight(Dimension.dpToPx(8, dm));
+		poiContentMini.setBackgroundDrawable(bubble);
+		poiContentMini.setVisibility(View.VISIBLE);
+	}
+	
+	private void changeToDetail() {
+		LinearLayout layout = balloonView.getLayout();
+		DisplayMetrics dm = layout.getResources().getDisplayMetrics();
+		layout.findViewById(R.id.poi_content).setVisibility(View.GONE);
+		layout.findViewById(R.id.poi_content_mini).setVisibility(View.GONE);
+		View poiContentDetail = layout.findViewById(R.id.poi_content_detail);
+//		LayoutParams lp = poiContentDetail.getLayoutParams();
+//		lp.height=Dimension.dpToPx(60, dm);
+//		lp.width=Dimension.dpToPx(250, dm);
+//		lp.height=80;
+//		lp.width=400;
+		BubbleDrawable bubble = new BubbleDrawable(BubbleDrawable.CENTER);
+		bubble.setCornerRadius(Dimension.dpToPx(5, dm));
+		bubble.setPadding(0, 0, 0, 0);
+		bubble.setPointerWidth(Dimension.dpToPx(5, dm));
+		bubble.setPointerHeight(Dimension.dpToPx(5, dm));
+//		bubble.setPointerWidth(20);
+//		bubble.setPointerHeight(10);
+		poiContentDetail.setBackgroundDrawable(bubble);
+		poiContentDetail.setVisibility(View.VISIBLE);
+	}
+	
+	public void setIsFromPoi(boolean isFromPoi) {
+		fromPoi = isFromPoi;
+		String title = isFromPoi?"FROM":"TO";
+		if(balloonView==null){
+			currentFocussedIndex = 0;
+	        currentFocussedItem = createItem(0);
+	        createAndDisplayBalloonOverlay();
+		}
+		LinearLayout layout = balloonView.getLayout();
+		TextView defaultContentTitleView = (TextView) layout.findViewById(R.id.poi_title);
+		defaultContentTitleView.setText(title);
+		TextView miniContentTitleView = (TextView) layout.findViewById(R.id.poi_mini_title);
+		miniContentTitleView.setText(title);
+		TextView detailContentTitleView = (TextView) layout.findViewById(R.id.poi_detail_title);
+		detailContentTitleView.setText(title);
+		if(!isFromPoi) {
+			detailContentTitleView.setBackgroundResource(R.drawable.poi_popup_title_background);
+		}
+		else {
+			detailContentTitleView.setTextColor(layout.getResources().getColor(R.color.metropia_blue));
+		}
+	}
+	
+	public void switchBalloon() {
+		LinearLayout layout = balloonView.getLayout();
+		View miniContent = layout.findViewById(R.id.poi_content_mini); 
+		if(miniContent.getVisibility()==View.VISIBLE) {
+			changeToDetail();
+		}
+		else {
+			changeToMini();
+		}
 	}
 	
 	@Override
@@ -155,8 +259,7 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
      * can populate additional sub-views.
      */
     protected IBalloonOverlayView<OverlayItem> createBalloonOverlayView() {
-        return new POIOverlayView<OverlayItem>(getMapView().getContext(), 
-            font, label, address, aid, marker, listener);
+        return new POIOverlayView<OverlayItem>(getMapView().getContext(), poiInfo, listener);
     }
 	
 	static Drawable pinDrawable(Context ctx, int marker){
@@ -195,5 +298,25 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
     public void setAddress(String address) {
         this.address = address;
     }
-
+    
+    public void markODPoi() {
+    	this.marked = true;
+    }
+    
+    public void cancelMark() {
+    	this.marked = false;
+    }
+    
+    public boolean isMarked() {
+    	return this.marked;
+    }
+    
+    public boolean isFromPoi() {
+    	return this.fromPoi;
+    }
+    
+    public PoiOverlayInfo getPoiOverlayInfo() {
+    	return this.poiInfo;
+    }
+    
 }

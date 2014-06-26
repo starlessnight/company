@@ -55,7 +55,9 @@ public class RoutePathOverlay extends Overlay {
 		super(context);
 		this.route = route;
 		this.color = color;
-		this.originFlag = BitmapFactory.decodeResource(context.getResources(), marker);
+		if(marker > 0) {
+			this.originFlag = BitmapFactory.decodeResource(context.getResources(), marker);
+		}
 		this.destinationFlag = BitmapFactory.decodeResource(context.getResources(), R.drawable.pin_destination);
 	}
 	
@@ -95,7 +97,9 @@ public class RoutePathOverlay extends Overlay {
 		Point originPoint = drawPath(canvas, path, projection, routeNodes, 
 	        thickness * 0.7f, color);
 		
-		canvas.drawBitmap(originFlag, originPoint.x - (originFlag.getWidth()/2), originPoint.y - originFlag.getHeight() * 85 / 100, path);
+		if(originFlag!=null) {
+			canvas.drawBitmap(originFlag, originPoint.x - (originFlag.getWidth()/2), originPoint.y - originFlag.getHeight() * 85 / 100, path);
+		}
 		//canvas.drawBitmap(destinationFlag, point.x - (destinationFlag.getWidth()/2), point.y - destinationFlag.getHeight() * 85 / 100, paint);
 	}
 	

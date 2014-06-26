@@ -8,9 +8,13 @@ import android.widget.TextView;
 
 public class Font {
 
-    static final String BOLD = "Roboto-Bold.ttf";
+    static final String BOLD = "Helvetica-Bold.ttf";
     
-    static final String LIGHT = "Roboto-Light.ttf";
+    static final String LIGHT = "Helvetica-Light.ttf";
+    
+    static final String ROBOTO_BOLD = "Roboto-Bold.ttf";
+    
+    static final String ROBOTO_LIGHT = "Roboto-Light.ttf";
     
     static final String MEDIUM = "Roboto-Medium.ttf";
     
@@ -22,6 +26,14 @@ public class Font {
     
     public static Typeface getLight(AssetManager assets){
         return getTypeface(assets, LIGHT);
+    }
+    
+    public static Typeface getRobotoBold(AssetManager assets) {
+    	return getTypeface(assets, ROBOTO_BOLD);
+    }
+    
+    public static Typeface getRobotoLight(AssetManager assets) {
+    	return getTypeface(assets, ROBOTO_LIGHT);
     }
     
     public static Typeface getMedium(AssetManager assets) {

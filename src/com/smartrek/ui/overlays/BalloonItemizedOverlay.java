@@ -263,16 +263,33 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 	 */
 	protected boolean createAndDisplayBalloonOverlay(){
 		boolean isRecycled;
+		View defaultBalloonView = null;
+		View miniBalloonView = null;
+		View detailBalloonView = null;
 		if (balloonView == null) {
 			balloonView = createBalloonOverlayView();
 			
-			
-			
-			
 			clickRegion = (View) ((FrameLayout)balloonView).findViewById(R.id.balloon_item_snippet);
+			defaultBalloonView = balloonView.getLayout().findViewById(R.id.poi_content);
+			miniBalloonView = balloonView.getLayout().findViewById(R.id.poi_content_mini);
+			detailBalloonView = balloonView.getLayout().findViewById(R.id.poi_content_detail);
+			
 			if(clickRegion != null){
 			    clickRegion.setOnTouchListener(createBalloonTouchListener());
 			}
+			
+			if(defaultBalloonView != null) {
+				defaultBalloonView.setOnTouchListener(createBalloonTouchListener());
+			}
+			
+			if(miniBalloonView != null) {
+				miniBalloonView.setOnTouchListener(createBalloonTouchListener());
+			}
+			
+			if(detailBalloonView != null) {
+				detailBalloonView.setOnTouchListener(createBalloonTouchListener());
+			}
+			
 			isRecycled = false;
 		} else {
 			isRecycled = true;
@@ -285,10 +302,10 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 		
 		((FrameLayout)balloonView).setVisibility(View.GONE);
 
-		List<Overlay> mapOverlays = mapView.getOverlays();
-		if (mapOverlays.size() > 1) {
-			hideOtherBalloons(mapOverlays);
-		}
+//		List<Overlay> mapOverlays = mapView.getOverlays();
+//		if (mapOverlays.size() > 1) {
+//			hideOtherBalloons(mapOverlays);
+//		}
 
 		if (currentFocussedItem != null)
 			balloonView.setData(currentFocussedItem);
