@@ -1443,13 +1443,27 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				dismissReservId = ((Reservation)tripInfoPanel.getTag()).getRid();
 				swipeRight = dismissRight;
 			}
+
+			@Override
+			public void onSwipeRight() {
+				findViewById(R.id.reservations_list).setVisibility(View.GONE);
+			}
+
+			@Override
+			public void onSwipeLeft() {
+				View reservationListView = findViewById(R.id.reservations_list);
+				reservationListView.setVisibility(View.VISIBLE);
+				tripInfoPanel.bringToFront();
+			}
 		}));
         
     	ImageView multipleTripMenu = (ImageView) tripInfoPanel.findViewById(R.id.multiple_trip_menu);
     	multipleTripMenu.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				findViewById(R.id.reservations_list).setVisibility(View.VISIBLE);
+				View reservationListView = findViewById(R.id.reservations_list);
+				reservationListView.setVisibility(View.VISIBLE);
+				reservationListView.bringToFront();
 			}
 		});
     	

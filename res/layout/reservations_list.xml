@@ -3,7 +3,67 @@
     android:id="@+id/reservations_list_panel"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent" >
+    
+    <LinearLayout
+        android:id="@+id/reservations_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:orientation="vertical"
+        android:visibility="gone" >
 
+        <include layout="@layout/metropia_color_bar" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white" >
+
+            <TextView
+                android:id="@+id/reservations_list_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:paddingBottom="5dp"
+                android:paddingTop="5dp"
+                android:text="Reservations List"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/smaller_font" />
+
+            <ImageView
+                android:id="@+id/reservation_list_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left|center"
+                android:paddingBottom="5dp"
+                android:paddingLeft="20dp"
+                android:paddingTop="5dp"
+                android:src="@drawable/reservation_list_back_arrow" />
+        </FrameLayout>
+
+        <ListView
+            android:id="@+id/reservation_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:cacheColorHint="#00000000"
+            android:divider="@null"
+            android:dividerHeight="0dp"
+            android:visibility="gone" />
+        
+        <TextView
+            android:id="@+id/no_reserved_trips" 
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="No reserved trips."
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/smaller_font"
+            android:gravity="center"
+            android:visibility="visible"/>
+    </LinearLayout>
+    
     <LinearLayout
         android:id="@+id/trip_info"
         android:layout_width="fill_parent"
@@ -139,67 +199,9 @@
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/smaller_font" />
             </LinearLayout>
+            
         </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/reservations_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/white"
-        android:orientation="vertical"
-        android:visibility="gone" >
-
-        <include layout="@layout/metropia_color_bar" />
-
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/white" >
-
-            <TextView
-                android:id="@+id/reservations_list_header"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:gravity="center"
-                android:paddingBottom="5dp"
-                android:paddingTop="5dp"
-                android:text="Reservations List"
-                android:textColor="@android:color/black"
-                android:textSize="@dimen/smaller_font" />
-
-            <ImageView
-                android:id="@+id/reservation_list_back"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left|center"
-                android:paddingBottom="5dp"
-                android:paddingLeft="20dp"
-                android:paddingTop="5dp"
-                android:src="@drawable/reservation_list_back_arrow" />
-        </FrameLayout>
-
-        <ListView
-            android:id="@+id/reservation_list_view"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:cacheColorHint="#00000000"
-            android:divider="@null"
-            android:dividerHeight="0dp"
-            android:visibility="gone" />
         
-        <TextView
-            android:id="@+id/no_reserved_trips" 
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:text="No reserved trips."
-            android:textColor="@android:color/black"
-            android:textSize="@dimen/smaller_font"
-            android:gravity="center"
-            android:visibility="visible"/>
     </LinearLayout>
 
 </FrameLayout>

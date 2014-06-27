@@ -63,6 +63,10 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
 * @param token The optional token passed to this object's constructor.
 */
         void onDismiss(View view, Object token, boolean dismissRight);
+        
+        void onSwipeRight();
+        
+        void onSwipeLeft();
     }
 
     /**
@@ -157,6 +161,7 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
 
                 mVelocityTracker.addMovement(motionEvent);
                 float deltaX = motionEvent.getRawX() - mDownX;
+                boolean swipeRight = deltaX > 0;
                 if (Math.abs(deltaX) > mSlop) {
                     mSwiping = true;
                     mView.getParent().requestDisallowInterceptTouchEvent(true);
@@ -174,6 +179,12 @@ public class SwipeDismissTouchListener implements View.OnTouchListener {
                     // TODO: use an ease-out interpolator or such
                     setAlpha(mView, Math.max(0f, Math.min(1f,
                             1f - 2f * Math.abs(deltaX) / mViewWidth)));
+                    if(swipeRight) {
+                    	mCallback.onSwipeRight();
+                    }
+                    else {
+                    	mCallback.onSwipeLeft();
+                    }
                     return true;
                 }
                 break;
