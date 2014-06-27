@@ -66,15 +66,15 @@ public class NavigationView extends LinearLayout {
 		
 		private int getDirectionDrawableId(String direction, boolean smallOne) {
 			int id;
-			if (StringUtils.equalsIgnoreCase("slightly left", direction)) {
+			if (StringUtils.equalsIgnoreCase("keep left", direction)) {
 				id = smallOne?R.drawable.small_slightly_left:R.drawable.slightly_left;
-			} else if (StringUtils.equalsIgnoreCase("curve left", direction)) {
+			} else if (StringUtils.equalsIgnoreCase("slightly left", direction)) {
 				id = smallOne?R.drawable.small_curve_left:R.drawable.curve_left;
 			} else if (StringUtils.equalsIgnoreCase("turn left", direction)) {
 				id = smallOne?R.drawable.small_turn_left:R.drawable.turn_left;
-			} else if (StringUtils.equalsIgnoreCase("slightly right", direction)) {
+			} else if (StringUtils.equalsIgnoreCase("keep right", direction)) {
 				id = smallOne?R.drawable.small_slightly_right:R.drawable.slightly_right;
-			} else if (StringUtils.equalsIgnoreCase("curve right", direction)) {
+			} else if (StringUtils.equalsIgnoreCase("slightly right", direction)) {
 				id = smallOne?R.drawable.small_curve_right:R.drawable.curve_right;
 			} else if (StringUtils.equalsIgnoreCase("turn right", direction)) {
 				id = smallOne?R.drawable.small_turn_right:R.drawable.turn_right;
