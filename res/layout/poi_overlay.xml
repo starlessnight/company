@@ -3,13 +3,11 @@
     android:id="@+id/balloon_main_layout"
     android:layout_width="match_parent"
     android:layout_height="110dp"
-    android:layout_marginLeft="20dp"
-    android:layout_marginRight="20dp"
     android:background="@android:color/transparent" >
 
     <LinearLayout
         android:id="@+id/poi_content"
-        android:layout_width="265dp"
+        android:layout_width="300dp"
         android:layout_height="110dp"
         android:layout_gravity="center"
         android:orientation="vertical" >
@@ -55,7 +53,7 @@
 
         <View
             android:layout_width="fill_parent"
-            android:layout_height="2dp"
+            android:layout_height="1dp"
             android:background="@color/secondary_font" />
 
         <TextView
@@ -89,7 +87,7 @@
 
     <LinearLayout
         android:id="@+id/poi_content_detail"
-        android:layout_width="200dp"
+        android:layout_width="250dp"
         android:layout_height="40dp"
         android:layout_gravity="center|bottom"
         android:orientation="vertical"
@@ -105,8 +103,9 @@
             android:textSize="13dp" />
 
         <View
+            android:id="@+id/poi_content_detail_spliter"
             android:layout_width="fill_parent"
-            android:layout_height="2dp"
+            android:layout_height="1dp"
             android:background="@color/secondary_font" />
 
         <TextView

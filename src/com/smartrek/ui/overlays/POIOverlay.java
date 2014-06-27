@@ -9,12 +9,12 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -42,6 +42,8 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 	private boolean marked;
 	
 	private boolean fromPoi;
+	
+	private boolean routePage;
 	
 	public interface POIActionListener {
 		
@@ -126,10 +128,15 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 	}
 
 	public void showBalloonOverlay(){
-        currentFocussedIndex = 0;
-        currentFocussedItem = createItem(0);
-        changeToDefault();
-        createAndDisplayBalloonOverlay();
+		if(routePage) {
+			showMiniBalloonOverlay();
+		}
+		else {
+	        currentFocussedIndex = 0;
+	        currentFocussedItem = createItem(0);
+	        changeToDefault();
+	        createAndDisplayBalloonOverlay();
+		}
 	}
 	
 	public void showMiniBalloonOverlay() {
@@ -160,13 +167,10 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 		layout.findViewById(R.id.poi_content).setVisibility(View.GONE);
 		layout.findViewById(R.id.poi_content_detail).setVisibility(View.GONE);
 		View poiContentMini = layout.findViewById(R.id.poi_content_mini);
-//		LayoutParams lp = poiContentMini.getLayoutParams();
-//		lp.height=Dimension.dpToPx(30, dm);
-//		lp.width=Dimension.dpToPx(60, dm);
-//		lp.height=82;
-//		lp.width=160;
 		BubbleDrawable bubble = new BubbleDrawable(BubbleDrawable.CENTER);
 		bubble.setCornerRadius(Dimension.dpToPx(5, dm));
+		bubble.addShadowEffect();
+		bubble.setColor(Color.parseColor("#B2FFFFFF"));
 		bubble.setPadding(0, 0, 0, 0);
 		bubble.setPointerWidth(Dimension.dpToPx(11, dm));
 		bubble.setPointerHeight(Dimension.dpToPx(8, dm));
@@ -180,18 +184,12 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 		layout.findViewById(R.id.poi_content).setVisibility(View.GONE);
 		layout.findViewById(R.id.poi_content_mini).setVisibility(View.GONE);
 		View poiContentDetail = layout.findViewById(R.id.poi_content_detail);
-//		LayoutParams lp = poiContentDetail.getLayoutParams();
-//		lp.height=Dimension.dpToPx(60, dm);
-//		lp.width=Dimension.dpToPx(250, dm);
-//		lp.height=80;
-//		lp.width=400;
 		BubbleDrawable bubble = new BubbleDrawable(BubbleDrawable.CENTER);
 		bubble.setCornerRadius(Dimension.dpToPx(5, dm));
+		bubble.addShadowEffect();
 		bubble.setPadding(0, 0, 0, 0);
 		bubble.setPointerWidth(Dimension.dpToPx(5, dm));
 		bubble.setPointerHeight(Dimension.dpToPx(5, dm));
-//		bubble.setPointerWidth(20);
-//		bubble.setPointerHeight(10);
 		poiContentDetail.setBackgroundDrawable(bubble);
 		poiContentDetail.setVisibility(View.VISIBLE);
 	}
@@ -213,6 +211,7 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 		detailContentTitleView.setText(title);
 		if(!isFromPoi) {
 			detailContentTitleView.setBackgroundResource(R.drawable.poi_popup_title_background);
+			layout.findViewById(R.id.poi_content_detail_spliter).setBackgroundColor(layout.getResources().getColor(R.color.metropia_blue));
 		}
 		else {
 			detailContentTitleView.setTextColor(layout.getResources().getColor(R.color.metropia_blue));
@@ -317,6 +316,10 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
     
     public PoiOverlayInfo getPoiOverlayInfo() {
     	return this.poiInfo;
+    }
+    
+    public void inRoutePage() {
+    	this.routePage = true;
     }
     
 }

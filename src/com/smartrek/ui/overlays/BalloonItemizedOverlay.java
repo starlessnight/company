@@ -214,13 +214,16 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 					if (d.setState(newStates)) {
 						d.invalidateSelf();
 					}
-					if (Math.abs(startX - event.getX()) < 40 && 
-							Math.abs(startY - event.getY()) < 40 ) {
+					if (Math.abs(startX - event.getX()) < 100 && 
+							Math.abs(startY - event.getY()) < 100 ) {
 						// call overridden method
 						onBalloonTap(currentFocussedIndex, currentFocussedItem);
 					}
 					return true;
-				} else {
+				} else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+					return true;
+				}
+				else {
 					return false;
 				}
 

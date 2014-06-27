@@ -52,6 +52,7 @@ public class POIOverlayView<Item extends OverlayItem> extends FrameLayout
 		BubbleDrawable bubble = new BubbleDrawable(BubbleDrawable.CENTER);
 		DisplayMetrics dm = context.getResources().getDisplayMetrics();
 		bubble.setCornerRadius(Dimension.dpToPx(5, dm));
+		bubble.addShadowEffect();
 		bubble.setPadding(0, 0, 0, 0);
 		bubble.setPointerWidth(Dimension.dpToPx(20, dm));
 		bubble.setPointerHeight(Dimension.dpToPx(10, dm));
@@ -97,9 +98,9 @@ public class POIOverlayView<Item extends OverlayItem> extends FrameLayout
 		
 		AssetManager assets = context.getAssets();
 		Typeface mediumFont = Font.getMedium(assets);
-		Typeface lightFont = Font.getRobotoLight(assets);
+		Typeface regularFont = Font.getRegular(assets);
 
-		Font.setTypeface(lightFont, labelView, miniTitleView);
+		Font.setTypeface(regularFont, labelView, miniTitleView);
 		Font.setTypeface(mediumFont, addressView, favOptView, titleView, detailTitleView, detailAddressView);
 
 		FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
