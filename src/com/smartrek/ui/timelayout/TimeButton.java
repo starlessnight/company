@@ -23,12 +23,12 @@ public final class TimeButton extends TextView {
 	public static int HEIGHT = 31;
 	public static int FIRST_ROW_HEIGHT = 35;
 //	public static int SMALL_HEIGHT = 18;
-	public static final int IN_PREGRESS_BACKGROUND_COLOR = Color.parseColor("#aaffffff");
+	public static final int IN_PREGRESS_BACKGROUND_COLOR = Color.parseColor("#CCE6E7E8");
 	
 //	private static final int largeTopOffset = 8;
 //	private static final int smallTopOffset = 8;
 	
-	public static final int largeFont = 15;
+	public static final int largeFont = 17;
 //    private static final int smallFont = 13;
 	
 	public enum State {

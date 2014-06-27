@@ -44,6 +44,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     private TimeLayoutListener timeLayoutListener;
     
     private Typeface lightFont;
+    private Typeface mediumFont;
     private Typeface boldFont;
     
     private int timzoneOffset;
@@ -70,6 +71,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
 
         lightFont = Font.getLight(getResources().getAssets());
         boldFont = Font.getBold(getResources().getAssets());
+        mediumFont = Font.getMedium(getResources().getAssets());
         
         populateViews();
 
@@ -90,7 +92,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
         columnCount = adjustableTime.getNumTimeBoxes();
         
         for (int i = 0; i < columnCount; i++) {
-             TimeColumn timeColumn = new TimeColumn(this, i, lightFont, lightFont, timzoneOffset);
+             TimeColumn timeColumn = new TimeColumn(this, i, mediumFont, mediumFont, timzoneOffset);
              timeColumn.setDepartureTime(adjustableTime.initTime().toMillis(false));
              timeColumn.setOnClickListener(this);
              adjustableTime.incrementBy(15);

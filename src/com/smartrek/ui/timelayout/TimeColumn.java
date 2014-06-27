@@ -83,7 +83,7 @@ public final class TimeColumn extends FrameLayout {
 		FrameLayout departureTimeLayout = new FrameLayout(getContext());
 		FrameLayout.LayoutParams departureTimeLayoutLp = new FrameLayout.LayoutParams(TimeButton.WIDTH, TimeButton.FIRST_ROW_HEIGHT - Dimension.dpToPx(1, dm));
 		departureTimeLayout.setLayoutParams(departureTimeLayoutLp);
-		departureTimeLayout.setBackgroundColor(Color.parseColor("#AAB3B3B3"));
+//		departureTimeLayout.setBackgroundColor(Color.parseColor("#AAB3B3B3"));
 		
 		ImageView backgroundImg = new ImageView(getContext());
 		FrameLayout.LayoutParams imgLp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.FILL_PARENT);
@@ -130,7 +130,7 @@ public final class TimeColumn extends FrameLayout {
 		
         mpointView = new TextView(getContext());
         mpointView.setTextColor(Color.WHITE);
-        mpointView.setTextSize(TypedValue.COMPLEX_UNIT_PX, Dimension.dpToPx(TimeButton.largeFont, dm));
+        mpointView.setTextSize(TypedValue.COMPLEX_UNIT_PX, Dimension.dpToPx(19, dm));
         mpointView.setIncludeFontPadding(false);
         mpointView.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams mpointViewLp = new LinearLayout.LayoutParams(TimeButton.WIDTH, TimeButton.HEIGHT); 
@@ -241,7 +241,7 @@ public final class TimeColumn extends FrameLayout {
 	}
 	
 	public static String getFormattedDuration(int duration){
-	    return String.format("%dmin", duration/60);
+	    return String.format("%dm", duration/60);
 	}
 	
 	public static String formatTime(long time, int timzoneOffset){
@@ -257,7 +257,7 @@ public final class TimeColumn extends FrameLayout {
 	private SpannableString formatDurationTime(String durationTime) {
 		DisplayMetrics dm = getResources().getDisplayMetrics();
 		SpannableString durationSpan = SpannableString.valueOf(durationTime);
-		durationSpan.setSpan(new AbsoluteSizeSpan(Dimension.dpToPx(10, dm)), durationTime.length() - 3,
+		durationSpan.setSpan(new AbsoluteSizeSpan(Dimension.dpToPx(12, dm)), durationTime.length()-1,
 				durationTime.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		return durationSpan;
 	}
@@ -265,7 +265,7 @@ public final class TimeColumn extends FrameLayout {
 	private SpannableString formatTimeDesc(String time) {
 		DisplayMetrics dm = getResources().getDisplayMetrics();
 		SpannableString timeSpan = SpannableString.valueOf(time);
-		timeSpan.setSpan(new AbsoluteSizeSpan(Dimension.dpToPx(10, dm)), time.length() - 2,
+		timeSpan.setSpan(new AbsoluteSizeSpan(Dimension.dpToPx(8, dm)), time.length() - 2,
 				time.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		return timeSpan;
 	}

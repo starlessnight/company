@@ -139,6 +139,8 @@ public final class RouteActivity extends FragmentActivity {
     
     private Typeface lightFont;
     
+    private Typeface mediumFont;
+    
     //private RouteInfoOverlay[] routeInfoOverlays = new RouteInfoOverlay[3];
     private RoutePathOverlay[] routePathOverlays = new RoutePathOverlay[3];
     
@@ -625,6 +627,7 @@ public final class RouteActivity extends FragmentActivity {
         AssetManager assets = getAssets();
         boldFont = Font.getBold(assets);
         lightFont = Font.getLight(assets);
+        mediumFont = Font.getMedium(assets);
         
         rescheduleReservId = extras.getLong(RESCHEDULE_RESERVATION_ID);
         final TextView reserveView = (TextView) findViewById(R.id.reserve);
@@ -793,8 +796,8 @@ public final class RouteActivity extends FragmentActivity {
         
         initTimeLayout();
         
-        Font.setTypeface(lightFont, (TextView)findViewById(R.id.departure_row), arriveRow, 
-            durationRow, (TextView)findViewById(R.id.mpoint_row), onMyWayView, letsGoView, reserveView);
+        Font.setTypeface(mediumFont, (TextView)findViewById(R.id.departure_row), arriveRow, 
+                durationRow, (TextView)findViewById(R.id.mpoint_row), onMyWayView, letsGoView, reserveView);
     }
     
     private long rescheduleReservId;
