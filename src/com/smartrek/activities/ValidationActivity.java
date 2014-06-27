@@ -1839,15 +1839,23 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			
 			
 			TextView co2 = (TextView) findViewById(R.id.co2_circle);
-			String co2Value = "1.3\nCO2";  //getCO2
-			co2.setText(formatCO2Desc(ValidationActivity.this, co2Value));
+			Integer co2Value = 0;  //getCO2
+			if(co2Value != 0) {
+				String co2String = co2Value + "\nCO2";  
+				co2.setText(formatCO2Desc(ValidationActivity.this, co2String));
+				co2.setVisibility(View.VISIBLE);
+			}
 			
 			TextView mpoint = (TextView) findViewById(R.id.mpoint_circle);
-			mpoint.setText(formatCongrValueDesc(ValidationActivity.this, reservation.getMpoint() + "\nmPoints"));
+			mpoint.setText(formatCongrValueDesc(ValidationActivity.this, reservation.getMpoint() + "\nuPoints"));
 			
 			TextView driveScore = (TextView) findViewById(R.id.drive_score_circle);
-			String driveScoreValue = "00\nScore"; //get driving score
-			driveScore.setText(formatCongrValueDesc(ValidationActivity.this, driveScoreValue));
+			Integer driveScoreValue = 0;  //get driving score
+			if(driveScoreValue!=0) {
+				String scoreString = driveScoreValue + "\nScore"; 
+				driveScore.setText(formatCongrValueDesc(ValidationActivity.this, scoreString));
+				driveScore.setVisibility(View.VISIBLE);
+			}
 			
 			Font.setTypeface(boldFont, co2, mpoint, driveScore);
 			

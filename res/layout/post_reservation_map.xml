@@ -232,7 +232,8 @@
                         android:gravity="center"
                         android:text="@string/placeholder"
                         android:textColor="@android:color/white"
-                        android:textSize="@dimen/large_font" />
+                        android:textSize="@dimen/large_font"
+                        android:visibility="invisible" />
 
                     <TextView
                         android:id="@+id/mpoint_circle"
@@ -254,7 +255,8 @@
                         android:gravity="center"
                         android:text="@string/placeholder"
                         android:textColor="@android:color/white"
-                        android:textSize="@dimen/large_font" />
+                        android:textSize="@dimen/large_font"
+                        android:visibility="invisible"  />
                 </LinearLayout>
             </FrameLayout>
 
