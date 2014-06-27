@@ -122,6 +122,8 @@ public final class RouteNode implements Parcelable, JSONModel {
 	
 	private double voiceRadius;
 	
+	private double bearing;
+	
 	private String voiceForLink;
 	
     /**
@@ -165,6 +167,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		time = in.readInt();
 		voice = in.readString();
 		voiceRadius = in.readDouble();
+		bearing = in.readDouble();
 	    voiceForLink = in.readString();
 	}
 	
@@ -316,6 +319,7 @@ public final class RouteNode implements Parcelable, JSONModel {
 		dest.writeInt(time);
 		dest.writeString(voice);
 		dest.writeDouble(voiceRadius);
+		dest.writeDouble(bearing);
 		dest.writeString(voiceForLink);
 	}
 	
@@ -399,6 +403,14 @@ public final class RouteNode implements Parcelable, JSONModel {
 
     public void setVoiceForLink(String voiceForLink) {
         this.voiceForLink = voiceForLink;
+    }
+
+    public double getBearing() {
+        return bearing;
+    }
+
+    public void setBearing(double bearing) {
+        this.bearing = bearing;
     }
     
 }

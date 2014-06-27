@@ -31,6 +31,7 @@ import com.smartrek.activities.DebugOptionsActivity;
 import com.smartrek.activities.MainActivity;
 import com.smartrek.activities.R;
 import com.smartrek.models.Route;
+import com.smartrek.models.Trajectory;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.Request.Setting;
 import com.smartrek.utils.Dimension;
@@ -492,20 +493,17 @@ public class NavigationView extends LinearLayout {
 		currentItemIdx = Math.min(currentItemIdx, items.size() - 1);
 		final double latitude = location.getLatitude();
 		final double longitude = location.getLongitude();
-
 		double distance = route.getDistanceToNextTurn(latitude, longitude);
 		double distanceInMile = metersToMiles(distance);
 		double distanceInFoot = metersToFeet(distance);
-
 		ValidationParameters params = ValidationParameters.getInstance();
-		RouteLink nearestLink = route.getNearestLink(latitude, longitude);
-		if (nearestLink.distanceTo(latitude, longitude) <= params
-				.getInRouteDistanceThreshold()) {
+        RouteLink nearestLink = route.getNearestLink(latitude, longitude);
+        if (nearestLink.distanceTo(latitude, longitude) <= params
+                .getInRouteDistanceThreshold()) {
 			setStatus(Status.InRoute);
 
 			refresh(false);
 
-			// FIXME: Temporary
 			if (node.hasMetadata()) {
 				RouteNode end = nearestLink.getEndNode();
 				while (end.getFlag() == 0 && end.getNextNode() != null) {
@@ -538,22 +536,32 @@ public class NavigationView extends LinearLayout {
 				            pendingVoiceForLinkNodes.remove(vflNode);
 				        }
 				    }
-				    RouteNode startNode = nearestLink.getStartNode();
-                    RouteNode.Metadata startMetadata = startNode.getMetadata();
+				    
+				    double speedMph = Trajectory.msToMph(location.getSpeed());
+		            float bearing = location.getBearing();
+		            float accuracy = location.getAccuracy();
+		            double distanceLimit = ((Number)Request.getSetting(Setting.reroute_trigger_distance_in_meter)).doubleValue() + accuracy;
+		            List<RouteLink> nearbyLinks = route.getNearbyLinks(latitude, longitude, distanceLimit);
+		            List<RouteLink> sameDirLinks = route.getSameDirectionLinks(nearbyLinks, speedMph, bearing);
+				    if(!Route.isPending(nearbyLinks, sameDirLinks) && sameDirLinks.size() == 1){
+				        RouteLink nearestLinkVoiceForLink = sameDirLinks.get(0);
+				        RouteNode startNode = nearestLinkVoiceForLink.getStartNode();
+		                RouteNode.Metadata startMetadata = startNode.getMetadata();
+		                if (!startMetadata.pingFlags[0]) {
+	                        startMetadata.pingFlags[0] = true;
+	                        String text = startNode.getVoiceForLink();
+	                        if(listener != null && StringUtils.isNotBlank(text)){
+	                            pendingVoiceForLinkNodes.add(startNode);
+	                            listener.onCheckPoint(text, false, false);
+	                        }
+	                    }
+				    }
 				    RouteNode endNode = nearestLink.getEndNode();
 				    while(StringUtils.isBlank(endNode.getVoice()) && endNode.getNextNode() != null){
 				        endNode = endNode.getNextNode();
 				    }
 				    RouteNode.Metadata endMetadata = endNode.getMetadata();
 				    double dist = metersToFeet(endNode.distanceTo(latitude, longitude));
-				    if (!startMetadata.pingFlags[0]) {
-				        startMetadata.pingFlags[0] = true;
-				        String text = startNode.getVoiceForLink();
-				        if(listener != null && StringUtils.isNotBlank(text)){
-				            pendingVoiceForLinkNodes.add(startNode);
-				            listener.onCheckPoint(text, false, false);
-	                    }
-                    }
                     if (!endMetadata.pingFlags[1]
                             && dist <= endNode.getVoiceRadius()) {
                         endMetadata.pingFlags[1] = true;

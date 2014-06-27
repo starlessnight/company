@@ -1369,7 +1369,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     
     private double distanceOutOfRouteThreshold = ((Number)Request.getSetting(Setting.reroute_trigger_distance_in_meter)).doubleValue();
 	
-	private static final double speedOutOfRouteThreshold = 10;
+	public static final double speedOutOfRouteThreshold = 10;
 	
 	private static final double odZoomDistanceLimit = 1200; //feet
 	
@@ -1661,49 +1661,104 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		long linkId = Trajectory.DEFAULT_LINK_ID;
 		
 		if (!route.getNodes().isEmpty()) {
-			nearestLink = route.getNearestLink(lat, lng);
-
-			ValidationParameters params = ValidationParameters.getInstance();
-
-			boolean alreadyValidated = isTripValidated();
-
-			double distanceToLink = nearestLink.distanceTo(lat, lng);
-			if (!stopValidation.get()
-					&& distanceToLink <= params
-							.getValidationDistanceThreshold()) {
-				Log.i("validated node", nearestLink.getStartNode()
-						.getNodeIndex() + "");
-				nearestLink.getStartNode().getMetadata().setValidated(true);
-			}
-
-			if (!alreadyValidated && isTripValidated()) {
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						saveValidation();
-					}
-				});
-			}
-
-			int numberOfValidatedNodes = 0;
-			for (RouteNode node : route.getNodes()) {
-				if (node.getMetadata().isValidated()) {
-					numberOfValidatedNodes += 1;
-				}
-			}
-			Log.d("ValidationActivity", String.format("%d/%d",
-					numberOfValidatedNodes, route.getNodes().size()));
-			
-	        if (distanceToLink <= params.getInRouteDistanceThreshold()) {
-	            linkId = nearestLink.getStartNode().getLinkId();
-	        }
+		    ValidationParameters params = ValidationParameters.getInstance();
+	        List<RouteLink> nearbyLinks = route.getNearbyLinks(lat, lng, params.getValidationDistanceThreshold() + accuracy);
+	        List<RouteLink> sameDirLinks = route.getSameDirectionLinks(nearbyLinks, speedInMph, bearing);
+		    if(!Route.isPending(nearbyLinks, sameDirLinks) && sameDirLinks.size() == 1){
+		        nearestLink = sameDirLinks.get(0);
+		    
+    			boolean alreadyValidated = isTripValidated();
+    
+    			double distanceToLink = nearestLink.distanceTo(lat, lng);
+    			if (!stopValidation.get()
+    					&& distanceToLink <= params
+    							.getValidationDistanceThreshold()) {
+    				Log.i("validated node", nearestLink.getStartNode()
+    						.getNodeIndex() + "");
+    				nearestLink.getStartNode().getMetadata().setValidated(true);
+    			}
+    
+    			if (!alreadyValidated && isTripValidated()) {
+    				runOnUiThread(new Runnable() {
+    					@Override
+    					public void run() {
+    						saveValidation();
+    					}
+    				});
+    			}
+    
+    			int numberOfValidatedNodes = 0;
+    			for (RouteNode node : route.getNodes()) {
+    				if (node.getMetadata().isValidated()) {
+    					numberOfValidatedNodes += 1;
+    				}
+    			}
+    			Log.d("ValidationActivity", String.format("%d/%d",
+    					numberOfValidatedNodes, route.getNodes().size()));
+    			
+    	        if (distanceToLink <= params.getInRouteDistanceThreshold()) {
+    	            linkId = nearestLink.getStartNode().getLinkId();
+    	        }
+	        
+		    }
 	        
 	        getRouteOrReroute().getNearestNode(lat, lng).getMetadata().setPassed(true);
 	        
-	        final RouteLink rerouteNearestLink = getRouteOrReroute().getNearestLink(lat, lng);
-            nearestNode = rerouteNearestLink.getEndNode();
-            
 	        long passedNodeTime = passedNodeTimeOffset.get();
+	        
+	        List<RouteLink> rerouteNearbyLinks = getRouteOrReroute().getNearbyLinks(lat, lng, distanceOutOfRouteThreshold + accuracy);
+            List<RouteLink> rerouteSameDirLinks = getRouteOrReroute().getSameDirectionLinks(nearbyLinks, speedInMph, bearing);
+            if(!Route.isPending(rerouteNearbyLinks, rerouteSameDirLinks)){
+                if(Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)){
+                    if(routeOfRouteCnt.incrementAndGet() == countOutOfRouteThreshold){
+                        reroute(lat, lng, speedInMph, bearing, passedNodeTime);
+                    }
+                }else{
+                    routeOfRouteCnt.set(0);
+                }
+                
+                if(sameDirLinks.size() == 1){
+                    final RouteLink rerouteNearestLink = sameDirLinks.get(0);
+        	        
+        	        if(DebugOptionsActivity.isReroutingDebugMsgEnabled(this) || DebugOptionsActivity.isVoiceDebugMsgEnabled(this)
+        	                || DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(this)){
+            	        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                String msg = "";
+                                if(DebugOptionsActivity.isReroutingDebugMsgEnabled(ValidationActivity.this)){
+                                    msg += "distance from route: " 
+                                        + Double.valueOf(NavigationView.metersToFeet(rerouteNearestLink.distanceTo(lat, lng))).intValue() + " ft" 
+                                        + ", speed: " + Double.valueOf(speedInMph).intValue() + " mph" 
+                                        + "\nconsecutive out of route count: " + routeOfRouteCnt.get()
+                                        + "\nlast API call status: " + lastRerutingApiCallStatus;
+                                }
+                                if(DebugOptionsActivity.isVoiceDebugMsgEnabled(ValidationActivity.this)){
+                                    RouteNode endNodeForLink = rerouteNearestLink.getEndNode();
+                                    RouteNode endNode = endNodeForLink;
+                                    while(StringUtils.isBlank(endNode.getVoice()) && endNode.getNextNode() != null){
+                                        endNode = endNode.getNextNode();
+                                    }
+                                    msg += (StringUtils.isBlank("")?"":"\n")
+                                        + "node: " + endNode.getNodeNum()
+                                        + ", voice radius: " + Double.valueOf(endNode.getVoiceRadius()).intValue() + " ft"
+                                        + "\ndistance from node: " + Double.valueOf(NavigationView.metersToFeet(endNode.distanceTo(lat, lng))).intValue() + " ft"
+                                        + "\nvoice:" + endNode.getVoice()
+                                        + "\nvoice for link (nearest node): " + endNodeForLink.getVoiceForLink();
+                                }
+                                if(DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(ValidationActivity.this)){
+                                    msg += (StringUtils.isBlank("")?"":"\n")
+                                            + "gps accuracy: " + accuracy  + " meters";
+                                }
+                                ((TextView)findViewById(R.id.rerouting_debug_msg)).setText(msg);
+                            }
+                        });
+        		    }
+                }
+            }
+            
+            nearestNode = getRouteOrReroute().getNearestLink(lat, lng).getEndNode();
+            
             long remainingNodeTime = 0;
             for (RouteNode node : getRouteOrReroute().getNodes()) {
                 int time = node.getTime();
@@ -1718,70 +1773,25 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             
             remainingTime.set(remainingNodeTime);
             
-	        if(rerouteNearestLink.distanceTo(lat, lng) > distanceOutOfRouteThreshold
-                    && speedInMph > speedOutOfRouteThreshold){
-                if(routeOfRouteCnt.incrementAndGet() == countOutOfRouteThreshold){
-                    reroute(lat, lng, speedInMph, bearing, passedNodeTime);
-                }
-            }else{
-                routeOfRouteCnt.set(0);
-            }
-	        
-	        if(DebugOptionsActivity.isReroutingDebugMsgEnabled(this) || DebugOptionsActivity.isVoiceDebugMsgEnabled(this)
-	                || DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(this)){
-    	        runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String msg = "";
-                        if(DebugOptionsActivity.isReroutingDebugMsgEnabled(ValidationActivity.this)){
-                            msg += "distance from route: " 
-                                + Double.valueOf(NavigationView.metersToFeet(rerouteNearestLink.distanceTo(lat, lng))).intValue() + " ft" 
-                                + ", speed: " + Double.valueOf(speedInMph).intValue() + " mph" 
-                                + "\nconsecutive out of route count: " + routeOfRouteCnt.get()
-                                + "\nlast API call status: " + lastRerutingApiCallStatus;
-                        }
-                        if(DebugOptionsActivity.isVoiceDebugMsgEnabled(ValidationActivity.this)){
-                            RouteNode endNodeForLink = rerouteNearestLink.getEndNode();
-                            RouteNode endNode = endNodeForLink;
-                            while(StringUtils.isBlank(endNode.getVoice()) && endNode.getNextNode() != null){
-                                endNode = endNode.getNextNode();
-                            }
-                            msg += (StringUtils.isBlank("")?"":"\n")
-                                + "node: " + endNode.getNodeNum()
-                                + ", voice radius: " + Double.valueOf(endNode.getVoiceRadius()).intValue() + " ft"
-                                + "\ndistance from node: " + Double.valueOf(NavigationView.metersToFeet(endNode.distanceTo(lat, lng))).intValue() + " ft"
-                                + "\nvoice:" + endNode.getVoice()
-                                + "\nvoice for link (nearest node): " + endNodeForLink.getVoiceForLink();
-                        }
-                        if(DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(ValidationActivity.this)){
-                            msg += (StringUtils.isBlank("")?"":"\n")
-                                    + "gps accuracy: " + accuracy  + " meters";
-                        }
-                        ((TextView)findViewById(R.id.rerouting_debug_msg)).setText(msg);
-                    }
-                });
-		    }
-	        
             etaDelay.set(currentTime.toMillis(false) - startTime - passedNodeTime * 1000);
             final TextView timeInfo = (TextView) findViewById(R.id.remain_times);
             timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(getETA(), route.getTimezoneOffset()));
             timeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(remainingTime.get()));
             refreshTimeInfo();
-			
-			if (nearestNode.getFlag() != 0) {
-				showNavigationInformation(location, nearestNode);
-			} else {
-				// find the closest RouteNode with a non-zero flag
-				RouteNode node = nearestNode;
-				while (node.getNextNode() != null) {
-					node = node.getNextNode();
-					if (node.getFlag() != 0) {
-						showNavigationInformation(location, node);
-						break;
-					}
-				}
-			}
-
+            
+            if (nearestNode.getFlag() != 0) {
+                showNavigationInformation(location, nearestNode);
+            } else {
+                // find the closest RouteNode with a non-zero flag
+                RouteNode node = nearestNode;
+                while (node.getNextNode() != null) {
+                    node = node.getNextNode();
+                    if (node.getFlag() != 0) {
+                        showNavigationInformation(location, node);
+                        break;
+                    }
+                }
+            }
 		}
 		
 		if(ttsBuffer.isEmpty()){
@@ -1799,7 +1809,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		sendImComingMsg();
 
 		if (!arrived.get() && !getRouteOrReroute().getNodes().isEmpty()
-				&& getRouteOrReroute().hasArrivedAtDestination(lat, lng)) {
+				&& getRouteOrReroute().hasArrivedAtDestination(lat, lng, accuracy, speedInMph, bearing)) {
 			arrived.set(true);
 			arriveAtDestination();
 			Log.d("ValidationActivity", "Arriving at destination");

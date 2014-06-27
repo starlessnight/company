@@ -16,7 +16,9 @@ import android.text.format.Time;
 import android.util.Log;
 
 import com.smartrek.activities.DebugOptionsActivity.NavigationLink;
+import com.smartrek.activities.ValidationActivity;
 import com.smartrek.requests.Request;
+import com.smartrek.requests.Request.Setting;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.NaiveNNS;
 import com.smartrek.utils.RouteLink;
@@ -198,6 +200,7 @@ public final class Route implements Parcelable {
                 node.setVoice(ro.optString("voice"));
                 node.setVoiceRadius(ro.optDouble("voice_radius", 0));
                 node.setVoiceForLink(ro.optString("voice_for_link"));
+                node.setBearing(ro.optDouble("bearing", 0));
                 
                 routeNodes.add(node);
             }
@@ -351,6 +354,65 @@ public final class Route implements Parcelable {
 	        }
 	    }
 	    return nearest;
+	}
+	
+	public static boolean isOutOfRoute(List<RouteLink> nearbyLinks, List<RouteLink> sameDirLinks){
+	    return nearbyLinks.isEmpty() || nearbyLinks.size() == 1 && sameDirLinks.isEmpty();
+	}
+	
+	public static boolean isPending(List<RouteLink> nearbyLinks, List<RouteLink> sameDirLinks){
+        return sameDirLinks.size() > 1 || (nearbyLinks.size() > 1 && sameDirLinks.isEmpty());
+    }
+	
+	public List<RouteLink> getNearbyLinks(double latitude, double longitude, double limit) {
+        List<RouteLink> links = new ArrayList<RouteLink>();
+        for (RouteNode node : routeNodes) {
+            RouteNode prevNode = node.getPrevNode();
+            RouteNode nextNode = node.getNextNode();
+            RouteLink link = null;
+            if (prevNode != null && nextNode != null) {
+                RouteLink prevLink = new RouteLink(node.getPrevNode(), node);
+                RouteLink nextLink = new RouteLink(node, node.getNextNode()); 
+
+                double distanceToPrev = prevLink.distanceTo(latitude, longitude);
+                double distanceToNext = nextLink.distanceTo(latitude, longitude);
+                
+                link = distanceToPrev < distanceToNext ? new RouteLink(prevNode, node) : new RouteLink(node, nextNode);
+            }
+            else if (node.getPrevNode() != null) {
+                link = new RouteLink(node.getPrevNode(), node);
+            }
+            else if (node.getNextNode() != null) {
+                link = new RouteLink(node, node.getNextNode());
+            }
+            else {
+                Log.e("Route", "Should not reach here. A route link must have at least one of prevNode and nextNode.");
+            }
+            if(link != null){
+                links.add(link);
+            }
+        }
+        List<RouteLink> nearbyLinks = new ArrayList<RouteLink>();
+        for(RouteLink link:links){
+            if(link.distanceTo(latitude, longitude) < limit){
+                nearbyLinks.add(link);
+            }
+        }
+        return nearbyLinks;
+    }
+	
+	public List<RouteLink> getSameDirectionLinks(List<RouteLink> nearbyLinks, 
+	        double speedInMph, double bearing) {
+	    List<RouteLink> links = new ArrayList<RouteLink>();
+	    for(RouteLink link:nearbyLinks){
+	        double linkBearing = link.getStartNode().getBearing();
+	        if(speedInMph < ValidationActivity.speedOutOfRouteThreshold
+	                || ((bearing - 30 + 360) < (linkBearing + 360)
+                        && (linkBearing + 360) < (bearing + 30 + 360))){
+	            links.add(link);
+	        }
+	    }
+	    return links;
 	}
 	
 	public RouteNode getNextTurnNode(RouteNode currentNode, int indexOffset) {
@@ -514,12 +576,18 @@ public final class Route implements Parcelable {
 	 * @param lng
 	 * @return
 	 */
-	public boolean hasArrivedAtDestination(double lat, double lng) {
+	public boolean hasArrivedAtDestination(double lat, double lng, float accuracy, double speedMph, double bearing) {
 		RouteNode lastNode = routeNodes.get(routeNodes.size() - 1);
 		ValidationParameters params = ValidationParameters.getInstance();
 		boolean arrived = false;
 		if(lastNode.distanceTo(lat, lng) <= params.getArrivalDistanceThreshold()){
-		    RouteLink nearestLink = getNearestLink(lat, lng);
+		    RouteLink nearestLink = null;
+		    double distanceLimit = ((Number)Request.getSetting(Setting.reroute_trigger_distance_in_meter)).doubleValue() + accuracy;
+	        List<RouteLink> nearbyLinks = getNearbyLinks(lat, lng, distanceLimit);
+	        List<RouteLink> sameDirLinks = getSameDirectionLinks(nearbyLinks, speedMph, bearing);
+	        if(!Route.isPending(nearbyLinks, sameDirLinks) && sameDirLinks.size() == 1){
+	            nearestLink = sameDirLinks.get(0);
+	        }
 		    arrived = nearestLink == null || nearestLink.getEndNode() == lastNode 
 	            && nearestLink.getStartNode().getMetadata().isPassed();
 		}
