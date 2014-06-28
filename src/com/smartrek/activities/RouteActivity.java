@@ -633,6 +633,10 @@ public final class RouteActivity extends FragmentActivity {
         
         rescheduleReservId = extras.getLong(RESCHEDULE_RESERVATION_ID);
         final TextView reserveView = (TextView) findViewById(R.id.reserve);
+        if(rescheduleReservId > 0) {
+        	reserveView.setText("Reschedule Trip");
+        	findViewById(R.id.reserve_panel).setBackgroundColor(getResources().getColor(R.color.metropia_red));
+        }
         reserveView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
