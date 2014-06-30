@@ -95,8 +95,8 @@ public class CalendarService extends IntentService {
                                .put(Instances.BEGIN, start)
                                .put(Instances.END, end)
                                .put(Instances.EVENT_LOCATION, location)
-                               .put(LAT, address.getLatitude())
-                               .put(LON, address.getLongitude());
+                               .put(LAT, address == null?0:address.getLatitude())
+                               .put(LON, address == null?0:address.getLongitude());
                            FileUtils.write(file, eventJson.toString());
                            if(hasNotification){
                                break;
