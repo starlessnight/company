@@ -16,7 +16,6 @@ import android.text.format.Time;
 import android.util.Log;
 
 import com.smartrek.activities.DebugOptionsActivity.NavigationLink;
-import com.smartrek.activities.ValidationActivity;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.Request.Setting;
 import com.smartrek.utils.GeoPoint;
@@ -365,7 +364,7 @@ public final class Route implements Parcelable {
     }
 	
 	public List<RouteLink> getNearbyLinks(double latitude, double longitude, double limit) {
-        List<RouteLink> links = new ArrayList<RouteLink>();
+	    /*List<RouteLink> links = new ArrayList<RouteLink>();
         for (RouteNode node : routeNodes) {
             RouteNode prevNode = node.getPrevNode();
             RouteNode nextNode = node.getNextNode();
@@ -391,18 +390,20 @@ public final class Route implements Parcelable {
             if(link != null){
                 links.add(link);
             }
-        }
+        }*/
         List<RouteLink> nearbyLinks = new ArrayList<RouteLink>();
-        for(RouteLink link:links){
+        /*for(RouteLink link:links){
             if(link.distanceTo(latitude, longitude) < limit){
                 nearbyLinks.add(link);
             }
-        }
+        }*/
+        nearbyLinks.add(getNearestLink(latitude, longitude));
         return nearbyLinks;
     }
 	
 	public List<RouteLink> getSameDirectionLinks(List<RouteLink> nearbyLinks, 
 	        double speedInMph, double bearing) {
+	    /*
 	    List<RouteLink> links = new ArrayList<RouteLink>();
 	    for(RouteLink link:nearbyLinks){
 	        double linkBearing = link.getStartNode().getBearing();
@@ -412,7 +413,8 @@ public final class Route implements Parcelable {
 	            links.add(link);
 	        }
 	    }
-	    return links;
+	    */
+	    return nearbyLinks;
 	}
 	
 	public RouteNode getNextTurnNode(RouteNode currentNode, int indexOffset) {
