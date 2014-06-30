@@ -86,6 +86,7 @@ import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.NotificationDialog2;
+import com.smartrek.dialogs.NotificationDialog2.ActionListener;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
@@ -1475,7 +1476,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
+						final Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
 						if(reserv.isEligibleTrip()) {
 							Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
 			                intent.putExtra("route", reserv.getRoute());
@@ -1486,22 +1487,39 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			                startActivity(intent);
 						}
 						else {
-							RescheduleTripTask rescheduleTask = new RescheduleTripTask(LandingActivity2.this, 
-									new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude()), null, reserv.getDestinationAddress(), 
-					        		reserv.getRid(), ehs);
-							rescheduleTask.callback = new RescheduleTripTask.Callback() {
-	                            @Override
-	                            public void run(Reservation reservation) {
-	                                Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
-	                                intent.putExtra("route", reservation.getRoute());
-	                                intent.putExtra("reservation", reservation);
-	                                hideBulbBalloon();
-	                                hideStarredBalloon();
-	                                removeAllOD();
-	                                startActivity(intent);
-	                            }
-	                        };
-	                        Misc.parallelExecute(rescheduleTask);
+							NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, "Would you like to start your trip early?");
+							dialog.setVerticalOrientation(false);
+							dialog.setTitle("");
+							dialog.setNegativeButtonText("Yes");
+							dialog.setNegativeActionListener(new ActionListener() {
+								@Override
+								public void onClick() {
+									RescheduleTripTask rescheduleTask = new RescheduleTripTask(LandingActivity2.this, 
+											new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude()), null, reserv.getDestinationAddress(), 
+							        		reserv.getRid(), ehs);
+									rescheduleTask.callback = new RescheduleTripTask.Callback() {
+			                            @Override
+			                            public void run(Reservation reservation) {
+			                                Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
+			                                intent.putExtra("route", reservation.getRoute());
+			                                intent.putExtra("reservation", reservation);
+			                                hideBulbBalloon();
+			                                hideStarredBalloon();
+			                                removeAllOD();
+			                                startActivity(intent);
+			                            }
+			                        };
+			                        Misc.parallelExecute(rescheduleTask);
+								}
+							});
+							dialog.setPositiveButtonText("No");
+							dialog.setPositiveActionListener(new ActionListener() {
+								@Override
+								public void onClick() {
+									//do nothing
+								}
+							});
+							dialog.show();
 						}
 					}
 				});
