@@ -462,7 +462,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
         });
         final View searchBoxClear = findViewById(R.id.search_box_clear);
-        DelayTextWatcher delayTextWatcher = new DelayTextWatcher(new TextChangeListener(){
+        DelayTextWatcher delayTextWatcher = new DelayTextWatcher(searchBox, new TextChangeListener(){
 			@Override
 			public void onTextChanged(CharSequence text) {
 				searchBoxClear.setVisibility(StringUtils.isBlank(text)?View.GONE:View.VISIBLE); 
@@ -551,7 +551,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
         });
         final View fromSearchBoxClear = findViewById(R.id.from_search_box_clear);
-        DelayTextWatcher fromDelayTextWatcher = new DelayTextWatcher(new TextChangeListener(){
+        DelayTextWatcher fromDelayTextWatcher = new DelayTextWatcher(fromSearchBox, new TextChangeListener(){
             @Override
             public void onTextChanged(CharSequence text) {
                 fromSearchBoxClear.setVisibility(StringUtils.isBlank(text)?View.GONE:View.VISIBLE); 
@@ -892,7 +892,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         	
         });
         final View favSearchBoxClear = findViewById(R.id.fav_search_box_clear);
-        DelayTextWatcher delayFavTextWatcher = new DelayTextWatcher(new TextChangeListener(){
+        DelayTextWatcher delayFavTextWatcher = new DelayTextWatcher(favSearchBox, new TextChangeListener(){
 			@Override
 			public void onTextChanged(CharSequence text) {
 				favSearchBoxClear.setVisibility(StringUtils.isBlank(text)||!favSearchBox.isEnabled()?View.GONE:View.VISIBLE); 

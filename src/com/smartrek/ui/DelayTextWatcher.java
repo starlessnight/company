@@ -1,8 +1,12 @@
 package com.smartrek.ui;
 
+import android.graphics.Color;
 import android.os.Handler;
 import android.text.Editable;
+import android.text.Spannable;
 import android.text.TextWatcher;
+import android.text.style.BackgroundColorSpan;
+import android.widget.EditText;
 
 public class DelayTextWatcher implements TextWatcher {
 	
@@ -15,8 +19,10 @@ public class DelayTextWatcher implements TextWatcher {
 	private TextChangeListener listener;
 	private long delay;
 	private NotificationRunnable currentTask;
+	private EditText mEditText;
 	
-	public DelayTextWatcher(TextChangeListener listener, long delay) {
+	public DelayTextWatcher(EditText mEditText, TextChangeListener listener, long delay) {
+	    this.mEditText = mEditText;
 		this.listener = listener;
 		this.delay = delay;
 		this.delayHandler = new Handler();
@@ -29,6 +35,8 @@ public class DelayTextWatcher implements TextWatcher {
 
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count) {
+	    mEditText.getText().setSpan(new BackgroundColorSpan(Color.TRANSPARENT), 
+            start, start + count, Spannable.SPAN_COMPOSING);
 	}
 
 	@Override
