@@ -1585,6 +1585,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		}
     	});
     	
+    	findViewById(R.id.header_panel).setOnClickListener(new OnClickListener() {
+    		@Override
+    		public void onClick(View v) {
+    		}
+    	});
+    	
     	ImageView reservListBack = (ImageView) findViewById(R.id.reservation_list_back);
     	reservListBack.setOnClickListener(new OnClickListener() {
 			@Override
