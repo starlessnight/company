@@ -122,6 +122,8 @@ public final class RouteActivity extends FragmentActivity {
 	public static final String DEST_ADDR = "destAddr";
 	
 	public static final String ORIGIN_COORD = "originCoord";
+	public static final String ORIGIN_COORD_PROVIDER = "ORIGIN_COORD_PROVIDER";
+	public static final String ORIGIN_COORD_TIME = "ORIGIN_COORD_TIME";
     public static final String DEST_COORD = "destCoord";
     
     public static final String CURRENT_LOCATION = "CURRENT_LOCATION";
@@ -150,6 +152,8 @@ public final class RouteActivity extends FragmentActivity {
     private String originAddr;
     private String destAddr;
     private GeoPoint originCoord;
+    private String originCoordProvider;
+    private long originCoordTime;
     private GeoPoint destCoord;
     
     private double speed;
@@ -542,6 +546,8 @@ public final class RouteActivity extends FragmentActivity {
             if(pOriginCoord != null){
                 originCoord = new GeoPoint(pOriginCoord);
             }
+            originCoordProvider = extras.getString(ORIGIN_COORD_PROVIDER);
+            originCoordTime = extras.getLong(ORIGIN_COORD_TIME);
             org.osmdroid.util.GeoPoint pDestCoord = extras.getParcelable(DEST_COORD);
             if(pOriginCoord != null){
                 destCoord = new GeoPoint(pDestCoord);
@@ -583,6 +589,8 @@ public final class RouteActivity extends FragmentActivity {
                                         locationManager.removeUpdates(this);
                                         currentLocDialog.dismiss();
                                         originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
+                                        originCoordProvider = location.getProvider();
+                                        originCoordTime = location.getTime();
                                         speed = Trajectory.msToMph(location.getSpeed());
                                         course = location.getBearing();
                                         doRouteTask();
@@ -729,7 +737,7 @@ public final class RouteActivity extends FragmentActivity {
 	                        Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
 	                        intent.putExtra("route", reservation.getRoute());
 	                        intent.putExtra("reservation", reservation);
-	                        intent.putExtra(ValidationActivity.CURRENT_LOCATION, (Parcelable)originCoord);
+	                        put_cur_location_if_GPS_provider_and_less_than_1_min_old(intent);
 	                        startActivity(intent);
 	                        finish();
 	                    }else{
@@ -744,7 +752,7 @@ public final class RouteActivity extends FragmentActivity {
 	                                    Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
 	                                    intent.putExtra("route", reservation.getRoute());
 	                                    intent.putExtra("reservation", reservation);
-	                                    intent.putExtra(ValidationActivity.CURRENT_LOCATION, (Parcelable)originCoord);
+	                                    put_cur_location_if_GPS_provider_and_less_than_1_min_old(intent);
 	                                    startActivity(intent);
 	                                    finish();
 	                                }else{
@@ -804,6 +812,13 @@ public final class RouteActivity extends FragmentActivity {
         
         Font.setTypeface(mediumFont, (TextView)findViewById(R.id.departure_row), arriveRow, 
                 durationRow, (TextView)findViewById(R.id.mpoint_row), onMyWayView, letsGoView, reserveView);
+    }
+    
+    private void put_cur_location_if_GPS_provider_and_less_than_1_min_old(Intent intent){
+        if(LocationManager.GPS_PROVIDER.equals(originCoordProvider) 
+                && (System.currentTimeMillis() - originCoordTime) < 60000){
+            intent.putExtra(ValidationActivity.CURRENT_LOCATION, (Parcelable)originCoord);
+        }
     }
     
     private long rescheduleReservId;
@@ -1235,7 +1250,7 @@ public final class RouteActivity extends FragmentActivity {
                 Intent validationActivity = new Intent(RouteActivity.this, ValidationActivity.class);
                 validationActivity.putExtra("route", reservation.getRoute());
                 validationActivity.putExtra("reservation", reservation);
-                validationActivity.putExtra(ValidationActivity.CURRENT_LOCATION, (Parcelable)originCoord);
+                put_cur_location_if_GPS_provider_and_less_than_1_min_old(validationActivity);
                 validationActivity.putExtra(ValidationActivity.EMAILS, emails);
                 validationActivity.putExtra(ValidationActivity.PHONES, phones);
                 startActivity(validationActivity);
@@ -1253,7 +1268,7 @@ public final class RouteActivity extends FragmentActivity {
                             Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
                             intent.putExtra("route", reservation.getRoute());
                             intent.putExtra("reservation", reservation);
-                            intent.putExtra(ValidationActivity.CURRENT_LOCATION, (Parcelable)originCoord);
+                            put_cur_location_if_GPS_provider_and_less_than_1_min_old(intent);
                             intent.putExtra(ValidationActivity.EMAILS, emails);
                             intent.putExtra(ValidationActivity.PHONES, phones);
                             startActivity(intent);

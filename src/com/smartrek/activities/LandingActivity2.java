@@ -239,6 +239,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private POIOverlay curFrom;
     private POIOverlay curTo;
     
+    private String curFromProvider;
+    private long curFromTime;
+    
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
     
@@ -1566,6 +1569,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		                            extras.putString("originAddr", EditAddress.CURRENT_LOCATION);
 		                            GeoPoint origin = new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude());
 		                            extras.putParcelable(RouteActivity.ORIGIN_COORD, origin);
+		                            extras.putString(RouteActivity.ORIGIN_COORD_PROVIDER, lastLocation.getProvider());
+		                            extras.putLong(RouteActivity.ORIGIN_COORD_TIME, lastLocation.getTime());
 		                            extras.putString("destAddr", addr);
 		                            extras.putParcelable(RouteActivity.DEST_COORD, gp);
 		                            intent.putExtras(extras);
@@ -1706,6 +1711,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                            extras.putString("originAddr", EditAddress.CURRENT_LOCATION);
 	                            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(
                                     lastLocation.getLatitude(), lastLocation.getLongitude()));
+	                            extras.putString(RouteActivity.ORIGIN_COORD_PROVIDER, lastLocation.getProvider());
+                                extras.putLong(RouteActivity.ORIGIN_COORD_TIME, lastLocation.getTime());
 	                            extras.putString("destAddr", addr);
 	                            extras.putParcelable(RouteActivity.DEST_COORD, gp);
 	                            intent.putExtras(extras);
@@ -2708,6 +2715,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 //            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude()));
 //            extras.putParcelable(RouteActivity.ORIGIN_COORD, debugOrigin);
             extras.putParcelable(RouteActivity.ORIGIN_COORD, curFrom.getGeoPoint());
+            extras.putString(RouteActivity.ORIGIN_COORD_PROVIDER, curFromProvider);
+            extras.putLong(RouteActivity.ORIGIN_COORD_TIME, curFromTime);
             extras.putString(RouteActivity.DEST_ADDR, curTo.getAddress());
             extras.putParcelable(RouteActivity.DEST_COORD, curTo.getGeoPoint());
             extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, curFrom.getPoiOverlayInfo());
@@ -2852,6 +2861,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	poi.markODPoi();
     	if(isFromPoi()) {
     		curFrom = poi;
+    		curFromProvider = null;
+    		curFromTime = 0;
     	}
     	else {
     		curTo = poi;
@@ -2863,6 +2874,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     			curFrom.setIsFromPoi(true);
     			mapView.getOverlays().add(curFrom);
     			curFrom.showMiniBalloonOverlay();
+    			curFromProvider = lastLocation.getProvider();
+                curFromTime = lastLocation.getTime();
     		}
     		findViewById(R.id.get_route).setVisibility(View.VISIBLE);
     	}
