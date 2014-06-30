@@ -90,8 +90,10 @@ public class RoutePathOverlay extends Overlay {
 		DisplayMetrics dm = mapView.getResources().getDisplayMetrics();
         float thickness = Dimension.dpToPx(1 + zoom/2 + (highlighted ? 1 : -1), dm);
         
-        drawPath(canvas, new Paint(), projection, routeNodes, 
-            thickness, getDarkerColor(color));
+        if(!dashEffect){
+            drawPath(canvas, new Paint(), projection, routeNodes, 
+                thickness, getDarkerColor(color));
+        }
         
 		Paint path = new Paint();
 		Point originPoint = drawPath(canvas, path, projection, routeNodes, 
