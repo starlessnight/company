@@ -1,5 +1,6 @@
 package com.smartrek.models;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,6 +34,10 @@ public class Contact implements Parcelable {
         lastnameInitial = in.readString();
         email = in.readString();
         phone = in.readString();
+    }
+    
+    public String getContactString() {
+    	return StringUtils.isNotBlank(email)?email:phone;
     }
     
     @Override

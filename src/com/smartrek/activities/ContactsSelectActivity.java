@@ -1,11 +1,13 @@
 package com.smartrek.activities;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +15,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
@@ -37,7 +41,6 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -68,6 +71,8 @@ public class ContactsSelectActivity extends FragmentActivity {
 	private Set<String> selectedContactPhones = new HashSet<String>();
 	private Set<String> manualInputEmail = new HashSet<String>();
 	private List<Contact> contactList = new ArrayList<Contact>();
+	private JSONObject frequencyContacts;
+	private JSONObject topFiveContacts;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -103,6 +108,10 @@ public class ContactsSelectActivity extends FragmentActivity {
 						Intent resultIntent = new Intent();
 						resultIntent.putExtra(ValidationActivity.EMAILS, StringUtils.join(selectedContactEmails, ","));
 						resultIntent.putExtra(ValidationActivity.PHONES, StringUtils.join(selectedContactPhones, ","));
+						Set<String> allSelectedContacts = new HashSet<String>();
+						allSelectedContacts.addAll(selectedContactEmails);
+						allSelectedContacts.addAll(selectedContactPhones);
+						saveSelectedContacts(allSelectedContacts);
 						setResult(Activity.RESULT_OK, resultIntent);
 						finish();
 					}
@@ -186,6 +195,8 @@ public class ContactsSelectActivity extends FragmentActivity {
 	    contactListView.setFastScrollEnabled(true);
 	    Misc.setFastScrollAlwaysVisible(contactListView);
 	    
+	    initFrequencyContacts();
+	    
 	    AsyncTask<Void, Void, ArrayList<Contact>> task = new AsyncTask<Void, Void, ArrayList<Contact>>(){
             @Override
             protected ArrayList<Contact> doInBackground(Void... params) {
@@ -228,6 +239,37 @@ public class ContactsSelectActivity extends FragmentActivity {
         Misc.parallelExecute(task);
 	}
 	
+	private void initFrequencyContacts() {
+		try {
+			frequencyContacts = new JSONObject(FileUtils.readFileToString(getFile(ContactsSelectActivity.this)));
+			Iterator<String> contacts = frequencyContacts.keys();
+			List<FrequencyContact> freqContacts = new ArrayList<FrequencyContact>();
+			while(contacts.hasNext()) {
+				String contact = contacts.next();
+				FrequencyContact fc = new FrequencyContact();
+				fc.value = contact;
+				fc.count = frequencyContacts.getInt(contact);
+				freqContacts.add(fc);
+			}
+			Collections.sort(freqContacts, new Comparator<FrequencyContact>() {
+				@Override
+				public int compare(FrequencyContact lhs, FrequencyContact rhs) {
+					return Integer.valueOf(rhs.count).compareTo(Integer.valueOf(lhs.count));
+				}
+			});
+			//get top 5 contacts
+			topFiveContacts = new JSONObject();
+			for(int i = 0 ; i < freqContacts.size() && i < 5 ; i++) {
+				FrequencyContact contact = freqContacts.get(i);
+				topFiveContacts.put(contact.value, contact.count);
+			}
+		} catch (Throwable t) {
+			Log.d("FrequencyContactIO", Log.getStackTraceString(t));
+			frequencyContacts = new JSONObject();
+			topFiveContacts = new JSONObject();
+		} 
+	}
+	
 	private String listToString(Collection<String> list) {
 		StringBuffer string = new StringBuffer();
 		for(String email : list) {
@@ -235,6 +277,28 @@ public class ContactsSelectActivity extends FragmentActivity {
 		}
 		return string.toString();
 	}
+	
+	private void saveSelectedContacts(Set<String> selectedContacts) {
+		try {
+			for(String contact : selectedContacts) {
+				if(frequencyContacts.has(contact)) {
+					int count = frequencyContacts.getInt(contact);
+					frequencyContacts.put(contact, count + 1);
+				}
+				else {
+					frequencyContacts.put(contact, 1);
+				}
+			}
+			FileUtils.writeStringToFile(getFile(this), frequencyContacts.toString());
+		}
+		catch(Throwable t) {
+			 Log.d("FrequencyContactIO", Log.getStackTraceString(t));
+		}
+	}
+	
+	private static File getFile(Context ctx){
+        return new File(ctx.getExternalFilesDir(null), "frequency_contact_list");
+    }
 	
 	public static ArrayList<Contact> loadContactList(Context ctx){
 	    ArrayList<Contact> contacts = new ArrayList<Contact>();
@@ -355,6 +419,24 @@ public class ContactsSelectActivity extends FragmentActivity {
                 Collections.sort(filteredList, new Comparator<Contact>() {
                     @Override
                     public int compare(Contact lhs, Contact rhs) {
+                    	try {
+	                    	if(topFiveContacts.has(lhs.getContactString()) && topFiveContacts.has(rhs.getContactString())) {
+	                    		int result = Integer.valueOf(topFiveContacts.getInt(rhs.getContactString())).compareTo(Integer.valueOf(topFiveContacts.getInt(lhs.getContactString())));
+	                    		if(result==0) {
+	                    			result = (lhs.lastnameInitial + " " + lhs.name).compareTo(rhs.lastnameInitial + " " + rhs.name);
+	                    		}
+	                    		return result;
+	                    	}
+	                    	else if(topFiveContacts.has(lhs.getContactString())){
+	                    		return -1;
+	                    	}
+	                    	else if(topFiveContacts.has(rhs.getContactString())) {
+	                    		return 1;
+	                    	}
+                    	}
+                    	catch(Throwable t) {
+                    		Log.e("FrequencyContact", Log.getStackTraceString(t));
+                    	}
                         return (lhs.lastnameInitial + " " + lhs.name).compareTo(
                             rhs.lastnameInitial + " " + rhs.name);
                     }
@@ -487,6 +569,12 @@ public class ContactsSelectActivity extends FragmentActivity {
             return section;
         }
         
+    }
+    
+    private class FrequencyContact {
+    	String name;
+    	String value;
+    	Integer count;
     }
 
 }
