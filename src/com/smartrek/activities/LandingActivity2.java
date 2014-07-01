@@ -2634,8 +2634,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                    }
 	                }
 	                catch(Exception e) {
-	                	Log.d("drawRoute", e.getMessage());
-	                    ehs.registerException(e);
+	                	Log.d("drawRoute", Log.getStackTraceString(e));
 	                }                                
 	                return routes;
 	            }
