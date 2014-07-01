@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -20,7 +19,6 @@ import android.widget.TextView;
 
 import com.smartrek.activities.LandingActivity2.PoiOverlayInfo;
 import com.smartrek.activities.R;
-import com.smartrek.utils.Dimension;
 import com.smartrek.utils.GeoPoint;
 
 public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
@@ -167,14 +165,6 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 		layout.findViewById(R.id.poi_content).setVisibility(View.GONE);
 		layout.findViewById(R.id.poi_content_detail).setVisibility(View.GONE);
 		View poiContentMini = layout.findViewById(R.id.poi_content_mini);
-		BubbleDrawable bubble = new BubbleDrawable(BubbleDrawable.CENTER);
-		bubble.setCornerRadius(Dimension.dpToPx(5, dm));
-		bubble.addShadowEffect();
-		bubble.setColor(Color.parseColor("#B2FFFFFF"));
-		bubble.setPadding(0, 0, 0, 0);
-		bubble.setPointerWidth(Dimension.dpToPx(11, dm));
-		bubble.setPointerHeight(Dimension.dpToPx(8, dm));
-		poiContentMini.setBackgroundDrawable(bubble);
 		poiContentMini.setVisibility(View.VISIBLE);
 	}
 	
@@ -184,13 +174,6 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 		layout.findViewById(R.id.poi_content).setVisibility(View.GONE);
 		layout.findViewById(R.id.poi_content_mini).setVisibility(View.GONE);
 		View poiContentDetail = layout.findViewById(R.id.poi_content_detail);
-		BubbleDrawable bubble = new BubbleDrawable(BubbleDrawable.CENTER);
-		bubble.setCornerRadius(Dimension.dpToPx(5, dm));
-		bubble.addShadowEffect();
-		bubble.setPadding(0, 0, 0, 0);
-		bubble.setPointerWidth(Dimension.dpToPx(5, dm));
-		bubble.setPointerHeight(Dimension.dpToPx(5, dm));
-		poiContentDetail.setBackgroundDrawable(bubble);
 		poiContentDetail.setVisibility(View.VISIBLE);
 	}
 	
@@ -210,10 +193,10 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 		TextView detailContentTitleView = (TextView) layout.findViewById(R.id.poi_detail_title);
 		detailContentTitleView.setText(title);
 		if(!isFromPoi) {
-			detailContentTitleView.setBackgroundResource(R.drawable.poi_popup_title_background);
-			layout.findViewById(R.id.poi_content_detail_spliter).setBackgroundColor(layout.getResources().getColor(R.color.metropia_blue));
+			layout.findViewById(R.id.poi_content_detail).setBackgroundResource(R.drawable.to_departure_page_detail);
 		}
 		else {
+			layout.findViewById(R.id.poi_content_detail).setBackgroundResource(R.drawable.from_departure_page_detail);
 			detailContentTitleView.setTextColor(layout.getResources().getColor(R.color.metropia_blue));
 		}
 	}

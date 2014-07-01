@@ -5,7 +5,6 @@ import org.osmdroid.views.overlay.OverlayItem;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
-import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +19,6 @@ import com.smartrek.ui.ClickAnimation;
 import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.ui.overlays.BalloonItemizedOverlay.IBalloonOverlayView;
 import com.smartrek.ui.overlays.POIOverlay.POIActionListener;
-import com.smartrek.utils.Dimension;
 import com.smartrek.utils.Font;
 
 public class POIOverlayView<Item extends OverlayItem> extends FrameLayout
@@ -47,16 +45,6 @@ public class POIOverlayView<Item extends OverlayItem> extends FrameLayout
 		LayoutInflater inflater = (LayoutInflater) context
 				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View v = inflater.inflate(R.layout.poi_overlay, layout);
-		
-		View poiContent = v.findViewById(R.id.poi_content);
-		BubbleDrawable bubble = new BubbleDrawable(BubbleDrawable.CENTER);
-		DisplayMetrics dm = context.getResources().getDisplayMetrics();
-		bubble.setCornerRadius(Dimension.dpToPx(5, dm));
-		bubble.addShadowEffect();
-		bubble.setPadding(0, 0, 0, 0);
-		bubble.setPointerWidth(Dimension.dpToPx(20, dm));
-		bubble.setPointerHeight(Dimension.dpToPx(10, dm));
-		poiContent.setBackgroundDrawable(bubble);
 		
 		TextView titleView = (TextView) v.findViewById(R.id.poi_title);
 		

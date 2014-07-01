@@ -179,7 +179,8 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:layout_alignParentBottom="true"> 
+                    android:layout_alignParentBottom="true"
+                    android:background="@color/metropia_green"> 
 
 	                <include
 	                    android:layout_width="fill_parent"
@@ -188,15 +189,17 @@
 	                
 	                <TextView 
 	                    android:id="@+id/get_route"
-	                    android:layout_width="fill_parent"
+	                    android:layout_width="wrap_content"
 	                    android:layout_height="wrap_content"
-	                    android:background="@color/metropia_green"
+	                    android:layout_gravity="center"
 	                    android:gravity="center"
 	                    android:text="Get Route!"
 	                    android:paddingTop="5dp"
 	                    android:paddingBottom="5dp"
 	                    android:textSize="@dimen/medium_font"
 	                    android:textColor="@android:color/white"
+	                    android:drawableRight="@drawable/get_route_arrow"
+	                    android:drawablePadding="20dp"
 	                    android:visibility="gone"/>
                 
                 </LinearLayout>

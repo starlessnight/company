@@ -7,16 +7,16 @@
 
     <LinearLayout
         android:id="@+id/poi_content"
-        android:layout_width="300dp"
-        android:layout_height="110dp"
+        android:layout_width="275dp"
+        android:layout_height="115dp"
         android:layout_gravity="center"
+        android:background="@drawable/landing_page_popup_box"
         android:orientation="vertical" >
 
         <TextView
             android:id="@+id/poi_title"
             android:layout_width="fill_parent"
             android:layout_height="27dp"
-            android:background="@drawable/poi_popup_title_background"
             android:gravity="center"
             android:text="FROM"
             android:textColor="@android:color/white"
@@ -25,17 +25,18 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="38dp"
-            android:orientation="horizontal" >
+            android:orientation="horizontal"
+            android:paddingLeft="5dp" >
 
             <TextView
                 android:id="@+id/label"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:drawablePadding="10dp"
                 android:gravity="center"
                 android:maxWidth="120dp"
                 android:paddingLeft="5dp"
                 android:paddingRight="17dp"
-                android:drawablePadding="10dp"
                 android:singleLine="true"
                 android:textColor="@color/gray"
                 android:textSize="16dp" />
@@ -51,11 +52,6 @@
                 android:textSize="13dp" />
         </LinearLayout>
 
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="1dp"
-            android:background="@color/secondary_font" />
-
         <TextView
             android:id="@+id/fav_option"
             android:layout_width="match_parent"
@@ -63,6 +59,11 @@
             android:gravity="center"
             android:textColor="@color/metropia_blue"
             android:textSize="@dimen/smaller_font" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
     </LinearLayout>
 
     <LinearLayout
@@ -70,26 +71,32 @@
         android:layout_width="80dp"
         android:layout_height="41dp"
         android:layout_gravity="center|bottom"
+        android:background="@drawable/from_to_pin"
         android:orientation="vertical"
         android:visibility="gone" >
 
         <TextView
             android:id="@+id/poi_mini_title"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="35dp"
             android:gravity="center"
+            android:includeFontPadding="false"
             android:text="FROM"
             android:textColor="@color/metropia_blue"
-            android:textSize="17dp"
-            android:includeFontPadding="false" />
+            android:textSize="17dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/poi_content_detail"
-        android:layout_width="250dp"
+        android:layout_width="200dp"
         android:layout_height="40dp"
         android:layout_gravity="center|bottom"
+        android:background="@drawable/from_departure_page_detail"
         android:orientation="vertical"
         android:visibility="gone" >
 
@@ -102,20 +109,21 @@
             android:textColor="@android:color/white"
             android:textSize="13dp" />
 
-        <View
-            android:id="@+id/poi_content_detail_spliter"
-            android:layout_width="fill_parent"
-            android:layout_height="1dp"
-            android:background="@color/secondary_font" />
-
         <TextView
             android:id="@+id/detail_address"
             android:layout_width="match_parent"
-            android:layout_height="18dp"
+            android:layout_height="20dp"
             android:gravity="center"
+            android:paddingLeft="2dp"
+            android:paddingRight="2dp"
             android:singleLine="true"
             android:textColor="@color/gray"
             android:textSize="14dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
     </LinearLayout>
 
 </FrameLayout>
