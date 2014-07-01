@@ -1953,7 +1953,26 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     GeoPoint gp = addr.getGeoPoint();
                     DebugOptionsActivity.addRecentAddress(LandingActivity2.this, addrStr);
                     final MapView mapView = (MapView) findViewById(R.id.mapview);
-                    refreshPOIMarker(mapView, gp.getLatitude(), gp.getLongitude(), addr.getAddress(), addr.getName());
+                    POIOverlay poiOverlay = getPOIOverlayByAddress(mapView, addr.getAddress());
+                    if(poiOverlay != null) {
+                    	hideStarredBalloon();
+                    	hideBulbBalloon();
+                    	removePOIMarker(mapView);
+                    	handleOD(mapView, poiOverlay);
+                    	if(poiOverlay.getMarker()==R.drawable.bulb_poi) {
+                    		curBulb = poiOverlay;
+                    	}
+                    	else {
+                    		curStar = poiOverlay;
+                    	}
+                    	poiOverlay.markODPoi();
+                    	poiOverlay.setIsFromPoi(isFromPoi());
+                    	poiOverlay.showBalloonOverlay();
+                        mapView.postInvalidate();
+                    }
+                    else {
+                    	refreshPOIMarker(mapView, gp.getLatitude(), gp.getLongitude(), addr.getAddress(), addr.getName());
+                    }
                     IMapController mc = mapView.getController();
                     if(zoomIn){
 	                    mc.setZoom(SEARCH_ZOOM_LEVEL);
@@ -1971,6 +1990,19 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
         };
         Misc.parallelExecute(task);
+    }
+    
+    private POIOverlay getPOIOverlayByAddress(MapView mapView, String addr) {
+    	List<Overlay> overlays = mapView.getOverlays();
+    	for(Overlay overlay : overlays) {
+    		if(overlay instanceof POIOverlay) {
+    			POIOverlay poi = (POIOverlay)overlay;
+    			if(StringUtils.equalsIgnoreCase(addr, poi.getAddress())) {
+    				return poi;
+    			}
+    		}
+    	}
+    	return null;
     }
     
     private void refreshAutoCompleteData(ListView searchList, ArrayAdapter<Address> adapter, List<Address> searchedAddresses) {

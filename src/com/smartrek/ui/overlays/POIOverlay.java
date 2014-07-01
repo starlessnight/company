@@ -12,7 +12,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -161,16 +160,15 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 	        createAndDisplayBalloonOverlay();
 		}
 		LinearLayout layout = balloonView.getLayout();
-		DisplayMetrics dm = layout.getResources().getDisplayMetrics();
 		layout.findViewById(R.id.poi_content).setVisibility(View.GONE);
 		layout.findViewById(R.id.poi_content_detail).setVisibility(View.GONE);
 		View poiContentMini = layout.findViewById(R.id.poi_content_mini);
 		poiContentMini.setVisibility(View.VISIBLE);
+		poiContentMini.setAlpha(0.7f);
 	}
 	
 	private void changeToDetail() {
 		LinearLayout layout = balloonView.getLayout();
-		DisplayMetrics dm = layout.getResources().getDisplayMetrics();
 		layout.findViewById(R.id.poi_content).setVisibility(View.GONE);
 		layout.findViewById(R.id.poi_content_mini).setVisibility(View.GONE);
 		View poiContentDetail = layout.findViewById(R.id.poi_content_detail);
