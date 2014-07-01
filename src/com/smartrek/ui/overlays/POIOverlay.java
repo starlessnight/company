@@ -131,7 +131,6 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 		else {
 	        currentFocussedIndex = 0;
 	        currentFocussedItem = createItem(0);
-	        changeToDefault();
 	        createAndDisplayBalloonOverlay();
 		}
 	}
@@ -285,6 +284,7 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
     
     public void cancelMark() {
     	this.marked = false;
+    	changeToDefault();
     }
     
     public boolean isMarked() {
