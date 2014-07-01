@@ -1830,7 +1830,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 }
                 else {
                 	distance.setVisibility(View.VISIBLE);
-                	distance.setText(item.getDistance() + "mi");
+                	distance.setText("> " + item.getDistance() + "mi");
                 }
                 
                 initFontsIfNecessary();
