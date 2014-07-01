@@ -1080,7 +1080,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                	@Override
 	                	protected void onPreExecute() {
 	                		if(model.lat == 0 && model.lon == 0) {
-	                			List<Address> result = null;
+	                			List<Address> result = Collections.emptyList();
 	                			try {
 		                			if(lastLocation != null) {
 		                				result = Geocoding.searchPoi(LandingActivity2.this, addr, lastLocation.getLatitude(), lastLocation.getLongitude());
@@ -1110,7 +1110,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                	
 	                    @Override
 	                    protected Integer doInBackground(Void... params) {
-	                        Integer id = null;
+	                        Integer id = 0;
 	                        Request req = null;
 	                        String iconName = icon!=null?icon.name():"";
 	                        User user = User.getCurrentUser(LandingActivity2.this);
@@ -3025,7 +3025,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 new AsyncTask<Void, Void, List<com.smartrek.requests.WhereToGoRequest.Location>>() {
             @Override
             protected List<com.smartrek.requests.WhereToGoRequest.Location> doInBackground(Void... params) {
-                List<com.smartrek.requests.WhereToGoRequest.Location> locs = null;
+                List<com.smartrek.requests.WhereToGoRequest.Location> locs = Collections.emptyList();
                 WhereToGoRequest req = new WhereToGoRequest(user, lat, lon);
                 req.invalidateCache(LandingActivity2.this);
                 try {
