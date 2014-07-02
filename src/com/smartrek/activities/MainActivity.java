@@ -1,5 +1,6 @@
 package com.smartrek.activities;
 
+import com.crashlytics.android.Crashlytics;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
@@ -59,6 +60,7 @@ public class MainActivity extends Activity implements AnimationListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		Crashlytics.start(this);
 		// init select departure time ticket dimension
 	    DisplayMetrics dm = getResources().getDisplayMetrics();
 	    Display display = getWindowManager().getDefaultDisplay();

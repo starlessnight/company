@@ -276,6 +276,8 @@
 	      </intent-filter>  
 	    </receiver>
 	    <receiver android:name="com.littlefluffytoys.littlefluffylocationlibrary.PassiveLocationChangedReceiver" android:exported="true" />
+	    
+	    <meta-data android:name="com.crashlytics.ApiKey" android:value="c54daf6a152166f26009661410a7d68a29c070ee"/>
     </application>
 
 </manifest>
