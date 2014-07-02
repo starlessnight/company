@@ -531,7 +531,8 @@ public class NavigationView extends LinearLayout {
                         }
 				    }
 				    for(RouteNode vflNode : pendingVoiceForLinkNodes){
-				        double radius = ((Number)Request.getSetting(Setting.intersection_radius_in_meter)).doubleValue();
+				        Number radiusObj = (Number)Request.getSetting(Setting.intersection_radius_in_meter);
+				        double radius = radiusObj == null?0:radiusObj.doubleValue();
 				        if(vflNode.distanceTo(latitude, longitude) >= radius){
 				            pendingVoiceForLinkNodes.remove(vflNode);
 				        }
