@@ -44,6 +44,8 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -749,6 +751,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		                if(!tagAfterClick){
 		                    speak("", true);
 		                }else{
+		                	Uri ding = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.ding);
+		                	Ringtone r = RingtoneManager.getRingtone(ValidationActivity.this, ding);
+		                	r.play();
 		                    utteranceCompletedCnt.set(utteranceCnt.get());
 		                }
 					}
