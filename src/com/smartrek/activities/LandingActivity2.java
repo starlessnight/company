@@ -3433,8 +3433,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     IMapController controller = mapView.getController();
                     controller.setCenter(bulb.getGeoPoint());
                     bulb.setIsFromPoi(isFromPoi());
-                    bulb.showBalloonOverlay();
                     handleOD(mapView, bulb);
+                    bulb.showBalloonOverlay();
                     mapView.postInvalidate();
                     return true;
                 }
