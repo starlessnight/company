@@ -10,4 +10,8 @@ public class Dimension {
         return Float.valueOf(px).intValue();
     }
     
+    public static int pxToDp(int px, DisplayMetrics dm){
+        return Double.valueOf(Math.ceil(px * dm.density)).intValue();
+    }
+    
 }

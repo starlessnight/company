@@ -245,6 +245,19 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
     
+    private int calculateZoomLevel(double lat){
+        long sideDistanceOfSquareArea = 10; //miles
+        long earthCircumference = 24901;
+        int screenPixels = Dimension.pxToDp(getWindowManager().getDefaultDisplay().getWidth(), getResources().getDisplayMetrics());
+        return Double.valueOf(Math.floor(
+            log2(screenPixels * earthCircumference * Math.cos(Math.toRadians(lat)) / sideDistanceOfSquareArea)
+        )).intValue() - 9;
+    }
+    
+    private static double log2(double x){
+        return Math.log(x)/Math.log(2); 
+    }
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -812,7 +825,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		                    		zoomMapToFitBulbPOIs();
 		                    	}
 		                    	else {
-		                    		zoomMapToFitCity();
+		                    	    mc.setZoom(calculateZoomLevel(mapCenter.getLatitude()));
 		                    	}
 		                    }else{
 		                        mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
@@ -3007,17 +3020,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         }
     }
     
-    private void zoomMapToFitCity() {
-    	if(cityRange != null) {
-    		MapView mapView = (MapView) findViewById(R.id.mapview);
-            IMapController mc = mapView.getController();
-            GeoPoint mid = cityRange.getMidPoint();
-            int[] range = cityRange.getRange();
-            mc.zoomToSpan(range[0], range[1]);
-            mc.setCenter(mid);
-    	}
-    }
-    
     private POIOverlay curBulb;
     
     private void refreshBulbPOIs(final double lat, final double lon, final boolean rezoom){
@@ -3039,13 +3041,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
             @Override
             protected void onPostExecute(final List<com.smartrek.requests.WhereToGoRequest.Location> locs) {
+                final int zoomLevel = calculateZoomLevel(lat);
                 final MapView mapView = (MapView) findViewById(R.id.mapview);
                 final IMapController mc = mapView.getController();
                 if (ehs.hasExceptions()) {
                     //ehs.reportExceptions();
                     routeRect = null;
                     if(rezoom){
-                        mc.setZoom(DEFAULT_ZOOM_LEVEL);
+                        mc.setZoom(zoomLevel);
                         mc.setCenter(new GeoPoint(lat, lon));
                     }
                 }
@@ -3077,7 +3080,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             if(locs.isEmpty()){
                                 routeRect = null;
                                 if(rezoom){
-                                    mc.setZoom(DEFAULT_ZOOM_LEVEL);
+                                    mc.setZoom(zoomLevel);
                                     mc.setCenter(new GeoPoint(lat, lon));
                                 }
                             }else{
