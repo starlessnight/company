@@ -1400,6 +1400,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         scheduleNextTripInfoUpdates();
         
         AssetManager assets = getAssets();
+        Font.setTypeface(Font.getMedium(assets), getRouteView);
         Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, fromSearchBox, rewardsMenu
         		, reservationsMenu, shareMenu, feedbackMenu, settingsMenu, logoutMenu);
         
