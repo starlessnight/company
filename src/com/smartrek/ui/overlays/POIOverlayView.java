@@ -1,5 +1,6 @@
 package com.smartrek.ui.overlays;
 
+import org.apache.commons.lang3.StringUtils;
 import org.osmdroid.views.overlay.OverlayItem;
 
 import android.content.Context;
@@ -54,12 +55,22 @@ public class POIOverlayView<Item extends OverlayItem> extends FrameLayout
 		
 		final TextView labelView = (TextView) v.findViewById(R.id.label);
 		labelView.setText(poiInfo.label);
-		labelView.setCompoundDrawablesWithIntrinsicBounds(poiInfo.marker!=R.drawable.marker_poi?poiInfo.marker:0, 0, 0, 0);
+		int poiMarker = poiInfo.marker!=R.drawable.marker_poi?poiInfo.marker:0;
+		labelView.setCompoundDrawablesWithIntrinsicBounds(poiMarker, 0, 0, 0);
 
 		final TextView addressView = (TextView) v.findViewById(R.id.address);
 		addressView.setText(poiInfo.address);
 		
 		final View labelAddressPanel = v.findViewById(R.id.label_and_address_panel);
+		if(StringUtils.isBlank(poiInfo.label) && poiMarker == 0) {
+			Boolean showLabel = Boolean.FALSE;
+			labelAddressPanel.setTag(showLabel);
+			labelView.setVisibility(View.GONE);
+			addressView.setVisibility(View.VISIBLE);
+		}
+		else {
+			labelAddressPanel.setTag(Boolean.TRUE);
+		}
 		labelAddressPanel.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
