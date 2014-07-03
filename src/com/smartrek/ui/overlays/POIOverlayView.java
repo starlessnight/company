@@ -52,12 +52,31 @@ public class POIOverlayView<Item extends OverlayItem> extends FrameLayout
 		
 		TextView detailTitleView = (TextView) v.findViewById(R.id.poi_detail_title);
 		
-		TextView labelView = (TextView) v.findViewById(R.id.label);
+		final TextView labelView = (TextView) v.findViewById(R.id.label);
 		labelView.setText(poiInfo.label);
 		labelView.setCompoundDrawablesWithIntrinsicBounds(poiInfo.marker!=R.drawable.marker_poi?poiInfo.marker:0, 0, 0, 0);
 
-		TextView addressView = (TextView) v.findViewById(R.id.address);
+		final TextView addressView = (TextView) v.findViewById(R.id.address);
 		addressView.setText(poiInfo.address);
+		
+		final View labelAddressPanel = v.findViewById(R.id.label_and_address_panel);
+		labelAddressPanel.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Boolean showLabel = (Boolean)labelAddressPanel.getTag();
+				if(showLabel==null || showLabel) {
+					showLabel = Boolean.FALSE;
+					labelView.setVisibility(View.GONE);
+					addressView.setVisibility(View.VISIBLE);
+				}
+				else {
+					showLabel = Boolean.TRUE;
+					labelView.setVisibility(View.VISIBLE);
+					addressView.setVisibility(View.GONE);
+				}
+				labelAddressPanel.setTag(showLabel);
+			}
+		});
 		
 		TextView detailAddressView = (TextView) v.findViewById(R.id.detail_address);
 		detailAddressView.setText(poiInfo.address);

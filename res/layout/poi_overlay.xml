@@ -7,7 +7,7 @@
 
     <LinearLayout
         android:id="@+id/poi_content"
-        android:layout_width="275dp"
+        android:layout_width="285dp"
         android:layout_height="115dp"
         android:layout_gravity="center"
         android:background="@drawable/landing_page_popup_box"
@@ -23,20 +23,21 @@
             android:textSize="17dp" />
 
         <LinearLayout
+            android:id="@+id/label_and_address_panel"
             android:layout_width="match_parent"
             android:layout_height="38dp"
-            android:orientation="horizontal"
-            android:paddingLeft="5dp" >
+            android:gravity="center"
+            android:orientation="horizontal" >
 
             <TextView
                 android:id="@+id/label"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:drawablePadding="10dp"
+                android:layout_gravity="center"
                 android:gravity="center"
-                android:maxWidth="120dp"
-                android:paddingLeft="5dp"
-                android:paddingRight="17dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
                 android:singleLine="true"
                 android:textColor="@color/gray"
                 android:textSize="16dp" />
@@ -45,11 +46,14 @@
                 android:id="@+id/address"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:gravity="left|center"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:paddingLeft="15dp"
                 android:paddingRight="15dp"
                 android:singleLine="true"
                 android:textColor="@color/metropia_green"
-                android:textSize="13dp" />
+                android:textSize="13dp"
+                android:visibility="gone" />
         </LinearLayout>
 
         <TextView
