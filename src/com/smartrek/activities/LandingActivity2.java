@@ -251,7 +251,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         int screenPixels = Dimension.pxToDp(getWindowManager().getDefaultDisplay().getWidth(), getResources().getDisplayMetrics());
         return Double.valueOf(Math.floor(
             log2(screenPixels * earthCircumference * Math.cos(Math.toRadians(lat)) / sideDistanceOfSquareArea)
-        )).intValue() - 9;
+        )).intValue() - 10;
     }
     
     private static double log2(double x){
