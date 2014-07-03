@@ -1973,12 +1973,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     	hideBulbBalloon();
                     	removePOIMarker(mapView);
                     	handleOD(mapView, poiOverlay);
-                    	if(poiOverlay.getMarker()==R.drawable.bulb_poi) {
-                    		curBulb = poiOverlay;
-                    	}
-                    	else {
-                    		curStar = poiOverlay;
-                    	}
                     	poiOverlay.markODPoi();
                     	poiOverlay.setIsFromPoi(isFromPoi());
                     	poiOverlay.showBalloonOverlay();
@@ -2304,6 +2298,30 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         if (locationManager != null) {
             locationManager.removeUpdates(locationListener);
         }
+    }
+    
+    private void showODBalloon() {
+    	MapView mapView = (MapView) findViewById(R.id.mapview);
+    	List<Overlay> allOverlays = mapView.getOverlays();
+    	for(Overlay overlay : allOverlays) {
+    		if(overlay instanceof POIOverlay) {
+    			POIOverlay poi = (POIOverlay)overlay;
+    			if(curFrom != null && ((curFrom.getAid() != 0 && curFrom.getAid() == poi.getAid()) 
+    					|| (StringUtils.isNotBlank(curFrom.getAddress()) && curFrom.getAddress().equals(poi.getAddress())))) {
+    				curFrom = poi;
+    				curFrom.setIsFromPoi(true);
+    				curFrom.markODPoi();
+    				curFrom.showBalloonOverlay();
+    			}
+    			else if(curTo!=null && ((curTo.getAid() != 0 && curTo.getAid() == poi.getAid()) 
+    					|| (StringUtils.isNotBlank(curTo.getAddress()) && curTo.getAddress().equals(poi.getAddress())))) {
+    				curTo = poi;
+    				curTo.setIsFromPoi(false);
+    				curTo.markODPoi();
+    				curTo.showBalloonOverlay();
+    			}
+    		}
+    	}
     }
     
     @Override
@@ -2778,8 +2796,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         refreshStarredPOIs(null);
     }
     
-    private POIOverlay curStar;
-    
     private void refreshStarredPOIs(final Runnable callback){
         AsyncTask<Void, Void, List<com.smartrek.models.Address>> task = new AsyncTask<Void, Void, List<com.smartrek.models.Address>>(){
             @Override
@@ -2816,8 +2832,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         if(overlay instanceof POIOverlay){
                             POIOverlay poiOverlay = (POIOverlay)overlay;
                             isOther = !isFavoriteMark(poiOverlay.getMarker());
-                            if(!isOther && curStar != null && poiOverlay.getAid() == curStar.getAid() 
-                                    && poiOverlay.isBalloonVisible()){
+                            if(!isOther && poiOverlay.isBalloonVisible()){
                                 poiOverlay.hideBalloon();
                             }
                         }else{
@@ -2859,7 +2874,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                     hideStarredBalloon();
                                     hideBulbBalloon();
                                     removePOIMarker(mapView);
-                                    curStar = star;
                                     IMapController controller = mapView.getController();
                                     controller.setCenter(star.getGeoPoint());
                                     star.setIsFromPoi(isFromPoi());
@@ -2886,12 +2900,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             });
                             insertBeforeMyPointOverlay(overlays, star);
                             star.showOverlay();
-                            if(curStar != null && star.getAid() == curStar.getAid()){
-                                star.showBalloonOverlay();
-                            }
                             addrList.add(a.getAddress());
                         }
                     }
+                    showODBalloon();
                     mapView.postInvalidate();
                     write2SearchBoxTag(addrList);
                 }
@@ -2941,7 +2953,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 }
             }
         }
-        curStar = null;
         return handled;
     }
     
@@ -2960,7 +2971,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 }
             }
         }
-        curBulb = null;
         return handled;
     }
     
@@ -3020,8 +3030,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         }
     }
     
-    private POIOverlay curBulb;
-    
     private void refreshBulbPOIs(final double lat, final double lon, final boolean rezoom){
         final User user = User.getCurrentUser(LandingActivity2.this);
         AsyncTask<Void, Void, List<com.smartrek.requests.WhereToGoRequest.Location>> task = 
@@ -3063,9 +3071,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                 if(overlay instanceof POIOverlay){
                                     POIOverlay poiOverlay = (POIOverlay)overlay;
                                     isOther = poiOverlay.getMarker() != R.drawable.bulb_poi;
-                                    if(!isOther && curBulb != null && StringUtils.equals(poiOverlay.getAddress(), curBulb.getAddress()) 
-                                            && poiOverlay.isBalloonVisible()){
-                                        poiOverlay.hideBalloon();
+                                    if(!isOther && poiOverlay.isBalloonVisible()) {
+                                    	poiOverlay.hideBalloon();
                                     }
                                 }else{
                                     isOther = true;
@@ -3098,6 +3105,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                     addrSet.add(l.addr);
                                 }
                             }
+                            showODBalloon();
                             mapView.postInvalidate();
                             write2SearchBoxTag(addrSet);
                             refreshSearchAutoCompleteData();
@@ -3429,7 +3437,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     hideStarredBalloon();
                     hideBulbBalloon();
                     removePOIMarker(mapView);
-                    curBulb = bulb;
                     IMapController controller = mapView.getController();
                     controller.setCenter(bulb.getGeoPoint());
                     bulb.setIsFromPoi(isFromPoi());
@@ -3456,9 +3463,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             });
             insertBeforeMyPointOverlay(overlays, bulb);
             bulb.showOverlay();
-            if(curBulb != null && StringUtils.equals(bulb.getAddress(), curBulb.getAddress())){
-                bulb.showBalloonOverlay();
-            }
+            showODBalloon();
         }
     }
     
