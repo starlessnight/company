@@ -1712,7 +1712,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	        long passedNodeTime = passedNodeTimeOffset.get();
 	        
 	        List<RouteLink> rerouteNearbyLinks = getRouteOrReroute().getNearbyLinks(lat, lng, distanceOutOfRouteThreshold + accuracy);
-            List<RouteLink> rerouteSameDirLinks = getRouteOrReroute().getSameDirectionLinks(nearbyLinks, speedInMph, bearing);
+            List<RouteLink> rerouteSameDirLinks = getRouteOrReroute().getSameDirectionLinks(rerouteNearbyLinks, speedInMph, bearing);
             if(!Route.isPending(rerouteNearbyLinks, rerouteSameDirLinks)){
                 if(rerouteSameDirLinks.get(0).distanceTo(lat, lng) > distanceOutOfRouteThreshold
                         && speedInMph > speedOutOfRouteThreshold){
