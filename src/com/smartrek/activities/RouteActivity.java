@@ -996,36 +996,36 @@ public final class RouteActivity extends FragmentActivity {
             
             // Overlays must be drawn in orders
             for (int i = 0; i < possibleRoutes.size(); i++) {
+            	final int _i = i;
             	mapOverlays.add(routePathOverlays[i]);
             	if(!EditAddress.CURRENT_LOCATION.equals(originAddr)) {
             		mapOverlays.add(routeOriginOverlays[i]);
+            		routeOriginOverlays[i].setCallback(new OverlayCallback() {
+            			@Override
+            			public boolean onBalloonTap(int index, OverlayItem item) {
+            				routeOriginOverlays[_i].switchBalloon();
+            				return true;
+            			}
+            			@Override
+            			public boolean onTap(int index) {
+            				routeOriginOverlays[_i].switchBalloon();
+            				return true;
+            			}
+            			@Override
+            			public boolean onClose() {
+            				return false;
+            			}
+            			@Override
+            			public void onChange() {
+            			}
+            			@Override
+            			public boolean onLongPress(int index, OverlayItem item) {
+            				return false;
+            			}
+            		});
+            		routeOriginOverlays[i].showBalloonOverlay();
             	}
             	mapOverlays.add(routeDestOverlays[i]);
-            	final int _i = i;
-            	routeOriginOverlays[i].setCallback(new OverlayCallback() {
-					@Override
-					public boolean onBalloonTap(int index, OverlayItem item) {
-						routeOriginOverlays[_i].switchBalloon();
-						return true;
-					}
-					@Override
-					public boolean onTap(int index) {
-						routeOriginOverlays[_i].switchBalloon();
-						return true;
-					}
-					@Override
-					public boolean onClose() {
-						return false;
-					}
-					@Override
-					public void onChange() {
-					}
-					@Override
-					public boolean onLongPress(int index, OverlayItem item) {
-						return false;
-					}
-				});
-            	routeOriginOverlays[i].showBalloonOverlay();
             	
             	routeDestOverlays[i].setCallback(new OverlayCallback() {
                     @Override
@@ -1161,11 +1161,13 @@ public final class RouteActivity extends FragmentActivity {
         }
         routePathOverlays[routeNum] = new RoutePathOverlay(this, route, routeColor, originDrawableId);
         //mapOverlays.add(routePathOverlays[routeNum]);
-        routeOriginOverlays[routeNum] = new POIOverlay(mapView, lightFont, 
-        		getPoiOverlayInfo(originOverlayInfo, route.getFirstNode().getGeoPoint(), originAddr), 
-        		HotspotPlace.CENTER, null);
-        routeOriginOverlays[routeNum].inRoutePage();
-        routeOriginOverlays[routeNum].setIsFromPoi(true);
+        if(!EditAddress.CURRENT_LOCATION.equals(originAddr)) {
+	        routeOriginOverlays[routeNum] = new POIOverlay(mapView, lightFont, 
+	        		getPoiOverlayInfo(originOverlayInfo, route.getFirstNode().getGeoPoint(), originAddr), 
+	        		HotspotPlace.CENTER, null);
+	        routeOriginOverlays[routeNum].inRoutePage();
+	        routeOriginOverlays[routeNum].setIsFromPoi(true);
+        }
         routeDestOverlays[routeNum] = new POIOverlay(mapView, lightFont, 
         		getPoiOverlayInfo(destOverlayInfo, route.getLastNode().getGeoPoint(), destAddr), 
         		HotspotPlace.CENTER, null);
