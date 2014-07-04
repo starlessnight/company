@@ -323,6 +323,7 @@ public abstract class BalloonItemizedOverlay<Item extends OverlayItem> extends I
 
 		if (isRecycled) {
 		    ((FrameLayout)balloonView).setLayoutParams(params);
+		    ((FrameLayout)balloonView).bringToFront();
 		} else {
 			mapView.addView((FrameLayout)balloonView, params);
 		}
