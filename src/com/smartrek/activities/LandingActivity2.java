@@ -3439,7 +3439,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     removePOIMarker(mapView);
                     IMapController controller = mapView.getController();
                     controller.setCenter(bulb.getGeoPoint());
-                    bulb.setIsFromPoi(isFromPoi());
                     handleOD(mapView, bulb);
                     bulb.showBalloonOverlay();
                     mapView.postInvalidate();

@@ -62,7 +62,7 @@ public class POIOverlayView<Item extends OverlayItem> extends FrameLayout
 		addressView.setText(poiInfo.address);
 		
 		final View labelAddressPanel = v.findViewById(R.id.label_and_address_panel);
-		if(StringUtils.isBlank(poiInfo.label) && poiMarker == 0) {
+		if(StringUtils.isBlank(poiInfo.label)) {
 			Boolean showLabel = Boolean.FALSE;
 			labelAddressPanel.setTag(showLabel);
 			labelView.setVisibility(View.GONE);
@@ -70,24 +70,24 @@ public class POIOverlayView<Item extends OverlayItem> extends FrameLayout
 		}
 		else {
 			labelAddressPanel.setTag(Boolean.TRUE);
+			labelAddressPanel.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Boolean showLabel = (Boolean)labelAddressPanel.getTag();
+					if(showLabel==null || showLabel) {
+						showLabel = Boolean.FALSE;
+						labelView.setVisibility(View.GONE);
+						addressView.setVisibility(View.VISIBLE);
+					}
+					else {
+						showLabel = Boolean.TRUE;
+						labelView.setVisibility(View.VISIBLE);
+						addressView.setVisibility(View.GONE);
+					}
+					labelAddressPanel.setTag(showLabel);
+				}
+			});
 		}
-		labelAddressPanel.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Boolean showLabel = (Boolean)labelAddressPanel.getTag();
-				if(showLabel==null || showLabel) {
-					showLabel = Boolean.FALSE;
-					labelView.setVisibility(View.GONE);
-					addressView.setVisibility(View.VISIBLE);
-				}
-				else {
-					showLabel = Boolean.TRUE;
-					labelView.setVisibility(View.VISIBLE);
-					addressView.setVisibility(View.GONE);
-				}
-				labelAddressPanel.setTag(showLabel);
-			}
-		});
 		
 		TextView detailAddressView = (TextView) v.findViewById(R.id.detail_address);
 		detailAddressView.setText(poiInfo.address);
