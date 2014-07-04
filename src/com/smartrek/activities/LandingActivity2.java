@@ -1568,51 +1568,26 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						final Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
-						final String addr = reserv.getDestinationAddress();
-						AsyncTask<Void, Void, GeoPoint> geoCodeTask = new AsyncTask<Void, Void, GeoPoint>(){
-		                    @Override
-		                    protected GeoPoint doInBackground(Void... params) {
-		                        GeoPoint gp = null;
-		                        try {
-		                        	List<Address> addrs;
-		                        	if(lastLocation != null) {
-		                                addrs = Geocoding.lookup(LandingActivity2.this, addr, lastLocation.getLatitude(), lastLocation.getLongitude());
-		                        	}
-		                        	else {
-		                        		addrs = Geocoding.lookup(LandingActivity2.this, addr);
-		                        	}
-		                            for (Address a : addrs) {
-		                                gp = new GeoPoint(a.getLatitude(), a.getLongitude());
-		                                break;
-		                            }
-		                        }
-		                        catch (Exception e) {
-		                        }
-		                        return gp;
-		                    }
-		                    @Override
-		                    protected void onPostExecute(GeoPoint gp) {
-		                        if(gp != null){
-		                            Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
-		                            Bundle extras = new Bundle();
-		                            extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
-		                            extras.putString("originAddr", EditAddress.CURRENT_LOCATION);
-		                            GeoPoint origin = new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude());
-		                            extras.putParcelable(RouteActivity.ORIGIN_COORD, origin);
-		                            extras.putString(RouteActivity.ORIGIN_COORD_PROVIDER, lastLocation.getProvider());
-		                            extras.putLong(RouteActivity.ORIGIN_COORD_TIME, lastLocation.getTime());
-		                            extras.putString("destAddr", addr);
-		                            extras.putParcelable(RouteActivity.DEST_COORD, gp);
-		                            intent.putExtras(extras);
-		                            hideBulbBalloon();
-		                            hideStarredBalloon();
-		                            removeAllOD();
-		                            startActivity(intent);
-		                        }
-		                    }
-		                };
-		                Misc.parallelExecute(geoCodeTask);
+						try {
+							Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
+			                Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
+			                Bundle extras = new Bundle();
+			                extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
+			                extras.putString("originAddr", reserv.getOriginAddress());
+			                extras.putParcelable(RouteActivity.ORIGIN_COORD, reserv.getStartGpFromNavLink());
+			                extras.putString(RouteActivity.ORIGIN_COORD_PROVIDER, null);
+			                extras.putLong(RouteActivity.ORIGIN_COORD_TIME, 0);
+			                extras.putString("destAddr", reserv.getDestinationAddress());
+			                extras.putParcelable(RouteActivity.DEST_COORD, reserv.getEndGpFromNavLink());
+			                intent.putExtras(extras);
+			                hideBulbBalloon();
+			                hideStarredBalloon();
+			                removeAllOD();
+			                startActivity(intent);
+						}
+						catch(Exception e) {
+							ehs.reportException(e);
+						}
 					}
 				});
 			}
@@ -1704,7 +1679,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				final Reservation reserv = (Reservation) parent.getItemAtPosition(position);
-				final String addr = reserv.getDestinationAddress();
 				if(reserv.isEligibleTrip()) {
 	                Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
 	                intent.putExtra("route", reserv.getRoute());
@@ -1712,46 +1686,25 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                startActivity(intent);
 				}
 				else {
-					AsyncTask<Void, Void, GeoPoint> geoCodeTask = new AsyncTask<Void, Void, GeoPoint>(){
-	                    @Override
-	                    protected GeoPoint doInBackground(Void... params) {
-	                        GeoPoint gp = null;
-	                        try {
-	                        	List<Address> addrs;
-	                        	if(lastLocation != null) {
-	                                addrs = Geocoding.lookup(LandingActivity2.this, addr, lastLocation.getLatitude(), lastLocation.getLongitude());
-	                        	}
-	                        	else {
-	                        		addrs = Geocoding.lookup(LandingActivity2.this, addr);
-	                        	}
-	                            for (Address a : addrs) {
-	                                gp = new GeoPoint(a.getLatitude(), a.getLongitude());
-	                                break;
-	                            }
-	                        }
-	                        catch (Exception e) {
-	                        }
-	                        return gp;
-	                    }
-	                    @Override
-	                    protected void onPostExecute(GeoPoint gp) {
-	                        if(gp != null){
-	                            Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
-	                            Bundle extras = new Bundle();
-	                            extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
-	                            extras.putString("originAddr", EditAddress.CURRENT_LOCATION);
-	                            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(
-                                    lastLocation.getLatitude(), lastLocation.getLongitude()));
-	                            extras.putString(RouteActivity.ORIGIN_COORD_PROVIDER, lastLocation.getProvider());
-                                extras.putLong(RouteActivity.ORIGIN_COORD_TIME, lastLocation.getTime());
-	                            extras.putString("destAddr", addr);
-	                            extras.putParcelable(RouteActivity.DEST_COORD, gp);
-	                            intent.putExtras(extras);
-	                            startActivity(intent);
-	                        }
-	                    }
-	                };
-	                Misc.parallelExecute(geoCodeTask);
+					try {
+						Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
+		                Bundle extras = new Bundle();
+		                extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
+		                extras.putString("originAddr", reserv.getOriginAddress());
+		                extras.putParcelable(RouteActivity.ORIGIN_COORD, reserv.getStartGpFromNavLink());
+		                extras.putString(RouteActivity.ORIGIN_COORD_PROVIDER, null);
+	                    extras.putLong(RouteActivity.ORIGIN_COORD_TIME, 0);
+		                extras.putString("destAddr", reserv.getDestinationAddress());
+		                extras.putParcelable(RouteActivity.DEST_COORD, reserv.getEndGpFromNavLink());
+		                intent.putExtras(extras);
+		                hideBulbBalloon();
+		                hideStarredBalloon();
+		                removeAllOD();
+		                startActivity(intent);
+					}
+					catch(Exception e) {
+						ehs.reportException(e);
+					}
 	            }
 			}
 		});

@@ -1,12 +1,17 @@
 package com.smartrek.models;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,6 +20,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.smartrek.requests.Request;
+import com.smartrek.utils.GeoPoint;
 
 /**
  * A model class representing a reservation
@@ -383,6 +389,36 @@ public final class Reservation implements Parcelable {
 
     public void setEndlon(double endlon) {
         this.endlon = endlon;
+    }
+    
+    public GeoPoint getStartGpFromNavLink() throws MalformedURLException {
+    	return getGPFromNavLink(true);
+    }
+    
+    public GeoPoint getEndGpFromNavLink() throws MalformedURLException {
+    	return getGPFromNavLink(false);
+    }
+    
+    private GeoPoint getGPFromNavLink(boolean startGp) throws MalformedURLException {
+    	if(StringUtils.isNotBlank(navLink)) {
+    		URL navigationLink = new URL(navLink);
+    		Map<String, String> paramValueMap = processQueryString(navigationLink.getQuery());
+    		String latName = startGp?"startlat":"endlat";
+    		String lonName = startGp?"startlon":"endlon";
+    		double lat = Double.valueOf(paramValueMap.get(latName));
+    		double lon = Double.valueOf(paramValueMap.get(lonName));
+    		return new GeoPoint(lat, lon);
+    	}
+    	return null;
+    }
+    
+    private Map<String, String> processQueryString(String queryString) {
+    	Map<String, String> paramValueMap = new HashMap<String, String>();
+    	for(String paramValuePair : StringUtils.split(queryString, "&")) {
+    		String[] paramValueArray = StringUtils.split(paramValuePair, "=");
+    		paramValueMap.put(paramValueArray[0], paramValueArray[1]);
+    	}
+    	return paramValueMap;
     }
 	
 }
