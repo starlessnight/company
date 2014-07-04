@@ -2667,7 +2667,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		path.setDashEffect();
     		mapOverlays.add(0, path);
     		
-    		if(!isPoiOverlay(route.getDestination())) {
+    		POIOverlay poi = getPOIOverlayByAddress(mapView, destinationAddr);
+    		if(poi==null) {
 	    		RouteDestinationOverlay destOverlay = new RouteDestinationOverlay(mapView, route.getLastNode().getGeoPoint(), 
 	    				lightFont, destinationAddr, R.drawable.pin_destination);
 	    		mapOverlays.add(destOverlay);
