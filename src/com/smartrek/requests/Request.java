@@ -82,7 +82,8 @@ public abstract class Request {
 	public enum Page { 
 	    feedback,
 	    reset_password,
-	    eula
+	    eula,
+	    rewards
     }
 	
 	public enum Setting {

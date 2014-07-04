@@ -664,6 +664,33 @@
                     android:layout_height="1dp"
                     android:layout_marginTop="10dp"
                     android:background="#929497" />
+                
+                <LinearLayout
+                    	android:id="@+id/rewards_menu_panel" 
+                    	android:layout_width="match_parent"
+	                    android:layout_height="wrap_content"
+	                    android:orientation="vertical"
+	                    android:visibility="gone">
+	                <TextView
+	                    android:id="@+id/rewards_menu"
+	                    android:layout_width="match_parent"
+	                    android:layout_height="wrap_content"
+	                    android:layout_marginLeft="10dp"
+	                    android:layout_marginRight="10dp"
+	                    android:layout_marginTop="10dp"
+	                    android:drawableLeft="@drawable/menu_settings"
+	                    android:drawablePadding="10dp"
+	                    android:drawableRight="@drawable/menu_right_arrow"
+	                    android:singleLine="true"
+	                    android:text="Rewards"
+	                    android:textColor="@android:color/white"
+	                    android:textSize="@dimen/smaller_font" />
+	                <View
+	                    android:layout_width="match_parent"
+	                    android:layout_height="1dp"
+	                    android:layout_marginTop="10dp"
+	                    android:background="#929497" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/logout_option"

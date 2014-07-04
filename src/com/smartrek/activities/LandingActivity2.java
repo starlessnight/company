@@ -1287,8 +1287,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				});
 			}
 		});
-        TextView rewardsMenu = (TextView) findViewById(R.id.dashboard);
-        rewardsMenu.setOnClickListener(new View.OnClickListener() {
+        TextView myMetropiaMenu = (TextView) findViewById(R.id.dashboard);
+        myMetropiaMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
             	final int viewId = v.getId();
@@ -1344,6 +1344,23 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				});
             }
         });
+        TextView rewardsMenu = (TextView) findViewById(R.id.rewards_menu);
+        rewardsMenu.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+                clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+                    @Override
+                    public void onAnimationEnd() {
+                        Intent intent = new Intent(LandingActivity2.this, RewardsActivity.class);
+                        startActivity(intent);
+                    }
+                });
+            }
+        });
+        if(RewardsActivity.hasUrl(this)){
+            findViewById(R.id.rewards_menu_panel).setVisibility(View.VISIBLE);
+        }
         TextView settingsMenu = (TextView) findViewById(R.id.map_display_options);
         settingsMenu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1414,8 +1431,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getMedium(assets), getRouteView);
-        Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, fromSearchBox, rewardsMenu
-        		, reservationsMenu, shareMenu, feedbackMenu, settingsMenu, logoutMenu);
+        Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, fromSearchBox, myMetropiaMenu, 
+            reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, logoutMenu);
         
     }
     
