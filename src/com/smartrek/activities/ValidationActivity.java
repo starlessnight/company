@@ -80,9 +80,7 @@ import android.widget.Toast;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.SendTrajectoryService;
 import com.smartrek.TripService;
-import com.smartrek.ValidationService;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
-import com.smartrek.dialogs.FeedbackDialog;
 import com.smartrek.dialogs.FloatingMenuDialog;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.dialogs.NotificationDialog2.ActionListener;
@@ -112,6 +110,7 @@ import com.smartrek.utils.Dimension;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
+import com.smartrek.utils.HTTP;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
@@ -238,6 +237,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		setContentView(R.layout.post_reservation_map);
 		
 		ReservationConfirmationActivity.cancelNotification(this);
+		
+		registerReceiver(tripValidator, new IntentFilter(TRIP_VALIDATOR));
 		
 		AssetManager assets = getAssets();
 		boldFont = Font.getBold(assets);
@@ -1269,29 +1270,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		});
 	}
 
-	private void saveValidation() {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-				    final File tFile = ValidationService.getFile(ValidationActivity.this, reservation.getRid());
-					Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
-						@Override
-						protected Void doInBackground(Void... params) {
-							try {
-								FileUtils.write(tFile, "");
-							} catch (IOException e) {
-							}
-							return null;
-						}
-					});
-				} catch (Throwable t) {
-				}
-				SessionM.logAction("trip_" + reservation.getMpoint());
-			}
-		});
-	}
-
 	private void saveTrip() {
 		runOnUiThread(new Runnable() {
 			@Override
@@ -1320,7 +1298,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private void showNavigationInformation(final Location location,
 			final RouteNode node) {
-		Log.d("ValidationActivity", "showNavigationInformation()");
+		//Log.d("ValidationActivity", "showNavigationInformation()");
 		runOnUiThread(new Runnable() {
 			public void run() {
 				List<DirectionItem> items = updateDirectionsList(node, location);
@@ -1678,28 +1656,17 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     			if (!stopValidation.get()
     					&& distanceToLink <= params
     							.getValidationDistanceThreshold()) {
-    				Log.i("validated node", nearestLink.getStartNode()
-    						.getNodeIndex() + "");
+    				//Log.i("validated node", nearestLink.getStartNode().getNodeIndex() + "");
     				nearestLink.getStartNode().getMetadata().setValidated(true);
     			}
     
-    			if (!alreadyValidated && isTripValidated()) {
-    				runOnUiThread(new Runnable() {
-    					@Override
-    					public void run() {
-    						saveValidation();
-    					}
-    				});
-    			}
-    
-    			int numberOfValidatedNodes = 0;
+    			/*int numberOfValidatedNodes = 0;
     			for (RouteNode node : route.getNodes()) {
     				if (node.getMetadata().isValidated()) {
     					numberOfValidatedNodes += 1;
     				}
-    			}
-    			Log.d("ValidationActivity", String.format("%d/%d",
-    					numberOfValidatedNodes, route.getNodes().size()));
+    			}*/
+    			//Log.d("ValidationActivity", String.format("%d/%d", numberOfValidatedNodes, route.getNodes().size()));
     			
     	        if (distanceToLink <= params.getInRouteDistanceThreshold()) {
     	            linkId = nearestLink.getStartNode().getLinkId();
@@ -1841,51 +1808,72 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private AtomicBoolean turnOffGPS = new AtomicBoolean();
 	
-	private AtomicBoolean arrivalMsgDisplayed = new AtomicBoolean();
+	private AtomicBoolean arrivalMsgTiggered = new AtomicBoolean();
 	
 	private void displayArrivalMsg() {
 		if (isTripValidated()) {
-		    navigationView.setVisibility(View.GONE);
-		    arrivalMsgDisplayed.set(true);
-			final View panel = findViewById(R.id.congrats_panel);
-			String dest = reservation.getDestinationAddress();
-			String msg = "You Have Arrived!" + "\n" + 
-			    dest.substring(0, dest.indexOf(",")>-1?dest.indexOf(","):dest.length());
-			((TextView) findViewById(R.id.congrats_msg)).setText(formatCongrMessage(ValidationActivity.this, msg));
-			
-			
-			TextView co2 = (TextView) findViewById(R.id.co2_circle);
-			Integer co2Value = 0;  //getCO2
-			if(co2Value != 0) {
-				String co2String = co2Value + "\nCO2";  
-				co2.setText(formatCO2Desc(ValidationActivity.this, co2String));
-				co2.setVisibility(View.VISIBLE);
-			}
-			
-			TextView mpoint = (TextView) findViewById(R.id.mpoint_circle);
-			mpoint.setText(formatCongrValueDesc(ValidationActivity.this, reservation.getMpoint() + "\nuPoints"));
-			
-			TextView driveScore = (TextView) findViewById(R.id.drive_score_circle);
-			Integer driveScoreValue = 0;  //get driving score
-			if(driveScoreValue!=0) {
-				String scoreString = driveScoreValue + "\nScore"; 
-				driveScore.setText(formatCongrValueDesc(ValidationActivity.this, scoreString));
-				driveScore.setVisibility(View.VISIBLE);
-			}
-			
-			Font.setTypeface(boldFont, co2, mpoint, driveScore);
-			
-			//hide map view options
-			findViewById(R.id.mapview_options).setVisibility(View.GONE);;
-			panel.setVisibility(View.VISIBLE);
-			Misc.fadeIn(ValidationActivity.this, panel);
-			
+		    arrivalMsgTiggered.set(true);
+		    saveTrajectory(new Runnable() {
+                @Override
+                public void run() {
+                    saveTrip();
+                }
+            });
 			turnOffGPS.set(true);
 			// turn off GPS
 			if(locationManager != null) {
 				locationManager.removeUpdates(locationListener);
 			}
+			findViewById(R.id.loading).setVisibility(View.VISIBLE);
+			new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    try{
+                        doDisplayArrivalMsg(reservation.getMpoint(), 0, 0);
+                    }catch(Throwable t){}
+                }
+            }, HTTP.defaultTimeout);
 		}
+	}
+	
+	private AtomicBoolean arrivalMsgDisplayed = new AtomicBoolean();
+	
+	private void doDisplayArrivalMsg(int uPoints, int driveScoreValue, double co2Value){
+	    if(!arrivalMsgDisplayed.get()){
+	        arrivalMsgDisplayed.set(true);
+	        findViewById(R.id.loading).setVisibility(View.GONE);
+    	    navigationView.setVisibility(View.GONE);
+            final View panel = findViewById(R.id.congrats_panel);
+            String dest = reservation.getDestinationAddress();
+            String msg = "You Have Arrived!" + "\n" + 
+                dest.substring(0, dest.indexOf(",")>-1?dest.indexOf(","):dest.length());
+            ((TextView) findViewById(R.id.congrats_msg)).setText(formatCongrMessage(ValidationActivity.this, msg));
+            
+            
+            TextView co2 = (TextView) findViewById(R.id.co2_circle);
+            if(co2Value != 0) {
+                String co2String = co2Value + "\nCO2";  
+                co2.setText(formatCO2Desc(ValidationActivity.this, co2String));
+                co2.setVisibility(View.VISIBLE);
+            }
+            
+            TextView mpoint = (TextView) findViewById(R.id.mpoint_circle);
+            mpoint.setText(formatCongrValueDesc(ValidationActivity.this, uPoints + "\nuPoints"));
+            
+            TextView driveScore = (TextView) findViewById(R.id.drive_score_circle);
+            if(driveScoreValue!=0) {
+                String scoreString = driveScoreValue + "\nScore"; 
+                driveScore.setText(formatCongrValueDesc(ValidationActivity.this, scoreString));
+                driveScore.setVisibility(View.VISIBLE);
+            }
+            
+            Font.setTypeface(boldFont, co2, mpoint, driveScore);
+            
+            //hide map view options
+            findViewById(R.id.mapview_options).setVisibility(View.GONE);;
+            panel.setVisibility(View.VISIBLE);
+            Misc.fadeIn(ValidationActivity.this, panel);
+	    }
 	}
 
 	private void arriveAtDestination() {
@@ -1917,8 +1905,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		double validatedDistance = route.getValidatedDistance();
 		double length = route.getLength();
 		double score = validatedDistance / length;
-		Log.i("isTripValidated", validatedDistance + " / " + length + " = "
-				+ score);
+		//Log.i("isTripValidated", validatedDistance + " / " + length + " = " + score);
 		ValidationParameters params = ValidationParameters.getInstance();
 		return score >= params.getScoreThreshold();
 	}
@@ -1930,7 +1917,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 
 	private void cancelValidation() {
-	    if(arrivalMsgDisplayed.get()){
+	    if(arrivalMsgTiggered.get()){
             if (!isFinishing()) {
                 finish();
             }
@@ -1993,8 +1980,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		Location lastLocation;
 
 		public void onLocationChanged(Location location) {
-			Log.d(this.getClass().toString(),
-					String.format("onLocationChanged: %s", location));
+			//Log.d(this.getClass().toString(), String.format("onLocationChanged: %s", location));
 			SharedPreferences debugPrefs = getSharedPreferences(
 					DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
 			int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE,
@@ -2159,7 +2145,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				location.setLongitude(record.getLongitude());
 				location.setSpeed(record.getSpeed());
 				location.setBearing(record.getHeading());
-				Log.i("FakeLocation", pollCnt + "," + location.getLatitude() + "," + location.getLongitude());
+				//Log.i("FakeLocation", pollCnt + "," + location.getLatitude() + "," + location.getLongitude());
                 listener.onLocationChanged(location);
 			}
 		}
@@ -2240,6 +2226,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	protected void onDestroy() {
 		restoreMusic();
 		unregisterReceiver(timeoutReceiver);
+		unregisterReceiver(tripValidator);
 		if (locationManager != null) {
 			locationManager.removeUpdates(locationListener);
 		}
@@ -2248,7 +2235,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		if (mTts != null) {
 			mTts.shutdown();
 		}
-		if (Request.NEW_API && isTripValidated()) {
+		if (Request.NEW_API && !arrivalMsgTiggered.get() && isTripValidated()) {
 	        saveTrajectory(new Runnable() {
                 @Override
                 public void run() {
@@ -2257,28 +2244,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             });
 		}
 		super.onDestroy();
-	}
-
-	private void showValidationFailedDialog() {
-		CharSequence msg = Html
-				.fromHtml("Sorry "
-						+ User.getCurrentUser(this).getFirstname()
-						+ " this trip did not earn you any point. Please try again soon."
-						+ "<br/>If you feel you should have earned the points,"
-						+ " <a href=\"" + FeedbackDialog.getUrl(this)
-						+ "\">tell us why?</a>");
-		NotificationDialog2 dialog = new NotificationDialog2(
-				ValidationActivity.this, msg);
-		dialog.setTitle("Notification");
-		dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
-			@Override
-			public void onClick() {
-				if (!isFinishing()) {
-					finish();
-				}
-			}
-		});
-		dialog.show();
 	}
 
     @Override
@@ -2328,6 +2293,29 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         public void onReceive(Context context, Intent intent) {
             if(findViewById(R.id.remain_times).getTag(R.id.clicked) == null){
                 toggleTimeInfo();
+            }
+        }
+    };
+    
+    public static final String TRIP_VALIDATOR = "TRIP_VALIDATOR";
+    
+    public static final String ID = "ID";
+    
+    public static final String CREDIT = "CREDIT";
+    
+    public static final String TIME_SAVING_IN_SECOND = "TIME_SAVING_IN_SECOND";
+    
+    public static final String CO2_SAVING = "CO2_SAVING";
+    
+    private BroadcastReceiver tripValidator = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String id = intent.getStringExtra(ID);
+            if(String.valueOf(reservation.getRid()).equals(id)){
+                int credit = intent.getIntExtra(CREDIT, reservation.getMpoint());
+                int timeSavingInSecond = intent.getIntExtra(TIME_SAVING_IN_SECOND, 0);
+                double co2Saving = intent.getDoubleExtra(CO2_SAVING, 0);
+                doDisplayArrivalMsg(credit, timeSavingInSecond, co2Saving);
             }
         }
     };
