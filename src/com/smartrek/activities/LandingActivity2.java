@@ -1102,14 +1102,19 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 					View favOptPanel = findViewById(R.id.fav_opt);
-					final BalloonModel model = (BalloonModel) favOptPanel.getTag();
-					final String lbl = ((EditText)favOptPanel.findViewById(R.id.label_input)).getText().toString();
+					BalloonModel model = (BalloonModel) favOptPanel.getTag();
+					final BalloonModel _model = model==null?new BalloonModel():model;
+					String label = ((EditText)favOptPanel.findViewById(R.id.label_input)).getText().toString();
+					if(StringUtils.isBlank(label)) {
+						label = "Favorite";
+					}
+					final String lbl = label;
 	                final String addr = ((EditText)favOptPanel.findViewById(R.id.favorite_search_box)).getText().toString();
 	                final IconType icon = (IconType) favOptPanel.findViewById(R.id.icon).getTag();
 	                AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>(){
 	                	@Override
 	                	protected void onPreExecute() {
-	                		if(model.lat == 0 && model.lon == 0) {
+	                		if(_model.lat == 0 && _model.lon == 0) {
 	                			List<Address> result = Collections.emptyList();
 	                			try {
 		                			if(lastLocation != null) {
@@ -1120,6 +1125,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		                			}
 	                			}
 	                			catch(Exception e) {
+	                				e.printStackTrace();
 	                				ehs.registerException(e, e.getMessage());
 	                			}
 	                			if(result.isEmpty()) {
@@ -1127,14 +1133,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                			}
 	                			else {
 	                				Address found = result.get(0);
-	                				model.address = found.getAddress();
-	                				model.lat = found.getLatitude();
-	                				model.lon = found.getLongitude();
-	                				model.geopoint = found.getGeoPoint();
+	                				_model.address = found.getAddress();
+	                				_model.lat = found.getLatitude();
+	                				_model.lon = found.getLongitude();
+	                				_model.geopoint = found.getGeoPoint();
 	                			}
 	                		}
 	                		else {
-	                			model.address = addr;
+	                			_model.address = addr;
 	                		}
 	                	}
 	                	
@@ -1142,19 +1148,19 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                    protected Integer doInBackground(Void... params) {
 	                        Integer id = 0;
 	                        Request req = null;
-	                        String iconName = icon!=null?icon.name():"";
+	                        String iconName = icon!=null?icon.name():IconType.star.name();
 	                        User user = User.getCurrentUser(LandingActivity2.this);
 	                        try {
-	                        	if(model.id==0) {
+	                        	if(_model.id==0) {
 		                            FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
-		                                user, lbl, model.address, iconName, model.lat, model.lon);
+		                                user, lbl, _model.address, iconName, _model.lat, _model.lon);
 		                            req = request;
 		                            id = request.execute(LandingActivity2.this);
 	                        	}
 	                        	else {
 	                        		FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
 		                                    new AddressLinkRequest(user).execute(LandingActivity2.this),
-		                                        model.id, user, lbl, addr, iconName, model.lat, model.lon);
+		                                        _model.id, user, lbl, addr, iconName, _model.lat, _model.lon);
 		                            req = request;
 		                            request.execute(LandingActivity2.this);
 	                        	}
@@ -1171,7 +1177,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                        }
 	                        else {
 	                            removePOIMarker(mapView);
-	                            model.id = model.id!=0?model.id:id;
+	                            _model.id = _model.id!=0?_model.id:id;
 	                            reInitFavoriteOperationPanel();
 	                            findViewById(R.id.fav_opt).setVisibility(View.GONE);
 	                            findViewById(R.id.landing_panel).setVisibility(View.VISIBLE);
@@ -2870,6 +2876,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 										writeInfo2FavoritePanel(model, a.getIconName());
 										findViewById(R.id.landing_panel).setVisibility(View.GONE);
 										favOpt.setVisibility(View.VISIBLE);
+										removeAllOD();
 									}
 
 								});
@@ -3331,6 +3338,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 						writeInfo2FavoritePanel(model, null);
 						findViewById(R.id.landing_panel).setVisibility(View.GONE);
 						findViewById(R.id.fav_opt).setVisibility(View.VISIBLE);
+						removeAllOD();
 					}
         });
         
@@ -3377,9 +3385,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private boolean isFavoriteOptComplete() {
     	View favOptPanel = findViewById(R.id.fav_opt);
     	String favAddr = ((EditText) favOptPanel.findViewById(R.id.favorite_search_box)).getText().toString();
-    	String label = ((EditText) favOptPanel.findViewById(R.id.label_input)).getText().toString();
-    	IconType icon = (IconType) favOptPanel.findViewById(R.id.icon).getTag();
-    	return StringUtils.isNotBlank(favAddr) && StringUtils.isNotBlank(label) && icon!=null;
+//    	String label = ((EditText) favOptPanel.findViewById(R.id.label_input)).getText().toString();
+//    	IconType icon = (IconType) favOptPanel.findViewById(R.id.icon).getTag();
+//    	return StringUtils.isNotBlank(favAddr) && StringUtils.isNotBlank(label) && icon!=null;
+    	return StringUtils.isNotBlank(favAddr);
     }
     
     private void writeInfo2FavoritePanel(BalloonModel model, String iconName) {
@@ -3434,6 +3443,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 						writeInfo2FavoritePanel(model, null);
 						findViewById(R.id.landing_panel).setVisibility(View.GONE);
 						favOpt.setVisibility(View.VISIBLE);
+						removeAllOD();
 					}
 	
             });
