@@ -370,6 +370,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     	tapToAdd.setName(TAP_TO_ADD_FAVORITE);
                     	tapToAdd.setAddress("");
                     	searchAddresses.add(tapToAdd);
+                    	List<Address> emptyAddress = getEmptyAddressesForUI();
+                    	searchAddresses.addAll(emptyAddress);
                     }
                     refreshSearchAutoCompleteData();
                     findViewById(R.id.metropia_color_bar).setVisibility(View.GONE);
@@ -399,6 +401,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         tapToAdd.setName(TAP_TO_ADD_FAVORITE);
                         tapToAdd.setAddress("");
                         fromSearchAddresses.add(tapToAdd);
+                        List<Address> emptyAddresses = getEmptyAddressesForUI();
+                        fromSearchAddresses.addAll(emptyAddresses);
                     }
                     refreshFromSearchAutoCompleteData();
                     findViewById(R.id.metropia_color_bar).setVisibility(View.GONE);
@@ -411,10 +415,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             	Address selected = (Address)parent.getItemAtPosition(position);
-            	if(SEARCHING.equals(selected.getName())) {
-            		//do nothing
-            	}
-            	else if(StringUtils.isNotBlank(selected.getAddress())) {
+            	if(StringUtils.isNotBlank(selected.getAddress())) {
             		searchBox.setText(selected.getAddress());
 	                searchAddress(selected.getAddress(), true);
 	                searchBox.setText("");
@@ -438,10 +439,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Address selected = (Address)parent.getItemAtPosition(position);
-                if(SEARCHING.equals(selected.getName())) {
-            		//do nothing
-            	}
-            	else if(StringUtils.isNotBlank(selected.getAddress())) {
+                if(StringUtils.isNotBlank(selected.getAddress())) {
                     fromSearchBox.setText(selected.getAddress());
                     searchAddress(selected.getAddress(), true);
                     fromSearchBox.setText("");
@@ -522,6 +520,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         						notFound.setName(NO_AUTOCOMPLETE_RESULT);
         						notFound.setAddress("");
         						searchAddresses.add(notFound);
+        						List<Address> emptyAddresses = getEmptyAddressesForUI();
+        						searchAddresses.addAll(emptyAddresses);
         					}
         					refreshSearchAutoCompleteData();
         				}
@@ -541,9 +541,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					searching.setAddress("");
 					searchAddresses.add(searching);
 				}
-				else if(searchAddresses.size() == 1) {
-					Address existed = searchAddresses.get(0);
-					if(existed.getName().equals(TAP_TO_ADD_FAVORITE) || existed.getName().equals(NO_AUTOCOMPLETE_RESULT)) {
+				else {
+					boolean hasResult = false;
+					for(Address addr : searchAddresses) {
+						if(StringUtils.isNotBlank(addr.getAddress())) {
+							hasResult = true;
+						}
+					}
+					if(!hasResult) {
 						searchAddresses.clear();
 						Address searching = new Address();
 						searching.setName(SEARCHING);
@@ -606,6 +611,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                 notFound.setName(NO_AUTOCOMPLETE_RESULT);
                                 notFound.setAddress("");
                                 fromSearchAddresses.add(notFound);
+                                List<Address> emptyAddresses = getEmptyAddressesForUI();
+                                fromSearchAddresses.addAll(emptyAddresses);
                             }
                             refreshFromSearchAutoCompleteData();
                         }
@@ -625,9 +632,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					searching.setAddress("");
 					fromSearchAddresses.add(searching);
 				}
-				else if(fromSearchAddresses.size() == 1) {
-					Address existed = fromSearchAddresses.get(0);
-					if(existed.getName().equals(TAP_TO_ADD_FAVORITE) || existed.getName().equals(NO_AUTOCOMPLETE_RESULT)) {
+				else {
+					boolean hasResult = false;
+					for(Address addr : fromSearchAddresses) {
+						if(StringUtils.isNotBlank(addr.getAddress())) {
+							hasResult = true;
+						}
+					}
+					if(!hasResult) {
 						fromSearchAddresses.clear();
 						Address searching = new Address();
 						searching.setName(SEARCHING);
@@ -885,10 +897,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             	Address selected = (Address)parent.getItemAtPosition(position);
-            	if(SEARCHING.equals(selected.getName())) {
-            		//do nothing
-            	}
-            	else if(StringUtils.isNotBlank(selected.getAddress())) {
+            	if(StringUtils.isNotBlank(selected.getAddress())) {
             		favSearchBox.setText(selected.getAddress());
             		searchFavAddress(selected.getAddress(), true);
 	                InputMethodManager imm = (InputMethodManager)getSystemService(
@@ -947,6 +956,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         						notFound.setName(NO_AUTOCOMPLETE_RESULT);
         						notFound.setAddress("");
         						favSearchAddresses.add(notFound);
+        						List<Address> emptyAddresses = getEmptyAddressesForUI();
+        						favSearchAddresses.addAll(emptyAddresses);
         					}
         					refreshFavAutoCompleteData();
         				}
@@ -968,9 +979,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 						searching.setAddress("");
 						favSearchAddresses.add(searching);
 					}
-					else if(favSearchAddresses.size() == 1) {
-						Address existed = favSearchAddresses.get(0);
-						if(existed.getName().equals(NO_AUTOCOMPLETE_RESULT)) {
+					else {
+						boolean hasResult = false;
+						for(Address addr : favSearchAddresses) {
+							if(StringUtils.isNotBlank(addr.getAddress())) {
+								hasResult = true;
+							}
+						}
+						if(!hasResult) {
 							favSearchAddresses.clear();
 							Address searching = new Address();
 							searching.setName(SEARCHING);
@@ -1456,6 +1472,20 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		searchArea.removeViewAt(0);
     		searchArea.addView(searchButton, searchArea.getChildCount()-1);
     	}
+    }
+    
+    private Integer EMPTY_ITEM_SIZE = 5;
+    
+    private List<Address> getEmptyAddressesForUI() {
+    	List<Address> emptyAddresses = new ArrayList<Address>();
+    	for(int i = 0 ; i < EMPTY_ITEM_SIZE ; i++) {
+    		Address empty = new Address();
+    		empty.setAddress("");
+    		empty.setDistance("");
+    		empty.setName("");
+    		emptyAddresses.add(empty);
+    	}
+    	return emptyAddresses;
     }
     
     private Long dismissReservId = Long.valueOf(-1);
