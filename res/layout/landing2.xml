@@ -282,7 +282,8 @@
                             android:paddingTop="5dp"
                             android:text="Save"
                             android:textColor="@color/light_blue"
-                            android:textSize="@dimen/smaller_font" />
+                            android:textSize="@dimen/smaller_font"
+                            android:visibility="gone" />
                     </FrameLayout>
 
                     <include

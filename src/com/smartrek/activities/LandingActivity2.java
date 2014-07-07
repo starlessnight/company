@@ -919,10 +919,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         	
         });
         final View favSearchBoxClear = findViewById(R.id.fav_search_box_clear);
+        final View favSave = findViewById(R.id.fav_save);
         DelayTextWatcher delayFavTextWatcher = new DelayTextWatcher(favSearchBox, new TextChangeListener(){
 			@Override
 			public void onTextChanged(CharSequence text) {
 				favSearchBoxClear.setVisibility(StringUtils.isBlank(text)||!favSearchBox.isEnabled()?View.GONE:View.VISIBLE); 
+				favSave.setVisibility(StringUtils.isBlank(text)?View.GONE:View.VISIBLE);
                 final String addrInput = text.toString();
                 if(StringUtils.isNotBlank(addrInput)) {
                 	AsyncTask<Void, Void, List<Address>> searchPoiTask = new AsyncTask<Void, Void, List<Address>>(){
@@ -1094,7 +1096,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			}
 		});
         
-        findViewById(R.id.fav_save).setOnClickListener(new OnClickListener() {
+        favSave.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if(isFavoriteOptComplete()) {
@@ -3409,6 +3411,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	searchBox.setText(model.address);
     	searchBox.setEnabled(model.id!=0?false:true);
     	favOptPanel.findViewById(R.id.fav_search_box_clear).setVisibility(model.id!=0?View.GONE:View.VISIBLE);
+    	favOptPanel.findViewById(R.id.fav_save).setVisibility(StringUtils.isNotBlank(model.address)?View.VISIBLE:View.GONE);
     	favOptPanel.findViewById(R.id.fav_del).setVisibility(model.id!=0?View.VISIBLE:View.GONE);
     	((TextView)favOptPanel.findViewById(R.id.header)).setText(model.id!=0?"Edit Favorite":"Add Favorite");
     }
