@@ -59,6 +59,7 @@ import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.AbsoluteSizeSpan;
 import android.util.Log;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -1265,6 +1266,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				});
 			}
 		});
+        
+        Display display = getWindowManager().getDefaultDisplay();
+        DrawerLayout.LayoutParams leftDrawerLp = (DrawerLayout.LayoutParams) findViewById(R.id.left_drawer).getLayoutParams();
+        leftDrawerLp.width=display.getWidth()*3/4;
         
         final DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         View drawerIcon = findViewById(R.id.drawer_menu_icon);
