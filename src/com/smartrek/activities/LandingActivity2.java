@@ -2503,7 +2503,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private String formatTime(long time, int timzoneOffset){
-	    SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mma", Locale.US);
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("h:mma", Locale.US);
         dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone(timzoneOffset)));
         return dateFormat.format(new Date(time));
 	}
