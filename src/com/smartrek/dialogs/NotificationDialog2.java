@@ -1,5 +1,7 @@
 package com.smartrek.dialogs;
 
+import org.apache.commons.lang3.StringUtils;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -17,6 +19,7 @@ import android.widget.TextView;
 import com.smartrek.activities.R;
 import com.smartrek.ui.ClickAnimation;
 import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
+import com.smartrek.utils.Dimension;
 import com.smartrek.utils.Font;
 
 public class NotificationDialog2 extends Dialog {
@@ -60,6 +63,10 @@ public class NotificationDialog2 extends Dialog {
 		
 		TextView messageView = (TextView) dialogView.findViewById(R.id.message);
 		messageView.setText(message);
+		if(StringUtils.isBlank(title)) {
+			titleView.setVisibility(View.GONE);
+			messageView.setTextSize(Dimension.dpToPx(12, getContext().getResources().getDisplayMetrics()));
+		}
 		
 		try{
 		    messageView.setMovementMethod(LinkMovementMethod.getInstance());
