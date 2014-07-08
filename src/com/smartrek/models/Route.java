@@ -2,7 +2,9 @@ package com.smartrek.models;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -16,6 +18,7 @@ import android.text.format.Time;
 import android.util.Log;
 
 import com.smartrek.activities.DebugOptionsActivity.NavigationLink;
+import com.smartrek.activities.ValidationActivity;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.Request.Setting;
 import com.smartrek.utils.GeoPoint;
@@ -364,7 +367,7 @@ public final class Route implements Parcelable {
     }
 	
 	public List<RouteLink> getNearbyLinks(double latitude, double longitude, double limit) {
-	    /*List<RouteLink> links = new ArrayList<RouteLink>();
+	    List<RouteLink> links = new ArrayList<RouteLink>();
         for (RouteNode node : routeNodes) {
             RouteNode prevNode = node.getPrevNode();
             RouteNode nextNode = node.getNextNode();
@@ -390,31 +393,33 @@ public final class Route implements Parcelable {
             if(link != null){
                 links.add(link);
             }
-        }*/
-        List<RouteLink> nearbyLinks = new ArrayList<RouteLink>();
-        /*for(RouteLink link:links){
+        }
+        Set<RouteLink> nearbyLinks = new HashSet<RouteLink>();
+        for(RouteLink link:links){
             if(link.distanceTo(latitude, longitude) < limit){
                 nearbyLinks.add(link);
             }
-        }*/
-        nearbyLinks.add(getNearestLink(latitude, longitude));
-        return nearbyLinks;
+        }
+        return new ArrayList<RouteLink>(nearbyLinks);
     }
 	
 	public List<RouteLink> getSameDirectionLinks(List<RouteLink> nearbyLinks, 
 	        double speedInMph, double bearing) {
-	    /*
 	    List<RouteLink> links = new ArrayList<RouteLink>();
 	    for(RouteLink link:nearbyLinks){
 	        double linkBearing = link.getStartNode().getBearing();
 	        if(speedInMph < ValidationActivity.speedOutOfRouteThreshold
-	                || ((bearing - 30 + 360) < (linkBearing + 360)
-                        && (linkBearing + 360) < (bearing + 30 + 360))){
+	                || angleDifference(bearing, linkBearing) < 30){
 	            links.add(link);
 	        }
 	    }
-	    */
 	    return nearbyLinks;
+	}
+	
+	private static double angleDifference(double degree1, double degree2){
+	    double diff1 = Math.max(degree1, degree2) - Math.min(degree1, degree2);
+        double diff2 = 360 - diff1;
+        return Math.min(diff1, diff2);
 	}
 	
 	public RouteNode getNextTurnNode(RouteNode currentNode, int indexOffset) {

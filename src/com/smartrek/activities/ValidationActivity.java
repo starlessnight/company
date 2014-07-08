@@ -119,7 +119,6 @@ import com.smartrek.utils.SessionM;
 import com.smartrek.utils.SmartrekTileProvider;
 import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.SystemService;
-import com.smartrek.utils.ValidationParameters;
 
 public class ValidationActivity extends FragmentActivity implements OnInitListener, 
         OnAudioFocusChangeListener {
@@ -174,9 +173,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	// FIXME: Temporary
 	private RouteNode nearestNode;
-
-	// FIXME: Temporary
-	private RouteLink nearestLink;
 
 	private Trajectory trajectory = new Trajectory();
 
@@ -1643,46 +1639,17 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    
 		long linkId = Trajectory.DEFAULT_LINK_ID;
 		
-		if (!route.getNodes().isEmpty()) {
-		    ValidationParameters params = ValidationParameters.getInstance();
-	        List<RouteLink> nearbyLinks = route.getNearbyLinks(lat, lng, params.getValidationDistanceThreshold() + accuracy);
-	        List<RouteLink> sameDirLinks = route.getSameDirectionLinks(nearbyLinks, speedInMph, bearing);
-		    if(!Route.isPending(nearbyLinks, sameDirLinks) && sameDirLinks.size() == 1){
-		        nearestLink = sameDirLinks.get(0);
-		    
-    			boolean alreadyValidated = isTripValidated();
-    
-    			double distanceToLink = nearestLink.distanceTo(lat, lng);
-    			if (!stopValidation.get()
-    					&& distanceToLink <= params
-    							.getValidationDistanceThreshold()) {
-    				//Log.i("validated node", nearestLink.getStartNode().getNodeIndex() + "");
-    				nearestLink.getStartNode().getMetadata().setValidated(true);
-    			}
-    
-    			/*int numberOfValidatedNodes = 0;
-    			for (RouteNode node : route.getNodes()) {
-    				if (node.getMetadata().isValidated()) {
-    					numberOfValidatedNodes += 1;
-    				}
-    			}*/
-    			//Log.d("ValidationActivity", String.format("%d/%d", numberOfValidatedNodes, route.getNodes().size()));
-    			
-    	        if (distanceToLink <= params.getInRouteDistanceThreshold()) {
-    	            linkId = nearestLink.getStartNode().getLinkId();
-    	        }
-	        
-		    }
-	        
+		if (!route.getNodes().isEmpty()) {	        
 	        getRouteOrReroute().getNearestNode(lat, lng).getMetadata().setPassed(true);
 	        
 	        long passedNodeTime = passedNodeTimeOffset.get();
 	        
 	        List<RouteLink> rerouteNearbyLinks = getRouteOrReroute().getNearbyLinks(lat, lng, distanceOutOfRouteThreshold + accuracy);
             List<RouteLink> rerouteSameDirLinks = getRouteOrReroute().getSameDirectionLinks(rerouteNearbyLinks, speedInMph, bearing);
+            
+            Log.i("debug", "rerouteNearbyLinks: " + rerouteNearbyLinks + ", rerouteSameDirLinks: " + rerouteSameDirLinks);
             if(!Route.isPending(rerouteNearbyLinks, rerouteSameDirLinks)){
-                if(rerouteSameDirLinks.get(0).distanceTo(lat, lng) > distanceOutOfRouteThreshold
-                        && speedInMph > speedOutOfRouteThreshold){
+                if(Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)){
                     if(routeOfRouteCnt.incrementAndGet() == countOutOfRouteThreshold){
                         reroute(lat, lng, speedInMph, bearing, passedNodeTime);
                     }
@@ -1727,6 +1694,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                             }
                         });
         		    }
+        	        
+        	        linkId = rerouteNearestLink.getStartNode().getLinkId();
                 }
             }
             
@@ -1902,12 +1871,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 
 	private boolean isTripValidated() {
-		double validatedDistance = route.getValidatedDistance();
-		double length = route.getLength();
-		double score = validatedDistance / length;
-		//Log.i("isTripValidated", validatedDistance + " / " + length + " = " + score);
-		ValidationParameters params = ValidationParameters.getInstance();
-		return score >= params.getScoreThreshold();
+		return true;
 	}
 
 	private void deactivateLocationService() {

@@ -1,5 +1,8 @@
 package com.smartrek.utils;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 
 /**
  * A class contains two route nodes to form a link.
@@ -101,4 +104,36 @@ public class RouteLink {
         
         return Vector2D.angleBetween(u, v);
     }
+    
+    @Override
+    public String toString() {
+        return "{" + node1.getNodeNum() + "-" + node2.getNodeNum() + "}";
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) { return false; }
+        if (obj == this) { return true; }
+        if (obj.getClass() != getClass()) {
+          return false;
+        }
+        RouteLink rhs = (RouteLink) obj;
+        return new EqualsBuilder()
+          .append(node1.getLatitude(), rhs.node1.getLatitude())
+          .append(node1.getLongitude(), rhs.node1.getLongitude())
+          .append(node2.getLatitude(), rhs.node2.getLatitude())
+          .append(node2.getLongitude(), rhs.node2.getLongitude())
+          .isEquals();
+    }
+    
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+            .append(node1.getLatitude())
+            .append(node1.getLongitude())
+            .append(node2.getLatitude())
+            .append(node2.getLongitude())
+            .toHashCode();
+    }
+    
 }
