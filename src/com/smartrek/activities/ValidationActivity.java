@@ -1858,11 +1858,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             }
             
             TextView mpoint = (TextView) findViewById(R.id.mpoint_circle);
-            mpoint.setText(formatCongrValueDesc(ValidationActivity.this, uPoints + "\nuPoints"));
+            mpoint.setText(formatCongrValueDesc(ValidationActivity.this, uPoints + "\nUpoints"));
             
             TextView driveScore = (TextView) findViewById(R.id.drive_score_circle);
-            if(driveScoreValue!=0) {
-                String scoreString = driveScoreValue + "\nScore"; 
+            if(driveScoreValue/60>0) {
+                String scoreString = driveScoreValue/60 + "\nminutes"; 
                 driveScore.setText(formatCongrValueDesc(ValidationActivity.this, scoreString));
                 driveScore.setVisibility(View.VISIBLE);
             }
