@@ -401,7 +401,7 @@ public final class RouteActivity extends FragmentActivity {
                             Route route = routes.get(0);
                             route.setCredits(reservation.getCredits());
                             route.preprocessNodes();
-                            updateMap(routes);
+                            updateMap(routes, true);
                         }
                     }
                 };
@@ -976,7 +976,7 @@ public final class RouteActivity extends FragmentActivity {
      * 
      * @param possibleRoutes
      */
-    private void updateMap(List<Route> possibleRoutes) {
+    private void updateMap(List<Route> possibleRoutes, boolean fitRouteToMap) {
     	
         if(possibleRoutes != null && possibleRoutes.size() > 0) {
             
@@ -1056,7 +1056,9 @@ public final class RouteActivity extends FragmentActivity {
             	mapOverlays.add(routeInfoOverlays[i]);
             }*/
             
-            fitRouteToMap();
+            if(fitRouteToMap) {
+            	fitRouteToMap();
+            }
             
             mapView.postInvalidate();
         }
@@ -1096,7 +1098,7 @@ public final class RouteActivity extends FragmentActivity {
         if (request.isCached(this)) {
             try {
                 List<Route> routes = request.execute(this);
-                updateMap(routes);
+                updateMap(routes, false);
                 timeLayout.setColumnState(column, TimeButton.State.Selected);
             }
             catch (RouteNotFoundException e) {
@@ -1454,7 +1456,7 @@ public final class RouteActivity extends FragmentActivity {
             	}
             	
                 if(routes != null && updateMap) {
-                    updateMap(routes);
+                    updateMap(routes, true);
                 }
                 
                 // FIXME: Relying on updateMap is kind of hack-ish. Need to come up with more sophisticated way.
