@@ -6,19 +6,13 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Stack;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.util.Log;
 
 import com.smartrek.activities.R;
-import com.smartrek.dialogs.ExceptionDialog;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.dialogs.NotificationDialog2.ActionListener;
-import com.smartrek.exceptions.RouteNotFoundException;
 
 public class ExceptionHandlingService {
 	
@@ -53,12 +47,12 @@ public class ExceptionHandlingService {
 		}
 		
 		public String getMessage() {
-			return hasPreferredMessage() ? getPreferredMessage() : getException().getMessage();
+			return hasPreferredMessage() ? getPreferredMessage() : Log.getStackTraceString(getException());
 		}
 		
 		@Override
 		public String toString() {
-			return String.format("%s: %s", e.getClass().toString(), preferredMessage != null ? preferredMessage : e.getMessage());
+			return String.format("%s: %s", e.getClass().toString(), preferredMessage != null ? preferredMessage : Log.getStackTraceString(e));
 		}
 	}
 	
@@ -110,21 +104,34 @@ public class ExceptionHandlingService {
      * 
      * @param message
      */
-    public synchronized void reportException(String message, final Runnable callback) {
+    public synchronized void reportException(final String message, final Runnable callback) {
         try{
             if(lastDialog != null && lastDialog.isShowing()){
                 lastDialog.dismiss();
                 lastDialog = null;
             }
-        	NotificationDialog2 dialog = new NotificationDialog2(context, message);
-        	if(callback != null) {
-        	    dialog.setPositiveActionListener(new ActionListener() {
-                    @Override
-                    public void onClick() {
+        	NotificationDialog2 dialog = new NotificationDialog2(context, "An error has occurred.");
+        	dialog.setVerticalOrientation(false);
+        	dialog.setNegativeButtonText("Dismiss");
+        	final NotificationDialog2.ActionListener callbackListener = new NotificationDialog2.ActionListener() {
+                @Override
+                public void onClick() {
+                    if(callback != null) {
                         callback.run();
                     }
-                });
-        	}
+                }
+            };
+            dialog.setNegativeActionListener(callbackListener);
+        	dialog.setPositiveButtonText("More");
+    	    dialog.setPositiveActionListener(new ActionListener() {
+                @Override
+                public void onClick() {
+                    NotificationDialog2 moreDialog = new NotificationDialog2(context, message);
+                    moreDialog.setPositiveActionListener(callbackListener);
+                    moreDialog.show();
+                }
+            });
+            
         	dialog.show();
         	lastDialog = dialog;
         }catch(Throwable t){}
@@ -135,31 +142,7 @@ public class ExceptionHandlingService {
     }
     
     public synchronized void reportException(Exception e) {
-    	// TODO: Is there any better way to handle this?
-    	if (e instanceof RouteNotFoundException) {
-    		ExceptionDialog dialog = new ExceptionDialog(context, e.getMessage());
-    		dialog.setButton(DialogInterface.BUTTON_NEGATIVE, context.getResources().getString(R.string.close), new OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					// TODO: Is this safe to do?
-					((Activity) context).finish();
-				}
-			});
-    		dialog.show();
-    	}
-    	else {
-            AlertDialog dialog = new AlertDialog.Builder(context).create();
-            dialog.setTitle(e.getClass().toString());
-            dialog.setMessage(e.getMessage());
-            dialog.setButton(context.getResources().getString(R.string.close), new Dialog.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                }
-            });
-            dialog.show();
-    	}
+    	reportException(Log.getStackTraceString(e));
     }
     
     public synchronized void reportExceptions(Runnable callback) {
