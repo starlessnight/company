@@ -201,7 +201,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
 //	        	((TimeButton) getChildAt(i)).setState(TimeButton.State.None);
 	        }
 	
-	        setColumnState(column, State.Selected);
+//	        setColumnState(column, State.Selected);
 	        
 	        this.postInvalidate(); // TODO: What is this?
 	        
