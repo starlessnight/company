@@ -2946,8 +2946,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     			curFrom.setIsFromPoi(true);
     			mapView.getOverlays().add(curFrom);
     			curFrom.showMiniBalloonOverlay();
-    			curFromProvider = lastLocation.getProvider();
-                curFromTime = lastLocation.getTime();
+    			if(lastLocation != null){
+        			curFromProvider = lastLocation.getProvider();
+                    curFromTime = lastLocation.getTime();
+    			}
     		}
     		findViewById(R.id.get_route).setVisibility(View.VISIBLE);
     	}
