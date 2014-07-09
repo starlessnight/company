@@ -163,7 +163,6 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 		layout.findViewById(R.id.poi_content_detail).setVisibility(View.GONE);
 		View poiContentMini = layout.findViewById(R.id.poi_content_mini);
 		poiContentMini.setVisibility(View.VISIBLE);
-		poiContentMini.setAlpha(0.7f);
 	}
 	
 	private void changeToDetail() {
