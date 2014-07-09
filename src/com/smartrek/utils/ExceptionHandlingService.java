@@ -8,8 +8,10 @@ import java.util.Stack;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
+import com.smartrek.activities.FeedbackActivity;
 import com.smartrek.activities.R;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.dialogs.NotificationDialog2.ActionListener;
@@ -112,23 +114,26 @@ public class ExceptionHandlingService {
             }
         	NotificationDialog2 dialog = new NotificationDialog2(context, "An error has occurred.");
         	dialog.setVerticalOrientation(false);
-        	dialog.setNegativeButtonText("Dismiss");
-        	final NotificationDialog2.ActionListener callbackListener = new NotificationDialog2.ActionListener() {
+        	dialog.setNegativeButtonText("Cancel");
+            dialog.setNegativeActionListener(new NotificationDialog2.ActionListener() {
                 @Override
                 public void onClick() {
                     if(callback != null) {
                         callback.run();
                     }
                 }
-            };
-            dialog.setNegativeActionListener(callbackListener);
+            });
         	dialog.setPositiveButtonText("More");
     	    dialog.setPositiveActionListener(new ActionListener() {
                 @Override
                 public void onClick() {
-                    NotificationDialog2 moreDialog = new NotificationDialog2(context, message);
-                    moreDialog.setPositiveActionListener(callbackListener);
-                    moreDialog.show();
+                    Intent feedback = new Intent(context, FeedbackActivity.class);
+                    feedback.putExtra(FeedbackActivity.CATEGORY, "api");
+                    feedback.putExtra(FeedbackActivity.MESSAGE, message);
+                    context.startActivity(feedback);
+                    if(callback != null) {
+                        callback.run();
+                    }
                 }
             });
             

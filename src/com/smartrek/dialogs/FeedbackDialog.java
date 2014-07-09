@@ -1,5 +1,10 @@
 package com.smartrek.dialogs;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
+import org.apache.commons.lang3.StringUtils;
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -21,14 +26,25 @@ import com.smartrek.utils.SessionM;
 
 public class FeedbackDialog extends Dialog {
     
-    public static final String getUrl(Context ctx){
+    public static final String getUrl(Context ctx, String category, String message){
         User user = User.getCurrentUser(ctx);
-        return Request.getPageUrl(Page.feedback)
+        String url = Request.getPageUrl(Page.feedback)
             .replaceAll("\\{username\\}", user.getUsername())
             .replaceAll("\\{first_name\\}", user.getFirstname())
             .replaceAll("\\{email\\}", user.getEmail())
             .replaceAll("\\{os\\}", "android")
             .replaceAll("\\{app_version\\}", ctx.getString(R.string.distribution_date));
+        if(StringUtils.isNotBlank(category)){
+            url = url.replaceAll("\\{category\\}", category);
+        }
+        if(StringUtils.isNotBlank(message)){
+            try {
+                url = url.replaceAll("\\{message\\}", URLEncoder.encode(message, "utf-8"));
+            }
+            catch (UnsupportedEncodingException e) {
+            }
+        }
+        return url;
     }
     
 	public interface ActionListener {
@@ -75,7 +91,7 @@ public class FeedbackDialog extends Dialog {
         settings.setLoadWithOverviewMode(true);
 		settings.setUseWideViewPort(true);
 		settings.setBuiltInZoomControls(true);
-		webviewContent.loadUrl(getUrl(ctx));
+		webviewContent.loadUrl(getUrl(ctx, null, null));
 		webviewContent.setVisibility(View.VISIBLE);
         webviewContent.requestFocus(View.FOCUS_DOWN);
         Misc.fadeIn(ctx, webviewContent);

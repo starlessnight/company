@@ -1,5 +1,6 @@
 package com.smartrek.activities;
 
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -16,6 +17,10 @@ import com.smartrek.utils.Misc;
 
 public class FeedbackActivity extends FragmentActivity{
 	
+    public static final String CATEGORY = "CATEGORY";
+    
+    public static final String MESSAGE = "MESSAGE";
+    
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -50,7 +55,9 @@ public class FeedbackActivity extends FragmentActivity{
         settings.setLoadWithOverviewMode(true);
         settings.setUseWideViewPort(true);
         settings.setBuiltInZoomControls(true);
-        webviewContent.loadUrl(FeedbackDialog.getUrl(this));
+        Intent intent = getIntent();
+        webviewContent.loadUrl(FeedbackDialog.getUrl(this, 
+            intent.getStringExtra(CATEGORY), intent.getStringExtra(MESSAGE)));
         webviewContent.setVisibility(View.VISIBLE);
         webviewContent.requestFocus(View.FOCUS_DOWN);
         Misc.fadeIn(this, webviewContent);
