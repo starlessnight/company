@@ -1090,10 +1090,10 @@ public final class RouteActivity extends FragmentActivity {
      * @throws IOException 
      * @throws RouteNotFoundException 
      */
-    private void updateRoute(GeoPoint origin, GeoPoint destination, long departureTime, int column) throws InterruptedException {
+    private void updateRoute(GeoPoint origin, GeoPoint destination, long departureTime, final int column) throws InterruptedException {
         int letsGoPanelVis = column == 0?View.VISIBLE:View.GONE;
         int reservePanelVis = column == 0?View.GONE:View.VISIBLE;
-        RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(this), 
+        final RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(this), 
             origin, destination, departureTime, speed, course, getOriginAddrRouteReqParam(), destAddr);
         if (request.isCached(this)) {
             try {
@@ -1111,15 +1111,39 @@ public final class RouteActivity extends FragmentActivity {
                 e.printStackTrace();
             }
         }else{
-            for (RouteTask task : routeTasks) {
-                task.cancel(true);
-            }
-            timeLayout.refresh();
-            RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
-            routeTasks.add(routeTask);
-            routeTask.execute();
-            letsGoPanelVis = View.VISIBLE;
-            reservePanelVis = View.GONE;
+        	AsyncTask<Void, Void, List<Route>> fetchRoute = new AsyncTask<Void, Void, List<Route>>() {
+				@Override
+				protected List<Route> doInBackground(Void... params) {
+					try {
+						return request.execute(RouteActivity.this);
+					} catch (Exception e) {
+						ehs.registerException(e);
+					} 
+					return null;
+				}
+				
+				@Override
+				protected void onPostExecute(List<Route> routes) {
+					if(ehs.hasExceptions()) {
+						ehs.reportExceptions();
+					}
+					else {
+			        	updateMap(routes, false);
+			        	timeLayout.setColumnState(column, TimeButton.State.Selected);
+					}
+				}
+        		
+        	};
+        	Misc.parallelExecute(fetchRoute);
+//            for (RouteTask task : routeTasks) {
+//                task.cancel(true);
+//            }
+//            timeLayout.refresh();
+//            RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
+//            routeTasks.add(routeTask);
+//            routeTask.execute();
+//            letsGoPanelVis = View.VISIBLE;
+//            reservePanelVis = View.GONE;
         }
         findViewById(R.id.lets_go_panel).setVisibility(letsGoPanelVis);
         findViewById(R.id.reserve_panel).setVisibility(reservePanelVis);
