@@ -48,7 +48,12 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
 	@Override
 	protected void onPreExecute() {
 	    if(dialogEnabled){
-            dialog.show();
+	        doQuietly(new Runnable() {
+	            @Override
+	            public void run() {
+	                dialog.show();
+	            }
+	        });
         }
 	}
 
@@ -79,7 +84,12 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
 	@Override
 	protected final void onPostExecute(User user) {
 	    if(dialogEnabled){
-	        dialog.cancel();
+	        doQuietly(new Runnable() {
+	            @Override
+	            public void run() {
+	                dialog.cancel();
+	            }
+	        });
 	    }
 	    onPostLogin(user);
 	}
@@ -93,20 +103,40 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
     public LoginTask setDialogEnabled(boolean dialogEnabled) {
         this.dialogEnabled = dialogEnabled;
         if(getStatus() == Status.RUNNING && !dialog.isShowing()){
-            dialog.show();
+            doQuietly(new Runnable() {
+                @Override
+                public void run() {
+                    dialog.show();
+                }
+            });
         }
         return this;
     }
     
     public void showDialog(){
         if(dialogEnabled){
-            dialog.show();
+            doQuietly(new Runnable() {
+                @Override
+                public void run() {
+                    dialog.show();
+                }
+            });
         }
     }
     
     public void hideDialog(){
-        dialog.cancel();
+        doQuietly(new Runnable() {
+            @Override
+            public void run() {
+                dialog.cancel();
+            }
+        });
     }
     
+    private static void doQuietly(Runnable callback){
+        try{
+            callback.run();
+        }catch(Throwable t){}
+    }
 	
 }
