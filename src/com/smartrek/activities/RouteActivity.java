@@ -970,6 +970,8 @@ public final class RouteActivity extends FragmentActivity {
         }
     }
     
+    private static final double mapZoomVerticalOffset = -0.3;
+    
     /**
      * This function will be called when BackgroundDownloadTask().execute()
      * succeeds.
@@ -992,7 +994,7 @@ public final class RouteActivity extends FragmentActivity {
                 nodes.addAll(route.getNodes());
             }
             
-            routeRect = new RouteRect(nodes, -0.3);
+            routeRect = new RouteRect(nodes, mapZoomVerticalOffset);
             
             // Overlays must be drawn in orders
             for (int i = 0; i < possibleRoutes.size(); i++) {
