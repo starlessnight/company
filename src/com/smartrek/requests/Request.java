@@ -83,7 +83,8 @@ public abstract class Request {
 	    feedback,
 	    reset_password,
 	    eula,
-	    rewards
+	    rewards,
+	    my_metropia
     }
 	
 	public enum Setting {

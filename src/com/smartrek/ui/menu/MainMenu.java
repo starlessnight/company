@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 
 import com.actionbarsherlock.view.MenuItem;
-import com.smartrek.activities.DashboardActivity;
 import com.smartrek.activities.DebugOptionsActivity;
 import com.smartrek.activities.HomeActivity;
 import com.smartrek.activities.LandingActivity;
@@ -14,8 +13,10 @@ import com.smartrek.activities.MyMetropiaActivity;
 import com.smartrek.activities.R;
 import com.smartrek.activities.ReservationConfirmationActivity;
 import com.smartrek.activities.ReservationListActivity;
+import com.smartrek.activities.RewardsActivity;
 import com.smartrek.activities.RouteActivity;
 import com.smartrek.activities.ShareActivity;
+import com.smartrek.activities.WebMyMetropiaActivity;
 import com.smartrek.models.User;
 import com.smartrek.utils.Misc;
 
@@ -75,17 +76,18 @@ public final class MainMenu {
                break;
                
            case R.id.dashboard:
-//               if (!activity.getClass().equals(DashboardActivity.class)) {
-//                   intent = new Intent(activity, DashboardActivity.class);
-//                   intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                   activity.startActivity(intent);
-//                   activity.finish();
-//               }
-        	   if (!activity.getClass().equals(MyMetropiaActivity.class)) {
-                   intent = new Intent(activity, MyMetropiaActivity.class);
-                   intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                   activity.startActivity(intent);
-//                   activity.finish();
+               if(RewardsActivity.hasUrl(activity)){
+                   if (!activity.getClass().equals(WebMyMetropiaActivity.class)) {
+                       intent = new Intent(activity, WebMyMetropiaActivity.class);
+                       intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                       activity.startActivity(intent);
+                   }
+               }else{
+                   if (!activity.getClass().equals(MyMetropiaActivity.class)) {
+                       intent = new Intent(activity, MyMetropiaActivity.class);
+                       intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                       activity.startActivity(intent);
+                   }
                }
                break;
 
@@ -107,14 +109,6 @@ public final class MainMenu {
                activity.startActivity(intent);
                activity.finish();
                break;
-               
-//         case R.id.crash:
-//             ((HomeActivity) null).getApplication();
-//             break;
-   //
-//         case R.id.clear_cache:
-//             Cache.getInstance().clear();
-//             break;
 
            case R.id.debug_options:
                if (!activity.getClass().equals(DebugOptionsActivity.class)) {
