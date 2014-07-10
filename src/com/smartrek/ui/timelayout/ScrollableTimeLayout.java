@@ -5,6 +5,8 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.Display;
+import android.view.MotionEvent;
+import android.view.View;
 
 import com.smartrek.ui.ObservableScrollView;
 import com.smartrek.ui.ScrollViewListener;
@@ -21,6 +23,12 @@ public final class ScrollableTimeLayout extends ObservableScrollView implements 
 	// FIXME: This must be loaded dynamically
 	private static int screenWidth = 450;
 	
+	private Runnable scrollerTask;
+	private int initialPosition;
+	private int checkPosition;
+
+	private int newCheck = 100;
+	
 	private TimeLayout timeLayout;
 	
 	private int scrollX;
@@ -34,6 +42,7 @@ public final class ScrollableTimeLayout extends ObservableScrollView implements 
 	public ScrollableTimeLayout(Context context, AttributeSet attributes) {
 		super(context, attributes);
 		setScrollViewListener(this);
+		initDetector();
 	}
 	
 	public void setTimeLayout(TimeLayout timeLayout) {
@@ -46,6 +55,42 @@ public final class ScrollableTimeLayout extends ObservableScrollView implements 
 	
 	public void setScreenWidth(int screenWidth) {
 		this.screenWidth = screenWidth;
+	}
+	
+	private void initDetector() {
+		scrollerTask = new Runnable() {
+			@Override
+			public void run() {
+				int newPosition = getScrollX();
+	            if(checkPosition - newPosition == 0){//has stopped
+	            	boolean swipeRight = initialPosition - newPosition < 0;
+	            	initialPosition = newPosition;
+	            	int mod = newPosition%TimeButton.WIDTH;
+	            	int columnIndex = newPosition/TimeButton.WIDTH + (mod!=0&&swipeRight?1:0);
+	            	smoothScrollTo(columnIndex*TimeButton.WIDTH, 0);
+	            }else{
+	            	checkPosition = getScrollX();
+	                ScrollableTimeLayout.this.postDelayed(scrollerTask, newCheck);
+	            }
+			}
+			
+		};
+		
+		setOnTouchListener(new View.OnTouchListener() {
+ 			@Override
+ 			public boolean onTouch(View v, MotionEvent event) {
+ 				//If the user swipes
+ 				if (event.getAction() == MotionEvent.ACTION_UP) {
+ 	                startScrollerTask();
+ 	            }
+ 	            return false;
+ 			}
+ 		});
+	}
+	
+	public void startScrollerTask(){
+		checkPosition = getScrollX();
+	    ScrollableTimeLayout.this.postDelayed(scrollerTask, newCheck);
 	}
 	
 //	public void setScrollableTimeLayoutListener(ScrollableTimeLayoutListener listener) {
@@ -91,5 +136,5 @@ public final class ScrollableTimeLayout extends ObservableScrollView implements 
 	public static void initScreenWidth(DisplayMetrics dm, Display display) {
 		screenWidth = display.getWidth() - Dimension.dpToPx(70, dm);
 	}
-
+	
 }
