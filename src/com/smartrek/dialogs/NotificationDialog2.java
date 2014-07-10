@@ -8,18 +8,15 @@ import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
 import com.smartrek.activities.R;
 import com.smartrek.ui.ClickAnimation;
 import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
-import com.smartrek.utils.Dimension;
 import com.smartrek.utils.Font;
 
 public class NotificationDialog2 extends Dialog {
@@ -36,7 +33,7 @@ public class NotificationDialog2 extends Dialog {
 	private CharSequence title = "Oops!";
 	private ViewGroup dialogView;
 	private Typeface boldFont;
-	private Typeface lightFont;
+	private Typeface mediumFont;
 	private CharSequence buttonText = "Dismiss";
 	private CharSequence negativeButtonText = "Cancel";
 	
@@ -53,7 +50,7 @@ public class NotificationDialog2 extends Dialog {
 		
 		AssetManager assets = getContext().getAssets();
 		boldFont = Font.getBold(assets);
-		lightFont = Font.getLight(assets);
+		mediumFont = Font.getMedium(assets);
 		
 		LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		dialogView = (ViewGroup) inflater.inflate(R.layout.notification_dialog, null);
@@ -65,7 +62,7 @@ public class NotificationDialog2 extends Dialog {
 		messageView.setText(message);
 		if(StringUtils.isBlank(title)) {
 			titleView.setVisibility(View.GONE);
-			messageView.setTextSize(Dimension.dpToPx(12, getContext().getResources().getDisplayMetrics()));
+			messageView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 17);
 		}
 		
 		try{
@@ -143,7 +140,7 @@ public class NotificationDialog2 extends Dialog {
 		}
 		
 		Font.setTypeface(boldFont, titleView, dismissView);
-		Font.setTypeface(lightFont, messageView);
+		Font.setTypeface(mediumFont, messageView);
 		
 		setContentView(dialogView);
 		
