@@ -26,6 +26,8 @@ import com.smartrek.utils.SessionM;
 
 public class FeedbackDialog extends Dialog {
     
+    private static final String encoding = "utf-8";
+    
     public static final String getUrl(Context ctx, String category, String message){
         User user = User.getCurrentUser(ctx);
         String url = Request.getPageUrl(Page.feedback)
@@ -39,12 +41,18 @@ public class FeedbackDialog extends Dialog {
         }
         if(StringUtils.isNotBlank(message)){
             try {
-                url = url.replaceAll("\\{message\\}", URLEncoder.encode(message, "utf-8"));
+                url = url.replaceAll("\\{message\\}", URLEncoder.encode(truncate(message), encoding));
             }
-            catch (UnsupportedEncodingException e) {
-            }
+            catch (UnsupportedEncodingException e) {}
         }
         return url;
+    }
+    
+    private static String truncate(String val) throws UnsupportedEncodingException {
+        byte[] src = val.getBytes(encoding);
+        byte[] dest = new byte[Math.min(7168, src.length)];
+        System.arraycopy(src, 0, dest, 0, dest.length);
+        return new String(dest, encoding);
     }
     
 	public interface ActionListener {
