@@ -1647,7 +1647,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	        List<RouteLink> rerouteNearbyLinks = getRouteOrReroute().getNearbyLinks(lat, lng, distanceOutOfRouteThreshold + accuracy);
             List<RouteLink> rerouteSameDirLinks = getRouteOrReroute().getSameDirectionLinks(rerouteNearbyLinks, speedInMph, bearing);
             
-            Log.i("debug", "rerouteNearbyLinks: " + rerouteNearbyLinks + ", rerouteSameDirLinks: " + rerouteSameDirLinks);
             if(!Route.isPending(rerouteNearbyLinks, rerouteSameDirLinks)){
                 if(Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)){
                     if(routeOfRouteCnt.incrementAndGet() == countOutOfRouteThreshold){
@@ -1657,8 +1656,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     routeOfRouteCnt.set(0);
                 }
                 
-                if(rerouteSameDirLinks.size() == 1){
-                    final RouteLink rerouteNearestLink = rerouteSameDirLinks.get(0);
+                if(rerouteSameDirLinks.size() > 0){
+                    final RouteLink rerouteNearestLink = Route.getClosestLink(rerouteSameDirLinks, lat, lng);
         	        
         	        if(DebugOptionsActivity.isReroutingDebugMsgEnabled(this) || DebugOptionsActivity.isVoiceDebugMsgEnabled(this)
         	                || DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(this)){

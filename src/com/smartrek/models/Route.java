@@ -348,14 +348,18 @@ public final class Route implements Parcelable {
 	            links.add(link);
 	        }
         }
+	    return getClosestLink(links, latitude, longitude);
+	}
+	
+	public static RouteLink getClosestLink(List<RouteLink> links, double latitude, double longitude){
 	    RouteLink nearest = null;
-	    for(RouteLink link:links){
-	        if(nearest == null || link.distanceTo(latitude, longitude) < 
-	                nearest.distanceTo(latitude, longitude)){
-	            nearest = link;
-	        }
-	    }
-	    return nearest;
+        for(RouteLink link:links){
+            if(nearest == null || link.distanceTo(latitude, longitude) < 
+                    nearest.distanceTo(latitude, longitude)){
+                nearest = link;
+            }
+        }
+        return nearest;
 	}
 	
 	public static boolean isOutOfRoute(List<RouteLink> nearbyLinks, List<RouteLink> sameDirLinks){
@@ -363,7 +367,7 @@ public final class Route implements Parcelable {
 	}
 	
 	public static boolean isPending(List<RouteLink> nearbyLinks, List<RouteLink> sameDirLinks){
-        return sameDirLinks.size() > 1 || (nearbyLinks.size() > 1 && sameDirLinks.isEmpty());
+        return nearbyLinks.size() > 1 && sameDirLinks.isEmpty();
     }
 	
 	public List<RouteLink> getNearbyLinks(double latitude, double longitude, double limit) {
@@ -592,8 +596,8 @@ public final class Route implements Parcelable {
 		    double distanceLimit = ((Number)Request.getSetting(Setting.reroute_trigger_distance_in_meter)).doubleValue() + accuracy;
 	        List<RouteLink> nearbyLinks = getNearbyLinks(lat, lng, distanceLimit);
 	        List<RouteLink> sameDirLinks = getSameDirectionLinks(nearbyLinks, speedMph, bearing);
-	        if(!Route.isPending(nearbyLinks, sameDirLinks) && sameDirLinks.size() == 1){
-	            nearestLink = sameDirLinks.get(0);
+	        if(!Route.isPending(nearbyLinks, sameDirLinks) && sameDirLinks.size() > 0){
+	            nearestLink = Route.getClosestLink(sameDirLinks, lat, lng);
 	        }
 		    arrived = nearestLink == null || nearestLink.getEndNode() == lastNode 
 	            && nearestLink.getStartNode().getMetadata().isPassed();

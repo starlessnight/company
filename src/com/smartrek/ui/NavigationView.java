@@ -544,8 +544,8 @@ public class NavigationView extends LinearLayout {
 		            double distanceLimit = ((Number)Request.getSetting(Setting.reroute_trigger_distance_in_meter)).doubleValue() + accuracy;
 		            List<RouteLink> nearbyLinks = route.getNearbyLinks(latitude, longitude, distanceLimit);
 		            List<RouteLink> sameDirLinks = route.getSameDirectionLinks(nearbyLinks, speedMph, bearing);
-				    if(!Route.isPending(nearbyLinks, sameDirLinks) && sameDirLinks.size() == 1){
-				        RouteLink nearestLinkVoiceForLink = sameDirLinks.get(0);
+				    if(!Route.isPending(nearbyLinks, sameDirLinks) && sameDirLinks.size() > 0){
+				        RouteLink nearestLinkVoiceForLink = Route.getClosestLink(sameDirLinks, latitude, longitude);
 				        RouteNode startNode = nearestLinkVoiceForLink.getStartNode();
 		                RouteNode.Metadata startMetadata = startNode.getMetadata();
 		                if (!startMetadata.pingFlags[0]) {
