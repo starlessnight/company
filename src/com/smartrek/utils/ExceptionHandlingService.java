@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.crashlytics.android.Crashlytics;
 import com.smartrek.activities.FeedbackActivity;
 import com.smartrek.activities.R;
 import com.smartrek.dialogs.NotificationDialog2;
@@ -139,6 +140,8 @@ public class ExceptionHandlingService {
             
         	dialog.show();
         	lastDialog = dialog;
+        	
+        	Crashlytics.logException(new Exception(message));
         }catch(Throwable t){}
     }
     
