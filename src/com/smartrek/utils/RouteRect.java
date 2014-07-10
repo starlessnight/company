@@ -44,6 +44,11 @@ public class RouteRect {
         this.lonMin = lonMin;
     }
 	
+	public RouteRect(List<RouteNode> nodes, double verticalOffest) {
+		this(nodes);
+		this.verticalOffest = verticalOffest;
+	}
+	
 	public RouteRect(Collection<GeoPoint> nodes, double verticalOffest) {
 	    this.verticalOffest = verticalOffest;
         int latMax = (int) (-81 * 1E6);

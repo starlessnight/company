@@ -992,7 +992,7 @@ public final class RouteActivity extends FragmentActivity {
                 nodes.addAll(route.getNodes());
             }
             
-            routeRect = new RouteRect(nodes);
+            routeRect = new RouteRect(nodes, -0.3);
             
             // Overlays must be drawn in orders
             for (int i = 0; i < possibleRoutes.size(); i++) {
