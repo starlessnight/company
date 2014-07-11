@@ -246,6 +246,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".IntroActivity"
+            android:screenOrientation="portrait"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
             android:theme="@android:style/Theme.NoTitleBar" />
 		<receiver android:name="com.sessionm.api.ConnectionReceiver"> 
