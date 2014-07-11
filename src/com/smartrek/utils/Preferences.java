@@ -11,6 +11,7 @@ public final class Preferences {
 	public static class Global {
 		public static final String GCM_REG_ID = "GCMRegistrationID";
 		public static final String LICENSE_AGREEMENT = "LicenseAgreement";
+		public static final String INTRO_FINISH = "IntroFinish";
 	}
 	
 	public static SharedPreferences getGlobalPreferences(Context context) {

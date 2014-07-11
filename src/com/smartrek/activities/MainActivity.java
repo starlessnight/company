@@ -1,6 +1,5 @@
 package com.smartrek.activities;
 
-import com.crashlytics.android.Crashlytics;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +20,7 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary;
 import com.smartrek.UserLocationService;
@@ -252,14 +252,14 @@ public class MainActivity extends Activity implements AnimationListener {
 		logoMask.setVisibility(View.GONE);
 		if(loginTask == null){
 		    SharedPreferences prefs = Preferences.getGlobalPreferences(this);
-            int licenseAgreement = prefs.getInt(Preferences.Global.LICENSE_AGREEMENT, LicenseAgreementActivity.DISAGREED);
+            int introFinish = prefs.getInt(Preferences.Global.INTRO_FINISH, 0);
             
-            if (true || licenseAgreement == LicenseAgreementActivity.AGREED) {
+            if (introFinish == IntroActivity.INTRO_FINISH) {
                 proceedToNextScreen();
             }
             else {
-                Intent intent = new Intent(this, LicenseAgreementActivity.class);
-                startActivityForResult(intent, LicenseAgreementActivity.LICENSE_AGREEMENT_ACTIVITY);
+                Intent intent = new Intent(this, IntroActivity.class);
+                startActivityForResult(intent, IntroActivity.INTRO_ACTIVITY);
             }
 		}else{   
 		    if(loginTaskEnded){
@@ -320,11 +320,8 @@ public class MainActivity extends Activity implements AnimationListener {
     	Log.d("MainActivity", String.format("onActivityResult: %d, %d", requestCode, resultCode));
         super.onActivityResult(requestCode, resultCode, intent);
        
-    	if (resultCode == LicenseAgreementActivity.AGREED) {
-    	    if(requestCode == LicenseAgreementActivity.LICENSE_AGREEMENT_ACTIVITY){
-    	        startActivity(new Intent(this, TutorialActivity.class));
-                finish();
-    	    }else if(requestCode == LicenseAgreementActivity.LICENSE_AGREEMENT_UPDATED){
+    	if (resultCode == IntroActivity.INTRO_FINISH) {
+    	    if(requestCode == IntroActivity.INTRO_ACTIVITY){
     	        proceedToNextScreen();
     	    }
     	}
