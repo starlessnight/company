@@ -2785,18 +2785,16 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     poiTapThrottle.set(false);
                 }
             }, 500);
-            boolean hasFromAddr = StringUtils.isNotBlank(curFrom.getAddress());
+            boolean hasFromAddr = curFrom == null?false:StringUtils.isNotBlank(curFrom.getAddress());
             Intent intent = new Intent(this, RouteActivity.class);
             Bundle extras = new Bundle();
             extras.putString(RouteActivity.ORIGIN_ADDR, hasFromAddr?curFrom.getAddress():EditAddress.CURRENT_LOCATION);
-//            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude()));
-//            extras.putParcelable(RouteActivity.ORIGIN_COORD, debugOrigin);
-            extras.putParcelable(RouteActivity.ORIGIN_COORD, curFrom.getGeoPoint());
+            extras.putParcelable(RouteActivity.ORIGIN_COORD, hasFromAddr?curFrom.getGeoPoint():null);
             extras.putString(RouteActivity.ORIGIN_COORD_PROVIDER, curFromProvider);
             extras.putLong(RouteActivity.ORIGIN_COORD_TIME, curFromTime);
             extras.putString(RouteActivity.DEST_ADDR, curTo.getAddress());
             extras.putParcelable(RouteActivity.DEST_COORD, curTo.getGeoPoint());
-            extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, curFrom.getPoiOverlayInfo());
+            extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, hasFromAddr?curFrom.getPoiOverlayInfo():null);
             extras.putParcelable(RouteActivity.DEST_OVERLAY_INFO, curTo.getPoiOverlayInfo());
             intent.putExtras(extras);
             hideBulbBalloon();
