@@ -202,7 +202,7 @@ public final class Route implements Parcelable {
                 node.setVoice(ro.optString("voice"));
                 node.setVoiceRadius(ro.optDouble("voice_radius", 0));
                 node.setVoiceForLink(ro.optString("voice_for_link"));
-                node.setBearing(ro.optDouble("bearing", 0));
+                node.setBearing(ro.optDouble("bearing", -1));
                 
                 routeNodes.add(node);
             }
@@ -413,6 +413,7 @@ public final class Route implements Parcelable {
 	    for(RouteLink link:nearbyLinks){
 	        double linkBearing = link.getStartNode().getBearing();
 	        if(speedInMph < ValidationActivity.speedOutOfRouteThreshold
+	                || linkBearing < 0
 	                || angleDifference(bearing, linkBearing) < 30){
 	            links.add(link);
 	        }
