@@ -29,13 +29,15 @@ public class FeedbackDialog extends Dialog {
     private static final String encoding = "utf-8";
     
     public static final String getUrl(Context ctx, String category, String message){
-        User user = User.getCurrentUser(ctx);
         String url = Request.getPageUrl(Page.feedback)
-            .replaceAll("\\{username\\}", user.getUsername())
-            .replaceAll("\\{first_name\\}", user.getFirstname())
-            .replaceAll("\\{email\\}", user.getEmail())
             .replaceAll("\\{os\\}", "android")
             .replaceAll("\\{app_version\\}", ctx.getString(R.string.distribution_date));
+        User user = User.getCurrentUser(ctx);
+        if(user != null){
+            url = url.replaceAll("\\{username\\}", StringUtils.defaultString(user.getUsername()))
+            .replaceAll("\\{first_name\\}", StringUtils.defaultString(user.getFirstname()))
+            .replaceAll("\\{email\\}", StringUtils.defaultString(user.getEmail()));
+        }
         if(StringUtils.isNotBlank(category)){
             url = url.replaceAll("\\{category\\}", category);
         }
