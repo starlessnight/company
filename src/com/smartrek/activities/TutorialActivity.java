@@ -1,8 +1,5 @@
 package com.smartrek.activities;
 
-import org.apache.commons.lang3.StringUtils;
-
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -10,29 +7,75 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
+import com.smartrek.utils.Dimension;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
 
 public class TutorialActivity extends FragmentActivity implements OnPageChangeListener {
 	
-	public static final String FROM = "from";
-
+	private static final SlideMarginInfo[] indicatorMargins = new SlideMarginInfo[] {
+		SlideMarginInfo.of(RelativeLayout.ALIGN_PARENT_BOTTOM, 0, 80),
+		SlideMarginInfo.of(RelativeLayout.ALIGN_PARENT_TOP, 100, 0), 
+		SlideMarginInfo.of(RelativeLayout.ALIGN_PARENT_BOTTOM, 0, 10), 
+		SlideMarginInfo.of(RelativeLayout.ALIGN_PARENT_BOTTOM, 0, 200)
+	};
+	
+	private ViewPager mPager;
+	private LinearLayout indicatorsPanel;
+	private TextView skipView;
+	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tutorial);
         
-        ViewPager mPager = (ViewPager) findViewById(R.id.pager);
+        mPager = (ViewPager) findViewById(R.id.pager);
         mPager.setOnPageChangeListener(this);
         SlideAdapter slideAdapter = new SlideAdapter(getSupportFragmentManager());
         mPager.setAdapter(slideAdapter);
+        
+        indicatorsPanel = (LinearLayout) findViewById(R.id.indicators_panel);
+        RelativeLayout.LayoutParams indicatorLp = (RelativeLayout.LayoutParams) indicatorsPanel.getLayoutParams();
+        SlideMarginInfo marginInfo = indicatorMargins[0];
+        indicatorLp.addRule(marginInfo.alignParent);
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+        indicatorLp.topMargin = Dimension.dpToPx(marginInfo.marginTop, dm);
+        indicatorLp.bottomMargin = Dimension.dpToPx(marginInfo.marginBottom, dm);
+        
+        skipView = (TextView) findViewById(R.id.skip_button);
+        skipView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				finish();
+			}
+        });
+        
+        findViewById(R.id.left_arrow).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				int nextItemIndex = Math.max(mPager.getCurrentItem()-1, 0);
+				mPager.setCurrentItem(nextItemIndex, true);
+			}
+		});
+        
+        findViewById(R.id.right_arrow).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				int nextItemIndex = Math.min(mPager.getCurrentItem()+1, indicatorMargins.length-1);
+				mPager.setCurrentItem(nextItemIndex, true);
+			}
+		});
         
         LinearLayout indicators = (LinearLayout)findViewById(R.id.indicators);
         for(int i=0; i<slideAdapter.getCount(); i++){
@@ -45,45 +88,20 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
             indicators.addView(indicator);
         }
         
-        findViewById(R.id.sign_up_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(TutorialActivity.this, UserRegistrationActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
+        Font.setTypeface(Font.getMedium(getAssets()), skipView);
         
-        findViewById(R.id.login_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(TutorialActivity.this, LoginActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
-        
-        String from = getIntent().getStringExtra(FROM);
-        if(StringUtils.isNotBlank(from)) {
-        	findViewById(R.id.login_options).setVisibility(View.INVISIBLE);
-        }
     }
     
     public static class SlideFragment extends Fragment {
         
         static final String IMAGE = "image";
         
-        static final String TEXT = "text";
-        
         private int image;
         
-        private int text;
-        
-        static SlideFragment of(Slide slide){
+        static SlideFragment of(Integer slide){
             SlideFragment f = new SlideFragment();
             Bundle args = new Bundle();
-            args.putInt(IMAGE, slide.image);
-            args.putInt(TEXT, slide.text);
+            args.putInt(IMAGE, slide);
             f.setArguments(args);
             return f;
         }
@@ -93,7 +111,6 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
             super.onCreate(savedInstanceState);
             Bundle args = getArguments();
             this.image = args.getInt(IMAGE);
-            this.text = args.getInt(TEXT);
         }
      
         @Override
@@ -106,22 +123,32 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
                 Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.tutorial_slide, container, false);
             ((ImageView)view.findViewById(R.id.image)).setImageResource(image);
-            TextView textView = (TextView)view.findViewById(R.id.text);
-            textView.setText(text);
-            Font.setTypeface(Font.getLight(getActivity().getAssets()), textView);
             return view;
         }
         
     }
     
+    static class SlideMarginInfo {
+    	int alignParent;
+    	int marginTop;
+    	int marginBottom;
+    	
+    	static SlideMarginInfo of(int alignParent, int marginTop, int marginBottom) {
+    		SlideMarginInfo info = new SlideMarginInfo();
+    		info.alignParent = alignParent;
+    		info.marginTop = marginTop;
+    		info.marginBottom = marginBottom;
+    		return info;
+    	}
+    }
+    
     public static class SlideAdapter extends FragmentPagerAdapter {
         
-        private static Slide[] slides = {
-            new Slide(R.drawable.tutorial_slide1, R.string.tutorial_slide1),
-            new Slide(R.drawable.tutorial_slide2, R.string.tutorial_slide2),
-            new Slide(R.drawable.tutorial_slide3, R.string.tutorial_slide3),
-            new Slide(R.drawable.tutorial_slide4, R.string.tutorial_slide4),
-            new Slide(R.drawable.tutorial_slide5, R.string.tutorial_slide5),
+        private static int[] slides = {
+            R.drawable.tutorial_1,
+            R.drawable.tutorial_2,
+            R.drawable.tutorial_3,
+            R.drawable.tutorial_4
         };
         
         public SlideAdapter(FragmentManager fm) {
@@ -140,24 +167,25 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
         
     }
     
-    private static class Slide {
-        
-        int image;
-        
-        int text;
-
-        public Slide(int image, int text) {
-            this.image = image;
-            this.text = text;
-        }
-        
-    }
-
     @Override
     public void onPageSelected(int pos) {
         LinearLayout indicators = (LinearLayout)findViewById(R.id.indicators);
         for(int i=0; i<indicators.getChildCount(); i++){
             indicators.getChildAt(i).setEnabled(i == pos);
+        }
+        SlideMarginInfo marginInfo = indicatorMargins[pos];
+        LayoutParams indicatorsPanelLp = (RelativeLayout.LayoutParams)indicatorsPanel.getLayoutParams();
+        indicatorsPanelLp.removeRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+        indicatorsPanelLp.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
+        indicatorsPanelLp.addRule(marginInfo.alignParent);
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+        indicatorsPanelLp.topMargin = Dimension.dpToPx(marginInfo.marginTop, dm);
+        indicatorsPanelLp.bottomMargin = Dimension.dpToPx(marginInfo.marginBottom, dm);
+        if(pos==indicatorMargins.length-1) {
+        	skipView.setText("Finish");
+        }
+        else {
+        	skipView.setText("Skip");
         }
     }
     

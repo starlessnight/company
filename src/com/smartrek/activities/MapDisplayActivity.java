@@ -145,7 +145,7 @@ public final class MapDisplayActivity extends FragmentActivity {
 					    Misc.suppressTripInfoPanel(MapDisplayActivity.this);
 						Intent tutorialActivity = new Intent(MapDisplayActivity.this,
 								TutorialActivity.class);
-						tutorialActivity.putExtra(TutorialActivity.FROM, "setting");
+//						tutorialActivity.putExtra(TutorialActivity.FROM, "setting");
 						startActivity(tutorialActivity);
 					}
 				});

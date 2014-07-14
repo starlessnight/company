@@ -1,27 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:orientation="vertical">
 
 	<ImageView 
 	    android:id="@+id/image"
-		android:layout_width="260dp"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="20dp"
-		android:src="@drawable/tutorial_slide1"
-		android:layout_gravity="center_horizontal"
-	/>
-      	
-    <TextView
-        android:id="@+id/text"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="20dp"
-		android:layout_marginRight="45dp"
-		android:layout_marginLeft="45dp"
-		android:gravity="center"
-		style="@style/SmallerText"
-	/>
-    
+		android:layout_height="match_parent"
+		android:scaleType="fitXY"
+		android:src="@drawable/tutorial_slide1"/>
+      	
 </LinearLayout>
