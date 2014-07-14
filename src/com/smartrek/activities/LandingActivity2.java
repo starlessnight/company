@@ -2789,12 +2789,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             Intent intent = new Intent(this, RouteActivity.class);
             Bundle extras = new Bundle();
             extras.putString(RouteActivity.ORIGIN_ADDR, hasFromAddr?curFrom.getAddress():EditAddress.CURRENT_LOCATION);
-            extras.putParcelable(RouteActivity.ORIGIN_COORD, hasFromAddr?curFrom.getGeoPoint():null);
+            if(curFrom != null){
+                extras.putParcelable(RouteActivity.ORIGIN_COORD, curFrom.getGeoPoint());
+                extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, curFrom.getPoiOverlayInfo());
+            }else if(myPointOverlay != null){
+                extras.putParcelable(RouteActivity.ORIGIN_COORD, myPointOverlay.getLocation());
+                extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, PoiOverlayInfo.fromCurrentLocation(myPointOverlay));
+            }
             extras.putString(RouteActivity.ORIGIN_COORD_PROVIDER, curFromProvider);
             extras.putLong(RouteActivity.ORIGIN_COORD_TIME, curFromTime);
             extras.putString(RouteActivity.DEST_ADDR, curTo.getAddress());
             extras.putParcelable(RouteActivity.DEST_COORD, curTo.getGeoPoint());
-            extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, hasFromAddr?curFrom.getPoiOverlayInfo():null);
             extras.putParcelable(RouteActivity.DEST_OVERLAY_INFO, curTo.getPoiOverlayInfo());
             intent.putExtras(extras);
             hideBulbBalloon();
