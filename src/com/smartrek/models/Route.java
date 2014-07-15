@@ -418,7 +418,7 @@ public final class Route implements Parcelable {
 	            links.add(link);
 	        }
 	    }
-	    return nearbyLinks;
+	    return links;
 	}
 	
 	private static double angleDifference(double degree1, double degree2){
