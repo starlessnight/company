@@ -1467,6 +1467,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, fromSearchBox, myMetropiaMenu, 
             reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, logoutMenu);
         
+        showTutorialIfNessary();
+        
+    }
+    
+    private void showTutorialIfNessary() {
+    	SharedPreferences prefs = Preferences.getGlobalPreferences(this);
+    	int tutorialFinish = prefs.getInt(Preferences.Global.TUTORIAL_FINISH, 0);
+    	if(tutorialFinish != TutorialActivity.TUTORIAL_FINISH) {
+    		Intent intent = new Intent(this, TutorialActivity.class);
+            startActivity(intent);
+    	}
     }
     
     private void resetFromToTab(boolean unFocus, boolean fromSearchbox) {

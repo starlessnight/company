@@ -134,6 +134,7 @@ public final class MapDisplayActivity extends FragmentActivity {
 					}
 				});
 
+		/*
 		View tutorial = findViewById(R.id.tutorial);
 		tutorial.setOnClickListener(new OnClickListener() {
 			@Override
@@ -151,6 +152,7 @@ public final class MapDisplayActivity extends FragmentActivity {
 				});
 			}
 		});
+		*/
 
 		View termsAndConditions = findViewById(R.id.terms_and_conditions);
 		termsAndConditions.setOnClickListener(new OnClickListener() {
@@ -188,7 +190,7 @@ public final class MapDisplayActivity extends FragmentActivity {
 				(TextView) findViewById(R.id.version_number),
 				(TextView) findViewById(R.id.predict_destination_text),
 				(TextView) findViewById(R.id.calendar_integration_text),
-				(TextView) findViewById(R.id.tutorial),
+				/*(TextView) findViewById(R.id.tutorial),*/
 				(TextView) findViewById(R.id.terms_and_conditions),
 				(TextView) findViewById(R.id.help_our_research));
 	}

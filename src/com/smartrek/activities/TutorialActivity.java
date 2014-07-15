@@ -1,5 +1,6 @@
 package com.smartrek.activities;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -21,8 +22,11 @@ import android.widget.TextView;
 import com.smartrek.utils.Dimension;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
+import com.smartrek.utils.Preferences;
 
 public class TutorialActivity extends FragmentActivity implements OnPageChangeListener {
+	
+	public static final Integer TUTORIAL_FINISH = Integer.valueOf(1);
 	
 	private static final SlideMarginInfo[] indicatorMargins = new SlideMarginInfo[] {
 		SlideMarginInfo.of(RelativeLayout.ALIGN_PARENT_BOTTOM, 0, 80),
@@ -57,6 +61,10 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
         skipView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				SharedPreferences prefs = Preferences.getGlobalPreferences(TutorialActivity.this);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putInt(Preferences.Global.TUTORIAL_FINISH, TUTORIAL_FINISH);
+                editor.commit();
 				finish();
 			}
         });
