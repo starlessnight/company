@@ -157,7 +157,7 @@ public abstract class Request {
 	protected int timeout = HTTP.defaultTimeout;
 	
 	private String executeHttpRequest(Method method, String url, 
-	        Object params, final Context ctx) throws IOException, InterruptedException {
+	        Object params, final Context ctx) throws IOException {
 	    if(!skipLinkUrlCheck && !Request.hasLinkUrls()){
 	        String entrypoint = DebugOptionsActivity.getEntrypoint(ctx);
             if(StringUtils.isBlank(entrypoint)){
@@ -178,35 +178,41 @@ public abstract class Request {
 	    Log.d(LOG_TAG, "executeHttpRequest(): method=" + method + ", url="+url 
             + ", params=" + params);
         
-        HTTP http = new HTTP(url);
-        http.setTimeout(timeout);
-        if(username != null && password != null){
-            http.setAuthorization(username, password);
-        }
-        http.setMethod(method);
-        if(params instanceof Map){
-            http.setFormData((Map)params);
-        }else if(params instanceof JSONObject){
-            http.set((JSONObject)params);
-        }
-        http.connect();
-        
-        responseCode = http.getResponseCode();
-        String responseBody = http.getResponseBody();
-        
-        if(DebugOptionsActivity.isHttp4xx5xxLogEnabled(ctx) && responseCode >= 400 && responseCode <= 599){
-            FileUtils.writeStringToFile(getHttp4xx5xxLogFile(ctx), url + "\n\nHTTP " + responseCode + "\n\n" + responseBody);
-        }
-        
-        if (responseCode == 200 || responseCode == 201 || responseCode == 204) {
-            return responseBody;
-        }
-        else if(responseCode == 500 || responseCode == 400){
-            throw new HttpResponseException(responseCode, responseBody);
-        }
-        else {
-            throw new IOException(String.format("HTTP %d: %s", responseCode, responseBody));
-        }
+	    try{
+            HTTP http = new HTTP(url);
+            http.setTimeout(timeout);
+            if(username != null && password != null){
+                http.setAuthorization(username, password);
+            }
+            http.setMethod(method);
+            if(params instanceof Map){
+                http.setFormData((Map)params);
+            }else if(params instanceof JSONObject){
+                http.set((JSONObject)params);
+            }
+            http.connect();
+            
+            responseCode = http.getResponseCode();
+            String responseBody = http.getResponseBody();
+            
+            if(DebugOptionsActivity.isHttp4xx5xxLogEnabled(ctx) && responseCode >= 400 && responseCode <= 599){
+                FileUtils.writeStringToFile(getHttp4xx5xxLogFile(ctx), url + "\n\nHTTP " + responseCode + "\n\n" + responseBody);
+            }
+            
+            if (responseCode == 200 || responseCode == 201 || responseCode == 204) {
+                return responseBody;
+            }
+            else if(responseCode == 500 || responseCode == 400){
+                throw new HttpResponseException(responseCode, responseBody);
+            }
+            else {
+                throw new IOException(String.format("HTTP %d: %s", responseCode, responseBody));
+            }
+	    }catch(Throwable t){
+	        IOException e = new IOException(url);
+	        e.initCause(t);
+	        throw e;
+	    }
 	}
 	
 	public String executeHttpPostRequest(String url, Map<String, Object> params) {
