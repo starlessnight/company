@@ -21,7 +21,9 @@ import com.smartrek.utils.Misc;
 
 public class WebMyMetropiaActivity extends FragmentActivity{
 	
-	@Override
+	private WebView webviewContent;
+
+    @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.web_my_metropia);
@@ -30,11 +32,11 @@ public class WebMyMetropiaActivity extends FragmentActivity{
 		backButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				finish();
+				onBackPressed();
 			}
 		});
 		
-		final WebView webviewContent = (WebView) findViewById(R.id.webview_content);
+		webviewContent = (WebView) findViewById(R.id.webview_content);
 		webviewContent.setWebViewClient(Misc.getSSLTolerentWebViewClient());
         webviewContent.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -92,5 +94,14 @@ public class WebMyMetropiaActivity extends FragmentActivity{
             .replaceAll("\\{first_name\\}", user.getFirstname())
             .replaceAll("\\{last_name\\}", user.getLastname());
     }
+	
+	@Override
+	public void onBackPressed() {
+	    if(webviewContent.canGoBack()){
+            webviewContent.goBack();
+        }else{
+            finish();
+        }
+	}
 	
 }
