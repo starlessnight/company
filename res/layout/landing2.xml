@@ -27,13 +27,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
-                    android:background="@color/transparent_white"
                     android:orientation="vertical" >
 
                     <LinearLayout
                         android:id="@+id/search_area"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:background="@color/transparent_white"
                         android:orientation="horizontal"
                         android:padding="10dp" >
 
@@ -55,12 +55,12 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="42dp"
                                 android:background="@android:color/transparent"
+                                android:inputType="textCapWords"
                                 android:paddingLeft="20dp"
                                 android:paddingRight="30dp"
                                 android:singleLine="true"
                                 android:textColor="@color/gray"
-                                android:textSize="@dimen/smaller_font"
-                                android:inputType="textCapWords"/>
+                                android:textSize="@dimen/smaller_font" />
 
                             <ImageView
                                 android:id="@+id/search_box_clear"
@@ -77,12 +77,12 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="42dp"
                                 android:background="@android:color/transparent"
+                                android:inputType="textCapWords"
                                 android:paddingLeft="20dp"
                                 android:paddingRight="30dp"
                                 android:singleLine="true"
                                 android:textColor="@color/gray"
                                 android:textSize="@dimen/smaller_font"
-                                android:inputType="textCapWords"
                                 android:visibility="gone" />
 
                             <ImageView
@@ -106,10 +106,10 @@
                             android:id="@+id/cancel_search"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="center"
                             android:text="Cancel"
                             android:textColor="@color/metropia_blue"
                             android:textSize="@dimen/medium_font"
-                            android:layout_gravity="center"
                             android:visibility="gone" />
                     </LinearLayout>
 
@@ -118,41 +118,72 @@
                         android:layout_height="5dp"
                         android:background="@color/metropia_blue" />
 
-                    <LinearLayout
+                    <RelativeLayout
+                        android:id="@+id/tab_panel"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="35dp"
+                        android:layout_marginTop="-2dp"
                         android:orientation="horizontal" >
 
-                        <TextView
-                            android:id="@+id/from"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="center"
-                            android:paddingBottom="3dp"
-                            android:paddingTop="3dp"
-                            android:text="FROM"
-                            android:textColor="@color/metropia_blue"
-                            android:textSize="@dimen/smallest_font" />
+                        <LinearLayout
+                            android:id="@+id/from_panel"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentLeft="true" >
 
-                        <TextView
-                            android:id="@+id/to"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="@color/metropia_blue"
-                            android:gravity="center"
-                            android:paddingBottom="3dp"
-                            android:paddingTop="3dp"
-                            android:text="TO"
-                            android:textColor="@android:color/white"
-                            android:textSize="@dimen/smallest_font" />
-                    </LinearLayout>
+                            <TextView
+                                android:id="@+id/from"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_marginRight="-10dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/tab_not_selected"
+                                android:gravity="center"
+                                android:paddingBottom="3dp"
+                                android:paddingTop="3dp"
+                                android:text="FROM"
+                                android:textColor="@color/metropia_blue"
+                                android:textSize="@dimen/smallest_font" />
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/to_panel"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentRight="true" >
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1" />
+
+                            <TextView
+                                android:id="@+id/to"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_marginLeft="-10dp"
+                                android:layout_weight="1"
+                                android:background="@drawable/tab_selected"
+                                android:gravity="center"
+                                android:paddingBottom="3dp"
+                                android:paddingTop="3dp"
+                                android:text="TO"
+                                android:textColor="@android:color/white"
+                                android:textSize="@dimen/smallest_font" />
+                        </LinearLayout>
+                    </RelativeLayout>
 
                     <View
+                        android:id="@+id/search_area_shadow"
                         android:layout_width="match_parent"
                         android:layout_height="3dp"
-                        android:background="@drawable/bottom_shadow" />
+                        android:background="@drawable/bottom_shadow"
+                        android:visibility="gone" />
                 </LinearLayout>
 
                 <ImageView
@@ -175,34 +206,33 @@
                     android:layout_marginRight="70dp"
                     android:src="@drawable/upcoming_trip_orange"
                     android:visibility="gone" />
-                
+
                 <LinearLayout
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
                     android:layout_alignParentBottom="true"
-                    android:background="@color/metropia_green"> 
+                    android:background="@color/metropia_green"
+                    android:orientation="vertical" >
 
-	                <include
-	                    android:layout_width="fill_parent"
-	                    android:layout_height="8dp"
-	                    layout="@layout/metropia_color_bar" />
-	                
-	                <TextView 
-	                    android:id="@+id/get_route"
-	                    android:layout_width="wrap_content"
-	                    android:layout_height="55dp"
-	                    android:layout_gravity="center"
-	                    android:gravity="center"
-	                    android:text="Get Route!"
-	                    android:paddingTop="5dp"
-	                    android:paddingBottom="5dp"
-	                    android:textSize="26dp"
-	                    android:textColor="@android:color/white"
-	                    android:drawableRight="@drawable/get_route_arrow"
-	                    android:drawablePadding="20dp"
-	                    android:visibility="gone"/>
-                
+                    <include
+                        android:layout_width="fill_parent"
+                        android:layout_height="8dp"
+                        layout="@layout/metropia_color_bar" />
+
+                    <TextView
+                        android:id="@+id/get_route"
+                        android:layout_width="wrap_content"
+                        android:layout_height="55dp"
+                        android:layout_gravity="center"
+                        android:drawablePadding="20dp"
+                        android:drawableRight="@drawable/get_route_arrow"
+                        android:gravity="center"
+                        android:paddingBottom="5dp"
+                        android:paddingTop="5dp"
+                        android:text="Get Route!"
+                        android:textColor="@android:color/white"
+                        android:textSize="26dp"
+                        android:visibility="gone" />
                 </LinearLayout>
 
                 <ListView
@@ -321,12 +351,12 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="42dp"
                                     android:background="@android:color/transparent"
+                                    android:inputType="textCapWords"
                                     android:paddingLeft="10dp"
                                     android:paddingRight="30dp"
                                     android:singleLine="true"
                                     android:textColor="@color/gray"
-                                    android:textSize="@dimen/smaller_font"
-                                    android:inputType="textCapWords" />
+                                    android:textSize="@dimen/smaller_font" />
 
                                 <ImageView
                                     android:id="@+id/fav_search_box_clear"
@@ -337,7 +367,6 @@
                                     android:layout_gravity="center"
                                     android:src="@drawable/search_box_clear2"
                                     android:visibility="gone" />
-                                
                             </RelativeLayout>
                         </LinearLayout>
 
@@ -355,12 +384,12 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="match_parent"
+                                android:gravity="center"
                                 android:paddingLeft="5dp"
                                 android:paddingRight="10dp"
                                 android:text="Label:"
                                 android:textColor="@color/gray"
-                                android:textSize="@dimen/smaller_font"
-                                android:gravity="center" />
+                                android:textSize="@dimen/smaller_font" />
 
                             <RelativeLayout
                                 android:layout_width="0dp"
@@ -372,26 +401,24 @@
                                     android:id="@+id/label_input"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:paddingRight="35dp"
                                     android:hint="Label"
                                     android:paddingLeft="5dp"
+                                    android:paddingRight="35dp"
                                     android:singleLine="true"
                                     android:textColor="@color/gray"
                                     android:textSize="@dimen/smaller_font" />
-                                
+
                                 <ImageView
                                     android:id="@+id/label_clear"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_alignRight="@+id/label_input"
-                                    android:paddingRight="5dp"
                                     android:layout_centerVertical="true"
                                     android:layout_gravity="center"
+                                    android:paddingRight="5dp"
                                     android:src="@drawable/search_box_clear2"
                                     android:visibility="gone" />
-                                
                             </RelativeLayout>
-                            
                         </LinearLayout>
 
                         <View
@@ -545,9 +572,9 @@
                     android:id="@+id/new_trip"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
                     android:layout_marginLeft="20dp"
                     android:layout_marginRight="10dp"
-                    android:layout_marginBottom="10dp"
                     android:drawableLeft="@drawable/menu_trip"
                     android:drawablePadding="10dp"
                     android:drawableRight="@drawable/menu_left_arrow"
@@ -667,32 +694,34 @@
                     android:layout_height="1dp"
                     android:layout_marginTop="10dp"
                     android:background="#929497" />
-                
+
                 <LinearLayout
-                    	android:id="@+id/rewards_menu_panel" 
-                    	android:layout_width="match_parent"
-	                    android:layout_height="wrap_content"
-	                    android:orientation="vertical"
-	                    android:visibility="gone">
-	                <TextView
-	                    android:id="@+id/rewards_menu"
-	                    android:layout_width="match_parent"
-	                    android:layout_height="wrap_content"
-	                    android:layout_marginLeft="20dp"
-	                    android:layout_marginRight="10dp"
-	                    android:layout_marginTop="10dp"
-	                    android:drawableLeft="@drawable/menu_settings"
-	                    android:drawablePadding="10dp"
-	                    android:drawableRight="@drawable/menu_right_arrow"
-	                    android:singleLine="true"
-	                    android:text="Rewards"
-	                    android:textColor="@android:color/white"
-	                    android:textSize="@dimen/smaller_font" />
-	                <View
-	                    android:layout_width="match_parent"
-	                    android:layout_height="1dp"
-	                    android:layout_marginTop="10dp"
-	                    android:background="#929497" />
+                    android:id="@+id/rewards_menu_panel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone" >
+
+                    <TextView
+                        android:id="@+id/rewards_menu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginTop="10dp"
+                        android:drawableLeft="@drawable/menu_settings"
+                        android:drawablePadding="10dp"
+                        android:drawableRight="@drawable/menu_right_arrow"
+                        android:singleLine="true"
+                        android:text="Rewards"
+                        android:textColor="@android:color/white"
+                        android:textSize="@dimen/smaller_font" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="10dp"
+                        android:background="#929497" />
                 </LinearLayout>
 
                 <TextView
@@ -709,15 +738,13 @@
                     android:text="Logout"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/smaller_font" />
-                
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginTop="10dp"
                     android:background="#929497" />
-                
             </LinearLayout>
-
         </RelativeLayout>
     </LinearLayout>
 

@@ -58,6 +58,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.AbsoluteSizeSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
@@ -378,6 +379,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     searchResultList.setVisibility(View.VISIBLE);
                     fromSearchResultList.setVisibility(View.GONE);
                 }
+                resetFromToTab(!hasFocus, false);
             }
         });
         fromSearchBox.setOnFocusChangeListener(new OnFocusChangeListener() {
@@ -409,6 +411,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     searchResultList.setVisibility(View.GONE);
                     fromSearchResultList.setVisibility(View.VISIBLE);
                 }
+                resetFromToTab(!hasFocus, true);
             }
         });
         searchResultList.setOnItemClickListener(new OnItemClickListener() {
@@ -689,7 +692,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			}
 		});
         
-        
         from = (TextView) findViewById(R.id.from);
         to = (TextView) findViewById(R.id.to);
         from.setOnClickListener(new OnClickListener() {
@@ -711,10 +713,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					fromSearchResultList.setVisibility(View.VISIBLE);
 					refreshFromSearchAutoCompleteData();
 				}
-				from.setBackgroundColor(getResources().getColor(R.color.metropia_blue));
+				from.setBackgroundResource(R.drawable.tab_selected);
 				from.setTextColor(getResources().getColor(android.R.color.white));
 				to.setTextColor(getResources().getColor(R.color.metropia_blue));
-				to.setBackgroundResource(0);
+				to.setBackgroundResource(R.drawable.tab_not_selected);
+				findViewById(R.id.from_panel).bringToFront();
 			}
 		});
         
@@ -737,10 +740,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 fromSearchBox.setVisibility(View.GONE);
                 fromSearchBoxClear.setVisibility(View.GONE);
                 fromSearchResultList.setVisibility(View.GONE);
-                to.setBackgroundColor(getResources().getColor(R.color.metropia_blue));
+                to.setBackgroundResource(R.drawable.tab_selected);
 				to.setTextColor(getResources().getColor(android.R.color.white));
-				from.setBackgroundResource(0);
+				from.setBackgroundResource(R.drawable.tab_not_selected);
 				from.setTextColor(getResources().getColor(R.color.metropia_blue));
+				findViewById(R.id.to_panel).bringToFront();
 			}
 		});
         
@@ -1463,6 +1467,44 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, fromSearchBox, myMetropiaMenu, 
             reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, logoutMenu);
         
+    }
+    
+    private void resetFromToTab(boolean unFocus, boolean fromSearchbox) {
+    	if(unFocus) {
+    		DisplayMetrics dm = getResources().getDisplayMetrics();
+    		RelativeLayout tabPanel = (RelativeLayout) findViewById(R.id.tab_panel);
+    		LinearLayout.LayoutParams tabPanelLp = (LinearLayout.LayoutParams)tabPanel.getLayoutParams();
+    		tabPanelLp.topMargin = Dimension.dpToPx(-2, dm);
+    		tabPanel.setBackgroundColor(0);
+    		findViewById(R.id.search_area_shadow).setVisibility(View.GONE);
+    		int fromTab = fromSearchbox?R.drawable.tab_selected:R.drawable.tab_not_selected;
+    		int toTab = fromSearchbox?R.drawable.tab_not_selected:R.drawable.tab_selected;
+    		int frontTabId = fromSearchbox?R.id.from_panel:R.id.to_panel;
+    		from.setBackgroundResource(fromTab);
+    		LinearLayout.LayoutParams fromLp = (LinearLayout.LayoutParams) from.getLayoutParams();
+    		fromLp.rightMargin = Dimension.dpToPx(-10, dm);
+    		to.setBackgroundResource(toTab);
+    		LinearLayout.LayoutParams toLp = (LinearLayout.LayoutParams) to.getLayoutParams();
+    		toLp.leftMargin = Dimension.dpToPx(-10, dm);
+    		findViewById(frontTabId).bringToFront();
+    	}
+    	else {
+    		findViewById(R.id.search_area_shadow).setVisibility(View.VISIBLE);
+    		RelativeLayout tabPanel = (RelativeLayout) findViewById(R.id.tab_panel);
+    		LinearLayout.LayoutParams tabPanelLp = (LinearLayout.LayoutParams)tabPanel.getLayoutParams();
+    		tabPanelLp.topMargin = 0;
+    		tabPanel.setBackgroundColor(getResources().getColor(R.color.transparent_white));
+    		int fromBackgroundColor = fromSearchbox?R.color.metropia_blue:R.color.transparent_white;
+    		int toBackgroundColor = fromSearchbox?R.color.transparent_white:R.color.metropia_blue;
+    		from.setBackgroundResource(0);
+    		from.setBackgroundColor(getResources().getColor(fromBackgroundColor));
+    		LinearLayout.LayoutParams fromLp = (LinearLayout.LayoutParams) from.getLayoutParams();
+    		fromLp.rightMargin = 0;
+    		to.setBackgroundResource(0);
+    		to.setBackgroundColor(getResources().getColor(toBackgroundColor));
+    		LinearLayout.LayoutParams toLp = (LinearLayout.LayoutParams) to.getLayoutParams();
+    		toLp.leftMargin = 0;
+    	}
     }
     
     private void relayoutSearchArea(boolean searchBoxFocus) {
