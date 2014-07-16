@@ -16,8 +16,10 @@ public final class FavoriteAddressFetchRequest extends FetchRequest<List<Address
 	public FavoriteAddressFetchRequest(User user) {
         super(NEW_API?getLinkUrl(Link.address):String.format("%s/V0.2/getfavadd/%d", HOST, user.getId()));
         if(NEW_API){
-            this.username = user.getUsername();
-            this.password = user.getPassword();
+            if(user != null){
+                this.username = user.getUsername();
+                this.password = user.getPassword();
+            }
         }
     }
 	
