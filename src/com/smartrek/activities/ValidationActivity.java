@@ -719,7 +719,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			public void onClick(View v) {
 				ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v) ;
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-
 					@Override
 					public void onAnimationEnd() {
 						cancelValidation();
@@ -769,20 +768,20 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 							NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "On My Way is availiable to passengers only.");
 							dialog.setVerticalOrientation(false);
 							dialog.setTitle("Are you the passenger?");
-							dialog.setPositiveButtonText("Yes");
+							dialog.setPositiveButtonText("No");
 							dialog.setPositiveActionListener(new ActionListener() {
+								@Override
+								public void onClick() {
+									//do nothing
+								}
+							});
+							dialog.setNegativeButtonText("Yes");
+							dialog.setNegativeActionListener(new ActionListener() {
 								@Override
 								public void onClick() {
 									Intent contactSelect = new Intent(ValidationActivity.this, ContactsSelectActivity.class);
 									startActivityForResult(contactSelect, ON_MY_WAY);
 									onMyWayBtn.setTag(new Object());
-								}
-							});
-							dialog.setNegativeButtonText("No");
-							dialog.setNegativeActionListener(new ActionListener() {
-								@Override
-								public void onClick() {
-									//do nothing
 								}
 							});
 							dialog.show();
@@ -885,6 +884,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             reservation.getArrivalTimeUtc(), route.getTimezoneOffset()));
         timeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(reservation.getDuration()));
         refreshTimeInfo();
+        final TextView directListTimeInfo = (TextView) findViewById(R.id.remain_times_direc_list);
+        directListTimeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(getETA(), route.getTimezoneOffset()));
+        directListTimeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(remainingTime.get()));
+        refreshDirectListTimeInfo();
         timeInfo.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -935,6 +938,19 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         timeInfo.setTag(isRemainingTime);
 	}
 	
+	private void toggleDirectionListTimeInfo() {
+		TextView timeInfo = (TextView) findViewById(R.id.remain_times_direc_list);
+	    Boolean isRemainingTime = (Boolean) timeInfo.getTag();
+        if(isRemainingTime == null || !isRemainingTime){
+            timeInfo.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
+            isRemainingTime = true;
+        }else{
+            timeInfo.setText(timeInfo.getTag(R.id.estimated_arrival_time).toString());
+            isRemainingTime = false;
+        }
+        timeInfo.setTag(isRemainingTime);
+	}
+	
 	private SpannableString formatRemainTime(String remainTime) {
 		String remainDesc = "Arrive in\n" + remainTime;
 		SpannableString remainTimeSpan = SpannableString.valueOf(remainDesc);
@@ -973,6 +989,21 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	                timeInfo.setText(formatRemainTime(timeInfo.getTag(R.id.remaining_travel_time).toString()));
 	            }
 	            remainTimesDirectListView.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
+	        }
+	    });
+	}
+	
+	private void refreshDirectListTimeInfo(){
+	    runOnUiThread(new Runnable() {
+	        @Override
+	        public void run() {
+	            final TextView timeInfo = (TextView) findViewById(R.id.remain_times_direc_list);
+	            Boolean isRemainingTime = (Boolean) timeInfo.getTag();
+	            if(isRemainingTime == null || !isRemainingTime){
+	                timeInfo.setText(timeInfo.getTag(R.id.estimated_arrival_time).toString());
+	            }else{
+	                timeInfo.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
+	            }
 	        }
 	    });
 	}
@@ -1719,7 +1750,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(getETA(), route.getTimezoneOffset()));
             timeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(remainingTime.get()));
             refreshTimeInfo();
-            
+            final TextView directListTimeInfo = (TextView) findViewById(R.id.remain_times_direc_list);
+            directListTimeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(getETA(), route.getTimezoneOffset()));
+            directListTimeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(remainingTime.get()));
+            refreshDirectListTimeInfo();
             if (nearestNode.getFlag() != 0) {
                 showNavigationInformation(location, nearestNode);
             } else {
@@ -1826,7 +1860,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             }
             
             TextView mpoint = (TextView) findViewById(R.id.mpoint_circle);
-            mpoint.setText(formatCongrValueDesc(ValidationActivity.this, uPoints + "\nUpoints"));
+            mpoint.setText(formatCongrValueDesc(ValidationActivity.this, uPoints + "\nPoints"));
             
             TextView driveScore = (TextView) findViewById(R.id.drive_score_circle);
             if(driveScoreValue/60>0) {
@@ -1886,8 +1920,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             }
         }else{
     		// Ask the user if they want to quit
-            NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "Your points won't validate if exiting too soon. Are you sure?");
-        	dialog.setTitle("Exit?");
+            NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "Are you sure?");
+        	dialog.setTitle("Exit Navigation");
         	dialog.setVerticalOrientation(false);
         	dialog.setPositiveButtonText("No");
         	dialog.setNegativeButtonText("Yes");
@@ -2241,6 +2275,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         	navigationView.setPortraitMode();
         }
         refreshTimeInfo();
+        refreshDirectListTimeInfo();
     }
     
     private static final String TIME_INFO_CYCLE = "TIME_INFO_CYCLE"; 
@@ -2257,6 +2292,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             if(findViewById(R.id.remain_times).getTag(R.id.clicked) == null){
                 toggleTimeInfo();
             }
+            toggleDirectionListTimeInfo();
         }
     };
     

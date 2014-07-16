@@ -140,5 +140,16 @@ public class POIOverlayView<Item extends OverlayItem> extends FrameLayout
 	public LinearLayout getLayout() {
 		return layout;
 	}
+	
+	public void resetLabelAddressPanel() {
+		View labelAddressPanel = layout.findViewById(R.id.label_and_address_panel);
+		TextView labelView = (TextView)layout.findViewById(R.id.label);
+		View addressView = layout.findViewById(R.id.address);
+		if(StringUtils.isNotBlank(labelView.getText())) {
+			labelAddressPanel.setTag(Boolean.TRUE);
+			addressView.setVisibility(View.GONE);
+			labelView.setVisibility(View.VISIBLE);
+		}
+	}
 
 }

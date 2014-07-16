@@ -100,6 +100,7 @@ public class RoutePathOverlay extends Overlay {
 	        thickness * 0.7f, color);
 		
 		if(originFlag!=null) {
+			path.setColor(color);
 			canvas.drawBitmap(originFlag, originPoint.x - (originFlag.getWidth()/2), originPoint.y - originFlag.getHeight() * 85 / 100, path);
 		}
 		//canvas.drawBitmap(destinationFlag, point.x - (destinationFlag.getWidth()/2), point.y - destinationFlag.getHeight() * 85 / 100, paint);

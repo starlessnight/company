@@ -186,6 +186,10 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 		defaultContentTitleView.setText(title);
 		TextView miniContentTitleView = (TextView) layout.findViewById(R.id.poi_mini_title);
 		miniContentTitleView.setText(title);
+		if(!isFromPoi && routePage) {
+			layout.findViewById(R.id.poi_content_mini).setBackgroundResource(R.drawable.departure_to_pin);
+			miniContentTitleView.setTextColor(layout.getResources().getColor(android.R.color.white));
+		}
 		TextView detailContentTitleView = (TextView) layout.findViewById(R.id.poi_detail_title);
 		detailContentTitleView.setText(title);
 		if(!isFromPoi) {
@@ -260,6 +264,15 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
         }
         return handled;
     }
+    
+    @Override
+    public void hideBalloon() {
+		if (balloonView != null) {
+			POIOverlayView<OverlayItem> overlayView = (POIOverlayView<OverlayItem>)balloonView;
+		    overlayView.setVisibility(View.GONE);
+		    overlayView.resetLabelAddressPanel();
+		}
+	}
 
 	public int getAid() {
 		return aid;
