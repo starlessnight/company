@@ -29,7 +29,7 @@ public class FeedbackDialog extends Dialog {
     private static final String encoding = "utf-8";
     
     public static final String getUrl(Context ctx, String category, String message){
-        String url = Request.getPageUrl(Page.feedback)
+        String url = StringUtils.defaultString(Request.getPageUrl(Page.feedback))
             .replaceAll("\\{os\\}", "android")
             .replaceAll("\\{app_version\\}", ctx.getString(R.string.distribution_date));
         User user = User.getCurrentUser(ctx);
