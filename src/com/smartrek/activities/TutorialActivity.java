@@ -183,8 +183,8 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
         }
         SlideMarginInfo marginInfo = indicatorMargins[pos];
         LayoutParams indicatorsPanelLp = (RelativeLayout.LayoutParams)indicatorsPanel.getLayoutParams();
-        indicatorsPanelLp.removeRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        indicatorsPanelLp.removeRule(RelativeLayout.ALIGN_PARENT_TOP);
+        indicatorsPanelLp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
+        indicatorsPanelLp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
         indicatorsPanelLp.addRule(marginInfo.alignParent);
         DisplayMetrics dm = getResources().getDisplayMetrics();
         indicatorsPanelLp.topMargin = Dimension.dpToPx(marginInfo.marginTop, dm);
