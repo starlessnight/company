@@ -1484,8 +1484,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	if(unFocus) {
     		DisplayMetrics dm = getResources().getDisplayMetrics();
     		RelativeLayout tabPanel = (RelativeLayout) findViewById(R.id.tab_panel);
-    		LinearLayout.LayoutParams tabPanelLp = (LinearLayout.LayoutParams)tabPanel.getLayoutParams();
-    		tabPanelLp.topMargin = Dimension.dpToPx(-2, dm);
+    		RelativeLayout.LayoutParams tabPanelLp = (RelativeLayout.LayoutParams)tabPanel.getLayoutParams();
+    		tabPanelLp.topMargin = Dimension.dpToPx(-4, dm);
     		tabPanel.setBackgroundColor(0);
     		findViewById(R.id.search_area_shadow).setVisibility(View.GONE);
     		int fromTab = fromSearchbox?R.drawable.tab_selected:R.drawable.tab_not_selected;
@@ -1502,7 +1502,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	else {
     		findViewById(R.id.search_area_shadow).setVisibility(View.VISIBLE);
     		RelativeLayout tabPanel = (RelativeLayout) findViewById(R.id.tab_panel);
-    		LinearLayout.LayoutParams tabPanelLp = (LinearLayout.LayoutParams)tabPanel.getLayoutParams();
+    		RelativeLayout.LayoutParams tabPanelLp = (RelativeLayout.LayoutParams)tabPanel.getLayoutParams();
     		tabPanelLp.topMargin = 0;
     		tabPanel.setBackgroundColor(getResources().getColor(R.color.transparent_white));
     		int fromBackgroundColor = fromSearchbox?R.color.metropia_blue:R.color.transparent_white;
