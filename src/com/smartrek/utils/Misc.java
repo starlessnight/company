@@ -18,7 +18,9 @@ import android.os.Build;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.provider.Settings;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -33,6 +35,8 @@ import com.smartrek.activities.GCMIntentService;
 import com.smartrek.activities.LandingActivity2;
 import com.smartrek.activities.LandingActivity2.ReservationListTask;
 import com.smartrek.models.Reservation;
+import com.smartrek.ui.timelayout.ScrollableTimeLayout;
+import com.smartrek.ui.timelayout.TimeButton;
 
 public class Misc {
 
@@ -208,6 +212,13 @@ public class Misc {
                 handler.proceed();
             }  
         };
+    }
+    
+    public static void initTimeButtonDimension(Activity activity) {
+    	DisplayMetrics dm = activity.getResources().getDisplayMetrics();
+	    Display display = activity.getWindowManager().getDefaultDisplay();
+	    TimeButton.initButtonDimension(dm, display);
+	    ScrollableTimeLayout.initScreenWidth(dm, display);
     }
     
 }

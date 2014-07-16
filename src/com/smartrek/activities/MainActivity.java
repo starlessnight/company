@@ -61,12 +61,8 @@ public class MainActivity extends Activity implements AnimationListener {
 		super.onCreate(savedInstanceState);
 		
 		Crashlytics.start(this);
-		// init select departure time ticket dimension
-	    DisplayMetrics dm = getResources().getDisplayMetrics();
-	    Display display = getWindowManager().getDefaultDisplay();
-	    TimeButton.initButtonDimension(dm, display);
-	    ScrollableTimeLayout.initScreenWidth(dm, display);
-	    //
+		//init Time button dimension
+		Misc.initTimeButtonDimension(MainActivity.this);
 		
 		// Possible work around for market launches. See http://code.google.com/p/android/issues/detail?id=2373
 		// for more details. Essentially, the market launches the main activity on top of other activities.

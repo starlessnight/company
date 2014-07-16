@@ -39,6 +39,7 @@ import android.support.v4.app.FragmentActivity;
 import android.text.format.Time;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -295,6 +296,8 @@ public final class RouteActivity extends FragmentActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pre_reservation_map); 
+        
+        initTimeTableDimension();
         
         othersPointOverlay = new PointOverlay(this, 0, 0);
         othersPointOverlay.setColor(0xCC2020DF);
@@ -808,10 +811,23 @@ public final class RouteActivity extends FragmentActivity {
         
         TextView arriveRow = (TextView)findViewById(R.id.arrive_row);
         
-        initTimeLayout();
-        
         Font.setTypeface(mediumFont, (TextView)findViewById(R.id.departure_row), arriveRow, 
                 durationRow, (TextView)findViewById(R.id.mpoint_row), onMyWayView, letsGoView, reserveView);
+    }
+    
+    private void initTimeTableDimension() {
+	    DisplayMetrics dm = getResources().getDisplayMetrics();
+	    Misc.initTimeButtonDimension(RouteActivity.this);
+    	LayoutParams timeTicketPanelLp = findViewById(R.id.time_ticket_panel).getLayoutParams();
+    	timeTicketPanelLp.height = TimeButton.FIRST_ROW_HEIGHT + TimeButton.HEIGHT * 3 + Dimension.dpToPx(2, dm);
+    	LayoutParams departureRowLp = findViewById(R.id.departure_row).getLayoutParams();
+    	departureRowLp.height = TimeButton.FIRST_ROW_HEIGHT;
+    	LayoutParams arriveRowLp = findViewById(R.id.arrive_row).getLayoutParams();
+    	arriveRowLp.height = TimeButton.HEIGHT;
+    	LayoutParams durationRowLp = findViewById(R.id.duration_row).getLayoutParams();
+    	durationRowLp.height = TimeButton.HEIGHT;
+    	LayoutParams mpointRowLp = findViewById(R.id.mpoint_row).getLayoutParams();
+    	mpointRowLp.height = TimeButton.HEIGHT;
     }
     
     private void put_cur_location_if_GPS_provider_and_less_than_1_min_old(Intent intent){
@@ -1331,20 +1347,6 @@ public final class RouteActivity extends FragmentActivity {
             }
             SessionM.logAction("on_my_way");
         }
-    }
-    
-    public void initTimeLayout() {
-    	DisplayMetrics dm = getResources().getDisplayMetrics();
-    	LayoutParams timeTicketPanelLp = findViewById(R.id.time_ticket_panel).getLayoutParams();
-    	timeTicketPanelLp.height = TimeButton.FIRST_ROW_HEIGHT + TimeButton.HEIGHT * 3 + Dimension.dpToPx(2, dm);
-    	LayoutParams departureRowLp = findViewById(R.id.departure_row).getLayoutParams();
-    	departureRowLp.height = TimeButton.FIRST_ROW_HEIGHT;
-    	LayoutParams arriveRowLp = findViewById(R.id.arrive_row).getLayoutParams();
-    	arriveRowLp.height = TimeButton.HEIGHT;
-    	LayoutParams durationRowLp = findViewById(R.id.duration_row).getLayoutParams();
-    	durationRowLp.height = TimeButton.HEIGHT;
-    	LayoutParams mpointRowLp = findViewById(R.id.mpoint_row).getLayoutParams();
-    	mpointRowLp.height = TimeButton.HEIGHT;
     }
     
     @Override
