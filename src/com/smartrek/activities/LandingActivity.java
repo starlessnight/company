@@ -510,12 +510,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
         uiHelper.onCreate(savedInstanceState);
     }
     
-    public static void initializeIfNeccessary(Context ctx, final Runnable callback){
-        initializeIfNeccessary(ctx, callback, true);
-    }
-    
-    public static void initializeIfNeccessary(final Context ctx, final Runnable callback, 
-            final boolean canLogout){
+    public static void initializeIfNeccessary(final Context ctx, final Runnable callback){
         Runnable loginAndDoCallback = new Runnable() {
             @Override
             public void run() {
@@ -534,7 +529,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                                 if(user != null && user.getId() != -1){
                                     User.setCurrentUser(ctx, user);
                                     callback.run();
-                                }else if(canLogout && ctx instanceof Activity){
+                                }else if(ctx instanceof Activity){
                                     MainMenu.onMenuItemSelected((Activity) ctx, 0, R.id.logout_option);
                                 }
                            }
@@ -553,30 +548,21 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                                 return id;
                             }
                             protected void onPostExecute(Integer userId) {
-                                if(canLogout && ctx instanceof Activity && userId == null){                                    
-                                    MainMenu.onMenuItemSelected((Activity)ctx, 0, R.id.logout_option);
-                                }else{
+                                if(userId != null){
                                     loginTask.setUserId(userId)
                                         .execute();
+                                }else if(ctx instanceof Activity){
+                                    MainMenu.onMenuItemSelected((Activity)ctx, 0, R.id.logout_option);
                                 }
                             }
                         }.execute();
-                    }else if(canLogout && ctx instanceof Activity){
+                    }else if(ctx instanceof Activity){
                         MainMenu.onMenuItemSelected((Activity) ctx, 0, R.id.logout_option);
                     }
                 }
             }
         };
-        
-        if(Request.hasLinkUrls()){
-            loginAndDoCallback.run();
-        }else{
-            String url = DebugOptionsActivity.getEntrypoint(ctx);
-            if(StringUtils.isBlank(url)){
-                url = Request.ENTRYPOINT_URL;
-            }
-            MainActivity.initApiLinks(ctx, url, loginAndDoCallback, null);
-        }
+        MainActivity.initApiLinksIfNecessary(ctx, loginAndDoCallback);
     }
     
     private void loadProfile(Type type){

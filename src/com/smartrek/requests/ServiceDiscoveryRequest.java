@@ -22,12 +22,7 @@ public final class ServiceDiscoveryRequest extends FetchRequest<Result> {
     
     public ServiceDiscoveryRequest(String url) {
         super(url);
-        skipLinkUrlCheck = true;
     }
-    
-	public ServiceDiscoveryRequest() {
-		this(ENTRYPOINT_URL);
-	}
 	
 	@Override
 	public Result execute(Context ctx) throws Exception {

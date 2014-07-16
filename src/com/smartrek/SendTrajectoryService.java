@@ -20,7 +20,7 @@ import android.content.Intent;
 import android.os.SystemClock;
 import android.util.Log;
 
-import com.smartrek.activities.LandingActivity;
+import com.smartrek.activities.MainActivity;
 import com.smartrek.exceptions.SmarTrekException;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
@@ -114,11 +114,11 @@ public class SendTrajectoryService extends IntentService {
     
     @Override
     protected void onHandleIntent(Intent intent) {
-        LandingActivity.initializeIfNeccessary(this, new Runnable() {
-            @Override
-            public void run() {
-                User user = User.getCurrentUser(SendTrajectoryService.this);
-                if(user != null){
+        User user = User.getCurrentUserWithoutCache(this);
+        if(user != null){
+            MainActivity.initApiLinksIfNecessary(this, new Runnable() {
+                @Override
+                public void run() {
                     File inDir = getInDir(SendTrajectoryService.this);
                     File[] routeDirs = inDir.listFiles();
                     if(ArrayUtils.isNotEmpty(routeDirs)){
@@ -131,18 +131,18 @@ public class SendTrajectoryService extends IntentService {
                                 send(SendTrajectoryService.this, d);
                             }
                         }
-                    }   
-                }
-                File[] oFiles = getOutDir(SendTrajectoryService.this).listFiles();
-                if(ArrayUtils.isNotEmpty(oFiles)){
-                    for (File f : oFiles) {
-                        if(f.lastModified() < System.currentTimeMillis() - sevenDays){
-                            FileUtils.deleteQuietly(f);
-                        }
                     }
                 }
+            });
+        }
+        File[] oFiles = getOutDir(SendTrajectoryService.this).listFiles();
+        if(ArrayUtils.isNotEmpty(oFiles)){
+            for (File f : oFiles) {
+                if(f.lastModified() < System.currentTimeMillis() - sevenDays){
+                    FileUtils.deleteQuietly(f);
+                }
             }
-        }, false);
+        }
     }
     
     private static File getOutDir(Context ctx){

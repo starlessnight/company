@@ -436,7 +436,7 @@ public final class DebugOptionsActivity extends Activity {
         return getPrefs(ctx).getString(CURRENT_LOCATION, "");
     }
     
-    public static String getEntrypoint(Context ctx){
+    public static String getDebugEntrypoint(Context ctx){
         return getPrefs(ctx).getString(ENTRYPOINT, "");
     }
     

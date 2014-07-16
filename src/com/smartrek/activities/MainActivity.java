@@ -10,9 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
@@ -30,8 +28,6 @@ import com.smartrek.requests.ServiceDiscoveryRequest;
 import com.smartrek.requests.ServiceDiscoveryRequest.Result;
 import com.smartrek.requests.UserIdRequest;
 import com.smartrek.tasks.LoginTask;
-import com.smartrek.ui.timelayout.ScrollableTimeLayout;
-import com.smartrek.ui.timelayout.TimeButton;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
@@ -112,7 +108,6 @@ public class MainActivity extends Activity implements AnimationListener {
                         LocationLibrary.initialiseLibrary(getBaseContext(), interval, 
                             interval.intValue(), true, "com.smartrek.activities");
                         UserLocationService.schedule(getBaseContext());
-                        //CalendarService.schedule(getBaseContext());
                         if(loginTask != null){
                             loginTask.setDialogEnabled(splashEnded);
                             loginTask.showDialog();
@@ -146,11 +141,7 @@ public class MainActivity extends Activity implements AnimationListener {
                         }
                     }
                 };
-	            String url = DebugOptionsActivity.getEntrypoint(MainActivity.this);
-                if(StringUtils.isBlank(url)){
-                    url = Request.ENTRYPOINT_URL;
-                }
-	            initApiLinks(this, url, onSuccess, new Runnable() {
+	            initApiLinks(this, getEntrypoint(MainActivity.this), onSuccess, new Runnable() {
                     @Override
                     public void run() {
                         finish();
@@ -160,6 +151,14 @@ public class MainActivity extends Activity implements AnimationListener {
 	            loginTask.execute();
 	        }
 		}
+	}
+	
+	public static String getEntrypoint(Context ctx){
+	    String url = DebugOptionsActivity.getDebugEntrypoint(ctx);
+        if(StringUtils.isBlank(url)){
+            url = Request.ENTRYPOINT_URL;
+        }
+        return url;
 	}
 	
 	public static AsyncTask<Void, Void, Result> initApiLinks(final Context ctx, final String entrypoint, 
@@ -200,6 +199,15 @@ public class MainActivity extends Activity implements AnimationListener {
         }.execute();
         return task;
 	}
+	
+	public static void initApiLinksIfNecessary(Context ctx, Runnable onSuccess){
+	    if(Request.hasLinkUrls()){
+	        onSuccess.run();
+        }else{
+            MainActivity.initApiLinks(ctx, MainActivity.getEntrypoint(ctx), onSuccess, null);
+        }
+	}
+	
 	
 	private LoginTask newLoginTask(String username, String password){
 	    final String gcmRegistrationId = Preferences.getGlobalPreferences(this)

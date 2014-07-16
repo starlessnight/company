@@ -51,6 +51,8 @@ public final class LoginActivity extends Activity implements OnClickListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_login);
         
+        User.logout(this);
+        
         /* If it hasn't set up the login screen */
         
         TextView login = (TextView) findViewById(R.id.login_button);
@@ -109,16 +111,10 @@ public final class LoginActivity extends Activity implements OnClickListener,
             Misc.showGoogleAccountDialog(this);
         }else{
     		final String username = editTextUsername.getText().toString();
-    		String password = editTextPassword.getText().toString();
+    		final String password = editTextPassword.getText().toString();
     		
     		SharedPreferences globalPrefs = Preferences.getGlobalPreferences(this);
     		String gcmRegistrationId = globalPrefs.getString(Preferences.Global.GCM_REG_ID, "");
-    		
-    		SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
-    		SharedPreferences.Editor loginPrefsEditor = loginPrefs.edit();
-    		loginPrefsEditor.putString(User.USERNAME, username);
-    		loginPrefsEditor.putString(User.PASSWORD, password);
-    		loginPrefsEditor.commit();
     		
     		final LoginTask loginTask = new LoginTask(this, username, password, gcmRegistrationId){
                 @Override
@@ -127,6 +123,12 @@ public final class LoginActivity extends Activity implements OnClickListener,
                         Log.d("Login_Activity","Successful Login");
                         Log.d("Login_Activity", "Saving Login Info to Shared Preferences");
     
+                        SharedPreferences loginPrefs = Preferences.getAuthPreferences(LoginActivity.this);
+                        SharedPreferences.Editor loginPrefsEditor = loginPrefs.edit();
+                        loginPrefsEditor.putString(User.USERNAME, username);
+                        loginPrefsEditor.putString(User.PASSWORD, password);
+                        loginPrefsEditor.commit();
+                        
                         User.setCurrentUser(LoginActivity.this, user);
                         
                         Intent intent = new Intent(LoginActivity.this, LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
@@ -134,9 +136,7 @@ public final class LoginActivity extends Activity implements OnClickListener,
                         finish();
                     }
                     else {
-    //                  Log.d("Login_Activity", "Failed Login User: " + user.getUsername());
-    //                  TextView loginfail_text = (TextView) findViewById(R.id.failed_login);
-    //                  loginfail_text.setVisibility(View.VISIBLE);
+                        
                         editTextPassword.setText("");
                      
                         CharSequence msg;

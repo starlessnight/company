@@ -24,7 +24,7 @@ import android.provider.BaseColumns;
 import android.util.Log;
 
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
-import com.smartrek.activities.LandingActivity;
+import com.smartrek.activities.MainActivity;
 import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.models.User;
 import com.smartrek.receivers.CalendarNotification;
@@ -53,11 +53,11 @@ public class CalendarService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         Log.i("CalendarService", "onHandleIntent");
-        LandingActivity.initializeIfNeccessary(this, new Runnable() {
-            @Override
-            public void run() {
-                User user = User.getCurrentUser(CalendarService.this);
-                if (user != null && MapDisplayActivity.isCalendarIntegrationEnabled(CalendarService.this)) {
+        User user = User.getCurrentUserWithoutCache(CalendarService.this);
+        if (user != null && MapDisplayActivity.isCalendarIntegrationEnabled(CalendarService.this)) {
+            MainActivity.initApiLinksIfNecessary(this, new Runnable() {
+                @Override
+                public void run() {
                     try {
                         long now = System.currentTimeMillis();
                         Uri.Builder eventsUriBuilder = Instances.CONTENT_URI.buildUpon();
@@ -107,16 +107,16 @@ public class CalendarService extends IntentService {
                         Log.w("CalendarService", Log.getStackTraceString(t));
                     }
                 }
-                File[] oFiles = getDir().listFiles();
-                if(ArrayUtils.isNotEmpty(oFiles)){
-                    for (File f : oFiles) {
-                        if(f.lastModified() < System.currentTimeMillis() - ONE_DAY){
-                            FileUtils.deleteQuietly(f);
-                        }
-                    }
+            });
+        }
+        File[] oFiles = getDir().listFiles();
+        if(ArrayUtils.isNotEmpty(oFiles)){
+            for (File f : oFiles) {
+                if(f.lastModified() < System.currentTimeMillis() - ONE_DAY){
+                    FileUtils.deleteQuietly(f);
                 }
             }
-        }, false);
+        }
     }
     
     private static boolean canBeGeocoded(Geocoding.Address address){

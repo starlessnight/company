@@ -16,7 +16,7 @@ import android.util.Log;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
 import com.smartrek.activities.DebugOptionsActivity;
 import com.smartrek.activities.DebugOptionsActivity.LatLon;
-import com.smartrek.activities.LandingActivity;
+import com.smartrek.activities.MainActivity;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
@@ -40,11 +40,11 @@ public class UserLocationService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        LandingActivity.initializeIfNeccessary(this, new Runnable() {
-            @Override
-            public void run() {
-                final User user = User.getCurrentUser(UserLocationService.this);
-                if(user != null){
+        final User user = User.getCurrentUserWithoutCache(UserLocationService.this);
+        if(user != null){
+            MainActivity.initApiLinksIfNecessary(this, new Runnable() {
+                @Override
+                public void run() {
                     try {
                         LocationInfo info = new LocationInfo(UserLocationService.this);
                         LatLon lastLoc = DebugOptionsActivity.getLastUserLatLon(UserLocationService.this);
@@ -81,8 +81,8 @@ public class UserLocationService extends IntentService {
                         Log.d("UserLocationService", Log.getStackTraceString(t));
                     }
                 }
-            }
-        }, false);
+            });
+        }
     }
     
     private static File getFile(Context ctx){

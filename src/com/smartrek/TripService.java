@@ -17,7 +17,7 @@ import android.content.Intent;
 import android.os.SystemClock;
 import android.util.Log;
 
-import com.smartrek.activities.LandingActivity;
+import com.smartrek.activities.MainActivity;
 import com.smartrek.exceptions.SmarTrekException;
 import com.smartrek.models.User;
 import com.smartrek.requests.TripValidationRequest;
@@ -32,11 +32,11 @@ public class TripService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        LandingActivity.initializeIfNeccessary(this, new Runnable() {
-            @Override
-            public void run() {
-                User user = User.getCurrentUser(TripService.this);
-                if(user != null){
+        final User user = User.getCurrentUserWithoutCache(TripService.this);
+        if(user != null){
+            MainActivity.initApiLinksIfNecessary(this, new Runnable() {
+                @Override
+                public void run() {
                     File[] files = getDir(TripService.this).listFiles();
                     if(ArrayUtils.isNotEmpty(files)){
                         Map<Long, File> toSendFiles = new HashMap<Long, File>();
@@ -76,8 +76,8 @@ public class TripService extends IntentService {
                         }
                     }
                 }
-            }
-        }, false);
+            });
+        }
     }
     
     private static File getDir(Context ctx){

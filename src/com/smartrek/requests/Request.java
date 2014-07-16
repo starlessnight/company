@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpResponseException;
 import org.json.JSONObject;
 
@@ -17,7 +16,6 @@ import android.content.Context;
 import android.util.Log;
 
 import com.smartrek.activities.DebugOptionsActivity;
-import com.smartrek.requests.ServiceDiscoveryRequest.Result;
 import com.smartrek.utils.Cache;
 import com.smartrek.utils.HTTP;
 import com.smartrek.utils.HTTP.Method;
@@ -152,29 +150,10 @@ public abstract class Request {
         return executeHttpRequest(method, url, (Object) json, ctx);
     }
 	
-	protected boolean skipLinkUrlCheck;
-	
 	protected int timeout = HTTP.defaultTimeout;
 	
 	private String executeHttpRequest(Method method, String url, 
 	        Object params, final Context ctx) throws IOException {
-	    if(!skipLinkUrlCheck && !Request.hasLinkUrls()){
-	        String entrypoint = DebugOptionsActivity.getEntrypoint(ctx);
-            if(StringUtils.isBlank(entrypoint)){
-                entrypoint = Request.ENTRYPOINT_URL;
-            }
-            ServiceDiscoveryRequest req = new ServiceDiscoveryRequest(entrypoint);
-            req.invalidateCache(ctx);
-            try {
-                Result rs = req.execute(ctx);
-                Request.setLinkUrls(rs.links);
-                Request.setPageUrls(rs.pages);
-                Request.setSettings(rs.settings);
-            }
-            catch (Exception e) {
-            }
-	    }
-	    
 	    Log.d(LOG_TAG, "executeHttpRequest(): method=" + method + ", url="+url 
             + ", params=" + params);
         

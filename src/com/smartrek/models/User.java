@@ -170,6 +170,15 @@ public final class User implements JSONModel, Parcelable {
 		return currentUser;
 	}
 	
+	public static User getCurrentUserWithoutCache(Context context) {
+       User user = null;
+       try {
+           user = parse(getCurrentUserData(context));
+       } catch (JSONException e) {
+       }
+       return user;
+    }
+	
 	public static void setCurrentUser(Context context, User currentUser) {
 		User.currentUser = currentUser;
 		
@@ -193,6 +202,7 @@ public final class User implements JSONModel, Parcelable {
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.remove(USERNAME);
 		editor.remove(PASSWORD);
+		editor.putString("CurrentUser", "");
 		editor.commit();
 		MapDisplayActivity.setProfileSelection(context, null);
 	}
