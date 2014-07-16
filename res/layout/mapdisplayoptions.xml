@@ -201,12 +201,12 @@
 		        -->
 		        
 		        <TextView 
-		            android:id="@+id/terms_and_conditions"
+		            android:id="@+id/terms_and_privacy"
 		            android:layout_width="fill_parent"
 		            android:layout_height="43dp"
 		            android:layout_marginLeft="15dp"
 		            android:layout_marginRight="15dp"
-		            android:text="Terms &amp; Conditions"
+		            android:text="Terms &amp; Privacy"
 		            android:textSize="@dimen/smaller_font"
 		            android:textColor="@color/gray"
 		            android:gravity="center_vertical"

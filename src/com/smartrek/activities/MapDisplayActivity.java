@@ -154,7 +154,7 @@ public final class MapDisplayActivity extends FragmentActivity {
 		});
 		*/
 
-		View termsAndConditions = findViewById(R.id.terms_and_conditions);
+		View termsAndConditions = findViewById(R.id.terms_and_privacy);
 		termsAndConditions.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				ClickAnimation clickAnimation = new ClickAnimation(MapDisplayActivity.this, v);
@@ -191,7 +191,7 @@ public final class MapDisplayActivity extends FragmentActivity {
 				(TextView) findViewById(R.id.predict_destination_text),
 				(TextView) findViewById(R.id.calendar_integration_text),
 				/*(TextView) findViewById(R.id.tutorial),*/
-				(TextView) findViewById(R.id.terms_and_conditions),
+				(TextView) findViewById(R.id.terms_and_privacy),
 				(TextView) findViewById(R.id.help_our_research));
 	}
 
