@@ -29,8 +29,10 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
 	public ReservationListFetchRequest(User user) {
 		super(buildUrl(user));
 		if(NEW_API){
-		    username = user.getUsername();
-		    password = user.getPassword();
+		    if(user != null){
+    		    username = user.getUsername();
+    		    password = user.getPassword();
+		    }
 		}
 	}
 
