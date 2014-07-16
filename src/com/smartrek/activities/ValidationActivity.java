@@ -730,7 +730,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		});
 
 		volumnControl = (ImageView) findViewById(R.id.volumn_control);
-		int imageSrc = MapDisplayActivity.isNavigationTtsEnabled(this)?R.drawable.volumn_control_btn_open:R.drawable.volumn_control_btn_close;
+		int imageSrc = MapDisplayActivity.isNavigationTtsEnabled(this)?R.drawable.volumn_btn_open:R.drawable.volumn_btn_close;
 		volumnControl.setTag(MapDisplayActivity.isNavigationTtsEnabled(this));
 		volumnControl.setImageResource(imageSrc);
 		volumnControl.setOnClickListener(new OnClickListener() {
@@ -741,7 +741,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					@Override
 					public void onAnimationEnd() {
 						boolean tagAfterClick = !((Boolean) volumnControl.getTag());
-						int imageSrc = tagAfterClick?R.drawable.volumn_control_btn_open:R.drawable.volumn_control_btn_close;
+						int imageSrc = tagAfterClick?R.drawable.volumn_btn_open:R.drawable.volumn_btn_close;
 		                MapDisplayActivity.setNavigationTts(ValidationActivity.this, tagAfterClick);
 		                volumnControl.setTag(tagAfterClick);
 		                volumnControl.setImageResource(imageSrc);
