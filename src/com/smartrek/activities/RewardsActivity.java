@@ -21,6 +21,8 @@ import com.smartrek.utils.Misc;
 
 public class RewardsActivity extends FragmentActivity{
 	
+    private WebView webviewContent;
+    
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -30,11 +32,11 @@ public class RewardsActivity extends FragmentActivity{
 		backButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				finish();
+			    onBackPressed();
 			}
 		});
 		
-		final WebView webviewContent = (WebView) findViewById(R.id.webview_content);
+		webviewContent = (WebView) findViewById(R.id.webview_content);
 		webviewContent.setWebViewClient(Misc.getSSLTolerentWebViewClient());
         webviewContent.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -87,6 +89,15 @@ public class RewardsActivity extends FragmentActivity{
         return StringUtils.defaultString(Request.getPageUrl(Page.rewards))
             .replaceAll("\\{username\\}", user.getUsername())
             .replaceAll("\\{password\\}", user.getPassword());
+    }
+	
+	@Override
+    public void onBackPressed() {
+        if(webviewContent.canGoBack()){
+            webviewContent.goBack();
+        }else{
+            finish();
+        }
     }
 	
 }
