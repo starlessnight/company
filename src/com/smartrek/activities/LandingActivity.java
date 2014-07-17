@@ -1391,12 +1391,19 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                             }
                             ReservationRequest reservReq = new ReservationRequest(user, 
                                 route, ctx.getString(R.string.distribution_date), id);
-                            Long id = reservReq.execute(ctx);
+                            Long newId;
+                            if(id!=0) {
+                            	newId = route.getId();
+                            	reservReq.execute(ctx);
+                            }
+                            else {
+                                newId = reservReq.execute(ctx);
+                            }
                             ReservationListFetchRequest reservListReq = new ReservationListFetchRequest(user);
                             reservListReq.invalidateCache(ctx);
                             List<Reservation> reservs = reservListReq.execute(ctx);
                             for (Reservation r : reservs) {
-                                if(((Long)r.getRid()).equals(id)){
+                                if(((Long)r.getRid()).equals(newId)){
                                     reserv = r;
                                 }
                             }
