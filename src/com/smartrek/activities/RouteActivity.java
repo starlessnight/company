@@ -39,7 +39,6 @@ import android.support.v4.app.FragmentActivity;
 import android.text.format.Time;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -973,7 +972,7 @@ public final class RouteActivity extends FragmentActivity {
     
     private RouteRect routeRect;
     
-    private void fitRouteToMap(){
+    private void fitRouteToMap(boolean zoomToSpan){
         if(routeRect != null){
             /* Get a midpoint to center the view of  the routes */
             GeoPoint mid = routeRect.getMidPoint();
@@ -981,7 +980,9 @@ public final class RouteActivity extends FragmentActivity {
             int[] range = routeRect.getRange();
             /* Get the MapController set the midpoint and range */
             IMapController mc = mapView.getController();
-            mc.zoomToSpan(range[0], range[1]);
+            if(zoomToSpan) {
+            	mc.zoomToSpan(range[0], range[1]);
+            }
             mc.setCenter(mid); // setCenter only works properly after zoomToSpan
         }
     }
@@ -994,7 +995,7 @@ public final class RouteActivity extends FragmentActivity {
      * 
      * @param possibleRoutes
      */
-    private void updateMap(List<Route> possibleRoutes, boolean fitRouteToMap) {
+    private void updateMap(List<Route> possibleRoutes, boolean zoomToSpan) {
     	
         if(possibleRoutes != null && possibleRoutes.size() > 0) {
             
@@ -1074,9 +1075,7 @@ public final class RouteActivity extends FragmentActivity {
             	mapOverlays.add(routeInfoOverlays[i]);
             }*/
             
-            if(fitRouteToMap) {
-            	fitRouteToMap();
-            }
+            fitRouteToMap(zoomToSpan);
             
             mapView.postInvalidate();
         }
@@ -1091,7 +1090,7 @@ public final class RouteActivity extends FragmentActivity {
         mapView.postDelayed(new Runnable() {
             public void run() {
                 updateTimetableScreenWidth();
-                fitRouteToMap();
+                fitRouteToMap(true);
             }
         }, 500);
     }
