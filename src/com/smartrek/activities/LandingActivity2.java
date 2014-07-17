@@ -1864,6 +1864,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	View favOptPanel = findViewById(R.id.fav_opt);
     	favOptPanel.setTag(null);
     	((EditText)favOptPanel.findViewById(R.id.favorite_search_box)).setText("");
+    	((EditText)favOptPanel.findViewById(R.id.favorite_search_box)).setEnabled(true);
     	((EditText)favOptPanel.findViewById(R.id.label_input)).setText("");
     	favOptPanel.findViewById(R.id.label_clear).setVisibility(View.GONE);
     	favOptPanel.findViewById(R.id.fav_del_panel).setVisibility(View.GONE);
@@ -3470,7 +3471,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	}
     	EditText searchBox = (EditText) favOptPanel.findViewById(R.id.favorite_search_box); 
     	searchBox.setText(model.address);
-    	searchBox.setEnabled(model.id!=0?false:true);
+    	searchBox.setEnabled(StringUtils.isNotBlank(model.address)?false:true);
     	favOptPanel.findViewById(R.id.fav_search_box_clear).setVisibility(model.id!=0?View.GONE:View.VISIBLE);
     	favOptPanel.findViewById(R.id.fav_save).setVisibility(StringUtils.isNotBlank(model.address)?View.VISIBLE:View.GONE);
     	favOptPanel.findViewById(R.id.fav_del_panel).setVisibility(model.id!=0?View.VISIBLE:View.GONE);
