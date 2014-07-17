@@ -220,11 +220,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private ArrayAdapter<Address> favAutoCompleteAdapter;
     
-    private TextView starView;
+    private ImageView starView;
     
-    private TextView homeView;
+    private ImageView homeView;
     
-    private TextView workView;
+    private ImageView workView;
     
     private AtomicBoolean showAutoComplete = new AtomicBoolean(true);
     
@@ -1060,15 +1060,15 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			}
 		});
         
-        starView = (TextView) findViewById(R.id.star);
-        homeView = (TextView) findViewById(R.id.home);
-        workView = (TextView) findViewById(R.id.work);
+        starView = (ImageView) findViewById(R.id.star);
+        homeView = (ImageView) findViewById(R.id.home);
+        workView = (ImageView) findViewById(R.id.work);
         
         starView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				unSelectAllIcon();
-				starView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.star, 0, 0);
+				starView.setImageResource(R.drawable.star);
 				findViewById(R.id.icon).setTag(IconType.star);
 			}
 		});
@@ -1077,7 +1077,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			@Override
 			public void onClick(View v) {
 				unSelectAllIcon();
-				homeView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.home, 0, 0);
+				homeView.setImageResource(R.drawable.home);
 				findViewById(R.id.icon).setTag(IconType.home);
 			}
 		});
@@ -1086,7 +1086,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			@Override
 			public void onClick(View v) {
 				unSelectAllIcon();
-				workView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.work, 0, 0);
+				workView.setImageResource(R.drawable.work);
 				findViewById(R.id.icon).setTag(IconType.work);
 			}
 		});
@@ -1842,9 +1842,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void unSelectAllIcon() {
-    	starView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.star_dim, 0, 0);
-    	homeView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.home_dim, 0, 0);
-    	workView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.work_dim, 0, 0);
+    	starView.setImageResource(R.drawable.star_dim);
+    	homeView.setImageResource(R.drawable.home_dim);
+    	workView.setImageResource(R.drawable.work_dim);
     }
     
     private boolean isFavoriteMark(int markResourceId) {
@@ -1863,12 +1863,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	((EditText)favOptPanel.findViewById(R.id.favorite_search_box)).setText("");
     	((EditText)favOptPanel.findViewById(R.id.label_input)).setText("");
     	favOptPanel.findViewById(R.id.label_clear).setVisibility(View.GONE);
-    	favOptPanel.findViewById(R.id.fav_del).setVisibility(View.GONE);
+    	favOptPanel.findViewById(R.id.fav_del_panel).setVisibility(View.GONE);
     	favOptPanel.findViewById(R.id.fav_search_box_clear).setVisibility(View.GONE);
     	favOptPanel.findViewById(R.id.icon).setTag(null);
-    	((TextView)favOptPanel.findViewById(R.id.star)).setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.star, 0, 0);
-    	((TextView)favOptPanel.findViewById(R.id.home)).setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.home, 0, 0);
-    	((TextView)favOptPanel.findViewById(R.id.work)).setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.work, 0, 0);
+    	((ImageView)favOptPanel.findViewById(R.id.star)).setImageResource(R.drawable.star);
+    	((ImageView)favOptPanel.findViewById(R.id.home)).setImageResource(R.drawable.home);
+    	((ImageView)favOptPanel.findViewById(R.id.work)).setImageResource(R.drawable.work);
     	clearFavSearchResult();
     }
     
@@ -3463,14 +3463,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		favOptPanel.findViewById(R.id.icon).setTag(icon);
     		Integer[] iconInfo = IconType.getIconInfos(icon);
     		unSelectAllIcon();
-    		((TextView)favOptPanel.findViewById(iconInfo[0])).setCompoundDrawablesWithIntrinsicBounds(0, iconInfo[1], 0, 0);
+    		((ImageView)favOptPanel.findViewById(iconInfo[0])).setImageResource(iconInfo[1]);
     	}
     	EditText searchBox = (EditText) favOptPanel.findViewById(R.id.favorite_search_box); 
     	searchBox.setText(model.address);
     	searchBox.setEnabled(model.id!=0?false:true);
     	favOptPanel.findViewById(R.id.fav_search_box_clear).setVisibility(model.id!=0?View.GONE:View.VISIBLE);
     	favOptPanel.findViewById(R.id.fav_save).setVisibility(StringUtils.isNotBlank(model.address)?View.VISIBLE:View.GONE);
-    	favOptPanel.findViewById(R.id.fav_del).setVisibility(model.id!=0?View.VISIBLE:View.GONE);
+    	favOptPanel.findViewById(R.id.fav_del_panel).setVisibility(model.id!=0?View.VISIBLE:View.GONE);
     	((TextView)favOptPanel.findViewById(R.id.header)).setText(model.id!=0?"Edit Favorite":"Add Favorite");
     }
     

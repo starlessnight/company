@@ -437,12 +437,12 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
+                            android:orientation="horizontal"
                             android:padding="5dp" >
 
                             <TextView
                                 android:id="@+id/icon"
-                                android:layout_width="fill_parent"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:gravity="left|center"
                                 android:padding="5dp"
@@ -451,43 +451,34 @@
                                 android:textSize="@dimen/smaller_font" />
 
                             <LinearLayout
-                                android:layout_width="fill_parent"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal"
                                 android:paddingTop="5dp" >
 
-                                <TextView
+                                <ImageView
                                     android:id="@+id/star"
-                                    android:layout_width="0dp"
+                                    android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
-                                    android:drawableTop="@drawable/star"
-                                    android:gravity="center"
-                                    android:text="Star"
-                                    android:textColor="@color/gray"
-                                    android:textSize="@dimen/smallest_font" />
+                                    android:src="@drawable/star"
+                                    android:gravity="center" />
 
-                                <TextView
+                                <ImageView
                                     android:id="@+id/home"
-                                    android:layout_width="0dp"
+                                    android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
-                                    android:drawableTop="@drawable/home"
-                                    android:gravity="center"
-                                    android:text="Home"
-                                    android:textColor="@color/gray"
-                                    android:textSize="@dimen/smallest_font" />
+                                    android:src="@drawable/home"
+                                    android:gravity="center"/>
 
-                                <TextView
+                                <ImageView
                                     android:id="@+id/work"
-                                    android:layout_width="0dp"
+                                    android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
-                                    android:drawableTop="@drawable/work"
-                                    android:gravity="center"
-                                    android:text="Work"
-                                    android:textColor="@color/gray"
-                                    android:textSize="@dimen/smallest_font" />
+                                    android:src="@drawable/work"
+                                    android:gravity="center"/>
                             </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
@@ -503,17 +494,37 @@
                         android:dividerHeight="0dp"
                         android:visibility="gone" />
                 </LinearLayout>
-
-                <ImageView
-                    android:id="@+id/fav_del"
-                    android:layout_width="wrap_content"
+                
+                <LinearLayout 
+                    android:id="@+id/fav_del_panel"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
+                    android:orientation="vertical"
                     android:layout_alignParentBottom="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_marginBottom="20dp"
-                    android:layout_marginLeft="20dp"
-                    android:src="@drawable/favorite_delete_icon"
-                    android:visibility="gone" />
+		            android:visibility="gone">
+                    
+                    <View 
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:background="@drawable/top_shadow"/>
+
+                    <RelativeLayout 
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@android:color/white"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp">
+		                <ImageView
+		                    android:id="@+id/fav_del"
+		                    android:layout_width="wrap_content"
+		                    android:layout_height="wrap_content"
+		                    android:layout_alignParentRight="true"
+		                    android:layout_marginRight="20dp"
+		                    android:layout_gravity="center_vertical"
+		                    android:src="@drawable/favorite_delete_icon" />
+	                </RelativeLayout>
+                
+                </LinearLayout>
             </RelativeLayout>
 
             <RelativeLayout
