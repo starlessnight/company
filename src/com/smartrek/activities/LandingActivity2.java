@@ -930,7 +930,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				favSearchBoxClear.setVisibility(StringUtils.isBlank(text)||!favSearchBox.isEnabled()?View.GONE:View.VISIBLE); 
 				favSave.setVisibility(StringUtils.isBlank(text)?View.GONE:View.VISIBLE);
                 final String addrInput = text.toString();
-                if(StringUtils.isNotBlank(addrInput)) {
+                if(StringUtils.isNotBlank(addrInput) && favSearchBox.isEnabled()) {
                 	AsyncTask<Void, Void, List<Address>> searchPoiTask = new AsyncTask<Void, Void, List<Address>>(){
         				@Override
         				protected List<Address> doInBackground(Void... params) {
@@ -977,8 +977,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 }
 			}
 			
-			 @Override
-				public void onTextChanging() {
+			@Override
+			public void onTextChanging() {
+				if(favSearchBox.isEnabled()) {
 					if(favSearchAddresses.isEmpty()) {
 						Address searching = new Address();
 						searching.setName(SEARCHING);
@@ -1000,8 +1001,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 							favSearchAddresses.add(searching);
 						}
 					}
-					refreshFavAutoCompleteData();
 				}
+				refreshFavAutoCompleteData();
+			}
 		}, 500);
         
         favSearchBox.addTextChangedListener(delayFavTextWatcher);
@@ -1466,7 +1468,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         Font.setTypeface(Font.getMedium(assets), getRouteView);
         Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, fromSearchBox, myMetropiaMenu, 
             reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, logoutMenu);
-        
+        Font.setTypeface(Font.getMedium(assets), favSearchBox, labelInput, 
+        		(TextView)findViewById(R.id.label), (TextView)findViewById(R.id.icon));
         showTutorialIfNessary();
         
     }
