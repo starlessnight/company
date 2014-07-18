@@ -1249,6 +1249,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                         }
 	                }
 	                if(toSent){
+	                    final double _distance = distance;
     					try {
     						Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
     							@Override
@@ -1261,13 +1262,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     											loc.getLatitude(),
     											loc.getLongitude(),
     											getETA(),
-    											NavigationView
-    													.metersToMiles(reservation
-    															.getRoute()
-    															.getLength()
-    															- reservation
-    																	.getRoute()
-    																	.getValidatedDistance()),
+    											NavigationView.metersToMiles(_distance),
     											reservation.getDestinationAddress(),
     											route.getTimezoneOffset());
     									req.execute(ValidationActivity.this);
