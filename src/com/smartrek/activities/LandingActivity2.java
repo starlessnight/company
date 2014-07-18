@@ -1574,8 +1574,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			@Override
 			public void onDismiss(View view, Object token, boolean dismissRight) {
 				hideTripInfoPanel();
-				dismissReservId = ((Reservation)tripInfoPanel.getTag()).getRid();
-				swipeRight = dismissRight;
+				Reservation res = (Reservation)tripInfoPanel.getTag();
+				if(res != null){
+    				dismissReservId = res.getRid();
+    				swipeRight = dismissRight;
+				}
 			}
 
 			@Override
