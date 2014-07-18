@@ -717,6 +717,15 @@ public final class DebugOptionsActivity extends Activity {
         return list;
     }
     
+    public static void removeTerminatedReservIds(Context ctx, Long id) {
+    	List<Long> list = getTerminatedReservIds(ctx);
+        list.remove(id);
+        while(list.size() > terminatedReservIdsSize - 1){
+            list.remove(list.size() - 1);
+        }
+        saveTerminatedReservIds(ctx, list);
+    }
+    
     public static boolean isReroutingNotificationSoundEnabled(Context ctx){
         boolean enabled;
         try{

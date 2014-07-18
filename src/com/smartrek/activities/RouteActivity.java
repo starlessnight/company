@@ -690,7 +690,7 @@ public final class RouteActivity extends FragmentActivity {
 		                            }
 		                            
 		                            SessionM.logAction("make_reservation");
-		                            
+		                            removeTerminateReservationId(result);
 		                            Misc.suppressTripInfoPanel(RouteActivity.this);
 		                            Intent intent = new Intent(RouteActivity.this, 
 		                                LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
@@ -812,6 +812,11 @@ public final class RouteActivity extends FragmentActivity {
         
         Font.setTypeface(mediumFont, (TextView)findViewById(R.id.departure_row), arriveRow, 
                 durationRow, (TextView)findViewById(R.id.mpoint_row), onMyWayView, letsGoView, reserveView);
+    }
+    
+    private void removeTerminateReservationId(Long result) {
+    	DebugOptionsActivity.removeTerminatedReservIds(RouteActivity.this, result);
+    	sendBroadcast(new Intent(LandingActivity2.TRIP_INFO_CACHED_UPDATES));
     }
     
     private void initTimeTableDimension() {

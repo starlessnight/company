@@ -1096,9 +1096,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         findViewById(R.id.fav_cancel).setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
-				reInitFavoriteOperationPanel();
-				findViewById(R.id.fav_opt).setVisibility(View.GONE);
-				findViewById(R.id.landing_panel).setVisibility(View.VISIBLE);
+				hideFavoriteOptPanel();
 			}
 		});
         
@@ -2666,7 +2664,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		}
     		DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
     		mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    		hideFavoriteOptPanel();
     	}
+    }
+    
+    private void hideFavoriteOptPanel() {
+    	reInitFavoriteOperationPanel();
+		findViewById(R.id.fav_opt).setVisibility(View.GONE);
+		findViewById(R.id.landing_panel).setVisibility(View.VISIBLE);
     }
     
     private boolean hasReservTrip() {
