@@ -88,11 +88,7 @@ public class WebMyMetropiaActivity extends FragmentActivity{
         User user = User.getCurrentUser(ctx);
         return StringUtils.defaultString(Request.getPageUrl(Page.my_metropia))
             .replaceAll("\\{username\\}", user.getUsername())
-            .replaceAll("\\{password\\}", user.getPassword())
-            .replaceAll("\\{email\\}", user.getEmail())
-            .replaceAll("\\{balance\\}", String.valueOf(user.getCredit()))
-            .replaceAll("\\{first_name\\}", user.getFirstname())
-            .replaceAll("\\{last_name\\}", user.getLastname());
+            .replaceAll("\\{password\\}", user.getPassword());
     }
 	
 	@Override
