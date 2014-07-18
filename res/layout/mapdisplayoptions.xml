@@ -88,7 +88,6 @@
 		        android:layout_height="35dp"
 		        android:background="@android:color/transparent"
 		        android:padding="2dp"
-		        android:text="@string/version"
 		        android:textSize="@dimen/medium_font"
 		        android:textColor="@color/gray"
 		        android:gravity="center"

@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -185,9 +186,13 @@ public final class MapDisplayActivity extends FragmentActivity {
 			}
 		});
 
+		TextView veNum = (TextView) findViewById(R.id.version_number);
+		try{
+		    veNum.setText("Version " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
+		}catch(NameNotFoundException e){}
+		
 		Font.setTypeface(boldFont, (TextView) findViewById(R.id.header));
-		Font.setTypeface(lightFont, userNameView, emailView,
-				(TextView) findViewById(R.id.version_number),
+        Font.setTypeface(lightFont, userNameView, emailView, veNum,
 				(TextView) findViewById(R.id.predict_destination_text),
 				(TextView) findViewById(R.id.calendar_integration_text),
 				/*(TextView) findViewById(R.id.tutorial),*/
