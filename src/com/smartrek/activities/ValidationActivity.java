@@ -282,7 +282,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					@Override
 					public void onClick() {
 						if (tripValidated) {
-						    displayArrivalMsg();
+						    displayArrivalMsg(null);
 						}else if (!isFinishing()) {
 							finish();
 						}
@@ -1812,7 +1812,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private AtomicBoolean arrivalMsgTiggered = new AtomicBoolean();
 	
-	private void displayArrivalMsg() {
+	private void displayArrivalMsg(final Runnable callback) {
 		if (isTripValidated()) {
 		    arrivalMsgTiggered.set(true);
 		    saveTrajectory(new Runnable() {
@@ -1832,6 +1832,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                 public void run() {
                     try{
                         doDisplayArrivalMsg(reservation.getMpoint(), 0, 0);
+                        if(callback!=null) {
+                        	callback.run();
+                        }
                     }catch(Throwable t){}
                 }
             }, HTTP.defaultTimeout);
@@ -1875,6 +1878,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             findViewById(R.id.mapview_options).setVisibility(View.GONE);;
             panel.setVisibility(View.VISIBLE);
             Misc.fadeIn(ValidationActivity.this, panel);
+            
+            String congratMsg = String.format("Congratulations! You've earned %d points using Metropia mobile", uPoints);
+            speakIfTtsEnabled(congratMsg, true);
 	    }
 	}
 
@@ -1883,12 +1889,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				displayArrivalMsg();
+				displayArrivalMsg(null);
 			}
 		});
 	}
 
-	private void reportValidation() {
+	private void reportValidation(final Runnable callback) {
 		if (!reported.get()) {
 			reported.set(true);
 
@@ -1896,7 +1902,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			    runOnUiThread(new Runnable() {
 		            @Override
 		            public void run() {
-		                displayArrivalMsg();
+		                displayArrivalMsg(callback);
 		            }
 			    });
 			}
@@ -1950,13 +1956,18 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private void doCancelValidation() {
 		cancelTrip = true;
-        restoreMusic();
-        if (mTts != null) {
-            mTts.shutdown();
-            mTts = null;
-        }
         
-        reportValidation();
+        reportValidation(new Runnable() {
+			@Override
+			public void run() {
+				restoreMusic();
+				if (mTts != null) {
+					mTts.shutdown();
+					mTts = null;
+				}
+			}
+        });
+        
         
         // Stop the activity
         if (!isTripValidated()) {
