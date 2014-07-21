@@ -18,7 +18,6 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary;
 import com.smartrek.UserLocationService;
@@ -56,7 +55,6 @@ public class MainActivity extends Activity implements AnimationListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		Crashlytics.start(this);
 		//init Time button dimension
 		Misc.initTimeButtonDimension(MainActivity.this);
 		

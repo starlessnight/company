@@ -5,6 +5,7 @@ import org.acra.annotation.ReportsCrashes;
 
 import android.app.Application;
 
+import com.crashlytics.android.Crashlytics;
 import com.smartrek.activities.R;
 
 @ReportsCrashes(formKey="dFdwTW1tbERoS1N4RlhNbFBjeHc4dXc6MQ",
@@ -20,6 +21,7 @@ public final class SmarTrekApplication extends Application {
     public void onCreate() {
         // The following line triggers the initialization of ACRA
         //ACRA.init(this);
+        Crashlytics.start(this);
         SendTrajectoryService.schedule(getBaseContext());
         CalendarService.schedule(getBaseContext());
         TripService.schedule(getBaseContext());
