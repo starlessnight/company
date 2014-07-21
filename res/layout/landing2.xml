@@ -352,8 +352,8 @@
                             <RelativeLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:paddingRight="10dp"
-                                android:layout_gravity="center|left" >
+                                android:layout_gravity="center|left"
+                                android:paddingRight="10dp" >
 
                                 <EditText
                                     android:id="@+id/favorite_search_box"
@@ -404,21 +404,21 @@
                             <RelativeLayout
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
+                                android:layout_gravity="center|left"
                                 android:layout_weight="1"
-                                android:paddingRight="10dp"
-                                android:layout_gravity="center|left">
+                                android:paddingRight="10dp" >
 
                                 <EditText
                                     android:id="@+id/label_input"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
+                                    android:background="@android:color/transparent"
                                     android:hint="Label"
                                     android:paddingLeft="5dp"
                                     android:paddingRight="35dp"
                                     android:singleLine="true"
                                     android:textColor="@color/gray"
-                                    android:textSize="17dp"
-                                    android:background="@android:color/transparent" />
+                                    android:textSize="17dp" />
 
                                 <ImageView
                                     android:id="@+id/label_clear"
@@ -466,32 +466,32 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
-                                    android:src="@drawable/star"
-                                    android:gravity="center" />
+                                    android:gravity="center"
+                                    android:src="@drawable/star" />
 
                                 <ImageView
                                     android:id="@+id/home"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
-                                    android:src="@drawable/home"
-                                    android:gravity="center"/>
+                                    android:gravity="center"
+                                    android:src="@drawable/home" />
 
                                 <ImageView
                                     android:id="@+id/work"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
-                                    android:src="@drawable/work"
-                                    android:gravity="center"/>
+                                    android:gravity="center"
+                                    android:src="@drawable/work" />
                             </LinearLayout>
                         </LinearLayout>
                     </LinearLayout>
-                    
-                    <View 
+
+                    <View
                         android:layout_width="match_parent"
                         android:layout_height="2dp"
-                        android:background="@drawable/bottom_shadow"/>
+                        android:background="@drawable/bottom_shadow" />
 
                     <ListView
                         android:id="@+id/fav_search_result"
@@ -504,36 +504,36 @@
                         android:dividerHeight="0dp"
                         android:visibility="gone" />
                 </LinearLayout>
-                
-                <LinearLayout 
+
+                <LinearLayout
                     android:id="@+id/fav_del_panel"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
                     android:layout_alignParentBottom="true"
-		            android:visibility="gone">
-                    
-                    <View 
+                    android:orientation="vertical"
+                    android:visibility="gone" >
+
+                    <View
                         android:layout_width="match_parent"
                         android:layout_height="2dp"
-                        android:background="@drawable/top_shadow"/>
+                        android:background="@drawable/top_shadow" />
 
-                    <RelativeLayout 
+                    <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@android:color/white"
-                        android:paddingTop="10dp"
-                        android:paddingBottom="10dp">
-		                <ImageView
-		                    android:id="@+id/fav_del"
-		                    android:layout_width="wrap_content"
-		                    android:layout_height="wrap_content"
-		                    android:layout_alignParentRight="true"
-		                    android:layout_marginRight="20dp"
-		                    android:layout_gravity="center_vertical"
-		                    android:src="@drawable/favorite_delete_icon" />
-	                </RelativeLayout>
-                
+                        android:paddingBottom="10dp"
+                        android:paddingTop="10dp" >
+
+                        <ImageView
+                            android:id="@+id/fav_del"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginRight="20dp"
+                            android:src="@drawable/favorite_delete_icon" />
+                    </RelativeLayout>
                 </LinearLayout>
             </RelativeLayout>
 
@@ -585,174 +585,131 @@
         android:layout_gravity="start"
         android:orientation="horizontal" >
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#ad000000" >
+            android:orientation="horizontal" >
 
-            <LinearLayout
+            <RelativeLayout
+                android:id="@+id/menu_panel"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:layout_marginTop="23dp"
-                android:orientation="vertical" >
-
-                <TextView
-                    android:id="@+id/new_trip"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="10dp"
-                    android:drawableLeft="@drawable/menu_trip"
-                    android:drawablePadding="10dp"
-                    android:drawableRight="@drawable/menu_left_arrow"
-                    android:singleLine="true"
-                    android:text="New Trip"
-                    android:textColor="@android:color/white"
-                    android:textSize="@dimen/smaller_font" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="10dp"
-                    android:background="#929497" />
-
-                <TextView
-                    android:id="@+id/dashboard"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="10dp"
-                    android:drawableLeft="@drawable/menu_rewards"
-                    android:drawablePadding="10dp"
-                    android:drawableRight="@drawable/menu_right_arrow"
-                    android:singleLine="true"
-                    android:text="My Metropia"
-                    android:textColor="@android:color/white"
-                    android:textSize="@dimen/smaller_font" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="10dp"
-                    android:background="#929497" />
-
-                <TextView
-                    android:id="@+id/reservations"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="10dp"
-                    android:drawableLeft="@drawable/menu_reservations"
-                    android:drawablePadding="10dp"
-                    android:drawableRight="@drawable/menu_right_arrow"
-                    android:singleLine="true"
-                    android:text="Reservations"
-                    android:textColor="@android:color/white"
-                    android:textSize="@dimen/smaller_font" />
-
-                <View
-                    android:id="@+id/reservations_spliter"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="10dp"
-                    android:background="#929497" />
-
-                <TextView
-                    android:id="@+id/share_menu"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="10dp"
-                    android:drawableLeft="@drawable/menu_share_new"
-                    android:drawablePadding="10dp"
-                    android:drawableRight="@drawable/menu_right_arrow"
-                    android:singleLine="true"
-                    android:text="Share"
-                    android:textColor="@android:color/white"
-                    android:textSize="@dimen/smaller_font" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="10dp"
-                    android:background="#929497" />
-
-                <TextView
-                    android:id="@+id/feedback_menu"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="10dp"
-                    android:drawableLeft="@drawable/menu_feedback"
-                    android:drawablePadding="10dp"
-                    android:drawableRight="@drawable/menu_right_arrow"
-                    android:singleLine="true"
-                    android:text="Feedback"
-                    android:textColor="@android:color/white"
-                    android:textSize="@dimen/smaller_font" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="10dp"
-                    android:background="#929497" />
-
-                <TextView
-                    android:id="@+id/map_display_options"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="10dp"
-                    android:drawableLeft="@drawable/menu_settings"
-                    android:drawablePadding="10dp"
-                    android:drawableRight="@drawable/menu_right_arrow"
-                    android:singleLine="true"
-                    android:text="Settings"
-                    android:textColor="@android:color/white"
-                    android:textSize="@dimen/smaller_font" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="10dp"
-                    android:background="#929497" />
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="#ad000000" >
 
                 <LinearLayout
-                    android:id="@+id/rewards_menu_panel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentTop="true"
                     android:orientation="vertical"
-                    android:visibility="gone" >
+                    android:paddingTop="33dp" >
 
                     <TextView
-                        android:id="@+id/rewards_menu"
+                        android:id="@+id/new_trip"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginRight="10dp"
-                        android:layout_marginTop="10dp"
-                        android:drawableLeft="@drawable/menu_rewards"
-                        android:drawablePadding="10dp"
-                        android:drawableRight="@drawable/menu_right_arrow"
+                        android:drawableLeft="@drawable/menu_trip"
+                        android:drawablePadding="20dp"
+                        android:paddingLeft="20dp"
+                        android:paddingRight="10dp"
                         android:singleLine="true"
-                        android:text="Rewards"
+                        android:text="New Trip"
                         android:textColor="@android:color/white"
-                        android:textSize="@dimen/smaller_font" />
+                        android:textSize="@dimen/medium_font" />
 
-                    <View
+                    <TextView
+                        android:id="@+id/dashboard"
                         android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginTop="10dp"
-                        android:background="#929497" />
-                </LinearLayout>
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/menu_rewards"
+                        android:drawablePadding="20dp"
+                        android:paddingLeft="20dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="25dp"
+                        android:singleLine="true"
+                        android:text="My Metropia"
+                        android:textColor="@android:color/white"
+                        android:textSize="@dimen/medium_font" />
 
+                    <TextView
+                        android:id="@+id/reservations"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/menu_reservations"
+                        android:drawablePadding="20dp"
+                        android:paddingLeft="20dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="25dp"
+                        android:singleLine="true"
+                        android:text="Reservations"
+                        android:textColor="@android:color/white"
+                        android:textSize="@dimen/medium_font" />
+
+                    <TextView
+                        android:id="@+id/share_menu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/menu_share_new"
+                        android:drawablePadding="20dp"
+                        android:paddingLeft="20dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="25dp"
+                        android:singleLine="true"
+                        android:text="Share"
+                        android:textColor="@android:color/white"
+                        android:textSize="@dimen/medium_font" />
+
+                    <TextView
+                        android:id="@+id/feedback_menu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/menu_feedback"
+                        android:drawablePadding="20dp"
+                        android:paddingLeft="20dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="25dp"
+                        android:singleLine="true"
+                        android:text="Feedback"
+                        android:textColor="@android:color/white"
+                        android:textSize="@dimen/medium_font" />
+
+                    <TextView
+                        android:id="@+id/map_display_options"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/menu_settings"
+                        android:drawablePadding="20dp"
+                        android:paddingLeft="20dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="25dp"
+                        android:singleLine="true"
+                        android:text="Settings"
+                        android:textColor="@android:color/white"
+                        android:textSize="@dimen/medium_font" />
+
+                    <LinearLayout
+                        android:id="@+id/rewards_menu_panel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone" >
+
+                        <TextView
+                            android:id="@+id/rewards_menu"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawableLeft="@drawable/menu_rewards"
+                            android:drawablePadding="20dp"
+                            android:paddingLeft="20dp"
+                            android:paddingRight="10dp"
+                            android:paddingTop="25dp"
+                            android:singleLine="true"
+                            android:text="Rewards"
+                            android:textColor="@android:color/white"
+                            android:textSize="@dimen/medium_font" />
+                    </LinearLayout>
+
+                    <!--
                 <TextView
                     android:id="@+id/logout_option"
                     android:layout_width="match_parent"
@@ -762,19 +719,43 @@
                     android:layout_marginTop="10dp"
                     android:drawableLeft="@drawable/menu_logout"
                     android:drawablePadding="10dp"
-                    android:drawableRight="@drawable/menu_right_arrow"
                     android:singleLine="true"
                     android:text="Logout"
                     android:textColor="@android:color/white"
-                    android:textSize="@dimen/smaller_font" />
+                    android:textSize="@dimen/smaller_font" />
+                    -->
 
-                <View
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="10dp"
-                    android:background="#929497" />
-            </LinearLayout>
-        </RelativeLayout>
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:orientation="vertical" >
+
+                    <include layout="@layout/metropia_color_bar" />
+
+                    <TextView
+                        android:id="@+id/user_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/menu_avatar"
+                        android:drawablePadding="10dp"
+                        android:paddingBottom="10dp"
+                        android:paddingLeft="20dp"
+                        android:paddingTop="10dp"
+                        android:text=""
+                        android:textColor="@android:color/white"
+                        android:textSize="@dimen/medium_font" />
+                </LinearLayout>
+            </RelativeLayout>
+
+            <View
+                android:layout_width="10dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/menu_right_shadow" />
+        </LinearLayout>
     </LinearLayout>
 
 </android.support.v4.widget.DrawerLayout>

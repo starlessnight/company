@@ -69,6 +69,7 @@ import android.view.View.OnFocusChangeListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AnimationUtils;
@@ -1297,7 +1298,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         Display display = getWindowManager().getDefaultDisplay();
         DrawerLayout.LayoutParams leftDrawerLp = (DrawerLayout.LayoutParams) findViewById(R.id.left_drawer).getLayoutParams();
-        leftDrawerLp.width=display.getWidth()*3/4;
+        leftDrawerLp.width=display.getWidth()*3/4 + Dimension.dpToPx(10, getResources().getDisplayMetrics());
+        View menuPanel = findViewById(R.id.menu_panel);
+        LayoutParams menuPanelLp = menuPanel.getLayoutParams();
+        menuPanelLp.width=display.getWidth()*3/4;
+        
         
         final DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         View drawerIcon = findViewById(R.id.drawer_menu_icon);
@@ -1416,6 +1421,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 return true;
             }                
         });
+        /*
         TextView logoutMenu = (TextView) findViewById(R.id.logout_option);
         logoutMenu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1430,6 +1436,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				});
             }
         });
+        */
+        
+        User user = User.getCurrentUser(LandingActivity2.this);
+        TextView userInfoView = (TextView) findViewById(R.id.user_info);
+        userInfoView.setText(user.getFirstname() + " " + user.getLastname());
         
         final View activityRootView = findViewById(android.R.id.content);
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
@@ -1465,7 +1476,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getMedium(assets), getRouteView);
         Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, fromSearchBox, myMetropiaMenu, 
-            reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, logoutMenu);
+            reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView/*, logoutMenu*/);
         Font.setTypeface(Font.getMedium(assets), favSearchBox, labelInput, 
         		(TextView)findViewById(R.id.label), (TextView)findViewById(R.id.icon));
         showTutorialIfNessary();
