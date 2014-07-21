@@ -1146,33 +1146,35 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				RoutePathOverlay.GREEN, R.drawable.pin_origin);
 		mapOverlays.add(pathOverlay);
 		
-		RouteDestinationOverlay destOverlay = new RouteDestinationOverlay(mapView, 
-	        route.getLastNode().getGeoPoint(), lightFont, reservation.getDestinationAddress(), 
-	        R.drawable.pin_destination);
-		destOverlay.setCallback(new OverlayCallback() {
-            @Override
-            public boolean onTap(int index) {
-                return true;
-            }
-            @Override
-            public boolean onLongPress(int index, OverlayItem item) {
-                return false;
-            }
-            
-            @Override
-            public boolean onClose() {
-                return false;
-            }
-            @Override
-            public void onChange() {
-            }
-            @Override
-            public boolean onBalloonTap(int index, OverlayItem item) {
-                return false;
-            }
-        });
-		mapOverlays.add(destOverlay);
-
+		if (!route.getNodes().isEmpty()) {
+    		RouteDestinationOverlay destOverlay = new RouteDestinationOverlay(mapView, 
+    	        route.getLastNode().getGeoPoint(), lightFont, reservation.getDestinationAddress(), 
+    	        R.drawable.pin_destination);
+    		destOverlay.setCallback(new OverlayCallback() {
+                @Override
+                public boolean onTap(int index) {
+                    return true;
+                }
+                @Override
+                public boolean onLongPress(int index, OverlayItem item) {
+                    return false;
+                }
+                
+                @Override
+                public boolean onClose() {
+                    return false;
+                }
+                @Override
+                public void onChange() {
+                }
+                @Override
+                public boolean onBalloonTap(int index, OverlayItem item) {
+                    return false;
+                }
+            });
+    		mapOverlays.add(destOverlay);
+		}
+		
 		drawCurrentLocation();
 
 		bindDebugOverlay(mapView);
