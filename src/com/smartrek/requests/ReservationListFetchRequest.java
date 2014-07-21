@@ -69,7 +69,8 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
 	        Date now = new Date(System.currentTimeMillis() - 15*60*1000);
 	        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmm");
 	        dateFormat.setTimeZone(TimeZone.getTimeZone(getTimeZone()));
-	        url = getLinkUrl(Link.query_upcoming_reservation).replaceAll("\\{YYYYmmddHHMM\\}", dateFormat.format(now));
+	        url = StringUtils.defaultString(getLinkUrl(Link.query_upcoming_reservation))
+                .replaceAll("\\{YYYYmmddHHMM\\}", dateFormat.format(now));
 	        if(!StringUtils.contains(url, start_datetime_utc_attr)){
 	            url = url.replaceAll(start_datetime_attr, start_datetime_attr + "," + start_datetime_utc_attr); 
 	        }
