@@ -38,7 +38,7 @@ public final class HTTP {
     
 	private static final int BUF_SIZE = 4096;
 	
-	public static final int defaultTimeout = 15000;
+	public static final int defaultTimeout = 45000;
 	
 	/**
 	 * Maximum content size that getResponseBody() can handle.
