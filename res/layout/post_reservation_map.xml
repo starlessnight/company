@@ -288,27 +288,29 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center"
+                    android:gravity="center|top"
                     android:text="Close"
                     android:textColor="@android:color/white"
-                    android:textSize="@dimen/medium_font" />
+                    android:textSize="@dimen/medium_font"
+                    android:includeFontPadding="false" />
 
                 <ImageView
                     android:id="@+id/share"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:src="@drawable/menu_share" />
+                    android:src="@drawable/menu_share_new" />
 
                 <TextView
                     android:id="@+id/feedback"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center"
+                    android:gravity="center|top"
                     android:text="Feedback"
                     android:textColor="@android:color/white"
-                    android:textSize="@dimen/medium_font" />
+                    android:textSize="@dimen/medium_font"
+                    android:includeFontPadding="false" />
             </LinearLayout>
 
         </LinearLayout>
