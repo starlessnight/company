@@ -1292,7 +1292,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		});
 	}
 
-	private void saveTrip() {
+	private void saveTrip(final Runnable callback) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -1304,6 +1304,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 							try {
 								FileUtils.write(tFile, "");
 							} catch (IOException e) {
+							}
+							if(callback != null){
+							    callback.run();
 							}
 							return null;
 						}
@@ -1813,7 +1816,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		    saveTrajectory(new Runnable() {
                 @Override
                 public void run() {
-                    saveTrip();
+                    saveTrip(new Runnable() {
+                        @Override
+                        public void run() {
+                            TripService.run(ValidationActivity.this, User.getCurrentUser(ValidationActivity.this));
+                        }
+                    });
                 }
             });
 			turnOffGPS.set(true);
@@ -1971,7 +1979,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             saveTrajectory(new Runnable() {
                 @Override
                 public void run() {
-                    saveTrip();
+                    saveTrip(null);
                 }
             });
             if (!isFinishing()) {
@@ -2244,7 +2252,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	        saveTrajectory(new Runnable() {
                 @Override
                 public void run() {
-                    saveTrip();
+                    saveTrip(null);
                 }
             });
 		}

@@ -24,10 +24,51 @@ import com.smartrek.requests.TripValidationRequest;
 
 public class TripService extends IntentService {
     
-    private static long twoSecs = 2 * 1000; 
+    private static long fiveMins = 5 * 60 * 1000;
     
     public TripService() {
         super(TripService.class.getName());
+    }
+    
+    public static void run(Context ctx, User user){
+        File[] files = getDir(ctx).listFiles();
+        if(ArrayUtils.isNotEmpty(files)){
+            Map<Long, File> toSendFiles = new HashMap<Long, File>();
+            for (File f : files) {
+                String name = f.getName();
+                if(StringUtils.isNumeric(name)){
+                    try{
+                        File newFile = new File(f.getParentFile(), "_" + name);
+                        f.renameTo(newFile);
+                        long rId = Long.parseLong(name);
+                        toSendFiles.put(rId, newFile);
+                    }catch(Throwable t){
+                        Log.w("TripService", Log.getStackTraceString(t));
+                    }
+                }
+            }
+            for (Entry<Long, File> e : toSendFiles.entrySet()) {
+                boolean deleted = false;
+                File f = e.getValue();
+                long rId = e.getKey();
+                try{
+                    if(!SendTrajectoryService.isSending(ctx, rId)
+                            && SendTrajectoryService.send(ctx, rId)){
+                        new TripValidationRequest(user, rId).execute(ctx);
+                        FileUtils.deleteQuietly(f);
+                    }
+                }catch(SmarTrekException ex){
+                    deleted = true;
+                    FileUtils.deleteQuietly(f);
+                }catch(Throwable t){
+                    Log.w("TripService", Log.getStackTraceString(t));
+                }finally{
+                    if(!deleted){
+                        f.renameTo(new File(f.getParentFile(), String.valueOf(rId)));
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -37,44 +78,7 @@ public class TripService extends IntentService {
             MainActivity.initApiLinksIfNecessary(this, new Runnable() {
                 @Override
                 public void run() {
-                    File[] files = getDir(TripService.this).listFiles();
-                    if(ArrayUtils.isNotEmpty(files)){
-                        Map<Long, File> toSendFiles = new HashMap<Long, File>();
-                        for (File f : files) {
-                            String name = f.getName();
-                            if(StringUtils.isNumeric(name)){
-                                try{
-                                    File newFile = new File(f.getParentFile(), "_" + name);
-                                    f.renameTo(newFile);
-                                    long rId = Long.parseLong(name);
-                                    toSendFiles.put(rId, newFile);
-                                }catch(Throwable t){
-                                    Log.w("TripService", Log.getStackTraceString(t));
-                                }
-                            }
-                        }
-                        for (Entry<Long, File> e : toSendFiles.entrySet()) {
-                            boolean deleted = false;
-                            File f = e.getValue();
-                            long rId = e.getKey();
-                            try{
-                                if(!SendTrajectoryService.isSending(TripService.this, rId)
-                                        && SendTrajectoryService.send(TripService.this, rId)){
-                                    new TripValidationRequest(user, rId).execute(TripService.this);
-                                    FileUtils.deleteQuietly(f);
-                                }
-                            }catch(SmarTrekException ex){
-                                deleted = true;
-                                FileUtils.deleteQuietly(f);
-                            }catch(Throwable t){
-                                Log.w("TripService", Log.getStackTraceString(t));
-                            }finally{
-                                if(!deleted){
-                                    f.renameTo(new File(f.getParentFile(), String.valueOf(rId)));
-                                }
-                            }
-                        }
-                    }
+                    TripService.run(TripService.this, user);
                 }
             });
         }
@@ -93,7 +97,7 @@ public class TripService extends IntentService {
                 ctx, TripService.class), PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
         alarm.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(),
-            twoSecs, sendTrajServ);
+            fiveMins, sendTrajServ);
     }
 
 }
