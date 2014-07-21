@@ -1826,9 +1826,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                 @Override
                 public void run() {
                     try{
-                        doDisplayArrivalMsg(reservation.getMpoint(), 0, 0);
                         if(callback!=null) {
                         	callback.run();
+                        }
+                        if (!isFinishing()) {
+                            finish();
                         }
                     }catch(Throwable t){}
                 }
@@ -2318,9 +2320,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             String id = intent.getStringExtra(ID);
             if(String.valueOf(reservation.getRid()).equals(id)){
                 int credit = intent.getIntExtra(CREDIT, reservation.getMpoint());
-                int timeSavingInSecond = intent.getIntExtra(TIME_SAVING_IN_SECOND, 0);
-                double co2Saving = intent.getDoubleExtra(CO2_SAVING, 0);
-                doDisplayArrivalMsg(credit, timeSavingInSecond, co2Saving);
+                if(credit > 0){
+                    int timeSavingInSecond = intent.getIntExtra(TIME_SAVING_IN_SECOND, 0);
+                    double co2Saving = intent.getDoubleExtra(CO2_SAVING, 0);
+                    doDisplayArrivalMsg(credit, timeSavingInSecond, co2Saving);
+                }else if (!isFinishing()) {
+                    finish();
+                }
             }
         }
     };
