@@ -62,12 +62,13 @@ public final class ScrollableTimeLayout extends ObservableScrollView implements 
 			@Override
 			public void run() {
 				int newPosition = getScrollX();
-	            if(checkPosition - newPosition == 0){//has stopped
+	            if(Math.abs(checkPosition - newPosition) < TimeButton.WIDTH){//has stopped
 	            	boolean swipeRight = initialPosition - newPosition < 0;
 	            	initialPosition = newPosition;
 	            	int mod = newPosition%TimeButton.WIDTH;
 	            	int columnIndex = newPosition/TimeButton.WIDTH + (mod!=0&&swipeRight?1:0);
 	            	smoothScrollTo(columnIndex*TimeButton.WIDTH, 0);
+	            	timeLayout.preSelectColumn(columnIndex);
 	            }else{
 	            	checkPosition = getScrollX();
 	                ScrollableTimeLayout.this.postDelayed(scrollerTask, newCheck);

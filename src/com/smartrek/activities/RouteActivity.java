@@ -1499,6 +1499,8 @@ public final class RouteActivity extends FragmentActivity {
                     scrollableTimeLayout.notifyScrollChanged();
                     scrollableTimeLayout.updateVisibleColumns();
                 }
+                
+                timeLayout.notifySelectColumn(selectedColumn);
             }
         }
     }

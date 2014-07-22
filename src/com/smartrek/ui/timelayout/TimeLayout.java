@@ -15,7 +15,6 @@ import android.widget.LinearLayout;
 import com.smartrek.models.Route;
 import com.smartrek.ui.timelayout.TimeButton.DisplayMode;
 import com.smartrek.ui.timelayout.TimeButton.State;
-import com.smartrek.utils.Dimension;
 import com.smartrek.utils.Font;
 
 
@@ -50,6 +49,8 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     private int timzoneOffset;
     
     private int[] currentVisibleColumns = {-1};
+    
+    private int preSelectedColumnIndex = -1;
 
     public interface TimeLayoutListener {
     	public void updateTimeLayout(TimeLayout timeLayout, int column, boolean visible);
@@ -249,5 +250,30 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
 	public void setCurrentVisibleColumns(int[] currentVisibleColumns) {
 		this.currentVisibleColumns = currentVisibleColumns;
 	}
-    
+	
+	public void notifySelectColumn(int loadedColumn) {
+		if(loadedColumn == preSelectedColumnIndex && 
+				getColumnState(preSelectedColumnIndex).equals(State.None)) {
+    	    for (int i = 0; i < getChildCount(); i++) {
+    	      	TimeColumn timeColumn = (TimeColumn) getChildAt(i);
+    	       	if (timeColumn.getState().equals(State.Selected)) {
+    	       		timeColumn.setState(State.None, Arrays.asList(ArrayUtils.toObject(currentVisibleColumns)).contains(i));
+    	       	}
+    	    }
+    	
+    	    this.postInvalidate(); // TODO: What is this?
+    	        
+    	    if(onSelectListener != null) {
+    	      	selectedColumn = preSelectedColumnIndex;
+    	       	onSelectListener.onSelect(preSelectedColumnIndex, (TimeColumn) getChildAt(preSelectedColumnIndex));
+    	    }
+    	    preSelectedColumnIndex = -1;
+		}
+	}
+	
+	public void preSelectColumn(int column) {
+		preSelectedColumnIndex = column;
+		notifySelectColumn(column);
+	}
+	
 }
