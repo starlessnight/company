@@ -76,7 +76,7 @@ public class RouteRect {
     
     public int[] getRange(){
     	return new int[]{
-	        Math.max(Double.valueOf((latMax - latMin) * (1 + verticalOffest) * padding).intValue(), minRange), 
+	        Math.max(Double.valueOf((latMax - latMin) * (1 + Math.abs(verticalOffest)) * padding).intValue(), minRange), 
 	        Math.max(Double.valueOf((lonMax - lonMin) * padding).intValue(), minRange)
         };
     }
