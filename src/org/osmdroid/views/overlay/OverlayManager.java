@@ -22,6 +22,8 @@ public class OverlayManager extends AbstractList<Overlay> {
 	private boolean mUseSafeCanvas = true;
 
 	private final CopyOnWriteArrayList<Overlay> mOverlayList;
+	
+	private boolean singleTapCancel;
 
 	public OverlayManager(final TilesOverlay tilesOverlay) {
 		setTilesOverlay(tilesOverlay);
@@ -229,12 +231,14 @@ public class OverlayManager extends AbstractList<Overlay> {
 	}
 
 	public boolean onSingleTapConfirmed(final MotionEvent e, final MapView pMapView) {
-		for (final Overlay overlay : this.overlaysReversed()) {
-			if (overlay.onSingleTapConfirmed(e, pMapView)) {
-				return true;
+		if(!singleTapCancel) {
+			for (final Overlay overlay : this.overlaysReversed()) {
+				if (overlay.onSingleTapConfirmed(e, pMapView)) {
+					return true;
+				}
 			}
 		}
-
+		singleTapCancel = false;
 		return false;
 	}
 
@@ -362,5 +366,9 @@ public class OverlayManager extends AbstractList<Overlay> {
 		}
 
 		return false;
+	}
+	
+	public void setSingleTapCancel(boolean singleTapCancel) {
+		this.singleTapCancel = singleTapCancel;
 	}
 }
