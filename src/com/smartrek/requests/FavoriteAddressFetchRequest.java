@@ -3,6 +3,7 @@ package com.smartrek.requests;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -14,7 +15,9 @@ import com.smartrek.models.User;
 public final class FavoriteAddressFetchRequest extends FetchRequest<List<Address>> {
 	
 	public FavoriteAddressFetchRequest(User user) {
-        super(NEW_API?getLinkUrl(Link.address):String.format("%s/V0.2/getfavadd/%d", HOST, user.getId()));
+        super(NEW_API?
+            StringUtils.defaultString(getLinkUrl(Link.address))
+            :String.format("%s/V0.2/getfavadd/%d", HOST, user.getId()));
         if(NEW_API){
             if(user != null){
                 this.username = user.getUsername();
