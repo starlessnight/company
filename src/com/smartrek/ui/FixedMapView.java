@@ -13,7 +13,7 @@ public class FixedMapView extends MapView {
 
 	private static final int NONE = 0;
 	private static final int ZOOM = 1;
-	private static final int LIMIT_ZOOM_TIMER = 500;
+	private static final int LIMIT_ZOOM_TIMER = 100;
 	int mode = NONE;
 
 	public FixedMapView(Context context, AttributeSet attrs) {
@@ -36,12 +36,14 @@ public class FixedMapView extends MapView {
 					// captured at zoom end,
 					// don't handle it for LIMIT_ZOOM_TIMER to avoid strange map
 					// behavior and cancel single tap event this time
-					super.getOverlayManager().setSingleTapCancel(true);
 					return true;
 				}
 				break;
 			case MotionEvent.ACTION_POINTER_UP:
 				startEndZoomTimer();
+				if(mode == ZOOM) {
+					super.getOverlayManager().setSingleTapCancel(true);
+				}
 				break;
 		}
 		return super.onTouchEvent(ev);
