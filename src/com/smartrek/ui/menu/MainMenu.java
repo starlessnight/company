@@ -13,7 +13,6 @@ import com.smartrek.activities.MyMetropiaActivity;
 import com.smartrek.activities.R;
 import com.smartrek.activities.ReservationConfirmationActivity;
 import com.smartrek.activities.ReservationListActivity;
-import com.smartrek.activities.RewardsActivity;
 import com.smartrek.activities.RouteActivity;
 import com.smartrek.activities.ShareActivity;
 import com.smartrek.activities.WebMyMetropiaActivity;
@@ -76,7 +75,7 @@ public final class MainMenu {
                break;
                
            case R.id.dashboard:
-               if(RewardsActivity.hasUrl(activity)){
+               if(WebMyMetropiaActivity.hasUrl(activity)){
                    if (!activity.getClass().equals(WebMyMetropiaActivity.class)) {
                        intent = new Intent(activity, WebMyMetropiaActivity.class);
                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
