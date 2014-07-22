@@ -2836,7 +2836,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         String address = null;
         Uri uri = intent.getData();
         if(uri != null){
-            address = Uri.decode(StringUtils.substringAfterLast(uri.toString(), "?q="));
+            address = Uri.decode(StringUtils.substringAfterLast(uri.toString(), "q="));
         }
         return address;
     }
