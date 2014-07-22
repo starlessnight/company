@@ -1639,8 +1639,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 							dialog.setNegativeActionListener(new ActionListener() {
 								@Override
 								public void onClick() {
+								    GeoPoint origin = null;
+								    if(myPointOverlay != null){
+								        origin = myPointOverlay.getLocation();
+								    }
 									RescheduleTripTask rescheduleTask = new RescheduleTripTask(LandingActivity2.this, 
-											new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude()), null, reserv.getDestinationAddress(), 
+									        origin, null, reserv.getDestinationAddress(), 
 							        		reserv.getRid(), ehs);
 									rescheduleTask.callback = new RescheduleTripTask.Callback() {
 			                            @Override
