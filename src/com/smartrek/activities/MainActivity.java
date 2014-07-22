@@ -103,9 +103,9 @@ public class MainActivity extends Activity implements AnimationListener {
                     @Override
                     public void run() {
                         Long interval = UserLocationService.getInterval();
-                        LocationLibrary.initialiseLibrary(getBaseContext(), interval, 
+                        LocationLibrary.initialiseLibrary(MainActivity.this, interval, 
                             interval.intValue(), true, "com.smartrek.activities");
-                        UserLocationService.schedule(getBaseContext());
+                        UserLocationService.schedule(MainActivity.this);
                         if(loginTask != null){
                             loginTask.setDialogEnabled(splashEnded);
                             loginTask.showDialog();
