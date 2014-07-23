@@ -1,7 +1,5 @@
 package com.smartrek.activities;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.commons.lang3.StringUtils;
 
 import android.app.Activity;
@@ -35,8 +33,6 @@ public class MainActivity extends Activity implements AnimationListener {
 	
 	public static final String LOG_TAG = "MainActivity";
 	
-	private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
-	
 	private ImageView logo;
 	private ImageView logoMask;
 	
@@ -48,7 +44,7 @@ public class MainActivity extends Activity implements AnimationListener {
 	
 	private LoginTask loginTask;
 	
-	private static AtomicBoolean initApiLinksFailed = new AtomicBoolean();
+	private ServiceDiscoveryTask sdTask;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -88,7 +84,6 @@ public class MainActivity extends Activity implements AnimationListener {
 			});
 	        Animation slideUpAnimation = AnimationUtils.loadAnimation(this, R.anim.slideup);
 	        slideUpAnimation.setAnimationListener(this);
-	        logoMask.startAnimation(slideUpAnimation);
 	        
 	        /* Check Shared memory to see if login info has already been entered on this phone */
             SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
@@ -102,14 +97,10 @@ public class MainActivity extends Activity implements AnimationListener {
 	            final Runnable onSuccess = new Runnable() {
                     @Override
                     public void run() {
-                        Long interval = UserLocationService.getInterval();
-                        LocationLibrary.initialiseLibrary(MainActivity.this, interval, 
-                            interval.intValue(), true, "com.smartrek.activities");
-                        UserLocationService.schedule(MainActivity.this);
                         if(loginTask != null){
                             loginTask.setDialogEnabled(splashEnded);
                             loginTask.showDialog();
-                            new AsyncTask<Void, Void, Integer>() {
+                            Misc.parallelExecute(new AsyncTask<Void, Void, Integer>() {
                                 @Override
                                 protected Integer doInBackground(Void... params) {
                                     Integer id = null;
@@ -118,9 +109,7 @@ public class MainActivity extends Activity implements AnimationListener {
                                         req.invalidateCache(MainActivity.this);
                                         id = req.execute(MainActivity.this);
                                     }
-                                    catch(Exception e) {
-                                        ehs.registerException(e);
-                                    }
+                                    catch(Exception e) {}
                                     return id;
                                 }
                                 protected void onPostExecute(Integer userId) {
@@ -131,15 +120,19 @@ public class MainActivity extends Activity implements AnimationListener {
                                             startLoginActivity();
                                         }
                                     }else{
-                                        loginTask.setUserId(userId)
-                                            .execute();
+                                        loginTask.setUserId(userId);
+                                        Misc.parallelExecute(loginTask);
                                     }
                                 }
-                            }.execute();
+                            });
                         }
+                        Long interval = UserLocationService.getInterval();
+                        LocationLibrary.initialiseLibrary(MainActivity.this, interval, 
+                            interval.intValue(), true, "com.smartrek.activities");
+                        UserLocationService.schedule(MainActivity.this);
                     }
                 };
-	            initApiLinks(this, getEntrypoint(MainActivity.this), onSuccess, new Runnable() {
+                sdTask = initApiLinks(this, getEntrypoint(MainActivity.this), onSuccess, new Runnable() {
                     @Override
                     public void run() {
                         finish();
@@ -148,6 +141,8 @@ public class MainActivity extends Activity implements AnimationListener {
 	        }else if(loginTask != null){
 	            loginTask.execute();
 	        }
+	        
+	        logoMask.startAnimation(slideUpAnimation);
 		}
 	}
 	
@@ -159,42 +154,72 @@ public class MainActivity extends Activity implements AnimationListener {
         return url;
 	}
 	
-	public static AsyncTask<Void, Void, Result> initApiLinks(final Context ctx, final String entrypoint, 
+	public static class ServiceDiscoveryTask extends AsyncTask<Void, Void, Result> {
+	    
+	    private boolean failed;
+	    
+	    private Context ctx;
+	    
+	    private ExceptionHandlingService ehs;
+	    
+	    private String entrypoint;
+	    
+	    private Runnable onSuccess;
+	    
+	    private Runnable onError;
+	    
+	    public ServiceDiscoveryTask(Context ctx, String entrypoint, Runnable onSuccess, 
+	            Runnable onError){
+	        this.ctx = ctx;
+	        ehs = new ExceptionHandlingService(ctx);
+	        this.entrypoint = entrypoint;
+	        this.onSuccess = onSuccess;
+	        this.onError = onError;
+	    }
+	    
+	    @Override
+        protected Result doInBackground(Void... params) {
+            Result rs = null;
+            try {
+                ServiceDiscoveryRequest req = new ServiceDiscoveryRequest(entrypoint);  
+                req.invalidateCache(ctx);
+                rs = req.execute(ctx);
+            }
+            catch(Exception e) {
+                ehs.registerException(e);
+            }
+            return rs;
+        }
+	    
+	    @Override
+        protected void onPostExecute(Result result) {
+            if (ehs.hasExceptions()) {
+                failed = true;
+                if(onError != null){
+                    ehs.reportExceptions(onError);
+                }
+            }
+            else {
+                failed = false;
+                Request.setLinkUrls(result.links);
+                Request.setPageUrls(result.pages);
+                Request.setSettings(result.settings);
+                if(onSuccess != null){
+                    onSuccess.run();
+                }
+            }
+        }
+	    
+	    public boolean isFailed(){
+	        return failed;
+	    }
+	    
+	}
+	
+	public static ServiceDiscoveryTask initApiLinks(final Context ctx, final String entrypoint, 
 	        final Runnable onSuccess, final Runnable onError){
-	    final ExceptionHandlingService eh = new ExceptionHandlingService(ctx);
-	    AsyncTask<Void, Void, Result> task = new AsyncTask<Void, Void, Result>() {
-            @Override
-            protected Result doInBackground(Void... params) {
-                Result rs = null;
-                try {
-                    ServiceDiscoveryRequest req = new ServiceDiscoveryRequest(entrypoint);  
-                    req.invalidateCache(ctx);
-                    rs = req.execute(ctx);
-                }
-                catch(Exception e) {
-                    eh.registerException(e);
-                }
-                return rs;
-            }
-            @Override
-            protected void onPostExecute(Result result) {
-                if (eh.hasExceptions()) {
-                    initApiLinksFailed.set(true);
-                    if(onError != null){
-                        eh.reportExceptions(onError);
-                    }
-                }
-                else {
-                    initApiLinksFailed.set(false);
-                    Request.setLinkUrls(result.links);
-                    Request.setPageUrls(result.pages);
-                    Request.setSettings(result.settings);
-                    if(onSuccess != null){
-                        onSuccess.run();
-                    }
-                }
-            }
-        }.execute();
+	    ServiceDiscoveryTask task = new ServiceDiscoveryTask(ctx, entrypoint, onSuccess, onError);
+	    Misc.parallelExecute(task);
         return task;
 	}
 	
@@ -266,38 +291,12 @@ public class MainActivity extends Activity implements AnimationListener {
 		}else{   
 		    if(loginTaskEnded){
 		        proceedToNextScreen();
-		    }else if(!initApiLinksFailed.get()){
+		    }else if(!sdTask.isFailed()){
 		        loginTask.showDialog();
 	            loginTask.setDialogEnabled(true);
 		    }
         }
 	}
-	
-	/*
-	private void checkEulaAndProceedToNextScreen(){
-	    new AsyncTask<Void, Void, Boolean>(){
-            @Override
-            protected Boolean doInBackground(Void... params) {
-                boolean updated = false;
-                try{
-                    HTTP http = new HTTP(Request.getPageUrl(Page.eula))
-                        .setIfNoneMatch(DebugOptionsActivity.getEulaEtag(MainActivity.this));
-                    http.connect();
-                    updated = http.getResponseCode() == 200;
-                }catch(Throwable t){}
-                return updated;
-            }
-            protected void onPostExecute(Boolean updated) {
-                if(updated){
-                    Intent intent = new Intent(MainActivity.this, LicenseAgreementActivity.class);
-                    startActivityForResult(intent, LicenseAgreementActivity.LICENSE_AGREEMENT_UPDATED);
-                }else{
-                    proceedToNextScreen();
-                }
-            }
-        }.execute();
-	}
-	*/
 	
 	private void proceedToNextScreen(){
 	    if(loggedIn){

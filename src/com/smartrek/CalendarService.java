@@ -207,7 +207,7 @@ public class CalendarService extends IntentService {
                 PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
         alarm.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
-                SystemClock.elapsedRealtime(), FIFTHTEEN_MINS, sendTrajServ);
+            SystemClock.elapsedRealtime() + FIFTHTEEN_MINS, FIFTHTEEN_MINS, sendTrajServ);
     }
 
 }

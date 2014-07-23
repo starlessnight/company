@@ -165,8 +165,8 @@ public class SendTrajectoryService extends IntentService {
         PendingIntent sendTrajServ = PendingIntent.getService(ctx, 0, new Intent(
                 ctx, SendTrajectoryService.class), PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
-        alarm.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(),
-            fiveMins, sendTrajServ);
+        alarm.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, 
+            SystemClock.elapsedRealtime() + fiveMins, fiveMins, sendTrajServ);
     }
 
 }
