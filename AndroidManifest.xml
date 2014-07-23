@@ -140,7 +140,9 @@
         <activity
             android:name=".DebugOptionsActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
-            android:label="Debug Options" />
+            android:label="Debug Options"
+            android:logo="@android:color/transparent"
+		/>
         <activity
             android:name=".MapModeActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize" />
