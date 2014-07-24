@@ -3238,7 +3238,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                boolean handledStarred = hideStarredBalloon();
 	                boolean handledBulb = hideBulbBalloon();
 	                boolean handledPOI = removePOIMarker(mapView);
-	                boolean handledOD = removeAllOD();
+	                boolean handledOD = removeOldOD(mapView, isFromPoi());
 	                if(!handledStarred && !handledBulb && !handledPOI && !handledOD){
 	                    resizeMap(!isMapCollapsed());
 	                }
@@ -3370,7 +3370,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	MapView mapView = (MapView) findViewById(R.id.mapview);
     	boolean handleFrom = removeOldOD(mapView, true);
     	boolean handleTo = removeOldOD(mapView, false);
-    	findViewById(R.id.get_route).setVisibility(View.GONE);
     	return handleFrom || handleTo;
     }
     
@@ -3381,6 +3380,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	}
     	else {
     		curTo = null;
+    		findViewById(R.id.get_route).setVisibility(View.GONE);
     	}
     	boolean handle = false;
         for (Overlay overlay : overlays) {
