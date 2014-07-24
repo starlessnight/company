@@ -47,21 +47,21 @@ public class SystemService {
     	NotificationDialog2 dialog = new NotificationDialog2(context, "Your Location Service seems to be disabled. Do you want to enable it?");
     	dialog.setVerticalOrientation(false);
     	dialog.setTitle("Notification");
-    	dialog.setPositiveButtonText("Yes");
+    	dialog.setPositiveButtonText("No");
     	dialog.setPositiveActionListener(new ActionListener() {
-			@Override
-			public void onClick() {
-				context.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-			}
-		});
-    	
-    	dialog.setNegativeButtonText("No");
-	    dialog.setNegativeActionListener(new ActionListener() {
 			@Override
 			public void onClick() {
 				if(callback != null) {
 					callback.onNo();
 				}
+			}
+		});
+    	
+    	dialog.setNegativeButtonText("Yes");
+	    dialog.setNegativeActionListener(new ActionListener() {
+			@Override
+			public void onClick() {
+				context.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
 			}
 	    });
     	dialog.show();
