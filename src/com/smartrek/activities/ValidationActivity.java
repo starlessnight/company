@@ -1225,7 +1225,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    saveTrajectory(null);
 	}
 
-	private JSONArray omwPercentages = (JSONArray) Request.getSetting(Setting.remaining_percentage_to_trigger_OMW_message);
+	private JSONArray omwPercentages;
+	{
+	    omwPercentages = (JSONArray) Request.getSetting(Setting.remaining_percentage_to_trigger_OMW_message);
+	    if(omwPercentages == null){
+	        omwPercentages = new JSONArray();
+	    }
+	}
 	
 	private boolean[] omwSent = new boolean[omwPercentages.length()];
 	
