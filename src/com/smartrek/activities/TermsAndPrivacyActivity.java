@@ -7,11 +7,10 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.animation.AnimationUtils;
 import android.widget.TextView;
 
+import com.smartrek.ui.ClickAnimation;
+import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
 
@@ -29,12 +28,17 @@ public class TermsAndPrivacyActivity extends FragmentActivity{
 		boldFont = Font.getBold(assets);
 		lightFont = Font.getLight(assets);
 		
-		TextView backButton = (TextView) findViewById(R.id.back_button);
+		View backButton = findViewById(R.id.back_button);
 		backButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				v.startAnimation(AnimationUtils.loadAnimation(TermsAndPrivacyActivity.this, R.anim.click_animation));
-				finish();
+				ClickAnimation clickAnimation = new ClickAnimation(TermsAndPrivacyActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+					    finish();
+					}
+				});
 			}
 		});
 		
@@ -42,25 +46,15 @@ public class TermsAndPrivacyActivity extends FragmentActivity{
 		termOfUseView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Animation clickAnimation = AnimationUtils.loadAnimation(TermsAndPrivacyActivity.this, R.anim.click_animation);
-				clickAnimation.setAnimationListener(new AnimationListener() {
+				ClickAnimation clickAnimation = new ClickAnimation(TermsAndPrivacyActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
-					public void onAnimationStart(Animation animation) {
-					}
-
-					@Override
-					public void onAnimationEnd(Animation animation) {
-					    Misc.suppressTripInfoPanel(TermsAndPrivacyActivity.this);
+					public void onAnimationEnd() {
+						Misc.suppressTripInfoPanel(TermsAndPrivacyActivity.this);
 						Intent intent = new Intent(TermsAndPrivacyActivity.this, TermOfUseActivity.class);
 						startActivity(intent);
 					}
-
-					@Override
-					public void onAnimationRepeat(Animation animation) {
-					}
-					
 				});
-				v.startAnimation(clickAnimation);
 			}
 		});
 		
@@ -68,30 +62,20 @@ public class TermsAndPrivacyActivity extends FragmentActivity{
 		privacyPolicyView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Animation clickAnimation = AnimationUtils.loadAnimation(TermsAndPrivacyActivity.this, R.anim.click_animation);
-				clickAnimation.setAnimationListener(new AnimationListener() {
+				ClickAnimation clickAnimation = new ClickAnimation(TermsAndPrivacyActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
-					public void onAnimationStart(Animation animation) {
-					}
-
-					@Override
-					public void onAnimationEnd(Animation animation) {
-					    Misc.suppressTripInfoPanel(TermsAndPrivacyActivity.this);
+					public void onAnimationEnd() {
+						Misc.suppressTripInfoPanel(TermsAndPrivacyActivity.this);
 						Intent intent = new Intent(TermsAndPrivacyActivity.this, PrivacyPolicyActivity.class);
 						startActivity(intent);
 					}
-
-					@Override
-					public void onAnimationRepeat(Animation animation) {
-					}
-					
 				});
-				v.startAnimation(clickAnimation);
 			}
 		});
 		
 		Font.setTypeface(boldFont, (TextView)findViewById(R.id.header));
-		Font.setTypeface(lightFont, termOfUseView, privacyPolicyView, backButton);
+		Font.setTypeface(lightFont, termOfUseView, privacyPolicyView);
 	}
 	
 	@Override

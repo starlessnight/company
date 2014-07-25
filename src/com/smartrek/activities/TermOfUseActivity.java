@@ -7,7 +7,6 @@ import android.support.v4.app.FragmentActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.animation.AnimationUtils;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.TextView;
@@ -18,7 +17,7 @@ import com.smartrek.utils.Font;
 
 public class TermOfUseActivity extends FragmentActivity {
 	
-	private static final String URL = "http://www.metropia.com/terms";
+	private static final String URL = "http://www.metropia.com/terms-of-use";
 	
 	private Typeface boldFont;
 	
@@ -30,13 +29,12 @@ public class TermOfUseActivity extends FragmentActivity {
 		AssetManager assets = getAssets();
 		boldFont = Font.getBold(assets);
 		
-		TextView backButton = (TextView) findViewById(R.id.back_button);
+		View backButton = findViewById(R.id.back_button);
 		backButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				ClickAnimation clickAnimation = new ClickAnimation(TermOfUseActivity.this, v);
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-
 					@Override
 					public void onAnimationEnd() {
 						finish();

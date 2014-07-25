@@ -76,7 +76,7 @@ public final class MapDisplayActivity extends FragmentActivity {
 		boldFont = Font.getBold(assets);
 		lightFont = Font.getLight(assets);
 
-		TextView backButton = (TextView) findViewById(R.id.back_button);
+		View backButton = findViewById(R.id.back_button);
 		backButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -135,7 +135,6 @@ public final class MapDisplayActivity extends FragmentActivity {
 					}
 				});
 
-		/*
 		View tutorial = findViewById(R.id.tutorial);
 		tutorial.setOnClickListener(new OnClickListener() {
 			@Override
@@ -147,13 +146,28 @@ public final class MapDisplayActivity extends FragmentActivity {
 					    Misc.suppressTripInfoPanel(MapDisplayActivity.this);
 						Intent tutorialActivity = new Intent(MapDisplayActivity.this,
 								TutorialActivity.class);
-//						tutorialActivity.putExtra(TutorialActivity.FROM, "setting");
 						startActivity(tutorialActivity);
 					}
 				});
 			}
 		});
-		*/
+		
+		View intro = findViewById(R.id.introduction_screens);
+		intro.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ClickAnimation clickAnimation = new ClickAnimation(MapDisplayActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+					    Misc.suppressTripInfoPanel(MapDisplayActivity.this);
+						Intent tutorialActivity = new Intent(MapDisplayActivity.this,
+								IntroActivity.class);
+						startActivity(tutorialActivity);
+					}
+				});
+			}
+		});
 
 		View termsAndConditions = findViewById(R.id.terms_and_privacy);
 		termsAndConditions.setOnClickListener(new OnClickListener() {
@@ -191,11 +205,32 @@ public final class MapDisplayActivity extends FragmentActivity {
 		    veNum.setText("Version " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
 		}catch(NameNotFoundException e){}
 		
-		Font.setTypeface(boldFont, (TextView) findViewById(R.id.header));
+		TextView logout = (TextView) findViewById(R.id.logout);
+		logout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ClickAnimation clickAnimation = new ClickAnimation(MapDisplayActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+					    Misc.suppressTripInfoPanel(MapDisplayActivity.this);
+					    User.logout(MapDisplayActivity.this);
+			            Intent intent = new Intent(MapDisplayActivity.this, LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
+			            intent.putExtra(LandingActivity.LOGOUT, true);
+			            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			            startActivity(intent);
+			            finish();
+					}
+				});
+			}
+		});
+		
+		Font.setTypeface(boldFont, (TextView) findViewById(R.id.header), logout);
         Font.setTypeface(lightFont, userNameView, emailView, veNum,
 				(TextView) findViewById(R.id.predict_destination_text),
 				(TextView) findViewById(R.id.calendar_integration_text),
-				/*(TextView) findViewById(R.id.tutorial),*/
+				(TextView) findViewById(R.id.tutorial),
+				(TextView) findViewById(R.id.introduction_screens),
 				(TextView) findViewById(R.id.terms_and_privacy),
 				(TextView) findViewById(R.id.help_our_research));
 	}

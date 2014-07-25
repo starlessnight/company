@@ -29,7 +29,7 @@ private static final String URL = "http://www.metropia.com/privacy";
 		AssetManager assets = getAssets();
 		boldFont = Font.getBold(assets);
 		
-		TextView backButton = (TextView) findViewById(R.id.back_button);
+		View backButton = findViewById(R.id.back_button);
 		backButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {

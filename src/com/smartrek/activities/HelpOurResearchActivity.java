@@ -36,7 +36,7 @@ public class HelpOurResearchActivity extends FragmentActivity {
 		boldFont = Font.getBold(assets);
 		lightFont = Font.getLight(assets);
 		
-		TextView backButton = (TextView) findViewById(R.id.back_button);
+		View backButton = findViewById(R.id.back_button);
 		backButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
