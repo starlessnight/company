@@ -894,17 +894,27 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         findViewById(R.id.co2_circle).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
-				intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.CO2_SAVING_TAB);
-				startActivity(intent);
+			    Intent intent;
+			    if(WebMyMetropiaActivity.hasUrl(ValidationActivity.this)){
+			        intent = new Intent(ValidationActivity.this, WebMyMetropiaActivity.class);
+			    }else{
+			        intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
+    				intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.CO2_SAVING_TAB);
+			    }
+			    startActivity(intent);
 			}
         });
         
         findViewById(R.id.drive_score_circle).setOnClickListener(new OnClickListener() {
         	@Override
 			public void onClick(View v) {
-				Intent intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
-				intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.DRIVE_SCORE_TAB);
+        	    Intent intent;
+                if(WebMyMetropiaActivity.hasUrl(ValidationActivity.this)){
+                    intent = new Intent(ValidationActivity.this, WebMyMetropiaActivity.class);
+                }else{
+    				intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
+    				intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.DRIVE_SCORE_TAB);
+                }
 				startActivity(intent);
 			}
         });
