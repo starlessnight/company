@@ -138,6 +138,9 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     public void setColumnState(int column, State state) {
     	TimeColumn col = (TimeColumn) getChildAt(column);
     	if(col != null){
+    		if(state == State.Selected) {
+    			unSelectOthers();
+    		}
     	    col.setState(state, true);
     	}
     }
@@ -194,13 +197,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     	
     	if (getColumnState(column).equals(State.None)) {
     	
-	        for (int i = 0; i < this.getChildCount(); i++) {
-	        	TimeColumn timeColumn = (TimeColumn) getChildAt(i);
-	        	if (timeColumn.getState().equals(State.Selected)) {
-	        		timeColumn.setState(State.None, Arrays.asList(ArrayUtils.toObject(currentVisibleColumns)).contains(i));
-	        	}
-//	        	((TimeButton) getChildAt(i)).setState(TimeButton.State.None);
-	        }
+	        unSelectOthers();
 	
 //	        setColumnState(column, State.Selected);
 	        
@@ -274,6 +271,15 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
 	public void preSelectColumn(int column) {
 		preSelectedColumnIndex = column;
 		notifySelectColumn(column);
+	}
+	
+	private synchronized void unSelectOthers() {
+		for (int i = 0; i < this.getChildCount(); i++) {
+        	TimeColumn timeColumn = (TimeColumn) getChildAt(i);
+        	if (timeColumn.getState().equals(State.Selected)) {
+        		timeColumn.setState(State.None, Arrays.asList(ArrayUtils.toObject(currentVisibleColumns)).contains(i));
+        	}
+        }
 	}
 	
 }
