@@ -70,6 +70,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -77,6 +78,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
+import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.AnimatorListener;
+import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.SendTrajectoryService;
 import com.smartrek.TripService;
@@ -701,10 +705,33 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			@Override
 			public void run() {
 				Log.d("ValidationActivity", "OpenDriectionListView");
-				for(View view : getMapViews()) {
-					view.setVisibility(View.GONE);
-				}
-				findViewById(R.id.directions_view).setVisibility(View.VISIBLE);;
+				View directionsView = findViewById(R.id.directions_view);
+				directionsView.setVisibility(View.VISIBLE);
+				ObjectAnimator animator = ObjectAnimator.ofFloat(directionsView, "translationY", -directionsView.getHeight(), 0);
+				animator.setDuration(500);
+				animator.setInterpolator(new AccelerateDecelerateInterpolator());
+				animator.start();
+				animator.addListener(new AnimatorListener() {
+					@Override
+					public void onAnimationStart(Animator animation) {
+					}
+
+					@Override
+					public void onAnimationEnd(Animator animation) {
+						for(View view : getMapViews()) {
+							view.setVisibility(View.GONE);
+						}
+					}
+
+					@Override
+					public void onAnimationCancel(Animator animation) {
+					}
+
+					@Override
+					public void onAnimationRepeat(Animator animation) {
+						
+					}
+				});
 			}
 		});
 

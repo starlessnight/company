@@ -96,17 +96,12 @@
 	    	        android:visibility="invisible"
 	    	    />
 	    	    
-		        <TextView
-			        android:id="@+id/text_view_road"
-			        android:layout_width="0dp"
-			        android:layout_height="fill_parent"
-			        android:layout_weight="1"
-			        android:textSize="28dp"
-			        android:gravity="center"
-			        android:text="@string/placeholder"
-			        style="@style/LargeBoldText"
-		    	/>
-		        
+	    	    <android.support.v4.view.ViewPager
+		        	android:id="@+id/text_view_road_pager"
+		        	android:layout_width="0dp"
+		        	android:layout_height="fill_parent"
+		        	android:layout_weight="1"/>	
+	    	    
 		        <ImageView
 		            android:id="@+id/btn_next_item"
 	    	        android:layout_height="wrap_content"

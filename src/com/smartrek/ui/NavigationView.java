@@ -13,6 +13,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.location.Location;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -104,7 +107,7 @@ public class NavigationView extends LinearLayout {
 	private ViewGroup navigationDisplay;
 	private ImageView imgViewDirection;
 	private TextView textViewDistance;
-	private TextView textViewRoad;
+//	private TextView textViewRoad;
 	private TextView textViewWaiting;
 	private TextView textViewGenericMessage;
 	private ImageView btnPrevItem;
@@ -138,11 +141,14 @@ public class NavigationView extends LinearLayout {
 	
 	private boolean needNotification; 
 	
-	private int mStartingX = -1000;
+	private int mStartingY = -1000;
+	
 	private boolean move = false;
 	
 	private Runnable openDirectionViewEvent;
 	private boolean portraitMode = true;
+	
+	private ViewPager roadPager;
 	
 	public NavigationView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -154,7 +160,7 @@ public class NavigationView extends LinearLayout {
 		navigationDisplay = (ViewGroup) findViewById(R.id.navigation_display);
 		imgViewDirection = (ImageView) findViewById(R.id.img_view_direction);
 		textViewDistance = (TextView) findViewById(R.id.text_view_distance);
-		textViewRoad = (TextView) findViewById(R.id.text_view_road);
+//		textViewRoad = (TextView) findViewById(R.id.text_view_road);
 		textViewWaiting = (TextView) findViewById(R.id.text_view_waiting);
 		textViewGenericMessage = (TextView) findViewById(R.id.text_view_generic_message);
 		imgViewNextDirection = (ImageView) findViewById(R.id.img_view_next_direction);
@@ -179,54 +185,84 @@ public class NavigationView extends LinearLayout {
 		btnPrevItem.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				currentItemIdx = Math.max(currentItemIdx - 1, 0);
-				refresh(false);
+//				currentItemIdx = Math.max(currentItemIdx - 1, 0);
+//				refresh(false);
 			}
 		});
 		btnNextItem = (ImageView) findViewById(R.id.btn_next_item);
 		btnNextItem.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				currentItemIdx = Math.min(currentItemIdx + 1, items.size() - 1);
-				refresh(false);
+//				currentItemIdx = Math.min(currentItemIdx + 1, items.size() - 1);
+//				refresh(false);
 			}
 		});
 		
-		LinearLayout roadPanel = (LinearLayout) findViewById(R.id.road_panel);
-		
-		roadPanel.setOnTouchListener(new OnTouchListener(){
+		roadPager = (ViewPager) findViewById(R.id.text_view_road_pager);
+		roadPager.setOnPageChangeListener(new OnPageChangeListener() {
+			@Override
+			public void onPageScrollStateChanged(int arg0) {
+			}
+
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2) {
+			}
+
+			@Override
+			public void onPageSelected(int pos) {
+				currentItemIdx = pos;
+	        	refresh(false);
+			}
+		});
+		SlideAdapter slideAdapter = new SlideAdapter();
+		roadPager.setAdapter(slideAdapter);
+		roadPager.setOnTouchListener(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
-				final int X = (int) event.getX();
-				boolean tap = false;
+				final int Y = (int) event.getY();
 			    switch (event.getAction() & MotionEvent.ACTION_MASK) {
 				    case MotionEvent.ACTION_DOWN:
-				        mStartingX = X;
+				        mStartingY = Y;
 				        break;
 				    case MotionEvent.ACTION_MOVE:
 				    	move = true;
 				    	break;
 				    case MotionEvent.ACTION_UP:
-				        if (mStartingX != -1000 && move && X >= mStartingX - 20 && btnPrevItem.getVisibility() == View.VISIBLE) {
-				        	currentItemIdx = Math.max(currentItemIdx - 1, 0);
-				        	refresh(false);
-				        } else if (mStartingX != -1000 && move && X < mStartingX - 20 && btnNextItem.getVisibility() == View.VISIBLE) {
-				        	currentItemIdx = Math.min(currentItemIdx + 1, items.size() - 1);
-				        	refresh(false);
-				        }
-				        else {
-				        	tap = true;
-				        }
-				        mStartingX = -1000;
-				        if(tap && openDirectionViewEvent!=null) {
+				        if(mStartingY != -1000 && move && Y-mStartingY > 20 && openDirectionViewEvent!=null){
 				        	openDirectionViewEvent.run();
 				        }
+				        mStartingY = -1000;
 				        move = false;
 				        break;
 			    }
-				return true;
+				return false;
 			}
 		});
+		
+		LinearLayout roadPanel = (LinearLayout) findViewById(R.id.road_panel);
+		
+//		roadPanel.setOnTouchListener(new OnTouchListener(){
+//			@Override
+//			public boolean onTouch(View v, MotionEvent event) {
+//				final int Y = (int) event.getY();
+//			    switch (event.getAction() & MotionEvent.ACTION_MASK) {
+//				    case MotionEvent.ACTION_DOWN:
+//				        mStartingY = Y;
+//				        break;
+//				    case MotionEvent.ACTION_MOVE:
+//				    	move = true;
+//				    	break;
+//				    case MotionEvent.ACTION_UP:
+//				        if(mStartingY != -1000 && move && Y-mStartingY > 20 && openDirectionViewEvent!=null){
+//				        	openDirectionViewEvent.run();
+//				        }
+//				        mStartingY = -1000;
+//				        move = false;
+//				        break;
+//			    }
+//				return true;
+//			}
+//		});
 
 		setStatus(Status.WaitingForGPS);
 	}
@@ -416,26 +452,19 @@ public class NavigationView extends LinearLayout {
 				.formatImperialDistance(item.distance, !portraitMode);
 		distance = distance.replaceFirst(" ", portraitMode?"\n":"");
 		textViewDistance.setText(formatDistance(distance));
-		CharSequence roadText = (StringUtils.isBlank(item.roadName) 
-            || StringUtils.equalsIgnoreCase(item.roadName, "null")) ? "" 
-            :(StringUtils.capitalize(item.roadName.substring(0, 1)) 
-            + item.roadName.substring(1));
+		
 		int itemSize = items.size();
-        boolean isLastItem = itemSize == 1 || currentItemIdx == itemSize - 1;
-		if(isLastItem){
-		    SpannableStringBuilder roadTextSpan = new SpannableStringBuilder()
-		        .append(roadText + "\n")
-		        .append(spannable(destinationAddress, 
-	                new AbsoluteSizeSpan(getResources().getDimensionPixelSize(R.dimen.smaller_font))));
-		    roadText = roadTextSpan;
-		}
-		textViewRoad.setText(roadText);
+		boolean isLastItem = itemSize == 1 || currentItemIdx == itemSize - 1;
 		
 		btnPrevItem.setVisibility(currentItemIdx == 0 ? View.INVISIBLE
 				: View.VISIBLE);
 		btnNextItem.setVisibility(isLastItem? View.INVISIBLE:View.VISIBLE);
 		
 		if(nextItem != null) {
+			CharSequence roadText = (StringUtils.isBlank(item.roadName) 
+		            || StringUtils.equalsIgnoreCase(item.roadName, "null")) ? "" 
+		            :(StringUtils.capitalize(item.roadName.substring(0, 1)) 
+		            + item.roadName.substring(1));
 			notifyIfNecessary(item.direction + ", " + distance + ", " + roadText.toString(), forceNoti);
 		}
 		
@@ -490,7 +519,9 @@ public class NavigationView extends LinearLayout {
 	public void update(final Route route, final Location location,
 			final RouteNode node, List<DirectionItem> dirItems) {
 		items = dirItems;
+		updateViewPager(dirItems);
 		currentItemIdx = Math.min(currentItemIdx, items.size() - 1);
+		roadPager.setCurrentItem(currentItemIdx);
 		final double latitude = location.getLatitude();
 		final double longitude = location.getLongitude();
 		double distance = route.getDistanceToNextTurn(latitude, longitude);
@@ -735,7 +766,7 @@ public class NavigationView extends LinearLayout {
 
 	public void setTypeface(Typeface font) {
 		Font.setTypeface(font, textViewGenericMessage, textViewWaiting,
-				textViewDistance, textViewRoad);
+				textViewDistance);
 	}
 
     public boolean isRerouting() {
@@ -785,5 +816,104 @@ public class NavigationView extends LinearLayout {
 	public void setTextViewWaiting(String text){
 	    textViewWaiting.setText(text);
 	}
+
+	private void updateViewPager(List<DirectionItem> items) {
+		SlideAdapter adapter = (SlideAdapter)roadPager.getAdapter();
+		adapter.removeAllView(roadPager);
+		for(int i = 0 ; i < items.size() ; i++) {
+			DirectionItem item = items.get(i);
+			CharSequence roadText = (StringUtils.isBlank(item.roadName) 
+		            || StringUtils.equalsIgnoreCase(item.roadName, "null")) ? "" 
+		            :(StringUtils.capitalize(item.roadName.substring(0, 1)) 
+		            + item.roadName.substring(1));
+			int itemSize = items.size();
+		    boolean isLastItem = itemSize == 1 || i == itemSize - 1;
+			if(isLastItem){
+			    SpannableStringBuilder roadTextSpan = new SpannableStringBuilder()
+			        .append(roadText + "\n")
+			        .append(spannable(destinationAddress, 
+			            new AbsoluteSizeSpan(getResources().getDimensionPixelSize(R.dimen.smaller_font))));
+			    roadText = roadTextSpan;
+			}
+			
+			LinearLayout layout = new LinearLayout(getContext());
+			layout.setVisibility(VISIBLE);
+
+			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			View v = inflater.inflate(R.layout.road_slide, layout);
+			TextView roadTextView = (TextView)v.findViewById(R.id.road);
+			roadTextView.setText(roadText);
+			adapter.addView(v);
+		}
+	}
 	
+	public static class SlideAdapter extends PagerAdapter {
+        
+		  private ArrayList<View> views = new ArrayList<View>();
+
+		  @Override
+		  public int getItemPosition(Object object) {
+			  int index = views.indexOf (object);
+			  if (index == -1) 
+			      return POSITION_NONE;
+			  else
+			      return index;
+		  }
+
+		  @Override
+		  public Object instantiateItem(ViewGroup container, int position) {
+		      View v = views.get (position);
+		      container.addView (v);
+		      return v;
+		  }
+
+		  @Override
+		  public void destroyItem(ViewGroup container, int position, Object object) {
+		      container.removeView(views.get(position));
+		  }
+
+		  @Override
+		  public int getCount() {
+		      return views.size();
+		  }
+
+		  @Override
+		  public boolean isViewFromObject(View view, Object object) {
+		      return view == object;
+		  }
+
+		  public int addView(View v) {
+		      return addView(v, views.size());
+		  }
+
+		  public int addView(View v, int position) {
+		      views.add(position, v);
+		      notifyDataSetChanged();
+		      return position;
+		  }
+
+		  public int removeView(ViewPager pager, View v) {
+		      return removeView(pager, views.indexOf (v));
+		  }
+
+		  public int removeView (ViewPager pager, int position) {
+		      pager.setAdapter (null);
+		      views.remove (position);
+		      pager.setAdapter (this);
+		      notifyDataSetChanged();
+		      return position;
+		  }
+
+		  public View getView (int position) {
+		      return views.get (position);
+		  }
+		  
+		  public void removeAllView(ViewPager pager) {
+			  pager.setAdapter(null);
+		      views.clear();
+		      pager.setAdapter(this);
+		      notifyDataSetChanged();
+		  }
+    }
+
 }
