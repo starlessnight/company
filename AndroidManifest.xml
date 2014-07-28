@@ -48,8 +48,6 @@
         <meta-data
             android:name="CLOUDMADE_KEY"
             android:value="0645c6d9b7aa4ba297816678f0571833" />
-        
-        <meta-data android:name="com.sessionm.appid" android:value="e9b0c8ade414a9f56f611b9c6a310eca019676d4" />
 
         <activity
             android:name="org.acra.CrashReportDialog"
@@ -194,11 +192,6 @@
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize" />
         <activity android:name="com.google.ads.AdActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
-        <activity 
-			android:name="com.sessionm.ui.SessionMActivity" 
-			android:configChanges="keyboard|orientation|screenSize" 
-			android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" 
-			android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ShareActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
@@ -253,12 +246,6 @@
             android:screenOrientation="portrait"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
             android:theme="@android:style/Theme.NoTitleBar" />
-		<receiver android:name="com.sessionm.api.ConnectionReceiver"> 
-		  <intent-filter> 
-		    <action android:name="android.net.conn.CONNECTIVITY_CHANGE"> 
-		    </action> 
-		  </intent-filter> 
-		</receiver>
         <activity android:name="com.facebook.LoginActivity"
                   android:theme="@android:style/Theme.Translucent.NoTitleBar"
                   android:label="@string/app_name" />

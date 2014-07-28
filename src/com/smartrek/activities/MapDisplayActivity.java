@@ -25,7 +25,6 @@ import com.smartrek.ui.ClickAnimation;
 import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
-import com.smartrek.utils.SessionM;
 
 public final class MapDisplayActivity extends FragmentActivity {
 
@@ -315,14 +314,12 @@ public final class MapDisplayActivity extends FragmentActivity {
 	public void onStart() {
 		super.onStart();
 		EasyTracker.getInstance().activityStart(this);
-		SessionM.onActivityStart(this);
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
 		EasyTracker.getInstance().activityStop(this);
-		SessionM.onActivityStop(this);
         Misc.tripInfoPanelOnActivityStop(this);
 	}
 
@@ -338,13 +335,11 @@ public final class MapDisplayActivity extends FragmentActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		SessionM.onActivityResume(this);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		SessionM.onActivityPause(this);
 	}
 	
 	@Override

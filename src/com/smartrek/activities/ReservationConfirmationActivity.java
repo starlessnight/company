@@ -30,7 +30,6 @@ import com.smartrek.requests.ReservationRequest;
 import com.smartrek.ui.menu.MainMenu;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
-import com.smartrek.utils.SessionM;
 import com.smartrek.utils.datetime.HumanReadableTime;
 
 /**
@@ -107,26 +106,22 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 	public void onStart() {
 		super.onStart();
 		EasyTracker.getInstance().activityStart(this);
-		SessionM.onActivityStart(this);
 	}
 	
 	@Override
 	public void onStop() {
 		super.onStop();
 		EasyTracker.getInstance().activityStop(this);
-		SessionM.onActivityStop(this);
 	}
 	
 	@Override
 	protected void onResume() {
 	    super.onResume();
-	    SessionM.onActivityResume(this);
 	}
 	
 	@Override
 	protected void onPause() {
 	    super.onPause();
-	    SessionM.onActivityPause(this);
 	}
 	
     @Override
@@ -224,8 +219,6 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 				    fakeRoute.seq = route.getSeq();
 				    DebugOptionsActivity.addFakeRoute(ReservationConfirmationActivity.this, fakeRoute);
 				}
-				
-				SessionM.logAction("make_reservation");
 				
 				NotificationDialog2 dialog = new NotificationDialog2(ReservationConfirmationActivity.this, "You have successfully reserved a route.");
 				dialog.setTitle("Notification");

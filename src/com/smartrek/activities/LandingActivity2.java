@@ -135,7 +135,6 @@ import com.smartrek.utils.HTTP;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
 import com.smartrek.utils.RouteRect;
-import com.smartrek.utils.SessionM;
 import com.smartrek.utils.SmartrekTileProvider;
 import com.smartrek.utils.SystemService;
 
@@ -2415,7 +2414,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         super.onResume();
         registerReceiver(tripInfoUpdater, new IntentFilter(TRIP_INFO_UPDATES));
         registerReceiver(onTheWayNotifier, new IntentFilter(ON_THE_WAY_NOTICE));
-        SessionM.onActivityResume(this);
         mapRefresh.set(true);
         prepareGPS();
         drawedReservId = Long.valueOf(-1);
@@ -2428,20 +2426,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     @Override
     protected void onStart() {
         super.onStart();
-        SessionM.onActivityStart(this);
     }
     
     @Override
     protected void onStop() {
         super.onStop();
-        SessionM.onActivityStop(this);
     }
     
     @Override
     protected void onPause() {
       unregisterReceiver(tripInfoUpdater);
       unregisterReceiver(onTheWayNotifier);
-      SessionM.onActivityPause(this);
       super.onPause();
       mSensorManager.unregisterListener(this, accelerometer);
       mSensorManager.unregisterListener(this, magnetometer);
@@ -3610,7 +3605,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 hideStarredBalloon();
                 removeAllOD();
                 startActivity(validationActivity);
-                SessionM.logAction("on_my_way");
         	}
         	else {
 	        	RescheduleTripTask rescheduleTask = new RescheduleTripTask(LandingActivity2.this, 
@@ -3628,7 +3622,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                    hideStarredBalloon();
 	                    removeAllOD();
 	                    startActivity(validationActivity);
-	                    SessionM.logAction("on_my_way");
 	                }
 	            };
 	            Misc.parallelExecute(rescheduleTask);

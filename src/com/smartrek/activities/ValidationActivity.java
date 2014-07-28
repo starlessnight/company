@@ -115,7 +115,6 @@ import com.smartrek.utils.Misc;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.RouteRect;
-import com.smartrek.utils.SessionM;
 import com.smartrek.utils.SmartrekTileProvider;
 import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.SystemService;
@@ -534,7 +533,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	@Override
 	protected void onStart() {
 		super.onStart();
-		SessionM.onActivityStart(this);
 
 		EasyTracker.getInstance().activityStart(this);
 
@@ -543,14 +541,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	@Override
 	public void onStop() {
 		super.onStop();
-		SessionM.onActivityStop(this);
 		EasyTracker.getInstance().activityStop(this);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		SessionM.onActivityResume(this);
 
 		SharedPreferences debugPrefs = getSharedPreferences(
 				DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
@@ -584,7 +580,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	@Override
 	protected void onPause() {
 		super.onPause();
-		SessionM.onActivityPause(this);
 		unregisterReceiver(timeInfoCycler);
 		if(!cancelTrip) {
 			navigationView.startNotification();
@@ -2286,7 +2281,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         	if(StringUtils.isNotBlank(phones)) {
         		sendOnMyWaySms();
         	}
-            SessionM.logAction("on_my_way");
         }
     }
     

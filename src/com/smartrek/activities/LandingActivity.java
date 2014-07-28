@@ -97,7 +97,6 @@ import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.RouteRect;
-import com.smartrek.utils.SessionM;
 import com.smartrek.utils.SmartrekTileProvider;
 import com.smartrek.utils.SystemService;
 
@@ -603,7 +602,6 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     @Override
     protected void onResume() {
         super.onResume();
-        SessionM.onActivityResume(this);
         uiHelper.onResume();
         initializeIfNeccessary(this, new Runnable() {
             @Override
@@ -1201,13 +1199,11 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     @Override
     protected void onStart() {
         super.onStart();
-        SessionM.onActivityStart(this);
     }
     
     @Override
     protected void onStop() {
         super.onStop();
-        SessionM.onActivityStop(this);
     }
     
     static class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
@@ -1670,7 +1666,6 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     private void logLinkSocial(){
         if(doLog){
             doLog = false;
-            SessionM.logAction("link_social");
         }
     }
     
@@ -1678,7 +1673,6 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     protected void onPause() {
         super.onPause();
         uiHelper.onPause();
-        SessionM.onActivityPause(this);
     }
     
 }

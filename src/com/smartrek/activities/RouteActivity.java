@@ -90,7 +90,6 @@ import com.smartrek.utils.Geocoding;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.RouteRect;
-import com.smartrek.utils.SessionM;
 import com.smartrek.utils.SmartrekTileProvider;
 import com.smartrek.utils.SystemService;
 
@@ -689,7 +688,6 @@ public final class RouteActivity extends FragmentActivity {
 		                                DebugOptionsActivity.addFakeRoute(RouteActivity.this, fakeRoute);
 		                            }
 		                            
-		                            SessionM.logAction("make_reservation");
 		                            removeTerminateReservationId(result);
 		                            Misc.suppressTripInfoPanel(RouteActivity.this);
 		                            Intent intent = new Intent(RouteActivity.this, 
@@ -940,20 +938,17 @@ public final class RouteActivity extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        SessionM.onActivityResume(this);
     }
     
 	@Override
 	public void onStart() {
 		super.onStart();
-		SessionM.onActivityStart(this);
 		EasyTracker.getInstance().activityStart(this);
 	}
 	
 	@Override
 	public void onStop() {
 		super.onStop();
-		SessionM.onActivityStop(this);
 		EasyTracker.getInstance().activityStop(this);
         Misc.tripInfoPanelOnActivityStop(this);
 	}
@@ -966,7 +961,6 @@ public final class RouteActivity extends FragmentActivity {
 	
 	@Override
     protected void onPause() {
-      SessionM.onActivityPause(this);
       super.onPause();
     } 
     
@@ -1349,7 +1343,6 @@ public final class RouteActivity extends FragmentActivity {
                 };
                 Misc.parallelExecute(task);
             }
-            SessionM.logAction("on_my_way");
         }
     }
     

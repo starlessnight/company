@@ -32,7 +32,6 @@ import com.smartrek.tasks.GeocodingTaskCallback;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
-import com.smartrek.utils.SessionM;
 
 /**
  * The purpose of this dialog is to provide an interface to add a favorite
@@ -239,7 +238,6 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 				if (listener != null) {
 	                listener.onClickPositiveButton();
 	            }
-				SessionM.logAction("save_location");
 			}
 		}
 		

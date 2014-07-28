@@ -32,7 +32,6 @@ import com.smartrek.requests.TripListFetchRequest;
 import com.smartrek.requests.TripUpdateRequest;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
-import com.smartrek.utils.SessionM;
 import com.smartrek.utils.datetime.RecurringTime;
 
 public final class TripEditDialog extends Dialog implements TextWatcher {
@@ -404,7 +403,6 @@ public final class TripEditDialog extends Dialog implements TextWatcher {
             }
 		    
 		    if (tid == 0) {
-		        SessionM.logAction("save_trip");
 		    }
 		}
 		
