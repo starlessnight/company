@@ -211,6 +211,9 @@ public class Misc {
             public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
                 handler.proceed();
             }  
+            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+                view.loadUrl("file:///android_asset/error.html");
+            }
         };
     }
     
