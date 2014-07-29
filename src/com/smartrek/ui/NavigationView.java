@@ -818,8 +818,7 @@ public class NavigationView extends LinearLayout {
 	}
 
 	private void updateViewPager(List<DirectionItem> items) {
-		SlideAdapter adapter = (SlideAdapter)roadPager.getAdapter();
-		adapter.removeAllView(roadPager);
+	    SlideAdapter adapter = new SlideAdapter();
 		for(int i = 0 ; i < items.size() ; i++) {
 			DirectionItem item = items.get(i);
 			CharSequence roadText = (StringUtils.isBlank(item.roadName) 
@@ -845,6 +844,7 @@ public class NavigationView extends LinearLayout {
 			roadTextView.setText(roadText);
 			adapter.addView(v);
 		}
+		roadPager.setAdapter(adapter);
 	}
 	
 	public static class SlideAdapter extends PagerAdapter {
