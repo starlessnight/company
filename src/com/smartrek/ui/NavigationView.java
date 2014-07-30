@@ -44,7 +44,6 @@ import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.RouteNode.Metadata;
 import com.smartrek.utils.StringUtil;
-import com.smartrek.utils.ValidationParameters;
 
 public class NavigationView extends LinearLayout {
 
@@ -527,10 +526,14 @@ public class NavigationView extends LinearLayout {
 		double distance = route.getDistanceToNextTurn(latitude, longitude);
 		double distanceInMile = metersToMiles(distance);
 		double distanceInFoot = metersToFeet(distance);
-		ValidationParameters params = ValidationParameters.getInstance();
         RouteLink nearestLink = route.getNearestLink(latitude, longitude);
-        if (nearestLink.distanceTo(latitude, longitude) <= params
-                .getInRouteDistanceThreshold()) {
+        double speedMph = Trajectory.msToMph(location.getSpeed());
+        float bearing = location.getBearing();
+        float accuracy = location.getAccuracy();
+        double distanceLimit = ((Number)Request.getSetting(Setting.reroute_trigger_distance_in_meter)).doubleValue() + accuracy;
+        List<RouteLink> nearbyLinks = route.getNearbyLinks(latitude, longitude, distanceLimit);
+        List<RouteLink> sameDirLinks = route.getSameDirectionLinks(nearbyLinks, speedMph, bearing);
+        if(!Route.isOutOfRoute(nearbyLinks, sameDirLinks)){
 			setStatus(Status.InRoute);
 
 			refresh(false);
@@ -569,12 +572,7 @@ public class NavigationView extends LinearLayout {
 				        }
 				    }
 				    
-				    double speedMph = Trajectory.msToMph(location.getSpeed());
-		            float bearing = location.getBearing();
-		            float accuracy = location.getAccuracy();
-		            double distanceLimit = ((Number)Request.getSetting(Setting.reroute_trigger_distance_in_meter)).doubleValue() + accuracy;
-		            List<RouteLink> nearbyLinks = route.getNearbyLinks(latitude, longitude, distanceLimit);
-		            List<RouteLink> sameDirLinks = route.getSameDirectionLinks(nearbyLinks, speedMph, bearing);
+				    
 				    if(!Route.isPending(nearbyLinks, sameDirLinks) && sameDirLinks.size() > 0){
 				        RouteLink nearestLinkVoiceForLink = Route.getClosestLink(sameDirLinks, latitude, longitude);
 				        RouteNode startNode = nearestLinkVoiceForLink.getStartNode();
