@@ -266,6 +266,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         setContentView(R.layout.landing2);
         
         registerReceiver(tripInfoCachedUpdater, new IntentFilter(TRIP_INFO_CACHED_UPDATES));
+        registerReceiver(updateMyLocation, new IntentFilter(UPDATE_MY_LOCATION));
         
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -2350,6 +2351,19 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 //            otwButton.setTag(R.id.on_the_way_lon, intent.getDoubleExtra(LON, 0));
 //            findViewById(R.id.on_the_way_icon).setVisibility(View.VISIBLE);
         }
+    };
+    
+    public static final String UPDATE_MY_LOCATION = "UPDATE_MY_LOCATION";
+    
+    private BroadcastReceiver updateMyLocation = new BroadcastReceiver() {
+    	@Override
+        public void onReceive(Context context, Intent intent) {
+    		Double lat = intent.getDoubleExtra("lat", 0);
+    		Double lon = intent.getDoubleExtra("lon", 0);
+    		if(lat != 0 && lon != 0) {
+    			refreshMyLocation(lat, lon);
+    		}
+    	}
     };
     
     private void refreshMyLocation(double lat, double lon){

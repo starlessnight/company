@@ -729,7 +729,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 					@Override
 					public void onAnimationRepeat(Animator animation) {
-						
 					}
 				});
 			}
@@ -1864,6 +1863,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     });
                 }
             });
+		    
+		    if(pointOverlay != null) {
+		    	Intent updateMyLocation = new Intent(LandingActivity2.UPDATE_MY_LOCATION);
+				updateMyLocation.putExtra("lat", pointOverlay.getLocation().getLatitude());
+				updateMyLocation.putExtra("lon", pointOverlay.getLocation().getLongitude());
+				sendBroadcast(updateMyLocation);
+		    }
+		    
 			turnOffGPS.set(true);
 			// turn off GPS
 			if(locationManager != null) {
