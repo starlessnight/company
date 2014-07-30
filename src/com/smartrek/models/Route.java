@@ -600,8 +600,7 @@ public final class Route implements Parcelable {
 	        if(!Route.isPending(nearbyLinks, sameDirLinks) && sameDirLinks.size() > 0){
 	            nearestLink = Route.getClosestLink(sameDirLinks, lat, lng);
 	        }
-		    arrived = nearestLink == null || nearestLink.getEndNode() == lastNode 
-	            && nearestLink.getStartNode().getMetadata().isPassed();
+		    arrived = nearestLink == null || nearestLink.getEndNode() == lastNode;
 		}
 		return arrived;
 	}
