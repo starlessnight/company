@@ -25,8 +25,8 @@ import com.smartrek.utils.RouteNode;
 
 public class UserLocationService extends IntentService {
     
-    public static Long getInterval(){
-        Long interval = Request.getActivityDistanceInterval();
+    public static Long getInterval(Context ctx){
+        Long interval = DebugOptionsActivity.getActivityDistanceInterval(ctx);
         return interval == null?null:(interval * 3600000 / 60000);
     }
     
@@ -40,32 +40,32 @@ public class UserLocationService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        final User user = User.getCurrentUserWithoutCache(UserLocationService.this);
-        if(user != null){
-            MainActivity.initApiLinksIfNecessary(this, new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        LocationInfo info = new LocationInfo(UserLocationService.this);
-                        LatLon lastLoc = DebugOptionsActivity.getLastUserLatLon(UserLocationService.this);
-                        Long distanceInterval = Request.getActivityDistanceInterval();
-                        if(distanceInterval != null && (lastLoc == null || RouteNode.distanceBetween(lastLoc.lat, 
-                                lastLoc.lon, info.lastLat, info.lastLong) >= distanceInterval.doubleValue())){
-                            Log.i("UserLocationService", "onHandleIntent");
-                            DebugOptionsActivity.setLastUserLatLon(UserLocationService.this, info.lastLat, info.lastLong);
-                            File file = getFile(UserLocationService.this);
-                            Trajectory traj;
-                            if(file.exists() && file.length() != 0){
-                                traj = Trajectory.from(new JSONArray(FileUtils.readFileToString(file)));
-                            }else{
-                                traj = new Trajectory();
-                            }
-                            traj.accumulate(info.lastLat, info.lastLong, info.lastAltitude, 
-                                info.lastSpeed, info.lastHeading, System.currentTimeMillis(), 
-                                Trajectory.DEFAULT_LINK_ID);
-                            FileUtils.write(file, traj.toJSON().toString());
-                            long now = System.currentTimeMillis();
-                            if(now - DebugOptionsActivity.getLastUserLatLonSent(UserLocationService.this) >= FIFTEEN_MINS){
+        try {
+            LocationInfo info = new LocationInfo(UserLocationService.this);
+            LatLon lastLoc = DebugOptionsActivity.getLastUserLatLon(UserLocationService.this);
+            Long distanceInterval = DebugOptionsActivity.getActivityDistanceInterval(UserLocationService.this);
+            if(distanceInterval != null && (lastLoc == null || RouteNode.distanceBetween(lastLoc.lat, 
+                    lastLoc.lon, info.lastLat, info.lastLong) >= distanceInterval.doubleValue())){
+                Log.i("UserLocationService", "onHandleIntent");
+                DebugOptionsActivity.setLastUserLatLon(UserLocationService.this, info.lastLat, info.lastLong);
+                final File file = getFile(UserLocationService.this);
+                final Trajectory traj;
+                if(file.exists() && file.length() != 0){
+                    traj = Trajectory.from(new JSONArray(FileUtils.readFileToString(file)));
+                }else{
+                    traj = new Trajectory();
+                }
+                traj.accumulate(info.lastLat, info.lastLong, info.lastAltitude, 
+                    info.lastSpeed, info.lastHeading, System.currentTimeMillis(), 
+                    Trajectory.DEFAULT_LINK_ID);
+                FileUtils.write(file, traj.toJSON().toString());
+                final long now = System.currentTimeMillis();
+                final User user = User.getCurrentUserWithoutCache(UserLocationService.this);
+                if(user != null && (now - DebugOptionsActivity.getLastUserLatLonSent(UserLocationService.this)) >= FIFTEEN_MINS){
+                    MainActivity.initApiLinksIfNecessary(this, new Runnable() {
+                        @Override
+                        public void run() {
+                            try{
                                 SendTrajectoryRequest request = new SendTrajectoryRequest();
                                 if(Request.NEW_API){
                                     request.execute(user, traj, UserLocationService.this);
@@ -75,13 +75,16 @@ public class UserLocationService extends IntentService {
                                 DebugOptionsActivity.setLastUserLatLonSent(UserLocationService.this, now);
                                 FileUtils.deleteQuietly(file);
                             }
+                            catch (Throwable t) {
+                                Log.d("UserLocationService", Log.getStackTraceString(t));
+                            }
                         }
-                    }
-                    catch (Throwable t) {
-                        Log.d("UserLocationService", Log.getStackTraceString(t));
-                    }
+                    });
                 }
-            });
+            }
+        }
+        catch (Throwable t) {
+            Log.d("UserLocationService", Log.getStackTraceString(t));
         }
     }
     
@@ -94,7 +97,7 @@ public class UserLocationService extends IntentService {
                 new Intent(ctx, UserLocationService.class),
                 PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
-        Long interval = getInterval();
+        Long interval = getInterval(ctx);
         alarm.setRepeating(AlarmManager.ELAPSED_REALTIME,
             SystemClock.elapsedRealtime() + interval, interval, sendTrajServ);
     }

@@ -38,6 +38,7 @@ import com.smartrek.activities.LandingActivity.ShortcutNavigationTask;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.Trajectory.Record;
+import com.smartrek.requests.Request.Setting;
 import com.smartrek.requests.ServiceDiscoveryRequest.Result;
 import com.smartrek.requests.TrajectoryFetchRequest;
 import com.smartrek.utils.Cache;
@@ -430,6 +431,16 @@ public final class DebugOptionsActivity extends Activity {
     
     public static int getGpsUpdateInterval(Context ctx){
         return getPrefs(ctx).getInt(GPS_UPDATE_INTERVAL, defaultUpdateInterval);
+    }
+    
+    public static void setActivityDistanceInterval(Context ctx, long val){
+        getPrefs(ctx).edit()
+            .putLong(Setting.activity_distance_interval.name(), val)
+            .commit();
+    }
+    
+    public static long getActivityDistanceInterval(Context ctx){
+        return getPrefs(ctx).getLong(Setting.activity_distance_interval.name(), 100);
     }
     
     public static String getCurrentLocation(Context ctx){

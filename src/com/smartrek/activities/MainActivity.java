@@ -126,7 +126,8 @@ public class MainActivity extends Activity implements AnimationListener {
                                 }
                             });
                         }
-                        Long interval = UserLocationService.getInterval();
+                        DebugOptionsActivity.setActivityDistanceInterval(MainActivity.this, Request.getActivityDistanceInterval());
+                        Long interval = UserLocationService.getInterval(MainActivity.this);
                         LocationLibrary.initialiseLibrary(MainActivity.this, interval, 
                             interval.intValue(), true, "com.smartrek.activities");
                         UserLocationService.schedule(MainActivity.this);
