@@ -282,4 +282,15 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
         }
 	}
 	
+	public int getColumnIndexFromDepartureTime(long departureTime) {
+		int columnIdx = -1;
+		for (int i = 0; i < getChildCount() && columnIdx < 0; i++) {
+    		TimeColumn timeColumn = (TimeColumn) getChildAt(i);
+    		if(timeColumn.getDepartureTime() == departureTime) {
+    			columnIdx = i;
+    		}
+    	}
+		return columnIdx;
+	}
+	
 }

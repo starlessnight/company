@@ -139,4 +139,12 @@ public final class ScrollableTimeLayout extends ObservableScrollView implements 
 		screenWidth = display.getWidth() - Dimension.dpToPx(70, dm);
 	}
 	
+	public void scrollToDepartureTime(long departureTime) {
+		int columnIdx = timeLayout.getColumnIndexFromDepartureTime(departureTime);
+		if(columnIdx > 0) {
+			smoothScrollTo(columnIdx*TimeButton.WIDTH, 0);
+			timeLayout.preSelectColumn(columnIdx);
+		}
+	}
+	
 }

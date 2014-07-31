@@ -1694,6 +1694,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			                extras.putLong(RouteActivity.ORIGIN_COORD_TIME, 0);
 			                extras.putString("destAddr", reserv.getDestinationAddress());
 			                extras.putParcelable(RouteActivity.DEST_COORD, reserv.getEndGpFromNavLink());
+			                extras.putLong(RouteActivity.RESCHEDULE_DEPARTURE_TIME, reserv.getDepartureTimeUtc());
 			                intent.putExtras(extras);
 			                hideBulbBalloon();
 			                hideStarredBalloon();

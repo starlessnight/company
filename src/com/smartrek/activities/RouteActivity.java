@@ -130,6 +130,7 @@ public final class RouteActivity extends FragmentActivity {
     public static final String RESERVATION = "reservation";
     
     public static final String RESCHEDULE_RESERVATION_ID = "RESCHEDULE_RESERVATION_ID";
+    public static final String RESCHEDULE_DEPARTURE_TIME = "RESCHEDULE_DEPARTURE_TIME";
     
     public static final String ORIGIN_OVERLAY_INFO = "originOverlayInfo";
     public static final String DEST_OVERLAY_INFO = "destOverlayInfo";
@@ -641,6 +642,7 @@ public final class RouteActivity extends FragmentActivity {
         mediumFont = Font.getMedium(assets);
         
         rescheduleReservId = extras.getLong(RESCHEDULE_RESERVATION_ID);
+        rescheduleDepartureTime = extras.getLong(RESCHEDULE_DEPARTURE_TIME);
         final TextView reserveView = (TextView) findViewById(R.id.reserve);
         if(rescheduleReservId > 0) {
         	reserveView.setText("Reschedule Trip");
@@ -840,6 +842,7 @@ public final class RouteActivity extends FragmentActivity {
     }
     
     private long rescheduleReservId;
+    private long rescheduleDepartureTime;
     
     private void deleteRescheduledReservation(){
         /*
@@ -1491,11 +1494,18 @@ public final class RouteActivity extends FragmentActivity {
                 if (selectedColumn == 0) {
                     scrollableTimeLayout.notifyScrollChanged();
                     scrollableTimeLayout.updateVisibleColumns();
+                    scrollToRescheduleDepartureTime();
                 }
                 
                 timeLayout.notifySelectColumn(selectedColumn);
             }
         }
+    }
+    
+    private void scrollToRescheduleDepartureTime() {
+    	if(rescheduleReservId > 0) {
+    		scrollableTimeLayout.scrollToDepartureTime(rescheduleDepartureTime);
+    	}
     }
     
     private class RouteOverlayCallbackImpl implements OverlayCallback {
