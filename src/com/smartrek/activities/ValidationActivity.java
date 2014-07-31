@@ -1716,7 +1716,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             List<RouteLink> rerouteSameDirLinks = getRouteOrReroute().getSameDirectionLinks(rerouteNearbyLinks, speedInMph, bearing);
             
             if(!Route.isPending(rerouteNearbyLinks, rerouteSameDirLinks)){
-                if(Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)){
+                if(Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks) && speedInMph > speedOutOfRouteThreshold){
                     if(routeOfRouteCnt.incrementAndGet() == countOutOfRouteThreshold){
                         reroute(lat, lng, speedInMph, bearing, passedNodeTime);
                     }
