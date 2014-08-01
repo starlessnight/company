@@ -43,27 +43,33 @@
                 android:paddingRight="20dp"
                 android:src="@drawable/reservation_list_back_arrow" />
         </FrameLayout>
-
-        <ListView
-            android:id="@+id/reservation_list_view"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:cacheColorHint="#00000000"
-            android:divider="@null"
-            android:dividerHeight="0dp"
-            android:visibility="gone" />
         
-        <TextView
-            android:id="@+id/no_reserved_trips" 
+        <FrameLayout 
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:text="No reserved trips."
-            android:textColor="@android:color/black"
-            android:textSize="@dimen/smaller_font"
-            android:gravity="center"
-            android:visibility="visible"/>
+            android:background="@android:color/white">
+
+	        <ListView
+	            android:id="@+id/reservation_list_view"
+	            android:layout_width="match_parent"
+	            android:layout_height="match_parent"
+	            android:cacheColorHint="#00000000"
+	            android:divider="@null"
+	            android:dividerHeight="0dp"
+	            android:visibility="gone" />
+	        
+	        <TextView
+	            android:id="@+id/no_reserved_trips" 
+	            android:layout_width="match_parent"
+	            android:layout_height="match_parent"
+	            android:text="No reserved trips."
+	            android:textColor="@android:color/black"
+	            android:textSize="@dimen/smaller_font"
+	            android:gravity="center"
+	            android:visibility="visible"/>
+        
+        </FrameLayout>
     </LinearLayout>
     
     <LinearLayout

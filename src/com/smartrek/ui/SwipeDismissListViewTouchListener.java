@@ -16,6 +16,10 @@
 
 package com.smartrek.ui;
 
+import static com.nineoldandroids.view.ViewHelper.setAlpha;
+import static com.nineoldandroids.view.ViewHelper.setTranslationX;
+import static com.nineoldandroids.view.ViewPropertyAnimator.animate;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,10 +36,6 @@ import android.widget.ListView;
 import com.nineoldandroids.animation.Animator;
 import com.nineoldandroids.animation.AnimatorListenerAdapter;
 import com.nineoldandroids.animation.ValueAnimator;
-
-import static com.nineoldandroids.view.ViewHelper.setAlpha;
-import static com.nineoldandroids.view.ViewHelper.setTranslationX;
-import static com.nineoldandroids.view.ViewPropertyAnimator.animate;
 
 public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
 	// Cached ViewConfiguration and system-wide constant values
@@ -57,7 +57,9 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
     private VelocityTracker mVelocityTracker;
     private int mDownPosition;
     private View mDownView;
+    private View parentView;
     private boolean mPaused;
+    private boolean mDownViewIsParent;
 
     /**
 * The callback interface used by {@link SwipeDismissListViewTouchListener} to inform its client
@@ -73,6 +75,10 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
 * order for convenience.
 */
         void onDismiss(ListView listView, int[] reverseSortedPositions);
+        
+        void onDismissRight();
+        
+        void onDismissParent();
     }
 
     /**
@@ -82,7 +88,7 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
 * @param callback The callback to trigger when the user has indicated that she would like to
 * dismiss one or more list items.
 */
-    public SwipeDismissListViewTouchListener(ListView listView, OnDismissCallback callback) {
+    public SwipeDismissListViewTouchListener(ListView listView, View listViewContainer, OnDismissCallback callback) {
         ViewConfiguration vc = ViewConfiguration.get(listView.getContext());
         mSlop = vc.getScaledTouchSlop();
         mMinFlingVelocity = vc.getScaledMinimumFlingVelocity();
@@ -90,6 +96,7 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
         mAnimationTime = listView.getContext().getResources().getInteger(
                 android.R.integer.config_shortAnimTime);
         mListView = listView;
+        parentView = listViewContainer;
         mCallback = callback;
     }
 
@@ -163,13 +170,21 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
                     mVelocityTracker = VelocityTracker.obtain();
                     mVelocityTracker.addMovement(motionEvent);
                 }
+                else {
+                	mDownView = parentView;
+                	mDownViewIsParent = true;
+                	mViewWidth = mDownView.getWidth();
+                	mDownX = motionEvent.getRawX();
+                	mVelocityTracker = VelocityTracker.obtain();
+                	mVelocityTracker.addMovement(motionEvent);
+                }
                 view.onTouchEvent(motionEvent);
                 return true;
             }
 
             case MotionEvent.ACTION_UP: {
                 if (mVelocityTracker == null) {
-                    break;
+                    return false;
                 }
 
                 float deltaX = motionEvent.getRawX() - mDownX;
@@ -179,7 +194,8 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
                 float velocityY = Math.abs(mVelocityTracker.getYVelocity());
                 boolean dismiss = false;
                 boolean dismissRight = false;
-                if (Math.abs(deltaX) > mViewWidth / 2) {
+                int dismissWidth = mDownViewIsParent?mViewWidth/8 : mViewWidth/2;
+                if (Math.abs(deltaX) > dismissWidth) {
                     dismiss = true;
                     dismissRight = deltaX > 0;
                 } else if (mMinFlingVelocity <= velocityX && velocityX <= mMaxFlingVelocity
@@ -189,19 +205,29 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
                 }
                 if (dismiss) {
                     // dismiss
-                    final View downView = mDownView; // mDownView gets null'd before animation ends
-                    final int downPosition = mDownPosition;
-                    ++mDismissAnimationRefCount;
-                    animate(mDownView)
-                            .translationX(dismissRight ? mViewWidth : -mViewWidth)
-                            .alpha(0)
-                            .setDuration(mAnimationTime)
-                            .setListener(new AnimatorListenerAdapter() {
-                                @Override
-                                public void onAnimationEnd(Animator animation) {
-                                    performDismiss(downView, downPosition);
-                                }
-                            });
+                	if(!mDownViewIsParent || dismissRight) {
+	                    final View downView = mDownView; // mDownView gets null'd before animation ends
+	                    final int downPosition = mDownPosition;
+	                    final boolean viewIsParent = mDownViewIsParent;
+	                    if(!mDownViewIsParent) {
+	                    	++mDismissAnimationRefCount;
+	                    }
+	                    animate(mDownView)
+	                            .translationX(dismissRight ? mViewWidth : -mViewWidth)
+	                            .alpha(0)
+	                            .setDuration(mAnimationTime)
+	                            .setListener(new AnimatorListenerAdapter() {
+	                                @Override
+	                                public void onAnimationEnd(Animator animation) {
+	                                	if(viewIsParent) {
+	                                		performDismissParent(downView);
+	                                	}
+	                                	else {
+	                                		performDismiss(downView, downPosition);
+	                                	}
+	                                }
+	                            });
+                	}
                 } else {
                     // cancel
                     animate(mDownView)
@@ -215,33 +241,39 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
                 mDownView = null;
                 mDownPosition = ListView.INVALID_POSITION;
                 mSwiping = false;
+                mDownViewIsParent = false;
                 break;
             }
 
             case MotionEvent.ACTION_MOVE: {
                 if (mVelocityTracker == null || mPaused) {
-                    break;
+                    return false;
                 }
-
                 mVelocityTracker.addMovement(motionEvent);
                 float deltaX = motionEvent.getRawX() - mDownX;
-                if (Math.abs(deltaX) > mSlop) {
-                    mSwiping = true;
-                    mListView.requestDisallowInterceptTouchEvent(true);
-
-                    // Cancel ListView's touch (un-highlighting the item)
-                    MotionEvent cancelEvent = MotionEvent.obtain(motionEvent);
-                    cancelEvent.setAction(MotionEvent.ACTION_CANCEL |
-                            (motionEvent.getActionIndex()
-                                    << MotionEvent.ACTION_POINTER_INDEX_SHIFT));
-                    mListView.onTouchEvent(cancelEvent);
-                }
-
-                if (mSwiping) {
-                    setTranslationX(mDownView, deltaX);
-                    setAlpha(mDownView, Math.max(0f, Math.min(1f,
-                            1f - 2f * Math.abs(deltaX) / mViewWidth)));
-                    return true;
+                boolean dismissRight = deltaX > 0;
+                if(!mDownViewIsParent || dismissRight) {
+	                if (Math.abs(deltaX) > mSlop) {
+	                    mSwiping = true;
+	                    mListView.requestDisallowInterceptTouchEvent(true);
+	
+	                    // Cancel ListView's touch (un-highlighting the item)
+	                    MotionEvent cancelEvent = MotionEvent.obtain(motionEvent);
+	                    cancelEvent.setAction(MotionEvent.ACTION_CANCEL |
+	                            (motionEvent.getActionIndex()
+	                                    << MotionEvent.ACTION_POINTER_INDEX_SHIFT));
+	                    mListView.onTouchEvent(cancelEvent);
+	                }
+	
+	                if (mSwiping) {
+	                	if(mDownViewIsParent && dismissRight) {
+	                		mCallback.onDismissRight();
+	                	}
+	                    setTranslationX(mDownView, deltaX);
+//	                    setAlpha(mDownView, Math.max(0f, Math.min(1f,
+//	                            1f - 2f * Math.abs(deltaX) / mViewWidth)));
+	                    return true;
+	                }
                 }
                 break;
             }
@@ -314,6 +346,35 @@ public class SwipeDismissListViewTouchListener implements View.OnTouchListener {
         });
 
         mPendingDismisses.add(new PendingDismissData(dismissPosition, dismissView));
+        animator.start();
+    }
+    
+    private void performDismissParent(final View mView) {
+        final ViewGroup.LayoutParams lp = mView.getLayoutParams();
+        final int originalHeight = mView.getHeight();
+
+        ValueAnimator animator = ValueAnimator.ofInt(originalHeight, 1).setDuration(mAnimationTime);
+
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mCallback.onDismissParent();
+                // Reset view presentation
+                setAlpha(mView, 1f);
+                setTranslationX(mView, 0);
+                lp.height = originalHeight;
+                mView.setLayoutParams(lp);
+            }
+        });
+
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                lp.height = (Integer) valueAnimator.getAnimatedValue();
+                mView.setLayoutParams(lp);
+            }
+        });
+
         animator.start();
     }
 }

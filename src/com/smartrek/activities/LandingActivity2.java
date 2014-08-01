@@ -1347,9 +1347,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
+						lockMenu();
 						findViewById(R.id.reservations_list).setVisibility(View.VISIBLE);
-//						showTripInfoPanel(true);
 					}
 				});
 			}
@@ -1573,7 +1572,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						showTripInfoPanel(true);
+						showTripInfoPanel(true, true);
 					}
 				});
 			}
@@ -1587,6 +1586,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				if(res != null){
     				dismissReservId = res.getRid();
     				swipeRight = dismissRight;
+				}
+				
+				if(dismissRight) {
+					unlockMenu();
 				}
 			}
 
@@ -1724,12 +1727,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			}
     	});
     	
-    	findViewById(R.id.reservations_list).setOnClickListener(new OnClickListener() {
-    		@Override
-    		public void onClick(View v) {
-    		}
-    	});
-    	
     	findViewById(R.id.header_panel).setOnClickListener(new OnClickListener() {
     		@Override
     		public void onClick(View v) {
@@ -1740,6 +1737,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	reservListBack.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				tripInfoPanel.bringToFront();
+				showTripInfoPanel(true, false);
 				findViewById(R.id.reservations_list).setVisibility(View.GONE);
 			}
 		});
@@ -1827,7 +1826,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         SwipeDismissListViewTouchListener touchListener =
                 new SwipeDismissListViewTouchListener(
-                		reservationListView,
+                		reservationListView, findViewById(R.id.reservations_list), 
                         new SwipeDismissListViewTouchListener.OnDismissCallback() {
                             @Override
                             public void onDismiss(ListView listView, int[] reverseSortedPositions) {
@@ -1855,10 +1854,21 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                 }
                                 refreshTripsInfo();
                             }
+
+							@Override
+							public void onDismissRight() {
+								findViewById(R.id.reservations_list).bringToFront();
+								showTripInfoPanel(true, false);
+							}
+
+							@Override
+							public void onDismissParent() {
+								hideReservationListPanel();
+								tripInfoPanel.bringToFront();
+							}
                          });
         reservationListView.setOnTouchListener(touchListener);
-        TextView noReservedTripView = (TextView) findViewById(R.id.no_reserved_trips);
-        Font.setTypeface(boldFont, noReservedTripView);
+        Font.setTypeface(boldFont, (TextView) findViewById(R.id.no_reserved_trips));
     }
     
     private void unSelectAllIcon() {
@@ -2478,9 +2488,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                    mapView.postInvalidate();
 	                }
 	                hideTripInfoPanel();
-	                setReservMenuAndTripInfoStatus(false);
+	                findViewById(R.id.trip_info).setTag(null);
 	                tripNotifyIcon.setVisibility(View.GONE);
 	                showNoReservedTrips();
+	                unlockMenu();
 	            } 
 	            else{
                     Reservation reserv = reservations.get(0);
@@ -2614,16 +2625,15 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	        Font.setTypeface(boldFont, tripStartTimeView, tripArriveTimeView);
 	        Font.setTypeface(lightFont, tripStartDescView, tripDurationDesc, 
 	        		(TextView) tripInfoPanel.findViewById(R.id.trip_arrival_desc));
-	        showTripInfoPanel(false);
-	        setReservMenuAndTripInfoStatus(true);
+	        showTripInfoPanel(false, false);
 	        tripNotifyIcon.setImageResource(reserv.isEligibleTrip()?R.drawable.upcoming_trip_green:R.drawable.upcoming_trip_orange);
 	        tripNotifyIcon.setVisibility(View.VISIBLE);
     	}
     	else {
     		Log.d("LandingActivity2", "hideTripInfoPanel");
-    		hideTripInfoPanel();
+    		hideReservationInfoPanel();
     		tripNotifyIcon.setVisibility(View.GONE);
-    		setReservMenuAndTripInfoStatus(false);
+    		findViewById(R.id.trip_info).setTag(null);
     	}
     	refreshReservationList(reservations);
     }
@@ -2665,17 +2675,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void showNoReservedTrips() {
-    	reservationListView.setVisibility(View.GONE);
+//    	reservationListView.setVisibility(View.INVISIBLE);
 		findViewById(R.id.no_reserved_trips).setVisibility(View.VISIBLE);
     }
     
-    private void showTripInfoPanel(boolean force) {
+    private void showTripInfoPanel(boolean force, boolean animation) {
     	View reservationListPanel = findViewById(R.id.reservations_list);
     	View tripInfoPanel = findViewById(R.id.trip_info);
     	if((force && hasReservTrip()) || 
     			(reservationListPanel.getVisibility() != View.VISIBLE && hasReservTrip() && !dismissReservId.equals(((Reservation)tripInfoPanel.getTag()).getRid()))) {
     		tripInfoPanel.setVisibility(View.VISIBLE);
-    		if(force) {
+    		if(animation) {
     			float fromX = swipeRight?tripInfoPanel.getWidth():-1*tripInfoPanel.getWidth();
 	    		ObjectAnimator slideAnimator = ObjectAnimator.ofFloat(tripInfoPanel, "translationX", fromX, 0f);
 	    		slideAnimator.setDuration(500);
@@ -2687,8 +2697,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	    		animatorSet.play(slideAnimator).with(alphaAnimator);
 	    		animatorSet.start();
     		}
-    		DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-    		mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    		lockMenu();
     		hideFavoriteOptPanel();
     	}
     }
@@ -2706,16 +2715,26 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private void hideTripInfoPanel() {
     	View tripInfoPanel = findViewById(R.id.trip_info);
     	tripInfoPanel.setVisibility(View.GONE);
+    }
+    
+    private void hideReservationInfoPanel() {
+    	hideTripInfoPanel();
+    	hideReservationListPanel();
+    	unlockMenu();
+    }
+    
+    private void unlockMenu() {
     	DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
     }
     
-    private void setReservMenuAndTripInfoStatus(boolean show) {
-//    	findViewById(R.id.reservations).setVisibility(show?View.VISIBLE:View.GONE);
-//		findViewById(R.id.reservations_spliter).setVisibility(show?View.VISIBLE:View.GONE);
-		if(!show) {
-			findViewById(R.id.trip_info).setTag(null);
-		}
+    private void lockMenu() {
+    	DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+		mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
+    
+    private void hideReservationListPanel() {
+    	findViewById(R.id.reservations_list).setVisibility(View.GONE);
     }
     
     private SpannableString formatTripStartTime(String startTime) {
