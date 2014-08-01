@@ -223,19 +223,23 @@
         <activity
             android:name=".FeedbackActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".RewardsActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".WebMyMetropiaActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ForgotPwdActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
-            android:theme="@android:style/Theme.NoTitleBar" />
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".MyMetropiaActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
