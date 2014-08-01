@@ -74,7 +74,8 @@ public abstract class Request {
 	    where_to_go,
 	    route, 
 	    search, 
-	    reverse_geocoding
+	    reverse_geocoding, 
+	    issue
 	}
 	
 	public enum Page { 
