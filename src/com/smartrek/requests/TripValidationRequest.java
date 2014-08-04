@@ -29,9 +29,9 @@ public class TripValidationRequest extends Request {
         Map<String, String> params = new HashMap<String, String>();
         params.put("reservation_id", String.valueOf(rid));
         try{
-            String res = executeHttpRequest(Method.POST, url, params, ctx);
             Intent intent = new Intent(ValidationActivity.TRIP_VALIDATOR);
             try{
+                String res = executeHttpRequest(Method.POST, url, params, ctx);
                 JSONObject json = new JSONObject(res);
                 JSONObject data = json.getJSONObject("data");
                 intent.putExtra(ValidationActivity.ID, data.optString("id"));
