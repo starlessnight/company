@@ -2490,7 +2490,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                hideTripInfoPanel();
 	                findViewById(R.id.trip_info).setTag(null);
 	                tripNotifyIcon.setVisibility(View.GONE);
-	                showNoReservedTrips();
+	                refreshReservationList(new ArrayList<Reservation>());
 	                unlockMenu();
 	            } 
 	            else{
