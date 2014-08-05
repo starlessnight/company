@@ -1053,8 +1053,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 
 	private SpannableString formatCO2Desc(Context ctx, String co2Desc) {
-		int co2Index = co2Desc.indexOf("CO2");
+		int lbsIndex = co2Desc.indexOf("lbs");
 		SpannableString co2DescSpan = SpannableString.valueOf(co2Desc);
+		co2DescSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
+				.getDimensionPixelSize(R.dimen.micro_font)), lbsIndex, 
+				lbsIndex + "lbs".length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		int co2Index = co2Desc.indexOf("CO2");
 		co2DescSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
 				.getDimensionPixelSize(R.dimen.smaller_font)), co2Index,
 				co2Index + "CO".length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -1909,7 +1913,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             
             TextView co2 = (TextView) findViewById(R.id.co2_circle);
             if(co2Value != 0) {
-                String co2String = co2Value + "\nCO2";  
+                String co2String = co2Value + "lbs\nCO2";  
                 co2.setText(formatCO2Desc(ValidationActivity.this, co2String));
                 co2.setVisibility(View.VISIBLE);
             }
