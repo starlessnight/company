@@ -2378,7 +2378,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         public void onReceive(Context context, Intent intent) {
             String id = intent.getStringExtra(ID);
             if(String.valueOf(reservation.getRid()).equals(id)){
-                int credit = intent.getIntExtra(CREDIT, reservation.getMpoint());
+                int credit = intent.getIntExtra(CREDIT, 0);
                 if(credit > 0){
                     int timeSavingInSecond = intent.getIntExtra(TIME_SAVING_IN_SECOND, 0);
                     double co2Saving = intent.getDoubleExtra(CO2_SAVING, 0);

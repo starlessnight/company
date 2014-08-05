@@ -1279,7 +1279,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
             this.id = id;
         }
         
-        ShortcutNavigationTask(Context ctx, GeoPoint origin, String oroginAddress, GeoPoint dest,
+        ShortcutNavigationTask(Context ctx, GeoPoint origin, String originAddress, GeoPoint dest,
                 String destAddress, ExceptionHandlingService ehs){
             this.ehs = ehs;
             this.ctx = ctx;
