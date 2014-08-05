@@ -2,6 +2,7 @@ package com.smartrek.activities;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -122,6 +123,7 @@ import com.smartrek.utils.RouteRect;
 import com.smartrek.utils.SmartrekTileProvider;
 import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.SystemService;
+import com.smartrek.utils.UnitConversion;
 
 public class ValidationActivity extends FragmentActivity implements OnInitListener, 
         OnAudioFocusChangeListener {
@@ -329,11 +331,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					vDirection.setImageResource(item.smallDrawableId);
 					vDirection.setVisibility(View.VISIBLE);
 				}
-				vDistance
-						.setText(NavigationView.adjustDistanceFontSize(
-								ValidationActivity.this, StringUtil
-										.formatImperialDistance(item.distance,
-												true)));
+				vDistance.setText(NavigationView.adjustDistanceFontSize(ValidationActivity.this, 
+						StringUtil.formatRoundingDistance(UnitConversion.meterToMile(item.distance), true)));
 				vDistance.requestLayout();
 				vRoad.setText((StringUtils.isBlank(item.roadName) 
 			        || StringUtils.equalsIgnoreCase(item.roadName, "null")) ? ""
@@ -1378,7 +1377,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private void updateDirectionsList() {
 		updateDirectionsList(null, null);
 	}
-
+	
 	private List<DirectionItem> updateDirectionsList(RouteNode node,
 			Location location) {
 		List<DirectionItem> items = new ArrayList<DirectionItem>();
@@ -1409,11 +1408,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 	
 	private void updateDirectListViewRemainDists(List<DirectionItem> items) {
+		NumberFormat nf = NumberFormat.getInstance();
+		nf.setMaximumFractionDigits(1);
 		double distance = 0;
 		for(DirectionItem item : items) {
-			distance = distance + item.distance;
+			distance = distance + Double.valueOf(nf.format(UnitConversion.meterToMile(item.distance)));
 		}
-		remainDistDirecListView.setText(StringUtil.formatImperialDistance(distance, false));
+		remainDistDirecListView.setText(StringUtil.formatRoundingDistance(distance, false));
 	}
 	
 	private int countOutOfRouteThreshold = ((Number)Request.getSetting(Setting.reroute_after_N_deviated_samples)).intValue();

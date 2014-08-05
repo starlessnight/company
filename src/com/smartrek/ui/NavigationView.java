@@ -44,6 +44,7 @@ import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.RouteNode.Metadata;
 import com.smartrek.utils.StringUtil;
+import com.smartrek.utils.UnitConversion;
 
 public class NavigationView extends LinearLayout {
 
@@ -448,7 +449,7 @@ public class NavigationView extends LinearLayout {
 		}
 
 		String distance = StringUtil
-				.formatImperialDistance(item.distance, !portraitMode);
+				.formatRoundingDistance(UnitConversion.meterToMile(item.distance), !portraitMode);
 		distance = distance.replaceFirst(" ", portraitMode?"\n":"");
 		textViewDistance.setText(formatDistance(distance));
 		
