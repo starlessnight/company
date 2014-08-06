@@ -9,16 +9,20 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpResponseException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.smartrek.activities.DebugOptionsActivity;
+import com.smartrek.models.User;
 import com.smartrek.utils.Cache;
 import com.smartrek.utils.HTTP;
 import com.smartrek.utils.HTTP.Method;
+import com.smartrek.utils.Misc;
 
 /**
  * A request is a unit sent to the server to perform a certain task such as
@@ -157,7 +161,7 @@ public abstract class Request {
 	        Object params, final Context ctx) throws IOException {
 	    Log.d(LOG_TAG, "executeHttpRequest(): method=" + method + ", url="+url 
             + ", params=" + params);
-        
+        String responseBody = null;
 	    try{
             HTTP http = new HTTP(url);
             http.setTimeout(timeout);
@@ -173,7 +177,7 @@ public abstract class Request {
             http.connect();
             
             responseCode = http.getResponseCode();
-            String responseBody = http.getResponseBody();
+            responseBody = http.getResponseBody();
             
             if(DebugOptionsActivity.isHttp4xx5xxLogEnabled(ctx) && responseCode >= 400 && responseCode <= 599){
                 FileUtils.writeStringToFile(getHttp4xx5xxLogFile(ctx), url + "\n\nHTTP " + responseCode + "\n\n" + responseBody);
@@ -189,12 +193,31 @@ public abstract class Request {
                 throw new IOException(String.format("HTTP %d: %s", responseCode, responseBody));
             }
 	    }catch(Throwable t){
+	    	if(!StringUtils.equalsIgnoreCase(getLinkUrl(Link.issue), url)) {
+	    		sendIssueReport(ctx, url, t.getMessage(), responseCode, responseBody);
+	    	}
 	        IOException e = new IOException(url);
 	        e.initCause(t);
 	        throw e;
 	    }
 	}
 	
+	private static void sendIssueReport(final Context ctx, final String url, final String message,
+			final int responseCode, final String responseBody) {
+		Misc.parallelExecute(new AsyncTask<Void, Void, Void> () {
+			@Override
+			protected Void doInBackground(Void... params) {
+				try {
+					IssueReportRequest issue = new IssueReportRequest(User.getCurrentUser(ctx), 
+							message, url, responseCode+"", responseBody);
+					issue.execute(ctx);
+				}
+				catch(Exception ignore) {}
+				return null;
+			}
+		});
+	}
+
 	public String executeHttpPostRequest(String url, Map<String, Object> params) {
 		return null;
 	}
