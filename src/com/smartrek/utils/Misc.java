@@ -224,4 +224,10 @@ public class Misc {
 	    ScrollableTimeLayout.initScreenWidth(dm, display);
     }
     
+    public static void doQuietly(Runnable callback){
+        try{
+            callback.run();
+        }catch(Throwable t){}
+    }
+    
 }

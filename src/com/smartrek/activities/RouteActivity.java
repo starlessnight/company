@@ -207,7 +207,12 @@ public final class RouteActivity extends FragmentActivity {
                     goBackToWhereTo.run();
                 }
             });
-	        dialog.show();
+			Misc.doQuietly(new Runnable() {
+                @Override
+                public void run() {
+                    dialog.show();
+                }
+            });
 		}
 
 		@Override
@@ -223,7 +228,12 @@ public final class RouteActivity extends FragmentActivity {
 
 		@Override
 		public void postCallback() {
-			dialog.cancel();
+		    Misc.doQuietly(new Runnable() {
+                @Override
+                public void run() {
+                    dialog.cancel();
+                }
+            });
 			
 			if (ehs.hasExceptions()) {
 			    ehs.reportExceptions(goBackToWhereTo);
@@ -254,7 +264,12 @@ public final class RouteActivity extends FragmentActivity {
                     goBackToWhereTo.run();
                 }
             });
-	        dialog.show();
+			Misc.doQuietly(new Runnable() {
+                @Override
+                public void run() {
+                    dialog.show();
+                }
+            });
 		}
 
 		@Override
@@ -270,7 +285,12 @@ public final class RouteActivity extends FragmentActivity {
 
 		@Override
 		public void postCallback() {
-			dialog.cancel();
+		    Misc.doQuietly(new Runnable() {
+                @Override
+                public void run() {
+                    dialog.cancel();
+                }
+            });
 			
 			if (ehs.hasExceptions()) {
 			    ehs.reportExceptions(goBackToWhereTo);
@@ -367,7 +387,12 @@ public final class RouteActivity extends FragmentActivity {
                     @Override
                     protected void onPreExecute() {
                         if(!progressDialog.isShowing()){
-                            progressDialog.show();
+                            Misc.doQuietly(new Runnable() {
+                                @Override
+                                public void run() {
+                                    progressDialog.show();
+                                }
+                            });
                         }
                         destAddr = reservation.getDestinationAddress();
                         originAddr = reservation.getOriginAddress();
@@ -391,7 +416,12 @@ public final class RouteActivity extends FragmentActivity {
                         return routes;
                     }
                     protected void onPostExecute(java.util.List<Route> routes) {
-                        progressDialog.cancel();
+                        Misc.doQuietly(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressDialog.cancel();
+                            }
+                        });
                         if (ehs.hasExceptions()) {
                             ehs.reportExceptions(new Runnable() {
                                 @Override
@@ -415,7 +445,12 @@ public final class RouteActivity extends FragmentActivity {
                                 
                                 @Override
                                 protected void onPreExecute() {
-                                    progressDialog.show();
+                                    Misc.doQuietly(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            progressDialog.show();
+                                        }
+                                    });
                                 }
                                 
                                 @Override
@@ -435,8 +470,13 @@ public final class RouteActivity extends FragmentActivity {
                                 }
                                 @Override
                                 protected void onPostExecute(List<Reservation> reservations) {
-                                    if (ehs.hasExceptions()) { 
-                                        progressDialog.cancel();
+                                    if (ehs.hasExceptions()) {
+                                        Misc.doQuietly(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                progressDialog.cancel();
+                                            }
+                                        });
                                         ehs.reportExceptions();
                                     } 
                                     else{
@@ -589,7 +629,12 @@ public final class RouteActivity extends FragmentActivity {
                                     try{
                                         locationChanged.set(true);
                                         locationManager.removeUpdates(this);
-                                        currentLocDialog.dismiss();
+                                        Misc.doQuietly(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                currentLocDialog.dismiss();
+                                            }
+                                        });
                                         originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
                                         originCoordProvider = location.getProvider();
                                         originCoordTime = location.getTime();
@@ -612,7 +657,12 @@ public final class RouteActivity extends FragmentActivity {
                                     goBackToWhereTo.run();
                                 }
                             });
-                            currentLocDialog.show();
+                            Misc.doQuietly(new Runnable() {
+                                @Override
+                                public void run() {
+                                    currentLocDialog.show();
+                                }
+                            });
                             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
                             new Handler().postDelayed(new Runnable() {
                                 @Override
@@ -770,8 +820,13 @@ public final class RouteActivity extends FragmentActivity {
 	                                        }
 	                                    }
 	                                    if(msg != null){
-	                                        NotificationDialog2 dialog = new NotificationDialog2(RouteActivity.this, msg);
-	                                        dialog.show();
+	                                        final NotificationDialog2 dialog = new NotificationDialog2(RouteActivity.this, msg);
+	                                        Misc.doQuietly(new Runnable() {
+	                                            @Override
+	                                            public void run() {
+	                                                dialog.show();
+	                                            }
+	                                        });
 	                                    }
 	                                    v.setClickable(true);
 	                                }
@@ -1333,8 +1388,13 @@ public final class RouteActivity extends FragmentActivity {
                                 }
                             }
                             if(msg != null){
-                                NotificationDialog2 dialog = new NotificationDialog2(RouteActivity.this, msg);
-                                dialog.show();
+                                final NotificationDialog2 dialog = new NotificationDialog2(RouteActivity.this, msg);
+                                Misc.doQuietly(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        dialog.show();
+                                    }
+                                });
                             }
                         }
                     }
@@ -1434,7 +1494,12 @@ public final class RouteActivity extends FragmentActivity {
         	}
         	else {
         		if (updateMap) {
-        			dialog.show();
+        		    Misc.doQuietly(new Runnable() {
+                        @Override
+                        public void run() {
+                            dialog.show();
+                        }
+        		    });
         		}
         	}
         }
@@ -1466,7 +1531,12 @@ public final class RouteActivity extends FragmentActivity {
         @Override
         protected void onPostExecute(List<Route> routes) {
             if (dialog.isShowing()) {
-            	dialog.dismiss();
+                Misc.doQuietly(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.dismiss();
+                    }
+                });
             }
             
             setHighlightedRoutePathOverlays(true);

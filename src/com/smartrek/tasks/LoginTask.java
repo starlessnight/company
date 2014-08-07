@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import com.smartrek.models.User;
 import com.smartrek.requests.UserLoginRequest;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.Misc;
 
 /**
  * Methods in this class will be executed asynchronously. 
@@ -48,7 +49,7 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
 	@Override
 	protected void onPreExecute() {
 	    if(dialogEnabled){
-	        doQuietly(new Runnable() {
+	        Misc.doQuietly(new Runnable() {
 	            @Override
 	            public void run() {
 	                dialog.show();
@@ -84,7 +85,7 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
 	@Override
 	protected final void onPostExecute(User user) {
 	    if(dialogEnabled){
-	        doQuietly(new Runnable() {
+	        Misc.doQuietly(new Runnable() {
 	            @Override
 	            public void run() {
 	                dialog.cancel();
@@ -103,7 +104,7 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
     public LoginTask setDialogEnabled(boolean dialogEnabled) {
         this.dialogEnabled = dialogEnabled;
         if(getStatus() == Status.RUNNING && !dialog.isShowing()){
-            doQuietly(new Runnable() {
+            Misc.doQuietly(new Runnable() {
                 @Override
                 public void run() {
                     dialog.show();
@@ -115,7 +116,7 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
     
     public void showDialog(){
         if(dialogEnabled){
-            doQuietly(new Runnable() {
+            Misc.doQuietly(new Runnable() {
                 @Override
                 public void run() {
                     dialog.show();
@@ -125,18 +126,12 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
     }
     
     public void hideDialog(){
-        doQuietly(new Runnable() {
+        Misc.doQuietly(new Runnable() {
             @Override
             public void run() {
                 dialog.cancel();
             }
         });
-    }
-    
-    private static void doQuietly(Runnable callback){
-        try{
-            callback.run();
-        }catch(Throwable t){}
     }
 	
 }
