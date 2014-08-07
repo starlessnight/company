@@ -120,24 +120,9 @@ public class ExceptionHandlingService {
                     }
                 }
             });
-//        	dialog.setPositiveButtonText("More");
-//    	    dialog.setPositiveActionListener(new ActionListener() {
-//                @Override
-//                public void onClick() {
-//                    Intent feedback = new Intent(context, FeedbackActivity.class);
-//                    feedback.putExtra(FeedbackActivity.CATEGORY, "api");
-//                    feedback.putExtra(FeedbackActivity.MESSAGE, message);
-//                    context.startActivity(feedback);
-//                    if(callback != null) {
-//                        callback.run();
-//                    }
-//                }
-//            });
             
         	dialog.show();
         	lastDialog = dialog;
-        	
-//        	Crashlytics.logException(new Exception(message));
         }catch(Throwable t){}
     }
     
