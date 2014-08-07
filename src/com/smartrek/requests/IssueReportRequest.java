@@ -3,6 +3,8 @@ package com.smartrek.requests;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import android.content.Context;
 import android.util.Log;
 
@@ -18,8 +20,10 @@ public class IssueReportRequest extends Request {
 	
 	public IssueReportRequest(User user, String message, String requestUrl, 
 			String responseStatus, String responseContent) {
-        this.username = user.getUsername();
-        this.password = user.getPassword();
+	    if(user != null){
+            this.username = user.getUsername();
+            this.password = user.getPassword();
+	    }
         this.message = message;
         this.requestUrl = requestUrl;
         this.responseStatus = responseStatus;
@@ -36,7 +40,7 @@ public class IssueReportRequest extends Request {
 	        params.put("request_url", requestUrl==null?"":requestUrl);
 	        params.put("response_status", responseStatus==null?"":responseStatus);
 	        params.put("response_content", responseContent==null?"":responseContent);
-            executeHttpRequest(Method.POST, getLinkUrl(Link.issue), params, ctx);
+            executeHttpRequest(Method.POST, StringUtils.defaultString(getLinkUrl(Link.issue)), params, ctx);
         }catch(Exception e){
             Log.w("IssueReportRequest", Log.getStackTraceString(e));
         }
