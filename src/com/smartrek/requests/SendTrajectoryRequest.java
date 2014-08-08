@@ -41,7 +41,6 @@ public class SendTrajectoryRequest extends Request {
         this.password = user.getPassword();
         String link = Request.getLinkUrl(Link.trajectory)
             .replaceAll("\\{reservation_id\\}", String.valueOf(rid));
-        timeout = 30000;
         try{
             executeHttpRequest(Method.POST, link, params, ctx);
         }catch(Exception e){
