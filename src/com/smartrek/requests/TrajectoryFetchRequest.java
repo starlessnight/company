@@ -9,6 +9,8 @@ public final class TrajectoryFetchRequest extends FetchRequest<JSONObject> {
     
     public TrajectoryFetchRequest(String url) {
         super(url);
+        username = "metropian";
+        password = "only4metropians";
     }
 	
 	@Override
