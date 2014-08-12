@@ -2,6 +2,7 @@ package com.smartrek.activities;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1889,28 +1890,34 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                         if(callback!=null) {
                         	callback.run();
                         }
-                        if (!isFinishing()) {
+                        if (!arrivalMsgDisplayed.get() && !isFinishing()) {
                             finish();
                         }
                     }catch(Throwable t){}
                 }
-            }, HTTP.defaultTimeout);
+            }, HTTP.defaultTimeout * 2);
 		}
 	}
 	
 	private AtomicBoolean arrivalMsgDisplayed = new AtomicBoolean();
 	
-	private void doDisplayArrivalMsg(int uPoints, int driveScoreValue, double co2Value){
+	private void doDisplayArrivalMsg(int uPoints, double co2Value,
+	        String message, String voice, double timeSavingInMinute){
 	    if(!arrivalMsgDisplayed.get()){
 	        arrivalMsgDisplayed.set(true);
 	        findViewById(R.id.loading).setVisibility(View.GONE);
     	    navigationView.setVisibility(View.GONE);
             final View panel = findViewById(R.id.congrats_panel);
             String dest = reservation.getDestinationAddress();
-            String msg = "You Have Arrived!" + "\n" + 
-                dest.substring(0, dest.indexOf(",")>-1?dest.indexOf(","):dest.length());
-            ((TextView) findViewById(R.id.congrats_msg)).setText(formatCongrMessage(ValidationActivity.this, msg));
             
+            if(StringUtils.isNotBlank(message)){
+                String msg = message + "\n" + 
+                    dest.substring(0, dest.indexOf(",")>-1?dest.indexOf(","):dest.length());
+                TextView congratsMsg = (TextView) findViewById(R.id.congrats_msg);
+                congratsMsg.setText(formatCongrMessage(ValidationActivity.this, msg));
+                congratsMsg.setVisibility(View.VISIBLE);
+                findViewById(R.id.congrats_msg_shadow).setVisibility(View.VISIBLE);
+            }
             
             TextView co2 = (TextView) findViewById(R.id.co2_circle);
             if(co2Value != 0) {
@@ -1920,11 +1927,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             }
             
             TextView mpoint = (TextView) findViewById(R.id.mpoint_circle);
-            mpoint.setText(formatCongrValueDesc(ValidationActivity.this, uPoints + "\nPoints"));
+            if(uPoints > 0){
+                mpoint.setText(formatCongrValueDesc(ValidationActivity.this, uPoints + "\nPoints"));
+                mpoint.setVisibility(View.VISIBLE);
+            }
             
             TextView driveScore = (TextView) findViewById(R.id.drive_score_circle);
-            if(driveScoreValue/60>0) {
-                String scoreString = driveScoreValue/60 + "\nminutes"; 
+            if(timeSavingInMinute > 0) {
+                String scoreString = new DecimalFormat("0.#").format(timeSavingInMinute) + "\nminutes"; 
                 driveScore.setText(formatCongrValueDesc(ValidationActivity.this, scoreString));
                 driveScore.setVisibility(View.VISIBLE);
             }
@@ -1936,8 +1946,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             panel.setVisibility(View.VISIBLE);
             Misc.fadeIn(ValidationActivity.this, panel);
             
-            String congratMsg = String.format("Congratulations! You've earned %d points using Metropia mobile", uPoints);
-            speakIfTtsEnabled(congratMsg, true);
+            if(StringUtils.isNotBlank(voice)){
+                speakIfTtsEnabled(voice, true);
+            }
 	    }
 	}
 
@@ -2369,23 +2380,25 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     
     public static final String CREDIT = "CREDIT";
     
-    public static final String TIME_SAVING_IN_SECOND = "TIME_SAVING_IN_SECOND";
+    public static final String TIME_SAVING_IN_MINUTE = "TIME_SAVING_IN_MINUTE";
     
     public static final String CO2_SAVING = "CO2_SAVING";
+    
+    public static final String VOICE = "VOICE";
+    
+    public static final String MESSAGE = "MESSAGE";
     
     private BroadcastReceiver tripValidator = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String id = intent.getStringExtra(ID);
             if(String.valueOf(reservation.getRid()).equals(id)){
+                String message = intent.getStringExtra(MESSAGE);
+                double co2Saving = intent.getDoubleExtra(CO2_SAVING, 0);
                 int credit = intent.getIntExtra(CREDIT, 0);
-                if(credit > 0){
-                    int timeSavingInSecond = intent.getIntExtra(TIME_SAVING_IN_SECOND, 0);
-                    double co2Saving = intent.getDoubleExtra(CO2_SAVING, 0);
-                    doDisplayArrivalMsg(credit, timeSavingInSecond, co2Saving);
-                }else if (!isFinishing()) {
-                    finish();
-                }
+                String voice = intent.getStringExtra(VOICE);
+                double timeSavingInMinute = intent.getDoubleExtra(TIME_SAVING_IN_MINUTE, 0);
+                doDisplayArrivalMsg(credit, co2Saving, message, voice, timeSavingInMinute);
             }
         }
     };

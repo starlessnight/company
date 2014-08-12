@@ -36,8 +36,10 @@ public class TripValidationRequest extends Request {
             JSONObject json = new JSONObject(res);
             JSONObject data = json.getJSONObject("data");
             intent.putExtra(ValidationActivity.CREDIT, data.optInt("credit"));
-            intent.putExtra(ValidationActivity.TIME_SAVING_IN_SECOND, data.optInt("time_saving_in_second"));
             intent.putExtra(ValidationActivity.CO2_SAVING, data.optDouble("co2_saving", 0));
+            intent.putExtra(ValidationActivity.TIME_SAVING_IN_MINUTE, data.optDouble("time_saving_in_minute", 0));
+            intent.putExtra(ValidationActivity.VOICE, data.optString("voice"));
+            intent.putExtra(ValidationActivity.MESSAGE, data.optString("message"));
         }catch(Exception e){
             Log.w("TripValidationRequest", Log.getStackTraceString(e));
             if(responseCode >= 400 && responseCode <= 499){

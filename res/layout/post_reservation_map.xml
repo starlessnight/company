@@ -183,13 +183,16 @@
             android:layout_alignParentTop="true"
             android:background="@color/metropia_green"
             android:gravity="center"
-            android:text="@string/placeholder" />
+            android:text="@string/placeholder"
+            android:visibility="invisible" />
 
         <View
+            android:id="@+id/congrats_msg_shadow"
             android:layout_width="match_parent"
             android:layout_height="3dp"
             android:layout_below="@+id/congrats_msg"
-            android:background="@drawable/bottom_shadow" />
+            android:background="@drawable/bottom_shadow" 
+            android:visibility="invisible" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -255,7 +258,8 @@
 	                        android:layout_gravity="center"
 	                        android:text="@string/placeholder"
 	                        android:textColor="@android:color/white"
-	                        android:textSize="@dimen/large_font" />
+	                        android:textSize="@dimen/large_font"
+	                        android:visibility="invisible" />
                     </FrameLayout>
 
                     <FrameLayout
