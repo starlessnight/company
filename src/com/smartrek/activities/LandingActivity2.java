@@ -420,8 +420,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             	Address selected = (Address)parent.getItemAtPosition(position);
             	if(StringUtils.isNotBlank(selected.getAddress())) {
-            		searchBox.setText(selected.getAddress());
-	                searchAddress(selected.getAddress(), true);
+            		dropPinForAddress(selected, true);
 	                searchBox.setText("");
 	                InputMethodManager imm = (InputMethodManager)getSystemService(
 	                        Context.INPUT_METHOD_SERVICE);
@@ -444,8 +443,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Address selected = (Address)parent.getItemAtPosition(position);
                 if(StringUtils.isNotBlank(selected.getAddress())) {
-                    fromSearchBox.setText(selected.getAddress());
-                    searchAddress(selected.getAddress(), true);
+                	dropPinForAddress(selected, true);
                     fromSearchBox.setText("");
                     InputMethodManager imm = (InputMethodManager)getSystemService(
                             Context.INPUT_METHOD_SERVICE);
@@ -903,8 +901,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             	Address selected = (Address)parent.getItemAtPosition(position);
             	if(StringUtils.isNotBlank(selected.getAddress())) {
-            		favSearchBox.setText(selected.getAddress());
-            		searchFavAddress(selected.getAddress(), true);
+            		dropPinForAddress(selected, true);
 	                InputMethodManager imm = (InputMethodManager)getSystemService(
 	                        Context.INPUT_METHOD_SERVICE);
 	                imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
@@ -2061,30 +2058,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             @Override
             protected void onPostExecute(Address addr) {
                 if(addr != null){
-                    GeoPoint gp = addr.getGeoPoint();
-                    DebugOptionsActivity.addRecentAddress(LandingActivity2.this, addrStr);
-                    final MapView mapView = (MapView) findViewById(R.id.mapview);
-                    POIOverlay poiOverlay = getPOIOverlayByAddress(mapView, addr.getAddress());
-                    if(poiOverlay != null) {
-                    	hideStarredBalloon();
-                    	hideBulbBalloon();
-                    	removePOIMarker(mapView);
-                    	handleOD(mapView, poiOverlay);
-                    	poiOverlay.markODPoi();
-                    	poiOverlay.setIsFromPoi(isFromPoi());
-                    	poiOverlay.showBalloonOverlay();
-                        mapView.postInvalidate();
-                    }
-                    else {
-                    	refreshPOIMarker(mapView, gp.getLatitude(), gp.getLongitude(), addr.getAddress(), addr.getName());
-                    }
-                    IMapController mc = mapView.getController();
-                    if(zoomIn){
-	                    mc.setZoom(SEARCH_ZOOM_LEVEL);
-	                    mc.setCenter(gp);
-                    }else{
-                        mc.animateTo(gp);
-                    }
+                    dropPinForAddress(addr, zoomIn);
                 }
                 else {
                 	NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, "No results");
@@ -2095,6 +2069,33 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
         };
         Misc.parallelExecute(task);
+    }
+    
+    private void dropPinForAddress(Address addr, boolean zoomIn) {
+    	GeoPoint gp = addr.getGeoPoint();
+        DebugOptionsActivity.addRecentAddress(LandingActivity2.this, addr.getAddress());
+        final MapView mapView = (MapView) findViewById(R.id.mapview);
+        POIOverlay poiOverlay = getPOIOverlayByAddress(mapView, addr.getAddress());
+        if(poiOverlay != null) {
+        	hideStarredBalloon();
+        	hideBulbBalloon();
+        	removePOIMarker(mapView);
+        	handleOD(mapView, poiOverlay);
+        	poiOverlay.markODPoi();
+        	poiOverlay.setIsFromPoi(isFromPoi());
+        	poiOverlay.showBalloonOverlay();
+            mapView.postInvalidate();
+        }
+        else {
+        	refreshPOIMarker(mapView, gp.getLatitude(), gp.getLongitude(), addr.getAddress(), addr.getName());
+        }
+        IMapController mc = mapView.getController();
+        if(zoomIn){
+            mc.setZoom(SEARCH_ZOOM_LEVEL);
+            mc.setCenter(gp);
+        }else{
+            mc.animateTo(gp);
+        }
     }
     
     private POIOverlay getPOIOverlayByAddress(MapView mapView, String addr) {
