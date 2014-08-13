@@ -1422,7 +1422,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     
     private double distanceOutOfRouteThreshold = ((Number)Request.getSetting(Setting.reroute_trigger_distance_in_meter)).doubleValue();
 	
-	public static final double speedOutOfRouteThreshold = 10;
+	public static final double speedOutOfRouteThreshold = 7;
 	
 	private static final double odZoomDistanceLimit = 1200; //feet
 	
