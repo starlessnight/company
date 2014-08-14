@@ -22,6 +22,7 @@ import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
+import com.google.analytics.tracking.android.EasyTracker;
 import com.google.android.gms.plus.GooglePlusUtil;
 import com.google.android.gms.plus.PlusShare;
 import com.smartrek.ui.ClickAnimation;
@@ -364,12 +365,19 @@ public final class ShareActivity extends FragmentActivity {
     protected void onStop() {
         super.onStop();
         Misc.tripInfoPanelOnActivityStop(this);
+        EasyTracker.getInstance().activityStop(this);
     }
     
     @Override
     protected void onRestart() {
         super.onRestart();
         Misc.tripInfoPanelOnActivityRestart(this);
+    }
+    
+    @Override
+    public void onStart() {
+        super.onStart();
+        EasyTracker.getInstance().activityStart(this);
     }
 
 }

@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Preferences;
 
@@ -143,13 +144,15 @@ public class IntroActivity extends FragmentActivity implements OnPageChangeListe
     }
     
     @Override
-    protected void onStop() {
-        super.onStop();
+    public void onStart() {
+        super.onStart();
+        EasyTracker.getInstance().activityStart(this);
     }
     
     @Override
-    protected void onRestart() {
-        super.onRestart();
+    public void onStop() {
+        super.onStop();
+        EasyTracker.getInstance().activityStop(this);
     }
 
 }

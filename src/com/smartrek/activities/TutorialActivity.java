@@ -19,6 +19,7 @@ import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.utils.Dimension;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
@@ -209,12 +210,19 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
     protected void onStop() {
         super.onStop();
         Misc.tripInfoPanelOnActivityStop(this);
+        EasyTracker.getInstance().activityStop(this);
     }
     
     @Override
     protected void onRestart() {
         super.onRestart();
         Misc.tripInfoPanelOnActivityRestart(this);
+    }
+    
+    @Override
+    public void onStart() {
+        super.onStart();
+        EasyTracker.getInstance().activityStart(this);
     }
     
 }

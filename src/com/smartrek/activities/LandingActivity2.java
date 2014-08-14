@@ -87,6 +87,7 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.dialogs.NotificationDialog2.ActionListener;
@@ -2450,13 +2451,15 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
+        EasyTracker.getInstance().activityStart(this);
     }
     
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
+        EasyTracker.getInstance().activityStop(this);
     }
     
     @Override

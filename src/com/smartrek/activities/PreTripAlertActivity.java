@@ -10,6 +10,7 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
@@ -103,6 +104,18 @@ public final class PreTripAlertActivity extends Activity {
             | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
             | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
             | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+    }
+    
+    @Override
+    public void onStart() {
+        super.onStart();
+        EasyTracker.getInstance().activityStart(this);
+    }
+    
+    @Override
+    public void onStop() {
+        super.onStop();
+        EasyTracker.getInstance().activityStop(this);
     }
 	
 }

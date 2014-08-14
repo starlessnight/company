@@ -13,6 +13,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.ui.ClickAnimation;
 import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.utils.Font;
@@ -110,6 +111,7 @@ public class HelpOurResearchActivity extends FragmentActivity {
 	protected void onStop() {
 	    super.onStop();
 	    Misc.tripInfoPanelOnActivityStop(this);
+	    EasyTracker.getInstance().activityStop(this);
 	}
 	
 	@Override
@@ -117,5 +119,11 @@ public class HelpOurResearchActivity extends FragmentActivity {
 	    super.onRestart();
 	    Misc.tripInfoPanelOnActivityRestart(this);
 	}
+	
+	@Override
+    public void onStart() {
+        super.onStart();
+        EasyTracker.getInstance().activityStart(this);
+    }
 	
 }

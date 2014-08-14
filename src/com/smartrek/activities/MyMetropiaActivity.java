@@ -16,6 +16,7 @@ import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.utils.Dimension;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
@@ -180,16 +181,18 @@ public class MyMetropiaActivity extends FragmentActivity{
 				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		return msgSpan;
 	}
-	
-    @Override
-    public void onStart() {
-        super.onStart();
-    }
 
     @Override
     public void onStop() {
         super.onStop();
         Misc.tripInfoPanelOnActivityStop(this);
+        EasyTracker.getInstance().activityStop(this);
+    }
+    
+    @Override
+    public void onStart() {
+        super.onStart();
+        EasyTracker.getInstance().activityStart(this);
     }
 
     @Override

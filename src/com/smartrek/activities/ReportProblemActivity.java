@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.utils.Font;
 
@@ -112,5 +113,17 @@ public class ReportProblemActivity extends FragmentActivity{
 		TextView selected = (TextView) findViewById(id);
 		selected.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.checked, 0);
 	}
+	
+	@Override
+    public void onStart() {
+        super.onStart();
+        EasyTracker.getInstance().activityStart(this);
+    }
+    
+    @Override
+    public void onStop() {
+        super.onStop();
+        EasyTracker.getInstance().activityStop(this);
+    }
 	
 }

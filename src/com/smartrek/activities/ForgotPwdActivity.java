@@ -10,6 +10,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.Request.Page;
 import com.smartrek.utils.Font;
@@ -61,5 +62,17 @@ public class ForgotPwdActivity extends FragmentActivity{
 		Font.setTypeface(Font.getBold(assets), (TextView) findViewById(R.id.header));
 		Font.setTypeface(Font.getLight(assets), backButton);
 	}
+	
+	@Override
+    public void onStart() {
+        super.onStart();
+        EasyTracker.getInstance().activityStart(this);
+    }
+    
+    @Override
+    public void onStop() {
+        super.onStop();
+        EasyTracker.getInstance().activityStop(this);
+    }
 	
 }

@@ -51,6 +51,7 @@ import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.ContactListService;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.NotificationDialog;
@@ -575,6 +576,18 @@ public class ContactsSelectActivity extends FragmentActivity {
     	String name;
     	String value;
     	Integer count;
+    }
+    
+    @Override
+    public void onStart() {
+        super.onStart();
+        EasyTracker.getInstance().activityStart(this);
+    }
+    
+    @Override
+    public void onStop() {
+        super.onStop();
+        EasyTracker.getInstance().activityStop(this);
     }
 
 }

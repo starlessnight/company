@@ -11,6 +11,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.ui.ClickAnimation;
 import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.utils.Font;
@@ -70,5 +71,17 @@ public class TermOfUseActivity extends FragmentActivity {
         Font.setTypeface(boldFont, (TextView) findViewById(R.id.header));
         
 	}
+	
+	@Override
+    public void onStart() {
+        super.onStart();
+        EasyTracker.getInstance().activityStart(this);
+    }
+    
+    @Override
+    public void onStop() {
+        super.onStop();
+        EasyTracker.getInstance().activityStop(this);
+    }
 
 }

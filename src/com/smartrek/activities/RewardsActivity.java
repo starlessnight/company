@@ -13,6 +13,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.Request.Page;
@@ -72,7 +73,14 @@ public class RewardsActivity extends FragmentActivity{
 	protected void onStop() {
 	    super.onStop();
 	    Misc.tripInfoPanelOnActivityStop(this);
+	    EasyTracker.getInstance().activityStop(this);
 	}
+	
+	@Override
+    public void onStart() {
+        super.onStart();
+        EasyTracker.getInstance().activityStart(this);
+    }
 	
 	@Override
 	protected void onRestart() {

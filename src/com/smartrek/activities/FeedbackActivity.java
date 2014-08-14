@@ -11,6 +11,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.dialogs.FeedbackDialog;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
@@ -71,6 +72,7 @@ public class FeedbackActivity extends FragmentActivity{
 	@Override
 	protected void onStop() {
 	    super.onStop();
+	    EasyTracker.getInstance().activityStop(this);
 	    Misc.tripInfoPanelOnActivityStop(this);
 	}
 	
@@ -79,5 +81,11 @@ public class FeedbackActivity extends FragmentActivity{
 	    super.onRestart();
 	    Misc.tripInfoPanelOnActivityRestart(this);
 	}
+	
+	@Override
+    public void onStart() {
+        super.onStart();
+        EasyTracker.getInstance().activityStart(this);
+    }
 	
 }

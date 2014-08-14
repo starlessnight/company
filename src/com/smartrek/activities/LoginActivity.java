@@ -28,6 +28,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
@@ -98,6 +99,13 @@ public final class LoginActivity extends Activity implements OnClickListener,
     protected void onStart() {
         super.onStart();
         Misc.initGCM(this);
+        EasyTracker.getInstance().activityStart(this);
+    }
+    
+    @Override
+    public void onStop() {
+        super.onStop();
+        EasyTracker.getInstance().activityStop(this);
     }
     
     @Override

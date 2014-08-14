@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
+import com.google.analytics.tracking.android.EasyTracker;
 import com.smartrek.ui.ClickAnimation;
 import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.utils.Font;
@@ -82,6 +83,7 @@ public class TermsAndPrivacyActivity extends FragmentActivity{
 	protected void onStop() {
 	    super.onStop();
         Misc.tripInfoPanelOnActivityStop(this);
+        EasyTracker.getInstance().activityStop(this);
 	}
 	
 	@Override
@@ -89,5 +91,11 @@ public class TermsAndPrivacyActivity extends FragmentActivity{
 	    super.onRestart();
 	    Misc.tripInfoPanelOnActivityRestart(this);
 	}
+	
+	@Override
+    public void onStart() {
+        super.onStart();
+        EasyTracker.getInstance().activityStart(this);
+    }
 
 }
