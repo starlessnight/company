@@ -2083,7 +2083,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         	removePOIMarker(mapView);
         	handleOD(mapView, poiOverlay);
         	poiOverlay.markODPoi();
-        	poiOverlay.setIsFromPoi(isFromPoi());
+        	poiOverlay.setIsFromPoi(isFromTab());
         	poiOverlay.showBalloonOverlay();
             mapView.postInvalidate();
         }
@@ -2423,14 +2423,24 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     				curFrom = poi;
     				curFrom.setIsFromPoi(true);
     				curFrom.markODPoi();
-    				curFrom.showBalloonOverlay();
+	    			if(isFromTab()) {
+	    				curFrom.showBalloonOverlay();
+	    			}
+	    			else {
+	    				curFrom.showMiniBalloonOverlay();
+	    			}
     			}
     			else if(curTo!=null && ((curTo.getAid() != 0 && curTo.getAid() == poi.getAid()) 
     					|| (StringUtils.isNotBlank(curTo.getAddress()) && curTo.getAddress().equals(poi.getAddress())))) {
     				curTo = poi;
     				curTo.setIsFromPoi(false);
     				curTo.markODPoi();
-    				curTo.showBalloonOverlay();
+	    			if(isFromTab()) {
+	    				curTo.showMiniBalloonOverlay();
+	    			}
+	    			else {
+	    				curTo.showBalloonOverlay();
+	    			}
     			}
     		}
     	}
@@ -3007,7 +3017,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                     removePOIMarker(mapView);
                                     IMapController controller = mapView.getController();
                                     controller.setCenter(star.getGeoPoint());
-                                    star.setIsFromPoi(isFromPoi());
+                                    star.setIsFromPoi(isFromTab());
                                     handleOD(mapView, star);
                                     star.showBalloonOverlay();
                                     mapView.postInvalidate();
@@ -3044,10 +3054,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void handleOD(MapView mapView, POIOverlay poi) {
-    	removeOldOD(mapView, isFromPoi());
-    	poi.setIsFromPoi(isFromPoi());
+    	removeOldOD(mapView, isFromTab());
+    	poi.setIsFromPoi(isFromTab());
     	poi.markODPoi();
-    	if(isFromPoi()) {
+    	if(isFromTab()) {
     		curFrom = poi;
     		curFromProvider = null;
     		curFromTime = 0;
@@ -3271,7 +3281,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                boolean handledStarred = hideStarredBalloon();
 	                boolean handledBulb = hideBulbBalloon();
 	                boolean handledPOI = removePOIMarker(mapView);
-	                boolean handledOD = removeOldOD(mapView, isFromPoi());
+	                boolean handledOD = removeOldOD(mapView, isFromTab());
 	                if(!handledStarred && !handledBulb && !handledPOI && !handledOD){
 	                    resizeMap(!isMapCollapsed());
 	                }
@@ -3608,7 +3618,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	mapOverlays.add(myCurrentOverlayIdx, overlay);
     }
     
-    private boolean isFromPoi() {
+    private boolean isFromTab() {
     	return fromSearchBox.getVisibility()==View.VISIBLE && !isInFavoriteOperation();
     }
     
