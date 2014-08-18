@@ -2921,14 +2921,16 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
             extras.putString(RouteActivity.ORIGIN_COORD_PROVIDER, curFromProvider);
             extras.putLong(RouteActivity.ORIGIN_COORD_TIME, curFromTime);
-            extras.putString(RouteActivity.DEST_ADDR, curTo.getAddress());
-            extras.putParcelable(RouteActivity.DEST_COORD, curTo.getGeoPoint());
-            extras.putParcelable(RouteActivity.DEST_OVERLAY_INFO, curTo.getPoiOverlayInfo());
-            intent.putExtras(extras);
-            hideBulbBalloon();
-            hideStarredBalloon();
-            removeAllOD();
-            startActivity(intent);
+            if(curTo != null){
+                extras.putString(RouteActivity.DEST_ADDR, curTo.getAddress());
+                extras.putParcelable(RouteActivity.DEST_COORD, curTo.getGeoPoint());
+                extras.putParcelable(RouteActivity.DEST_OVERLAY_INFO, curTo.getPoiOverlayInfo());
+                intent.putExtras(extras);
+                hideBulbBalloon();
+                hideStarredBalloon();
+                removeAllOD();
+                startActivity(intent);
+            }
         }
     }
     
