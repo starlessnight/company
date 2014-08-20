@@ -1294,9 +1294,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	                if(toSent){
 	                    final double _distance = distance;
     					try {
-    						Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
+    						Misc.parallelExecute(new AsyncTask<Void, Void, Boolean>() {
     							@Override
-    							protected Void doInBackground(Void... params) {
+    							protected Boolean doInBackground(Void... params) {
+    							    boolean success = false;
     								try {
     									GeoPoint loc = pointOverlay.getLocation();
     									ImComingRequest req = new ImComingRequest(
@@ -1309,17 +1310,16 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     											reservation.getDestinationAddress(),
     											route.getTimezoneOffset());
     									req.execute(ValidationActivity.this);
+    									success = true;
     								} catch (Exception e) {
-    									ehs.registerException(e);
     								}
-    								return null;
+    								return success;
     							}
     
-    							protected void onPostExecute(Void result) {
+    							protected void onPostExecute(Boolean success) {
     								String msg;
-    								if (ehs.hasExceptions()) {
-    									msg = "msg not sent, "
-    											+ ehs.popException().getMessage();
+    								if (!success) {
+    									msg = "On My Way not sent";
     								} else {
     									msg = "On My Way sent";
     								}
