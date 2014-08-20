@@ -36,7 +36,8 @@
       	    	android:layout_width="0dp"
 	        	android:layout_height="match_parent"
       	    	android:background="#0098ce"
-      	    	android:layout_weight="1">
+      	    	android:layout_weight="1"
+      	    	android:visibility="gone">
 	       	<TextView
 	       	    android:id="@+id/on_my_way"
 	       	    android:layout_width="wrap_content"
