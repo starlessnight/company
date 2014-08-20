@@ -476,11 +476,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         Misc.parallelExecute(task);
 	}
 	
-	private String getTextMessage(Route route) {
+	private String getTextMessage(Route _route) {
 		StringBuffer msg = new StringBuffer();
 		User user = User.getCurrentUser(ValidationActivity.this);
 		msg.append(user.getFirstname()).append(" ").append(user.getLastname()).append(" is ")
-		   .append(StringUtil.formatImperialDistance(route.getLength(), false))
+		   .append(StringUtil.formatImperialDistance(_route.getLength(), false))
 		   .append(" away, and will arrive at ")
 		   .append(reservation.getDestinationAddress()).append(" at ");
         msg.append(TimeColumn.formatTime(reservation.getArrivalTimeUtc(), route.getTimezoneOffset())).append(".");
