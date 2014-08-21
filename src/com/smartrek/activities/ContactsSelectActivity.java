@@ -588,13 +588,6 @@ public class ContactsSelectActivity extends FragmentActivity {
     public void onStop() {
         super.onStop();
         EasyTracker.getInstance().activityStop(this);
-        Misc.tripInfoPanelOnActivityStop(this);
-    }
-    
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Misc.tripInfoPanelOnActivityRestart(this);
     }
 
 }
