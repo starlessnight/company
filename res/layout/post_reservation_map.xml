@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:keepScreenOn="true" >
 
-    <include layout="@layout/mapview"
-        android:layout_width="fill_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/navigation_view"
-        android:layout_marginTop="-65dp"> 
-    </include>
+	<com.skobbler.ngx.map.SKMapViewHolder
+	    android:id="@+id/mapview_holder"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"/>
+	    
 
     <com.smartrek.ui.NavigationView
         android:id="@+id/navigation_view"
@@ -47,45 +46,45 @@
             android:text="@string/placeholder"
             android:textSize="28dp" />
     </FrameLayout>
-
-    <LinearLayout
+    
+    <LinearLayout 
         android:id="@+id/mapview_options"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:orientation="horizontal" >
+    	android:layout_width="match_parent"
+    	android:layout_height="wrap_content"
+    	android:layout_alignParentBottom="true"
+    	android:layout_alignParentLeft="true"
+    	android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/map_view_end_trip_btn"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:src="@drawable/end_trip_btn" />
+	    <ImageView
+	        android:id="@+id/map_view_end_trip_btn"
+	        android:layout_width="0dp"
+	        android:layout_height="match_parent"
+	        android:layout_weight="1"
+	        android:src="@drawable/end_trip_btn" />
+	
+	    <ImageView
+	        android:id="@+id/map_view_on_my_way_btn"
+	        android:layout_width="0dp"
+	        android:layout_height="match_parent"
+	        android:layout_weight="1"
+	        android:src="@drawable/on_my_way_btn" />
+	
+	    <ImageView
+	        android:id="@+id/volumn_control"
+	        android:layout_width="0dp"
+	        android:layout_height="match_parent"
+	        android:layout_weight="1"
+	        android:src="@drawable/volumn_btn_open" />
+	
+	    <ImageView
+	        android:id="@+id/center_map_icon"
+	        android:layout_width="0dp"
+	        android:layout_height="match_parent"
+	        android:layout_weight="1"
+	        android:src="@drawable/navigation_compass" />
 
-        <ImageView
-            android:id="@+id/map_view_on_my_way_btn"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:src="@drawable/on_my_way_btn" />
-
-        <ImageView
-            android:id="@+id/volumn_control"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:src="@drawable/volumn_btn_open" />
-
-        <ImageView
-            android:id="@+id/center_map_icon"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:src="@drawable/navigation_compass" />
-
-    </LinearLayout>
-
+	</LinearLayout>
+    
     <ImageView
         android:id="@+id/floating_menu_button"
         android:layout_width="wrap_content"
@@ -326,7 +325,6 @@
         android:layout_width="wrap_content"
         android:layout_centerInParent="true"
         android:visibility="gone"
-        android:indeterminate="true" 
-	/>
+        android:indeterminate="true"/>
 
 </RelativeLayout>

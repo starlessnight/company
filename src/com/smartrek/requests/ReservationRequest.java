@@ -96,8 +96,8 @@ public class ReservationRequest extends Request {
             String separator = "_";
 	        params.put("id", StringUtils.contains(idStr, separator)?
                 StringUtils.substringAfter(idStr, separator):idStr);
-            params.put("origin", origin);
-            params.put("destination", destination);
+            params.put("origin", StringUtils.isNotBlank(origin)?URLEncoder.encode(origin):origin);
+            params.put("destination", StringUtils.isNotBlank(destination)?URLEncoder.encode(destination):destination);
             String res = null;
             try {
                 res = executeHttpRequest(rescheduleId > 0?Method.PUT:Method.POST, url, params, ctx);
