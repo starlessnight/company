@@ -1681,9 +1681,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     }
                 }
                 
-//                if(speedInMph > speedOutOfRouteThreshold){
-//                    pointOverlay.setDegrees(bearing);
-//                }
+                if(speedInMph <= speedOutOfRouteThreshold && lastKnownLocation != null){
+                    location.setBearing(lastKnownLocation.getBearing());
+                }
                 
                 if ((Boolean)buttonFollow.getTag()) {
                     mapView.setZoom(isNearOD_or_Intersection(lat, lng)?
