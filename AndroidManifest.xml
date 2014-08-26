@@ -179,7 +179,6 @@
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize" />
         <activity
             android:name=".ValidationActivity"
-            android:hardwareAccelerated="false"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
             android:theme="@android:style/Theme.NoTitleBar"
             android:label="navigate"
