@@ -193,7 +193,7 @@ public abstract class Request {
                 throw new IOException(String.format("HTTP %d: %s", responseCode, responseBody));
             }
 	    }catch(Throwable t){
-	    	if(!StringUtils.equalsIgnoreCase(getLinkUrl(Link.issue), url)) {
+	    	if(StringUtils.isNotBlank(getLinkUrl(Link.issue)) && !StringUtils.equalsIgnoreCase(getLinkUrl(Link.issue), url)) {
 	    		sendIssueReport(ctx, url, t.getMessage(), responseCode, responseBody);
 	    	}
 	        IOException e = new IOException(url);

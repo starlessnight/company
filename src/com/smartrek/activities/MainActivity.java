@@ -18,6 +18,8 @@ import android.widget.ImageView;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary;
+import com.skobbler.ngx.SKPrepareMapTextureListener;
+import com.smartrek.SkobblerUtils;
 import com.smartrek.UserLocationService;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
@@ -29,7 +31,7 @@ import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
 
-public class MainActivity extends Activity implements AnimationListener {
+public class MainActivity extends Activity implements AnimationListener, SKPrepareMapTextureListener {
 	
 	public static final String LOG_TAG = "MainActivity";
 	
@@ -278,25 +280,12 @@ public class MainActivity extends Activity implements AnimationListener {
 	public void onAnimationEnd(Animation animation) {
 	    splashEnded = true;
 		logoMask.setVisibility(View.GONE);
-		if(loginTask == null){
-		    SharedPreferences prefs = Preferences.getGlobalPreferences(this);
-            int introFinish = prefs.getInt(Preferences.Global.INTRO_FINISH, 0);
-            
-            if (introFinish == IntroActivity.INTRO_FINISH) {
-                proceedToNextScreen();
-            }
-            else {
-                Intent intent = new Intent(this, IntroActivity.class);
-                startActivityForResult(intent, IntroActivity.INTRO_ACTIVITY);
-            }
-		}else{   
-		    if(loginTaskEnded){
-		        proceedToNextScreen();
-		    }else if(!sdTask.isFailed()){
-		        loginTask.showDialog();
-	            loginTask.setDialogEnabled(true);
-		    }
-        }
+		SkobblerUtils.initSkobbler(MainActivity.this, MainActivity.this, new Runnable() {
+			@Override
+			public void run() {
+				checkLoginStatus();
+			}
+		});
 	}
 	
 	private void proceedToNextScreen(){
@@ -335,8 +324,35 @@ public class MainActivity extends Activity implements AnimationListener {
     private void startLoginActivity() {
     	Intent intent = new Intent(this, LoginActivity.class);
 		startActivity(intent);
-		
 		finish();
     }
+    
+    private void checkLoginStatus() {
+    	if(loginTask == null){
+		    SharedPreferences prefs = Preferences.getGlobalPreferences(this);
+            int introFinish = prefs.getInt(Preferences.Global.INTRO_FINISH, 0);
+            
+            if (introFinish == IntroActivity.INTRO_FINISH) {
+                proceedToNextScreen();
+            }
+            else {
+                Intent intent = new Intent(this, IntroActivity.class);
+                startActivityForResult(intent, IntroActivity.INTRO_ACTIVITY);
+            }
+		}else{   
+		    if(loginTaskEnded){
+		        proceedToNextScreen();
+		    }else if(!sdTask.isFailed()){
+		        loginTask.showDialog();
+	            loginTask.setDialogEnabled(true);
+		    }
+        }
+    }
+
+	@Override
+	public void onMapTexturesPrepared(boolean arg0) {
+		SkobblerUtils.initializeLibrary(MainActivity.this);
+		checkLoginStatus();
+	}
     
 }

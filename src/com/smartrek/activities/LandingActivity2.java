@@ -88,6 +88,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.google.analytics.tracking.android.EasyTracker;
+import com.skobbler.ngx.SKMaps;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.dialogs.NotificationDialog2.ActionListener;
@@ -139,7 +140,7 @@ import com.smartrek.utils.RouteRect;
 import com.smartrek.utils.SmartrekTileProvider;
 import com.smartrek.utils.SystemService;
 
-public final class LandingActivity2 extends FragmentActivity implements SensorEventListener { 
+public final class LandingActivity2 extends FragmentActivity implements SensorEventListener{ 
     
     private static final int DEFAULT_ZOOM_LEVEL = 13;
     
@@ -1300,7 +1301,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         View menuPanel = findViewById(R.id.menu_panel);
         LayoutParams menuPanelLp = menuPanel.getLayoutParams();
         menuPanelLp.width=display.getWidth()*3/4;
-        
         
         final DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         View drawerIcon = findViewById(R.id.drawer_menu_icon);
@@ -3019,7 +3019,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                     removePOIMarker(mapView);
                                     IMapController controller = mapView.getController();
                                     controller.setCenter(star.getGeoPoint());
-                                    star.setIsFromPoi(isFromTab());
                                     handleOD(mapView, star);
                                     star.showBalloonOverlay();
                                     mapView.postInvalidate();
@@ -3629,6 +3628,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         super.onDestroy();
         unregisterReceiver(tripInfoCachedUpdater);
         closeGPS();
+        SKMaps.getInstance().destroySKMaps();
     }
     
     @Override
@@ -3952,5 +3952,5 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         }
         
     }
-
+    
 }
