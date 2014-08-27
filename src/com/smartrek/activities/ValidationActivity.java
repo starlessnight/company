@@ -707,6 +707,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		                    	double latitude = lastKnownLocation.getLatitude();
 		                    	double longitude = lastKnownLocation.getLongitude();
 		                    	SKCoordinate coordinate = new SKCoordinate(longitude, latitude);
+		                    	mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
 		                    	mapView.setZoom(isNearOD_or_Intersection(latitude, longitude)
 		                	        ?DEFAULT_ZOOM_LEVEL:NAVIGATION_ZOOM_LEVEL);
 		                    	mapView.centerMapOnPosition(coordinate);
@@ -724,7 +725,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		                    /* range holds 2 points consisting of the lat/lon range to be displayed */
 //		                    int[] range = routeRect.getRange();
 		                    /* Get the MapController set the midpoint and range */
-		                    SKRouteManager.getInstance().zoomToRoute(1.3f, 0, 0, 0, 0, 0);
+		                    mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
+		                    SKRouteManager.getInstance().zoomToRoute(1.5f, 1.5f, 0, 0, 0, 0);
 		                    SKCoordinate coordinate = new SKCoordinate(mid.getLongitude(), mid.getLatitude());
 		                    mapView.centerMapOnPosition(coordinate);
 		                    mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
@@ -1220,7 +1222,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				routeGeoPoints.add(geoPoint);
 			}
 			String gpxContent = RecordedRouteGPXFormatter.create(routeGeoPoints);
-			Log.d("ValidationAcitvity", gpxContent);
 			File gpxFile = getFile(ValidationActivity.this, route.getId());
 			FileUtils.writeStringToFile(gpxFile, gpxContent);
 			return gpxFile;
@@ -1246,9 +1247,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		SKRouteManager routeManager = SKRouteManager.getInstance();
 		File gpxFile = saveGPXFile(route);
 		if(gpxFile != null) {
+			routeManager.clearAllRoutesFromCache();
+			routeManager.clearCurrentRoute();
 			routeManager.setRouteFromGPXFile(gpxFile.getAbsolutePath(), SKRouteSettings.SKROUTE_CAR_FASTEST, false, false, false);
 			drawDestinationAnnotation(route.getLastNode());
-			mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
+			if((Boolean)buttonFollow.getTag()) {
+				mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
+			}
 		}
 		
 		route.setUserId(User.getCurrentUser(this).getId());
