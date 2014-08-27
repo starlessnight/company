@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.views.MapView;
@@ -1627,6 +1628,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 							Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
 			                intent.putExtra("route", reserv.getRoute());
 			                intent.putExtra("reservation", reserv);
+			                JSONObject reservRecipients = DebugOptionsActivity.getReservRecipientsAndRemove(LandingActivity2.this, reserv.getRid());
+			                intent.putExtra(ValidationActivity.EMAILS, reservRecipients.optString("emails", ""));
+		                    intent.putExtra(ValidationActivity.PHONES, reservRecipients.optString("phones", ""));
 			                hideBulbBalloon();
 			                hideStarredBalloon();
 			                removeAllOD();
@@ -1653,6 +1657,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			                                Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
 			                                intent.putExtra("route", reservation.getRoute());
 			                                intent.putExtra("reservation", reservation);
+			                                JSONObject reservRecipients = DebugOptionsActivity.getReservRecipientsAndRemove(LandingActivity2.this, reserv.getRid());
+			    			                intent.putExtra(ValidationActivity.EMAILS, reservRecipients.optString("emails", ""));
+			    		                    intent.putExtra(ValidationActivity.PHONES, reservRecipients.optString("phones", ""));
 			                                hideBulbBalloon();
 			                                hideStarredBalloon();
 			                                removeAllOD();
@@ -3645,37 +3652,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         	final String emails = extras.getString(ValidationActivity.EMAILS);
         	final String phones = extras.getString(ValidationActivity.PHONES);
         	Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
-        	if(reserv.isEligibleTrip()) {
-        		Intent validationActivity = new Intent(LandingActivity2.this, ValidationActivity.class);
-                validationActivity.putExtra("route", reserv.getRoute());
-                validationActivity.putExtra("reservation", reserv);
-                validationActivity.putExtra(ValidationActivity.EMAILS, emails);
-                validationActivity.putExtra(ValidationActivity.PHONES, phones);
-                hideBulbBalloon();
-                hideStarredBalloon();
-                removeAllOD();
-                startActivity(validationActivity);
-        	}
-        	else {
-	        	RescheduleTripTask rescheduleTask = new RescheduleTripTask(LandingActivity2.this, 
-	        			new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude()), null, reserv.getDestinationAddress(), 
-		        		reserv.getRid(), ehs);
-				rescheduleTask.callback = new RescheduleTripTask.Callback() {
-	                @Override
-	                public void run(Reservation reservation) {
-	                	Intent validationActivity = new Intent(LandingActivity2.this, ValidationActivity.class);
-	                    validationActivity.putExtra("route", reservation.getRoute());
-	                    validationActivity.putExtra("reservation", reservation);
-	                    validationActivity.putExtra(ValidationActivity.EMAILS, emails);
-	                    validationActivity.putExtra(ValidationActivity.PHONES, phones);
-	                    hideBulbBalloon();
-	                    hideStarredBalloon();
-	                    removeAllOD();
-	                    startActivity(validationActivity);
-	                }
-	            };
-	            Misc.parallelExecute(rescheduleTask);
-        	}
+        	DebugOptionsActivity.addRecipientsOfReserv(LandingActivity2.this, reserv.getRid(), emails, phones);
         }
     }
     

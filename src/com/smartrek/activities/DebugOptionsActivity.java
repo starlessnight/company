@@ -2,8 +2,10 @@ package com.smartrek.activities;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -831,6 +833,91 @@ public final class DebugOptionsActivity extends Activity {
         getPrefs(ctx).edit()
             .putBoolean(GPS_ACCURACY_DEBUG_MSG, enabled)
             .commit();
+    }
+    
+    private static final String recipientsInfo = "recipientsInfo";
+    
+    public static void addRecipientsOfReserv(Context ctx, Long reservId, String emails, String phones) {
+    	Map<Long, JSONObject> infos = getAllReservRecipients(ctx);
+    	if(infos.containsKey(reservId)) {
+    		infos.remove(reservId);
+    	}
+    	try {
+	    	JSONObject object = new JSONObject();
+	    	object.put("id", reservId);
+	    	object.put("emails", emails);
+	    	object.put("phones", phones);
+	    	infos.put(reservId, object);
+    	}
+    	catch(JSONException ignore) {}
+    	
+    	saveReservRecipients(ctx, infos);
+    	
+    }
+    
+    public static JSONObject getReservRecipientsAndRemove(Context ctx, Long reservId) {
+    	Map<Long, JSONObject> infos = getAllReservRecipients(ctx);
+    	JSONObject jsonObject = new JSONObject();
+    	if(infos.containsKey(reservId)) {
+    		jsonObject = infos.get(reservId);
+    		infos.remove(reservId);
+    		saveReservRecipients(ctx, infos);
+    	}
+    	return jsonObject;
+    }
+    
+    private static Map<Long, JSONObject> getAllReservRecipients(Context ctx) {
+    	Map<Long, JSONObject> reservIdObjectMap = new TreeMap<Long, JSONObject>();
+        JSONArray array = null;
+        try {
+            array = new JSONArray(getPrefs(ctx).getString(recipientsInfo, "[]"));
+        }
+        catch (Throwable t) {
+            array = new JSONArray();
+        }
+        
+        for (int i=0; i < array.length(); i++) {
+            try {
+				JSONObject recipientInfo = array.getJSONObject(i);
+				Long reservId = recipientInfo.optLong("id", 0);
+				if(reservId > 0) {
+					reservIdObjectMap.put(reservId, recipientInfo);
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+        }
+        return reservIdObjectMap;
+    }
+    
+    public static void saveReservRecipients(Context ctx, Map<Long, JSONObject> infos) {
+    	JSONArray array = new JSONArray();
+    	Set<Long> keySet = infos.keySet();
+    	for(Long id : keySet) {
+    		array.put(infos.get(id));
+    	}
+    	SharedPreferences.Editor editor = getPrefs(ctx).edit();
+        editor.putString(recipientsInfo, array.toString());
+        editor.commit();
+    }
+    
+    public static void removeReservRecipients(Context ctx, Long reservId) {
+    	Map<Long, JSONObject> infos = getAllReservRecipients(ctx);
+    	Set<Long> remove = new HashSet<Long>();
+    	Set<Long> reservIds = infos.keySet();
+    	
+    	for(Long id : reservIds) {
+    		if(id <= reservId) {
+    			remove.add(id);
+    		}
+    	}
+    	
+    	// remove recipient records before the reservId
+    	for(Long removeId : remove) {
+    		infos.remove(removeId);
+    	}
+    	
+    	saveReservRecipients(ctx, infos);
     }
     
 }
