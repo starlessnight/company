@@ -101,11 +101,11 @@ public class ReservationRequest extends Request {
                 StringUtils.substringAfter(idStr, separator):idStr);
 	        String originEncoded = StringUtils.defaultString(origin, "");
 	        String destEncoded = StringUtils.defaultString(destination, "");
-//	        try {
-//	        	originEncoded = URLEncoder.encode(originEncoded, "utf-8");
-//	        	destEncoded = URLEncoder.encode(destEncoded, "utf-8");
-//	        }
-//	        catch(UnsupportedEncodingException ignore){}
+	        try {
+	        	originEncoded = URLEncoder.encode(originEncoded, "utf-8");
+	        	destEncoded = URLEncoder.encode(destEncoded, "utf-8");
+	        }
+	        catch(UnsupportedEncodingException ignore){}
             params.put("origin", originEncoded);
             params.put("destination", destEncoded);
             String res = null;

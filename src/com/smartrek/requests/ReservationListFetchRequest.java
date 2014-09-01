@@ -1,6 +1,7 @@
 package com.smartrek.requests;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -99,9 +100,15 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
 
         // travel duration
         r.setDuration(object.getInt("estimated_travel_time") * 60);
-        
-        r.setOriginAddress(object.optString("origin"));
-        r.setDestinationAddress(object.optString("destination"));
+        String decodeOrigin = object.optString("origin", "");
+        String decodeDest = object.optString("destination", "");
+        try {
+        	decodeOrigin = URLDecoder.decode(decodeOrigin, "utf-8");
+        	decodeDest = URLDecoder.decode(decodeDest, "utf-8");
+        }
+        catch(Exception ignore) {}
+        r.setOriginAddress(decodeOrigin);
+        r.setDestinationAddress(decodeDest);
         r.setCredits(object.optInt("credit"));
         r.setMpoint(object.optInt("mpoint"));
         r.setValidatedFlag(object.optInt("validated"));
