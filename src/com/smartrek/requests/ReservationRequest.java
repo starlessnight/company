@@ -1,6 +1,7 @@
 package com.smartrek.requests;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -12,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.smartrek.activities.DebugOptionsActivity.NavigationLink;
 import com.smartrek.models.Route;
@@ -69,7 +71,8 @@ public class ReservationRequest extends Request {
         this.version = version;
         NavigationLink navLink = route.getLink();
         navUrl = navLink == null?null:navLink.url;
-        
+        Log.d("ReservationRequest", String.format("origin : %s", route.getOrigin()));
+        Log.d("ReservationRequest", String.format("dest : %s", route.getDestination()));
         if(NEW_API){
             url = getLinkUrl(Link.reservation) + (rescheduleId > 0?("/" + rescheduleId):"");
             this.routeJSON = route.getRawJSON();
@@ -96,30 +99,39 @@ public class ReservationRequest extends Request {
             String separator = "_";
 	        params.put("id", StringUtils.contains(idStr, separator)?
                 StringUtils.substringAfter(idStr, separator):idStr);
-            params.put("origin", StringUtils.isNotBlank(origin)?URLEncoder.encode(origin):origin);
-            params.put("destination", StringUtils.isNotBlank(destination)?URLEncoder.encode(destination):destination);
+	        String originEncoded = StringUtils.defaultString(origin, "");
+	        String destEncoded = StringUtils.defaultString(destination, "");
+//	        try {
+//	        	originEncoded = URLEncoder.encode(originEncoded, "utf-8");
+//	        	destEncoded = URLEncoder.encode(destEncoded, "utf-8");
+//	        }
+//	        catch(UnsupportedEncodingException ignore){}
+            params.put("origin", originEncoded);
+            params.put("destination", destEncoded);
             String res = null;
             try {
                 res = executeHttpRequest(rescheduleId > 0?Method.PUT:Method.POST, url, params, ctx);
             } catch (Exception e){
+            	e.printStackTrace();
                 res = e.getMessage();
             }
-            if(rescheduleId > 0){
-                id = rescheduleId;
-            }else{
-                JSONObject json = new JSONObject(res);
-                JSONObject data = json.getJSONObject("data");
-                if("fail".equals(json.getString("status"))){
-                    String msg = "";
-                    Iterator keys = data.keys();
-                    while(keys.hasNext()){
-                        Object attr = keys.next();
-                        msg += (msg.length() == 0?"":".\n") + attr +  ": " + data.getString(attr.toString());
-                    }
-                    throw new Exception(msg);
-                }else{
-                    id = data.getLong("id");
-                }
+            if(rescheduleId!=0) {
+            	id = rescheduleId;
+            }
+            else {
+	            JSONObject json = new JSONObject(res);
+	            JSONObject data = json.getJSONObject("data");
+	            if("fail".equals(json.getString("status"))){
+	                String msg = "";
+	                Iterator keys = data.keys();
+	                while(keys.hasNext()){
+	                    Object attr = keys.next();
+	                    msg += (msg.length() == 0?"":".\n") + attr +  ": " + data.getString(attr.toString());
+	                }
+	                throw new Exception(msg);
+	            }else{
+	                id = data.getLong("id");
+	            }
             }
 	    }else{
     		String responseBody = executeHttpGetRequest(url, ctx);
