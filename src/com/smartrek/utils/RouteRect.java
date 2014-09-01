@@ -80,5 +80,13 @@ public class RouteRect {
 	        Math.max(Double.valueOf((lonMax - lonMin) * padding).intValue(), minRange)
         };
     }
+    
+    public GeoPoint getTopLeftPoint() {
+    	return new GeoPoint(latMin, lonMax);
+    }
+    
+    public GeoPoint getBottomRightPoint() {
+    	return new GeoPoint(latMax, lonMin);
+    }
 	
 }
