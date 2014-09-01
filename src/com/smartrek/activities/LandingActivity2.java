@@ -1838,17 +1838,26 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                 for (int position : reverseSortedPositions) {
                                 	final Reservation reserv = reservationAdapter.getItem(position);
                                 	reservationAdapter.remove(reserv);
-                                	AsyncTask<Void, Void, Void> delTask = new AsyncTask<Void, Void, Void>(){
+                                	AsyncTask<Void, Void, Boolean> delTask = new AsyncTask<Void, Void, Boolean>(){
             		                    @Override
-            		                    protected Void doInBackground(Void... params) {
+            		                    protected Boolean doInBackground(Void... params) {
             		                        ReservationDeleteRequest request = new ReservationDeleteRequest(
             		                            User.getCurrentUser(LandingActivity2.this), reserv.getRid());
+            		                        Boolean success = Boolean.TRUE;
             		                        try {
             		                            request.execute(LandingActivity2.this);
             		                        }
             		                        catch (Exception e) {
+            		                        	success = Boolean.FALSE;
             		                        }
-            		                        return null;
+            		                        return success;
+            		                    }
+            		                    
+            		                    @Override
+            		                    protected void onPostExecute(Boolean success) {
+            		                    	if(success) {
+            		                    		DebugOptionsActivity.removeReservRecipients(LandingActivity2.this, reserv.getRid());
+            		                    	}
             		                    }
             		                };
             		                Misc.parallelExecute(delTask);

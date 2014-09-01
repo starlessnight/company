@@ -1210,7 +1210,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				if (emails != null) {
+				if (StringUtils.isNotBlank(emails)) {
 				    double distance = 0;
 	                for(int i=0; i<dirListadapter.getCount(); i++){
 	                    distance += dirListadapter.getItem(i).distance;
