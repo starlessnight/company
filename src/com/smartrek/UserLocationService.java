@@ -57,7 +57,7 @@ public class UserLocationService extends IntentService {
                 }
                 traj.accumulate(info.lastLat, info.lastLong, info.lastAltitude, 
                     info.lastSpeed, info.lastHeading, System.currentTimeMillis(), 
-                    Trajectory.DEFAULT_LINK_ID);
+                    Trajectory.DEFAULT_LINK_ID, info.lastAccuracy);
                 FileUtils.write(file, traj.toJSON().toString());
                 final long now = System.currentTimeMillis();
                 final User user = User.getCurrentUserWithoutCache(UserLocationService.this);

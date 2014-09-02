@@ -1,5 +1,7 @@
 package com.smartrek.models;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Vector;
@@ -49,7 +51,12 @@ public class Trajectory {
 		
 		private long linkId = DEFAULT_LINK_ID;
 		
-		public Record(float lat, float lng, float altitude, float speed, float heading, long time, long linkId) {
+		/**
+		 * Altitude in meters
+		 */
+		private float accuracy;  
+		
+		public Record(float lat, float lng, float altitude, float speed, float heading, long time, long linkId, float accuracy) {
 			setLatitude(lat);
 			setLongitude(lng);
 			setAltitude(altitude);
@@ -57,6 +64,7 @@ public class Trajectory {
 			setHeading(heading);
 			setTime(time);
 			this.linkId = linkId;
+			setAccuracy(accuracy);
 		}
 
 		public float getLatitude() {
@@ -121,6 +129,8 @@ public class Trajectory {
 			this.time = time;
 		}
 		
+		private static final NumberFormat nf = new DecimalFormat("#.######");
+		
 		/**
 		 * Order matters when reporting user trajectory
 		 * 
@@ -129,22 +139,31 @@ public class Trajectory {
 		 */
 		public JSONArray toJSON() throws JSONException {
 			JSONArray array = new JSONArray();
-			array.put(getLatitude());
-			array.put(getLongitude());
-			array.put(getAltitude() * 3.2808399f); // conversion from meter to feet
+			array.put(nf.format(getLatitude()));
+			array.put(nf.format(getLongitude()));
+			array.put(Float.valueOf(getAltitude() * 3.2808399f).intValue()); // conversion from meter to feet
 			array.put(getHeading());
 			array.put(getTime());
 			array.put(msToMph(getSpeed())); // conversion from m/s to mph
 			array.put(linkId);
-			
+			array.put(Float.valueOf(getAccuracy() * 3.2808399f).intValue()); // conversion from meter to feet
 			return array;
 		}
 		
 		public static Record from(JSONArray array) throws JSONException {
 	        return new Record((float)array.getDouble(0), (float)array.getDouble(1), 
 	            (float)(array.getDouble(2) / 3.2808399f), (float)(array.getDouble(5) / msToMphFactor), 
-	            (float) array.getDouble(3), array.getLong(4), array.optLong(6, DEFAULT_LINK_ID));
+	            (float) array.getDouble(3), array.getLong(4), array.optLong(6, DEFAULT_LINK_ID), 
+	            (float)(array.optInt(7, 0)/3.2808399f));
 	    }
+
+		public float getAccuracy() {
+			return accuracy;
+		}
+
+		public void setAccuracy(float accuracy) {
+			this.accuracy = accuracy;
+		}
 		
 	}
 	
@@ -169,8 +188,8 @@ public class Trajectory {
 	 * @param heading Angle between the headed direction and the North 
 	 * @param time Epoch in milliseconds
 	 */
-	public void accumulate(float lat, float lng, float altitude, float speed, float heading, long time, long linkId) {
-		records.add(new Record(lat, lng, altitude, speed, heading, time, linkId));
+	public void accumulate(float lat, float lng, float altitude, float speed, float heading, long time, long linkId, float accuracy) {
+		records.add(new Record(lat, lng, altitude, speed, heading, time, linkId, accuracy));
 	}
 	
 	public void accumulate(Location location, long linkId) {
@@ -180,7 +199,8 @@ public class Trajectory {
 				location.getSpeed(),
 				location.getBearing(),
 				location.getTime(),
-				linkId);
+				linkId, 
+				location.getAccuracy());
 	}
 	
 	public void clear() {

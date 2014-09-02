@@ -3643,6 +3643,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(tripInfoCachedUpdater);
+        unregisterReceiver(updateMyLocation);
         closeGPS();
         SKMaps.getInstance().destroySKMaps();
     }

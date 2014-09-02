@@ -13,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.smartrek.activities.DebugOptionsActivity.NavigationLink;
 import com.smartrek.models.Route;
@@ -71,8 +70,6 @@ public class ReservationRequest extends Request {
         this.version = version;
         NavigationLink navLink = route.getLink();
         navUrl = navLink == null?null:navLink.url;
-        Log.d("ReservationRequest", String.format("origin : %s", route.getOrigin()));
-        Log.d("ReservationRequest", String.format("dest : %s", route.getDestination()));
         if(NEW_API){
             url = getLinkUrl(Link.reservation) + (rescheduleId > 0?("/" + rescheduleId):"");
             this.routeJSON = route.getRawJSON();
@@ -108,11 +105,11 @@ public class ReservationRequest extends Request {
 	        catch(UnsupportedEncodingException ignore){}
             params.put("origin", originEncoded);
             params.put("destination", destEncoded);
+            params.put("trajectory_fields", "lat,lon,altitude,heading,timestamp,speed,link,accuracy");
             String res = null;
             try {
                 res = executeHttpRequest(rescheduleId > 0?Method.PUT:Method.POST, url, params, ctx);
             } catch (Exception e){
-            	e.printStackTrace();
                 res = e.getMessage();
             }
             if(rescheduleId!=0) {

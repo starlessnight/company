@@ -2140,7 +2140,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				location.setLongitude(record.getLongitude());
 				location.setSpeed(record.getSpeed());
 				location.setBearing(record.getHeading());
-				//Log.i("FakeLocation", pollCnt + "," + location.getLatitude() + "," + location.getLongitude());
+				location.setAccuracy(record.getAccuracy());
+//				Log.i("FakeLocation", pollCnt + "," + location.getLatitude() + "," + location.getLongitude() + "," + location.getAccuracy());
                 listener.onLocationChanged(location);
 			}
 		}
