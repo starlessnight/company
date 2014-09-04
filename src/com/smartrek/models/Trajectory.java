@@ -142,9 +142,9 @@ public class Trajectory {
 			array.put(Float.valueOf(nf.format(getLatitude())));
 			array.put(Float.valueOf(nf.format(getLongitude())));
 			array.put(Float.valueOf(getAltitude() * 3.2808399f).intValue()); // conversion from meter to feet
-			array.put(getHeading());
+			array.put(Float.valueOf(getHeading()).intValue());
 			array.put(getTime());
-			array.put(msToMph(getSpeed())); // conversion from m/s to mph
+			array.put(Double.valueOf(msToMph(getSpeed())).intValue()); // conversion from m/s to mph
 			array.put(linkId);
 			array.put(Float.valueOf(getAccuracy() * 3.2808399f).intValue()); // conversion from meter to feet
 			return array;
