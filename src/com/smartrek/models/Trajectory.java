@@ -139,8 +139,8 @@ public class Trajectory {
 		 */
 		public JSONArray toJSON() throws JSONException {
 			JSONArray array = new JSONArray();
-			array.put(nf.format(getLatitude()));
-			array.put(nf.format(getLongitude()));
+			array.put(Float.valueOf(nf.format(getLatitude())));
+			array.put(Float.valueOf(nf.format(getLongitude())));
 			array.put(Float.valueOf(getAltitude() * 3.2808399f).intValue()); // conversion from meter to feet
 			array.put(getHeading());
 			array.put(getTime());
