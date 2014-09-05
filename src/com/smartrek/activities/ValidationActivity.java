@@ -97,6 +97,7 @@ import com.skobbler.ngx.map.SKPolyline;
 import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
 import com.smartrek.SendTrajectoryService;
+import com.smartrek.SkobblerUtils;
 import com.smartrek.TripService;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.dialogs.FloatingMenuDialog;
@@ -261,7 +262,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				.getParcelable(ROUTE);
 		route.setCredits(reservation.getCredits());
 		reservation.setRoute(route);
-
+		
 		// Define a listener that responds to location updates
 		locationListener = new ValidationLocationListener();
 
@@ -653,6 +654,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         mapView.getMapSettings().setInertiaRotatingEnabled(true);
         mapView.getMapSettings().setInertiaZoomingEnabled(true);
         mapView.getMapSettings().setInertiaPanningEnabled(true);
+        mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapVewStyle());
 	}
 	
 	private static final Float PADDING = 0.02f;

@@ -1,6 +1,7 @@
 package com.smartrek;
 
 import java.io.File;
+import java.util.Calendar;
 
 import android.content.Context;
 
@@ -71,5 +72,15 @@ public class SkobblerUtils {
         SKMaps.getInstance().initializeSKMaps(ctx, initMapSettings, API_KEY);
     }
 	
+	
+	public static SKMapViewStyle getMapVewStyle() {
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(System.currentTimeMillis());
+		int hour = cal.get(Calendar.HOUR_OF_DAY);
+		if(hour >=6 && hour <=18) {
+			return new SKMapViewStyle(mapResourcesDirPath + "daystyle/", "daystyle.json");
+		}
+		return new SKMapViewStyle(mapResourcesDirPath + "nightstyle/", "nightstyle.json");
+	}
 
 }
