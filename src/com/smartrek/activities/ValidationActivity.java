@@ -655,6 +655,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         mapView.getMapSettings().setInertiaPanningEnabled(true);
 	}
 	
+	private static final Float PADDING = 0.02f;
+	
 	private void initViews() {
 		buttonFollow = (ImageView) findViewById(R.id.center_map_icon);
 		buttonFollow.setTag(true);
@@ -684,11 +686,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		                    /* Get a midpoint to center the view of  the routes */
 		                    GeoPoint mid = routeRect.getMidPoint();
 		                    mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
+		                    mapView.rotateTheMapToNorth();
 		                    SKCoordinate coordinate = new SKCoordinate(mid.getLongitude(), mid.getLatitude());
 		                    mapView.centerMapOnPosition(coordinate);
 		                    GeoPoint topLeft = routeRect.getTopLeftPoint();
 		                    GeoPoint bottomRight = routeRect.getBottomRightPoint();
-		                    SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude());
+		                    // paddding parameter of fitBoundingBox not work, use PADDING
+		                    SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude() - PADDING, topLeft.getLongitude() - PADDING, bottomRight.getLatitude() + PADDING, bottomRight.getLongitude() + PADDING);
 		                    mapView.fitBoundingBox(boundingBox, 0, 0);
 		                    mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
 		                }
