@@ -643,7 +643,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		CloudmadeUtil.retrieveCloudmadeKey(this);
 		mapView.setMapSurfaceListener(this);
 		mapView.clearAllOverlays();
-		mapView.getMapSettings().setCurrentPositionShown(true);
+		mapView.getMapSettings().setCurrentPositionShown(false);
 		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
 		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
 		mapView.getMapSettings().setMapRotationEnabled(true);
@@ -1128,7 +1128,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	public synchronized void drawRoute(SKMapSurfaceView mapView, Route _route) {
 		try {
 			mapView.clearAllOverlays();
-			setViewToNorthAmerica(mapView);
 			List<SKCoordinate> routeCoors = new ArrayList<SKCoordinate>();
 			for(RouteNode node : _route.getNodes()) {
 				routeCoors.add(new SKCoordinate(node.getLongitude(), node.getLatitude()));
@@ -1764,7 +1763,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			} catch (JSONException e) {
 				ehs.registerException(e);
 			}
-		}    
+		}
+		
+		//show current location
+	    mapView.getMapSettings().setCurrentPositionShown(true);
 	}
 	
 	private AtomicLong etaDelay = new AtomicLong();
@@ -2446,6 +2448,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 
 	@Override
-	public void onSurfaceCreated() {}
+	public void onSurfaceCreated() {
+		setViewToNorthAmerica(mapView);
+	}
 
 }
