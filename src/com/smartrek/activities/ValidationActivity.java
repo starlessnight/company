@@ -77,8 +77,10 @@ import android.widget.Toast;
 import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
 import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.AnimatorListener;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
+import com.crashlytics.android.Crashlytics;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.skobbler.ngx.SKCoordinate;
+import com.skobbler.ngx.SKMaps;
 import com.skobbler.ngx.map.SKAnnotation;
 import com.skobbler.ngx.map.SKBoundingBox;
 import com.skobbler.ngx.map.SKCoordinateRegion;
@@ -640,6 +642,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		mapView = mapViewHolder.getMapSurfaceView();
 		CloudmadeUtil.retrieveCloudmadeKey(this);
 		mapView.setMapSurfaceListener(this);
+		mapView.clearAllOverlays();
 		mapView.getMapSettings().setCurrentPositionShown(true);
 		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
 		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
@@ -1123,31 +1126,36 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private static final Integer DEST_ANNOTATION_ID = Integer.valueOf(1010);
 
 	public synchronized void drawRoute(SKMapSurfaceView mapView, Route _route) {
-		mapView.clearAllOverlays();
-		List<SKCoordinate> routeCoors = new ArrayList<SKCoordinate>();
-		for(RouteNode node : _route.getNodes()) {
-			routeCoors.add(new SKCoordinate(node.getLongitude(), node.getLatitude()));
+		try {
+			mapView.clearAllOverlays();
+			setViewToNorthAmerica(mapView);
+			List<SKCoordinate> routeCoors = new ArrayList<SKCoordinate>();
+			for(RouteNode node : _route.getNodes()) {
+				routeCoors.add(new SKCoordinate(node.getLongitude(), node.getLatitude()));
+			}
+			SKPolyline routeLine = new SKPolyline();
+			routeLine.setNodes(routeCoors);
+			routeLine.setColor(new float[] {0.6f, 0.8f, 0f, 1f}); //RGBA
+			routeLine.setLineSize(20);
+			
+			//outline properties, otherwise map crash
+			routeLine.setOutlineColor(new float[] { 0f, 0f, 1f, 1f });
+			routeLine.setOutlineSize(0);
+			routeLine.setOutlineDottedPixelsSolid(3);
+			routeLine.setOutlineDottedPixelsSkip(3);
+			//
+			
+			mapView.addPolyline(routeLine);
+			
+			drawDestinationAnnotation(route.getLastNode());
+			if((Boolean)buttonFollow.getTag()) {
+				mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
+			}
+			
+			route.setUserId(User.getCurrentUser(this).getId());
+		}catch(Exception e) {
+			Crashlytics.logException(e);
 		}
-		SKPolyline routeLine = new SKPolyline();
-		routeLine.setNodes(routeCoors);
-		routeLine.setColor(new float[] {0.6f, 0.8f, 0f, 1f}); //RGBA
-		routeLine.setLineSize(20);
-		
-		//outline properties, otherwise map crash
-		routeLine.setOutlineColor(new float[] { 0f, 0f, 1f, 1f });
-		routeLine.setOutlineSize(0);
-		routeLine.setOutlineDottedPixelsSolid(3);
-		routeLine.setOutlineDottedPixelsSkip(3);
-		//
-		
-		mapView.addPolyline(routeLine);
-		
-		drawDestinationAnnotation(route.getLastNode());
-		if((Boolean)buttonFollow.getTag()) {
-			mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
-		}
-		
-		route.setUserId(User.getCurrentUser(this).getId());
 	}
 	
 	private void drawDestinationAnnotation(RouteNode destNode) {
@@ -2241,7 +2249,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 		
 		super.onDestroy();
+		SKMaps.getInstance().destroySKMaps();
 	}
+	
+	private static void setViewToNorthAmerica(SKMapSurfaceView mapView){
+        mapView.setZoom(3); 
+        mapView.centerMapOnPosition(new SKCoordinate(-99.1406250000000, 38.27268853598097f));
+    }
 
     @Override
     public void onAudioFocusChange(int focusChange) {
