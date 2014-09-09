@@ -1,7 +1,6 @@
 package com.smartrek.requests;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -98,11 +97,11 @@ public class ReservationRequest extends Request {
                 StringUtils.substringAfter(idStr, separator):idStr);
 	        String originEncoded = StringUtils.defaultString(origin, "");
 	        String destEncoded = StringUtils.defaultString(destination, "");
-	        try {
-	        	originEncoded = URLEncoder.encode(originEncoded, "utf-8");
-	        	destEncoded = URLEncoder.encode(destEncoded, "utf-8");
-	        }
-	        catch(UnsupportedEncodingException ignore){}
+//	        try {
+//	        	originEncoded = URLEncoder.encode(originEncoded, "utf-8");
+//	        	destEncoded = URLEncoder.encode(destEncoded, "utf-8");
+//	        }
+//	        catch(UnsupportedEncodingException ignore){}
             params.put("origin", originEncoded);
             params.put("destination", destEncoded);
             params.put("trajectory_fields", "lat,lon,altitude,heading,timestamp,speed,link,accuracy");
