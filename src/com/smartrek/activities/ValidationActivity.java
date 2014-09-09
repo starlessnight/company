@@ -25,6 +25,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osmdroid.api.IGeoPoint;
+import org.osmdroid.contributor.util.RecordedGeoPoint;
+import org.osmdroid.contributor.util.RecordedRouteGPXFormatter;
 import org.osmdroid.tileprovider.util.CloudmadeUtil;
 
 import android.app.Activity;
@@ -93,9 +95,10 @@ import com.skobbler.ngx.map.SKMapSurfaceView;
 import com.skobbler.ngx.map.SKMapSurfaceView.SKAnimationType;
 import com.skobbler.ngx.map.SKMapViewHolder;
 import com.skobbler.ngx.map.SKPOICluster;
-import com.skobbler.ngx.map.SKPolyline;
 import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
+import com.skobbler.ngx.routing.SKRouteManager;
+import com.skobbler.ngx.routing.SKRouteSettings;
 import com.smartrek.SendTrajectoryService;
 import com.smartrek.SkobblerUtils;
 import com.smartrek.TripService;
@@ -1129,11 +1132,53 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
 	}
 	
+	private File saveGPXFile(Route _route) {
+		try {
+			List<RecordedGeoPoint> routeGeoPoints = new ArrayList<RecordedGeoPoint>();
+			for(RouteNode routeNode : _route.getNodes()) {
+				RecordedGeoPoint geoPoint = new RecordedGeoPoint(routeNode.getGeoPoint().getLatitudeE6(), routeNode.getGeoPoint().getLongitudeE6());
+				routeGeoPoints.add(geoPoint);
+			}
+			String gpxContent = RecordedRouteGPXFormatter.create(routeGeoPoints);
+			File gpxFile = getFile(ValidationActivity.this, _route.getId());
+			if(gpxFile.exists()) {
+				FileUtils.deleteQuietly(gpxFile);
+			}
+			FileUtils.writeStringToFile(gpxFile, gpxContent);
+			return gpxFile;
+		}
+		catch(IOException e) {
+			ehs.reportException(e);
+		}
+		return null;
+	}
+	
+	private static File getDir(Context ctx){
+        return new File(ctx.getExternalFilesDir(null), "gpx");
+    }
+	
+	public static File getFile(Context ctx, long rId){
+        return new File(getDir(ctx), String.valueOf(rId) + ".gpx");
+    }
+	
 	private static final Integer DEST_ANNOTATION_ID = Integer.valueOf(1010);
 
 	public synchronized void drawRoute(SKMapSurfaceView mapView, Route _route) {
 		try {
 			mapView.clearAllOverlays();
+			SKRouteManager routeManager = SKRouteManager.getInstance();
+			File gpxFile = saveGPXFile(_route);
+			if(gpxFile != null) {
+				routeManager.clearCurrentRoute();
+				routeManager.clearRouteAlternatives();
+				routeManager.clearAllRoutesFromCache();
+				routeManager.setRouteFromGPXFile(gpxFile.getAbsolutePath(), SKRouteSettings.SKROUTE_CAR_FASTEST, false, false, false);
+				drawDestinationAnnotation(_route.getLastNode());
+				if((Boolean)buttonFollow.getTag()) {
+					mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
+				}
+			}
+			/*
 			List<SKCoordinate> routeCoors = new ArrayList<SKCoordinate>();
 			for(RouteNode node : _route.getNodes()) {
 				routeCoors.add(new SKCoordinate(node.getLongitude(), node.getLatitude()));
@@ -1156,6 +1201,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			if((Boolean)buttonFollow.getTag()) {
 				mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
 			}
+			*/
 			
 			route.setUserId(User.getCurrentUser(this).getId());
 		}catch(Exception e) {
@@ -2255,6 +2301,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                 }
             });
 		}
+		
+		try {
+			FileUtils.cleanDirectory(getDir(ValidationActivity.this));
+		} catch (IOException ignore) { ignore.printStackTrace();}
 		
 		super.onDestroy();
 		SKMaps.getInstance().destroySKMaps();
