@@ -694,7 +694,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		                    GeoPoint topLeft = routeRect.getTopLeftPoint();
 		                    GeoPoint bottomRight = routeRect.getBottomRightPoint();
 		                    // paddding parameter of fitBoundingBox not work, use PADDING
-		                    SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude() - PADDING, topLeft.getLongitude() - PADDING, bottomRight.getLatitude() + PADDING, bottomRight.getLongitude() + PADDING);
+		                    SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude() + PADDING, topLeft.getLongitude() + PADDING, bottomRight.getLatitude() - PADDING, bottomRight.getLongitude() - PADDING);
 		                    mapView.fitBoundingBox(boundingBox, 0, 0);
 		                    mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
 		                }
