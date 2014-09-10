@@ -58,8 +58,7 @@ public class SkobblerUtils {
         // get object holding map initialization settings
         SKMapsInitSettings initMapSettings = new SKMapsInitSettings();
         // set path to map resources and initial map style
-        initMapSettings.setMapResourcesPaths(mapResourcesDirPath,
-                new SKMapViewStyle(mapResourcesDirPath + "daystyle/", "daystyle.json"));
+        initMapSettings.setMapResourcesPaths(mapResourcesDirPath, getMapVewStyle());
         
         SKAdvisorSettings advisorSettings = initMapSettings.getAdvisorSettings();
         advisorSettings.setLanguage("en");

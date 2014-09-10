@@ -90,6 +90,7 @@ import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.skobbler.ngx.SKMaps;
+import com.smartrek.SkobblerUtils;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.dialogs.NotificationDialog2.ActionListener;
@@ -1625,16 +1626,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					public void onAnimationEnd() {
 						final Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
 						if(reserv.isEligibleTrip()) {
-							Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
-			                intent.putExtra("route", reserv.getRoute());
-			                intent.putExtra("reservation", reserv);
-			                JSONObject reservRecipients = DebugOptionsActivity.getReservRecipientsAndRemove(LandingActivity2.this, reserv.getRid());
-			                intent.putExtra(ValidationActivity.EMAILS, reservRecipients.optString("emails", ""));
-		                    intent.putExtra(ValidationActivity.PHONES, reservRecipients.optString("phones", ""));
-			                hideBulbBalloon();
-			                hideStarredBalloon();
-			                removeAllOD();
-			                startActivity(intent);
+							startValidationActivity(reserv);
 						}
 						else {
 							NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, "Would you like to start your trip early?");
@@ -1654,16 +1646,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 									rescheduleTask.callback = new RescheduleTripTask.Callback() {
 			                            @Override
 			                            public void run(Reservation reservation) {
-			                                Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
-			                                intent.putExtra("route", reservation.getRoute());
-			                                intent.putExtra("reservation", reservation);
-			                                JSONObject reservRecipients = DebugOptionsActivity.getReservRecipientsAndRemove(LandingActivity2.this, reserv.getRid());
-			    			                intent.putExtra(ValidationActivity.EMAILS, reservRecipients.optString("emails", ""));
-			    		                    intent.putExtra(ValidationActivity.PHONES, reservRecipients.optString("phones", ""));
-			                                hideBulbBalloon();
-			                                hideStarredBalloon();
-			                                removeAllOD();
-			                                startActivity(intent);
+			                            	startValidationActivity(reservation);
 			                            }
 			                        };
 			                        Misc.parallelExecute(rescheduleTask);
@@ -1800,10 +1783,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					int position, long id) {
 				final Reservation reserv = (Reservation) parent.getItemAtPosition(position);
 				if(reserv.isEligibleTrip()) {
-	                Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
-	                intent.putExtra("route", reserv.getRoute());
-	                intent.putExtra("reservation", reserv);
-	                startActivity(intent);
+					startValidationActivity(reserv);
 				}
 				else {
 					try {
@@ -2948,6 +2928,21 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 startActivity(intent);
             }
         }
+    }
+    
+    private void startValidationActivity(Reservation reserv) {
+    	Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
+        intent.putExtra("route", reserv.getRoute());
+        intent.putExtra("reservation", reserv);
+        JSONObject reservRecipients = DebugOptionsActivity.getReservRecipientsAndRemove(LandingActivity2.this, reserv.getRid());
+        intent.putExtra(ValidationActivity.EMAILS, reservRecipients.optString("emails", ""));
+        intent.putExtra(ValidationActivity.PHONES, reservRecipients.optString("phones", ""));
+        hideBulbBalloon();
+        hideStarredBalloon();
+        removeAllOD();
+        // init skmap
+        SkobblerUtils.initializeLibrary(LandingActivity2.this);
+        startActivity(intent);
     }
     
     private void refreshStarredPOIs(){
