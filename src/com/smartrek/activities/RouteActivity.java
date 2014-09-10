@@ -801,11 +801,11 @@ public final class RouteActivity extends FragmentActivity {
 	                                if(reservation.isEligibleTrip()){
 	                                    deleteRescheduledReservation();
 	                                    Misc.suppressTripInfoPanel(RouteActivity.this);
-	                                    Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
-	                                    intent.putExtra("route", reservation.getRoute());
-	                                    intent.putExtra("reservation", reservation);
-	                                    put_cur_location_if_GPS_provider_and_less_than_1_min_old(intent);
-	                                    startActivity(intent);
+//	                                    Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
+//	                                    intent.putExtra("route", reservation.getRoute());
+//	                                    intent.putExtra("reservation", reservation);
+//	                                    put_cur_location_if_GPS_provider_and_less_than_1_min_old(intent);
+//	                                    startActivity(intent);
 	                                    finish();
 	                                }else{
 	                                    String msg = null;
