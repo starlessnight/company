@@ -657,7 +657,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         mapView.getMapSettings().setInertiaRotatingEnabled(true);
         mapView.getMapSettings().setInertiaZoomingEnabled(true);
         mapView.getMapSettings().setInertiaPanningEnabled(true);
-        mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapVewStyle());
+        mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapVewStyle(ValidationActivity.this));
 	}
 	
 	private static final Float PADDING = 0.02f;
