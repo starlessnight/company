@@ -1871,8 +1871,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                         if(callback!=null) {
                         	callback.run();
                         }
-                        if (!arrivalMsgDisplayed.get() && !isFinishing()) {
-                            finish();
+                        if (!arrivalMsgDisplayed.get()) {
+                            doDisplayArrivalMsg(reservation.getCredits(), 0, null, null, 0);
                         }
                     }catch(Throwable t){}
                 }
@@ -2388,7 +2388,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             if(String.valueOf(reservation.getRid()).equals(id)){
                 String message = intent.getStringExtra(MESSAGE);
                 double co2Saving = intent.getDoubleExtra(CO2_SAVING, 0);
-                int credit = intent.getIntExtra(CREDIT, 0);
+                int credit = intent.getIntExtra(CREDIT, reservation.getCredits());
                 String voice = intent.getStringExtra(VOICE);
                 double timeSavingInMinute = intent.getDoubleExtra(TIME_SAVING_IN_MINUTE, 0);
                 doDisplayArrivalMsg(credit, co2Saving, message, voice, timeSavingInMinute);
