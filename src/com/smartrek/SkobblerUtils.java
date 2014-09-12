@@ -51,13 +51,17 @@ public class SkobblerUtils {
 	
 	
 	public static SKMapViewStyle getMapVewStyle(Context ctx) {
-		Calendar cal = Calendar.getInstance();
-		cal.setTimeInMillis(System.currentTimeMillis());
-		int hour = cal.get(Calendar.HOUR_OF_DAY);
-		if(hour >= 6 && hour < 18) {
+		if(isDayMode()) {
 			return new SKMapViewStyle(getMapResourceDirPath(ctx) + "daystyle/", "daystyle.json");
 		}
 		return new SKMapViewStyle(getMapResourceDirPath(ctx) + "nightstyle/", "nightstyle.json");
+	}
+	
+	public static boolean isDayMode() {
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(System.currentTimeMillis());
+		int hour = cal.get(Calendar.HOUR_OF_DAY);
+		return hour >= 6 && hour < 18;
 	}
 	
 	private static String getMapResourceDirPath(Context ctx) {

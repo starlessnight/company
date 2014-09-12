@@ -39,6 +39,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
@@ -917,6 +918,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		destAddr.setText(reservation.getDestinationAddress());
 
 		final TextView timeInfo = (TextView) findViewById(R.id.remain_times);
+		if(SkobblerUtils.isDayMode()) {
+			timeInfo.setTextColor(Color.parseColor("#ad000000"));
+		}
+		else {
+			timeInfo.setTextColor(Color.parseColor("#adffffff"));
+		}
         timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(
             reservation.getArrivalTimeUtc(), route.getTimezoneOffset()));
         timeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(reservation.getDuration()));
@@ -1203,7 +1210,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 			*/
 			
-			route.setUserId(User.getCurrentUser(this).getId());
+			_route.setUserId(User.getCurrentUser(this).getId());
 		}catch(Exception e) {
 			Crashlytics.logException(e);
 		}
@@ -1863,6 +1870,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			if(locationManager != null) {
 				locationManager.removeUpdates(locationListener);
 			}
+			
 			findViewById(R.id.loading).setVisibility(View.VISIBLE);
 			new Handler().postDelayed(new Runnable() {
                 @Override
