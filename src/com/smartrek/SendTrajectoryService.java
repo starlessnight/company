@@ -31,7 +31,7 @@ public class SendTrajectoryService extends IntentService {
     
     private static long sevenDays = 7 * 24 * 60 * 60 * 1000;
     
-    private static long fiveMins = 5 * 60 * 1000; 
+    private static long twoMins = 2 * 60 * 1000; 
     
     public SendTrajectoryService() {
         super(SendTrajectoryService.class.getName());
@@ -61,7 +61,7 @@ public class SendTrajectoryService extends IntentService {
                 long startTime = files[0].lastModified();
                 List<File> toSendFiles = new ArrayList<File>();
                 for (File f : files) {
-                    if(f.lastModified() < startTime + fiveMins){
+                    if(f.lastModified() < startTime + twoMins){
                         try {
                             Trajectory t = Trajectory.from(new JSONArray(FileUtils.readFileToString(f)));
                             traj.append(t);
@@ -166,7 +166,7 @@ public class SendTrajectoryService extends IntentService {
                 ctx, SendTrajectoryService.class), PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
         alarm.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, 
-            SystemClock.elapsedRealtime() + fiveMins, fiveMins, sendTrajServ);
+            SystemClock.elapsedRealtime() + twoMins, twoMins, sendTrajServ);
     }
 
 }
