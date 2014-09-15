@@ -25,6 +25,7 @@ import com.facebook.UiLifecycleHelper;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.google.android.gms.plus.GooglePlusUtil;
 import com.google.android.gms.plus.PlusShare;
+import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.ui.ClickAnimation;
 import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.utils.Font;
@@ -323,8 +324,10 @@ public final class ShareActivity extends FragmentActivity {
 
 	private void displaySharedNotification() {
 		if (ShareActivity.this != null) {
-			Toast.makeText(ShareActivity.this, "shared", Toast.LENGTH_SHORT)
-					.show();
+			NotificationDialog2 dialog = new NotificationDialog2(ShareActivity.this, "A message has been posted to your wall. Thanks for sharing Metropia!");
+			dialog.setTitle("");
+			dialog.setPositiveButtonText("OK");
+			dialog.show();
 		}
 	}
 	
