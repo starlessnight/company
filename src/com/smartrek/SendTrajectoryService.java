@@ -58,20 +58,15 @@ public class SendTrajectoryService extends IntentService {
                 File[] files = routeDir.listFiles();
                 Arrays.sort(files, LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);
                 Trajectory traj = new Trajectory();
-                long startTime = files[0].lastModified();
                 List<File> toSendFiles = new ArrayList<File>();
                 for (File f : files) {
-                    if(f.lastModified() < startTime + twoMins){
-                        try {
-                            Trajectory t = Trajectory.from(new JSONArray(FileUtils.readFileToString(f)));
-                            traj.append(t);
-                            toSendFiles.add(f);
-                        }
-                        catch (Exception e) {
-                            Log.d("SendTrajectoryService", Log.getStackTraceString(e));
-                        }
-                    }else{
-                        break;
+                    try {
+                        Trajectory t = Trajectory.from(new JSONArray(FileUtils.readFileToString(f)));
+                        traj.append(t);
+                        toSendFiles.add(f);
+                    }
+                    catch (Exception e) {
+                        Log.d("SendTrajectoryService", Log.getStackTraceString(e));
                     }
                 }
                 long routeId = Long.parseLong(originalName);
