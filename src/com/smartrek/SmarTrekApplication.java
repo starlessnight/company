@@ -21,7 +21,7 @@ public final class SmarTrekApplication extends Application {
     public void onCreate() {
         // The following line triggers the initialization of ACRA
         //ACRA.init(this);
-//        Crashlytics.start(this);
+        Crashlytics.start(this);
         SendTrajectoryService.schedule(this);
         CalendarService.schedule(this);
         TripService.schedule(this);
