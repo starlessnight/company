@@ -36,6 +36,7 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import com.smartrek.SkobblerUtils;
 import com.smartrek.activities.LandingActivity.ShortcutNavigationTask;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Trajectory;
@@ -213,6 +214,7 @@ public final class DebugOptionsActivity extends Activity {
                                         intent.putExtra(ValidationActivity.TRAJECTORY_DATA, result.toString());
                                         intent.putExtra("route", reservation.getRoute());
                                         intent.putExtra("reservation", reservation);
+                                        SkobblerUtils.initializeLibrary(DebugOptionsActivity.this);
                                         startActivity(intent);
                                         finish();
                                     }

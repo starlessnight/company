@@ -41,9 +41,6 @@ public class SkobblerUtils {
         SKAdvisorSettings advisorSettings = initMapSettings.getAdvisorSettings();
         advisorSettings.setLanguage("en");
         advisorSettings.setAdvisorVoice("en");
-        advisorSettings.setPlayInitialAdvice(true);
-        advisorSettings.setPlayAfterTurnInformalAdvice(true);
-        advisorSettings.setPlayInitialVoiceNoRouteAdvice(true);
         initMapSettings.setAdvisorSettings(advisorSettings);
        
         SKMaps.getInstance().initializeSKMaps(ctx, initMapSettings, API_KEY);

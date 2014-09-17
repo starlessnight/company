@@ -84,6 +84,7 @@ import com.crashlytics.android.Crashlytics;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.skobbler.ngx.SKCoordinate;
 import com.skobbler.ngx.SKMaps;
+import com.skobbler.ngx.map.SKAnimationSettings;
 import com.skobbler.ngx.map.SKAnnotation;
 import com.skobbler.ngx.map.SKBoundingBox;
 import com.skobbler.ngx.map.SKCoordinateRegion;
@@ -93,13 +94,14 @@ import com.skobbler.ngx.map.SKMapSettings.SKMapDisplayMode;
 import com.skobbler.ngx.map.SKMapSettings.SKMapFollowerMode;
 import com.skobbler.ngx.map.SKMapSurfaceListener;
 import com.skobbler.ngx.map.SKMapSurfaceView;
-import com.skobbler.ngx.map.SKMapSurfaceView.SKAnimationType;
 import com.skobbler.ngx.map.SKMapViewHolder;
 import com.skobbler.ngx.map.SKPOICluster;
 import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
 import com.skobbler.ngx.routing.SKRouteManager;
 import com.skobbler.ngx.routing.SKRouteSettings;
+import com.skobbler.ngx.tracks.SKTracksFile;
+import com.skobbler.ngx.util.SKLogging;
 import com.smartrek.SendTrajectoryService;
 import com.smartrek.SkobblerUtils;
 import com.smartrek.TripService;
@@ -643,6 +645,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private void initSKMaps() {
 		initial.set(true);
+		SKLogging.enableLogs(true);
 		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
 		mapView = mapViewHolder.getMapSurfaceView();
 		CloudmadeUtil.retrieveCloudmadeKey(this);
@@ -664,8 +667,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private static final Float PADDING = 0.02f;
 	
 	private void initViews() {
+		
 		buttonFollow = (ImageView) findViewById(R.id.center_map_icon);
 		buttonFollow.setTag(true);
+		
         buttonFollow.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -708,7 +713,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             	});
             }
         });
-
+        
 		navigationView = (NavigationView) findViewById(R.id.navigation_view);
 		navigationView.setDestinationAddress(reservation.getDestinationAddress());
 		navigationView.setTypeface(boldFont);
@@ -750,7 +755,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				});
 			}
 		});
-
+		
 		final View mapViewEndTripBtn = findViewById(R.id.map_view_end_trip_btn);
 		mapViewEndTripBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -765,7 +770,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				});
 			}
 		});
-
+		
 		volumnControl = (ImageView) findViewById(R.id.volumn_control);
 		int imageSrc = MapDisplayActivity.isNavigationTtsEnabled(this)?R.drawable.volumn_btn_open:R.drawable.volumn_btn_close;
 		volumnControl.setTag(MapDisplayActivity.isNavigationTtsEnabled(this));
@@ -974,7 +979,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         }
 		
         scheduleTimeInfoCycle();
-        
         Font.setTypeface(boldFont, remainDistDirecListView, timeInfo, finishButton, feedBackButton);
 		Font.setTypeface(lightFont/*, osmCredit*/, remainTimesDirectListView);
 	}
@@ -1176,10 +1180,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			SKRouteManager routeManager = SKRouteManager.getInstance();
 			File gpxFile = saveGPXFile(_route);
 			if(gpxFile != null) {
+				SKTracksFile routeGpx = SKTracksFile.loadAtPath(gpxFile.getAbsolutePath());
 				routeManager.clearCurrentRoute();
 				routeManager.clearRouteAlternatives();
 				routeManager.clearAllRoutesFromCache();
-				routeManager.setRouteFromGPXFile(gpxFile.getAbsolutePath(), SKRouteSettings.SKROUTE_CAR_FASTEST, false, false, false);
+				routeManager.createRouteFromTrackElement(routeGpx.getRootTrackElement(), 
+						SKRouteSettings.SKROUTE_CAR_FASTEST, false, false, false);
 				drawDestinationAnnotation(_route.getLastNode());
 				if((Boolean)buttonFollow.getTag()) {
 					mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
@@ -1222,7 +1228,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		destAnn.setLocation(new SKCoordinate(destNode.getLongitude(), destNode.getLatitude()));
 		destAnn.setMininumZoomLevel(5);
 		destAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_DESTINATION_FLAG);
-		mapView.addAnnotation(destAnn);
+		mapView.addAnnotation(destAnn, SKAnimationSettings.ANIMATION_NONE);
 	}
 	
 	private int seq = 1;
@@ -2417,12 +2423,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 
 	@Override
-	public void onAnimationsFinished(SKAnimationType arg0, boolean arg1) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void onAnnotationSelected(SKAnnotation arg0) {
 		// TODO Auto-generated method stub
 		
@@ -2514,6 +2514,18 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	@Override
 	public void onSurfaceCreated() {
 		setViewToNorthAmerica(mapView);
+	}
+
+	@Override
+	public void onCurrentPositionSelected() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onObjectSelected(int arg0) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
