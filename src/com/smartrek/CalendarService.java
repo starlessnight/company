@@ -30,7 +30,9 @@ import com.smartrek.models.User;
 import com.smartrek.receivers.CalendarNotification;
 import com.smartrek.utils.CalendarContract.Instances;
 import com.smartrek.utils.Geocoding;
+import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.Geocoding.Address;
+import com.smartrek.utils.ValidationParameters;
 
 public class CalendarService extends IntentService {
 
@@ -76,9 +78,10 @@ public class CalendarService extends IntentService {
                            String title = events.getString(1);
                            Address address = geocode(location);
                            if((!file.exists() || file.length() == 0) && StringUtils.isNotBlank(location) 
-                                   && canBeGeocoded(address)
+                                   && canBeGeocoded(address) 
                                    && !isDuplicate(CalendarService.this, eventId, title, start, end) 
-                                   && System.currentTimeMillis() < notiTime/* true */){
+                                   && System.currentTimeMillis() < notiTime/* true */
+                                   && !isOnDestination(address)){
                                hasNotification = true;
                                Intent noti = new Intent(CalendarService.this, 
                                    CalendarNotification.class);
@@ -121,6 +124,12 @@ public class CalendarService extends IntentService {
     
     private static boolean canBeGeocoded(Geocoding.Address address){
         return address != null && !address.getGeoPoint().isEmpty();
+    }
+    
+    private boolean isOnDestination(Geocoding.Address address) {
+    	LocationInfo loc = new LocationInfo(CalendarService.this);
+    	ValidationParameters params = ValidationParameters.getInstance();
+    	return RouteNode.distanceBetween(loc.lastLat, loc.lastLong, address.getLatitude(), address.getLongitude()) < params.getArrivalDistanceThreshold();
     }
     
     private Geocoding.Address geocode(String location){
