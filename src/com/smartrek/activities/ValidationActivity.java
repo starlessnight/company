@@ -973,6 +973,20 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
         });
         
+        findViewById(R.id.mpoint_circle).setOnClickListener(new OnClickListener() {
+        	@Override
+			public void onClick(View v) {
+        	    Intent intent;
+                if(WebMyMetropiaActivity.hasUrl(ValidationActivity.this)){
+                    intent = new Intent(ValidationActivity.this, WebMyMetropiaActivity.class);
+                }else{
+    				intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
+    				intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.CO2_SAVING_TAB);
+                }
+				startActivity(intent);
+			}
+        });
+        
         if(DebugOptionsActivity.isReroutingDebugMsgEnabled(this) || DebugOptionsActivity.isVoiceDebugMsgEnabled(this)
                 || DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(this)){
             findViewById(R.id.rerouting_debug_msg).setVisibility(View.VISIBLE);
@@ -2513,7 +2527,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	public void onSurfaceCreated() {
-		setViewToNorthAmerica(mapView);
+//		setViewToNorthAmerica(mapView);
 	}
 
 	@Override
