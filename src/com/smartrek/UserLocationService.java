@@ -15,19 +15,20 @@ import android.util.Log;
 
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
 import com.smartrek.activities.DebugOptionsActivity;
-import com.smartrek.activities.DebugOptionsActivity.LatLon;
 import com.smartrek.activities.MainActivity;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.SendTrajectoryRequest;
-import com.smartrek.utils.RouteNode;
 
 public class UserLocationService extends IntentService {
     
     public static Long getInterval(Context ctx){
+        /*
         Long interval = DebugOptionsActivity.getActivityDistanceInterval(ctx);
         return interval == null?null:(interval * 3600000 / 60000);
+        */
+        return 60 * 1000L;
     }
     
     private static final int RID = 9999;
@@ -42,10 +43,10 @@ public class UserLocationService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         try {
             LocationInfo info = new LocationInfo(UserLocationService.this);
-            LatLon lastLoc = DebugOptionsActivity.getLastUserLatLon(UserLocationService.this);
+            /*LatLon lastLoc = DebugOptionsActivity.getLastUserLatLon(UserLocationService.this);
             Long distanceInterval = DebugOptionsActivity.getActivityDistanceInterval(UserLocationService.this);
             if(distanceInterval != null && (lastLoc == null || RouteNode.distanceBetween(lastLoc.lat, 
-                    lastLoc.lon, info.lastLat, info.lastLong) >= distanceInterval.doubleValue())){
+                    lastLoc.lon, info.lastLat, info.lastLong) >= distanceInterval.doubleValue())){*/
                 Log.i("UserLocationService", "onHandleIntent");
                 DebugOptionsActivity.setLastUserLatLon(UserLocationService.this, info.lastLat, info.lastLong);
                 final File file = getFile(UserLocationService.this);
@@ -81,7 +82,7 @@ public class UserLocationService extends IntentService {
                         }
                     });
                 }
-            }
+            //}
         }
         catch (Throwable t) {
             Log.d("UserLocationService", Log.getStackTraceString(t));

@@ -17,10 +17,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import com.google.analytics.tracking.android.EasyTracker;
-import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary;
 import com.skobbler.ngx.SKPrepareMapTextureListener;
 import com.smartrek.SkobblerUtils;
-import com.smartrek.UserLocationService;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.ServiceDiscoveryRequest;
@@ -129,10 +127,6 @@ public class MainActivity extends Activity implements AnimationListener, SKPrepa
                             });
                         }
                         DebugOptionsActivity.setActivityDistanceInterval(MainActivity.this, Request.getActivityDistanceInterval());
-                        Long interval = UserLocationService.getInterval(MainActivity.this);
-                        LocationLibrary.initialiseLibrary(MainActivity.this, interval, 
-                            interval.intValue(), true, "com.smartrek.activities");
-                        UserLocationService.schedule(MainActivity.this);
                     }
                 };
                 sdTask = initApiLinks(this, getEntrypoint(MainActivity.this), onSuccess, new Runnable() {

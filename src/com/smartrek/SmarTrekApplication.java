@@ -6,6 +6,7 @@ import org.acra.annotation.ReportsCrashes;
 import android.app.Application;
 
 import com.crashlytics.android.Crashlytics;
+import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary;
 import com.smartrek.activities.R;
 
 @ReportsCrashes(formKey="dFdwTW1tbERoS1N4RlhNbFBjeHc4dXc6MQ",
@@ -26,6 +27,10 @@ public final class SmarTrekApplication extends Application {
         CalendarService.schedule(this);
         TripService.schedule(this);
         ContactListService.schedule(this);
+        Long interval = UserLocationService.getInterval(this);
+        LocationLibrary.initialiseLibrary(this, interval, 
+            interval.intValue(), true, "com.smartrek.activities");
+        UserLocationService.schedule(this);
         super.onCreate();
     }
 }
