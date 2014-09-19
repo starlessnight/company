@@ -1689,23 +1689,24 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     double timeInterval = 1000 / 30;
                     long numOfSteps = Math.round((now - lastLocChanged) / timeInterval);
                     final double stepSize = x / numOfSteps;
-                    if(!isNearOD_or_Intersection(lat, lng) || x == 0){
-                        for (int i = 0; i <= numOfSteps; i++) {
-                        	if(i==0 && !position.isEmpty()) {
-                        		mapView.reportNewGPSPosition(new SKPosition(location));
-                        	}
-                        }
-                    }else{
-                        for (int i = 1; i <= numOfSteps; i++) {
-                        	double deltaX = i * stepSize;
-                            double newLng = oldLng + deltaX;
-                            double newLat = oldLat + deltaX * slop;
-                            Location loc = new Location(location);
-                            loc.setLatitude(newLat);
-                            loc.setLongitude(newLng);
-                            mapView.reportNewGPSPosition(new SKPosition(loc));
-                        }
-                    }
+//                    if(!isNearOD_or_Intersection(lat, lng) || x == 0){
+//                        for (int i = 0; i <= numOfSteps; i++) {
+//                        	if(i==0 && !position.isEmpty()) {
+//                        		mapView.reportNewGPSPosition(new SKPosition(location));
+//                        	}
+//                        }
+//                    }else{
+//                        for (int i = 1; i <= numOfSteps; i++) {
+//                        	double deltaX = i * stepSize;
+//                            double newLng = oldLng + deltaX;
+//                            double newLat = oldLat + deltaX * slop;
+//                            Location loc = new Location(location);
+//                            loc.setLatitude(newLat);
+//                            loc.setLongitude(newLng);
+//                            mapView.reportNewGPSPosition(new SKPosition(loc));
+//                        }
+                		mapView.reportNewGPSPosition(new SKPosition(location));
+//                    }
                 }
                 lastLocChanged = now;
                 lastKnownLocation = location;
