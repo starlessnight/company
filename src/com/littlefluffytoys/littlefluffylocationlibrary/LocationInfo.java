@@ -39,6 +39,7 @@ public class LocationInfo implements Serializable {
     public float lastLat;
     public float lastLong;
     public int lastAccuracy;
+    public String lastProvider;
     
     /**
      * Altitude in meters
@@ -72,6 +73,7 @@ public class LocationInfo implements Serializable {
         lastLat = ((int) (prefs.getFloat(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_LAT, Integer.MIN_VALUE) * 1000000f)) / 1000000f;
         lastLong = ((int) (prefs.getFloat(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_LNG, Integer.MIN_VALUE) * 1000000f)) / 1000000f;
         lastAccuracy = prefs.getInt(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_ACCURACY, Integer.MAX_VALUE);
+        lastProvider = prefs.getString(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_PROVIDER, null);
         lastAltitude = ((int) (prefs.getFloat(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_ALTITUDE, 0) * 1000000f)) / 1000000f;
         lastSpeed = ((int) (prefs.getFloat(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_SPEED, 0) * 1000000f)) / 1000000f;
         lastHeading = ((int) (prefs.getFloat(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_HEADING, 0) * 1000000f)) / 1000000f;

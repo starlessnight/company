@@ -28,6 +28,7 @@ public final class SmarTrekApplication extends Application {
         TripService.schedule(this);
         ContactListService.schedule(this);
         Long interval = UserLocationService.getInterval(this);
+        LocationLibrary.useFineAccuracyForRequests(true);
         LocationLibrary.initialiseLibrary(this, interval, 
             interval.intValue(), true, "com.smartrek.activities");
         UserLocationService.schedule(this);
