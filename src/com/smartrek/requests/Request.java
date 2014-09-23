@@ -155,6 +155,8 @@ public abstract class Request {
         return executeHttpRequest(method, url, (Object) json, ctx);
     }
 	
+	public static final int fifteenSecsTimeout = 15 * 1000;
+	
 	protected int timeout = HTTP.defaultTimeout;
 	
 	private String executeHttpRequest(Method method, String url, 

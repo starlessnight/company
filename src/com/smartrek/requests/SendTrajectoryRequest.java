@@ -25,6 +25,13 @@ import com.smartrek.utils.HTTP.Method;
 
 public class SendTrajectoryRequest extends Request {
 	
+	public SendTrajectoryRequest(boolean quickTimeout) {
+		super();
+		if(quickTimeout) {
+			timeout = fifteenSecsTimeout;
+		}
+	}
+	
     public void execute(User user, Trajectory trajectory, Context ctx) throws JSONException, ClientProtocolException, IOException, InterruptedException {
         JSONObject params = new JSONObject();
         params.put("trajectory", trajectory.toJSON());

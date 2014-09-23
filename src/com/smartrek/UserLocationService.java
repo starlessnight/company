@@ -70,7 +70,7 @@ public class UserLocationService extends IntentService {
                         @Override
                         public void run() {
                             try{
-                                SendTrajectoryRequest request = new SendTrajectoryRequest();
+                                SendTrajectoryRequest request = new SendTrajectoryRequest(false);
                                 if(Request.NEW_API){
                                     request.execute(user, traj, UserLocationService.this);
                                 }else{

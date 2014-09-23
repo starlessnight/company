@@ -129,7 +129,6 @@ import com.smartrek.ui.timelayout.TimeColumn;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
-import com.smartrek.utils.HTTP;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
@@ -906,14 +905,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 							mView.setVisibility(View.VISIBLE);
 						}
 						findViewById(R.id.directions_view).setVisibility(View.INVISIBLE);
-//						if (lastKnownLocation != null) {
-//							double latitude = lastKnownLocation.getLatitude();
-//							double longitude = lastKnownLocation.getLongitude();
-//							SKCoordinate coordinate = new SKCoordinate(longitude, latitude);
-//							mapView.setZoom(isNearOD_or_Intersection(latitude, longitude)
-//		                        ?DEFAULT_ZOOM_LEVEL:NAVIGATION_ZOOM_LEVEL);
-//							mapView.centerMapOnPosition(coordinate);
-//						}
 					}
 				});
 			}
@@ -1088,12 +1079,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    return dateFormat.format(new Date(time));
 	}
 	    
-	private static String getFormatedRemainingTime(long seconds){
+	public static String getFormatedRemainingTime(long seconds){
 	    long minute = Double.valueOf(Math.round(seconds / 60.0D)).longValue();
 	    return minute + " min";
 	}
 
-	private SpannableString formatCO2Desc(Context ctx, String co2Desc) {
+	public static SpannableString formatCO2Desc(Context ctx, String co2Desc) {
 		int lbsIndex = co2Desc.indexOf("lbs");
 		SpannableString co2DescSpan = SpannableString.valueOf(co2Desc);
 		co2DescSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
@@ -1112,7 +1103,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		return co2DescSpan;
 	}
 	
-	private SpannableString formatCongrMessage(Context ctx, String message) {
+	public static SpannableString formatCongrMessage(Context ctx, String message) {
 		int indexOfNewline = message.indexOf("\n");
 		SpannableString congrSpan = SpannableString.valueOf(message);
 		congrSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
@@ -1123,7 +1114,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		return congrSpan;
 	}
 	
-	private SpannableString formatCongrValueDesc(Context ctx, String valueDesc) {
+	public static SpannableString formatCongrValueDesc(Context ctx, String valueDesc) {
 		int indexOfNewline = valueDesc.indexOf("\n");
 		SpannableString congrValueSpan = SpannableString.valueOf(valueDesc);
 		congrValueSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
@@ -1166,9 +1157,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 			String gpxContent = RecordedRouteGPXFormatter.create(routeGeoPoints);
 			File gpxFile = getFile(ValidationActivity.this, _route.getId());
-			if(gpxFile.exists()) {
-				FileUtils.deleteQuietly(gpxFile);
-			}
 			FileUtils.writeStringToFile(gpxFile, gpxContent);
 			return gpxFile;
 		}
@@ -1179,7 +1167,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 	
 	private static File getDir(Context ctx){
-        return new File(ctx.getExternalFilesDir(null), "gpx");
+		File gpxDir = new File(ctx.getExternalFilesDir(null), "gpx");
+		if(!gpxDir.exists()) {
+			gpxDir.mkdir();
+		}
+        return gpxDir;
     }
 	
 	public static File getFile(Context ctx, long rId){
@@ -1368,7 +1360,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						@Override
 						protected Void doInBackground(Void... params) {
 							try {
-								FileUtils.write(tFile, "");
+								JSONObject reservDetail = new JSONObject();
+								try {
+									reservDetail.put(CongratulationActivity.DESTINATION, reservation.getDestinationAddress());
+									reservDetail.put(CongratulationActivity.DEPARTURE_TIME, reservation.getDepartureTime());
+								} catch (JSONException e) {
+								}
+								FileUtils.write(tFile, reservDetail.toString());
 							} catch (IOException e) {
 							}
 							if(callback != null){
@@ -1681,32 +1679,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                 	}
                 } else {
                     animator.removeCallbacksAndMessages(null);
-                    final double oldLat = oldLoc.getLatitude();
-                    double y = lat - oldLat;
-                    final double oldLng = oldLoc.getLongitude();
-                    double x = lng - oldLng;
-                    final double slop = y / x;
-                    double timeInterval = 1000 / 30;
-                    long numOfSteps = Math.round((now - lastLocChanged) / timeInterval);
-                    final double stepSize = x / numOfSteps;
-//                    if(!isNearOD_or_Intersection(lat, lng) || x == 0){
-//                        for (int i = 0; i <= numOfSteps; i++) {
-//                        	if(i==0 && !position.isEmpty()) {
-//                        		mapView.reportNewGPSPosition(new SKPosition(location));
-//                        	}
-//                        }
-//                    }else{
-//                        for (int i = 1; i <= numOfSteps; i++) {
-//                        	double deltaX = i * stepSize;
-//                            double newLng = oldLng + deltaX;
-//                            double newLat = oldLat + deltaX * slop;
-//                            Location loc = new Location(location);
-//                            loc.setLatitude(newLat);
-//                            loc.setLongitude(newLng);
-//                            mapView.reportNewGPSPosition(new SKPosition(loc));
-//                        }
-                		mapView.reportNewGPSPosition(new SKPosition(location));
-//                    }
+                    mapView.reportNewGPSPosition(new SKPosition(location));
                 }
                 lastLocChanged = now;
                 lastKnownLocation = location;
@@ -1872,7 +1845,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     saveTrip(new Runnable() {
                         @Override
                         public void run() {
-                            TripService.run(ValidationActivity.this, User.getCurrentUser(ValidationActivity.this));
+                            TripService.runImd(ValidationActivity.this, User.getCurrentUser(ValidationActivity.this), reservation.getRid());
                         }
                     });
                 }
@@ -1893,19 +1866,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 			
 			findViewById(R.id.loading).setVisibility(View.VISIBLE);
-			new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    try{
-                        if(callback!=null) {
-                        	callback.run();
-                        }
-                        if (!arrivalMsgDisplayed.get()) {
-                            doDisplayArrivalMsg(reservation.getCredits(), 0, null, null, 0);
-                        }
-                    }catch(Throwable t){}
-                }
-            }, HTTP.defaultTimeout * 2);
 		}
 	}
 	
@@ -1952,7 +1912,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             Font.setTypeface(boldFont, co2, mpoint, driveScore);
             
             //hide map view options
-            findViewById(R.id.mapview_options).setVisibility(View.GONE);;
+            findViewById(R.id.mapview_options).setVisibility(View.GONE);
             panel.setVisibility(View.VISIBLE);
             Misc.fadeIn(ValidationActivity.this, panel);
             
@@ -2339,11 +2299,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		SKMaps.getInstance().destroySKMaps();
 	}
 	
-	private static void setViewToNorthAmerica(SKMapSurfaceView mapView){
-        mapView.setZoom(3); 
-        mapView.centerMapOnPosition(new SKCoordinate(-99.1406250000000, 38.27268853598097f));
-    }
-
     @Override
     public void onAudioFocusChange(int focusChange) {
         
@@ -2421,6 +2376,18 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                 String voice = intent.getStringExtra(VOICE);
                 double timeSavingInMinute = intent.getDoubleExtra(TIME_SAVING_IN_MINUTE, 0);
                 doDisplayArrivalMsg(credit, co2Saving, message, voice, timeSavingInMinute);
+            }
+            else if(id == null) {
+            	NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "Can't connect. We will check your trip and let you know the result later.");
+            	dialog.setTitle("Thanks for using Metropia");
+            	dialog.setPositiveButtonText("OK");
+            	dialog.setPositiveActionListener(new ActionListener() {
+					@Override
+					public void onClick() {
+						finish();
+					}
+            	});
+            	dialog.show();
             }
         }
     };
@@ -2528,7 +2495,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	public void onSurfaceCreated() {
-//		setViewToNorthAmerica(mapView);
 	}
 
 	@Override

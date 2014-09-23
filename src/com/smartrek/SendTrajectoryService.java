@@ -42,10 +42,14 @@ public class SendTrajectoryService extends IntentService {
     }
     
     public static boolean send(Context ctx, long rId){
-        return send(ctx, new File(getInDir(ctx), String.valueOf(rId)));
+        return send(ctx, new File(getInDir(ctx), String.valueOf(rId)), false);
     }
     
-    private static boolean send(Context ctx, File routeDir){
+    public static boolean sendImd(Context ctx, long rId){
+        return send(ctx, new File(getInDir(ctx), String.valueOf(rId)), true);
+    }
+    
+    private static boolean send(Context ctx, File routeDir, boolean quickTimeout){
         boolean success = true;
         User user = User.getCurrentUser(ctx);
         if(user != null && ArrayUtils.isNotEmpty(routeDir.list())){
@@ -81,7 +85,7 @@ public class SendTrajectoryService extends IntentService {
                     catch (IOException e) {
                     }
                 }
-                SendTrajectoryRequest request = new SendTrajectoryRequest();
+                SendTrajectoryRequest request = new SendTrajectoryRequest(quickTimeout);
                 if(Request.NEW_API){
                     try{
                         request.execute(user, routeId, traj, ctx);
@@ -123,7 +127,7 @@ public class SendTrajectoryService extends IntentService {
                                 FileUtils.deleteQuietly(d);
                             }else if(ArrayUtils.isNotEmpty(files) && d != null 
                                     && StringUtils.isNumeric(d.getName())){
-                                send(SendTrajectoryService.this, d);
+                                send(SendTrajectoryService.this, d, false);
                             }
                         }
                     }
