@@ -247,6 +247,17 @@ public class Trajectory {
 	    return this;
 	}
 	
+	public Trajectory removeOlderRecords(long time){
+        ListIterator<Record> recordIter = records.listIterator();
+        while(recordIter.hasNext()){
+            Record r = recordIter.next();
+            if(r.time < time){
+                recordIter.remove();
+            }
+        }
+        return this;
+    }
+	
 	public static Trajectory from(JSONArray array) throws JSONException {
         Trajectory traj = new Trajectory();
         for(int i=0; i<array.length(); i++){
