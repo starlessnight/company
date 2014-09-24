@@ -1866,6 +1866,35 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 			
 			findViewById(R.id.loading).setVisibility(View.VISIBLE);
+			
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    try{
+                        if(callback!=null) {
+                            callback.run();
+                        }
+                        showNotifyLaterDialog();
+                    }catch(Throwable t){}
+                }
+            }, Request.fifteenSecsTimeout * 2);
+
+		}
+	}
+	
+	private void showNotifyLaterDialog() {
+		if (!arrivalMsgDisplayed.getAndSet(true)) {
+			findViewById(R.id.loading).setVisibility(View.GONE);
+			NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "Can't connect. We will check your trip and let you know the result later.");
+	    	dialog.setTitle("Thanks for using Metropia");
+	    	dialog.setPositiveButtonText("OK");
+	    	dialog.setPositiveActionListener(new ActionListener() {
+				@Override
+				public void onClick() {
+					finish();
+				}
+	    	});
+	    	dialog.show();
 		}
 	}
 	
@@ -2365,11 +2394,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     
     public static final String MESSAGE = "MESSAGE";
     
+    public static final String REQUEST_SUCCESS = "REQUEST_SUCCESS";
+    
     private BroadcastReceiver tripValidator = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String id = intent.getStringExtra(ID);
-            if(String.valueOf(reservation.getRid()).equals(id)){
+            boolean success = intent.getBooleanExtra(REQUEST_SUCCESS, false);
+            if(String.valueOf(reservation.getRid()).equals(id) && success){
                 String message = intent.getStringExtra(MESSAGE);
                 double co2Saving = intent.getDoubleExtra(CO2_SAVING, 0);
                 int credit = intent.getIntExtra(CREDIT, reservation.getCredits());
@@ -2377,17 +2409,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                 double timeSavingInMinute = intent.getDoubleExtra(TIME_SAVING_IN_MINUTE, 0);
                 doDisplayArrivalMsg(credit, co2Saving, message, voice, timeSavingInMinute);
             }
-            else if(id == null) {
-            	NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "Can't connect. We will check your trip and let you know the result later.");
-            	dialog.setTitle("Thanks for using Metropia");
-            	dialog.setPositiveButtonText("OK");
-            	dialog.setPositiveActionListener(new ActionListener() {
-					@Override
-					public void onClick() {
-						finish();
-					}
-            	});
-            	dialog.show();
+            else if(String.valueOf(reservation.getRid()).equals(id) && !success) {
+            	showNotifyLaterDialog();
             }
         }
     };

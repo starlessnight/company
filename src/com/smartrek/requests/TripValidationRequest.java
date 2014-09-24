@@ -21,7 +21,6 @@ import com.smartrek.utils.Misc;
 
 public class TripValidationRequest extends Request {
 	
-	public static final int fifteenSecs = 15*1000;
     private long rid;
     
 	public TripValidationRequest(User user, long rid) {
@@ -60,14 +59,15 @@ public class TripValidationRequest extends Request {
         Map<String, String> params = new HashMap<String, String>();
         params.put("reservation_id", String.valueOf(rid));
         Intent intent = new Intent(ValidationActivity.TRIP_VALIDATOR);
-        timeout = fifteenSecs;
+        intent.putExtra(ValidationActivity.ID, String.valueOf(rid));
+        timeout = fifteenSecsTimeout;
         try{
             String res = executeHttpRequest(Method.POST, url, params, ctx);
-            Log.d("TripValidationRequest", res);
             JSONObject json = new JSONObject(res);
             JSONObject data = json.getJSONObject("data");
            	putInfo(intent, data);
         }catch(Exception e){
+        	intent.putExtra(ValidationActivity.REQUEST_SUCCESS, false);
             Log.w("TripValidationRequest", Log.getStackTraceString(e));
             throw e;
         }
@@ -85,5 +85,6 @@ public class TripValidationRequest extends Request {
 		intent.putExtra(ValidationActivity.TIME_SAVING_IN_MINUTE, data.optDouble("time_saving_in_minute", 0));
 		intent.putExtra(ValidationActivity.VOICE, data.optString("voice"));
 		intent.putExtra(ValidationActivity.MESSAGE, data.optString("message"));
+		intent.putExtra(ValidationActivity.REQUEST_SUCCESS, true);
 	}
 }
