@@ -98,6 +98,7 @@ import com.skobbler.ngx.map.SKMapViewHolder;
 import com.skobbler.ngx.map.SKPOICluster;
 import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
+import com.skobbler.ngx.routing.SKRouteListener;
 import com.skobbler.ngx.routing.SKRouteManager;
 import com.skobbler.ngx.routing.SKRouteSettings;
 import com.skobbler.ngx.tracks.SKTracksFile;
@@ -138,7 +139,7 @@ import com.smartrek.utils.SystemService;
 import com.smartrek.utils.UnitConversion;
 
 public class ValidationActivity extends FragmentActivity implements OnInitListener, 
-        OnAudioFocusChangeListener, SKMapSurfaceListener {
+        OnAudioFocusChangeListener, SKMapSurfaceListener, SKRouteListener {
 	public static final int DEFAULT_ZOOM_LEVEL = 18;
 	
 	public static final int NAVIGATION_ZOOM_LEVEL = 16;
@@ -661,6 +662,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         mapView.getMapSettings().setInertiaZoomingEnabled(true);
         mapView.getMapSettings().setInertiaPanningEnabled(true);
         mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapVewStyle(ValidationActivity.this));
+        SKRouteManager.getInstance().setRouteListener(this);
 	}
 	
 	private static final Float PADDING = 0.02f;
@@ -1193,9 +1195,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				routeManager.createRouteFromTrackElement(routeGpx.getRootTrackElement(), 
 						SKRouteSettings.SKROUTE_CAR_FASTEST, false, false, false);
 				drawDestinationAnnotation(_route.getLastNode());
-				if((Boolean)buttonFollow.getTag()) {
-					mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
-				}
 			}
 			/*
 			List<SKCoordinate> routeCoors = new ArrayList<SKCoordinate>();
@@ -2528,6 +2527,32 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	public void onObjectSelected(int arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAllRoutesCompleted() {
+		if((Boolean)buttonFollow.getTag()) {
+			mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
+		}
+	}
+
+	@Override
+	public void onOnlineRouteComputationHanging(int arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onRouteCalculationCompleted(int arg0, int arg1, int arg2,
+			boolean arg3, int arg4) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onServerLikeRouteCalculationCompleted(int arg0) {
 		// TODO Auto-generated method stub
 		
 	}
