@@ -17,6 +17,8 @@
 
 package com.littlefluffytoys.littlefluffylocationlibrary;
 
+import com.smartrek.activities.ValidationActivity;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -83,7 +85,6 @@ public class PassiveLocationChangedReceiver extends BroadcastReceiver {
   protected static void processLocation(final Context context, final Location location, final boolean batchResponses, final boolean forceBroadcast) {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
       final float lastLat = prefs.getFloat(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_LAT, Long.MIN_VALUE);
-      final float lastLong = prefs.getFloat(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_LNG, Long.MIN_VALUE);
       final int lastAccuracy = prefs.getInt(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_ACCURACY, Integer.MAX_VALUE);
       final String thisProvider = location.getProvider();
 
@@ -97,23 +98,15 @@ public class PassiveLocationChangedReceiver extends BroadcastReceiver {
           thisTime = System.currentTimeMillis();
       }
       
-      if (lastLat != Long.MIN_VALUE) {
-          // The tricky maths bit to calculate the distance between two points:
-          // dist = arccos(sin(lat1) � sin(lat2) + cos(lat1) � cos(lat2) � cos(lon1 - lon2)) � R
-          int distanceBetweenInMetres = (int) (Math.acos(Math.sin(Math.toRadians(thisLat)) * Math.sin(Math.toRadians(lastLat)) + Math.cos(Math.toRadians(thisLat)) * Math.cos(Math.toRadians(lastLat)) * Math.cos(Math.toRadians(thisLong) - Math.toRadians(lastLong))) * 6371 * 1000);
-          if (LocationLibrary.showDebugOutput) Log.d(LocationLibraryConstants.TAG, TAG + ": Distance from last reading: " + distanceBetweenInMetres + "m");
-          
-          if (location.hasAccuracy() && (thisAccuracy > lastAccuracy)) {
-              // this reading is less accurate than the previous one - 
-              // see if it's covering the same spot where we were before
-              if (distanceBetweenInMetres < thisAccuracy)
-              {
-                  usePreviousReading = true;
-              }
-          }
-      }
-
       final long previousTime = prefs.getLong(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_TIME, 0);
+      
+      if (lastLat != Long.MIN_VALUE) {
+          String lastProvider = prefs.getString(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_PROVIDER, null);
+          Location lastLocation = new Location(lastProvider);
+          lastLocation.setTime(previousTime);
+          lastLocation.setAccuracy(lastAccuracy);
+          usePreviousReading = !ValidationActivity.isBetterLocation(location, lastLocation);
+      }
 
       final Editor prefsEditor = prefs.edit();
       
