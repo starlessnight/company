@@ -2321,7 +2321,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		
 		try {
 			FileUtils.cleanDirectory(getDir(ValidationActivity.this));
-		} catch (IOException ignore) { ignore.printStackTrace();}
+		} catch (Exception ignore) { ignore.printStackTrace();}
 		
 		super.onDestroy();
 		SKMaps.getInstance().destroySKMaps();
