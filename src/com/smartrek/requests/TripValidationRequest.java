@@ -15,6 +15,7 @@ import android.util.Log;
 import com.smartrek.activities.CongratulationActivity;
 import com.smartrek.activities.R;
 import com.smartrek.activities.ValidationActivity;
+import com.smartrek.exceptions.SmarTrekException;
 import com.smartrek.models.User;
 import com.smartrek.utils.HTTP.Method;
 import com.smartrek.utils.Misc;
@@ -51,7 +52,11 @@ public class TripValidationRequest extends Request {
             Misc.wakeUpScreen(ctx, TripValidationRequest.class.getSimpleName());
         }catch(Exception e){
             Log.w("TripValidationRequest", Log.getStackTraceString(e));
-            throw e;
+            if(responseCode >= 400 && responseCode <= 499){
+                throw new SmarTrekException(responseCode);
+            }else{
+            	throw e;
+            }
         }
 	}
 	
@@ -68,8 +73,12 @@ public class TripValidationRequest extends Request {
            	putInfo(intent, data);
         }catch(Exception e){
         	intent.putExtra(ValidationActivity.REQUEST_SUCCESS, false);
-            Log.w("TripValidationRequest", Log.getStackTraceString(e));
-            throw e;
+        	Log.w("TripValidationRequest", Log.getStackTraceString(e));
+            if(responseCode >= 400 && responseCode <= 499){
+                throw new SmarTrekException(responseCode);
+            }else{
+            	throw e;
+            }
         }
         finally {
         	ctx.sendBroadcast(intent);
