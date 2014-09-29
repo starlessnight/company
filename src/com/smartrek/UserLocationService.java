@@ -14,6 +14,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
+import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary;
 import com.smartrek.activities.DebugOptionsActivity;
 import com.smartrek.activities.DebugOptionsActivity.LatLon;
 import com.smartrek.activities.MainActivity;
@@ -26,16 +27,14 @@ import com.smartrek.utils.RouteNode;
 public class UserLocationService extends IntentService {
     
     public static Long getInterval(Context ctx){
-        /*
-        Long interval = DebugOptionsActivity.getActivityDistanceInterval(ctx);
-        return interval == null?null:(interval * 3600000 / 60000);
-        */
         return 6 * 1000L;
     }
     
     private static final int RID = 9999;
     
     private static final long FIFTEEN_MINS = 15 * 60 * 1000L;
+    
+    private static final long BUFFER_INTERVAL = 30;
     
     public UserLocationService() {
         super(UserLocationService.class.getName());
@@ -47,8 +46,10 @@ public class UserLocationService extends IntentService {
             LocationInfo info = new LocationInfo(UserLocationService.this);
             LatLon lastLoc = DebugOptionsActivity.getLastUserLatLon(UserLocationService.this);
             Long distanceInterval = DebugOptionsActivity.getActivityDistanceInterval(UserLocationService.this);
-            if(distanceInterval != null && (lastLoc == null || RouteNode.distanceBetween(lastLoc.lat, 
-                    lastLoc.lon, info.lastLat, info.lastLong) >= distanceInterval.doubleValue())){
+            boolean hasLastLoc = lastLoc != null;
+            double distance = hasLastLoc?RouteNode.distanceBetween(lastLoc.lat, lastLoc.lon, info.lastLat, info.lastLong):0;
+            LocationLibrary.useFineAccuracyForRequests(this, distance > 0);
+            if(distanceInterval != null && (!hasLastLoc || distance >= (distanceInterval - BUFFER_INTERVAL))){
                 Log.i("UserLocationService", "onHandleIntent");
                 DebugOptionsActivity.setLastUserLatLon(UserLocationService.this, info.lastLat, info.lastLong);
                 final File file = getFile(UserLocationService.this);

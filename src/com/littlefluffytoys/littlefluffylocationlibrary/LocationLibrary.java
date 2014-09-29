@@ -39,7 +39,6 @@ import android.util.Log;
 public class LocationLibrary {
     
     protected static boolean showDebugOutput = false;
-    protected static boolean useFineAccuracyForRequests = false;
     protected static boolean broadcastEveryLocationUpdate = false;
     protected static int stableLocationTimeoutInSeconds = 5; // how many seconds to wait during a flurry of location updates, until it can be assumed no more updates are forthcoming
 
@@ -238,8 +237,10 @@ public class LocationLibrary {
      * (unless the user doesn't have coarse location services switched on, in which case it asks for fine accuracy e.g. GPS).
      * If you always want the library to request fine accuracy, i.e. GPS, set this to true.
      */
-    public static void useFineAccuracyForRequests(final boolean useFineAccuracyForRequests) {
-        LocationLibrary.useFineAccuracyForRequests = useFineAccuracyForRequests;
+    public static void useFineAccuracyForRequests(final Context context, final boolean useFineAccuracyForRequests) {
+        PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
+            .edit().putBoolean(LocationLibraryConstants.SP_KEY_FORCE_LOCATION_UPDATE, useFineAccuracyForRequests)
+            .commit();
     }
 
     /**

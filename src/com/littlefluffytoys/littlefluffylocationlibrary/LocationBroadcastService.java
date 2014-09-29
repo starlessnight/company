@@ -133,7 +133,10 @@ public class LocationBroadcastService extends Service {
     public boolean forceLocationUpdate() {
         final LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         final Criteria criteria = new Criteria();
-        criteria.setAccuracy(!LocationLibrary.useFineAccuracyForRequests && locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ? Criteria.ACCURACY_COARSE : Criteria.ACCURACY_FINE);
+        boolean useFineAccuracyForRequests = PreferenceManager.getDefaultSharedPreferences(
+            getApplicationContext()).getBoolean(LocationLibraryConstants.SP_KEY_USE_FINE_ACCURACY_FOR_REQUESTS, 
+            false);
+        criteria.setAccuracy(!useFineAccuracyForRequests && locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ? Criteria.ACCURACY_COARSE : Criteria.ACCURACY_FINE);
 
         if (LocationLibraryConstants.SUPPORTS_GINGERBREAD) {
             if (LocationLibrary.showDebugOutput) Log.d(LocationLibraryConstants.TAG, TAG + ": Force a single location update, as current location is beyond the oldest location permitted");
