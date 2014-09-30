@@ -87,7 +87,8 @@ public abstract class Request {
 	    reset_password,
 	    eula,
 	    rewards,
-	    my_metropia
+	    my_metropia,
+	    privacy_policy
     }
 	
 	public enum Setting {

@@ -12,14 +12,14 @@ import android.webkit.WebView;
 import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.requests.Request;
+import com.smartrek.requests.Request.Page;
 import com.smartrek.ui.ClickAnimation;
 import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.utils.Font;
 
 public class PrivacyPolicyActivity extends FragmentActivity {
 
-private static final String URL = "http://www.metropia.com/privacy";
-	
 	private Typeface boldFont;
 	
 	@Override
@@ -63,7 +63,7 @@ private static final String URL = "http://www.metropia.com/privacy";
         settings.setLoadWithOverviewMode(true);
 		settings.setUseWideViewPort(true);
 		settings.setBuiltInZoomControls(true);
-		webviewContent.loadUrl(URL);
+		webviewContent.loadUrl(Request.getPageUrl(Page.privacy_policy));
 		webviewContent.setVisibility(View.VISIBLE);
         webviewContent.requestFocus(View.FOCUS_DOWN);
         
