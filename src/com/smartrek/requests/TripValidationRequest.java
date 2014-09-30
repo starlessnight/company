@@ -37,7 +37,6 @@ public class TripValidationRequest extends Request {
         params.put("reservation_id", String.valueOf(rid));
         try{
             String res = executeHttpRequest(Method.POST, url, params, ctx);
-            Log.d("TripValidationRequest", String.format("response : %s", res));
             JSONObject json = new JSONObject(res);
             JSONObject data = json.getJSONObject("data");
             Intent congraIntent = new Intent(ctx, CongratulationActivity.class);

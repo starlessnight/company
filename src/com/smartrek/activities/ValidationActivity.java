@@ -142,7 +142,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         OnAudioFocusChangeListener, SKMapSurfaceListener, SKRouteListener {
 	public static final int DEFAULT_ZOOM_LEVEL = 18;
 	
-	public static final int NAVIGATION_ZOOM_LEVEL = 16;
+	public static final int NAVIGATION_ZOOM_LEVEL = 17;
 
 	private static final String RESERVATION = "reservation";
 
