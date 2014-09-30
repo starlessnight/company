@@ -1884,7 +1884,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private void showNotifyLaterDialog() {
 		if (!arrivalMsgDisplayed.getAndSet(true)) {
 			findViewById(R.id.loading).setVisibility(View.GONE);
-			NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "Can't connect. We will check your trip and let you know the result later.");
+			NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "There’s a temporary connection issue. We'll inform you later. Forgive inconvenience.");
 	    	dialog.setTitle("Thanks for using Metropia");
 	    	dialog.setPositiveButtonText("OK");
 	    	dialog.setPositiveActionListener(new ActionListener() {

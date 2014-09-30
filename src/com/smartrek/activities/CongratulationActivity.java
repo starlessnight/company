@@ -19,7 +19,7 @@ import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
 
 public class CongratulationActivity extends FragmentActivity {
-	
+
 	public static final String DEPARTURE_TIME = "DEPARTURE_TIME";
 	
 	public static final String DESTINATION = "DESTINATION";
@@ -34,9 +34,9 @@ public class CongratulationActivity extends FragmentActivity {
 		boldFont = Font.getBold(assets);
 		
 		Bundle extras = getIntent().getExtras();
-		final double credit = extras.getDouble(ValidationActivity.CREDIT);
+		final int credit = extras.getInt(ValidationActivity.CREDIT);
 		final long departureTime = extras.getLong(DEPARTURE_TIME);
-	    
+
 		final View shareButton = findViewById(R.id.share);
 		shareButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -88,8 +88,6 @@ public class CongratulationActivity extends FragmentActivity {
 		finishButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent landing = new Intent(CongratulationActivity.this, LandingActivity2.class);
-				startActivity(landing);
 				finish();
 			}
 		});
@@ -169,6 +167,6 @@ public class CongratulationActivity extends FragmentActivity {
         });
         
         Font.setTypeface(boldFont, co2, mpoint, driveScore);
-
 	}
+	
 }
