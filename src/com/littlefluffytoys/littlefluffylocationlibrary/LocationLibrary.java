@@ -239,7 +239,7 @@ public class LocationLibrary {
      */
     public static void useFineAccuracyForRequests(final Context context, final boolean useFineAccuracyForRequests) {
         PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
-            .edit().putBoolean(LocationLibraryConstants.SP_KEY_FORCE_LOCATION_UPDATE, useFineAccuracyForRequests)
+            .edit().putBoolean(LocationLibraryConstants.SP_KEY_USE_FINE_ACCURACY_FOR_REQUESTS, useFineAccuracyForRequests)
             .commit();
     }
 
