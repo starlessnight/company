@@ -21,6 +21,7 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.AbsoluteSizeSpan;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -470,16 +471,18 @@ public class NavigationView extends LinearLayout {
 		
 	}
 	
+	private static final Integer PORTRAIT_MODE_HEIGHT = 125;
+	private static final Integer LANSCAPE_MODE_HEIGHT = 80;
+	
 	private void refreshDimension() {
 		LinearLayout directionInfos = (LinearLayout) findViewById(R.id.direction_infos);
 		directionInfos.setOrientation(portraitMode?LinearLayout.VERTICAL:LinearLayout.HORIZONTAL);
 		ViewGroup.LayoutParams directionInfosLp = directionInfos.getLayoutParams();
-		directionInfosLp.width = Dimension.dpToPx(portraitMode?PORTRAIT_WIDTH:LANDSCAPE_WIDTH, 
-				getContext().getResources().getDisplayMetrics());
+		DisplayMetrics dm = getContext().getResources().getDisplayMetrics();
+		directionInfosLp.width = Dimension.dpToPx(portraitMode?PORTRAIT_WIDTH:LANDSCAPE_WIDTH, dm);
 		directionInfos.setLayoutParams(directionInfosLp);
 		ViewGroup.LayoutParams nextDirectionPanelLp = nextDirectionPanel.getLayoutParams();
-		nextDirectionPanelLp.width = Dimension.dpToPx(portraitMode?PORTRAIT_WIDTH:LANDSCAPE_WIDTH, 
-				getContext().getResources().getDisplayMetrics());
+		nextDirectionPanelLp.width = Dimension.dpToPx(portraitMode?PORTRAIT_WIDTH:LANDSCAPE_WIDTH, dm);
 		nextDirectionPanel.setLayoutParams(nextDirectionPanelLp);
 		String distance = textViewDistance.getText().toString();
 		if(distance.endsWith("mi")) {
@@ -492,6 +495,8 @@ public class NavigationView extends LinearLayout {
 			distance = distance.replaceAll("\nmile", portraitMode?"\nmile":"mi");
 		}
 		textViewDistance.setText(formatDistance(distance));
+		
+		roadPager.setMinimumHeight(Dimension.dpToPx(portraitMode?PORTRAIT_MODE_HEIGHT:LANSCAPE_MODE_HEIGHT, dm));
 	}
 
 	public static SpannableString adjustDistanceFontSize(Context ctx,
