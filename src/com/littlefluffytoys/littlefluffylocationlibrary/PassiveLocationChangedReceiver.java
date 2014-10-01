@@ -18,6 +18,7 @@
 package com.littlefluffytoys.littlefluffylocationlibrary;
 
 import com.smartrek.activities.ValidationActivity;
+import com.smartrek.utils.RouteNode;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -54,7 +55,8 @@ public class PassiveLocationChangedReceiver extends BroadcastReceiver {
         // it's a one-shot update from Gingerbread and higher
         if (LocationLibrary.showDebugOutput) Log.d(LocationLibraryConstants.TAG, TAG + ":onReceive: on-demand location update received");
 
-        if (LocationLibraryConstants.SUPPORTS_JELLYBEAN_4_2 && intent.hasExtra(key)) {
+        processLocation(context, (Location)intent.getExtras().get(key), false, true);
+        /*if (LocationLibraryConstants.SUPPORTS_JELLYBEAN_4_2 && intent.hasExtra(key)) {
             // Location behaviour changed in Android 4.2 - the one-shot location gets sent as an extra in the original intent (as it probably should have done all along...)
             // Therefore, process this single one-shot location update.
             if (LocationLibrary.showDebugOutput) Log.d(LocationLibraryConstants.TAG, TAG + ":onReceive: SUPPORTS_JELLYBEAN_4_2 and contains location key => processing");
@@ -67,7 +69,7 @@ public class PassiveLocationChangedReceiver extends BroadcastReceiver {
             if (LocationLibrary.showDebugOutput) Log.d(LocationLibraryConstants.TAG, TAG + ":onReceive: pre-JELLYBEAN_4_2 => wait for update(s) from passive location provider");
 
             LocationBroadcastService.forceDelayedServiceCall(context, LocationLibrary.stableLocationTimeoutInSeconds);
-        }
+        }*/
     }
     else if (intent.hasExtra(key)) {
         // This update came from Passive provider, so we can extract the location directly.
@@ -79,12 +81,13 @@ public class PassiveLocationChangedReceiver extends BroadcastReceiver {
   }
   
   protected static void processLocation(final Context context, final Location location) {
-      processLocation(context, location, true, false);
+      processLocation(context, location, false, false);
   }
   
   protected static void processLocation(final Context context, final Location location, final boolean batchResponses, final boolean forceBroadcast) {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
       final float lastLat = prefs.getFloat(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_LAT, Long.MIN_VALUE);
+      final float lastLong = prefs.getFloat(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_LNG, Long.MIN_VALUE);
       final int lastAccuracy = prefs.getInt(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_ACCURACY, Integer.MAX_VALUE);
       final String thisProvider = location.getProvider();
 
@@ -106,6 +109,7 @@ public class PassiveLocationChangedReceiver extends BroadcastReceiver {
           lastLocation.setTime(previousTime);
           lastLocation.setAccuracy(lastAccuracy);
           usePreviousReading = !ValidationActivity.isBetterLocation(location, lastLocation);
+          LocationLibrary.useFineAccuracyForRequests(context, RouteNode.distanceBetween(lastLat, lastLong, thisLat, thisLong) > 0);
       }
 
       final Editor prefsEditor = prefs.edit();

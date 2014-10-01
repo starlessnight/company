@@ -14,7 +14,6 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
-import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary;
 import com.smartrek.activities.DebugOptionsActivity;
 import com.smartrek.activities.DebugOptionsActivity.LatLon;
 import com.smartrek.activities.MainActivity;
@@ -48,7 +47,6 @@ public class UserLocationService extends IntentService {
             Long distanceInterval = DebugOptionsActivity.getActivityDistanceInterval(UserLocationService.this);
             boolean hasLastLoc = lastLoc != null;
             double distance = hasLastLoc?RouteNode.distanceBetween(lastLoc.lat, lastLoc.lon, info.lastLat, info.lastLong):0;
-            LocationLibrary.useFineAccuracyForRequests(this, distance > 0);
             if(distanceInterval != null && (!hasLastLoc || distance >= (distanceInterval - BUFFER_INTERVAL))){
                 Log.i("UserLocationService", "onHandleIntent");
                 DebugOptionsActivity.setLastUserLatLon(UserLocationService.this, info.lastLat, info.lastLong);
@@ -63,32 +61,38 @@ public class UserLocationService extends IntentService {
                     info.lastSpeed, info.lastHeading, System.currentTimeMillis(), 
                     Trajectory.DEFAULT_LINK_ID, info.lastAccuracy);
                 FileUtils.write(file, traj.toJSON().toString());
-                final long now = System.currentTimeMillis();
-                final User user = User.getCurrentUserWithoutCache(UserLocationService.this);
-                if(user != null && (now - DebugOptionsActivity.getLastUserLatLonSent(UserLocationService.this)) >= FIFTEEN_MINS){
-                    DebugOptionsActivity.setLastUserLatLonSent(UserLocationService.this, now);
-                    MainActivity.initApiLinksIfNecessary(this, new Runnable() {
-                        @Override
-                        public void run() {
-                            try{
-                                SendTrajectoryRequest request = new SendTrajectoryRequest(false);
-                                if(Request.NEW_API){
-                                    request.execute(user, traj, UserLocationService.this);
-                                }else{
-                                    request.execute(0, user.getId(), RID, traj);
+            }
+            final long now = System.currentTimeMillis();
+            final User user = User.getCurrentUserWithoutCache(UserLocationService.this);
+            if(user != null && (now - DebugOptionsActivity.getLastUserLatLonSent(UserLocationService.this)) >= FIFTEEN_MINS){
+                File file = getFile(UserLocationService.this);
+                if(file.exists() && file.length() != 0){
+                    final Trajectory traj = Trajectory.from(new JSONArray(FileUtils.readFileToString(file)));
+                    if(traj.size() > 0){
+                        DebugOptionsActivity.setLastUserLatLonSent(UserLocationService.this, now);
+                        MainActivity.initApiLinksIfNecessary(this, new Runnable() {
+                            @Override
+                            public void run() {
+                                try{
+                                    SendTrajectoryRequest request = new SendTrajectoryRequest(false);
+                                    if(Request.NEW_API){
+                                        request.execute(user, traj, UserLocationService.this);
+                                    }else{
+                                        request.execute(0, user.getId(), RID, traj);
+                                    }
+                                    File newFile = getFile(UserLocationService.this);
+                                    if(newFile.exists() && newFile.length() != 0){
+                                        Trajectory newTraj = Trajectory.from(new JSONArray(FileUtils.readFileToString(newFile)));
+                                        newTraj.removeOlderRecords(now);
+                                        FileUtils.write(newFile, newTraj.toJSON().toString());
+                                    }
                                 }
-                                File newFile = getFile(UserLocationService.this);
-                                if(newFile.exists() && newFile.length() != 0){
-                                    Trajectory newTraj = Trajectory.from(new JSONArray(FileUtils.readFileToString(newFile)));
-                                    newTraj.removeOlderRecords(now);
-                                    FileUtils.write(newFile, newTraj.toJSON().toString());
+                                catch (Throwable t) {
+                                    Log.d("UserLocationService", Log.getStackTraceString(t));
                                 }
                             }
-                            catch (Throwable t) {
-                                Log.d("UserLocationService", Log.getStackTraceString(t));
-                            }
-                        }
-                    });
+                        });
+                    }
                 }
             }
         }
