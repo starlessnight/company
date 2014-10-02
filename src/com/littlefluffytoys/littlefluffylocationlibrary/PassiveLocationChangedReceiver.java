@@ -109,7 +109,9 @@ public class PassiveLocationChangedReceiver extends BroadcastReceiver {
           lastLocation.setTime(previousTime);
           lastLocation.setAccuracy(lastAccuracy);
           usePreviousReading = !ValidationActivity.isBetterLocation(location, lastLocation);
-          LocationLibrary.useFineAccuracyForRequests(context, RouteNode.distanceBetween(lastLat, lastLong, thisLat, thisLong) > 0);
+          if(!usePreviousReading){
+              LocationLibrary.useFineAccuracyForRequests(context, RouteNode.distanceBetween(lastLat, lastLong, thisLat, thisLong) > 0);
+          }
       }
 
       final Editor prefsEditor = prefs.edit();
