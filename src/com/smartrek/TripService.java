@@ -1,10 +1,7 @@
 package com.smartrek;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -34,7 +31,7 @@ public class TripService extends IntentService {
         super(TripService.class.getName());
     }
     
-    public synchronized static void run(Context ctx, User user){
+    public static void run(Context ctx, User user){
         File[] files = getDir(ctx).listFiles();
         if(ArrayUtils.isNotEmpty(files)){
             Map<Long, File> toSendFiles = new HashMap<Long, File>();
@@ -81,43 +78,37 @@ public class TripService extends IntentService {
         }
     }
     
+    private static final String IMD_PREFIX = "[";
+    
     public static void runImd(Context ctx, User user, final long rId) {
-    	File[] files = getDir(ctx).listFiles(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String filename) {
-				return filename.equalsIgnoreCase(rId + "");
-			}
-    	});
-    	
-        if(ArrayUtils.isNotEmpty(files)){
-            List<File> toSendFiles = new ArrayList<File>();
-            for (File f : files) {
-                String name = f.getName();
-                try{
-                    File newFile = new File(f.getParentFile(), "_" + name);
-                    f.renameTo(newFile);
-                    toSendFiles.add(newFile);
-                }catch(Throwable t){
-                    Log.w("TripService", Log.getStackTraceString(t));
-                }
+        File toSendFile = null;
+        File imdSendFile = getFile(ctx, rId);
+        if(imdSendFile.exists()) {
+            try{
+            	String name = imdSendFile.getName().substring(1);
+                File newFile = new File(imdSendFile.getParentFile(), "_" + name);
+                imdSendFile.renameTo(newFile);
+                toSendFile = newFile;
+            }catch(Throwable t){
+                Log.w("TripService", Log.getStackTraceString(t));
             }
-            for (File f : toSendFiles) {
-                boolean deleted = false;
-                try{
-                    if(!SendTrajectoryService.isSending(ctx, rId)
-                            && SendTrajectoryService.sendImd(ctx, rId)){
-                        new TripValidationRequest(user, rId).executeImd(ctx);
-                        FileUtils.deleteQuietly(f);
-                    }
-                }catch(SmarTrekException ex){
-                    deleted = true;
-                    FileUtils.deleteQuietly(f);
-                }catch(Throwable t){
-                    Log.w("TripService", Log.getStackTraceString(t));
-                }finally{
-                    if(!deleted){
-                        f.renameTo(new File(f.getParentFile(), String.valueOf(rId)));
-                    }
+        }
+        if(toSendFile != null) {
+            boolean deleted = false;
+            try{
+                if(!SendTrajectoryService.isSending(ctx, rId)
+                        && SendTrajectoryService.sendImd(ctx, rId)){
+                    new TripValidationRequest(user, rId).executeImd(ctx);
+                    FileUtils.deleteQuietly(toSendFile);
+                }
+            }catch(SmarTrekException ex){
+                deleted = true;
+                FileUtils.deleteQuietly(toSendFile);
+            }catch(Throwable t){
+                Log.w("TripService", Log.getStackTraceString(t));
+            }finally{
+                if(!deleted){
+                    toSendFile.renameTo(new File(toSendFile.getParentFile(), String.valueOf(rId)));
                 }
             }
         }
@@ -141,7 +132,7 @@ public class TripService extends IntentService {
     }
     
     public static File getFile(Context ctx, long rId){
-        return new File(getDir(ctx), String.valueOf(rId));
+        return new File(getDir(ctx), IMD_PREFIX + String.valueOf(rId));
     }
     
     public static void schedule(Context ctx){

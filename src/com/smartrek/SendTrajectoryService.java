@@ -31,7 +31,9 @@ public class SendTrajectoryService extends IntentService {
     
     private static long sevenDays = 7 * 24 * 60 * 60 * 1000;
     
-    private static long twoMins = 2 * 60 * 1000; 
+    private static long twoMins = 2 * 60 * 1000;
+    
+    private static final String IMD_PREFIX = "[";
     
     public SendTrajectoryService() {
         super(SendTrajectoryService.class.getName());
@@ -46,14 +48,14 @@ public class SendTrajectoryService extends IntentService {
     }
     
     public static boolean sendImd(Context ctx, long rId){
-        return send(ctx, new File(getInDir(ctx), String.valueOf(rId)), true);
+        return send(ctx, new File(getInDir(ctx), IMD_PREFIX + String.valueOf(rId)), true);
     }
     
-    private static boolean send(Context ctx, File routeDir, boolean quickTimeout){
+    private static boolean send(Context ctx, File routeDir, boolean imdSend){
         boolean success = true;
         User user = User.getCurrentUser(ctx);
         if(user != null && ArrayUtils.isNotEmpty(routeDir.list())){
-            String originalName = routeDir.getName();
+            String originalName = imdSend ? routeDir.getName().substring(1) : routeDir.getName();
             String newName = "_" + originalName;
             try {
                 File newDir = new File(routeDir.getParentFile(), newName);
@@ -85,7 +87,7 @@ public class SendTrajectoryService extends IntentService {
                     catch (IOException e) {
                     }
                 }
-                SendTrajectoryRequest request = new SendTrajectoryRequest(quickTimeout);
+                SendTrajectoryRequest request = new SendTrajectoryRequest(imdSend);
                 if(Request.NEW_API){
                     try{
                         request.execute(user, routeId, traj, ctx);
@@ -157,7 +159,7 @@ public class SendTrajectoryService extends IntentService {
     }
     
     public static File getInFile(Context ctx, long rId, int seq){
-        return new File(getInDir(ctx), rId + "/" + seq);
+        return new File(getInDir(ctx), IMD_PREFIX + rId + "/" + seq);
     }
     
     public static void schedule(Context ctx){
