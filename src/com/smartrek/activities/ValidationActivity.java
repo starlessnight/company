@@ -486,11 +486,15 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private String getTextMessage(Route _route) {
 		StringBuffer msg = new StringBuffer();
 		User user = User.getCurrentUser(ValidationActivity.this);
+		String remainDist = StringUtils.isNotBlank(remainDistDirecListView.getText()) ? 
+				String.valueOf(remainDistDirecListView.getText()):StringUtil.formatImperialDistance(_route.getLength(), false);
+		TextView timeInfo = (TextView) findViewById(R.id.remain_times);
+		String arriveTime = !"null".equalsIgnoreCase(String.valueOf(timeInfo.getTag(R.id.estimated_arrival_time))) ? 
+				String.valueOf(timeInfo.getTag(R.id.estimated_arrival_time)): TimeColumn.formatTime(reservation.getArrivalTimeUtc(), _route.getTimezoneOffset());
 		msg.append(user.getFirstname()).append(" ").append(user.getLastname()).append(" is ")
-		   .append(StringUtil.formatImperialDistance(_route.getLength(), false))
-		   .append(" away, and will arrive at ")
+		   .append(remainDist).append(" away, and will arrive at ")
 		   .append(reservation.getDestinationAddress()).append(" at ");
-        msg.append(TimeColumn.formatTime(reservation.getArrivalTimeUtc(), route.getTimezoneOffset())).append(".");
+        msg.append(arriveTime).append(".");
         return msg.toString();
 	}
 	
