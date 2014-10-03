@@ -26,7 +26,7 @@ import com.smartrek.utils.RouteNode;
 public class UserLocationService extends IntentService {
     
     public static Long getInterval(Context ctx){
-        return 6 * 1000L;
+        return 1 * 1000L;
     }
     
     private static final int RID = 9999;
