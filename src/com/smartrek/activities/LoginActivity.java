@@ -29,6 +29,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.analytics.tracking.android.EasyTracker;
+import com.smartrek.CrashlyticsUtils;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
@@ -138,6 +139,8 @@ public final class LoginActivity extends Activity implements OnClickListener,
                         loginPrefsEditor.commit();
                         
                         User.setCurrentUser(LoginActivity.this, user);
+                        
+                        CrashlyticsUtils.initUserInfo(user);
                         
                         Intent intent = new Intent(LoginActivity.this, LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
                         LoginActivity.this.startActivity(intent);

@@ -5,7 +5,6 @@ import org.acra.annotation.ReportsCrashes;
 
 import android.app.Application;
 
-import com.crashlytics.android.Crashlytics;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary;
 import com.smartrek.activities.R;
 
@@ -22,7 +21,7 @@ public final class SmarTrekApplication extends Application {
     public void onCreate() {
         // The following line triggers the initialization of ACRA
         //ACRA.init(this);
-        Crashlytics.start(this);
+        CrashlyticsUtils.start(this);
         SendTrajectoryService.schedule(this);
         CalendarService.schedule(this);
         TripService.schedule(this);

@@ -18,6 +18,7 @@ import android.widget.ImageView;
 
 import com.google.analytics.tracking.android.EasyTracker;
 import com.skobbler.ngx.SKPrepareMapTextureListener;
+import com.smartrek.CrashlyticsUtils;
 import com.smartrek.SkobblerUtils;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
@@ -284,6 +285,10 @@ public class MainActivity extends Activity implements AnimationListener, SKPrepa
 	
 	private void proceedToNextScreen(){
 	    if(loggedIn){
+	    	User user = User.getCurrentUser(MainActivity.this);
+	    	if(user != null) {
+		    	CrashlyticsUtils.initUserInfo(user);
+	    	}
             startLandingActivity();
         }else{
             startLoginActivity();

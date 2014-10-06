@@ -56,6 +56,7 @@ import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailed
 import com.google.android.gms.plus.PlusClient;
 import com.google.android.gms.plus.model.people.Person;
 import com.google.android.gms.plus.model.people.Person.Image;
+import com.smartrek.CrashlyticsUtils;
 import com.smartrek.activities.LandingActivity2.IconType;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.ContactsDialog;
@@ -527,6 +528,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                             protected void onPostLogin(final User user) {
                                 if(user != null && user.getId() != -1){
                                     User.setCurrentUser(ctx, user);
+                                    CrashlyticsUtils.initUserInfo(user);
                                     callback.run();
                                 }else if(ctx instanceof Activity){
                                     MainMenu.onMenuItemSelected((Activity) ctx, 0, R.id.logout_option);
