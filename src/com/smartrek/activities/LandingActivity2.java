@@ -1708,7 +1708,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
+						Reservation reserv = (Reservation) findViewById(R.id.trip_info).getTag();
 					    Intent contactSelect = new Intent(LandingActivity2.this, ContactsSelectActivity.class);
+					    JSONObject reservRecipients = DebugOptionsActivity.getReservRecipients(LandingActivity2.this, reserv.getRid());
+					    if(reservRecipients != null) {
+						    contactSelect.putExtra(ContactsSelectActivity.SELECTED_EMAILS, reservRecipients.optString(ValidationActivity.EMAILS, ""));
+						    contactSelect.putExtra(ContactsSelectActivity.SELECTED_PHONES, reservRecipients.optString(ValidationActivity.PHONES, ""));
+					    }
 						startActivityForResult(contactSelect, ON_MY_WAY);
 					}
 				});

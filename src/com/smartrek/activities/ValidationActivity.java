@@ -828,6 +828,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 								@Override
 								public void onClick() {
 									Intent contactSelect = new Intent(ValidationActivity.this, ContactsSelectActivity.class);
+									contactSelect.putExtra(ContactsSelectActivity.SELECTED_EMAILS, emails);
+									contactSelect.putExtra(ContactsSelectActivity.SELECTED_PHONES, "");
 									startActivityForResult(contactSelect, ON_MY_WAY);
 									onMyWayBtn.setTag(new Object());
 								}

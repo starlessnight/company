@@ -62,6 +62,9 @@ import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
 
 public class ContactsSelectActivity extends FragmentActivity {
+	
+	public static final String SELECTED_EMAILS = "SELECTED_EMAILS";
+	public static final String SELECTED_PHONES = "SELECTED_PHONES";
     
 	private Typeface boldFont;
 	private EditText searchTextView;
@@ -73,7 +76,10 @@ public class ContactsSelectActivity extends FragmentActivity {
 	private Set<String> manualInputEmail = new HashSet<String>();
 	private List<Contact> contactList = new ArrayList<Contact>();
 	private JSONObject frequencyContacts;
-	private JSONObject topFiveContacts;
+	private JSONObject topFiveFrequencyAndSelectedContacts;
+	
+	private Set<String> earlySelectedEmails;
+	private Set<String> earlySelectedPhones;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -82,6 +88,14 @@ public class ContactsSelectActivity extends FragmentActivity {
 		
 		AssetManager assets = getAssets();
 		boldFont = Font.getBold(assets);
+		
+		Bundle extras = getIntent().getExtras();
+		earlySelectedEmails = toSet(extras.getString(SELECTED_EMAILS));
+		earlySelectedPhones = toSet(extras.getString(SELECTED_PHONES));
+		
+		// pre-select
+		selectedContactEmails.addAll(earlySelectedEmails);
+		selectedContactPhones.addAll(earlySelectedPhones);
 		
 		TextView backButton = (TextView) findViewById(R.id.back_button);
 		backButton.setOnClickListener(new OnClickListener() {
@@ -258,17 +272,37 @@ public class ContactsSelectActivity extends FragmentActivity {
 					return Integer.valueOf(rhs.count).compareTo(Integer.valueOf(lhs.count));
 				}
 			});
-			//get top 5 contacts
-			topFiveContacts = new JSONObject();
+			//get top 5 frequency contacts
+			topFiveFrequencyAndSelectedContacts = new JSONObject();
 			for(int i = 0 ; i < freqContacts.size() && i < 5 ; i++) {
 				FrequencyContact contact = freqContacts.get(i);
-				topFiveContacts.put(contact.value, contact.count);
+				topFiveFrequencyAndSelectedContacts.put(contact.value, contact.count);
 			}
+			
+			//add selected contacts
+			for(String selectedEmail : earlySelectedEmails) {
+				topFiveFrequencyAndSelectedContacts.put(selectedEmail, Integer.MAX_VALUE);
+			}
+			for(String selectedPhone : earlySelectedPhones) {
+				topFiveFrequencyAndSelectedContacts.put(selectedPhone, Integer.MAX_VALUE - 1);
+			}
+			
 		} catch (Throwable t) {
 			Log.d("FrequencyContactIO", Log.getStackTraceString(t));
 			frequencyContacts = new JSONObject();
-			topFiveContacts = new JSONObject();
+			topFiveFrequencyAndSelectedContacts = new JSONObject();
 		} 
+	}
+	
+	private Set<String> toSet(String infos) {
+		String[] infoArray = StringUtils.split(infos, ",");
+		Set<String> infoSet = new HashSet<String>();
+		if(infoArray != null) {
+			for(String info : infoArray) {
+				infoSet.add(StringUtils.trimToEmpty(info));
+			}
+		}
+		return infoSet;
 	}
 	
 	private String listToString(Collection<String> list) {
@@ -282,12 +316,14 @@ public class ContactsSelectActivity extends FragmentActivity {
 	private void saveSelectedContacts(Set<String> selectedContacts) {
 		try {
 			for(String contact : selectedContacts) {
-				if(frequencyContacts.has(contact)) {
-					int count = frequencyContacts.getInt(contact);
-					frequencyContacts.put(contact, count + 1);
-				}
-				else {
-					frequencyContacts.put(contact, 1);
+				if(!earlySelectedEmails.contains(contact) && !earlySelectedPhones.contains(contact)) {
+					if(frequencyContacts.has(contact)) {
+						int count = frequencyContacts.getInt(contact);
+						frequencyContacts.put(contact, count + 1);
+					}
+					else {
+						frequencyContacts.put(contact, 1);
+					}
 				}
 			}
 			FileUtils.writeStringToFile(getFile(this), frequencyContacts.toString());
@@ -421,17 +457,17 @@ public class ContactsSelectActivity extends FragmentActivity {
                     @Override
                     public int compare(Contact lhs, Contact rhs) {
                     	try {
-	                    	if(topFiveContacts.has(lhs.getContactString()) && topFiveContacts.has(rhs.getContactString())) {
-	                    		int result = Integer.valueOf(topFiveContacts.getInt(rhs.getContactString())).compareTo(Integer.valueOf(topFiveContacts.getInt(lhs.getContactString())));
+	                    	if(topFiveFrequencyAndSelectedContacts.has(lhs.getContactString()) && topFiveFrequencyAndSelectedContacts.has(rhs.getContactString())) {
+	                    		int result = Integer.valueOf(topFiveFrequencyAndSelectedContacts.getInt(rhs.getContactString())).compareTo(Integer.valueOf(topFiveFrequencyAndSelectedContacts.getInt(lhs.getContactString())));
 	                    		if(result==0) {
 	                    			result = (lhs.lastnameInitial + " " + lhs.name).compareTo(rhs.lastnameInitial + " " + rhs.name);
 	                    		}
 	                    		return result;
 	                    	}
-	                    	else if(topFiveContacts.has(lhs.getContactString())){
+	                    	else if(topFiveFrequencyAndSelectedContacts.has(lhs.getContactString())){
 	                    		return -1;
 	                    	}
-	                    	else if(topFiveContacts.has(rhs.getContactString())) {
+	                    	else if(topFiveFrequencyAndSelectedContacts.has(rhs.getContactString())) {
 	                    		return 1;
 	                    	}
                     	}

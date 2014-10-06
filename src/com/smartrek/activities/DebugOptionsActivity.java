@@ -857,6 +857,15 @@ public final class DebugOptionsActivity extends Activity {
     	
     }
     
+    public static JSONObject getReservRecipients(Context ctx, Long reservId) {
+    	Map<Long, JSONObject> infos = getAllReservRecipients(ctx);
+    	JSONObject jsonObject = new JSONObject();
+    	if(infos.containsKey(reservId)) {
+    		jsonObject = infos.get(reservId);
+    	}
+    	return jsonObject;
+    }
+    
     public static JSONObject getReservRecipientsAndRemove(Context ctx, Long reservId) {
     	Map<Long, JSONObject> infos = getAllReservRecipients(ctx);
     	JSONObject jsonObject = new JSONObject();
