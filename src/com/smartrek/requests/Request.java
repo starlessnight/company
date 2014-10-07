@@ -262,6 +262,10 @@ public abstract class Request {
         return !Request.linkUrls.isEmpty();
     }
 	
+	public static boolean hasSettings() {
+		return !Request.settings.isEmpty();
+	}
+	
 	public static void setPageUrls(EnumMap<Page, String> pageUrls){
         Request.pageUrls = pageUrls;
     }

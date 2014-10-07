@@ -209,14 +209,19 @@ public final class DebugOptionsActivity extends Activity {
                                     new GeoPoint(dest.getLatitude(), dest.getLongitude()), result.optString("destination"), ehs);
                                 task.callback = new ShortcutNavigationTask.Callback() {
                                     @Override
-                                    public void run(Reservation reservation) {
-                                        Intent intent = new Intent(DebugOptionsActivity.this, ValidationActivity.class);
-                                        intent.putExtra(ValidationActivity.TRAJECTORY_DATA, result.toString());
-                                        intent.putExtra("route", reservation.getRoute());
-                                        intent.putExtra("reservation", reservation);
-                                        SkobblerUtils.initializeLibrary(DebugOptionsActivity.this);
-                                        startActivity(intent);
-                                        finish();
+                                    public void run(final Reservation reservation) {
+                                    	MainActivity.initSettingsIfNecessary(DebugOptionsActivity.this, new Runnable() {
+											@Override
+											public void run() {
+												Intent intent = new Intent(DebugOptionsActivity.this, ValidationActivity.class);
+		                                        intent.putExtra(ValidationActivity.TRAJECTORY_DATA, result.toString());
+		                                        intent.putExtra("route", reservation.getRoute());
+		                                        intent.putExtra("reservation", reservation);
+		                                        SkobblerUtils.initializeLibrary(DebugOptionsActivity.this);
+		                                        startActivity(intent);
+		                                        finish();
+											}
+                                    	});
                                     }
 
 									@Override

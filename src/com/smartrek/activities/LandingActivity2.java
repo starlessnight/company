@@ -2936,19 +2936,24 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         }
     }
     
-    private void startValidationActivity(Reservation reserv) {
-    	Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
-        intent.putExtra("route", reserv.getRoute());
-        intent.putExtra("reservation", reserv);
-        JSONObject reservRecipients = DebugOptionsActivity.getReservRecipientsAndRemove(LandingActivity2.this, reserv.getRid());
-        intent.putExtra(ValidationActivity.EMAILS, reservRecipients.optString("emails", ""));
-        intent.putExtra(ValidationActivity.PHONES, reservRecipients.optString("phones", ""));
-        hideBulbBalloon();
-        hideStarredBalloon();
-        removeAllOD();
-        // init skmap
-        SkobblerUtils.initializeLibrary(LandingActivity2.this);
-        startActivity(intent);
+    private void startValidationActivity(final Reservation reserv) {
+    	MainActivity.initSettingsIfNecessary(LandingActivity2.this, new Runnable() {
+			@Override
+			public void run() {
+				Intent intent = new Intent(LandingActivity2.this, ValidationActivity.class);
+		        intent.putExtra("route", reserv.getRoute());
+		        intent.putExtra("reservation", reserv);
+		        JSONObject reservRecipients = DebugOptionsActivity.getReservRecipientsAndRemove(LandingActivity2.this, reserv.getRid());
+		        intent.putExtra(ValidationActivity.EMAILS, reservRecipients.optString("emails", ""));
+		        intent.putExtra(ValidationActivity.PHONES, reservRecipients.optString("phones", ""));
+		        hideBulbBalloon();
+		        hideStarredBalloon();
+		        removeAllOD();
+		        // init skmap
+		        SkobblerUtils.initializeLibrary(LandingActivity2.this);
+		        startActivity(intent);
+			}
+    	});
     }
     
     private void refreshStarredPOIs(){

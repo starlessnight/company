@@ -229,6 +229,18 @@ public class MainActivity extends Activity implements AnimationListener, SKPrepa
         }
 	}
 	
+	public static void initSettingsIfNecessary(Context ctx, Runnable onSuccess){
+	    if(Request.hasSettings()){
+	        onSuccess.run();
+        }else{
+            MainActivity.initApiLinks(ctx, MainActivity.getEntrypoint(ctx), onSuccess, new Runnable() {
+				@Override
+				public void run() {
+					// report execption and do nothing
+				}
+			});
+        }
+	}
 	
 	private LoginTask newLoginTask(String username, String password){
 	    final String gcmRegistrationId = Preferences.getGlobalPreferences(this)
