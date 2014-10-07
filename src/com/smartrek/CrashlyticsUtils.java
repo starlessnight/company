@@ -9,6 +9,10 @@ public class CrashlyticsUtils {
 	
 	public static void start(Context ctx) {
 		Crashlytics.start(ctx);
+		User user = User.getCurrentUser(ctx);
+		if(user != null) {
+			initUserInfo(user);
+		}
 	}
 	
 	public static void initUserInfo(User user) {
