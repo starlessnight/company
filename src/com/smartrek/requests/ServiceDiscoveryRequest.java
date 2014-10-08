@@ -2,6 +2,7 @@ package com.smartrek.requests;
 
 import java.util.EnumMap;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -21,7 +22,7 @@ public final class ServiceDiscoveryRequest extends FetchRequest<Result> {
     }
     
     public ServiceDiscoveryRequest(String url) {
-        super(url);
+        super(StringUtils.isNotBlank(url) ? url : ENTRYPOINT_URL);
     }
 	
 	@Override

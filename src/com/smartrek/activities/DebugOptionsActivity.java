@@ -44,10 +44,14 @@ import com.smartrek.models.Trajectory.Record;
 import com.smartrek.requests.Request.Setting;
 import com.smartrek.requests.ServiceDiscoveryRequest.Result;
 import com.smartrek.requests.TrajectoryFetchRequest;
+import com.smartrek.ui.DelayTextWatcher;
+import com.smartrek.ui.DelayTextWatcher.TextChangeListener;
 import com.smartrek.utils.Cache;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.GeoPoint;
+import com.smartrek.utils.Geocoding;
 import com.smartrek.utils.Misc;
+import com.smartrek.utils.Geocoding.Address;
 
 public final class DebugOptionsActivity extends Activity {
     
@@ -333,29 +337,33 @@ public final class DebugOptionsActivity extends Activity {
         
         EditText entrypointView = (EditText) findViewById(R.id.entry_point);
         entrypointView.setText(String.valueOf(prefs.getString(ENTRYPOINT, "")));
-        entrypointView.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-            
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count,
-                    int after) {
-            }
-            
-            @Override
-            public void afterTextChanged(Editable s) {
-                String entrypoint = s.toString();
-                prefs.edit()
-                    .putString(ENTRYPOINT, entrypoint)
-                    .commit();
+        
+        DelayTextWatcher entrypointTextWatcher = new DelayTextWatcher(entrypointView, new TextChangeListener(){
+			@Override
+			public void onTextChanged(CharSequence text) {
+				String entrypoint = text.toString();
+                prefs.edit().putString(ENTRYPOINT, entrypoint).commit();
                 if(initApiLinksTask != null){
                     initApiLinksTask.cancel(true);
                 }
                 initApiLinksTask = MainActivity.initApiLinks(DebugOptionsActivity.this, entrypoint, 
-                    null, null);
-            }
-        });
+                    new Runnable() {
+						@Override
+						public void run() {
+							Intent updateMenu = new Intent(LandingActivity2.UPDATE_MENU_MY_TRIPS);
+							updateMenu.putExtra("hasTrips", MyTripsActivity.hasUrl(DebugOptionsActivity.this));
+							sendBroadcast(updateMenu);
+						}
+                	
+                }, null);
+			}
+			
+			@Override
+			public void onTextChanging() {
+			}
+		}, 500);
+        
+        entrypointView.addTextChangedListener(entrypointTextWatcher);
         
         CheckBox reroutingNotificationSound = (CheckBox) findViewById(R.id.rerouting_notification_sound);
         reroutingNotificationSound.setChecked(isReroutingNotificationSoundEnabled(this));

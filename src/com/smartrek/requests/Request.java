@@ -88,7 +88,8 @@ public abstract class Request {
 	    eula,
 	    rewards,
 	    my_metropia,
-	    privacy_policy
+	    privacy_policy, 
+	    trips
     }
 	
 	public enum Setting {

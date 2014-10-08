@@ -10,6 +10,7 @@ import com.smartrek.activities.LandingActivity;
 import com.smartrek.activities.LandingActivity2;
 import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.activities.MyMetropiaActivity;
+import com.smartrek.activities.MyTripsActivity;
 import com.smartrek.activities.R;
 import com.smartrek.activities.ReservationConfirmationActivity;
 import com.smartrek.activities.ReservationListActivity;
@@ -124,6 +125,14 @@ public final class MainMenu {
         		           + "\n\n" + Misc.APP_DOWNLOAD_LINK);
                    activity.startActivity(intent);
         	   }
+        	   break;
+           
+           case R.id.my_trips:
+        	   if (!activity.getClass().equals(MyTripsActivity.class) && MyTripsActivity.hasUrl(activity)) {
+                   intent = new Intent(activity, MyTripsActivity.class);
+                   intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                   activity.startActivity(intent);
+               }
         	   break;
         	   
            default:

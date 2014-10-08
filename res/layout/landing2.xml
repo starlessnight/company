@@ -630,6 +630,21 @@
                         android:text="My Metropia"
                         android:textColor="@android:color/white"
                         android:textSize="@dimen/medium_font" />
+                    
+                    <TextView
+                        android:id="@+id/my_trips"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/menu_reservations"
+                        android:drawablePadding="20dp"
+                        android:paddingLeft="20dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="25dp"
+                        android:singleLine="true"
+                        android:text="My Trips"
+                        android:textColor="@android:color/white"
+                        android:textSize="@dimen/medium_font"
+                        android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/reservations"

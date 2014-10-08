@@ -271,6 +271,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         registerReceiver(tripInfoCachedUpdater, new IntentFilter(TRIP_INFO_CACHED_UPDATES));
         registerReceiver(updateMyLocation, new IntentFilter(UPDATE_MY_LOCATION));
+        registerReceiver(updateMenuMyTrips, new IntentFilter(UPDATE_MENU_MY_TRIPS));
         
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -1339,6 +1340,23 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				});
             }
         });
+        TextView myTripsMenu = (TextView) findViewById(R.id.my_trips);
+        myTripsMenu.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				final int viewId = v.getId();
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						MainMenu.onMenuItemSelected(LandingActivity2.this, 0, viewId);
+					}
+				});
+			}
+        });
+        if(MyTripsActivity.hasUrl(LandingActivity2.this)) {
+        	myTripsMenu.setVisibility(View.VISIBLE);
+        }
         TextView reservationsMenu = (TextView) findViewById(R.id.reservations);
         reservationsMenu.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -2377,6 +2395,21 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		Double lon = intent.getDoubleExtra("lon", 0);
     		if(lat != 0 && lon != 0) {
     			refreshMyLocation(lat, lon);
+    		}
+    	}
+    };
+    
+    public static final String UPDATE_MENU_MY_TRIPS = "UPDATE_MENU_MY_TRIPS";
+    
+    private BroadcastReceiver updateMenuMyTrips = new BroadcastReceiver() {
+    	@Override
+        public void onReceive(Context context, Intent intent) {
+    		boolean hasTrips = intent.getBooleanExtra("hasTrips", false);
+    		if(hasTrips) {
+    			findViewById(R.id.my_trips).setVisibility(View.VISIBLE);
+    		}
+    		else {
+    			findViewById(R.id.my_trips).setVisibility(View.GONE);
     		}
     	}
     };
@@ -3650,6 +3683,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         super.onDestroy();
         unregisterReceiver(tripInfoCachedUpdater);
         unregisterReceiver(updateMyLocation);
+        unregisterReceiver(updateMenuMyTrips);
         closeGPS();
         SKMaps.getInstance().destroySKMaps();
     }
