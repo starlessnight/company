@@ -17,9 +17,6 @@
 
 package com.littlefluffytoys.littlefluffylocationlibrary;
 
-import com.smartrek.activities.ValidationActivity;
-import com.smartrek.utils.RouteNode;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +26,8 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import com.smartrek.activities.ValidationActivity;
 
 /**
  * This Receiver class is used to listen for Broadcast Intents that announce
@@ -87,7 +86,6 @@ public class PassiveLocationChangedReceiver extends BroadcastReceiver {
   protected static void processLocation(final Context context, final Location location, final boolean batchResponses, final boolean forceBroadcast) {
       final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
       final float lastLat = prefs.getFloat(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_LAT, Long.MIN_VALUE);
-      final float lastLong = prefs.getFloat(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_LNG, Long.MIN_VALUE);
       final int lastAccuracy = prefs.getInt(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_ACCURACY, Integer.MAX_VALUE);
       final String thisProvider = location.getProvider();
 
@@ -109,9 +107,6 @@ public class PassiveLocationChangedReceiver extends BroadcastReceiver {
           lastLocation.setTime(previousTime);
           lastLocation.setAccuracy(lastAccuracy);
           usePreviousReading = !ValidationActivity.isBetterLocation(location, lastLocation);
-          if(!usePreviousReading){
-              LocationLibrary.useFineAccuracyForRequests(context, RouteNode.distanceBetween(lastLat, lastLong, thisLat, thisLong) > 0);
-          }
       }
 
       final Editor prefsEditor = prefs.edit();

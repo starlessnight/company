@@ -2091,7 +2091,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 	}
 
-	private static final int TWO_MINUTES = 1000 * 60 * 2;
+	public static final int TWO_MINUTES = 1000 * 60 * 2;
 
 	/**
 	 * Determines whether one Location reading is better than the current

@@ -505,6 +505,9 @@ public final class DebugOptionsActivity extends Activity {
                 String[] toks = latLonStr.split(",");
                 latLon.lat = Float.parseFloat(toks[0]);
                 latLon.lon = Float.parseFloat(toks[1]);
+                if(toks.length > 2){
+                    latLon.time = Long.parseLong(toks[2]);
+                }
                 rs = latLon;
             }
         }catch(Throwable t){
@@ -512,9 +515,9 @@ public final class DebugOptionsActivity extends Activity {
         return rs;
     }
     
-    public static void setLastUserLatLon(Context ctx, float lat, float lon){
+    public static void setLastUserLatLon(Context ctx, float lat, float lon, long time){
         getPrefs(ctx).edit()
-            .putString(LAST_USER_LAT_LON, lat + "," + lon)
+            .putString(LAST_USER_LAT_LON, lat + "," + lon + "," + time)
             .commit();
     }
     
@@ -523,6 +526,8 @@ public final class DebugOptionsActivity extends Activity {
         public float lat;
         
         public float lon;
+        
+        public long time;
         
     }
     

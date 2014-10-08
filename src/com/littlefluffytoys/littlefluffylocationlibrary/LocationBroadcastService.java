@@ -17,9 +17,6 @@
 
 package com.littlefluffytoys.littlefluffylocationlibrary;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -28,7 +25,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -132,48 +128,20 @@ public class LocationBroadcastService extends Service {
     @TargetApi(9)
     public boolean forceLocationUpdate() {
         final LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-        final Criteria criteria = new Criteria();
-        boolean useFineAccuracyForRequests = PreferenceManager.getDefaultSharedPreferences(
-            getApplicationContext()).getBoolean(LocationLibraryConstants.SP_KEY_USE_FINE_ACCURACY_FOR_REQUESTS, 
-            false);
-        criteria.setAccuracy(!useFineAccuracyForRequests && locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ? Criteria.ACCURACY_COARSE : Criteria.ACCURACY_FINE);
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        boolean useFineAccuracyForRequests = LocationLibrary.useFineAccuracyForRequests(getApplicationContext());
+        boolean useGPS = useFineAccuracyForRequests || !locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        boolean isUsingGPS = pref.getBoolean(LocationLibraryConstants.SP_KEY_IS_USING_GPS, false);
+        final Intent gpsIntent = new Intent(getApplicationContext(), PassiveLocationChangedReceiver.class).addCategory(LocationLibraryConstants.INTENT_CATEGORY_GPS_UPDATE);
+        final PendingIntent gpsPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, gpsIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        if(useGPS && !isUsingGPS){
+            pref.edit().putBoolean(LocationLibraryConstants.SP_KEY_IS_USING_GPS, true).commit();
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LocationLibrary.getAlarmFrequency(), 0, gpsPendingIntent);
+        }else if(!useGPS && isUsingGPS){
+            pref.edit().putBoolean(LocationLibraryConstants.SP_KEY_IS_USING_GPS, false).commit();
+            locationManager.removeUpdates(gpsPendingIntent);
+        }
 
-        if (LocationLibraryConstants.SUPPORTS_GINGERBREAD) {
-            if (LocationLibrary.showDebugOutput) Log.d(LocationLibraryConstants.TAG, TAG + ": Force a single location update, as current location is beyond the oldest location permitted");
-            // just request a single update. The passive provider will pick it up.
-            final Intent receiver = new Intent(getApplicationContext(), PassiveLocationChangedReceiver.class).addCategory(LocationLibraryConstants.INTENT_CATEGORY_ONE_SHOT_UPDATE);
-            final PendingIntent oneshotReceiver = PendingIntent.getBroadcast(getApplicationContext(), 0, receiver, PendingIntent.FLAG_UPDATE_CURRENT);
-            try {
-                locationManager.requestSingleUpdate(criteria, oneshotReceiver);
-                if (LocationLibrary.showDebugOutput) Log.d(LocationLibraryConstants.TAG, TAG + ": schedule timer to kill locationlistener in 30 seconds");
-                new Timer().schedule(new TimerTask(){
-                    public void run(){
-                        try {
-                            if (LocationLibrary.showDebugOutput) Log.d(LocationLibraryConstants.TAG, TAG + ": remove updates after 30 seconds");
-                            locationManager.removeUpdates(oneshotReceiver);
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        stopSelf();
-                    }}, 30000);
-                return true; // don't stop the service, allow the timer to do that
-            }
-            catch (IllegalArgumentException ex) {
-                // thrown if there are no providers, e.g. GPS is off
-                if (LocationLibrary.showDebugOutput) Log.w(LocationLibraryConstants.TAG, TAG + ": IllegalArgumentException during call to locationManager.requestSingleUpdate - probable cause is that all location providers are off. Details: " + ex.getMessage());
-            }
-        }
-        else { // pre-Gingerbread
-            if (LocationLibrary.showDebugOutput) Log.d(LocationLibraryConstants.TAG, TAG + ": Force location updates (pre-Gingerbread), as current location is beyond the oldest location permitted");
-            // one-shot not available pre-Gingerbread, so start updates, and when one is received, stop updates.
-            final String provider = locationManager.getBestProvider(criteria, true);
-            if (provider != null) {
-                locationManager.requestLocationUpdates(provider, 0, 0, preGingerbreadUpdatesListener, LocationBroadcastService.this.getMainLooper());
-                // don't stop the service, the callback will do that
-                return true;
-            }
-        }
         // stop the service
         return false;
     }

@@ -38,6 +38,7 @@ public class LocationLibraryConstants {
   protected static final int LOCATION_BROADCAST_REQUEST_CODE_SINGLE_SHOT = 1;
   protected static final int LOCATION_BROADCAST_REQUEST_CODE_REPEATING_ALARM = 2;
   protected static final String INTENT_CATEGORY_ONE_SHOT_UPDATE = "INTENT_CATEGORY_ONE_SHOT_UPDATE";
+  protected static final String INTENT_CATEGORY_GPS_UPDATE = "INTENT_CATEGORY_GPS_UPDATE";
   
   protected static final String SP_KEY_LAST_LOCATION_UPDATE_TIME = "LFT_SP_KEY_LAST_LOCATION_UPDATE_TIME";
   protected static final String SP_KEY_LAST_LOCATION_UPDATE_LAT = "LFT_SP_KEY_LAST_LOCATION_UPDATE_LAT";
@@ -47,6 +48,7 @@ public class LocationLibraryConstants {
   protected static final String SP_KEY_LAST_LOCATION_UPDATE_PROVIDER = "LFT_SP_KEY_LAST_LOCATION_UPDATE_PROVIDER";
   protected static final String SP_KEY_FORCE_LOCATION_UPDATE = "LFT_SP_KEY_FORCE_LOCATION_UPDATE";
   protected static final String SP_KEY_USE_FINE_ACCURACY_FOR_REQUESTS = "SP_KEY_USE_FINE_ACCURACY_FOR_REQUESTS";
+  protected static final String SP_KEY_IS_USING_GPS = "SP_KEY_IS_USING_GPS";
   protected static final String SP_KEY_RUN_ONCE = "LFT_SP_KEY_RUN_ONCE";
   protected static final String SP_KEY_LAST_LOCATION_UPDATE_ALTITUDE = "LFT_SP_KEY_LAST_LOCATION_UPDATE_ALTITUDE";
   protected static final String SP_KEY_LAST_LOCATION_UPDATE_SPEED = "LFT_SP_KEY_LAST_LOCATION_UPDATE_SPEED";

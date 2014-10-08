@@ -77,6 +77,7 @@ public class LocationLibrary {
             final Intent passiveIntent = new Intent(context, PassiveLocationChangedReceiver.class);
             final PendingIntent locationListenerPassivePendingIntent = PendingIntent.getBroadcast(context, 0, passiveIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, locationListenerPassivePendingIntent);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListenerPassivePendingIntent);
         }
 
         if (showDebugOutput) Log.d(LocationLibraryConstants.TAG, TAG + ": startAlarmAndListener completed");
@@ -241,6 +242,11 @@ public class LocationLibrary {
         PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
             .edit().putBoolean(LocationLibraryConstants.SP_KEY_USE_FINE_ACCURACY_FOR_REQUESTS, useFineAccuracyForRequests)
             .commit();
+    }
+    
+    public static boolean useFineAccuracyForRequests(Context context){
+        return PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
+            .getBoolean(LocationLibraryConstants.SP_KEY_USE_FINE_ACCURACY_FOR_REQUESTS, false); 
     }
 
     /**
