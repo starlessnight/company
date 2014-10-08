@@ -1493,7 +1493,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getMedium(assets), getRouteView);
         Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, fromSearchBox, myMetropiaMenu, 
-            reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView/*, logoutMenu*/);
+            reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu);
         Font.setTypeface(Font.getMedium(assets), favSearchBox, labelInput, 
         		(TextView)findViewById(R.id.label), (TextView)findViewById(R.id.icon));
         showTutorialIfNessary();
