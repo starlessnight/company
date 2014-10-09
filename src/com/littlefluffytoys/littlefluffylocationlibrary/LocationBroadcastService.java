@@ -36,6 +36,12 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
+import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.location.LocationClient;
+
 /**
  * This is an example of implementing an application service that will run in
  * response to an alarm, allowing us to move long duration work out of an intent
@@ -121,6 +127,8 @@ public class LocationBroadcastService extends Service {
         return mBinder;
     }
     
+    private LocationClient locClient;
+    
     /**
      * 
      * @return true if the service should stay awake, false if not
@@ -130,10 +138,13 @@ public class LocationBroadcastService extends Service {
         final LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         boolean useFineAccuracyForRequests = LocationLibrary.useFineAccuracyForRequests(getApplicationContext());
-        boolean useGPS = useFineAccuracyForRequests || !locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        boolean useGPS = useFineAccuracyForRequests || !locationManager.isProviderEnabled(
+            LocationManager.NETWORK_PROVIDER);
         boolean isUsingGPS = pref.getBoolean(LocationLibraryConstants.SP_KEY_IS_USING_GPS, false);
-        final Intent gpsIntent = new Intent(getApplicationContext(), PassiveLocationChangedReceiver.class).addCategory(LocationLibraryConstants.INTENT_CATEGORY_GPS_UPDATE);
-        final PendingIntent gpsPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, gpsIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        final Intent gpsIntent = new Intent(getApplicationContext(), PassiveLocationChangedReceiver.class)
+            .addCategory(LocationLibraryConstants.INTENT_CATEGORY_GPS_UPDATE);
+        final PendingIntent gpsPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 
+            0, gpsIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         if(useGPS && !isUsingGPS){
             pref.edit().putBoolean(LocationLibraryConstants.SP_KEY_IS_USING_GPS, true).commit();
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LocationLibrary.getAlarmFrequency(), 0, gpsPendingIntent);
@@ -142,8 +153,35 @@ public class LocationBroadcastService extends Service {
             locationManager.removeUpdates(gpsPendingIntent);
         }
 
-        // stop the service
-        return false;
+        boolean keepServiceRunning;
+        if(GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext()) 
+                == ConnectionResult.SUCCESS){
+            locClient = new LocationClient(getApplicationContext(), new ConnectionCallbacks() {
+                @Override
+                public void onDisconnected() {
+                    LocationBroadcastService.this.stopSelf();
+                }                
+                @Override
+                public void onConnected(Bundle arg0) {
+                    try{
+                        PassiveLocationChangedReceiver.processLocation(getApplicationContext(), 
+                            locClient.getLastLocation());
+                    }catch(Throwable t){}
+                    locClient.disconnect();
+                }
+            }, new OnConnectionFailedListener() {
+                @Override
+                public void onConnectionFailed(ConnectionResult arg0) {
+                    LocationBroadcastService.this.stopSelf();
+                }
+            });
+            locClient.connect();
+            keepServiceRunning = true;
+        }else{
+            // stop the service
+            keepServiceRunning = false;
+        }
+        return keepServiceRunning;
     }
     
     /**
