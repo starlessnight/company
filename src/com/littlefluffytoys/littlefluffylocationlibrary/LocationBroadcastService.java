@@ -166,8 +166,10 @@ public class LocationBroadcastService extends Service {
                     try{
                         PassiveLocationChangedReceiver.processLocation(getApplicationContext(), 
                             locClient.getLastLocation());
-                    }catch(Throwable t){}
-                    locClient.disconnect();
+                        locClient.disconnect();
+                    }catch(Throwable t){
+                        LocationBroadcastService.this.stopSelf();
+                    }
                 }
             }, new OnConnectionFailedListener() {
                 @Override
