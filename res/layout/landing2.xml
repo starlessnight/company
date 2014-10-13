@@ -641,7 +641,7 @@
                         android:paddingRight="10dp"
                         android:paddingTop="25dp"
                         android:singleLine="true"
-                        android:text="My Trips"
+                        android:text="Driving Score"
                         android:textColor="@android:color/white"
                         android:textSize="@dimen/medium_font"
                         android:visibility="gone" />
