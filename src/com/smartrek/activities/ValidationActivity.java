@@ -696,6 +696,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		                	        ?DEFAULT_ZOOM_LEVEL:NAVIGATION_ZOOM_LEVEL);
 		                    	mapView.centerMapOnPosition(coordinate);
 		                    	mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
+		                    	mapView.getMapSettings().setMapRotationEnabled(true);
 		                    }
 		                }
 		                else if(routeRect != null){
@@ -711,6 +712,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		                    SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude() + PADDING, topLeft.getLongitude() + PADDING, bottomRight.getLatitude() - PADDING, bottomRight.getLongitude() - PADDING);
 		                    mapView.fitBoundingBox(boundingBox, 0, 0);
 		                    mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
+		                    mapView.getMapSettings().setMapRotationEnabled(false);
 		                }
 		            	navigationView.setToCurrentDireciton();
 					}
