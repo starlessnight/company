@@ -136,20 +136,19 @@ public class LocationBroadcastService extends Service {
     @TargetApi(9)
     public boolean forceLocationUpdate() {
         final LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         boolean useFineAccuracyForRequests = LocationLibrary.useFineAccuracyForRequests(getApplicationContext());
         boolean useGPS = useFineAccuracyForRequests || !locationManager.isProviderEnabled(
             LocationManager.NETWORK_PROVIDER);
-        boolean isUsingGPS = pref.getBoolean(LocationLibraryConstants.SP_KEY_IS_USING_GPS, false);
+        boolean isUsingGPS = LocationLibrary.isUsingGPS(getApplicationContext());
         final Intent gpsIntent = new Intent(getApplicationContext(), PassiveLocationChangedReceiver.class)
             .addCategory(LocationLibraryConstants.INTENT_CATEGORY_GPS_UPDATE);
         final PendingIntent gpsPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 
             0, gpsIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         if(useGPS && !isUsingGPS){
-            pref.edit().putBoolean(LocationLibraryConstants.SP_KEY_IS_USING_GPS, true).commit();
+            LocationLibrary.isUsingGPS(getApplicationContext(), true);
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LocationLibrary.getAlarmFrequency(), 0, gpsPendingIntent);
         }else if(!useGPS && isUsingGPS){
-            pref.edit().putBoolean(LocationLibraryConstants.SP_KEY_IS_USING_GPS, false).commit();
+            LocationLibrary.isUsingGPS(getApplicationContext(), false);
             locationManager.removeUpdates(gpsPendingIntent);
         }
 

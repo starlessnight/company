@@ -4,6 +4,7 @@ import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary;
 import com.smartrek.activities.R;
@@ -22,16 +23,22 @@ public final class SmarTrekApplication extends Application {
         // The following line triggers the initialization of ACRA
         //ACRA.init(this);
         CrashlyticsUtils.start(this);
-        SendTrajectoryService.schedule(this);
-        CalendarService.schedule(this);
-        TripService.schedule(this);
-        ContactListService.schedule(this);
         Long interval = UserLocationService.getInterval(this);
         LocationLibrary.initialiseLibrary(this, interval, 
             interval.intValue(), false, "com.smartrek.activities");
         LocationLibrary.stopAlarmAndListener(this);
-        LocationLibrary.startAlarmAndListener(this);
-        UserLocationService.schedule(this);
+        startServices(this);
         super.onCreate();
     }
+    
+    public static void startServices(Context context){
+        LocationLibrary.isUsingGPS(context, false);
+        SendTrajectoryService.schedule(context);
+        CalendarService.schedule(context);
+        TripService.schedule(context);
+        ContactListService.schedule(context);
+        LocationLibrary.startAlarmAndListener(context);
+        UserLocationService.schedule(context);
+    }
+    
 }

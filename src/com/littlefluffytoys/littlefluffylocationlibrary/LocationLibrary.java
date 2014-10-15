@@ -248,6 +248,18 @@ public class LocationLibrary {
         return PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
             .getBoolean(LocationLibraryConstants.SP_KEY_USE_FINE_ACCURACY_FOR_REQUESTS, false); 
     }
+    
+    public static void isUsingGPS(final Context context, final boolean isUsingGPS) {
+        PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
+            .edit().putBoolean(LocationLibraryConstants.SP_KEY_IS_USING_GPS, isUsingGPS)
+            .commit();
+    }
+    
+    public static boolean isUsingGPS(Context context){
+        return PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
+            .getBoolean(LocationLibraryConstants.SP_KEY_IS_USING_GPS, false); 
+    }
+    
 
     /**
      * Debug output is off by default. To switch it on, call showDebugOutput(true)
