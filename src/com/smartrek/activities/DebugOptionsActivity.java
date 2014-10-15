@@ -49,9 +49,7 @@ import com.smartrek.ui.DelayTextWatcher.TextChangeListener;
 import com.smartrek.utils.Cache;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.GeoPoint;
-import com.smartrek.utils.Geocoding;
 import com.smartrek.utils.Misc;
-import com.smartrek.utils.Geocoding.Address;
 
 public final class DebugOptionsActivity extends Activity {
     
@@ -76,6 +74,8 @@ public final class DebugOptionsActivity extends Activity {
     private static final String PRE_RECORDED_DATA_URL = "PRE_RECORDED_DATA_URL";
     
     public static final String GOOGLE_GEOCODING_PATCHED = "GOOGLE_GEOCODING_PATCHED";
+    
+    public static final String SKOBBLER_PATCHED = "SKOBBLER_PATCHED";
     
     private static final int GOOGLE_GEOCODING_PATCH_NO = 1;
     
@@ -947,6 +947,22 @@ public final class DebugOptionsActivity extends Activity {
     	}
     	
     	saveReservRecipients(ctx, infos);
+    }
+    
+    public static boolean isSkobblerPatched(Context ctx){
+        boolean patched;
+        try{
+            patched = getPrefs(ctx).getString(SKOBBLER_PATCHED, "").equals(SkobblerUtils.SDK_VERSION);
+        }catch(Throwable t){
+            patched = false;
+        }
+        return patched;
+    }
+    
+    public static void setSkobblerPatched(Context ctx, boolean patched){
+        getPrefs(ctx).edit()
+            .putString(SKOBBLER_PATCHED, patched?SkobblerUtils.SDK_VERSION:"")
+            .commit();
     }
     
 }
