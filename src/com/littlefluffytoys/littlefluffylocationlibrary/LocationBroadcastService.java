@@ -17,6 +17,9 @@
 
 package com.littlefluffytoys.littlefluffylocationlibrary;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import android.annotation.TargetApi;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -41,6 +44,8 @@ import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallback
 import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.location.LocationRequest;
+import com.smartrek.activities.DebugOptionsActivity;
 
 /**
  * This is an example of implementing an application service that will run in
@@ -137,17 +142,15 @@ public class LocationBroadcastService extends Service {
     public boolean forceLocationUpdate() {
         final LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         boolean useFineAccuracyForRequests = LocationLibrary.useFineAccuracyForRequests(getApplicationContext());
-        boolean useGPS = useFineAccuracyForRequests || !locationManager.isProviderEnabled(
-            LocationManager.NETWORK_PROVIDER);
         boolean isUsingGPS = LocationLibrary.isUsingGPS(getApplicationContext());
         final Intent gpsIntent = new Intent(getApplicationContext(), PassiveLocationChangedReceiver.class)
             .addCategory(LocationLibraryConstants.INTENT_CATEGORY_GPS_UPDATE);
         final PendingIntent gpsPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 
             0, gpsIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        if(useGPS && !isUsingGPS){
+        if(useFineAccuracyForRequests && !isUsingGPS){
             LocationLibrary.isUsingGPS(getApplicationContext(), true);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, LocationLibrary.getAlarmFrequency(), 0, gpsPendingIntent);
-        }else if(!useGPS && isUsingGPS){
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, DebugOptionsActivity.defaultUpdateInterval, 0, gpsPendingIntent);
+        }else if(!useFineAccuracyForRequests && isUsingGPS){
             LocationLibrary.isUsingGPS(getApplicationContext(), false);
             locationManager.removeUpdates(gpsPendingIntent);
         }
@@ -158,22 +161,42 @@ public class LocationBroadcastService extends Service {
             locClient = new LocationClient(getApplicationContext(), new ConnectionCallbacks() {
                 @Override
                 public void onDisconnected() {
-                    LocationBroadcastService.this.stopSelf();
+                    stopSelf();
                 }                
                 @Override
                 public void onConnected(Bundle arg0) {
                     try{
-                        PassiveLocationChangedReceiver.processLocation(getApplicationContext(), 
-                            locClient.getLastLocation());
-                        locClient.disconnect();
+                        LocationRequest locReq = LocationRequest.create();
+                        locReq.setSmallestDisplacement(1);
+                        locReq.setPriority(LocationRequest.PRIORITY_NO_POWER);
+                        locReq.setInterval(DebugOptionsActivity.defaultUpdateInterval);
+                        locReq.setNumUpdates(1);
+                        final com.google.android.gms.location.LocationListener listener = new com.google.android.gms.location.LocationListener() {
+                            @Override
+                            public void onLocationChanged(Location loc) {
+                                PassiveLocationChangedReceiver.processLocation(getApplicationContext(), loc);
+                            }
+                        };
+                        locClient.requestLocationUpdates(locReq, listener);
+                        new Timer().schedule(new TimerTask(){
+                            public void run(){
+                                try {
+                                    locClient.removeLocationUpdates(listener);
+                                    locClient.disconnect();
+                                }
+                                catch (Throwable t) {
+                                    stopSelf();
+                                }
+                            }
+                        }, LocationLibrary.getAlarmFrequency());
                     }catch(Throwable t){
-                        LocationBroadcastService.this.stopSelf();
+                        stopSelf();
                     }
                 }
             }, new OnConnectionFailedListener() {
                 @Override
                 public void onConnectionFailed(ConnectionResult arg0) {
-                    LocationBroadcastService.this.stopSelf();
+                    stopSelf();
                 }
             });
             locClient.connect();

@@ -103,7 +103,7 @@ public final class DebugOptionsActivity extends Activity {
     
     private static final String osmdroidCacheDir = "osmdroid";
     
-    private static final int defaultUpdateInterval = 1000;
+    public static final int defaultUpdateInterval = 1000;
     
     private static final String REROUTING_NOTIFICATION_SOUND = "REROUTING_NOTIFICATION_SOUND";
     
