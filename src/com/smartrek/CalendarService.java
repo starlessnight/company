@@ -79,7 +79,7 @@ public class CalendarService extends IntentService {
                            Address address = geocode(location);
                            if((!file.exists() || file.length() == 0) 
                                    && StringUtils.isNotBlank(location)
-                                   && isAtLeastThreeWords(location)
+                                   && isAtLeastFourWords(location)
                                    && canBeGeocoded(address) 
                                    && !isDuplicate(CalendarService.this, eventId, title, start, end) 
                                    && System.currentTimeMillis() < notiTime/* true */
@@ -124,8 +124,8 @@ public class CalendarService extends IntentService {
         }
     }
     
-    private static boolean isAtLeastThreeWords(String address){
-        return ArrayUtils.getLength(StringUtils.split(address)) >= 3;
+    private static boolean isAtLeastFourWords(String address){
+        return ArrayUtils.getLength(StringUtils.split(address)) >= 4;
     }
     
     private static boolean canBeGeocoded(Geocoding.Address address){
