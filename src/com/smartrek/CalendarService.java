@@ -30,8 +30,8 @@ import com.smartrek.models.User;
 import com.smartrek.receivers.CalendarNotification;
 import com.smartrek.utils.CalendarContract.Instances;
 import com.smartrek.utils.Geocoding;
-import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.Geocoding.Address;
+import com.smartrek.utils.RouteNode;
 import com.smartrek.utils.ValidationParameters;
 
 public class CalendarService extends IntentService {
@@ -77,7 +77,9 @@ public class CalendarService extends IntentService {
                            long notiTime = start - TWO_AND_A_HALF_HOURS;
                            String title = events.getString(1);
                            Address address = geocode(location);
-                           if((!file.exists() || file.length() == 0) && StringUtils.isNotBlank(location) 
+                           if((!file.exists() || file.length() == 0) 
+                                   && StringUtils.isNotBlank(location)
+                                   && isAtLeastThreeWords(location)
                                    && canBeGeocoded(address) 
                                    && !isDuplicate(CalendarService.this, eventId, title, start, end) 
                                    && System.currentTimeMillis() < notiTime/* true */
@@ -120,6 +122,10 @@ public class CalendarService extends IntentService {
                 }
             }
         }
+    }
+    
+    private static boolean isAtLeastThreeWords(String address){
+        return ArrayUtils.getLength(StringUtils.split(address)) >= 3;
     }
     
     private static boolean canBeGeocoded(Geocoding.Address address){
