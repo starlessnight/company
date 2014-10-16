@@ -2179,9 +2179,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     public static class PoiOverlayInfo extends BalloonModel implements Parcelable {
     	
-    	public int marker;
+    	public int marker = R.drawable.transparent_poi;
     	
-    	public int markerWithShadow;
+    	public int markerWithShadow = R.drawable.transparent_poi;
     	
     	public static final Parcelable.Creator<PoiOverlayInfo> CREATOR = new Parcelable.Creator<PoiOverlayInfo>() {
             public PoiOverlayInfo createFromParcel(Parcel in) {
