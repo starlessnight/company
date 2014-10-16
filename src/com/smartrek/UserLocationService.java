@@ -61,7 +61,7 @@ public class UserLocationService extends IntentService {
                     traj = new Trajectory();
                 }
                 traj.accumulate(info.lastLat, info.lastLong, info.lastAltitude, 
-                    info.lastSpeed, info.lastHeading, System.currentTimeMillis(), 
+                    info.lastSpeed, info.lastHeading, now, 
                     Trajectory.DEFAULT_LINK_ID, info.lastAccuracy);
                 FileUtils.write(file, traj.toJSON().toString());
             }else if(hasLastLoc && now - lastLoc.time > ValidationActivity.TWO_MINUTES){

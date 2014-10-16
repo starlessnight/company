@@ -251,7 +251,7 @@ public class Trajectory {
         ListIterator<Record> recordIter = records.listIterator();
         while(recordIter.hasNext()){
             Record r = recordIter.next();
-            if(r.time < time){
+            if(r.time <= time){
                 recordIter.remove();
             }
         }
