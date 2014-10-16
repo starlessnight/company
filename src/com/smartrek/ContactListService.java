@@ -47,7 +47,7 @@ public class ContactListService extends IntentService {
                 PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
         long interval = 3600000L;
-        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME, 
+        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 
             SystemClock.elapsedRealtime() + interval, interval, saveContactList);
     }
     

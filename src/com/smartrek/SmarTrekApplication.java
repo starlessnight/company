@@ -32,7 +32,6 @@ public final class SmarTrekApplication extends Application {
     }
     
     public static void startServices(Context context){
-        LocationLibrary.isUsingGPS(context, false);
         SendTrajectoryService.schedule(context);
         CalendarService.schedule(context);
         TripService.schedule(context);

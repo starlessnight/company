@@ -70,13 +70,14 @@ public class LocationLibrary {
         am.cancel(alarmIntent);
 
         // Schedule the alarm
-        am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), getAlarmFrequency(), alarmIntent);
+        am.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime(), getAlarmFrequency(), alarmIntent);
 
         if (LocationLibraryConstants.SUPPORTS_FROYO) {
             final LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
             final Intent passiveIntent = new Intent(context, PassiveLocationChangedReceiver.class);
             final PendingIntent locationListenerPassivePendingIntent = PendingIntent.getBroadcast(context, 0, passiveIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, locationListenerPassivePendingIntent);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListenerPassivePendingIntent);
         }
 
         if (showDebugOutput) Log.d(LocationLibraryConstants.TAG, TAG + ": startAlarmAndListener completed");

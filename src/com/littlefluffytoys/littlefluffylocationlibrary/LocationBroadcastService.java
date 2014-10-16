@@ -142,16 +142,13 @@ public class LocationBroadcastService extends Service {
     public boolean forceLocationUpdate() {
         final LocationManager locationManager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
         boolean useFineAccuracyForRequests = LocationLibrary.useFineAccuracyForRequests(getApplicationContext());
-        boolean isUsingGPS = LocationLibrary.isUsingGPS(getApplicationContext());
         final Intent gpsIntent = new Intent(getApplicationContext(), PassiveLocationChangedReceiver.class)
             .addCategory(LocationLibraryConstants.INTENT_CATEGORY_GPS_UPDATE);
         final PendingIntent gpsPendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 
             0, gpsIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        if(useFineAccuracyForRequests && !isUsingGPS){
-            LocationLibrary.isUsingGPS(getApplicationContext(), true);
+        if(useFineAccuracyForRequests){
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, DebugOptionsActivity.defaultUpdateInterval, 0, gpsPendingIntent);
-        }else if(!useFineAccuracyForRequests && isUsingGPS){
-            LocationLibrary.isUsingGPS(getApplicationContext(), false);
+        }else if(!useFineAccuracyForRequests){
             locationManager.removeUpdates(gpsPendingIntent);
         }
 
@@ -167,7 +164,6 @@ public class LocationBroadcastService extends Service {
                 public void onConnected(Bundle arg0) {
                     try{
                         LocationRequest locReq = LocationRequest.create();
-                        locReq.setSmallestDisplacement(1);
                         locReq.setPriority(LocationRequest.PRIORITY_NO_POWER);
                         locReq.setInterval(DebugOptionsActivity.defaultUpdateInterval);
                         locReq.setNumUpdates(1);

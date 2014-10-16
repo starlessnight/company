@@ -115,7 +115,7 @@ public class UserLocationService extends IntentService {
                 PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
         Long interval = getInterval(ctx);
-        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME,
+        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
             SystemClock.elapsedRealtime() + interval, interval, sendTrajServ);
     }
 
