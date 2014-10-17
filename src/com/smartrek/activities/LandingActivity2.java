@@ -1455,9 +1455,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         });
         */
         
-        User user = User.getCurrentUser(LandingActivity2.this);
-        TextView userInfoView = (TextView) findViewById(R.id.user_info);
-        userInfoView.setText(user.getFirstname() + " " + user.getLastname());
+        LandingActivity.initializeIfNeccessary(this, new Runnable() {
+            @Override
+            public void run() {
+            	User user = User.getCurrentUser(LandingActivity2.this);
+                TextView userInfoView = (TextView) findViewById(R.id.user_info);
+                userInfoView.setText(user.getFirstname() + " " + user.getLastname());
+            }
+        });
         
         final View activityRootView = findViewById(android.R.id.content);
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
