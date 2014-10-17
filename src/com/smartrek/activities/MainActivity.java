@@ -363,7 +363,6 @@ public class MainActivity extends Activity implements AnimationListener, SKPrepa
 	@Override
 	public void onMapTexturesPrepared(boolean success) {
 		DebugOptionsActivity.setSkobblerPatched(MainActivity.this, success);
-		SkobblerUtils.initializeLibrary(MainActivity.this);
 		checkLoginStatus();
 	}
     

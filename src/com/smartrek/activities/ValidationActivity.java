@@ -250,6 +250,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		// init skmap
+		SkobblerUtils.initializeLibrary(ValidationActivity.this);
+		
 		setContentView(R.layout.post_reservation_map);
 		
 		initSKMaps();
@@ -647,6 +650,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private AtomicBoolean initial = new AtomicBoolean(false);
 	
+	/**
+	 * init skmap parameter
+	 */
 	private void initSKMaps() {
 		initial.set(true);
 		SKLogging.enableLogs(true);

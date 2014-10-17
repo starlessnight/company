@@ -26,8 +26,7 @@ public class SkobblerUtils {
         String mapResourcesDirPath = getMapResourceDirPath(ctx);
         File skmapDir = new File(mapResourcesDirPath);
         if (skmapDir.exists() && DebugOptionsActivity.isSkobblerPatched(ctx)) {
-        	// map resources have already been copied - start the map activity
-        	initializeLibrary(ctx);
+        	// map resources have already been copied
         	if(checkLogin != null) {
         		checkLogin.run();
         	}

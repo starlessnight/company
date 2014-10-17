@@ -2982,8 +2982,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		        hideBulbBalloon();
 		        hideStarredBalloon();
 		        removeAllOD();
-		        // init skmap
-		        SkobblerUtils.initializeLibrary(LandingActivity2.this);
 		        startActivity(intent);
 			}
     	});
