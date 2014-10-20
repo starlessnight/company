@@ -90,7 +90,6 @@ import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.google.analytics.tracking.android.EasyTracker;
 import com.skobbler.ngx.SKMaps;
-import com.smartrek.SkobblerUtils;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.dialogs.NotificationDialog2.ActionListener;
@@ -373,17 +372,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     showAutoComplete.set(true);
                     if(StringUtils.isBlank(searchBox.getText())) {
                     	searchAddresses.clear();
-                    	Address tapToAdd = new Address();
-                    	tapToAdd.setName(TAP_TO_ADD_FAVORITE);
-                    	tapToAdd.setAddress("");
-                    	searchAddresses.add(tapToAdd);
-                    	List<Address> emptyAddress = getEmptyAddressesForUI();
-                    	searchAddresses.addAll(emptyAddress);
+//                    	Address tapToAdd = new Address();
+//                    	tapToAdd.setName(TAP_TO_ADD_FAVORITE);
+//                    	tapToAdd.setAddress("");
+//                    	searchAddresses.add(tapToAdd);
+//                    	List<Address> emptyAddress = getEmptyAddressesForUI();
+//                    	searchAddresses.addAll(emptyAddress);
                     }
                     refreshSearchAutoCompleteData();
                     findViewById(R.id.metropia_color_bar).setVisibility(View.GONE);
-                    searchResultList.setVisibility(View.VISIBLE);
-                    fromSearchResultList.setVisibility(View.GONE);
+//                    searchResultList.setVisibility(View.VISIBLE);
+//                    fromSearchResultList.setVisibility(View.GONE);
                 }
                 resetFromToTab(!hasFocus, false);
             }
@@ -405,17 +404,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     showAutoComplete.set(true);
                     if(StringUtils.isBlank(fromSearchBox.getText())) {
                         fromSearchAddresses.clear();
-                        Address tapToAdd = new Address();
-                        tapToAdd.setName(TAP_TO_ADD_FAVORITE);
-                        tapToAdd.setAddress("");
-                        fromSearchAddresses.add(tapToAdd);
-                        List<Address> emptyAddresses = getEmptyAddressesForUI();
-                        fromSearchAddresses.addAll(emptyAddresses);
+//                        Address tapToAdd = new Address();
+//                        tapToAdd.setName(TAP_TO_ADD_FAVORITE);
+//                        tapToAdd.setAddress("");
+//                        fromSearchAddresses.add(tapToAdd);
+//                        List<Address> emptyAddresses = getEmptyAddressesForUI();
+//                        fromSearchAddresses.addAll(emptyAddresses);
                     }
                     refreshFromSearchAutoCompleteData();
                     findViewById(R.id.metropia_color_bar).setVisibility(View.GONE);
-                    searchResultList.setVisibility(View.GONE);
-                    fromSearchResultList.setVisibility(View.VISIBLE);
+//                    searchResultList.setVisibility(View.GONE);
+//                    fromSearchResultList.setVisibility(View.VISIBLE);
                 }
                 resetFromToTab(!hasFocus, true);
             }
