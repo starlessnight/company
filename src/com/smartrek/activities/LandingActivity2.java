@@ -1502,7 +1502,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         Font.setTypeface(Font.getMedium(assets), favSearchBox, labelInput, 
         		(TextView)findViewById(R.id.label), (TextView)findViewById(R.id.icon));
         showTutorialIfNessary();
-        
     }
     
     private void showTutorialIfNessary() {
@@ -3136,7 +3135,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     curFromTime = lastLocation.getTime();
     			}
     		}
-    		findViewById(R.id.get_route).setVisibility(View.VISIBLE);
+    		toggleGetRouteButton(true);
     	}
     }
     
@@ -3379,6 +3378,20 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         animator.start();
     }
     
+    private void toggleGetRouteButton(boolean show) {
+    	View getRoutePanel = findViewById(R.id.get_route_panel);
+    	View getRouteButton = findViewById(R.id.get_route);
+    	getRouteButton.setVisibility(show?View.VISIBLE:View.GONE);
+    	float height = Dimension.dpToPx(55, getResources().getDisplayMetrics());
+    	ObjectAnimator getRouteAnimator;
+    	if(show) {
+    		getRouteAnimator = ObjectAnimator.ofFloat(getRoutePanel, "translationY", height, 0);
+    		getRouteAnimator.setDuration(300);
+    		getRouteAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+    		getRouteAnimator.start();
+    	}
+    }
+    
     private void write2SearchBoxTag(Set<String> addresses) {
     	Set<String> oAddrs = (Set<String>) findViewById(R.id.search_box).getTag();
         if(oAddrs == null) {
@@ -3482,7 +3495,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	}
     	else {
     		curTo = null;
-    		findViewById(R.id.get_route).setVisibility(View.GONE);
+    		toggleGetRouteButton(false);
     	}
     	boolean handle = false;
         for (Overlay overlay : overlays) {

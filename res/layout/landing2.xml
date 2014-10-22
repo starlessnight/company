@@ -216,31 +216,39 @@
                     android:visibility="gone" />
 
                 <LinearLayout
+                    android:id="@+id/get_route_panel"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true"
-                    android:background="@color/metropia_green"
                     android:orientation="vertical" >
 
                     <include
                         android:layout_width="fill_parent"
                         android:layout_height="8dp"
                         layout="@layout/metropia_color_bar" />
-
-                    <TextView
-                        android:id="@+id/get_route"
-                        android:layout_width="wrap_content"
-                        android:layout_height="55dp"
-                        android:layout_gravity="center"
-                        android:drawablePadding="20dp"
-                        android:drawableRight="@drawable/get_route_arrow"
-                        android:gravity="center"
-                        android:paddingBottom="5dp"
-                        android:paddingTop="5dp"
-                        android:text="Get Route!"
-                        android:textColor="@android:color/white"
-                        android:textSize="26dp"
-                        android:visibility="gone" />
+                    
+                    <FrameLayout
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/metropia_green">
+                        
+	                    <TextView
+	                        android:id="@+id/get_route"
+	                        android:layout_width="wrap_content"
+	                        android:layout_height="55dp"
+	                        android:layout_gravity="center"
+	                        android:drawablePadding="20dp"
+	                        android:drawableRight="@drawable/get_route_arrow"
+	                        android:gravity="center"
+	                        android:paddingBottom="5dp"
+	                        android:paddingTop="5dp"
+	                        android:text="Get Route!"
+	                        android:textColor="@android:color/white"
+	                        android:textSize="26dp"
+	                        android:visibility="gone" />
+	                    
+	                </FrameLayout>
+	                
                 </LinearLayout>
 
                 <ListView
