@@ -84,8 +84,8 @@ public final class TimeColumn extends FrameLayout {
         maskLp.gravity = Gravity.TOP|Gravity.CENTER_HORIZONTAL;
         maskLp.leftMargin = Dimension.dpToPx(1, dm);
         maskLp.rightMargin = Dimension.dpToPx(1, dm);
+        maskLp.topMargin = TimeButton.HEIGHT * 2 + TimeButton.FIRST_ROW_HEIGHT - Dimension.dpToPx(1, dm);
         mask.setLayoutParams(maskLp);
-        mask.setY(TimeButton.HEIGHT * 2 + TimeButton.FIRST_ROW_HEIGHT - Dimension.dpToPx(1, dm));
         timeColumn.addView(mask);
 		
 		LinearLayout timeColumnLayout = new LinearLayout(getContext());
@@ -95,7 +95,6 @@ public final class TimeColumn extends FrameLayout {
 		FrameLayout departureTimeLayout = new FrameLayout(getContext());
 		FrameLayout.LayoutParams departureTimeLayoutLp = new FrameLayout.LayoutParams(TimeButton.WIDTH, TimeButton.FIRST_ROW_HEIGHT - Dimension.dpToPx(1, dm));
 		departureTimeLayout.setLayoutParams(departureTimeLayoutLp);
-//		departureTimeLayout.setBackgroundColor(Color.parseColor("#AAB3B3B3"));
 		
 		ImageView backgroundImg = new ImageView(getContext());
 		FrameLayout.LayoutParams imgLp = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.FILL_PARENT);
@@ -192,7 +191,9 @@ public final class TimeColumn extends FrameLayout {
 		DisplayMetrics dm = getResources().getDisplayMetrics();
         if(color != null){
         	if(selected) {
-        		mask.setY(0);
+        		FrameLayout.LayoutParams maskLp = (LayoutParams) mask.getLayoutParams();
+        		maskLp.topMargin = 0;
+        		mask.setLayoutParams(maskLp);
 	        	TranslateAnimation slideUp = new TranslateAnimation(0, 0, TimeButton.HEIGHT * 2 + TimeButton.FIRST_ROW_HEIGHT - Dimension.dpToPx(1, dm), 0);
 	        	slideUp.setDuration(animationDuration);
 	        	slideUp.setFillAfter(true);
