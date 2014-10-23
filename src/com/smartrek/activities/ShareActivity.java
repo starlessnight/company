@@ -2,6 +2,8 @@ package com.smartrek.activities;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang3.StringUtils;
+
 import twitter4j.TwitterException;
 import android.app.Activity;
 import android.content.Intent;
@@ -22,9 +24,11 @@ import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
-import com.google.analytics.tracking.android.EasyTracker;
-import com.google.android.gms.plus.GooglePlusUtil;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.plus.PlusShare;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.ui.ClickAnimation;
 import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
@@ -153,10 +157,9 @@ public final class ShareActivity extends FragmentActivity {
 					@Override
 					public void onAnimationEnd() {
 						if (isNotLoading()) {
-							int errorCode = GooglePlusUtil
-									.checkGooglePlusApp(ShareActivity.this);
-							if (errorCode != GooglePlusUtil.SUCCESS) {
-								GooglePlusUtil.getErrorDialog(errorCode,
+							int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(ShareActivity.this);
+							if (StringUtils.equalsIgnoreCase(GooglePlayServicesUtil.getErrorString(errorCode), "success")) {
+								GooglePlayServicesUtil.getErrorDialog(errorCode,
 										ShareActivity.this, 0).show();
 							} else {
 							    Misc.suppressTripInfoPanel(ShareActivity.this);
@@ -217,6 +220,9 @@ public final class ShareActivity extends FragmentActivity {
 
 		uiHelper = new UiLifecycleHelper(ShareActivity.this, fbCallback);
 		uiHelper.onCreate(savedInstanceState);
+		
+		//init Tracker
+      	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 	}
 
 	private void publishFB() {
@@ -368,7 +374,7 @@ public final class ShareActivity extends FragmentActivity {
     protected void onStop() {
         super.onStop();
         Misc.tripInfoPanelOnActivityStop(this);
-        EasyTracker.getInstance().activityStop(this);
+        GoogleAnalytics.getInstance(this).reportActivityStop(this);
     }
     
     @Override
@@ -380,7 +386,7 @@ public final class ShareActivity extends FragmentActivity {
     @Override
     public void onStart() {
         super.onStart();
-        EasyTracker.getInstance().activityStart(this);
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
     }
 
 }

@@ -81,7 +81,7 @@ import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
 import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.AnimatorListener;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.crashlytics.android.Crashlytics;
-import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
 import com.skobbler.ngx.SKCoordinate;
 import com.skobbler.ngx.SKMaps;
 import com.skobbler.ngx.map.SKAnimationSettings;
@@ -105,7 +105,9 @@ import com.skobbler.ngx.tracks.SKTracksFile;
 import com.skobbler.ngx.util.SKLogging;
 import com.smartrek.SendTrajectoryService;
 import com.smartrek.SkobblerUtils;
+import com.smartrek.SmarTrekApplication;
 import com.smartrek.TripService;
+import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.dialogs.FloatingMenuDialog;
 import com.smartrek.dialogs.NotificationDialog2;
@@ -440,6 +442,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		if(!stopValidation.get() && StringUtils.isNotBlank(phones)) {
 			sendOnMyWaySms();
 		}
+		
+		//init Tracker
+      	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 	}
 	
 	private void sendOnMyWaySms() {
@@ -553,15 +558,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	@Override
 	protected void onStart() {
 		super.onStart();
-
-		EasyTracker.getInstance().activityStart(this);
-
+		GoogleAnalytics.getInstance(this).reportActivityStart(this);
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		EasyTracker.getInstance().activityStop(this);
+		GoogleAnalytics.getInstance(this).reportActivityStop(this);
 	}
 
 	@Override

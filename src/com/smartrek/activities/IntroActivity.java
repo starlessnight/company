@@ -16,7 +16,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Preferences;
 
@@ -63,6 +65,8 @@ public class IntroActivity extends FragmentActivity implements OnPageChangeListe
         });
         
         Font.setTypeface(Font.getRobotoBold(getAssets()), getStartedView);
+        //init Tracker
+      	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
     }
     
     public static class SlideFragment extends Fragment {
@@ -146,13 +150,13 @@ public class IntroActivity extends FragmentActivity implements OnPageChangeListe
     @Override
     public void onStart() {
         super.onStart();
-        EasyTracker.getInstance().activityStart(this);
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
     }
     
     @Override
     public void onStop() {
         super.onStop();
-        EasyTracker.getInstance().activityStop(this);
+        GoogleAnalytics.getInstance(this).reportActivityStop(this);
     }
 
 }

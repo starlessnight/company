@@ -13,7 +13,9 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.ui.ClickAnimation;
 import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.utils.Font;
@@ -95,6 +97,9 @@ public class HelpOurResearchActivity extends FragmentActivity {
 		Font.setTypeface(lightFont, (TextView) findViewById(R.id.paydays_text), 
 				paydaysDescView, (TextView) findViewById(R.id.drive_smart_text), 
 				driveSmartDescView);
+		
+		//init Tracker
+      	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 	}
 	
 	public static boolean isPaydaysEnabled(Context ctx) {
@@ -111,7 +116,7 @@ public class HelpOurResearchActivity extends FragmentActivity {
 	protected void onStop() {
 	    super.onStop();
 	    Misc.tripInfoPanelOnActivityStop(this);
-	    EasyTracker.getInstance().activityStop(this);
+	    GoogleAnalytics.getInstance(this).reportActivityStop(this);
 	}
 	
 	@Override
@@ -123,7 +128,7 @@ public class HelpOurResearchActivity extends FragmentActivity {
 	@Override
     public void onStart() {
         super.onStart();
-        EasyTracker.getInstance().activityStart(this);
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
     }
 	
 }

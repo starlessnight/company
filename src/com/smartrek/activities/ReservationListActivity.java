@@ -23,7 +23,9 @@ import android.widget.TextView;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
@@ -64,19 +66,21 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
         reservations = new ArrayList<Reservation>();
         
         Font.setTypeface(lightFont, textViewGeneric);
+        //init Tracker
+      	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 	}
 	
 	@Override
 	public void onStart() {
 		super.onStart();
-		EasyTracker.getInstance().activityStart(this);
+		GoogleAnalytics.getInstance(this).reportActivityStart(this);
 		requestRefresh(true);
 	}
 	
 	@Override
 	public void onStop() {
 		super.onStop();
-		EasyTracker.getInstance().activityStop(this);
+		GoogleAnalytics.getInstance(this).reportActivityStop(this);
 	}
 	
 	@Override

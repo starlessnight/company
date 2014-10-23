@@ -34,7 +34,9 @@ import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.User;
 import com.smartrek.requests.UserRegistrationRequest;
@@ -111,6 +113,9 @@ public final class UserRegistrationActivity extends FragmentActivity
         Font.setTypeface(Font.getLight(assets), editTextEmail, editTextFirstname, editTextLastname, 
         		editTextPassword, editTextPasswordConfirm, editTextZipCode, terms);
         Font.setTypeface(Font.getBold(assets), buttonRegister, (TextView) findViewById(R.id.header));
+        
+        //init Tracker
+      	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
     }
     
     private void queryUserInfo(){
@@ -157,14 +162,14 @@ public final class UserRegistrationActivity extends FragmentActivity
 	@Override
 	public void onStart() {
 		super.onStart();
-		EasyTracker.getInstance().activityStart(this);
+		GoogleAnalytics.getInstance(this).reportActivityStart(this);
 		Misc.initGCM(this);
 	}
 	
 	@Override
 	public void onStop() {
 		super.onStop();
-		EasyTracker.getInstance().activityStop(this);
+		GoogleAnalytics.getInstance(this).reportActivityStop(this);
 	}
 	
     /**

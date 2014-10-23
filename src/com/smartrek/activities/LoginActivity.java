@@ -28,8 +28,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
 import com.smartrek.CrashlyticsUtils;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
@@ -94,19 +96,22 @@ public final class LoginActivity extends Activity implements OnClickListener,
         Font.setTypeface(Font.getLight(assets), editTextUsername, 
         		editTextPassword, login, newUser, 
         		(TextView) findViewById(R.id.forget_pwd));
+        
+        //init Tracker
+      	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
     }
     
     @Override
     protected void onStart() {
         super.onStart();
         Misc.initGCM(this);
-        EasyTracker.getInstance().activityStart(this);
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
     }
     
     @Override
     public void onStop() {
         super.onStop();
-        EasyTracker.getInstance().activityStop(this);
+        GoogleAnalytics.getInstance(this).reportActivityStop(this);
     }
     
     @Override

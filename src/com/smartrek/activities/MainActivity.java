@@ -16,10 +16,12 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
-import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
 import com.skobbler.ngx.SKPrepareMapTextureListener;
 import com.smartrek.CrashlyticsUtils;
 import com.smartrek.SkobblerUtils;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.ServiceDiscoveryRequest;
@@ -142,6 +144,8 @@ public class MainActivity extends Activity implements AnimationListener, SKPrepa
 	        
 	        logoMask.startAnimation(slideUpAnimation);
 		}
+		//init Tracker
+      	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 	}
 	
 	public static String getEntrypoint(Context ctx){
@@ -271,16 +275,14 @@ public class MainActivity extends Activity implements AnimationListener, SKPrepa
 	@Override
 	protected void onStart() {
 		super.onStart();
-		
-		EasyTracker.getInstance().activityStart(this);
-		
+		GoogleAnalytics.getInstance(this).reportActivityStart(this);
 		Misc.initGCM(this);
 	}
 	
 	@Override
 	public void onStop() {
 		super.onStop();
-		EasyTracker.getInstance().activityStop(this);
+		GoogleAnalytics.getInstance(this).reportActivityStop(this);
 	}
 
 	@Override

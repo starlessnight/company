@@ -11,7 +11,9 @@ import android.widget.TextView;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.requests.Request;
@@ -118,18 +120,20 @@ public final class ReservationDetailsActivity extends ActionBarActivity {
                 textViewDepartureTime, textViewDestination, textViewDuration, 
                 textViewOrigin, textViewHelp);
         }
+        //init Tracker
+      	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
     }
     
 	@Override
 	public void onStart() {
 		super.onStart();
-		EasyTracker.getInstance().activityStart(this);
+		GoogleAnalytics.getInstance(this).reportActivityStart(this);
 	}
 	
 	@Override
 	public void onStop() {
 		super.onStop();
-		EasyTracker.getInstance().activityStop(this);
+		GoogleAnalytics.getInstance(this).reportActivityStop(this);
 	}
     
     @Override

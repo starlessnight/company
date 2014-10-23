@@ -9,7 +9,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
-import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.ui.ClickAnimation;
 import com.smartrek.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.smartrek.utils.Font;
@@ -77,13 +79,15 @@ public class TermsAndPrivacyActivity extends FragmentActivity{
 		
 		Font.setTypeface(boldFont, (TextView)findViewById(R.id.header));
 		Font.setTypeface(lightFont, termOfUseView, privacyPolicyView);
+		//init Tracker
+      	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 	}
 	
 	@Override
 	protected void onStop() {
 	    super.onStop();
         Misc.tripInfoPanelOnActivityStop(this);
-        EasyTracker.getInstance().activityStop(this);
+        GoogleAnalytics.getInstance(this).reportActivityStop(this);
 	}
 	
 	@Override
@@ -95,7 +99,7 @@ public class TermsAndPrivacyActivity extends FragmentActivity{
 	@Override
     public void onStart() {
         super.onStart();
-        EasyTracker.getInstance().activityStart(this);
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
     }
 
 }

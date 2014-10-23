@@ -51,8 +51,10 @@ import android.widget.SectionIndexer;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
 import com.smartrek.ContactListService;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.NotificationDialog;
 import com.smartrek.models.Contact;
@@ -252,6 +254,8 @@ public class ContactsSelectActivity extends FragmentActivity {
             }
         };
         Misc.parallelExecute(task);
+        //init Tracker
+      	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 	}
 	
 	private void initFrequencyContacts() {
@@ -617,13 +621,13 @@ public class ContactsSelectActivity extends FragmentActivity {
     @Override
     public void onStart() {
         super.onStart();
-        EasyTracker.getInstance().activityStart(this);
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
     }
     
     @Override
     public void onStop() {
         super.onStop();
-        EasyTracker.getInstance().activityStop(this);
+        GoogleAnalytics.getInstance(this).reportActivityStop(this);
     }
 
 }

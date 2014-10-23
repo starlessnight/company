@@ -10,7 +10,9 @@ import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.User;
@@ -95,6 +97,8 @@ public final class PreTripAlertActivity extends Activity {
         Font.setTypeface(Font.getBold(assets), (TextView)findViewById(R.id.title), 
             cancel, next);
         Font.setTypeface(Font.getLight(assets), msg);
+        //init Tracker
+      	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
     }
     
     @Override
@@ -109,13 +113,13 @@ public final class PreTripAlertActivity extends Activity {
     @Override
     public void onStart() {
         super.onStart();
-        EasyTracker.getInstance().activityStart(this);
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
     }
     
     @Override
     public void onStop() {
         super.onStop();
-        EasyTracker.getInstance().activityStop(this);
+        GoogleAnalytics.getInstance(this).reportActivityStop(this);
     }
 	
 }

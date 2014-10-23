@@ -17,7 +17,9 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.dialogs.FloatingMenuDialog;
 import com.smartrek.dialogs.ProfileSelectionDialog;
 import com.smartrek.models.User;
@@ -232,6 +234,9 @@ public final class MapDisplayActivity extends FragmentActivity {
 				(TextView) findViewById(R.id.introduction_screens),
 				(TextView) findViewById(R.id.terms_and_privacy),
 				(TextView) findViewById(R.id.help_our_research));
+        
+        //init Tracker
+      	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 	}
 
 	public static boolean isCalendarIntegrationEnabled(Context ctx) {
@@ -313,13 +318,13 @@ public final class MapDisplayActivity extends FragmentActivity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		EasyTracker.getInstance().activityStart(this);
+		GoogleAnalytics.getInstance(this).reportActivityStart(this);
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		EasyTracker.getInstance().activityStop(this);
+		GoogleAnalytics.getInstance(this).reportActivityStop(this);
         Misc.tripInfoPanelOnActivityStop(this);
 	}
 

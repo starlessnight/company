@@ -47,8 +47,10 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 
-import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
 import com.smartrek.CalendarService;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.activities.LandingActivity.ShortcutNavigationTask;
 import com.smartrek.activities.LandingActivity2.PoiOverlayInfo;
@@ -867,6 +869,9 @@ public final class RouteActivity extends FragmentActivity {
         
         Font.setTypeface(mediumFont, (TextView)findViewById(R.id.departure_row), arriveRow, 
                 durationRow, (TextView)findViewById(R.id.mpoint_row), onMyWayView, letsGoView, reserveView);
+        
+        //init Tracker
+      	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
     }
     
     private void removeTerminateReservationId(Long result) {
@@ -1001,13 +1006,13 @@ public final class RouteActivity extends FragmentActivity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		EasyTracker.getInstance().activityStart(this);
+		GoogleAnalytics.getInstance(this).reportActivityStart(this);
 	}
 	
 	@Override
 	public void onStop() {
 		super.onStop();
-		EasyTracker.getInstance().activityStop(this);
+		GoogleAnalytics.getInstance(this).reportActivityStop(this);
         Misc.tripInfoPanelOnActivityStop(this);
 	}
 	

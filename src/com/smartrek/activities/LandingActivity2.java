@@ -88,8 +88,10 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
-import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
 import com.skobbler.ngx.SKMaps;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.dialogs.NotificationDialog2.ActionListener;
@@ -1501,6 +1503,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu);
         Font.setTypeface(Font.getMedium(assets), favSearchBox, labelInput, 
         		(TextView)findViewById(R.id.label), (TextView)findViewById(R.id.icon));
+        //init Tracker
+        ((SmarTrekApplication)getApplication()).getTracker(TrackerName.APP_TRACKER);
         showTutorialIfNessary();
     }
     
@@ -2502,13 +2506,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     @Override
     public void onStart() {
         super.onStart();
-        EasyTracker.getInstance().activityStart(this);
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
     }
     
     @Override
     public void onStop() {
         super.onStop();
-        EasyTracker.getInstance().activityStop(this);
+        GoogleAnalytics.getInstance(this).reportActivityStop(this);
     }
     
     @Override

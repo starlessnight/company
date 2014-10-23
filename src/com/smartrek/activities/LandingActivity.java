@@ -586,11 +586,11 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                 }
             }
         }else if(type == type.googlePlus){
-            mPlusClient = new PlusClient.Builder(LandingActivity.this, 
-                    LandingActivity.this, LandingActivity.this)
-                .setVisibleActivities("http://schemas.google.com/AddActivity", "http://schemas.google.com/BuyActivity")
-                .build();
-            mPlusClient.connect();
+//            mPlusClient = new PlusClient.Builder(LandingActivity.this, 
+//                    LandingActivity.this, LandingActivity.this)
+//                .setVisibleActivities("http://schemas.google.com/AddActivity", "http://schemas.google.com/BuyActivity")
+//                .build();
+//            mPlusClient.connect();
             // Progress bar to be displayed if the connection failure is not resolved.
             showLoading();
         }

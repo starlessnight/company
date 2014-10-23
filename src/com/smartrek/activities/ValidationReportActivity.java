@@ -8,9 +8,11 @@ import android.widget.TextView;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.google.ads.AdRequest;
-import com.google.ads.AdView;
-import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.dialogs.ShareDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
@@ -73,13 +75,17 @@ public final class ValidationReportActivity extends ActionBarActivity {
         
         AdView ad = (AdView) findViewById(R.id.adView);
         autoRefresh(ad);
+        //init Tracker
+      	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 	}
 	
 	private void autoRefresh(final AdView ad){
 	    ad.postDelayed(new Runnable() {
             @Override
             public void run() {
-                ad.loadAd(new AdRequest());
+                AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
+                adRequestBuilder.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
+                ad.loadAd(adRequestBuilder.build());
                 autoRefresh(ad);
             }
         }, 10000);
@@ -88,13 +94,13 @@ public final class ValidationReportActivity extends ActionBarActivity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		EasyTracker.getInstance().activityStart(this);
+		GoogleAnalytics.getInstance(this).reportActivityStart(this);
 	}
 	
 	@Override
 	public void onStop() {
 		super.onStop();
-		EasyTracker.getInstance().activityStop(this);
+		GoogleAnalytics.getInstance(this).reportActivityStop(this);
 	}
 	
     @Override

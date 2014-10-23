@@ -19,7 +19,9 @@ import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
-import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.utils.Dimension;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
@@ -98,7 +100,8 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
         }
         
         Font.setTypeface(Font.getMedium(getAssets()), skipView);
-        
+        //init Tracker
+      	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
     }
     
     public static class SlideFragment extends Fragment {
@@ -210,7 +213,7 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
     protected void onStop() {
         super.onStop();
         Misc.tripInfoPanelOnActivityStop(this);
-        EasyTracker.getInstance().activityStop(this);
+        GoogleAnalytics.getInstance(this).reportActivityStop(this);
     }
     
     @Override
@@ -222,7 +225,7 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
     @Override
     public void onStart() {
         super.onStart();
-        EasyTracker.getInstance().activityStart(this);
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
     }
     
 }

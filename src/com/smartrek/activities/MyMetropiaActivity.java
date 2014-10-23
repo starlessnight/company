@@ -16,7 +16,9 @@ import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
 
-import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.utils.Dimension;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
@@ -128,6 +130,9 @@ public class MyMetropiaActivity extends FragmentActivity{
 				shareMyCo2Saving, shareMyScore);
 		Font.setTypeface(Font.getLight(assets), (TextView) findViewById(R.id.back_button), 
 				co2Reduce, treePlanted, co2ToTree, backButton);
+		
+		//init Tracker
+      	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 	}
 	
 	private CharSequence formatCO2Desc(String co2ReduceValue) {
@@ -186,13 +191,13 @@ public class MyMetropiaActivity extends FragmentActivity{
     public void onStop() {
         super.onStop();
         Misc.tripInfoPanelOnActivityStop(this);
-        EasyTracker.getInstance().activityStop(this);
+        GoogleAnalytics.getInstance(this).reportActivityStop(this);
     }
     
     @Override
     public void onStart() {
         super.onStart();
-        EasyTracker.getInstance().activityStart(this);
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
     }
 
     @Override

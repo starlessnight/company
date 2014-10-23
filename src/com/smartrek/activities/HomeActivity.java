@@ -35,7 +35,9 @@ import android.widget.ImageButton;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
 import com.smartrek.dialogs.FavoriteAddressListDialog;
 import com.smartrek.dialogs.FloatingMenuDialog;
@@ -289,6 +291,9 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	   Font.setTypeface(boldFont, buttonDone, buttonLoadTrip, buttonSaveTrip,
            buttonOriginMyLocation);
 	   Font.setTypeface(lightFont, editAddressDest, editAddressOrigin);
+	   
+	   //init Tracker
+       ((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 	}
 	
 	private void updateDeviceId(){
@@ -382,13 +387,13 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	@Override
 	public void onStart() {
 		super.onStart();
-		EasyTracker.getInstance().activityStart(this);
+		GoogleAnalytics.getInstance(this).reportActivityStart(this);
 	}
 	
 	@Override
 	public void onStop() {
 		super.onStop();
-		EasyTracker.getInstance().activityStop(this);
+		GoogleAnalytics.getInstance(this).reportActivityStop(this);
 	}
 	
 	private TripListDialog tripListDialog;

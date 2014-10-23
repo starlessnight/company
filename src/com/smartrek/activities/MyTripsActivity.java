@@ -2,13 +2,6 @@ package com.smartrek.activities;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.google.analytics.tracking.android.EasyTracker;
-import com.smartrek.models.User;
-import com.smartrek.requests.Request;
-import com.smartrek.requests.Request.Page;
-import com.smartrek.utils.Font;
-import com.smartrek.utils.Misc;
-
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.os.Bundle;
@@ -19,6 +12,15 @@ import android.view.View.OnClickListener;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.TextView;
+
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
+import com.smartrek.models.User;
+import com.smartrek.requests.Request;
+import com.smartrek.requests.Request.Page;
+import com.smartrek.utils.Font;
+import com.smartrek.utils.Misc;
 
 public class MyTripsActivity extends FragmentActivity {
 	
@@ -67,19 +69,22 @@ public class MyTripsActivity extends FragmentActivity {
 		
 		Font.setTypeface(Font.getBold(assets), (TextView) findViewById(R.id.header));
 		Font.setTypeface(Font.getLight(assets), backButton);
+		
+		//init Tracker
+      	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 	}
 	
 	@Override
 	protected void onStop() {
 	    super.onStop();
 	    Misc.tripInfoPanelOnActivityStop(this);
-	    EasyTracker.getInstance().activityStop(this);
+	    GoogleAnalytics.getInstance(this).reportActivityStop(this);
 	}
 	
 	@Override
     public void onStart() {
         super.onStart();
-        EasyTracker.getInstance().activityStart(this);
+        GoogleAnalytics.getInstance(this).reportActivityStart(this);
     }
 	
 	@Override

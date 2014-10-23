@@ -2,6 +2,8 @@ package com.smartrek.dialogs;
 
 import java.util.Arrays;
 
+import org.apache.commons.lang3.StringUtils;
+
 import twitter4j.TwitterException;
 import android.app.Activity;
 import android.content.Intent;
@@ -21,7 +23,7 @@ import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
-import com.google.android.gms.plus.GooglePlusUtil;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.plus.PlusShare;
 import com.smartrek.activities.R;
 import com.smartrek.utils.Font;
@@ -136,10 +138,11 @@ public class ShareDialog extends DialogFragment {
             @Override
             public void onClick(View v) {
                 if(isNotLoading()){
-                    int errorCode = GooglePlusUtil.checkGooglePlusApp(getActivity());
-                    if (errorCode != GooglePlusUtil.SUCCESS) {
-                      GooglePlusUtil.getErrorDialog(errorCode, getActivity(), 0).show();
-                    }else{
+                	int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity());
+					if (StringUtils.equalsIgnoreCase(GooglePlayServicesUtil.getErrorString(errorCode), "success")) {
+						GooglePlayServicesUtil.getErrorDialog(errorCode,
+								getActivity(), 0).show();
+					} else {
                         Intent shareIntent = new PlusShare.Builder(getActivity())
                             .setType("text/plain")
                             .setText(shareText)

@@ -8,7 +8,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.RadioButton;
 
-import com.google.analytics.tracking.android.EasyTracker;
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.smartrek.SmarTrekApplication;
+import com.smartrek.SmarTrekApplication.TrackerName;
 
 /****************************************************************************************************************
  * ************************************** Map_Mode_Activity *****************************************************
@@ -44,18 +46,20 @@ public final class MapModeActivity extends Activity implements OnClickListener {
 	    	rb2.setChecked(true);
 	    	rb1.setChecked(false);
 	    }
+	    //init Tracker
+      	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 	}
 	
 	@Override
 	public void onStart() {
 		super.onStart();
-		EasyTracker.getInstance().activityStart(this);
+		GoogleAnalytics.getInstance(this).reportActivityStart(this);
 	}
 	
 	@Override
 	public void onStop() {
 		super.onStop();
-		EasyTracker.getInstance().activityStop(this);
+		GoogleAnalytics.getInstance(this).reportActivityStop(this);
 	}
 	
 	/****************************************************************************************************************
