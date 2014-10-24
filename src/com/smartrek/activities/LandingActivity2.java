@@ -1959,9 +1959,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	return null;
     }
     
-    private void refreshAutoCompleteData(ListView searchList, ArrayAdapter<Address> adapter, List<Address> searchedAddresses) {
+    private void refreshAutoCompleteData(ListView searchList, ArrayAdapter<Address> adapter, List<Address> searchedAddresses, EditText _searchBox) {
     	adapter.clear();
-    	if(showAutoComplete.get()) {
+    	if(showAutoComplete.get() && _searchBox.isFocused()) {
 	        for(Address a : searchedAddresses) {
 	        	adapter.add(a);
 	        }
@@ -1977,15 +1977,15 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void refreshSearchAutoCompleteData(){
-    	refreshAutoCompleteData(searchResultList, autoCompleteAdapter, searchAddresses);
+    	refreshAutoCompleteData(searchResultList, autoCompleteAdapter, searchAddresses, searchBox);
     }
     
     private void refreshFromSearchAutoCompleteData(){
-        refreshAutoCompleteData(fromSearchResultList, fromAutoCompleteAdapter, fromSearchAddresses);
+        refreshAutoCompleteData(fromSearchResultList, fromAutoCompleteAdapter, fromSearchAddresses, fromSearchBox);
     }
     
     private void refreshFavAutoCompleteData() {
-    	refreshAutoCompleteData(favSearchResultList, favAutoCompleteAdapter, favSearchAddresses);
+    	refreshAutoCompleteData(favSearchResultList, favAutoCompleteAdapter, favSearchAddresses, favSearchBox);
     }
     
     public static class BalloonModel {
