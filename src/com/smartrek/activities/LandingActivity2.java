@@ -1358,15 +1358,27 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         co2View = (TextView) findViewById(R.id.co2);
         co2View.setText(formatMyMetropiaInfo("000lbs"));
         
-        TextView headView = (TextView) findViewById(R.id.head);
-        headView.setText(Html.fromHtml("<i>Metropia</i>"));
+        findViewById(R.id.my_metropia_panel).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(WebMyMetropiaActivity.hasUrl(LandingActivity2.this)){
+	               Intent intent = new Intent(LandingActivity2.this, WebMyMetropiaActivity.class);
+	               intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+	               startActivity(intent);
+	            }else{
+	               Intent intent = new Intent(LandingActivity2.this, MyMetropiaActivity.class);
+	               intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+	               startActivity(intent);
+	            }
+			}
+        });
         
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, fromSearchBox, myMetropiaMenu, 
             reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu);
         Font.setTypeface(Font.getMedium(assets), favSearchBox, labelInput, 
         		(TextView)findViewById(R.id.label), (TextView)findViewById(R.id.icon), getRouteView, 
-        		upointView, saveTimeView, co2View, headView);
+        		upointView, saveTimeView, co2View, (TextView) findViewById(R.id.head));
         //init Tracker
         ((SmarTrekApplication)getApplication()).getTracker(TrackerName.APP_TRACKER);
         showTutorialIfNessary();
@@ -3458,21 +3470,47 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			
 			protected void onPostExecute(MyMetropia info) {
 				if(!ehs.hasExceptions()) {
-					String reward = info.reward + "";
-					while(reward.length() < 3) {
-						reward = "0" + reward;
+					int reward = info.getCredit();
+					StringBuffer rewardString = new StringBuffer();
+					if(reward >= 1000) {
+						rewardString = rewardString.append(reward / 1000).append("K");
 					}
-					upointView.setText(formatMyMetropiaInfo(reward + "Pts"));
-					String timeSaving = info.timeSaving + "";
-					while(timeSaving.length() < 2) {
-						timeSaving = "0" + timeSaving;
+					else {
+						rewardString.append(reward); 
+						while(rewardString.length() < 3) {
+							rewardString.insert(0, "0");
+						}
 					}
-					saveTimeView.setText(formatMyMetropiaInfo(timeSaving + "Min"));
-					String co2Saving = info.co2Saving + "";
-					while(co2Saving.length() < 3) {
-						co2Saving = "0" + co2Saving;
+					rewardString.append("Pts");
+					upointView.setText(formatMyMetropiaInfo(rewardString.toString()));
+					
+					int timeSaving = info.getTimeSaving();
+					StringBuffer timeSavingString = new StringBuffer();
+					if(timeSaving >= 1000) {
+						timeSavingString.append(timeSaving / 1000).append("K");
 					}
-					co2View.setText(formatMyMetropiaInfo(co2Saving + "lbs"));
+					else {
+						timeSavingString.append(timeSaving);
+						while(timeSavingString.length() < 2) {
+							timeSavingString.insert(0, "0");
+						}
+					}
+					timeSavingString.append("Min");
+					saveTimeView.setText(formatMyMetropiaInfo(timeSavingString.toString()));
+					
+					double co2Saving = info.getCo2Saving();
+					StringBuffer co2SavingString = new StringBuffer();
+					if(co2Saving >= 1000) {
+						co2SavingString.append(co2Saving % 1000).append("K");
+					}
+					else {
+						co2SavingString.append(co2Saving);
+						while(co2SavingString.length() < 3) {
+							co2SavingString.insert(0, "0");
+						}
+					}
+					co2SavingString.append("lbs");
+					co2View.setText(formatMyMetropiaInfo(co2SavingString.toString()));
 				}
 			}
     		

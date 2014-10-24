@@ -40,7 +40,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="17dp"
                             android:layout_gravity="left|center"
-                            android:paddingRight="10dp"
+                            android:paddingRight="20dp"
                             android:layout_marginLeft="-12dp"
                             android:src="@drawable/drawer_menu_icon_1" />
                         
@@ -196,38 +196,62 @@
                         android:layout_weight="1"
                         android:orientation="horizontal">
                         
-	                    <TextView
-	                        android:id="@+id/upoint"
-	                        android:layout_width="0dp"
+                        <FrameLayout 
+                            android:layout_width="0dp"
 	                        android:layout_height="match_parent"
-	                        android:layout_weight="1"
-	                        android:drawableLeft="@drawable/rewards"
-	                        android:gravity="center"
-	                        android:text="000Pts"
-	                        android:textColor="@color/metropia_blue"
-	                        android:textSize="23dp" />
+	                        android:layout_weight="1">
+                        
+		                    <TextView
+		                        android:id="@+id/upoint"
+		                        android:layout_width="wrap_content"
+		                        android:layout_height="wrap_content"
+		                        android:drawableLeft="@drawable/rewards"
+		                        android:drawablePadding="5dp"
+		                        android:gravity="center"
+		                        android:layout_gravity="center"
+		                        android:text="000Pts"
+		                        android:textColor="@color/metropia_blue"
+		                        android:textSize="23dp" />
 	                    
-	                    <TextView
-	                        android:id="@+id/save_time"
-	                        android:layout_width="0dp"
-	                        android:layout_height="match_parent"
-	                        android:layout_weight="1"
-	                        android:drawableLeft="@drawable/save_time"
-	                        android:gravity="center"
-	                        android:text="00Min"
-	                        android:textColor="@color/metropia_orange"
-	                        android:textSize="23dp" />
+	                    </FrameLayout>
 	                    
-	                    <TextView
-	                        android:id="@+id/co2"
-	                        android:layout_width="0dp"
+                        <FrameLayout 
+                            android:layout_width="0dp"
 	                        android:layout_height="match_parent"
-	                        android:layout_weight="1"
-	                        android:drawableLeft="@drawable/co2"
-	                        android:gravity="center"
-	                        android:text="000lbs"
-	                        android:textColor="@color/metropia_green"
-	                        android:textSize="23dp" />
+	                        android:layout_weight="1">
+		                    
+		                    <TextView
+		                        android:id="@+id/save_time"
+		                        android:layout_width="wrap_content"
+		                        android:layout_height="wrap_content"
+		                        android:drawableLeft="@drawable/save_time"
+		                        android:drawablePadding="5dp"
+		                        android:gravity="center"
+		                        android:layout_gravity="center"
+		                        android:text="00Min"
+		                        android:textColor="@color/metropia_orange"
+		                        android:textSize="23dp" />
+		                    
+	                    </FrameLayout>
+	                    
+                        <FrameLayout 
+                            android:layout_width="0dp"
+	                        android:layout_height="match_parent"
+	                        android:layout_weight="1">
+		                    
+		                    <TextView
+		                        android:id="@+id/co2"
+		                        android:layout_width="wrap_content"
+		                        android:layout_height="wrap_content"
+		                        android:drawableLeft="@drawable/co2"
+		                        android:drawablePadding="5dp"
+		                        android:gravity="center"
+		                        android:layout_gravity="center"
+		                        android:text="000lbs"
+		                        android:textColor="@color/metropia_green"
+		                        android:textSize="23dp" />
+	                    
+	                    </FrameLayout>
 	                    
 	                </LinearLayout>
 	                
