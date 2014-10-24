@@ -3501,7 +3501,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					double co2Saving = info.getCo2Saving();
 					StringBuffer co2SavingString = new StringBuffer();
 					if(co2Saving >= 1000) {
-						co2SavingString.append(co2Saving % 1000).append("K");
+						co2SavingString.append(co2Saving / 1000).append("K");
 					}
 					else {
 						co2SavingString.append(co2Saving);

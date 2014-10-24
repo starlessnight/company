@@ -49,7 +49,7 @@ public final class MyMetropiaRequest extends FetchRequest<MyMetropia> {
 			if(StringUtils.isNotBlank(balanceString)) {
 				JSONObject balance = new JSONObject(balanceString);
 				myMetropia.credit = balance.optInt("credit", 0);
-				myMetropia.timeSaving = balance.optInt("time_saving", 0) % 60;
+				myMetropia.timeSaving = balance.optInt("time_saving", 0) / 60;
 				myMetropia.co2Saving = balance.optDouble("co2_saving", 0);
 			}
 		}
