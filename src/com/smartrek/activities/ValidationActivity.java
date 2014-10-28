@@ -1584,45 +1584,59 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     AsyncTask<Void, Void, List<Route>> task = new AsyncTask<Void, Void, List<Route>>() {
                         @Override
                         protected List<Route> doInBackground(Void... params) {
-                            List<Route> routes = null;
+                        	List<Route> navRoutes = null;
                             try {
+                            	GeoPoint curPosi = new GeoPoint(lat, lng);
+                                
+                                Reservation reser = new ReservationFetchRequest(
+                                        User.getCurrentUser(ValidationActivity.this), 
+                                        reservation.getRid())
+                                    .execute(ValidationActivity.this);
+                                reservation.setEndlat(reser.getEndlat());
+                                reservation.setEndlon(reser.getEndlon());
+                                
                                 RouteFetchRequest request;
                                 if (isDebugging) {
                                     request = new RouteFetchRequest(
                                             route.getDepartureTime());
                                 } else {
-                                    request = new RouteFetchRequest(
-                                        reservation.getNavLink(),
-                                        reservation.getDepartureTime(),
-                                        reservation.getDuration(),
+                                	//re-query route
+                                	if(curPosi.isEmpty()) {
+                                		RouteNode firstNode = reser.getRoute().getFirstNode();
+	                                    curPosi = new GeoPoint(firstNode.getLatitude(), firstNode.getLongitude());
+                                	}
+                                	request = new RouteFetchRequest(User.getCurrentUser(ValidationActivity.this), 
+                                		curPosi, new GeoPoint(reser.getEndlat(), reser.getEndlon()), 
+                                		System.currentTimeMillis(), speedInMph, bearing, null, reser.getDestinationAddress());
+                                }
+                                List<Route> routes = request.execute(ValidationActivity.this);
+                                if (routes != null && routes.size() > 0) {
+                                	Route resRoute = routes.get(0);
+                                    RouteFetchRequest navReq = new RouteFetchRequest(
+                                        resRoute.getLink().url,
+                                        System.currentTimeMillis(),
+                                        0,
                                         speedInMph,
                                         bearing);
-                                }
-                                routes = request.execute(ValidationActivity.this);
-                                if (routes != null && routes.size() > 0) {
-                                    Reservation reser = new ReservationFetchRequest(
-                                            User.getCurrentUser(ValidationActivity.this), 
-                                            reservation.getRid())
-                                        .execute(ValidationActivity.this);
-                                    reservation.setEndlat(reser.getEndlat());
-                                    reservation.setEndlon(reser.getEndlon());
-                                    List<RouteNode> timeNodes = reser.getRoute().getNodes();
-                                    Map<Integer, Integer> nodeTimes = new HashMap<Integer, Integer>();
-                                    for(RouteNode n:timeNodes){
-                                        nodeTimes.put(n.getNodeNum(), n.getTime());
-                                    }
-                                    Route route = routes.get(0);
-                                    for(RouteNode n : route.getNodes()){
-                                        Integer time = nodeTimes.get(n.getNodeNum());
-                                        if(time != null){
-                                            n.setTime(time);
+                                    navRoutes = navReq.execute(ValidationActivity.this);
+                                    if (navRoutes != null && navRoutes.size() > 0) {
+                                        Route navRoute = routes.get(0);
+                                        Map<Integer, Integer> nodeTimes = new HashMap<Integer, Integer>();
+                                        for(RouteNode n:resRoute.getNodes()){
+                                    	    nodeTimes.put(n.getNodeNum(), n.getTime());
                                         }
-                                    }
+                                        for(RouteNode n : navRoute.getNodes()){
+                                            Integer time = nodeTimes.get(n.getNodeNum());
+                                            if(time != null){
+                                                n.setTime(time);
+                                            }
+                                        }
+                                   }
                                 }
                             } catch (Exception e) {
                                 ehs.registerException(e);
                             }
-                            return routes;
+                            return navRoutes;
                         }
 
                         protected void onPostExecute(java.util.List<Route> routes) {
