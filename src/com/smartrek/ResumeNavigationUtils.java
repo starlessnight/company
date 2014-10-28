@@ -76,10 +76,13 @@ public class ResumeNavigationUtils {
     }
     
     public static void cleanTripLog(Context ctx) {
-    	File[] all = getDir(ctx).listFiles();
-		for(File f : all) {
-			FileUtils.deleteQuietly(f);
-		}
+    	File dir = getDir(ctx);
+    	if(dir.exists()) {
+	    	File[] all = getDir(ctx).listFiles();
+			for(File f : all) {
+				FileUtils.deleteQuietly(f);
+			}
+    	}
     }
     
 }
