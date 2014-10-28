@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/transparent_black" >
+
+    <LinearLayout
+        android:layout_width="270dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/popup_dialog"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:minHeight="143dp"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text=""
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/smaller_font" />
+
+        <TextView
+            android:id="@+id/message"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_marginLeft="27dp"
+            android:layout_marginRight="27dp"
+            android:layout_weight="1"
+            android:text=""
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/smallest_font"
+            android:gravity="center" />
+
+        <View
+            android:id="@+id/seperator1"
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@color/light_gray" />
+
+        <LinearLayout
+            android:id="@+id/button_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/no"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Dismiss"
+                android:textColor="@color/light_blue"
+                android:textSize="@dimen/smallest_font" />
+
+            <View
+                android:id="@+id/seperator2"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="@color/light_gray" />
+
+			<LinearLayout 
+			    android:id="@+id/yes_panel"
+			    android:layout_width="0dp"
+			    android:layout_height="44dp"
+			    android:layout_weight="1"
+			    android:orientation="horizontal">
+			    
+	            <TextView
+	                android:id="@+id/yes"
+	                android:layout_width="0dp"
+	                android:layout_height="match_parent"
+	                android:layout_weight="1"
+	                android:gravity="right|center"
+	                android:text="Yes"
+	                android:textColor="@color/light_blue"
+	                android:textSize="@dimen/smallest_font" />
+	            
+	            <TextView
+	                android:id="@+id/count_down"
+	                android:layout_width="0dp"
+	                android:layout_height="match_parent"
+	                android:layout_weight="1"
+	                android:gravity="center"
+	                android:text="5"
+	                android:textColor="@android:color/black"
+	                android:textSize="@dimen/smallest_font" />
+			    
+			</LinearLayout>
+			
+        </LinearLayout>
+        
+    </LinearLayout>
+
+</FrameLayout>

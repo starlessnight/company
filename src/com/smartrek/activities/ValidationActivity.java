@@ -103,6 +103,7 @@ import com.skobbler.ngx.routing.SKRouteManager;
 import com.skobbler.ngx.routing.SKRouteSettings;
 import com.skobbler.ngx.tracks.SKTracksFile;
 import com.skobbler.ngx.util.SKLogging;
+import com.smartrek.ResumeNavigationUtils;
 import com.smartrek.SendTrajectoryService;
 import com.smartrek.SkobblerUtils;
 import com.smartrek.SmarTrekApplication;
@@ -1847,7 +1848,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				ehs.registerException(e);
 			}
 		}
-		
+		// for resume interrupt trip
+		writeTripLog();
 		//show current location
 	    mapView.getMapSettings().setCurrentPositionShown(true);
 	}
@@ -1869,6 +1871,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private void displayArrivalMsg(final Runnable callback) {
 		if (isTripValidated()) {
 		    arrivalMsgTiggered.set(true);
+		    
+		    ResumeNavigationUtils.cleanTripLog(ValidationActivity.this);
+		    
 		    saveTrajectory(new Runnable() {
                 @Override
                 public void run() {
@@ -1910,6 +1915,17 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             }, Request.fifteenSecsTimeout * 2);
 
 		}
+	}
+	
+	private void writeTripLog() {
+		try {
+			JSONObject tripLog = new JSONObject();
+			tripLog.put(ResumeNavigationUtils.DESTINATION_TIME, reservation.getArrivalTimeUtc());
+			tripLog.put(ResumeNavigationUtils.DEST_LAT, reservation.getEndlat());
+			tripLog.put(ResumeNavigationUtils.DEST_LON, reservation.getEndlon());
+			FileUtils.writeStringToFile(ResumeNavigationUtils.getFile(ValidationActivity.this, reservation.getRid()), tripLog.toString());
+		}
+		catch(Exception ignore) {}
 	}
 	
 	private void showNotifyLaterDialog() {

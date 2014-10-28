@@ -88,11 +88,13 @@ import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.skobbler.ngx.SKMaps;
+import com.smartrek.ResumeNavigationUtils;
 import com.smartrek.SmarTrekApplication;
 import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.dialogs.NotificationDialog2.ActionListener;
+import com.smartrek.dialogs.NotifyResumeDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
 import com.smartrek.models.User;
@@ -245,6 +247,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private TextView upointView;
     private TextView saveTimeView;
     private TextView co2View;
+    
+    private AtomicBoolean needCheckResume = new AtomicBoolean(true);
     
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
@@ -654,6 +658,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     final double lat = location.getLatitude();
                     final double lon = location.getLongitude();
                     refreshMyLocation(lat, lon);
+                    popupResumeNavigationIfNeccessary();
                     if(mapRecenter.getAndSet(false)){
                         if(myPointOverlay != null){
                             GeoPoint loc = myPointOverlay.getLocation();
@@ -1390,6 +1395,51 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	if(tutorialFinish != TutorialActivity.TUTORIAL_FINISH) {
     		Intent intent = new Intent(this, TutorialActivity.class);
             startActivity(intent);
+    	}
+    }
+    
+    private void popupResumeNavigationIfNeccessary() {
+    	if(lastLocation != null && needCheckResume.get()) {
+    		needCheckResume.set(false);
+    		GeoPoint loc = new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude());
+    		final String resumeReservationId = ResumeNavigationUtils.getInterruptRId(LandingActivity2.this, loc);
+    		if(resumeReservationId != null) {
+    			AsyncTask<Void, Void, Reservation> task = new AsyncTask<Void, Void, Reservation>() {
+					@Override
+					protected Reservation doInBackground(Void... params) {
+						try {
+							Reservation reser = null;
+							ReservationListFetchRequest resReq = new ReservationListFetchRequest(User.getCurrentUser(LandingActivity2.this));
+							List<Reservation> reservs = resReq.execute(LandingActivity2.this);
+							for(Reservation reservation : reservs) {
+								Log.d("NotifyResumeDialog", reservation.getRid() + "");
+								if(StringUtils.endsWithIgnoreCase(resumeReservationId, reservation.getRid()+"")) {
+									reser = reservation;
+								}
+							}
+							return reser;
+						}
+						catch(Exception e) {}
+						return null;
+					}
+					
+					@Override
+					protected void onPostExecute(final Reservation reser) {
+						if(reser != null) {
+							NotifyResumeDialog dialog = new NotifyResumeDialog(LandingActivity2.this);
+			    			dialog.setYesListener(new NotifyResumeDialog.ActionListener() {
+								@Override
+								public void onClick() {
+									startValidationActivity(reser);
+									
+								};
+			    			});
+			    			dialog.show();
+						}
+					}
+    			};
+    			Misc.parallelExecute(task);
+    		}
     	}
     }
     
