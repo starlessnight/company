@@ -288,10 +288,10 @@ public class NavigationView extends LinearLayout {
 	            setBackgroundResource(android.R.color.transparent);
 		    }else{
     			currentItemIdx = 0;
-    			textViewWaiting.setVisibility(View.GONE);
-    			textViewGenericMessage.setVisibility(View.VISIBLE);
-    			navigationDisplay.setVisibility(View.GONE);
-    			setBackgroundResource(R.color.transparent_light_red);
+//    			textViewWaiting.setVisibility(View.GONE);
+//    			textViewGenericMessage.setVisibility(View.VISIBLE);
+//    			navigationDisplay.setVisibility(View.GONE);
+//    			setBackgroundResource(R.color.transparent_light_red);
 		    }
 			this.status = status;
 		} else if (Status.InRoute.equals(status)) {
