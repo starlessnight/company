@@ -47,6 +47,8 @@ public class ValidationParameters {
 	 */
 	private static ValidationParameters instance;
 	
+	private float stopSpeedThreshold = 5f;  // mph
+	
 	private ValidationParameters() {
 		
 	}
@@ -109,5 +111,9 @@ public class ValidationParameters {
 
 	public void setOutOfRouteTimeout(float outOfRouteTimeout) {
 		this.outOfRouteTimeout = outOfRouteTimeout;
+	}
+
+	public float getStopSpeedThreshold() {
+		return stopSpeedThreshold;
 	}
 }

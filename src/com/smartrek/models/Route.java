@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -20,7 +21,6 @@ import android.util.Log;
 import com.smartrek.activities.DebugOptionsActivity.NavigationLink;
 import com.smartrek.activities.ValidationActivity;
 import com.smartrek.requests.Request;
-import com.smartrek.requests.Request.Setting;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.NaiveNNS;
 import com.smartrek.utils.RouteLink;
@@ -581,6 +581,9 @@ public final class Route implements Parcelable {
 		return false;
 	}
 	
+	private static AtomicLong startCountTime = new AtomicLong();
+	private static AtomicLong delayTime = new AtomicLong(30 * 1000); //30 secs
+	
 	/**
 	 * Determines whether a geocoordinate is close enough to the destination of the route
 	 * 
@@ -593,14 +596,20 @@ public final class Route implements Parcelable {
 		ValidationParameters params = ValidationParameters.getInstance();
 		boolean arrived = false;
 		if(lastNode.distanceTo(lat, lng) <= params.getArrivalDistanceThreshold()){
-		    RouteLink nearestLink = null;
-		    double distanceLimit = ((Number)Request.getSetting(Setting.reroute_trigger_distance_in_meter)).doubleValue() + accuracy;
-	        List<RouteLink> nearbyLinks = getNearbyLinks(lat, lng, distanceLimit);
-	        List<RouteLink> sameDirLinks = getSameDirectionLinks(nearbyLinks, speedMph, bearing);
-	        if(!Route.isPending(nearbyLinks, sameDirLinks) && sameDirLinks.size() > 0){
-	            nearestLink = Route.getClosestLink(sameDirLinks, lat, lng);
-	        }
-		    arrived = nearestLink == null || nearestLink.getEndNode() == lastNode;
+//		    RouteLink nearestLink = null;
+//		    double distanceLimit = ((Number)Request.getSetting(Setting.reroute_trigger_distance_in_meter)).doubleValue() + accuracy;
+//	        List<RouteLink> nearbyLinks = getNearbyLinks(lat, lng, distanceLimit);
+//	        List<RouteLink> sameDirLinks = getSameDirectionLinks(nearbyLinks, speedMph, bearing);
+//	        if(!Route.isPending(nearbyLinks, sameDirLinks) && sameDirLinks.size() > 0){
+//	            nearestLink = Route.getClosestLink(sameDirLinks, lat, lng);
+//	        }
+//		    arrived = nearestLink == null || nearestLink.getEndNode() == lastNode;
+			if(speedMph > params.getStopSpeedThreshold()) {
+				startCountTime.set(System.currentTimeMillis());
+			}
+			else {
+				arrived = (System.currentTimeMillis() - startCountTime.get()) >= delayTime.get();
+			}
 		}
 		return arrived;
 	}
