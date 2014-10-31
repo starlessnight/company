@@ -1588,7 +1588,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                         	List<Route> navRoutes = null;
                             try {
                             	GeoPoint curPosi = new GeoPoint(lat, lng);
-                                
                                 Reservation reser = new ReservationFetchRequest(
                                         User.getCurrentUser(ValidationActivity.this), 
                                         reservation.getRid())
@@ -1621,7 +1620,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                                         bearing);
                                     navRoutes = navReq.execute(ValidationActivity.this);
                                     if (navRoutes != null && navRoutes.size() > 0) {
-                                        Route navRoute = routes.get(0);
+                                        Route navRoute = navRoutes.get(0);
                                         Map<Integer, Integer> nodeTimes = new HashMap<Integer, Integer>();
                                         for(RouteNode n:resRoute.getNodes()){
                                     	    nodeTimes.put(n.getNodeNum(), n.getTime());
