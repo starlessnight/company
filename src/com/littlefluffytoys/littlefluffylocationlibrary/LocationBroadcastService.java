@@ -155,48 +155,52 @@ public class LocationBroadcastService extends Service {
         boolean keepServiceRunning;
         if(GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext()) 
                 == ConnectionResult.SUCCESS){
-            locClient = new LocationClient(getApplicationContext(), new ConnectionCallbacks() {
-                @Override
-                public void onDisconnected() {
-                    stopSelf();
-                }                
-                @Override
-                public void onConnected(Bundle arg0) {
-                    try{
-                        LocationRequest locReq = LocationRequest.create();
-                        locReq.setPriority(LocationRequest.PRIORITY_NO_POWER);
-                        locReq.setInterval(DebugOptionsActivity.defaultUpdateInterval);
-                        locReq.setNumUpdates(1);
-                        final com.google.android.gms.location.LocationListener listener = new com.google.android.gms.location.LocationListener() {
-                            @Override
-                            public void onLocationChanged(Location loc) {
-                                PassiveLocationChangedReceiver.processLocation(getApplicationContext(), loc);
-                            }
-                        };
-                        locClient.requestLocationUpdates(locReq, listener);
-                        new Timer().schedule(new TimerTask(){
-                            public void run(){
-                                try {
-                                    locClient.removeLocationUpdates(listener);
-                                    locClient.disconnect();
+            try{
+                locClient = new LocationClient(getApplicationContext(), new ConnectionCallbacks() {
+                    @Override
+                    public void onDisconnected() {
+                        stopSelf();
+                    }                
+                    @Override
+                    public void onConnected(Bundle arg0) {
+                        try{
+                            LocationRequest locReq = LocationRequest.create();
+                            locReq.setPriority(LocationRequest.PRIORITY_NO_POWER);
+                            locReq.setInterval(DebugOptionsActivity.defaultUpdateInterval);
+                            locReq.setNumUpdates(1);
+                            final com.google.android.gms.location.LocationListener listener = new com.google.android.gms.location.LocationListener() {
+                                @Override
+                                public void onLocationChanged(Location loc) {
+                                    PassiveLocationChangedReceiver.processLocation(getApplicationContext(), loc);
                                 }
-                                catch (Throwable t) {
-                                    stopSelf();
+                            };
+                            locClient.requestLocationUpdates(locReq, listener);
+                            new Timer().schedule(new TimerTask(){
+                                public void run(){
+                                    try {
+                                        locClient.removeLocationUpdates(listener);
+                                        locClient.disconnect();
+                                    }
+                                    catch (Throwable t) {
+                                        stopSelf();
+                                    }
                                 }
-                            }
-                        }, LocationLibrary.getAlarmFrequency());
-                    }catch(Throwable t){
+                            }, LocationLibrary.getAlarmFrequency());
+                        }catch(Throwable t){
+                            stopSelf();
+                        }
+                    }
+                }, new OnConnectionFailedListener() {
+                    @Override
+                    public void onConnectionFailed(ConnectionResult arg0) {
                         stopSelf();
                     }
-                }
-            }, new OnConnectionFailedListener() {
-                @Override
-                public void onConnectionFailed(ConnectionResult arg0) {
-                    stopSelf();
-                }
-            });
-            locClient.connect();
-            keepServiceRunning = true;
+                });
+                locClient.connect();
+                keepServiceRunning = true;
+            }catch(Throwable t){
+                keepServiceRunning = false;
+            }
         }else{
             // stop the service
             keepServiceRunning = false;
