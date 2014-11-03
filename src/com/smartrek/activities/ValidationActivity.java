@@ -1571,6 +1571,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                 intersectNode.distanceTo(lat, lng)) <= intersectZoomDistanceLimit;
 	}
 	
+	private Long startCountDownTime = Long.MAX_VALUE;
+	
 	private synchronized void locationChanged(final Location location) {
 	    final double speedInMph = Trajectory.msToMph(location.getSpeed());
 	    final float bearing = location.getBearing();
@@ -1834,17 +1836,19 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		sendImComingMsg();
 
-		if (!arrived.get() && !getRouteOrReroute().getNodes().isEmpty()
-				&& getRouteOrReroute().hasArrivedAtDestination(lat, lng, accuracy, speedInMph, bearing)) {
-			arrived.set(true);
-			arriveAtDestination();
-			Log.d("ValidationActivity", "Arriving at destination");
-
-			try {
-				Log.d("ValidationActivity", "trajectory = "
-						+ trajectory.toJSON().toString());
-			} catch (JSONException e) {
-				ehs.registerException(e);
+		if (!arrived.get() && !getRouteOrReroute().getNodes().isEmpty()) {
+			startCountDownTime = getRouteOrReroute().getStartCountDownTime(lat, lng, speedInMph, startCountDownTime);
+			if(getRouteOrReroute().hasArrivedAtDestination(lat, lng, accuracy, speedInMph, bearing, startCountDownTime)) {
+				arrived.set(true);
+				arriveAtDestination();
+				Log.d("ValidationActivity", "Arriving at destination");
+	
+				try {
+					Log.d("ValidationActivity", "trajectory = "
+							+ trajectory.toJSON().toString());
+				} catch (JSONException e) {
+					ehs.registerException(e);
+				}
 			}
 		}
 		// for resume interrupt trip

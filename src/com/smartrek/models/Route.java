@@ -581,7 +581,6 @@ public final class Route implements Parcelable {
 		return false;
 	}
 	
-	private static AtomicLong startCountTime = new AtomicLong();
 	private static AtomicLong delayTime = new AtomicLong(30 * 1000); //30 secs
 	
 	/**
@@ -591,11 +590,12 @@ public final class Route implements Parcelable {
 	 * @param lng
 	 * @return
 	 */
-	public boolean hasArrivedAtDestination(double lat, double lng, float accuracy, double speedMph, double bearing) {
+	public boolean hasArrivedAtDestination(double lat, double lng, float accuracy, double speedMph, double bearing, long startCountDownTime) {
 		RouteNode lastNode = routeNodes.get(routeNodes.size() - 1);
 		ValidationParameters params = ValidationParameters.getInstance();
 		boolean arrived = false;
-		if(lastNode.distanceTo(lat, lng) <= params.getArrivalDistanceThreshold()){
+		double distanceToDest = lastNode.distanceTo(lat, lng);
+		if(distanceToDest <= params.getArrivalDistanceThreshold()){
 //		    RouteLink nearestLink = null;
 //		    double distanceLimit = ((Number)Request.getSetting(Setting.reroute_trigger_distance_in_meter)).doubleValue() + accuracy;
 //	        List<RouteLink> nearbyLinks = getNearbyLinks(lat, lng, distanceLimit);
@@ -604,14 +604,26 @@ public final class Route implements Parcelable {
 //	            nearestLink = Route.getClosestLink(sameDirLinks, lat, lng);
 //	        }
 //		    arrived = nearestLink == null || nearestLink.getEndNode() == lastNode;
-			if(speedMph > params.getStopSpeedThreshold()) {
-				startCountTime.set(System.currentTimeMillis());
+			arrived = (System.currentTimeMillis() - startCountDownTime) >= delayTime.get();
+		}
+		
+		return arrived;
+	}
+	
+	public Long getStartCountDownTime(double lat, double lon, double speedMph, long oldStartCountDownTime) {
+		RouteNode lastNode = routeNodes.get(routeNodes.size() - 1);
+		Long startCountDownTime = Long.valueOf(oldStartCountDownTime);
+		ValidationParameters params = ValidationParameters.getInstance();
+		double distanceToDest = lastNode.distanceTo(lat, lon);
+		if(distanceToDest <= params.getArrivalDistanceThreshold()) {
+			if(speedMph <= params.getStopSpeedThreshold()) {
+				startCountDownTime = Math.min(startCountDownTime, Long.valueOf(System.currentTimeMillis()));
 			}
 			else {
-				arrived = (System.currentTimeMillis() - startCountTime.get()) >= delayTime.get();
+				startCountDownTime = Long.valueOf(System.currentTimeMillis());
 			}
 		}
-		return arrived;
+		return startCountDownTime;
 	}
 	
 	///////////////////////////////////////////////////////////////////////////
