@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
@@ -21,6 +22,8 @@ import android.os.Parcelable;
 
 import com.smartrek.requests.Request;
 import com.smartrek.utils.GeoPoint;
+import com.smartrek.utils.RouteNode;
+import com.smartrek.utils.ValidationParameters;
 
 /**
  * A model class representing a reservation
@@ -420,5 +423,39 @@ public final class Reservation implements Parcelable {
     	}
     	return paramValueMap;
     }
+    
+    private static AtomicLong delayTime = new AtomicLong(30 * 1000); //30 secs
+	
+	/**
+	 * Determines whether a geocoordinate is close enough to the destination of the route
+	 * 
+	 * @param lat
+	 * @param lng
+	 * @return
+	 */
+	public boolean hasArrivedAtDestination(double lat, double lng, long startCountDownTime) {
+		ValidationParameters params = ValidationParameters.getInstance();
+		boolean arrived = false;
+		double distanceToDest = RouteNode.distanceBetween(lat, lng, endlat, endlon);
+		if(distanceToDest <= params.getArrivalDistanceThreshold()){
+			arrived = (System.currentTimeMillis() - startCountDownTime) >= delayTime.get();
+		}
+		return arrived;
+	}
+	
+	public Long getStartCountDownTime(double lat, double lon, double speedMph, long oldStartCountDownTime) {
+		Long startCountDownTime = Long.valueOf(oldStartCountDownTime);
+		ValidationParameters params = ValidationParameters.getInstance();
+		double distanceToDest = RouteNode.distanceBetween(lat, lon, endlat, endlon);
+		if(distanceToDest <= params.getArrivalDistanceThreshold()) {
+			if(speedMph <= params.getStopSpeedThreshold()) {
+				startCountDownTime = Math.min(startCountDownTime, Long.valueOf(System.currentTimeMillis()));
+			}
+			else {
+				startCountDownTime = Long.valueOf(System.currentTimeMillis());
+			}
+		}
+		return startCountDownTime;
+	}
 	
 }

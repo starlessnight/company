@@ -1837,8 +1837,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		sendImComingMsg();
 
 		if (!arrived.get() && !getRouteOrReroute().getNodes().isEmpty()) {
-			startCountDownTime = getRouteOrReroute().getStartCountDownTime(lat, lng, speedInMph, startCountDownTime);
-			if(getRouteOrReroute().hasArrivedAtDestination(lat, lng, accuracy, speedInMph, bearing, startCountDownTime)) {
+			startCountDownTime = reservation.getStartCountDownTime(lat, lng, speedInMph, startCountDownTime);
+			if(reservation.hasArrivedAtDestination(lat, lng, startCountDownTime)) {
 				arrived.set(true);
 				arriveAtDestination();
 				Log.d("ValidationActivity", "Arriving at destination");
