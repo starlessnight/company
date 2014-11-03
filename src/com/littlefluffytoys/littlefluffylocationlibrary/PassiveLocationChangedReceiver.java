@@ -125,7 +125,9 @@ public class PassiveLocationChangedReceiver extends BroadcastReceiver {
       else {
           if (LocationLibrary.showDebugOutput) Log.d(LocationLibraryConstants.TAG, TAG + ": Storing location update, less accurate so reusing prior location - time=" + LocationInfo.formatTimestampForDebug(thisTime));
       }
-      prefsEditor.commit();
+      try{
+          prefsEditor.commit();
+      }catch(Throwable t){}
 
       if (LocationLibrary.broadcastEveryLocationUpdate) {
           // broadcast it
