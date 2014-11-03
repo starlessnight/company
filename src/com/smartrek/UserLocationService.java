@@ -35,8 +35,6 @@ public class UserLocationService extends IntentService {
     
     private static final long FIFTEEN_MINS = 15 * 60 * 1000L;
     
-    private static final long BUFFER_INTERVAL = 30;
-    
     public UserLocationService() {
         super(UserLocationService.class.getName());
     }
@@ -50,7 +48,7 @@ public class UserLocationService extends IntentService {
             boolean hasLastLoc = lastLoc != null;
             double distance = hasLastLoc?RouteNode.distanceBetween(lastLoc.lat, lastLoc.lon, info.lastLat, info.lastLong):0;
             final long now = System.currentTimeMillis();
-            if(!hasLastLoc || distance >= (distanceInterval - BUFFER_INTERVAL)){
+            if(!hasLastLoc || distance >= distanceInterval + info.lastAccuracy){
                 DebugOptionsActivity.setLastUserLatLon(this, info.lastLat, info.lastLong, now);
                 LocationLibrary.useFineAccuracyForRequests(this, true);
                 final File file = getFile(this);
