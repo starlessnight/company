@@ -51,6 +51,7 @@ import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
@@ -87,6 +88,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibraryConstants;
 import com.skobbler.ngx.SKMaps;
 import com.smartrek.ResumeNavigationUtils;
 import com.smartrek.SmarTrekApplication;
@@ -627,13 +629,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         boolean hasIntentAddr = StringUtils.isNotBlank(intentAddress); 
         mapRezoom.set(!hasIntentAddr);
         if(hasIntentAddr){
-        	LandingActivity.initializeIfNeccessary(this, new Runnable() {
-                @Override
-                public void run() {
-//		            searchBox.setText(intentAddress);
-		            searchAddress(intentAddress, true);
-                }
-        	});
+        	searchIntentAddress(intentAddress);
         }
         
         LandingActivity.initializeIfNeccessary(this, new Runnable() {
@@ -1929,25 +1925,25 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void searchFavAddress(String addrStr, boolean zoomIn) {
-    	searchPOIAddress(addrStr, zoomIn);
+    	searchPOIAddress(addrStr, zoomIn, lastLocation);
     }
     
     private void searchAddress(String addrStr, boolean zoomIn) {
-    	searchPOIAddress(addrStr, zoomIn);
+    	searchPOIAddress(addrStr, zoomIn, lastLocation);
     }
     
-    private void searchPOIAddress(final String addrStr, final boolean zoomIn){
+    private void searchPOIAddress(final String addrStr, final boolean zoomIn, final Location _location){
         AsyncTask<Void, Void, Address> task = new AsyncTask<Void, Void, Address>(){
             @Override
             protected Address doInBackground(Void... params) {
                 Address addr = null;
                 try {
                     List<Address> addrs;
-                    if(lastLocation == null) {
+                    if(_location == null) {
                         addrs = Geocoding.lookup(LandingActivity2.this, addrStr);
                     }
                     else {
-                        addrs = Geocoding.lookup(LandingActivity2.this, addrStr, lastLocation.getLatitude(), lastLocation.getLongitude());
+                        addrs = Geocoding.lookup(LandingActivity2.this, addrStr, _location.getLatitude(), _location.getLongitude());
                     }
                     for (Address a : addrs) {
                         addr = a;
@@ -2785,10 +2781,28 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             finish();
             return;
         }else if(StringUtils.isNotBlank(intentAddress)){
-            TextView searchBox = (TextView) findViewById(R.id.search_box);
-            searchBox.setText(intentAddress);
-            searchAddress(intentAddress, true);
+        	searchIntentAddress(intentAddress);
         }
+    }
+    
+    private void searchIntentAddress(final String address) {
+    	LandingActivity.initializeIfNeccessary(this, new Runnable() {
+			@Override
+			public void run() {
+				Location _location = lastLocation;
+				if(_location == null) {
+					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(LandingActivity2.this.getApplicationContext());
+				    float lastLat = ((int) (prefs.getFloat(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_LAT, Integer.MIN_VALUE) * 1000000f)) / 1000000f;
+			        float lastLng = ((int) (prefs.getFloat(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_LNG, Integer.MIN_VALUE) * 1000000f)) / 1000000f;
+//					float lastLat = 32.1559094f; //Tuson
+//			        float lastLng = -110.883805f;
+			        _location = new Location("");
+			        _location.setLatitude(lastLat);
+			        _location.setLongitude(lastLng);
+				}
+				searchPOIAddress(address, true, _location);
+			}
+    	});
     }
     
     private String getIntentAddress(Intent intent){
