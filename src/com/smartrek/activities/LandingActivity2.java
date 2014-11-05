@@ -623,12 +623,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
         });
         
-        String intentAddress = getIntentAddress(getIntent());
+        final String intentAddress = getIntentAddress(getIntent());
         boolean hasIntentAddr = StringUtils.isNotBlank(intentAddress); 
         mapRezoom.set(!hasIntentAddr);
         if(hasIntentAddr){
-            searchBox.setText(intentAddress);
-            searchAddress(intentAddress, true);
+        	LandingActivity.initializeIfNeccessary(this, new Runnable() {
+                @Override
+                public void run() {
+//		            searchBox.setText(intentAddress);
+		            searchAddress(intentAddress, true);
+                }
+        	});
         }
         
         LandingActivity.initializeIfNeccessary(this, new Runnable() {
