@@ -3350,16 +3350,19 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         boolean handled = false;
         List<Overlay> overlays = mapView.getOverlays();
         for (Overlay overlay : overlays) {
-            if(overlay == curMarker && !isMarkedOD(overlay)){
+            if(overlay == curMarker){
             	POIOverlay curOverlay = (POIOverlay)overlay;
-            	Log.d("LandingActivity2", "removePOIMarker : " + curOverlay.getAddress());
-                if(curOverlay.isBalloonVisible()){
-                    curOverlay.hideBalloon();
-                    handled = true;
-                }
-                overlays.remove(curOverlay);
-                mapView.postInvalidate();
-                break;
+            	if(curOverlay.isMarked() && (curOverlay.isFromPoi() == isFromTab())) {
+	            	Log.d("LandingActivity2", "removePOIMarker : " + curOverlay);
+	                if(curOverlay.isBalloonVisible()){
+	                    curOverlay.hideBalloon();
+	                    handled = true;
+	                }
+	                overlays.remove(curOverlay);
+	                mapView.postInvalidate();
+	                curMarker = null;
+	                break;
+            	}
             }
         }
         return handled;
@@ -3406,8 +3409,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         for (Overlay overlay : overlays) {
             if(overlay instanceof POIOverlay){
                 POIOverlay poiOverlay = (POIOverlay)overlay;
-                if(poiOverlay.isMarked() && 
-                		(from && poiOverlay.isFromPoi() || !from && !poiOverlay.isFromPoi())){
+                if(poiOverlay.isMarked() && (from == poiOverlay.isFromPoi())){
                 	handle = true;
                     if(poiOverlay.isBalloonVisible()){
                 	    poiOverlay.hideBalloon();
