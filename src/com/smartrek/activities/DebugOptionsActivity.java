@@ -43,6 +43,7 @@ import com.smartrek.models.Trajectory;
 import com.smartrek.models.Trajectory.Record;
 import com.smartrek.requests.Request.Setting;
 import com.smartrek.requests.ServiceDiscoveryRequest.Result;
+import com.smartrek.requests.Request;
 import com.smartrek.requests.TrajectoryFetchRequest;
 import com.smartrek.ui.DelayTextWatcher;
 import com.smartrek.ui.DelayTextWatcher.TextChangeListener;
@@ -989,6 +990,29 @@ public final class DebugOptionsActivity extends Activity {
         getPrefs(ctx).edit()
             .putString(SKOBBLER_PATCHED, patched?SkobblerUtils.SDK_VERSION:"")
             .commit();
+    }
+    
+    private static final String MAP_TILES_PATCHED = "MAP_TILES_PATCHED";
+    
+    public static void cleanMapTileCacheIfNessary(final Context ctx){
+        boolean patched;
+        try{
+            patched = getPrefs(ctx).getString(MAP_TILES_PATCHED, "").equals(Request.getSetting(Setting.tile));
+        }catch(Throwable t){
+            patched = false;
+        }
+        
+        if(!patched) {
+        	AsyncTask<Void, Void, Void> cleanTask = new AsyncTask<Void, Void, Void>() {
+				@Override
+				protected Void doInBackground(Void... params) {
+					FileUtils.deleteQuietly(new File(Environment.getExternalStorageDirectory(), osmdroidCacheDir));
+					getPrefs(ctx).edit().putString(MAP_TILES_PATCHED, (String)Request.getSetting(Setting.tile)).commit();
+					return null;
+				}
+        	};
+        	Misc.parallelExecute(cleanTask);
+        }
     }
     
 }

@@ -1355,6 +1355,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			}
         });
         
+        DebugOptionsActivity.cleanMapTileCacheIfNessary(LandingActivity2.this);
+        
         scheduleNextTripInfoUpdates();
         
         upointView = (TextView) findViewById(R.id.upoint);
