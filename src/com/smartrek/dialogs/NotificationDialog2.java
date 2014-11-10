@@ -38,6 +38,8 @@ public class NotificationDialog2 extends Dialog {
 	private CharSequence negativeButtonText = "Cancel";
 	
 	private boolean buttonVerticalOrientation = true;
+	
+	private int messageTextSize = 0;
 
 	public NotificationDialog2(Context context, CharSequence message) {
 		super(context, R.style.PopUpDialog);
@@ -63,6 +65,9 @@ public class NotificationDialog2 extends Dialog {
 		if(StringUtils.isBlank(title)) {
 			titleView.setVisibility(View.GONE);
 			messageView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 17);
+		}
+		else if(messageTextSize > 0) {
+			messageView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, messageTextSize);
 		}
 		
 		try{
@@ -174,6 +179,10 @@ public class NotificationDialog2 extends Dialog {
 	
 	public void setVerticalOrientation(boolean verticalOrientation) {
 		this.buttonVerticalOrientation = verticalOrientation;
+	}
+
+	public void setMessageTextSize(int messageTextSize) {
+		this.messageTextSize = messageTextSize;
 	}
 
 }

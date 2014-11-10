@@ -1,5 +1,7 @@
 package com.smartrek.activities;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.apache.commons.lang3.StringUtils;
 
 import android.app.Activity;
@@ -8,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -22,6 +25,8 @@ import com.smartrek.CrashlyticsUtils;
 import com.smartrek.SkobblerUtils;
 import com.smartrek.SmarTrekApplication;
 import com.smartrek.SmarTrekApplication.TrackerName;
+import com.smartrek.dialogs.NotificationDialog2;
+import com.smartrek.dialogs.NotificationDialog2.ActionListener;
 import com.smartrek.models.User;
 import com.smartrek.requests.Request;
 import com.smartrek.requests.ServiceDiscoveryRequest;
@@ -48,6 +53,8 @@ public class MainActivity extends Activity implements AnimationListener, SKPrepa
 	private LoginTask loginTask;
 	
 	private ServiceDiscoveryTask sdTask;
+	
+	private AtomicBoolean showWaitOrCancelDialog = new AtomicBoolean(true);
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -97,9 +104,33 @@ public class MainActivity extends Activity implements AnimationListener, SKPrepa
             }
 	        
 	        if(Request.NEW_API){
+	        	final NotificationDialog2 waitOrCancelDialog = new NotificationDialog2(MainActivity.this, "The network seems to be very slow.\nKeep on trying?");
+	        	waitOrCancelDialog.setVerticalOrientation(false);
+	        	waitOrCancelDialog.setMessageTextSize(12);
+				waitOrCancelDialog.setTitle("Just a little bit longer...");
+				waitOrCancelDialog.setNegativeButtonText("I'll wait");
+				waitOrCancelDialog.setNegativeActionListener(new ActionListener() {
+					@Override
+					public void onClick() {
+						waitOrCancelDialog.dismiss();
+					}
+				});
+				waitOrCancelDialog.setPositiveButtonText("Cancel");
+				waitOrCancelDialog.setPositiveActionListener(new ActionListener() {
+					@Override
+					public void onClick() {
+						MainActivity.this.finish();
+					}
+				});
+	        	
 	            final Runnable onSuccess = new Runnable() {
                     @Override
                     public void run() {
+                    	showWaitOrCancelDialog.set(false);
+                    	if(waitOrCancelDialog.isShowing()) {
+                    		waitOrCancelDialog.dismiss();
+                    	}
+                    	
                         if(loginTask != null){
                             loginTask.setDialogEnabled(splashEnded);
                             loginTask.showDialog();
@@ -135,9 +166,24 @@ public class MainActivity extends Activity implements AnimationListener, SKPrepa
                 sdTask = initApiLinks(this, getEntrypoint(MainActivity.this), onSuccess, new Runnable() {
                     @Override
                     public void run() {
+                    	showWaitOrCancelDialog.set(false);
+                    	if(waitOrCancelDialog.isShowing()) {
+                    		waitOrCancelDialog.dismiss();
+                    	}
+                    	
                         finish();
                     }
                 });
+                
+                new Handler().postDelayed(new Runnable() {
+        			@Override
+        			public void run() {
+        				if(showWaitOrCancelDialog.getAndSet(false)) {
+        					waitOrCancelDialog.show();
+        				}
+        			}
+                }, 10000);
+                
 	        }else if(loginTask != null){
 	            loginTask.execute();
 	        }
