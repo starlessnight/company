@@ -198,7 +198,7 @@ public abstract class Request {
             }
 	    }catch(Throwable t){
 	    	if(StringUtils.isNotBlank(getLinkUrl(Link.issue)) && !StringUtils.equalsIgnoreCase(getLinkUrl(Link.issue), url)) {
-	    		sendIssueReport(ctx, url, t.getMessage(), responseCode, responseBody);
+	    		sendIssueReport(ctx, url, params, t.getMessage(), responseCode, responseBody);
 	    	}
 	        IOException e = new IOException(url);
 	        e.initCause(t);
@@ -206,14 +206,14 @@ public abstract class Request {
 	    }
 	}
 	
-	private static void sendIssueReport(final Context ctx, final String url, final String message,
+	private static void sendIssueReport(final Context ctx, final String url, final Object params, final String message,
 			final int responseCode, final String responseBody) {
 		Misc.parallelExecute(new AsyncTask<Void, Void, Void> () {
 			@Override
 			protected Void doInBackground(Void... params) {
 				try {
 					IssueReportRequest issue = new IssueReportRequest(User.getCurrentUser(ctx), 
-							message, url, responseCode+"", responseBody);
+							message, url, params, responseCode+"", responseBody);
 					issue.execute(ctx);
 				}
 				catch(Exception ignore) {}

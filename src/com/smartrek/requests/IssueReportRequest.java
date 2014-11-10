@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.util.Log;
@@ -17,8 +18,9 @@ public class IssueReportRequest extends Request {
 	private String requestUrl;
 	private String responseStatus;
 	private String responseContent;
+	private Object reqParams;
 	
-	public IssueReportRequest(User user, String message, String requestUrl, 
+	public IssueReportRequest(User user, String message, String requestUrl, Object params,
 			String responseStatus, String responseContent) {
 	    if(user != null){
             this.username = user.getUsername();
@@ -26,6 +28,7 @@ public class IssueReportRequest extends Request {
 	    }
         this.message = message;
         this.requestUrl = requestUrl;
+        this.reqParams = params;
         this.responseStatus = responseStatus;
         this.responseContent = responseContent;
 	}
@@ -40,6 +43,16 @@ public class IssueReportRequest extends Request {
 	        params.put("request_url", requestUrl==null?"":requestUrl);
 	        params.put("response_status", responseStatus==null?"":responseStatus);
 	        params.put("response_content", responseContent==null?"":responseContent);
+	        JSONObject jsonParam = null;
+	        if(reqParams instanceof Map) {
+	        	jsonParam = new JSONObject((Map)reqParams);
+	        }
+	        else if(reqParams instanceof JSONObject) {
+	        	jsonParam = (JSONObject)reqParams;
+	        }
+	        if(jsonParam != null) {
+	        	params.put("request_parameters", jsonParam.toString());
+	        }
             executeHttpRequest(Method.POST, StringUtils.defaultString(getLinkUrl(Link.issue)), params, ctx);
         }catch(Exception e){
             Log.w("IssueReportRequest", Log.getStackTraceString(e));
