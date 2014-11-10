@@ -286,12 +286,12 @@ public class NavigationView extends LinearLayout {
 	            textViewGenericMessage.setVisibility(View.GONE);
 	            navigationDisplay.setVisibility(View.VISIBLE);
 	            setBackgroundResource(android.R.color.transparent);
-		    }else{
+		    }else if(!everInRoute){
     			currentItemIdx = 0;
-//    			textViewWaiting.setVisibility(View.GONE);
-//    			textViewGenericMessage.setVisibility(View.VISIBLE);
-//    			navigationDisplay.setVisibility(View.GONE);
-//    			setBackgroundResource(R.color.transparent_light_red);
+    			textViewWaiting.setVisibility(View.GONE);
+    			textViewGenericMessage.setVisibility(View.VISIBLE);
+    			navigationDisplay.setVisibility(View.GONE);
+    			setBackgroundResource(R.color.transparent_light_red);
 		    }
 			this.status = status;
 		} else if (Status.InRoute.equals(status)) {
@@ -718,7 +718,10 @@ public class NavigationView extends LinearLayout {
 			}
 			lastRerouting = rerouting;
 			setStatus(Status.OutOfRoute);
-			textViewGenericMessage.setText(everInRoute?routeMsg:startFromRouteMsg);
+			if(!everInRoute) {
+				textViewGenericMessage.setText(startFromRouteMsg);
+//			textViewGenericMessage.setText(everInRoute?routeMsg:startFromRouteMsg);
+			}
 		}
 	}
 	
