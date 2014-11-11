@@ -3354,7 +3354,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         for (Overlay overlay : overlays) {
             if(overlay == curMarker){
             	POIOverlay curOverlay = (POIOverlay)overlay;
-            	if(curOverlay.isMarked() && (curOverlay.isFromPoi() == isFromTab())) {
+            	if(curOverlay.isMarked() && (curOverlay.isFromPoi() == isFromPoi())) {
 	            	Log.d("LandingActivity2", "removePOIMarker : " + curOverlay);
 	                if(curOverlay.isBalloonVisible()){
 	                    curOverlay.hideBalloon();
