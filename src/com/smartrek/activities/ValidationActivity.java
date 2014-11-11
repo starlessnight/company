@@ -107,8 +107,8 @@ import com.smartrek.ResumeNavigationUtils;
 import com.smartrek.SendTrajectoryService;
 import com.smartrek.SkobblerUtils;
 import com.smartrek.SmarTrekApplication;
-import com.smartrek.TripService;
 import com.smartrek.SmarTrekApplication.TrackerName;
+import com.smartrek.TripService;
 import com.smartrek.activities.DebugOptionsActivity.FakeRoute;
 import com.smartrek.dialogs.FloatingMenuDialog;
 import com.smartrek.dialogs.NotificationDialog2;
@@ -370,6 +370,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 		
 		initViews();
+		
+		LandingActivity.initializeIfNeccessary(ValidationActivity.this, new Runnable() {
+			@Override
+			public void run() {
+				countOutOfRouteThreshold = ((Number)Request.getSetting(Setting.reroute_after_N_deviated_samples)).intValue();
+			    distanceOutOfRouteThreshold = ((Number)Request.getSetting(Setting.reroute_trigger_distance_in_meter)).doubleValue();
+			}
+		});
 		
 		SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
         int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
@@ -1459,9 +1467,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		remainDistDirecListView.setText(StringUtil.formatRoundingDistance(distance, false));
 	}
 	
-	private int countOutOfRouteThreshold = ((Number)Request.getSetting(Setting.reroute_after_N_deviated_samples)).intValue();
+	// init at onCreate()
+	private int countOutOfRouteThreshold = 2;
     
-    private double distanceOutOfRouteThreshold = ((Number)Request.getSetting(Setting.reroute_trigger_distance_in_meter)).doubleValue();
+    private double distanceOutOfRouteThreshold = 40;  //meter
 	
 	public static final double speedOutOfRouteThreshold = 7;
 	
