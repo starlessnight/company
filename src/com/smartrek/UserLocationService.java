@@ -35,6 +35,8 @@ public class UserLocationService extends IntentService {
     
     private static final long FIFTEEN_MINS = 15 * 60 * 1000L;
     
+    private static final long GPS_TOGGLE_THRESHOLD = 600;
+    
     public UserLocationService() {
         super(UserLocationService.class.getName());
     }
@@ -48,9 +50,8 @@ public class UserLocationService extends IntentService {
             boolean hasLastLoc = lastLoc != null;
             double distance = hasLastLoc?RouteNode.distanceBetween(lastLoc.lat, lastLoc.lon, info.lastLat, info.lastLong):0;
             final long now = System.currentTimeMillis();
-            if(!hasLastLoc || distance >= distanceInterval + info.lastAccuracy){
+            if(!hasLastLoc || distance >= distanceInterval){
                 DebugOptionsActivity.setLastUserLatLon(this, info.lastLat, info.lastLong, now);
-                LocationLibrary.useFineAccuracyForRequests(this, true);
                 final File file = getFile(this);
                 final Trajectory traj;
                 if(file.exists() && file.length() != 0){
@@ -62,7 +63,15 @@ public class UserLocationService extends IntentService {
                     info.lastSpeed, info.lastHeading, now, 
                     Trajectory.DEFAULT_LINK_ID, info.lastAccuracy);
                 FileUtils.write(file, traj.toJSON().toString());
-            }else if(hasLastLoc && now - lastLoc.time > ValidationActivity.TWO_MINUTES){
+            }
+            LatLon lastGpsToggleLoc = DebugOptionsActivity.getLastGpsToggleLatLon(this);
+            boolean hasLastGpsToggleLoc = lastGpsToggleLoc != null;
+            double gpsToggledDistance = hasLastGpsToggleLoc?RouteNode.distanceBetween(
+                lastGpsToggleLoc.lat, lastGpsToggleLoc.lon, info.lastLat, info.lastLong):0;
+            if(!hasLastGpsToggleLoc || gpsToggledDistance >= GPS_TOGGLE_THRESHOLD){
+                DebugOptionsActivity.setLastGpsToggleLatLon(this, info.lastLat, info.lastLong, now);
+                LocationLibrary.useFineAccuracyForRequests(this, true);
+            }else if(hasLastGpsToggleLoc && now - lastGpsToggleLoc.time > ValidationActivity.TWO_MINUTES){
                 LocationLibrary.useFineAccuracyForRequests(this, false);
             }
             final User user = User.getCurrentUserWithoutCache(this);

@@ -81,6 +81,8 @@ public final class DebugOptionsActivity extends Activity {
     
     private static final String LAST_USER_LAT_LON = "LAST_USER_LAT_LON";
     
+    private static final String LAST_GPS_TOGGLE_LAT_LON = "LAST_GPS_TOGGLE_LAT_LON";
+    
     private static final String LAST_USER_LAT_SENT = "LAST_USER_LAT_SENT";
     
     private static final String EULA_ETAG = "EULA_ETAG";
@@ -525,6 +527,31 @@ public final class DebugOptionsActivity extends Activity {
     public static void setLastUserLatLon(Context ctx, float lat, float lon, long time){
         getPrefs(ctx).edit()
             .putString(LAST_USER_LAT_LON, lat + "," + lon + "," + time)
+            .commit();
+    }
+    
+    public static LatLon getLastGpsToggleLatLon(Context ctx){
+        LatLon rs = null;
+        try{
+            String latLonStr = getPrefs(ctx).getString(LAST_GPS_TOGGLE_LAT_LON, "");
+            if(StringUtils.isNotBlank(latLonStr)){
+                LatLon latLon = new LatLon();
+                String[] toks = latLonStr.split(",");
+                latLon.lat = Float.parseFloat(toks[0]);
+                latLon.lon = Float.parseFloat(toks[1]);
+                if(toks.length > 2){
+                    latLon.time = Long.parseLong(toks[2]);
+                }
+                rs = latLon;
+            }
+        }catch(Throwable t){
+        }
+        return rs;
+    }
+    
+    public static void setLastGpsToggleLatLon(Context ctx, float lat, float lon, long time){
+        getPrefs(ctx).edit()
+            .putString(LAST_GPS_TOGGLE_LAT_LON, lat + "," + lon + "," + time)
             .commit();
     }
     
