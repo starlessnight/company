@@ -131,6 +131,8 @@ public class MainActivity extends Activity implements AnimationListener, SKPrepa
                     		waitOrCancelDialog.dismiss();
                     	}
                     	
+                    	findViewById(R.id.progress).setVisibility(View.GONE);
+                    	
                         if(loginTask != null){
                             loginTask.setDialogEnabled(splashEnded);
                             loginTask.showDialog();
@@ -170,7 +172,7 @@ public class MainActivity extends Activity implements AnimationListener, SKPrepa
                     	if(waitOrCancelDialog.isShowing()) {
                     		waitOrCancelDialog.dismiss();
                     	}
-                    	
+                    	findViewById(R.id.progress).setVisibility(View.GONE);
                         finish();
                     }
                 });
@@ -335,6 +337,7 @@ public class MainActivity extends Activity implements AnimationListener, SKPrepa
 	public void onAnimationEnd(Animation animation) {
 	    splashEnded = true;
 		logoMask.setVisibility(View.GONE);
+		findViewById(R.id.progress).setVisibility(View.VISIBLE);
 		SkobblerUtils.initSkobbler(MainActivity.this, MainActivity.this, new Runnable() {
 			@Override
 			public void run() {

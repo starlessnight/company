@@ -7,6 +7,7 @@
     android:orientation="vertical" >
 
     <FrameLayout 
+        android:id="@+id/logo_panel"
         android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:layout_centerVertical="true"
@@ -28,6 +29,16 @@
 	        android:background="@color/lighter_gray" />
 
     </FrameLayout>
+    
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:paddingTop="10dp"
+        android:gravity="center"
+        android:layout_below="@+id/logo_panel"
+        android:visibility="gone" />
     
     <ImageView
 	        android:id="@+id/imageViewCity"
