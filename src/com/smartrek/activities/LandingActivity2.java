@@ -60,6 +60,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.AbsoluteSizeSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
@@ -81,6 +82,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -252,6 +254,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private AtomicBoolean needCheckResume = new AtomicBoolean(true);
     
+    private TextView from;
+    
+    private TextView to;
+    
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
     
@@ -347,7 +353,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     fromSearchResultList.setVisibility(View.GONE);
                 }
                 else {
-                    showAutoComplete.set(true);
+//                    showAutoComplete.set(true);
                     if(curFrom != null) {
                     	curFrom.showMiniBalloonOverlay();
                     }
@@ -356,6 +362,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     }
                     refreshSearchAutoCompleteData();
                 }
+                resetFromToTab(!hasFocus, false);
             }
         });
         fromSearchBox.setOnFocusChangeListener(new OnFocusChangeListener() {
@@ -373,7 +380,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     fromSearchResultList.setVisibility(View.GONE);
                 }
                 else {
-                    showAutoComplete.set(true);
+//                    showAutoComplete.set(true);
                     if(curTo != null) {
                     	curTo.showMiniBalloonOverlay();
                     }
@@ -382,6 +389,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     }
                     refreshFromSearchAutoCompleteData();
                 }
+                resetFromToTab(!hasFocus, true);
             }
         });
         searchResultList.setOnItemClickListener(new OnItemClickListener() {
@@ -506,6 +514,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 
 			@Override
 			public void onTextChanging() {
+				showAutoComplete.set(true);
 				if(searchAddresses.isEmpty()) {
 					Address searching = new Address();
 					searching.setName(SEARCHING);
@@ -592,6 +601,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             
             @Override
 			public void onTextChanging() {
+            	showAutoComplete.set(true);
 				if(fromSearchAddresses.isEmpty()) {
 					Address searching = new Address();
 					searching.setName(SEARCHING);
@@ -624,6 +634,57 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 clearFromSearchResult();
             }
         });
+        
+        from = (TextView) findViewById(R.id.from);
+        to = (TextView) findViewById(R.id.to);
+        from.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				searchBox.clearFocus();
+				fromSearchBox.clearFocus();
+				if(curTo!=null) {
+					curTo.showMiniBalloonOverlay();
+				}
+				if(StringUtils.isBlank(fromSearchBox.getText())) {
+					clearFromSearchResult();
+				}
+				else {
+//					fromSearchBox.requestFocus();
+					fromSearchResultList.setVisibility(View.VISIBLE);
+					refreshFromSearchAutoCompleteData();
+				}
+				from.setBackgroundResource(R.drawable.tab_selected);
+				from.setTextColor(getResources().getColor(android.R.color.white));
+				to.setTextColor(getResources().getColor(R.color.metropia_blue));
+				to.setBackgroundResource(R.drawable.tab_not_selected);
+				findViewById(R.id.from_panel).bringToFront();
+			}
+		});
+        
+        to.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				searchBox.clearFocus();
+				fromSearchBox.clearFocus();
+				if(curFrom!=null) {
+					curFrom.showMiniBalloonOverlay();
+				}
+			    
+			    if(StringUtils.isBlank(searchBox.getText())) {
+			    	clearSearchResult();
+			    }
+			    else {
+//			    	searchBox.requestFocus();
+			    	searchResultList.setVisibility(View.VISIBLE);
+			    	refreshSearchAutoCompleteData();
+			    }
+                to.setBackgroundResource(R.drawable.tab_selected);
+				to.setTextColor(getResources().getColor(android.R.color.white));
+				from.setBackgroundResource(R.drawable.tab_not_selected);
+				from.setTextColor(getResources().getColor(R.color.metropia_blue));
+				findViewById(R.id.to_panel).bringToFront();
+			}
+		});
         
         final String intentAddress = getIntentAddress(getIntent());
         boolean hasIntentAddr = StringUtils.isNotBlank(intentAddress); 
@@ -1444,6 +1505,46 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     			Misc.parallelExecute(task);
     		}
     	}
+    }
+    
+    private void resetFromToTab(boolean unFocus, boolean fromSearchbox) {
+    	if(unFocus) {
+    		DisplayMetrics dm = getResources().getDisplayMetrics();
+    		RelativeLayout tabPanel = (RelativeLayout) findViewById(R.id.tab_panel);
+    		RelativeLayout.LayoutParams tabPanelLp = (RelativeLayout.LayoutParams)tabPanel.getLayoutParams();
+    		tabPanelLp.topMargin = Dimension.dpToPx(-4, dm);
+    		tabPanel.setBackgroundColor(0);
+    		findViewById(R.id.search_area_shadow).setVisibility(View.GONE);
+    		int fromTab = fromSearchbox?R.drawable.tab_selected:R.drawable.tab_not_selected;
+    		int toTab = fromSearchbox?R.drawable.tab_not_selected:R.drawable.tab_selected;
+    		int frontTabId = fromSearchbox?R.id.from_panel:R.id.to_panel;
+    		from.setBackgroundResource(fromTab);
+    		LinearLayout.LayoutParams fromLp = (LinearLayout.LayoutParams) from.getLayoutParams();
+    		fromLp.rightMargin = Dimension.dpToPx(-10, dm);
+    		to.setBackgroundResource(toTab);
+    		LinearLayout.LayoutParams toLp = (LinearLayout.LayoutParams) to.getLayoutParams();
+    		toLp.leftMargin = Dimension.dpToPx(-10, dm);
+    		findViewById(frontTabId).bringToFront();
+    	}
+    	else {
+    		findViewById(R.id.search_area_shadow).setVisibility(View.VISIBLE);
+    		RelativeLayout tabPanel = (RelativeLayout) findViewById(R.id.tab_panel);
+    		RelativeLayout.LayoutParams tabPanelLp = (RelativeLayout.LayoutParams)tabPanel.getLayoutParams();
+    		tabPanelLp.topMargin = 0;
+    		tabPanel.setBackgroundColor(getResources().getColor(R.color.transparent_white));
+    		int fromBackgroundColor = fromSearchbox?R.color.metropia_blue:R.color.transparent_white;
+    		int toBackgroundColor = fromSearchbox?R.color.transparent_white:R.color.metropia_blue;
+    		from.setBackgroundResource(0);
+    		from.setBackgroundColor(getResources().getColor(fromBackgroundColor));
+    		LinearLayout.LayoutParams fromLp = (LinearLayout.LayoutParams) from.getLayoutParams();
+    		fromLp.rightMargin = 0;
+    		to.setBackgroundResource(0);
+    		to.setBackgroundColor(getResources().getColor(toBackgroundColor));
+    		LinearLayout.LayoutParams toLp = (LinearLayout.LayoutParams) to.getLayoutParams();
+    		toLp.leftMargin = 0;
+    	}
+    	from.setTextColor(getResources().getColor(fromSearchbox?android.R.color.white:R.color.metropia_blue));
+		to.setTextColor(getResources().getColor(fromSearchbox?R.color.metropia_blue:android.R.color.white));
     }
     
     private Integer EMPTY_ITEM_SIZE = 5;
@@ -2969,7 +3070,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                     removePOIMarker(mapView);
                                     IMapController controller = mapView.getController();
                                     controller.setCenter(star.getGeoPoint());
-                                    handleOD(mapView, star, false);
+                                    handleOD(mapView, star, isFromPoi());
                                     star.showBalloonOverlay();
                                     mapView.postInvalidate();
                                     return true;
@@ -3230,7 +3331,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                boolean handledStarred = hideStarredBalloon();
 	                boolean handledBulb = hideBulbBalloon();
 	                boolean handledPOI = removePOIMarker(mapView);
-	                boolean handledOD = removeOldOD(mapView, false);
+	                boolean handledOD = removeOldOD(mapView, isFromPoi());
 	                boolean hasFocus = searchBox.isFocused() || fromSearchBox.isFocused();
 	                if(hasFocus) {
 	                	searchBox.clearFocus();
@@ -3285,18 +3386,22 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		animatorSet.start();
     }
     
-    private void toggleGetRouteButton(boolean show) {
-    	View getRoutePanel = findViewById(R.id.get_route_panel);
-    	View getRouteButton = findViewById(R.id.get_route);
-    	getRouteButton.setVisibility(show?View.VISIBLE:View.GONE);
-    	float height = Dimension.dpToPx(55, getResources().getDisplayMetrics());
-    	ObjectAnimator getRouteAnimator;
-    	if(show) {
-    		getRouteAnimator = ObjectAnimator.ofFloat(getRoutePanel, "translationY", height, 0);
-    		getRouteAnimator.setDuration(300);
-    		getRouteAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-    		getRouteAnimator.start();
-    	}
+    private void toggleGetRouteButton(boolean enabled) {
+//    	View getRoutePanel = findViewById(R.id.get_route_panel);
+//    	View getRouteButton = findViewById(R.id.get_route);
+//    	getRouteButton.setVisibility(show?View.VISIBLE:View.GONE);
+//    	float height = Dimension.dpToPx(55, getResources().getDisplayMetrics());
+//    	ObjectAnimator getRouteAnimator;
+//    	if(show) {
+//    		getRouteAnimator = ObjectAnimator.ofFloat(getRoutePanel, "translationY", height, 0);
+//    		getRouteAnimator.setDuration(300);
+//    		getRouteAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+//    		getRouteAnimator.start();
+//    	}
+    	getRouteView.setClickable(enabled);
+    	getRouteView.setBackgroundResource(enabled ? R.drawable.get_route_button : R.drawable.disabled_get_route_button);
+    	int padding = Dimension.dpToPx(10, getResources().getDisplayMetrics());
+    	getRouteView.setPadding(padding, 0, padding, 0);
     }
     
     private void write2SearchBoxTag(Set<String> addresses) {
@@ -3479,7 +3584,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         overlays.add(marker);
         marker.showOverlay();
         if(!isInFavoriteOperation()) {
-        	handleOD(mapView, marker, false);
+        	handleOD(mapView, marker, isFromPoi());
         	marker.showBalloonOverlay();
         }
         else {
@@ -3654,7 +3759,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     removePOIMarker(mapView);
                     IMapController controller = mapView.getController();
                     controller.setCenter(bulb.getGeoPoint());
-                    handleOD(mapView, bulb, false);
+                    handleOD(mapView, bulb, isFromPoi());
                     bulb.showBalloonOverlay();
                     mapView.postInvalidate();
                     return true;
@@ -3687,7 +3792,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private boolean isFromPoi() {
-    	return fromSearchBox.isFocused() && !isInFavoriteOperation();
+    	return (fromSearchBox.isFocused() || from.getCurrentTextColor() == Color.WHITE) 
+    			&& !isInFavoriteOperation();
     }
     
     @Override

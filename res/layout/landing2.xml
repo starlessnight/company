@@ -28,68 +28,86 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:orientation="vertical" >
-                    
-                    <LinearLayout 
+
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="34dp"
-                        android:orientation="horizontal"
-                        android:background="@android:color/white">
-                        
+                        android:background="@color/metropia_blue"
+                        android:orientation="horizontal" >
+
                         <ImageView
                             android:id="@+id/drawer_menu_icon"
                             android:layout_width="wrap_content"
                             android:layout_height="17dp"
                             android:layout_gravity="left|center"
+                            android:paddingLeft="8dp"
                             android:paddingRight="20dp"
-                            android:layout_marginLeft="-12dp"
                             android:src="@drawable/drawer_menu_icon_1" />
-                        
-                        <TextView 
+
+                        <TextView
                             android:id="@+id/head"
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
                             android:gravity="center|left"
                             android:text="Metropia"
-                            android:textColor="@android:color/black"
-                            android:textSize="17dp"/>
+                            android:textColor="@android:color/white"
+                            android:textSize="20dp" />
                         
+                        <TextView 
+                            android:id="@+id/get_route"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="right|center"
+                            android:background="@drawable/disabled_get_route_button"
+                            android:text="Get Route"
+                            android:textColor="@android:color/white"
+                            android:textSize="20dp"
+                            android:paddingLeft="10dp"
+                            android:paddingRight="10dp"
+                            android:layout_marginRight="10dp"
+                            android:gravity="center"
+                            android:includeFontPadding="false"
+                            android:clickable="false"/>
                     </LinearLayout>
-                    
-                    <LinearLayout 
+
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginRight="8dp"
-                        android:layout_marginTop="8dp"
-                        android:orientation="vertical">
-                        
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
+                        android:paddingTop="8dp"
+                        android:orientation="vertical"
+                        android:background="@color/metropia_blue" >
+
                         <RelativeLayout
                             android:layout_width="match_parent"
                             android:layout_height="44dp"
-                            android:background="@android:color/white">
-                            
+                            android:background="@color/metropia_blue" >
+
                             <TextView
-                                android:id="@+id/from_label" 
-                                android:layout_width="40dp"
+                                android:id="@+id/from_label"
+                                android:layout_width="35dp"
                                 android:layout_height="match_parent"
-                                android:text="From:"
-                                android:textColor="@android:color/black"
-                                android:textSize="12dp"
+                                android:layout_alignParentLeft="true"
                                 android:gravity="right|center"
-                                android:layout_alignParentLeft="true"/>
+                                android:text="From:"
+                                android:textColor="@android:color/white"
+                                android:textSize="12dp" />
 
                             <EditText
                                 android:id="@+id/from_search_box"
                                 android:layout_width="match_parent"
                                 android:layout_height="42dp"
-                                android:background="@android:color/transparent"
+                                android:layout_marginLeft="40dp"
+                                android:background="@android:color/white"
+                                android:hint="Current Location"
                                 android:inputType="textCapWords"
-                                android:paddingLeft="45dp"
+                                android:paddingLeft="10dp"
                                 android:paddingRight="30dp"
                                 android:singleLine="true"
-                                android:hint="Current Location"
                                 android:textColor="@color/gray"
+                                android:cacheColorHint="#00000000"
                                 android:textSize="@dimen/smaller_font" />
 
                             <ImageView
@@ -101,39 +119,40 @@
                                 android:layout_gravity="center"
                                 android:src="@drawable/search_box_clear2"
                                 android:visibility="gone" />
-
                         </RelativeLayout>
-                        
-                        <View 
+
+                        <View
                             android:layout_width="match_parent"
-                            android:layout_height="2dp"/>
-                        
+                            android:layout_height="2dp" />
+
                         <RelativeLayout
                             android:layout_width="match_parent"
                             android:layout_height="44dp"
-                            android:background="@android:color/white">
-                            
+                            android:background="@color/metropia_blue" >
+
                             <TextView
-                                android:id="@+id/to_label" 
-                                android:layout_width="40dp"
+                                android:id="@+id/to_label"
+                                android:layout_width="35dp"
                                 android:layout_height="match_parent"
-                                android:text="To:"
-                                android:textColor="@android:color/black"
-                                android:textSize="12dp"
+                                android:layout_alignParentLeft="true"
                                 android:gravity="right|center"
-                                android:layout_alignParentLeft="true"/>
+                                android:text="To:"
+                                android:textColor="@android:color/white"
+                                android:textSize="12dp" />
 
                             <EditText
                                 android:id="@+id/search_box"
                                 android:layout_width="match_parent"
                                 android:layout_height="42dp"
-                                android:background="@android:color/transparent"
+                                android:layout_marginLeft="40dp"
+                                android:background="@android:color/white"
+                                android:hint="Enter Destination"
                                 android:inputType="textCapWords"
-                                android:paddingLeft="45dp"
+                                android:paddingLeft="10dp"
                                 android:paddingRight="30dp"
                                 android:singleLine="true"
-                                android:hint="Enter Destination"
                                 android:textColor="@color/gray"
+                                android:cacheColorHint="#00000000"
                                 android:textSize="@dimen/smaller_font" />
 
                             <ImageView
@@ -145,10 +164,88 @@
                                 android:layout_gravity="center"
                                 android:src="@drawable/search_box_clear2"
                                 android:visibility="gone" />
-
                         </RelativeLayout>
-                        
                     </LinearLayout>
+                    
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" >
+
+                        <RelativeLayout
+                            android:id="@+id/tab_panel"
+                            android:layout_width="match_parent"
+                            android:layout_height="35dp"
+                            android:layout_below="@+id/search_area_separator"
+                            android:layout_marginTop="-4dp"
+                            android:orientation="horizontal" >
+
+                            <LinearLayout
+                                android:id="@+id/from_panel"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_alignParentLeft="true" >
+
+                                <TextView
+                                    android:id="@+id/from"
+                                    android:layout_width="0dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_marginRight="-10dp"
+                                    android:layout_weight="1"
+                                    android:background="@drawable/tab_not_selected"
+                                    android:gravity="center"
+                                    android:paddingBottom="3dp"
+                                    android:paddingTop="3dp"
+                                    android:text="FROM"
+                                    android:textColor="@color/metropia_blue"
+                                    android:textSize="@dimen/smallest_font" />
+
+                                <View
+                                    android:layout_width="0dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_weight="1" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/to_panel"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_alignParentRight="true" >
+
+                                <View
+                                    android:layout_width="0dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_weight="1" />
+
+                                <TextView
+                                    android:id="@+id/to"
+                                    android:layout_width="0dp"
+                                    android:layout_height="match_parent"
+                                    android:layout_marginLeft="-10dp"
+                                    android:layout_weight="1"
+                                    android:background="@drawable/tab_selected"
+                                    android:gravity="center"
+                                    android:paddingBottom="3dp"
+                                    android:paddingTop="3dp"
+                                    android:text="TO"
+                                    android:textColor="@android:color/white"
+                                    android:textSize="@dimen/smallest_font" />
+                            </LinearLayout>
+                        </RelativeLayout>
+
+                        <View
+                            android:id="@+id/search_area_separator"
+                            android:layout_width="match_parent"
+                            android:layout_height="7dp"
+                            android:layout_alignParentTop="true"
+                            android:background="@color/metropia_blue" />
+                    </RelativeLayout>
+                    
+                    <View
+                        android:id="@+id/search_area_shadow"
+                        android:layout_width="match_parent"
+                        android:layout_height="3dp"
+                        android:background="@drawable/bottom_shadow"
+                        android:visibility="gone" />
                     
                 </LinearLayout>
 
@@ -172,136 +269,136 @@
                     android:layout_marginRight="70dp"
                     android:src="@drawable/upcoming_trip_orange"
                     android:visibility="gone" />
-                
+
                 <LinearLayout
                     android:id="@+id/my_metropia_panel"
                     android:layout_width="fill_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="55dp"
                     android:layout_alignParentBottom="true"
-                    android:background="@android:color/black"
-                    android:orientation="vertical" >
-                    
-                    <TextView 
-                        android:id="@+id/my_metropia_scores"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="My Metropia Scores"
-                        android:textSize="11dp"
-                        android:textColor="@android:color/white"
-                        android:gravity="center"/>
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:layout_width="fill_parent"
+                        android:layout_height="5dp"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/shadow" />
 
                     <LinearLayout
                         android:layout_width="fill_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:orientation="horizontal">
-                        
-                        <FrameLayout 
-                            android:layout_width="0dp"
-	                        android:layout_height="match_parent"
-	                        android:layout_weight="1">
-                        
-		                    <TextView
-		                        android:id="@+id/upoint"
-		                        android:layout_width="wrap_content"
-		                        android:layout_height="wrap_content"
-		                        android:drawableLeft="@drawable/rewards"
-		                        android:drawablePadding="5dp"
-		                        android:gravity="center"
-		                        android:layout_gravity="center"
-		                        android:text="000Pts"
-		                        android:textColor="@color/metropia_blue"
-		                        android:textSize="23dp" />
-	                    
-	                    </FrameLayout>
-	                    
-                        <FrameLayout 
-                            android:layout_width="0dp"
-	                        android:layout_height="match_parent"
-	                        android:layout_weight="1">
-		                    
-		                    <TextView
-		                        android:id="@+id/save_time"
-		                        android:layout_width="wrap_content"
-		                        android:layout_height="wrap_content"
-		                        android:drawableLeft="@drawable/save_time"
-		                        android:drawablePadding="5dp"
-		                        android:gravity="center"
-		                        android:layout_gravity="center"
-		                        android:text="00Min"
-		                        android:textColor="@color/metropia_orange"
-		                        android:textSize="23dp" />
-		                    
-	                    </FrameLayout>
-	                    
-                        <FrameLayout 
-                            android:layout_width="0dp"
-	                        android:layout_height="match_parent"
-	                        android:layout_weight="1">
-		                    
-		                    <TextView
-		                        android:id="@+id/co2"
-		                        android:layout_width="wrap_content"
-		                        android:layout_height="wrap_content"
-		                        android:drawableLeft="@drawable/co2"
-		                        android:drawablePadding="5dp"
-		                        android:gravity="center"
-		                        android:layout_gravity="center"
-		                        android:text="000lbs"
-		                        android:textColor="@color/metropia_green"
-		                        android:textSize="23dp" />
-	                    
-	                    </FrameLayout>
-	                    
-	                </LinearLayout>
-	                
+                        android:layout_height="50dp"
+                        android:background="#E6FFFFFF"
+                        android:orientation="vertical" >
+
+                        <TextView
+                            android:id="@+id/my_metropia_scores"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="My Metropia Scores"
+                            android:textColor="@color/gray"
+                            android:textSize="11dp" />
+
+                        <LinearLayout
+                            android:layout_width="fill_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:orientation="horizontal" >
+
+                            <FrameLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1" >
+
+                                <TextView
+                                    android:id="@+id/upoint"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:drawableLeft="@drawable/rewards"
+                                    android:drawablePadding="5dp"
+                                    android:gravity="center"
+                                    android:text="000Pts"
+                                    android:textColor="@color/metropia_blue"
+                                    android:textSize="23dp" />
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1" >
+
+                                <TextView
+                                    android:id="@+id/save_time"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:drawableLeft="@drawable/save_time"
+                                    android:drawablePadding="5dp"
+                                    android:gravity="center"
+                                    android:text="00Min"
+                                    android:textColor="@color/metropia_orange"
+                                    android:textSize="23dp" />
+                            </FrameLayout>
+
+                            <FrameLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1" >
+
+                                <TextView
+                                    android:id="@+id/co2"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:drawableLeft="@drawable/co2"
+                                    android:drawablePadding="5dp"
+                                    android:gravity="center"
+                                    android:text="000lbs"
+                                    android:textColor="@color/metropia_green"
+                                    android:textSize="23dp" />
+                            </FrameLayout>
+                        </LinearLayout>
+                    </LinearLayout>
                 </LinearLayout>
 
+                <!-- 
                 <LinearLayout
                     android:id="@+id/get_route_panel"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true"
-                    android:orientation="vertical">
+                    android:orientation="vertical" >
 
-                    <!-- 
-                    <include
-                        android:layout_width="fill_parent"
-                        android:layout_height="8dp"
-                        layout="@layout/metropia_color_bar" />
-                    -->
-                    
                     <FrameLayout
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:background="@color/metropia_green">
-                        
-	                    <TextView
-	                        android:id="@+id/get_route"
-	                        android:layout_width="wrap_content"
-	                        android:layout_height="55dp"
-	                        android:layout_gravity="center"
-	                        android:drawablePadding="20dp"
-	                        android:drawableRight="@drawable/get_route_arrow"
-	                        android:gravity="center"
-	                        android:paddingBottom="5dp"
-	                        android:paddingTop="5dp"
-	                        android:text="Get Route!"
-	                        android:textColor="@android:color/white"
-	                        android:textSize="26dp"
-	                        android:visibility="gone" />
-	                    
-	                </FrameLayout>
-	                
+                        android:background="@color/metropia_green" >
+
+                        <TextView
+                            android:id="@+id/get_route"
+                            android:layout_width="wrap_content"
+                            android:layout_height="55dp"
+                            android:layout_gravity="center"
+                            android:drawablePadding="20dp"
+                            android:drawableRight="@drawable/get_route_arrow"
+                            android:gravity="center"
+                            android:paddingBottom="5dp"
+                            android:paddingTop="5dp"
+                            android:text="Get Route!"
+                            android:textColor="@android:color/white"
+                            android:textSize="26dp"
+                            android:visibility="gone" />
+                    </FrameLayout>
                 </LinearLayout>
+                 -->
 
                 <ListView
                     android:id="@+id/search_result_list"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_below="@+id/landing_panel_content"
                     android:layout_marginLeft="8dp"
                     android:layout_marginRight="8dp"
-                    android:layout_below="@+id/landing_panel_content"
                     android:background="@color/transparent_white"
                     android:cacheColorHint="#00000000"
                     android:divider="@null"
@@ -312,9 +409,9 @@
                     android:id="@+id/from_search_result_list"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_below="@+id/landing_panel_content"
                     android:layout_marginLeft="8dp"
                     android:layout_marginRight="8dp"
-                    android:layout_below="@+id/landing_panel_content"
                     android:background="@color/transparent_white"
                     android:cacheColorHint="#00000000"
                     android:divider="@null"
@@ -686,7 +783,7 @@
                         android:text="My Metropia"
                         android:textColor="@android:color/white"
                         android:textSize="@dimen/medium_font" />
-                    
+
                     <TextView
                         android:id="@+id/my_trips"
                         android:layout_width="match_parent"
@@ -779,7 +876,6 @@
                             android:textColor="@android:color/white"
                             android:textSize="@dimen/medium_font" />
                     </LinearLayout>
-
                 </LinearLayout>
 
                 <LinearLayout

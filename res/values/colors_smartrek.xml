@@ -22,8 +22,9 @@
     <color name="navigation_gray">#808184</color>
     <color name="navigation_bottom_gray">#6D6E70</color>
     <color name="navigation_menu_gray">#505050</color>
-    <color name="metropia_red">#BE1E2D</color>
-    <color name="metropia_orange">#FF5F00</color>
-    <color name="metropia_green">#95D500</color>
-    <color name="metropia_blue">#0098CE</color>
+    <color name="metropia_red">#BE202E</color>
+    <color name="metropia_orange">#F16021</color>
+    <color name="metropia_green">#96C93C</color>
+    <color name="metropia_blue">#0197CD</color>
+    <color name="metropia_transparent_green">#7F96C93C</color>
 </resources>
