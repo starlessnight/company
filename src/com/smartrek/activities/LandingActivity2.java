@@ -60,7 +60,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.AbsoluteSizeSpan;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
@@ -82,7 +81,6 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -254,9 +252,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private AtomicBoolean needCheckResume = new AtomicBoolean(true);
     
-    private TextView from;
-    
-    private TextView to;
+//    private TextView from;
+//    
+//    private TextView to;
     
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
@@ -362,7 +360,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     }
                     refreshSearchAutoCompleteData();
                 }
-                resetFromToTab(!hasFocus, false);
+//                resetFromToTab(!hasFocus, false);
             }
         });
         fromSearchBox.setOnFocusChangeListener(new OnFocusChangeListener() {
@@ -389,7 +387,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     }
                     refreshFromSearchAutoCompleteData();
                 }
-                resetFromToTab(!hasFocus, true);
+//                resetFromToTab(!hasFocus, true);
             }
         });
         searchResultList.setOnItemClickListener(new OnItemClickListener() {
@@ -635,56 +633,56 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
         });
         
-        from = (TextView) findViewById(R.id.from);
-        to = (TextView) findViewById(R.id.to);
-        from.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				searchBox.clearFocus();
-				fromSearchBox.clearFocus();
-				if(curTo!=null) {
-					curTo.showMiniBalloonOverlay();
-				}
-				if(StringUtils.isBlank(fromSearchBox.getText())) {
-					clearFromSearchResult();
-				}
-				else {
-//					fromSearchBox.requestFocus();
-					fromSearchResultList.setVisibility(View.VISIBLE);
-					refreshFromSearchAutoCompleteData();
-				}
-				from.setBackgroundResource(R.drawable.tab_selected);
-				from.setTextColor(getResources().getColor(android.R.color.white));
-				to.setTextColor(getResources().getColor(R.color.metropia_blue));
-				to.setBackgroundResource(R.drawable.tab_not_selected);
-				findViewById(R.id.from_panel).bringToFront();
-			}
-		});
-        
-        to.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				searchBox.clearFocus();
-				fromSearchBox.clearFocus();
-				if(curFrom!=null) {
-					curFrom.showMiniBalloonOverlay();
-				}
-			    
-			    if(StringUtils.isBlank(searchBox.getText())) {
-			    	clearSearchResult();
-			    }
-			    else {
-//			    	searchBox.requestFocus();
-			    	searchResultList.setVisibility(View.VISIBLE);
-			    	refreshSearchAutoCompleteData();
-			    }
-                to.setBackgroundResource(R.drawable.tab_selected);
-				to.setTextColor(getResources().getColor(android.R.color.white));
-				from.setBackgroundResource(R.drawable.tab_not_selected);
-				from.setTextColor(getResources().getColor(R.color.metropia_blue));
-				findViewById(R.id.to_panel).bringToFront();
-			}
-		});
+//        from = (TextView) findViewById(R.id.from);
+//        to = (TextView) findViewById(R.id.to);
+//        from.setOnClickListener(new OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				searchBox.clearFocus();
+//				fromSearchBox.clearFocus();
+//				if(curTo!=null) {
+//					curTo.showMiniBalloonOverlay();
+//				}
+//				if(StringUtils.isBlank(fromSearchBox.getText())) {
+//					clearFromSearchResult();
+//				}
+//				else {
+////					fromSearchBox.requestFocus();
+//					fromSearchResultList.setVisibility(View.VISIBLE);
+//					refreshFromSearchAutoCompleteData();
+//				}
+//				from.setBackgroundResource(R.drawable.tab_selected);
+//				from.setTextColor(getResources().getColor(android.R.color.white));
+//				to.setTextColor(getResources().getColor(R.color.metropia_blue));
+//				to.setBackgroundResource(R.drawable.tab_not_selected);
+//				findViewById(R.id.from_panel).bringToFront();
+//			}
+//		});
+//        
+//        to.setOnClickListener(new OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				searchBox.clearFocus();
+//				fromSearchBox.clearFocus();
+//				if(curFrom!=null) {
+//					curFrom.showMiniBalloonOverlay();
+//				}
+//			    
+//			    if(StringUtils.isBlank(searchBox.getText())) {
+//			    	clearSearchResult();
+//			    }
+//			    else {
+////			    	searchBox.requestFocus();
+//			    	searchResultList.setVisibility(View.VISIBLE);
+//			    	refreshSearchAutoCompleteData();
+//			    }
+//                to.setBackgroundResource(R.drawable.tab_selected);
+//				to.setTextColor(getResources().getColor(android.R.color.white));
+//				from.setBackgroundResource(R.drawable.tab_not_selected);
+//				from.setTextColor(getResources().getColor(R.color.metropia_blue));
+//				findViewById(R.id.to_panel).bringToFront();
+//			}
+//		});
         
         final String intentAddress = getIntentAddress(getIntent());
         boolean hasIntentAddr = StringUtils.isNotBlank(intentAddress); 
@@ -1507,6 +1505,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	}
     }
     
+    /*
     private void resetFromToTab(boolean unFocus, boolean fromSearchbox) {
     	if(unFocus) {
     		DisplayMetrics dm = getResources().getDisplayMetrics();
@@ -1546,6 +1545,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	from.setTextColor(getResources().getColor(fromSearchbox?android.R.color.white:R.color.metropia_blue));
 		to.setTextColor(getResources().getColor(fromSearchbox?R.color.metropia_blue:android.R.color.white));
     }
+    */
     
     private Integer EMPTY_ITEM_SIZE = 5;
     
@@ -3792,7 +3792,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private boolean isFromPoi() {
-    	return (fromSearchBox.isFocused() || from.getCurrentTextColor() == Color.WHITE) 
+    	return (fromSearchBox.isFocused() /* || from.getCurrentTextColor() == Color.WHITE */)  
     			&& !isInFavoriteOperation();
     }
     

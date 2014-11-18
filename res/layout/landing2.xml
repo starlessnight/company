@@ -167,6 +167,7 @@
                         </RelativeLayout>
                     </LinearLayout>
                     
+                    <!-- 
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" >
@@ -246,6 +247,8 @@
                         android:layout_height="3dp"
                         android:background="@drawable/bottom_shadow"
                         android:visibility="gone" />
+                        
+                    -->
                     
                 </LinearLayout>
 
