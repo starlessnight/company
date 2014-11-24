@@ -98,7 +98,6 @@ public class LocationBroadcastService extends Service {
                         prefs.edit().putBoolean(LocationLibraryConstants.SP_KEY_FORCE_LOCATION_UPDATE, false).commit();
                     }
                     // Current location is out of date. Force an update, and stop service if required.
-                    stopServiceOnCompletion = !forceLocationUpdate();
                 }
             } else {
                 if (LocationLibrary.showDebugOutput) Log.d(LocationLibraryConstants.TAG, TAG + ": New location update found at " + LocationInfo.formatTimestampForDebug(lastLocationUpdateTimestamp));
@@ -111,6 +110,8 @@ public class LocationBroadcastService extends Service {
                 prefsEditor.commit();
                 sendBroadcast(getBaseContext(), true);
             }
+            
+            stopServiceOnCompletion = !forceLocationUpdate();
 
             if (stopServiceOnCompletion) {
                 // Done with our work... stop the service!

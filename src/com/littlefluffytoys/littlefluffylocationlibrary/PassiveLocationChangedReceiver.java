@@ -54,7 +54,7 @@ public class PassiveLocationChangedReceiver extends BroadcastReceiver {
         // it's a one-shot update from Gingerbread and higher
         if (LocationLibrary.showDebugOutput) Log.d(LocationLibraryConstants.TAG, TAG + ":onReceive: on-demand location update received");
 
-        processLocation(context, (Location)intent.getExtras().get(key), false, true);
+        processLocation(context, (Location)intent.getExtras().get(key), false, false);
         /*if (LocationLibraryConstants.SUPPORTS_JELLYBEAN_4_2 && intent.hasExtra(key)) {
             // Location behaviour changed in Android 4.2 - the one-shot location gets sent as an extra in the original intent (as it probably should have done all along...)
             // Therefore, process this single one-shot location update.
