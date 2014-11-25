@@ -2,6 +2,8 @@ package com.smartrek.utils;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,11 +12,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.location.Location;
 import android.util.Log;
 
 import com.smartrek.models.User;
 import com.smartrek.requests.ReverseGeocodingRequest;
 import com.smartrek.requests.SearchAddressRequest;
+import com.smartrek.ui.NavigationView;
 
 
 /**
@@ -48,6 +52,24 @@ public final class Geocoding {
 		private String address;
 		
 		private String distance;
+		
+		private String iconName;
+		
+		public static Address fromModelAddress(com.smartrek.models.Address addr, Location userLoc) {
+			Address address = new Address();
+			address.setAddress(addr.getAddress());
+			address.setIconName(addr.getIconName());
+			address.setLatitude(addr.getLatitude());
+			address.setLongitude(addr.getLongitude());
+			address.setName(addr.getName());
+			address.setDistance("");
+			if(userLoc != null) {
+				NumberFormat nf = new DecimalFormat("#.#");
+	    		address.setDistance(nf.format(NavigationView.metersToMiles(
+	    				RouteNode.distanceBetween(userLoc.getLatitude(), userLoc.getLongitude(), address.getLatitude(), address.getLongitude()))));
+			}
+			return address;
+		}
 
 		public double getLatitude() {
 			return latitude;
@@ -107,6 +129,14 @@ public final class Geocoding {
 
 		public void setDistance(String distance) {
 			this.distance = distance;
+		}
+
+		public String getIconName() {
+			return iconName;
+		}
+
+		public void setIconName(String iconName) {
+			this.iconName = iconName;
 		}
 
 	}

@@ -81,11 +81,11 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 
 			@Override
 			public boolean onItemSingleTapUp(int index, OverlayItem item) {
-				onTap(index);
+//				onTap(index);
 				
-				if (callback != null) {
-					return callback.onTap(index);
-				}
+//				if (callback != null) {
+//					return callback.onTap(index);
+//				}
 				
 				return false;
 			}
@@ -146,9 +146,9 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 	private void changeToDefault() {
 		if(balloonView!=null) {
 			LinearLayout layout = balloonView.getLayout();
-			layout.findViewById(R.id.poi_content).setVisibility(View.VISIBLE);
+			layout.findViewById(R.id.poi_content).setVisibility(View.GONE);
 			layout.findViewById(R.id.poi_content_detail).setVisibility(View.GONE);
-			layout.findViewById(R.id.poi_content_mini).setVisibility(View.GONE);
+			layout.findViewById(R.id.poi_content_mini).setVisibility(View.VISIBLE);
 		}
 	}
 	

@@ -13,6 +13,19 @@
         android:paddingTop="5dp"
         android:paddingLeft="5dp"
         android:orientation="horizontal">
+        
+        <FrameLayout 
+            android:layout_width="30dp"
+            android:layout_height="fill_parent">
+            
+	        <ImageView 
+	            android:id="@+id/fav_icon"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:layout_gravity="center"
+	            android:visibility="gone"/>
+        
+        </FrameLayout>
     
 		<TextView  
 		    android:id="@+id/name"

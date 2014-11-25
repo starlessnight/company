@@ -17,13 +17,15 @@ public class ClickAnimation {
 	private View clickedView;
 	private Context ctx;
 	
+	private Integer animationId = R.anim.click_animation;
+	
 	public ClickAnimation(Context ctx, View clickedView) {
 		this.ctx = ctx;
 		this.clickedView = clickedView;
 	}
 	
 	public void startAnimation(final ClickAnimationEndCallback callback) {
-		Animation clickAnimation = AnimationUtils.loadAnimation(ctx, R.anim.click_animation);
+		Animation clickAnimation = AnimationUtils.loadAnimation(ctx, animationId);
 		clickAnimation.setAnimationListener(new AnimationListener() {
 			@Override
 			public void onAnimationStart(Animation animation) {
@@ -44,6 +46,10 @@ public class ClickAnimation {
 			
 		});
 		clickedView.startAnimation(clickAnimation);
+	}
+	
+	public void setAnimationId(Integer animationId) {
+		this.animationId = animationId;
 	}
 
 }

@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -20,6 +21,7 @@ import org.json.JSONObject;
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.MapView.Projection;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.OverlayItem.HotspotPlace;
@@ -36,6 +38,7 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -60,6 +63,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.AbsoluteSizeSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.KeyEvent;
@@ -80,6 +84,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Filter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -128,7 +133,6 @@ import com.smartrek.ui.overlays.CurrentLocationOverlay;
 import com.smartrek.ui.overlays.EventOverlay;
 import com.smartrek.ui.overlays.OverlayCallback;
 import com.smartrek.ui.overlays.POIOverlay;
-import com.smartrek.ui.overlays.POIOverlay.POIActionListener;
 import com.smartrek.ui.overlays.RouteDestinationOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.ui.timelayout.AdjustableTime;
@@ -196,6 +200,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private List<Address> searchAddresses = new ArrayList<Address>();
     private List<Address> fromSearchAddresses = new ArrayList<Address>();
+    private List<Address> favoriteAddresses = new ArrayList<Address>();
     
     private AtomicBoolean canDrawReservRoute = new AtomicBoolean();
     
@@ -213,19 +218,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private static final String TAP_TO_ADD_FAVORITE = "Tap to Add Favorite";
     
-    private List<Address> favSearchAddresses = new ArrayList<Address>();
-    
     private EditText favSearchBox;
     
-    private ListView favSearchResultList;
-    
-    private ArrayAdapter<Address> favAutoCompleteAdapter;
-    
+    private View favOptPanel;
     private ImageView starView;
-    
     private ImageView homeView;
-    
     private ImageView workView;
+    private ImageView labelIcon;
     
     private AtomicBoolean showAutoComplete = new AtomicBoolean(true);
     
@@ -252,9 +251,16 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private AtomicBoolean needCheckResume = new AtomicBoolean(true);
     
-//    private TextView from;
-//    
-//    private TextView to;
+    private FrameLayout popupPanel;
+    private ImageView fromMenu;
+    private ImageView toMenu;
+    private ImageView editMenu;
+    private TextView addressInfo;
+    
+    private ImageView fromIcon;
+    private ImageView toIcon;
+    private View fromMask;
+    private View toMask;
     
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
@@ -304,6 +310,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         searchResultList.setAdapter(autoCompleteAdapter);
         fromSearchResultList.setAdapter(fromAutoCompleteAdapter);
         
+        fromMask = findViewById(R.id.from_mask);
+        toMask = findViewById(R.id.to_mask);
+        
+        OnClickListener noopClick = new OnClickListener() {
+            @Override
+            public void onClick(View v) {}
+        };
+        
+        fromMask.setOnClickListener(noopClick);
+        toMask.setOnClickListener(noopClick);
+        
         refreshSearchAutoCompleteData();
         refreshFromSearchAutoCompleteData();
         
@@ -313,7 +330,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 final String addrInput = v.getText().toString();
                 boolean handled = StringUtils.isNotBlank(addrInput);
                 if(handled){
-                    searchAddress(addrInput, true);
+                    searchToAddress(addrInput, true);
                     InputMethodManager imm = (InputMethodManager)getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
@@ -322,12 +339,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 return handled;
             }
         });
+        
         fromSearchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 final String addrInput = v.getText().toString();
                 boolean handled = StringUtils.isNotBlank(addrInput);
                 if(handled){
+                	searchFromAddress(addrInput, true);
                     InputMethodManager imm = (InputMethodManager)getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
@@ -336,67 +355,60 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 return handled;
             }
         });
+        
         searchBox.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
+            	fromMask.setVisibility(hasFocus?View.VISIBLE:View.GONE);
                 if(!hasFocus) {
                 	InputMethodManager imm = (InputMethodManager)getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     showAutoComplete.set(false);
-                    if(curTo != null) {
-                    	curTo.showMiniBalloonOverlay();
-                    }
                     searchResultList.setVisibility(View.GONE);
                     fromSearchResultList.setVisibility(View.GONE);
                 }
                 else {
-//                    showAutoComplete.set(true);
-                    if(curFrom != null) {
-                    	curFrom.showMiniBalloonOverlay();
-                    }
+                	
                     if(StringUtils.isBlank(searchBox.getText())) {
                     	searchAddresses.clear();
+                    	searchAddresses.addAll(favoriteAddresses);
+                    	showAutoComplete.set(true);
                     }
                     refreshSearchAutoCompleteData();
                 }
-//                resetFromToTab(!hasFocus, false);
             }
         });
+        
         fromSearchBox.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
+            	toMask.setVisibility(hasFocus?View.VISIBLE:View.GONE);
                 if(!hasFocus) {
                     InputMethodManager imm = (InputMethodManager)getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     showAutoComplete.set(false);
-                    if(curFrom != null) {
-                    	curFrom.showMiniBalloonOverlay();
-                    }
                     searchResultList.setVisibility(View.GONE);
                     fromSearchResultList.setVisibility(View.GONE);
                 }
                 else {
-//                    showAutoComplete.set(true);
-                    if(curTo != null) {
-                    	curTo.showMiniBalloonOverlay();
-                    }
                     if(StringUtils.isBlank(fromSearchBox.getText())) {
                         fromSearchAddresses.clear();
+                        fromSearchAddresses.addAll(favoriteAddresses);
+                        showAutoComplete.set(true);
                     }
                     refreshFromSearchAutoCompleteData();
                 }
-//                resetFromToTab(!hasFocus, true);
             }
         });
+        
         searchResultList.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             	Address selected = (Address)parent.getItemAtPosition(position);
             	if(StringUtils.isNotBlank(selected.getAddress())) {
-            		dropPinForAddress(selected, true);
-	                searchBox.setText(selected.getAddress());
+            		dropPinForAddress(selected, true, false);
 	                InputMethodManager imm = (InputMethodManager)getSystemService(
 	                        Context.INPUT_METHOD_SERVICE);
 	                imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
@@ -408,18 +420,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             		removePOIMarker(mapView);
             		hideBulbBalloon();
             		hideStarredBalloon();
-            		findViewById(R.id.landing_panel).setVisibility(View.GONE);
-            		findViewById(R.id.fav_opt).setVisibility(View.VISIBLE);
+            		showFavoriteOptPanel(null);
             	}
             }
         });
+        
         fromSearchResultList.setOnItemClickListener(new OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Address selected = (Address)parent.getItemAtPosition(position);
                 if(StringUtils.isNotBlank(selected.getAddress())) {
-                	dropPinForAddress(selected, true);
-                    fromSearchBox.setText(selected.getAddress());
+                	dropPinForAddress(selected, true, true);
                     InputMethodManager imm = (InputMethodManager)getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(fromSearchBox.getWindowToken(), 0);
@@ -431,11 +442,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     removePOIMarker(mapView);
                     hideBulbBalloon();
                     hideStarredBalloon();
-                    findViewById(R.id.landing_panel).setVisibility(View.GONE);
-                    findViewById(R.id.fav_opt).setVisibility(View.VISIBLE);
+                    showFavoriteOptPanel(null);
                 }
             }
         });
+        
         searchResultList.setOnTouchListener(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
@@ -445,6 +456,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 return false;
 			}
 		});
+        
         fromSearchResultList.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -454,6 +466,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 return false;
             }
         });
+        
         final View searchBoxClear = findViewById(R.id.search_box_clear);
         DelayTextWatcher delayTextWatcher = new DelayTextWatcher(searchBox, new TextChangeListener(){
 			@Override
@@ -462,10 +475,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 final String addrInput = text.toString();
                 if(StringUtils.isNotBlank(addrInput)) {
                 	AsyncTask<Void, Void, List<Address>> searchPoiTask = new AsyncTask<Void, Void, List<Address>>(){
-                		@Override
-                		protected void onPreExecute() {
-                			
-                		}
                 		
         				@Override
         				protected List<Address> doInBackground(Void... params) {
@@ -513,6 +522,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			@Override
 			public void onTextChanging() {
 				showAutoComplete.set(true);
+				if(removeOD.get()) {
+					removeOldOD(mapView, false);
+				}
 				if(searchAddresses.isEmpty()) {
 					Address searching = new Address();
 					searching.setName(SEARCHING);
@@ -542,15 +554,19 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         searchBoxClear.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+            	removeOldOD(mapView, false);
                 searchBox.setText("");
+                toIcon.setImageResource(0);
+                toIcon.setVisibility(View.INVISIBLE);
                 clearSearchResult();
             }
         });
+        
         final View fromSearchBoxClear = findViewById(R.id.from_search_box_clear);
         DelayTextWatcher fromDelayTextWatcher = new DelayTextWatcher(fromSearchBox, new TextChangeListener(){
             @Override
             public void onTextChanged(CharSequence text) {
-                fromSearchBoxClear.setVisibility(StringUtils.isBlank(text)?View.GONE:View.VISIBLE); 
+                fromSearchBoxClear.setVisibility(StringUtils.isBlank(text)?View.GONE:View.VISIBLE);
                 final String addrInput = text.toString();
                 if(StringUtils.isNotBlank(addrInput)) {
                     AsyncTask<Void, Void, List<Address>> searchPoiTask = new AsyncTask<Void, Void, List<Address>>(){
@@ -600,6 +616,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             @Override
 			public void onTextChanging() {
             	showAutoComplete.set(true);
+            	if(removeOD.get()) {
+                	removeOldOD(mapView, true);
+                }
 				if(fromSearchAddresses.isEmpty()) {
 					Address searching = new Address();
 					searching.setName(SEARCHING);
@@ -624,65 +643,18 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				refreshFromSearchAutoCompleteData();
 			}
         }, 500);
+        
         fromSearchBox.addTextChangedListener(fromDelayTextWatcher);
         fromSearchBoxClear.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+            	removeOldOD(mapView, true);
+                fromIcon.setImageResource(0);
+                fromIcon.setVisibility(View.INVISIBLE);
                 fromSearchBox.setText("");
                 clearFromSearchResult();
             }
         });
-        
-//        from = (TextView) findViewById(R.id.from);
-//        to = (TextView) findViewById(R.id.to);
-//        from.setOnClickListener(new OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				searchBox.clearFocus();
-//				fromSearchBox.clearFocus();
-//				if(curTo!=null) {
-//					curTo.showMiniBalloonOverlay();
-//				}
-//				if(StringUtils.isBlank(fromSearchBox.getText())) {
-//					clearFromSearchResult();
-//				}
-//				else {
-////					fromSearchBox.requestFocus();
-//					fromSearchResultList.setVisibility(View.VISIBLE);
-//					refreshFromSearchAutoCompleteData();
-//				}
-//				from.setBackgroundResource(R.drawable.tab_selected);
-//				from.setTextColor(getResources().getColor(android.R.color.white));
-//				to.setTextColor(getResources().getColor(R.color.metropia_blue));
-//				to.setBackgroundResource(R.drawable.tab_not_selected);
-//				findViewById(R.id.from_panel).bringToFront();
-//			}
-//		});
-//        
-//        to.setOnClickListener(new OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				searchBox.clearFocus();
-//				fromSearchBox.clearFocus();
-//				if(curFrom!=null) {
-//					curFrom.showMiniBalloonOverlay();
-//				}
-//			    
-//			    if(StringUtils.isBlank(searchBox.getText())) {
-//			    	clearSearchResult();
-//			    }
-//			    else {
-////			    	searchBox.requestFocus();
-//			    	searchResultList.setVisibility(View.VISIBLE);
-//			    	refreshSearchAutoCompleteData();
-//			    }
-//                to.setBackgroundResource(R.drawable.tab_selected);
-//				to.setTextColor(getResources().getColor(android.R.color.white));
-//				from.setBackgroundResource(R.drawable.tab_not_selected);
-//				from.setTextColor(getResources().getColor(R.color.metropia_blue));
-//				findViewById(R.id.to_panel).bringToFront();
-//			}
-//		});
         
         final String intentAddress = getIntentAddress(getIntent());
         boolean hasIntentAddr = StringUtils.isNotBlank(intentAddress); 
@@ -796,178 +768,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
         });
         
-        favSearchBox = (EditText) findViewById(R.id.favorite_search_box);
-        favSearchResultList = (ListView) findViewById(R.id.fav_search_result);
-        favAutoCompleteAdapter = createAutoCompleteAdapter(favSearchBox);
-        favSearchResultList.setAdapter(favAutoCompleteAdapter);
+        favOptPanel = findViewById(R.id.fav_opt);
+        favSearchBox = (EditText) favOptPanel.findViewById(R.id.favorite_search_box);
         
-        refreshFavAutoCompleteData();
-        favSearchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                final String addrInput = v.getText().toString();
-                boolean handled = StringUtils.isNotBlank(addrInput);
-                if(handled){
-                    searchFavAddress(addrInput, true);
-                    InputMethodManager imm = (InputMethodManager)getSystemService(
-                            Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    showAutoComplete.set(false);
-                    clearFavSearchResult();
-                }
-                return handled;
-            }
-        });
-        favSearchBox.setOnFocusChangeListener(new OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(!hasFocus) {
-                	InputMethodManager imm = (InputMethodManager)getSystemService(
-                            Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    showAutoComplete.set(false);
-                    clearFavSearchResult();
-                }
-                else {
-                	showAutoComplete.set(true);
-                }
-            }
-        });
-        favSearchResultList.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            	Address selected = (Address)parent.getItemAtPosition(position);
-            	if(StringUtils.isNotBlank(selected.getAddress())) {
-            		dropPinForAddress(selected, true);
-	                InputMethodManager imm = (InputMethodManager)getSystemService(
-	                        Context.INPUT_METHOD_SERVICE);
-	                imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
-	                showAutoComplete.set(false);
-	                clearFavSearchResult();
-            	}
-            }
-        });
-        favSearchResultList.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				InputMethodManager imm = (InputMethodManager)getSystemService(
-                        Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
-				return false;
-			}
-        	
-        });
-        final View favSearchBoxClear = findViewById(R.id.fav_search_box_clear);
-        final View favSave = findViewById(R.id.fav_save);
-        DelayTextWatcher delayFavTextWatcher = new DelayTextWatcher(favSearchBox, new TextChangeListener(){
-			@Override
-			public void onTextChanged(CharSequence text) {
-				favSearchBoxClear.setVisibility(StringUtils.isBlank(text)||!favSearchBox.isEnabled()?View.GONE:View.VISIBLE); 
-				favSave.setVisibility(StringUtils.isBlank(text)?View.GONE:View.VISIBLE);
-                final String addrInput = text.toString();
-                if(StringUtils.isNotBlank(addrInput) && favSearchBox.isEnabled()) {
-                	AsyncTask<Void, Void, List<Address>> searchPoiTask = new AsyncTask<Void, Void, List<Address>>(){
-        				@Override
-        				protected List<Address> doInBackground(Void... params) {
-        					List<Address> addresses = new ArrayList<Address>();
-        					try {
-        						if(lastLocation != null) {
-        							addresses = Geocoding.searchPoi(LandingActivity2.this, addrInput, lastLocation.getLatitude(), lastLocation.getLongitude());
-        						}
-        						else {
-        							addresses = Geocoding.searchPoi(LandingActivity2.this, addrInput);
-        						}
-        					}
-        					catch(Exception e) {
-        						Log.e("LandingActivity2", "search error!");
-        					}
-        					return addresses;
-        				}
-        				
-        				@Override
-        				protected void onPostExecute(List<Address> addresses) {
-        					favSearchAddresses.clear();
-        					for(Address a:addresses){
-        					    if(StringUtils.isNotBlank(a.getAddress())){
-        					    	favSearchAddresses.add(a);
-        					    }
-        					}
-        					if(favSearchAddresses.isEmpty()) {
-        						Address notFound = new Address();
-        						notFound.setName(NO_AUTOCOMPLETE_RESULT);
-        						notFound.setAddress("");
-        						favSearchAddresses.add(notFound);
-        						List<Address> emptyAddresses = getEmptyAddressesForUI();
-        						favSearchAddresses.addAll(emptyAddresses);
-        					}
-        					refreshFavAutoCompleteData();
-        				}
-                	};
-                	Misc.parallelExecute(searchPoiTask); 
-                }
-                else {
-                	favSearchAddresses.clear();
-            		favAutoCompleteAdapter.clear();
-            		refreshFavAutoCompleteData();
-                }
-			}
-			
-			@Override
-			public void onTextChanging() {
-				if(favSearchBox.isEnabled()) {
-					if(favSearchAddresses.isEmpty()) {
-						Address searching = new Address();
-						searching.setName(SEARCHING);
-						searching.setAddress("");
-						favSearchAddresses.add(searching);
-					}
-					else {
-						boolean hasResult = false;
-						for(Address addr : favSearchAddresses) {
-							if(StringUtils.isNotBlank(addr.getAddress())) {
-								hasResult = true;
-							}
-						}
-						if(!hasResult) {
-							favSearchAddresses.clear();
-							Address searching = new Address();
-							searching.setName(SEARCHING);
-							searching.setAddress("");
-							favSearchAddresses.add(searching);
-						}
-					}
-				}
-				refreshFavAutoCompleteData();
-			}
-		}, 500);
+        final View favSave = favOptPanel.findViewById(R.id.fav_save);
         
-        favSearchBox.addTextChangedListener(delayFavTextWatcher);
-        favSearchBoxClear.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                favSearchBox.setText("");
-            }
-        });
-        
-        View favSearchButton = findViewById(R.id.favorite_search_button);
-        favSearchButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				final String addrInput = favSearchBox.getText().toString();
-                boolean handled = StringUtils.isNotBlank(addrInput);
-                if(handled){
-                	searchFavAddress(addrInput, true);
-                    InputMethodManager imm = (InputMethodManager)getSystemService(
-                            Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                    showAutoComplete.set(false);
-                    clearFavSearchResult();
-                }
-			}
-		});
-        
-        final EditText labelInput = (EditText) findViewById(R.id.label_input);
-        final View labelInputClear = findViewById(R.id.label_clear);
+        final EditText labelInput = (EditText) favOptPanel.findViewById(R.id.label_input);
+        final View labelInputClear = favOptPanel.findViewById(R.id.label_clear);
         labelInput.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count,
@@ -997,37 +804,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			}
 		});
         
-        starView = (ImageView) findViewById(R.id.star);
-        homeView = (ImageView) findViewById(R.id.home);
-        workView = (ImageView) findViewById(R.id.work);
-        
-        starView.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				unSelectAllIcon();
-				starView.setImageResource(R.drawable.star);
-				findViewById(R.id.icon).setTag(IconType.star);
-			}
-		});
-        
-        homeView.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				unSelectAllIcon();
-				homeView.setImageResource(R.drawable.home);
-				findViewById(R.id.icon).setTag(IconType.home);
-			}
-		});
-        
-        workView.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				unSelectAllIcon();
-				workView.setImageResource(R.drawable.work);
-				findViewById(R.id.icon).setTag(IconType.work);
-			}
-		});
-        
         findViewById(R.id.fav_cancel).setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
@@ -1042,9 +818,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					InputMethodManager imm = (InputMethodManager)getSystemService(
                             Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-					View favOptPanel = findViewById(R.id.fav_opt);
-					BalloonModel model = (BalloonModel) favOptPanel.getTag();
-					final BalloonModel _model = model==null?new BalloonModel():model;
+					PoiOverlayInfo info = (PoiOverlayInfo) favOptPanel.getTag();
+					final PoiOverlayInfo _info = info==null ? new PoiOverlayInfo() : info;
 					String label = ((EditText)favOptPanel.findViewById(R.id.label_input)).getText().toString();
 					if(StringUtils.isBlank(label)) {
 						label = "Favorite";
@@ -1055,7 +830,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>(){
 	                	@Override
 	                	protected void onPreExecute() {
-	                		if(_model.lat == 0 && _model.lon == 0) {
+	                		if(_info.lat == 0 && _info.lon == 0) {
 	                			List<Address> result = Collections.emptyList();
 	                			try {
 		                			if(lastLocation != null) {
@@ -1074,14 +849,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                			}
 	                			else {
 	                				Address found = result.get(0);
-	                				_model.address = found.getAddress();
-	                				_model.lat = found.getLatitude();
-	                				_model.lon = found.getLongitude();
-	                				_model.geopoint = found.getGeoPoint();
+	                				_info.address = found.getAddress();
+	                				_info.lat = found.getLatitude();
+	                				_info.lon = found.getLongitude();
+	                				_info.geopoint = found.getGeoPoint();
 	                			}
 	                		}
 	                		else {
-	                			_model.address = addr;
+	                			_info.address = addr;
 	                		}
 	                	}
 	                	
@@ -1092,16 +867,16 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                        String iconName = icon!=null?icon.name():IconType.star.name();
 	                        User user = User.getCurrentUser(LandingActivity2.this);
 	                        try {
-	                        	if(_model.id==0) {
+	                        	if(_info.id==0) {
 		                            FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
-		                                user, lbl, _model.address, iconName, _model.lat, _model.lon);
+		                                user, lbl, _info.address, iconName, _info.lat, _info.lon);
 		                            req = request;
 		                            id = request.execute(LandingActivity2.this);
 	                        	}
 	                        	else {
 	                        		FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
 		                                    new AddressLinkRequest(user).execute(LandingActivity2.this),
-		                                        _model.id, user, lbl, addr, iconName, _model.lat, _model.lon);
+		                                        _info.id, user, lbl, addr, iconName, _info.lat, _info.lon);
 		                            req = request;
 		                            request.execute(LandingActivity2.this);
 	                        	}
@@ -1118,10 +893,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                        }
 	                        else {
 	                            removePOIMarker(mapView);
-	                            _model.id = _model.id!=0?_model.id:id;
-	                            reInitFavoriteOperationPanel();
-	                            findViewById(R.id.fav_opt).setVisibility(View.GONE);
-	                            findViewById(R.id.landing_panel).setVisibility(View.VISIBLE);
+	                            _info.id = _info.id !=0 ? _info.id : id;
+	                            hideFavoriteOptPanel();
 	                        }
 	                    }
 	               };
@@ -1143,10 +916,55 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			}
 		});
         
-        OnClickListener noopClick = new OnClickListener() {
-            @Override
-            public void onClick(View v) {}
-        };
+        labelIcon = (ImageView) findViewById(R.id.label_icon);
+        
+        starView = (ImageView) findViewById(R.id.star);
+        starView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
+				clickAni.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						favOptPanel.findViewById(R.id.icon).setTag(IconType.star);
+						labelIcon.setImageResource(R.drawable.star);
+						labelIcon.setVisibility(View.VISIBLE);
+					}
+				});
+			}
+        });
+        
+        homeView = (ImageView) findViewById(R.id.home);
+        homeView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
+				clickAni.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						favOptPanel.findViewById(R.id.icon).setTag(IconType.home);
+						labelIcon.setImageResource(R.drawable.home);
+						labelIcon.setVisibility(View.VISIBLE);
+					}
+				});
+			}
+        });
+        
+        workView = (ImageView) findViewById(R.id.work);
+        workView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
+				clickAni.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						favOptPanel.findViewById(R.id.icon).setTag(IconType.work);
+						labelIcon.setImageResource(R.drawable.work);
+						labelIcon.setVisibility(View.VISIBLE);
+					}
+				});
+			}
+        });
         
         findViewById(R.id.confirm_panel).setOnClickListener(noopClick);
         
@@ -1158,9 +976,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					@Override
 					public void onAnimationEnd() {
 						findViewById(R.id.confirm_panel).setVisibility(View.GONE);
-						final View favOpterationPanel = findViewById(R.id.fav_opt);
-						final BalloonModel model = (BalloonModel) favOpterationPanel.getTag();
-						final int oldId = model.id;
+						final PoiOverlayInfo info = (PoiOverlayInfo) favOptPanel.getTag();
+						final int oldId = info.id;
 		                AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>(){
 		                    @Override
 		                    protected void onPreExecute() {
@@ -1170,7 +987,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		                            boolean toKeep;
 		                            if(overlay instanceof POIOverlay){
 		                                POIOverlay poiOverlay = (POIOverlay)overlay;
-		                                toKeep = !isFavoriteMark(poiOverlay.getMarker()) || poiOverlay.getAid() != model.id;
+		                                toKeep = !isFavoriteMark(poiOverlay.getMarker()) || poiOverlay.getAid() != info.id;
 		                            }else{
 		                                toKeep = true;
 		                            }
@@ -1181,7 +998,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		                        overlays.clear();
 		                        overlays.addAll(overlaysToKeep);
 		                        mapView.postInvalidate();
-		                        model.id = 0;
+		                        info.id = 0;
 		                    }
 		                    @Override
 		                    protected Integer doInBackground(Void... params) {
@@ -1200,18 +1017,15 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		                        return id;
 		                    }
 		                    protected void onPostExecute(Integer id) {
-		                    	favOpterationPanel.setTag(null);
+		                    	favOptPanel.setTag(null);
 		                        refreshStarredPOIs();
-		                        clearFavSearchResult();
 		                        if (ehs.hasExceptions()) {
 		                            ehs.reportExceptions();
 		                        }
 		                    }
 		               };
 		               Misc.parallelExecute(task);
-		               reInitFavoriteOperationPanel();
-		               favOpterationPanel.setVisibility(View.GONE);
-					   findViewById(R.id.landing_panel).setVisibility(View.VISIBLE);
+		               hideFavoriteOptPanel();
 					}
 				});
 			}
@@ -1245,6 +1059,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 mDrawerLayout.openDrawer(findViewById(R.id.left_drawer));
             }
         });
+        
         TextView newTripMenu = (TextView) findViewById(R.id.new_trip);
         newTripMenu.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -1258,6 +1073,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				});
 			}
 		});
+        
         TextView myMetropiaMenu = (TextView) findViewById(R.id.dashboard);
         myMetropiaMenu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1272,6 +1088,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				});
             }
         });
+        
         TextView myTripsMenu = (TextView) findViewById(R.id.my_trips);
         myTripsMenu.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -1286,9 +1103,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				});
 			}
         });
+        
         if(MyTripsActivity.hasUrl(LandingActivity2.this)) {
         	myTripsMenu.setVisibility(View.VISIBLE);
         }
+        
         TextView reservationsMenu = (TextView) findViewById(R.id.reservations);
         reservationsMenu.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -1303,6 +1122,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				});
 			}
         });
+        
         TextView shareMenu = (TextView) findViewById(R.id.share_menu);
         shareMenu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1317,6 +1137,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				});
             }
         });
+        
         TextView feedbackMenu = (TextView) findViewById(R.id.feedback_menu);
         feedbackMenu.setOnClickListener(new OnClickListener() {
             @Override
@@ -1331,6 +1152,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				});
             }
         });
+        
         TextView rewardsMenu = (TextView) findViewById(R.id.rewards_menu);
         rewardsMenu.setOnClickListener(new OnClickListener() {
             @Override
@@ -1345,9 +1167,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 });
             }
         });
+        
         if(RewardsActivity.hasUrl(this)){
             findViewById(R.id.rewards_menu_panel).setVisibility(View.VISIBLE);
         }
+        
         TextView settingsMenu = (TextView) findViewById(R.id.map_display_options);
         settingsMenu.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1362,6 +1186,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				});
             }
         });
+        
         settingsMenu.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -1404,15 +1229,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						searchBox.setText("");
-						clearSearchResult();
-						fromSearchBox.setText("");
-						clearFromSearchResult();
 						startRouteActivity(mapView);
 					}
 				});
 			}
         });
+        toggleGetRouteButton(false);
         
         DebugOptionsActivity.cleanMapTileCacheIfNessary(LandingActivity2.this);
         
@@ -1440,6 +1262,107 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			}
         });
         
+        addressInfo = (TextView) findViewById(R.id.address_info);
+        
+        editMenu = (ImageView) findViewById(R.id.edit_menu);
+        editMenu.setOnClickListener(new OnClickListener() {
+        	@Override
+        	public void onClick(final View v) {
+        		v.setClickable(false);
+        		final Integer[] resourceIds = (Integer[]) editMenu.getTag();
+        		editMenu.setImageResource(resourceIds[0]);
+        		ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
+        		clickAni.setAnimationId(R.anim.menu_click_animation);
+        		clickAni.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						editMenu.setImageResource(resourceIds[1]);
+						POIOverlay overlay = (POIOverlay) popupPanel.getTag();
+						showFavoriteOptPanel(overlay.getPoiOverlayInfo());
+						hidePopupMenu();
+						v.setClickable(true);
+						
+					}
+        		});
+        	}
+        });
+        
+        toMenu = (ImageView) findViewById(R.id.to_menu);
+        toMenu.setOnClickListener(new OnClickListener() {
+        	@Override
+			public void onClick(final View v) {
+				v.setClickable(false);
+				toMenu.setImageResource(R.drawable.selected_to_menu);
+				ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
+				clickAni.setAnimationId(R.anim.menu_click_animation);
+				clickAni.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						toMenu.setImageResource(R.drawable.to_menu);
+						setMenuInfo2Searchbox((POIOverlay)popupPanel.getTag(), false);
+						hidePopupMenu();
+						v.setClickable(true);
+					}
+				});
+			}
+        });
+        
+        fromMenu = (ImageView) findViewById(R.id.from_menu);
+        fromMenu.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(final View v) {
+				v.setClickable(false);
+				fromMenu.setImageResource(R.drawable.selected_from_menu);
+				ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
+				clickAni.setAnimationId(R.anim.menu_click_animation);
+				clickAni.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						fromMenu.setImageResource(R.drawable.from_menu);
+						setMenuInfo2Searchbox((POIOverlay)popupPanel.getTag(), true);
+						hidePopupMenu();
+						v.setClickable(true);
+					}
+				});
+			}
+        });
+        
+        fromIcon = (ImageView) findViewById(R.id.from_icon);
+        toIcon = (ImageView) findViewById(R.id.to_icon);
+        
+        popupPanel = (FrameLayout)findViewById(R.id.popup_panel);
+        /*
+        popupPanel.setOnTouchListener(new OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				if(event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+					mapView.dispatchTouchEvent(event);
+				}
+				else if(event.getActionMasked() == MotionEvent.ACTION_MOVE) {
+					for(int i = 0 ; i < popupPanel.getChildCount() && selectedMenu == null ; i++) {
+						View icon = popupPanel.getChildAt(i);
+						Rect iconRect = new Rect(icon.getLeft(), icon.getTop(), icon.getRight(), icon.getBottom());
+						if(icon.getVisibility() == View.VISIBLE && iconRect.contains((int)event.getX(), (int)event.getY())) {
+							selectedMenu = icon;
+						}
+					}
+					fromMenu.setImageResource(R.drawable.home);
+					if(selectedMenu != null && selectedMenu instanceof ImageView) {
+						((ImageView)selectedMenu).setImageResource(R.drawable.work);
+					}
+					mapView.dispatchTouchEvent(event);
+				}
+				else if(event.getActionMasked() == MotionEvent.ACTION_UP) {
+					fromMenu.setImageResource(R.drawable.home);
+					popupPanel.setBackgroundColor(android.R.color.transparent);
+					fromMenu.setVisibility(View.INVISIBLE);
+					mapView.dispatchTouchEvent(event);
+				}
+				return true;
+			}
+    	});
+        */
+        
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, fromSearchBox, myMetropiaMenu, 
             reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu);
@@ -1449,8 +1372,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         //init Tracker
         ((SmarTrekApplication)getApplication()).getTracker(TrackerName.APP_TRACKER);
         showTutorialIfNessary();
+        
+        //end oncreate
     }
     
+    private void setMenuInfo2Searchbox(POIOverlay overlay, boolean from) {
+    	if(overlay != null) {
+    		MapView mapView = (MapView) findViewById(R.id.mapview);
+            handleOD(mapView, overlay, from);
+    	}
+    }
+     
     private void showTutorialIfNessary() {
     	SharedPreferences prefs = Preferences.getGlobalPreferences(this);
     	int tutorialFinish = prefs.getInt(Preferences.Global.TUTORIAL_FINISH, 0);
@@ -1505,48 +1437,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	}
     }
     
-    /*
-    private void resetFromToTab(boolean unFocus, boolean fromSearchbox) {
-    	if(unFocus) {
-    		DisplayMetrics dm = getResources().getDisplayMetrics();
-    		RelativeLayout tabPanel = (RelativeLayout) findViewById(R.id.tab_panel);
-    		RelativeLayout.LayoutParams tabPanelLp = (RelativeLayout.LayoutParams)tabPanel.getLayoutParams();
-    		tabPanelLp.topMargin = Dimension.dpToPx(-4, dm);
-    		tabPanel.setBackgroundColor(0);
-    		findViewById(R.id.search_area_shadow).setVisibility(View.GONE);
-    		int fromTab = fromSearchbox?R.drawable.tab_selected:R.drawable.tab_not_selected;
-    		int toTab = fromSearchbox?R.drawable.tab_not_selected:R.drawable.tab_selected;
-    		int frontTabId = fromSearchbox?R.id.from_panel:R.id.to_panel;
-    		from.setBackgroundResource(fromTab);
-    		LinearLayout.LayoutParams fromLp = (LinearLayout.LayoutParams) from.getLayoutParams();
-    		fromLp.rightMargin = Dimension.dpToPx(-10, dm);
-    		to.setBackgroundResource(toTab);
-    		LinearLayout.LayoutParams toLp = (LinearLayout.LayoutParams) to.getLayoutParams();
-    		toLp.leftMargin = Dimension.dpToPx(-10, dm);
-    		findViewById(frontTabId).bringToFront();
-    	}
-    	else {
-    		findViewById(R.id.search_area_shadow).setVisibility(View.VISIBLE);
-    		RelativeLayout tabPanel = (RelativeLayout) findViewById(R.id.tab_panel);
-    		RelativeLayout.LayoutParams tabPanelLp = (RelativeLayout.LayoutParams)tabPanel.getLayoutParams();
-    		tabPanelLp.topMargin = 0;
-    		tabPanel.setBackgroundColor(getResources().getColor(R.color.transparent_white));
-    		int fromBackgroundColor = fromSearchbox?R.color.metropia_blue:R.color.transparent_white;
-    		int toBackgroundColor = fromSearchbox?R.color.transparent_white:R.color.metropia_blue;
-    		from.setBackgroundResource(0);
-    		from.setBackgroundColor(getResources().getColor(fromBackgroundColor));
-    		LinearLayout.LayoutParams fromLp = (LinearLayout.LayoutParams) from.getLayoutParams();
-    		fromLp.rightMargin = 0;
-    		to.setBackgroundResource(0);
-    		to.setBackgroundColor(getResources().getColor(toBackgroundColor));
-    		LinearLayout.LayoutParams toLp = (LinearLayout.LayoutParams) to.getLayoutParams();
-    		toLp.leftMargin = 0;
-    	}
-    	from.setTextColor(getResources().getColor(fromSearchbox?android.R.color.white:R.color.metropia_blue));
-		to.setTextColor(getResources().getColor(fromSearchbox?R.color.metropia_blue:android.R.color.white));
-    }
-    */
-    
     private Integer EMPTY_ITEM_SIZE = 5;
     
     private List<Address> getEmptyAddressesForUI() {
@@ -1578,6 +1468,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				});
 			}
 		});
+    	
     	final View tripInfoPanel = findViewById(R.id.trip_info);
         tripInfoPanel.setOnTouchListener(new SwipeDismissTouchListener(tripInfoPanel, null, new SwipeDismissTouchListener.OnDismissCallback() {
 			@Override
@@ -1737,6 +1628,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				findViewById(R.id.reservations_list).setVisibility(View.GONE);
 			}
 		});
+    	
         reservationListView = (ListView) findViewById(R.id.reservation_list_view);
         reservationAdapter = new ArrayAdapter<Reservation>(LandingActivity2.this, R.layout.reservation_list_item2, R.id.od_info) {
         	@Override
@@ -1783,6 +1675,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 return view;
         	}
         };
+        
         reservationListView.setAdapter(reservationAdapter);
         reservationListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
@@ -1872,12 +1765,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         Font.setTypeface(boldFont, (TextView) findViewById(R.id.no_reserved_trips));
     }
     
-    private void unSelectAllIcon() {
-    	starView.setImageResource(R.drawable.star_dim);
-    	homeView.setImageResource(R.drawable.home_dim);
-    	workView.setImageResource(R.drawable.work_dim);
-    }
-    
     private boolean isFavoriteMark(int markResourceId) {
     	Integer[] favIconIds = new Integer[] {R.drawable.star, R.drawable.home, R.drawable.work};
     	for(Integer iconId : favIconIds) {
@@ -1889,26 +1776,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void reInitFavoriteOperationPanel() {
-    	View favOptPanel = findViewById(R.id.fav_opt);
     	favOptPanel.setTag(null);
     	((EditText)favOptPanel.findViewById(R.id.favorite_search_box)).setText("");
     	((EditText)favOptPanel.findViewById(R.id.favorite_search_box)).setEnabled(true);
     	((EditText)favOptPanel.findViewById(R.id.label_input)).setText("");
     	favOptPanel.findViewById(R.id.label_clear).setVisibility(View.GONE);
     	favOptPanel.findViewById(R.id.fav_del_panel).setVisibility(View.GONE);
-    	favOptPanel.findViewById(R.id.fav_search_box_clear).setVisibility(View.GONE);
-    	favOptPanel.findViewById(R.id.icon).setTag(null);
-    	((ImageView)favOptPanel.findViewById(R.id.star)).setImageResource(R.drawable.star);
-    	((ImageView)favOptPanel.findViewById(R.id.home)).setImageResource(R.drawable.home);
-    	((ImageView)favOptPanel.findViewById(R.id.work)).setImageResource(R.drawable.work);
-    	clearFavSearchResult();
-    }
-    
-    private void clearFavSearchResult() {
-    	favSearchAddresses.clear();
-		favAutoCompleteAdapter.clear();
-		refreshFavAutoCompleteData();
-		favSearchBox.clearFocus();
+    	favOptPanel.findViewById(R.id.label_icon).setVisibility(View.GONE);
     }
     
     private void clearSearchResult() {
@@ -1935,12 +1809,22 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 TextView address = (TextView) view.findViewById(R.id.address);
                 address.setText(item.getAddress());
                 TextView distance = (TextView) view.findViewById(R.id.distance);
+                ImageView favIcon = (ImageView) view.findViewById(R.id.fav_icon);
                 if(StringUtils.isBlank(item.getDistance())) {
                 	distance.setVisibility(View.GONE);
                 }
                 else {
                 	distance.setVisibility(View.VISIBLE);
                 	distance.setText("> " + item.getDistance() + "mi");
+                }
+                
+                IconType icon = IconType.fromName(item.getIconName(), null);
+                if(icon == null) {
+                	favIcon.setVisibility(View.GONE);
+                }
+                else {
+                	favIcon.setImageResource(icon.getResourceId());
+                	favIcon.setVisibility(View.VISIBLE);
                 }
                 
                 initFontsIfNecessary();
@@ -1967,6 +1851,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 name.requestLayout();
                 distance.requestLayout();
                 address.requestLayout();
+                favIcon.requestLayout();
                 view.setPadding(0, 0, 0, position == getCount() - 1 ? 
                     Dimension.dpToPx(135, getResources().getDisplayMetrics()) : 0);
                 return view;
@@ -2027,15 +1912,15 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         };
     }
     
-    private void searchFavAddress(String addrStr, boolean zoomIn) {
-    	searchPOIAddress(addrStr, zoomIn, lastLocation);
+    private void searchFromAddress(String addrStr, boolean zoomIn) {
+    	searchPOIAddress(addrStr, zoomIn, lastLocation, true);
     }
     
-    private void searchAddress(String addrStr, boolean zoomIn) {
-    	searchPOIAddress(addrStr, zoomIn, lastLocation);
+    private void searchToAddress(String addrStr, boolean zoomIn) {
+    	searchPOIAddress(addrStr, zoomIn, lastLocation, false);
     }
     
-    private void searchPOIAddress(final String addrStr, final boolean zoomIn, final Location _location){
+    private void searchPOIAddress(final String addrStr, final boolean zoomIn, final Location _location, final boolean isFrom){
         AsyncTask<Void, Void, Address> task = new AsyncTask<Void, Void, Address>(){
             @Override
             protected Address doInBackground(Void... params) {
@@ -2060,7 +1945,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             @Override
             protected void onPostExecute(Address addr) {
                 if(addr != null){
-                    dropPinForAddress(addr, zoomIn);
+                    dropPinForAddress(addr, zoomIn, isFrom);
                 }
                 else {
                 	NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, "No results");
@@ -2073,23 +1958,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         Misc.parallelExecute(task);
     }
     
-    private void dropPinForAddress(Address addr, boolean zoomIn) {
+    private void dropPinForAddress(Address addr, boolean zoomIn, boolean isFrom) {
     	GeoPoint gp = addr.getGeoPoint();
         DebugOptionsActivity.addRecentAddress(LandingActivity2.this, addr.getAddress());
-        final MapView mapView = (MapView) findViewById(R.id.mapview);
+        MapView mapView = (MapView) findViewById(R.id.mapview);
         POIOverlay poiOverlay = getPOIOverlayByAddress(mapView, addr.getAddress());
         if(poiOverlay != null) {
-        	hideStarredBalloon();
-        	hideBulbBalloon();
-        	removePOIMarker(mapView);
-        	handleOD(mapView, poiOverlay, isFromPoi());
-        	poiOverlay.markODPoi();
-        	poiOverlay.setIsFromPoi(isFromPoi());
-        	poiOverlay.showBalloonOverlay();
-            mapView.postInvalidate();
+        	handleOD(mapView, poiOverlay, isFrom);
         }
         else {
-        	refreshPOIMarker(mapView, gp.getLatitude(), gp.getLongitude(), addr.getAddress(), addr.getName());
+        	POIOverlay poi = refreshPOIMarker(mapView, gp.getLatitude(), gp.getLongitude(), addr.getAddress(), addr.getName());
+        	handleOD(mapView, poi, isFrom);
         }
         IMapController mc = mapView.getController();
         if(zoomIn){
@@ -2098,6 +1977,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         }else{
             mc.animateTo(gp);
         }
+        mapView.postInvalidate();
     }
     
     private POIOverlay getPOIOverlayByAddress(MapView mapView, String addr) {
@@ -2138,10 +2018,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         refreshAutoCompleteData(fromSearchResultList, fromAutoCompleteAdapter, fromSearchAddresses, fromSearchBox);
     }
     
-    private void refreshFavAutoCompleteData() {
-    	refreshAutoCompleteData(favSearchResultList, favAutoCompleteAdapter, favSearchAddresses, favSearchBox);
-    }
-    
     public static class BalloonModel {
         
         public int id;
@@ -2164,6 +2040,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	
     	public int markerWithShadow = R.drawable.transparent_poi;
     	
+    	public String iconName;
+    	
     	public static final Parcelable.Creator<PoiOverlayInfo> CREATOR = new Parcelable.Creator<PoiOverlayInfo>() {
             public PoiOverlayInfo createFromParcel(Parcel in) {
                 return new PoiOverlayInfo(in);
@@ -2184,6 +2062,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             label = in.readString();
             marker = in.readInt();
             markerWithShadow = in.readInt();
+            iconName = in.readString();
             geopoint = new GeoPoint(lat, lon);
 		}
 
@@ -2201,6 +2080,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			dest.writeString(label);
 			dest.writeInt(marker);
 			dest.writeInt(markerWithShadow);
+			dest.writeString(iconName);
 		}
     	
     	public static PoiOverlayInfo fromAddress(com.smartrek.models.Address address) {
@@ -2211,7 +2091,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		poiInfo.lat = address.getLatitude();
     		poiInfo.lon = address.getLongitude();
     		poiInfo.geopoint = new GeoPoint(address.getLatitude(), address.getLongitude());
-    		IconType icon = IconType.fromName(address.getIconName());
+    		poiInfo.iconName = address.getIconName();
+    		IconType icon = IconType.fromName(address.getIconName(), IconType.star);
     		poiInfo.marker = icon.getResourceId();
     		poiInfo.markerWithShadow = icon.getResourceWithShadowId();
     		return poiInfo;
@@ -2237,6 +2118,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		poiInfo.lat = model.lat;
     		poiInfo.lon = model.lon;
     		poiInfo.geopoint = model.geopoint;
+    		poiInfo.marker = R.drawable.poi_pin;
+    		poiInfo.markerWithShadow = R.drawable.poi_pin;
     		return poiInfo;
     	}
     	
@@ -2253,13 +2136,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     public enum IconType {
     	star, home, work;
     	
-    	public static IconType fromName(String name) {
+    	public static IconType fromName(String name, IconType failback) {
     		for(IconType type : values()) {
     			if(type.name().equals(name)) {
     				return type;
     			}
     		}
-    		return star;
+    		return failback;
     	}
     	
     	private static Integer[] getIconInfos(IconType type) {
@@ -2276,7 +2159,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	}
     	
     	public static Integer[] getIconInfosFromName(String name) {
-    		IconType icon = fromName(name);
+    		IconType icon = fromName(name, star);
     		return getIconInfos(icon);
     	}
     	
@@ -2435,26 +2318,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     			if(curFrom != null && ((curFrom.getAid() != 0 && curFrom.getAid() == poi.getAid()) 
     					|| (StringUtils.isNotBlank(curFrom.getAddress()) && curFrom.getAddress().equals(poi.getAddress())))) {
     				curFrom = poi;
-    				curFrom.setIsFromPoi(true);
     				curFrom.markODPoi();
-	    			if(isFromPoi()) {
-	    				curFrom.showBalloonOverlay();
-	    			}
-	    			else {
-	    				curFrom.showMiniBalloonOverlay();
-	    			}
+    				curFrom.setIsFromPoi(true);
     			}
     			else if(curTo!=null && ((curTo.getAid() != 0 && curTo.getAid() == poi.getAid()) 
     					|| (StringUtils.isNotBlank(curTo.getAddress()) && curTo.getAddress().equals(poi.getAddress())))) {
     				curTo = poi;
-    				curTo.setIsFromPoi(false);
     				curTo.markODPoi();
-	    			if(isFromPoi()) {
-	    				curTo.showMiniBalloonOverlay();
-	    			}
-	    			else {
-	    				curTo.showBalloonOverlay();
-	    			}
+    				curTo.setIsFromPoi(false);
     			}
     		}
     	}
@@ -2733,8 +2604,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private void hideFavoriteOptPanel() {
     	reInitFavoriteOperationPanel();
-		findViewById(R.id.fav_opt).setVisibility(View.GONE);
+    	favOptPanel.setVisibility(View.GONE);
 		findViewById(R.id.landing_panel).setVisibility(View.VISIBLE);
+    }
+    
+    private void showFavoriteOptPanel(PoiOverlayInfo info) {
+    	writeInfo2FavoritePanel(info);
+    	findViewById(R.id.landing_panel).setVisibility(View.GONE);
+    	favOptPanel.setVisibility(View.VISIBLE);
     }
     
     private boolean hasReservTrip() {
@@ -2857,9 +2734,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		
     		RouteRect routeRect = new RouteRect(route.getNodes());
     		GeoPoint center = routeRect.getMidPoint();
-//    		int[] range = routeRect.getRange();
     		IMapController imc = mapView.getController();
-//    		imc.zoomToSpan(range[0], range[1]);
     		imc.setCenter(center);
     		mapView.postInvalidate();
     	}
@@ -2903,7 +2778,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			        _location.setLatitude(lastLat);
 			        _location.setLongitude(lastLng);
 				}
-				searchPOIAddress(address, true, _location);
+				searchPOIAddress(address, true, _location, false);
 			}
     	});
     }
@@ -3039,39 +2914,16 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     overlays.addAll(otherOverlays);
                     if (result != null && result.size() > 0) {
                         initFontsIfNecessary();
+                        initFavoriteAddressesIfNecessary(result);
                         for(final com.smartrek.models.Address a : result){
-                            final GeoPoint gp = new GeoPoint(a.getLatitude(), a.getLongitude());
-                            PoiOverlayInfo poiInfo = PoiOverlayInfo.fromAddress(a);
-                            final POIOverlay star = new POIOverlay(mapView, boldFont, poiInfo, HotspotPlace.CENTER, new POIActionListener() {
-									@Override
-									public void onClickEdit() {
-										hideStarredBalloon();
-										View favOpt = findViewById(R.id.fav_opt);
-										BalloonModel model = new BalloonModel();
-										model.id=a.getId();
-										model.label=a.getName();
-										model.lat=a.getLatitude();
-										model.lon=a.getLongitude();
-										model.address=a.getAddress();
-										model.geopoint=gp;
-										writeInfo2FavoritePanel(model, a.getIconName());
-										findViewById(R.id.landing_panel).setVisibility(View.GONE);
-										favOpt.setVisibility(View.VISIBLE);
-										removeAllOD();
-									}
-
-								});
+                            final PoiOverlayInfo poiInfo = PoiOverlayInfo.fromAddress(a);
+                            final POIOverlay star = new POIOverlay(mapView, boldFont, poiInfo, HotspotPlace.CENTER, null);
                             star.setAid(a.getId());
                             star.setCallback(new OverlayCallback() {
                                 @Override
                                 public boolean onTap(int index) {
-                                    hideStarredBalloon();
-                                    hideBulbBalloon();
-                                    removePOIMarker(mapView);
-                                    IMapController controller = mapView.getController();
-                                    controller.setCenter(star.getGeoPoint());
-                                    handleOD(mapView, star, isFromPoi());
-                                    star.showBalloonOverlay();
+                                    Screen xy = getScreenXY(mapView, poiInfo.lat, poiInfo.lon);
+                                    showPopupMenu(xy, star);
                                     mapView.postInvalidate();
                                     return true;
                                 }
@@ -3101,29 +2953,51 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     write2SearchBoxTag(addrList);
                 }
             }
+            
         };
         Misc.parallelExecute(task);
     }
     
-    private void handleOD(MapView mapView, POIOverlay poi, boolean from) {
-    	removeOldOD(mapView, from);
-    	poi.setIsFromPoi(from);
+    private synchronized void initFavoriteAddressesIfNecessary(List<com.smartrek.models.Address> result) {
+		if(favoriteAddresses.isEmpty() || favoriteAddresses.size() != result.size()) {
+			List<Address> newFavoriteAddresses = new ArrayList<Address>();
+			for(com.smartrek.models.Address addr : result) {
+				newFavoriteAddresses.add(Address.fromModelAddress(addr, lastLocation));
+			}
+			Collections.sort(newFavoriteAddresses, new Comparator<Address>() {
+				@Override
+				public int compare(Address lhs, Address rhs) {
+					return lhs.getDistance().compareTo(rhs.getDistance());
+				}
+			});
+			favoriteAddresses = newFavoriteAddresses;
+		}
+	}
+    
+    private void handleOD(MapView mapView, POIOverlay poi, boolean isFrom) {
+    	removeOldOD(mapView, isFrom);
     	poi.markODPoi();
-    	if(from) {
+    	poi.setIsFromPoi(isFrom);
+    	PoiOverlayInfo info = poi.getPoiOverlayInfo();
+    	Log.d("BalloonDebug", String.format("poi marker id [%d], work [%d], home [%d], star [%d]", poi.getMarker(), R.drawable.work, R.drawable.home, R.drawable.star));
+    	if(isFrom) {
     		curFrom = poi;
     		curFromProvider = null;
     		curFromTime = 0;
+    		setFromInfo(info);
     	}
     	else {
     		curTo = poi;
-    		if(curFrom==null && myPointOverlay!=null) {
-    			curFrom = new POIOverlay(mapView, Font.getBold(getAssets()), 
-    					PoiOverlayInfo.fromCurrentLocation(myPointOverlay), 
-    					HotspotPlace.BOTTOM_CENTER, null);
+    		setToInfo(info);
+    		if(curFrom == null && myPointOverlay != null) {
+    			PoiOverlayInfo currentLocationInfo = PoiOverlayInfo.fromCurrentLocation(myPointOverlay);
+    			curFrom = new POIOverlay(mapView, Font.getBold(getAssets()), currentLocationInfo, 
+    					HotspotPlace.CENTER, null);
     			curFrom.markODPoi();
     			curFrom.setIsFromPoi(true);
     			mapView.getOverlays().add(curFrom);
-    			curFrom.showMiniBalloonOverlay();
+    			setFromInfo(currentLocationInfo);
+    			curFrom.showBalloonOverlay();
     			if(lastLocation != null){
         			curFromProvider = lastLocation.getProvider();
                     curFromTime = lastLocation.getTime();
@@ -3131,6 +3005,28 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		}
     		toggleGetRouteButton(true);
     	}
+    	poi.showBalloonOverlay();
+    }
+    
+    AtomicBoolean removeOD = new AtomicBoolean(true);
+    
+    private void setFromInfo(PoiOverlayInfo info) {
+    	int marker = (info.marker == R.drawable.transparent_poi && StringUtils.isBlank(info.address)) ? R.drawable.landing_page_current_location : info.marker;
+    	fromIcon.setImageResource(marker);
+		fromIcon.setVisibility(View.VISIBLE);
+		removeOD.set(false);
+		fromSearchBox.setText(info.address);
+		fromSearchBox.clearFocus();
+		removeOD.set(true);
+    }
+    
+    private void setToInfo(PoiOverlayInfo info) {
+    	toIcon.setImageResource(info.marker);
+		toIcon.setVisibility(View.VISIBLE);
+		removeOD.set(false);
+	    searchBox.setText(info.address);
+	    searchBox.clearFocus();
+	    removeOD.set(true);
     }
     
     private boolean hideStarredBalloon(){
@@ -3320,35 +3216,168 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 ReverseGeocodingTask task = new ReverseGeocodingTask(LandingActivity2.this, lat, lon){
                     @Override
                     protected void onPostExecute(String result) {
-                        refreshPOIMarker(mapView, lat, lon, result, "");
+                    	Screen xy = getScreenXY(mapView, lat, lon);
+                        POIOverlay marker = refreshPOIMarker(mapView, lat, lon, result, "");
+                        showPopupMenu(xy, marker);
                     }
                 };
                 Misc.parallelExecute(task);
             }
             @Override
             public void onSingleTap() {
-            	if(findViewById(R.id.fav_opt).getVisibility() == View.GONE) {
-	                boolean handledStarred = hideStarredBalloon();
-	                boolean handledBulb = hideBulbBalloon();
-	                boolean handledPOI = removePOIMarker(mapView);
-	                boolean handledOD = removeOldOD(mapView, isFromPoi());
+            	if(favOptPanel.getVisibility() == View.GONE) {
+//	                boolean handledStarred = hideStarredBalloon();
+//	                boolean handledBulb = hideBulbBalloon();
+//	                boolean handledPOI = removePOIMarker(mapView);
+//	                boolean handledOD = removeOldOD(mapView, isFromPoi());
 	                boolean hasFocus = searchBox.isFocused() || fromSearchBox.isFocused();
 	                if(hasFocus) {
 	                	searchBox.clearFocus();
 	                	fromSearchBox.clearFocus();
 	                }
-	                if(!handledStarred && !handledBulb && !handledPOI && !handledOD && !hasFocus){
+	                if(/*!handledStarred && !handledBulb && !handledPOI && !handledOD &&*/ !hasFocus){
 	                    resizeMap(!isMapCollapsed());
 	                }
-            	}
-            	else {
-            		hideStarredBalloon();
-            		hideBulbBalloon();
-            		removePOIMarker(mapView);
             	}
             }
         });
         mapView.getOverlays().add(eventOverlay);
+    }
+    
+	private void showPopupMenu(Screen xy, POIOverlay overlay) {
+		PoiOverlayInfo info = overlay.getPoiOverlayInfo();
+    	editMenu.setVisibility(View.VISIBLE);
+    	Integer[] imageResourceIds;
+    	if(overlay.getAid() == 0) {
+    		editMenu.setImageResource(R.drawable.save_menu);
+    		imageResourceIds = new Integer[] {R.drawable.selected_save_menu, R.drawable.save_menu};
+    	}
+    	else {
+    		editMenu.setImageResource(R.drawable.edit_menu);
+    		imageResourceIds = new Integer[] {R.drawable.selected_edit_menu, R.drawable.edit_menu};
+    	}
+    	editMenu.setTag(imageResourceIds);
+    	FrameLayout.LayoutParams editMenuLp = (android.widget.FrameLayout.LayoutParams) editMenu.getLayoutParams();
+    	editMenuLp.leftMargin = xy.x - (editMenu.getMeasuredWidth() / 2);
+    	editMenuLp.topMargin = xy.y - (editMenu.getMeasuredHeight() + 150);
+    	editMenu.setLayoutParams(editMenuLp);
+    	
+    	Screen corespondXY = new Screen();
+    	corespondXY.x = - (editMenu.getMeasuredWidth() / 2);
+    	corespondXY.y = (editMenu.getMeasuredHeight() + 100);
+    	
+    	Screen fromXY = getRelativeCoorOfDegree(corespondXY, -60);
+    	fromMenu.setVisibility(View.VISIBLE);
+    	FrameLayout.LayoutParams fromMenuLp = (android.widget.FrameLayout.LayoutParams) fromMenu.getLayoutParams();
+    	fromMenuLp.leftMargin = xy.x - (editMenu.getMeasuredWidth() / 2) - fromXY.x;
+    	fromMenuLp.topMargin = xy.y - fromXY.y;
+    	fromMenu.setLayoutParams(fromMenuLp);
+    	
+    	toMenu.setVisibility(View.VISIBLE);
+    	FrameLayout.LayoutParams toMenuLp = (android.widget.FrameLayout.LayoutParams) toMenu.getLayoutParams();
+    	toMenuLp.leftMargin = xy.x - (editMenu.getMeasuredWidth() / 2) + fromXY.x;
+    	toMenuLp.topMargin = xy.y - fromXY.y;
+    	toMenu.setLayoutParams(toMenuLp);
+    	
+    	addressInfo.setVisibility(View.VISIBLE);
+    	addressInfo.setText(StringUtils.isNotBlank(info.label) ? info.label : info.address);
+    	FrameLayout.LayoutParams addressInfoLp = (FrameLayout.LayoutParams) addressInfo.getLayoutParams();
+    	View landingPanelView = findViewById(R.id.landing_panel_content);
+        int landingPanelHeight = landingPanelView.getHeight();
+    	DisplayMetrics dm = getResources().getDisplayMetrics();
+    	int margin = Dimension.dpToPx(5, dm);
+    	addressInfoLp.leftMargin = margin;
+    	addressInfoLp.rightMargin = margin;
+    	addressInfoLp.topMargin = isMapCollapsed() ? (margin + landingPanelHeight) : margin;
+    	addressInfo.setLayoutParams(addressInfoLp);
+    	
+    	popupPanel.setTag(overlay);
+    	popupPanel.setVisibility(View.VISIBLE);
+    	popupPanel.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				MapView mapView = (MapView) findViewById(R.id.mapview);
+				removePOIMarker(mapView);
+				hidePopupMenu();
+			}
+        });
+    }
+	
+	private void hidePopupMenu() {
+		editMenu.setVisibility(View.INVISIBLE);
+		fromMenu.setVisibility(View.INVISIBLE);
+		toMenu.setVisibility(View.INVISIBLE);
+		addressInfo.setText("");
+		addressInfo.setVisibility(View.INVISIBLE);
+		popupPanel.setTag(null);
+		popupPanel.setVisibility(View.GONE);
+	}
+	
+	private void simulateTouch(View popupPanel, Screen xy) {
+		// Obtain MotionEvent object
+		long downTime = System.currentTimeMillis();
+		long eventTime = downTime + 100;
+		// List of meta states found here: developer.android.com/reference/android/view/KeyEvent.html#getMetaState()
+		int metaState = 0;
+		MotionEvent motionEvent = MotionEvent.obtain(
+		    downTime, 
+		    eventTime, 
+		    MotionEvent.ACTION_DOWN, 
+		    xy.x, 
+		    xy.y, 
+		    metaState
+		);
+
+		// Dispatch touch event to view
+		popupPanel.dispatchTouchEvent(motionEvent);
+	}
+    
+    public Screen getScreenXY(MapView mapView, double lat, double lon) {
+    	Screen widthHeight = getScreenWidthHeight(mapView);
+    	Point reuse = null;
+    	Projection projection = mapView.getProjection();
+    	IGeoPoint northEast = projection.getNorthEast();
+    	GeoPoint in = new GeoPoint(lat, lon);
+    	reuse = projection.toPixels(in, reuse);
+    	int x = reuse.x;
+    	int y = reuse.y;
+    	reuse = projection.toPixels(northEast, reuse);
+    	int nx = reuse.x;
+    	int ny = reuse.y;
+    	Screen pointXY = new Screen();
+    	pointXY.x = widthHeight.x + x - nx;
+    	pointXY.y = y-ny;
+    	return pointXY;
+    }
+    
+    public Screen getScreenWidthHeight(MapView mapView) {
+    	Point reuse = null;
+    	Projection projection = mapView.getProjection();
+    	IGeoPoint northEast = projection.getNorthEast();
+    	reuse = projection.toPixels(northEast, reuse);
+    	int nx = reuse.x;
+    	int ny = reuse.y;
+    	IGeoPoint southWest = projection.getSouthWest();
+    	reuse = projection.toPixels(southWest, reuse);
+    	int sx = reuse.x;
+    	int sy = reuse.y;
+    	Screen screen = new Screen();
+    	screen.x = nx - sx;
+    	screen.y = sy - ny;
+    	return screen;
+    }
+    
+    private Screen getRelativeCoorOfDegree(Screen oriCoor, Integer degree) {
+    	Screen after = new Screen();
+    	double radian = (degree % 360) * Math.PI / 180.0;
+    	after.x = Double.valueOf(oriCoor.x * Math.cos(radian) - oriCoor.y * Math.sin(radian)).intValue();
+    	after.y = Double.valueOf(oriCoor.x * Math.sin(radian) + oriCoor.y * Math.cos(radian)).intValue();
+    	return after;
+    }
+    
+    private static class Screen {
+    	public int x;
+    	public int y;
     }
     
     private boolean isMapCollapsed(){
@@ -3387,19 +3416,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void toggleGetRouteButton(boolean enabled) {
-//    	View getRoutePanel = findViewById(R.id.get_route_panel);
-//    	View getRouteButton = findViewById(R.id.get_route);
-//    	getRouteButton.setVisibility(show?View.VISIBLE:View.GONE);
-//    	float height = Dimension.dpToPx(55, getResources().getDisplayMetrics());
-//    	ObjectAnimator getRouteAnimator;
-//    	if(show) {
-//    		getRouteAnimator = ObjectAnimator.ofFloat(getRoutePanel, "translationY", height, 0);
-//    		getRouteAnimator.setDuration(300);
-//    		getRouteAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-//    		getRouteAnimator.start();
-//    	}
     	getRouteView.setClickable(enabled);
     	getRouteView.setBackgroundResource(enabled ? R.drawable.get_route_button : R.drawable.disabled_get_route_button);
+    	getRouteView.setTextColor(enabled ? getResources().getColor(android.R.color.white) : getResources().getColor(R.color.transparent_white));
     	int padding = Dimension.dpToPx(10, getResources().getDisplayMetrics());
     	getRouteView.setPadding(padding, 0, padding, 0);
     }
@@ -3412,17 +3431,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         oAddrs.addAll(addresses);
         findViewById(R.id.search_box).setTag(oAddrs);
     }
-    
-    private boolean isPoiOverlay(String address) {
-    	View searchBox = findViewById(R.id.search_box);
-    	if(searchBox.getTag() != null) {
-    		Set<String> poiAddrs = (Set<String>) searchBox.getTag();
-    		return poiAddrs.contains(address);
-    	}
-    	return false;
-    }
-    
-    
     
     protected static abstract class ReverseGeocodingTask extends AsyncTask<Void, Void, String> {
         
@@ -3451,15 +3459,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
     }
     
-    private POIOverlay curMarker;
-    
     private boolean removePOIMarker(MapView mapView){
         boolean handled = false;
         List<Overlay> overlays = mapView.getOverlays();
         for (Overlay overlay : overlays) {
-            if(overlay == curMarker){
+            if(overlay instanceof POIOverlay ){
             	POIOverlay curOverlay = (POIOverlay)overlay;
-            	if(curOverlay.isMarked() && (curOverlay.isFromPoi() == isFromPoi())) {
+            	if(curOverlay.getMarker() == R.drawable.poi_pin && !isMarkedOD(curOverlay)) {
 	            	Log.d("LandingActivity2", "removePOIMarker : " + curOverlay);
 	                if(curOverlay.isBalloonVisible()){
 	                    curOverlay.hideBalloon();
@@ -3467,7 +3473,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                }
 	                overlays.remove(curOverlay);
 	                mapView.postInvalidate();
-	                curMarker = null;
 	                break;
             	}
             }
@@ -3476,91 +3481,80 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private boolean isMarkedOD(Overlay overlay) {
-    	return overlay==curFrom || overlay==curTo;
-    }
-    
-    private boolean hidePOIMarkerBalloon(MapView mapView){
-    	boolean handled = false;
-        List<Overlay> overlays = mapView.getOverlays();
-        for (Overlay overlay : overlays) {
-            if(overlay instanceof POIOverlay){
-                POIOverlay poiOverlay = (POIOverlay)overlay;
-                if(overlay == curMarker){
-                    if(poiOverlay.isBalloonVisible()){
-                	    poiOverlay.hideBalloon();
-                        handled = true;
-                    }
-                }
-            }
-        }
-        return handled;
+    	return overlay == curFrom || overlay == curTo;
     }
     
     private boolean removeAllOD() {
     	MapView mapView = (MapView) findViewById(R.id.mapview);
     	boolean handleFrom = removeOldOD(mapView, true);
     	boolean handleTo = removeOldOD(mapView, false);
+    	cleanSearchBox();
     	return handleFrom || handleTo;
+    }
+    
+    private void cleanSearchBox() {
+    	searchBox.setText("");
+		toIcon.setVisibility(View.INVISIBLE);
+		clearSearchResult();
+		fromSearchBox.setText("");
+		fromIcon.setVisibility(View.INVISIBLE);
+		clearFromSearchResult();
     }
     
     private boolean removeOldOD(MapView mapView, boolean from) {
     	List<Overlay> overlays = mapView.getOverlays();
     	if(from) {
+    		fromIcon.setVisibility(View.INVISIBLE);
     		curFrom = null;
     	}
     	else {
+    		toIcon.setVisibility(View.INVISIBLE);
     		curTo = null;
     		toggleGetRouteButton(false);
     	}
+    	
     	boolean handle = false;
-        for (Overlay overlay : overlays) {
-            if(overlay instanceof POIOverlay){
-                POIOverlay poiOverlay = (POIOverlay)overlay;
-                if(poiOverlay.isMarked() && (from == poiOverlay.isFromPoi())){
-                	handle = true;
-                    if(poiOverlay.isBalloonVisible()){
-                	    poiOverlay.hideBalloon();
-                    }
-                    if(poiOverlay.getMarker() == 0) {
-                    	overlays.remove(poiOverlay);
-                    }
-                    else {
-                    	poiOverlay.cancelMark();
-                    }
-                    mapView.postInvalidate();
-                    break;
-                }
-            }
-        }
+	    for (Overlay overlay : overlays) {
+	        if(overlay instanceof POIOverlay){
+	            POIOverlay poiOverlay = (POIOverlay)overlay;
+	            if(poiOverlay.isMarked() && (from == poiOverlay.isFromPoi())){
+	             	handle = true;
+	                if(poiOverlay.isBalloonVisible()){
+	              	    poiOverlay.hideBalloon();
+	                }
+	                if(poiOverlay.getMarker() == R.drawable.poi_pin || poiOverlay.getMarker() == R.drawable.transparent_poi) {
+	                 	overlays.remove(poiOverlay);
+	                }
+	                else {
+	                  	poiOverlay.cancelMark();
+	                }
+	                mapView.postInvalidate();
+	                break;
+	            }
+	        }
+	    }
         return handle;
     }
     
-    private void refreshPOIMarker(final MapView mapView, final double lat, final double lon,
+    private POIOverlay refreshPOIMarker(final MapView mapView, final double lat, final double lon,
             final String address, final String label){
-        removePOIMarker(mapView);
-        final GeoPoint gp = new GeoPoint(lat, lon);
-        final BalloonModel model = new BalloonModel();
+        GeoPoint gp = new GeoPoint(lat, lon);
+        BalloonModel model = new BalloonModel();
         model.lat = lat;
         model.lon = lon;
         model.address = address;
         model.label = label;
         model.geopoint = gp;
-        PoiOverlayInfo poiInfo = PoiOverlayInfo.fromBalloonModel(model);
+        final PoiOverlayInfo poiInfo = PoiOverlayInfo.fromBalloonModel(model);
         final POIOverlay marker = new POIOverlay(mapView, Font.getBold(getAssets()), poiInfo, 
-        		HotspotPlace.BOTTOM_CENTER , new POIActionListener() {
-					@Override
-					public void onClickEdit() {
-						hidePOIMarkerBalloon(mapView);
-						writeInfo2FavoritePanel(model, null);
-						findViewById(R.id.landing_panel).setVisibility(View.GONE);
-						findViewById(R.id.fav_opt).setVisibility(View.VISIBLE);
-						removeAllOD();
-					}
-        });
+        		HotspotPlace.CENTER , null);
         
         marker.setCallback(new OverlayCallback() {
             @Override
             public boolean onTap(int index) {
+            	Screen xy = getScreenXY(mapView, poiInfo.lat, poiInfo.lon);
+                showPopupMenu(xy, marker);
+                mapView.postInvalidate();
                 return true;
             }
             @Override
@@ -3583,23 +3577,15 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         List<Overlay> overlays = mapView.getOverlays();
         overlays.add(marker);
         marker.showOverlay();
-        if(!isInFavoriteOperation()) {
-        	handleOD(mapView, marker, isFromPoi());
-        	marker.showBalloonOverlay();
-        }
-        else {
-        	writeInfo2FavoritePanel(model, null);
-        }
-        curMarker = marker;
         mapView.postInvalidate();
+        return marker;
     }
     
     private boolean isInFavoriteOperation() {
-    	return findViewById(R.id.fav_opt).getVisibility() == View.VISIBLE;
+    	return favOptPanel.getVisibility() == View.VISIBLE;
     }
     
     private boolean isFavoriteOptComplete() {
-    	View favOptPanel = findViewById(R.id.fav_opt);
     	String favAddr = ((EditText) favOptPanel.findViewById(R.id.favorite_search_box)).getText().toString();
 //    	String label = ((EditText) favOptPanel.findViewById(R.id.label_input)).getText().toString();
 //    	IconType icon = (IconType) favOptPanel.findViewById(R.id.icon).getTag();
@@ -3607,27 +3593,23 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	return StringUtils.isNotBlank(favAddr);
     }
     
-    private void writeInfo2FavoritePanel(BalloonModel model, String iconName) {
-    	View favOptPanel = findViewById(R.id.fav_opt);
-    	favOptPanel.setTag(model);
-    	((EditText) favOptPanel.findViewById(R.id.label_input)).setText(model.label);
-    	if(StringUtils.isNotBlank(model.label)) {
-    		favOptPanel.findViewById(R.id.label_clear).setVisibility(View.VISIBLE);
+    private void writeInfo2FavoritePanel(PoiOverlayInfo info) {
+    	if(info != null) {
+	    	favOptPanel.setTag(info);
+	    	((EditText) favOptPanel.findViewById(R.id.label_input)).setText(info.label);
+	    	IconType icon = IconType.fromName(info.iconName, null);
+	    	if(icon != null) {
+	    		favOptPanel.findViewById(R.id.icon).setTag(icon);
+	    		Integer[] iconInfo = IconType.getIconInfos(icon);
+	    		labelIcon.setVisibility(View.VISIBLE);
+	    		labelIcon.setImageResource(iconInfo[1]);
+	    	}
+	    	EditText favSearchBox = (EditText) favOptPanel.findViewById(R.id.favorite_search_box); 
+	    	favSearchBox.setText(info.address);
+	    	favSearchBox.setEnabled(false);
+	    	favOptPanel.findViewById(R.id.fav_save).setVisibility(StringUtils.isNotBlank(info.address) ? View.VISIBLE : View.GONE);
+	    	((TextView)favOptPanel.findViewById(R.id.header)).setText(info.id!=0 ? "Edit Favorite" : "Save Favorite");
     	}
-    	IconType icon = IconType.fromName(iconName);
-    	if(icon != null) {
-    		favOptPanel.findViewById(R.id.icon).setTag(icon);
-    		Integer[] iconInfo = IconType.getIconInfos(icon);
-    		unSelectAllIcon();
-    		((ImageView)favOptPanel.findViewById(iconInfo[0])).setImageResource(iconInfo[1]);
-    	}
-    	EditText searchBox = (EditText) favOptPanel.findViewById(R.id.favorite_search_box); 
-    	searchBox.setText(model.address);
-    	searchBox.setEnabled(StringUtils.isNotBlank(model.address)?false:true);
-    	favOptPanel.findViewById(R.id.fav_search_box_clear).setVisibility(model.id!=0?View.GONE:View.VISIBLE);
-    	favOptPanel.findViewById(R.id.fav_save).setVisibility(StringUtils.isNotBlank(model.address)?View.VISIBLE:View.GONE);
-    	favOptPanel.findViewById(R.id.fav_del_panel).setVisibility(model.id!=0?View.VISIBLE:View.GONE);
-    	((TextView)favOptPanel.findViewById(R.id.header)).setText(model.id!=0?"Edit Favorite":"Add Favorite");
     }
     
     private void updateMyMetropiaInfo() {
@@ -3730,37 +3712,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         initFontsIfNecessary();
         for(final com.smartrek.requests.WhereToGoRequest.Location l:locs){
-            final GeoPoint gp = new GeoPoint(l.lat, l.lon);
-            PoiOverlayInfo poiInfo = PoiOverlayInfo.fromLocation(l);
+            final PoiOverlayInfo poiInfo = PoiOverlayInfo.fromLocation(l);
             final POIOverlay bulb = new POIOverlay(mapView, boldFont, poiInfo, 
-            		HotspotPlace.CENTER, new POIActionListener() {
-	            	@Override
-					public void onClickEdit() {
-						hideBulbBalloon();
-						View favOpt = findViewById(R.id.fav_opt);
-						BalloonModel model = new BalloonModel();
-						model.label="";
-						model.lat=l.lat;
-						model.lon=l.lon;
-						model.address=l.addr;
-						model.geopoint=gp;
-						writeInfo2FavoritePanel(model, null);
-						findViewById(R.id.landing_panel).setVisibility(View.GONE);
-						favOpt.setVisibility(View.VISIBLE);
-						removeAllOD();
-					}
-	
-            });
+            		HotspotPlace.CENTER, null);
             bulb.setCallback(new OverlayCallback() {
                 @Override
                 public boolean onTap(int index) {
-                    hideStarredBalloon();
-                    hideBulbBalloon();
-                    removePOIMarker(mapView);
-                    IMapController controller = mapView.getController();
-                    controller.setCenter(bulb.getGeoPoint());
-                    handleOD(mapView, bulb, isFromPoi());
-                    bulb.showBalloonOverlay();
+                    Screen xy = getScreenXY(mapView, poiInfo.lat, poiInfo.lon);
+                    showPopupMenu(xy, bulb);
                     mapView.postInvalidate();
                     return true;
                 }
@@ -3789,11 +3748,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private void insertBeforeMyPointOverlay(List<Overlay> mapOverlays, Overlay overlay) {
     	int myCurrentOverlayIdx = mapOverlays.indexOf(myPointOverlay)!=-1?mapOverlays.indexOf(myPointOverlay):mapOverlays.size();
     	mapOverlays.add(myCurrentOverlayIdx, overlay);
-    }
-    
-    private boolean isFromPoi() {
-    	return (fromSearchBox.isFocused() /* || from.getCurrentTextColor() == Color.WHITE */)  
-    			&& !isInFavoriteOperation();
     }
     
     @Override
@@ -3906,9 +3860,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             if (success) {
                 float orientation[] = new float[3];
                 SensorManager.getOrientation(r, orientation);
-                float azimut = Double.valueOf(Math.toDegrees(orientation[0])).floatValue();
+//                float azimut = Double.valueOf(Math.toDegrees(orientation[0])).floatValue();
                 if(myPointOverlay != null){
-                    myPointOverlay.setDegrees(azimut);
+//                    myPointOverlay.setDegrees(azimut);
                     MapView mapView = (MapView)findViewById(R.id.mapview);
                     mapView.postInvalidate();
                 }
@@ -4095,7 +4049,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 });
             }
         }
-        
     }
     
 }
