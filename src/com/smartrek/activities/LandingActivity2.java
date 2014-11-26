@@ -255,6 +255,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private ImageView fromMenu;
     private ImageView toMenu;
     private ImageView editMenu;
+    private ImageView poiIcon;
     private TextView addressInfo;
     
     private ImageView fromIcon;
@@ -1263,6 +1264,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         });
         
         addressInfo = (TextView) findViewById(R.id.address_info);
+        poiIcon = (ImageView) findViewById(R.id.poi_icon);
         
         editMenu = (ImageView) findViewById(R.id.edit_menu);
         editMenu.setOnClickListener(new OnClickListener() {
@@ -3259,12 +3261,27 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	editMenu.setTag(imageResourceIds);
     	FrameLayout.LayoutParams editMenuLp = (android.widget.FrameLayout.LayoutParams) editMenu.getLayoutParams();
     	editMenuLp.leftMargin = xy.x - (editMenu.getMeasuredWidth() / 2);
-    	editMenuLp.topMargin = xy.y - (editMenu.getMeasuredHeight() + 150);
+    	editMenuLp.topMargin = xy.y - (editMenu.getMeasuredHeight() + 100);
     	editMenu.setLayoutParams(editMenuLp);
+    	
+    	poiIcon.setVisibility(View.VISIBLE);
+    	poiIcon.setImageResource(overlay.getMarker());
+    	
+    	BitmapFactory.Options dimensions = new BitmapFactory.Options(); 
+    	dimensions.inJustDecodeBounds = false;
+    	Bitmap decodeResource = BitmapFactory.decodeResource(getResources(), overlay.getMarker(), dimensions);
+    	int poiIconWidth = decodeResource.getWidth();
+    	int poiIconHeight = decodeResource.getHeight();
+    	decodeResource.recycle();
+    	
+    	FrameLayout.LayoutParams poiLp = (android.widget.FrameLayout.LayoutParams) poiIcon.getLayoutParams();
+    	poiLp.leftMargin = xy.x - (poiIconWidth / 2);
+    	poiLp.topMargin = xy.y - (poiIconHeight / 2);
+    	poiIcon.setLayoutParams(poiLp);
     	
     	Screen corespondXY = new Screen();
     	corespondXY.x = - (editMenu.getMeasuredWidth() / 2);
-    	corespondXY.y = (editMenu.getMeasuredHeight() + 100);
+    	corespondXY.y = (editMenu.getMeasuredHeight() + 50);
     	
     	Screen fromXY = getRelativeCoorOfDegree(corespondXY, -60);
     	fromMenu.setVisibility(View.VISIBLE);
@@ -3307,6 +3324,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		editMenu.setVisibility(View.INVISIBLE);
 		fromMenu.setVisibility(View.INVISIBLE);
 		toMenu.setVisibility(View.INVISIBLE);
+		poiIcon.setVisibility(View.INVISIBLE);
 		addressInfo.setText("");
 		addressInfo.setVisibility(View.INVISIBLE);
 		popupPanel.setTag(null);
