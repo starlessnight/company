@@ -2342,8 +2342,15 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         prepareGPS();
         drawedReservId = Long.valueOf(-1);
         dismissReservId = Long.valueOf(-1);
-        refreshTripsInfo();
-        updateMyMetropiaInfo();
+        
+        LandingActivity.initializeIfNeccessary(LandingActivity2.this, new Runnable() {
+			@Override
+			public void run() {
+				refreshTripsInfo();
+		        updateMyMetropiaInfo();
+			}
+        });
+        
         mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
         mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_GAME);
     }
