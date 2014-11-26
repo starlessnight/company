@@ -46,11 +46,13 @@ public class SearchAddressRequest extends FetchRequest<List<Address>>{
 		    	double lon = data.getDouble("lon");
 		    	String addr = data.getString("address");
 		    	String name = data.getString("name");
+		    	String icon = data.optString("icon", "");
 		    	Address address = new Address();
 		    	address.setLatitude(lat);
 		    	address.setLongitude(lon);
 		    	address.setName(name);
 		    	address.setAddress(addr);
+		    	address.setIconName(icon);
 		    	if(userLat!=null && userLon!=null) {
 		    		NumberFormat nf = new DecimalFormat("#.#");
 		    		address.setDistance(nf.format(NavigationView.metersToMiles(

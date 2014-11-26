@@ -1822,7 +1822,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 
                 IconType icon = IconType.fromName(item.getIconName(), null);
                 if(icon == null) {
-                	favIcon.setVisibility(View.GONE);
+                	favIcon.setImageResource(R.drawable.poi_pin);
+                	favIcon.setVisibility(View.VISIBLE);
                 }
                 else {
                 	favIcon.setImageResource(icon.getResourceId());
@@ -2988,7 +2989,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	poi.markODPoi();
     	poi.setIsFromPoi(isFrom);
     	PoiOverlayInfo info = poi.getPoiOverlayInfo();
-    	Log.d("BalloonDebug", String.format("poi marker id [%d], work [%d], home [%d], star [%d]", poi.getMarker(), R.drawable.work, R.drawable.home, R.drawable.star));
     	if(isFrom) {
     		curFrom = poi;
     		curFromProvider = null;
@@ -3024,7 +3024,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	fromIcon.setImageResource(marker);
 		fromIcon.setVisibility(View.VISIBLE);
 		removeOD.set(false);
-		fromSearchBox.setText(info.address);
+		fromSearchBox.setText(StringUtils.isNotBlank(info.label) ? info.label : info.address);
 		fromSearchBox.clearFocus();
 		removeOD.set(true);
     }
@@ -3033,7 +3033,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	toIcon.setImageResource(info.marker);
 		toIcon.setVisibility(View.VISIBLE);
 		removeOD.set(false);
-	    searchBox.setText(info.address);
+	    searchBox.setText(StringUtils.isNotBlank(info.label) ? info.label : info.address);
 	    searchBox.clearFocus();
 	    removeOD.set(true);
     }
@@ -3444,7 +3444,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	getRouteView.setClickable(enabled);
     	getRouteView.setBackgroundResource(enabled ? R.drawable.get_route_button : R.drawable.disabled_get_route_button);
     	getRouteView.setTextColor(enabled ? getResources().getColor(android.R.color.white) : getResources().getColor(R.color.transparent_white));
-    	int padding = Dimension.dpToPx(10, getResources().getDisplayMetrics());
+    	int padding = Dimension.dpToPx(5, getResources().getDisplayMetrics());
     	getRouteView.setPadding(padding, 0, padding, 0);
     }
     
