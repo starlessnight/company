@@ -15,7 +15,7 @@
             android:layout_height="0dp"
             android:layout_weight="1" >
 
-            <include layout="@layout/mapview" />
+            <include layout="@layout/mapview"/>
 
             <FrameLayout
                 android:id="@+id/popup_panel"
@@ -63,6 +63,7 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/home"
                     android:visibility="invisible" />
+                
             </FrameLayout>
 
             <RelativeLayout
@@ -75,6 +76,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
+                    android:background="@color/metropia_blue"
                     android:orientation="vertical" >
 
                     <LinearLayout
@@ -82,19 +84,26 @@
                         android:layout_height="34dp"
                         android:background="@color/metropia_blue"
                         android:orientation="horizontal" >
-
-                        <ImageView
-                            android:id="@+id/drawer_menu_icon"
-                            android:layout_width="wrap_content"
+                        
+                        <FrameLayout 
                             android:layout_height="17dp"
-                            android:layout_gravity="left|center"
-                            android:paddingLeft="8dp"
-                            android:paddingRight="20dp"
-                            android:src="@drawable/drawer_menu_icon_1" />
+                            android:layout_width="53dp"
+                            android:layout_gravity="left|center">
+
+	                        <ImageView
+	                            android:id="@+id/drawer_menu_icon"
+	                            android:layout_width="wrap_content"
+	                            android:layout_height="17dp"
+	                            android:layout_gravity="left|center"
+	                            android:paddingLeft="8dp"
+	                            android:paddingRight="20dp"
+	                            android:src="@drawable/drawer_menu_icon_1" />
+                        
+                        </FrameLayout>
 
                         <TextView
                             android:id="@+id/head"
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
                             android:gravity="center|left"
@@ -107,13 +116,13 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="right|center"
-                            android:layout_marginRight="10dp"
+                            android:layout_marginRight="8dp"
                             android:background="@drawable/disabled_get_route_button"
                             android:clickable="false"
                             android:gravity="center"
                             android:includeFontPadding="false"
-                            android:paddingLeft="10dp"
-                            android:paddingRight="10dp"
+                            android:paddingLeft="5dp"
+                            android:paddingRight="5dp"
                             android:text="Get Route"
                             android:textColor="@color/transparent_white"
                             android:textSize="20dp" />
@@ -135,28 +144,28 @@
 
                             <TextView
                                 android:id="@+id/from_label"
-                                android:layout_width="35dp"
+                                android:layout_width="40dp"
                                 android:layout_height="match_parent"
                                 android:layout_alignParentLeft="true"
                                 android:gravity="right|center"
                                 android:text="From:"
                                 android:textColor="@android:color/white"
-                                android:textSize="12dp" />
+                                android:textSize="15dp" />
 
                             <EditText
                                 android:id="@+id/from_search_box"
                                 android:layout_width="match_parent"
-                                android:layout_height="42dp"
-                                android:layout_marginLeft="40dp"
+                                android:layout_height="44dp"
+                                android:layout_marginLeft="45dp"
                                 android:background="@android:color/white"
                                 android:hint="Current Location"
                                 android:inputType="textCapWords"
                                 android:paddingLeft="40dp"
-                                android:paddingRight="55dp"
+                                android:paddingRight="67dp"
                                 android:singleLine="true"
                                 android:textColor="@color/gray"
                                 android:textColorHint="@color/transparent_light_gray"
-                                android:textSize="@dimen/smaller_font" />
+                                android:textSize="19dp" />
 
                             <View 
                                 android:layout_width="1dp"
@@ -186,7 +195,7 @@
                                 android:id="@+id/from_search_box_clear"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginLeft="-55dp"
+                                android:layout_marginLeft="-66dp"
                                 android:layout_toRightOf="@+id/from_search_box"
                                 android:layout_centerVertical="true"
                                 android:layout_gravity="center"
@@ -204,8 +213,8 @@
 	                                android:layout_width="wrap_content"
 	                                android:layout_height="wrap_content"
 	                                android:layout_gravity="center"
-	                                android:src="@drawable/poi_pin"
-	                                android:visibility="invisible" />
+	                                android:layout_margin="5dp"
+	                                android:src="@drawable/landing_page_current_location" />
 	                            
                             </FrameLayout>
 
@@ -229,28 +238,28 @@
 
                             <TextView
                                 android:id="@+id/to_label"
-                                android:layout_width="35dp"
+                                android:layout_width="40dp"
                                 android:layout_height="match_parent"
                                 android:layout_alignParentLeft="true"
                                 android:gravity="right|center"
                                 android:text="To:"
                                 android:textColor="@android:color/white"
-                                android:textSize="12dp" />
+                                android:textSize="15dp" />
 
                             <EditText
                                 android:id="@+id/search_box"
                                 android:layout_width="match_parent"
-                                android:layout_height="42dp"
-                                android:layout_marginLeft="40dp"
+                                android:layout_height="44dp"
+                                android:layout_marginLeft="45dp"
                                 android:background="@android:color/white"
                                 android:hint="Enter Destination"
                                 android:inputType="textCapWords"
                                 android:paddingLeft="40dp"
-                                android:paddingRight="55dp"
+                                android:paddingRight="67dp"
                                 android:singleLine="true"
                                 android:textColor="@color/gray"
                                 android:textColorHint="@color/transparent_light_gray"
-                                android:textSize="@dimen/smaller_font" />
+                                android:textSize="19dp" />
 
                             <View 
                                 android:layout_width="1dp"
@@ -281,7 +290,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_toRightOf="@+id/search_box"
-                                android:layout_marginLeft="-55dp"
+                                android:layout_marginLeft="-66dp"
                                 android:layout_centerVertical="true"
                                 android:layout_gravity="center"
                                 android:src="@drawable/search_box_clear2"
@@ -298,6 +307,7 @@
 	                                android:layout_width="wrap_content"
 	                                android:layout_height="wrap_content"
 	                                android:layout_gravity="center"
+	                                android:layout_margin="5dp"
 	                                android:src="@drawable/poi_pin"
 	                                android:visibility="invisible" />
                             
@@ -311,6 +321,10 @@
                                 android:background="@color/metropia_transparent_blue"
                                 android:visibility="invisible" />
                         </RelativeLayout>
+                        
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="2dp" />
                     </LinearLayout>
 
                     <!--
@@ -514,7 +528,7 @@
                     android:layout_height="match_parent"
                     android:layout_below="@+id/landing_panel_content"
                     android:layout_marginBottom="60dp"
-                    android:layout_marginLeft="48dp"
+                    android:layout_marginLeft="53dp"
                     android:layout_marginRight="8dp"
                     android:background="@android:color/white"
                     android:cacheColorHint="#00000000"
@@ -528,9 +542,9 @@
                     android:layout_height="match_parent"
                     android:layout_below="@+id/landing_panel_content"
                     android:layout_marginBottom="60dp"
-                    android:layout_marginLeft="48dp"
+                    android:layout_marginLeft="53dp"
                     android:layout_marginRight="8dp"
-                    android:layout_marginTop="-45dp"
+                    android:layout_marginTop="-47dp"
                     android:background="@android:color/white"
                     android:cacheColorHint="#00000000"
                     android:divider="@null"
