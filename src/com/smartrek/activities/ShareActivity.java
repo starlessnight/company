@@ -158,7 +158,7 @@ public final class ShareActivity extends FragmentActivity {
 					public void onAnimationEnd() {
 						if (isNotLoading()) {
 							int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(ShareActivity.this);
-							if (StringUtils.equalsIgnoreCase(GooglePlayServicesUtil.getErrorString(errorCode), "success")) {
+							if (!StringUtils.equalsIgnoreCase(GooglePlayServicesUtil.getErrorString(errorCode), "success")) {
 								GooglePlayServicesUtil.getErrorDialog(errorCode,
 										ShareActivity.this, 0).show();
 							} else {
