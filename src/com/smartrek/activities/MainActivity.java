@@ -180,7 +180,7 @@ public class MainActivity extends Activity implements AnimationListener, SKPrepa
                 new Handler().postDelayed(new Runnable() {
         			@Override
         			public void run() {
-        				if(showWaitOrCancelDialog.getAndSet(false)) {
+        				if(showWaitOrCancelDialog.getAndSet(false) && !isFinishing()) {
         					waitOrCancelDialog.show();
         				}
         			}
