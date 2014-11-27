@@ -7,6 +7,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,7 +59,8 @@ public final class Geocoding {
 		public static Address fromModelAddress(com.smartrek.models.Address addr, Location userLoc) {
 			Address address = new Address();
 			address.setAddress(addr.getAddress());
-			address.setIconName(addr.getIconName());
+			// old favorite without icon name, give default icon name "star"
+			address.setIconName(StringUtils.isBlank(addr.getIconName()) || "null".equals(addr.getIconName()) ? "star" : addr.getIconName());
 			address.setLatitude(addr.getLatitude());
 			address.setLongitude(addr.getLongitude());
 			address.setName(addr.getName());
