@@ -44,7 +44,8 @@
 	        	    android:text="GET STARTED!"
 	        	    android:textColor="@color/metropia_blue"
 	        	    android:textSize="@dimen/medium_font"
-	        	    style="@style/WhiteButton"/>
+	        	    style="@style/WhiteButton"
+	        	    android:visibility="invisible"/>
         	
         	</LinearLayout>
 

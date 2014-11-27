@@ -137,6 +137,14 @@ public class IntroActivity extends FragmentActivity implements OnPageChangeListe
         for(int i=0; i<indicators.getChildCount(); i++){
             indicators.getChildAt(i).setEnabled(i == pos);
         }
+        
+        View getStarted = findViewById(R.id.get_started);
+        if(pos == indicators.getChildCount() - 1) {
+        	getStarted.setVisibility(View.VISIBLE);
+        }
+        else {
+        	getStarted.setVisibility(View.INVISIBLE);
+        }
     }
     
     @Override
