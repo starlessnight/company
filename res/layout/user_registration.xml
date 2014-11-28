@@ -50,8 +50,6 @@
 				/>
 		    </FrameLayout>
 		    
-	        <include layout="@layout/metropia_color_bar" />
-	        
 	        <EditText
 	            android:id="@+id/editTextFirstname"
 	            android:layout_width="match_parent"
