@@ -172,10 +172,11 @@
 		    
 		    <LinearLayout
 		        android:layout_width="fill_parent"
-		        android:layout_height="195dp"
+		        android:layout_height="145dp"
 		        android:background="@android:color/white"
 		        android:orientation="vertical">
 		        
+		        <!-- 
 		        <TextView 
 		            android:id="@+id/tutorial"
 		            android:layout_width="fill_parent"
@@ -189,6 +190,7 @@
 		            android:gravity="center_vertical"
 		            android:layout_gravity="center_vertical"
 		            android:drawableRight="@drawable/setting_right_arrow"/>
+		        -->
 		        
 		        <TextView 
 		            android:id="@+id/introduction_screens"

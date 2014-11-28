@@ -1373,7 +1373,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         		upointView, saveTimeView, co2View, (TextView) findViewById(R.id.head));
         //init Tracker
         ((SmarTrekApplication)getApplication()).getTracker(TrackerName.APP_TRACKER);
-        showTutorialIfNessary();
+//        showTutorialIfNessary();
         
         //end oncreate
     }
