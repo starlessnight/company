@@ -534,6 +534,8 @@
                     android:cacheColorHint="#00000000"
                     android:divider="@null"
                     android:dividerHeight="0dp"
+                    android:drawSelectorOnTop="false"
+                    android:listSelector="#3396C93C"
                     android:visibility="gone" />
 
                 <ListView
@@ -549,6 +551,8 @@
                     android:cacheColorHint="#00000000"
                     android:divider="@null"
                     android:dividerHeight="0dp"
+                    android:drawSelectorOnTop="false"
+                    android:listSelector="#3396C93C"
                     android:visibility="gone" />
             </RelativeLayout>
 
