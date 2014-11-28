@@ -159,4 +159,6 @@
     <string name="donated_award_share_hint">Let friends know you’re helping others with your trekpoints!</string>
     <string name="redemptions_award_share_hint">Let friends know you’re getting gifts for helping reduce congestion!</string>
     
+    <string name="splash_page_support_city">Austin, Los Angeles, New York, Tucson</string>
+    
 </resources>
