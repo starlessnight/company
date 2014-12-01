@@ -57,7 +57,7 @@ import com.google.android.gms.plus.PlusClient;
 import com.google.android.gms.plus.model.people.Person;
 import com.google.android.gms.plus.model.people.Person.Image;
 import com.smartrek.CrashlyticsUtils;
-import com.smartrek.activities.LandingActivity2.IconType;
+import com.smartrek.activities.LandingActivity2.FavoriteIcon;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.ContactsDialog;
 import com.smartrek.dialogs.FavoriteAddressEditDialog;
@@ -194,7 +194,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                             if(StringUtils.isBlank(addr)){
                                 final FavoriteAddressEditDialog d = new FavoriteAddressEditDialog(LandingActivity.this, 
                                     new Address(0, User.getCurrentUser(LandingActivity.this).getId(), Address.HOME_STRING, 
-                                        "", 0, 0, IconType.home.name()), true);
+                                        "", 0, 0, FavoriteIcon.home.name()), true);
                                 d.setActionListener(new FavoriteAddressEditDialog.ActionListener() {
                                     @Override
                                     public void onClickPositiveButton() {
@@ -229,7 +229,7 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
                             if(StringUtils.isBlank(addr)){
                                 final FavoriteAddressEditDialog d = new FavoriteAddressEditDialog(LandingActivity.this, 
                                     new Address(0, User.getCurrentUser(LandingActivity.this).getId(), Address.WORK_STRING, 
-                                        "", 0, 0, IconType.work.name()), true);
+                                        "", 0, 0, FavoriteIcon.work.name()), true);
                                 d.setActionListener(new FavoriteAddressEditDialog.ActionListener() {
                                     @Override
                                     public void onClickPositiveButton() {

@@ -55,7 +55,12 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.Html;
@@ -66,7 +71,9 @@ import android.text.style.AbsoluteSizeSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -86,6 +93,7 @@ import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -98,6 +106,7 @@ import com.skobbler.ngx.SKMaps;
 import com.smartrek.ResumeNavigationUtils;
 import com.smartrek.SmarTrekApplication;
 import com.smartrek.SmarTrekApplication.TrackerName;
+import com.smartrek.activities.LandingActivity2.FavoriteSlideFragment.ClickCallback;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.dialogs.NotificationDialog2.ActionListener;
@@ -221,9 +230,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private EditText favSearchBox;
     
     private View favOptPanel;
-    private ImageView starView;
-    private ImageView homeView;
-    private ImageView workView;
     private ImageView labelIcon;
     
     private AtomicBoolean showAutoComplete = new AtomicBoolean(true);
@@ -808,99 +814,113 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         findViewById(R.id.fav_cancel).setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View v) {
-				hideFavoriteOptPanel();
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						hideFavoriteOptPanel();
+					}
+				});
 			}
 		});
         
         favSave.setOnClickListener(new OnClickListener() {
 			@Override
-			public void onClick(View v) {
-				if(isFavoriteOptComplete()) {
-					InputMethodManager imm = (InputMethodManager)getSystemService(
-                            Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-					PoiOverlayInfo info = (PoiOverlayInfo) favOptPanel.getTag();
-					final PoiOverlayInfo _info = info==null ? new PoiOverlayInfo() : info;
-					String label = ((EditText)favOptPanel.findViewById(R.id.label_input)).getText().toString();
-					if(StringUtils.isBlank(label)) {
-						label = "Favorite";
+			public void onClick(final View v) {
+				v.setClickable(false);
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						if(isFavoriteOptComplete()) {
+							InputMethodManager imm = (InputMethodManager)getSystemService(
+		                            Context.INPUT_METHOD_SERVICE);
+		                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+							PoiOverlayInfo info = (PoiOverlayInfo) favOptPanel.getTag();
+							final PoiOverlayInfo _info = info==null ? new PoiOverlayInfo() : info;
+							String label = ((EditText)favOptPanel.findViewById(R.id.label_input)).getText().toString();
+							if(StringUtils.isBlank(label)) {
+								label = "Favorite";
+							}
+							final String lbl = label;
+			                final String addr = ((EditText)favOptPanel.findViewById(R.id.favorite_search_box)).getText().toString();
+			                final FavoriteIcon icon = (FavoriteIcon) favOptPanel.findViewById(R.id.icon).getTag();
+			                AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>(){
+			                	@Override
+			                	protected void onPreExecute() {
+			                		if(_info.lat == 0 && _info.lon == 0) {
+			                			List<Address> result = Collections.emptyList();
+			                			try {
+				                			if(lastLocation != null) {
+				                				result = Geocoding.searchPoi(LandingActivity2.this, addr, lastLocation.getLatitude(), lastLocation.getLongitude());
+				                			}
+				                			else {
+				                				result = Geocoding.searchPoi(LandingActivity2.this, addr);
+				                			}
+			                			}
+			                			catch(Exception e) {
+			                				e.printStackTrace();
+			                				ehs.registerException(e, e.getMessage());
+			                			}
+			                			if(result.isEmpty()) {
+			                				ehs.registerException(new RuntimeException(), "Address [" + addr + "] not found!");
+			                			}
+			                			else {
+			                				Address found = result.get(0);
+			                				_info.address = found.getAddress();
+			                				_info.lat = found.getLatitude();
+			                				_info.lon = found.getLongitude();
+			                				_info.geopoint = found.getGeoPoint();
+			                			}
+			                		}
+			                		else {
+			                			_info.address = addr;
+			                		}
+			                	}
+			                	
+			                    @Override
+			                    protected Integer doInBackground(Void... params) {
+			                        Integer id = 0;
+			                        Request req = null;
+			                        String iconName = icon != null ? icon.name() : FavoriteIcon.star.name();
+			                        User user = User.getCurrentUser(LandingActivity2.this);
+			                        try {
+			                        	if(_info.id==0) {
+				                            FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
+				                                user, lbl, _info.address, iconName, _info.lat, _info.lon);
+				                            req = request;
+				                            id = request.execute(LandingActivity2.this);
+			                        	}
+			                        	else {
+			                        		FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
+				                                    new AddressLinkRequest(user).execute(LandingActivity2.this),
+				                                        _info.id, user, lbl, addr, iconName, _info.lat, _info.lon);
+				                            req = request;
+				                            request.execute(LandingActivity2.this);
+			                        	}
+			                        }
+			                        catch (Exception e) {
+			                            ehs.registerException(e, "[" + (req==null?"":req.getUrl()) + "]\n" + e.getMessage());
+			                        }
+			                        return id;
+			                    }
+			                    protected void onPostExecute(Integer id) {
+			                        refreshStarredPOIs();
+			                        if (ehs.hasExceptions()) {
+			                            ehs.reportExceptions();
+			                        }
+			                        else {
+			                            removePOIMarker(mapView);
+			                            _info.id = _info.id !=0 ? _info.id : id;
+			                            hideFavoriteOptPanel();
+			                        }
+			                    }
+			               };
+			               Misc.parallelExecute(task);
+						}
+						v.setClickable(true);
 					}
-					final String lbl = label;
-	                final String addr = ((EditText)favOptPanel.findViewById(R.id.favorite_search_box)).getText().toString();
-	                final IconType icon = (IconType) favOptPanel.findViewById(R.id.icon).getTag();
-	                AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>(){
-	                	@Override
-	                	protected void onPreExecute() {
-	                		if(_info.lat == 0 && _info.lon == 0) {
-	                			List<Address> result = Collections.emptyList();
-	                			try {
-		                			if(lastLocation != null) {
-		                				result = Geocoding.searchPoi(LandingActivity2.this, addr, lastLocation.getLatitude(), lastLocation.getLongitude());
-		                			}
-		                			else {
-		                				result = Geocoding.searchPoi(LandingActivity2.this, addr);
-		                			}
-	                			}
-	                			catch(Exception e) {
-	                				e.printStackTrace();
-	                				ehs.registerException(e, e.getMessage());
-	                			}
-	                			if(result.isEmpty()) {
-	                				ehs.registerException(new RuntimeException(), "Address [" + addr + "] not found!");
-	                			}
-	                			else {
-	                				Address found = result.get(0);
-	                				_info.address = found.getAddress();
-	                				_info.lat = found.getLatitude();
-	                				_info.lon = found.getLongitude();
-	                				_info.geopoint = found.getGeoPoint();
-	                			}
-	                		}
-	                		else {
-	                			_info.address = addr;
-	                		}
-	                	}
-	                	
-	                    @Override
-	                    protected Integer doInBackground(Void... params) {
-	                        Integer id = 0;
-	                        Request req = null;
-	                        String iconName = icon!=null?icon.name():IconType.star.name();
-	                        User user = User.getCurrentUser(LandingActivity2.this);
-	                        try {
-	                        	if(_info.id==0) {
-		                            FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
-		                                user, lbl, _info.address, iconName, _info.lat, _info.lon);
-		                            req = request;
-		                            id = request.execute(LandingActivity2.this);
-	                        	}
-	                        	else {
-	                        		FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
-		                                    new AddressLinkRequest(user).execute(LandingActivity2.this),
-		                                        _info.id, user, lbl, addr, iconName, _info.lat, _info.lon);
-		                            req = request;
-		                            request.execute(LandingActivity2.this);
-	                        	}
-	                        }
-	                        catch (Exception e) {
-	                            ehs.registerException(e, "[" + (req==null?"":req.getUrl()) + "]\n" + e.getMessage());
-	                        }
-	                        return id;
-	                    }
-	                    protected void onPostExecute(Integer id) {
-	                        refreshStarredPOIs();
-	                        if (ehs.hasExceptions()) {
-	                            ehs.reportExceptions();
-	                        }
-	                        else {
-	                            removePOIMarker(mapView);
-	                            _info.id = _info.id !=0 ? _info.id : id;
-	                            hideFavoriteOptPanel();
-	                        }
-	                    }
-	               };
-	               Misc.parallelExecute(task);
-				}
+				});
             }
 		});
         
@@ -918,54 +938,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		});
         
         labelIcon = (ImageView) findViewById(R.id.label_icon);
-        
-        starView = (ImageView) findViewById(R.id.star);
-        starView.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
-				clickAni.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						favOptPanel.findViewById(R.id.icon).setTag(IconType.star);
-						labelIcon.setImageResource(R.drawable.star);
-						labelIcon.setVisibility(View.VISIBLE);
-					}
-				});
-			}
-        });
-        
-        homeView = (ImageView) findViewById(R.id.home);
-        homeView.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
-				clickAni.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						favOptPanel.findViewById(R.id.icon).setTag(IconType.home);
-						labelIcon.setImageResource(R.drawable.home);
-						labelIcon.setVisibility(View.VISIBLE);
-					}
-				});
-			}
-        });
-        
-        workView = (ImageView) findViewById(R.id.work);
-        workView.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
-				clickAni.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						favOptPanel.findViewById(R.id.icon).setTag(IconType.work);
-						labelIcon.setImageResource(R.drawable.work);
-						labelIcon.setVisibility(View.VISIBLE);
-					}
-				});
-			}
-        });
         
         findViewById(R.id.confirm_panel).setOnClickListener(noopClick);
         
@@ -1365,12 +1337,15 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	});
         */
         
+        initFavoritePage();
+        
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, fromSearchBox, myMetropiaMenu, 
             reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu);
         Font.setTypeface(Font.getMedium(assets), favSearchBox, labelInput, 
         		(TextView)findViewById(R.id.label), (TextView)findViewById(R.id.icon), getRouteView, 
-        		upointView, saveTimeView, co2View, (TextView) findViewById(R.id.head));
+        		upointView, saveTimeView, co2View, (TextView) findViewById(R.id.head), 
+        		(TextView) findViewById(R.id.favorite_address_desc));
         //init Tracker
         ((SmarTrekApplication)getApplication()).getTracker(TrackerName.APP_TRACKER);
 //        showTutorialIfNessary();
@@ -1768,9 +1743,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private boolean isFavoriteMark(int markResourceId) {
-    	Integer[] favIconIds = new Integer[] {R.drawable.star, R.drawable.home, R.drawable.work};
-    	for(Integer iconId : favIconIds) {
-    		if(iconId == markResourceId) {
+    	for(FavoriteIcon icon : FavoriteIcon.values()) {
+    		if(markResourceId == icon.getResourceId(LandingActivity2.this)) {
     			return true;
     		}
     	}
@@ -1820,13 +1794,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 	distance.setText("> " + item.getDistance() + "mi");
                 }
                 
-                IconType icon = IconType.fromName(item.getIconName(), null);
+                FavoriteIcon icon = FavoriteIcon.fromName(item.getIconName(), null);
                 if(icon == null) {
                 	favIcon.setImageResource(R.drawable.poi_pin);
                 	favIcon.setVisibility(View.VISIBLE);
                 }
                 else {
-                	favIcon.setImageResource(icon.getResourceId());
+                	favIcon.setImageResource(icon.getResourceId(LandingActivity2.this));
                 	favIcon.setVisibility(View.VISIBLE);
                 }
                 
@@ -2086,7 +2060,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			dest.writeString(iconName);
 		}
     	
-    	public static PoiOverlayInfo fromAddress(com.smartrek.models.Address address) {
+    	public static PoiOverlayInfo fromAddress(Context ctx, com.smartrek.models.Address address) {
     		PoiOverlayInfo poiInfo = new PoiOverlayInfo();
     		poiInfo.id = address.getId();
     		poiInfo.label = address.getName();
@@ -2095,9 +2069,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		poiInfo.lon = address.getLongitude();
     		poiInfo.geopoint = new GeoPoint(address.getLatitude(), address.getLongitude());
     		poiInfo.iconName = address.getIconName();
-    		IconType icon = IconType.fromName(address.getIconName(), IconType.star);
-    		poiInfo.marker = icon.getResourceId();
-    		poiInfo.markerWithShadow = icon.getResourceWithShadowId();
+    		FavoriteIcon icon = FavoriteIcon.fromName(address.getIconName(), FavoriteIcon.star);
+    		poiInfo.marker = icon.getResourceId(ctx);
+    		poiInfo.markerWithShadow = icon.getResourceId(ctx);
     		return poiInfo;
     	}
     	
@@ -2136,47 +2110,36 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 
     }
     
-    public enum IconType {
-    	star, home, work;
+    public enum FavoriteIcon {
     	
-    	public static IconType fromName(String name, IconType failback) {
-    		for(IconType type : values()) {
-    			if(type.name().equals(name)) {
-    				return type;
-    			}
-    		}
-    		return failback;
-    	}
+    	home, work, star, ice_cream_cone, zoo, bar, popsicle, music, tag, banner, restaurant, flag, 
+    	drumstick, sunglasses, thunderstorm, hardware, guitar, coffee, football, credit_card, gift, noodles, beach, barber;
     	
-    	private static Integer[] getIconInfos(IconType type) {
-    		switch(type) {
-    		  case star:
-    			  return new Integer[] {R.id.star, R.drawable.star, R.drawable.star_with_shadow};
-    		  case home:
-    			  return new Integer[] {R.id.home, R.drawable.home, R.drawable.home_with_shadow};
-    		  case work:
-    			  return new Integer[] {R.id.work, R.drawable.work, R.drawable.work_with_shadow};
-    		  default:
-    			  return null;
-    		}
-    	}
-    	
-    	public static Integer[] getIconInfosFromName(String name) {
-    		IconType icon = fromName(name, star);
-    		return getIconInfos(icon);
-    	}
-    	
-    	public Integer getIconId() {
-    		return getIconInfos(this)[0];
-    	}
-    	
-    	public Integer getResourceId() {
-    		return getIconInfos(this)[1];
-    	}
-    	
-    	public Integer getResourceWithShadowId() {
-    		return getIconInfos(this)[2];
-    	}
+        public static FavoriteIcon fromName(String name, FavoriteIcon failback) {
+        	for(FavoriteIcon type : values()) {
+        		if(type.name().equals(name)) {
+        			return type;
+        		}
+        	}
+        	return failback;
+       	}
+        	
+       	public static Integer getIconResourceId(Context ctx, String name) {
+       		return ctx.getResources().getIdentifier(name, "drawable", ctx.getPackageName());
+      	}
+       	
+       	public Integer getResourceId(Context ctx) {
+       		return getIconResourceId(ctx, name());
+       	}
+       	
+       	public static FavoriteIcon[][] getFirstPageIcons() {
+       		return new FavoriteIcon[][] { {home, work, star, ice_cream_cone}, {zoo, bar, popsicle, music}, {tag, banner, restaurant, flag} };
+       	}
+       	
+       	public static FavoriteIcon[][] getSecondPageIcons() {
+       		return new FavoriteIcon[][] { {drumstick, sunglasses, thunderstorm, hardware}, {guitar, coffee, football, credit_card}, {gift, noodles, beach, barber} };
+       	}
+
     }
     
     private void updateDeviceId(){
@@ -2616,6 +2579,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	reInitFavoriteOperationPanel();
     	favOptPanel.setVisibility(View.GONE);
 		findViewById(R.id.landing_panel).setVisibility(View.VISIBLE);
+		ViewPager favoriteIconPager = (ViewPager) findViewById(R.id.favorite_icons_pager);
+		favoriteIconPager.setCurrentItem(0);
     }
     
     private void showFavoriteOptPanel(PoiOverlayInfo info) {
@@ -2926,7 +2891,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         initFontsIfNecessary();
                         initFavoriteAddressesIfNecessary(result);
                         for(final com.smartrek.models.Address a : result){
-                            final PoiOverlayInfo poiInfo = PoiOverlayInfo.fromAddress(a);
+                            final PoiOverlayInfo poiInfo = PoiOverlayInfo.fromAddress(LandingActivity2.this, a);
                             final POIOverlay star = new POIOverlay(mapView, boldFont, poiInfo, HotspotPlace.CENTER, null);
                             star.setAid(a.getId());
                             star.setCallback(new OverlayCallback() {
@@ -3622,17 +3587,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	if(info != null) {
 	    	favOptPanel.setTag(info);
 	    	((EditText) favOptPanel.findViewById(R.id.label_input)).setText(info.label);
-	    	IconType icon = IconType.fromName(info.iconName, null);
+	    	FavoriteIcon icon = FavoriteIcon.fromName(info.iconName, FavoriteIcon.star);
 	    	if(icon != null) {
 	    		favOptPanel.findViewById(R.id.icon).setTag(icon);
-	    		Integer[] iconInfo = IconType.getIconInfos(icon);
 	    		labelIcon.setVisibility(View.VISIBLE);
-	    		labelIcon.setImageResource(iconInfo[1]);
+	    		labelIcon.setImageResource(icon.getResourceId(LandingActivity2.this));
 	    	}
 	    	EditText favSearchBox = (EditText) favOptPanel.findViewById(R.id.favorite_search_box); 
 	    	favSearchBox.setText(info.address);
 	    	favSearchBox.setEnabled(false);
 	    	favOptPanel.findViewById(R.id.fav_save).setVisibility(StringUtils.isNotBlank(info.address) ? View.VISIBLE : View.GONE);
+	    	favOptPanel.findViewById(R.id.fav_del_panel).setVisibility(info.id!=0 ? View.VISIBLE : View.GONE);
 	    	((TextView)favOptPanel.findViewById(R.id.header)).setText(info.id!=0 ? "Edit Favorite" : "Save Favorite");
     	}
     }
@@ -3773,6 +3738,159 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private void insertBeforeMyPointOverlay(List<Overlay> mapOverlays, Overlay overlay) {
     	int myCurrentOverlayIdx = mapOverlays.indexOf(myPointOverlay)!=-1?mapOverlays.indexOf(myPointOverlay):mapOverlays.size();
     	mapOverlays.add(myCurrentOverlayIdx, overlay);
+    }
+    
+    private void initFavoritePage() {
+    	ViewPager favoriteIconPager = (ViewPager) findViewById(R.id.favorite_icons_pager);
+    	favoriteIconPager.setOnPageChangeListener(new OnPageChangeListener() {
+			@Override
+			public void onPageScrollStateChanged(int arg0) {
+				
+			}
+
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2) {
+				
+			}
+
+			@Override
+			public void onPageSelected(int pos) {
+				LinearLayout indicators = (LinearLayout)findViewById(R.id.indicators);
+		        for(int i=0; i<indicators.getChildCount(); i++){
+		            indicators.getChildAt(i).setEnabled(i == pos);
+		        }
+			}
+		});
+    	
+        FavoriteSlideAdapter slideAdapter = new FavoriteSlideAdapter(getSupportFragmentManager(), new ClickCallback() {
+			@Override
+			public void onClick(FavoriteIcon icon) {
+				favOptPanel.findViewById(R.id.icon).setTag(icon);
+				labelIcon.setImageResource(icon.getResourceId(LandingActivity2.this));
+				labelIcon.setVisibility(View.VISIBLE);
+			}
+        });
+        
+        favoriteIconPager.setAdapter(slideAdapter);
+    	
+    	LinearLayout indicators = (LinearLayout)findViewById(R.id.indicators);
+        for(int i=0; i<slideAdapter.getCount(); i++){
+            View indicator = getLayoutInflater().inflate(R.layout.onboard_indicator, indicators, false);
+            if(i == 0){
+                ((LinearLayout.LayoutParams)indicator.getLayoutParams()).leftMargin = 0;
+            }else{
+                indicator.setEnabled(false);
+            }
+            indicators.addView(indicator);
+        }
+    }
+    
+    public static class FavoriteSlideFragment extends Fragment {
+        
+        static final String ICONS = "icons";
+        
+        private FavoriteIcon[][] icons;
+        private ClickCallback clickCallback;
+        
+        public interface ClickCallback {
+        	public void onClick(FavoriteIcon icon);
+        }
+        
+        static FavoriteSlideFragment of(FavoriteIcon[][] icons, ClickCallback _clickCallback){
+        	FavoriteSlideFragment f = new FavoriteSlideFragment(_clickCallback);
+            Bundle args = new Bundle();
+            args.putSerializable(ICONS, icons);
+            f.setArguments(args);
+            return f;
+        }
+        
+        private FavoriteSlideFragment(ClickCallback clickCallback) {
+        	this.clickCallback = clickCallback;
+        }
+        
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            Bundle args = getArguments();
+            this.icons = (FavoriteIcon[][]) args.getSerializable(ICONS);
+        }
+     
+        @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+        }
+     
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                Bundle savedInstanceState) {
+            final LinearLayout view = (LinearLayout) inflater.inflate(R.layout.favorite_icon_slide, container, false);
+            DisplayMetrics dm = view.getContext().getResources().getDisplayMetrics();
+            int iconMargin = Dimension.dpToPx(10, dm);
+            for(FavoriteIcon[] rowIcons : icons) {
+	            LinearLayout row = new LinearLayout(view.getContext());
+	            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 0);
+	            lp.weight = 1;
+	            row.setLayoutParams(lp);
+	            row.setWeightSum(rowIcons.length);
+	            for(FavoriteIcon icon : rowIcons) {
+	            	ImageView iconView = new ImageView(row.getContext());
+	            	LinearLayout.LayoutParams imageLp = new android.widget.LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+	            	imageLp.weight = 1;
+	            	imageLp.bottomMargin = iconMargin;
+	            	imageLp.leftMargin = iconMargin;
+	            	imageLp.rightMargin = iconMargin;
+	            	imageLp.topMargin = iconMargin;
+	            	imageLp.gravity = Gravity.CENTER;
+	            	iconView.setLayoutParams(imageLp);
+	            	iconView.setTag(icon);
+	            	iconView.setImageResource(icon.getResourceId(view.getContext()));
+	            	iconView.setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(final View v) {
+							ClickAnimation clickAnimation = new ClickAnimation(view.getContext(), v);
+							clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+								@Override
+								public void onAnimationEnd() {
+									if(clickCallback != null) {
+										clickCallback.onClick((FavoriteIcon)v.getTag());
+									}
+								}
+							});
+						}
+					});
+	            	row.addView(iconView);
+	            }
+	            view.addView(row);
+            }
+            return view;
+        }
+        
+    }
+    
+    public static class FavoriteSlideAdapter extends FragmentPagerAdapter {
+        
+        private static FavoriteIcon[][][] slides = {
+            FavoriteIcon.getFirstPageIcons(), 
+            FavoriteIcon.getSecondPageIcons()
+        };
+        
+        private ClickCallback clickCallback;
+        
+        public FavoriteSlideAdapter(FragmentManager fm, ClickCallback callback) {
+            super(fm);
+            this.clickCallback = callback;
+        }
+ 
+        @Override
+        public int getCount() {
+            return slides.length;
+        }
+ 
+        @Override
+        public Fragment getItem(int position) {
+            return FavoriteSlideFragment.of(slides[position], clickCallback);
+        }
+        
     }
     
     @Override

@@ -41,7 +41,7 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.smartrek.SmarTrekApplication;
 import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.activities.LandingActivity2.BalloonModel;
-import com.smartrek.activities.LandingActivity2.IconType;
+import com.smartrek.activities.LandingActivity2.FavoriteIcon;
 import com.smartrek.activities.LandingActivity2.PoiOverlayInfo;
 import com.smartrek.dialogs.NotificationDialog2;
 import com.smartrek.models.User;
@@ -832,7 +832,7 @@ public class OnBoardActivity extends FragmentActivity {
 		List<Overlay> overlays = mapView.getOverlays();
 		for(Overlay overlay : overlays) {
 			if(overlay instanceof POIOverlay && 
-					(isHome?IconType.home.name() : IconType.work.name()).equals(((POIOverlay)overlay).getPoiOverlayInfo().label)) {
+					(isHome?FavoriteIcon.home.name() : FavoriteIcon.work.name()).equals(((POIOverlay)overlay).getPoiOverlayInfo().label)) {
 				overlays.remove(overlay);
                 mapView.postInvalidate();
 			}
@@ -841,7 +841,7 @@ public class OnBoardActivity extends FragmentActivity {
 		
 	private void saveFavorite(Address _address, final boolean isHome) {
 		final Integer overlayId = isHome ? homeOverlayId : workOverlayId; 
-		final String iconName = isHome ? IconType.home.name() : IconType.work.name();
+		final String iconName = isHome ? FavoriteIcon.home.name() : FavoriteIcon.work.name();
 		_address.setIconName(iconName);
 		final Address address = _address;
 		AsyncTask<Void, Void, Integer> saveTask = new AsyncTask<Void, Void, Integer>() {
