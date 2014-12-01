@@ -18,6 +18,7 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.skobbler.ngx.SKPrepareMapTextureListener;
@@ -34,6 +35,7 @@ import com.smartrek.requests.ServiceDiscoveryRequest.Result;
 import com.smartrek.requests.UserIdRequest;
 import com.smartrek.tasks.LoginTask;
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.Preferences;
 
@@ -192,6 +194,10 @@ public class MainActivity extends Activity implements AnimationListener, SKPrepa
 	        
 	        logoMask.startAnimation(slideUpAnimation);
 		}
+		
+		Font.setTypeface(Font.getMedium(getAssets()), 
+				(TextView) findViewById(R.id.support_cities), (TextView) findViewById(R.id.coming_soon));
+		
 		//init Tracker
       	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 	}

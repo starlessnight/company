@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical" >
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:padding="5dp" >
+
+        <TextView
+            android:id="@+id/back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|center"
+            android:drawableLeft="@drawable/on_board_back_arrow"
+            android:drawablePadding="5dp"
+            android:text="Back"
+            android:textColor="@color/metropia_blue"
+            android:textSize="@dimen/medium_font" />
+
+        <TextView
+            android:id="@+id/header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Metropia"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/medium_font" />
+
+        <TextView
+            android:id="@+id/next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center"
+            android:text="Next"
+            android:textColor="@color/metropia_blue"
+            android:textSize="@dimen/medium_font" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/content_panel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@android:color/white" >
+
+        <include layout="@layout/mapview" />
+
+        <LinearLayout
+            android:id="@+id/on_board_page1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/white"
+            android:orientation="vertical" >
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:src="@drawable/on_board" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="Welcome to Metropia!"
+                android:textColor="@color/metropia_blue"
+                android:textSize="@dimen/medium_font" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingBottom="40dp"
+                android:text="@string/on_board_page_desc"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/smaller_font" />
+
+            <TextView
+                android:id="@+id/page1_next"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:background="@color/metropia_blue"
+                android:gravity="center"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:text="Next"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/medium_font" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/on_board_page2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible" >
+
+            <View
+                android:id="@+id/home_mask"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/white" />
+
+            <TextView
+                android:id="@+id/home_desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:paddingBottom="20dp"
+                android:paddingTop="20dp"
+                android:background="@android:color/white"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="Enter your Home address"
+                android:textColor="@color/metropia_blue"
+                android:textSize="@dimen/medium_font" />
+
+            <RelativeLayout
+                android:id="@+id/home_search_box_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/home_desc"
+                android:background="@android:color/white"
+                android:orientation="horizontal"
+                android:padding="10dp" >
+
+                <ImageView
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_alignParentLeft="true"
+                    android:src="@drawable/home" />
+
+                <EditText
+                    android:id="@+id/home_search_box"
+                    style="@style/RegistrationTextField"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="50dp"
+                    android:layout_weight="1"
+                    android:hint="my home address"
+                    android:inputType="textCapWords"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
+                    android:singleLine="true"
+                    android:textColor="@color/gray"
+                    android:textColorHint="@color/transparent_light_gray"
+                    android:textSize="19dp" />
+
+                <ImageView
+                    android:id="@+id/home_search_box_clear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="-19dp"
+                    android:layout_gravity="center"
+                    android:layout_toRightOf="@+id/home_search_box"
+                    android:src="@drawable/search_box_clear2"
+                    android:visibility="gone" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:gravity="center"
+                android:paddingBottom="10dp"
+                android:paddingTop="40dp"
+                android:background="@android:color/white" >
+
+                <TextView
+                    android:id="@+id/page2_next"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:background="@color/metropia_blue"
+                    android:gravity="center"
+                    android:paddingLeft="30dp"
+                    android:paddingRight="30dp"
+                    android:text="Next"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/medium_font"
+                    android:visibility="invisible" />
+            </LinearLayout>
+
+            <ListView
+                android:id="@+id/home_search_result_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/home_search_box_panel"
+                android:background="@drawable/listview_shadow"
+                android:layout_marginBottom="60dp"
+                android:layout_marginLeft="60dp"
+                android:layout_marginRight="6dp"
+                android:layout_marginTop="-10dp"
+                android:cacheColorHint="#00000000"
+                android:divider="@null"
+                android:dividerHeight="0dp"
+                android:drawSelectorOnTop="false"
+                android:listSelector="#3396C93C"
+                android:visibility="gone" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/on_board_page3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible" >
+
+            <View
+                android:id="@+id/work_mask"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/white" />
+
+            <TextView
+                android:id="@+id/work_desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:paddingBottom="20dp"
+                android:paddingTop="20dp"
+                android:background="@android:color/white"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="Enter your Work address"
+                android:textColor="@color/metropia_blue"
+                android:textSize="@dimen/medium_font" />
+
+            <RelativeLayout
+                android:id="@+id/work_search_box_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/work_desc"
+                android:background="@android:color/white"
+                android:orientation="horizontal"
+                android:padding="10dp" >
+
+                <ImageView
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_alignParentLeft="true"
+                    android:src="@drawable/work" />
+
+                <EditText
+                    android:id="@+id/work_search_box"
+                    style="@style/RegistrationTextField"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="50dp"
+                    android:layout_weight="1"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
+                    android:hint="my work address"
+                    android:inputType="textCapWords"
+                    android:singleLine="true"
+                    android:textColor="@color/gray"
+                    android:textColorHint="@color/transparent_light_gray"
+                    android:textSize="19dp" />
+
+                <ImageView
+                    android:id="@+id/work_search_box_clear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="-19dp"
+                    android:layout_toRightOf="@+id/work_search_box"
+                    android:src="@drawable/search_box_clear2"
+                    android:visibility="gone" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:gravity="center"
+                android:paddingBottom="10dp"
+                android:paddingTop="40dp"
+                android:background="@android:color/white" >
+
+                <TextView
+                    android:id="@+id/page3_next"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:background="@color/metropia_blue"
+                    android:gravity="center"
+                    android:paddingLeft="30dp"
+                    android:paddingRight="30dp"
+                    android:text="Next"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/medium_font"
+                    android:visibility="invisible" />
+            </LinearLayout>
+
+            <ListView
+                android:id="@+id/work_search_result_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/work_search_box_panel"
+                android:layout_marginBottom="60dp"
+                android:layout_marginLeft="60dp"
+                android:layout_marginRight="6dp"
+                android:layout_marginTop="-10dp"
+                android:background="@drawable/listview_shadow"
+                android:cacheColorHint="#00000000"
+                android:divider="@null"
+                android:dividerHeight="0dp"
+                android:drawSelectorOnTop="false"
+                android:listSelector="#3396C93C"
+                android:visibility="gone" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/on_board_page4"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/white"
+            android:orientation="vertical"
+            android:visibility="invisible" >
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:src="@drawable/on_board" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="Done!"
+                android:textColor="@color/metropia_blue"
+                android:textSize="@dimen/medium_font" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:paddingBottom="40dp"
+                android:text="@string/on_board_page_finish_desc"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/smaller_font" />
+
+            <TextView
+                android:id="@+id/finish"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:background="@color/metropia_green"
+                android:gravity="center"
+                android:paddingLeft="30dp"
+                android:paddingRight="30dp"
+                android:text="Let&apos;s Go!"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/medium_font" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:paddingBottom="5dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingTop="40dp" >
+
+        <LinearLayout
+            android:id="@+id/indicators"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingBottom="10dp" >
+
+            <include layout="@layout/onboard_indicator" />
+
+            <include layout="@layout/onboard_indicator" />
+
+            <include layout="@layout/onboard_indicator" />
+
+            <include layout="@layout/onboard_indicator" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/skip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|bottom"
+            android:text="skip"
+            android:textColor="@color/metropia_blue"
+            android:textSize="@dimen/smallest_font" />
+    </FrameLayout>
+
+</LinearLayout>

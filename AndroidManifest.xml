@@ -91,6 +91,13 @@
             android:theme="@style/PopUpDialog"
 		/>
         <activity
+            android:name=".OnBoardActivity"
+            android:screenOrientation="portrait"
+            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
             android:name=".TutorialActivity"
             android:screenOrientation="portrait"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"

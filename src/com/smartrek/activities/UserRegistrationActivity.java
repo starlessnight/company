@@ -359,11 +359,10 @@ public final class UserRegistrationActivity extends FragmentActivity
 					    
 					    User.setCurrentUser(UserRegistrationActivity.this, result);
 					    
-	                    Intent intent = new Intent(UserRegistrationActivity.this, LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
+	                    Intent intent = new Intent(UserRegistrationActivity.this, OnBoardActivity.class);
 	                    UserRegistrationActivity.this.startActivity(intent);
 	                    finish();
 					}
-					
 				});
 				dialog.setCancelable(false);
 				dialog.setCanceledOnTouchOutside(false);

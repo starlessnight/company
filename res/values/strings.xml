@@ -160,5 +160,7 @@
     <string name="redemptions_award_share_hint">Let friends know you’re getting gifts for helping reduce congestion!</string>
     
     <string name="splash_page_support_city">Austin, Los Angeles, New York, Tucson</string>
+    <string name="on_board_page_desc">let\'s save your \n home and work locations \n to set up your commute!</string>
+    <string name="on_board_page_finish_desc">you can edit and add \n more favorites by selecting \n any map icon or from \n within the favorites menu</string>
     
 </resources>
