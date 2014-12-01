@@ -3391,6 +3391,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         }
         landingPanelAnimator.setDuration(500);
         landingPanelAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        
         View myMetropiaPanel = findViewById(R.id.my_metropia_panel);
         int myMetropiaPanelHeight = myMetropiaPanel.getHeight();
         ObjectAnimator myMetropiaPanelAnimator;
@@ -3400,8 +3401,26 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         else {
         	myMetropiaPanelAnimator = ObjectAnimator.ofFloat(myMetropiaPanel, "translationY", 0, myMetropiaPanelHeight);
         }
+        View compass = findViewById(R.id.center_map_icon);
+        ObjectAnimator compassAnimator;
+        if(collapsed) {
+        	compassAnimator = ObjectAnimator.ofFloat(compass, "translationY", myMetropiaPanelHeight, 0);
+        }
+        else {
+        	compassAnimator = ObjectAnimator.ofFloat(compass, "translationY", 0, myMetropiaPanelHeight);
+        }
+        
+        View notifyTrip = findViewById(R.id.trip_notify_icon);
+        ObjectAnimator notifyTripAnimator;
+        if(collapsed) {
+        	notifyTripAnimator = ObjectAnimator.ofFloat(notifyTrip, "translationY", myMetropiaPanelHeight, 0);
+        }
+        else {
+        	notifyTripAnimator = ObjectAnimator.ofFloat(notifyTrip, "translationY", 0, myMetropiaPanelHeight);
+        }
+        
 		AnimatorSet animatorSet = new AnimatorSet();
-		animatorSet.play(landingPanelAnimator).with(myMetropiaPanelAnimator);
+		animatorSet.play(landingPanelAnimator).with(myMetropiaPanelAnimator).with(compassAnimator).with(notifyTripAnimator);
 		animatorSet.start();
     }
     
