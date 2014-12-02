@@ -38,6 +38,7 @@
         android:paddingTop="10dp"
         android:gravity="center"
         android:layout_below="@+id/logo_panel"
+        style="@style/HoloProgressBar"
         android:visibility="gone" />
     
     <LinearLayout 
