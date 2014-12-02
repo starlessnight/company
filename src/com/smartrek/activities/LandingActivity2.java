@@ -2920,7 +2920,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                     return false;
                                 }
                             });
-                            insertBeforeMyPointOverlay(overlays, star);
+                            insertOverlayByOrder(overlays, star);
                             star.showOverlay();
                             addrList.add(a.getAddress());
                         }
@@ -3743,15 +3743,69 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     return false;
                 }
             });
-            insertBeforeMyPointOverlay(overlays, bulb);
+            insertOverlayByOrder(overlays, bulb);
             bulb.showOverlay();
             showODBalloon();
         }
     }
     
-    private void insertBeforeMyPointOverlay(List<Overlay> mapOverlays, Overlay overlay) {
-    	int myCurrentOverlayIdx = mapOverlays.indexOf(myPointOverlay)!=-1?mapOverlays.indexOf(myPointOverlay):mapOverlays.size();
-    	mapOverlays.add(myCurrentOverlayIdx, overlay);
+    /**
+     * insert overlay by the order, current location > home > work > fav
+     * @param mapOverlays
+     * @param overlay
+     */
+    private void insertOverlayByOrder(List<Overlay> mapOverlays, POIOverlay overlay) {
+    	List<Overlay> homeOverlay = new ArrayList<Overlay>();
+    	List<Overlay> workOverlay = new ArrayList<Overlay>();
+    	List<Overlay> otherFavOverlay = new ArrayList<Overlay>();
+    	List<Overlay> bulbOverlay = new ArrayList<Overlay>();
+    	List<Overlay> otherOverlay = new ArrayList<Overlay>();
+    	Overlay currentLocationOverlay = null;
+    	if(R.drawable.home == overlay.getMarker()) {
+    		homeOverlay.add(overlay);
+    	}
+    	else if(R.drawable.work == overlay.getMarker()){
+    		 workOverlay.add(overlay);
+    	}
+    	else if(R.drawable.bulb_poi == overlay.getMarker()) {
+    		bulbOverlay.add(overlay);
+    	}
+    	else {
+    		otherFavOverlay.add(overlay);
+    	}
+    	
+    	for(Overlay cur : mapOverlays) {
+    		if(cur instanceof POIOverlay) {
+    			if(R.drawable.home == ((POIOverlay)cur).getMarker()) {
+    				homeOverlay.add(cur);
+    			}
+    			else if(R.drawable.work == ((POIOverlay)cur).getMarker()) {
+    				workOverlay.add(cur);
+    			}
+    			else if(R.drawable.bulb_poi == ((POIOverlay)cur).getMarker()) {
+    	    		bulbOverlay.add(cur);
+    	    	}
+    			else {
+    				otherFavOverlay.add(cur);
+    			}
+    		}
+    		else if(cur instanceof CurrentLocationOverlay) {
+    			currentLocationOverlay = cur;
+    		}
+    		else {
+    			otherOverlay.add(cur);
+    		}
+    	}
+    	
+    	mapOverlays.clear();
+    	mapOverlays.addAll(otherOverlay);
+    	mapOverlays.addAll(bulbOverlay);
+    	mapOverlays.addAll(otherFavOverlay);
+    	mapOverlays.addAll(workOverlay);
+    	mapOverlays.addAll(homeOverlay);
+    	if(currentLocationOverlay != null) {
+    		mapOverlays.add(currentLocationOverlay);
+    	}
     }
     
     private void initFavoritePage() {
