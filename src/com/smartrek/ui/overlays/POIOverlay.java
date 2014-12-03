@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -41,6 +42,8 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 	private boolean fromPoi;
 	
 	private boolean routePage;
+	
+	private int shrinkSize = 0;
 	
 	public interface POIActionListener {
 		
@@ -273,6 +276,55 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 		    overlayView.resetLabelAddressPanel();
 		}
 	}
+    
+    private final Rect mRect = new Rect();
+    
+    @Override
+    protected synchronized Drawable boundToHotspot(final Drawable marker, HotspotPlace hotspot) {
+		final int markerWidth = marker.getIntrinsicWidth();
+		final int markerHeight = marker.getIntrinsicHeight();
+
+		mRect.set(0 + (shrinkSize / 2), 0 + (shrinkSize / 2), 0 + markerWidth - (shrinkSize / 2), 0 + markerHeight - (shrinkSize / 2));
+
+		if (hotspot == null) {
+			hotspot = HotspotPlace.BOTTOM_CENTER;
+		}
+
+		switch (hotspot) {
+		default:
+		case NONE:
+			break;
+		case CENTER:
+			mRect.offset(-markerWidth / 2, -markerHeight / 2);
+			break;
+		case BOTTOM_CENTER:
+			mRect.offset(-markerWidth / 2, -markerHeight);
+			break;
+		case TOP_CENTER:
+			mRect.offset(-markerWidth / 2, 0);
+			break;
+		case RIGHT_CENTER:
+			mRect.offset(-markerWidth, -markerHeight / 2);
+			break;
+		case LEFT_CENTER:
+			mRect.offset(0, -markerHeight / 2);
+			break;
+		case UPPER_RIGHT_CORNER:
+			mRect.offset(-markerWidth, 0);
+			break;
+		case LOWER_RIGHT_CORNER:
+			mRect.offset(-markerWidth, -markerHeight);
+			break;
+		case UPPER_LEFT_CORNER:
+			mRect.offset(0, 0);
+			break;
+		case LOWER_LEFT_CORNER:
+			mRect.offset(0, -markerHeight);
+			break;
+		}
+		marker.setBounds(mRect);
+		return marker;
+	}
 
 	public int getAid() {
 		return aid;
@@ -314,5 +366,13 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
     public void inRoutePage() {
     	this.routePage = true;
     }
+
+	public int getShrinkSize() {
+		return shrinkSize;
+	}
+
+	public void setShrinkSize(int shrinkSize) {
+		this.shrinkSize = shrinkSize;
+	}
     
 }
