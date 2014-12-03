@@ -45,7 +45,7 @@
         android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentBottom="true"
-	    android:paddingBottom="50dp"
+	    android:paddingBottom="80dp"
 	    android:gravity="center"
 	    android:orientation="vertical">
 	    
@@ -56,7 +56,7 @@
 	        android:gravity="center"
 	        android:text="@string/splash_page_support_city"
 	        android:textColor="@color/metropia_blue"
-	        android:textSize="@dimen/smallest_font"/>
+	        android:textSize="@dimen/smaller_font"/>
 	    
 	    <TextView 
 	        android:id="@+id/coming_soon"
@@ -65,7 +65,7 @@
 	        android:gravity="center"
 	        android:text="and more coming soon!"
 	        android:textColor="@color/transparent_black"
-	        android:textSize="@dimen/smallest_font"/>
+	        android:textSize="@dimen/smaller_font"/>
         
     </LinearLayout>
     
