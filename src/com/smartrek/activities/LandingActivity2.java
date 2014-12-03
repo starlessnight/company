@@ -327,6 +327,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             public void onClick(View v) {}
         };
         
+        View landingPanelView = findViewById(R.id.landing_panel_content);
+        landingPanelView.setOnClickListener(noopClick);
+        
         fromMask.setOnClickListener(noopClick);
         toMask.setOnClickListener(noopClick);
         
