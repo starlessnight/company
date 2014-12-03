@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -209,7 +208,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private List<Address> searchAddresses = new ArrayList<Address>();
     private List<Address> fromSearchAddresses = new ArrayList<Address>();
-    private List<Address> favoriteAddresses = new ArrayList<Address>();
+    private List<Address> inputAddresses = new ArrayList<Address>();
     
     private AtomicBoolean canDrawReservRoute = new AtomicBoolean();
     
@@ -379,7 +378,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 	
                     if(StringUtils.isBlank(searchBox.getText())) {
                     	searchAddresses.clear();
-                    	searchAddresses.addAll(favoriteAddresses);
+                    	searchAddresses.addAll(inputAddresses);
                     	showAutoComplete.set(true);
                     }
                     refreshSearchAutoCompleteData();
@@ -402,7 +401,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 else {
                     if(StringUtils.isBlank(fromSearchBox.getText())) {
                         fromSearchAddresses.clear();
-                        fromSearchAddresses.addAll(favoriteAddresses);
+                        fromSearchAddresses.addAll(inputAddresses);
                         showAutoComplete.set(true);
                     }
                     refreshFromSearchAutoCompleteData();
@@ -712,6 +711,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         @Override
                         public void run() {
                             if(refresh){
+                            	refreshInputAddresses();
                                 refreshCobranding(lat, lon, alertAvailability, new Runnable() {
                                     public void run() {
                                         refreshBulbPOIs(lat , lon, rezoom);
@@ -1421,7 +1421,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	for(int i = 0 ; i < EMPTY_ITEM_SIZE ; i++) {
     		Address empty = new Address();
     		empty.setAddress("");
-    		empty.setDistance("");
+    		empty.setDistance(-1);
     		empty.setName("");
     		emptyAddresses.add(empty);
     	}
@@ -1786,12 +1786,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 address.setText(item.getAddress());
                 TextView distance = (TextView) view.findViewById(R.id.distance);
                 ImageView favIcon = (ImageView) view.findViewById(R.id.fav_icon);
-                if(StringUtils.isBlank(item.getDistance())) {
-                	distance.setVisibility(View.GONE);
-                }
-                else {
+                if(item.getDistance() >= 0) {
                 	distance.setVisibility(View.VISIBLE);
                 	distance.setText("> " + item.getDistance() + "mi");
+                }
+                else {
+                	distance.setVisibility(View.GONE);
                 }
                 
                 FavoriteIcon icon = FavoriteIcon.fromName(item.getIconName(), null);
@@ -1947,6 +1947,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         	POIOverlay poi = refreshPOIMarker(mapView, gp.getLatitude(), gp.getLongitude(), addr.getAddress(), addr.getName());
         	handleOD(mapView, poi, isFrom);
         }
+        // record input address
+        addInputAddress(addr);
+        
         IMapController mc = mapView.getController();
         if(zoomIn){
             mc.setZoom(SEARCH_ZOOM_LEVEL);
@@ -2889,7 +2892,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     overlays.addAll(otherOverlays);
                     if (result != null && result.size() > 0) {
                         initFontsIfNecessary();
-                        initFavoriteAddressesIfNecessary(result);
                         for(final com.smartrek.models.Address a : result){
                             final PoiOverlayInfo poiInfo = PoiOverlayInfo.fromAddress(LandingActivity2.this, a);
                             final POIOverlay star = new POIOverlay(mapView, boldFont, poiInfo, HotspotPlace.CENTER, null);
@@ -2933,21 +2935,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         Misc.parallelExecute(task);
     }
     
-    private synchronized void initFavoriteAddressesIfNecessary(List<com.smartrek.models.Address> result) {
-		if(favoriteAddresses.isEmpty() || favoriteAddresses.size() != result.size()) {
-			List<Address> newFavoriteAddresses = new ArrayList<Address>();
-			for(com.smartrek.models.Address addr : result) {
-				newFavoriteAddresses.add(Address.fromModelAddress(addr, lastLocation));
-			}
-			Collections.sort(newFavoriteAddresses, new Comparator<Address>() {
-				@Override
-				public int compare(Address lhs, Address rhs) {
-					return lhs.getDistance().compareTo(rhs.getDistance());
-				}
-			});
-			favoriteAddresses = newFavoriteAddresses;
-		}
+    private synchronized void refreshInputAddresses() {
+    	inputAddresses = DebugOptionsActivity.getInputAddress(LandingActivity2.this, lastLocation, DebugOptionsActivity.distanceComparator);
 	}
+    
+    private synchronized void addInputAddress(Address address) {
+    	DebugOptionsActivity.addInputAddress(LandingActivity2.this, address);
+    	refreshInputAddresses();
+    }
     
     private void handleOD(MapView mapView, POIOverlay poi, boolean isFrom) {
     	removeOldOD(mapView, isFrom);

@@ -1,8 +1,13 @@
 package com.smartrek.activities;
 
 import java.io.File;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,6 +25,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -41,16 +47,19 @@ import com.smartrek.activities.LandingActivity.ShortcutNavigationTask;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Trajectory;
 import com.smartrek.models.Trajectory.Record;
+import com.smartrek.requests.Request;
 import com.smartrek.requests.Request.Setting;
 import com.smartrek.requests.ServiceDiscoveryRequest.Result;
-import com.smartrek.requests.Request;
 import com.smartrek.requests.TrajectoryFetchRequest;
 import com.smartrek.ui.DelayTextWatcher;
 import com.smartrek.ui.DelayTextWatcher.TextChangeListener;
+import com.smartrek.ui.NavigationView;
 import com.smartrek.utils.Cache;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.GeoPoint;
+import com.smartrek.utils.Geocoding.Address;
 import com.smartrek.utils.Misc;
+import com.smartrek.utils.RouteNode;
 
 public final class DebugOptionsActivity extends Activity {
     
@@ -1013,6 +1022,102 @@ public final class DebugOptionsActivity extends Activity {
         	};
         	Misc.parallelExecute(cleanTask);
         }
+    }
+    
+    private static final String INPUT_ADDRESSES = "INPUT_ADDRESS";
+    private static final String INPUT_TIME = "inputTime";
+    private static final NumberFormat nf = new DecimalFormat("#.#");
+    
+    public static Comparator<Address> distanceComparator = new Comparator<Address>() {
+		@Override
+		public int compare(Address lhs, Address rhs) {
+			return Double.valueOf(lhs.getDistance()).compareTo(Double.valueOf(rhs.getDistance()));
+		}
+    };
+    
+    public static Comparator<Address> inputTimeComparator = new Comparator<Address>() {
+    	@Override
+		public int compare(Address lhs, Address rhs) {
+			return Double.valueOf(rhs.getInputTime()).compareTo(Double.valueOf(lhs.getInputTime()));
+		}
+    };
+    
+    public static void addInputAddress(Context ctx, Address address) {
+    	try {
+	    	LinkedList<Address> currentInputAddresses = getInputAddress(ctx, null, inputTimeComparator);
+	    	// get existed Address
+	    	int existedIndex = -1;
+	    	for(int i = 0 ; i < currentInputAddresses.size() ; i++) {
+	    		Address existedAddr = currentInputAddresses.get(i);
+	    		if(existedAddr.getLatitude() == address.getLatitude() && 
+	    				existedAddr.getLongitude() == address.getLongitude() && 
+	    				StringUtils.equalsIgnoreCase(existedAddr.getAddress(), address.getAddress())) {
+	    			existedIndex = i;
+	    		}
+	    	}
+	    	// remove old address and add new address to the first
+	    	if(existedIndex >= 0) {
+	    		currentInputAddresses.remove(existedIndex);
+	    	}
+	    	address.setInputTime(System.currentTimeMillis());
+	    	currentInputAddresses.addFirst(address);
+	    	
+	    	int endIndex = currentInputAddresses.size() > 9 ? 10 : currentInputAddresses.size();
+	    	JSONArray array = new JSONArray();
+	    	for(int j = 0 ; j < endIndex ; j++) {
+	    		Address curAddr = currentInputAddresses.get(j);
+	    		JSONObject obj = new JSONObject();
+	    		obj.put("address", curAddr.getAddress());
+	    		obj.put("iconName", curAddr.getIconName());
+	    		obj.put("lat", curAddr.getLatitude());
+	    		obj.put("lon", curAddr.getLongitude());
+	    		obj.put("name", curAddr.getName());
+	    		obj.put(INPUT_TIME, curAddr.getInputTime());
+	    		array.put(obj);
+	    	}
+	    	
+	    	SharedPreferences.Editor editor = getPrefs(ctx).edit();
+	        editor.putString(INPUT_ADDRESSES, array.toString());
+	        editor.commit();
+    	}
+    	catch(JSONException ignore) {}
+    }
+    
+    public synchronized static LinkedList<Address> getInputAddress(Context ctx, Location userLoc, Comparator<Address> sortBy) {
+    	LinkedList<Address> inputAddresses = new LinkedList<Address>();
+    	try {
+	        JSONArray array = null;
+	        try {
+	            array = new JSONArray(getPrefs(ctx).getString(INPUT_ADDRESSES, "[]"));
+	        }
+	        catch (Throwable t) {
+	            array = new JSONArray();
+	        }
+	        
+	        for(int i = 0 ; i < array.length() ; i++) {
+	        	JSONObject addrObj = array.getJSONObject(i);
+	        	Double distance = Double.valueOf(-1);
+	        	if(userLoc != null) {
+	        		distance = NavigationView.metersToMiles(
+		    				RouteNode.distanceBetween(userLoc.getLatitude(), userLoc.getLongitude(), addrObj.optDouble("lat", 0), addrObj.optDouble("lon", 0)));
+	        	}
+	        	
+	        	Address addr = new Address();
+	        	addr.setAddress(addrObj.optString("address", ""));
+	        	addr.setDistance(Double.valueOf(nf.format(distance)));
+	        	addr.setIconName(addrObj.optString("iconName", ""));
+	        	addr.setLatitude(addrObj.optDouble("lat", 0));
+	        	addr.setLongitude(addrObj.optDouble("lon", 0));
+	        	addr.setName(addrObj.optString("name", ""));
+	        	addr.setInputTime(addrObj.optLong(INPUT_TIME, 0));
+	        	inputAddresses.add(addr);
+	        }
+	        
+	        Collections.sort(inputAddresses, sortBy);
+    	}
+    	catch(JSONException ignore) {}
+        
+        return inputAddresses;
     }
     
 }

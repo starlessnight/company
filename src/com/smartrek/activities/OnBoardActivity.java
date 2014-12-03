@@ -578,12 +578,12 @@ public class OnBoardActivity extends FragmentActivity {
                 TextView distance = (TextView) view.findViewById(R.id.distance);
                 View iconPanel = view.findViewById(R.id.icon_panel);
 //                ImageView favIcon = (ImageView) view.findViewById(R.id.fav_icon);
-                if(StringUtils.isBlank(item.getDistance())) {
-                	distance.setVisibility(View.GONE);
-                }
-                else {
+                if(item.getDistance() >= 0) {
                 	distance.setVisibility(View.VISIBLE);
                 	distance.setText("> " + item.getDistance() + "mi");
+                }
+                else {
+                	distance.setVisibility(View.GONE);
                 }
                 
                 iconPanel.setVisibility(View.GONE);

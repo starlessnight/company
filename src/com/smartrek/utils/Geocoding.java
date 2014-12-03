@@ -52,9 +52,12 @@ public final class Geocoding {
 		
 		private String address;
 		
-		private String distance;
+		private double distance = -1; 
 		
 		private String iconName;
+		
+		// for DebugOptionsActivity
+		private Long inputTime = 0L;
 		
 		public static Address fromModelAddress(com.smartrek.models.Address addr, Location userLoc) {
 			Address address = new Address();
@@ -64,11 +67,11 @@ public final class Geocoding {
 			address.setLatitude(addr.getLatitude());
 			address.setLongitude(addr.getLongitude());
 			address.setName(addr.getName());
-			address.setDistance("");
+			address.setDistance(-1);
 			if(userLoc != null) {
 				NumberFormat nf = new DecimalFormat("#.#");
-	    		address.setDistance(nf.format(NavigationView.metersToMiles(
-	    				RouteNode.distanceBetween(userLoc.getLatitude(), userLoc.getLongitude(), address.getLatitude(), address.getLongitude()))));
+	    		address.setDistance(Double.valueOf(nf.format(NavigationView.metersToMiles(
+	    				RouteNode.distanceBetween(userLoc.getLatitude(), userLoc.getLongitude(), address.getLatitude(), address.getLongitude())))));
 			}
 			return address;
 		}
@@ -125,11 +128,11 @@ public final class Geocoding {
 			this.address = address;
 		}
 
-		public String getDistance() {
+		public double getDistance() {
 			return distance;
 		}
 
-		public void setDistance(String distance) {
+		public void setDistance(double distance) {
 			this.distance = distance;
 		}
 
@@ -139,6 +142,14 @@ public final class Geocoding {
 
 		public void setIconName(String iconName) {
 			this.iconName = iconName;
+		}
+
+		public Long getInputTime() {
+			return inputTime;
+		}
+
+		public void setInputTime(Long inputTime) {
+			this.inputTime = inputTime;
 		}
 
 	}

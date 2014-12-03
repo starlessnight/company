@@ -55,8 +55,8 @@ public class SearchAddressRequest extends FetchRequest<List<Address>>{
 		    	address.setIconName(icon);
 		    	if(userLat!=null && userLon!=null) {
 		    		NumberFormat nf = new DecimalFormat("#.#");
-		    		address.setDistance(nf.format(NavigationView.metersToMiles(
-		    				RouteNode.distanceBetween(userLat, userLon, lat, lon))));
+		    		address.setDistance(Double.valueOf(nf.format(NavigationView.metersToMiles(
+		    				RouteNode.distanceBetween(userLat, userLon, lat, lon)))));
 		    	}
 		    	result.add(address);
 		    }
