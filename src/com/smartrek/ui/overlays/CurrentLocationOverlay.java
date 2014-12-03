@@ -65,7 +65,7 @@ public class CurrentLocationOverlay extends Overlay {
 		
 		Paint circlePaint = new Paint();
 		circlePaint.setAntiAlias(true);
-		circlePaint.setColor(Color.parseColor("#" + Integer.toHexString(opacity)  + "2246FF"));
+		circlePaint.setColor(Color.parseColor("#" + Integer.toHexString(opacity)  + "01A0E3"));
 		if(radarEffect) {
 			canvas.drawCircle(point.x, point.y, radius, circlePaint);
 		}
