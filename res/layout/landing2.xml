@@ -86,6 +86,7 @@
                         android:orientation="horizontal" >
                         
                         <FrameLayout 
+                            android:id="@+id/drawer_menu_icon_panel"
                             android:layout_height="17dp"
                             android:layout_width="53dp"
                             android:layout_gravity="left|center">

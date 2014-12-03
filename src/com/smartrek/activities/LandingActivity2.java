@@ -1028,8 +1028,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         menuPanelLp.width=display.getWidth()*3/4;
         
         final DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        View drawerIcon = findViewById(R.id.drawer_menu_icon);
-        drawerIcon.setOnClickListener(new View.OnClickListener() {
+        View drawerIconPanel = findViewById(R.id.drawer_menu_icon_panel);
+        drawerIconPanel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mDrawerLayout.openDrawer(findViewById(R.id.left_drawer));
