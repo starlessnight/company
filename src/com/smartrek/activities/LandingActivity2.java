@@ -3872,6 +3872,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             return f;
         }
         
+        public FavoriteSlideFragment() {}
+        
         private FavoriteSlideFragment(ClickCallback clickCallback) {
         	this.clickCallback = clickCallback;
         }
