@@ -66,7 +66,7 @@ public class CalendarService extends IntentService {
                         ContentUris.appendId(eventsUriBuilder, now);
                         ContentUris.appendId(eventsUriBuilder, now + FOUR_HOURS);
                         Cursor events = getContentResolver().query(eventsUriBuilder.build(), new String[] { BaseColumns._ID, Instances.TITLE,
-                            Instances.BEGIN, Instances.EVENT_LOCATION, Instances.END}, null, null, Instances.BEGIN + " asc");
+                            Instances.BEGIN, Instances.EVENT_LOCATION, Instances.END, Instances.ALL_DAY}, null, null, Instances.BEGIN + " asc");
                         boolean hasNotification = false;
                         while(events.moveToNext()) {
                            String eventId = events.getString(0);
@@ -74,10 +74,12 @@ public class CalendarService extends IntentService {
                            long start = Long.parseLong(events.getString(2));
                            long end = Long.parseLong(events.getString(4));
                            String location = events.getString(3);
+                           Integer allDay = events.getInt(5); // all day event : 1 , not all day event : 0
                            long notiTime = start - TWO_AND_A_HALF_HOURS;
                            String title = events.getString(1);
                            Address address = geocode(location);
                            if((!file.exists() || file.length() == 0) 
+                        		   && allDay.equals(0) // skip all day event
                                    && StringUtils.isNotBlank(location)
                                    && isAtLeastFourWords(location)
                                    && canBeGeocoded(address) 
@@ -100,6 +102,7 @@ public class CalendarService extends IntentService {
                                .put(Instances.BEGIN, start)
                                .put(Instances.END, end)
                                .put(Instances.EVENT_LOCATION, location)
+                               .put(Instances.ALL_DAY, allDay)
                                .put(LAT, address == null?0:address.getLatitude())
                                .put(LON, address == null?0:address.getLongitude());
                            FileUtils.write(file, eventJson.toString());
