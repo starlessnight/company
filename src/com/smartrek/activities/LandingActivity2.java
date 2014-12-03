@@ -784,6 +784,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         final View favSave = favOptPanel.findViewById(R.id.fav_save);
         
         final EditText labelInput = (EditText) favOptPanel.findViewById(R.id.label_input);
+        
+        favOptPanel.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				labelInput.clearFocus();
+			}
+        });
+        
         final View labelInputClear = favOptPanel.findViewById(R.id.label_clear);
         labelInput.addTextChangedListener(new TextWatcher() {
 			@Override
@@ -803,6 +811,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				}
 				else {
 					labelInputClear.setVisibility(View.GONE);
+				}
+			}
+		});
+        
+        labelInput.setOnFocusChangeListener(new OnFocusChangeListener() {
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if(!hasFocus) {
+					InputMethodManager imm = (InputMethodManager)getSystemService(
+							Context.INPUT_METHOD_SERVICE);
+					imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
 				}
 			}
 		});
@@ -3849,12 +3868,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	favoriteIconPager.setOnPageChangeListener(new OnPageChangeListener() {
 			@Override
 			public void onPageScrollStateChanged(int arg0) {
-				
+				favOptPanel.findViewById(R.id.label_input).clearFocus();
 			}
 
 			@Override
 			public void onPageScrolled(int arg0, float arg1, int arg2) {
-				
+				favOptPanel.findViewById(R.id.label_input).clearFocus();
 			}
 
 			@Override
@@ -3870,13 +3889,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			@Override
 			public void onClick(FavoriteIcon icon) {
 				favOptPanel.findViewById(R.id.icon).setTag(icon);
+				favOptPanel.findViewById(R.id.label_input).clearFocus();
 				labelIcon.setImageResource(icon.getResourceId(LandingActivity2.this));
 				labelIcon.setVisibility(View.VISIBLE);
 			}
         });
         
         favoriteIconPager.setAdapter(slideAdapter);
-    	
+        
     	LinearLayout indicators = (LinearLayout)findViewById(R.id.indicators);
         for(int i=0; i<slideAdapter.getCount(); i++){
             View indicator = getLayoutInflater().inflate(R.layout.onboard_indicator, indicators, false);
@@ -4043,8 +4063,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                }
                 }
                 return true;
+            case KeyEvent.KEYCODE_BACK:
+            	if(isInFavoriteOperation()) {
+            		hideFavoriteOptPanel();
+            		return true;
+            	}
         }
-
         return super.onKeyDown(keycode, e);
     }
     
