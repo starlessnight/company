@@ -3279,10 +3279,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		editMenu.setImageResource(R.drawable.edit_menu);
     		imageResourceIds = new Integer[] {R.drawable.selected_edit_menu, R.drawable.edit_menu};
     	}
+    	DisplayMetrics dm = getResources().getDisplayMetrics();
     	editMenu.setTag(imageResourceIds);
     	FrameLayout.LayoutParams editMenuLp = (android.widget.FrameLayout.LayoutParams) editMenu.getLayoutParams();
     	editMenuLp.leftMargin = xy.x - (editMenu.getMeasuredWidth() / 2);
-    	editMenuLp.topMargin = xy.y - (editMenu.getMeasuredHeight() + 100);
+    	editMenuLp.topMargin = xy.y - (editMenu.getMeasuredHeight() + Dimension.dpToPx(25, dm));
     	editMenu.setLayoutParams(editMenuLp);
     	
     	poiIcon.setVisibility(View.VISIBLE);
@@ -3302,7 +3303,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	
     	Screen corespondXY = new Screen();
     	corespondXY.x = - (editMenu.getMeasuredWidth() / 2);
-    	corespondXY.y = (editMenu.getMeasuredHeight() + 50);
+    	corespondXY.y = (editMenu.getMeasuredHeight() + Dimension.dpToPx(20, dm));
     	
     	Screen fromXY = getRelativeCoorOfDegree(corespondXY, -60);
     	fromMenu.setVisibility(View.VISIBLE);
@@ -3322,7 +3323,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	FrameLayout.LayoutParams addressInfoLp = (FrameLayout.LayoutParams) addressInfo.getLayoutParams();
     	View landingPanelView = findViewById(R.id.landing_panel_content);
         int landingPanelHeight = landingPanelView.getHeight();
-    	DisplayMetrics dm = getResources().getDisplayMetrics();
     	int margin = Dimension.dpToPx(5, dm);
     	addressInfoLp.leftMargin = margin;
     	addressInfoLp.rightMargin = margin;
