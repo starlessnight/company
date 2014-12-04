@@ -526,15 +526,15 @@
                 <ListView
                     android:id="@+id/search_result_list"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_below="@+id/landing_panel_content"
                     android:layout_marginBottom="60dp"
                     android:layout_marginLeft="53dp"
                     android:layout_marginRight="8dp"
                     android:background="@android:color/white"
                     android:cacheColorHint="#00000000"
-                    android:divider="@null"
-                    android:dividerHeight="0dp"
+                    android:divider="@color/transparent_black"
+                    android:dividerHeight="0.5dp"
                     android:drawSelectorOnTop="false"
                     android:listSelector="#3396C93C"
                     android:visibility="gone" />
@@ -542,7 +542,7 @@
                 <ListView
                     android:id="@+id/from_search_result_list"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_below="@+id/landing_panel_content"
                     android:layout_marginBottom="60dp"
                     android:layout_marginLeft="53dp"
@@ -550,8 +550,8 @@
                     android:layout_marginTop="-47dp"
                     android:background="@android:color/white"
                     android:cacheColorHint="#00000000"
-                    android:divider="@null"
-                    android:dividerHeight="0dp"
+                    android:divider="@color/transparent_black"
+                    android:dividerHeight="0.5dp"
                     android:drawSelectorOnTop="false"
                     android:listSelector="#3396C93C"
                     android:visibility="gone" />

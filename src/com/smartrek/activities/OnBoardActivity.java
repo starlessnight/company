@@ -602,8 +602,8 @@ public class OnBoardActivity extends FragmentActivity {
                 distance.requestLayout();
                 address.requestLayout();
                 iconPanel.requestLayout();
-                view.setPadding(0, 0, 0, position == getCount() - 1 ? 
-                    Dimension.dpToPx(135, getResources().getDisplayMetrics()) : 0);
+//                view.setPadding(0, 0, 0, position == getCount() - 1 ? 
+//                    Dimension.dpToPx(135, getResources().getDisplayMetrics()) : 0);
                 return view;
         	}
         	
