@@ -3237,22 +3237,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
 	private void showPopupMenu(Screen xy, POIOverlay overlay) {
 		PoiOverlayInfo info = overlay.getPoiOverlayInfo();
-    	editMenu.setVisibility(View.VISIBLE);
-    	Integer[] imageResourceIds;
-    	if(overlay.getAid() == 0) {
-    		editMenu.setImageResource(R.drawable.save_menu);
-    		imageResourceIds = new Integer[] {R.drawable.selected_save_menu, R.drawable.save_menu};
-    	}
-    	else {
-    		editMenu.setImageResource(R.drawable.edit_menu);
-    		imageResourceIds = new Integer[] {R.drawable.selected_edit_menu, R.drawable.edit_menu};
-    	}
-    	DisplayMetrics dm = getResources().getDisplayMetrics();
-    	editMenu.setTag(imageResourceIds);
-    	FrameLayout.LayoutParams editMenuLp = (android.widget.FrameLayout.LayoutParams) editMenu.getLayoutParams();
-    	editMenuLp.leftMargin = xy.x - (editMenu.getMeasuredWidth() / 2);
-    	editMenuLp.topMargin = xy.y - (editMenu.getMeasuredHeight() + Dimension.dpToPx(25, dm));
-    	editMenu.setLayoutParams(editMenuLp);
     	
     	poiIcon.setVisibility(View.VISIBLE);
     	poiIcon.setImageResource(overlay.getMarker());
@@ -3269,9 +3253,26 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	poiLp.topMargin = xy.y - (poiIconHeight / 2);
     	poiIcon.setLayoutParams(poiLp);
     	
+    	editMenu.setVisibility(View.VISIBLE);
+    	Integer[] imageResourceIds;
+    	if(overlay.getAid() == 0) {
+    		editMenu.setImageResource(R.drawable.save_menu);
+    		imageResourceIds = new Integer[] {R.drawable.selected_save_menu, R.drawable.save_menu};
+    	}
+    	else {
+    		editMenu.setImageResource(R.drawable.edit_menu);
+    		imageResourceIds = new Integer[] {R.drawable.selected_edit_menu, R.drawable.edit_menu};
+    	}
+    	DisplayMetrics dm = getResources().getDisplayMetrics();
+    	editMenu.setTag(imageResourceIds);
+    	FrameLayout.LayoutParams editMenuLp = (android.widget.FrameLayout.LayoutParams) editMenu.getLayoutParams();
+    	editMenuLp.leftMargin = xy.x - (editMenu.getMeasuredWidth() / 2);
+    	editMenuLp.topMargin = xy.y - (editMenu.getMeasuredHeight() + poiIconHeight / 2 + Dimension.dpToPx(10, dm));
+    	editMenu.setLayoutParams(editMenuLp);
+    	
     	Screen corespondXY = new Screen();
     	corespondXY.x = - (editMenu.getMeasuredWidth() / 2);
-    	corespondXY.y = (editMenu.getMeasuredHeight() + Dimension.dpToPx(20, dm));
+    	corespondXY.y = (editMenu.getMeasuredHeight() + poiIconHeight / 2 + Dimension.dpToPx(5, dm));
     	
     	Screen fromXY = getRelativeCoorOfDegree(corespondXY, -60);
     	fromMenu.setVisibility(View.VISIBLE);
