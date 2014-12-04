@@ -19,9 +19,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.api.IMapController;
-import org.osmdroid.events.MapListener;
-import org.osmdroid.events.ScrollEvent;
-import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.MapView.Projection;
 import org.osmdroid.views.overlay.Overlay;
@@ -2945,7 +2942,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                     return false;
                                 }
                             });
-                            star.setShrinkSize(getShrinkSize(mapView.getZoomLevel()));
                             insertOverlayByOrder(overlays, star);
                             star.showOverlay();
                             addrList.add(a.getAddress());
@@ -3237,37 +3233,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
         });
         mapView.getOverlays().add(eventOverlay);
-        mapView.setMapListener(new MapListener() {
-
-			@Override
-			public boolean onScroll(ScrollEvent event) {
-				// TODO Auto-generated method stub
-				return false;
-			}
-
-			@Override
-			public boolean onZoom(ZoomEvent event) {
-				resizePoiOverlay(mapView, event.getZoomLevel());
-				return false;
-			}
-        	
-        });
-    }
-    
-    private static final Float SHRINK_RATIO = Float.valueOf(5f);
-    
-    private int getShrinkSize(int zoomLevel) {
-    	return Float.valueOf((Math.max(18 - zoomLevel, 0)) * SHRINK_RATIO).intValue();
-    }
-    
-    private void resizePoiOverlay(MapView mapView, int zoomLevel) {
-    	List<Overlay> allOverlays = mapView.getOverlays();
-    	for(Overlay overlay : allOverlays) {
-    		if(overlay instanceof POIOverlay) {
-    			((POIOverlay)overlay).setShrinkSize(getShrinkSize(zoomLevel));
-    		}
-    	}
-    	mapView.postInvalidate();
     }
     
 	private void showPopupMenu(Screen xy, POIOverlay overlay) {
@@ -3800,7 +3765,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     return false;
                 }
             });
-            bulb.setShrinkSize(getShrinkSize(mapView.getZoomLevel()));
             insertOverlayByOrder(overlays, bulb);
             bulb.showOverlay();
             showODBalloon();

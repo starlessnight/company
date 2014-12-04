@@ -13,6 +13,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -42,8 +43,6 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 	private boolean fromPoi;
 	
 	private boolean routePage;
-	
-	private int shrinkSize = 0;
 	
 	public interface POIActionListener {
 		
@@ -283,8 +282,10 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
     protected synchronized Drawable boundToHotspot(final Drawable marker, HotspotPlace hotspot) {
 		final int markerWidth = marker.getIntrinsicWidth();
 		final int markerHeight = marker.getIntrinsicHeight();
-
-		mRect.set(0 + (shrinkSize / 2), 0 + (shrinkSize / 2), 0 + markerWidth - (shrinkSize / 2), 0 + markerHeight - (shrinkSize / 2));
+		
+		int shrink = ((markerWidth / 2) / mapView.getMaxZoomLevel()) * (mapView.getMaxZoomLevel() - mapView.getZoomLevel());
+		
+		mRect.set(0 + (shrink / 2), 0 + (shrink / 2), 0 + markerWidth - (shrink / 2), 0 + markerHeight - (shrink / 2));
 
 		if (hotspot == null) {
 			hotspot = HotspotPlace.BOTTOM_CENTER;
@@ -367,12 +368,4 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
     	this.routePage = true;
     }
 
-	public int getShrinkSize() {
-		return shrinkSize;
-	}
-
-	public void setShrinkSize(int shrinkSize) {
-		this.shrinkSize = shrinkSize;
-	}
-    
 }
