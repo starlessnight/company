@@ -3036,6 +3036,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		}
     		toggleGetRouteButton(true);
     	}
+    	if(!isMapCollapsed()) {
+    		resizeMap(true);
+    	}
     	poi.showBalloonOverlay();
     }
     
