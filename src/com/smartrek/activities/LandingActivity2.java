@@ -333,6 +333,42 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         refreshSearchAutoCompleteData();
         refreshFromSearchAutoCompleteData();
         
+        findViewById(R.id.to_drop_down_button).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						if(searchBox.isFocused()) {
+							searchBox.clearFocus();
+						}
+						else {
+							searchBox.requestFocus();
+						}
+					}
+				});
+			}
+        });
+        
+        findViewById(R.id.from_drop_down_button).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						if(fromSearchBox.isFocused()) {
+							fromSearchBox.clearFocus();
+						}
+						else {
+							fromSearchBox.requestFocus();
+						}
+					}
+				});
+			}
+        });
+        
         searchBox.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
