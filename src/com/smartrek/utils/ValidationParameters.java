@@ -38,6 +38,11 @@ public class ValidationParameters {
 	private float arrivalDistanceThreshold = 152.4f; // 500 fts
 	
 	/**
+	 * Unit is in meters.
+	 */
+	private float disableRerouteThreshold = 304.8f; // 1000 fts
+	
+	/**
 	 * Unit is in seconds
 	 */
 	private float outOfRouteTimeout = 20*60;
@@ -115,5 +120,9 @@ public class ValidationParameters {
 
 	public float getStopSpeedThreshold() {
 		return stopSpeedThreshold;
+	}
+
+	public float getDisableRerouteThreshold() {
+		return disableRerouteThreshold;
 	}
 }

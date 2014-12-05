@@ -43,6 +43,7 @@ import com.smartrek.utils.Font;
 import com.smartrek.utils.Misc;
 import com.smartrek.utils.RouteLink;
 import com.smartrek.utils.RouteNode;
+import com.smartrek.utils.ValidationParameters;
 import com.smartrek.utils.RouteNode.Metadata;
 import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.UnitConversion;
@@ -544,6 +545,8 @@ public class NavigationView extends LinearLayout {
 
 			refresh(false);
 
+			RouteNode lastNode = route.getLastNode();
+			
 			if (node.hasMetadata()) {
 				RouteNode end = nearestLink.getEndNode();
 				while (end.getFlag() == 0 && end.getNextNode() != null) {
@@ -566,7 +569,7 @@ public class NavigationView extends LinearLayout {
 				            && firstNodeDist <= firstNode.getVoiceRadius()){
 				        firstMetadata.pingFlags[1] = true;
                         String text = firstNode.getVoice();
-                        if(listener != null && StringUtils.isNotBlank(text)){
+                        if(listener != null && StringUtils.isNotBlank(text) && isEnableVoiceGuidenceText(text, lastNode, latitude, longitude)){
                             listener.onCheckPoint(text, false, false);
                         }
 				    }
@@ -586,7 +589,7 @@ public class NavigationView extends LinearLayout {
 		                if (!startMetadata.pingFlags[0]) {
 	                        startMetadata.pingFlags[0] = true;
 	                        String text = startNode.getVoiceForLink();
-	                        if(listener != null && StringUtils.isNotBlank(text)){
+	                        if(listener != null && StringUtils.isNotBlank(text) && isEnableVoiceGuidenceText(text, lastNode, latitude, longitude)){
 	                            pendingVoiceForLinkNodes.add(startNode);
 	                            listener.onCheckPoint(text, false, false);
 	                        }
@@ -602,7 +605,7 @@ public class NavigationView extends LinearLayout {
                             && dist <= endNode.getVoiceRadius()) {
                         endMetadata.pingFlags[1] = true;
                         String text = endNode.getVoice();
-                        if(listener != null && StringUtils.isNotBlank(text)){
+                        if(listener != null && StringUtils.isNotBlank(text) && isEnableVoiceGuidenceText(text, lastNode, latitude, longitude)){
                             listener.onCheckPoint(text, false, false);
                         }
                     }
@@ -616,8 +619,10 @@ public class NavigationView extends LinearLayout {
     						if (prevNode == null) {
     							prevNode = end;
     						}
-    						listener.onCheckPoint(getContinueDirection(prevNode, formattedDist) 
-    					        + ". " + getDirection(node, null, false, true), false, true);
+    						String text = getContinueDirection(prevNode, formattedDist) + ". " + getDirection(node, null, false, true);
+    						if(isEnableVoiceGuidenceText(text, lastNode, latitude, longitude)) {
+    							listener.onCheckPoint(text, false, true);
+    						}
     					}
     					lastCheckPointDistanceInMile = distanceInMile;
     				} else {
@@ -679,9 +684,9 @@ public class NavigationView extends LinearLayout {
     						}
     					}
     
-    					if (listener != null && checkpointDistance != null) {
-    						listener.onCheckPoint(getDirection(node, checkpointDistance, 
-    					        actionOnly, false), false, true);
+    					String text = getDirection(node, checkpointDistance, actionOnly, false);
+    					if (listener != null && checkpointDistance != null && isEnableVoiceGuidenceText(text, lastNode, latitude, longitude)) {
+    						listener.onCheckPoint(text, false, true);
     						lastCheckPointDistanceInMile = distanceInMile;
     					}
     				}
@@ -723,6 +728,13 @@ public class NavigationView extends LinearLayout {
 //			textViewGenericMessage.setText(everInRoute?routeMsg:startFromRouteMsg);
 			}
 		}
+	}
+	
+	private boolean isEnableVoiceGuidenceText(String text, RouteNode lastNode, double lat, double lon) {
+		if(RouteNode.distanceBetween(lat, lon, lastNode.getLatitude(), lastNode.getLongitude()) < ValidationParameters.getInstance().getDisableRerouteThreshold()) {
+			return StringUtils.lowerCase(text).contains("congratulations") || StringUtils.lowerCase(text).contains("destination");
+		}
+		return true;
 	}
 	
 	private static final Integer ID = 123451;
