@@ -2643,6 +2643,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	findViewById(R.id.reservations_list).setVisibility(View.GONE);
     }
     
+    private boolean isReservationInfoShown() {
+    	return findViewById(R.id.trip_info).getVisibility() == View.VISIBLE || findViewById(R.id.reservations_list).getVisibility() == View.VISIBLE;
+    }
+    
     private SpannableString formatTripStartTime(String startTime) {
     	int indexOfChange = startTime.endsWith("M")?(startTime.indexOf("A")!=-1?startTime.indexOf("A"):startTime.indexOf("P")):startTime.indexOf("m");
 		SpannableString startTimeSpan = SpannableString.valueOf(startTime);
@@ -3319,6 +3323,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		addressInfo.setVisibility(View.INVISIBLE);
 		popupPanel.setTag(null);
 		popupPanel.setVisibility(View.GONE);
+	}
+	
+	private boolean isPopupMenuShown() {
+		return popupPanel.getVisibility() == View.VISIBLE;
 	}
 	
 	private void simulateTouch(View popupPanel, Screen xy) {
@@ -4034,6 +4042,19 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             case KeyEvent.KEYCODE_BACK:
             	if(isInFavoriteOperation()) {
             		hideFavoriteOptPanel();
+            		return true;
+            	}
+            	else if(isPopupMenuShown()) {
+            		hidePopupMenu();
+            		return true;
+            	}
+            	else if(searchBox.isFocused() || fromSearchBox.isFocused()) {
+            		searchBox.clearFocus();
+            		fromSearchBox.clearFocus();
+            		return true;
+            	}
+            	else if(isReservationInfoShown()) {
+            		hideReservationInfoPanel();
             		return true;
             	}
         }
