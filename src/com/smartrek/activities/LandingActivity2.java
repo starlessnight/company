@@ -551,8 +551,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         						notFound.setName(NO_AUTOCOMPLETE_RESULT);
         						notFound.setAddress("");
         						searchAddresses.add(notFound);
-        						List<Address> emptyAddresses = getEmptyAddressesForUI();
-        						searchAddresses.addAll(emptyAddresses);
+//        						List<Address> emptyAddresses = getEmptyAddressesForUI();
+//        						searchAddresses.addAll(emptyAddresses);
         					}
         					refreshSearchAutoCompleteData();
         				}
@@ -645,8 +645,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                 notFound.setName(NO_AUTOCOMPLETE_RESULT);
                                 notFound.setAddress("");
                                 fromSearchAddresses.add(notFound);
-                                List<Address> emptyAddresses = getEmptyAddressesForUI();
-                                fromSearchAddresses.addAll(emptyAddresses);
+//                                List<Address> emptyAddresses = getEmptyAddressesForUI();
+//                                fromSearchAddresses.addAll(emptyAddresses);
                             }
                             refreshFromSearchAutoCompleteData();
                         }
@@ -1472,19 +1472,19 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	}
     }
     
-    private Integer EMPTY_ITEM_SIZE = 5;
+//    private Integer EMPTY_ITEM_SIZE = 5;
     
-    private List<Address> getEmptyAddressesForUI() {
-    	List<Address> emptyAddresses = new ArrayList<Address>();
-    	for(int i = 0 ; i < EMPTY_ITEM_SIZE ; i++) {
-    		Address empty = new Address();
-    		empty.setAddress("");
-    		empty.setDistance(-1);
-    		empty.setName("");
-    		emptyAddresses.add(empty);
-    	}
-    	return emptyAddresses;
-    }
+//    private List<Address> getEmptyAddressesForUI() {
+//    	List<Address> emptyAddresses = new ArrayList<Address>();
+//    	for(int i = 0 ; i < EMPTY_ITEM_SIZE ; i++) {
+//    		Address empty = new Address();
+//    		empty.setAddress("");
+//    		empty.setDistance(-1);
+//    		empty.setName("");
+//    		emptyAddresses.add(empty);
+//    	}
+//    	return emptyAddresses;
+//    }
     
     private Long dismissReservId = Long.valueOf(-1);
     private Boolean swipeRight = Boolean.FALSE;
