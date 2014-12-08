@@ -100,8 +100,7 @@
 		        	android:id="@+id/text_view_road_pager"
 		        	android:layout_width="0dp"
 		        	android:layout_height="wrap_content"
-		        	android:layout_weight="1"
-		        	android:minHeight="125dp"/>	
+		        	android:layout_weight="1"/>	
 	    	    
 		        <ImageView
 		            android:id="@+id/btn_next_item"
