@@ -2173,8 +2173,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     public enum FavoriteIcon {
     	
-    	home, work, star, ice_cream_cone, zoo, bar, popsicle, music, tag, banner, restaurant, flag, 
-    	drumstick, sunglasses, thunderstorm, hardware, guitar, coffee, football, credit_card, gift, noodles, beach, barber;
+    	home, work, office, star, schedule, friend, restaurant, fastfood, pencil, coffee, airport,  fruit, 
+    	gift, place, pharmacy, guitar, music, repair_shop, football, magnifier, sunglasses, zoo, temperature, credit_card;
     	
         public static FavoriteIcon fromName(String name, FavoriteIcon failback) {
         	for(FavoriteIcon type : values()) {
@@ -2194,11 +2194,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
        	}
        	
        	public static FavoriteIcon[][] getFirstPageIcons() {
-       		return new FavoriteIcon[][] { {home, work, star, ice_cream_cone}, {zoo, bar, popsicle, music}, {tag, banner, restaurant, flag} };
+       		return new FavoriteIcon[][] { {home, work, office, star}, {schedule, friend, restaurant, fastfood}, {pencil, coffee, airport, fruit} };
        	}
        	
        	public static FavoriteIcon[][] getSecondPageIcons() {
-       		return new FavoriteIcon[][] { {drumstick, sunglasses, thunderstorm, hardware}, {guitar, coffee, football, credit_card}, {gift, noodles, beach, barber} };
+       		return new FavoriteIcon[][] { {gift, place, pharmacy, guitar}, {music, repair_shop, football, magnifier}, {sunglasses, zoo, temperature, credit_card} };
        	}
 
     }
