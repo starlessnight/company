@@ -152,6 +152,8 @@ public class NavigationView extends LinearLayout {
 	
 	private ViewPager roadPager;
 	
+	private boolean	restrictVoiceGuidance;
+	
 	public NavigationView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
@@ -731,8 +733,8 @@ public class NavigationView extends LinearLayout {
 	}
 	
 	private boolean isEnableVoiceGuidenceText(String text, RouteNode lastNode, double lat, double lon) {
-		if(RouteNode.distanceBetween(lat, lon, lastNode.getLatitude(), lastNode.getLongitude()) < ValidationParameters.getInstance().getDisableRerouteThreshold()) {
-			return StringUtils.lowerCase(text).contains("congratulations") || StringUtils.lowerCase(text).contains("destination");
+		if(restrictVoiceGuidance) {
+			return StringUtils.lowerCase(text).contains("destination");
 		}
 		return true;
 	}
@@ -934,5 +936,9 @@ public class NavigationView extends LinearLayout {
 		      notifyDataSetChanged();
 		  }
     }
+
+	public void setRestrictVoiceGuidance(boolean restrictVoiceGuidance) {
+		this.restrictVoiceGuidance = restrictVoiceGuidance;
+	}
 
 }

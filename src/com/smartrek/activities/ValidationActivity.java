@@ -140,6 +140,7 @@ import com.smartrek.utils.RouteRect;
 import com.smartrek.utils.StringUtil;
 import com.smartrek.utils.SystemService;
 import com.smartrek.utils.UnitConversion;
+import com.smartrek.utils.ValidationParameters;
 
 public class ValidationActivity extends FragmentActivity implements OnInitListener, 
         OnAudioFocusChangeListener, SKMapSurfaceListener, SKRouteListener {
@@ -1492,6 +1493,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     protected void onPreExecute() {
                         navigationView.setRerouting(true);
                         lastRerutingApiCallStatus = "waiting";
+                        RouteNode lastNode = getRouteOrReroute().getLastNode();
+                        navigationView.setRestrictVoiceGuidance(RouteNode.distanceBetween(lat, lon, lastNode.getLatitude(), lastNode.getLongitude()) < ValidationParameters.getInstance().getDisableRerouteThreshold());
                     }
                     @Override
                     protected Route doInBackground(Void... params) {
