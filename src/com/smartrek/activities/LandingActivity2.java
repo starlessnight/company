@@ -1091,6 +1091,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
         });
         
+        TextView headView = (TextView) findViewById(R.id.head);
+        headView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDrawerLayout.openDrawer(findViewById(R.id.left_drawer));
+            }
+        });
+        
         TextView newTripMenu = (TextView) findViewById(R.id.new_trip);
         newTripMenu.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -1402,7 +1410,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu);
         Font.setTypeface(Font.getMedium(assets), favSearchBox, labelInput, 
         		(TextView)findViewById(R.id.label), (TextView)findViewById(R.id.icon), getRouteView, 
-        		upointView, saveTimeView, co2View, (TextView) findViewById(R.id.head), 
+        		upointView, saveTimeView, co2View, headView, 
         		(TextView) findViewById(R.id.favorite_address_desc));
         //init Tracker
         ((SmarTrekApplication)getApplication()).getTracker(TrackerName.APP_TRACKER);
