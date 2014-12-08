@@ -283,7 +283,7 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 		final int markerWidth = marker.getIntrinsicWidth();
 		final int markerHeight = marker.getIntrinsicHeight();
 		
-		int shrink = ((markerWidth / 2) / mapView.getMaxZoomLevel()) * (mapView.getMaxZoomLevel() - mapView.getZoomLevel());
+		int shrink = ((markerWidth * 2 / 3) / mapView.getMaxZoomLevel()) * (mapView.getMaxZoomLevel() - mapView.getZoomLevel());
 		
 		mRect.set(0 + (shrink / 2), 0 + (shrink / 2), 0 + markerWidth - (shrink / 2), 0 + markerHeight - (shrink / 2));
 
