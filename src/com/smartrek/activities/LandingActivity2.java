@@ -402,6 +402,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
         });
         
+        final ImageView toDropdownIcon = (ImageView) findViewById(R.id.to_drop_down_icon);
+        
         searchBox.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -413,18 +415,21 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     showAutoComplete.set(false);
                     searchResultList.setVisibility(View.GONE);
                     fromSearchResultList.setVisibility(View.GONE);
+                    toDropdownIcon.setImageResource(R.drawable.drop_down_arrow);
                 }
                 else {
-                	
                     if(StringUtils.isBlank(searchBox.getText())) {
                     	searchAddresses.clear();
                     	searchAddresses.addAll(inputAddresses);
                     	showAutoComplete.set(true);
                     }
+                    toDropdownIcon.setImageResource(R.drawable.shrink_arrow);
                     refreshSearchAutoCompleteData();
                 }
             }
         });
+        
+        final ImageView fromDropdownIcon = (ImageView) findViewById(R.id.from_drop_down_icon);
         
         fromSearchBox.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
@@ -437,6 +442,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     showAutoComplete.set(false);
                     searchResultList.setVisibility(View.GONE);
                     fromSearchResultList.setVisibility(View.GONE);
+                    fromDropdownIcon.setImageResource(R.drawable.drop_down_arrow);
                 }
                 else {
                     if(StringUtils.isBlank(fromSearchBox.getText())) {
@@ -444,6 +450,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         fromSearchAddresses.addAll(inputAddresses);
                         showAutoComplete.set(true);
                     }
+                    fromDropdownIcon.setImageResource(R.drawable.shrink_arrow);
                     refreshFromSearchAutoCompleteData();
                 }
             }
