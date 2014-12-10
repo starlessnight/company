@@ -30,6 +30,8 @@ public final class CityRequest extends FetchRequest<City> {
         
         public double minLon;
         
+        public int timezone;
+        
     }
     
 	public CityRequest(double lat, double lon) {
@@ -55,6 +57,7 @@ public final class CityRequest extends FetchRequest<City> {
 		    city.minLat = data.getDouble("MinLat");
 		    city.maxLon = data.getDouble("MaxLon");
 		    city.minLon = data.getDouble("MinLon");
+		    city.timezone = data.getInt("timezone");
 		}else{
 		    city.html = json.optString("html");
 		}

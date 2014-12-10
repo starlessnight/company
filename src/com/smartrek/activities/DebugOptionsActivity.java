@@ -1042,9 +1042,9 @@ public final class DebugOptionsActivity extends Activity {
 		}
     };
     
-    public static void addInputAddress(Context ctx, Address address) {
+    public static void addInputAddress(Context ctx, Address address, int timezone) {
     	try {
-	    	LinkedList<Address> currentInputAddresses = getInputAddress(ctx, null, inputTimeComparator);
+	    	LinkedList<Address> currentInputAddresses = getInputAddress(ctx, null, timezone, inputTimeComparator);
 	    	// get existed Address
 	    	int existedIndex = -1;
 	    	for(int i = 0 ; i < currentInputAddresses.size() ; i++) {
@@ -1076,26 +1076,46 @@ public final class DebugOptionsActivity extends Activity {
 	    		array.put(obj);
 	    	}
 	    	
+	    	updateInputAddress(ctx, array, timezone);
+    	}
+    	catch(JSONException ignore) {}
+    }
+    
+    private static void updateInputAddress(Context ctx, JSONArray array, int timezone) {
+    	try {
+	    	JSONObject allAddress = null;
+	    	try {
+	    		allAddress = new JSONObject(getPrefs(ctx).getString(INPUT_ADDRESSES, ""));
+	    	}
+	    	catch(Throwable t) {
+	    		allAddress = new JSONObject();
+	    	}
+	    	
+	    	allAddress.remove(timezone + "");
+	    	allAddress.put(timezone + "", array);
+	    	
 	    	SharedPreferences.Editor editor = getPrefs(ctx).edit();
-	        editor.putString(INPUT_ADDRESSES, array.toString());
+	        editor.putString(INPUT_ADDRESSES, allAddress.toString());
 	        editor.commit();
     	}
     	catch(JSONException ignore) {}
     }
     
-    public synchronized static LinkedList<Address> getInputAddress(Context ctx, Location userLoc, Comparator<Address> sortBy) {
+    public synchronized static LinkedList<Address> getInputAddress(Context ctx, Location userLoc, int timezone, Comparator<Address> sortBy) {
     	LinkedList<Address> inputAddresses = new LinkedList<Address>();
     	try {
-	        JSONArray array = null;
+	        JSONObject allAddress = null;
 	        try {
-	            array = new JSONArray(getPrefs(ctx).getString(INPUT_ADDRESSES, "[]"));
+	            allAddress = new JSONObject(getPrefs(ctx).getString(INPUT_ADDRESSES, ""));
 	        }
 	        catch (Throwable t) {
-	            array = new JSONArray();
+	            allAddress = new JSONObject();
 	        }
 	        
-	        for(int i = 0 ; i < array.length() ; i++) {
-	        	JSONObject addrObj = array.getJSONObject(i);
+	        JSONArray timezoneAddress = allAddress.getJSONArray(timezone + "");
+	        
+	        for(int i = 0 ; i < timezoneAddress.length() ; i++) {
+	        	JSONObject addrObj = timezoneAddress.getJSONObject(i);
 	        	Double distance = Double.valueOf(-1);
 	        	if(userLoc != null) {
 	        		distance = NavigationView.metersToMiles(
