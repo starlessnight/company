@@ -247,8 +247,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private long curFromTime;
     
     private EditText searchBox;
-    
     private EditText fromSearchBox;
+    private View searchBoxClear;
+    private View fromSearchBoxClear;
     
     private TextView upointView;
     private TextView saveTimeView;
@@ -512,7 +513,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
         });
         
-        final View searchBoxClear = findViewById(R.id.search_box_clear);
+        searchBoxClear = findViewById(R.id.search_box_clear);
         DelayTextWatcher delayTextWatcher = new DelayTextWatcher(searchBox, new TextChangeListener(){
 			@Override
 			public void onTextChanged(CharSequence text) {
@@ -596,6 +597,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		}, 500);
         
         searchBox.addTextChangedListener(delayTextWatcher);
+        
         searchBoxClear.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -604,10 +606,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 toIcon.setImageResource(0);
                 toIcon.setVisibility(View.INVISIBLE);
                 clearSearchResult();
+                if(curFrom != null && StringUtils.isBlank(curFrom.getAddress())) {
+                	fromSearchBoxClear.performClick();
+                }
             }
         });
         
-        final View fromSearchBoxClear = findViewById(R.id.from_search_box_clear);
+        fromSearchBoxClear = findViewById(R.id.from_search_box_clear);
         DelayTextWatcher fromDelayTextWatcher = new DelayTextWatcher(fromSearchBox, new TextChangeListener(){
             @Override
             public void onTextChanged(CharSequence text) {
@@ -3617,6 +3622,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	            }
 	        }
 	    }
+	    
         return handle;
     }
     
