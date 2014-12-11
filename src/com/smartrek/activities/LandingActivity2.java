@@ -3336,20 +3336,20 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	editMenu.setLayoutParams(editMenuLp);
     	
     	Screen corespondXY = new Screen();
-    	corespondXY.x = - (editMenu.getMeasuredWidth() / 2);
-    	corespondXY.y = (editMenu.getMeasuredHeight() + poiIconHeight / 2 + Dimension.dpToPx(5, dm));
+    	corespondXY.x = 0;
+    	corespondXY.y = (editMenu.getMeasuredHeight() / 2 + poiIconHeight / 2 + Dimension.dpToPx(10, dm));
     	
     	Screen fromXY = getRelativeCoorOfDegree(corespondXY, -60);
     	fromMenu.setVisibility(View.VISIBLE);
     	FrameLayout.LayoutParams fromMenuLp = (android.widget.FrameLayout.LayoutParams) fromMenu.getLayoutParams();
-    	fromMenuLp.leftMargin = xy.x - (editMenu.getMeasuredWidth() / 2) - fromXY.x;
-    	fromMenuLp.topMargin = xy.y - fromXY.y;
+    	fromMenuLp.leftMargin = xy.x - fromXY.x - (editMenu.getMeasuredWidth() / 2);
+    	fromMenuLp.topMargin = xy.y - fromXY.y - (editMenu.getMeasuredWidth() / 2);
     	fromMenu.setLayoutParams(fromMenuLp);
     	
     	toMenu.setVisibility(View.VISIBLE);
     	FrameLayout.LayoutParams toMenuLp = (android.widget.FrameLayout.LayoutParams) toMenu.getLayoutParams();
-    	toMenuLp.leftMargin = xy.x - (editMenu.getMeasuredWidth() / 2) + fromXY.x;
-    	toMenuLp.topMargin = xy.y - fromXY.y;
+    	toMenuLp.leftMargin = xy.x + fromXY.x - (editMenu.getMeasuredWidth() / 2);
+    	toMenuLp.topMargin = xy.y - fromXY.y - (editMenu.getMeasuredWidth() / 2);
     	toMenu.setLayoutParams(toMenuLp);
     	
     	addressInfo.setVisibility(View.VISIBLE);
