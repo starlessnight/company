@@ -109,10 +109,10 @@ public class ExceptionHandlingService {
                 lastDialog.dismiss();
                 lastDialog = null;
             }
-        	NotificationDialog2 dialog = new NotificationDialog2(context, "An error has occurred.");
+        	final NotificationDialog2 dialog = new NotificationDialog2(context, "An error has occurred.");
         	dialog.setVerticalOrientation(false);
-        	dialog.setPositiveButtonText("Cancel");
-            dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
+        	dialog.setNegativeButtonText("OK");
+            dialog.setNegativeActionListener(new NotificationDialog2.ActionListener() {
                 @Override
                 public void onClick() {
                     if(callback != null) {
@@ -120,6 +120,16 @@ public class ExceptionHandlingService {
                     }
                 }
             });
+            
+            dialog.setPositiveButtonText("More");
+            dialog.setPostiveClickDismiss(false);
+            dialog.setDetailMessage(message);
+            dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
+				@Override
+				public void onClick() {
+					dialog.hideNegativeButtonAndShowDetail();
+				}
+			});
             
         	dialog.show();
         	lastDialog = dialog;
@@ -131,7 +141,8 @@ public class ExceptionHandlingService {
     }
     
     public synchronized void reportException(Exception e) {
-    	reportException(Log.getStackTraceString(e));
+//    	reportException(Log.getStackTraceString(e));
+    	reportException(e.getMessage());
     }
     
     public synchronized void reportExceptions(Runnable callback) {

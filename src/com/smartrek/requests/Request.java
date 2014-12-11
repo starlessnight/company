@@ -197,10 +197,12 @@ public abstract class Request {
                 throw new IOException(String.format("HTTP %d: %s", responseCode, responseBody));
             }
 	    }catch(Throwable t){
+	    	String detailMessage = url;
 	    	if(StringUtils.isNotBlank(getLinkUrl(Link.issue)) && !StringUtils.equalsIgnoreCase(getLinkUrl(Link.issue), url)) {
 	    		sendIssueReport(ctx, url, params, t.getMessage(), responseCode, responseBody);
+	    		detailMessage = formatErrorMessage(url, params, t.getMessage(), responseCode, responseBody);
 	    	}
-	        IOException e = new IOException(url);
+	        IOException e = new IOException(detailMessage);
 	        e.initCause(t);
 	        throw e;
 	    }
@@ -220,6 +222,17 @@ public abstract class Request {
 				return null;
 			}
 		});
+	}
+	
+	private String formatErrorMessage(String url, final Object reqParams, final String message,
+			final int responseCode, final String responseBody) {
+		StringBuffer detailMessage = new StringBuffer();
+		detailMessage.append("Error Message=").append(message).append("\n");
+		detailMessage.append("Request Url=").append(url).append("\n");
+		detailMessage.append("Response Status=").append(responseCode + "\n");
+		detailMessage.append("Response Content=").append(responseBody).append("\n");
+		detailMessage.append("Request Parameter=").append(reqParams.toString()).append("\n");
+		return detailMessage.toString();
 	}
 
 	public String executeHttpPostRequest(String url, Map<String, Object> params) {

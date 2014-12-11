@@ -40,6 +40,9 @@ public class NotificationDialog2 extends Dialog {
 	private boolean buttonVerticalOrientation = true;
 	
 	private int messageTextSize = 0;
+	
+	private String detailMessage;
+	private boolean postiveClickDismiss = true;
 
 	public NotificationDialog2(Context context, CharSequence message) {
 		super(context, R.style.PopUpDialog);
@@ -96,7 +99,10 @@ public class NotificationDialog2 extends Dialog {
 						if(positiveActionListener != null) {
 							positiveActionListener.onClick();
 						}
-						dismiss();
+						
+						if(postiveClickDismiss) {
+							dismiss();
+						}
 					}
 				});
 			}
@@ -183,6 +189,26 @@ public class NotificationDialog2 extends Dialog {
 
 	public void setMessageTextSize(int messageTextSize) {
 		this.messageTextSize = messageTextSize;
+	}
+
+	public void setDetailMessage(String detailMessage) {
+		this.detailMessage = detailMessage;
+	}
+	
+	public void hideNegativeButtonAndShowDetail() {
+		TextView titleView = (TextView)dialogView.findViewById(R.id.title);
+		titleView.setText("Error Message");
+		int seperator2Id = buttonVerticalOrientation?R.id.seperator2:R.id.h_seperator2;
+		int dismissId = buttonVerticalOrientation?R.id.dismiss:R.id.h_dismiss;
+		dialogView.findViewById(seperator2Id).setVisibility(View.VISIBLE);
+		TextView dismissView = (TextView) dialogView.findViewById(dismissId);
+		dismissView.setVisibility(View.GONE);
+		TextView messageView = (TextView) dialogView.findViewById(R.id.message);
+		messageView.setText(detailMessage);
+	}
+
+	public void setPostiveClickDismiss(boolean postiveClickDismiss) {
+		this.postiveClickDismiss = postiveClickDismiss;
 	}
 
 }
