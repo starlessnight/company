@@ -2150,7 +2150,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		poiInfo.iconName = address.getIconName();
     		FavoriteIcon icon = FavoriteIcon.fromName(address.getIconName(), FavoriteIcon.star);
     		poiInfo.marker = icon.getResourceId(ctx);
-    		poiInfo.markerWithShadow = icon.getResourceId(ctx);
+    		poiInfo.markerWithShadow = icon.getShadowResourceId(ctx);
     		return poiInfo;
     	}
     	
@@ -2209,6 +2209,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
        	
        	public Integer getResourceId(Context ctx) {
        		return getIconResourceId(ctx, name());
+       	}
+       	
+       	public Integer getShadowResourceId(Context ctx) {
+       		return getIconResourceId(ctx, name() + "_with_shadow");
        	}
        	
        	public static FavoriteIcon[][] getFirstPageIcons() {
