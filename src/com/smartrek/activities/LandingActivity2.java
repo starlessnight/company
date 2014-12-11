@@ -2031,10 +2031,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         IMapController mc = mapView.getController();
         if(zoomIn){
             mc.setZoom(SEARCH_ZOOM_LEVEL);
-            mc.setCenter(gp);
-        }else{
-            mc.animateTo(gp);
         }
+        mc.animateTo(gp);
         mapView.postInvalidate();
     }
     
