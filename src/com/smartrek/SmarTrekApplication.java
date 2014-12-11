@@ -12,6 +12,7 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary;
 import com.smartrek.activities.R;
+import com.smartrek.activities.ValidationActivity;
 
 @ReportsCrashes(formKey="dFdwTW1tbERoS1N4RlhNbFBjeHc4dXc6MQ",
                 mode = ReportingInteractionMode.DIALOG, // I have decided to use this mode for the beta testing period.
@@ -27,9 +28,9 @@ public final class SmarTrekApplication extends Application {
         // The following line triggers the initialization of ACRA
         //ACRA.init(this);
         CrashlyticsUtils.start(this);
-        Long interval = UserLocationService.getInterval(this);
+        int interval = ValidationActivity.TWO_MINUTES;
         LocationLibrary.initialiseLibrary(this, interval, 
-            interval.intValue(), false, "com.smartrek.activities");
+            interval, false, "com.smartrek.activities");
         LocationLibrary.stopAlarmAndListener(this);
         startServices(this);
         super.onCreate();
