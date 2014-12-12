@@ -662,6 +662,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 	
 	private AtomicBoolean initial = new AtomicBoolean(false);
+	private AtomicBoolean dayMode = new AtomicBoolean();
 	
 	/**
 	 * init skmap parameter
@@ -685,6 +686,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         mapView.getMapSettings().setInertiaZoomingEnabled(true);
         mapView.getMapSettings().setInertiaPanningEnabled(true);
         mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(ValidationActivity.this));
+        dayMode.set(SkobblerUtils.isDayMode());
         SKRouteManager.getInstance().setRouteListener(this);
 	}
 	
@@ -2130,6 +2132,16 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				locationChanged(location);
 			}
 			
+			final boolean currentMode = SkobblerUtils.isDayMode();
+			if(dayMode.get() != currentMode) {
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(ValidationActivity.this));
+						dayMode.set(currentMode);
+					}
+				});
+			}
 		}
 
 		public void onStatusChanged(String provider, int status, Bundle extras) {

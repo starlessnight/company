@@ -1,7 +1,10 @@
 package com.smartrek;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
 
@@ -61,11 +64,11 @@ public class SkobblerUtils {
 		return new SKMapViewStyle(getMapResourceDirPath(ctx) + "nightstyle/", "nightstyle.json");
 	}
 	
+	private static final DateFormat HHmm = new SimpleDateFormat("HHmm");
+	
 	public static boolean isDayMode() {
-		Calendar cal = Calendar.getInstance();
-		cal.setTimeInMillis(System.currentTimeMillis());
-		int hour = cal.get(Calendar.HOUR_OF_DAY);
-		return hour >= 6 && hour < 18;
+		Integer time = Integer.valueOf(HHmm.format(new Date(System.currentTimeMillis())));
+		return time >= 600 && time < 1800;
 	}
 	
 	private static String getMapResourceDirPath(Context ctx) {
