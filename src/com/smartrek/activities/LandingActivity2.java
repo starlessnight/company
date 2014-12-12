@@ -2234,6 +2234,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
        		return getIconResourceId(ctx, name() + "_with_shadow");
        	}
        	
+       	public Integer getFavoritePageResourceId(Context ctx) {
+       		return getIconResourceId(ctx, "favorite_page_" + name());
+       	}
+       	
        	public static FavoriteIcon[][] getFirstPageIcons() {
        		return new FavoriteIcon[][] { {home, work, office, star}, {schedule, friend, restaurant, fastfood}, {pencil, coffee, airport, fruit} };
        	}
@@ -4084,7 +4088,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	            	imageLp.gravity = Gravity.CENTER;
 	            	iconView.setLayoutParams(imageLp);
 	            	iconView.setTag(icon);
-	            	iconView.setImageResource(icon.getResourceId(view.getContext()));
+	            	iconView.setImageResource(icon.getFavoritePageResourceId(view.getContext()));
 	            	iconView.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(final View v) {
