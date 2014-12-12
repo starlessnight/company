@@ -16,9 +16,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.json.JSONObject;
 import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.api.IMapController;
+import org.osmdroid.events.MapListener;
+import org.osmdroid.events.ScrollEvent;
+import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.MapView.Projection;
 import org.osmdroid.views.overlay.Overlay;
@@ -2186,6 +2191,20 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		poiInfo.geopoint = currentLoc.getLocation();
     		return poiInfo;
     	}
+    	
+    	@Override
+    	public boolean equals(Object other) {
+    		if(other instanceof PoiOverlayInfo) {
+    			PoiOverlayInfo that = (PoiOverlayInfo) other;
+    			return new EqualsBuilder().append(that.lat + "", this.lat + "").append(that.lon + "", that.lon + "").append(that.marker + "", this.marker + "").isEquals();
+    		}
+    		return false;
+    	}
+    	
+    	@Override
+    	public int hashCode() {
+    		return new HashCodeBuilder().append(this.lat + "").append(this.lon + "").append(this.marker + "").toHashCode();
+    	}
 
     }
     
@@ -2400,6 +2419,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
         mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_GAME);
+        processHideOverlays();
     }
     
     @Override
@@ -2426,6 +2446,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
       dismissReservId = Long.valueOf(-1);
       refreshTripsInfo(true);
     } 
+    
+    private void processHideOverlays() {
+    	for(POIOverlay poi : hideOverlays) {
+    		poi.hideBalloon();
+    	}
+    	hideOverlays.clear();
+    }
     
     private void refreshTripsInfo(){
         refreshTripsInfo(false);
@@ -3004,12 +3031,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                     return false;
                                 }
                             });
-                            insertOverlayByOrder(overlays, star);
+                            insertOverlayByOrderOrSort(overlays, star);
                             star.showOverlay();
                             addrList.add(a.getAddress());
                         }
                     }
                     showODBalloon();
+                    handleZoomLevelFavoriteIcon(mapView);
                     mapView.postInvalidate();
                     write2SearchBoxTag(addrList);
                 }
@@ -3266,6 +3294,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         Misc.parallelExecute(task);
     }
     
+    private static final Integer POIOVERLAY_HIDE_ZOOM_LEVEL = 5;
+    private Set<POIOverlay> hideOverlays = new HashSet<POIOverlay>();
+    
     private void bindMapFunctions(final MapView mapView){
         EventOverlay eventOverlay = new EventOverlay(this);
         eventOverlay.setActionListener(new EventOverlay.ActionListener() {
@@ -3300,6 +3331,48 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
         });
         mapView.getOverlays().add(eventOverlay);
+        
+        mapView.setMapListener(new MapListener() {
+			@Override
+			public boolean onScroll(ScrollEvent event) {
+				return false;
+			}
+
+			@Override
+			public boolean onZoom(ZoomEvent event) {
+				handleZoomLevelFavoriteIcon(mapView);
+				return false;
+			}
+		});
+    }
+    
+    private void handleZoomLevelFavoriteIcon(MapView mapView) {
+    	if(mapView.getZoomLevel() <= POIOVERLAY_HIDE_ZOOM_LEVEL) {
+			List<Overlay> overlays = mapView.getOverlays();
+			Set<POIOverlay> hideThisTime = new HashSet<POIOverlay>();
+			for(Overlay overlay : overlays) {
+				if(overlay instanceof POIOverlay) {
+					POIOverlay poi = (POIOverlay)overlay;
+					if(!hideOverlays.contains(poi)) {
+						hideThisTime.add(poi);
+					}
+				}
+			}
+			
+			for(POIOverlay poi : hideThisTime) {
+				poi.hideOverlay();
+			}
+			hideOverlays.addAll(hideThisTime);
+			mapView.postInvalidate();
+		}
+		else if(mapView.getZoomLevel() > POIOVERLAY_HIDE_ZOOM_LEVEL && hideOverlays.size() > 0){
+			for(POIOverlay overlay : hideOverlays) {
+				overlay.showOverlay();
+			}
+			hideOverlays.clear();
+			insertOverlayByOrderOrSort(mapView.getOverlays(), null);
+			mapView.postInvalidate();
+		}
     }
     
 	private void showPopupMenu(Screen xy, POIOverlay overlay) {
@@ -3838,7 +3911,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     return false;
                 }
             });
-            insertOverlayByOrder(overlays, bulb);
+            insertOverlayByOrderOrSort(overlays, bulb);
             bulb.showOverlay();
             showODBalloon();
         }
@@ -3849,24 +3922,26 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
      * @param mapOverlays
      * @param overlay
      */
-    private void insertOverlayByOrder(List<Overlay> mapOverlays, POIOverlay overlay) {
+    private void insertOverlayByOrderOrSort(List<Overlay> mapOverlays, POIOverlay overlay) {
     	List<Overlay> homeOverlay = new ArrayList<Overlay>();
     	List<Overlay> workOverlay = new ArrayList<Overlay>();
     	List<Overlay> otherFavOverlay = new ArrayList<Overlay>();
     	List<Overlay> bulbOverlay = new ArrayList<Overlay>();
     	List<Overlay> otherOverlay = new ArrayList<Overlay>();
     	Overlay currentLocationOverlay = null;
-    	if(R.drawable.home == overlay.getMarker()) {
-    		homeOverlay.add(overlay);
-    	}
-    	else if(R.drawable.work == overlay.getMarker()){
-    		 workOverlay.add(overlay);
-    	}
-    	else if(R.drawable.bulb_poi == overlay.getMarker()) {
-    		bulbOverlay.add(overlay);
-    	}
-    	else {
-    		otherFavOverlay.add(overlay);
+    	if(overlay != null) {
+	    	if(R.drawable.home == overlay.getMarker()) {
+	    		homeOverlay.add(overlay);
+	    	}
+	    	else if(R.drawable.work == overlay.getMarker()){
+	    		 workOverlay.add(overlay);
+	    	}
+	    	else if(R.drawable.bulb_poi == overlay.getMarker()) {
+	    		bulbOverlay.add(overlay);
+	    	}
+	    	else {
+	    		otherFavOverlay.add(overlay);
+	    	}
     	}
     	
     	for(Overlay cur : mapOverlays) {

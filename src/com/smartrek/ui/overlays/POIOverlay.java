@@ -1,5 +1,7 @@
 package com.smartrek.ui.overlays;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
@@ -283,9 +285,11 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 		final int markerWidth = marker.getIntrinsicWidth();
 		final int markerHeight = marker.getIntrinsicHeight();
 		
-		int shrink = ((markerWidth * 2 / 3) / mapView.getMaxZoomLevel()) * (mapView.getMaxZoomLevel() - mapView.getZoomLevel());
 		
-		mRect.set(0 + (shrink / 2), 0 + (shrink / 2), 0 + markerWidth - (shrink / 2), 0 + markerHeight - (shrink / 2));
+		int widthShrink = ((markerWidth * 2 / 3) / mapView.getMaxZoomLevel()) * (mapView.getMaxZoomLevel() - mapView.getZoomLevel());
+		int heightShrink = ((markerHeight * 2 / 3) / mapView.getMaxZoomLevel()) * (mapView.getMaxZoomLevel() - mapView.getZoomLevel());
+		
+		mRect.set(0 + (widthShrink / 2), 0 + (heightShrink / 2), 0 + markerWidth - (widthShrink / 2), 0 + markerHeight - (heightShrink / 2));
 
 		if (hotspot == null) {
 			hotspot = HotspotPlace.BOTTOM_CENTER;
@@ -367,5 +371,19 @@ public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
     public void inRoutePage() {
     	this.routePage = true;
     }
+    
+    @Override
+	public boolean equals(Object other) {
+		if(other instanceof POIOverlay) {
+			POIOverlay that = (POIOverlay) other;
+			return new EqualsBuilder().append(that.poiInfo, this.poiInfo).isEquals();
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder().append(this.poiInfo).toHashCode();
+	}
 
 }
