@@ -684,7 +684,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         mapView.getMapSettings().setInertiaRotatingEnabled(true);
         mapView.getMapSettings().setInertiaZoomingEnabled(true);
         mapView.getMapSettings().setInertiaPanningEnabled(true);
-        mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapVewStyle(ValidationActivity.this));
+        mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(ValidationActivity.this));
         SKRouteManager.getInstance().setRouteListener(this);
 	}
 	
@@ -2129,6 +2129,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			} else {
 				locationChanged(location);
 			}
+			
 		}
 
 		public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -2538,6 +2539,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             location.setTime(System.currentTimeMillis());
             locationChanged(location);
         }
+        
 	}
 
 	@Override
