@@ -13,7 +13,7 @@ public class FixedMapView extends MapView {
 
 	private static final int NONE = 0;
 	private static final int ZOOM = 1;
-	private static final int LIMIT_ZOOM_TIMER = 100;
+	private static final int LIMIT_ZOOM_TIMER = 200;
 	int mode = NONE;
 
 	public FixedMapView(Context context, AttributeSet attrs) {
