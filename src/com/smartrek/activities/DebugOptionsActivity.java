@@ -1042,9 +1042,9 @@ public final class DebugOptionsActivity extends Activity {
 		}
     };
     
-    public static void addInputAddress(Context ctx, Address address, int timezone) {
+    public static void addInputAddress(Context ctx, Address address, String cityName) {
     	try {
-	    	LinkedList<Address> currentInputAddresses = getInputAddress(ctx, null, timezone, inputTimeComparator);
+	    	LinkedList<Address> currentInputAddresses = getInputAddress(ctx, null, cityName, inputTimeComparator);
 	    	// get existed Address
 	    	int existedIndex = -1;
 	    	for(int i = 0 ; i < currentInputAddresses.size() ; i++) {
@@ -1076,12 +1076,12 @@ public final class DebugOptionsActivity extends Activity {
 	    		array.put(obj);
 	    	}
 	    	
-	    	updateInputAddress(ctx, array, timezone);
+	    	updateInputAddress(ctx, array, cityName);
     	}
     	catch(JSONException ignore) {}
     }
     
-    private static void updateInputAddress(Context ctx, JSONArray array, int timezone) {
+    private static void updateInputAddress(Context ctx, JSONArray array, String cityName) {
     	try {
 	    	JSONObject allAddress = null;
 	    	try {
@@ -1091,8 +1091,8 @@ public final class DebugOptionsActivity extends Activity {
 	    		allAddress = new JSONObject();
 	    	}
 	    	
-	    	allAddress.remove(timezone + "");
-	    	allAddress.put(timezone + "", array);
+	    	allAddress.remove(cityName);
+	    	allAddress.put(cityName, array);
 	    	
 	    	SharedPreferences.Editor editor = getPrefs(ctx).edit();
 	        editor.putString(INPUT_ADDRESSES, allAddress.toString());
@@ -1101,7 +1101,7 @@ public final class DebugOptionsActivity extends Activity {
     	catch(JSONException ignore) {}
     }
     
-    public synchronized static LinkedList<Address> getInputAddress(Context ctx, Location userLoc, int timezone, Comparator<Address> sortBy) {
+    public synchronized static LinkedList<Address> getInputAddress(Context ctx, Location userLoc, String cityName, Comparator<Address> sortBy) {
     	LinkedList<Address> inputAddresses = new LinkedList<Address>();
     	try {
 	        JSONObject allAddress = null;
@@ -1112,10 +1112,10 @@ public final class DebugOptionsActivity extends Activity {
 	            allAddress = new JSONObject();
 	        }
 	        
-	        JSONArray timezoneAddress = allAddress.getJSONArray(timezone + "");
+	        JSONArray cityAddresses = allAddress.getJSONArray(cityName);
 	        
-	        for(int i = 0 ; i < timezoneAddress.length() ; i++) {
-	        	JSONObject addrObj = timezoneAddress.getJSONObject(i);
+	        for(int i = 0 ; i < cityAddresses.length() ; i++) {
+	        	JSONObject addrObj = cityAddresses.getJSONObject(i);
 	        	Double distance = Double.valueOf(-1);
 	        	if(userLoc != null) {
 	        		distance = NavigationView.metersToMiles(

@@ -3044,11 +3044,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private synchronized void refreshInputAddresses() {
-    	inputAddresses = DebugOptionsActivity.getInputAddress(LandingActivity2.this, lastLocation, cityTimeZone, DebugOptionsActivity.distanceComparator);
+    	inputAddresses = DebugOptionsActivity.getInputAddress(LandingActivity2.this, lastLocation, cityName, DebugOptionsActivity.distanceComparator);
 	}
     
     private synchronized void addInputAddress(Address address) {
-    	DebugOptionsActivity.addInputAddress(LandingActivity2.this, address, cityTimeZone);
+    	DebugOptionsActivity.addInputAddress(LandingActivity2.this, address, cityName);
     	refreshInputAddresses();
     }
     
@@ -3146,7 +3146,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private RouteRect cityRange;
-    private int cityTimeZone;
+    private String cityName = CityRequest.NO_CITY_NAME;
     
     private void refreshCobranding(final double lat, final double lon, 
             final boolean alertAvailability, final Runnable callback){
@@ -3179,7 +3179,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         cityRange = new RouteRect(Double.valueOf(result.maxLat * 1E6).intValue(), 
                     		Double.valueOf(result.maxLon * 1E6).intValue(), Double.valueOf(result.minLat * 1E6).intValue(), 
                     		Double.valueOf(result.minLon * 1E6).intValue());
-                        cityTimeZone = result.timezone;
+                        cityName = result.name;
                     }catch(Throwable t){}
                 }
                 if(callback != null){
