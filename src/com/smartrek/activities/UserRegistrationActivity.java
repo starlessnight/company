@@ -69,6 +69,8 @@ public final class UserRegistrationActivity extends FragmentActivity
 		backButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				Intent intent = new Intent(UserRegistrationActivity.this, LoginActivity.class);
+				startActivity(intent);
 				finish();
 			}
 		});

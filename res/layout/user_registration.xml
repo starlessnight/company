@@ -40,7 +40,7 @@
 		            android:gravity="left"
 		            android:textColor="#33add8"
 		            android:textSize="@dimen/smaller_font"
-		            android:text="Back"
+		            android:text="Sign In"
 		            android:layout_gravity="center_vertical"
 		            android:paddingTop="5dp"
 		            android:paddingBottom="5dp"

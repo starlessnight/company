@@ -79,6 +79,7 @@ public final class LoginActivity extends Activity implements OnClickListener,
 			public void onClick(View view) {
 				Intent intent = new Intent(LoginActivity.this, UserRegistrationActivity.class);
 				startActivity(intent);
+				finish();
 			}
         };
         createAccount.setSpan(create, 3, 17, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
