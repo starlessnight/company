@@ -1140,4 +1140,20 @@ public final class DebugOptionsActivity extends Activity {
         return inputAddresses;
     }
     
+    private static final String NEW_USER_TIP_CLOSE = "newUserTipClose";
+    
+    public static boolean isUserCloseTip(Context ctx) {
+    	boolean closed;
+        try{
+            closed = getPrefs(ctx).getBoolean(NEW_USER_TIP_CLOSE, false);
+        }catch(Throwable t){
+            closed = false;
+        }
+        return closed;
+    }
+    
+    public static void userCloseTip(Context ctx) {
+    	getPrefs(ctx).edit().putBoolean(NEW_USER_TIP_CLOSE, true).commit();
+    }
+    
 }

@@ -163,4 +163,6 @@
     <string name="on_board_page_desc">let\'s save your \n home and work locations \n to set up your commute!</string>
     <string name="on_board_page_finish_desc">you can edit and add \n more favorites by selecting \n any map icon or from \n within the favorites menu</string>
     
+    <string name="reservation_new_user_tip">You have no more schedule trips. \n TIP: You can schedule \n multiple trips in advance \n and they will be listed here</string>
+    
 </resources>

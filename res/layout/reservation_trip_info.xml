@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/metropia_blue" >
+
+    <LinearLayout
+        android:id="@+id/reservation_detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/trip_info_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/transparent_black"
+            android:gravity="center"
+            android:padding="2dp"
+            android:singleLine="true"
+            android:text=""
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/smallest_font" />
+
+        <TextView
+            android:id="@+id/time_to_go_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="-10dp"
+            android:gravity="center|bottom"
+            android:paddingTop="5dp"
+            android:text=""
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/medium_font"
+            android:visibility="visible" />
+
+        <LinearLayout
+            android:id="@+id/reservation_opts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="5dp" >
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1" >
+
+                <LinearLayout
+                    android:id="@+id/trip_od_detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical"
+                    android:padding="5dp"
+                    android:visibility="gone" >
+
+                    <TextView
+                        android:id="@+id/od_from"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:padding="1dp"
+                        android:text="FROM:"
+                        android:textColor="@color/transparent_white"
+                        android:textSize="@dimen/smallest_font" />
+
+                    <TextView
+                        android:id="@+id/od_from_address"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:padding="1dp"
+                        android:singleLine="true"
+                        android:text="Current Location"
+                        android:textColor="@android:color/white"
+                        android:textSize="@dimen/smallest_font" />
+
+                    <TextView
+                        android:id="@+id/od_to"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:padding="1dp"
+                        android:text="TO:"
+                        android:textColor="@color/transparent_white"
+                        android:textSize="@dimen/smallest_font" />
+
+                    <TextView
+                        android:id="@+id/od_to_address"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:padding="1dp"
+                        android:singleLine="true"
+                        android:text="Work"
+                        android:textColor="@android:color/white"
+                        android:textSize="@dimen/smallest_font" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/reservation_on_my_way"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableTop="@drawable/reservation_on_my_way"
+                    android:gravity="center"
+                    android:text="MESSAGE"
+                    android:textColor="@color/transparent_white"
+                    android:textSize="@dimen/micro_font" />
+            </FrameLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical" >
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:paddingBottom="10dp"
+                    android:paddingTop="5dp" >
+
+                    <ImageView
+                        android:id="@+id/reservation_start_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/reservation_start_trip_transparent" />
+
+                    <TextView
+                        android:id="@+id/reservation_start_time"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="8:10\nAM"
+                        android:textColor="@android:color/black"
+                        android:textSize="@dimen/large_font" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/leave_label"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center|bottom"
+                    android:text="LEAVE NOW"
+                    android:textColor="@color/transparent_white"
+                    android:textSize="@dimen/micro_font" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:gravity="center" >
+
+                <ImageView
+                    android:id="@+id/reservation_reschedule"
+                    android:layout_width="match_parent"
+                    android:layout_height="25dp"
+                    android:src="@drawable/reservation_reschedule" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/reservation_trip_times"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="5dp" >
+
+            <TextView
+                android:id="@+id/reservation_duration_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center|left"
+                android:text="Duration: 28 Min"
+                android:textColor="@android:color/white"
+                android:textSize="25dp" />
+
+            <TextView
+                android:id="@+id/reservation_arrive_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center|right"
+                android:text="Arrival: 8:30AM"
+                android:textColor="@android:color/white"
+                android:textSize="25dp" />
+        </LinearLayout>
+    </LinearLayout>
+    
+    <ImageView 
+        android:id="@+id/center_line"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:scaleType="fitCenter"
+        android:src="@drawable/center_line"/>
+
+</FrameLayout>
