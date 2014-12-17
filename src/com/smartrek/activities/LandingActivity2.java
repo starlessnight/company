@@ -4004,12 +4004,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	mapOverlays.clear();
     	mapOverlays.addAll(otherOverlay);
     	mapOverlays.addAll(bulbOverlay);
-    	mapOverlays.addAll(otherFavOverlay);
-    	mapOverlays.addAll(workOverlay);
-    	mapOverlays.addAll(homeOverlay);
     	if(currentLocationOverlay != null) {
     		mapOverlays.add(currentLocationOverlay);
     	}
+    	mapOverlays.addAll(otherFavOverlay);
+    	mapOverlays.addAll(workOverlay);
+    	mapOverlays.addAll(homeOverlay);
     }
     
     private void initFavoritePage() {
