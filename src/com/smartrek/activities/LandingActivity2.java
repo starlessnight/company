@@ -1164,6 +1164,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
+						mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
 						findViewById(R.id.reservations_list_view).setVisibility(View.VISIBLE);
 					}
 				});
@@ -1320,7 +1321,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         		final Integer[] resourceIds = (Integer[]) editMenu.getTag();
         		editMenu.setImageResource(resourceIds[0]);
         		ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
-        		clickAni.setAnimationId(R.anim.menu_click_animation);
+//        		clickAni.setAnimationId(R.anim.menu_click_animation);
         		clickAni.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
@@ -1342,7 +1343,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				v.setClickable(false);
 				toMenu.setImageResource(R.drawable.selected_to_menu);
 				ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
-				clickAni.setAnimationId(R.anim.menu_click_animation);
+//				clickAni.setAnimationId(R.anim.menu_click_animation);
 				clickAni.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
@@ -1362,7 +1363,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				v.setClickable(false);
 				fromMenu.setImageResource(R.drawable.selected_from_menu);
 				ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
-				clickAni.setAnimationId(R.anim.menu_click_animation);
+//				clickAni.setAnimationId(R.anim.menu_click_animation);
 				clickAni.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
@@ -3447,7 +3448,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	corespondXY.x = 0;
     	corespondXY.y = (editMenu.getMeasuredHeight() / 2 + poiIconHeight / 2 + Dimension.dpToPx(10, dm));
     	
-    	Screen fromXY = getRelativeCoorOfDegree(corespondXY, -60);
+    	Screen fromXY = getRelativeCoorOfDegree(corespondXY, -70);
     	fromMenu.setVisibility(View.VISIBLE);
     	FrameLayout.LayoutParams fromMenuLp = (android.widget.FrameLayout.LayoutParams) fromMenu.getLayoutParams();
     	fromMenuLp.leftMargin = xy.x - fromXY.x - (editMenu.getMeasuredWidth() / 2);
