@@ -275,6 +275,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private View fromMask;
     private View toMask;
     
+    private View newUserTipView;
+    
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
     
@@ -1568,7 +1570,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			}
     	});
     	
-    	final View newUserTipView = findViewById(R.id.new_user_tip);
+    	newUserTipView = findViewById(R.id.new_user_tip);
     	newUserTipView.setVisibility(DebugOptionsActivity.isUserCloseTip(LandingActivity2.this)?View.GONE:View.VISIBLE);
     	
     	findViewById(R.id.tip_close).setOnClickListener(new OnClickListener() {
@@ -2656,9 +2658,16 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	int reservCount = curReservIdx == -1 ? 0 : reservations.size() - curReservIdx;
     	if((reservCount == 1 && !DebugOptionsActivity.isUserCloseTip(LandingActivity2.this)) || reservCount > 1) {
 			findViewById(R.id.add_new_trip_background).setVisibility(View.GONE);
+			if(reservCount > 1) {
+				newUserTipView.setVisibility(View.GONE);
+			}
+			else {
+				newUserTipView.setVisibility(DebugOptionsActivity.isUserCloseTip(LandingActivity2.this)?View.GONE:View.VISIBLE);
+			}
 		}
 		else {
 			findViewById(R.id.add_new_trip_background).setVisibility(View.VISIBLE);
+			newUserTipView.setVisibility(DebugOptionsActivity.isUserCloseTip(LandingActivity2.this)?View.GONE:View.VISIBLE);
 		}
     }
     
