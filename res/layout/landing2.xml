@@ -33,10 +33,31 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
-                android:layout_marginBottom="60dp"
-                android:layout_marginRight="70dp"
+                android:layout_marginBottom="114dp"
+                android:layout_marginRight="20dp"
                 android:src="@drawable/upcoming_trip_orange"
                 android:visibility="gone" />
+            
+            <TextView
+                android:id="@+id/get_route"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:layout_marginRight="80dp"
+                android:layout_marginLeft="80dp"
+                android:layout_marginBottom="60dp"
+                android:background="@drawable/share_green_button"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="GET ROUTE"
+                android:textColor="@android:color/white"
+                android:textSize="27dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp" />
 
             <FrameLayout
                 android:id="@+id/popup_panel"
@@ -135,23 +156,6 @@
                         	android:paddingTop="4dp"
                         	android:paddingBottom="4dp" />
 
-                        <TextView
-                            android:id="@+id/get_route"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="right|center"
-                            android:layout_marginRight="8dp"
-                            android:background="@drawable/disabled_get_route_button"
-                            android:clickable="false"
-                            android:gravity="center"
-                            android:includeFontPadding="false"
-                            android:paddingLeft="5dp"
-                            android:paddingRight="5dp"
-                            android:text="Get Route"
-                            android:textColor="@color/transparent_white"
-                            android:textSize="20dp"
-                        	android:paddingTop="4dp"
-                        	android:paddingBottom="4dp" />
                     </LinearLayout>
 
                     <LinearLayout

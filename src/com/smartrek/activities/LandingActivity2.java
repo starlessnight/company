@@ -2457,6 +2457,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                List<Overlay> mapOverlays = mapView.getOverlays();
 	                List<Overlay> need2Remove = getDrawedRouteOverlays(mapOverlays);
 	                if(!need2Remove.isEmpty()) {
+	                	for(Overlay remove : need2Remove) {
+	                		if(remove instanceof RouteDestinationOverlay) {
+	                			((RouteDestinationOverlay)remove).hideBalloon();
+	                		}
+	                	}
 	                    mapOverlays.removeAll(need2Remove);
 	                    mapView.postInvalidate();
 	                }
@@ -3648,17 +3653,26 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         	notifyTripAnimator = ObjectAnimator.ofFloat(notifyTrip, "translationY", 0, myMetropiaPanelHeight);
         }
         
+        ObjectAnimator getRouteAnimator;
+        if(collapsed) {
+        	getRouteAnimator = ObjectAnimator.ofFloat(getRouteView, "translationY", myMetropiaPanelHeight, 0);
+        }
+        else {
+        	getRouteAnimator = ObjectAnimator.ofFloat(getRouteView, "translationY", 0, myMetropiaPanelHeight);
+        }
+        
 		AnimatorSet animatorSet = new AnimatorSet();
-		animatorSet.play(landingPanelAnimator).with(myMetropiaPanelAnimator).with(compassAnimator).with(notifyTripAnimator);
+		animatorSet.play(landingPanelAnimator).with(myMetropiaPanelAnimator).with(compassAnimator).with(notifyTripAnimator).with(getRouteAnimator);
 		animatorSet.start();
     }
     
     private void toggleGetRouteButton(boolean enabled) {
-    	getRouteView.setClickable(enabled);
-    	getRouteView.setBackgroundResource(enabled ? R.drawable.get_route_button : R.drawable.disabled_get_route_button);
-    	getRouteView.setTextColor(enabled ? getResources().getColor(android.R.color.white) : getResources().getColor(R.color.transparent_white));
-    	int padding = Dimension.dpToPx(5, getResources().getDisplayMetrics());
-    	getRouteView.setPadding(padding, 0, padding, 0);
+//    	getRouteView.setClickable(enabled);
+//    	getRouteView.setBackgroundResource(enabled ? R.drawable.get_route_button : R.drawable.disabled_get_route_button);
+//    	getRouteView.setTextColor(enabled ? getResources().getColor(android.R.color.white) : getResources().getColor(R.color.transparent_white));
+//    	int padding = Dimension.dpToPx(5, getResources().getDisplayMetrics());
+//    	getRouteView.setPadding(padding, 0, padding, 0);
+    	getRouteView.setVisibility(enabled?View.VISIBLE:View.GONE);
     }
     
     private void write2SearchBoxTag(Set<String> addresses) {
