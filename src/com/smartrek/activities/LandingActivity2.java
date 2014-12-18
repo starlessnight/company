@@ -2308,9 +2308,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             myPointOverlay = new CurrentLocationOverlay(LandingActivity2.this, 0, 0, R.drawable.landing_page_current_location);
             mapOverlays.add(myPointOverlay);
         }
-        else {
-        	Collections.swap(mapOverlays, mapOverlays.indexOf(myPointOverlay), (mapOverlays.size()-1));
-        }
+        
         myPointOverlay.setLocation((float) lat, (float) lon);
         mapView.postInvalidate();
     }
