@@ -3479,14 +3479,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	editMenu.setTag(imageResourceIds);
     	FrameLayout.LayoutParams editMenuLp = (android.widget.FrameLayout.LayoutParams) editMenu.getLayoutParams();
     	editMenuLp.leftMargin = xy.x - (editMenu.getMeasuredWidth() / 2);
-    	editMenuLp.topMargin = xy.y - (editMenu.getMeasuredHeight() + poiIconHeight / 2 + Dimension.dpToPx(10, dm));
+    	editMenuLp.topMargin = xy.y - (editMenu.getMeasuredHeight() + poiIconHeight / 2 + Dimension.dpToPx(20, dm));
     	editMenu.setLayoutParams(editMenuLp);
     	
     	Screen corespondXY = new Screen();
     	corespondXY.x = 0;
-    	corespondXY.y = (editMenu.getMeasuredHeight() / 2 + poiIconHeight / 2 + Dimension.dpToPx(10, dm));
+    	corespondXY.y = (editMenu.getMeasuredHeight() / 2 + poiIconHeight / 2 + Dimension.dpToPx(20, dm));
     	
-    	Screen fromXY = getRelativeCoorOfDegree(corespondXY, -70);
+    	Screen fromXY = getRelativeCoorOfDegree(corespondXY, -65);
     	fromMenu.setVisibility(View.VISIBLE);
     	FrameLayout.LayoutParams fromMenuLp = (android.widget.FrameLayout.LayoutParams) fromMenu.getLayoutParams();
     	fromMenuLp.leftMargin = xy.x - fromXY.x - (editMenu.getMeasuredWidth() / 2);
