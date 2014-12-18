@@ -106,7 +106,7 @@
 	                            android:layout_height="0dp"
 	                            android:layout_weight="1"
 	                            android:gravity="center|top"
-	                            android:text="Schedule A News Trip"
+	                            android:text="Schedule A New Trip"
 	                            android:textColor="@android:color/white"
 	                            android:textSize="@dimen/medium_font" />
 	                    </LinearLayout>

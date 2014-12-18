@@ -116,6 +116,7 @@ import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.activities.LandingActivity2.FavoriteSlideFragment.ClickCallback;
 import com.smartrek.dialogs.CancelableProgressDialog;
 import com.smartrek.dialogs.NotificationDialog2;
+import com.smartrek.dialogs.NotificationDialog2.ActionListener;
 import com.smartrek.dialogs.NotifyResumeDialog;
 import com.smartrek.models.Reservation;
 import com.smartrek.models.Route;
@@ -1685,17 +1686,51 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         reservInfo.findViewById(R.id.leave_label).setVisibility((isFirst && !reserv.isEligibleTrip())?View.VISIBLE:View.GONE);
         reservInfo.findViewById(R.id.center_line).setVisibility(isFirst? View.GONE : View.VISIBLE);
         
-        if(reserv.isEligibleTrip() && isFirst) {
+        if(isFirst) {
         	startButton.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(final View v) {
-					v.setClickable(false);
 					ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
 					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 						@Override
 						public void onAnimationEnd() {
-							v.setClickable(true);
-							startValidationActivity(reserv);
+							if(reserv.isEligibleTrip()) {
+								startValidationActivity(reserv);
+							}
+							else {
+								NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, "Would you like to start your trip early?");
+								dialog.setVerticalOrientation(false);
+								dialog.setTitle("");
+								dialog.setNegativeButtonText("Yes");
+								dialog.setNegativeActionListener(new ActionListener() {
+									@Override
+									public void onClick() {
+									    GeoPoint origin = null;
+									    if(myPointOverlay != null){
+									        origin = myPointOverlay.getLocation();
+									    }
+										RescheduleTripTask rescheduleTask = new RescheduleTripTask(LandingActivity2.this, 
+										        origin, null, reserv.getDestinationAddress(), 
+								        		reserv.getRid(), ehs);
+										rescheduleTask.callback = new RescheduleTripTask.Callback() {
+				                            @Override
+				                            public void run(Reservation reservation) {
+				                            	Log.d("LandingActivity2", "Reschedule trip start");
+				                            	startValidationActivity(reservation);
+				                            }
+				                        };
+				                        Misc.parallelExecute(rescheduleTask);
+									}
+								});
+								dialog.setPositiveButtonText("No");
+								dialog.setPositiveActionListener(new ActionListener() {
+									@Override
+									public void onClick() {
+										//do nothing
+									}
+								});
+								dialog.show();
+							}
 						}
 					});
 				}
@@ -2426,7 +2461,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                    mapView.postInvalidate();
 	                }
 	                tripNotifyIcon.setVisibility(View.GONE);
-	                refreshReservationList(new ArrayList<Reservation>());
+	                refreshTripInfoPanel(new ArrayList<Reservation>());
 	                unlockMenu();
 	            } 
 	            else{
@@ -2554,7 +2589,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private List<Long> removedReservIds = new ArrayList<Long>();
     
     private void refreshReservationList(List<Reservation> reservations) {
-    	reservationListPanel.removeAllViewsInLayout();
+    	reservationListPanel.removeAllViews();
     	int curReservIdx = -1;
     	boolean cont = true;
     	while(curReservIdx < (reservations.size()-1) && cont) {
@@ -4396,7 +4431,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         protected Void doInBackground(Void... params) {
             if(this._route == null && dest == null){
                 try {
-                    dest = Geocoding.lookup(ctx, address).get(0).getGeoPoint();
+                	dest = Geocoding.lookup(ctx, address, origin.getLatitude(), origin.getLongitude()).get(0).getGeoPoint();
                     String curLoc = DebugOptionsActivity.getCurrentLocation(ctx);
                     if(StringUtils.isNotBlank(curLoc)){ 
                         origin = Geocoding.lookup(ctx, curLoc).get(0).getGeoPoint();
@@ -4453,13 +4488,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             ReservationRequest reservReq = new ReservationRequest(user, 
                                 route, ctx.getString(R.string.distribution_date), id);
                             reservReq.execute(ctx);
-                            Log.d("LandingActivity2", "new reservation id : " + route.getId());
                             ReservationListFetchRequest reservListReq = new ReservationListFetchRequest(user);
                             reservListReq.invalidateCache(ctx);
                             List<Reservation> reservs = reservListReq.execute(ctx);
-                            
                             for (Reservation r : reservs) {
-                            	Log.d("LandingActivity2", "reserved id : " + r.getRid());
                                 if(((Long)r.getRid()).equals(route.getId())){
                                     reserv = r;
                                 }
