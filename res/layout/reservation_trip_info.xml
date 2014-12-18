@@ -3,6 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/metropia_blue" >
+    
+    <ImageView 
+        android:id="@+id/center_line"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:scaleType="fitCenter"
+        android:src="@drawable/center_line"/>
 
     <LinearLayout
         android:id="@+id/reservation_detail"
@@ -196,12 +204,4 @@
         </LinearLayout>
     </LinearLayout>
     
-    <ImageView 
-        android:id="@+id/center_line"
-        android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:layout_weight="1"
-        android:scaleType="fitCenter"
-        android:src="@drawable/center_line"/>
-
 </FrameLayout>
