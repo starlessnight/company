@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -55,6 +56,17 @@ public final class ShareActivity extends FragmentActivity {
 	private String title;
 	private String shareText;
 	private UiLifecycleHelper uiHelper;
+	
+	private TextView facebookView;
+	private TextView googlePlusView;
+	private TextView twitterView;
+	private TextView textMessageView;
+	private TextView emailView;
+	private TextView shareButtonView;
+	
+	private enum ShareType {
+		googlePlus, twitter, facebook, textMessage, email;
+	}
 
 	private Session.StatusCallback fbCallback = new Session.StatusCallback() {
 		@Override
@@ -91,27 +103,35 @@ public final class ShareActivity extends FragmentActivity {
 
 //		TextView userNameView = (TextView) findViewById(R.id.user_name);
 //		userNameView.setText(user.getFirstname() + " " + user.getLastname());
-
-		findViewById(R.id.facebook).setOnClickListener(new View.OnClickListener() {
+		
+		shareButtonView = (TextView) findViewById(R.id.share_button);
+		shareButtonView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				ClickAnimation clickAnimation = new ClickAnimation(ShareActivity.this, v);
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						fbClicked = true;
-						if (isNotLoading()) {
-							Session session = Session.getActiveSession();
-							if (session != null && session.isOpened()) {
-								publishFB();
-							} else {
-							    Misc.suppressTripInfoPanel(ShareActivity.this);
-								fbPending = true;
-								fbLogin();
-							}
+						if(shareButtonView.getTag() != null) {
+							share((ShareType)shareButtonView.getTag());
 						}
 					}
-
+				});
+			}
+		});
+		
+		facebookView = (TextView) findViewById(R.id.facebook_text);
+		facebookView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ClickAnimation clickAnimation = new ClickAnimation(ShareActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						deselectAll();
+						facebookView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.share_fasebook_select, 0, 0);
+						shareButtonView.setTag(ShareType.facebook);
+					}
 				});
 			}
 		});
@@ -134,89 +154,73 @@ public final class ShareActivity extends FragmentActivity {
 				updateTwitterStatus();
 			}
 		});
-		findViewById(R.id.twitter).setOnClickListener(new View.OnClickListener() {
+		
+		twitterView = (TextView) findViewById(R.id.twitter_text); 
+		twitterView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				ClickAnimation clickAnimation = new ClickAnimation(ShareActivity.this, v);
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						if (isNotLoading()) {
-							updateTwitterStatus();
-						}
+						deselectAll();
+						twitterView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.share_twitter_select, 0, 0);
+						shareButtonView.setTag(ShareType.twitter);
 					}
 				});
 			}
 		});
 
-		findViewById(R.id.google_plus).setOnClickListener(new View.OnClickListener() {
+		googlePlusView = (TextView) findViewById(R.id.google_plus_text); 
+		googlePlusView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				ClickAnimation clickAnimation = new ClickAnimation(ShareActivity.this, v);
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						if (isNotLoading()) {
-							int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(ShareActivity.this);
-							if (!StringUtils.equalsIgnoreCase(GooglePlayServicesUtil.getErrorString(errorCode), "success")) {
-								GooglePlayServicesUtil.getErrorDialog(errorCode,
-										ShareActivity.this, 0).show();
-							} else {
-							    Misc.suppressTripInfoPanel(ShareActivity.this);
-								Intent shareIntent = new PlusShare.Builder(
-										ShareActivity.this).setType("text/plain")
-										.setText(shareText).getIntent();
-								startActivityForResult(shareIntent, GOOGLE_PLUS_REQ);
-							}
-						}
+						deselectAll();
+						googlePlusView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.share_google_plus_select, 0, 0);
+						shareButtonView.setTag(ShareType.googlePlus);
 					}
 				});
 			}
 		});
 
-		findViewById(R.id.text_message).setOnClickListener(new View.OnClickListener() {
+		textMessageView = (TextView) findViewById(R.id.text_message_text); 
+		textMessageView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 			    ClickAnimation clickAnimation = new ClickAnimation(ShareActivity.this, v);
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						if (isNotLoading()) {
-						    Misc.suppressTripInfoPanel(ShareActivity.this);
-							Intent sendIntent = new Intent(Intent.ACTION_VIEW);
-							sendIntent.putExtra("sms_body", shareText);
-							sendIntent.setType("vnd.android-dir/mms-sms");
-							startActivity(Intent.createChooser(sendIntent, title));
-						}
+						deselectAll();
+						textMessageView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.share_sms_select, 0, 0);
+						shareButtonView.setTag(ShareType.textMessage);
 					}
 				});
 			}
 		});
 
-		findViewById(R.id.email).setOnClickListener(new View.OnClickListener() {
+		emailView = (TextView) findViewById(R.id.email_text);
+		emailView.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				ClickAnimation clickAnimation = new ClickAnimation(ShareActivity.this, v);
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						if (isNotLoading()) {
-						    Misc.suppressTripInfoPanel(ShareActivity.this);
-							Intent sendIntent = new Intent(Intent.ACTION_SEND);
-							sendIntent.putExtra(Intent.EXTRA_SUBJECT, title);
-							sendIntent.putExtra(Intent.EXTRA_TEXT, shareText);
-							sendIntent.setType("message/rfc822");
-							startActivity(Intent.createChooser(sendIntent, title));
-						}
+						deselectAll();
+						emailView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.share_email_select, 0, 0);
+						shareButtonView.setTag(ShareType.email);
 					}
 				});
 			}
 		});
 
 		Font.setTypeface(lightFont, (TextView) findViewById(R.id.share_good_news),
-				    (TextView) findViewById(R.id.facebook_text), (TextView) findViewById(R.id.twitter_text),
-				    (TextView) findViewById(R.id.google_plus_text), (TextView) findViewById(R.id.text_message_text), 
-				    (TextView) findViewById(R.id.email_text));
+				    facebookView, twitterView, googlePlusView, textMessageView, emailView, shareButtonView);
 
 		uiHelper = new UiLifecycleHelper(ShareActivity.this, fbCallback);
 		uiHelper.onCreate(savedInstanceState);
@@ -334,6 +338,72 @@ public final class ShareActivity extends FragmentActivity {
 			dialog.setTitle("");
 			dialog.setPositiveButtonText("OK");
 			dialog.show();
+		}
+	}
+	
+	private void deselectAll() {
+		facebookView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.share_fasebook_unselect, 0, 0);
+		googlePlusView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.share_google_plus_unselect, 0, 0);
+		twitterView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.share_twitter_unselect, 0, 0);
+		textMessageView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.share_sms_unselect, 0, 0);
+		emailView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.share_email_unselect, 0, 0);
+		shareButtonView.setTag(null);
+	}
+	
+	private void share(ShareType type) {
+		switch(type) {
+			case googlePlus:
+				if (isNotLoading()) {
+					int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(ShareActivity.this);
+					if (!StringUtils.equalsIgnoreCase(GooglePlayServicesUtil.getErrorString(errorCode), "success")) {
+						GooglePlayServicesUtil.getErrorDialog(errorCode,
+								ShareActivity.this, 0).show();
+					} else {
+					    Misc.suppressTripInfoPanel(ShareActivity.this);
+						Intent shareIntent = new PlusShare.Builder(
+								ShareActivity.this).setType("text/plain")
+								.setText(shareText).getIntent();
+						startActivityForResult(shareIntent, GOOGLE_PLUS_REQ);
+					}
+				}
+				break;
+			case twitter:
+				if (isNotLoading()) {
+					updateTwitterStatus();
+				}
+				break;
+			case facebook:
+				fbClicked = true;
+				if (isNotLoading()) {
+					Session session = Session.getActiveSession();
+					if (session != null && session.isOpened()) {
+						publishFB();
+					} else {
+					    Misc.suppressTripInfoPanel(ShareActivity.this);
+						fbPending = true;
+						fbLogin();
+					}
+				}
+				break;
+			case textMessage:
+				if (isNotLoading()) {
+				    Misc.suppressTripInfoPanel(ShareActivity.this);
+					Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+					sendIntent.putExtra("sms_body", shareText);
+					sendIntent.setType("vnd.android-dir/mms-sms");
+					startActivity(Intent.createChooser(sendIntent, title));
+				}
+				break;
+			case email:
+				if (isNotLoading()) {
+				    Misc.suppressTripInfoPanel(ShareActivity.this);
+					Intent sendIntent = new Intent(Intent.ACTION_SEND);
+					sendIntent.putExtra(Intent.EXTRA_SUBJECT, title);
+					sendIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+					sendIntent.setType("message/rfc822");
+					startActivity(Intent.createChooser(sendIntent, title));
+				}
+				break;
 		}
 	}
 	
