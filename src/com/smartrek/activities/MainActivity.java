@@ -376,7 +376,9 @@ public class MainActivity extends Activity implements AnimationListener, SKPrepa
        
     	if (resultCode == IntroActivity.INTRO_FINISH) {
     	    if(requestCode == IntroActivity.INTRO_ACTIVITY){
-    	        proceedToNextScreen();
+    	    	Intent signUpIntent = new Intent(this, UserRegistrationActivity.class);
+                startActivity(signUpIntent);
+                finish();
     	    }
     	}
     	else {
