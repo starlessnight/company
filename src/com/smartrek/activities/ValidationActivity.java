@@ -2138,6 +2138,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					@Override
 					public void run() {
 						mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(ValidationActivity.this));
+						TextView timeInfo = (TextView) findViewById(R.id.remain_times);
+						if(currentMode) {
+							timeInfo.setTextColor(Color.parseColor("#ad000000"));
+						}
+						else {
+							timeInfo.setTextColor(Color.parseColor("#adffffff"));
+						}
 						dayMode.set(currentMode);
 					}
 				});
