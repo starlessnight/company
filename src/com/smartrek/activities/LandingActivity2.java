@@ -1426,7 +1426,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         		(TextView) findViewById(R.id.favorite_address_desc));
         //init Tracker
         ((SmarTrekApplication)getApplication()).getTracker(TrackerName.APP_TRACKER);
-//        showTutorialIfNessary();
+        showTutorialIfNessary();
         
         //end oncreate
     }

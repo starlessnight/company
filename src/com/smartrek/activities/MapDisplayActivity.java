@@ -136,7 +136,6 @@ public final class MapDisplayActivity extends FragmentActivity {
 					}
 				});
 
-		/*
 		View tutorial = findViewById(R.id.tutorial);
 		tutorial.setOnClickListener(new OnClickListener() {
 			@Override
@@ -153,7 +152,6 @@ public final class MapDisplayActivity extends FragmentActivity {
 				});
 			}
 		});
-		*/
 		
 		View intro = findViewById(R.id.introduction_screens);
 		intro.setOnClickListener(new OnClickListener() {
@@ -232,7 +230,7 @@ public final class MapDisplayActivity extends FragmentActivity {
         Font.setTypeface(lightFont, userNameView, emailView, veNum,
 				(TextView) findViewById(R.id.predict_destination_text),
 				(TextView) findViewById(R.id.calendar_integration_text),
-//				(TextView) findViewById(R.id.tutorial),
+				(TextView) findViewById(R.id.tutorial),
 				(TextView) findViewById(R.id.introduction_screens),
 				(TextView) findViewById(R.id.terms_and_privacy),
 				(TextView) findViewById(R.id.help_our_research));
@@ -335,7 +333,6 @@ public final class MapDisplayActivity extends FragmentActivity {
 		Intent intent = new Intent();
 		intent.putExtra("display", 1);
 		setResult(RESULT_OK, intent);
-
 		finish();
 	}
 

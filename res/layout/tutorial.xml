@@ -18,7 +18,7 @@
 	        	
         <LinearLayout 
             android:id="@+id/indicators_panel"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 	        	
@@ -27,7 +27,7 @@
         	    android:layout_height="wrap_content"
         	    android:layout_gravity="center_horizontal"
         	    android:orientation="horizontal"
-        	    android:layout_marginBottom="20dp">
+        	    android:layout_marginBottom="10dp">
         	    
         	    <ImageView 
         	        android:id="@+id/left_arrow"

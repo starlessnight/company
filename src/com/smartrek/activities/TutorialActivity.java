@@ -32,10 +32,8 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
 	public static final Integer TUTORIAL_FINISH = Integer.valueOf(1);
 	
 	private static final SlideMarginInfo[] indicatorMargins = new SlideMarginInfo[] {
-		SlideMarginInfo.of(RelativeLayout.ALIGN_PARENT_BOTTOM, 0, 80),
-		SlideMarginInfo.of(RelativeLayout.ALIGN_PARENT_TOP, 100, 0), 
-		SlideMarginInfo.of(RelativeLayout.ALIGN_PARENT_BOTTOM, 0, 10), 
-		SlideMarginInfo.of(RelativeLayout.ALIGN_PARENT_BOTTOM, 0, 200)
+		SlideMarginInfo.of(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.ALIGN_PARENT_RIGHT, LayoutParams.WRAP_CONTENT, 0, 200, 0, 20),
+		SlideMarginInfo.of(RelativeLayout.ALIGN_PARENT_BOTTOM, 0, LayoutParams.MATCH_PARENT, 0, 250, 0, 0)
 	};
 	
 	private ViewPager mPager;
@@ -55,10 +53,15 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
         indicatorsPanel = (LinearLayout) findViewById(R.id.indicators_panel);
         RelativeLayout.LayoutParams indicatorLp = (RelativeLayout.LayoutParams) indicatorsPanel.getLayoutParams();
         SlideMarginInfo marginInfo = indicatorMargins[0];
-        indicatorLp.addRule(marginInfo.alignParent);
+        indicatorLp.addRule(marginInfo.alignParentY, RelativeLayout.TRUE);
+        indicatorLp.addRule(marginInfo.alignParentX, RelativeLayout.TRUE);
+        indicatorLp.width = marginInfo.width;
         DisplayMetrics dm = getResources().getDisplayMetrics();
         indicatorLp.topMargin = Dimension.dpToPx(marginInfo.marginTop, dm);
         indicatorLp.bottomMargin = Dimension.dpToPx(marginInfo.marginBottom, dm);
+        indicatorLp.leftMargin = Dimension.dpToPx(marginInfo.marginLeft, dm);
+        indicatorLp.rightMargin = Dimension.dpToPx(marginInfo.marginRight, dm);
+        indicatorsPanel.setLayoutParams(indicatorLp);
         
         skipView = (TextView) findViewById(R.id.skip_button);
         skipView.setOnClickListener(new OnClickListener() {
@@ -141,15 +144,23 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
     }
     
     static class SlideMarginInfo {
-    	int alignParent;
+    	int alignParentY;
+    	int alignParentX;
+    	int width;
     	int marginTop;
     	int marginBottom;
+    	int marginLeft;
+    	int marginRight;
     	
-    	static SlideMarginInfo of(int alignParent, int marginTop, int marginBottom) {
+    	static SlideMarginInfo of(int alignParentY, int alignParentX, int width, int marginTop, int marginBottom, int marginLeft, int marginRight) {
     		SlideMarginInfo info = new SlideMarginInfo();
-    		info.alignParent = alignParent;
+    		info.alignParentY = alignParentY;
+    		info.alignParentX = alignParentX;
+    		info.width = width;
     		info.marginTop = marginTop;
     		info.marginBottom = marginBottom;
+    		info.marginLeft = marginLeft;
+    		info.marginRight = marginRight;
     		return info;
     	}
     }
@@ -157,10 +168,8 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
     public static class SlideAdapter extends FragmentPagerAdapter {
         
         private static int[] slides = {
-            R.drawable.tutorial_1,
-            R.drawable.tutorial_2,
-            R.drawable.tutorial_3,
-            R.drawable.tutorial_4
+            R.drawable.new_tutorial_1,
+            R.drawable.new_tutorial_2
         };
         
         public SlideAdapter(FragmentManager fm) {
@@ -189,10 +198,19 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
         LayoutParams indicatorsPanelLp = (RelativeLayout.LayoutParams)indicatorsPanel.getLayoutParams();
         indicatorsPanelLp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
         indicatorsPanelLp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-        indicatorsPanelLp.addRule(marginInfo.alignParent);
+        indicatorsPanelLp.addRule(RelativeLayout.ALIGN_PARENT_LEFT, 0);
+        indicatorsPanelLp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, 0);
+        indicatorsPanelLp.addRule(marginInfo.alignParentY, RelativeLayout.TRUE);
+        indicatorsPanelLp.width = marginInfo.width;
+        if(marginInfo.alignParentX != 0) {
+        	indicatorsPanelLp.addRule(marginInfo.alignParentX, RelativeLayout.TRUE);
+        }
         DisplayMetrics dm = getResources().getDisplayMetrics();
         indicatorsPanelLp.topMargin = Dimension.dpToPx(marginInfo.marginTop, dm);
         indicatorsPanelLp.bottomMargin = Dimension.dpToPx(marginInfo.marginBottom, dm);
+        indicatorsPanelLp.leftMargin = Dimension.dpToPx(marginInfo.marginLeft, dm);
+        indicatorsPanelLp.rightMargin = Dimension.dpToPx(marginInfo.marginRight, dm);
+        indicatorsPanel.setLayoutParams(indicatorsPanelLp);
         if(pos==indicatorMargins.length-1) {
         	skipView.setText("Finish");
         }
