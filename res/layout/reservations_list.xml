@@ -63,12 +63,22 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
-
+                
                 <RelativeLayout 
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:layout_below="@+id/reservation_list">
+                    
+                    <ImageView
+	                	android:id="@+id/white_center_dash_line" 
+				    	android:layout_height="fill_parent"
+        				android:layout_width="match_parent"
+        				android:layout_weight="1"
+        				android:layout_marginTop="-35dp"
+        				android:scaleType="fitCenter" 
+        				android:src="@drawable/center_line"
+        				android:visibility="gone"/>
                     
 	                <LinearLayout
 	                    android:id="@+id/add_new_trip_background"

@@ -2654,12 +2654,15 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		dismissReservId = -1L;
     		tripNotifyIcon.setVisibility(View.GONE);
     	}
-    	
+ 
+    	View centerDashLine = findViewById(R.id.white_center_dash_line);
+    	centerDashLine.setVisibility(View.GONE);
     	int reservCount = curReservIdx == -1 ? 0 : reservations.size() - curReservIdx;
     	if((reservCount == 1 && !DebugOptionsActivity.isUserCloseTip(LandingActivity2.this)) || reservCount > 1) {
 			findViewById(R.id.add_new_trip_background).setVisibility(View.GONE);
 			if(reservCount > 1) {
 				newUserTipView.setVisibility(View.GONE);
+				centerDashLine.setVisibility(reservCount == 2 ? View.VISIBLE : View.GONE);
 			}
 			else {
 				newUserTipView.setVisibility(DebugOptionsActivity.isUserCloseTip(LandingActivity2.this)?View.GONE:View.VISIBLE);
