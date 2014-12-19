@@ -14,11 +14,13 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.smartrek.SmarTrekApplication;
 import com.smartrek.SmarTrekApplication.TrackerName;
+import com.smartrek.utils.Dimension;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.Preferences;
 
@@ -108,11 +110,10 @@ public class IntroActivity extends FragmentActivity implements OnPageChangeListe
     public static class SlideAdapter extends FragmentPagerAdapter {
         
         private static int[] slides = {
-            R.drawable.intro_1,
-            R.drawable.intro_2,
-            R.drawable.intro_3,
-            R.drawable.intro_4,
-            R.drawable.intro_5
+            R.drawable.introduction_1,
+            R.drawable.introduction_2,
+            R.drawable.introduction_3,
+            R.drawable.introduction_4
         };
         
         public SlideAdapter(FragmentManager fm) {
@@ -139,12 +140,16 @@ public class IntroActivity extends FragmentActivity implements OnPageChangeListe
         }
         
         View getStarted = findViewById(R.id.get_started);
+        LinearLayout.LayoutParams indicatorsLp = (LayoutParams) indicators.getLayoutParams();
         if(pos == indicators.getChildCount() - 1) {
+        	indicatorsLp.bottomMargin = 0;
         	getStarted.setVisibility(View.VISIBLE);
         }
         else {
-        	getStarted.setVisibility(View.INVISIBLE);
+        	indicatorsLp.bottomMargin = Dimension.dpToPx(40, getResources().getDisplayMetrics());
+        	getStarted.setVisibility(View.GONE);
         }
+        indicators.setLayoutParams(indicatorsLp);
     }
     
     @Override

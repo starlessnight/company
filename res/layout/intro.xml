@@ -2,7 +2,7 @@
 <com.smartrek.ui.HorizontalTouchableScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/metropia_blue"
+    android:background="#585A5B"
     android:orientation="vertical"
     android:fillViewport="true">
 
@@ -31,6 +31,7 @@
 			        android:layout_height="wrap_content"
 			        android:gravity="center"
 			        android:layout_marginTop="20dp"
+			        android:layout_marginBottom="40dp"
 			        android:orientation="horizontal"/>
 	        	
 	        	<TextView 
@@ -45,7 +46,7 @@
 	        	    android:textColor="@color/metropia_blue"
 	        	    android:textSize="@dimen/medium_font"
 	        	    style="@style/WhiteButton"
-	        	    android:visibility="invisible"/>
+	        	    android:visibility="gone"/>
         	
         	</LinearLayout>
 
