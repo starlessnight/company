@@ -3190,7 +3190,25 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private synchronized void refreshInputAddresses() {
-    	inputAddresses = DebugOptionsActivity.getInputAddress(LandingActivity2.this, lastLocation, cityName, DebugOptionsActivity.distanceComparator);
+    	List<Address> storedInputAddresses = DebugOptionsActivity.getInputAddress(LandingActivity2.this, lastLocation, cityName, DebugOptionsActivity.inputTimeComparator);
+    	List<Address> homeAddress = new ArrayList<Address>();
+    	List<Address> workAddress = new ArrayList<Address>();
+    	List<Address> otherAddress = new ArrayList<Address>();
+    	for(Address addr : storedInputAddresses) {
+    		if(FavoriteIcon.home.name().equals(addr.getIconName())) {
+    			homeAddress.add(addr);
+    		}
+    		else if(FavoriteIcon.work.name().equals(addr.getIconName())) {
+    			workAddress.add(addr);
+    		}
+    		else {
+    			otherAddress.add(addr);
+    		}
+    	}
+    	inputAddresses.clear();
+    	inputAddresses.addAll(homeAddress);
+    	inputAddresses.addAll(workAddress);
+    	inputAddresses.addAll(otherAddress);
 	}
     
     private synchronized void addInputAddress(Address address) {
