@@ -275,6 +275,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private View newUserTipView;
     
+    View toDropDownButton;
+    View fromDropDownButton;
+    
     private static final String DROP_STATE = "dropdown";
     
     //debug
@@ -348,8 +351,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         refreshSearchAutoCompleteData();
         refreshFromSearchAutoCompleteData();
         
-        final View toDropDownButton = findViewById(R.id.to_drop_down_button);
-        final View fromDropDownButton = findViewById(R.id.from_drop_down_button);
+        toDropDownButton = findViewById(R.id.to_drop_down_button);
+        fromDropDownButton = findViewById(R.id.from_drop_down_button);
         final ImageView toDropDownIcon = (ImageView) findViewById(R.id.to_drop_down_icon);
         toDropDownButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -530,6 +533,40 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     showFavoriteOptPanel(null);
                 }
             }
+        });
+        
+        fromFavoriteDropdown.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				Address selected = (Address)parent.getItemAtPosition(position);
+                if(StringUtils.isNotBlank(selected.getAddress())) {
+                	dropPinForAddress(selected, true, true);
+                    InputMethodManager imm = (InputMethodManager)getSystemService(
+                            Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(fromSearchBox.getWindowToken(), 0);
+                    showAutoComplete.set(false);
+                    clearFromSearchResult();
+                    fromDropDownButton.performClick();
+                }
+			}
+        });
+        
+        toFavoriteDropdown.setOnItemClickListener(new OnItemClickListener() {
+        	@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				Address selected = (Address)parent.getItemAtPosition(position);
+                if(StringUtils.isNotBlank(selected.getAddress())) {
+                	dropPinForAddress(selected, true, false);
+                    InputMethodManager imm = (InputMethodManager)getSystemService(
+                            Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
+                    showAutoComplete.set(false);
+                    clearFromSearchResult();
+                    toDropDownButton.performClick();
+                }
+			}
         });
         
         searchResultList.setOnTouchListener(new OnTouchListener() {
@@ -3482,11 +3519,22 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 //	                boolean handledPOI = removePOIMarker(mapView);
 //	                boolean handledOD = removeOldOD(mapView, isFromPoi());
 	                boolean hasFocus = searchBox.isFocused() || fromSearchBox.isFocused();
+	                boolean hasFavoriteDropDown = DROP_STATE.equals(fromDropDownButton.getTag()) || 
+	                		DROP_STATE.equals(toDropDownButton.getTag());
+	                if(hasFavoriteDropDown) {
+	                	if(DROP_STATE.equals(fromDropDownButton.getTag())) {
+	                		fromDropDownButton.performClick();
+	                	}
+	                	else {
+	                		toDropDownButton.performClick();
+	                	}
+	                }
+	                
 	                if(hasFocus) {
 	                	searchBox.clearFocus();
 	                	fromSearchBox.clearFocus();
 	                }
-	                if(/*!handledStarred && !handledBulb && !handledPOI && !handledOD &&*/ !hasFocus){
+	                if(/*!handledStarred && !handledBulb && !handledPOI && !handledOD &&*/ !hasFocus && !hasFavoriteDropDown){
 	                    resizeMap(!isMapCollapsed());
 	                }
             	}
