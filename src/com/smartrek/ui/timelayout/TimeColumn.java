@@ -79,7 +79,7 @@ public final class TimeColumn extends FrameLayout {
 		FrameLayout timeColumn = new FrameLayout(getContext());
 		
 		mask = new View(getContext());
-        int maskHeight = TimeButton.HEIGHT * 3 + TimeButton.FIRST_ROW_HEIGHT - Dimension.dpToPx(1, dm);                
+        int maskHeight = TimeButton.HEIGHT * 3 + TimeButton.FIRST_ROW_HEIGHT /* - Dimension.dpToPx(1, dm)*/;                
         FrameLayout.LayoutParams maskLp = new FrameLayout.LayoutParams(TimeButton.WIDTH - 2 * Dimension.dpToPx(1, dm), maskHeight);
         maskLp.gravity = Gravity.TOP|Gravity.CENTER_HORIZONTAL;
         maskLp.leftMargin = Dimension.dpToPx(1, dm);

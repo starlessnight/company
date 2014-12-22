@@ -72,7 +72,8 @@
                 android:id="@+id/time_ticket_panel"
                 android:layout_width="0dp"
                 android:layout_height="130dp"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                android:paddingBottom="2dp">
                 
 	            <com.smartrek.ui.timelayout.ScrollableTimeLayout
 	                android:id="@+id/scrollTime"
@@ -88,13 +89,13 @@
 	            </com.smartrek.ui.timelayout.ScrollableTimeLayout>
 	            
 	            <View
-	                android:layout_width="5dp"
+	                android:layout_width="10dp"
 	                android:layout_height="match_parent"
 	                android:background="@drawable/left_shadow"
 	                android:layout_alignParentLeft="true" />
 	
 	            <View
-	                android:layout_width="5dp"
+	                android:layout_width="10dp"
 	                android:layout_height="match_parent"
 	                android:background="@drawable/right_shadow"
 	                android:layout_alignParentRight="true" />
