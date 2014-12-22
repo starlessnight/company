@@ -196,15 +196,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private Location lastLocation;
     
     private AtomicBoolean mapRezoom = new AtomicBoolean(true);
-    
     private AtomicBoolean mapRecenter = new AtomicBoolean();
-    
     private AtomicBoolean mapRefresh = new AtomicBoolean(true);
-    
     private AtomicBoolean mapAlertAvailability = new AtomicBoolean(true);
-    
     private AtomicInteger mapCenterLat = new AtomicInteger();
-    
     private AtomicInteger mapCenterLon = new AtomicInteger();
     
     private SensorManager mSensorManager;
@@ -215,16 +210,19 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private List<Address> searchAddresses = new ArrayList<Address>();
     private List<Address> fromSearchAddresses = new ArrayList<Address>();
     private List<Address> inputAddresses = new ArrayList<Address>();
+    private List<Address> favoriteAddresses = new ArrayList<Address>();
     
     private AtomicBoolean canDrawReservRoute = new AtomicBoolean();
     
     private ListView searchResultList;
-    
     private ListView fromSearchResultList;
+    private ListView fromFavoriteDropdown;
+    private ListView toFavoriteDropdown;
     
     private ArrayAdapter<Address> autoCompleteAdapter;
-    
     private ArrayAdapter<Address> fromAutoCompleteAdapter;
+    private ArrayAdapter<Address> fromFavoriteAutoCompleteAdapter;
+    private ArrayAdapter<Address> toFavoriteAutoCompleteAdapter;
     
     private static final String NO_AUTOCOMPLETE_RESULT = "No results found.";
     
@@ -277,6 +275,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private View newUserTipView;
     
+    private static final String DROP_STATE = "dropdown";
+    
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
     
@@ -316,14 +316,20 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         searchResultList = (ListView) findViewById(R.id.search_result_list);
         fromSearchResultList = (ListView) findViewById(R.id.from_search_result_list);
+        fromFavoriteDropdown = (ListView) findViewById(R.id.from_favorite_drop_down);
+        toFavoriteDropdown = (ListView) findViewById(R.id.to_favorite_drop_down);
         searchBox = (EditText) findViewById(R.id.search_box);
         searchBox.setHint(Html.fromHtml("<b>Enter Destination</b>"));
         fromSearchBox = (EditText) findViewById(R.id.from_search_box);
         fromSearchBox.setHint(Html.fromHtml("<b>Current Location</b>"));
         autoCompleteAdapter = createAutoCompleteAdapter(searchBox);
         fromAutoCompleteAdapter = createAutoCompleteAdapter(fromSearchBox);
+        fromFavoriteAutoCompleteAdapter = createAutoCompleteAdapter(fromSearchBox);
+        toFavoriteAutoCompleteAdapter = createAutoCompleteAdapter(searchBox);
         searchResultList.setAdapter(autoCompleteAdapter);
         fromSearchResultList.setAdapter(fromAutoCompleteAdapter);
+        fromFavoriteDropdown.setAdapter(fromFavoriteAutoCompleteAdapter);
+        toFavoriteDropdown.setAdapter(toFavoriteAutoCompleteAdapter);
         
         fromMask = findViewById(R.id.from_mask);
         toMask = findViewById(R.id.to_mask);
@@ -336,42 +342,62 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         View landingPanelView = findViewById(R.id.landing_panel_content);
         landingPanelView.setOnClickListener(noopClick);
         
-        fromMask.setOnClickListener(noopClick);
-        toMask.setOnClickListener(noopClick);
+//        fromMask.setOnClickListener(noopClick);
+//        toMask.setOnClickListener(noopClick);
         
         refreshSearchAutoCompleteData();
         refreshFromSearchAutoCompleteData();
         
-        findViewById(R.id.to_drop_down_button).setOnClickListener(new OnClickListener() {
+        final View toDropDownButton = findViewById(R.id.to_drop_down_button);
+        final View fromDropDownButton = findViewById(R.id.from_drop_down_button);
+        final ImageView toDropDownIcon = (ImageView) findViewById(R.id.to_drop_down_icon);
+        toDropDownButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						if(searchBox.isFocused()) {
-							searchBox.clearFocus();
+						if(DROP_STATE.equals(toDropDownButton.getTag())) {
+							toDropDownIcon.setImageResource(R.drawable.drop_down_arrow);
+							toFavoriteDropdown.setVisibility(View.GONE);
+							toDropDownButton.setTag("");
 						}
 						else {
-							searchBox.requestFocus();
+							searchBox.clearFocus();
+							if(DROP_STATE.equals(fromDropDownButton.getTag())) {
+								fromDropDownButton.performClick();
+							}
+							toDropDownIcon.setImageResource(R.drawable.shrink_arrow);
+							toFavoriteDropdown.setVisibility(View.VISIBLE);
+							toDropDownButton.setTag(DROP_STATE);
 						}
 					}
 				});
 			}
         });
         
-        findViewById(R.id.from_drop_down_button).setOnClickListener(new OnClickListener() {
+        final ImageView fromDropDownIcon = (ImageView) findViewById(R.id.from_drop_down_icon);
+        fromDropDownButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						if(fromSearchBox.isFocused()) {
-							fromSearchBox.clearFocus();
+						if(DROP_STATE.equals(fromDropDownButton.getTag())) {
+							fromDropDownIcon.setImageResource(R.drawable.drop_down_arrow);
+							fromFavoriteDropdown.setVisibility(View.GONE);
+							fromDropDownButton.setTag("");
 						}
 						else {
-							fromSearchBox.requestFocus();
+							fromSearchBox.clearFocus();
+							if(DROP_STATE.equals(toDropDownButton.getTag())) {
+								toDropDownButton.performClick();
+							}
+							fromDropDownIcon.setImageResource(R.drawable.shrink_arrow);
+							fromFavoriteDropdown.setVisibility(View.VISIBLE);
+							fromDropDownButton.setTag(DROP_STATE);
 						}
 					}
 				});
@@ -410,8 +436,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
         });
         
-        final ImageView toDropdownIcon = (ImageView) findViewById(R.id.to_drop_down_icon);
-        
         searchBox.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -423,21 +447,20 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     showAutoComplete.set(false);
                     searchResultList.setVisibility(View.GONE);
                     fromSearchResultList.setVisibility(View.GONE);
-                    toDropdownIcon.setImageResource(R.drawable.drop_down_arrow);
                 }
                 else {
+                	if(DROP_STATE.equals(toDropDownButton.getTag())) {
+                		toDropDownButton.performClick();
+                	}
                     if(StringUtils.isBlank(searchBox.getText())) {
                     	searchAddresses.clear();
                     	searchAddresses.addAll(inputAddresses);
                     	showAutoComplete.set(true);
                     }
-                    toDropdownIcon.setImageResource(R.drawable.shrink_arrow);
                     refreshSearchAutoCompleteData();
                 }
             }
         });
-        
-        final ImageView fromDropdownIcon = (ImageView) findViewById(R.id.from_drop_down_icon);
         
         fromSearchBox.setOnFocusChangeListener(new OnFocusChangeListener() {
             @Override
@@ -450,15 +473,16 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     showAutoComplete.set(false);
                     searchResultList.setVisibility(View.GONE);
                     fromSearchResultList.setVisibility(View.GONE);
-                    fromDropdownIcon.setImageResource(R.drawable.drop_down_arrow);
                 }
                 else {
+                	if(DROP_STATE.equals(fromDropDownButton.getTag())) {
+                		fromDropDownButton.performClick();
+                	}
                     if(StringUtils.isBlank(fromSearchBox.getText())) {
                         fromSearchAddresses.clear();
                         fromSearchAddresses.addAll(inputAddresses);
                         showAutoComplete.set(true);
                     }
-                    fromDropdownIcon.setImageResource(R.drawable.shrink_arrow);
                     refreshFromSearchAutoCompleteData();
                 }
             }
@@ -1950,7 +1974,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					public CharSequence convertResultToString(Object selected) {
 						String selectedAddr = ((Address)selected).getAddress();
 						String selectedName = ((Address)selected).getName();
-						if(NO_AUTOCOMPLETE_RESULT.equals(selectedName) && StringUtils.isBlank(selectedAddr)) {
+						if(NO_AUTOCOMPLETE_RESULT.equals(selectedName) && StringUtils.isBlank(selectedAddr) && searchBox != null) {
 							return searchBox.getText();
 						}
 						return selectedAddr;
@@ -3064,7 +3088,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     //ehs.reportExceptions();
                 }
                 else {
-                    Set<String> addrList = new HashSet<String>();
+                    Set<Address> addrList = new HashSet<Address>();
                     final MapView mapView = (MapView) findViewById(R.id.mapview);
                     List<Overlay> overlays = mapView.getOverlays();
                     List<Overlay> otherOverlays = new ArrayList<Overlay>();
@@ -3117,18 +3141,52 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             });
                             insertOverlayByOrderOrSort(overlays, star);
                             star.showOverlay();
-                            addrList.add(a.getAddress());
+                            addrList.add(Address.fromModelAddress(a, lastLocation));
                         }
                     }
                     showODBalloon();
                     handleFavoriteIconByZoomLevel(mapView);
                     mapView.postInvalidate();
-                    write2SearchBoxTag(addrList);
+//                    write2SearchBoxTag(addrList);
+                    initFavoriteDropdownIfNessary(addrList);
                 }
             }
             
         };
         Misc.parallelExecute(task);
+    }
+    
+    private synchronized void initFavoriteDropdownIfNessary(Set<Address> favorites) {
+    	if(favoriteAddresses.size() != favorites.size()) {
+    		List<Address> newFavorites = new ArrayList<Address>();
+    		List<Address> homeFavorite = new ArrayList<Address>();
+    		List<Address> workFavorite = new ArrayList<Address>();
+    		List<Address> otherFavorite = new ArrayList<Address>();
+    		for(Address addr : favorites) {
+    			if(FavoriteIcon.home.name().equals(addr.getIconName())) {
+    				homeFavorite.add(addr);
+    			}
+    			else if(FavoriteIcon.work.name().equals(addr.getIconName())) {
+    				workFavorite.add(addr);
+    			}
+    			else {
+    				otherFavorite.add(addr);
+    			}
+    		}
+    		Collections.sort(homeFavorite, DebugOptionsActivity.distanceComparator);
+    		Collections.sort(workFavorite, DebugOptionsActivity.distanceComparator);
+    		Collections.sort(otherFavorite, DebugOptionsActivity.distanceComparator);
+    		newFavorites.addAll(homeFavorite);
+    		newFavorites.addAll(workFavorite);
+    		newFavorites.addAll(otherFavorite);
+    		favoriteAddresses.clear();
+    		favoriteAddresses.addAll(newFavorites);
+
+    		fromFavoriteAutoCompleteAdapter.clear();
+    		fromFavoriteAutoCompleteAdapter.addAll(favoriteAddresses);
+    		toFavoriteAutoCompleteAdapter.clear();
+    		toFavoriteAutoCompleteAdapter.addAll(favoriteAddresses);
+    	}
     }
     
     private synchronized void refreshInputAddresses() {
@@ -3368,7 +3426,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             }
                             showODBalloon();
                             mapView.postInvalidate();
-                            write2SearchBoxTag(addrSet);
+//                            write2SearchBoxTag(addrSet);
                             refreshSearchAutoCompleteData();
                         }
                     });
@@ -3687,14 +3745,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	getRouteView.setVisibility(enabled?View.VISIBLE:View.GONE);
     }
     
-    private void write2SearchBoxTag(Set<String> addresses) {
-    	Set<String> oAddrs = (Set<String>) findViewById(R.id.search_box).getTag();
-        if(oAddrs == null) {
-        	oAddrs = new HashSet<String>();
-        }
-        oAddrs.addAll(addresses);
-        findViewById(R.id.search_box).setTag(oAddrs);
-    }
+//    private void write2SearchBoxTag(Set<String> addresses) {
+//    	Set<String> oAddrs = (Set<String>) findViewById(R.id.search_box).getTag();
+//        if(oAddrs == null) {
+//        	oAddrs = new HashSet<String>();
+//        }
+//        oAddrs.addAll(addresses);
+//        findViewById(R.id.search_box).setTag(oAddrs);
+//    }
     
     protected static abstract class ReverseGeocodingTask extends AsyncTask<Void, Void, String> {
         
