@@ -3118,6 +3118,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             star.setCallback(new OverlayCallback() {
                                 @Override
                                 public boolean onTap(int index) {
+                                	mapView.getController().animateTo(new GeoPoint(poiInfo.lat, poiInfo.lon));
                                     Screen xy = getScreenXY(mapView, poiInfo.lat, poiInfo.lon);
                                     showPopupMenu(xy, star);
                                     mapView.postInvalidate();
@@ -3465,6 +3466,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 ReverseGeocodingTask task = new ReverseGeocodingTask(LandingActivity2.this, lat, lon){
                     @Override
                     protected void onPostExecute(String result) {
+                    	mapView.getController().animateTo(new GeoPoint(lat, lon));
                     	Screen xy = getScreenXY(mapView, lat, lon);
                         POIOverlay marker = refreshPOIMarker(mapView, lat, lon, result, "");
                         showPopupMenu(xy, marker);
@@ -3644,21 +3646,24 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		popupPanel.dispatchTouchEvent(motionEvent);
 	}
     
+	// temporarily always show center
     public Screen getScreenXY(MapView mapView, double lat, double lon) {
     	Screen widthHeight = getScreenWidthHeight(mapView);
-    	Point reuse = null;
-    	Projection projection = mapView.getProjection();
-    	IGeoPoint northEast = projection.getNorthEast();
-    	GeoPoint in = new GeoPoint(lat, lon);
-    	reuse = projection.toPixels(in, reuse);
-    	int x = reuse.x;
-    	int y = reuse.y;
-    	reuse = projection.toPixels(northEast, reuse);
-    	int nx = reuse.x;
-    	int ny = reuse.y;
+//    	Point reuse = null;
+//    	Projection projection = mapView.getProjection();
+//    	IGeoPoint northEast = projection.getNorthEast();
+//    	GeoPoint in = new GeoPoint(lat, lon);
+//    	reuse = projection.toPixels(in, reuse);
+//    	int x = reuse.x;
+//    	int y = reuse.y;
+//    	reuse = projection.toPixels(northEast, reuse);
+//    	int nx = reuse.x;
+//    	int ny = reuse.y;
     	Screen pointXY = new Screen();
-    	pointXY.x = widthHeight.x + x - nx;
-    	pointXY.y = y-ny;
+    	pointXY.x = widthHeight.x / 2;
+    	pointXY.y = widthHeight.y / 2 ;
+//    	pointXY.x = widthHeight.x + x - nx;
+//    	pointXY.y = y-ny;
     	return pointXY;
     }
     
@@ -3893,6 +3898,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         marker.setCallback(new OverlayCallback() {
             @Override
             public boolean onTap(int index) {
+            	mapView.getController().animateTo(new GeoPoint(poiInfo.lat, poiInfo.lon));
             	Screen xy = getScreenXY(mapView, poiInfo.lat, poiInfo.lon);
                 showPopupMenu(xy, marker);
                 mapView.postInvalidate();
@@ -4059,6 +4065,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             bulb.setCallback(new OverlayCallback() {
                 @Override
                 public boolean onTap(int index) {
+                	mapView.getController().animateTo(new GeoPoint(poiInfo.lat, poiInfo.lon));
                     Screen xy = getScreenXY(mapView, poiInfo.lat, poiInfo.lon);
                     showPopupMenu(xy, bulb);
                     mapView.postInvalidate();
