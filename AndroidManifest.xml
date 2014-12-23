@@ -118,9 +118,11 @@
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
 		        <action android:name="android.intent.action.VIEW" />
-		        <data android:scheme="geo" />
+		        <data android:scheme="com.metropiamobile" /> 
+		        <data android:scheme="geo"/>
 		        <data android:scheme="google.navigation" /> 
 		        <category android:name="android.intent.category.DEFAULT" />
+		        <category android:name="android.intent.category.BROWSABLE" />
 		    </intent-filter>
         </activity>
         <activity
