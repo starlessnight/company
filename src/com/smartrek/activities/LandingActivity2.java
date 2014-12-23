@@ -2472,7 +2472,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
         mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_GAME);
-        processHideOverlays();
     }
     
     @Override
@@ -2499,13 +2498,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
       dismissReservId = Long.valueOf(-1);
       refreshTripsInfo(true);
     } 
-    
-    private void processHideOverlays() {
-    	for(POIOverlay poi : hideOverlays) {
-    		poi.hideBalloon();
-    	}
-    	hideOverlays.clear();
-    }
     
     private void refreshTripsInfo(){
         refreshTripsInfo(false);
@@ -3493,7 +3485,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private static final Integer POIOVERLAY_HIDE_ZOOM_LEVEL = 5;
-    private Set<POIOverlay> hideOverlays = new HashSet<POIOverlay>();
     
     private void bindMapFunctions(final MapView mapView){
         EventOverlay eventOverlay = new EventOverlay(this);
@@ -3557,29 +3548,21 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void handleFavoriteIconByZoomLevel(MapView mapView) {
+    	List<Overlay> overlays = mapView.getOverlays();
     	if(mapView.getZoomLevel() <= POIOVERLAY_HIDE_ZOOM_LEVEL) {
-			List<Overlay> overlays = mapView.getOverlays();
-			Set<POIOverlay> hideThisTime = new HashSet<POIOverlay>();
 			for(Overlay overlay : overlays) {
-				if(overlay instanceof POIOverlay) {
-					POIOverlay poi = (POIOverlay)overlay;
-					if(!hideOverlays.contains(poi)) {
-						hideThisTime.add(poi);
-					}
+				if(overlay instanceof POIOverlay && overlay.isEnabled()) {
+					overlay.setEnabled(false);
 				}
 			}
-			
-			for(POIOverlay poi : hideThisTime) {
-				poi.hideOverlay();
-			}
-			hideOverlays.addAll(hideThisTime);
 			mapView.postInvalidate();
 		}
-		else if(mapView.getZoomLevel() > POIOVERLAY_HIDE_ZOOM_LEVEL && hideOverlays.size() > 0){
-			for(POIOverlay overlay : hideOverlays) {
-				overlay.showOverlay();
+		else if(mapView.getZoomLevel() > POIOVERLAY_HIDE_ZOOM_LEVEL){
+			for(Overlay overlay : overlays) {
+				if(overlay instanceof POIOverlay && !overlay.isEnabled()) {
+					overlay.setEnabled(true);
+				}
 			}
-			hideOverlays.clear();
 			insertOverlayByOrderOrSort(mapView.getOverlays(), null);
 			mapView.postInvalidate();
 		}
