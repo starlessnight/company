@@ -1390,8 +1390,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					@Override
 					public void onAnimationEnd() {
 						editMenu.setImageResource(resourceIds[1]);
-						POIOverlay overlay = (POIOverlay) popupPanel.getTag();
-						showFavoriteOptPanel(overlay.getPoiOverlayInfo());
+						PoiOverlayInfo info = (PoiOverlayInfo) popupPanel.getTag();
+						showFavoriteOptPanel(info);
 						hidePopupMenu();
 						v.setClickable(true);
 						
@@ -1412,7 +1412,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					@Override
 					public void onAnimationEnd() {
 						toMenu.setImageResource(R.drawable.to_menu);
-						setMenuInfo2Searchbox((POIOverlay)popupPanel.getTag(), false);
+						setMenuInfo2Searchbox((PoiOverlayInfo)popupPanel.getTag(), false);
 						hidePopupMenu();
 						v.setClickable(true);
 					}
@@ -1432,7 +1432,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					@Override
 					public void onAnimationEnd() {
 						fromMenu.setImageResource(R.drawable.from_menu);
-						setMenuInfo2Searchbox((POIOverlay)popupPanel.getTag(), true);
+						setMenuInfo2Searchbox((PoiOverlayInfo)popupPanel.getTag(), true);
 						hidePopupMenu();
 						v.setClickable(true);
 					}
@@ -1492,11 +1492,24 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         //end oncreate
     }
     
-    private void setMenuInfo2Searchbox(POIOverlay overlay, boolean from) {
+    private void setMenuInfo2Searchbox(PoiOverlayInfo info, boolean from) {
+    	MapView mapView = (MapView) findViewById(R.id.mapview);
+    	POIOverlay overlay = findOverlayByInfo(mapView, info);
     	if(overlay != null) {
-    		MapView mapView = (MapView) findViewById(R.id.mapview);
             handleOD(mapView, overlay, from);
     	}
+    }
+    
+    private POIOverlay findOverlayByInfo(MapView mapView, PoiOverlayInfo poiInfo) {
+    	List<Overlay> overlays = mapView.getOverlays();
+    	for(Overlay overlay : overlays) {
+    		if(overlay instanceof POIOverlay) {
+    			if(poiInfo.equals(((POIOverlay)overlay).getPoiOverlayInfo())) {
+    				return (POIOverlay)overlay;
+    			}
+    		}
+    	}
+    	return null;
     }
      
     private void showTutorialIfNessary() {
@@ -3149,7 +3162,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                 public boolean onTap(int index) {
                                 	mapView.getController().animateTo(new GeoPoint(poiInfo.lat, poiInfo.lon));
                                     Screen xy = getScreenXY(mapView, poiInfo.lat, poiInfo.lon);
-                                    showPopupMenu(xy, star);
+                                    showPopupMenu(xy, poiInfo);
                                     mapView.postInvalidate();
                                     return true;
                                 }
@@ -3497,7 +3510,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     	mapView.getController().animateTo(new GeoPoint(lat, lon));
                     	Screen xy = getScreenXY(mapView, lat, lon);
                         POIOverlay marker = refreshPOIMarker(mapView, lat, lon, result, "");
-                        showPopupMenu(xy, marker);
+                        showPopupMenu(xy, marker.getPoiOverlayInfo());
                     }
                 };
                 Misc.parallelExecute(task);
@@ -3568,15 +3581,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		}
     }
     
-	private void showPopupMenu(Screen xy, POIOverlay overlay) {
-		PoiOverlayInfo info = overlay.getPoiOverlayInfo();
-    	
+	private void showPopupMenu(Screen xy, PoiOverlayInfo info) {
     	poiIcon.setVisibility(View.VISIBLE);
-    	poiIcon.setImageResource(overlay.getMarker());
+    	poiIcon.setImageResource(info.marker);
     	
     	BitmapFactory.Options dimensions = new BitmapFactory.Options(); 
     	dimensions.inJustDecodeBounds = false;
-    	Bitmap decodeResource = BitmapFactory.decodeResource(getResources(), overlay.getMarker(), dimensions);
+    	Bitmap decodeResource = BitmapFactory.decodeResource(getResources(), info.marker, dimensions);
     	int poiIconWidth = decodeResource.getWidth();
     	int poiIconHeight = decodeResource.getHeight();
     	decodeResource.recycle();
@@ -3588,7 +3599,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	
     	editMenu.setVisibility(View.VISIBLE);
     	Integer[] imageResourceIds;
-    	if(overlay.getAid() == 0) {
+    	if(info.id == 0) {
     		editMenu.setImageResource(R.drawable.save_menu);
     		imageResourceIds = new Integer[] {R.drawable.selected_save_menu, R.drawable.save_menu};
     	}
@@ -3631,7 +3642,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	addressInfoLp.topMargin = isMapCollapsed() ? (margin + landingPanelHeight) : margin;
     	addressInfo.setLayoutParams(addressInfoLp);
     	
-    	popupPanel.setTag(overlay);
+    	popupPanel.setTag(info);
     	popupPanel.setVisibility(View.VISIBLE);
     	popupPanel.setOnClickListener(new OnClickListener() {
 			@Override
@@ -3931,7 +3942,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             public boolean onTap(int index) {
             	mapView.getController().animateTo(new GeoPoint(poiInfo.lat, poiInfo.lon));
             	Screen xy = getScreenXY(mapView, poiInfo.lat, poiInfo.lon);
-                showPopupMenu(xy, marker);
+                showPopupMenu(xy, poiInfo);
                 mapView.postInvalidate();
                 return true;
             }
@@ -4098,7 +4109,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 public boolean onTap(int index) {
                 	mapView.getController().animateTo(new GeoPoint(poiInfo.lat, poiInfo.lon));
                     Screen xy = getScreenXY(mapView, poiInfo.lat, poiInfo.lon);
-                    showPopupMenu(xy, bulb);
+                    showPopupMenu(xy, poiInfo);
                     mapView.postInvalidate();
                     return true;
                 }
