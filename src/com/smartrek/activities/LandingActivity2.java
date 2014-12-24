@@ -3160,11 +3160,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             star.setCallback(new OverlayCallback() {
                                 @Override
                                 public boolean onTap(int index) {
-                                	mapView.getController().animateTo(new GeoPoint(poiInfo.lat, poiInfo.lon));
-                                    Screen xy = getScreenXY(mapView, poiInfo.lat, poiInfo.lon);
-                                    showPopupMenu(xy, poiInfo);
-                                    mapView.postInvalidate();
-                                    return true;
+                                	if(star.isEnabled()) {
+	                                	mapView.getController().animateTo(new GeoPoint(poiInfo.lat, poiInfo.lon));
+	                                    Screen xy = getScreenXY(mapView, poiInfo.lat, poiInfo.lon);
+	                                    showPopupMenu(xy, poiInfo);
+	                                    mapView.postInvalidate();
+	                                    return true;
+                                	}
+                                	return false;
                                 }
                                 @Override
                                 public boolean onLongPress(int index, OverlayItem item) {
@@ -3940,11 +3943,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         marker.setCallback(new OverlayCallback() {
             @Override
             public boolean onTap(int index) {
-            	mapView.getController().animateTo(new GeoPoint(poiInfo.lat, poiInfo.lon));
-            	Screen xy = getScreenXY(mapView, poiInfo.lat, poiInfo.lon);
-                showPopupMenu(xy, poiInfo);
-                mapView.postInvalidate();
-                return true;
+            	if(marker.isEnabled()) {
+	            	mapView.getController().animateTo(new GeoPoint(poiInfo.lat, poiInfo.lon));
+	            	Screen xy = getScreenXY(mapView, poiInfo.lat, poiInfo.lon);
+	                showPopupMenu(xy, poiInfo);
+	                mapView.postInvalidate();
+	                return true;
+            	}
+            	return false;
             }
             @Override
             public boolean onLongPress(int index, OverlayItem item) {
@@ -4107,11 +4113,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             bulb.setCallback(new OverlayCallback() {
                 @Override
                 public boolean onTap(int index) {
-                	mapView.getController().animateTo(new GeoPoint(poiInfo.lat, poiInfo.lon));
-                    Screen xy = getScreenXY(mapView, poiInfo.lat, poiInfo.lon);
-                    showPopupMenu(xy, poiInfo);
-                    mapView.postInvalidate();
-                    return true;
+                	if(bulb.isEnabled()) {
+	                	mapView.getController().animateTo(new GeoPoint(poiInfo.lat, poiInfo.lon));
+	                    Screen xy = getScreenXY(mapView, poiInfo.lat, poiInfo.lon);
+	                    showPopupMenu(xy, poiInfo);
+	                    mapView.postInvalidate();
+	                    return true;
+                	}
+                	return false;
                 }
                 @Override
                 public boolean onLongPress(int index, OverlayItem item) {
