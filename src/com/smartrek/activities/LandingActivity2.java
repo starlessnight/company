@@ -1890,6 +1890,31 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         return reservInfo;
     }
     
+    private View createEmptyReservationInfoView() {
+    	FrameLayout emptyReservInfo = (FrameLayout) getLayoutInflater().inflate(R.layout.reservation_trip_info, reservationListPanel, false);
+    	int startButtonResourceId = R.drawable.reservation_start_trip_transparent;
+        TextView tripInfoDescView =  (TextView) emptyReservInfo.findViewById(R.id.trip_info_desc);
+    	tripInfoDescView.setVisibility(View.GONE);
+    	TextView timeToGo = (TextView) emptyReservInfo.findViewById(R.id.time_to_go_desc);
+    	timeToGo.setVisibility(View.GONE);
+        TextView tripDurationTimeView = (TextView) emptyReservInfo.findViewById(R.id.reservation_duration_time);
+        tripDurationTimeView.setVisibility(View.GONE);
+        TextView tripArrivalTimeView = (TextView) emptyReservInfo.findViewById(R.id.reservation_arrive_time);
+        tripArrivalTimeView.setVisibility(View.INVISIBLE);
+        TextView tripStartTimeView = (TextView) emptyReservInfo.findViewById(R.id.reservation_start_time);
+        tripStartTimeView.setVisibility(View.INVISIBLE);
+        ImageView startButton = (ImageView) emptyReservInfo.findViewById(R.id.reservation_start_button);
+        startButton.setImageResource(startButtonResourceId);
+        startButton.setVisibility(View.INVISIBLE);
+        emptyReservInfo.findViewById(R.id.reservation_trip_times).setVisibility(View.GONE);
+        emptyReservInfo.findViewById(R.id.leave_label).setVisibility(View.GONE);
+        emptyReservInfo.findViewById(R.id.center_line).setVisibility(View.INVISIBLE);
+        emptyReservInfo.findViewById(R.id.reservation_on_my_way).setVisibility(View.INVISIBLE);
+        emptyReservInfo.findViewById(R.id.reservation_reschedule).setVisibility(View.INVISIBLE);
+        emptyReservInfo.findViewById(R.id.center_line).setVisibility(View.VISIBLE);;
+        return emptyReservInfo;
+    }
+    
     private boolean isFavoriteMark(int markResourceId) {
     	for(FavoriteIcon icon : FavoriteIcon.values()) {
     		if(markResourceId == icon.getResourceId(LandingActivity2.this)) {
@@ -2688,6 +2713,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		nextDesc.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
     		nextDesc.setBackgroundColor(getResources().getColor(android.R.color.black));
     		reservationListPanel.addView(nextDesc);
+    		
     		for(int i = curReservIdx ; i < reservations.size() ; i++) {
     			Reservation reserv = reservations.get(i);
     			if(!removedReservIds.contains(reserv.getRid())) {
@@ -2712,6 +2738,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     					spliter.setBackgroundColor(getResources().getColor(R.color.light_gray));
     					reservationListPanel.addView(spliter);
     				}
+    				
     			}
     		}
     		
@@ -2722,14 +2749,15 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		tripNotifyIcon.setVisibility(View.GONE);
     	}
  
-    	View centerDashLine = findViewById(R.id.white_center_dash_line);
-    	centerDashLine.setVisibility(View.GONE);
     	int reservCount = curReservIdx == -1 ? 0 : reservations.size() - curReservIdx;
     	if((reservCount == 1 && !DebugOptionsActivity.isUserCloseTip(LandingActivity2.this)) || reservCount > 1) {
 			findViewById(R.id.add_new_trip_background).setVisibility(View.GONE);
 			if(reservCount > 1) {
 				newUserTipView.setVisibility(View.GONE);
-				centerDashLine.setVisibility(reservCount == 2 ? View.VISIBLE : View.GONE);
+				if(reservCount == 2) {
+					View emptyView = createEmptyReservationInfoView();
+					reservationListPanel.addView(emptyView);
+				}
 			}
 			else {
 				newUserTipView.setVisibility(DebugOptionsActivity.isUserCloseTip(LandingActivity2.this)?View.GONE:View.VISIBLE);
