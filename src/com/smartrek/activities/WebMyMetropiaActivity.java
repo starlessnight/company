@@ -25,11 +25,20 @@ import com.smartrek.utils.Misc;
 public class WebMyMetropiaActivity extends FragmentActivity{
 	
 	private WebView webviewContent;
+	
+	public static final String WHICH_PAGE = "pageNo";
+	
+	public static final int MY_METROPIA_PAGE = 1;
+	public static final int TIME_SAVING_PAGE = 2;
+	public static final int CO2_SAVING_PAGE = 3;
 
     @Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.web_my_metropia);
+		
+		Bundle extras = getIntent().getExtras();
+		Integer page = extras.getInt(WHICH_PAGE);
 		
 		TextView backButton = (TextView) findViewById(R.id.back_button);
 		backButton.setOnClickListener(new OnClickListener() {
@@ -60,7 +69,7 @@ public class WebMyMetropiaActivity extends FragmentActivity{
         settings.setLoadWithOverviewMode(true);
         settings.setUseWideViewPort(true);
         settings.setBuiltInZoomControls(true);
-        webviewContent.loadUrl(getUrl(this));
+        webviewContent.loadUrl(getUrl(this, page));
         webviewContent.setVisibility(View.VISIBLE);
         webviewContent.requestFocus(View.FOCUS_DOWN);
         Misc.fadeIn(this, webviewContent);
@@ -93,14 +102,35 @@ public class WebMyMetropiaActivity extends FragmentActivity{
 	    Misc.tripInfoPanelOnActivityRestart(this);
 	}
 	
-	public static boolean hasUrl(Context ctx){
+	public static boolean hasMyMetropiaUrl(Context ctx){
 	    return Request.getPageUrl(Page.my_metropia) != null;
 	}
 	
-	static String getUrl(Context ctx){
+	public static boolean hasTimeSavingUrl(Context ctx){
+	    return Request.getPageUrl(Page.time_saving) != null;
+	}
+	
+	public static boolean hasCo2SavingUrl(Context ctx){
+	    return Request.getPageUrl(Page.co2_saving) != null;
+	}
+	
+	static String getUrl(Context ctx, Integer pageNo){
         User user = User.getCurrentUser(ctx);
-        return StringUtils.defaultString(Request.getPageUrl(Page.my_metropia))
-            .replaceAll("\\{username\\}", user.getUsername())
+        String url = "";
+        switch(pageNo) {
+        	case MY_METROPIA_PAGE:
+        		url = StringUtils.defaultString(Request.getPageUrl(Page.my_metropia));
+        		break;
+        	case TIME_SAVING_PAGE:
+        		url = StringUtils.defaultString(Request.getPageUrl(Page.time_saving));
+        		break;
+        	case CO2_SAVING_PAGE:
+        		url = StringUtils.defaultString(Request.getPageUrl(Page.co2_saving));
+        		break;
+        	default:
+        		url = StringUtils.defaultString(Request.getPageUrl(Page.my_metropia));
+        }
+        return url.replaceAll("\\{username\\}", user.getUsername())
             .replaceAll("\\{password\\}", user.getPassword());
     }
 	

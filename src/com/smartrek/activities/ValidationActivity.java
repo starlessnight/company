@@ -971,8 +971,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			@Override
 			public void onClick(View v) {
 			    Intent intent;
-			    if(WebMyMetropiaActivity.hasUrl(ValidationActivity.this)){
+			    if(WebMyMetropiaActivity.hasCo2SavingUrl(ValidationActivity.this) || WebMyMetropiaActivity.hasMyMetropiaUrl(ValidationActivity.this)){
 			        intent = new Intent(ValidationActivity.this, WebMyMetropiaActivity.class);
+			        Integer pageNo = WebMyMetropiaActivity.hasCo2SavingUrl(ValidationActivity.this) ? WebMyMetropiaActivity.CO2_SAVING_PAGE : WebMyMetropiaActivity.MY_METROPIA_PAGE;
+			        intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
 			    }else{
 			        intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
     				intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.CO2_SAVING_TAB);
@@ -985,8 +987,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         	@Override
 			public void onClick(View v) {
         	    Intent intent;
-                if(WebMyMetropiaActivity.hasUrl(ValidationActivity.this)){
+                if(WebMyMetropiaActivity.hasTimeSavingUrl(ValidationActivity.this) || WebMyMetropiaActivity.hasMyMetropiaUrl(ValidationActivity.this)){
                     intent = new Intent(ValidationActivity.this, WebMyMetropiaActivity.class);
+                    Integer pageNo = WebMyMetropiaActivity.hasTimeSavingUrl(ValidationActivity.this) ? WebMyMetropiaActivity.TIME_SAVING_PAGE : WebMyMetropiaActivity.MY_METROPIA_PAGE;
+			        intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
                 }else{
     				intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
     				intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.DRIVE_SCORE_TAB);
@@ -999,8 +1003,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         	@Override
 			public void onClick(View v) {
         	    Intent intent;
-                if(WebMyMetropiaActivity.hasUrl(ValidationActivity.this)){
+                if(WebMyMetropiaActivity.hasMyMetropiaUrl(ValidationActivity.this)){
                     intent = new Intent(ValidationActivity.this, WebMyMetropiaActivity.class);
+                    intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, WebMyMetropiaActivity.MY_METROPIA_PAGE);
                 }else{
     				intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
     				intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.CO2_SAVING_TAB);

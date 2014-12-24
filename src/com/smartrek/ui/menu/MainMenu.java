@@ -76,7 +76,7 @@ public final class MainMenu {
                break;
                
            case R.id.dashboard:
-               if(WebMyMetropiaActivity.hasUrl(activity)){
+               if(WebMyMetropiaActivity.hasMyMetropiaUrl(activity)){
                    if (!activity.getClass().equals(WebMyMetropiaActivity.class)) {
                        intent = new Intent(activity, WebMyMetropiaActivity.class);
                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

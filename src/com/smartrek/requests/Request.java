@@ -89,7 +89,9 @@ public abstract class Request {
 	    rewards,
 	    my_metropia,
 	    privacy_policy, 
-	    trips
+	    trips, 
+	    co2_saving, 
+	    time_saving
     }
 	
 	public enum Setting {

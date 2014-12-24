@@ -1359,18 +1359,72 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         co2View = (TextView) findViewById(R.id.co2);
         co2View.setText(formatMyMetropiaInfo("000lbs"));
         
-        findViewById(R.id.my_metropia_panel).setOnClickListener(new OnClickListener() {
+        findViewById(R.id.upoint_panel).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if(WebMyMetropiaActivity.hasUrl(LandingActivity2.this)){
-	               Intent intent = new Intent(LandingActivity2.this, WebMyMetropiaActivity.class);
-	               intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-	               startActivity(intent);
-	            }else{
-	               Intent intent = new Intent(LandingActivity2.this, MyMetropiaActivity.class);
-	               intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-	               startActivity(intent);
-	            }
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						if(WebMyMetropiaActivity.hasMyMetropiaUrl(LandingActivity2.this)){
+				           Intent intent = new Intent(LandingActivity2.this, WebMyMetropiaActivity.class);
+				           intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				           intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, WebMyMetropiaActivity.MY_METROPIA_PAGE);
+				           startActivity(intent);
+				        }else{
+				           Intent intent = new Intent(LandingActivity2.this, MyMetropiaActivity.class);
+				           intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				           startActivity(intent);
+				        }
+					}
+				});
+			}
+        });
+        
+        findViewById(R.id.save_time_panel).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						if(WebMyMetropiaActivity.hasTimeSavingUrl(LandingActivity2.this) || WebMyMetropiaActivity.hasMyMetropiaUrl(LandingActivity2.this)){
+				           Intent intent = new Intent(LandingActivity2.this, WebMyMetropiaActivity.class);
+				           intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				           Integer pageNo = WebMyMetropiaActivity.hasTimeSavingUrl(LandingActivity2.this) ? WebMyMetropiaActivity.TIME_SAVING_PAGE : WebMyMetropiaActivity.MY_METROPIA_PAGE;
+				           intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
+				           startActivity(intent);
+				        }
+						else{
+				           Intent intent = new Intent(LandingActivity2.this, MyMetropiaActivity.class);
+				           intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				           startActivity(intent);
+				        }
+					}
+				});
+			}
+        });
+        
+        findViewById(R.id.co2_panel).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						if(WebMyMetropiaActivity.hasCo2SavingUrl(LandingActivity2.this) || WebMyMetropiaActivity.hasMyMetropiaUrl(LandingActivity2.this)){
+				           Intent intent = new Intent(LandingActivity2.this, WebMyMetropiaActivity.class);
+				           intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				           Integer pageNo = WebMyMetropiaActivity.hasCo2SavingUrl(LandingActivity2.this) ? WebMyMetropiaActivity.CO2_SAVING_PAGE : WebMyMetropiaActivity.MY_METROPIA_PAGE; 
+				           intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
+				           startActivity(intent);
+				        }else{
+				           Intent intent = new Intent(LandingActivity2.this, MyMetropiaActivity.class);
+				           intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				           startActivity(intent);
+				        }
+					}
+				});
 			}
         });
         
