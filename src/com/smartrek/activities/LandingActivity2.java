@@ -1482,9 +1482,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, fromSearchBox, myMetropiaMenu, 
             reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu);
         Font.setTypeface(Font.getMedium(assets), favSearchBox, labelInput, 
-        		(TextView)findViewById(R.id.label), (TextView)findViewById(R.id.icon), getRouteView, 
+        		(TextView)findViewById(R.id.label), (TextView)findViewById(R.id.icon), 
         		upointView, saveTimeView, co2View, (TextView) findViewById(R.id.head), 
         		(TextView) findViewById(R.id.favorite_address_desc));
+        Font.setTypeface(Font.getRobotoBold(assets), getRouteView);
         //init Tracker
         ((SmarTrekApplication)getApplication()).getTracker(TrackerName.APP_TRACKER);
         showTutorialIfNessary();
