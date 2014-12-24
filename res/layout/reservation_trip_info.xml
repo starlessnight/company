@@ -157,7 +157,7 @@
                     android:gravity="center|bottom"
                     android:text="LEAVE NOW"
                     android:textColor="@color/transparent_white"
-                    android:textSize="@dimen/micro_font" />
+                    android:textSize="@dimen/smallest_font" />
             </LinearLayout>
 
             <FrameLayout
