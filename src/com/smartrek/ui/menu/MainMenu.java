@@ -80,6 +80,7 @@ public final class MainMenu {
                    if (!activity.getClass().equals(WebMyMetropiaActivity.class)) {
                        intent = new Intent(activity, WebMyMetropiaActivity.class);
                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                       intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, WebMyMetropiaActivity.MY_METROPIA_PAGE);
                        activity.startActivity(intent);
                    }
                }else{
