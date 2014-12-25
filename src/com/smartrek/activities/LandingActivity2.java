@@ -3245,8 +3245,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                 @Override
                                 public boolean onTap(int index) {
                                 	if(star.isEnabled()) {
-	                                	mapView.getController().animateTo(new GeoPoint(poiInfo.lat, poiInfo.lon));
-	                                    Screen xy = getScreenXY(mapView, poiInfo.lat, poiInfo.lon);
+	                                	mapView.getController().animateTo(getCenterGeoPointByMapSize(mapView, poiInfo.lat, poiInfo.lon));
+	                                	Screen xy = getPopupFavIconPosition(mapView);
 	                                    showPopupMenu(xy, poiInfo);
 	                                    mapView.postInvalidate();
 	                                    return true;
@@ -3778,21 +3778,21 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	// temporarily always show center
     public Screen getScreenXY(MapView mapView, double lat, double lon) {
     	Screen widthHeight = getScreenWidthHeight(mapView);
-//    	Point reuse = null;
-//    	Projection projection = mapView.getProjection();
-//    	IGeoPoint northEast = projection.getNorthEast();
-//    	GeoPoint in = new GeoPoint(lat, lon);
-//    	reuse = projection.toPixels(in, reuse);
-//    	int x = reuse.x;
-//    	int y = reuse.y;
-//    	reuse = projection.toPixels(northEast, reuse);
-//    	int nx = reuse.x;
-//    	int ny = reuse.y;
+    	Point reuse = null;
+    	Projection projection = mapView.getProjection();
+    	IGeoPoint northEast = projection.getNorthEast();
+    	GeoPoint in = new GeoPoint(lat, lon);
+    	reuse = projection.toPixels(in, reuse);
+    	int x = reuse.x;
+    	int y = reuse.y;
+    	reuse = projection.toPixels(northEast, reuse);
+    	int nx = reuse.x;
+    	int ny = reuse.y;
     	Screen pointXY = new Screen();
     	pointXY.x = widthHeight.x / 2;
     	pointXY.y = widthHeight.y / 2 ;
-//    	pointXY.x = widthHeight.x + x - nx;
-//    	pointXY.y = y-ny;
+    	pointXY.x = widthHeight.x + x - nx;
+    	pointXY.y = y-ny;
     	return pointXY;
     }
     
@@ -3824,6 +3824,44 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private static class Screen {
     	public int x;
     	public int y;
+    }
+    
+    private Screen getScreenCenter(MapView mapView) {
+       	Screen widthHeight = getScreenWidthHeight(mapView);
+       	Screen pointXY = new Screen();
+       	pointXY.x = widthHeight.x / 2;
+       	pointXY.y = widthHeight.y / 2 ;
+       	return pointXY;
+    }
+    
+    private IGeoPoint getCenterGeoPointByMapSize(MapView mapView, double lat, double lon) {
+    	Screen favXY = getScreenXY(mapView, lat, lon);
+    	Screen centerOfMap = new Screen();
+    	centerOfMap.x = favXY.x;
+    	centerOfMap.y = favXY.y;
+    	if(isMapCollapsed()) {
+	    	View landingPanelView = findViewById(R.id.landing_panel_content);
+	        int landingPanelHeight = landingPanelView.getHeight();
+	        View myMetropiaPanel = findViewById(R.id.my_metropia_panel);
+	        int myMetropiaPanelHeight = myMetropiaPanel.getHeight();
+	        centerOfMap.y = favXY.y - landingPanelHeight + myMetropiaPanelHeight;
+    	}
+    	return mapView.getProjection().fromPixels(centerOfMap.x, centerOfMap.y);
+    }
+    
+    private Screen getPopupFavIconPosition(MapView mapView) {
+    	Screen center = getScreenCenter(mapView);
+    	Screen centerOfMap = new Screen();
+    	centerOfMap.x = center.x;
+    	centerOfMap.y = center.y;
+    	if(isMapCollapsed()) {
+	    	View landingPanelView = findViewById(R.id.landing_panel_content);
+	        int landingPanelHeight = landingPanelView.getHeight();
+	        View myMetropiaPanel = findViewById(R.id.my_metropia_panel);
+	        int myMetropiaPanelHeight = myMetropiaPanel.getHeight();
+	        centerOfMap.y = center.y + landingPanelHeight - myMetropiaPanelHeight;
+    	}
+    	return centerOfMap;
     }
     
     private boolean isMapCollapsed(){
@@ -4028,8 +4066,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             @Override
             public boolean onTap(int index) {
             	if(marker.isEnabled()) {
-	            	mapView.getController().animateTo(new GeoPoint(poiInfo.lat, poiInfo.lon));
-	            	Screen xy = getScreenXY(mapView, poiInfo.lat, poiInfo.lon);
+	            	mapView.getController().animateTo(getCenterGeoPointByMapSize(mapView, poiInfo.lat, poiInfo.lon));
+	            	Screen xy = getPopupFavIconPosition(mapView);
 	                showPopupMenu(xy, poiInfo);
 	                mapView.postInvalidate();
 	                return true;
@@ -4198,8 +4236,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 @Override
                 public boolean onTap(int index) {
                 	if(bulb.isEnabled()) {
-	                	mapView.getController().animateTo(new GeoPoint(poiInfo.lat, poiInfo.lon));
-	                    Screen xy = getScreenXY(mapView, poiInfo.lat, poiInfo.lon);
+	                	mapView.getController().animateTo(getCenterGeoPointByMapSize(mapView, poiInfo.lat, poiInfo.lon));
+	                    Screen xy = getPopupFavIconPosition(mapView);
 	                    showPopupMenu(xy, poiInfo);
 	                    mapView.postInvalidate();
 	                    return true;
