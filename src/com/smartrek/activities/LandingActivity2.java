@@ -1716,10 +1716,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             @Override
                             public void onDismiss(View tripInfoView, final List<Reservation> reservs) {
                                 final Reservation reserv = (Reservation) tripInfoView.getTag();
+                                final Long removeReservId = reserv.getRid();
                                 AsyncTask<Void, Void, Boolean> delTask = new AsyncTask<Void, Void, Boolean>(){
                                 	@Override
                                 	protected void onPreExecute() {
-                                		dismissReservId = reserv.getRid();
+                                		removedReservIds.add(removeReservId);
                                 		refreshTripInfoPanel(reservs);
                                 	}
                                 	
@@ -1742,8 +1743,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             		                 	if(success) {
             		                   		DebugOptionsActivity.removeReservRecipients(LandingActivity2.this, reserv.getRid());
             		                   		refreshTripsInfo(false);
+            		                   		removedReservIds.remove(removeReservId);
             		                   	}
-            		                 	dismissReservId = -1L;
             		                }
             		            };
             		            Misc.parallelExecute(delTask);
