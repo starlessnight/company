@@ -3612,8 +3612,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 ReverseGeocodingTask task = new ReverseGeocodingTask(LandingActivity2.this, lat, lon){
                     @Override
                     protected void onPostExecute(String result) {
-                    	mapView.getController().animateTo(new GeoPoint(lat, lon));
-                    	Screen xy = getScreenXY(mapView, lat, lon);
+                    	mapView.getController().animateTo(getCenterGeoPointByMapSize(mapView, lat, lon));
+                    	Screen xy = getPopupFavIconPosition(mapView);
                         POIOverlay marker = refreshPOIMarker(mapView, lat, lon, result, "");
                         showPopupMenu(xy, marker.getPoiOverlayInfo());
                     }
