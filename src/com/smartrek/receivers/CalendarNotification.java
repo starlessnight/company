@@ -19,6 +19,7 @@ import android.util.Log;
 
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
 import com.smartrek.CalendarService;
+import com.smartrek.activities.LandingActivity2;
 import com.smartrek.activities.MapDisplayActivity;
 import com.smartrek.activities.R;
 import com.smartrek.activities.RouteActivity;
@@ -42,7 +43,7 @@ public final class CalendarNotification extends BroadcastReceiver {
 	    
 	    int eventId = intent.getIntExtra(EVENT_ID, 0);
 	    JSONObject event = CalendarService.getEvent(context, eventId);
-	    
+	    int geoSize = event.optInt(CalendarService.GEOCODING_SIZE, 0);
 	    double lat = event.optDouble(CalendarService.LAT, 0);
 	    double lon = event.optDouble(CalendarService.LON, 0);
         if(event != null && MapDisplayActivity.isCalendarIntegrationEnabled(context) && isNotNear(context, lat, lon)){
@@ -56,9 +57,9 @@ public final class CalendarNotification extends BroadcastReceiver {
             }
             long expiryTime = startTime - THIRTY_MINS;
             if(System.currentTimeMillis() < expiryTime /* || true */){
-                Intent routeIntent = new Intent(context, RouteActivity.class);
-                routeIntent.putExtra(RouteActivity.EVENT_ID, eventId);
-                PendingIntent sender = PendingIntent.getActivity(context, eventId, routeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                Intent nextIntent = geoSize > 1 ? new Intent(context, LandingActivity2.class) : new Intent(context, RouteActivity.class);
+                nextIntent.putExtra(RouteActivity.EVENT_ID, eventId);
+                PendingIntent sender = PendingIntent.getActivity(context, eventId, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 Intent delay = new Intent(context, CalendarNotificationDelay.class);
                 delay.putExtra(CalendarNotificationDelay.EVENT_ID, eventId);
                 PendingIntent pendingDelay = PendingIntent.getBroadcast(context, eventId, delay, 

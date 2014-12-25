@@ -194,7 +194,7 @@ public final class Geocoding {
 	
 	public static List<Address> lookup(Context ctx, String query, Double lat, Double lon) throws Exception{
 		User user = User.getCurrentUser(ctx);
-		SearchAddressRequest request = new SearchAddressRequest(user, query, lat, lon);
+		SearchAddressRequest request = new SearchAddressRequest(user, query, lat, lon, false);
 //		SearchAddressRequest request = new SearchAddressRequest(user, query, null, null);
 		List<Address> result = request.execute(ctx);
 		
@@ -365,10 +365,20 @@ public final class Geocoding {
     
     public static List<Address> searchPoi(Context ctx, String query, Double lat, Double lon) throws Exception{
     	User user = User.getCurrentUser(ctx);
-		SearchAddressRequest request = new SearchAddressRequest(user, query, lat, lon);
-//    	SearchAddressRequest request = new SearchAddressRequest(user, query, null, null);
+		SearchAddressRequest request = new SearchAddressRequest(user, query, lat, lon, false);
 		return request.execute(ctx);
 		
+    }
+    
+    public static List<Address> searchPoiForCalendar(Context ctx, String query, Double lat, Double lon) {
+    	try {
+	    	User user = User.getCurrentUser(ctx);
+			SearchAddressRequest request = new SearchAddressRequest(user, query, lat, lon, false);
+			return request.execute(ctx);
+    	}
+    	catch(Exception ignore) {
+    		return new ArrayList<Address>();
+    	}
     }
     
 }

@@ -110,6 +110,7 @@ import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibraryConstants;
 import com.skobbler.ngx.SKMaps;
+import com.smartrek.CalendarService;
 import com.smartrek.ResumeNavigationUtils;
 import com.smartrek.SmarTrekApplication;
 import com.smartrek.SmarTrekApplication.TrackerName;
@@ -157,6 +158,7 @@ import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Geocoding;
+import com.smartrek.utils.CalendarContract.Instances;
 import com.smartrek.utils.Geocoding.Address;
 import com.smartrek.utils.HTTP;
 import com.smartrek.utils.Misc;
@@ -279,6 +281,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     View fromDropDownButton;
     
     private static final String DROP_STATE = "dropdown";
+    
+    private AtomicBoolean checkCalendarEvent = new AtomicBoolean(true);
     
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
@@ -800,6 +804,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         final IMapController mc = mapView.getController();
         
+        final Bundle extras = getIntent().getExtras();
+        
         locationListener = new LocationListener(){
             @Override
             public void onLocationChanged(Location location) {
@@ -817,6 +823,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     final double lon = location.getLongitude();
                     refreshMyLocation(lat, lon);
                     popupResumeNavigationIfNeccessary();
+                    if(checkCalendarEvent.getAndSet(false) && extras != null) {
+                    	handleCalendarNotification(extras.getInt(RouteActivity.EVENT_ID));
+                    }
                     if(mapRecenter.getAndSet(false)){
                         if(myPointOverlay != null){
                             GeoPoint loc = myPointOverlay.getLocation();
@@ -1545,6 +1554,15 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         showTutorialIfNessary();
         
         //end oncreate
+    }
+    
+    private void handleCalendarNotification(int eventId) {
+    	if(eventId > 0) {
+    		JSONObject event = CalendarService.getEvent(LandingActivity2.this, eventId);
+    		String location = event.optString(Instances.EVENT_LOCATION, "");
+    		searchBox.setText(location);
+    		searchBox.requestFocus();
+    	}
     }
     
     private void setMenuInfo2Searchbox(PoiOverlayInfo info, boolean from) {

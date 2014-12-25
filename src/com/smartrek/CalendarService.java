@@ -37,8 +37,8 @@ import com.smartrek.utils.ValidationParameters;
 public class CalendarService extends IntentService {
 
     public static final String LAT = "lat";
-    
     public static final String LON = "lon";
+    public static final String GEOCODING_SIZE = "geoSize";
     
     private static final long FIFTHTEEN_MINS = 15 * 60 * 1000/*10000*/;
     
@@ -74,18 +74,18 @@ public class CalendarService extends IntentService {
                            long start = Long.parseLong(events.getString(2));
                            long end = Long.parseLong(events.getString(4));
                            String location = events.getString(3);
-                           Integer allDay = events.getInt(5); // all day event : 1 , not all day event : 0
+                           Integer allDayEvent = events.getInt(5); // all day event : 1 , not all day event : 0
                            long notiTime = start - TWO_AND_A_HALF_HOURS;
                            String title = events.getString(1);
-                           Address address = geocode(location);
+                           List<Address> addresses = geocode(location);
                            if((!file.exists() || file.length() == 0) 
-                        		   && allDay.equals(0) // skip all day event
+                        		   && allDayEvent.equals(0) // skip all day event
                                    && StringUtils.isNotBlank(location)
-                                   && isAtLeastFourWords(location)
-                                   && canBeGeocoded(address) 
+                                   && isAtLeastThreeWords(location)
+                                   && canBeGeocoded(addresses) 
                                    && !isDuplicate(CalendarService.this, eventId, title, start, end) 
                                    && System.currentTimeMillis() < notiTime/* true */
-                                   && !isOnDestination(address)){
+                                   && !isOnDestination(addresses)){
                                hasNotification = true;
                                Intent noti = new Intent(CalendarService.this, 
                                    CalendarNotification.class);
@@ -102,9 +102,10 @@ public class CalendarService extends IntentService {
                                .put(Instances.BEGIN, start)
                                .put(Instances.END, end)
                                .put(Instances.EVENT_LOCATION, location)
-                               .put(Instances.ALL_DAY, allDay)
-                               .put(LAT, address == null?0:address.getLatitude())
-                               .put(LON, address == null?0:address.getLongitude());
+                               .put(Instances.ALL_DAY, allDayEvent)
+                               .put(GEOCODING_SIZE, addresses.size())
+                               .put(LAT, addresses.isEmpty()?0:addresses.get(0).getLatitude())
+                               .put(LON, addresses.isEmpty()?0:addresses.get(0).getLongitude());
                            FileUtils.write(file, eventJson.toString());
                            if(hasNotification){
                                break;
@@ -127,29 +128,32 @@ public class CalendarService extends IntentService {
         }
     }
     
-    private static boolean isAtLeastFourWords(String address){
-        return ArrayUtils.getLength(StringUtils.split(address)) >= 4;
+    private static boolean isAtLeastThreeWords(String address){
+        return ArrayUtils.getLength(StringUtils.split(address)) >= 3;
     }
     
-    private static boolean canBeGeocoded(Geocoding.Address address){
-        return address != null && !address.getGeoPoint().isEmpty();
+    private static boolean canBeGeocoded(List<Geocoding.Address> addresses){
+        return addresses != null && !addresses.isEmpty();
     }
     
-    private boolean isOnDestination(Geocoding.Address address) {
+    private boolean isOnDestination(List<Geocoding.Address> addresses) {
     	LocationInfo loc = new LocationInfo(CalendarService.this);
     	ValidationParameters params = ValidationParameters.getInstance();
-    	return RouteNode.distanceBetween(loc.lastLat, loc.lastLong, address.getLatitude(), address.getLongitude()) < params.getArrivalDistanceThreshold();
+    	if(addresses.size() == 1) {
+    		Address address = addresses.get(0);
+    		return RouteNode.distanceBetween(loc.lastLat, loc.lastLong, address.getLatitude(), address.getLongitude()) < params.getArrivalDistanceThreshold();
+    	}
+    	return false; // multiple address un-checkable
     }
     
-    private Geocoding.Address geocode(String location){
-        Geocoding.Address rs = null;
+    private List<Geocoding.Address> geocode(String location){
         try {
             LocationInfo loc = new LocationInfo(CalendarService.this);
-            List<Geocoding.Address> addresses = Geocoding.lookup(this, location, 
+            return Geocoding.searchPoiForCalendar(this, location, 
                 Float.valueOf(loc.lastLat).doubleValue(), Float.valueOf(loc.lastLong).doubleValue());
-            rs = (addresses != null && !addresses.isEmpty())?addresses.get(0):null;
-        }catch(Throwable t){}
-        return rs;
+        }catch(Throwable t){
+        	return new ArrayList<Geocoding.Address>();
+        }
     }
     
     private File getDir(){

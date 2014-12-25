@@ -21,12 +21,13 @@ public class SearchAddressRequest extends FetchRequest<List<Address>>{
 	private Double userLat = null;
 	private Double userLon = null;
 	
-	public SearchAddressRequest(User user, String addrInput, Double lat, Double lon) {
+	public SearchAddressRequest(User user, String addrInput, Double lat, Double lon, boolean forCalendar) {
 		super(getLinkUrl(Link.search)
 				.replaceAll("\\{lat\\}", lat!=null?lat.toString():"")
 				.replaceAll("\\{lon\\}", lon!=null?lon.toString():"")
 				.replaceAll("\\{query\\}", URLEncoder.encode(addrInput))
-				.replaceAll("\\{radius_in_meters\\}", ""));
+				.replaceAll("\\{radius_in_meters\\}", "")
+				.replaceAll("\\{scenario\\}", forCalendar?"calendar":"{scenario}"));
 		this.userLat = lat;
 		this.userLon = lon;
 		username = user.getUsername();
