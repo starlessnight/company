@@ -1698,6 +1698,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					public void onAnimationEnd() {
 						dismissReservId = getFirstReservation() != null ? getFirstReservation().getRid() : -1;
 						hideTripInfoPanel();
+						centerMap();
 					}
 				});
 			}
@@ -1712,6 +1713,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					public void onAnimationEnd() {
 						dismissReservId = getFirstReservation() != null ? getFirstReservation().getRid() : -1;
 						hideTripInfoPanel();
+						centerMap();
 					}
 				});
 			}
@@ -1775,6 +1777,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                          });
     	reservationListPanel.setOnTouchListener(touchListener);
 //        Font.setTypeface(boldFont, (TextView) findViewById(R.id.no_reserved_trips));
+    }
+    
+    private void centerMap() {
+    	if(myPointOverlay != null) {
+    		((MapView)findViewById(R.id.mapview)).getController().setCenter(myPointOverlay.getLocation());
+    	}
     }
     
     private View createReservationInfoView(final Reservation reserv, boolean isFirst) {
@@ -2488,10 +2496,16 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private BroadcastReceiver updateMyLocation = new BroadcastReceiver() {
     	@Override
         public void onReceive(Context context, Intent intent) {
-    		Double lat = intent.getDoubleExtra("lat", 0);
-    		Double lon = intent.getDoubleExtra("lon", 0);
+    		final Double lat = intent.getDoubleExtra("lat", 0);
+    		final Double lon = intent.getDoubleExtra("lon", 0);
     		if(lat != 0 && lon != 0) {
-    			refreshMyLocation(lat, lon);
+    			runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						refreshMyLocation(lat, lon);
+						centerMap();
+					}
+    			});
     		}
     	}
     };
@@ -2578,6 +2592,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			public void run() {
 				refreshTripsInfo();
 		        updateMyMetropiaInfo();
+		        if(!mapRecenter.get()) {
+		        	centerMap();
+		        }
 			}
         });
         
