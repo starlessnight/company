@@ -44,7 +44,7 @@ public class CalendarService extends IntentService {
     
     private static final long FOUR_HOURS = 4 * 60 * 60 * 1000;
     
-    private static final long TWO_AND_A_HALF_HOURS = Double.valueOf(2.5 * 60 * 60 * 1000).longValue();
+    private static final long ONE_HOURS = Double.valueOf(60 * 60 * 1000).longValue();
     
     private static final long ONE_DAY = 24 * 60 * 60 * 1000;
 
@@ -75,7 +75,7 @@ public class CalendarService extends IntentService {
                            long end = Long.parseLong(events.getString(4));
                            String location = events.getString(3);
                            Integer allDayEvent = events.getInt(5); // all day event : 1 , not all day event : 0
-                           long notiTime = start - TWO_AND_A_HALF_HOURS;
+                           long notiTime = start - ONE_HOURS;
                            String title = events.getString(1);
                            List<Address> addresses = geocode(location);
                            if((!file.exists() || file.length() == 0) 
