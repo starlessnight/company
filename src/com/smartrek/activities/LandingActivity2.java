@@ -4231,7 +4231,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private SpannableString formatMyMetropiaInfo(String content) {
-    	int indexOfChange = getAlphaIndex(content);
+    	int indexOfChange = getAlphaIndexExcludeK(content);
     	SpannableString startTimeSpan = SpannableString.valueOf(content);
     	if(indexOfChange != -1) {
     		startTimeSpan.setSpan(new AbsoluteSizeSpan(Dimension.dpToPx(13, getResources().getDisplayMetrics())), 
@@ -4241,10 +4241,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	
     }
     
-    private int getAlphaIndex(String content) {
+    private int getAlphaIndexExcludeK(String content) {
     	char[] charArray = content.toCharArray();
     	for(int i = 0 ; i < charArray.length ; i++) {
-    		if(Character.isLetter(charArray[i])) {
+    		if(Character.isLetter(charArray[i]) && !"K".equals(String.valueOf(charArray[i]))) {
     			return i;
     		}
     	}
