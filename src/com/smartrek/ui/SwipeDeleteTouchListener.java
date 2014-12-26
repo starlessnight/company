@@ -180,22 +180,20 @@ public class SwipeDeleteTouchListener implements View.OnTouchListener {
                     dismiss = true;
                     dismissLeft = mVelocityTracker.getXVelocity() < 0;
                 }
-                if (dismiss) {
+                if (dismiss && dismissLeft) {
                     // dismiss
-                	if(dismissLeft) {
-	                    final View downView = mDownView; // mDownView gets null'd before animation ends
-	                    ++mDismissAnimationRefCount;
-	                    animate(mDownView)
-	                            .translationX(dismissLeft ? -mViewWidth : mViewWidth)
-	                            .alpha(0)
-	                            .setDuration(mAnimationTime)
-	                            .setListener(new AnimatorListenerAdapter() {
-	                                @Override
-	                                public void onAnimationEnd(Animator animation) {
-	                                	performDismiss(downView, dismissPosition);
-	                                }
-	                            });
-                	}
+	                final View downView = mDownView; // mDownView gets null'd before animation ends
+	                ++mDismissAnimationRefCount;
+	                animate(mDownView)
+	                        .translationX(-mViewWidth)
+	                        .alpha(0)
+	                        .setDuration(mAnimationTime)
+	                        .setListener(new AnimatorListenerAdapter() {
+	                            @Override
+	                            public void onAnimationEnd(Animator animation) {
+	                             	performDismiss(downView, dismissPosition);
+	                            }
+	                        });
                 } else {
                     // cancel
                     animate(mDownView)
