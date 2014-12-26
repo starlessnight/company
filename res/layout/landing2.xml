@@ -76,7 +76,7 @@
                     android:singleLine="true"
                     android:text=""
                     android:textColor="@android:color/white"
-                    android:textSize="@dimen/smallest_font" />
+                    android:textSize="19dp" />
 
                 <ImageView
                     android:id="@+id/from_menu"

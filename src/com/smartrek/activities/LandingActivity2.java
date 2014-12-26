@@ -365,6 +365,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
+						hidePopupMenu();
 						if(DROP_STATE.equals(toDropDownButton.getTag())) {
 							toDropDownIcon.setImageResource(R.drawable.drop_down_arrow);
 							toFavoriteDropdown.setVisibility(View.GONE);
@@ -392,6 +393,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
+						hidePopupMenu();
 						if(DROP_STATE.equals(fromDropDownButton.getTag())) {
 							fromDropDownIcon.setImageResource(R.drawable.drop_down_arrow);
 							fromFavoriteDropdown.setVisibility(View.GONE);
@@ -3747,7 +3749,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	FrameLayout.LayoutParams addressInfoLp = (FrameLayout.LayoutParams) addressInfo.getLayoutParams();
     	View landingPanelView = findViewById(R.id.landing_panel_content);
         int landingPanelHeight = landingPanelView.getHeight();
-    	int margin = Dimension.dpToPx(5, dm);
+    	int margin = Dimension.dpToPx(8, dm);
     	addressInfoLp.leftMargin = margin;
     	addressInfoLp.rightMargin = margin;
     	addressInfoLp.topMargin = isMapCollapsed() ? (margin + landingPanelHeight) : margin;
