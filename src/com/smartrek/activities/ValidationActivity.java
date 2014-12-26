@@ -1228,7 +1228,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				routeManager.clearAllRoutesFromCache();
 				routeManager.createRouteFromTrackElement(routeGpx.getRootTrackElement(), 
 						SKRouteSettings.SKROUTE_CAR_FASTEST, false, false, false);
-				drawDestinationAnnotation(_route.getLastNode());
+				drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
 			}
 			/*
 			List<SKCoordinate> routeCoors = new ArrayList<SKCoordinate>();
@@ -1261,10 +1261,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 	}
 	
-	private void drawDestinationAnnotation(RouteNode destNode) {
+	private void drawDestinationAnnotation(double lat, double lon) {
 		SKAnnotation destAnn = new SKAnnotation();
 		destAnn.setUniqueID(DEST_ANNOTATION_ID);
-		destAnn.setLocation(new SKCoordinate(destNode.getLongitude(), destNode.getLatitude()));
+		destAnn.setLocation(new SKCoordinate(lon, lat));
 		destAnn.setMininumZoomLevel(5);
 		destAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_DESTINATION_FLAG);
 		mapView.addAnnotation(destAnn, SKAnimationSettings.ANIMATION_NONE);
