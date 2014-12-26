@@ -153,12 +153,12 @@ import com.smartrek.ui.overlays.RouteDestinationOverlay;
 import com.smartrek.ui.overlays.RoutePathOverlay;
 import com.smartrek.ui.timelayout.AdjustableTime;
 import com.smartrek.utils.Cache;
+import com.smartrek.utils.CalendarContract.Instances;
 import com.smartrek.utils.Dimension;
 import com.smartrek.utils.ExceptionHandlingService;
 import com.smartrek.utils.Font;
 import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Geocoding;
-import com.smartrek.utils.CalendarContract.Instances;
 import com.smartrek.utils.Geocoding.Address;
 import com.smartrek.utils.HTTP;
 import com.smartrek.utils.Misc;
@@ -1741,7 +1741,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                 	@Override
                                 	protected void onPreExecute() {
                                 		removedReservIds.add(removeReservId);
-                                		refreshTripInfoPanel(reservs);
+                                		refreshReservationList(reservs, false);
                                 	}
                                 	
             		                @Override
@@ -1762,7 +1762,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             		                protected void onPostExecute(Boolean success) {
             		                 	if(success) {
             		                   		DebugOptionsActivity.removeReservRecipients(LandingActivity2.this, reserv.getRid());
-            		                   		refreshTripsInfo(false);
+            		                   		refreshTripsInfo(false, false);
             		                   		removedReservIds.remove(removeReservId);
             		                   	}
             		                }
@@ -1781,7 +1781,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private void centerMap() {
     	if(myPointOverlay != null) {
-    		((MapView)findViewById(R.id.mapview)).getController().setCenter(myPointOverlay.getLocation());
+    		IMapController mc = ((MapView)findViewById(R.id.mapview)).getController();
+//    		mc.setZoom(calculateZoomLevel(myPointOverlay.getLocation().getLatitude()));
+    		zoomMapToFitBulbPOIs();
+    		mc.setCenter(myPointOverlay.getLocation());
     	}
     }
     
@@ -2470,7 +2473,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 public void run() {
                     drawedReservId = Long.valueOf(-1);
                     dismissReservId = Long.valueOf(-1);
-                    refreshTripsInfo(true);
+                    refreshTripsInfo(true, true);
                 }
             });
         }
@@ -2624,14 +2627,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
       closeGPS();
       drawedReservId = Long.valueOf(-1);
       dismissReservId = Long.valueOf(-1);
-      refreshTripsInfo(true);
+      refreshTripsInfo(true, true);
     } 
     
     private void refreshTripsInfo(){
-        refreshTripsInfo(false);
+        refreshTripsInfo(false, true);
     }
     
-    private void refreshTripsInfo(final boolean cached){
+    private void refreshTripsInfo(final boolean cached, final boolean closeIfEmpty){
         ReservationListTask task = new ReservationListTask(this, cached){
 	        @Override
 	        protected void onPostExecute(List<Reservation> reservations) {
@@ -2649,14 +2652,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                    mapView.postInvalidate();
 	                }
 	                tripNotifyIcon.setVisibility(View.GONE);
-	                refreshTripInfoPanel(new ArrayList<Reservation>());
+	                refreshReservationList(new ArrayList<Reservation>(), closeIfEmpty);
 	                unlockMenu();
 	            } 
 	            else{
                     Reservation reserv = reservations.get(0);
 	                drawRoute(reserv);
-                    refreshTripInfoPanel(reservations);
-                    refreshReservationList(reservations);
+                    refreshReservationList(reservations, closeIfEmpty);
 	            }
 	        }
 	    };
@@ -2730,54 +2732,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         }
     }
     
-    private void refreshTripInfoPanel(List<Reservation> reservations) {
-    	Reservation reserv = null;
-    	int curReservIdx = -1;
-    	while(curReservIdx < (reservations.size()-1) && reserv == null) {
-    		curReservIdx++;
-    		Reservation tempReserv = reservations.get(curReservIdx);
-    		long departureTimeUtc = tempReserv.getDepartureTimeUtc();
-    		long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
-    		if(timeUntilDepart > -1 * Reservation.GRACE_INTERVAL) {
-    			reserv = tempReserv;
-    		}
-    	}
-    	
-    	initFontsIfNecessary();
-    	
-    	if(reserv != null) {
-	        tripNotifyIcon.setImageResource(reserv.isEligibleTrip()?R.drawable.upcoming_trip_green:R.drawable.upcoming_trip_orange);
-	        tripNotifyIcon.setVisibility(View.VISIBLE);
-    	}
-    	refreshReservationList(reservations);
-    }
-    
-    private SpannableString formatTripInfoDesc(String tripDesc) {
-    	int indexOfChange = tripDesc.indexOf("TO:");
-    	SpannableString tripDescSpan = SpannableString.valueOf(tripDesc);
-    	if(indexOfChange != -1) {
-    		tripDescSpan.setSpan(new AbsoluteSizeSpan(getResources()
-					.getDimensionPixelSize(R.dimen.micro_font)), indexOfChange, indexOfChange + "TO:".length(),
-					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-    	}
-		return tripDescSpan;
-    }
-    
-    private String formatTime(long time, int timzoneOffset, boolean showDate){
-    	String format = showDate ? "EEEE h:mm a" : "h:mm a";
-	    SimpleDateFormat dateFormat = new SimpleDateFormat(format, Locale.US);
-        dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone(timzoneOffset)));
-        return dateFormat.format(new Date(time));
-	}
-    
-    private String getFormattedDuration(int duration){
-	    return String.format("%dmin", duration/60);
-	}
-    
     private List<Long> removedReservIds = new ArrayList<Long>();
     
-    private void refreshReservationList(List<Reservation> reservations) {
+    private void refreshReservationList(List<Reservation> reservations, boolean closeIfEmpty) {
     	reservationListPanel.removeAllViews();
+    	Reservation notifyReserv = null;
     	int curReservIdx = -1;
     	boolean cont = true;
     	while(curReservIdx < (reservations.size()-1) && cont) {
@@ -2786,8 +2745,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		long departureTimeUtc = tempReserv.getDepartureTimeUtc();
     		long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
     		if(timeUntilDepart > -1*Reservation.GRACE_INTERVAL) {
+    			notifyReserv = tempReserv;
     			cont = false;
     		}
+    	}
+    	
+    	if(notifyReserv != null) {
+	        tripNotifyIcon.setImageResource(notifyReserv.isEligibleTrip()?R.drawable.upcoming_trip_green:R.drawable.upcoming_trip_orange);
+	        tripNotifyIcon.setVisibility(View.VISIBLE);
     	}
     	
     	initFontsIfNecessary();
@@ -2836,7 +2801,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	else {
     		dismissReservId = -1L;
     		tripNotifyIcon.setVisibility(View.GONE);
-    		hideReservationInfoPanel();
+    		if(closeIfEmpty) {
+    			hideReservationInfoPanel();
+    		}
     	}
  
     	int reservCount = curReservIdx == -1 ? 0 : reservations.size() - curReservIdx;
@@ -2858,6 +2825,28 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			newUserTipView.setVisibility(DebugOptionsActivity.isUserCloseTip(LandingActivity2.this)?View.GONE:View.VISIBLE);
 		}
     }
+    
+    private SpannableString formatTripInfoDesc(String tripDesc) {
+    	int indexOfChange = tripDesc.indexOf("TO:");
+    	SpannableString tripDescSpan = SpannableString.valueOf(tripDesc);
+    	if(indexOfChange != -1) {
+    		tripDescSpan.setSpan(new AbsoluteSizeSpan(getResources()
+					.getDimensionPixelSize(R.dimen.micro_font)), indexOfChange, indexOfChange + "TO:".length(),
+					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+    	}
+		return tripDescSpan;
+    }
+    
+    private String formatTime(long time, int timzoneOffset, boolean showDate){
+    	String format = showDate ? "EEEE h:mm a" : "h:mm a";
+	    SimpleDateFormat dateFormat = new SimpleDateFormat(format, Locale.US);
+        dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone(timzoneOffset)));
+        return dateFormat.format(new Date(time));
+	}
+    
+    private String getFormattedDuration(int duration){
+	    return String.format("%dmin", duration/60);
+	}
     
     private void showTripInfoPanel(boolean force, boolean animation) {
     	View tripInfoPanel = findViewById(R.id.reservations_list_view);
