@@ -2518,7 +2518,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             myPointOverlay = new CurrentLocationOverlay(LandingActivity2.this, 0, 0, R.drawable.landing_page_current_location);
             mapOverlays.add(myPointOverlay);
         }
-        
         myPointOverlay.setLocation((float) lat, (float) lon);
         mapView.postInvalidate();
     }
@@ -2820,6 +2819,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	else {
     		dismissReservId = -1L;
     		tripNotifyIcon.setVisibility(View.GONE);
+    		hideReservationInfoPanel();
     	}
  
     	int reservCount = curReservIdx == -1 ? 0 : reservations.size() - curReservIdx;
