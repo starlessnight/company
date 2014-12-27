@@ -84,7 +84,14 @@ public class CurrentLocationOverlay extends Overlay {
 		
 		Matrix matrix = new Matrix();
         matrix.setRotate(round(currentDegrees, 9));
-        Bitmap rotatedIcon = Bitmap.createBitmap(icon, 0, 0, icon.getWidth(), icon.getHeight(), matrix, true);
+        
+        final int iconWidth = icon.getWidth();
+		final int iconHeight = icon.getHeight();
+		float widthShrink = ((iconWidth / 2) / mapView.getMaxZoomLevel()) * (mapView.getMaxZoomLevel() - mapView.getZoomLevel());
+		float heightShrink = ((iconHeight / 2) / mapView.getMaxZoomLevel()) * (mapView.getMaxZoomLevel() - mapView.getZoomLevel());
+		matrix.postScale((1f-(heightShrink/iconHeight)), (1f-(widthShrink/iconWidth)));
+        
+        Bitmap rotatedIcon = Bitmap.createBitmap(icon, 0, 0, iconWidth, iconHeight, matrix, true);
         canvas.drawBitmap(rotatedIcon, point.x - rotatedIcon.getWidth()/2.0f, 
             point.y - rotatedIcon.getHeight()/2.0f, paint);
         
