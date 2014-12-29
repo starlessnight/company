@@ -1782,11 +1782,18 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void centerMap() {
-    	if(myPointOverlay != null) {
-    		IMapController mc = ((MapView)findViewById(R.id.mapview)).getController();
-//    		mc.setZoom(calculateZoomLevel(myPointOverlay.getLocation().getLatitude()));
-    		zoomMapToFitBulbPOIs();
+    	MapView mapView = ((MapView)findViewById(R.id.mapview));
+    	IMapController mc = mapView.getController();
+    	if(routeRect == null && myPointOverlay != null) {
+    		mc.setZoom(calculateZoomLevel(myPointOverlay.getLocation().getLatitude()));
     		mc.setCenter(myPointOverlay.getLocation());
+    		mapView.postInvalidate();
+    	}
+    	else {
+    		// simulate default view
+    		RouteActivity.setViewToNorthAmerica(mapView);
+    		zoomMapToFitBulbPOIs();
+    		mapView.postInvalidate();
     	}
     }
     
