@@ -1813,7 +1813,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         long durationTime = reserv.getDuration();  //sec
         String originDesc = StringUtils.isNotBlank(reserv.getOriginName()) ? reserv.getOriginName() : reserv.getOriginAddress();
         String destDesc = StringUtils.isNotBlank(reserv.getDestinationName()) ? reserv.getDestinationName() : reserv.getDestinationAddress();
-        StringBuffer tripInfoDesc = new StringBuffer(originDesc).append(" TO: ").append(destDesc);
+//        StringBuffer tripInfoDesc = new StringBuffer(originDesc).append(" TO: ").append(destDesc);
         if(reserv.isEligibleTrip()){
         	startTimeVisible = isFirst ? View.GONE : View.VISIBLE;
         	durationTimeVisible = View.VISIBLE;
@@ -1833,9 +1833,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             startButtonResourceId = isFirst ? R.drawable.reservation_start_trip_transparent : R.drawable.reservation_start_trip_disable;
         }
         
-        TextView tripInfoDescView =  (TextView) reservInfo.findViewById(R.id.trip_info_desc);
-    	tripInfoDescView.setVisibility(isFirst ? View.VISIBLE : View.GONE);
-    	tripInfoDescView.setText(formatTripInfoDesc(tripInfoDesc.toString()));
+        reservInfo.findViewById(R.id.trip_info_desc).setVisibility(isFirst?View.VISIBLE:View.GONE);
+        
+        TextView tripInfoFromAddressView =  (TextView) reservInfo.findViewById(R.id.trip_info_from_address);
+    	tripInfoFromAddressView.setText(originDesc);
+    	TextView tripInfoToAddressView =  (TextView) reservInfo.findViewById(R.id.trip_info_to_address);
+    	tripInfoToAddressView.setText(destDesc);
     	TextView timeToGo = (TextView) reservInfo.findViewById(R.id.time_to_go_desc);
     	timeToGo.setText(startTimeVisible == View.GONE ? "It's Time to Go!" : "");
     	timeToGo.setVisibility(isFirst?View.VISIBLE:View.GONE);
@@ -1972,8 +1975,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         TextView toAddressView = (TextView) reservInfo.findViewById(R.id.od_to_address);
         toAddressView.setText(destDesc);
         
-        Font.setTypeface(robotoBoldFont, timeToGo, tripDurationTimeView, tripArrivalTimeView, tripStartTimeView);
-        Font.setTypeface(robotoLightFont, tripInfoDescView, reservationOnMyWay);
+        Font.setTypeface(robotoBoldFont, timeToGo, tripDurationTimeView, tripArrivalTimeView, tripStartTimeView, tripInfoFromAddressView, tripInfoToAddressView);
+        Font.setTypeface(robotoLightFont, reservationOnMyWay);
         
         if(isFirst) {
 	        tripNotifyIcon.setImageResource(reserv.isEligibleTrip()?R.drawable.upcoming_trip_green:R.drawable.upcoming_trip_orange);
@@ -1986,8 +1989,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private View createEmptyReservationInfoView() {
     	FrameLayout emptyReservInfo = (FrameLayout) getLayoutInflater().inflate(R.layout.reservation_trip_info, reservationListPanel, false);
     	int startButtonResourceId = R.drawable.reservation_start_trip_transparent;
-        TextView tripInfoDescView =  (TextView) emptyReservInfo.findViewById(R.id.trip_info_desc);
-    	tripInfoDescView.setVisibility(View.GONE);
+        emptyReservInfo.findViewById(R.id.trip_info_desc).setVisibility(View.GONE);
     	TextView timeToGo = (TextView) emptyReservInfo.findViewById(R.id.time_to_go_desc);
     	timeToGo.setVisibility(View.GONE);
         TextView tripDurationTimeView = (TextView) emptyReservInfo.findViewById(R.id.reservation_duration_time);
@@ -2835,16 +2837,16 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		}
     }
     
-    private SpannableString formatTripInfoDesc(String tripDesc) {
-    	int indexOfChange = tripDesc.indexOf("TO:");
-    	SpannableString tripDescSpan = SpannableString.valueOf(tripDesc);
-    	if(indexOfChange != -1) {
-    		tripDescSpan.setSpan(new AbsoluteSizeSpan(getResources()
-					.getDimensionPixelSize(R.dimen.micro_font)), indexOfChange, indexOfChange + "TO:".length(),
-					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-    	}
-		return tripDescSpan;
-    }
+//    private SpannableString formatTripInfoDesc(String tripDesc) {
+//    	int indexOfChange = tripDesc.indexOf("TO:");
+//    	SpannableString tripDescSpan = SpannableString.valueOf(tripDesc);
+//    	if(indexOfChange != -1) {
+//    		tripDescSpan.setSpan(new AbsoluteSizeSpan(getResources()
+//					.getDimensionPixelSize(R.dimen.micro_font)), indexOfChange, indexOfChange + "TO:".length(),
+//					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//    	}
+//		return tripDescSpan;
+//    }
     
     private String formatTime(long time, int timzoneOffset, boolean showDate){
     	String format = showDate ? "EEEE h:mm a" : "h:mm a";
