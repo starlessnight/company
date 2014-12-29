@@ -233,7 +233,7 @@ public abstract class Request {
 		detailMessage.append("Request Url=").append(url).append("\n");
 		detailMessage.append("Response Status=").append(responseCode + "\n");
 		detailMessage.append("Response Content=").append(responseBody).append("\n");
-		detailMessage.append("Request Parameter=").append(reqParams.toString()).append("\n");
+		detailMessage.append("Request Parameter=").append(String.valueOf(reqParams)).append("\n");
 		return detailMessage.toString();
 	}
 
