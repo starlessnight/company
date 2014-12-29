@@ -391,6 +391,7 @@ public final class ShareActivity extends FragmentActivity {
 					Intent sendIntent = new Intent(Intent.ACTION_VIEW);
 					sendIntent.putExtra("sms_body", shareText);
 					sendIntent.setType("vnd.android-dir/mms-sms");
+					sendIntent.setData(Uri.parse("smsto:"));
 					startActivity(Intent.createChooser(sendIntent, title));
 				}
 				break;

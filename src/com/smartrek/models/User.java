@@ -200,7 +200,7 @@ public final class User implements JSONModel, Parcelable {
 	public static void logout(Context context) {
 		SharedPreferences prefs = Preferences.getAuthPreferences(context);
 		SharedPreferences.Editor editor = prefs.edit();
-		editor.remove(USERNAME);
+//		editor.remove(USERNAME);
 		editor.remove(PASSWORD);
 		editor.putString("CurrentUser", "");
 		editor.commit();

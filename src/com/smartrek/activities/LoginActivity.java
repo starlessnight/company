@@ -91,6 +91,11 @@ public final class LoginActivity extends Activity implements OnClickListener,
         editTextUsername.addTextChangedListener(this);
         editTextPassword = (EditText) findViewById(R.id.pwd_box);
         editTextPassword.addTextChangedListener(this);
+        SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
+        String username = loginPrefs.getString(User.USERNAME, "");
+        if(StringUtils.isNotBlank(username)) {
+        	editTextUsername.setText(username);
+        }
         
         AssetManager assets = getAssets();
         //Font.setTypeface(Font.getBold(assets));
@@ -148,7 +153,7 @@ public final class LoginActivity extends Activity implements OnClickListener,
                         
                         CrashlyticsUtils.initUserInfo(user);
                         
-                        Intent intent = new Intent(LoginActivity.this, LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
+                        Intent intent = new Intent(LoginActivity.this, DebugOptionsActivity.isOnBoardFinish(LoginActivity.this)?(LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class) : OnBoardActivity.class);
                         LoginActivity.this.startActivity(intent);
                         finish();
                     }

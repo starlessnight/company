@@ -1156,4 +1156,20 @@ public final class DebugOptionsActivity extends Activity {
     	getPrefs(ctx).edit().putBoolean(NEW_USER_TIP_CLOSE, true).commit();
     }
     
+    private static final String ON_BOARD_FINISH = "finishOnBoard";
+    
+    public static boolean isOnBoardFinish(Context ctx) {
+    	boolean closed;
+        try{
+            closed = getPrefs(ctx).getBoolean(ON_BOARD_FINISH, false);
+        }catch(Throwable t){
+            closed = false;
+        }
+        return closed;
+    }
+    
+    public static void finishOnBoard(Context ctx) {
+    	getPrefs(ctx).edit().putBoolean(ON_BOARD_FINISH, true).commit();
+    }
+    
 }

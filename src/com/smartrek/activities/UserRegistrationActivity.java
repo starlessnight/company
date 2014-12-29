@@ -15,9 +15,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -38,6 +41,7 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.smartrek.SmarTrekApplication;
 import com.smartrek.SmarTrekApplication.TrackerName;
 import com.smartrek.dialogs.NotificationDialog2;
+import com.smartrek.dialogs.NotificationDialog2.ActionListener;
 import com.smartrek.models.User;
 import com.smartrek.requests.UserRegistrationRequest;
 import com.smartrek.utils.Dimension;
@@ -344,33 +348,62 @@ public final class UserRegistrationActivity extends FragmentActivity
 		        ehs.reportExceptions();
 		    }
 		    else {
-				AlertDialog dialog = new AlertDialog.Builder(UserRegistrationActivity.this).create();
-				// TODO: Text localization
-				dialog.setTitle("Info");
-				dialog.setMessage("Successfully registered.");
-				dialog.setButton(getResources().getString(R.string.close), new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-					    SharedPreferences globalPrefs = Preferences.getGlobalPreferences(UserRegistrationActivity.this);
-				        String gcmRegistrationId = globalPrefs.getString(Preferences.Global.GCM_REG_ID, "");
-				        
-				        SharedPreferences loginPrefs = Preferences.getAuthPreferences(UserRegistrationActivity.this);
-				        SharedPreferences.Editor loginPrefsEditor = loginPrefs.edit();
-				        loginPrefsEditor.putString(User.USERNAME, result.getUsername());
-				        loginPrefsEditor.putString(User.PASSWORD, result.getPassword());
-				        loginPrefsEditor.commit();
-					    
-					    User.setCurrentUser(UserRegistrationActivity.this, result);
-					    
-	                    Intent intent = new Intent(UserRegistrationActivity.this, OnBoardActivity.class);
-	                    UserRegistrationActivity.this.startActivity(intent);
-	                    finish();
+		    	final NotificationDialog2 dialog = new NotificationDialog2(UserRegistrationActivity.this, "Now check your mailbox for a verification email!");
+		    	dialog.setTitle("New Account Created");
+		    	dialog.setPositiveButtonText("OK");
+		    	dialog.setPositiveActionListener(new ActionListener() {
+					@Override
+					public void onClick() {
+						SharedPreferences loginPrefs = Preferences.getAuthPreferences(UserRegistrationActivity.this);
+                        SharedPreferences.Editor loginPrefsEditor = loginPrefs.edit();
+                        loginPrefsEditor.putString(User.USERNAME, result.getUsername());
+                        loginPrefsEditor.commit();
+						
+                        Intent openIntent = getOpenEmailAppIntent();
+    				    if(openIntent != null) {
+    					    startActivity(openIntent);
+    				    	finish();
+    				    }
+    				    else {
+    				    	if(dialog.isShowing()) {
+    				    		dialog.dismiss();
+    				    	}
+    				    	
+    				    	NotificationDialog2 manualOpenDialog = new NotificationDialog2(UserRegistrationActivity.this, "No default email app. Please launch email app manually.");
+    				    	manualOpenDialog.setPositiveButtonText("Dismiss");
+    				    	manualOpenDialog.setPositiveActionListener(new ActionListener() {
+								@Override
+								public void onClick() {
+									Intent loginIntent = new Intent(UserRegistrationActivity.this, LoginActivity.class);
+									startActivity(loginIntent);
+									finish();
+								}
+    				    	});
+    				    	manualOpenDialog.show();
+    				    }
 					}
-				});
-				dialog.setCancelable(false);
-				dialog.setCanceledOnTouchOutside(false);
-				dialog.show();
+		    	});
+		    	dialog.show();
 			}
 		}
+    }
+    
+    private Intent getOpenEmailAppIntent() {
+    	Intent getEmailAppIntent = new Intent(Intent.ACTION_SENDTO);
+	    getEmailAppIntent.setData(Uri.parse("mailto:"));
+	    PackageManager pm = getPackageManager();
+	    if(getEmailAppIntent.resolveActivity(pm) != null) {
+	    	try {
+	    		ActivityInfo info = pm.getActivityInfo(getEmailAppIntent.resolveActivity(pm), 0);
+		    	Intent openIntent = pm.getLaunchIntentForPackage(info.applicationInfo.packageName);
+		    	return openIntent;
+	    	}
+	    	catch(Exception ignore) {
+//	    		ExceptionHandlingService ehs = new ExceptionHandlingService(UserRegistrationActivity.this);
+//	    		ehs.reportException(ignore);
+	    	}
+	    }
+	    return null;
     }
 
     @Override

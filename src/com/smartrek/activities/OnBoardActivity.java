@@ -166,6 +166,7 @@ public class OnBoardActivity extends FragmentActivity {
 					@Override
 					public void onAnimationEnd() {
 						v.setClickable(true);
+						DebugOptionsActivity.finishOnBoard(OnBoardActivity.this);
 						startLandingPage();
 					}
 				});
