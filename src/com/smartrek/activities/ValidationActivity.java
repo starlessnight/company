@@ -616,7 +616,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		super.onPause();
 		mapView.onPause();
 		unregisterReceiver(timeInfoCycler);
-		if(!cancelTrip) {
+		if(!cancelTrip && !arrived.get()) {
 			navigationView.startNotification();
 		}
 	}
