@@ -4184,7 +4184,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 							rewardString.insert(0, "0");
 						}
 					}
-					rewardString.append("Pts");
+					rewardString.append("pts");
 					upointView.setText(formatMyMetropiaInfo(rewardString.toString()));
 					
 					int timeSaving = info.getTimeSaving();
@@ -4198,7 +4198,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 							timeSavingString.insert(0, "0");
 						}
 					}
-					timeSavingString.append("Min");
+					timeSavingString.append("min");
 					saveTimeView.setText(formatMyMetropiaInfo(timeSavingString.toString()));
 					
 					double co2Saving = info.getCo2Saving();
