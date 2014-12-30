@@ -11,6 +11,7 @@ import java.util.TimeZone;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpResponseException;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
@@ -202,7 +203,11 @@ public abstract class Request {
 	    	String detailMessage = url;
 	    	if(StringUtils.isNotBlank(getLinkUrl(Link.issue)) && !StringUtils.equalsIgnoreCase(getLinkUrl(Link.issue), url)) {
 	    		sendIssueReport(ctx, url, params, t.getMessage(), responseCode, responseBody);
-	    		detailMessage = formatErrorMessage(url, params, t.getMessage(), responseCode, responseBody);
+	    		try {
+					detailMessage = formatErrorMessage(url, params, t.getMessage(), responseCode, responseBody);
+				} catch (JSONException e1) {
+					detailMessage = responseBody;
+				}
 	    	}
 	        IOException e = new IOException(detailMessage);
 	        e.initCause(t);
@@ -226,15 +231,21 @@ public abstract class Request {
 		});
 	}
 	
+	public static final String RESPONSE = "response";
+	public static final String ERROR_MESSAGE = "errorMessage";
+	
 	private String formatErrorMessage(String url, final Object reqParams, final String message,
-			final int responseCode, final String responseBody) {
+			final int responseCode, final String responseBody) throws JSONException {
+		JSONObject errorJson = new JSONObject();
+		errorJson.put(RESPONSE, responseBody);
 		StringBuffer detailMessage = new StringBuffer();
 		detailMessage.append("Error Message=").append(message).append("\n");
 		detailMessage.append("Request Url=").append(url).append("\n");
 		detailMessage.append("Response Status=").append(responseCode + "\n");
 		detailMessage.append("Response Content=").append(responseBody).append("\n");
 		detailMessage.append("Request Parameter=").append(String.valueOf(reqParams)).append("\n");
-		return detailMessage.toString();
+		errorJson.put(ERROR_MESSAGE, detailMessage);
+		return errorJson.toString();
 	}
 
 	public String executeHttpPostRequest(String url, Map<String, Object> params) {

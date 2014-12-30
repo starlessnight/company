@@ -335,7 +335,7 @@ public final class UserRegistrationActivity extends FragmentActivity
 				request.execute(user, ctx);
 			}
 			catch (Exception e) {
-				ehs.registerException(e);
+				ehs.registerException(e, e.getMessage());
 			}
 			
 			return user;

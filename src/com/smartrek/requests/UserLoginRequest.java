@@ -49,7 +49,7 @@ public class UserLoginRequest extends FetchRequest<User> {
 	        JSONObject data = json.getJSONObject("data");
 	        user = new User();
 	        user.setId(id);
-	        user.setUsername(username);
+	        user.setUsername(StringUtils.lowerCase(username));
 	        user.setPassword(password);
 	        user.setEmail(data.getString("email"));
 	        user.setFirstname(data.getString("first_name"));

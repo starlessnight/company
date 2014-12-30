@@ -5,11 +5,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.smartrek.models.User;
 import com.smartrek.utils.HTTP.Method;
@@ -26,21 +28,26 @@ public class UserRegistrationRequest extends Request {
 		if(NEW_API){
 		    String url = getLinkUrl(Link.auth_user);
 		    Map<String, String> params = new HashMap<String, String>();
-		    params.put("username", email);
+		    params.put("username", StringUtils.lowerCase(email));
 		    params.put("password", password);
-		    params.put("email", email);
+		    params.put("email", StringUtils.lowerCase(email));
 		    params.put("first_name", firstname);
 		    params.put("last_name", lastname);
 		    params.put("zipcode", zipcode);
 		    String res = null;
+		    boolean throwException = false;
             try {
                 res = executeHttpRequest(Method.POST, url, params, ctx);
             } catch (Exception e){
+            	throwException = true;
                 res = e.getMessage();
             }
-            JSONObject json = new JSONObject(res);
-            JSONObject data = json.getJSONObject("data"); 
-            if("fail".equals(json.getString("status"))){
+            JSONObject resJson = new JSONObject(res);
+            if(throwException) {
+            	resJson = new JSONObject(resJson.optString(RESPONSE, ""));
+            }
+            JSONObject data = resJson.getJSONObject("data"); 
+            if("fail".equals(resJson.getString("status"))){
                 String msg = "";
                 Iterator keys = data.keys();
                 while(keys.hasNext()){
