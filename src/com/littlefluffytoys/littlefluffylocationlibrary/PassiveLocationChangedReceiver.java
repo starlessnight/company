@@ -27,7 +27,7 @@ import android.location.LocationManager;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.smartrek.activities.ValidationActivity;
+import com.metropia.activities.ValidationActivity;
 
 /**
  * This Receiver class is used to listen for Broadcast Intents that announce

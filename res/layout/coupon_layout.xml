@@ -13,11 +13,11 @@
 		android:background="#3f3e40"
 		android:layout_alignParentBottom="true"  
  		android:id="@+id/scrollCoupon">
-   		<com.smartrek.AdjustableCouponDisplay.CouponLayout
+   		<com.metropia.AdjustableCouponDisplay.CouponLayout
 			android:id="@+id/couponlayout"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content">
-		</com.smartrek.AdjustableCouponDisplay.CouponLayout>
+		</com.metropia.AdjustableCouponDisplay.CouponLayout>
 	</HorizontalScrollView>
     
     <TextView 

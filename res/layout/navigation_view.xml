@@ -96,7 +96,7 @@
 	    	        android:visibility="invisible"
 	    	    />
 	    	    
-	    	    <com.smartrek.ui.WrapContentHeightViewPager
+	    	    <com.metropia.ui.WrapContentHeightViewPager
 		        	android:id="@+id/text_view_road_pager"
 		        	android:layout_width="0dp"
 		        	android:layout_height="wrap_content"

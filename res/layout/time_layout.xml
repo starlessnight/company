@@ -75,18 +75,18 @@
                 android:layout_weight="1"
                 android:paddingBottom="2dp">
                 
-	            <com.smartrek.ui.timelayout.ScrollableTimeLayout
+	            <com.metropia.ui.timelayout.ScrollableTimeLayout
 	                android:id="@+id/scrollTime"
 	                android:layout_width="match_parent"
 	                android:layout_height="wrap_content"
 	                android:scrollbars="none" >
 	
-	                <com.smartrek.ui.timelayout.TimeLayout
+	                <com.metropia.ui.timelayout.TimeLayout
 	                    android:id="@+id/timelayout"
 	                    android:layout_width="wrap_content"
 	                    android:layout_height="wrap_content"
 	                    display="time" />
-	            </com.smartrek.ui.timelayout.ScrollableTimeLayout>
+	            </com.metropia.ui.timelayout.ScrollableTimeLayout>
 	            
 	            <View
 	                android:layout_width="10dp"

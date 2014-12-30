@@ -45,7 +45,7 @@ import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailed
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationRequest;
-import com.smartrek.activities.DebugOptionsActivity;
+import com.metropia.activities.DebugOptionsActivity;
 
 /**
  * This is an example of implementing an application service that will run in

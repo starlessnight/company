@@ -21,7 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.smartrek.SmarTrekApplication;
+import com.metropia.SmarTrekApplication;
 
 public class StartupBroadcastReceiver extends BroadcastReceiver {
     static final String TAG = "StartupBroadcastReceiver";

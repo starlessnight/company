@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.smartrek.activities"
+    package="com.metropia.activities"
     android:versionCode="22"
     android:versionName="0.14.18" >
 
@@ -27,7 +27,7 @@
         android:protectionLevel="signature" />
 
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-    <uses-permission android:name="com.smartrek.activities.permission.C2D_MESSAGE" />
+    <uses-permission android:name="com.metropia.activities.permission.C2D_MESSAGE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
@@ -37,10 +37,10 @@
 
     <instrumentation
         android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="com.smartrek.activities" />
+        android:targetPackage="com.metropia.activities" />
 
     <application
-        android:name="com.smartrek.SmarTrekApplication"
+        android:name="com.metropia.SmarTrekApplication"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:logo="@drawable/icon_logo"
@@ -280,11 +280,11 @@
             android:screenOrientation="portrait" />
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/fb_app_id" />
 
-        <receiver android:name="com.smartrek.receivers.ReservationReceiver" />
-        <receiver android:name="com.smartrek.receivers.NotificationExpiry" />
-        <receiver android:name="com.smartrek.receivers.CalendarNotification" />
-        <receiver android:name="com.smartrek.receivers.CalendarNotificationPlan" />
-        <receiver android:name="com.smartrek.receivers.CalendarNotificationDelay" />
+        <receiver android:name="com.metropia.receivers.ReservationReceiver" />
+        <receiver android:name="com.metropia.receivers.NotificationExpiry" />
+        <receiver android:name="com.metropia.receivers.CalendarNotification" />
+        <receiver android:name="com.metropia.receivers.CalendarNotificationPlan" />
+        <receiver android:name="com.metropia.receivers.CalendarNotificationDelay" />
         <receiver
             android:name="com.google.android.gcm.GCMBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
@@ -292,16 +292,16 @@
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
-                <category android:name="com.smartrek.activities" />
+                <category android:name="com.metropia.activities" />
             </intent-filter>
         </receiver>
 
         <service android:name=".GCMIntentService" />
-        <service android:name="com.smartrek.SendTrajectoryService" />
-        <service android:name="com.smartrek.CalendarService" />
-        <service android:name="com.smartrek.UserLocationService" />
-        <service android:name="com.smartrek.ContactListService" />
-        <service android:name="com.smartrek.TripService" />
+        <service android:name="com.metropia.SendTrajectoryService" />
+        <service android:name="com.metropia.CalendarService" />
+        <service android:name="com.metropia.UserLocationService" />
+        <service android:name="com.metropia.ContactListService" />
+        <service android:name="com.metropia.TripService" />
         <service android:name="com.littlefluffytoys.littlefluffylocationlibrary.LocationBroadcastService" />
 	    <receiver android:name="com.littlefluffytoys.littlefluffylocationlibrary.StartupBroadcastReceiver" android:exported="true">
 	      <intent-filter>

@@ -7,5 +7,5 @@
     <!-- Treat events as test events and don't send to google -->
     <bool name="ga_dryRun">false</bool>
     <!-- The screen names that will appear in reports -->
-    <string name="com.smartrek.activities.MainActivity">Main Activity</string>
+    <string name="com.metropia.activities.MainActivity">Main Activity</string>
 </resources>

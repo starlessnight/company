@@ -10,5 +10,5 @@
   <bool name="ga_reportUncaughtExceptions">true</bool>
   <!-- How long a session exists before giving up -->
   <integer name="ga_sessionTimeout">-1</integer>
-  <screenName name="com.smartrek.activities.MainActivity">Metropia</screenName>
+  <screenName name="com.metropia.activities.MainActivity">Metropia</screenName>
 </resources>

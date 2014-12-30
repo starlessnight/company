@@ -18,8 +18,8 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.smartrek.activities.R;
-import com.smartrek.utils.Font;
+import com.metropia.utils.Font;
+import com.metropia.activities.R;
 
 /**
  * https://github.com/johannilsson/android-pulltorefresh/tree/master/pulltorefresh/res
