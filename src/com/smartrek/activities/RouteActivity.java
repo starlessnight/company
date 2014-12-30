@@ -243,7 +243,7 @@ public final class RouteActivity extends FragmentActivity {
 			    ehs.reportExceptions(goBackToWhereTo);
 			}
 			else if(destCoord == null || destCoord.isEmpty()){
-				GeocodingTask task = new GeocodingTask(getBaseContext(), ehs, destGeocodingTaskCallback);
+				GeocodingTask task = new GeocodingTask(getBaseContext(), originCoord, ehs, destGeocodingTaskCallback);
 				task.execute(destAddr);
                 geocodingTasks.add(task);
 			}else{
@@ -623,90 +623,95 @@ public final class RouteActivity extends FragmentActivity {
             LandingActivity.initializeIfNeccessary(this, new Runnable() {
                 @Override
                 public void run() {
-                    if(_currentLocation){
-                        final String curLoc = DebugOptionsActivity.getCurrentLocation(RouteActivity.this);
-                        if(StringUtils.isNotBlank(curLoc)){
-                            AsyncTask<Void, Void, GeoPoint> task = new AsyncTask<Void, Void, GeoPoint>(){
-                                @Override
-                                protected GeoPoint doInBackground(Void... params) {
-                                    GeoPoint rs = null;
-                                    try{
-                                        rs = Geocoding.lookup(getBaseContext(), curLoc).get(0).getGeoPoint();
-                                    }catch(Throwable t){}
-                                    return rs;
-                                }
-                                @Override
-                                protected void onPostExecute(GeoPoint result) {
-                                    if(result != null){
-                                        originCoord = result;
-                                        doRouteTask();
-                                    }
-                                }
-                            };
-                            Misc.parallelExecute(task);
-                        }else{
-                            final CancelableProgressDialog currentLocDialog = new CancelableProgressDialog(RouteActivity.this, "Getting current location...");
-                            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                            locationListener = new LocationListener() {
-                                @Override
-                                public void onLocationChanged(Location location) {
-                                    try{
-                                        locationChanged.set(true);
-                                        locationManager.removeUpdates(this);
-                                        Misc.doQuietly(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                currentLocDialog.dismiss();
-                                            }
-                                        });
-                                        originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
-                                        originCoordProvider = location.getProvider();
-                                        originCoordTime = location.getTime();
-                                        speed = Trajectory.msToMph(location.getSpeed());
-                                        course = location.getBearing();
-                                        doRouteTask();
-                                    }catch(Throwable t){}
-                                }
-                                @Override
-                                public void onStatusChanged(String provider, int status, Bundle extras) {}
-                                @Override
-                                public void onProviderEnabled(String provider) {}
-                                @Override
-                                public void onProviderDisabled(String provider) {}
-                            };
-                            currentLocDialog.setActionListener(new CancelableProgressDialog.ActionListener() {
-                                @Override
-                                public void onClickNegativeButton() {
-                                    locationManager.removeUpdates(locationListener);
-                                    goBackToWhereTo.run();
-                                }
-                            });
-                            Misc.doQuietly(new Runnable() {
-                                @Override
-                                public void run() {
-                                    currentLocDialog.show();
-                                }
-                            });
-                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    requestNetworkLocation();
-                                }
-                            }, 10000);
-                            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                                SystemService.alertNoGPS(RouteActivity.this, true, new SystemService.Callback(){
-                                    @Override
-                                    public void onNo() {
-                                        requestNetworkLocation();
-                                    }
-                                });
-                            }
-                        }
-                    }else{
-                        doRouteTask();
-                    }
-                }
+                	if(originCoord != null && destCoord != null) {
+                		doRouteTask(originCoord);
+                	}
+                	else {
+	                	final CancelableProgressDialog currentLocDialog = new CancelableProgressDialog(RouteActivity.this, "Getting current location...");
+	                    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+	                    locationListener = new LocationListener() {
+	                        @Override
+	                        public void onLocationChanged(final Location location) {
+	                            try{
+	                                locationChanged.set(true);
+	                                locationManager.removeUpdates(this);
+	                                Misc.doQuietly(new Runnable() {
+	                                    @Override
+	                                    public void run() {
+	                                        currentLocDialog.dismiss();
+	                                    }
+	                                });
+	                                speed = Trajectory.msToMph(location.getSpeed());
+	                                course = location.getBearing();
+	                                if(_currentLocation){
+	                                    final String curLoc = DebugOptionsActivity.getCurrentLocation(RouteActivity.this);
+	                                    if(StringUtils.isNotBlank(curLoc)){
+	                                        AsyncTask<Void, Void, GeoPoint> task = new AsyncTask<Void, Void, GeoPoint>(){
+	                                            @Override
+	                                            protected GeoPoint doInBackground(Void... params) {
+	                                                GeoPoint rs = null;
+	                                                try{
+	                                                    rs = Geocoding.lookup(getBaseContext(), curLoc, location.getLatitude(), location.getLongitude()).get(0).getGeoPoint();
+	                                                }catch(Throwable t){}
+	                                                return rs;
+	                                            }
+	                                            @Override
+	                                            protected void onPostExecute(GeoPoint result) {
+	                                                if(result != null){
+	                                                    originCoord = result;
+	                                                    doRouteTask(originCoord);
+	                                                }
+	                                            }
+	                                        };
+	                                        Misc.parallelExecute(task);
+	                                    }else{
+	                                    	originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
+	                                    	originCoordProvider = location.getProvider();
+	                                        originCoordTime = location.getTime();
+	                                        doRouteTask(originCoord);
+	                                    }
+	                                }else{
+	                                    doRouteTask(new GeoPoint(location.getLatitude(), location.getLongitude()));
+	                                }
+	                            }catch(Throwable t){}
+	                        }
+	                        @Override
+	                        public void onStatusChanged(String provider, int status, Bundle extras) {}
+	                        @Override
+	                        public void onProviderEnabled(String provider) {}
+	                        @Override
+	                        public void onProviderDisabled(String provider) {}
+	                    };
+	                    currentLocDialog.setActionListener(new CancelableProgressDialog.ActionListener() {
+	                        @Override
+	                        public void onClickNegativeButton() {
+	                            locationManager.removeUpdates(locationListener);
+	                            goBackToWhereTo.run();
+	                        }
+	                    });
+	                    Misc.doQuietly(new Runnable() {
+	                        @Override
+	                        public void run() {
+	                            currentLocDialog.show();
+	                        }
+	                    });
+	                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+	                    new Handler().postDelayed(new Runnable() {
+	                        @Override
+	                        public void run() {
+	                            requestNetworkLocation();
+	                        }
+	                    }, 10000);
+	                    if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+	                        SystemService.alertNoGPS(RouteActivity.this, true, new SystemService.Callback(){
+	                            @Override
+	                            public void onNo() {
+	                                requestNetworkLocation();
+	                            }
+	                        });
+	                    }
+	                }
+	            }
             });
         }
         
@@ -1008,13 +1013,13 @@ public final class RouteActivity extends FragmentActivity {
         }
     }
     
-    private void doRouteTask(){
+    private void doRouteTask(GeoPoint currentLocation){
         if(originCoord == null || originCoord.isEmpty()){
-            GeocodingTask task = new GeocodingTask(getBaseContext(), ehs, originGeocodingTaskCallback);
+            GeocodingTask task = new GeocodingTask(getBaseContext(), currentLocation, ehs, originGeocodingTaskCallback);
             task.execute(originAddr);
             geocodingTasks.add(task);
         }else if(destCoord == null || destCoord.isEmpty()){
-            GeocodingTask task = new GeocodingTask(getBaseContext(), ehs, destGeocodingTaskCallback);
+            GeocodingTask task = new GeocodingTask(getBaseContext(), currentLocation, ehs, destGeocodingTaskCallback);
             task.execute(destAddr);
             geocodingTasks.add(task);
         }else{

@@ -164,7 +164,7 @@ public class FavoriteAddressEditDialog extends Dialog implements TextWatcher {
 		address.setName(getName());
 		address.setAddress(getAddress());
 		
-		new GeocodingTask(getContext(), ehs, new GeocodingTaskCallback() {
+		new GeocodingTask(getContext(), new GeoPoint(0, 0), ehs, new GeocodingTaskCallback() {
             @Override
             public void preCallback() {
                 address.setLatitude(0);

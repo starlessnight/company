@@ -9,6 +9,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.smartrek.utils.ExceptionHandlingService;
+import com.smartrek.utils.GeoPoint;
 import com.smartrek.utils.Geocoding;
 
 /**
@@ -20,18 +21,20 @@ public final class GeocodingTask extends AsyncTask<String, Void, Void> {
 	private ExceptionHandlingService ehs;
 	private GeocodingTaskCallback callback;
 	private Context ctx;
+	private GeoPoint currentLocation;
 	
-	public GeocodingTask(Context ctx, ExceptionHandlingService ehs, GeocodingTaskCallback callback, 
+	public GeocodingTask(Context ctx, GeoPoint currentLocation, ExceptionHandlingService ehs, GeocodingTaskCallback callback, 
 	        boolean registerException) {
 		super();
 		this.ctx = ctx;
 		this.ehs = ehs;
 		this.callback = callback;
 		this.registerException = registerException;
+		this.currentLocation = currentLocation;
 	}
 	
-	public GeocodingTask(Context ctx, ExceptionHandlingService ehs, GeocodingTaskCallback callback) {
-        this(ctx, ehs, callback, true);
+	public GeocodingTask(Context ctx, GeoPoint currentLocation, ExceptionHandlingService ehs, GeocodingTaskCallback callback) {
+        this(ctx, currentLocation, ehs, callback, true);
     }
     
     @Override
@@ -46,7 +49,7 @@ public final class GeocodingTask extends AsyncTask<String, Void, Void> {
         String postalAddress = args[0];
         List<Geocoding.Address> addresses = null;
 		try {
-			addresses = Geocoding.lookup(ctx, postalAddress);
+			addresses = Geocoding.lookup(ctx, postalAddress, currentLocation.getLatitude(), currentLocation.getLongitude());
 			
 	        if(addresses == null || addresses.size() == 0) {
 	            if(registerException){

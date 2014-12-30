@@ -340,7 +340,7 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	            for (final Address address : addresses) {
 	                if(!isPatched || (address.getLatitude() == 0 && address.getLongitude() == 0)){
 	                    final String addressStr = address.getAddress();
-                        GeocodingTask gTask = new GeocodingTask(HomeActivity.this, ehs, new GeocodingTaskCallback() {
+                        GeocodingTask gTask = new GeocodingTask(HomeActivity.this, new GeoPoint(0, 0), ehs, new GeocodingTaskCallback() {
 	                        @Override
 	                        public void preCallback() {}
 	                        @Override
