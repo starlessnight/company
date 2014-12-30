@@ -152,8 +152,8 @@ public final class LoginActivity extends Activity implements OnClickListener,
                         User.setCurrentUser(LoginActivity.this, user);
                         
                         CrashlyticsUtils.initUserInfo(user);
-                        
-                        Intent intent = new Intent(LoginActivity.this, DebugOptionsActivity.isOnBoardFinish(LoginActivity.this)?(LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class) : OnBoardActivity.class);
+                        boolean toOnBoard = !DebugOptionsActivity.isOnBoardFinish(LoginActivity.this) && loginPrefs.getBoolean(User.NEW_USER, false); 
+                        Intent intent = new Intent(LoginActivity.this, toOnBoard? OnBoardActivity.class : (LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class));
                         LoginActivity.this.startActivity(intent);
                         finish();
                     }

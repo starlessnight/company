@@ -23,6 +23,7 @@ public final class User implements JSONModel, Parcelable {
 	public static final String CREDIT = "CREDIT";
 	public static final String TRIP = "TRIP";
 	public static final String ZIP_CODE = "ZIP_CODE";
+	public static final String NEW_USER = "NEW_USER";
 	
 	private static User currentUser;
 
