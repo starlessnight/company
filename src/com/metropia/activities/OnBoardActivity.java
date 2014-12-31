@@ -51,8 +51,8 @@ import com.metropia.requests.FavoriteAddressDeleteRequest;
 import com.metropia.requests.FavoriteAddressUpdateRequest;
 import com.metropia.requests.Request;
 import com.metropia.ui.ClickAnimation;
-import com.metropia.ui.DelayTextWatcher;
 import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
+import com.metropia.ui.DelayTextWatcher;
 import com.metropia.ui.DelayTextWatcher.TextChangeListener;
 import com.metropia.ui.overlays.OverlayCallback;
 import com.metropia.ui.overlays.POIOverlay;
@@ -61,10 +61,9 @@ import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
 import com.metropia.utils.GeoPoint;
 import com.metropia.utils.Geocoding;
+import com.metropia.utils.Geocoding.Address;
 import com.metropia.utils.Misc;
 import com.metropia.utils.SystemService;
-import com.metropia.utils.Geocoding.Address;
-import com.metropia.activities.R;
 
 public class OnBoardActivity extends FragmentActivity {
 	
@@ -167,7 +166,6 @@ public class OnBoardActivity extends FragmentActivity {
 					@Override
 					public void onAnimationEnd() {
 						v.setClickable(true);
-						DebugOptionsActivity.finishOnBoard(OnBoardActivity.this);
 						startLandingPage();
 					}
 				});

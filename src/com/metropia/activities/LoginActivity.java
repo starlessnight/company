@@ -144,16 +144,20 @@ public final class LoginActivity extends Activity implements OnClickListener,
                         Log.d("Login_Activity","Successful Login");
                         Log.d("Login_Activity", "Saving Login Info to Shared Preferences");
     
+                        User.setCurrentUser(LoginActivity.this, user);
+                        
+                        CrashlyticsUtils.initUserInfo(user);
+                        
                         SharedPreferences loginPrefs = Preferences.getAuthPreferences(LoginActivity.this);
                         SharedPreferences.Editor loginPrefsEditor = loginPrefs.edit();
                         loginPrefsEditor.putString(User.USERNAME, username);
                         loginPrefsEditor.putString(User.PASSWORD, password);
+                        boolean toOnBoard =  StringUtils.equalsIgnoreCase(username, loginPrefs.getString(User.NEW_USER, ""));
+                        if(toOnBoard) {
+                        	loginPrefsEditor.remove(User.NEW_USER);
+                        }
                         loginPrefsEditor.commit();
                         
-                        User.setCurrentUser(LoginActivity.this, user);
-                        
-                        CrashlyticsUtils.initUserInfo(user);
-                        boolean toOnBoard = !DebugOptionsActivity.isOnBoardFinish(LoginActivity.this) && loginPrefs.getBoolean(User.NEW_USER, false); 
                         Intent intent = new Intent(LoginActivity.this, toOnBoard? OnBoardActivity.class : (LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class));
                         LoginActivity.this.startActivity(intent);
                         finish();

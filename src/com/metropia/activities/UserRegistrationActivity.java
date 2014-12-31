@@ -358,7 +358,7 @@ public final class UserRegistrationActivity extends FragmentActivity
 						SharedPreferences loginPrefs = Preferences.getAuthPreferences(UserRegistrationActivity.this);
                         SharedPreferences.Editor loginPrefsEditor = loginPrefs.edit();
                         loginPrefsEditor.putString(User.USERNAME, result.getUsername());
-                        loginPrefsEditor.putBoolean(User.NEW_USER, true);
+                        loginPrefsEditor.putString(User.NEW_USER, result.getUsername());
                         loginPrefsEditor.commit();
 						
                         Intent openIntent = getOpenEmailAppIntent();
