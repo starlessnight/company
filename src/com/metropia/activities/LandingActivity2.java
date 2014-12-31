@@ -116,18 +116,20 @@ import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.activities.LandingActivity2.FavoriteSlideFragment.ClickCallback;
 import com.metropia.dialogs.CancelableProgressDialog;
 import com.metropia.dialogs.NotificationDialog2;
-import com.metropia.dialogs.NotifyResumeDialog;
 import com.metropia.dialogs.NotificationDialog2.ActionListener;
+import com.metropia.dialogs.NotifyResumeDialog;
 import com.metropia.models.Reservation;
 import com.metropia.models.Route;
 import com.metropia.models.User;
 import com.metropia.requests.AddressLinkRequest;
 import com.metropia.requests.CityRequest;
+import com.metropia.requests.CityRequest.City;
 import com.metropia.requests.FavoriteAddressAddRequest;
 import com.metropia.requests.FavoriteAddressDeleteRequest;
 import com.metropia.requests.FavoriteAddressFetchRequest;
 import com.metropia.requests.FavoriteAddressUpdateRequest;
 import com.metropia.requests.MyMetropiaRequest;
+import com.metropia.requests.MyMetropiaRequest.MyMetropia;
 import com.metropia.requests.Request;
 import com.metropia.requests.ReservationDeleteRequest;
 import com.metropia.requests.ReservationListFetchRequest;
@@ -135,14 +137,12 @@ import com.metropia.requests.ReservationRequest;
 import com.metropia.requests.RouteFetchRequest;
 import com.metropia.requests.UpdateDeviceIdRequest;
 import com.metropia.requests.WhereToGoRequest;
-import com.metropia.requests.CityRequest.City;
-import com.metropia.requests.MyMetropiaRequest.MyMetropia;
 import com.metropia.ui.ClickAnimation;
+import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.ui.DelayTextWatcher;
+import com.metropia.ui.DelayTextWatcher.TextChangeListener;
 import com.metropia.ui.EditAddress;
 import com.metropia.ui.SwipeDeleteTouchListener;
-import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
-import com.metropia.ui.DelayTextWatcher.TextChangeListener;
 import com.metropia.ui.menu.MainMenu;
 import com.metropia.ui.overlays.CurrentLocationOverlay;
 import com.metropia.ui.overlays.EventOverlay;
@@ -152,21 +152,20 @@ import com.metropia.ui.overlays.RouteDestinationOverlay;
 import com.metropia.ui.overlays.RoutePathOverlay;
 import com.metropia.ui.timelayout.AdjustableTime;
 import com.metropia.utils.Cache;
+import com.metropia.utils.CalendarContract.Instances;
 import com.metropia.utils.Dimension;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
 import com.metropia.utils.GeoPoint;
 import com.metropia.utils.Geocoding;
+import com.metropia.utils.Geocoding.Address;
 import com.metropia.utils.HTTP;
 import com.metropia.utils.Misc;
 import com.metropia.utils.Preferences;
 import com.metropia.utils.RouteRect;
 import com.metropia.utils.SmartrekTileProvider;
 import com.metropia.utils.SystemService;
-import com.metropia.utils.CalendarContract.Instances;
-import com.metropia.utils.Geocoding.Address;
 import com.skobbler.ngx.SKMaps;
-import com.metropia.activities.R;
 
 public final class LandingActivity2 extends FragmentActivity implements SensorEventListener{ 
     
@@ -1241,6 +1240,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					@Override
 					public void onAnimationEnd() {
 						mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
+						closeIfEmpty.set(false);
 						findViewById(R.id.reservations_list_view).setVisibility(View.VISIBLE);
 					}
 				});
@@ -1700,6 +1700,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					@Override
 					public void onAnimationEnd() {
 						dismissReservId = getFirstReservation() != null ? getFirstReservation().getRid() : -1;
+						closeIfEmpty.set(true);
 						hideTripInfoPanel();
 						centerMap();
 					}
@@ -1715,6 +1716,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					@Override
 					public void onAnimationEnd() {
 						dismissReservId = getFirstReservation() != null ? getFirstReservation().getRid() : -1;
+						closeIfEmpty.set(true);
 						hideTripInfoPanel();
 						centerMap();
 					}
@@ -1744,7 +1746,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                 	@Override
                                 	protected void onPreExecute() {
                                 		removedReservIds.add(removeReservId);
-                                		refreshReservationList(reservs, false);
+                                		closeIfEmpty.set(true);
+                                		refreshReservationList(reservs);
                                 	}
                                 	
             		                @Override
@@ -2664,13 +2667,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                    mapView.postInvalidate();
 	                }
 	                tripNotifyIcon.setVisibility(View.GONE);
-	                refreshReservationList(new ArrayList<Reservation>(), closeIfEmpty);
+	                refreshReservationList(new ArrayList<Reservation>());
 	                unlockMenu();
 	            } 
 	            else{
                     Reservation reserv = reservations.get(0);
 	                drawRoute(reserv);
-                    refreshReservationList(reservations, closeIfEmpty);
+                    refreshReservationList(reservations);
 	            }
 	        }
 	    };
@@ -2746,7 +2749,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private List<Long> removedReservIds = new ArrayList<Long>();
     
-    private void refreshReservationList(List<Reservation> reservations, boolean closeIfEmpty) {
+    private AtomicBoolean closeIfEmpty = new AtomicBoolean(true);
+    
+    private void refreshReservationList(List<Reservation> reservations) {
     	reservationListPanel.removeAllViews();
     	Reservation notifyReserv = null;
     	int curReservIdx = -1;
@@ -2813,7 +2818,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	else {
     		dismissReservId = -1L;
     		tripNotifyIcon.setVisibility(View.GONE);
-    		if(closeIfEmpty) {
+    		if(closeIfEmpty.get()) {
     			hideReservationInfoPanel();
     		}
     	}
