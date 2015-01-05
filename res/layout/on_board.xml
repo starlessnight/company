@@ -121,7 +121,7 @@
                 android:background="@android:color/white"
                 android:gravity="center"
                 android:padding="10dp"
-                android:text="Enter your Home address"
+                android:text="Enter your home address"
                 android:textColor="@color/metropia_blue"
                 android:textSize="@dimen/medium_font" />
 
@@ -233,7 +233,7 @@
                 android:background="@android:color/white"
                 android:gravity="center"
                 android:padding="10dp"
-                android:text="Enter your Work address"
+                android:text="Enter your work address"
                 android:textColor="@color/metropia_blue"
                 android:textSize="@dimen/medium_font" />
 
