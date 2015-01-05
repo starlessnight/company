@@ -816,6 +816,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 //                location.setLongitude(-118.2734106);
 //                location.setLatitude(32.1559094); // Tucson
 //                location.setLongitude(-110.883805);
+//	              location.setLatitude(22.980648); // Tainan
+//	              location.setLongitude(120.236046);
                 if (ValidationActivity.isBetterLocation(location, lastLocation)) {
                     lastLocation = location;
                     final boolean refresh = mapRefresh.getAndSet(false);
@@ -1349,13 +1351,31 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         getRouteView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						startRouteActivity(mapView);
+				if(!serviceArea.get()) {
+					if(notifyOutOfService.getAndSet(false)) {
+						CharSequence msg = Html.fromHtml(outOfServiceHtml);
+                        NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, msg);
+                        dialog.setTitle("Notification");
+                        dialog.setPositiveActionListener(new ActionListener() {
+							@Override
+							public void onClick() {
+								setGetRouteButtonState(true);
+							}
+                        });
+                        try{
+                            dialog.show();
+                        }catch(Throwable t){}
 					}
-				});
+				}
+				else {
+					ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+						@Override
+						public void onAnimationEnd() {
+							startRouteActivity(mapView);
+						}
+					});
+				}
 			}
         });
         toggleGetRouteButton(false);
@@ -3493,6 +3513,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private RouteRect cityRange;
     private String cityName = CityRequest.NO_CITY_NAME;
+    private AtomicBoolean serviceArea = new AtomicBoolean(true);
+    private AtomicBoolean notifyOutOfService = new AtomicBoolean(true);
+    private String outOfServiceHtml = "";
     
     private void refreshCobranding(final double lat, final double lon, 
             final boolean alertAvailability, final Runnable callback){
@@ -3512,6 +3535,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             @Override
             protected void onPostExecute(City result) {
                 if(result != null && StringUtils.isNotBlank(result.html)){
+                	serviceArea.set(false);
+                	outOfServiceHtml = result.html;
                     if(alertAvailability){
                         CharSequence msg = Html.fromHtml(result.html);
                         NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, msg);
@@ -3521,6 +3546,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         }catch(Throwable t){}
                     }
                 }else{
+                	serviceArea.set(true);
                     try{
                         cityRange = new RouteRect(Double.valueOf(result.maxLat * 1E6).intValue(), 
                     		Double.valueOf(result.maxLon * 1E6).intValue(), Double.valueOf(result.minLat * 1E6).intValue(), 
@@ -3984,17 +4010,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 //    	getRouteView.setTextColor(enabled ? getResources().getColor(android.R.color.white) : getResources().getColor(R.color.transparent_white));
 //    	int padding = Dimension.dpToPx(5, getResources().getDisplayMetrics());
 //    	getRouteView.setPadding(padding, 0, padding, 0);
+    	setGetRouteButtonState(!serviceArea.get() && !notifyOutOfService.get());
     	getRouteView.setVisibility(enabled?View.VISIBLE:View.GONE);
     }
     
-//    private void write2SearchBoxTag(Set<String> addresses) {
-//    	Set<String> oAddrs = (Set<String>) findViewById(R.id.search_box).getTag();
-//        if(oAddrs == null) {
-//        	oAddrs = new HashSet<String>();
-//        }
-//        oAddrs.addAll(addresses);
-//        findViewById(R.id.search_box).setTag(oAddrs);
-//    }
+    private void setGetRouteButtonState(boolean greyOut) {
+    	getRouteView.setBackgroundResource(greyOut ? R.drawable.get_route_grey_button : R.drawable.get_route_green_button);
+    }
     
     protected static abstract class ReverseGeocodingTask extends AsyncTask<Void, Void, String> {
         
