@@ -1560,7 +1560,7 @@ public final class RouteActivity extends FragmentActivity {
             	}
             }
             catch(Exception e) {
-                ehs.registerException(e);
+                ehs.registerException(e, e.getMessage());
             }
             
             return routes;

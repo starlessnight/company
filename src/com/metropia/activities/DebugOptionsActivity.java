@@ -130,6 +130,8 @@ public final class DebugOptionsActivity extends Activity {
     
     private static final String HTTP_4XX_5XX_LOG = "HTTP_4XX_5XX_LOG";
     
+    private static final String POPUP_MESSAGE_MORE = "POPUP_MESSAGE_MORE";
+    
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
     private SharedPreferences prefs;
@@ -428,6 +430,15 @@ public final class DebugOptionsActivity extends Activity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 setHttp4xx5xxLogEnabled(DebugOptionsActivity.this, isChecked);
+            }
+        });
+        
+        CheckBox popupMessageMore = (CheckBox) findViewById(R.id.popup_message_more);
+        popupMessageMore.setChecked(isPopupMessageMoreEnabled(this));
+        popupMessageMore.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setPopupMessageMoreEnabled(DebugOptionsActivity.this, isChecked);
             }
         });
     }
@@ -1155,6 +1166,22 @@ public final class DebugOptionsActivity extends Activity {
     
     public static void userCloseTip(Context ctx) {
     	getPrefs(ctx).edit().putBoolean(NEW_USER_TIP_CLOSE, true).commit();
+    }
+    
+    public static boolean isPopupMessageMoreEnabled(Context ctx) {
+    	boolean enabled;
+        try{
+            enabled = getPrefs(ctx).getBoolean(POPUP_MESSAGE_MORE, false);
+        }catch(Throwable t){
+            enabled = false;
+        }
+        return enabled;
+    }
+    
+    public static void setPopupMessageMoreEnabled(Context ctx, boolean enabled){
+        getPrefs(ctx).edit()
+            .putBoolean(POPUP_MESSAGE_MORE, enabled)
+            .commit();
     }
     
 }

@@ -6,12 +6,19 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Stack;
 
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.util.Log;
 
-import com.metropia.dialogs.NotificationDialog2;
+import com.metropia.activities.DebugOptionsActivity;
 import com.metropia.activities.R;
+import com.metropia.dialogs.NotificationDialog2;
+import com.metropia.exceptions.ServiceFailException;
+import com.metropia.requests.Request;
 
 public class ExceptionHandlingService {
 	
@@ -77,6 +84,11 @@ public class ExceptionHandlingService {
      * Adds an exception instance to the stack
      */
     public synchronized void registerException(Exception e, String preferredMessage) {
+    	try {
+    		JSONObject detailMessage = new JSONObject(StringUtils.defaultString(preferredMessage, ""));
+    		preferredMessage = detailMessage.optString(Request.ERROR_MESSAGE, preferredMessage);
+    	}
+    	catch(JSONException ignore) {}
     	ExceptionContainer ec = new ExceptionContainer(e, preferredMessage);
     	exceptions.push(ec);
     	
@@ -103,33 +115,44 @@ public class ExceptionHandlingService {
      * 
      * @param message
      */
-    public synchronized void reportException(final String message, final Runnable callback) {
+    public synchronized void reportException(final String message, final String detailMessage, final Runnable callback) {
         try{
             if(lastDialog != null && lastDialog.isShowing()){
                 lastDialog.dismiss();
                 lastDialog = null;
             }
-        	final NotificationDialog2 dialog = new NotificationDialog2(context, "An error has occurred.");
+            
+            String messageContent = StringUtils.isNotBlank(message) ? message : "An error has occurred.";
+            
+        	final NotificationDialog2 dialog = new NotificationDialog2(context, messageContent);
         	dialog.setVerticalOrientation(false);
-        	dialog.setNegativeButtonText("OK");
-            dialog.setNegativeActionListener(new NotificationDialog2.ActionListener() {
+        	NotificationDialog2.ActionListener okActionListener = new NotificationDialog2.ActionListener() {
                 @Override
                 public void onClick() {
                     if(callback != null) {
                         callback.run();
                     }
                 }
-            });
-            
-            dialog.setPositiveButtonText("More");
-            dialog.setPostiveClickDismiss(false);
-            dialog.setDetailMessage(message);
-            dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
-				@Override
-				public void onClick() {
-					dialog.hideNegativeButtonAndShowDetail();
-				}
-			});
+            }; 
+        	            
+            if(DebugOptionsActivity.isPopupMessageMoreEnabled(context)) {
+            	dialog.setNegativeButtonText("OK");
+	            dialog.setNegativeActionListener(okActionListener);
+	            
+	            dialog.setPositiveButtonText("More");
+	            dialog.setPostiveClickDismiss(false);
+	            dialog.setDetailMessage(detailMessage);
+	            dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
+					@Override
+					public void onClick() {
+						dialog.hideNegativeButtonAndShowDetail();
+					}
+				});
+            }
+            else {
+            	dialog.setPositiveButtonText("OK");
+            	dialog.setPositiveActionListener(okActionListener);
+            }
             
         	dialog.show();
         	lastDialog = dialog;
@@ -137,7 +160,7 @@ public class ExceptionHandlingService {
     }
     
     public synchronized void reportException(String message) {
-        reportException(message, null);
+        reportException(message, null, null);
     }
     
     public synchronized void reportException(Exception e) {
@@ -148,15 +171,19 @@ public class ExceptionHandlingService {
     public synchronized void reportExceptions(Runnable callback) {
         while (!exceptions.isEmpty()) {
         	ExceptionContainer ec = exceptions.pop();
-            String message;
+            String message = "";
+            String detailMessage;
             if(ec.e instanceof ConnectException || ec.e instanceof UnknownHostException){
-                message = context.getString(R.string.no_connection);
+                detailMessage = context.getString(R.string.no_connection);
             }else if(ec.e instanceof SocketTimeoutException){
-                message = context.getString(R.string.connection_timeout); 
+                detailMessage = context.getString(R.string.connection_timeout);
+            }else if(ec.e instanceof ServiceFailException) {
+            	message = ec.e.getMessage();
+            	detailMessage = ((ServiceFailException)ec.e).getDetailMessage();
             }else{
-                message = ec.getMessage();
+                detailMessage = ec.getMessage();
             }
-            reportException(message, callback);
+            reportException(message, detailMessage, callback);
         }
     }
     

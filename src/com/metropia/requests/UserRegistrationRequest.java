@@ -11,8 +11,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
-import android.util.Log;
 
+import com.metropia.exceptions.ServiceFailException;
 import com.metropia.models.User;
 import com.metropia.utils.HTTP.Method;
 
@@ -43,8 +43,10 @@ public class UserRegistrationRequest extends Request {
                 res = e.getMessage();
             }
             JSONObject resJson = new JSONObject(res);
+            String detailMessage = "";
             if(throwException) {
             	resJson = new JSONObject(resJson.optString(RESPONSE, ""));
+            	detailMessage = resJson.optString(ERROR_MESSAGE, "");
             }
             JSONObject data = resJson.getJSONObject("data"); 
             if("fail".equals(resJson.getString("status"))){
@@ -54,7 +56,7 @@ public class UserRegistrationRequest extends Request {
                     Object attr = keys.next();
                     msg += (msg.length() == 0?"":".\n") + attr +  ": " + data.getString(attr.toString());
                 }
-                throw new Exception(msg);
+                throw new ServiceFailException(msg, throwException ? detailMessage : resJson.toString());
             }else{
                 user.setId(data.getInt("id"));
             }

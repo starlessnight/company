@@ -9,6 +9,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -198,13 +199,14 @@ public class NotificationDialog2 extends Dialog {
 	public void hideNegativeButtonAndShowDetail() {
 		TextView titleView = (TextView)dialogView.findViewById(R.id.title);
 		titleView.setText("Error Message");
-		int seperator2Id = buttonVerticalOrientation?R.id.seperator2:R.id.h_seperator2;
+		int seperator3Id = buttonVerticalOrientation?R.id.seperator3:R.id.h_seperator3;
 		int dismissId = buttonVerticalOrientation?R.id.dismiss:R.id.h_dismiss;
-		dialogView.findViewById(seperator2Id).setVisibility(View.VISIBLE);
+		dialogView.findViewById(seperator3Id).setVisibility(View.GONE);
 		TextView dismissView = (TextView) dialogView.findViewById(dismissId);
 		dismissView.setVisibility(View.GONE);
 		TextView messageView = (TextView) dialogView.findViewById(R.id.message);
 		messageView.setText(detailMessage);
+		messageView.setGravity(Gravity.LEFT);
 	}
 
 	public void setPostiveClickDismiss(boolean postiveClickDismiss) {

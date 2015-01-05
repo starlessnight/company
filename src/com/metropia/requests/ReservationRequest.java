@@ -14,10 +14,11 @@ import org.json.JSONObject;
 import android.content.Context;
 
 import com.metropia.activities.DebugOptionsActivity.NavigationLink;
+import com.metropia.exceptions.ServiceFailException;
 import com.metropia.models.Route;
 import com.metropia.models.User;
-import com.metropia.utils.RouteNode;
 import com.metropia.utils.HTTP.Method;
+import com.metropia.utils.RouteNode;
 
 public class ReservationRequest extends Request {
     
@@ -106,26 +107,36 @@ public class ReservationRequest extends Request {
             params.put("destination", destEncoded);
             params.put("trajectory_fields", "lat,lon,altitude,heading,timestamp,speed,link,accuracy");
             String res = null;
+            boolean throwException = false;
             try {
                 res = executeHttpRequest(rescheduleId > 0?Method.PUT:Method.POST, url, params, ctx);
             } catch (Exception e){
+            	throwException = true;
                 res = e.getMessage();
             }
             if(rescheduleId!=0) {
             	id = rescheduleId;
             }
             else {
-	            JSONObject json = new JSONObject(res);
-	            JSONObject data = json.getJSONObject("data");
+	            JSONObject resJson = new JSONObject(res);
+	            JSONObject json;
+	            if(throwException) {
+	            	json = new JSONObject(resJson.optString(RESPONSE, ""));
+	            }
+	            else {
+	            	json = resJson;
+	            }
+	            
 	            if("fail".equals(json.getString("status"))){
-	                String msg = "";
-	                Iterator keys = data.keys();
-	                while(keys.hasNext()){
-	                    Object attr = keys.next();
-	                    msg += (msg.length() == 0?"":".\n") + attr +  ": " + data.getString(attr.toString());
-	                }
-	                throw new Exception(msg);
+//	                String msg = "";
+//	                Iterator keys = data.keys();
+//	                while(keys.hasNext()){
+//	                    Object attr = keys.next();
+//	                    msg += (msg.length() == 0?"":".\n") + attr +  ": " + data.getString(attr.toString());
+//	                }
+	                throw new ServiceFailException("", resJson.optString(ERROR_MESSAGE, ""));
 	            }else{
+	            	JSONObject data = json.getJSONObject("data");
 	                id = data.getLong("id");
 	            }
             }
