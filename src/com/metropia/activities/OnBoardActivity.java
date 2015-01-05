@@ -842,6 +842,7 @@ public class OnBoardActivity extends FragmentActivity {
 	private void saveFavorite(Address _address, final boolean isHome) {
 		final Integer overlayId = isHome ? homeOverlayId : workOverlayId; 
 		final String iconName = isHome ? FavoriteIcon.home.name() : FavoriteIcon.work.name();
+		final String favName = isHome ? FavoriteIcon.home.name() : FavoriteIcon.work.name();
 		_address.setIconName(iconName);
 		final Address address = _address;
 		AsyncTask<Void, Void, Integer> saveTask = new AsyncTask<Void, Void, Integer>() {
@@ -853,13 +854,13 @@ public class OnBoardActivity extends FragmentActivity {
                 try {
                 	if(overlayId == null) {
                         FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
-                            user, iconName, address.getAddress(), iconName, address.getLatitude(), address.getLongitude());
+                            user, StringUtils.capitalize(favName), address.getAddress(), iconName, address.getLatitude(), address.getLongitude());
                         req = request;
                         id = request.execute(OnBoardActivity.this);
                 	}
                 	else {
                 		FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
-                                new AddressLinkRequest(user).execute(OnBoardActivity.this),  overlayId, user, iconName, 
+                                new AddressLinkRequest(user).execute(OnBoardActivity.this),  overlayId, user, StringUtils.capitalize(favName), 
                                 address.getAddress(), iconName, address.getLatitude(), address.getLongitude());
                         req = request;
                         request.execute(OnBoardActivity.this);
@@ -870,6 +871,7 @@ public class OnBoardActivity extends FragmentActivity {
                 }
                 return id;
             }
+			
             protected void onPostExecute(Integer id) {
                 if (ehs.hasExceptions()) {
                     ehs.reportExceptions();
