@@ -1732,6 +1732,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			public void onClick(View v) {
 				newUserTipView.setVisibility(View.GONE);
 				DebugOptionsActivity.userCloseTip(LandingActivity2.this);
+				int reservCount = 0;
+				for(int i = 0 ; i < reservationListPanel.getChildCount() ; i++) {
+					View child = reservationListPanel.getChildAt(i);
+					if(child.getTag() != null && child.getTag() instanceof Reservation) {
+						reservCount++;
+					}
+				}
+				
+				if(reservCount < 2) {
+					findViewById(R.id.add_new_trip_background).setVisibility(View.VISIBLE);
+				}
 			}
     	});
     	
