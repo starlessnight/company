@@ -373,7 +373,7 @@ public final class Geocoding {
     public static List<Address> searchPoiForCalendar(Context ctx, String query, Double lat, Double lon) {
     	try {
 	    	User user = User.getCurrentUser(ctx);
-			SearchAddressRequest request = new SearchAddressRequest(user, query, lat, lon, false);
+			SearchAddressRequest request = new SearchAddressRequest(user, query, lat, lon, true);
 			return request.execute(ctx);
     	}
     	catch(Exception ignore) {
