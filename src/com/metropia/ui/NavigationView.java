@@ -231,7 +231,7 @@ public class NavigationView extends LinearLayout {
 				    	move = true;
 				    	break;
 				    case MotionEvent.ACTION_UP:
-				        if(mStartingY != -1000 && move && Y-mStartingY > 20 && openDirectionViewEvent!=null){
+				        if(mStartingY != -1000 && move && Y-mStartingY > 100 && openDirectionViewEvent!=null){
 				        	openDirectionViewEvent.run();
 				        }
 				        mStartingY = -1000;
