@@ -159,7 +159,7 @@
     <string name="donated_award_share_hint">Let friends know you’re helping others with your trekpoints!</string>
     <string name="redemptions_award_share_hint">Let friends know you’re getting gifts for helping reduce congestion!</string>
     
-    <string name="splash_page_support_city">Austin, Los Angeles, New York, Tucson</string>
+    <string name="splash_page_support_city">Austin, Tucson</string>
     <string name="on_board_page_desc">Let\'s save your \n home and work locations \n to set up your commute!</string>
     <string name="on_board_page_finish_desc">You can edit and add \n more favorites by selecting \n any map icon or from \n within the favorite menu.</string>
     
