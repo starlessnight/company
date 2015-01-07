@@ -2433,6 +2433,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	home, work, office, star, schedule, friend, restaurant, fastfood, pencil, coffee, airport,  fruit, 
     	gift, place, pharmacy, guitar, music, repair_shop, football, magnifier, sunglasses, zoo, temperature, credit_card;
     	
+    	public static final Integer FIRST_PAGE = Integer.valueOf(1);
+    	public static final Integer SECOND_PAGE = Integer.valueOf(2);
+    	
         public static FavoriteIcon fromName(String name, FavoriteIcon failback) {
         	for(FavoriteIcon type : values()) {
         		if(type.name().equals(name)) {
@@ -2456,6 +2459,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
        	
        	public Integer getFavoritePageResourceId(Context ctx) {
        		return getIconResourceId(ctx, "favorite_page_" + name());
+       	}
+       	
+       	public static FavoriteIcon[][] getIcons(Integer pageNo) {
+       		switch(pageNo) {
+       		  case 1:
+       			  return getFirstPageIcons();
+       		  case 2:
+       			  return getSecondPageIcons();
+       		  default:
+       			  return getFirstPageIcons();
+       		}
        	}
        	
        	public static FavoriteIcon[][] getFirstPageIcons() {
@@ -4449,7 +4463,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     public static class FavoriteSlideFragment extends Fragment {
         
-        static final String ICONS = "icons";
+        static final String ICONS_PAGE_NO = "icons_page_no";
         
         private FavoriteIcon[][] icons;
         private ClickCallback clickCallback;
@@ -4458,10 +4472,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         	public void onClick(FavoriteIcon icon);
         }
         
-        static FavoriteSlideFragment of(FavoriteIcon[][] icons, ClickCallback _clickCallback){
+        static FavoriteSlideFragment of(Integer pageNo, ClickCallback _clickCallback){
         	FavoriteSlideFragment f = new FavoriteSlideFragment(_clickCallback);
             Bundle args = new Bundle();
-            args.putSerializable(ICONS, icons);
+            args.putInt(ICONS_PAGE_NO, pageNo);
             f.setArguments(args);
             return f;
         }
@@ -4476,7 +4490,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             Bundle args = getArguments();
-            this.icons = (FavoriteIcon[][]) args.getSerializable(ICONS);
+            this.icons = FavoriteIcon.getIcons(args.getInt(ICONS_PAGE_NO));
         }
      
         @Override
@@ -4533,9 +4547,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     public static class FavoriteSlideAdapter extends FragmentPagerAdapter {
         
-        private static FavoriteIcon[][][] slides = {
-            FavoriteIcon.getFirstPageIcons(), 
-            FavoriteIcon.getSecondPageIcons()
+        private static Integer[] slides = {
+            FavoriteIcon.FIRST_PAGE, 
+            FavoriteIcon.SECOND_PAGE
         };
         
         private ClickCallback clickCallback;
