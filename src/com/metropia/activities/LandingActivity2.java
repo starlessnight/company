@@ -3152,8 +3152,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(LandingActivity2.this.getApplicationContext());
 				    float lastLat = ((int) (prefs.getFloat(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_LAT, Integer.MIN_VALUE) * 1000000f)) / 1000000f;
 			        float lastLng = ((int) (prefs.getFloat(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_LNG, Integer.MIN_VALUE) * 1000000f)) / 1000000f;
-//					float lastLat = 32.1559094f; //Tuson
-//			        float lastLng = -110.883805f;
+//			        float lastLat = 32.1559094f; // Tucson
+//	                float lastLng = -110.883805f;
 			        _location = new Location("");
 			        _location.setLatitude(lastLat);
 			        _location.setLongitude(lastLng);
@@ -3167,7 +3167,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         String address = null;
         Uri uri = intent.getData();
         if(uri != null){
-            address = Uri.decode(StringUtils.substringAfterLast(uri.toString(), "q="));
+            address = uri.getQueryParameter("q");
         }
         return address;
     }

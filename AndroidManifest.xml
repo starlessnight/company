@@ -71,7 +71,6 @@
             android:alwaysRetainTaskState="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -118,9 +117,10 @@
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
 		        <action android:name="android.intent.action.VIEW" />
-		        <data android:scheme="com.metropiamobile" /> 
 		        <data android:scheme="geo"/>
-		        <data android:scheme="google.navigation" /> 
+		        <data android:scheme="google.navigation" />
+		        <data android:scheme="com.metropiamobile" />
+		        <data android:scheme="http" android:host="maps.google.com" />
 		        <category android:name="android.intent.category.DEFAULT" />
 		        <category android:name="android.intent.category.BROWSABLE" />
 		    </intent-filter>
