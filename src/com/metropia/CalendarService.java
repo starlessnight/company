@@ -84,8 +84,7 @@ public class CalendarService extends IntentService {
                                    && isAtLeastThreeWords(location)
                                    && canBeGeocoded(addresses) 
                                    && !isDuplicate(CalendarService.this, eventId, title, start, end) 
-                                   && System.currentTimeMillis() < notiTime/* true */
-                                   && !isOnDestination(addresses)){
+                                   && System.currentTimeMillis() < notiTime/* true */){
                                hasNotification = true;
                                Intent noti = new Intent(CalendarService.this, 
                                    CalendarNotification.class);
@@ -134,16 +133,6 @@ public class CalendarService extends IntentService {
     
     private static boolean canBeGeocoded(List<Geocoding.Address> addresses){
         return addresses != null && !addresses.isEmpty();
-    }
-    
-    private boolean isOnDestination(List<Geocoding.Address> addresses) {
-    	LocationInfo loc = new LocationInfo(CalendarService.this);
-    	ValidationParameters params = ValidationParameters.getInstance();
-    	if(addresses.size() == 1) {
-    		Address address = addresses.get(0);
-    		return RouteNode.distanceBetween(loc.lastLat, loc.lastLong, address.getLatitude(), address.getLongitude()) < params.getArrivalDistanceThreshold();
-    	}
-    	return false; // multiple address un-checkable
     }
     
     private List<Geocoding.Address> geocode(String location){
