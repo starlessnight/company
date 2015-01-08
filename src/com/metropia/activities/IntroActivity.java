@@ -1,6 +1,7 @@
 package com.metropia.activities;
 
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -102,7 +103,7 @@ public class IntroActivity extends FragmentActivity implements OnPageChangeListe
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.intro_slide, container, false);
-            ((ImageView)view.findViewById(R.id.image)).setImageResource(image);
+            ((ImageView)view.findViewById(R.id.image)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(image)));
             return view;
         }
         

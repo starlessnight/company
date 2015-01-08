@@ -4519,7 +4519,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	            	imageLp.gravity = Gravity.CENTER;
 	            	iconView.setLayoutParams(imageLp);
 	            	iconView.setTag(icon);
-	            	iconView.setImageResource(icon.getFavoritePageResourceId(view.getContext()));
+	            	iconView.setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(icon.getFavoritePageResourceId(view.getContext()))));
 	            	iconView.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(final View v) {

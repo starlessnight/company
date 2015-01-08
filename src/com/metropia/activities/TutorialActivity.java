@@ -1,6 +1,10 @@
 package com.metropia.activities;
 
+import java.io.InputStream;
+
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -26,7 +30,6 @@ import com.metropia.utils.Dimension;
 import com.metropia.utils.Font;
 import com.metropia.utils.Misc;
 import com.metropia.utils.Preferences;
-import com.metropia.activities.R;
 
 public class TutorialActivity extends FragmentActivity implements OnPageChangeListener {
 	
@@ -139,7 +142,7 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
             View view = inflater.inflate(R.layout.tutorial_slide, container, false);
-            ((ImageView)view.findViewById(R.id.image)).setImageResource(image);
+            ((ImageView)view.findViewById(R.id.image)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(image)));
             return view;
         }
         
