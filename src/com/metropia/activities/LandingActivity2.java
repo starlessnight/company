@@ -2687,6 +2687,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
       drawedReservId = Long.valueOf(-1);
       dismissReservId = Long.valueOf(-1);
       refreshTripsInfo(true, true);
+      hidePopupMenu();
     } 
     
     private void refreshTripsInfo(){
