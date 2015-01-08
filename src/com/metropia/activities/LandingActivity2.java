@@ -59,7 +59,6 @@ import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -108,7 +107,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.google.android.gms.analytics.GoogleAnalytics;
-import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibraryConstants;
+import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
 import com.metropia.CalendarService;
 import com.metropia.ResumeNavigationUtils;
 import com.metropia.SmarTrekApplication;
@@ -3163,14 +3162,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			public void run() {
 				Location _location = lastLocation;
 				if(_location == null) {
-					SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(LandingActivity2.this.getApplicationContext());
-				    float lastLat = ((int) (prefs.getFloat(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_LAT, Integer.MIN_VALUE) * 1000000f)) / 1000000f;
-			        float lastLng = ((int) (prefs.getFloat(LocationLibraryConstants.SP_KEY_LAST_LOCATION_UPDATE_LNG, Integer.MIN_VALUE) * 1000000f)) / 1000000f;
+					LocationInfo locationInfo = new LocationInfo(LandingActivity2.this);
 //			        float lastLat = 32.1559094f; // Tucson
 //	                float lastLng = -110.883805f;
 			        _location = new Location("");
-			        _location.setLatitude(lastLat);
-			        _location.setLongitude(lastLng);
+			        _location.setLatitude(locationInfo.lastLat);
+			        _location.setLongitude(locationInfo.lastLong);
 				}
 				searchPOIAddress(address, true, _location, false);
 			}
