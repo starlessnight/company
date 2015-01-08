@@ -4627,8 +4627,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             		fromSearchBox.clearFocus();
             		return true;
             	}
-            	else if(isReservationInfoShown()) {
-            		hideReservationInfoPanel();
+            	else if(!isReservationInfoShown() && hasReservTrip()) {
+            		showTripInfoPanel(true, true);
             		return true;
             	}
         }
