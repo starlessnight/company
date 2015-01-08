@@ -41,7 +41,7 @@ public class RoutePathOverlay extends Overlay {
 	private boolean highlighted = true;
 	
 	private Bitmap originFlag;
-	private Bitmap destinationFlag;
+//	private Bitmap destinationFlag;
 	
 	private boolean dashEffect;
 	
@@ -56,9 +56,9 @@ public class RoutePathOverlay extends Overlay {
 		this.route = route;
 		this.color = color;
 		if(marker > 0) {
-			this.originFlag = BitmapFactory.decodeResource(context.getResources(), marker);
+			this.originFlag = BitmapFactory.decodeStream(context.getResources().openRawResource(marker));
 		}
-		this.destinationFlag = BitmapFactory.decodeResource(context.getResources(), R.drawable.pin_destination);
+//		this.destinationFlag = BitmapFactory.decodeStream(context.getResources().openRawResource(R.drawable.pin_destination));
 	}
 	
 	public boolean isHighlighted() {
