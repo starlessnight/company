@@ -54,10 +54,9 @@
 		            
 		        <ImageView
 		            android:id="@+id/img_view_direction"
-		            android:layout_height="wrap_content"
-		            android:layout_width="wrap_content"
-		            android:layout_gravity="center_horizontal"
-		            android:src="@drawable/make_a_u_turn" 
+		            android:layout_height="48dp"
+		            android:layout_width="48dp"
+		            android:layout_gravity="center_horizontal" 
 				/>
 		        
 		        <TextView
@@ -148,11 +147,10 @@
 		        
 			    <ImageView
 				    android:id="@+id/img_view_next_direction"
-				    android:layout_height="wrap_content"
-				    android:layout_width="wrap_content"
+				    android:layout_height="24dp"
+				    android:layout_width="24dp"
 				    android:layout_marginLeft="4dp"
-				    android:layout_gravity="center_vertical"
-				    android:src="@drawable/small_make_a_u_turn"/>
+				    android:layout_gravity="center_vertical"/>
 			        
 			</LinearLayout>
 			

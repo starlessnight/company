@@ -1746,7 +1746,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	newUserTipView = findViewById(R.id.new_user_tip);
     	newUserTipView.setVisibility(DebugOptionsActivity.isUserCloseTip(LandingActivity2.this)?View.GONE:View.VISIBLE);
     	
-    	findViewById(R.id.tip_close).setOnClickListener(new OnClickListener() {
+    	ImageView tipCloseView = (ImageView) findViewById(R.id.tip_close);
+    	if(!DebugOptionsActivity.isUserCloseTip(LandingActivity2.this)) {
+    		tipCloseView.setImageBitmap(getBitmap(LandingActivity2.this, R.drawable.tip_close, 1));
+    	}
+    	
+    	tipCloseView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				newUserTipView.setVisibility(View.GONE);
@@ -1888,7 +1893,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         tripStartTimeView.setVisibility(startTimeVisible);
         tripStartTimeView.setText(formatStartTripTime(nextTripStartTime));
         ImageView startButton = (ImageView) reservInfo.findViewById(R.id.reservation_start_button);
-        startButton.setImageResource(startButtonResourceId);
+        startButton.setImageBitmap(getBitmap(LandingActivity2.this, startButtonResourceId, 1));
+//        startButton.setImageResource(startButtonResourceId);
         reservInfo.findViewById(R.id.reservation_trip_times).setVisibility(isFirst?View.VISIBLE:View.GONE);
         reservInfo.findViewById(R.id.leave_label).setVisibility((isFirst && !reserv.isEligibleTrip())?View.VISIBLE:View.GONE);
         reservInfo.findViewById(R.id.center_line).setVisibility(isFirst? View.GONE : View.VISIBLE);
@@ -2033,7 +2039,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         TextView tripStartTimeView = (TextView) emptyReservInfo.findViewById(R.id.reservation_start_time);
         tripStartTimeView.setVisibility(View.INVISIBLE);
         ImageView startButton = (ImageView) emptyReservInfo.findViewById(R.id.reservation_start_button);
-        startButton.setImageResource(startButtonResourceId);
+        startButton.setImageBitmap(getBitmap(LandingActivity2.this, startButtonResourceId, 1));
+//        startButton.setImageResource(startButtonResourceId);
         startButton.setVisibility(View.INVISIBLE);
         emptyReservInfo.findViewById(R.id.reservation_trip_times).setVisibility(View.GONE);
         emptyReservInfo.findViewById(R.id.leave_label).setVisibility(View.GONE);
@@ -2042,6 +2049,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         emptyReservInfo.findViewById(R.id.reservation_reschedule).setVisibility(View.INVISIBLE);
         emptyReservInfo.findViewById(R.id.center_line).setVisibility(View.VISIBLE);;
         return emptyReservInfo;
+    }
+    
+    private static Bitmap getBitmap(Context ctx, int resourceId, int inSampleSize) {
+    	InputStream is = ctx.getResources().openRawResource(resourceId);
+        BitmapFactory.Options options=new BitmapFactory.Options();
+        options.inJustDecodeBounds = false;
+        options.inSampleSize = inSampleSize;
+        return BitmapFactory.decodeStream(is, null, options);
     }
     
     private boolean isFavoriteMark(int markResourceId) {

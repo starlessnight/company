@@ -14,9 +14,9 @@
         android:focusableInTouchMode="true"
         android:orientation="vertical" >
 
-        <FrameLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="match_parent" >
 
             <ImageView
                 android:layout_width="match_parent"
@@ -28,9 +28,10 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:layout_alignParentBottom="true"
                 android:paddingLeft="30dp"
                 android:paddingRight="30dp"
-                android:paddingTop="220dp" >
+                android:paddingBottom="80dp" >
 
                 <EditText
                     android:id="@+id/username_box"
@@ -85,7 +86,7 @@
                     android:gravity="center|right"
                     android:textColor="@android:color/black" />
             </LinearLayout>
-        </FrameLayout>
+        </RelativeLayout>
     </LinearLayout>
 
 </ScrollView>

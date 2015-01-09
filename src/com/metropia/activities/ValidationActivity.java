@@ -39,6 +39,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.location.Location;
@@ -86,25 +87,24 @@ import com.metropia.ResumeNavigationUtils;
 import com.metropia.SendTrajectoryService;
 import com.metropia.SkobblerUtils;
 import com.metropia.SmarTrekApplication;
-import com.metropia.TripService;
 import com.metropia.SmarTrekApplication.TrackerName;
+import com.metropia.TripService;
 import com.metropia.activities.DebugOptionsActivity.FakeRoute;
-import com.metropia.dialogs.FloatingMenuDialog;
 import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.dialogs.NotificationDialog2.ActionListener;
 import com.metropia.models.Reservation;
 import com.metropia.models.Route;
 import com.metropia.models.Trajectory;
-import com.metropia.models.User;
 import com.metropia.models.Trajectory.Record;
+import com.metropia.models.User;
 import com.metropia.requests.ImComingRequest;
 import com.metropia.requests.Request;
+import com.metropia.requests.Request.Setting;
 import com.metropia.requests.ReservationFetchRequest;
 import com.metropia.requests.RouteFetchRequest;
-import com.metropia.requests.Request.Setting;
 import com.metropia.ui.ClickAnimation;
-import com.metropia.ui.NavigationView;
 import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
+import com.metropia.ui.NavigationView;
 import com.metropia.ui.NavigationView.CheckPointListener;
 import com.metropia.ui.NavigationView.DirectionItem;
 import com.metropia.ui.menu.MainMenu;
@@ -141,7 +141,6 @@ import com.skobbler.ngx.routing.SKRouteManager;
 import com.skobbler.ngx.routing.SKRouteSettings;
 import com.skobbler.ngx.tracks.SKTracksFile;
 import com.skobbler.ngx.util.SKLogging;
-import com.metropia.activities.R;
 
 public class ValidationActivity extends FragmentActivity implements OnInitListener, 
         OnAudioFocusChangeListener, SKMapSurfaceListener, SKRouteListener {
@@ -863,17 +862,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				});
 			}
 		});
-
-		findViewById(R.id.floating_menu_button).setOnClickListener(
-				new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						FloatingMenuDialog dialog = new FloatingMenuDialog(
-								ValidationActivity.this);
-						dialog.show();
-					}
-				});
-
 
 		dirListView = (ListView) findViewById(R.id.directions_list);
 		dirListView.setAdapter(dirListadapter);
@@ -1991,21 +1979,27 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             if(co2Value != 0) {
                 String co2String = co2Value + "lbs\nCO2";  
                 co2.setText(formatCO2Desc(ValidationActivity.this, co2String));
-                co2.setVisibility(View.VISIBLE);
+                ((ImageView)findViewById(R.id.co2_circle_background)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.blue_circle)));
+                findViewById(R.id.co2_circle_panel).setVisibility(View.VISIBLE);
             }
             
             TextView mpoint = (TextView) findViewById(R.id.mpoint_circle);
             if(uPoints > 0){
                 mpoint.setText(formatCongrValueDesc(ValidationActivity.this, uPoints + "\nPoints"));
-                mpoint.setVisibility(View.VISIBLE);
+                ((ImageView)findViewById(R.id.mpoint_circle_background)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.green_circle)));
+                findViewById(R.id.mpoint_circle_panel).setVisibility(View.VISIBLE);
             }
             
             TextView driveScore = (TextView) findViewById(R.id.drive_score_circle);
             if(timeSavingInMinute > 0) {
                 String scoreString = new DecimalFormat("0.#").format(timeSavingInMinute) + "\nminutes"; 
                 driveScore.setText(formatCongrValueDesc(ValidationActivity.this, scoreString));
-                driveScore.setVisibility(View.VISIBLE);
+                ((ImageView)findViewById(R.id.drive_score_circle_background)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.red_circle)));
+                findViewById(R.id.drive_score_circle_panel).setVisibility(View.VISIBLE);
             }
+            
+            ImageView share = (ImageView) findViewById(R.id.share);
+            share.setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.menu_share_new)));
             
             Font.setTypeface(boldFont, co2, mpoint, driveScore);
             

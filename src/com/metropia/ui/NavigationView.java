@@ -11,6 +11,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.support.v4.view.PagerAdapter;
@@ -427,7 +428,7 @@ public class NavigationView extends LinearLayout {
 		if (item.drawableId == 0) {
 			imgViewDirection.setVisibility(View.INVISIBLE);
 		} else {
-			imgViewDirection.setImageResource(item.drawableId);
+			imgViewDirection.setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(item.drawableId)));
 			imgViewDirection.setVisibility(View.VISIBLE);
 		}
 
@@ -446,7 +447,7 @@ public class NavigationView extends LinearLayout {
 			if (nextItem.drawableId == 0) {
 				imgViewNextDirection.setVisibility(View.INVISIBLE);
 			} else {
-				imgViewNextDirection.setImageResource(nextItem.smallDrawableId);
+				imgViewNextDirection.setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(nextItem.smallDrawableId)));
 				imgViewNextDirection.setVisibility(View.VISIBLE);
 			}
 		}

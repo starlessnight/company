@@ -166,9 +166,9 @@
                     <ImageView
                         android:id="@+id/reservation_start_button"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/reservation_start_trip_transparent" />
+                        android:layout_height="115dp"
+                        android:layout_gravity="center"
+                        android:scaleType="fitCenter" />
 
                     <TextView
                         android:id="@+id/reservation_start_time"

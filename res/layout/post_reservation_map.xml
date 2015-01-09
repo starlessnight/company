@@ -85,17 +85,6 @@
 
 	</LinearLayout>
     
-    <ImageView
-        android:id="@+id/floating_menu_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="82dp"
-        android:layout_marginRight="15dp"
-        android:src="@drawable/floating_menu_icon"
-        android:visibility="invisible" />
-
     <LinearLayout
         android:id="@+id/directions_view"
         android:layout_width="match_parent"
@@ -226,63 +215,86 @@
                     android:orientation="horizontal" >
                     
                     <FrameLayout
+                        android:id="@+id/co2_circle_panel"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:visibility="invisible">
+                        
+                        <ImageView 
+                            android:id="@+id/co2_circle_background"
+                            android:layout_width="125dp"
+                            android:layout_height="125dp"
+                            android:layout_gravity="center"
+                            android:scaleType="fitCenter"/>
 
 	                    <TextView
 	                        android:id="@+id/co2_circle"
 	                        android:layout_width="wrap_content"
 	                        android:layout_height="wrap_content"
-	                        android:background="@drawable/blue_circle"
 	                        android:gravity="center"
 	                        android:layout_gravity="center"
 	                        android:text="@string/placeholder"
 	                        android:textColor="@android:color/white"
-	                        android:textSize="@dimen/large_font"
-	                        android:visibility="invisible" />
+	                        android:textSize="@dimen/large_font" />
+	                    
                     </FrameLayout>
                     
                     <FrameLayout
+                        android:id="@+id/mpoint_circle_panel"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:visibility="invisible">
+	                    
+                        <ImageView 
+                            android:id="@+id/mpoint_circle_background"
+                            android:layout_width="125dp"
+                            android:layout_height="125dp"
+                            android:layout_gravity="center"
+                            android:scaleType="fitCenter"/>
 
 	                    <TextView
 	                        android:id="@+id/mpoint_circle"
 	                        android:layout_width="wrap_content"
 	                        android:layout_height="wrap_content"
-	                        android:background="@drawable/green_circle"
 	                        android:gravity="center"
 	                        android:layout_gravity="center"
 	                        android:text="@string/placeholder"
 	                        android:textColor="@android:color/white"
-	                        android:textSize="@dimen/large_font"
-	                        android:visibility="invisible" />
+	                        android:textSize="@dimen/large_font" />
                     </FrameLayout>
 
                     <FrameLayout
+                        android:id="@+id/drive_score_circle_panel"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:visibility="invisible">
+	                    
+                        <ImageView 
+                            android:id="@+id/drive_score_circle_background"
+                            android:layout_width="125dp"
+                            android:layout_height="125dp"
+                            android:layout_gravity="center"
+                            android:scaleType="fitCenter"/>
+                        
 	                    <TextView
 	                        android:id="@+id/drive_score_circle"
 	                        android:layout_width="wrap_content"
 	                        android:layout_height="wrap_content"
-	                        android:background="@drawable/red_circle"
 	                        android:gravity="center"
 	                        android:layout_gravity="center"
 	                        android:text="@string/placeholder"
 	                        android:textColor="@android:color/white"
-	                        android:textSize="@dimen/large_font"
-	                        android:visibility="invisible"  />
+	                        android:textSize="@dimen/large_font"  />
                     </FrameLayout>
                 </LinearLayout>
             </FrameLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
+                android:layout_height="wrap_content"
                 android:background="@color/transparent_black"
                 android:orientation="horizontal" >
 
@@ -301,8 +313,7 @@
                     android:id="@+id/share"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:src="@drawable/menu_share_new" />
+                    android:layout_weight="1" />
 
                 <TextView
                     android:id="@+id/feedback"
