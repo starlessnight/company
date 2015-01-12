@@ -3165,6 +3165,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         String intentAddress = getIntentAddress(intent);
         if(intent.getBooleanExtra(LandingActivity.LOGOUT, false)){
             startActivity(new Intent(this, LoginActivity.class));
+            User.setCurrentUser(LandingActivity2.this, null);
             finish();
             return;
         }else if(StringUtils.isNotBlank(intentAddress)){
