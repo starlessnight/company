@@ -794,12 +794,18 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         	searchIntentAddress(intentAddress);
         }
         
+        if(isToSignInPage(getIntent())) {
+        	Intent signInIntent = new Intent(LandingActivity2.this, LoginActivity.class);
+        	startActivity(signInIntent);
+        	finish();
+        }
+        
         LandingActivity.initializeIfNeccessary(this, new Runnable() {
-            @Override
-            public void run() {
-                updateDeviceId();
-            }
-        });
+        	@Override
+        	public void run() {
+        		updateDeviceId();
+        	}
+       	});
         
         initReservationListView();
         
@@ -3171,6 +3177,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         }else if(StringUtils.isNotBlank(intentAddress)){
         	searchIntentAddress(intentAddress);
         }
+    }
+    
+    private boolean isToSignInPage(Intent intent) {
+    	Uri uri = intent.getData();
+    	if(uri != null) {
+    		return uri.toString().endsWith("signin");
+    	}
+    	return false;
     }
     
     private void searchIntentAddress(final String address) {
