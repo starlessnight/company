@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.metropia.activities"
     android:versionCode="22"
-    android:versionName="0.14.27" >
+    android:versionName="0.14.28" >
 
     <!-- http://stackoverflow.com/questions/9629125/regarding-version-code-and-version-name-android-manifest -->
 
