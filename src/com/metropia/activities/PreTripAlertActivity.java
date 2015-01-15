@@ -77,11 +77,10 @@ public final class PreTripAlertActivity extends Activity {
                         dialog.dismiss();
                         if(reserv != null){
                             Intent intent = new Intent(PreTripAlertActivity.this, RouteActivity.class);
-                            intent.putExtra(RouteActivity.CURRENT_LOCATION, true);
                             Bundle extras = new Bundle();
+                            extras.putBoolean(RouteActivity.CURRENT_LOCATION, true);
                             extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
                             extras.putString("originAddr", EditAddress.CURRENT_LOCATION);
-                            extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(0, 0 ));
                             extras.putString("destAddr", reserv.getDestinationAddress());
                             extras.putParcelable(RouteActivity.DEST_COORD, new GeoPoint(reserv.getEndlat(), reserv.getEndlon()));
                             intent.putExtras(extras);
