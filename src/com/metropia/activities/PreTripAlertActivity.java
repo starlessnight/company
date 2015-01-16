@@ -1,5 +1,7 @@
 package com.metropia.activities;
 
+import org.apache.commons.lang3.StringUtils;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetManager;
@@ -78,9 +80,9 @@ public final class PreTripAlertActivity extends Activity {
                         if(reserv != null){
                             Intent intent = new Intent(PreTripAlertActivity.this, RouteActivity.class);
                             Bundle extras = new Bundle();
-                            extras.putBoolean(RouteActivity.CURRENT_LOCATION, true);
+                            extras.putBoolean(RouteActivity.CURRENT_LOCATION, StringUtils.equalsIgnoreCase(EditAddress.CURRENT_LOCATION, reserv.getOriginAddress()));
                             extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
-                            extras.putString("originAddr", EditAddress.CURRENT_LOCATION);
+                            extras.putString("originAddr", reserv.getOriginAddress());
                             extras.putString("destAddr", reserv.getDestinationAddress());
                             extras.putParcelable(RouteActivity.DEST_COORD, new GeoPoint(reserv.getEndlat(), reserv.getEndlon()));
                             intent.putExtras(extras);
