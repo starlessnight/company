@@ -795,9 +795,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         }
         
         if(isToSignInPage(getIntent())) {
-        	Intent signInIntent = new Intent(LandingActivity2.this, LoginActivity.class);
-        	startActivity(signInIntent);
-        	finish();
+            Intent signInIntent = new Intent(LandingActivity2.this, LoginActivity.class);
+            startActivity(signInIntent);
+            finish();
         }
         
         LandingActivity.initializeIfNeccessary(this, new Runnable() {
@@ -1978,7 +1978,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			}
         });
         
-        ImageView reservReschedule = (ImageView) reservInfo.findViewById(R.id.reservation_reschedule);
+        View reservReschedule = reservInfo.findViewById(R.id.reschedule_panel);
         reservReschedule.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(final View v) {
@@ -2022,7 +2022,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         toAddressView.setText(destDesc);
         
         Font.setTypeface(robotoBoldFont, timeToGo, tripDurationTimeView, tripArrivalTimeView, tripStartTimeView, tripInfoFromAddressView, tripInfoToAddressView);
-        Font.setTypeface(robotoLightFont, reservationOnMyWay);
+        Font.setTypeface(robotoLightFont, reservationOnMyWay, (TextView) reservInfo.findViewById(R.id.reschedule_desc));
         
         if(isFirst) {
 	        tripNotifyIcon.setImageResource(reserv.isEligibleTrip()?R.drawable.upcoming_trip_green:R.drawable.upcoming_trip_orange);
@@ -2052,7 +2052,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         emptyReservInfo.findViewById(R.id.leave_label).setVisibility(View.GONE);
         emptyReservInfo.findViewById(R.id.center_line).setVisibility(View.INVISIBLE);
         emptyReservInfo.findViewById(R.id.reservation_on_my_way).setVisibility(View.INVISIBLE);
-        emptyReservInfo.findViewById(R.id.reservation_reschedule).setVisibility(View.INVISIBLE);
+        emptyReservInfo.findViewById(R.id.reschedule_panel).setVisibility(View.INVISIBLE);
         emptyReservInfo.findViewById(R.id.center_line).setVisibility(View.VISIBLE);;
         return emptyReservInfo;
     }
@@ -3180,11 +3180,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private boolean isToSignInPage(Intent intent) {
-    	Uri uri = intent.getData();
-    	if(uri != null) {
-    		return uri.toString().endsWith("signin");
-    	}
-    	return false;
+        Uri uri = intent.getData();
+        if(uri != null) {
+            return uri.toString().endsWith("signin");
+        }
+        return false;
     }
     
     private void searchIntentAddress(final String address) {
