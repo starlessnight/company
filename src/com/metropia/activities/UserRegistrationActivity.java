@@ -128,7 +128,7 @@ public final class UserRegistrationActivity extends FragmentActivity
     private void queryUserInfo(){
         final AccountManager manager = AccountManager.get(this);
         final Account[] accounts = manager.getAccountsByType("com.google");
-        if (accounts[0].name != null) {
+        if (accounts != null && accounts.length > 0 && accounts[0].name != null) {
             String accountName = accounts[0].name;
 
             ContentResolver cr = getContentResolver();
