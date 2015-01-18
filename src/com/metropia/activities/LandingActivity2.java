@@ -59,18 +59,11 @@ import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v4.widget.DrawerLayout;
-import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.TextWatcher;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
@@ -79,7 +72,6 @@ import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -112,7 +104,6 @@ import com.metropia.CalendarService;
 import com.metropia.ResumeNavigationUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
-import com.metropia.activities.LandingActivity2.FavoriteSlideFragment.ClickCallback;
 import com.metropia.dialogs.CancelableProgressDialog;
 import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.dialogs.NotificationDialog2.ActionListener;
@@ -120,13 +111,9 @@ import com.metropia.dialogs.NotifyResumeDialog;
 import com.metropia.models.Reservation;
 import com.metropia.models.Route;
 import com.metropia.models.User;
-import com.metropia.requests.AddressLinkRequest;
 import com.metropia.requests.CityRequest;
 import com.metropia.requests.CityRequest.City;
-import com.metropia.requests.FavoriteAddressAddRequest;
-import com.metropia.requests.FavoriteAddressDeleteRequest;
 import com.metropia.requests.FavoriteAddressFetchRequest;
-import com.metropia.requests.FavoriteAddressUpdateRequest;
 import com.metropia.requests.MyMetropiaRequest;
 import com.metropia.requests.MyMetropiaRequest.MyMetropia;
 import com.metropia.requests.Request;
@@ -231,15 +218,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private static final String TAP_TO_ADD_FAVORITE = "Tap to Add Favorite";
     
-    private EditText favSearchBox;
-    
-    private View favOptPanel;
-    private ImageView labelIcon;
-    
     private AtomicBoolean showAutoComplete = new AtomicBoolean(true);
-    
-//    private ListView reservationListView;
-//    private ArrayAdapter<Reservation> reservationAdapter;
     
     private ImageView tripNotifyIcon;
     
@@ -913,266 +892,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
         });
         
-        favOptPanel = findViewById(R.id.fav_opt);
-        favSearchBox = (EditText) favOptPanel.findViewById(R.id.favorite_search_box);
         
-        final View favSave = favOptPanel.findViewById(R.id.fav_save);
-        
-        final EditText labelInput = (EditText) favOptPanel.findViewById(R.id.label_input);
-        
-        favOptPanel.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				labelInput.clearFocus();
-			}
-        });
-        
-        final View labelInputClear = favOptPanel.findViewById(R.id.label_clear);
-        labelInput.addTextChangedListener(new TextWatcher() {
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-			}
-
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before,
-					int count) {
-			}
-
-			@Override
-			public void afterTextChanged(Editable s) {
-				if(StringUtils.isNotBlank(s.toString())) {
-					labelInputClear.setVisibility(View.VISIBLE);
-				}
-				else {
-					labelInputClear.setVisibility(View.GONE);
-				}
-			}
-		});
-        
-        labelInput.setOnFocusChangeListener(new OnFocusChangeListener() {
-			@Override
-			public void onFocusChange(View v, boolean hasFocus) {
-				if(!hasFocus) {
-					InputMethodManager imm = (InputMethodManager)getSystemService(
-							Context.INPUT_METHOD_SERVICE);
-					imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-				}
-			}
-		});
-        
-        labelInputClear.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				labelInput.setText("");
-			}
-		});
-        
-        findViewById(R.id.fav_cancel).setOnClickListener(new OnClickListener(){
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						hideFavoriteOptPanel();
-					}
-				});
-			}
-		});
-        
-        favSave.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(final View v) {
-				v.setClickable(false);
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						if(isFavoriteOptComplete()) {
-							InputMethodManager imm = (InputMethodManager)getSystemService(
-		                            Context.INPUT_METHOD_SERVICE);
-		                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-							PoiOverlayInfo info = (PoiOverlayInfo) favOptPanel.getTag();
-							final PoiOverlayInfo _info = info==null ? new PoiOverlayInfo() : info;
-							String label = ((EditText)favOptPanel.findViewById(R.id.label_input)).getText().toString();
-							if(StringUtils.isBlank(label)) {
-								label = "Favorite";
-							}
-							final String lbl = label;
-			                final String addr = ((EditText)favOptPanel.findViewById(R.id.favorite_search_box)).getText().toString();
-			                final FavoriteIcon icon = (FavoriteIcon) favOptPanel.findViewById(R.id.icon).getTag();
-			                AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>(){
-			                	@Override
-			                	protected void onPreExecute() {
-			                		if(_info.lat == 0 && _info.lon == 0) {
-			                			List<Address> result = Collections.emptyList();
-			                			try {
-				                			if(lastLocation != null) {
-				                				result = Geocoding.searchPoi(LandingActivity2.this, addr, lastLocation.getLatitude(), lastLocation.getLongitude());
-				                			}
-				                			else {
-				                				result = Geocoding.searchPoi(LandingActivity2.this, addr);
-				                			}
-			                			}
-			                			catch(Exception e) {
-			                				e.printStackTrace();
-			                				ehs.registerException(e, e.getMessage());
-			                			}
-			                			if(result.isEmpty()) {
-			                				ehs.registerException(new RuntimeException(), "Address [" + addr + "] not found!");
-			                			}
-			                			else {
-			                				Address found = result.get(0);
-			                				_info.address = found.getAddress();
-			                				_info.lat = found.getLatitude();
-			                				_info.lon = found.getLongitude();
-			                				_info.geopoint = found.getGeoPoint();
-			                			}
-			                		}
-			                		else {
-			                			_info.address = addr;
-			                		}
-			                	}
-			                	
-			                    @Override
-			                    protected Integer doInBackground(Void... params) {
-			                        Integer id = 0;
-			                        Request req = null;
-			                        String iconName = icon != null ? icon.name() : FavoriteIcon.star.name();
-			                        User user = User.getCurrentUser(LandingActivity2.this);
-			                        try {
-			                        	if(_info.id==0) {
-				                            FavoriteAddressAddRequest request = new FavoriteAddressAddRequest(
-				                                user, lbl, _info.address, iconName, _info.lat, _info.lon);
-				                            req = request;
-				                            id = request.execute(LandingActivity2.this);
-			                        	}
-			                        	else {
-			                        		FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(
-				                                    new AddressLinkRequest(user).execute(LandingActivity2.this),
-				                                        _info.id, user, lbl, addr, iconName, _info.lat, _info.lon);
-				                            req = request;
-				                            request.execute(LandingActivity2.this);
-			                        	}
-			                        }
-			                        catch (Exception e) {
-			                            ehs.registerException(e, "[" + (req==null?"":req.getUrl()) + "]\n" + e.getMessage());
-			                        }
-			                        return id;
-			                    }
-			                    protected void onPostExecute(Integer id) {
-			                        refreshStarredPOIs();
-			                        if (ehs.hasExceptions()) {
-			                            ehs.reportExceptions();
-			                        }
-			                        else {
-			                            removePOIMarker(mapView);
-			                            _info.id = _info.id !=0 ? _info.id : id;
-			                            hideFavoriteOptPanel();
-			                        }
-			                    }
-			               };
-			               Misc.parallelExecute(task);
-						}
-						v.setClickable(true);
-					}
-				});
-            }
-		});
-        
-        findViewById(R.id.fav_del).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						findViewById(R.id.confirm_panel).setVisibility(View.VISIBLE);
-					}
-				});
-			}
-		});
-        
-        labelIcon = (ImageView) findViewById(R.id.label_icon);
-        
-        findViewById(R.id.confirm_panel).setOnClickListener(noopClick);
-        
-        findViewById(R.id.confirm_del).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation  = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						findViewById(R.id.confirm_panel).setVisibility(View.GONE);
-						final PoiOverlayInfo info = (PoiOverlayInfo) favOptPanel.getTag();
-						final int oldId = info.id;
-		                AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>(){
-		                    @Override
-		                    protected void onPreExecute() {
-		                        List<Overlay> overlays = mapView.getOverlays();
-		                        List<Overlay> overlaysToKeep = new ArrayList<Overlay>();
-		                        for (Overlay overlay : overlays) {
-		                            boolean toKeep;
-		                            if(overlay instanceof POIOverlay){
-		                                POIOverlay poiOverlay = (POIOverlay)overlay;
-		                                toKeep = !isFavoriteMark(poiOverlay.getMarker()) || poiOverlay.getAid() != info.id;
-		                            }else{
-		                                toKeep = true;
-		                            }
-		                            if(toKeep){
-		                                overlaysToKeep.add(overlay);
-		                            }
-		                        }
-		                        overlays.clear();
-		                        overlays.addAll(overlaysToKeep);
-		                        mapView.postInvalidate();
-		                        info.id = 0;
-		                    }
-		                    @Override
-		                    protected Integer doInBackground(Void... params) {
-		                        Integer id = null;
-		                        Request req = null;
-		                        User user = User.getCurrentUser(LandingActivity2.this);
-		                        try {
-		                            FavoriteAddressDeleteRequest request = new FavoriteAddressDeleteRequest(
-		                                    new AddressLinkRequest(user).execute(LandingActivity2.this), user, oldId);
-		                            req = request;
-		                            request.execute(LandingActivity2.this);
-		                        }
-		                        catch (Exception e) {
-		                            ehs.registerException(e, "[" + (req==null?"":req.getUrl()) + "]\n" + e.getMessage());
-		                        }
-		                        return id;
-		                    }
-		                    protected void onPostExecute(Integer id) {
-		                    	favOptPanel.setTag(null);
-		                        refreshStarredPOIs();
-		                        if (ehs.hasExceptions()) {
-		                            ehs.reportExceptions();
-		                        }
-		                    }
-		               };
-		               Misc.parallelExecute(task);
-		               hideFavoriteOptPanel();
-					}
-				});
-			}
-        });
-        
-        findViewById(R.id.confirm_cancel).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						findViewById(R.id.confirm_panel).setVisibility(View.GONE);
-					}
-				});
-			}
-		});
         
         Display display = getWindowManager().getDefaultDisplay();
         DrawerLayout.LayoutParams leftDrawerLp = (DrawerLayout.LayoutParams) findViewById(R.id.left_drawer).getLayoutParams();
@@ -1485,7 +1205,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 						showFavoriteOptPanel(info);
 						hidePopupMenu();
 						v.setClickable(true);
-						
 					}
         		});
         	}
@@ -1567,15 +1286,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	});
         */
         
-        initFavoritePage();
-        
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, fromSearchBox, myMetropiaMenu, 
             reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu);
-        Font.setTypeface(Font.getMedium(assets), favSearchBox, labelInput, 
-        		(TextView)findViewById(R.id.label), (TextView)findViewById(R.id.icon), 
-        		upointView, saveTimeView, co2View, (TextView) findViewById(R.id.head), 
-        		(TextView) findViewById(R.id.favorite_address_desc));
+        Font.setTypeface(Font.getMedium(assets), upointView, saveTimeView, co2View, (TextView) findViewById(R.id.head));
         Font.setTypeface(Font.getRobotoBold(assets), getRouteView);
         //init Tracker
         ((SmarTrekApplication)getApplication()).getTracker(TrackerName.APP_TRACKER);
@@ -2074,15 +1788,15 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	return false;
     }
     
-    private void reInitFavoriteOperationPanel() {
-    	favOptPanel.setTag(null);
-    	((EditText)favOptPanel.findViewById(R.id.favorite_search_box)).setText("");
-    	((EditText)favOptPanel.findViewById(R.id.favorite_search_box)).setEnabled(true);
-    	((EditText)favOptPanel.findViewById(R.id.label_input)).setText("");
-    	favOptPanel.findViewById(R.id.label_clear).setVisibility(View.GONE);
-    	favOptPanel.findViewById(R.id.fav_del_panel).setVisibility(View.GONE);
-    	favOptPanel.findViewById(R.id.label_icon).setVisibility(View.GONE);
-    }
+//    private void reInitFavoriteOperationPanel() {
+//    	favOptPanel.setTag(null);
+//    	((EditText)favOptPanel.findViewById(R.id.favorite_search_box)).setText("");
+//    	((EditText)favOptPanel.findViewById(R.id.favorite_search_box)).setEnabled(true);
+//    	((EditText)favOptPanel.findViewById(R.id.label_input)).setText("");
+//    	favOptPanel.findViewById(R.id.label_clear).setVisibility(View.GONE);
+//    	favOptPanel.findViewById(R.id.fav_del_panel).setVisibility(View.GONE);
+//    	favOptPanel.findViewById(R.id.label_icon).setVisibility(View.GONE);
+//    }
     
     private void clearSearchResult() {
     	searchAddresses.clear();
@@ -2948,23 +2662,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	    		animatorSet.play(slideAnimator).with(alphaAnimator);
 	    		animatorSet.start();
     		}
-//    		lockMenu();
-    		hideFavoriteOptPanel();
     	}
     }
     
-    private void hideFavoriteOptPanel() {
-    	reInitFavoriteOperationPanel();
-    	favOptPanel.setVisibility(View.GONE);
-		findViewById(R.id.landing_panel).setVisibility(View.VISIBLE);
-		ViewPager favoriteIconPager = (ViewPager) findViewById(R.id.favorite_icons_pager);
-		favoriteIconPager.setCurrentItem(0);
-    }
-    
     private void showFavoriteOptPanel(PoiOverlayInfo info) {
-    	writeInfo2FavoritePanel(info);
-    	findViewById(R.id.landing_panel).setVisibility(View.GONE);
-    	favOptPanel.setVisibility(View.VISIBLE);
+    	Intent favOpt = new Intent(LandingActivity2.this, FavoriteOperationActivity.class);
+    	favOpt.putExtra(FavoriteOperationActivity.FAVORITE_POI_INFO, info);
+    	startActivityForResult(favOpt, FavoriteOperationActivity.FAVORITE_OPT);
     }
     
     private boolean hasReservTrip() {
@@ -3001,11 +2705,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private void unlockMenu() {
     	DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-    }
-    
-    private void lockMenu() {
-    	DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-		mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }
     
     private boolean isReservationInfoShown() {
@@ -3068,17 +2767,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		}
     	}
     	return -1;
-    }
-    
-    private SpannableString formatTripArrivalTime(String arrivalTime) {
-    	int indexOfChange = arrivalTime.indexOf("AM")!=-1?arrivalTime.indexOf("AM"):arrivalTime.indexOf("PM");
-    	SpannableString arrivalTimeSpan = SpannableString.valueOf(arrivalTime);
-    	if(indexOfChange != -1) {
-			arrivalTimeSpan.setSpan(new AbsoluteSizeSpan(getResources()
-					.getDimensionPixelSize(R.dimen.smaller_font)), indexOfChange, arrivalTime.length(),
-					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-    	}
-		return arrivalTimeSpan;
     }
     
     private Long drawedReservId = Long.valueOf(-1);
@@ -3724,31 +3412,29 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
             @Override
             public void onSingleTap() {
-            	if(favOptPanel.getVisibility() == View.GONE) {
-//	                boolean handledStarred = hideStarredBalloon();
-//	                boolean handledBulb = hideBulbBalloon();
-//	                boolean handledPOI = removePOIMarker(mapView);
-//	                boolean handledOD = removeOldOD(mapView, isFromPoi());
-	                boolean hasFocus = searchBox.isFocused() || fromSearchBox.isFocused();
-	                boolean hasFavoriteDropDown = DROP_STATE.equals(fromDropDownButton.getTag()) || 
-	                		DROP_STATE.equals(toDropDownButton.getTag());
-	                if(hasFavoriteDropDown) {
-	                	if(DROP_STATE.equals(fromDropDownButton.getTag())) {
-	                		fromDropDownButton.performClick();
-	                	}
-	                	else {
-	                		toDropDownButton.performClick();
-	                	}
-	                }
+//	            boolean handledStarred = hideStarredBalloon();
+//	            boolean handledBulb = hideBulbBalloon();
+//	            boolean handledPOI = removePOIMarker(mapView);
+//	            boolean handledOD = removeOldOD(mapView, isFromPoi());
+	            boolean hasFocus = searchBox.isFocused() || fromSearchBox.isFocused();
+	            boolean hasFavoriteDropDown = DROP_STATE.equals(fromDropDownButton.getTag()) || 
+	             		DROP_STATE.equals(toDropDownButton.getTag());
+	            if(hasFavoriteDropDown) {
+	              	if(DROP_STATE.equals(fromDropDownButton.getTag())) {
+	               		fromDropDownButton.performClick();
+	               	}
+	               	else {
+	               		toDropDownButton.performClick();
+	               	}
+	            }
 	                
-	                if(hasFocus) {
-	                	searchBox.clearFocus();
-	                	fromSearchBox.clearFocus();
-	                }
-	                if(/*!handledStarred && !handledBulb && !handledPOI && !handledOD &&*/ !hasFocus && !hasFavoriteDropDown){
-	                    resizeMap(!isMapCollapsed());
-	                }
-            	}
+	            if(hasFocus) {
+	              	searchBox.clearFocus();
+	               	fromSearchBox.clearFocus();
+	            }
+	            if(/*!handledStarred && !handledBulb && !handledPOI && !handledOD &&*/ !hasFocus && !hasFavoriteDropDown){
+	                resizeMap(!isMapCollapsed());
+	            }
             }
         });
         mapView.getOverlays().add(eventOverlay);
@@ -4214,37 +3900,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         return marker;
     }
     
-    private boolean isInFavoriteOperation() {
-    	return favOptPanel.getVisibility() == View.VISIBLE;
-    }
-    
-    private boolean isFavoriteOptComplete() {
-    	String favAddr = ((EditText) favOptPanel.findViewById(R.id.favorite_search_box)).getText().toString();
-//    	String label = ((EditText) favOptPanel.findViewById(R.id.label_input)).getText().toString();
-//    	IconType icon = (IconType) favOptPanel.findViewById(R.id.icon).getTag();
-//    	return StringUtils.isNotBlank(favAddr) && StringUtils.isNotBlank(label) && icon!=null;
-    	return StringUtils.isNotBlank(favAddr);
-    }
-    
-    private void writeInfo2FavoritePanel(PoiOverlayInfo info) {
-    	if(info != null) {
-	    	favOptPanel.setTag(info);
-	    	((EditText) favOptPanel.findViewById(R.id.label_input)).setText(info.label);
-	    	FavoriteIcon icon = FavoriteIcon.fromName(info.iconName, FavoriteIcon.star);
-	    	if(icon != null) {
-	    		favOptPanel.findViewById(R.id.icon).setTag(icon);
-	    		labelIcon.setVisibility(View.VISIBLE);
-	    		labelIcon.setImageResource(icon.getResourceId(LandingActivity2.this));
-	    	}
-	    	EditText favSearchBox = (EditText) favOptPanel.findViewById(R.id.favorite_search_box); 
-	    	favSearchBox.setText(info.address);
-	    	favSearchBox.setEnabled(false);
-	    	favOptPanel.findViewById(R.id.fav_save).setVisibility(StringUtils.isNotBlank(info.address) ? View.VISIBLE : View.GONE);
-	    	favOptPanel.findViewById(R.id.fav_del_panel).setVisibility(info.id!=0 ? View.VISIBLE : View.GONE);
-	    	((TextView)favOptPanel.findViewById(R.id.header)).setText(info.id!=0 ? "Edit Favorite" : "Save Favorite");
-    	}
-    }
-    
     private void updateMyMetropiaInfo() {
     	AsyncTask<Void, Void, MyMetropia> updateTask = new AsyncTask<Void, Void, MyMetropia>() {
 			@Override
@@ -4443,162 +4098,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	mapOverlays.addAll(homeOverlay);
     }
     
-    private void initFavoritePage() {
-    	ViewPager favoriteIconPager = (ViewPager) findViewById(R.id.favorite_icons_pager);
-    	favoriteIconPager.setOnPageChangeListener(new OnPageChangeListener() {
-			@Override
-			public void onPageScrollStateChanged(int arg0) {
-				favOptPanel.findViewById(R.id.label_input).clearFocus();
-			}
-
-			@Override
-			public void onPageScrolled(int arg0, float arg1, int arg2) {
-				favOptPanel.findViewById(R.id.label_input).clearFocus();
-			}
-
-			@Override
-			public void onPageSelected(int pos) {
-				LinearLayout indicators = (LinearLayout)findViewById(R.id.indicators);
-		        for(int i=0; i<indicators.getChildCount(); i++){
-		            indicators.getChildAt(i).setEnabled(i == pos);
-		        }
-			}
-		});
-    	
-        FavoriteSlideAdapter slideAdapter = new FavoriteSlideAdapter(getSupportFragmentManager(), new ClickCallback() {
-			@Override
-			public void onClick(FavoriteIcon icon) {
-				favOptPanel.findViewById(R.id.icon).setTag(icon);
-				favOptPanel.findViewById(R.id.label_input).clearFocus();
-				labelIcon.setImageResource(icon.getResourceId(LandingActivity2.this));
-				labelIcon.setVisibility(View.VISIBLE);
-			}
-        });
-        
-        favoriteIconPager.setAdapter(slideAdapter);
-        
-    	LinearLayout indicators = (LinearLayout)findViewById(R.id.indicators);
-        for(int i=0; i<slideAdapter.getCount(); i++){
-            View indicator = getLayoutInflater().inflate(R.layout.onboard_indicator, indicators, false);
-            if(i == 0){
-                ((LinearLayout.LayoutParams)indicator.getLayoutParams()).leftMargin = 0;
-            }else{
-                indicator.setEnabled(false);
-            }
-            indicators.addView(indicator);
-        }
-    }
-    
-    public static class FavoriteSlideFragment extends Fragment {
-        
-        static final String ICONS_PAGE_NO = "icons_page_no";
-        
-        private FavoriteIcon[][] icons;
-        private ClickCallback clickCallback;
-        
-        public interface ClickCallback {
-        	public void onClick(FavoriteIcon icon);
-        }
-        
-        static FavoriteSlideFragment of(Integer pageNo, ClickCallback _clickCallback){
-        	FavoriteSlideFragment f = new FavoriteSlideFragment(_clickCallback);
-            Bundle args = new Bundle();
-            args.putInt(ICONS_PAGE_NO, pageNo);
-            f.setArguments(args);
-            return f;
-        }
-        
-        public FavoriteSlideFragment() {}
-        
-        private FavoriteSlideFragment(ClickCallback clickCallback) {
-        	this.clickCallback = clickCallback;
-        }
-        
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            Bundle args = getArguments();
-            this.icons = FavoriteIcon.getIcons(args.getInt(ICONS_PAGE_NO));
-        }
-     
-        @Override
-        public void onActivityCreated(Bundle savedInstanceState) {
-            super.onActivityCreated(savedInstanceState);
-        }
-     
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            final LinearLayout view = (LinearLayout) inflater.inflate(R.layout.favorite_icon_slide, container, false);
-            DisplayMetrics dm = view.getContext().getResources().getDisplayMetrics();
-            int iconMargin = Dimension.dpToPx(10, dm);
-            for(FavoriteIcon[] rowIcons : icons) {
-	            LinearLayout row = new LinearLayout(view.getContext());
-	            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 0);
-	            lp.weight = 1;
-	            row.setLayoutParams(lp);
-	            row.setWeightSum(rowIcons.length);
-	            for(FavoriteIcon icon : rowIcons) {
-	            	ImageView iconView = new ImageView(row.getContext());
-	            	LinearLayout.LayoutParams imageLp = new android.widget.LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
-	            	imageLp.weight = 1;
-	            	imageLp.bottomMargin = iconMargin;
-	            	imageLp.leftMargin = iconMargin;
-	            	imageLp.rightMargin = iconMargin;
-	            	imageLp.topMargin = iconMargin;
-	            	imageLp.gravity = Gravity.CENTER;
-	            	iconView.setLayoutParams(imageLp);
-	            	iconView.setTag(icon);
-	            	iconView.setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(icon.getFavoritePageResourceId(view.getContext()))));
-	            	iconView.setOnClickListener(new OnClickListener() {
-						@Override
-						public void onClick(final View v) {
-							ClickAnimation clickAnimation = new ClickAnimation(view.getContext(), v);
-							clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-								@Override
-								public void onAnimationEnd() {
-									if(clickCallback != null) {
-										clickCallback.onClick((FavoriteIcon)v.getTag());
-									}
-								}
-							});
-						}
-					});
-	            	row.addView(iconView);
-	            }
-	            view.addView(row);
-            }
-            return view;
-        }
-        
-    }
-    
-    public static class FavoriteSlideAdapter extends FragmentPagerAdapter {
-        
-        private static Integer[] slides = {
-            FavoriteIcon.FIRST_PAGE, 
-            FavoriteIcon.SECOND_PAGE
-        };
-        
-        private ClickCallback clickCallback;
-        
-        public FavoriteSlideAdapter(FragmentManager fm, ClickCallback callback) {
-            super(fm);
-            this.clickCallback = callback;
-        }
- 
-        @Override
-        public int getCount() {
-            return slides.length;
-        }
- 
-        @Override
-        public Fragment getItem(int position) {
-            return FavoriteSlideFragment.of(slides[position], clickCallback);
-        }
-        
-    }
-    
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -4610,14 +4109,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     @Override
-    protected void onActivityResult(int requestCode, int resultCode,Intent intent) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         
         if(requestCode == -1) {
             finish();
         }
         
-        Bundle extras = intent == null?null:intent.getExtras();
+        Bundle extras = intent == null ? null : intent.getExtras();
         
         if(requestCode == ON_MY_WAY && resultCode == Activity.RESULT_OK) {
         	final String emails = extras.getString(ValidationActivity.EMAILS);
@@ -4627,14 +4126,44 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         		DebugOptionsActivity.addRecipientsOfReserv(LandingActivity2.this, reserv.getRid(), emails, phones);
         	}
         }
+        else if(requestCode == FavoriteOperationActivity.FAVORITE_OPT && resultCode == Activity.RESULT_OK) {
+        	hideTripInfoPanel();
+        	MapView mapView = (MapView) findViewById(R.id.mapview);
+        	String optType = extras.getString(FavoriteOperationActivity.FAVORITE_OPT_TYPE);
+        	if(FavoriteOperationActivity.FAVORITE_UPDATE.equals(optType)) {
+	        	refreshStarredPOIs();
+	        	removePOIMarker(mapView);
+        	}
+        	else {
+        		Integer deleteId = extras.getInt(FavoriteOperationActivity.FAVORITE_POI_ID);
+        		List<Overlay> overlays = mapView.getOverlays();
+				List<Overlay> overlaysToKeep = new ArrayList<Overlay>();
+				for (Overlay overlay : overlays) {
+					boolean toKeep;
+					if (overlay instanceof POIOverlay) {
+						POIOverlay poiOverlay = (POIOverlay) overlay;
+						toKeep = !isFavoriteMark(poiOverlay.getMarker()) || poiOverlay.getAid() != deleteId;
+					} else {
+						toKeep = true;
+					}
+					if (toKeep) {
+						overlaysToKeep
+								.add(overlay);
+					}
+				}
+				overlays.clear();
+				overlays.addAll(overlaysToKeep);
+				mapView.postInvalidate();
+				refreshStarredPOIs();
+        	}
+        }
     }
     
     @Override
     public boolean onKeyDown(int keycode, KeyEvent e) {
         switch(keycode) {
             case KeyEvent.KEYCODE_MENU:
-            	if(!isInFavoriteOperation() && 
-            			findViewById(R.id.reservations_list_view).getVisibility()!=View.VISIBLE) {
+            	if(findViewById(R.id.reservations_list_view).getVisibility()!=View.VISIBLE) {
 	                final DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 	                View drawer = findViewById(R.id.left_drawer);
 	                if(mDrawerLayout.isDrawerOpen(drawer)){
@@ -4645,11 +4174,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 }
                 return true;
             case KeyEvent.KEYCODE_BACK:
-            	if(isInFavoriteOperation()) {
-            		hideFavoriteOptPanel();
-            		return true;
-            	}
-            	else if(isPopupMenuShown()) {
+            	if(isPopupMenuShown()) {
             		hidePopupMenu();
             		return true;
             	}
