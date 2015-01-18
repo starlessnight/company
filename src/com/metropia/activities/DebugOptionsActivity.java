@@ -29,6 +29,7 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -42,27 +43,27 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
+import com.localytics.android.Localytics;
 import com.metropia.SkobblerUtils;
 import com.metropia.activities.LandingActivity.ShortcutNavigationTask;
 import com.metropia.models.Reservation;
 import com.metropia.models.Trajectory;
 import com.metropia.models.Trajectory.Record;
 import com.metropia.requests.Request;
-import com.metropia.requests.TrajectoryFetchRequest;
 import com.metropia.requests.Request.Setting;
 import com.metropia.requests.ServiceDiscoveryRequest.Result;
+import com.metropia.requests.TrajectoryFetchRequest;
 import com.metropia.ui.DelayTextWatcher;
-import com.metropia.ui.NavigationView;
 import com.metropia.ui.DelayTextWatcher.TextChangeListener;
+import com.metropia.ui.NavigationView;
 import com.metropia.utils.Cache;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.GeoPoint;
+import com.metropia.utils.Geocoding.Address;
 import com.metropia.utils.Misc;
 import com.metropia.utils.RouteNode;
-import com.metropia.utils.Geocoding.Address;
-import com.metropia.activities.R;
 
-public final class DebugOptionsActivity extends Activity {
+public final class DebugOptionsActivity extends FragmentActivity {
     
     /**
      * Name of the shared preference file
@@ -148,6 +149,9 @@ public final class DebugOptionsActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.debug_options);
+        
+        // Integrate Localytics
+     	Localytics.integrate(this);
         
         prefs = getSharedPreferences(DEBUG_PREFS, MODE_PRIVATE);
         
@@ -447,6 +451,16 @@ public final class DebugOptionsActivity extends Activity {
     protected void onResume() {
         super.onResume();
         
+        Localytics.openSession();
+        Localytics.upload();
+
+        if (DebugOptionsActivity.this instanceof FragmentActivity) {
+            Localytics.setInAppMessageDisplayActivity((FragmentActivity) DebugOptionsActivity.this);
+        }
+
+        Localytics.handleTestMode(getIntent());
+        Localytics.handlePushNotificationOpened(getIntent());
+        
         int gpsMode = prefs.getInt(GPS_MODE, GPS_MODE_DEFAULT);
         
         switch (gpsMode) {
@@ -462,6 +476,16 @@ public final class DebugOptionsActivity extends Activity {
             radioRealGPS.setChecked(true);
             Log.e("DebugOptionsActivity", "Should not reach here.");
         }
+    }
+    
+    public void onPause() {
+        if (DebugOptionsActivity.this instanceof FragmentActivity) {
+            Localytics.dismissCurrentInAppMessage();
+            Localytics.clearInAppMessageDisplayActivity();
+        }
+        Localytics.closeSession();
+        Localytics.upload();
+        super.onPause();
     }
     
     private static SharedPreferences getPrefs(Context ctx){

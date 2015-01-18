@@ -3,6 +3,7 @@ package com.metropia.activities;
 import java.util.List;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -13,6 +14,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.localytics.android.Localytics;
 import com.metropia.dialogs.FloatingMenuDialog;
 import com.metropia.dialogs.GenericListDialog.ActionListener;
 import com.metropia.activities.R;
@@ -33,6 +35,8 @@ public class GenericListActivity<ItemType> extends ActionBarActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.generic_list);
+        
+        Localytics.integrate(this);
         
         initViews();
         setStatus(Status.Loading);
@@ -87,5 +91,28 @@ public class GenericListActivity<ItemType> extends ActionBarActivity {
     
     public void setListAdapter(ListAdapter adapter) {
         listViewGeneric.setAdapter(adapter);
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Localytics.openSession();
+	    Localytics.upload();
+	    if(this instanceof FragmentActivity) {
+	    	Localytics.setInAppMessageDisplayActivity(this);
+	    }
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
+    }
+    
+    @Override
+    protected void onPause() {
+    	if(this instanceof FragmentActivity) {
+	    	Localytics.dismissCurrentInAppMessage();
+		    Localytics.clearInAppMessageDisplayActivity();
+    	}
+	    Localytics.closeSession();
+	    Localytics.upload();
+        super.onPause();
     }
 }

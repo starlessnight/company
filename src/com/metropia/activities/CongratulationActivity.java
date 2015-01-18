@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
+import com.localytics.android.Localytics;
 import com.metropia.models.Reservation;
 import com.metropia.ui.ClickAnimation;
 import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
@@ -30,6 +31,8 @@ public class CongratulationActivity extends FragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.congratulation);
+		
+		Localytics.integrate(this);
 
 		AssetManager assets = getAssets();
 		boldFont = Font.getBold(assets);
@@ -173,6 +176,25 @@ public class CongratulationActivity extends FragmentActivity {
         });
         
         Font.setTypeface(boldFont, co2, mpoint, driveScore);
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+	    Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.setInAppMessageDisplayActivity(this);
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
+	}
+
+	@Override
+	public void onPause() {
+	    Localytics.dismissCurrentInAppMessage();
+	    Localytics.clearInAppMessageDisplayActivity();
+	    Localytics.closeSession();
+	    Localytics.upload();
+	    super.onPause();
 	}
 	
 }

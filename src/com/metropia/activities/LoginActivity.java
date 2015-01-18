@@ -7,13 +7,13 @@ import java.net.UnknownHostException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpResponseException;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.Html;
 import android.text.SpannableString;
@@ -29,6 +29,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.CrashlyticsUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
@@ -41,9 +42,8 @@ import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
 import com.metropia.utils.Misc;
 import com.metropia.utils.Preferences;
-import com.metropia.activities.R;
 
-public final class LoginActivity extends Activity implements OnClickListener,
+public final class LoginActivity extends FragmentActivity implements OnClickListener,
         TextWatcher {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
@@ -55,6 +55,8 @@ public final class LoginActivity extends Activity implements OnClickListener,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.user_login);
+        
+        Localytics.integrate(this);
         
         User.logout(this);
         
@@ -125,6 +127,25 @@ public final class LoginActivity extends Activity implements OnClickListener,
     public void onBackPressed(){
     	finish();
     }
+    
+    @Override
+	public void onResume() {
+		super.onResume();
+	    Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.setInAppMessageDisplayActivity(this);
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
+	}
+
+	@Override
+	public void onPause() {
+	    Localytics.dismissCurrentInAppMessage();
+	    Localytics.clearInAppMessageDisplayActivity();
+	    Localytics.closeSession();
+	    Localytics.upload();
+	    super.onPause();
+	}
 
 	@Override
 	public void onClick(View v) {

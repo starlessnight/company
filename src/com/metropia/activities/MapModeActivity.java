@@ -9,6 +9,7 @@ import android.view.View.OnClickListener;
 import android.widget.RadioButton;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.activities.R;
@@ -32,6 +33,7 @@ public final class MapModeActivity extends Activity implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    setContentView(R.layout.mapmodeoptions);
+	    Localytics.integrate(this);
 	    RadioButton rb1 = (RadioButton) findViewById(R.id.radio0);
 	    rb1.setOnClickListener(this);
 	    RadioButton rb2 = (RadioButton) findViewById(R.id.radio1);
@@ -96,6 +98,20 @@ public final class MapModeActivity extends Activity implements OnClickListener {
         finish();
 	}
 	
-	
+	@Override
+    protected void onResume() {
+        super.onResume();
+        Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
+    }
+    
+    @Override
+    protected void onPause() {
+	    Localytics.closeSession();
+	    Localytics.upload();
+        super.onPause();
+    }
 	
 }

@@ -10,6 +10,7 @@ import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.ui.ClickAnimation;
@@ -27,6 +28,8 @@ public class TermsAndPrivacyActivity extends FragmentActivity{
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.terms_and_privacy);
+		
+		Localytics.integrate(this);
 
 		AssetManager assets = getAssets();
 		boldFont = Font.getBold(assets);
@@ -102,5 +105,25 @@ public class TermsAndPrivacyActivity extends FragmentActivity{
         super.onStart();
         GoogleAnalytics.getInstance(this).reportActivityStart(this);
     }
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+	    Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.setInAppMessageDisplayActivity(this);
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
+	}
+
+	@Override
+	public void onPause() {
+	    Localytics.dismissCurrentInAppMessage();
+	    Localytics.clearInAppMessageDisplayActivity();
+	    Localytics.closeSession();
+	    Localytics.upload();
+	    super.onPause();
+	}
+
 
 }

@@ -19,6 +19,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.utils.Dimension;
@@ -38,6 +39,8 @@ public class IntroActivity extends FragmentActivity implements OnPageChangeListe
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.intro);
+        
+        Localytics.integrate(this);
         
         ViewPager mPager = (ViewPager) findViewById(R.id.pager);
         mPager.setOnPageChangeListener(this);
@@ -173,5 +176,24 @@ public class IntroActivity extends FragmentActivity implements OnPageChangeListe
         super.onStop();
         GoogleAnalytics.getInstance(this).reportActivityStop(this);
     }
+    
+    @Override
+	public void onResume() {
+		super.onResume();
+	    Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.setInAppMessageDisplayActivity(this);
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
+	}
+
+	@Override
+	public void onPause() {
+	    Localytics.dismissCurrentInAppMessage();
+	    Localytics.clearInAppMessageDisplayActivity();
+	    Localytics.closeSession();
+	    Localytics.upload();
+	    super.onPause();
+	}
 
 }

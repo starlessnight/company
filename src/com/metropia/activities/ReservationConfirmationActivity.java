@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -19,6 +20,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.activities.DebugOptionsActivity.FakeRoute;
@@ -33,7 +35,6 @@ import com.metropia.ui.menu.MainMenu;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
 import com.metropia.utils.datetime.HumanReadableTime;
-import com.metropia.activities.R;
 
 /**
  * This will popup before a user makes a reservation for a route
@@ -59,6 +60,8 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.reservation_confirmation);
+        
+        Localytics.integrate(this);
 
         Bundle extras = getIntent().getExtras();
         route = extras.getParcelable("route");
@@ -123,10 +126,23 @@ public final class ReservationConfirmationActivity extends ActionBarActivity {
 	@Override
 	protected void onResume() {
 	    super.onResume();
+	    Localytics.openSession();
+	    Localytics.upload();
+	    if(this instanceof FragmentActivity) {
+	    	Localytics.setInAppMessageDisplayActivity(this);
+	    }
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
 	}
 	
 	@Override
 	protected void onPause() {
+		if(this instanceof FragmentActivity) {
+	    	Localytics.dismissCurrentInAppMessage();
+		    Localytics.clearInAppMessageDisplayActivity();
+    	}
+	    Localytics.closeSession();
+	    Localytics.upload();
 	    super.onPause();
 	}
 	

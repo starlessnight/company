@@ -14,6 +14,7 @@ import android.webkit.WebView;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.models.User;
@@ -31,6 +32,8 @@ public class MyTripsActivity extends FragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.my_trips);
+		
+		Localytics.integrate(this);
 		
 		TextView backButton = (TextView) findViewById(R.id.back_button);
 		backButton.setOnClickListener(new OnClickListener() {
@@ -113,6 +116,25 @@ public class MyTripsActivity extends FragmentActivity {
         }else{
             finish();
         }
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+	    Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.setInAppMessageDisplayActivity(this);
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
+	}
+
+	@Override
+	public void onPause() {
+	    Localytics.dismissCurrentInAppMessage();
+	    Localytics.clearInAppMessageDisplayActivity();
+	    Localytics.closeSession();
+	    Localytics.upload();
+	    super.onPause();
 	}
 
 }

@@ -83,6 +83,7 @@ import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.Animato
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.ResumeNavigationUtils;
 import com.metropia.SendTrajectoryService;
 import com.metropia.SkobblerUtils;
@@ -258,6 +259,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		SkobblerUtils.initializeLibrary(ValidationActivity.this);
 		
 		setContentView(R.layout.post_reservation_map);
+		
+		Localytics.integrate(this);
 		
 		initSKMaps();
 		
@@ -580,6 +583,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	@Override
 	protected void onResume() {
 		super.onResume();
+		Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.setInAppMessageDisplayActivity(this);
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
 		mapView.onResume();
 
 		SharedPreferences debugPrefs = getSharedPreferences(
@@ -613,6 +621,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	protected void onPause() {
+		Localytics.dismissCurrentInAppMessage();
+	    Localytics.clearInAppMessageDisplayActivity();
+	    Localytics.closeSession();
+	    Localytics.upload();
 		super.onPause();
 		mapView.onPause();
 		unregisterReceiver(timeInfoCycler);

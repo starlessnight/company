@@ -50,6 +50,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.CalendarService;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
@@ -69,8 +70,8 @@ import com.metropia.requests.RouteFetchRequest;
 import com.metropia.tasks.GeocodingTask;
 import com.metropia.tasks.GeocodingTaskCallback;
 import com.metropia.ui.ClickAnimation;
-import com.metropia.ui.EditAddress;
 import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
+import com.metropia.ui.EditAddress;
 import com.metropia.ui.menu.MainMenu;
 import com.metropia.ui.overlays.OverlayCallback;
 import com.metropia.ui.overlays.POIOverlay;
@@ -79,12 +80,13 @@ import com.metropia.ui.overlays.RouteDestinationOverlay;
 import com.metropia.ui.overlays.RoutePathOverlay;
 import com.metropia.ui.timelayout.ScrollableTimeLayout;
 import com.metropia.ui.timelayout.TimeButton;
-import com.metropia.ui.timelayout.TimeColumn;
-import com.metropia.ui.timelayout.TimeLayout;
 import com.metropia.ui.timelayout.TimeButton.DisplayMode;
 import com.metropia.ui.timelayout.TimeButton.State;
+import com.metropia.ui.timelayout.TimeColumn;
+import com.metropia.ui.timelayout.TimeLayout;
 import com.metropia.ui.timelayout.TimeLayout.TimeLayoutListener;
 import com.metropia.ui.timelayout.TimeLayout.TimeLayoutOnSelectListener;
+import com.metropia.utils.CalendarContract.Instances;
 import com.metropia.utils.Dimension;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
@@ -95,8 +97,6 @@ import com.metropia.utils.RouteNode;
 import com.metropia.utils.RouteRect;
 import com.metropia.utils.SmartrekTileProvider;
 import com.metropia.utils.SystemService;
-import com.metropia.utils.CalendarContract.Instances;
-import com.metropia.activities.R;
 
 /**
  * 
@@ -320,6 +320,8 @@ public final class RouteActivity extends FragmentActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pre_reservation_map); 
+        
+        Localytics.integrate(this);
         
         initTimeTableDimension();
         
@@ -1038,6 +1040,11 @@ public final class RouteActivity extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.setInAppMessageDisplayActivity(this);
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
     }
     
 	@Override
@@ -1061,7 +1068,11 @@ public final class RouteActivity extends FragmentActivity {
 	
 	@Override
     protected void onPause() {
-      super.onPause();
+		Localytics.dismissCurrentInAppMessage();
+	    Localytics.clearInAppMessageDisplayActivity();
+	    Localytics.closeSession();
+	    Localytics.upload();
+	    super.onPause();
     } 
     
     @Override

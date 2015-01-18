@@ -11,13 +11,13 @@ import android.webkit.WebView;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.requests.Request;
 import com.metropia.requests.Request.Page;
 import com.metropia.utils.Font;
 import com.metropia.utils.Misc;
-import com.metropia.activities.R;
 
 public class ForgotPwdActivity extends FragmentActivity{
 	
@@ -25,6 +25,8 @@ public class ForgotPwdActivity extends FragmentActivity{
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.forgot_pwd);
+		
+		Localytics.integrate(this);
 		
 		TextView backButton = (TextView) findViewById(R.id.back_button);
 		backButton.setOnClickListener(new OnClickListener() {
@@ -80,5 +82,24 @@ public class ForgotPwdActivity extends FragmentActivity{
         super.onStop();
         GoogleAnalytics.getInstance(this).reportActivityStop(this);
     }
+    
+    @Override
+	public void onResume() {
+		super.onResume();
+	    Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.setInAppMessageDisplayActivity(this);
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
+	}
+
+	@Override
+	public void onPause() {
+	    Localytics.dismissCurrentInAppMessage();
+	    Localytics.clearInAppMessageDisplayActivity();
+	    Localytics.closeSession();
+	    Localytics.upload();
+	    super.onPause();
+	}
 	
 }

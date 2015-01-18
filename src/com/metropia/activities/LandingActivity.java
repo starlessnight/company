@@ -56,6 +56,7 @@ import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailed
 import com.google.android.gms.plus.PlusClient;
 import com.google.android.gms.plus.model.people.Person;
 import com.google.android.gms.plus.model.people.Person.Image;
+import com.localytics.android.Localytics;
 import com.metropia.CrashlyticsUtils;
 import com.metropia.activities.LandingActivity2.FavoriteIcon;
 import com.metropia.dialogs.CancelableProgressDialog;
@@ -159,6 +160,8 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.landing);
+        
+        Localytics.integrate(this);
         
         myPointOverlay = new CurrentLocationOverlay(LandingActivity.this, 0, 0, R.drawable.landing_page_current_location);
         
@@ -605,6 +608,10 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     @Override
     protected void onResume() {
         super.onResume();
+        Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
         uiHelper.onResume();
         initializeIfNeccessary(this, new Runnable() {
             @Override
@@ -1674,6 +1681,8 @@ public class LandingActivity extends Activity implements ConnectionCallbacks, On
     
     @Override
     protected void onPause() {
+	    Localytics.closeSession();
+	    Localytics.upload();
         super.onPause();
         uiHelper.onPause();
     }

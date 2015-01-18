@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.dialogs.FloatingMenuDialog;
@@ -27,7 +28,6 @@ import com.metropia.ui.ClickAnimation;
 import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.utils.Font;
 import com.metropia.utils.Misc;
-import com.metropia.activities.R;
 
 public final class MapDisplayActivity extends FragmentActivity {
 
@@ -73,6 +73,9 @@ public final class MapDisplayActivity extends FragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.mapdisplayoptions);
+		
+		// Integrate Localytics
+		Localytics.integrate(this);
 
 		AssetManager assets = getAssets();
 		boldFont = Font.getBold(assets);
@@ -340,10 +343,19 @@ public final class MapDisplayActivity extends FragmentActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.setInAppMessageDisplayActivity(this);
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
 	}
 
 	@Override
 	protected void onPause() {
+	    Localytics.dismissCurrentInAppMessage();
+	    Localytics.clearInAppMessageDisplayActivity();
+	    Localytics.closeSession();
+	    Localytics.upload();
 		super.onPause();
 	}
 	

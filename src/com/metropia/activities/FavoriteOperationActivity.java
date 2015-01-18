@@ -35,6 +35,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.activities.FavoriteOperationActivity.FavoriteSlideFragment.ClickCallback;
@@ -78,6 +79,9 @@ public class FavoriteOperationActivity extends FragmentActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.favorite_operation);
 
+		// Integrate Localytics
+		Localytics.integrate(this);
+		
 		favOptPanel = findViewById(R.id.fav_opt);
 		favSearchBox = (EditText) favOptPanel.findViewById(R.id.favorite_search_box);
 		labelIcon = (ImageView) findViewById(R.id.label_icon);
@@ -547,6 +551,25 @@ public class FavoriteOperationActivity extends FragmentActivity {
 	private boolean isFavoriteOptComplete() {
 		String favAddr = ((EditText) favOptPanel.findViewById(R.id.favorite_search_box)).getText().toString();
 		return StringUtils.isNotBlank(favAddr);
+	}
+	
+	@Override
+	public void onResume() {
+	    super.onResume();
+	    Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.setInAppMessageDisplayActivity(this);
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
+	}
+	
+	@Override
+	public void onPause() {
+	    Localytics.dismissCurrentInAppMessage();
+	    Localytics.clearInAppMessageDisplayActivity();
+	    Localytics.closeSession();
+	    Localytics.upload();
+	    super.onPause();
 	}
 	
 	@Override

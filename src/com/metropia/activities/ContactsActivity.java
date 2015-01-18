@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.ListView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.adapters.ContactItemAdapter;
@@ -28,6 +29,8 @@ public final class ContactsActivity extends ListActivity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		Localytics.integrate(this);
 		
 		getListView().setBackgroundDrawable(getResources().getDrawable(R.drawable.background_gradient));
 		
@@ -91,4 +94,20 @@ public final class ContactsActivity extends ListActivity {
 		MainMenu.onMenuItemSelected(this, featureId, item);
 		return super.onMenuItemSelected(featureId, item);
 	}
+	
+	@Override
+    protected void onResume() {
+        super.onResume();
+        Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
+    }
+    
+    @Override
+    protected void onPause() {
+	    Localytics.closeSession();
+	    Localytics.upload();
+        super.onPause();
+    }
 }

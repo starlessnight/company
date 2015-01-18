@@ -16,6 +16,7 @@ import android.graphics.drawable.ClipDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -30,6 +31,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.dialogs.FloatingMenuDialog;
@@ -37,20 +39,19 @@ import com.metropia.dialogs.ShareDialog;
 import com.metropia.models.Reservation;
 import com.metropia.models.User;
 import com.metropia.requests.AwardsFetchRequest;
+import com.metropia.requests.AwardsFetchRequest.Award;
 import com.metropia.requests.Request;
 import com.metropia.requests.RewardsFetchRequest;
-import com.metropia.requests.TrekpointFetchRequest;
-import com.metropia.requests.ValidatedReservationsFetchRequest;
-import com.metropia.requests.AwardsFetchRequest.Award;
 import com.metropia.requests.RewardsFetchRequest.Reward;
+import com.metropia.requests.TrekpointFetchRequest;
 import com.metropia.requests.TrekpointFetchRequest.Trekpoint;
+import com.metropia.requests.ValidatedReservationsFetchRequest;
 import com.metropia.ui.menu.MainMenu;
 import com.metropia.utils.Cache;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
 import com.metropia.utils.HTTP;
 import com.metropia.utils.Misc;
-import com.metropia.activities.R;
 
 public final class DashboardActivity extends ActionBarActivity {
     
@@ -84,6 +85,9 @@ public final class DashboardActivity extends ActionBarActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dashboard);
+        
+        Localytics.integrate(this);
+        
         final TextView trekpointsLabel = (TextView) findViewById(R.id.trekpoints_label);
         final User user = User.getCurrentUser(this);
         final int uid = user.getId();
@@ -781,6 +785,29 @@ public final class DashboardActivity extends ActionBarActivity {
 	
 	private static String getReservationDescription(Reservation r){
         return r.getFormattedDepartureTime() + ", "  + r.getCredits() + " trekpoints";
+    }
+	
+	@Override
+    protected void onResume() {
+        super.onResume();
+        Localytics.openSession();
+	    Localytics.upload();
+	    if(this instanceof FragmentActivity) {
+	    	Localytics.setInAppMessageDisplayActivity(this);
+	    }
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
+    }
+    
+    @Override
+    protected void onPause() {
+    	if(this instanceof FragmentActivity) {
+	    	Localytics.dismissCurrentInAppMessage();
+		    Localytics.clearInAppMessageDisplayActivity();
+    	}
+	    Localytics.closeSession();
+	    Localytics.upload();
+        super.onPause();
     }
 	
 	@Override

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.models.User;
@@ -26,6 +27,8 @@ public final class ContactDetailsActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.contact_details);
+		
+		Localytics.integrate(this);
 		
 		Bundle extras = getIntent().getExtras();
 		user = (User) extras.getParcelable("user");
@@ -54,4 +57,20 @@ public final class ContactDetailsActivity extends Activity {
 		super.onStop();
 		GoogleAnalytics.getInstance(this).reportActivityStop(this);
 	}
+	
+	@Override
+    protected void onResume() {
+        super.onResume();
+        Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
+    }
+    
+    @Override
+    protected void onPause() {
+	    Localytics.closeSession();
+	    Localytics.upload();
+        super.onPause();
+    }
 }

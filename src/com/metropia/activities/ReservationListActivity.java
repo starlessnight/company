@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -24,6 +25,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.dialogs.NotificationDialog2;
@@ -34,7 +36,6 @@ import com.metropia.requests.ReservationListFetchRequest;
 import com.metropia.ui.menu.MainMenu;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
-import com.metropia.activities.R;
 
 /**
  * Shows a list of reserved routes
@@ -51,6 +52,8 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        Localytics.integrate(this);
         
 //        listViewGeneric.setOnRefreshListener(new OnRefreshListener() {
 //
@@ -87,8 +90,25 @@ public final class ReservationListActivity extends GenericListActivity<Reservati
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
 		debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
+		Localytics.openSession();
+	    Localytics.upload();
+	    if(this instanceof FragmentActivity) {
+	    	Localytics.setInAppMessageDisplayActivity(this);
+	    }
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
+	}
+	
+	@Override
+	protected void onPause() {
+		if(this instanceof FragmentActivity) {
+		   	Localytics.dismissCurrentInAppMessage();
+		    Localytics.clearInAppMessageDisplayActivity();
+	    }
+		Localytics.closeSession();
+		Localytics.upload();
+	    super.onPause();
 	}
 	
 	@Override

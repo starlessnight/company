@@ -17,6 +17,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.Time;
@@ -36,6 +37,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.dialogs.FavoriteAddressEditDialog;
@@ -64,7 +66,6 @@ import com.metropia.utils.GeoPoint;
 import com.metropia.utils.Misc;
 import com.metropia.utils.Preferences;
 import com.metropia.utils.SystemService;
-import com.metropia.activities.R;
 
 /**
  * This Activity is the home screen for the Smartrek Application. From this
@@ -111,6 +112,8 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    setContentView(R.layout.home);
+	    
+	    Localytics.integrate(this);
 	    
 	    /***************Start EditText Fields********************/
 	    
@@ -809,10 +812,23 @@ public final class HomeActivity extends ActionBarActivity implements TextWatcher
     @Override
     protected void onResume() {
         super.onResume();
+        Localytics.openSession();
+	    Localytics.upload();
+	    if(this instanceof FragmentActivity) {
+	    	Localytics.setInAppMessageDisplayActivity(this);
+	    }
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
     }
     
     @Override
     protected void onPause() {
+    	if(this instanceof FragmentActivity) {
+	    	Localytics.dismissCurrentInAppMessage();
+		    Localytics.clearInAppMessageDisplayActivity();
+    	}
+	    Localytics.closeSession();
+	    Localytics.upload();
         super.onPause();
     }
     

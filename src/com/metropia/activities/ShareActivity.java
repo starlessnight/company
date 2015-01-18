@@ -28,6 +28,7 @@ import com.facebook.UiLifecycleHelper;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.plus.PlusShare;
+import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.dialogs.NotificationDialog2;
@@ -82,6 +83,8 @@ public final class ShareActivity extends FragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.share);
+		
+		Localytics.integrate(this);
 
 		AssetManager assets = getAssets();
 		boldFont = Font.getBold(assets);
@@ -413,6 +416,11 @@ public final class ShareActivity extends FragmentActivity {
     public void onResume() {
         super.onResume();
         uiHelper.onResume();
+        Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.setInAppMessageDisplayActivity(this);
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
     }
 
     @Override
@@ -426,6 +434,10 @@ public final class ShareActivity extends FragmentActivity {
 
     @Override
     public void onPause() {
+    	Localytics.dismissCurrentInAppMessage();
+	    Localytics.clearInAppMessageDisplayActivity();
+	    Localytics.closeSession();
+	    Localytics.upload();
         super.onPause();
         uiHelper.onPause();
     }

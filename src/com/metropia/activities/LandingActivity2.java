@@ -100,6 +100,7 @@ import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
+import com.localytics.android.Localytics;
 import com.metropia.CalendarService;
 import com.metropia.ResumeNavigationUtils;
 import com.metropia.SmarTrekApplication;
@@ -282,6 +283,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.landing2);
+        
+        Localytics.integrate(this);
         
         registerReceiver(tripInfoCachedUpdater, new IntentFilter(TRIP_INFO_CACHED_UPDATES));
         registerReceiver(updateMyLocation, new IntentFilter(UPDATE_MY_LOCATION));
@@ -2377,6 +2380,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     @Override
     protected void onResume() {
         super.onResume();
+        Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.setInAppMessageDisplayActivity(this);
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
         registerReceiver(tripInfoUpdater, new IntentFilter(TRIP_INFO_UPDATES));
         registerReceiver(onTheWayNotifier, new IntentFilter(ON_THE_WAY_NOTICE));
         mapRefresh.set(true);
@@ -2413,16 +2421,20 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     @Override
     protected void onPause() {
-      unregisterReceiver(tripInfoUpdater);
-      unregisterReceiver(onTheWayNotifier);
-      super.onPause();
-      mSensorManager.unregisterListener(this, accelerometer);
-      mSensorManager.unregisterListener(this, magnetometer);
-      closeGPS();
-      drawedReservId = Long.valueOf(-1);
-      dismissReservId = Long.valueOf(-1);
-      refreshTripsInfo(true, true);
-      hidePopupMenu();
+    	Localytics.dismissCurrentInAppMessage();
+	    Localytics.clearInAppMessageDisplayActivity();
+	    Localytics.closeSession();
+	    Localytics.upload();
+	    unregisterReceiver(tripInfoUpdater);
+	    unregisterReceiver(onTheWayNotifier);
+	    super.onPause();
+	    mSensorManager.unregisterListener(this, accelerometer);
+	    mSensorManager.unregisterListener(this, magnetometer);
+	    closeGPS();
+	    drawedReservId = Long.valueOf(-1);
+	    dismissReservId = Long.valueOf(-1);
+	    refreshTripsInfo(true, true);
+	    hidePopupMenu();
     } 
     
     private void refreshTripsInfo(){

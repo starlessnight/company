@@ -55,6 +55,8 @@
             android:name="CLOUDMADE_KEY"
             android:value="0645c6d9b7aa4ba297816678f0571833" />
         
+        <meta-data android:name="LOCALYTICS_APP_KEY" android:value="9160916c09e4598cf6c2ebf-2940b25a-9a16-11e4-5186-00a426b17dd8"/>
+        
         <activity
             android:name="org.acra.CrashReportDialog"
             android:excludeFromRecents="true"
@@ -296,10 +298,24 @@
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-
                 <category android:name="com.metropia.activities" />
             </intent-filter>
         </receiver>
+        
+        <receiver
+   			android:name="com.localytics.android.PushReceiver"
+   			android:permission="com.google.android.c2dm.permission.SEND" >
+      		<intent-filter>
+         		<action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+         		<action android:name="com.google.android.c2dm.intent.RECEIVE" />               
+         		<category android:name="com.metropia.activities" />
+      		</intent-filter>
+		</receiver>
+		<receiver android:name="com.localytics.android.ReferralReceiver" android:exported="true">
+      		<intent-filter>
+        		<action android:name="com.android.vending.INSTALL_REFERRER" />
+      		</intent-filter>
+		</receiver>
 
         <service android:name=".GCMIntentService" />
         <service android:name="com.metropia.SendTrajectoryService" />

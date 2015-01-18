@@ -2,17 +2,18 @@ package com.metropia.activities;
 
 import org.apache.commons.lang3.StringUtils;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.dialogs.CancelableProgressDialog;
@@ -23,9 +24,8 @@ import com.metropia.ui.EditAddress;
 import com.metropia.utils.Font;
 import com.metropia.utils.GeoPoint;
 import com.metropia.utils.Misc;
-import com.metropia.activities.R;
 
-public final class PreTripAlertActivity extends Activity {
+public final class PreTripAlertActivity extends FragmentActivity {
 	
     public static final String URL = "url";
     
@@ -35,6 +35,8 @@ public final class PreTripAlertActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pretrip_alert);
+        
+        Localytics.integrate(this);
         
         Bundle extras = getIntent().getExtras();
         
@@ -123,5 +125,24 @@ public final class PreTripAlertActivity extends Activity {
         super.onStop();
         GoogleAnalytics.getInstance(this).reportActivityStop(this);
     }
+    
+	@Override
+	public void onResume() {
+		super.onResume();
+	    Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.setInAppMessageDisplayActivity(this);
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
+	}
+
+	@Override
+	public void onPause() {
+	    Localytics.dismissCurrentInAppMessage();
+	    Localytics.clearInAppMessageDisplayActivity();
+	    Localytics.closeSession();
+	    Localytics.upload();
+	    super.onPause();
+	}
 	
 }

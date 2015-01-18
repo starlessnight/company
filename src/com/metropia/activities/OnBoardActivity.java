@@ -38,6 +38,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.activities.LandingActivity2.BalloonModel;
@@ -104,6 +105,8 @@ public class OnBoardActivity extends FragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.on_board);
+		
+		Localytics.integrate(this);
 		
 		mapView = (MapView) findViewById(R.id.mapview);
 		contentPanel = findViewById(R.id.content_panel);
@@ -924,11 +927,20 @@ public class OnBoardActivity extends FragmentActivity {
     @Override
     public void onResume() {
     	super.onResume();
+    	Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.setInAppMessageDisplayActivity(this);
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
     	prepareGPS();
     }
     
     @Override
     public void onPause() {
+    	Localytics.dismissCurrentInAppMessage();
+	    Localytics.clearInAppMessageDisplayActivity();
+	    Localytics.closeSession();
+	    Localytics.upload();
     	super.onPause();
     	closeGPS();
     }

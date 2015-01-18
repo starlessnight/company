@@ -2,13 +2,13 @@ package com.metropia.activities;
 
 import org.apache.commons.lang3.StringUtils;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.WebView;
@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.requests.Request;
@@ -25,9 +26,8 @@ import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
 import com.metropia.utils.HTTP;
 import com.metropia.utils.Preferences;
-import com.metropia.activities.R;
 
-public class LicenseAgreementActivity extends Activity {
+public class LicenseAgreementActivity extends FragmentActivity {
     
     /**
      * Request code
@@ -57,6 +57,8 @@ public class LicenseAgreementActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.license_agreement);
+        
+        Localytics.integrate(this);
         
         buttonAgree = (Button) findViewById(R.id.button_agree);
         buttonAgree.setOnClickListener(new OnClickListener() {
@@ -138,6 +140,25 @@ public class LicenseAgreementActivity extends Activity {
 	public void onStop() {
 		super.onStop();
 		GoogleAnalytics.getInstance(this).reportActivityStop(this);
+	}
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+	    Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.setInAppMessageDisplayActivity(this);
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
+	}
+
+	@Override
+	public void onPause() {
+	    Localytics.dismissCurrentInAppMessage();
+	    Localytics.clearInAppMessageDisplayActivity();
+	    Localytics.closeSession();
+	    Localytics.upload();
+	    super.onPause();
 	}
 	
 	private static class Result {

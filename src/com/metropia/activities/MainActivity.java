@@ -4,13 +4,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -20,6 +20,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.CrashlyticsUtils;
 import com.metropia.SkobblerUtils;
 import com.metropia.SmarTrekApplication;
@@ -29,16 +30,15 @@ import com.metropia.dialogs.NotificationDialog2.ActionListener;
 import com.metropia.models.User;
 import com.metropia.requests.Request;
 import com.metropia.requests.ServiceDiscoveryRequest;
-import com.metropia.requests.UserIdRequest;
 import com.metropia.requests.ServiceDiscoveryRequest.Result;
+import com.metropia.requests.UserIdRequest;
 import com.metropia.tasks.LoginTask;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Misc;
 import com.metropia.utils.Preferences;
 import com.skobbler.ngx.SKPrepareMapTextureListener;
-import com.metropia.activities.R;
 
-public class MainActivity extends Activity implements AnimationListener, SKPrepareMapTextureListener {
+public class MainActivity extends FragmentActivity implements AnimationListener, SKPrepareMapTextureListener {
 	
 	public static final String LOG_TAG = "MainActivity";
 	
@@ -61,6 +61,9 @@ public class MainActivity extends Activity implements AnimationListener, SKPrepa
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		// Integrate Localytics
+		Localytics.integrate(this);
 		
 		//init Time button dimension
 		Misc.initTimeButtonDimension(MainActivity.this);
@@ -322,6 +325,19 @@ public class MainActivity extends Activity implements AnimationListener, SKPrepa
         finish();
 	}
 	
+	public void onResume(){
+	    super.onResume();
+	    Localytics.openSession();
+	    Localytics.upload();
+	    
+	    if (MainActivity.this instanceof FragmentActivity) {
+	        Localytics.setInAppMessageDisplayActivity((FragmentActivity) MainActivity.this);
+	    }
+
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
+	}
+	
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -330,9 +346,26 @@ public class MainActivity extends Activity implements AnimationListener, SKPrepa
 	}
 	
 	@Override
+	public void onPause() {
+	    if (MainActivity.this instanceof FragmentActivity) {
+	        Localytics.dismissCurrentInAppMessage();
+	        Localytics.clearInAppMessageDisplayActivity();
+	    }
+	    Localytics.closeSession();
+	    Localytics.upload();
+	    super.onPause();
+	}
+	
+	@Override
 	public void onStop() {
 		super.onStop();
 		GoogleAnalytics.getInstance(this).reportActivityStop(this);
+	}
+	
+	@Override
+	protected void onNewIntent(Intent intent) {
+	   super.onNewIntent(intent);
+	   setIntent(intent);
 	}
 
 	@Override

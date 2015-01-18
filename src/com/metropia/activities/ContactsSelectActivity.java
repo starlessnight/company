@@ -52,6 +52,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.ContactListService;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
@@ -88,6 +89,8 @@ public class ContactsSelectActivity extends FragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.contacts_select);
+		
+		Localytics.integrate(this);
 		
 		AssetManager assets = getAssets();
 		boldFont = Font.getBold(assets);
@@ -517,7 +520,21 @@ public class ContactsSelectActivity extends FragmentActivity {
 	}
 	
 	@Override
+	public void onResume() {
+		super.onResume();
+	    Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.setInAppMessageDisplayActivity(this);
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
+	}
+	
+	@Override
 	protected void onPause() {
+		Localytics.dismissCurrentInAppMessage();
+	    Localytics.clearInAppMessageDisplayActivity();
+	    Localytics.closeSession();
+	    Localytics.upload();
 		super.onPause();
 		setResult(Activity.RESULT_CANCELED);
 		finish();

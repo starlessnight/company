@@ -14,13 +14,13 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.ui.ClickAnimation;
 import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.utils.Font;
 import com.metropia.utils.Misc;
-import com.metropia.activities.R;
 
 public class HelpOurResearchActivity extends FragmentActivity {
 	
@@ -35,6 +35,8 @@ public class HelpOurResearchActivity extends FragmentActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.help_our_research);
+		
+		Localytics.integrate(this);
 		
 		AssetManager assets = getAssets();
 		boldFont = Font.getBold(assets);
@@ -131,5 +133,24 @@ public class HelpOurResearchActivity extends FragmentActivity {
         super.onStart();
         GoogleAnalytics.getInstance(this).reportActivityStart(this);
     }
+	
+	@Override
+	public void onResume() {
+		super.onResume();
+	    Localytics.openSession();
+	    Localytics.upload();
+	    Localytics.setInAppMessageDisplayActivity(this);
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
+	}
+
+	@Override
+	public void onPause() {
+	    Localytics.dismissCurrentInAppMessage();
+	    Localytics.clearInAppMessageDisplayActivity();
+	    Localytics.closeSession();
+	    Localytics.upload();
+	    super.onPause();
+	}
 	
 }

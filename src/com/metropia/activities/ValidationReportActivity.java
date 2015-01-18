@@ -1,6 +1,7 @@
 package com.metropia.activities;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -11,6 +12,7 @@ import com.actionbarsherlock.view.MenuItem;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.dialogs.ShareDialog;
@@ -20,7 +22,6 @@ import com.metropia.models.User;
 import com.metropia.ui.menu.MainMenu;
 import com.metropia.utils.Font;
 import com.metropia.utils.Misc;
-import com.metropia.activities.R;
 
 public final class ValidationReportActivity extends ActionBarActivity {
     
@@ -32,6 +33,8 @@ public final class ValidationReportActivity extends ActionBarActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.validation_report);
+        
+        Localytics.integrate(this);
         
         Bundle extras = getIntent().getExtras();
         route = extras.getParcelable("route");
@@ -126,5 +129,28 @@ public final class ValidationReportActivity extends ActionBarActivity {
 	    
 	    MainMenu.onMenuItemSelected(this, 0, R.id.dashboard);
 	}
+	
+	@Override
+    protected void onResume() {
+        super.onResume();
+        Localytics.openSession();
+	    Localytics.upload();
+	    if(this instanceof FragmentActivity) {
+	    	Localytics.setInAppMessageDisplayActivity(this);
+	    }
+	    Localytics.handleTestMode(getIntent());
+	    Localytics.handlePushNotificationOpened(getIntent());
+    }
+    
+    @Override
+    protected void onPause() {
+    	if(this instanceof FragmentActivity) {
+	    	Localytics.dismissCurrentInAppMessage();
+		    Localytics.clearInAppMessageDisplayActivity();
+    	}
+	    Localytics.closeSession();
+	    Localytics.upload();
+        super.onPause();
+    }
 	
 }
