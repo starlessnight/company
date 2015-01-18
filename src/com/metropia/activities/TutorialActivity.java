@@ -1,9 +1,6 @@
 package com.metropia.activities;
 
-import java.io.InputStream;
-
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -36,7 +33,7 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
 	public static final Integer TUTORIAL_FINISH = Integer.valueOf(1);
 	
 	private static final SlideMarginInfo[] indicatorMargins = new SlideMarginInfo[] {
-		SlideMarginInfo.of(RelativeLayout.ALIGN_PARENT_BOTTOM, 0, LayoutParams.MATCH_PARENT, 0, 80, 0, 0), 
+		SlideMarginInfo.of(RelativeLayout.ALIGN_PARENT_BOTTOM, 0, LayoutParams.MATCH_PARENT, 0, 120, 0, 0), 
 		SlideMarginInfo.of(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.ALIGN_PARENT_RIGHT, LayoutParams.WRAP_CONTENT, 0, 200, 0, 10),
 		SlideMarginInfo.of(RelativeLayout.ALIGN_PARENT_BOTTOM, 0, LayoutParams.MATCH_PARENT, 0, 250, 0, 0)
 	};
