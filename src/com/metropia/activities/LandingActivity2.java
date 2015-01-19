@@ -3277,7 +3277,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             @Override
             protected void onPostExecute(City result) {
                 if(result != null && StringUtils.isNotBlank(result.html)){
-                	serviceArea.set(false);
+//                	serviceArea.set(false);
                 	outOfServiceHtml = result.html;
                     if(alertAvailability){
                         CharSequence msg = Html.fromHtml(result.html);
