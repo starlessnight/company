@@ -85,6 +85,10 @@ public final class PreTripAlertActivity extends FragmentActivity {
                             extras.putBoolean(RouteActivity.CURRENT_LOCATION, StringUtils.equalsIgnoreCase(EditAddress.CURRENT_LOCATION, reserv.getOriginAddress()));
                             extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
                             extras.putString("originAddr", reserv.getOriginAddress());
+                            try {
+                            	extras.putParcelable(RouteActivity.ORIGIN_COORD, reserv.getStartGpFromNavLink());
+                            }
+                            catch(Exception ignore) {}
                             extras.putString("destAddr", reserv.getDestinationAddress());
                             extras.putParcelable(RouteActivity.DEST_COORD, new GeoPoint(reserv.getEndlat(), reserv.getEndlon()));
                             intent.putExtras(extras);
