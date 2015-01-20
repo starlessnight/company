@@ -109,6 +109,19 @@
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar"
             android:launchMode="singleTask" />
+        <activity 
+            android:name=".CheckLoginActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:launchMode="singleTask">
+            <intent-filter>
+		        <action android:name="android.intent.action.VIEW" />
+		        <category android:name="android.intent.category.DEFAULT" />
+		        <category android:name="android.intent.category.BROWSABLE" />
+		        <data android:host="metropia.app" android:scheme="com.metropiamobile"/>
+		    </intent-filter>
+        </activity>
         <activity
             android:name=".LandingActivity2"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
@@ -123,7 +136,6 @@
 		        <data android:scheme="http" android:host="maps.google.com"/>
 		        <data android:scheme="geo"/>
 		        <data android:scheme="google.navigation" />
-		        <data android:host="metropia.app" android:scheme="com.metropiamobile" />
 		    </intent-filter>
         </activity>
         <activity
