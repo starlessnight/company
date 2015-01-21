@@ -157,6 +157,9 @@ public class FavoriteOperationActivity extends FragmentActivity {
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
+						Intent result = new Intent();
+						result.putExtra(FAVORITE_OPT_TYPE, "");
+						setResult(Activity.RESULT_OK, result);
 						finish();
 					}
 				});

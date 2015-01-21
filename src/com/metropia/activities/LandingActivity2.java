@@ -4148,7 +4148,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	        	refreshStarredPOIs();
 	        	removePOIMarker(mapView);
         	}
-        	else {
+        	else if(FavoriteOperationActivity.FAVORITE_DELETE.equals(optType)) {
         		Integer deleteId = extras.getInt(FavoriteOperationActivity.FAVORITE_POI_ID);
         		List<Overlay> overlays = mapView.getOverlays();
 				List<Overlay> overlaysToKeep = new ArrayList<Overlay>();
@@ -4169,6 +4169,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				overlays.addAll(overlaysToKeep);
 				mapView.postInvalidate();
 				refreshStarredPOIs();
+        	}
+        	else {
+        		removePOIMarker(mapView);
         	}
         }
     }
