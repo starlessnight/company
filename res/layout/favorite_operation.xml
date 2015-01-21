@@ -79,7 +79,7 @@
                         android:textColor="@android:color/white"
                         android:textSize="@dimen/smallest_font" />
 
-                    <EditText
+                    <TextView
                         android:id="@+id/favorite_search_box"
                         android:layout_width="match_parent"
                         android:layout_height="42dp"

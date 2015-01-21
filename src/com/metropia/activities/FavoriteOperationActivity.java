@@ -70,7 +70,7 @@ public class FavoriteOperationActivity extends FragmentActivity {
 
 	private View favOptPanel;
 	private ImageView labelIcon;
-	private EditText favSearchBox;
+	private TextView favSearchBox;
 	private GeoPoint lastLocation;
 	private View loadingPanel;
 
@@ -83,7 +83,7 @@ public class FavoriteOperationActivity extends FragmentActivity {
 		Localytics.integrate(this);
 		
 		favOptPanel = findViewById(R.id.fav_opt);
-		favSearchBox = (EditText) favOptPanel.findViewById(R.id.favorite_search_box);
+		favSearchBox = (TextView) favOptPanel.findViewById(R.id.favorite_search_box);
 		labelIcon = (ImageView) findViewById(R.id.label_icon);
 		
 		Bundle extras = getIntent().getExtras();
@@ -185,7 +185,7 @@ public class FavoriteOperationActivity extends FragmentActivity {
 								label = "Favorite";
 							}
 							final String lbl = label;
-							final String addr = ((EditText) favOptPanel.findViewById(R.id.favorite_search_box)).getText().toString();
+							final String addr = ((TextView) favOptPanel.findViewById(R.id.favorite_search_box)).getText().toString();
 							final FavoriteIcon icon = (FavoriteIcon) favOptPanel.findViewById(R.id.icon).getTag();
 							AsyncTask<Void, Void, Integer> task = new AsyncTask<Void, Void, Integer>() {
 								@Override
@@ -356,7 +356,8 @@ public class FavoriteOperationActivity extends FragmentActivity {
 
 		AssetManager assets = getAssets();
 		Font.setTypeface(Font.getMedium(assets), favSearchBox, labelInput, (TextView) findViewById(R.id.favorite_address_desc),
-				favSave, (TextView) findViewById(R.id.label), (TextView)findViewById(R.id.fav_cancel), (TextView)findViewById(R.id.header));
+				favSave, (TextView) findViewById(R.id.label), (TextView)findViewById(R.id.fav_cancel), (TextView)findViewById(R.id.header), 
+				(TextView)findViewById(R.id.icon));
 		
 		((SmarTrekApplication)getApplication()).getTracker(TrackerName.APP_TRACKER);
 	}
@@ -371,9 +372,9 @@ public class FavoriteOperationActivity extends FragmentActivity {
 	    		labelIcon.setVisibility(View.VISIBLE);
 	    		labelIcon.setImageResource(icon.getResourceId(FavoriteOperationActivity.this));
 	    	}
-	    	EditText favSearchBox = (EditText) favOptPanel.findViewById(R.id.favorite_search_box); 
+	    	TextView favSearchBox = (TextView) favOptPanel.findViewById(R.id.favorite_search_box); 
 	    	favSearchBox.setText(info.address);
-	    	favSearchBox.setEnabled(false);
+	    	favSearchBox.setTextIsSelectable(true);
 	    	favOptPanel.findViewById(R.id.fav_save).setVisibility(StringUtils.isNotBlank(info.address) ? View.VISIBLE : View.GONE);
 	    	favOptPanel.findViewById(R.id.fav_del_panel).setVisibility(info.id!=0 ? View.VISIBLE : View.GONE);
 	    	((TextView)favOptPanel.findViewById(R.id.header)).setText(info.id!=0 ? "Edit Favorite" : "Save Favorite");
@@ -552,7 +553,7 @@ public class FavoriteOperationActivity extends FragmentActivity {
 	}
 
 	private boolean isFavoriteOptComplete() {
-		String favAddr = ((EditText) favOptPanel.findViewById(R.id.favorite_search_box)).getText().toString();
+		String favAddr = ((TextView) favOptPanel.findViewById(R.id.favorite_search_box)).getText().toString();
 		return StringUtils.isNotBlank(favAddr);
 	}
 	
