@@ -8,7 +8,7 @@
 	    android:id="@+id/image"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
-		android:src="@drawable/intro_1"
+		android:src="@drawable/introduction_1"
 		android:layout_gravity="center_horizontal"
 		android:scaleType="fitXY"/>
       	

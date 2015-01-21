@@ -55,7 +55,6 @@ import com.metropia.CalendarService;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.activities.DebugOptionsActivity.FakeRoute;
-import com.metropia.activities.LandingActivity.ShortcutNavigationTask;
 import com.metropia.activities.LandingActivity2.PoiOverlayInfo;
 import com.metropia.dialogs.CancelableProgressDialog;
 import com.metropia.dialogs.NotificationDialog2;
@@ -69,6 +68,7 @@ import com.metropia.requests.ReservationRequest;
 import com.metropia.requests.RouteFetchRequest;
 import com.metropia.tasks.GeocodingTask;
 import com.metropia.tasks.GeocodingTaskCallback;
+import com.metropia.tasks.ShortcutNavigationTask;
 import com.metropia.ui.ClickAnimation;
 import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.ui.EditAddress;
@@ -445,7 +445,7 @@ public final class RouteActivity extends FragmentActivity {
                     }
                 };
                 if(hasReservId){
-                    LandingActivity.initializeIfNeccessary(this, new Runnable() {
+                    User.initializeIfNeccessary(this, new Runnable() {
                         @Override
                         public void run() {
                             AsyncTask<Void, Void, List<Reservation>> tripTask = new AsyncTask<Void, Void, List<Reservation>>(){
@@ -628,7 +628,7 @@ public final class RouteActivity extends FragmentActivity {
             }
             
             final boolean _currentLocation = currentLocation;
-            LandingActivity.initializeIfNeccessary(this, new Runnable() {
+            User.initializeIfNeccessary(this, new Runnable() {
                 @Override
                 public void run() {
                 	if(originCoord != null && destCoord != null) {
@@ -770,7 +770,7 @@ public final class RouteActivity extends FragmentActivity {
 		                        }
 		                        else {
 		                            deleteRescheduledReservation();
-		                            ReservationConfirmationActivity.scheduleNotification(RouteActivity.this, result, route);
+		                            Reservation.scheduleNotification(RouteActivity.this, result, route);
 		                            
 		                            if(route.isFake()){
 		                                FakeRoute fakeRoute = new FakeRoute();
@@ -781,8 +781,7 @@ public final class RouteActivity extends FragmentActivity {
 		                            
 		                            removeTerminateReservationId(result);
 		                            Misc.suppressTripInfoPanel(RouteActivity.this);
-		                            Intent intent = new Intent(RouteActivity.this, 
-		                                LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
+		                            Intent intent = new Intent(RouteActivity.this, LandingActivity2.class);
 		                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		                            startActivity(intent);
 		                            
@@ -1631,64 +1630,64 @@ public final class RouteActivity extends FragmentActivity {
     	}
     }
     
-    private class RouteOverlayCallbackImpl implements OverlayCallback {
-
-        private Route route;
-        private int routeNum;
-        
-        public RouteOverlayCallbackImpl(Route route, int routeNum) {
-            this.route = route;
-            this.routeNum = routeNum;
-        }
-        
-        @Override
-        public boolean onBalloonTap(int index, OverlayItem item) {
-        	Log.d("RouteActivity.RouteOverlayCallbackImpl", "onBalloonTap()");
-        	for (RouteTask task : routeTasks) {
-                task.cancel(true);
-            }
-        	Misc.suppressTripInfoPanel(RouteActivity.this);
-            Intent intent = new Intent(RouteActivity.this, ReservationConfirmationActivity.class);
-            Bundle extras = new Bundle();
-            extras.putParcelable("route", route);
-            intent.putExtras(extras);
-            startActivityForResult(intent, RESERVATION_CONFIRM);
-            return true;
-        }
-
-        @Override
-        public void onChange() {
-            /*for (int i = 0; i < routeInfoOverlays.length; i++) {
-                RouteInfoOverlay routeInfoOverlay = routeInfoOverlays[i];
-                if (routeInfoOverlay != null) {
-                    routeInfoOverlay.showOverlay();
-                }
-            }*/
-        }
-        
-        @Override
-        public boolean onTap(int index) {
-        	Log.d("RouteActivity.RouteOverlayCallbackImpl", "onTap()");
-            // Highlight selected route path
-        	setHighlightedRoutePathOverlays(false);
-            routePathOverlays[routeNum].setHighlighted(true);
-            //mapView.getController().setCenter(routeInfoOverlays[routeNum].getGeoPoint());
-            
-            return true;
-        }
-
-		@Override
-		public boolean onClose() {
-			Log.d("RouteActivity.RouteOverlayCallbackImpl", "onClose()");
-			setHighlightedRoutePathOverlays(true);
-			mapView.invalidate();
-			
-			return true;
-		}
-
-        @Override
-        public boolean onLongPress(int index, OverlayItem item) {
-            return false;
-        }
-    }
+//    private class RouteOverlayCallbackImpl implements OverlayCallback {
+//
+//        private Route route;
+//        private int routeNum;
+//        
+//        public RouteOverlayCallbackImpl(Route route, int routeNum) {
+//            this.route = route;
+//            this.routeNum = routeNum;
+//        }
+//        
+//        @Override
+//        public boolean onBalloonTap(int index, OverlayItem item) {
+//        	Log.d("RouteActivity.RouteOverlayCallbackImpl", "onBalloonTap()");
+//        	for (RouteTask task : routeTasks) {
+//                task.cancel(true);
+//            }
+//        	Misc.suppressTripInfoPanel(RouteActivity.this);
+//            Intent intent = new Intent(RouteActivity.this, ReservationConfirmationActivity.class);
+//            Bundle extras = new Bundle();
+//            extras.putParcelable("route", route);
+//            intent.putExtras(extras);
+//            startActivityForResult(intent, RESERVATION_CONFIRM);
+//            return true;
+//        }
+//
+//        @Override
+//        public void onChange() {
+//            /*for (int i = 0; i < routeInfoOverlays.length; i++) {
+//                RouteInfoOverlay routeInfoOverlay = routeInfoOverlays[i];
+//                if (routeInfoOverlay != null) {
+//                    routeInfoOverlay.showOverlay();
+//                }
+//            }*/
+//        }
+//        
+//        @Override
+//        public boolean onTap(int index) {
+//        	Log.d("RouteActivity.RouteOverlayCallbackImpl", "onTap()");
+//            // Highlight selected route path
+//        	setHighlightedRoutePathOverlays(false);
+//            routePathOverlays[routeNum].setHighlighted(true);
+//            //mapView.getController().setCenter(routeInfoOverlays[routeNum].getGeoPoint());
+//            
+//            return true;
+//        }
+//
+//		@Override
+//		public boolean onClose() {
+//			Log.d("RouteActivity.RouteOverlayCallbackImpl", "onClose()");
+//			setHighlightedRoutePathOverlays(true);
+//			mapView.invalidate();
+//			
+//			return true;
+//		}
+//
+//        @Override
+//        public boolean onLongPress(int index, OverlayItem item) {
+//            return false;
+//        }
+//    }
 }

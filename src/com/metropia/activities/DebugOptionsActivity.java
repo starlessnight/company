@@ -20,7 +20,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -45,7 +44,6 @@ import android.widget.Toast;
 
 import com.localytics.android.Localytics;
 import com.metropia.SkobblerUtils;
-import com.metropia.activities.LandingActivity.ShortcutNavigationTask;
 import com.metropia.models.Reservation;
 import com.metropia.models.Trajectory;
 import com.metropia.models.Trajectory.Record;
@@ -53,6 +51,7 @@ import com.metropia.requests.Request;
 import com.metropia.requests.Request.Setting;
 import com.metropia.requests.ServiceDiscoveryRequest.Result;
 import com.metropia.requests.TrajectoryFetchRequest;
+import com.metropia.tasks.ShortcutNavigationTask;
 import com.metropia.ui.DelayTextWatcher;
 import com.metropia.ui.DelayTextWatcher.TextChangeListener;
 import com.metropia.ui.NavigationView;

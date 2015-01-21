@@ -264,7 +264,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		
 		initSKMaps();
 		
-		ReservationConfirmationActivity.cancelNotification(this);
+		Reservation.cancelNotification(this);
 		registerReceiver(tripValidator, new IntentFilter(TRIP_VALIDATOR));
 		AssetManager assets = getAssets();
 		boldFont = Font.getBold(assets);
@@ -375,7 +375,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		
 		initViews();
 		
-		LandingActivity.initializeIfNeccessary(ValidationActivity.this, new Runnable() {
+		User.initializeIfNeccessary(ValidationActivity.this, new Runnable() {
 			@Override
 			public void run() {
 				countOutOfRouteThreshold = ((Number)Request.getSetting(Setting.reroute_after_N_deviated_samples)).intValue();

@@ -174,6 +174,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     public static final int ON_MY_WAY = Integer.valueOf(100);
     
+    public static final String LOGOUT = "logout";
+    
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
     CurrentLocationOverlay myPointOverlay;
@@ -782,7 +784,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             finish();
         }
         
-        LandingActivity.initializeIfNeccessary(this, new Runnable() {
+        User.initializeIfNeccessary(this, new Runnable() {
         	@Override
         	public void run() {
         		updateDeviceId();
@@ -827,7 +829,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             mapCenterLon.set(lonE6);
                         }
                     }
-                    LandingActivity.initializeIfNeccessary(LandingActivity2.this, new Runnable() {
+                    User.initializeIfNeccessary(LandingActivity2.this, new Runnable() {
                         @Override
                         public void run() {
                             if(refresh){
@@ -1052,7 +1054,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         final TextView userInfoView = (TextView) findViewById(R.id.user_info);
         
-        LandingActivity.initializeIfNeccessary(this, new Runnable() {
+        User.initializeIfNeccessary(this, new Runnable() {
             @Override
             public void run() {
             	User user = User.getCurrentUser(LandingActivity2.this);
@@ -2251,7 +2253,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private BroadcastReceiver tripInfoUpdater = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            LandingActivity.initializeIfNeccessary(context, new Runnable() {
+            User.initializeIfNeccessary(context, new Runnable() {
                 @Override
                 public void run() {
                     refreshTripsInfo();
@@ -2265,7 +2267,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private BroadcastReceiver tripInfoCachedUpdater = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            LandingActivity.initializeIfNeccessary(context, new Runnable() {
+            User.initializeIfNeccessary(context, new Runnable() {
                 @Override
                 public void run() {
                     drawedReservId = Long.valueOf(-1);
@@ -2392,7 +2394,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         drawedReservId = Long.valueOf(-1);
         dismissReservId = Long.valueOf(-1);
         
-        LandingActivity.initializeIfNeccessary(LandingActivity2.this, new Runnable() {
+        User.initializeIfNeccessary(LandingActivity2.this, new Runnable() {
 			@Override
 			public void run() {
 				refreshTripsInfo();
@@ -2869,7 +2871,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         String intentAddress = getIntentAddress(intent);
-        if(intent.getBooleanExtra(LandingActivity.LOGOUT, false)){
+        if(intent.getBooleanExtra(LOGOUT, false)){
             startActivity(new Intent(this, LoginActivity.class));
             User.setCurrentUser(LandingActivity2.this, null);
             finish();
@@ -2888,7 +2890,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void searchIntentAddress(final String address) {
-    	LandingActivity.initializeIfNeccessary(this, new Runnable() {
+    	User.initializeIfNeccessary(this, new Runnable() {
 			@Override
 			public void run() {
 				Location _location = lastLocation;

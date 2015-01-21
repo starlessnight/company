@@ -21,7 +21,6 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
-import com.metropia.dialogs.FloatingMenuDialog;
 import com.metropia.dialogs.ProfileSelectionDialog;
 import com.metropia.models.User;
 import com.metropia.ui.ClickAnimation;
@@ -130,16 +129,6 @@ public final class MapDisplayActivity extends FragmentActivity {
 			}
 		});
 		
-		findViewById(R.id.floating_menu_button).setOnClickListener(
-				new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						FloatingMenuDialog dialog = new FloatingMenuDialog(
-								MapDisplayActivity.this);
-						dialog.show();
-					}
-				});
-
 		View tutorial = findViewById(R.id.tutorial);
 		tutorial.setOnClickListener(new OnClickListener() {
 			@Override
@@ -220,8 +209,8 @@ public final class MapDisplayActivity extends FragmentActivity {
 					public void onAnimationEnd() {
 					    Misc.suppressTripInfoPanel(MapDisplayActivity.this);
 					    User.logout(MapDisplayActivity.this);
-			            Intent intent = new Intent(MapDisplayActivity.this, LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
-			            intent.putExtra(LandingActivity.LOGOUT, true);
+			            Intent intent = new Intent(MapDisplayActivity.this, LandingActivity2.class);
+			            intent.putExtra(LandingActivity2.LOGOUT, true);
 			            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			            startActivity(intent);
 			            finish();

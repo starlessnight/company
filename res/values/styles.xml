@@ -167,24 +167,6 @@
 	<style name="AddButton" parent="LargeTextButton">
 		<item name="android:background">@drawable/add_button</item>
 	</style>
-	<style name="BuddyButton" parent="LargeTextButton">
-		<item name="android:background">@drawable/buddy_button</item>
-	</style>
-	<style name="AddBuddyButton" parent="LargeTextButton">
-		<item name="android:background">@drawable/add_buddy_button</item>
-	</style>
-	<style name="LargeSaveButton" parent="LargeTextButton">
-		<item name="android:background">@drawable/save_button</item>
-	</style>
-	<style name="AlarmGreenButton" parent="LargeTextButton">
-		<item name="android:background">@drawable/alarm_green_button</item>
-	</style>
-	<style name="AlarmBlueButton" parent="LargeTextButton">
-		<item name="android:background">@drawable/alarm_blue_button</item>
-	</style>
-	<style name="YesButton" parent="LargeTextButton">
-		<item name="android:background">@drawable/yes_button</item>
-	</style>
 	<style name="CancelButton" parent="LargeTextButton">
 		<item name="android:background">@drawable/cancel_button</item>
 	</style>
@@ -207,35 +189,6 @@
 		<item name="android:paddingLeft">15dp</item>
 		<item name="android:gravity">left</item>
 		<item name="android:includeFontPadding">false</item>
-	</style>
-	<style name="CurrentLocationButton" parent="SmallerTextButton">
-		<item name="android:background">@drawable/current_location_button</item>
-	</style>
-	<style name="SaveButton" parent="SmallerTextButton">
-		<item name="android:background">@drawable/save_button</item>
-	</style>
-	<style name="LoadButton" parent="SmallerTextButton">
-		<item name="android:background">@drawable/load_button</item>
-	</style>
-	<style name="ReverseButton">
-		<item name="android:src">@drawable/reverse_button</item>
-		<item name="android:scaleType">center</item>
-		<item name="android:background">@android:color/transparent</item>
-	</style>
-	<style name="MoreButton">
-	    <item name="android:src">@drawable/icon_more_disabled</item>
-		<item name="android:scaleType">center</item>
-	    <item name="android:background">@android:color/black</item>
-	</style>
-	<style name="UpButton">
-	    <item name="android:src">@drawable/icon_up_disabled</item>
-		<item name="android:scaleType">center</item>
-	    <item name="android:background">@android:color/black</item>
-	</style>
-	<style name="DownButton">
-	    <item name="android:src">@drawable/icon_down_disabled</item>
-		<item name="android:scaleType">center</item>
-	    <item name="android:background">@android:color/black</item>
 	</style>
 	<style name="PopUpDialog">
 	    <item name="android:windowBackground">@android:color/transparent</item>

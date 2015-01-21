@@ -320,7 +320,7 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 	}
 	
 	private void startLandingActivity(){
-	    Intent intent = new Intent(this, LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);        
+	    Intent intent = new Intent(this, LandingActivity2.class);        
 	    startActivity(intent);
         finish();
 	}

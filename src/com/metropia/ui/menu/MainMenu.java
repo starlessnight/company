@@ -5,20 +5,15 @@ import android.content.Intent;
 
 import com.actionbarsherlock.view.MenuItem;
 import com.metropia.activities.DebugOptionsActivity;
-import com.metropia.activities.HomeActivity;
-import com.metropia.activities.LandingActivity;
 import com.metropia.activities.LandingActivity2;
 import com.metropia.activities.MapDisplayActivity;
 import com.metropia.activities.MyMetropiaActivity;
 import com.metropia.activities.MyTripsActivity;
-import com.metropia.activities.ReservationConfirmationActivity;
-import com.metropia.activities.ReservationListActivity;
-import com.metropia.activities.RouteActivity;
+import com.metropia.activities.R;
 import com.metropia.activities.ShareActivity;
 import com.metropia.activities.WebMyMetropiaActivity;
 import com.metropia.models.User;
 import com.metropia.utils.Misc;
-import com.metropia.activities.R;
 
 /**
  * A common interface to bring up the application menu
@@ -34,29 +29,29 @@ public final class MainMenu {
 	    }
 	   
 	   public static void onMenuItemSelected(Activity activity, int featureId, int itemId) {
-	       if (activity.getClass().equals(ReservationConfirmationActivity.class)) {
-	           activity.setResult(RouteActivity.RESERVATION_CONFIRM_ENDED);
-	       }
+//	       if (activity.getClass().equals(ReservationConfirmationActivity.class)) {
+//	           activity.setResult(RouteActivity.RESERVATION_CONFIRM_ENDED);
+//	       }
            Intent intent = null;
            switch (itemId) {
            
-           case R.id.home:
-               if (!activity.getClass().equals(LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class)) {
-                   intent = new Intent(activity, LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
-                   intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                   activity.startActivity(intent);
-                   activity.finish();
-               }
-               break;
-           
-           case R.id.route:
-               if (!activity.getClass().equals(HomeActivity.class)) {
-                   intent = new Intent(activity, HomeActivity.class);
-                   intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                   activity.startActivity(intent);
-                   activity.finish();
-               }
-               break;
+//           case R.id.home:
+//               if (!activity.getClass().equals(LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class)) {
+//                   intent = new Intent(activity, LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
+//                   intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                   activity.startActivity(intent);
+//                   activity.finish();
+//               }
+//               break;
+//           
+//           case R.id.route:
+//               if (!activity.getClass().equals(HomeActivity.class)) {
+//                   intent = new Intent(activity, HomeActivity.class);
+//                   intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                   activity.startActivity(intent);
+//                   activity.finish();
+//               }
+//               break;
                
 //       case R.id.contacts:
 //           intent = new Intent(activity, ContactsActivity.class);
@@ -92,20 +87,20 @@ public final class MainMenu {
                }
                break;
 
-           case R.id.reservation:
-               if (!activity.getClass().equals(ReservationListActivity.class)) {
-                   intent = new Intent(activity, ReservationListActivity.class);
-                   intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                   activity.startActivity(intent);
-                   activity.finish();
-               }
-               break;
+//           case R.id.reservation:
+//               if (!activity.getClass().equals(ReservationListActivity.class)) {
+//                   intent = new Intent(activity, ReservationListActivity.class);
+//                   intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                   activity.startActivity(intent);
+//                   activity.finish();
+//               }
+//               break;
 
            case R.id.logout_option:
                User.logout(activity);
 
-               intent = new Intent(activity, LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class);
-               intent.putExtra(LandingActivity.LOGOUT, true);
+               intent = new Intent(activity, LandingActivity2.class);
+               intent.putExtra(LandingActivity2.LOGOUT, true);
                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                activity.startActivity(intent);
                activity.finish();

@@ -179,7 +179,7 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
                         }
                         loginPrefsEditor.commit();
                         
-                        Intent intent = new Intent(LoginActivity.this, toOnBoard? OnBoardActivity.class : (LandingActivity2.ENABLED?LandingActivity2.class:LandingActivity.class));
+                        Intent intent = new Intent(LoginActivity.this, toOnBoard? OnBoardActivity.class : LandingActivity2.class);
                         LoginActivity.this.startActivity(intent);
                         finish();
                     }

@@ -17,9 +17,15 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.AlarmManager;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.metropia.receivers.ReservationReceiver;
 import com.metropia.requests.Request;
 import com.metropia.utils.GeoPoint;
 import com.metropia.utils.RouteNode;
@@ -456,6 +462,40 @@ public final class Reservation implements Parcelable {
 			}
 		}
 		return startCountDownTime;
+	}
+	
+	/**
+     * Creates a system alarm for a single route
+     */
+	public static void scheduleNotification(Context ctx, long reservationId, Route route) {
+		
+		long departureTime = route.getDepartureTime();
+		
+		Intent intent = new Intent(ctx, ReservationReceiver.class);
+		
+		// TODO: We need a reservation instance here...
+		intent.putExtra("route", route);
+		
+		// NOTE: It appears custom Parcelable objects cannot passed across
+		// different processes. Since a PendingIntent launched by AlarmManager
+		// is on a separate process, we cannot pack a Route object.
+		intent.putExtra(ReservationReceiver.RESERVATION_ID, reservationId);
+		
+		// In reality, you would want to have a static variable for the
+		// request code instead of 192837
+		PendingIntent pendingOperation = PendingIntent.getBroadcast(ctx, 192837,
+				intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+		// Get the AlarmManager service
+		AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
+		am.set(AlarmManager.RTC_WAKEUP, departureTime - Reservation.GRACE_INTERVAL, pendingOperation);
+	}
+	
+	public static void cancelNotification(Context ctx){
+        Intent intent = new Intent(ctx, ReservationReceiver.class);
+        PendingIntent.getBroadcast(ctx, 192837, intent, PendingIntent.FLAG_UPDATE_CURRENT).cancel();
+        NotificationManager nMgr = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+        nMgr.cancel(ReservationReceiver.ID);
 	}
 	
 }

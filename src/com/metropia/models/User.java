@@ -3,12 +3,20 @@ package com.metropia.models;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.metropia.CrashlyticsUtils;
+import com.metropia.activities.MainActivity;
 import com.metropia.activities.MapDisplayActivity;
+import com.metropia.activities.R;
+import com.metropia.requests.UserIdRequest;
+import com.metropia.tasks.LoginTask;
+import com.metropia.ui.menu.MainMenu;
 import com.metropia.utils.Preferences;
 
 public final class User implements JSONModel, Parcelable {
@@ -261,6 +269,62 @@ public final class User implements JSONModel, Parcelable {
     
     public void setZipCode(String zipCode) {
     	this.zipCode = zipCode;
+    }
+    
+    public static void initializeIfNeccessary(final Context ctx, final Runnable callback){
+        Runnable loginAndDoCallback = new Runnable() {
+            @Override
+            public void run() {
+                if(User.getCurrentUser(ctx) != null){
+                    callback.run();
+                }else{
+                    SharedPreferences loginPrefs = Preferences.getAuthPreferences(ctx);
+                    final String username = loginPrefs.getString(User.USERNAME, "");
+                    final String password = loginPrefs.getString(User.PASSWORD, "");
+                    if (!username.equals("") && !password.equals("")) {
+                        final String gcmRegistrationId = Preferences.getGlobalPreferences(ctx)
+                                .getString("GCMRegistrationID", "");
+                        final LoginTask loginTask = new LoginTask(ctx, username, password, gcmRegistrationId) {
+                            @Override
+                            protected void onPostLogin(final User user) {
+                                if(user != null && user.getId() != -1){
+                                    User.setCurrentUser(ctx, user);
+                                    CrashlyticsUtils.initUserInfo(user);
+                                    callback.run();
+                                }else if(ctx instanceof Activity){
+                                    MainMenu.onMenuItemSelected((Activity) ctx, 0, R.id.logout_option);
+                                }
+                           }
+                        }.setDialogEnabled(false);
+                        new AsyncTask<Void, Void, Integer>() {
+                            @Override
+                            protected Integer doInBackground(Void... params) {
+                                Integer id = null;
+                                try {
+                                    UserIdRequest req = new UserIdRequest(username); 
+                                    req.invalidateCache(ctx);
+                                    id = req.execute(ctx);
+                                }
+                                catch(Exception e) {
+                                }
+                                return id;
+                            }
+                            protected void onPostExecute(Integer userId) {
+                                if(userId != null){
+                                    loginTask.setUserId(userId)
+                                        .execute();
+                                }else if(ctx instanceof Activity){
+                                    MainMenu.onMenuItemSelected((Activity)ctx, 0, R.id.logout_option);
+                                }
+                            }
+                        }.execute();
+                    }else if(ctx instanceof Activity){
+                        MainMenu.onMenuItemSelected((Activity) ctx, 0, R.id.logout_option);
+                    }
+                }
+            }
+        };
+        MainActivity.initApiLinksIfNecessary(ctx, loginAndDoCallback);
     }
     
 }

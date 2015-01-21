@@ -55,7 +55,7 @@ public class POIOverlayView<Item extends OverlayItem> extends FrameLayout
 		
 		final TextView labelView = (TextView) v.findViewById(R.id.label);
 		labelView.setText(poiInfo.label);
-		int poiMarker = poiInfo.marker!=R.drawable.marker_poi?poiInfo.marker:0;
+		int poiMarker = poiInfo.marker!=R.drawable.poi_pin?poiInfo.marker:0;
 		labelView.setCompoundDrawablesWithIntrinsicBounds(poiMarker, 0, 0, 0);
 
 		final TextView addressView = (TextView) v.findViewById(R.id.address);

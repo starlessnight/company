@@ -1,5 +1,11 @@
 package com.metropia.activities;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
+import org.apache.commons.lang3.StringUtils;
+
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
@@ -15,10 +21,11 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
-import com.metropia.dialogs.FeedbackDialog;
+import com.metropia.models.User;
+import com.metropia.requests.Request;
+import com.metropia.requests.Request.Page;
 import com.metropia.utils.Font;
 import com.metropia.utils.Misc;
-import com.metropia.activities.R;
 
 public class FeedbackActivity extends FragmentActivity{
 	
@@ -63,7 +70,7 @@ public class FeedbackActivity extends FragmentActivity{
         settings.setUseWideViewPort(true);
         settings.setBuiltInZoomControls(true);
         Intent intent = getIntent();
-        webviewContent.loadUrl(FeedbackDialog.getUrl(this, 
+        webviewContent.loadUrl(getUrl(this, 
             intent.getStringExtra(CATEGORY), intent.getStringExtra(MESSAGE)));
         webviewContent.setVisibility(View.VISIBLE);
         webviewContent.requestFocus(View.FOCUS_DOWN);
@@ -76,6 +83,38 @@ public class FeedbackActivity extends FragmentActivity{
 		//init Tracker
       	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 	}
+	
+    private static final String encoding = "utf-8";
+    
+    private static String truncate(String val) throws UnsupportedEncodingException {
+        byte[] src = val.getBytes(encoding);
+        byte[] dest = new byte[Math.min(7168, src.length)];
+        System.arraycopy(src, 0, dest, 0, dest.length);
+        return new String(dest, encoding);
+    }
+	
+    public static final String getUrl(Context ctx, String category, String message){
+        String url = StringUtils.defaultString(Request.getPageUrl(Page.feedback))
+            .replaceAll("\\{os\\}", "android")
+            .replaceAll("\\{app_version\\}", ctx.getString(R.string.distribution_date));
+        User user = User.getCurrentUser(ctx);
+        if(user != null){
+            url = url.replaceAll("\\{username\\}", StringUtils.defaultString(user.getUsername()))
+            .replaceAll("\\{first_name\\}", StringUtils.defaultString(user.getFirstname()))
+            .replaceAll("\\{email\\}", StringUtils.defaultString(user.getEmail()));
+        }
+        if(StringUtils.isNotBlank(category)){
+            url = url.replaceAll("\\{category\\}", category);
+        }
+        if(StringUtils.isNotBlank(message)){
+            try {
+                url = url.replaceAll("\\{message\\}", URLEncoder.encode(truncate(message), encoding));
+            }
+            catch (UnsupportedEncodingException e) {}
+        }
+        return url;
+    }
+
 	
 	@Override
 	protected void onStop() {
