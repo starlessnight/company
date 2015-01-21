@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -575,30 +573,24 @@ public final class RouteActivity extends FragmentActivity {
                     }
                 }
 
-				@Override
-				public void cancelOtherRouteTask(final TimeLayout timeLayout, final int selectedColumn) {
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							Set<Integer> columns = loadingTasks.keySet();
-							Set<Integer> removeColumns = new HashSet<Integer>();
-							for(Integer column : columns) {
-								State columnState = timeLayout.getColumnState(column);
-								if(!Integer.valueOf(selectedColumn).equals(column) && State.InProgress.equals(columnState)) {
-									removeColumns.add(column);
-									RouteTask task = loadingTasks.get(column);
-									if(task != null) {
-										task.cancel(true);
-									}
-									timeLayout.setColumnState(column, State.Unknown);
-								}
-							}
-							for(Integer column : removeColumns) {
-								loadingTasks.remove(column);
-							}
-						}
-					});
-				}
+//				@Override
+//				public void cancelOtherRouteTask(final TimeLayout timeLayout, final int selectedColumn) {
+//					runOnUiThread(new Runnable() {
+//						@Override
+//						public void run() {
+//							Set<Integer> columns = new HashSet<Integer>();
+//							columns.addAll(loadingTasks.keySet());
+//							for(Integer column : columns) {
+//								State columnState = timeLayout.getColumnState(column);
+//								if(!Integer.valueOf(selectedColumn).equals(column) && State.InProgress.equals(columnState)) {
+//									RouteTask task = loadingTasks.remove(column);
+//									task.cancel(true);
+//									timeLayout.setColumnState(column, State.Unknown);
+//								}
+//							}
+//						}
+//					});
+//				}
             });
     
             ScrollableTimeLayout scrollableTimeLayout = (ScrollableTimeLayout) findViewById(R.id.scrollTime);
@@ -748,7 +740,7 @@ public final class RouteActivity extends FragmentActivity {
 		                AsyncTask<Void, Void, Long> task = new AsyncTask<Void, Void, Long>(){
 		                    @Override
 		                    protected Long doInBackground(Void... params) {
-		                    	timeLayout.cancelOtherRouteTask();
+//		                    	timeLayout.cancelOtherRouteTask();
 		                        Long rs = null;
 		                        ReservationRequest request = new ReservationRequest(User.getCurrentUser(RouteActivity.this), 
 		                            route, getString(R.string.distribution_date), rescheduleReservId);
@@ -831,7 +823,7 @@ public final class RouteActivity extends FragmentActivity {
 	                        startActivity(intent);
 	                        finish();
 	                    }else{
-	                    	timeLayout.cancelOtherRouteTask();
+//	                    	timeLayout.cancelOtherRouteTask();
 	                        final Route route = (Route) reserveView.getTag();
 	                        ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs, rescheduleReservId);
 	                        task.callback = new ShortcutNavigationTask.Callback() {

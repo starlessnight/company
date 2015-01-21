@@ -54,7 +54,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
 
     public interface TimeLayoutListener {
     	public void updateTimeLayout(TimeLayout timeLayout, int column, boolean visible);
-    	public void cancelOtherRouteTask(TimeLayout timeLayout, int column);
+//    	public void cancelOtherRouteTask(TimeLayout timeLayout, int column);
     }
     
     public void setTimeLayoutListener(TimeLayoutListener listener) {
@@ -294,10 +294,10 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
 		return columnIdx;
 	}
 	
-	public void cancelOtherRouteTask() {
-		if(timeLayoutListener != null) {
-			timeLayoutListener.cancelOtherRouteTask(this, selectedColumn);
-		}
-	}
+//	public void cancelOtherRouteTask() {
+//		if(timeLayoutListener != null) {
+//			timeLayoutListener.cancelOtherRouteTask(this, selectedColumn);
+//		}
+//	}
 	
 }
