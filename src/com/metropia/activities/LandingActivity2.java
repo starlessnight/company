@@ -1197,23 +1197,21 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         editMenu.setOnClickListener(new OnClickListener() {
         	@Override
         	public void onClick(final View v) {
-        		if(menuPressable.get()) {
-	        		v.setClickable(false);
-	        		final Integer[] resourceIds = (Integer[]) editMenu.getTag();
-	        		editMenu.setImageResource(resourceIds[0]);
-	        		ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
-	//        		clickAni.setAnimationId(R.anim.menu_click_animation);
-	        		clickAni.startAnimation(new ClickAnimationEndCallback() {
-						@Override
-						public void onAnimationEnd() {
-							editMenu.setImageResource(resourceIds[1]);
-							PoiOverlayInfo info = (PoiOverlayInfo) popupPanel.getTag();
-							showFavoriteOptPanel(info);
-							hidePopupMenu();
-							v.setClickable(true);
-						}
-	        		});
-        		}
+	        	v.setClickable(false);
+	        	final Integer[] resourceIds = (Integer[]) editMenu.getTag();
+	        	editMenu.setImageResource(resourceIds[0]);
+	        	ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
+	//        	clickAni.setAnimationId(R.anim.menu_click_animation);
+	        	clickAni.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						editMenu.setImageResource(resourceIds[1]);
+						PoiOverlayInfo info = (PoiOverlayInfo) popupPanel.getTag();
+						showFavoriteOptPanel(info);
+						hidePopupMenu();
+						v.setClickable(true);
+					}
+	        	});
         	}
         });
         
@@ -1221,21 +1219,19 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         toMenu.setOnClickListener(new OnClickListener() {
         	@Override
 			public void onClick(final View v) {
-        		if(menuPressable.get()) {
-					v.setClickable(false);
-					toMenu.setImageResource(R.drawable.selected_to_menu);
-					ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
-	//				clickAni.setAnimationId(R.anim.menu_click_animation);
-					clickAni.startAnimation(new ClickAnimationEndCallback() {
-						@Override
-						public void onAnimationEnd() {
-							toMenu.setImageResource(R.drawable.to_menu);
-							setMenuInfo2Searchbox((PoiOverlayInfo)popupPanel.getTag(), false);
-							hidePopupMenu();
-							v.setClickable(true);
-						}
-					});
-        		}
+				v.setClickable(false);
+				toMenu.setImageResource(R.drawable.selected_to_menu);
+				ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
+	//			clickAni.setAnimationId(R.anim.menu_click_animation);
+				clickAni.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						toMenu.setImageResource(R.drawable.to_menu);
+						setMenuInfo2Searchbox((PoiOverlayInfo)popupPanel.getTag(), false);
+						hidePopupMenu();
+						v.setClickable(true);
+					}
+				});
 			}
         });
         
@@ -1243,21 +1239,19 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         fromMenu.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(final View v) {
-				if(menuPressable.get()) {
-					v.setClickable(false);
-					fromMenu.setImageResource(R.drawable.selected_from_menu);
-					ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
-	//				clickAni.setAnimationId(R.anim.menu_click_animation);
-					clickAni.startAnimation(new ClickAnimationEndCallback() {
-						@Override
-						public void onAnimationEnd() {
-							fromMenu.setImageResource(R.drawable.from_menu);
-							setMenuInfo2Searchbox((PoiOverlayInfo)popupPanel.getTag(), true);
-							hidePopupMenu();
-							v.setClickable(true);
-						}
-					});
-				}
+				v.setClickable(false);
+				fromMenu.setImageResource(R.drawable.selected_from_menu);
+				ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
+	//			clickAni.setAnimationId(R.anim.menu_click_animation);
+				clickAni.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						fromMenu.setImageResource(R.drawable.from_menu);
+						setMenuInfo2Searchbox((PoiOverlayInfo)popupPanel.getTag(), true);
+						hidePopupMenu();
+						v.setClickable(true);
+					}
+				});
 			}
         });
         
@@ -3584,11 +3578,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			info.address = address;
 			popupPanel.setTag(info);
 			addressInfo.setText(address);
-			menuPressable.set(true);
 		}
 	}
-	
-	private AtomicBoolean menuPressable = new AtomicBoolean(false); 
 	
 	private void hidePopupMenu() {
 		editMenu.setVisibility(View.INVISIBLE);
@@ -3599,7 +3590,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		addressInfo.setVisibility(View.INVISIBLE);
 		popupPanel.setTag(null);
 		popupPanel.setVisibility(View.GONE);
-		menuPressable.set(false);
 	}
 	
 	private boolean isPopupMenuShown() {
