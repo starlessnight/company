@@ -91,6 +91,7 @@ public final class PreTripAlertActivity extends FragmentActivity {
                             catch(Exception ignore) {}
                             extras.putString("destAddr", reserv.getDestinationAddress());
                             extras.putParcelable(RouteActivity.DEST_COORD, new GeoPoint(reserv.getEndlat(), reserv.getEndlon()));
+                            extras.putLong(RouteActivity.RESCHEDULE_DEPARTURE_TIME, reserv.getDepartureTimeUtc());
                             intent.putExtras(extras);
                             startActivity(intent);
                         }
