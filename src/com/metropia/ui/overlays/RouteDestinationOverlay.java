@@ -12,6 +12,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
+import com.metropia.activities.R;
 import com.metropia.utils.Dimension;
 import com.metropia.utils.GeoPoint;
 
@@ -36,8 +37,10 @@ public class RouteDestinationOverlay extends BalloonItemizedOverlay<OverlayItem>
 		
 		centerOnTap = false;
 		
+		boolean isDestFlag = marker == R.drawable.pin_destination;
+		
 		balloonOffsetX = Dimension.dpToPx(103, mapview.getContext().getResources().getDisplayMetrics());
-		balloonOffsetY = Dimension.dpToPx(-34, mapview.getContext().getResources().getDisplayMetrics());
+		balloonOffsetY = Dimension.dpToPx(isDestFlag ? -34 : -10, mapview.getContext().getResources().getDisplayMetrics());
 		
 		this.geoPoint = point;
 		
@@ -57,7 +60,7 @@ public class RouteDestinationOverlay extends BalloonItemizedOverlay<OverlayItem>
 
 			@Override
 			public boolean onItemSingleTapUp(int index, OverlayItem item) {
-				onTap(index);
+//				onTap(index);
 				
 				if (callback != null) {
 					return callback.onTap(index);
@@ -148,7 +151,7 @@ public class RouteDestinationOverlay extends BalloonItemizedOverlay<OverlayItem>
 	
 	static Drawable pinDrawable(Context ctx, int marker){
         Resources res = ctx.getResources();
-        Bitmap bm = BitmapFactory.decodeResource(res, marker);
+        Bitmap bm = BitmapFactory.decodeStream(res.openRawResource(marker));
         return new BitmapDrawable(res, bm);
     }
 

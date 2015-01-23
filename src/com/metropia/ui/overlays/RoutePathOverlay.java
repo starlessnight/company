@@ -23,7 +23,6 @@ import com.metropia.models.Route;
 import com.metropia.utils.Dimension;
 import com.metropia.utils.RouteLink;
 import com.metropia.utils.RouteNode;
-import com.metropia.activities.R;
 
 public class RoutePathOverlay extends Overlay {
 	

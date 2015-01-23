@@ -15,14 +15,13 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.metropia.activities.LandingActivity2.PoiOverlayInfo;
-import com.metropia.utils.GeoPoint;
 import com.metropia.activities.R;
+import com.metropia.utils.GeoPoint;
 
 public class POIOverlay extends BalloonItemizedOverlay<OverlayItem>{
 	

@@ -57,10 +57,15 @@ import com.metropia.activities.LandingActivity2.PoiOverlayInfo;
 import com.metropia.dialogs.CancelableProgressDialog;
 import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.exceptions.RouteNotFoundException;
+import com.metropia.models.IncidentIcon;
 import com.metropia.models.Reservation;
 import com.metropia.models.Route;
 import com.metropia.models.Trajectory;
 import com.metropia.models.User;
+import com.metropia.requests.CityRequest;
+import com.metropia.requests.CityRequest.City;
+import com.metropia.requests.IncidentRequest;
+import com.metropia.requests.IncidentRequest.Incident;
 import com.metropia.requests.ReservationListFetchRequest;
 import com.metropia.requests.ReservationRequest;
 import com.metropia.requests.RouteFetchRequest;
@@ -188,6 +193,8 @@ public final class RouteActivity extends FragmentActivity {
     private PoiOverlayInfo originOverlayInfo;
     private PoiOverlayInfo destOverlayInfo;
     
+    private List<Incident> incidents = new ArrayList<Incident>();
+    
     private Runnable goBackToWhereTo = new Runnable() {
         @Override
         public void run() {
@@ -299,9 +306,14 @@ public final class RouteActivity extends FragmentActivity {
 			    ehs.reportExceptions(goBackToWhereTo);
 			}
 			else {
-		        RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
-		        routeTasks.add(routeTask);
-		        routeTask.execute();
+				startGetRoute(new Runnable() {
+					@Override
+					public void run() {
+						RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
+				        routeTasks.add(routeTask);
+				        routeTask.execute();
+					}
+				});
 			}
 		}
 	};
@@ -510,7 +522,7 @@ public final class RouteActivity extends FragmentActivity {
             timeLayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
                 @Override
                 public void onSelect(int column, TimeColumn timeButton) {
-                    Log.d(LOG_TAG, "Column state: " + timeLayout.getColumnState(column));
+                    Log.d(LOG_TAG, "Column state: " + timeLayout.getColumnState(column) + " colume : " + column);
                     
                     // FIXME: Refactor this. (Close all route info overlays)
                     /*for (int i = 0; i < routeInfoOverlays.length; i++) {
@@ -904,6 +916,131 @@ public final class RouteActivity extends FragmentActivity {
       	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
     }
     
+    private void startGetRoute(final Runnable callback) {
+    	AsyncTask<Void, Void, Void> getIncidentTask = new AsyncTask<Void, Void, Void>() {
+    		
+    		private CancelableProgressDialog dialog;
+    		
+    		@Override
+            protected void onPreExecute() {
+    			dialog = new CancelableProgressDialog(RouteActivity.this, "Get incident informations...");
+                dialog.setActionListener(new CancelableProgressDialog.ActionListener() {
+                    @Override
+                    public void onClickNegativeButton() {
+                        goBackToWhereTo.run();
+                    }
+                });
+    		}
+    		
+    		@Override
+			protected Void doInBackground(Void... params) {
+    			String incidentUrl = null;
+    			CityRequest cityReq = new CityRequest(originCoord.getLatitude(), originCoord.getLongitude());
+                try {
+					City city = cityReq.execute(RouteActivity.this);
+					if(city != null && StringUtils.isBlank(city.html)) {
+						incidentUrl = city.incidents;
+					}
+				} catch (Exception ignore) {}
+                
+    			if(StringUtils.isNotBlank(incidentUrl)) {
+    				IncidentRequest incidentReq = new IncidentRequest(User.getCurrentUser(RouteActivity.this), incidentUrl);
+    				try {
+						incidents.addAll(incidentReq.execute(RouteActivity.this));
+					} catch (Exception ignore) {}
+    			}
+    			return null;
+			}
+    		
+			@Override
+	        protected void onPostExecute(Void result) {
+				if (dialog.isShowing()) {
+	                Misc.doQuietly(new Runnable() {
+	                    @Override
+	                    public void run() {
+	                        dialog.dismiss();
+	                    }
+	                });
+	            }
+				callback.run();
+			}
+    	};
+    	Misc.parallelExecute(getIncidentTask);
+    }
+    
+    private AtomicBoolean incidentOverlayShown = new AtomicBoolean(false);
+    
+    private void showIncidentOverlays() {
+    	Log.d("RouteActivity", String.format("incident size %d", incidents.size()));
+    	if(incidents.size() > 0) {
+    		if(!incidentOverlayShown.get()) {
+    			for(Incident incident : incidents) {
+    				IncidentIcon icon = IncidentIcon.fromType(incident.type);
+    				final RouteDestinationOverlay inc = new RouteDestinationOverlay(mapView, new GeoPoint(incident.lat, incident.lon), mediumFont, incident.shortDesc, icon.getResourceId(RouteActivity.this));
+    				inc.setCallback(new OverlayCallback() {
+						@Override
+						public boolean onBalloonTap(int index, OverlayItem item) {
+							return false;
+						}
+						
+						@Override
+						public boolean onTap(int index) {
+							if(inc.isBalloonVisible()) {
+								inc.hideBalloon();
+							}
+							else {
+								List<Overlay> overlays = mapView.getOverlays();
+								for(Overlay overlay : overlays) {
+									if(overlay instanceof RouteDestinationOverlay) {
+										((RouteDestinationOverlay) overlay).hideBalloon();
+									}
+								}
+								inc.showBalloonOverlay();
+							}
+							return true;
+						}
+						
+						@Override
+						public boolean onClose() {
+							return false;
+						}
+
+						@Override
+						public void onChange() {
+						}
+
+						@Override
+						public boolean onLongPress(int index, OverlayItem item) {
+							return false;
+						}
+					});
+    				mapView.getOverlays().add(inc);
+    			}
+    			incidentOverlayShown.set(true);
+    			mapView.postInvalidate();
+    		}
+    		else {
+    			changeIncidentOverlayState(true);
+    		}
+    	}
+    }
+    
+    private void hideIncidentOverlays() {
+    	changeIncidentOverlayState(false);
+    }
+    
+    private void changeIncidentOverlayState(boolean show) {
+    	List<Overlay> overlays = mapView.getOverlays();
+    	for(Overlay overlay : overlays) {
+    		if(overlay instanceof RouteDestinationOverlay) {
+    			if(!show) {
+    				((RouteDestinationOverlay) overlay).hideBalloon();
+    			}
+    			overlay.setEnabled(show);
+    		}
+    	}
+    }
+    
     private void removeTerminateReservationId(Long result) {
     	DebugOptionsActivity.removeTerminatedReservIds(RouteActivity.this, result);
     	sendBroadcast(new Intent(LandingActivity2.TRIP_INFO_CACHED_UPDATES));
@@ -1022,9 +1159,14 @@ public final class RouteActivity extends FragmentActivity {
             task.execute(destAddr);
             geocodingTasks.add(task);
         }else{
-            RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
-            routeTasks.add(routeTask);
-            routeTask.execute();
+        	startGetRoute(new Runnable() {
+				@Override
+				public void run() {
+					RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
+		            routeTasks.add(routeTask);
+		            routeTask.execute();
+				}
+        	});
         }
     }
     
@@ -1183,6 +1325,13 @@ public final class RouteActivity extends FragmentActivity {
         else {
         	Log.d(LOG_TAG, "updateMap(): no route available.");
         }
+        
+        if(timeLayout.getSelectedColumn() == 0) {
+        	showIncidentOverlays();
+        }
+        else {
+        	hideIncidentOverlays();
+        }
     }
     
     @Override
@@ -1263,6 +1412,7 @@ public final class RouteActivity extends FragmentActivity {
 //            letsGoPanelVis = View.VISIBLE;
 //            reservePanelVis = View.GONE;
         }
+        
         findViewById(R.id.lets_go_panel).setVisibility(letsGoPanelVis);
         findViewById(R.id.reserve_panel).setVisibility(reservePanelVis);
     }
@@ -1288,14 +1438,23 @@ public final class RouteActivity extends FragmentActivity {
     public void drawRoute (MapView mapView, Route route, int routeNum) {
         mapOverlays = mapView.getOverlays();
         
+        List<Overlay> nonIncidentOverlays = new ArrayList<Overlay>();
         for (Overlay o : mapOverlays) {
             if(o instanceof POIOverlay){
+            	nonIncidentOverlays.add(o);
                 ((POIOverlay) o).hideBalloon();
+            }
+            else if(o instanceof RouteDestinationOverlay) {
+            	((RouteDestinationOverlay) o).hideBalloon();
+            }
+            else {
+            	nonIncidentOverlays.add(o);
             }
         }
         
-        if(routeNum == 0) 
-            mapOverlays.clear();
+        if(routeNum == 0) {
+            mapOverlays.removeAll(nonIncidentOverlays);
+        }
         
         int routeColor = route.getColor()!=null?Color.parseColor(route.getColor()):RoutePathOverlay.COLORS[routeNum];
         
@@ -1622,64 +1781,5 @@ public final class RouteActivity extends FragmentActivity {
     	}
     }
     
-//    private class RouteOverlayCallbackImpl implements OverlayCallback {
-//
-//        private Route route;
-//        private int routeNum;
-//        
-//        public RouteOverlayCallbackImpl(Route route, int routeNum) {
-//            this.route = route;
-//            this.routeNum = routeNum;
-//        }
-//        
-//        @Override
-//        public boolean onBalloonTap(int index, OverlayItem item) {
-//        	Log.d("RouteActivity.RouteOverlayCallbackImpl", "onBalloonTap()");
-//        	for (RouteTask task : routeTasks) {
-//                task.cancel(true);
-//            }
-//        	Misc.suppressTripInfoPanel(RouteActivity.this);
-//            Intent intent = new Intent(RouteActivity.this, ReservationConfirmationActivity.class);
-//            Bundle extras = new Bundle();
-//            extras.putParcelable("route", route);
-//            intent.putExtras(extras);
-//            startActivityForResult(intent, RESERVATION_CONFIRM);
-//            return true;
-//        }
-//
-//        @Override
-//        public void onChange() {
-//            /*for (int i = 0; i < routeInfoOverlays.length; i++) {
-//                RouteInfoOverlay routeInfoOverlay = routeInfoOverlays[i];
-//                if (routeInfoOverlay != null) {
-//                    routeInfoOverlay.showOverlay();
-//                }
-//            }*/
-//        }
-//        
-//        @Override
-//        public boolean onTap(int index) {
-//        	Log.d("RouteActivity.RouteOverlayCallbackImpl", "onTap()");
-//            // Highlight selected route path
-//        	setHighlightedRoutePathOverlays(false);
-//            routePathOverlays[routeNum].setHighlighted(true);
-//            //mapView.getController().setCenter(routeInfoOverlays[routeNum].getGeoPoint());
-//            
-//            return true;
-//        }
-//
-//		@Override
-//		public boolean onClose() {
-//			Log.d("RouteActivity.RouteOverlayCallbackImpl", "onClose()");
-//			setHighlightedRoutePathOverlays(true);
-//			mapView.invalidate();
-//			
-//			return true;
-//		}
-//
-//        @Override
-//        public boolean onLongPress(int index, OverlayItem item) {
-//            return false;
-//        }
-//    }
+
 }

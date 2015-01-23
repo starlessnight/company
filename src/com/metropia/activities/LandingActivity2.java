@@ -1793,16 +1793,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	return false;
     }
     
-//    private void reInitFavoriteOperationPanel() {
-//    	favOptPanel.setTag(null);
-//    	((EditText)favOptPanel.findViewById(R.id.favorite_search_box)).setText("");
-//    	((EditText)favOptPanel.findViewById(R.id.favorite_search_box)).setEnabled(true);
-//    	((EditText)favOptPanel.findViewById(R.id.label_input)).setText("");
-//    	favOptPanel.findViewById(R.id.label_clear).setVisibility(View.GONE);
-//    	favOptPanel.findViewById(R.id.fav_del_panel).setVisibility(View.GONE);
-//    	favOptPanel.findViewById(R.id.label_icon).setVisibility(View.GONE);
-//    }
-    
     private void clearSearchResult() {
     	searchAddresses.clear();
 		autoCompleteAdapter.clear();
