@@ -3411,6 +3411,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 loadingDialog.setActionListener(new CancelableProgressDialog.ActionListener() {
                     @Override
                     public void onClickNegativeButton() {
+                    	removePOIMarker(mapView);
                         hidePopupMenu();
                     }
                 });
