@@ -1197,21 +1197,23 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         editMenu.setOnClickListener(new OnClickListener() {
         	@Override
         	public void onClick(final View v) {
-	        	v.setClickable(false);
-	        	final Integer[] resourceIds = (Integer[]) editMenu.getTag();
-	        	editMenu.setImageResource(resourceIds[0]);
-	        	ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
-	//        	clickAni.setAnimationId(R.anim.menu_click_animation);
-	        	clickAni.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						editMenu.setImageResource(resourceIds[1]);
-						PoiOverlayInfo info = (PoiOverlayInfo) popupPanel.getTag();
-						showFavoriteOptPanel(info);
-						hidePopupMenu();
-						v.setClickable(true);
-					}
-	        	});
+        		if(!LOADING_ADDRESS.equals(addressInfo.getText())) {
+		        	v.setClickable(false);
+		        	final Integer[] resourceIds = (Integer[]) editMenu.getTag();
+		        	editMenu.setImageResource(resourceIds[0]);
+		        	ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
+		//        	clickAni.setAnimationId(R.anim.menu_click_animation);
+		        	clickAni.startAnimation(new ClickAnimationEndCallback() {
+						@Override
+						public void onAnimationEnd() {
+							editMenu.setImageResource(resourceIds[1]);
+							PoiOverlayInfo info = (PoiOverlayInfo) popupPanel.getTag();
+							showFavoriteOptPanel(info);
+							hidePopupMenu();
+							v.setClickable(true);
+						}
+		        	});
+        		}
         	}
         });
         
@@ -1219,19 +1221,21 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         toMenu.setOnClickListener(new OnClickListener() {
         	@Override
 			public void onClick(final View v) {
-				v.setClickable(false);
-				toMenu.setImageResource(R.drawable.selected_to_menu);
-				ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
-	//			clickAni.setAnimationId(R.anim.menu_click_animation);
-				clickAni.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						toMenu.setImageResource(R.drawable.to_menu);
-						setMenuInfo2Searchbox((PoiOverlayInfo)popupPanel.getTag(), false);
-						hidePopupMenu();
-						v.setClickable(true);
-					}
-				});
+        		if(!LOADING_ADDRESS.equals(addressInfo.getText())) {
+					v.setClickable(false);
+					toMenu.setImageResource(R.drawable.selected_to_menu);
+					ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
+		//			clickAni.setAnimationId(R.anim.menu_click_animation);
+					clickAni.startAnimation(new ClickAnimationEndCallback() {
+						@Override
+						public void onAnimationEnd() {
+							toMenu.setImageResource(R.drawable.to_menu);
+							setMenuInfo2Searchbox((PoiOverlayInfo)popupPanel.getTag(), false);
+							hidePopupMenu();
+							v.setClickable(true);
+						}
+					});
+        		}
 			}
         });
         
@@ -1239,19 +1243,21 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         fromMenu.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(final View v) {
-				v.setClickable(false);
-				fromMenu.setImageResource(R.drawable.selected_from_menu);
-				ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
-	//			clickAni.setAnimationId(R.anim.menu_click_animation);
-				clickAni.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						fromMenu.setImageResource(R.drawable.from_menu);
-						setMenuInfo2Searchbox((PoiOverlayInfo)popupPanel.getTag(), true);
-						hidePopupMenu();
-						v.setClickable(true);
-					}
-				});
+				if(!LOADING_ADDRESS.equals(addressInfo.getText())) {
+					v.setClickable(false);
+					fromMenu.setImageResource(R.drawable.selected_from_menu);
+					ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
+		//			clickAni.setAnimationId(R.anim.menu_click_animation);
+					clickAni.startAnimation(new ClickAnimationEndCallback() {
+						@Override
+						public void onAnimationEnd() {
+							fromMenu.setImageResource(R.drawable.from_menu);
+							setMenuInfo2Searchbox((PoiOverlayInfo)popupPanel.getTag(), true);
+							hidePopupMenu();
+							v.setClickable(true);
+						}
+					});
+				}
 			}
         });
         
@@ -1316,6 +1322,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	MapView mapView = (MapView) findViewById(R.id.mapview);
     	POIOverlay overlay = findOverlayByInfo(mapView, info);
     	if(overlay != null) {
+    		overlay.setAddress(info.address);
+    		overlay.getPoiOverlayInfo().address = info.address;
             handleOD(mapView, overlay, from);
     	}
     }
@@ -3410,6 +3418,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private static final Integer POIOVERLAY_HIDE_ZOOM_LEVEL = 5;
+    private static final String LOADING_ADDRESS = "Loading Address...";
     
     private void bindMapFunctions(final MapView mapView){
         EventOverlay eventOverlay = new EventOverlay(this);
@@ -3418,31 +3427,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             public void onLongPress(final double lat, final double lon) {
             	mapView.getController().animateTo(getCenterGeoPointByMapSize(mapView, lat, lon));
             	Screen xy = getPopupFavIconPosition(mapView);
-                POIOverlay marker = refreshPOIMarker(mapView, lat, lon, "Loading Address...", "");
+                POIOverlay marker = refreshPOIMarker(mapView, lat, lon, LOADING_ADDRESS, "");
                 showPopupMenu(xy, marker.getPoiOverlayInfo());
-                final CancelableProgressDialog loadingDialog = new CancelableProgressDialog(LandingActivity2.this, "Loading address...");
-                loadingDialog.setActionListener(new CancelableProgressDialog.ActionListener() {
-                    @Override
-                    public void onClickNegativeButton() {
-                    	removePOIMarker(mapView);
-                        hidePopupMenu();
-                    }
-                });
-                Misc.doQuietly(new Runnable() {
-                    @Override
-                    public void run() {
-                    	loadingDialog.show();
-                    }
-    		    });
                 ReverseGeocodingTask task = new ReverseGeocodingTask(LandingActivity2.this, lat, lon){
                     @Override
                     protected void onPostExecute(String result) {
-                    	Misc.doQuietly(new Runnable() {
-                    		@Override
-                    		public void run() {
-                    			loadingDialog.dismiss();
-                    		}
-                    	});
                     	updatePopupMenu(result);
                     }
                 };
@@ -3585,25 +3574,31 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         });
     }
 	
+	private static Object mutex = new Object();
+	
 	private void updatePopupMenu(String address) {
-		if(popupPanel.getVisibility() == View.VISIBLE && popupPanel.getTag() != null) {
-			PoiOverlayInfo info = (PoiOverlayInfo) popupPanel.getTag();
-			info.label = address;
-			info.address = address;
-			popupPanel.setTag(info);
-			addressInfo.setText(address);
+		synchronized(mutex) {
+			if(popupPanel.getVisibility() == View.VISIBLE && popupPanel.getTag() != null) {
+				PoiOverlayInfo info = (PoiOverlayInfo) popupPanel.getTag();
+				info.label = address;
+				info.address = address;
+				popupPanel.setTag(info);
+				addressInfo.setText(address);
+			}
 		}
 	}
 	
 	private void hidePopupMenu() {
-		editMenu.setVisibility(View.INVISIBLE);
-		fromMenu.setVisibility(View.INVISIBLE);
-		toMenu.setVisibility(View.INVISIBLE);
-		poiIcon.setVisibility(View.INVISIBLE);
-		addressInfo.setText("");
-		addressInfo.setVisibility(View.INVISIBLE);
-		popupPanel.setTag(null);
-		popupPanel.setVisibility(View.GONE);
+		synchronized(mutex) {
+			editMenu.setVisibility(View.INVISIBLE);
+			fromMenu.setVisibility(View.INVISIBLE);
+			toMenu.setVisibility(View.INVISIBLE);
+			poiIcon.setVisibility(View.INVISIBLE);
+			addressInfo.setText("");
+			addressInfo.setVisibility(View.INVISIBLE);
+			popupPanel.setTag(null);
+			popupPanel.setVisibility(View.GONE);
+		}
 	}
 	
 	private boolean isPopupMenuShown() {
