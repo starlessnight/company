@@ -1777,7 +1777,9 @@ public final class RouteActivity extends FragmentActivity {
             	}
             }
             catch(Exception e) {
-            	ehs.registerException(e, e.getMessage());
+            	if(selectedColumn == 0) { 
+            		ehs.registerException(e, e.getMessage());
+            	}
             }
             
             return routes;
