@@ -1434,39 +1434,39 @@ public final class RouteActivity extends FragmentActivity {
                 e.printStackTrace();
             }
         }else{
-        	AsyncTask<Void, Void, List<Route>> fetchRoute = new AsyncTask<Void, Void, List<Route>>() {
-				@Override
-				protected List<Route> doInBackground(Void... params) {
-					try {
-						return request.execute(RouteActivity.this);
-					} catch (Exception e) {
-						ehs.registerException(e);
-					} 
-					return null;
-				}
-				
-				@Override
-				protected void onPostExecute(List<Route> routes) {
-					if(ehs.hasExceptions()) {
-						ehs.reportExceptions();
-					}
-					else {
-			        	updateMap(routes, false);
-			        	timeLayout.setColumnState(column, TimeButton.State.Selected);
-					}
-				}
-        		
-        	};
-        	Misc.parallelExecute(fetchRoute);
-//            for (RouteTask task : routeTasks) {
-//                task.cancel(true);
-//            }
-//            timeLayout.refresh();
-//            RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
-//            routeTasks.add(routeTask);
-//            routeTask.execute();
-//            letsGoPanelVis = View.VISIBLE;
-//            reservePanelVis = View.GONE;
+//        	AsyncTask<Void, Void, List<Route>> fetchRoute = new AsyncTask<Void, Void, List<Route>>() {
+//				@Override
+//				protected List<Route> doInBackground(Void... params) {
+//					try {
+//						return request.execute(RouteActivity.this);
+//					} catch (Exception e) {
+//						ehs.registerException(e);
+//					} 
+//					return null;
+//				}
+//				
+//				@Override
+//				protected void onPostExecute(List<Route> routes) {
+//					if(ehs.hasExceptions()) {
+//						ehs.reportExceptions();
+//					}
+//					else {
+//			        	updateMap(routes, false);
+//			        	timeLayout.setColumnState(column, TimeButton.State.Selected);
+//					}
+//				}
+//        		
+//        	};
+//        	Misc.parallelExecute(fetchRoute);
+            for (RouteTask task : routeTasks) {
+                task.cancel(true);
+            }
+            timeLayout.refresh();
+            RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
+            routeTasks.add(routeTask);
+            routeTask.execute();
+            letsGoPanelVis = View.VISIBLE;
+            reservePanelVis = View.GONE;
         }
         
         findViewById(R.id.lets_go_panel).setVisibility(letsGoPanelVis);
