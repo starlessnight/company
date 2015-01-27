@@ -940,14 +940,16 @@ public final class RouteActivity extends FragmentActivity {
     		
     		@Override
 			protected Void doInBackground(Void... params) {
-    			CityRequest cityReq = new CityRequest(originCoord.getLatitude(), originCoord.getLongitude());
-                try {
-					City city = cityReq.execute(RouteActivity.this);
-					if(city != null && StringUtils.isBlank(city.html)) {
-						incidentUrl = city.incidents;
-					}
-				} catch (Exception ignore) {}
-    			refreshIncident();
+    			if(originCoord != null) {
+	    			CityRequest cityReq = new CityRequest(originCoord.getLatitude(), originCoord.getLongitude());
+	                try {
+						City city = cityReq.execute(RouteActivity.this);
+						if(city != null && StringUtils.isBlank(city.html)) {
+							incidentUrl = city.incidents;
+						}
+					} catch (Exception ignore) {}
+	    			refreshIncident();
+	    		}
     			return null;
 			}
     		
@@ -969,6 +971,8 @@ public final class RouteActivity extends FragmentActivity {
     	Misc.parallelExecute(getIncidentTask);
     }
     
+    private RouteDestinationOverlay curShowOverlay;
+    
     private void refreshIncident() {
     	if(StringUtils.isNotBlank(incidentUrl)) {
     		incidents.clear();
@@ -984,7 +988,10 @@ public final class RouteActivity extends FragmentActivity {
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
-							((RouteDestinationOverlay) overlay).hideBalloon();
+							if(((RouteDestinationOverlay) overlay).isBalloonVisible()) {
+								curShowOverlay = (RouteDestinationOverlay)overlay;
+								((RouteDestinationOverlay) overlay).hideBalloon();
+							}
 						}
 					});
 					oldIncidentOverlay.add(overlay);
@@ -998,6 +1005,7 @@ public final class RouteActivity extends FragmentActivity {
     
     private void addIncidentIcons(Incident incident) {
 		IncidentIcon icon = IncidentIcon.fromType(incident.type);
+		boolean showBoolean = curShowOverlay != null && curShowOverlay.getGeoPoint().equals(new GeoPoint(incident.lat, incident.lon)); 
 		final RouteDestinationOverlay inc = new RouteDestinationOverlay(mapView, new GeoPoint(incident.lat, incident.lon), mediumFont, incident.shortDesc, icon.getResourceId(RouteActivity.this));
 		inc.setCallback(new OverlayCallback() {
 			@Override
@@ -1036,6 +1044,14 @@ public final class RouteActivity extends FragmentActivity {
 				return false;
 			}
 		});
+		if(showBoolean) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					inc.showBalloonOverlay();
+				}
+			});
+		}
 		mapView.getOverlays().add(inc);
 		mapView.postInvalidate();
     }
@@ -1045,22 +1061,25 @@ public final class RouteActivity extends FragmentActivity {
     	List<Incident> incidentOfDepTime = getIncidentOfDepartureTime(depTimeInMillis);
     	Log.d("RouteActivity", "incidentOfDeptime size : " + incidentOfDepTime.size());
     	for(Incident incident : incidentOfDepTime) {
-    		Overlay incidentOverlay = getOverlayOfGeoPoint(new GeoPoint(incident.lat, incident.lon));
+    		RouteDestinationOverlay incidentOverlay = getOverlayOfGeoPoint(new GeoPoint(incident.lat, incident.lon));
     		if(incidentOverlay == null) {
     			addIncidentIcons(incident);
     		}
     		else {
     			incidentOverlay.setEnabled(true);
+    			if(curShowOverlay != null && incidentOverlay.getGeoPoint().equals(curShowOverlay.getGeoPoint())) {
+    				incidentOverlay.showBalloonOverlay();
+    			}
     		}
     	}
     }
     
-    private Overlay getOverlayOfGeoPoint(GeoPoint point) {
+    private RouteDestinationOverlay getOverlayOfGeoPoint(GeoPoint point) {
     	List<Overlay> mapOverlays = mapView.getOverlays();
     	for(Overlay overlay : mapOverlays) {
     		if(overlay instanceof RouteDestinationOverlay) {
     			if(((RouteDestinationOverlay)overlay).getGeoPoint().equals(point)) {
-    				return overlay;
+    				return (RouteDestinationOverlay)overlay;
     			}
     		}
     	}
