@@ -3253,6 +3253,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private void refreshCobranding(final double lat, final double lon, 
             final boolean alertAvailability, final Runnable callback){
+    	final ImageView logoView = (ImageView) findViewById(R.id.logo);
         AsyncTask<Void, Void, City> checkCityAvailability = new AsyncTask<Void, Void, City>(){
             @Override
             protected City doInBackground(Void... params) {
@@ -3286,6 +3287,18 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     		Double.valueOf(result.maxLon * 1E6).intValue(), Double.valueOf(result.minLat * 1E6).intValue(), 
                     		Double.valueOf(result.minLon * 1E6).intValue());
                         cityName = result.name;
+                        LoadImageTask logoTask = new LoadImageTask(LandingActivity2.this, result.logo) {
+                            protected void onPostExecute(final Bitmap rs) {
+                            	Log.d("LandingActivity2", "rs is null ? " + (rs == null));
+                                if(rs != null){
+                                    logoView.setVisibility(View.VISIBLE);
+                                    logoView.setImageBitmap(rs);
+                                }else{
+                                    logoView.setVisibility(View.GONE);
+                                }
+                            }
+                        };
+                        Misc.parallelExecute(logoTask);
                     }catch(Throwable t){}
                 }
                 if(callback != null){
