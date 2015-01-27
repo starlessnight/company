@@ -61,56 +61,79 @@
                     android:orientation="horizontal" >
                     
                     <FrameLayout
+                        android:id="@+id/co2_circle_panel"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:visibility="invisible">
+                        
+                        <ImageView 
+                            android:id="@+id/co2_circle_background"
+                            android:layout_width="125dp"
+                            android:layout_height="125dp"
+                            android:layout_gravity="center"
+                            android:scaleType="fitCenter"/>
 
 	                    <TextView
 	                        android:id="@+id/co2_circle"
 	                        android:layout_width="wrap_content"
 	                        android:layout_height="wrap_content"
-	                        android:background="@drawable/blue_circle"
 	                        android:gravity="center"
 	                        android:layout_gravity="center"
 	                        android:text="@string/placeholder"
 	                        android:textColor="@android:color/white"
-	                        android:textSize="@dimen/large_font"
-	                        android:visibility="invisible" />
+	                        android:textSize="@dimen/large_font" />
+	                    
                     </FrameLayout>
                     
                     <FrameLayout
+                        android:id="@+id/mpoint_circle_panel"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:visibility="invisible">
+	                    
+                        <ImageView 
+                            android:id="@+id/mpoint_circle_background"
+                            android:layout_width="125dp"
+                            android:layout_height="125dp"
+                            android:layout_gravity="center"
+                            android:scaleType="fitCenter"/>
 
 	                    <TextView
 	                        android:id="@+id/mpoint_circle"
 	                        android:layout_width="wrap_content"
 	                        android:layout_height="wrap_content"
-	                        android:background="@drawable/green_circle"
 	                        android:gravity="center"
 	                        android:layout_gravity="center"
 	                        android:text="@string/placeholder"
 	                        android:textColor="@android:color/white"
-	                        android:textSize="@dimen/large_font"
-	                        android:visibility="invisible" />
+	                        android:textSize="@dimen/large_font" />
                     </FrameLayout>
 
                     <FrameLayout
+                        android:id="@+id/drive_score_circle_panel"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:visibility="invisible">
+	                    
+                        <ImageView 
+                            android:id="@+id/drive_score_circle_background"
+                            android:layout_width="125dp"
+                            android:layout_height="125dp"
+                            android:layout_gravity="center"
+                            android:scaleType="fitCenter"/>
+                        
 	                    <TextView
 	                        android:id="@+id/drive_score_circle"
 	                        android:layout_width="wrap_content"
 	                        android:layout_height="wrap_content"
-	                        android:background="@drawable/red_circle"
 	                        android:gravity="center"
 	                        android:layout_gravity="center"
 	                        android:text="@string/placeholder"
 	                        android:textColor="@android:color/white"
-	                        android:textSize="@dimen/large_font"
-	                        android:visibility="invisible"  />
+	                        android:textSize="@dimen/large_font"  />
                     </FrameLayout>
                 </LinearLayout>
             </FrameLayout>

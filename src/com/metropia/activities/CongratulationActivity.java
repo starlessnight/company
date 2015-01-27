@@ -4,12 +4,14 @@ import java.text.DecimalFormat;
 
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.Html;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.localytics.android.Localytics;
@@ -92,6 +94,9 @@ public class CongratulationActivity extends FragmentActivity {
 		finishButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				Intent landingIntent = new Intent(CongratulationActivity.this, LandingActivity2.class);
+				landingIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				startActivity(landingIntent);
 				finish();
 			}
 		});
@@ -112,20 +117,23 @@ public class CongratulationActivity extends FragmentActivity {
         if(co2Saving != 0) {
             String co2String = co2Saving + "lbs\nCO2";  
             co2.setText(ValidationActivity.formatCO2Desc(CongratulationActivity.this, co2String));
-            co2.setVisibility(View.VISIBLE);
+            ((ImageView)findViewById(R.id.co2_circle_background)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.blue_circle)));
+            findViewById(R.id.co2_circle_panel).setVisibility(View.VISIBLE);
         }
         
         TextView mpoint = (TextView) findViewById(R.id.mpoint_circle);
         if(credit > 0){
             mpoint.setText(ValidationActivity.formatCongrValueDesc(CongratulationActivity.this, credit + "\nPoints"));
-            mpoint.setVisibility(View.VISIBLE);
+            ((ImageView)findViewById(R.id.mpoint_circle_background)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.green_circle)));
+            findViewById(R.id.mpoint_circle_panel).setVisibility(View.VISIBLE);
         }
         
         TextView driveScore = (TextView) findViewById(R.id.drive_score_circle);
         if(timeSavingInMinute > 0) {
             String scoreString = new DecimalFormat("0.#").format(timeSavingInMinute) + "\nminutes"; 
             driveScore.setText(ValidationActivity.formatCongrValueDesc(CongratulationActivity.this, scoreString));
-            driveScore.setVisibility(View.VISIBLE);
+            ((ImageView)findViewById(R.id.drive_score_circle_background)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.red_circle)));
+            findViewById(R.id.drive_score_circle_panel).setVisibility(View.VISIBLE);
         }
         
         findViewById(R.id.co2_circle).setOnClickListener(new OnClickListener() {
