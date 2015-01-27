@@ -668,9 +668,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 
 	private RouteRect routeRect;
+	private static final double mapZoomVerticalOffset = 0.5;
 
 	public static RouteRect initRouteRect(Route r) {
-		return new RouteRect(r.getNodes());
+		return new RouteRect(r.getNodes(), mapZoomVerticalOffset);
 	}
 	
 	private AtomicBoolean initial = new AtomicBoolean(false);
