@@ -999,6 +999,7 @@ public final class RouteActivity extends FragmentActivity {
 			}
 			all.removeAll(oldIncidentOverlay);
 			showIncidentOverlays(timeLayout.getSelectedDepartureTime());
+			curShowOverlay = null;
 			mapView.postInvalidate();
 		}
     }
@@ -1015,19 +1016,22 @@ public final class RouteActivity extends FragmentActivity {
 					
 			@Override
 			public boolean onTap(int index) {
-				if(inc.isBalloonVisible()) {
-					inc.hideBalloon();
-				}
-				else {
-					List<Overlay> overlays = mapView.getOverlays();
-					for(Overlay overlay : overlays) {
-						if(overlay instanceof RouteDestinationOverlay) {
-							((RouteDestinationOverlay) overlay).hideBalloon();
-						}
+				if(inc.isEnabled()) {
+					if(inc.isBalloonVisible()) {
+						inc.hideBalloon();
 					}
-					inc.showBalloonOverlay();
+					else {
+						List<Overlay> overlays = mapView.getOverlays();
+						for(Overlay overlay : overlays) {
+							if(overlay instanceof RouteDestinationOverlay) {
+								((RouteDestinationOverlay) overlay).hideBalloon();
+							}
+						}
+						inc.showBalloonOverlay();
+					}
+					return true;
 				}
-				return true;
+				return false;
 			}
 					
 			@Override
@@ -1059,7 +1063,6 @@ public final class RouteActivity extends FragmentActivity {
     private void showIncidentOverlays(long depTimeInMillis) {
     	hideIncidentOverlays();
     	List<Incident> incidentOfDepTime = getIncidentOfDepartureTime(depTimeInMillis);
-    	Log.d("RouteActivity", "incidentOfDeptime size : " + incidentOfDepTime.size());
     	for(Incident incident : incidentOfDepTime) {
     		RouteDestinationOverlay incidentOverlay = getOverlayOfGeoPoint(new GeoPoint(incident.lat, incident.lon));
     		if(incidentOverlay == null) {
@@ -1072,6 +1075,7 @@ public final class RouteActivity extends FragmentActivity {
     			}
     		}
     	}
+    	mapView.postInvalidate();
     }
     
     private RouteDestinationOverlay getOverlayOfGeoPoint(GeoPoint point) {
@@ -1094,6 +1098,7 @@ public final class RouteActivity extends FragmentActivity {
     			overlay.setEnabled(false);
     		}
     	}
+    	mapView.postInvalidate();
     }
     
     private void bindMapFunctions() {
@@ -1865,10 +1870,9 @@ public final class RouteActivity extends FragmentActivity {
     private List<Incident> getIncidentOfDepartureTime(long departureTime) {
     	List<Incident> incidentOfDepTime = new ArrayList<Incident>();
     	if(incidents != null && incidents.size() > 0) {
-    		long timezoneOffsetInMillis = timeLayout.getTimzoneOffset() * 60 * 60 * 1000;
     		for(Incident incident : incidents) {
-    			if((incident.startTime.getTime() + timezoneOffsetInMillis) <= departureTime && 
-    					(incident.endTime.getTime() + timezoneOffsetInMillis) >= departureTime) {
+    			if(incident.startTime.getTime() <= departureTime && 
+    					incident.endTime.getTime() >= departureTime) {
     				incidentOfDepTime.add(incident);
     			}
     		}
