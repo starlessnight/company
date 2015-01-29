@@ -921,6 +921,7 @@ public final class RouteActivity extends FragmentActivity {
     }
     
     private String incidentUrl;
+    private AtomicBoolean showProgressDialog = new AtomicBoolean(true);
     
     private void retriveIncident(final Runnable callback) {
     	AsyncTask<Void, Void, Void> getIncidentTask = new AsyncTask<Void, Void, Void>() {
@@ -936,6 +937,14 @@ public final class RouteActivity extends FragmentActivity {
                         goBackToWhereTo.run();
                     }
                 });
+                if(showProgressDialog.getAndSet(false)) {
+	                Misc.doQuietly(new Runnable() {
+	                    @Override
+	                    public void run() {
+	                        dialog.show();
+	                    }
+	                });
+                }
     		}
     		
     		@Override

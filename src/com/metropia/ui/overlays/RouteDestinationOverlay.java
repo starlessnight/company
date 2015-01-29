@@ -39,7 +39,7 @@ public class RouteDestinationOverlay extends BalloonItemizedOverlay<OverlayItem>
 		
 		boolean isDestFlag = marker == R.drawable.pin_destination;
 		
-		balloonOffsetX = Dimension.dpToPx(103, mapview.getContext().getResources().getDisplayMetrics());
+		balloonOffsetX = /*Dimension.dpToPx(103, mapview.getContext().getResources().getDisplayMetrics())*/ 0;
 		balloonOffsetY = Dimension.dpToPx(isDestFlag ? -34 : -10, mapview.getContext().getResources().getDisplayMetrics());
 		
 		this.geoPoint = point;
