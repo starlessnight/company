@@ -1026,18 +1026,14 @@ public final class RouteActivity extends FragmentActivity {
 			@Override
 			public boolean onTap(int index) {
 				if(inc.isEnabled()) {
-					if(inc.isBalloonVisible()) {
-						inc.hideBalloon();
-					}
-					else {
-						List<Overlay> overlays = mapView.getOverlays();
-						for(Overlay overlay : overlays) {
-							if(overlay instanceof RouteDestinationOverlay) {
-								((RouteDestinationOverlay) overlay).hideBalloon();
-							}
+					mapView.getController().animateTo(inc.getGeoPoint());
+					List<Overlay> overlays = mapView.getOverlays();
+					for(Overlay overlay : overlays) {
+						if(overlay instanceof RouteDestinationOverlay) {
+							((RouteDestinationOverlay) overlay).hideBalloon();
 						}
-						inc.showBalloonOverlay();
 					}
+					inc.showBalloonOverlay();
 					return true;
 				}
 				return false;
