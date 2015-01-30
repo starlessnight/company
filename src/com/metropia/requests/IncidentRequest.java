@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,6 +26,10 @@ public class IncidentRequest extends FetchRequest<List<Incident>> {
 		public double lon;
 		public Date startTime;
 		public Date endTime;
+		
+		public boolean isInTimeRange(long departureUTCTime) {
+			return departureUTCTime >= startTime.getTime() && departureUTCTime <= endTime.getTime();
+		}
 	}
 
 	public IncidentRequest(User user, String url) {
@@ -53,6 +58,7 @@ public class IncidentRequest extends FetchRequest<List<Incident>> {
 		} 
 		else {
 			JSONArray responseArray = new JSONArray(response);
+			df.setTimeZone(TimeZone.getTimeZone("GMT"));
 			for (int i = 0; i < responseArray.length(); i++) {
 				try {
 					JSONObject incidentJSON = responseArray.optJSONObject(i);

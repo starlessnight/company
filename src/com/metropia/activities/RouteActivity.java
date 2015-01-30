@@ -1872,12 +1872,11 @@ public final class RouteActivity extends FragmentActivity {
     	}
     }
     
-    private List<Incident> getIncidentOfDepartureTime(long departureTime) {
+    private List<Incident> getIncidentOfDepartureTime(long departureUTCTime) {
     	List<Incident> incidentOfDepTime = new ArrayList<Incident>();
     	if(incidents != null && incidents.size() > 0) {
     		for(Incident incident : incidents) {
-    			if(incident.startTime.getTime() <= departureTime && 
-    					incident.endTime.getTime() >= departureTime) {
+    			if(incident.isInTimeRange(departureUTCTime)) {
     				incidentOfDepTime.add(incident);
     			}
     		}
