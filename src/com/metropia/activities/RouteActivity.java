@@ -1071,14 +1071,19 @@ public final class RouteActivity extends FragmentActivity {
     	hideIncidentOverlays();
     	List<Incident> incidentOfDepTime = getIncidentOfDepartureTime(depTimeInMillis);
     	for(Incident incident : incidentOfDepTime) {
-    		RouteDestinationOverlay incidentOverlay = getOverlayOfGeoPoint(new GeoPoint(incident.lat, incident.lon));
+    		final RouteDestinationOverlay incidentOverlay = getOverlayOfGeoPoint(new GeoPoint(incident.lat, incident.lon));
     		if(incidentOverlay == null) {
     			addIncidentIcons(incident);
     		}
     		else {
     			incidentOverlay.setEnabled(true);
     			if(curShowOverlay != null && incidentOverlay.getGeoPoint().equals(curShowOverlay.getGeoPoint())) {
-    				incidentOverlay.showBalloonOverlay();
+    				runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							incidentOverlay.showBalloonOverlay();
+						}
+    				});
     			}
     		}
     	}
