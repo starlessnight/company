@@ -1007,7 +1007,9 @@ public final class RouteActivity extends FragmentActivity {
 				}
 			}
 			all.removeAll(oldIncidentOverlay);
-			showIncidentOverlays(timeLayout.getSelectedDepartureTime());
+			if(timeLayout.getSelectedTimeButton() != null) {
+				showIncidentOverlays(timeLayout.getSelectedDepartureTime());
+			}
 			curShowOverlay = null;
 			mapView.postInvalidate();
 		}

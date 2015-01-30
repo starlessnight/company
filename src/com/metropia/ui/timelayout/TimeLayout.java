@@ -189,6 +189,10 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     public long getSelectedDepartureTime() {
     	return getDepartureTime(selectedColumn);
     }
+    
+    public View getSelectedTimeButton() {
+    	return getChildAt(selectedColumn);
+    }
 
     @Override
     public void onClick(View v) {
