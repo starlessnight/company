@@ -3841,6 +3841,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	return overlay == curFrom || overlay == curTo;
     }
     
+    private boolean isFromOrToSetted() {
+    	return curFrom != null || curTo != null;
+    }
+    
     private boolean removeAllOD() {
     	MapView mapView = (MapView) findViewById(R.id.mapview);
     	boolean handleFrom = removeOldOD(mapView, true);
@@ -4227,6 +4231,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             	else if(searchBox.isFocused() || fromSearchBox.isFocused()) {
             		searchBox.clearFocus();
             		fromSearchBox.clearFocus();
+            		return true;
+            	}
+            	else if(isFromOrToSetted()) {
+            		removeAllOD();
             		return true;
             	}
             	else if(!isReservationInfoShown() && hasReservTrip()) {
