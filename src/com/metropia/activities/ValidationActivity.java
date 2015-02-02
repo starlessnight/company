@@ -668,7 +668,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 
 	private RouteRect routeRect;
-	private static final double mapZoomVerticalOffset = 0.5;
+	private static final double mapZoomVerticalOffset = 0.3;
 
 	public static RouteRect initRouteRect(Route r) {
 		return new RouteRect(r.getNodes(), mapZoomVerticalOffset);
@@ -703,8 +703,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         SKRouteManager.getInstance().setRouteListener(this);
 	}
 	
-	private static final Float PADDING = 0.02f;
-	
 	private void initViews() {
 		
 		buttonFollow = (ImageView) findViewById(R.id.center_map_icon);
@@ -735,16 +733,17 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		                }
 		                else if(routeRect != null){
 		                    /* Get a midpoint to center the view of  the routes */
-		                    GeoPoint mid = routeRect.getMidPoint();
 		                    mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
 		                    mapView.rotateTheMapToNorth();
-		                    SKCoordinate coordinate = new SKCoordinate(mid.getLongitude(), mid.getLatitude());
-		                    mapView.centerMapOnPosition(coordinate);
 		                    GeoPoint topLeft = routeRect.getTopLeftPoint();
 		                    GeoPoint bottomRight = routeRect.getBottomRightPoint();
 		                    // paddding parameter of fitBoundingBox not work, use PADDING
-		                    SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude() + PADDING, topLeft.getLongitude() + PADDING, bottomRight.getLatitude() - PADDING, bottomRight.getLongitude() - PADDING);
-		                    mapView.fitBoundingBox(boundingBox, 0, 0);
+		                    SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude());
+		                    int navigationViewHeight = navigationView.getMeasuredHeight();
+		                    mapView.fitBoundingBox(boundingBox, 100, navigationViewHeight);
+		                    GeoPoint mid = routeRect.getMidPoint();
+		                    SKCoordinate coordinate = new SKCoordinate(mid.getLongitude(), mid.getLatitude());
+		                    mapView.centerMapOnPosition(coordinate);
 		                    mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
 		                    mapView.getMapSettings().setMapRotationEnabled(false);
 		                }
