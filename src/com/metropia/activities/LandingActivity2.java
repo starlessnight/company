@@ -1585,16 +1585,22 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         long durationTime = reserv.getDuration();  //sec
         String originDesc = StringUtils.isNotBlank(reserv.getOriginName()) ? reserv.getOriginName() : reserv.getOriginAddress();
         String destDesc = StringUtils.isNotBlank(reserv.getDestinationName()) ? reserv.getDestinationName() : reserv.getDestinationAddress();
-//        StringBuffer tripInfoDesc = new StringBuffer(originDesc).append(" TO: ").append(destDesc);
+        final boolean lessThanOneMinite = timeUntilDepart < 1 * 60 * 1000;
         if(reserv.isEligibleTrip()){
-        	startTimeVisible = isFirst ? View.GONE : View.VISIBLE;
-        	durationTimeVisible = View.VISIBLE;
-            backgroundColor = isFirst ? R.color.metropia_green : R.color.metropia_blue;
-            nextTripStartTime = StringUtils.replace(formatTime(departureTimeUtc, reserv.getRoute().getTimezoneOffset(), !isFirst), " ", "\n");
-            arrivalTime = formatTime(System.currentTimeMillis() + durationTime*1000, reserv.getRoute().getTimezoneOffset(), false);
+        	startTimeVisible = lessThanOneMinite && isFirst ? View.GONE : View.VISIBLE;
+        	durationTimeVisible = lessThanOneMinite ? View.VISIBLE : View.GONE;
+            backgroundColor = isFirst ? (lessThanOneMinite ? R.color.metropia_green : R.color.metropia_orange) : R.color.metropia_blue;
+            if(isFirst && !lessThanOneMinite) {
+            	int countDownMins = Double.valueOf(Math.ceil(Double.valueOf(timeUntilDepart)/Double.valueOf(60*1000))).intValue();
+            	nextTripStartTime = String.format("%d\nmins", countDownMins);
+            }
+            else {
+            	nextTripStartTime = StringUtils.replace(formatTime(departureTimeUtc, reserv.getRoute().getTimezoneOffset(), !isFirst), " ", "\n");
+            }
+            arrivalTime = lessThanOneMinite ? formatTime(System.currentTimeMillis() + durationTime*1000, reserv.getRoute().getTimezoneOffset(), false) : arrivalTime;
             arrivalTimeDesc = "Arrival: " + arrivalTime;
             durationTimeDesc = "Duration: " + getFormattedDuration(Long.valueOf(durationTime).intValue());
-            startButtonResourceId = isFirst ? R.drawable.reservation_start_trip : R.drawable.reservation_start_trip_disable;
+            startButtonResourceId = isFirst ? (lessThanOneMinite ? R.drawable.reservation_start_trip : R.drawable.reservation_start_trip_transparent) : R.drawable.reservation_start_trip_disable;
         }else {
         	startTimeVisible = View.VISIBLE;
         	durationTimeVisible = View.GONE;
@@ -1612,7 +1618,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	TextView tripInfoToAddressView =  (TextView) reservInfo.findViewById(R.id.trip_info_to_address);
     	tripInfoToAddressView.setText(destDesc);
     	TextView timeToGo = (TextView) reservInfo.findViewById(R.id.time_to_go_desc);
-    	timeToGo.setText(startTimeVisible == View.GONE ? "It's Time to Go!" : "");
+    	timeToGo.setText(startTimeVisible == View.GONE ? "It's Time to Go!" : (reserv.isEligibleTrip() ? "WILL START IN:" : ""));
     	timeToGo.setVisibility(isFirst?View.VISIBLE:View.GONE);
         reservInfo.setBackgroundColor(getResources().getColor(backgroundColor));
         reservInfo.setTag(reserv);
@@ -1641,7 +1647,29 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 						@Override
 						public void onAnimationEnd() {
 							if(reserv.isEligibleTrip()) {
-								startValidationActivity(reserv);
+								if(lessThanOneMinite) {
+									startValidationActivity(reserv);
+								}
+								else {
+									NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, "Would you like to start your trip early?");
+									dialog.setVerticalOrientation(false);
+									dialog.setTitle("");
+									dialog.setNegativeButtonText("Yes");
+									dialog.setNegativeActionListener(new ActionListener() {
+										@Override
+										public void onClick() {
+											startValidationActivity(reserv);
+										}
+									});
+									dialog.setPositiveButtonText("No");
+									dialog.setPositiveActionListener(new ActionListener() {
+										@Override
+										public void onClick() {
+											//do nothing
+										}
+									});
+									dialog.show();
+								}
 							}
 							else {
 								NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, "Would you like to start your trip early?");

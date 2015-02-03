@@ -143,8 +143,8 @@
                     android:drawableTop="@drawable/reservation_on_my_way"
                     android:gravity="center"
                     android:text="MESSAGE"
-                    android:textColor="@color/transparent_white"
-                    android:textSize="@dimen/micro_font" />
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/smaller_font" />
             </FrameLayout>
 
             <LinearLayout
@@ -180,14 +180,6 @@
                         android:textSize="@dimen/large_font" />
                 </FrameLayout>
 
-                <TextView
-                    android:id="@+id/leave_label"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center|bottom"
-                    android:text="LEAVE NOW"
-                    android:textColor="@color/transparent_white"
-                    android:textSize="@dimen/smallest_font" />
             </LinearLayout>
 
             <LinearLayout
@@ -211,11 +203,21 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:text="   EDIT"
-                    android:textColor="@color/transparent_white"
-                    android:textSize="@dimen/micro_font"/>
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/smaller_font"/>
                 
             </LinearLayout>
         </LinearLayout>
+        
+        <TextView
+            android:id="@+id/leave_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="INCOMING TRIP"
+            android:textColor="@android:color/white"
+            android:includeFontPadding="false"
+            android:textSize="24dp" />
 
         <LinearLayout
             android:id="@+id/reservation_trip_times"
