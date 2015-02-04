@@ -1592,7 +1592,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             backgroundColor = isFirst ? (lessThanOneMinite ? R.color.metropia_green : R.color.metropia_orange) : R.color.metropia_blue;
             if(isFirst && !lessThanOneMinite) {
             	int countDownMins = Double.valueOf(Math.ceil(Double.valueOf(timeUntilDepart)/Double.valueOf(60*1000))).intValue();
-            	nextTripStartTime = String.format("%d\nmins", countDownMins);
+            	nextTripStartTime = String.format("%d\nMINS", countDownMins);
             }
             else {
             	nextTripStartTime = StringUtils.replace(formatTime(departureTimeUtc, reserv.getRoute().getTimezoneOffset(), !isFirst), " ", "\n");
@@ -1630,7 +1630,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         tripArrivalTimeView.setText(formatTripTime(arrivalTimeDesc));
         TextView tripStartTimeView = (TextView) reservInfo.findViewById(R.id.reservation_start_time);
         tripStartTimeView.setVisibility(startTimeVisible);
-        tripStartTimeView.setText(formatStartTripTime(nextTripStartTime));
+        if(reserv.isEligibleTrip()) {
+        	tripStartTimeView.setText(formatCountDownTime(nextTripStartTime));
+        	tripStartTimeView.setPadding(0, Dimension.dpToPx(8, getResources().getDisplayMetrics()), 0, 0);
+        }
+        else {
+        	tripStartTimeView.setText(formatStartTripTime(nextTripStartTime));
+        	tripStartTimeView.setPadding(0, 0, 0, 0);
+        }
         ImageView startButton = (ImageView) reservInfo.findViewById(R.id.reservation_start_button);
         startButton.setImageBitmap(getBitmap(LandingActivity2.this, startButtonResourceId, 1));
 //        startButton.setImageResource(startButtonResourceId);
@@ -2663,16 +2670,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		}
     }
     
-//    private SpannableString formatTripInfoDesc(String tripDesc) {
-//    	int indexOfChange = tripDesc.indexOf("TO:");
-//    	SpannableString tripDescSpan = SpannableString.valueOf(tripDesc);
-//    	if(indexOfChange != -1) {
-//    		tripDescSpan.setSpan(new AbsoluteSizeSpan(getResources()
-//					.getDimensionPixelSize(R.dimen.micro_font)), indexOfChange, indexOfChange + "TO:".length(),
-//					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//    	}
-//		return tripDescSpan;
-//    }
+    private SpannableString formatCountDownTime(String countDownDesc) {
+    	int indexOfChange = countDownDesc.indexOf("\n");
+    	SpannableString countDownSpan = SpannableString.valueOf(countDownDesc);
+		countDownSpan.setSpan(new AbsoluteSizeSpan(Dimension.dpToPx(50, getResources().getDisplayMetrics())), 0, indexOfChange,
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		countDownSpan.setSpan(new AbsoluteSizeSpan(getResources()
+					.getDimensionPixelSize(R.dimen.smallest_font)), indexOfChange + 1, countDownDesc.length(), 
+					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		countDownSpan.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.transparent_black)), indexOfChange + 1, countDownDesc.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		return countDownSpan;
+    }
     
     private String formatTime(long time, int timzoneOffset, boolean showDate){
     	String format = showDate ? "EEEE h:mm a" : "h:mm a";
@@ -3325,7 +3333,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                         cityName = result.name;
                         LoadImageTask logoTask = new LoadImageTask(LandingActivity2.this, result.logo) {
                             protected void onPostExecute(final Bitmap rs) {
-                            	Log.d("LandingActivity2", "rs is null ? " + (rs == null));
                                 if(rs != null){
                                     logoView.setVisibility(View.VISIBLE);
                                     logoView.setImageBitmap(rs);
