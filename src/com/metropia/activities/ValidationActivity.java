@@ -700,6 +700,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         mapView.getMapSettings().setInertiaPanningEnabled(true);
         mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(ValidationActivity.this));
         dayMode.set(SkobblerUtils.isDayMode());
+        mapView.getMapSettings().setStreetNamePopupsShown(!dayMode.get());
         SKRouteManager.getInstance().setRouteListener(this);
 	}
 	
@@ -903,6 +904,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		                    + "using Metropia Mobile!"
 		                    + "\n\n" + Misc.APP_DOWNLOAD_LINK);
 		                startActivity(intent);
+//						Intent intent = new Intent(Intent.ACTION_SEND);
+//						intent.setType("text/plain");
+//						intent.putExtra(Intent.EXTRA_SUBJECT, "More Metropians = Less Traffic");
+//		                intent.putExtra(Intent.EXTRA_TEXT, "I earned " + reservation.getMpoint() + " points for traveling at " 
+//		                    + Reservation.formatTime(route.getDepartureTime(), true) + " to help solve traffic congestion "
+//		                    + "using Metropia Mobile!"
+//		                    + "\n\n" + Misc.APP_DOWNLOAD_LINK);
+//		                startActivity(Intent.createChooser(intent, "Share"));
 					}
             		
             	});
@@ -2158,6 +2167,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 							timeInfo.setTextColor(Color.parseColor("#adffffff"));
 						}
 						dayMode.set(currentMode);
+						mapView.getMapSettings().setStreetNamePopupsShown(!dayMode.get());
 					}
 				});
 			}
