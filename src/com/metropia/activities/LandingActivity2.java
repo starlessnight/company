@@ -1819,7 +1819,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         return emptyReservInfo;
     }
     
-    private static Bitmap getBitmap(Context ctx, int resourceId, int inSampleSize) {
+    public static Bitmap getBitmap(Context ctx, int resourceId, int inSampleSize) {
     	InputStream is = ctx.getResources().openRawResource(resourceId);
         BitmapFactory.Options options=new BitmapFactory.Options();
         options.inJustDecodeBounds = false;

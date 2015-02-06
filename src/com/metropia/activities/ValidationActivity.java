@@ -21,6 +21,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,8 +48,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -93,12 +92,17 @@ import com.metropia.TripService;
 import com.metropia.activities.DebugOptionsActivity.FakeRoute;
 import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.dialogs.NotificationDialog2.ActionListener;
+import com.metropia.models.IncidentIcon;
 import com.metropia.models.Reservation;
 import com.metropia.models.Route;
 import com.metropia.models.Trajectory;
 import com.metropia.models.Trajectory.Record;
 import com.metropia.models.User;
+import com.metropia.requests.CityRequest;
+import com.metropia.requests.CityRequest.City;
 import com.metropia.requests.ImComingRequest;
+import com.metropia.requests.IncidentRequest;
+import com.metropia.requests.IncidentRequest.Incident;
 import com.metropia.requests.Request;
 import com.metropia.requests.Request.Setting;
 import com.metropia.requests.ReservationFetchRequest;
@@ -110,6 +114,7 @@ import com.metropia.ui.NavigationView.CheckPointListener;
 import com.metropia.ui.NavigationView.DirectionItem;
 import com.metropia.ui.menu.MainMenu;
 import com.metropia.ui.timelayout.TimeColumn;
+import com.metropia.utils.Dimension;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
 import com.metropia.utils.GeoPoint;
@@ -125,7 +130,9 @@ import com.skobbler.ngx.SKCoordinate;
 import com.skobbler.ngx.SKMaps;
 import com.skobbler.ngx.map.SKAnimationSettings;
 import com.skobbler.ngx.map.SKAnnotation;
+import com.skobbler.ngx.map.SKAnnotationView;
 import com.skobbler.ngx.map.SKBoundingBox;
+import com.skobbler.ngx.map.SKCalloutView;
 import com.skobbler.ngx.map.SKCoordinateRegion;
 import com.skobbler.ngx.map.SKMapCustomPOI;
 import com.skobbler.ngx.map.SKMapPOI;
@@ -251,17 +258,15 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private SKMapViewHolder mapViewHolder;
 	private SKMapSurfaceView mapView;
+	private SKCalloutView mapPopup;
 	
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		// init skmap
 		SkobblerUtils.initializeLibrary(ValidationActivity.this);
-		
 		setContentView(R.layout.post_reservation_map);
-		
 		Localytics.integrate(this);
-		
 		initSKMaps();
 		
 		Reservation.cancelNotification(this);
@@ -686,6 +691,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
 		mapView = mapViewHolder.getMapSurfaceView();
 		CloudmadeUtil.retrieveCloudmadeKey(this);
+		
+		mapPopup = mapViewHolder.getCalloutView();
+		mapPopup.setDescriptionTextSize(3);
+		mapPopup.setVerticalOffset(-30);
+		mapPopup.setLeftImage(null);
+		mapPopup.setRightImage(null);
+        
 		mapView.setMapSurfaceListener(this);
 		mapView.clearAllOverlays();
 		mapView.getMapSettings().setCurrentPositionShown(false);
@@ -720,6 +732,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						Boolean tagAfterClick = !((Boolean) buttonFollow.getTag());
 		            	buttonFollow.setTag(tagAfterClick);
 		            	if (tagAfterClick) {
+		            		mapPopup.setVisibility(View.GONE);
+		            		removeAllIncident();
 		                    if (lastKnownLocation != null) {
 		                    	double latitude = lastKnownLocation.getLatitude();
 		                    	double longitude = lastKnownLocation.getLongitude();
@@ -747,6 +761,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		                    mapView.centerMapOnPosition(coordinate);
 		                    mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
 		                    mapView.getMapSettings().setMapRotationEnabled(false);
+		                    showIncidentsIfNessary();
 		                }
 		            	navigationView.setToCurrentDireciton();
 					}
@@ -1602,6 +1617,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 	
 	private Long startCountDownTime = Long.MAX_VALUE;
+	private Long incidentInitTime = Long.valueOf(-1);
+	private String incidentUrl;
+	private Map<Integer, Incident> incidents = new HashMap<Integer, Incident>();
 	
 	private synchronized void locationChanged(final Location location) {
 	    final double speedInMph = Trajectory.msToMph(location.getSpeed());
@@ -1709,6 +1727,51 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                     Misc.parallelExecute(task);
                 }
             });
+	    }
+	    
+	    if(StringUtils.isBlank(incidentUrl)) {
+		   	AsyncTask<Void, Void, Void> getIncidentTask = new AsyncTask<Void, Void, Void>() {
+		   		@Override
+				protected Void doInBackground(Void... params) {
+		    		CityRequest cityReq = new CityRequest(lat, lng);
+		            try {
+		            	City city = cityReq.execute(ValidationActivity.this);
+						if(city != null && StringUtils.isBlank(city.html)) {
+							incidentUrl = city.incidents;
+						}
+					} catch (Exception ignore) {}
+		   			return null;
+				}
+		   		
+		    };
+		    Misc.parallelExecute(getIncidentTask);
+	    }
+	    
+	    if(incidentInitTime < 0 && StringUtils.isNotBlank(incidentUrl)) {
+	    	AsyncTask<Void, Void, Boolean> retriveIncidentTask = new AsyncTask<Void, Void, Boolean>() {
+	    		@Override
+				protected Boolean doInBackground(Void... params) {
+	    			incidents.clear();
+	    			IncidentRequest incidentReq = new IncidentRequest(User.getCurrentUser(ValidationActivity.this), incidentUrl);
+	    			incidentReq.invalidateCache(ValidationActivity.this);
+	    			try {
+	    				List<Incident> allIncident = incidentReq.execute(ValidationActivity.this);
+	    				for(Incident inc : allIncident) {
+	    					incidents.put(getIncidentUniqueId(inc), inc);
+	    				}
+	    			} catch (Exception ignore) {return false;}
+	    			return true;
+				}
+	    		
+	    		@Override
+		        protected void onPostExecute(Boolean result) {
+	    			if(result) {
+	    				incidentInitTime = System.currentTimeMillis();
+	    				showIncidentsIfNessary();
+	    			}
+	    		}
+	    	};
+	    	Misc.parallelExecute(retriveIncidentTask);
 	    }
 	    
 	    runOnUiThread(new Runnable(){
@@ -1885,6 +1948,53 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		writeTripLog();
 		//show current location
 	    mapView.getMapSettings().setCurrentPositionShown(true);
+	}
+	
+	private int getIncidentUniqueId(Incident incident) {
+		return new HashCodeBuilder().append(incident.lat).append("+").append(incident.lon).toHashCode();
+	}
+	
+	
+	private void showIncidentsIfNessary() {
+		if(mapView.getMapSettings().getMapDisplayMode() == SKMapDisplayMode.MODE_2D) {
+			mapView.deleteAllAnnotationsAndCustomPOIs();
+			drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
+			List<Incident> incidentsOfTime = getIncidentsOfTime();
+			Log.d("ValidationActivity", "show incident size : " + incidentsOfTime.size());
+			for(Incident incident : incidentsOfTime) {
+				Log.d("validationActivity", "Incident Unique Id : " + getIncidentUniqueId(incident));
+				SKAnnotation incAnn = new SKAnnotation();
+				incAnn.setUniqueID(getIncidentUniqueId(incident));
+				incAnn.setLocation(new SKCoordinate(incident.lon, incident.lat));
+				incAnn.setMininumZoomLevel(5);
+//				incAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_MARKER);
+				SKAnnotationView iconView = new SKAnnotationView();
+				ImageView incImage = new ImageView(ValidationActivity.this);
+				incImage.setImageBitmap(LandingActivity2.getBitmap(ValidationActivity.this, IncidentIcon.fromType(incident.type).getResourceId(ValidationActivity.this), 1));
+				iconView.setView(incImage);
+				iconView.setHeight(200);
+				iconView.setWidth(200);
+				incAnn.setAnnotationView(iconView);
+				mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+			}
+		}
+	}
+	
+	private void removeAllIncident() {
+		mapView.deleteAllAnnotationsAndCustomPOIs();
+		drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
+	}
+	
+	private List<Incident> getIncidentsOfTime() {
+		List<Incident> incidentOfDepTime = new ArrayList<Incident>();
+    	if(incidents != null && incidents.size() > 0) {
+    		for(Incident incident : incidents.values()) {
+    			if(incident.isInTimeRange(reservation.getDepartureTimeUtc())) {
+    				incidentOfDepTime.add(incident);
+    			}
+    		}
+    	}
+    	return incidentOfDepTime;
 	}
 	
 	private AtomicLong etaDelay = new AtomicLong();
@@ -2532,9 +2642,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 
 	@Override
-	public void onAnnotationSelected(SKAnnotation arg0) {
-		// TODO Auto-generated method stub
-		
+	public void onAnnotationSelected(SKAnnotation annotation) {
+		int selectedAnnotationId = annotation.getUniqueID();
+		Incident selectedInc = incidents.get(selectedAnnotationId);
+		if(selectedInc != null) {
+			mapPopup.setDescription(selectedInc.shortDesc);
+			mapPopup.showAtLocation(annotation.getLocation(), true);
+		}
 	}
 
 	@Override
@@ -2619,6 +2733,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	public void onSingleTap(SKScreenPoint arg0) {
 		buttonFollow.setTag(Boolean.valueOf(false));
 		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
+		mapPopup.setVisibility(View.GONE);
 	}
 
 	@Override
