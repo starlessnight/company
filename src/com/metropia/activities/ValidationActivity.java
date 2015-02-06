@@ -831,9 +831,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		                if(!tagAfterClick){
 		                    speak("", true);
 		                }else{
-		                	Uri ding = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.ding);
-		                	Ringtone r = RingtoneManager.getRingtone(ValidationActivity.this, ding);
-		                	r.play();
+		                	Misc.playUnmuteSound(ValidationActivity.this);
 		                    utteranceCompletedCnt.set(utteranceCnt.get());
 		                }
 					}
@@ -1380,6 +1378,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     									msg = "On My Way not sent";
     								} else {
     									msg = "On My Way sent";
+    								}
+    								if(success) {
+    									Misc.playOnMyWaySound(ValidationActivity.this);
     								}
     								Toast.makeText(ValidationActivity.this, msg,
     										Toast.LENGTH_LONG).show();

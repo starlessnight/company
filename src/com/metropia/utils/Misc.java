@@ -34,6 +34,7 @@ import com.google.android.gcm.GCMRegistrar;
 import com.metropia.activities.GCMIntentService;
 import com.metropia.activities.LandingActivity2;
 import com.metropia.activities.LandingActivity2.ReservationListTask;
+import com.metropia.activities.R;
 import com.metropia.models.Reservation;
 import com.metropia.ui.timelayout.ScrollableTimeLayout;
 import com.metropia.ui.timelayout.TimeButton;
@@ -151,11 +152,31 @@ public class Misc {
     }
     
     public static void playDefaultNotificationSound(Context ctx){
-        try {
+        playCustomSound(ctx, R.raw.notification);
+    }
+    
+    public static void playAndroidNotificationSound(Context ctx) {
+    	try {
             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             Ringtone r = RingtoneManager.getRingtone(ctx, notification);
             r.play();
         } catch (Throwable e) {}
+    }
+    
+    public static void playUnmuteSound(Context ctx) {
+    	playCustomSound(ctx, R.raw.unmute);
+    }
+    
+    public static void playOnMyWaySound(Context ctx) {
+    	playCustomSound(ctx, R.raw.omw);
+    }
+    
+    private static void playCustomSound(Context ctx, int rawResourceId) {
+    	try {
+	    	Uri ding = Uri.parse("android.resource://" + ctx.getPackageName() + "/" + rawResourceId);
+	    	Ringtone r = RingtoneManager.getRingtone(ctx, ding);
+	    	r.play();
+    	} catch (Throwable e) {}
     }
     
     private static final String INIT_TRIP_INFO_PANEL = "INIT_TRIP_INFO_PANEL";
