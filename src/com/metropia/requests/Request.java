@@ -47,6 +47,8 @@ public abstract class Request {
 	
 	public static final String ENTRYPOINT_URL = "https://api.metropia.com";
 	
+	public static final String SECONDARY_ENTRYPOINT_URL = "https://production.smartrek.webfactional.com/v1/rest/index.json";
+	
 	public static String getTimeZone(){
 	    return TimeZone.getDefault().getID();
 	}

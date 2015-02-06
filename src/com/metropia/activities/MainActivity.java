@@ -241,7 +241,20 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
                 rs = req.execute(ctx);
             }
             catch(Exception e) {
-                ehs.registerException(e);
+            	if(StringUtils.equals(entrypoint, Request.ENTRYPOINT_URL)) {
+            		Log.d("MainActivity", "Use Secondary EntryPoint Url");
+            		try {
+	            		ServiceDiscoveryRequest req = new ServiceDiscoveryRequest(Request.SECONDARY_ENTRYPOINT_URL);  
+	                    req.invalidateCache(ctx);
+	                    rs = req.execute(ctx);
+            		}
+            		catch(Exception secEx) {
+            			ehs.registerException(secEx);
+            		}
+            	}
+            	else {
+            		ehs.registerException(e);
+            	}
             }
             return rs;
         }
@@ -249,10 +262,10 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 	    @Override
         protected void onPostExecute(Result result) {
             if (ehs.hasExceptions()) {
-                failed = true;
-                if(onError != null){
-                    ehs.reportExceptions(onError);
-                }
+	            failed = true;
+	            if(onError != null){
+	                ehs.reportExceptions(onError);
+	            }
             }
             else {
                 failed = false;
