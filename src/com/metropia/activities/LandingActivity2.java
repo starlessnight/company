@@ -3528,7 +3528,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		else if(mapView.getZoomLevel() > POIOVERLAY_HIDE_ZOOM_LEVEL){
 			for(Overlay overlay : overlays) {
 				if(overlay instanceof POIOverlay && !overlay.isEnabled()) {
-					overlay.setEnabled(true);
+					if(((POIOverlay)overlay).getMarker() == R.drawable.bulb_poi) {
+						overlay.setEnabled(MapDisplayActivity.isPredictDestEnabled(LandingActivity2.this));
+					}
+					else {
+						overlay.setEnabled(true);
+					}
 				}
 			}
 			insertOverlayByOrderOrSort(mapView.getOverlays(), null);
@@ -4139,6 +4144,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	    		 workOverlay.add(overlay);
 	    	}
 	    	else if(R.drawable.bulb_poi == overlay.getMarker()) {
+	    		overlay.setEnabled(MapDisplayActivity.isPredictDestEnabled(LandingActivity2.this));
 	    		bulbOverlay.add(overlay);
 	    	}
 	    	else {
