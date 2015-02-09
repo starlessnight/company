@@ -1642,7 +1642,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         startButton.setImageBitmap(getBitmap(LandingActivity2.this, startButtonResourceId, 1));
 //        startButton.setImageResource(startButtonResourceId);
         reservInfo.findViewById(R.id.reservation_trip_times).setVisibility(isFirst?View.VISIBLE:View.GONE);
-        reservInfo.findViewById(R.id.leave_label).setVisibility((isFirst && !reserv.isEligibleTrip())?View.VISIBLE:View.GONE);
+//        reservInfo.findViewById(R.id.leave_label).setVisibility((isFirst && !reserv.isEligibleTrip())?View.VISIBLE:View.GONE);
         reservInfo.findViewById(R.id.center_line).setVisibility(isFirst? View.GONE : View.VISIBLE);
         
         if(isFirst) {
@@ -1811,7 +1811,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 //        startButton.setImageResource(startButtonResourceId);
         startButton.setVisibility(View.INVISIBLE);
         emptyReservInfo.findViewById(R.id.reservation_trip_times).setVisibility(View.GONE);
-        emptyReservInfo.findViewById(R.id.leave_label).setVisibility(View.GONE);
+//        emptyReservInfo.findViewById(R.id.leave_label).setVisibility(View.GONE);
         emptyReservInfo.findViewById(R.id.center_line).setVisibility(View.INVISIBLE);
         emptyReservInfo.findViewById(R.id.reservation_on_my_way).setVisibility(View.INVISIBLE);
         emptyReservInfo.findViewById(R.id.reschedule_panel).setVisibility(View.INVISIBLE);

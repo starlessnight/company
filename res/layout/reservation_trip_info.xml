@@ -210,6 +210,7 @@
             </LinearLayout>
         </LinearLayout>
         
+        <!--  
         <TextView
             android:id="@+id/leave_label"
             android:layout_width="match_parent"
@@ -219,6 +220,7 @@
             android:textColor="@android:color/white"
             android:includeFontPadding="false"
             android:textSize="24dp" />
+        -->
 
         <LinearLayout
             android:id="@+id/reservation_trip_times"
