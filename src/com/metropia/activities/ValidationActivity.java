@@ -114,7 +114,6 @@ import com.metropia.ui.NavigationView.CheckPointListener;
 import com.metropia.ui.NavigationView.DirectionItem;
 import com.metropia.ui.menu.MainMenu;
 import com.metropia.ui.timelayout.TimeColumn;
-import com.metropia.utils.Dimension;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
 import com.metropia.utils.GeoPoint;

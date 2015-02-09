@@ -150,7 +150,7 @@ public class NavigationView extends LinearLayout {
 	private Runnable openDirectionViewEvent;
 	private boolean portraitMode = true;
 	
-	private ViewPager roadPager;
+	private WrapContentHeightViewPager roadPager;
 	
 	private boolean	restrictVoiceGuidance;
 	
@@ -202,7 +202,7 @@ public class NavigationView extends LinearLayout {
 			}
 		});
 		
-		roadPager = (ViewPager) findViewById(R.id.text_view_road_pager);
+		roadPager = (WrapContentHeightViewPager) findViewById(R.id.text_view_road_pager);
 		roadPager.setOnPageChangeListener(new OnPageChangeListener() {
 			@Override
 			public void onPageScrollStateChanged(int arg0) {
@@ -499,7 +499,7 @@ public class NavigationView extends LinearLayout {
 		}
 		textViewDistance.setText(formatDistance(distance));
 		
-		roadPager.setMinimumHeight(Dimension.dpToPx(portraitMode?PORTRAIT_MODE_HEIGHT:LANSCAPE_MODE_HEIGHT, dm));
+		roadPager.setMinimemHeight(portraitMode?PORTRAIT_MODE_HEIGHT:LANSCAPE_MODE_HEIGHT);
 	}
 
 	public static SpannableString adjustDistanceFontSize(Context ctx,
