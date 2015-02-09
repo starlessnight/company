@@ -644,7 +644,7 @@ public final class RouteActivity extends FragmentActivity {
                 		doRouteTask(originCoord);
                 	}
                 	else {
-	                	final CancelableProgressDialog currentLocDialog = new CancelableProgressDialog(RouteActivity.this, "Getting current location...");
+	                	final CancelableProgressDialog currentLocDialog = new CancelableProgressDialog(RouteActivity.this, "Getting Incident...");
 	                    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 	                    locationListener = new LocationListener() {
 	                        @Override
