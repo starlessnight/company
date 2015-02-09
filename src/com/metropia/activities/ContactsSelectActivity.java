@@ -239,7 +239,12 @@ public class ContactsSelectActivity extends FragmentActivity {
                         protected void onPreExecute() {
                             loadingDialog = new CancelableProgressDialog(ContactsSelectActivity.this, "Loading...");
                             if(!loadingDialog.isShowing()){
-                                loadingDialog.show();
+                            	Misc.doQuietly(new Runnable() {
+    								@Override
+    								public void run() {
+    									loadingDialog.show();
+    								}
+                            	});
                             }
                         }
                         @Override
@@ -248,7 +253,12 @@ public class ContactsSelectActivity extends FragmentActivity {
                         }
                         @Override
                         protected void onPostExecute(List<Contact> result) {
-                            loadingDialog.cancel();
+                        	Misc.doQuietly(new Runnable() {
+								@Override
+								public void run() {
+									loadingDialog.cancel();
+								}
+                        	});
                             contactList = result;
                             updateContactList(null);
                         }
