@@ -1729,21 +1729,26 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    }
 	    
 	    if(StringUtils.isBlank(incidentUrl)) {
-		   	AsyncTask<Void, Void, Void> getIncidentTask = new AsyncTask<Void, Void, Void>() {
-		   		@Override
-				protected Void doInBackground(Void... params) {
-		    		CityRequest cityReq = new CityRequest(lat, lng);
-		            try {
-		            	City city = cityReq.execute(ValidationActivity.this);
-						if(city != null && StringUtils.isBlank(city.html)) {
-							incidentUrl = city.incidents;
+	    	MainActivity.initApiLinksIfNecessary(ValidationActivity.this, new Runnable() {
+				@Override
+				public void run() {
+					AsyncTask<Void, Void, Void> getIncidentTask = new AsyncTask<Void, Void, Void>() {
+				   		@Override
+						protected Void doInBackground(Void... params) {
+				    		CityRequest cityReq = new CityRequest(lat, lng);
+				            try {
+				            	City city = cityReq.execute(ValidationActivity.this);
+								if(city != null && StringUtils.isBlank(city.html)) {
+									incidentUrl = city.incidents;
+								}
+							} catch (Exception ignore) {}
+				   			return null;
 						}
-					} catch (Exception ignore) {}
-		   			return null;
+				   		
+				    };
+				    Misc.parallelExecute(getIncidentTask);
 				}
-		   		
-		    };
-		    Misc.parallelExecute(getIncidentTask);
+	    	});
 	    }
 	    
 	    if(incidentInitTime < 0 && StringUtils.isNotBlank(incidentUrl)) {
