@@ -115,6 +115,7 @@ public class ReservationListFetchRequest extends FetchRequest<List<Reservation>>
         r.setNavLink(object.optString("navigation_url"));
         r.setEndlat(object.optDouble("endlat", 0));
         r.setEndlon(object.optDouble("endlon", 0));
+        r.setCity(object.optString("city", ""));
         return r;
 	}
 

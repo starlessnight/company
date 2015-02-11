@@ -165,4 +165,8 @@
     
     <string name="reservation_new_user_tip">You have no more schedule trips. \n TIP: You can schedule \n multiple trips in advance \n and they will be listed here</string>
     
+    <string name="en_route_desc1">Faster Route Available</string>
+    <string name="en_route_desc2">Take this route?</string>
+    <string name="en_route_auto_accept">Automatically accept in %s Secounds</string>
+    
 </resources>

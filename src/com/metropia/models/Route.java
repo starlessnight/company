@@ -1,12 +1,15 @@
 package com.metropia.models;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,10 +21,11 @@ import android.os.Parcelable;
 import android.text.format.Time;
 import android.util.Log;
 
-import com.metropia.activities.ValidationActivity;
 import com.metropia.activities.DebugOptionsActivity.NavigationLink;
+import com.metropia.activities.ValidationActivity;
 import com.metropia.requests.Request;
 import com.metropia.utils.GeoPoint;
+import com.metropia.utils.Misc;
 import com.metropia.utils.NaiveNNS;
 import com.metropia.utils.RouteLink;
 import com.metropia.utils.RouteNode;
@@ -50,7 +54,6 @@ public final class Route implements Parcelable {
 	private int timezoneOffset;
 	private String color;
 	private int mpoint;
-	
 	
 	public static final Parcelable.Creator<Route> CREATOR = new Parcelable.Creator<Route>() {
 		public Route createFromParcel(Parcel in) {
@@ -860,5 +863,41 @@ public final class Route implements Parcelable {
             }
         }
         return rs;
+    }
+    
+    private static final String COMMA = ",";
+    
+    private String[] getNodesFromNavigationUrl() {
+    	if(link != null && StringUtils.isNotBlank(link.url)) {
+    		try {
+    			URL navUrl = new URL(link.url);
+    			Map<String, String> paramMap = Misc.processQueryString(navUrl.getQuery());
+    			return StringUtils.split(paramMap.get("nodes").replaceAll("\\[", "").replaceAll("\\]", ""), COMMA);
+    		}
+    		catch(Exception ignore) {
+    			Log.d("EnRoute", Log.getStackTraceString(ignore));
+    		}
+    	}
+    	return new String[0];
+    }
+    
+    public String getRemainNodes(double latitude, double longitude) {
+    	RouteNode nearestNode = getNearestNode(latitude, longitude);
+//    	List<Integer> remainNodes = new ArrayList<Integer>();
+    	String[] navigationNodes = getNodesFromNavigationUrl();
+    	int idx = ArrayUtils.indexOf(navigationNodes, String.valueOf(nearestNode.getNodeNum()));
+    	if(idx > -1) {
+    		return StringUtils.join(ArrayUtils.subarray(navigationNodes, idx, navigationNodes.length), COMMA);
+    	}
+    	return "";
+//    	if(ArrayUtils.contains(navigationNodes, String.valueOf(nearestNode.getNodeNum()))) {
+//    		remainNodes.add(nearestNode.getNodeNum());
+//    	}
+//    	while(nearestNode.getNextNode() != null) {
+//    		nearestNode = nearestNode.getNextNode();
+//    		if(ArrayUtils.contains(navigationNodes, String.valueOf(nearestNode.getNodeNum()))) {
+//    			remainNodes.add(nearestNode.getNodeNum());
+//    		}
+//    	}
     }
 }

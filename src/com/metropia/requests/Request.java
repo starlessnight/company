@@ -82,7 +82,8 @@ public abstract class Request {
 	    route, 
 	    search, 
 	    reverse_geocoding, 
-	    issue
+	    issue, 
+	    travel_time
 	}
 	
 	public enum Page { 

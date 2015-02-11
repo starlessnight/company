@@ -7,7 +7,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicLong;
@@ -28,6 +27,7 @@ import android.os.Parcelable;
 import com.metropia.receivers.ReservationReceiver;
 import com.metropia.requests.Request;
 import com.metropia.utils.GeoPoint;
+import com.metropia.utils.Misc;
 import com.metropia.utils.RouteNode;
 import com.metropia.utils.ValidationParameters;
 
@@ -81,6 +81,8 @@ public final class Reservation implements Parcelable {
 	public static int COMPLETED = 0x0001;
 	public static int VALIDATED = 0x0002;
 	
+	private String city;
+	
 	public static final Parcelable.Creator<Reservation> CREATOR = new Parcelable.Creator<Reservation>() {
 		public Reservation createFromParcel(Parcel in) {
 			return new Reservation(in);
@@ -109,6 +111,7 @@ public final class Reservation implements Parcelable {
 		navLink = in.readString();
 		endlat = in.readDouble();
 		endlon = in.readDouble();
+		city = in.readString();
 	}
 
 	public long getRid() {
@@ -194,6 +197,14 @@ public final class Reservation implements Parcelable {
 
 	public void setValidatedFlag(int validatedFlag) {
 		this.validatedFlag = validatedFlag;
+	}
+	
+	public String getCity() {
+		return this.city;
+	}
+	
+	public void setCity(String city) {
+		this.city = city;
 	}
 	
 	public boolean isPast() {
@@ -286,7 +297,7 @@ public final class Reservation implements Parcelable {
 //        route.setDepartureTime(r.getDepartureTime());
 //        route.setCredits(r.getCredits());
 //        route.setNodes(object.getJSONArray("ROUTE"));
-        
+        r.setCity(object.optString("city"));
         r.setRoute(Route.parse(object, departureTime));
 		
 		return r;
@@ -313,6 +324,7 @@ public final class Reservation implements Parcelable {
 		dest.writeString(navLink);
 		dest.writeDouble(endlat);
 		dest.writeDouble(endlon);
+		dest.writeString(city);
 	}
 	
 	public static String formatTime(long time, TimeZone timezone){
@@ -411,7 +423,7 @@ public final class Reservation implements Parcelable {
     private GeoPoint getGPFromNavLink(boolean startGp) throws MalformedURLException {
     	if(StringUtils.isNotBlank(navLink)) {
     		URL navigationLink = new URL(navLink);
-    		Map<String, String> paramValueMap = processQueryString(navigationLink.getQuery());
+    		Map<String, String> paramValueMap = Misc.processQueryString(navigationLink.getQuery());
     		String latName = startGp?"startlat":"endlat";
     		String lonName = startGp?"startlon":"endlon";
     		double lat = Double.valueOf(paramValueMap.get(latName));
@@ -419,15 +431,6 @@ public final class Reservation implements Parcelable {
     		return new GeoPoint(lat, lon);
     	}
     	return null;
-    }
-    
-    private Map<String, String> processQueryString(String queryString) {
-    	Map<String, String> paramValueMap = new HashMap<String, String>();
-    	for(String paramValuePair : StringUtils.split(queryString, "&")) {
-    		String[] paramValueArray = StringUtils.split(paramValuePair, "=");
-    		paramValueMap.put(paramValueArray[0], paramValueArray[1]);
-    	}
-    	return paramValueMap;
     }
     
     private static AtomicLong delayTime = new AtomicLong(30 * 1000); //30 secs

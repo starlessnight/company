@@ -1,6 +1,11 @@
 package com.metropia.utils;
 
+import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -9,6 +14,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -249,6 +256,23 @@ public class Misc {
         try{
             callback.run();
         }catch(Throwable t){}
+    }
+    
+    public static Bitmap getBitmap(Context ctx, int resourceId, int inSampleSize) {
+    	InputStream is = ctx.getResources().openRawResource(resourceId);
+        BitmapFactory.Options options=new BitmapFactory.Options();
+        options.inJustDecodeBounds = false;
+        options.inSampleSize = inSampleSize;
+        return BitmapFactory.decodeStream(is, null, options);
+    }
+    
+    public static Map<String, String> processQueryString(String queryString) {
+    	Map<String, String> paramValueMap = new HashMap<String, String>();
+    	for(String paramValuePair : StringUtils.split(queryString, "&")) {
+    		String[] paramValueArray = StringUtils.split(paramValuePair, "=");
+    		paramValueMap.put(paramValueArray[0], paramValueArray[1]);
+    	}
+    	return paramValueMap;
     }
     
 }

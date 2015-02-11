@@ -1481,7 +1481,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	
     	ImageView tipCloseView = (ImageView) findViewById(R.id.tip_close);
     	if(!DebugOptionsActivity.isUserCloseTip(LandingActivity2.this)) {
-    		tipCloseView.setImageBitmap(getBitmap(LandingActivity2.this, R.drawable.tip_close, 1));
+    		tipCloseView.setImageBitmap(Misc.getBitmap(LandingActivity2.this, R.drawable.tip_close, 1));
     	}
     	
     	tipCloseView.setOnClickListener(new OnClickListener() {
@@ -1639,7 +1639,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         	tripStartTimeView.setPadding(0, 0, 0, 0);
         }
         ImageView startButton = (ImageView) reservInfo.findViewById(R.id.reservation_start_button);
-        startButton.setImageBitmap(getBitmap(LandingActivity2.this, startButtonResourceId, 1));
+        startButton.setImageBitmap(Misc.getBitmap(LandingActivity2.this, startButtonResourceId, 1));
 //        startButton.setImageResource(startButtonResourceId);
         reservInfo.findViewById(R.id.reservation_trip_times).setVisibility(isFirst?View.VISIBLE:View.GONE);
 //        reservInfo.findViewById(R.id.leave_label).setVisibility((isFirst && !reserv.isEligibleTrip())?View.VISIBLE:View.GONE);
@@ -1807,7 +1807,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         TextView tripStartTimeView = (TextView) emptyReservInfo.findViewById(R.id.reservation_start_time);
         tripStartTimeView.setVisibility(View.INVISIBLE);
         ImageView startButton = (ImageView) emptyReservInfo.findViewById(R.id.reservation_start_button);
-        startButton.setImageBitmap(getBitmap(LandingActivity2.this, startButtonResourceId, 1));
+        startButton.setImageBitmap(Misc.getBitmap(LandingActivity2.this, startButtonResourceId, 1));
 //        startButton.setImageResource(startButtonResourceId);
         startButton.setVisibility(View.INVISIBLE);
         emptyReservInfo.findViewById(R.id.reservation_trip_times).setVisibility(View.GONE);
@@ -1817,14 +1817,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         emptyReservInfo.findViewById(R.id.reschedule_panel).setVisibility(View.INVISIBLE);
         emptyReservInfo.findViewById(R.id.center_line).setVisibility(View.VISIBLE);;
         return emptyReservInfo;
-    }
-    
-    public static Bitmap getBitmap(Context ctx, int resourceId, int inSampleSize) {
-    	InputStream is = ctx.getResources().openRawResource(resourceId);
-        BitmapFactory.Options options=new BitmapFactory.Options();
-        options.inJustDecodeBounds = false;
-        options.inSampleSize = inSampleSize;
-        return BitmapFactory.decodeStream(is, null, options);
     }
     
     private boolean isFavoriteMark(int markResourceId) {

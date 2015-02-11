@@ -155,6 +155,69 @@
             android:divider="@null"
             android:dividerHeight="0dp" />
     </LinearLayout>
+    
+    <RelativeLayout 
+        android:id="@+id/en_route_alert_panel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+        
+        <LinearLayout 
+            android:id="@+id/alert_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_alignParentBottom="true"
+        	android:padding="5dp"
+            android:background="@color/metropia_blue">
+            
+            <TextView 
+                android:id="@+id/en_route_yes_desc1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/en_route_desc1"
+                android:textColor="@android:color/white"
+                android:textSize="28dp"
+                android:gravity="center"
+                android:layout_gravity="center"/>
+            
+            <TextView 
+                android:id="@+id/en_route_yes_desc2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/en_route_desc2"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/medium_font"
+                android:includeFontPadding="false"
+                android:gravity="center"
+                android:layout_gravity="center"/>
+            
+                
+            <ImageView 
+                android:id="@+id/yes_button"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"/>
+                
+            <TextView 
+                android:id="@+id/en_route_auto_accept_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/smallest_font"
+                android:gravity="center"
+                android:layout_gravity="center"/>
+            
+            <ImageView 
+                android:id="@+id/no_button"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_gravity="center"/>
+                
+        </LinearLayout>
+        
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/congrats_panel"
