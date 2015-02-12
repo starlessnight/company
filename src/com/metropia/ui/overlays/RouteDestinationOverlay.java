@@ -3,6 +3,7 @@ package com.metropia.ui.overlays;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
+import org.osmdroid.views.overlay.OverlayItem.HotspotPlace;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -40,7 +41,7 @@ public class RouteDestinationOverlay extends BalloonItemizedOverlay<OverlayItem>
 		boolean isDestFlag = marker == R.drawable.pin_destination;
 		
 		balloonOffsetX = /*Dimension.dpToPx(103, mapview.getContext().getResources().getDisplayMetrics())*/ 0;
-		balloonOffsetY = Dimension.dpToPx(isDestFlag ? -34 : -10, mapview.getContext().getResources().getDisplayMetrics());
+		balloonOffsetY = Dimension.dpToPx(isDestFlag ? -34 : 0, mapview.getContext().getResources().getDisplayMetrics());
 		
 		this.geoPoint = point;
 		
@@ -48,6 +49,10 @@ public class RouteDestinationOverlay extends BalloonItemizedOverlay<OverlayItem>
 				"",
 				"",
 				point);
+		
+		if(!isDestFlag) {
+			item.setMarkerHotspot(HotspotPlace.CENTER);
+		}
 		addItem(item);
 		
 		mOnItemGestureListener = new OnItemGestureListener<OverlayItem>() {
