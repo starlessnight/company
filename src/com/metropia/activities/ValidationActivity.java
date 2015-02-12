@@ -520,7 +520,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				String.valueOf(remainDistDirecListView.getText()):StringUtil.formatImperialDistance(_route.getLength(), false);
 		TextView timeInfo = (TextView) findViewById(R.id.remain_times);
 		String arriveTime = !"null".equalsIgnoreCase(String.valueOf(timeInfo.getTag(R.id.estimated_arrival_time))) ? 
-				String.valueOf(timeInfo.getTag(R.id.estimated_arrival_time)): TimeColumn.formatTime(reservation.getArrivalTimeUtc(), _route.getTimezoneOffset());
+				String.valueOf(timeInfo.getTag(R.id.estimated_arrival_time)) : TimeColumn.formatTime(reservation.getArrivalTimeUtc(), _route.getTimezoneOffset());
 		msg.append(user.getFirstname()).append(" ").append(user.getLastname()).append(" is ")
 		   .append(remainDist).append(" away, and will arrive at ")
 		   .append(reservation.getDestinationAddress()).append(" at ");
@@ -1069,6 +1069,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	                        updateDirectionsList();
 	                        drawRoute(mapView, reroute);
 	                        navigationView.setHasVoice(reroute.hasVoice());
+	                        sendOnMyWayEmail.set(true);
 						}
                         hideEnRouteAlert();
                         v.setClickable(true);
@@ -1088,6 +1089,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					@Override
 					public void onAnimationEnd() {
 						enRoute = null;
+						if(realTravelRemainTime > 0) {
+							sendImComingMsg(realTravelRemainTime);
+						}
                         hideEnRouteAlert();
                         v.setClickable(true);
 					}
@@ -1394,9 +1398,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    }
 	}
 	
-	private boolean[] omwSent = new boolean[omwPercentages.length()];
+//	private boolean[] omwSent = new boolean[omwPercentages.length()];
 	
-	private void sendImComingMsg() {
+	private void sendImComingMsg(final long remainTime) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -1405,19 +1409,19 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	                for(int i=0; i<dirListadapter.getCount(); i++){
 	                    distance += dirListadapter.getItem(i).distance;
 	                }
-	                double percentage = distance * 100 / getRouteOrReroute().getLength();
-	                boolean toSent = false;
-	                for(int i=0; i<omwPercentages.length(); i++){
-	                    try {
-                            if(!omwSent[i] && percentage <= omwPercentages.getDouble(i)){
-                                omwSent[i] = true;
-                                toSent = true;
-                            }
-                        }
-                        catch (JSONException e) {
-                        }
-	                }
-	                if(toSent){
+//	                double percentage = distance * 100 / getRouteOrReroute().getLength();
+//	                boolean toSent = false;
+//	                for(int i=0; i<omwPercentages.length(); i++){
+//	                    try {
+//                            if(!omwSent[i] && percentage <= omwPercentages.getDouble(i)){
+//                                omwSent[i] = true;
+//                                toSent = true;
+//                            }
+//                        }
+//                        catch (JSONException e) {
+//                        }
+//	                }
+//	                if(toSent){
 	                    final double _distance = distance;
     					try {
     						Misc.parallelExecute(new AsyncTask<Void, Void, Boolean>() {
@@ -1432,7 +1436,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     											emails,
     											loc.getLatitude(),
     											loc.getLongitude(),
-    											getETA(remainingTime.get()),
+    											getETA(remainTime),
     											NavigationView.metersToMiles(_distance),
     											reservation.getDestinationAddress(),
     											route.getTimezoneOffset());
@@ -1459,7 +1463,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     						});
     					} catch (Throwable t) {
     					}
-	                }
+//	                }
 				}
 			}
 		});
@@ -1680,6 +1684,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private Long incidentInitTime = Long.valueOf(-1);
 	private String incidentUrl;
 	private Map<Integer, Incident> incidents = new HashMap<Integer, Incident>();
+	private AtomicBoolean sendOnMyWayEmail = new AtomicBoolean(true);
 	
 	private synchronized void locationChanged(final Location location) {
 	    final double speedInMph = Trajectory.msToMph(location.getSpeed());
@@ -1993,7 +1998,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			saveTrajectory();
 		}
 
-		sendImComingMsg();
+		if(sendOnMyWayEmail.getAndSet(false)) {
+			sendImComingMsg(remainingTime.get());
+		}
 
 		if (!arrived.get() && !getRouteOrReroute().getNodes().isEmpty()) {
 			startCountDownTime = reservation.getStartCountDownTime(lat, lng, speedInMph, startCountDownTime);
@@ -2627,6 +2634,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         	if(StringUtils.isNotBlank(phones)) {
         		sendOnMyWaySms();
         	}
+        	if(StringUtils.isNotBlank(emails)) {
+        		sendOnMyWayEmail.set(true);
+        	}
         }
     }
     
@@ -2696,18 +2706,21 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         }
     };
     
+    private long realTravelRemainTime = -1;  //ms
     
     private void enrouteCheck() {
     	AsyncTask<Void, Void, Route> checkTask = new AsyncTask<Void, Void, Route>() {
 			@Override
 			protected Route doInBackground(Void... params) {
 				if(lastKnownLocation != null) {
+					realTravelRemainTime = -1;
 					double realRemainTime = -1;
 					Route enRoute = null;
 					try {
 						TravelTimeRequest travelTimeReq = new TravelTimeRequest(User.getCurrentUser(ValidationActivity.this), 
 								reservation.getCity(), getRouteOrReroute().getRemainNodes(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
 						realRemainTime = travelTimeReq.execute(ValidationActivity.this);
+						realTravelRemainTime = Double.valueOf(realRemainTime * 1000).longValue(); // ms
 						if(realRemainTime > 0 && remainingTime.get() - realRemainTime >= Math.max(5 * 60, 0.2 * getRouteOrReroute().getDuration())) {
 							enRoute = getNewRoute(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), lastKnownLocation.getSpeed(), lastKnownLocation.getBearing());
 							if(enRoute != null && realRemainTime - enRoute.getDuration() > Math.max(3 * 60, 0.15 * realRemainTime)) {
