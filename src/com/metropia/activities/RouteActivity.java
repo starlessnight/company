@@ -644,7 +644,7 @@ public final class RouteActivity extends FragmentActivity {
                 		doRouteTask(originCoord);
                 	}
                 	else {
-	                	final CancelableProgressDialog currentLocDialog = new CancelableProgressDialog(RouteActivity.this, "Getting Incident...");
+	                	final CancelableProgressDialog currentLocDialog = new CancelableProgressDialog(RouteActivity.this, "Getting current location...");
 	                    locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 	                    locationListener = new LocationListener() {
 	                        @Override
@@ -930,7 +930,7 @@ public final class RouteActivity extends FragmentActivity {
     		
     		@Override
             protected void onPreExecute() {
-    			dialog = new CancelableProgressDialog(RouteActivity.this, "Get incident informations...");
+    			dialog = new CancelableProgressDialog(RouteActivity.this, "Getting Incident...");
                 dialog.setActionListener(new CancelableProgressDialog.ActionListener() {
                     @Override
                     public void onClickNegativeButton() {
