@@ -2973,9 +2973,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	public void onAllRoutesCompleted() {
-		if((Boolean)buttonFollow.getTag()) {
-			mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
-		}
 	}
 
 	@Override
@@ -2986,8 +2983,16 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	public void onRouteCalculationCompleted(int statusMessage, int routeDistance, int routeEta, boolean thisRouteIsComplete, int id) {
-		// TODO Auto-generated method stub
-		
+		if(ROUTE_INTERNAL_ERROR == statusMessage){
+			Log.d("ValidationActivity", "draw route internal error!");
+			drawRoute(mapView, getRouteOrReroute());
+		}
+		else {
+			Log.d("ValidationActivity", "draw route success : " + (ROUTE_SUCCESS == statusMessage));
+			if((Boolean)buttonFollow.getTag()) {
+				mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
+			}
+		}
 	}
 
 	@Override
