@@ -134,6 +134,7 @@ public final class ValidationReportActivity extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
         Localytics.openSession();
+        Localytics.tagScreen(this.getClass().getSimpleName());
 	    Localytics.upload();
 	    if(this instanceof FragmentActivity) {
 	    	Localytics.setInAppMessageDisplayActivity(this);

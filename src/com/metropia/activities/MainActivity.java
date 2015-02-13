@@ -341,6 +341,7 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 	public void onResume(){
 	    super.onResume();
 	    Localytics.openSession();
+	    Localytics.tagScreen(this.getClass().getSimpleName());
 	    Localytics.upload();
 	    
 	    if (MainActivity.this instanceof FragmentActivity) {

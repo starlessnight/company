@@ -1277,6 +1277,7 @@ public final class RouteActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
         Localytics.openSession();
+        Localytics.tagScreen(this.getClass().getSimpleName());
 	    Localytics.upload();
 	    Localytics.setInAppMessageDisplayActivity(this);
 	    Localytics.handleTestMode(getIntent());

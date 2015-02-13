@@ -2355,6 +2355,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     protected void onResume() {
         super.onResume();
         Localytics.openSession();
+        Localytics.tagScreen(this.getClass().getSimpleName());
 	    Localytics.upload();
 	    Localytics.setInAppMessageDisplayActivity(this);
 	    Localytics.handleTestMode(getIntent());

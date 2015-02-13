@@ -451,6 +451,7 @@ public final class DebugOptionsActivity extends FragmentActivity {
         super.onResume();
         
         Localytics.openSession();
+        Localytics.tagScreen(this.getClass().getSimpleName());
         Localytics.upload();
 
         if (DebugOptionsActivity.this instanceof FragmentActivity) {

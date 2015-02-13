@@ -190,6 +190,7 @@ public class CongratulationActivity extends FragmentActivity {
 	public void onResume() {
 		super.onResume();
 	    Localytics.openSession();
+	    Localytics.tagScreen(this.getClass().getSimpleName());
 	    Localytics.upload();
 	    Localytics.setInAppMessageDisplayActivity(this);
 	    Localytics.handleTestMode(getIntent());

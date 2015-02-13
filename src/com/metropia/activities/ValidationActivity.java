@@ -593,6 +593,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	protected void onResume() {
 		super.onResume();
 		Localytics.openSession();
+		Localytics.tagScreen(this.getClass().getSimpleName());
 	    Localytics.upload();
 	    Localytics.setInAppMessageDisplayActivity(this);
 	    Localytics.handleTestMode(getIntent());
