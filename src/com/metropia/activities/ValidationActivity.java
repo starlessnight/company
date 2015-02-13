@@ -737,7 +737,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		            	buttonFollow.setTag(tagAfterClick);
 		            	if (tagAfterClick) {
 		            		mapPopup.setVisibility(View.GONE);
-		            		removeAllIncident();
+		            		if(Misc.INCIDENT_ENABLED) {
+		            			removeAllIncident();
+		            		}
 		                    if (lastKnownLocation != null) {
 		                    	double latitude = lastKnownLocation.getLatitude();
 		                    	double longitude = lastKnownLocation.getLongitude();
@@ -765,7 +767,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		                    mapView.centerMapOnPosition(coordinate);
 		                    mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
 		                    mapView.getMapSettings().setMapRotationEnabled(false);
-		                    showIncidentsIfNessary();
+		                    if(Misc.INCIDENT_ENABLED) {
+		                    	showIncidentsIfNessary();
+		                    }
 		                }
 		            	navigationView.setToCurrentDireciton();
 					}
@@ -1795,7 +1799,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             });
 	    }
 	    
-	    if(StringUtils.isBlank(incidentUrl)) {
+	    if(Misc.INCIDENT_ENABLED && StringUtils.isBlank(incidentUrl)) {
 	    	MainActivity.initApiLinksIfNecessary(ValidationActivity.this, new Runnable() {
 				@Override
 				public void run() {
@@ -1818,7 +1822,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    	});
 	    }
 	    
-	    if(incidentInitTime < 0 && StringUtils.isNotBlank(incidentUrl)) {
+	    if(Misc.INCIDENT_ENABLED && incidentInitTime < 0 && StringUtils.isNotBlank(incidentUrl)) {
 	    	AsyncTask<Void, Void, Boolean> retriveIncidentTask = new AsyncTask<Void, Void, Boolean>() {
 	    		@Override
 				protected Boolean doInBackground(Void... params) {

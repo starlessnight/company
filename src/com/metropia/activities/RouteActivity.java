@@ -924,60 +924,67 @@ public final class RouteActivity extends FragmentActivity {
     private AtomicBoolean showProgressDialog = new AtomicBoolean(true);
     
     private void retriveIncident(final Runnable callback) {
-    	AsyncTask<Void, Void, Void> getIncidentTask = new AsyncTask<Void, Void, Void>() {
-    		
-    		private CancelableProgressDialog dialog;
-    		
-    		@Override
-            protected void onPreExecute() {
-    			dialog = new CancelableProgressDialog(RouteActivity.this, "Getting Incident...");
-                dialog.setActionListener(new CancelableProgressDialog.ActionListener() {
-                    @Override
-                    public void onClickNegativeButton() {
-                        goBackToWhereTo.run();
-                    }
-                });
-                if(showProgressDialog.getAndSet(false)) {
-	                Misc.doQuietly(new Runnable() {
+    	if(Misc.INCIDENT_ENABLED) {
+	    	AsyncTask<Void, Void, Void> getIncidentTask = new AsyncTask<Void, Void, Void>() {
+	    		
+	    		private CancelableProgressDialog dialog;
+	    		
+	    		@Override
+	            protected void onPreExecute() {
+	    			dialog = new CancelableProgressDialog(RouteActivity.this, "Getting Incident...");
+	                dialog.setActionListener(new CancelableProgressDialog.ActionListener() {
 	                    @Override
-	                    public void run() {
-	                        dialog.show();
+	                    public void onClickNegativeButton() {
+	                        goBackToWhereTo.run();
 	                    }
 	                });
-                }
-    		}
-    		
-    		@Override
-			protected Void doInBackground(Void... params) {
-    			if(originCoord != null) {
-	    			CityRequest cityReq = new CityRequest(originCoord.getLatitude(), originCoord.getLongitude());
-	                try {
-						City city = cityReq.execute(RouteActivity.this);
-						if(city != null && StringUtils.isBlank(city.html)) {
-							incidentUrl = city.incidents;
-						}
-					} catch (Exception ignore) {}
-	    			refreshIncident();
+	                if(showProgressDialog.getAndSet(false)) {
+		                Misc.doQuietly(new Runnable() {
+		                    @Override
+		                    public void run() {
+		                        dialog.show();
+		                    }
+		                });
+	                }
 	    		}
-    			return null;
-			}
-    		
-			@Override
-	        protected void onPostExecute(Void result) {
-				if (dialog.isShowing()) {
-	                Misc.doQuietly(new Runnable() {
-	                    @Override
-	                    public void run() {
-	                        dialog.dismiss();
-	                    }
-	                });
-	            }
-				if(callback != null) {
-					callback.run();
+	    		
+	    		@Override
+				protected Void doInBackground(Void... params) {
+	    			if(originCoord != null) {
+		    			CityRequest cityReq = new CityRequest(originCoord.getLatitude(), originCoord.getLongitude());
+		                try {
+							City city = cityReq.execute(RouteActivity.this);
+							if(city != null && StringUtils.isBlank(city.html)) {
+								incidentUrl = city.incidents;
+							}
+						} catch (Exception ignore) {}
+		    			refreshIncident();
+		    		}
+	    			return null;
 				}
-			}
-    	};
-    	Misc.parallelExecute(getIncidentTask);
+	    		
+				@Override
+		        protected void onPostExecute(Void result) {
+					if (dialog.isShowing()) {
+		                Misc.doQuietly(new Runnable() {
+		                    @Override
+		                    public void run() {
+		                        dialog.dismiss();
+		                    }
+		                });
+		            }
+					if(callback != null) {
+						callback.run();
+					}
+				}
+	    	};
+	    	Misc.parallelExecute(getIncidentTask);
+    	}
+    	else {
+    		if(callback != null) {
+    			callback.run();
+    		}
+    	}
     }
     
     private RouteDestinationOverlay curShowOverlay;
