@@ -41,7 +41,7 @@ public final class PreTripAlertActivity extends FragmentActivity {
         Bundle extras = getIntent().getExtras();
         
         TextView msg = (TextView)findViewById(R.id.message);
-        msg.setText(extras.getString(MSG));
+        msg.setText(extras.getString(MSG) + "\nClick \"Next\" to reschedule.");
         
         TextView cancel = (TextView)findViewById(R.id.cancel);
         cancel.setOnClickListener(new OnClickListener() {
@@ -62,7 +62,12 @@ public final class PreTripAlertActivity extends FragmentActivity {
                     
                     @Override
                     protected void onPreExecute() {
-                        dialog.show();
+                    	Misc.doQuietly(new Runnable() {
+							@Override
+							public void run() {
+								dialog.show();
+							}
+                    	});
                     }
                     
                     @Override
@@ -78,7 +83,13 @@ public final class PreTripAlertActivity extends FragmentActivity {
                     }
                     @Override
                     protected void onPostExecute(Reservation reserv) {
-                        dialog.dismiss();
+                    	Misc.doQuietly(new Runnable() {
+							@Override
+							public void run() {
+								dialog.dismiss();
+							}
+                    	});
+                        
                         if(reserv != null){
                             Intent intent = new Intent(PreTripAlertActivity.this, RouteActivity.class);
                             Bundle extras = new Bundle();
