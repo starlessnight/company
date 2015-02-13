@@ -28,7 +28,7 @@ public final class SmarTrekApplication extends Application {
         // The following line triggers the initialization of ACRA
         //ACRA.init(this);
         CrashlyticsUtils.start(this);
-        int interval = ValidationActivity.TWO_MINUTES;
+        int interval = 15 * 60 * 1000;
         LocationLibrary.initialiseLibrary(this, interval, 
             interval, false, "com.metropia.activities");
         LocationLibrary.stopAlarmAndListener(this);

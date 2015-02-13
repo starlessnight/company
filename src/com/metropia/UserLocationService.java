@@ -21,8 +21,6 @@ import com.metropia.activities.MainActivity;
 import com.metropia.activities.ValidationActivity;
 import com.metropia.models.Trajectory;
 import com.metropia.models.User;
-import com.metropia.requests.Request;
-import com.metropia.requests.SendTrajectoryRequest;
 import com.metropia.utils.RouteNode;
 
 public class UserLocationService extends IntentService {
