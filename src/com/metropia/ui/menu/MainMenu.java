@@ -117,7 +117,7 @@ public final class MainMenu {
         	   if(!activity.getClass().equals(ShareActivity.class)) {
         		   intent = new Intent(activity, ShareActivity.class);
         		   intent.putExtra(ShareActivity.TITLE, "More Metropians = Less Traffic");
-        		   intent.putExtra(ShareActivity.SHARE_TEXT, "I helped solve traffic congestion using Metropia Mobile!"
+        		   intent.putExtra(ShareActivity.SHARE_TEXT, "I helped solve traffic congestion using Metropia!"
         		           + "\n\n" + Misc.APP_DOWNLOAD_LINK);
                    activity.startActivity(intent);
         	   }

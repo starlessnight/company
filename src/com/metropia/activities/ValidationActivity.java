@@ -919,7 +919,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		                intent.putExtra(ShareActivity.TITLE, "More Metropians = Less Traffic");
 		                intent.putExtra(ShareActivity.SHARE_TEXT, "I earned " + reservation.getMpoint() + " points for traveling at " 
 		                    + Reservation.formatTime(route.getDepartureTime(), true) + " to help solve traffic congestion "
-		                    + "using Metropia Mobile!"
+		                    + "using Metropia!"
 		                    + "\n\n" + Misc.APP_DOWNLOAD_LINK);
 		                startActivity(intent);
 //						Intent intent = new Intent(Intent.ACTION_SEND);

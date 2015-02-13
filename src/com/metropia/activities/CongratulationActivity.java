@@ -64,7 +64,7 @@ public class CongratulationActivity extends FragmentActivity {
 										+ " points for traveling at "
 										+ Reservation.formatTime(departureTime, true)
 										+ " to help solve traffic congestion "
-										+ "using Metropia Mobile!" + "\n\n"
+										+ "using Metropia!" + "\n\n"
 										+ Misc.APP_DOWNLOAD_LINK);
 						startActivity(intent);
 					}
