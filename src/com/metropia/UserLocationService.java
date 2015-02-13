@@ -70,7 +70,7 @@ public class UserLocationService extends IntentService {
                 lastGpsToggleLoc.lat, lastGpsToggleLoc.lon, info.lastLat, info.lastLong):0;
             if(!hasLastGpsToggleLoc || gpsToggledDistance >= GPS_TOGGLE_THRESHOLD){
                 DebugOptionsActivity.setLastGpsToggleLatLon(this, info.lastLat, info.lastLong, now);
-                LocationLibrary.useFineAccuracyForRequests(this, true);
+                LocationLibrary.useFineAccuracyForRequests(this, false);  // true: enable GPS location update, false: disable GPS location update
             }else if(hasLastGpsToggleLoc && now - lastGpsToggleLoc.time > ValidationActivity.TWO_MINUTES){
                 LocationLibrary.useFineAccuracyForRequests(this, false);
             }
@@ -85,12 +85,12 @@ public class UserLocationService extends IntentService {
                             @Override
                             public void run() {
                                 try{
-                                    SendTrajectoryRequest request = new SendTrajectoryRequest(false);
-                                    if(Request.NEW_API){
-                                        request.execute(user, traj, UserLocationService.this);
-                                    }else{
-                                        request.execute(0, user.getId(), RID, traj);
-                                    }
+//                                    SendTrajectoryRequest request = new SendTrajectoryRequest(false);
+//                                    if(Request.NEW_API){
+//                                        request.execute(user, traj, UserLocationService.this);
+//                                    }else{
+//                                        request.execute(0, user.getId(), RID, traj);
+//                                    }
                                     File newFile = getFile(UserLocationService.this);
                                     if(newFile.exists() && newFile.length() != 0){
                                         Trajectory newTraj = Trajectory.from(new JSONArray(FileUtils.readFileToString(newFile)));
