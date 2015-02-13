@@ -192,20 +192,15 @@
                 android:gravity="center"
                 android:orientation="vertical" >
 
-                <ImageView
-                    android:id="@+id/reservation_reschedule"
-                    android:layout_width="match_parent"
-                    android:layout_height="25dp"
-                    android:src="@drawable/reservation_reschedule" />
-                
                 <TextView 
                     android:id="@+id/reschedule_desc"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="   EDIT"
+                    android:text="EDIT"
                     android:textColor="@android:color/white"
-                    android:textSize="@dimen/smaller_font"/>
+                    android:textSize="@dimen/smaller_font"
+                    android:drawableTop="@drawable/reservation_reschedule"/>
                 
             </LinearLayout>
         </LinearLayout>
