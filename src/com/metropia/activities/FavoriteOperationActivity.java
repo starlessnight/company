@@ -531,7 +531,7 @@ public class FavoriteOperationActivity extends FragmentActivity {
 	public static class FavoriteSlideAdapter extends FragmentPagerAdapter {
 
 		private static Integer[] slides = { FavoriteIcon.FIRST_PAGE,
-				FavoriteIcon.SECOND_PAGE };
+				FavoriteIcon.SECOND_PAGE, FavoriteIcon.THIRD_PAGE };
 
 		private ClickCallback clickCallback;
 
