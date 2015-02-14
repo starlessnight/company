@@ -52,11 +52,11 @@ public enum FavoriteIcon {
    	}
    	
    	public static FavoriteIcon[][] getFirstPageIcons() {
-   		return new FavoriteIcon[][] { {home, work, office, star}, {parking, park, beach, repair_shop}, {coffee, theater, airport, grocery} };
+   		return new FavoriteIcon[][] { {home, work, place, star}, {parking, park, beach, repair_shop}, {coffee, theater, airport, grocery} };
    	}
    	
    	public static FavoriteIcon[][] getSecondPageIcons() {
-   		return new FavoriteIcon[][] { {winery, daycare, pharmacy, atm}, {hotel, football, pizzeria, ice_cream}, {football, bar, zoo, guitar} };
+   		return new FavoriteIcon[][] { {winery, daycare, pharmacy, atm}, {hotel, fastfood, pizzeria, ice_cream}, {football, bar, zoo, guitar} };
    	}
    	
    	public static FavoriteIcon[][] getThirdPageIcons() {
