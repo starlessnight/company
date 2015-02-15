@@ -1631,7 +1631,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         tripArrivalTimeView.setText(formatTripTime(arrivalTimeDesc));
         TextView tripStartTimeView = (TextView) reservInfo.findViewById(R.id.reservation_start_time);
         tripStartTimeView.setVisibility(startTimeVisible);
-        if(reserv.isEligibleTrip()) {
+        if(isFirst && reserv.isEligibleTrip()) {
         	tripStartTimeView.setText(formatCountDownTime(nextTripStartTime));
         	tripStartTimeView.setPadding(0, Dimension.dpToPx(8, getResources().getDisplayMetrics()), 0, 0);
         }
