@@ -78,6 +78,7 @@ public class ContactsSelectActivity extends FragmentActivity {
 	private Set<String> selectedContactEmails = new HashSet<String>();
 	private Set<String> selectedContactPhones = new HashSet<String>();
 	private Set<String> manualInputEmail = new HashSet<String>();
+	private Set<String> manualInputPhone = new HashSet<String>();
 	private List<Contact> contactList = new ArrayList<Contact>();
 	private JSONObject frequencyContacts;
 	private JSONObject topFiveFrequencyAndSelectedContacts;
@@ -150,11 +151,16 @@ public class ContactsSelectActivity extends FragmentActivity {
                 clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						String newEmail = searchTextView.getText().toString();
-		                if(StringUtils.isNotBlank(newEmail)) {
-		                    if(emailFormatIsGood(newEmail)) {
-		                        manualInputEmail.add(newEmail);
-		                        selectedContactEmails.add(newEmail);
+						String newInput = searchTextView.getText().toString();
+		                if(StringUtils.isNotBlank(newInput)) {
+		                    if(emailFormatIsGood(newInput)) {
+		                        manualInputEmail.add(newInput);
+		                        selectedContactEmails.add(newInput);
+		                        searchTextView.setText("");
+		                    }
+		                    else if(phoneFormatIsGood(newInput)) {
+		                    	manualInputPhone.add(newInput);
+		                        selectedContactPhones.add(newInput);
 		                        searchTextView.setText("");
 		                    }
 		                    else {
@@ -177,7 +183,7 @@ public class ContactsSelectActivity extends FragmentActivity {
 				String filter = s.toString();
 				searchBoxClear.setVisibility(StringUtils.isBlank(filter)?View.GONE:View.VISIBLE); 
 				updateContactList(filter);
-				addButton.setVisibility(emailFormatIsGood(filter)?View.VISIBLE:View.GONE);
+				addButton.setVisibility(emailFormatIsGood(filter) || phoneFormatIsGood(filter) ?View.VISIBLE:View.GONE);
 			}
 
 			@Override
@@ -442,12 +448,17 @@ public class ContactsSelectActivity extends FragmentActivity {
 	    }
 	    updateTask = new AsyncTask<Void, Void, List<Contact>>() {
 	        
-	        Set<String> inputEmails = new HashSet<String>();
+	        Set<String> inputEmails = new HashSet<String>(getPreSelectedManualEmail());
+	        Set<String> inputPhones = new HashSet<String>(getPreSelectedManualPhone());
 	        
 	        @Override
 	        protected void onPreExecute() {
 	            for(String email : manualInputEmail) {
 	                inputEmails.add(email);
+	            }
+	            
+	            for(String phone : manualInputPhone) {
+	            	inputPhones.add(phone);
 	            }
 	        }
 	        
@@ -461,6 +472,15 @@ public class ContactsSelectActivity extends FragmentActivity {
                         manual.email = email;
                         manual.lastnameInitial = StringUtils.defaultString(
                             StringUtils.capitalize(StringUtils.substring(email, 0, 1)));
+                        filteredList.add(manual);
+                    }
+                }
+                if(!inputPhones.isEmpty()) {
+                	for(String phone : inputPhones) {
+                        Contact manual = new Contact();
+                        manual.name = phone;
+                        manual.phone = phone;
+                        manual.lastnameInitial = phone;
                         filteredList.add(manual);
                     }
                 }
@@ -510,8 +530,41 @@ public class ContactsSelectActivity extends FragmentActivity {
         Misc.parallelExecute(updateTask);
 	}
 	
+	private Set<String> getPreSelectedManualEmail() {
+		Set<String> earlyManualInputEmail = new HashSet<String>();
+		for(String email : earlySelectedEmails) {
+			if(!containInContactList(email)) {
+				earlyManualInputEmail.add(email);
+			}
+		}
+		return earlyManualInputEmail;
+	}
+	
+	private Set<String> getPreSelectedManualPhone() {
+		Set<String> earlyManualInputPhone = new HashSet<String>();
+		for(String phone : earlySelectedPhones) {
+			if(!containInContactList(phone)) {
+				earlyManualInputPhone.add(phone);
+			}
+		}
+		return earlyManualInputPhone;
+	}
+	
+	private boolean containInContactList(String input) {
+		for(Contact contact : contactList) {
+			if(StringUtils.equalsIgnoreCase(contact.email, input) || StringUtils.equalsIgnoreCase(contact.phone, input)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	private boolean emailFormatIsGood(String email) {
 		return Pattern.matches("^[\\w-\\+]+(\\.[\\w-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$", email);
+	}
+	
+	private boolean phoneFormatIsGood(String phone) {
+		return Pattern.matches("^\\+?\\d{10,12}", phone);
 	}
 	
 	private CharSequence formatContactInfo(String name, String email, String phone) {
