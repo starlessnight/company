@@ -2780,7 +2780,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    	    ttsBuffer.clear();
 	    	    final CharSequence autoAcceptDesc = getResources().getText(R.string.en_route_auto_accept);
 	    	    final NumberFormat nf = new DecimalFormat("##");
-	    	    new CountDownTimer(8000, 1000) {
+	    	    new CountDownTimer(5000, 1000) {
 	    	    	public void onTick(long millisUntilFinished) {
 	    	    		String message = String.format(autoAcceptDesc.toString(), nf.format(millisUntilFinished / 1000));
 	    	    		((TextView)findViewById(R.id.en_route_auto_accept_desc)).setText(formatAutoAcceptDesc(message));
