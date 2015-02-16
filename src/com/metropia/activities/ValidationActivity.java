@@ -275,7 +275,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		
 		Reservation.cancelNotification(this);
 		registerReceiver(tripValidator, new IntentFilter(TRIP_VALIDATOR));
-		registerReceiver(enRouteCheck, new IntentFilter(ENROUTE_CHECK));
+//		registerReceiver(enRouteCheck, new IntentFilter(ENROUTE_CHECK));
 		AssetManager assets = getAssets();
 		boldFont = Font.getBold(assets);
 		lightFont = Font.getLight(assets);
@@ -738,9 +738,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		            	buttonFollow.setTag(tagAfterClick);
 		            	if (tagAfterClick) {
 		            		mapPopup.setVisibility(View.GONE);
-		            		if(Misc.INCIDENT_ENABLED) {
-		            			removeAllIncident();
-		            		}
+		            		removeAllIncident();
 		                    if (lastKnownLocation != null) {
 		                    	double latitude = lastKnownLocation.getLatitude();
 		                    	double longitude = lastKnownLocation.getLongitude();
@@ -768,9 +766,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		                    mapView.centerMapOnPosition(coordinate);
 		                    mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
 		                    mapView.getMapSettings().setMapRotationEnabled(false);
-		                    if(Misc.INCIDENT_ENABLED) {
-		                    	showIncidentsIfNessary();
-		                    }
+		                    showIncidentsIfNessary();
 		                }
 		            	navigationView.setToCurrentDireciton();
 					}
@@ -1104,7 +1100,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 		});
 		
-		scheduleNextEnRouteCheck();
+//		scheduleNextEnRouteCheck();
         scheduleTimeInfoCycle();
         
         Font.setTypeface(boldFont, remainDistDirecListView, timeInfo, finishButton, feedBackButton, (TextView) findViewById(R.id.en_route_yes_desc1), 
@@ -1850,6 +1846,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    	Misc.parallelExecute(retriveIncidentTask);
 	    }
 	    
+	    if(lastCheckTime.get() == 0) {
+	    	lastCheckTime.set(System.currentTimeMillis());
+	    }
+	    
+	    if(System.currentTimeMillis() - lastCheckTime.get() >= 5 * 60 * 1000 && getRouteOrReroute().getDistanceToNextTurn(lat, lng) >= 20 * location.getSpeed()) {
+	    	enrouteCheck();
+	    }
+	    
 	    runOnUiThread(new Runnable(){
             @Override
             public void run() {
@@ -2034,7 +2038,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	
 	private void showIncidentsIfNessary() {
-		if(mapView.getMapSettings().getMapDisplayMode() == SKMapDisplayMode.MODE_2D) {
+		if(Misc.INCIDENT_ENABLED && mapView.getMapSettings().getMapDisplayMode() == SKMapDisplayMode.MODE_2D) {
 			mapView.deleteAllAnnotationsAndCustomPOIs();
 			drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
 			List<Incident> incidentsOfTime = getIncidentsOfTime();
@@ -2057,8 +2061,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 	
 	private void removeAllIncident() {
-		mapView.deleteAllAnnotationsAndCustomPOIs();
-		drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
+		if(Misc.INCIDENT_ENABLED) {
+			mapView.deleteAllAnnotationsAndCustomPOIs();
+			drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
+		}
 	}
 	
 	private List<Incident> getIncidentsOfTime() {
@@ -2594,7 +2600,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		restoreMusic();
 		unregisterReceiver(timeoutReceiver);
 		unregisterReceiver(tripValidator);
-		unregisterReceiver(enRouteCheck);
+//		unregisterReceiver(enRouteCheck);
 		if (locationManager != null) {
 			locationManager.removeUpdates(locationListener);
 		}
@@ -2712,6 +2718,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     };
     
     private long realTravelRemainTime = -1;  //ms
+    private AtomicLong lastCheckTime = new AtomicLong(0);
     
     private void enrouteCheck() {
     	AsyncTask<Void, Void, Route> checkTask = new AsyncTask<Void, Void, Route>() {
@@ -2721,6 +2728,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					realTravelRemainTime = -1;
 					double realRemainTime = -1;
 					Route enRoute = null;
+					lastCheckTime.set(System.currentTimeMillis());
 					try {
 						TravelTimeRequest travelTimeReq = new TravelTimeRequest(User.getCurrentUser(ValidationActivity.this), 
 								reservation.getCity(), getRouteOrReroute().getRemainNodes(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
@@ -2759,6 +2767,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
+				mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
+				showIncidentsIfNessary();
 				findViewById(R.id.loading).setVisibility(View.GONE);
 	    	    navigationView.setVisibility(View.GONE);
 	    	    findViewById(R.id.directions_view).setVisibility(View.INVISIBLE);
@@ -2810,6 +2820,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
+				mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
+				removeAllIncident();
 				for(View view : getMapViews()) {
 					view.setVisibility(View.VISIBLE);
 				}
@@ -2831,27 +2843,27 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     	enRoutePanelLp.addRule(landscape ? RelativeLayout.ALIGN_PARENT_RIGHT : RelativeLayout.ALIGN_PARENT_BOTTOM , RelativeLayout.TRUE);
     }
     
-    private void scheduleNextEnRouteCheck(){
-        AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
-        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 5 * 60 * 1000, 5 * 60 * 1000, 
-            PendingIntent.getBroadcast(this, 0, new Intent(ENROUTE_CHECK), PendingIntent.FLAG_UPDATE_CURRENT));
-    }
-    
-    private static final String ENROUTE_CHECK = "ENROUTE_CHECK";
-    
-    private BroadcastReceiver enRouteCheck = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            User.initializeIfNeccessary(context, new Runnable() {
-                @Override
-                public void run() {
-                	if(!arrivalMsgTiggered.get()) {
-                		enrouteCheck();
-                	}
-                }
-            });
-        }
-    };
+//    private void scheduleNextEnRouteCheck(){
+//        AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
+//        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 5 * 60 * 1000, 5 * 60 * 1000, 
+//            PendingIntent.getBroadcast(this, 0, new Intent(ENROUTE_CHECK), PendingIntent.FLAG_UPDATE_CURRENT));
+//    }
+//    
+//    private static final String ENROUTE_CHECK = "ENROUTE_CHECK";
+//    
+//    private BroadcastReceiver enRouteCheck = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            User.initializeIfNeccessary(context, new Runnable() {
+//                @Override
+//                public void run() {
+//                	if(!arrivalMsgTiggered.get()) {
+//                		enrouteCheck();
+//                	}
+//                }
+//            });
+//        }
+//    };
 
 	@Override
 	public void onActionPan() {
