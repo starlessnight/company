@@ -28,8 +28,7 @@ public class TravelTimeRequest extends FetchRequest<Double> {
 		String response = executeFetchRequest(getUrl(), ctx);
 		JSONObject res = new JSONObject(response);
 		if("success".equals(res.optString("status"))) {
-			double realRemainTime = res.optDouble("data"); // in minite
-			return realRemainTime * 60;  // to secs
+			return res.optDouble("data");
 		}
 		return Double.valueOf(-1);
 	}

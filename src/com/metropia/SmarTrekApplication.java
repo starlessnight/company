@@ -11,7 +11,6 @@ import android.content.Context;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary;
-import com.metropia.activities.ValidationActivity;
 import com.metropia.activities.R;
 
 @ReportsCrashes(formKey="dFdwTW1tbERoS1N4RlhNbFBjeHc4dXc6MQ",

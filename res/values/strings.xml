@@ -167,6 +167,6 @@
     
     <string name="en_route_desc1">Faster Route Available</string>
     <string name="en_route_desc2">Take this route?</string>
-    <string name="en_route_auto_accept">Automatically accept in %s Secounds</string>
+    <string name="en_route_auto_accept">Automatically accept in %s secounds</string>
     
 </resources>

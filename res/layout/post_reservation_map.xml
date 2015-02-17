@@ -205,7 +205,7 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textColor="@android:color/white"
-                android:textSize="@dimen/smallest_font"
+                android:textSize="@dimen/smaller_font"
                 android:gravity="center"
                 android:layout_gravity="center"/>
             

@@ -678,10 +678,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 	
 	private RouteRect routeRect;
-	private static final double mapZoomVerticalOffset = 0.3;
 
 	public static RouteRect initRouteRect(Route r) {
-		return new RouteRect(r.getNodes(), mapZoomVerticalOffset);
+		return new RouteRect(r.getNodes());
 	}
 	
 	private AtomicBoolean initial = new AtomicBoolean(false);
@@ -737,36 +736,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						Boolean tagAfterClick = !((Boolean) buttonFollow.getTag());
 		            	buttonFollow.setTag(tagAfterClick);
 		            	if (tagAfterClick) {
-		            		mapPopup.setVisibility(View.GONE);
-		            		removeAllIncident();
-		                    if (lastKnownLocation != null) {
-		                    	double latitude = lastKnownLocation.getLatitude();
-		                    	double longitude = lastKnownLocation.getLongitude();
-		                    	SKCoordinate coordinate = new SKCoordinate(longitude, latitude);
-		                    	mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
-		                    	mapView.setZoom(isNearOD_or_Intersection(latitude, longitude)
-		                	        ?DEFAULT_ZOOM_LEVEL:NAVIGATION_ZOOM_LEVEL);
-		                    	mapView.centerMapOnPosition(coordinate);
-		                    	mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
-		                    	mapView.getMapSettings().setMapRotationEnabled(true);
-		                    }
+		            		to3DMap();
 		                }
-		                else if(routeRect != null){
-		                    /* Get a midpoint to center the view of  the routes */
-		                    mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
-		                    mapView.rotateTheMapToNorth();
-		                    GeoPoint topLeft = routeRect.getTopLeftPoint();
-		                    GeoPoint bottomRight = routeRect.getBottomRightPoint();
-		                    // paddding parameter of fitBoundingBox not work, use PADDING
-		                    SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude());
-		                    int navigationViewHeight = navigationView.getMeasuredHeight();
-		                    mapView.fitBoundingBox(boundingBox, 100, navigationViewHeight);
-		                    GeoPoint mid = routeRect.getMidPoint();
-		                    SKCoordinate coordinate = new SKCoordinate(mid.getLongitude(), mid.getLatitude());
-		                    mapView.centerMapOnPosition(coordinate);
-		                    mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
-		                    mapView.getMapSettings().setMapRotationEnabled(false);
-		                    showIncidentsIfNessary();
+		                else {
+		                    to2DMap(routeRect, true);
 		                }
 		            	navigationView.setToCurrentDireciton();
 					}
@@ -1054,7 +1027,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		});
 		
 		ImageView yesButton = (ImageView) findViewById(R.id.yes_button);
-		yesButton.setImageBitmap(Misc.getBitmap(ValidationActivity.this, R.drawable.en_route_yes, 2));
+		yesButton.setImageBitmap(Misc.getBitmap(ValidationActivity.this, R.drawable.en_route_yes, 1));
 		yesButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(final View v) {
@@ -1074,13 +1047,19 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						}
                         hideEnRouteAlert();
                         v.setClickable(true);
+                        Misc.doQuietly(new Runnable() {
+							@Override
+							public void run() {
+								countDown.cancel();
+							}
+                        });
 					}
 				});
 			}
 		});
 		
 		ImageView noButton = (ImageView) findViewById(R.id.no_button);
-		noButton.setImageBitmap(Misc.getBitmap(ValidationActivity.this, R.drawable.en_route_no, 2));
+		noButton.setImageBitmap(Misc.getBitmap(ValidationActivity.this, R.drawable.en_route_no, 1));
 		noButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(final View v) {
@@ -1090,11 +1069,17 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					@Override
 					public void onAnimationEnd() {
 						enRoute = null;
-						if(realTravelRemainTime > 0) {
-							sendImComingMsg(realTravelRemainTime);
+						if(realTravelRemainTimeInSec > 0) {
+							sendImComingMsg(realTravelRemainTimeInSec);
 						}
                         hideEnRouteAlert();
                         v.setClickable(true);
+                        Misc.doQuietly(new Runnable() {
+							@Override
+							public void run() {
+								countDown.cancel();
+							}
+                        });
 					}
 				});
 			}
@@ -1103,9 +1088,46 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 //		scheduleNextEnRouteCheck();
         scheduleTimeInfoCycle();
         
-        Font.setTypeface(boldFont, remainDistDirecListView, timeInfo, finishButton, feedBackButton, (TextView) findViewById(R.id.en_route_yes_desc1), 
+        Font.setTypeface(boldFont, remainDistDirecListView, timeInfo, finishButton, feedBackButton);
+        Font.setTypeface(Font.getRegular(getResources().getAssets()), (TextView) findViewById(R.id.en_route_yes_desc1), 
         		(TextView) findViewById(R.id.en_route_yes_desc1), (TextView) findViewById(R.id.en_route_auto_accept_desc));
 		Font.setTypeface(lightFont/*, osmCredit*/, remainTimesDirectListView);
+	}
+	
+	private void to2DMap(RouteRect _rect, boolean hasNavigationHeader) {
+		if(_rect != null){
+            /* Get a midpoint to center the view of  the routes */
+            mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
+            mapView.rotateTheMapToNorth();
+            GeoPoint topLeft = _rect.getTopLeftPoint();
+            GeoPoint bottomRight = _rect.getBottomRightPoint();
+            // paddding parameter of fitBoundingBox not work, use PADDING
+            SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude());
+            int navigationViewHeight = hasNavigationHeader ? navigationView.getMeasuredHeight() : 0; 
+            mapView.fitBoundingBox(boundingBox, 100, navigationViewHeight);
+            GeoPoint mid = _rect.getMidPoint();
+            SKCoordinate coordinate = new SKCoordinate(mid.getLongitude(), mid.getLatitude());
+            mapView.centerMapOnPosition(coordinate);
+            mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
+            mapView.getMapSettings().setMapRotationEnabled(false);
+            showIncidentsIfNessary();
+        }
+	}
+	
+	private void to3DMap() {
+		mapPopup.setVisibility(View.GONE);
+		removeAllIncident();
+        if (lastKnownLocation != null) {
+        	double latitude = lastKnownLocation.getLatitude();
+        	double longitude = lastKnownLocation.getLongitude();
+        	SKCoordinate coordinate = new SKCoordinate(longitude, latitude);
+        	mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
+        	mapView.setZoom(isNearOD_or_Intersection(latitude, longitude)
+    	        ?DEFAULT_ZOOM_LEVEL:NAVIGATION_ZOOM_LEVEL);
+        	mapView.centerMapOnPosition(coordinate);
+        	mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
+        	mapView.getMapSettings().setMapRotationEnabled(true);
+        }
 	}
 	
 	private void toggleTimeInfo(){
@@ -1851,6 +1873,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    }
 	    
 	    if(System.currentTimeMillis() - lastCheckTime.get() >= 5 * 60 * 1000 && getRouteOrReroute().getDistanceToNextTurn(lat, lng) >= 20 * location.getSpeed()) {
+	    	lastCheckTime.set(System.currentTimeMillis());
 	    	enrouteCheck();
 	    }
 	    
@@ -2717,7 +2740,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         }
     };
     
-    private long realTravelRemainTime = -1;  //ms
+    private long realTravelRemainTimeInSec = -1;  //ms
     private AtomicLong lastCheckTime = new AtomicLong(0);
     
     private void enrouteCheck() {
@@ -2725,18 +2748,18 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			@Override
 			protected Route doInBackground(Void... params) {
 				if(lastKnownLocation != null) {
-					realTravelRemainTime = -1;
-					double realRemainTime = -1;
+					realTravelRemainTimeInSec = -1;
+					double realRemainTimeInMin = -1;
 					Route enRoute = null;
 					lastCheckTime.set(System.currentTimeMillis());
 					try {
 						TravelTimeRequest travelTimeReq = new TravelTimeRequest(User.getCurrentUser(ValidationActivity.this), 
 								reservation.getCity(), getRouteOrReroute().getRemainNodes(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
-						realRemainTime = travelTimeReq.execute(ValidationActivity.this);
-						realTravelRemainTime = Double.valueOf(realRemainTime * 1000).longValue(); // ms
-						if(realRemainTime > 0 && remainingTime.get() - realRemainTime >= Math.max(5 * 60, 0.2 * getRouteOrReroute().getDuration())) {
+						realRemainTimeInMin = travelTimeReq.execute(ValidationActivity.this);  // min
+						realTravelRemainTimeInSec = Double.valueOf(realRemainTimeInMin * 60).longValue(); // sec
+						if(realRemainTimeInMin > 0 && (remainingTime.get() - realRemainTimeInMin) >= Math.max(5 * 60, 0.2 * getRouteOrReroute().getDuration())) {
 							enRoute = getNewRoute(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), lastKnownLocation.getSpeed(), lastKnownLocation.getBearing());
-							if(enRoute != null && realRemainTime - enRoute.getDuration() > Math.max(3 * 60, 0.15 * realRemainTime)) {
+							if(enRoute != null && (realTravelRemainTimeInSec - enRoute.getDuration()) > Math.max(3 * 60, 0.15 * realRemainTimeInMin)) {
 								return enRoute;
 							}
 						}
@@ -2744,7 +2767,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					catch(Exception ignore) {
 						Log.d("EnRoute", Log.getStackTraceString(ignore));
 					}
-					
 				}
 				return null;
 			}
@@ -2762,13 +2784,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     }
     
     private Route enRoute;
+    private CountDownTimer countDown;
     
     private void showEnRouteAlert() {
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
-				showIncidentsIfNessary();
+				to2DMap(routeRect, false);
 				findViewById(R.id.loading).setVisibility(View.GONE);
 	    	    navigationView.setVisibility(View.GONE);
 	    	    findViewById(R.id.directions_view).setVisibility(View.INVISIBLE);
@@ -2779,8 +2801,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    	    speakIfTtsEnabled(alertMessage.toString(), true);
 	    	    ttsBuffer.clear();
 	    	    final CharSequence autoAcceptDesc = getResources().getText(R.string.en_route_auto_accept);
-	    	    final NumberFormat nf = new DecimalFormat("##");
-	    	    new CountDownTimer(5000, 1000) {
+	    	    final NumberFormat nf = new DecimalFormat("#");
+	    	    countDown = new CountDownTimer(6000, 1000) {
 	    	    	public void onTick(long millisUntilFinished) {
 	    	    		String message = String.format(autoAcceptDesc.toString(), nf.format(millisUntilFinished / 1000));
 	    	    		((TextView)findViewById(R.id.en_route_auto_accept_desc)).setText(formatAutoAcceptDesc(message));
@@ -2799,7 +2821,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     	SpannableString autoAcceptDesc = SpannableString.valueOf(desc);
     	if(firstNumIdx > 0) {
     		autoAcceptDesc.setSpan(new AbsoluteSizeSpan(ValidationActivity.this.getResources()
-    				.getDimensionPixelSize(R.dimen.smaller_font)), firstNumIdx, firstNumIdx + 2,
+    				.getDimensionPixelSize(R.dimen.medium_font)), firstNumIdx, firstNumIdx + 1,
     				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     	}
     	return autoAcceptDesc;
@@ -2820,8 +2842,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
-				removeAllIncident();
+				to3DMap();
 				for(View view : getMapViews()) {
 					view.setVisibility(View.VISIBLE);
 				}
