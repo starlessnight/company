@@ -33,6 +33,8 @@ public class UserLocationService extends IntentService {
     
     private static final long FIFTEEN_MINS = 15 * 60 * 1000L;
     
+    private static final long ONE_HOUR = 60 * 60 * 1000L;
+    
     private static final long GPS_TOGGLE_THRESHOLD = 600;
     
     public UserLocationService() {
@@ -121,7 +123,7 @@ public class UserLocationService extends IntentService {
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
         Long interval = getInterval(ctx);
         alarm.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            SystemClock.elapsedRealtime() + interval, interval, sendTrajServ);
+            SystemClock.elapsedRealtime() + interval, ONE_HOUR, sendTrajServ);
     }
 
 }

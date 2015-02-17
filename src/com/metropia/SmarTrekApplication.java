@@ -12,6 +12,7 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary;
 import com.metropia.activities.R;
+import com.metropia.activities.ValidationActivity;
 
 @ReportsCrashes(formKey="dFdwTW1tbERoS1N4RlhNbFBjeHc4dXc6MQ",
                 mode = ReportingInteractionMode.DIALOG, // I have decided to use this mode for the beta testing period.
@@ -27,7 +28,7 @@ public final class SmarTrekApplication extends Application {
         // The following line triggers the initialization of ACRA
         //ACRA.init(this);
         CrashlyticsUtils.start(this);
-        int interval = 15 * 60 * 1000;
+        int interval = ValidationActivity.TWO_MINUTES;
         LocationLibrary.initialiseLibrary(this, interval, 
             interval, false, "com.metropia.activities");
         LocationLibrary.stopAlarmAndListener(this);
