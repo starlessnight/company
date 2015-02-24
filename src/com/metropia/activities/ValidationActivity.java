@@ -1818,7 +1818,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             });
 	    }
 	    
-	    if(Misc.INCIDENT_ENABLED && StringUtils.isBlank(incidentUrl)) {
+	    if(DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this) && StringUtils.isBlank(incidentUrl)) {
 	    	MainActivity.initApiLinksIfNecessary(ValidationActivity.this, new Runnable() {
 				@Override
 				public void run() {
@@ -1841,7 +1841,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    	});
 	    }
 	    
-	    if(Misc.INCIDENT_ENABLED && incidentInitTime < 0 && StringUtils.isNotBlank(incidentUrl)) {
+	    if(DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this) && incidentInitTime < 0 && StringUtils.isNotBlank(incidentUrl)) {
 	    	AsyncTask<Void, Void, Boolean> retriveIncidentTask = new AsyncTask<Void, Void, Boolean>() {
 	    		@Override
 				protected Boolean doInBackground(Void... params) {
@@ -2061,7 +2061,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	
 	private void showIncidentsIfNessary() {
-		if(Misc.INCIDENT_ENABLED && mapView.getMapSettings().getMapDisplayMode() == SKMapDisplayMode.MODE_2D) {
+		if(DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this) && mapView.getMapSettings().getMapDisplayMode() == SKMapDisplayMode.MODE_2D) {
 			mapView.deleteAllAnnotationsAndCustomPOIs();
 			drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
 			List<Incident> incidentsOfTime = getIncidentsOfTime();
@@ -2084,7 +2084,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 	
 	private void removeAllIncident() {
-		if(Misc.INCIDENT_ENABLED) {
+		if(DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this)) {
 			mapView.deleteAllAnnotationsAndCustomPOIs();
 			drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
 		}

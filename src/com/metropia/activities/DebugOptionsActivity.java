@@ -1208,4 +1208,8 @@ public final class DebugOptionsActivity extends FragmentActivity {
             .commit();
     }
     
+    public static boolean isIncidentEnabled(Context ctx) {
+    	return "http://sandbox.metropia.com/v1/rest/index.json".equalsIgnoreCase(getDebugEntrypoint(ctx));
+    }
+    
 }

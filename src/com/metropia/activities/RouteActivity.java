@@ -924,7 +924,7 @@ public final class RouteActivity extends FragmentActivity {
     private AtomicBoolean showProgressDialog = new AtomicBoolean(true);
     
     private void retriveIncident(final Runnable callback) {
-    	if(Misc.INCIDENT_ENABLED) {
+    	if(DebugOptionsActivity.isIncidentEnabled(RouteActivity.this)) {
 	    	AsyncTask<Void, Void, Void> getIncidentTask = new AsyncTask<Void, Void, Void>() {
 	    		
 	    		private CancelableProgressDialog dialog;

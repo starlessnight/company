@@ -49,7 +49,6 @@ import com.metropia.ui.timelayout.TimeButton;
 public class Misc {
 
     public static final String APP_DOWNLOAD_LINK = "https://play.google.com/store/apps/details?id=com.metropia.activities";
-    public static final boolean INCIDENT_ENABLED = false;
     
     public static final String LOG_TAG = "Misc";
     
