@@ -362,11 +362,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				vDistance.setText(NavigationView.adjustDistanceFontSize(ValidationActivity.this, 
 						StringUtil.formatRoundingDistance(UnitConversion.meterToMile(item.distance), true)));
 				vDistance.requestLayout();
-				vRoad.setText((StringUtils.isBlank(item.roadName) 
-			        || StringUtils.equalsIgnoreCase(item.roadName, "null")) ? ""
-					: (StringUtils.capitalize(item.roadName.substring(0, 1)) 
-			        + item.roadName.substring(1))
-		        );
+				StringBuffer roadName = new StringBuffer((StringUtils.isBlank(item.roadName) 
+				        || StringUtils.equalsIgnoreCase(item.roadName, "null")) ? "" : (StringUtils.capitalize(item.roadName.substring(0, 1)) 
+						        + item.roadName.substring(1)));
+				if("Destination".equals(roadName.toString()) && (StringUtils.isNotBlank(reservation.getDestinationName()) || StringUtils.isNotBlank(reservation.getDestinationAddress()))) {
+					roadName.append("\n").append(StringUtils.isNotBlank(reservation.getDestinationName()) ? reservation.getDestinationName() : reservation.getDestinationAddress());
+				}
+				vRoad.setText(roadName.toString());
 				vRoad.requestLayout();
 				return view;
 			}
