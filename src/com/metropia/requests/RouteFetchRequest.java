@@ -40,7 +40,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 	
 	private static String buildUrl(GeoPoint origin, GeoPoint destination, 
 	        long departureTime, double speed, float course, String originAddr, 
-            String destAddr) {
+            String destAddr, boolean includeTollRoads) {
 		String url;
 		double startlat = origin.getLatitude();
 		double startlon = origin.getLongitude();
@@ -65,7 +65,8 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
                 .replaceAll("\\{speed\\}", String.valueOf(speed))
                 .replaceAll("\\{course\\}", String.valueOf(course))
                 .replaceAll("\\{origin\\}", originAddrEncoded)
-                .replaceAll("\\{destination\\}", destAddrEncoded);
+                .replaceAll("\\{destination\\}", destAddrEncoded)
+                .replaceAll("\\{toll\\}", includeTollRoads + "");
 		}else{
 		    Time t = new Time();
 	        t.set(departureTime);
@@ -78,9 +79,9 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 	
 	public RouteFetchRequest(User user, GeoPoint origin, GeoPoint destination, 
 	        long departureTime, double speed, float course, String originAddr, 
-	        String destAddr) {
+	        String destAddr, boolean includeTollRoads) {
 		super(buildUrl(origin, destination, departureTime, speed, course, 
-	        originAddr, destAddr));
+	        originAddr, destAddr, includeTollRoads));
 		this.departureTime = departureTime;
 		if(NEW_API){
 		    this.username = user.getUsername();

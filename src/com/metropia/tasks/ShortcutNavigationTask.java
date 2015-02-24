@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 
 import com.metropia.activities.DebugOptionsActivity;
+import com.metropia.activities.MapDisplayActivity;
 import com.metropia.activities.R;
 import com.metropia.activities.ValidationActivity;
 import com.metropia.dialogs.CancelableProgressDialog;
@@ -194,7 +195,8 @@ public class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
                         if(_route == null){
                             RouteFetchRequest routeReq = new RouteFetchRequest(user, 
                                 origin, dest, departureTime.initTime().toMillis(false),
-                                0, 0, originAddress, address);
+                                0, 0, originAddress, address, 
+                    	        MapDisplayActivity.isIncludeTollRoadsEnabled(ctx));
                             route = routeReq.execute(ctx).get(0);
                             route.setAddresses(originAddress, address);
                             route.setUserId(user.getId());

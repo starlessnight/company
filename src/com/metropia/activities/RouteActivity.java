@@ -1461,7 +1461,8 @@ public final class RouteActivity extends FragmentActivity {
         int letsGoPanelVis = column == 0?View.VISIBLE:View.GONE;
         int reservePanelVis = column == 0?View.GONE:View.VISIBLE;
         final RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(this), 
-            origin, destination, departureTime, speed, course, getOriginAddrRouteReqParam(), destAddr);
+            origin, destination, departureTime, speed, course, getOriginAddrRouteReqParam(), destAddr, 
+            MapDisplayActivity.isIncludeTollRoadsEnabled(RouteActivity.this));
         if (request.isCached(this)) {
             try {
                 List<Route> routes = request.execute(this);
@@ -1769,13 +1770,15 @@ public final class RouteActivity extends FragmentActivity {
         
         public boolean isCached() {
         	RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(RouteActivity.this), 
-    	        origin, destination, departureTime, speed, course, getOriginAddrRouteReqParam(), destAddr);
+    	        origin, destination, departureTime, speed, course, getOriginAddrRouteReqParam(), destAddr, 
+    	        MapDisplayActivity.isIncludeTollRoadsEnabled(RouteActivity.this));
         	return request.isCached(RouteActivity.this);
         }
         
         public List<Route> getData() throws RouteNotFoundException, IOException, JSONException, InterruptedException {
         	RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(RouteActivity.this), 
-    	        origin, destination, departureTime, speed, course, getOriginAddrRouteReqParam(), destAddr);
+    	        origin, destination, departureTime, speed, course, getOriginAddrRouteReqParam(), destAddr, 
+    	        MapDisplayActivity.isIncludeTollRoadsEnabled(RouteActivity.this));
         	return request.execute(RouteActivity.this);
         }
         

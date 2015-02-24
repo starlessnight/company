@@ -2780,7 +2780,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		                    route.preprocessNodes();
 	                    	RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(LandingActivity2.this), 
 	                    	        route.getFirstNode().getGeoPoint(), route.getLastNode().getGeoPoint(), 
-	                    	        reserv.getDepartureTimeUtc(), 0, 0, reserv.getOriginAddress(), reserv.getDestinationAddress());
+	                    	        reserv.getDepartureTimeUtc(), 0, 0, reserv.getOriginAddress(), reserv.getDestinationAddress(), 
+	                    	        MapDisplayActivity.isIncludeTollRoadsEnabled(LandingActivity2.this));
 	                    	routes = request.execute(LandingActivity2.this);
 	                    }
 	                }
@@ -4436,7 +4437,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             if(_route == null){
                                 RouteFetchRequest routeReq = new RouteFetchRequest(user, 
                                     origin, dest, departureTime.initTime().toMillis(false),
-                                    0, 0, originAddress, address);
+                                    0, 0, originAddress, address, MapDisplayActivity.isIncludeTollRoadsEnabled(ctx));
                                 route = routeReq.execute(ctx).get(0);
                                 route.setAddresses(originAddress, address);
                                 route.setUserId(user.getId());

@@ -1644,7 +1644,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         RouteFetchRequest routeReq = new RouteFetchRequest(User.getCurrentUser(ValidationActivity.this), 
             new GeoPoint(lat, lon), new GeoPoint(reservation.getEndlat(), reservation.getEndlon()), 
             System.currentTimeMillis(), speedInMph, bearing, null,
-            reservation.getDestinationAddress());
+            reservation.getDestinationAddress(), MapDisplayActivity.isIncludeTollRoadsEnabled(ValidationActivity.this));
         try{
             List<Route> list = routeReq.execute(ValidationActivity.this);
             if(list != null && !list.isEmpty()){
@@ -1745,7 +1745,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                                 	}
                                 	request = new RouteFetchRequest(User.getCurrentUser(ValidationActivity.this), 
                                 		curPosi, new GeoPoint(reser.getEndlat(), reser.getEndlon()), 
-                                		System.currentTimeMillis(), speedInMph, bearing, null, reser.getDestinationAddress());
+                                		System.currentTimeMillis(), speedInMph, bearing, null, reser.getDestinationAddress(), 
+                                		MapDisplayActivity.isIncludeTollRoadsEnabled(ValidationActivity.this));
                                 }
                                 List<Route> routes = request.execute(ValidationActivity.this);
                                 if (routes != null && routes.size() > 0) {
