@@ -1,46 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    	android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	    android:background="@android:color/white">
-	    
-    <ScrollView
-		    android:layout_width="match_parent"
-		    android:layout_height="match_parent"
-		    android:fillViewport="true">
-		    
-		<LinearLayout
-		    android:layout_width="fill_parent"
-		    android:layout_height="fill_parent"
-		    android:focusable="true"
-		    android:focusableInTouchMode="true"
-		    android:orientation="vertical">
-		    
-		    <include layout="@layout/metropia_color_bar" />
-		    
-		    <FrameLayout 
-		        	android:layout_width="match_parent"
-		        	android:layout_height="50dp"
-		        	android:background="@android:color/white">
-		        <TextView 
-		            android:id="@+id/header"
-		            android:layout_width="match_parent"
-		            android:layout_height="wrap_content"
-		            android:gravity="center"
-		            android:layout_gravity="center_vertical"
-		            android:textColor="@android:color/black"
-		            android:textSize="@dimen/medium_font"
-		            android:text="Settings"/>
-		        
-		        <ImageView 
-		            android:id="@+id/back_button"
-		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:layout_gravity="center|left"
-		            android:paddingLeft="10dp"
-		            android:src="@drawable/setting_back_arrow"/>
-		    </FrameLayout>
-		    
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/metropia_blue"
+    android:fillViewport="true" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical" >
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp" >
+
+            <TextView
+                android:id="@+id/header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:text="Settings"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/medium_font" />
+
+            <TextView
+                android:id="@+id/back_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|left"
+                android:drawableLeft="@drawable/setting_white_back_arrow"
+                android:drawablePadding="5dp"
+                android:gravity="center"
+                android:paddingLeft="10dp"
+                android:text="Back"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/smaller_font" />
+        </FrameLayout>
+
+        <!--
 		    <View
 			   android:layout_width="fill_parent"
 			   android:layout_height="3dp"
@@ -94,169 +94,227 @@
 		    <View
 			   android:layout_width="fill_parent"
 			   android:layout_height="3dp"
-			   android:background="@color/metropia_blue"/>
-		    
-		    <LinearLayout
-		        android:layout_width="fill_parent"
-		        android:layout_height="115dp"
-		        android:background="@android:color/white"
-		        android:orientation="vertical">
-		        
-		        <FrameLayout
-		            android:layout_width="fill_parent"
-		            android:layout_height="57dp"
-		            android:paddingLeft="15dp"
-		            android:paddingRight="15dp"
-		            >
-		            <TextView 
-		                android:id="@+id/predict_destination_text"
-		                android:layout_width="fill_parent"
-		                android:layout_height="wrap_content"
-		                android:text="Destination Prediction"
-		                android:textSize="@dimen/smaller_font"
-		                android:textColor="@color/gray"
-		                android:gravity="left"
-		                android:layout_gravity="center_vertical"
-		                android:singleLine="true"/>
-		            
-		            <ToggleButton 
-		                android:id="@+id/predict_destination"
-		                android:layout_width="51dp"
-			            android:layout_height="31dp"
-			            android:background="@drawable/setting_toggle_button"
-			            android:gravity="right"
-			            android:layout_gravity="center|right"
-			            android:checked="true"
-			            android:textOff=""
-			            android:textOn=""/>
-		            
-		        </FrameLayout>
-		        
-		        	        
-		        <FrameLayout
-		            android:layout_width="fill_parent"
-		            android:layout_height="57dp"
-		            android:paddingLeft="15dp"
-		            android:paddingRight="15dp">
-		            
-		            <TextView 
-		                android:id="@+id/calendar_integration_text"
-		                android:layout_width="fill_parent"
-		                android:layout_height="wrap_content"
-		                android:text="Calendar Integration"
-		                android:textSize="@dimen/smaller_font"
-		                android:textColor="@color/gray"
-		                android:gravity="left"
-		                android:layout_gravity="center_vertical"
-		                android:singleLine="true"/>
-		            
-		            <ToggleButton 
-		                android:id="@+id/calendar_integration"
-		                android:layout_width="51dp"
-			            android:layout_height="31dp"
-			            android:background="@drawable/setting_toggle_button"
-			            android:gravity="right"
-			            android:layout_gravity="center|right"
-			            android:checked="true"
-			            android:textOff=""
-			            android:textOn=""/>
-		            
-		        </FrameLayout>
-		        
-		    </LinearLayout>
-		    
-		    <View
-			   android:layout_width="fill_parent"
-			   android:layout_height="3dp"
-			   android:background="@color/metropia_blue"/>
-		    
-		    <LinearLayout
-		        android:layout_width="fill_parent"
-		        android:layout_height="145dp"
-		        android:background="@android:color/white"
-		        android:orientation="vertical">
-		        
-		        <TextView 
-		            android:id="@+id/tutorial"
-		            android:layout_width="fill_parent"
-		            android:layout_height="0dp"
-		            android:layout_weight="1"
-		            android:layout_marginLeft="15dp"
-		            android:layout_marginRight="15dp"
-		            android:text="Tutorial"
-		            android:textSize="@dimen/smaller_font"
-		            android:textColor="@color/gray"
-		            android:gravity="center_vertical"
-		            android:layout_gravity="center_vertical"
-		            android:drawableRight="@drawable/setting_right_arrow"/>
-		        
-		        <TextView 
-		            android:id="@+id/introduction_screens"
-		            android:layout_width="fill_parent"
-		            android:layout_height="0dp"
-		            android:layout_weight="1"
-		            android:layout_marginLeft="15dp"
-		            android:layout_marginRight="15dp"
-		            android:text="Introduction Screens"
-		            android:textSize="@dimen/smaller_font"
-		            android:textColor="@color/gray"
-		            android:gravity="center_vertical"
-		            android:layout_gravity="center_vertical"
-		            android:drawableRight="@drawable/setting_right_arrow"/>
-		        
-		        <TextView 
-		            android:id="@+id/help_our_research"
-		            android:layout_width="fill_parent"
-		            android:layout_height="0dp"
-		            android:layout_weight="1"
-		            android:layout_marginLeft="15dp"
-		            android:layout_marginRight="15dp"
-		            android:text="Help our Research"
-		            android:textSize="@dimen/smaller_font"
-		            android:textColor="@color/gray"
-		            android:gravity="center_vertical"
-		            android:layout_gravity="center_vertical"
-		            android:drawableRight="@drawable/setting_right_arrow"/>
-		        
-		        <TextView 
-		            android:id="@+id/terms_and_privacy"
-		            android:layout_width="fill_parent"
-		            android:layout_height="0dp"
-		            android:layout_weight="1"
-		            android:layout_marginLeft="15dp"
-		            android:layout_marginRight="15dp"
-		            android:text="Terms &amp; Privacy"
-		            android:textSize="@dimen/smaller_font"
-		            android:textColor="@color/gray"
-		            android:gravity="center_vertical"
-		            android:layout_gravity="center_vertical"
-		            android:drawableRight="@drawable/setting_right_arrow"/>
-		            
-		    </LinearLayout>
-		    
-		     <View
-			   android:layout_width="fill_parent"
-			   android:layout_height="3dp"
-			   android:background="@color/metropia_blue"/>
-		     
-		     <TextView 
-		         android:id="@+id/logout"
-		         android:layout_height="50dp"
-		         android:layout_width="wrap_content"
-		         android:text="Log Out"
-		         android:textColor="@android:color/black"
-		         android:textSize="@dimen/smaller_font"
-		         android:gravity="center"
-		         android:layout_gravity="center"
-		         android:drawableLeft="@drawable/menu_logout"
-		         android:drawablePadding="20dp"
-		         android:includeFontPadding="false"/>
-		     
-		      <View
-			   android:layout_width="fill_parent"
-			   android:layout_height="3dp"
-			   android:background="@color/metropia_blue"/>
-		</LinearLayout>
-	</ScrollView>
-	
-</FrameLayout>
+			   android:background="@color/metropia_blue"/>
+        -->
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:orientation="vertical" >
+
+            <FrameLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp" >
+
+                <TextView
+                    android:id="@+id/include_toll_roads_text"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="left"
+                    android:singleLine="true"
+                    android:text="Include Toll Roads"
+                    android:textColor="@color/gray"
+                    android:textSize="@dimen/smaller_font" />
+
+                <ToggleButton
+                    android:id="@+id/include_toll_roads"
+                    android:layout_width="51dp"
+                    android:layout_height="31dp"
+                    android:layout_gravity="center|right"
+                    android:background="@drawable/setting_toggle_button"
+                    android:checked="true"
+                    android:gravity="right"
+                    android:textOff=""
+                    android:textOn="" />
+            </FrameLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/transparent_gray" />
+
+            <FrameLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp" >
+
+                <TextView
+                    android:id="@+id/predict_destination_text"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="left"
+                    android:singleLine="true"
+                    android:text="Destination Prediction"
+                    android:textColor="@color/gray"
+                    android:textSize="@dimen/smaller_font" />
+
+                <ToggleButton
+                    android:id="@+id/predict_destination"
+                    android:layout_width="51dp"
+                    android:layout_height="31dp"
+                    android:layout_gravity="center|right"
+                    android:background="@drawable/setting_toggle_button"
+                    android:checked="true"
+                    android:gravity="right"
+                    android:textOff=""
+                    android:textOn="" />
+            </FrameLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/transparent_gray" />
+
+            <FrameLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp" >
+
+                <TextView
+                    android:id="@+id/calendar_integration_text"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="left"
+                    android:singleLine="true"
+                    android:text="Calendar Integration"
+                    android:textColor="@color/gray"
+                    android:textSize="@dimen/smaller_font" />
+
+                <ToggleButton
+                    android:id="@+id/calendar_integration"
+                    android:layout_width="51dp"
+                    android:layout_height="31dp"
+                    android:layout_gravity="center|right"
+                    android:background="@drawable/setting_toggle_button"
+                    android:checked="true"
+                    android:gravity="right"
+                    android:textOff=""
+                    android:textOn="" />
+            </FrameLayout>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/metropia_title"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:padding="15dp"
+            android:text="Metropia"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/smaller_font" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/introduction_screens"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:drawableRight="@drawable/setting_grey_right_arrow"
+                android:gravity="center_vertical"
+                android:paddingLeft="15dp"
+                android:paddingRight="35dp"
+                android:paddingTop="15dp"
+                android:paddingBottom="15dp"
+                android:text="Introduction Screens"
+                android:textColor="@color/gray"
+                android:textSize="@dimen/smaller_font" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginRight="5dp"
+                android:background="@color/transparent_gray" />
+
+            <TextView
+                android:id="@+id/tutorial"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:drawableRight="@drawable/setting_grey_right_arrow"
+                android:gravity="center_vertical"
+                android:paddingLeft="15dp"
+                android:paddingRight="35dp"
+                android:paddingTop="15dp"
+                android:paddingBottom="15dp"
+                android:text="Tutorial"
+                android:textColor="@color/gray"
+                android:textSize="@dimen/smaller_font" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginRight="5dp"
+                android:background="@color/transparent_gray" />
+
+            <TextView
+                android:id="@+id/help_our_research"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:drawableRight="@drawable/setting_grey_right_arrow"
+                android:gravity="center_vertical"
+                android:paddingLeft="15dp"
+                android:paddingRight="35dp"
+                android:paddingTop="15dp"
+                android:paddingBottom="15dp"
+                android:text="Help our Research"
+                android:textColor="@color/gray"
+                android:textSize="@dimen/smaller_font" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginRight="5dp"
+                android:background="@color/transparent_gray" />
+
+            <TextView
+                android:id="@+id/terms_and_privacy"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:drawableRight="@drawable/setting_grey_right_arrow"
+                android:gravity="center_vertical"
+                android:paddingLeft="15dp"
+                android:paddingRight="35dp"
+                android:paddingTop="15dp"
+                android:paddingBottom="15dp"
+                android:text="Terms &amp; Privacy"
+                android:textColor="@color/gray"
+                android:textSize="@dimen/smaller_font" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/logout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|left"
+            android:drawableLeft="@drawable/menu_logout"
+            android:drawablePadding="20dp"
+            android:gravity="center"
+            android:padding="15dp"
+            android:text="Log Out"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/smaller_font" />
+    </LinearLayout>
+
+</ScrollView>

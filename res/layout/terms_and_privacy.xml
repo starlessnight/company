@@ -37,7 +37,7 @@
 		            android:layout_height="wrap_content"
 		            android:layout_gravity="center|left"
 		            android:paddingLeft="10dp"
-		            android:src="@drawable/setting_back_arrow"/>
+		            android:src="@drawable/setting_grey_back_arrow"/>
 		</FrameLayout>	
 		
         <View
@@ -59,7 +59,7 @@
                 android:text="Terms of Use"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/medium_font"
-                android:drawableRight="@drawable/setting_right_arrow"
+                android:drawableRight="@drawable/setting_orange_right_arrow"
                 android:paddingLeft="15dp"
                 android:paddingRight="15dp"
                 android:gravity="center|left"
@@ -73,7 +73,7 @@
                 android:text="Privacy Policy"
                 android:textColor="@android:color/black"
                 android:textSize="@dimen/medium_font"
-                android:drawableRight="@drawable/setting_right_arrow"
+                android:drawableRight="@drawable/setting_orange_right_arrow"
                 android:paddingLeft="15dp"
                 android:paddingRight="15dp"
                 android:gravity="center|left"

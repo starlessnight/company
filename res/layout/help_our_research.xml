@@ -37,7 +37,7 @@
 		        android:layout_height="wrap_content"
 		        android:layout_gravity="center|left"
 		        android:paddingLeft="10dp"
-		        android:src="@drawable/setting_back_arrow"/>
+		        android:src="@drawable/setting_grey_back_arrow"/>
 		</FrameLayout>	
 		
         <View

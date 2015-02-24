@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -60,9 +59,13 @@ public final class MapDisplayActivity extends FragmentActivity {
 
 	private static final String PREDICT_DESTINATION = "PREDICT_DESTINATION";
 	
+	private static final String INCLUDE_TOLL_ROADS = "INCLUDE_TOLL_ROADS";
+	
 	private ToggleButton calendarIntegration;
 
 	private ToggleButton predictDest;
+	
+	private ToggleButton includeTollRoads;
 	
 	private Typeface boldFont;
 
@@ -77,8 +80,8 @@ public final class MapDisplayActivity extends FragmentActivity {
 		Localytics.integrate(this);
 
 		AssetManager assets = getAssets();
-		boldFont = Font.getBold(assets);
-		lightFont = Font.getLight(assets);
+		boldFont = Font.getRobotoBold(assets);
+		lightFont = Font.getMedium(assets);
 
 		View backButton = findViewById(R.id.back_button);
 		backButton.setOnClickListener(new OnClickListener() {
@@ -97,6 +100,7 @@ public final class MapDisplayActivity extends FragmentActivity {
 		final SharedPreferences prefs = getSharedPreferences(MAP_DISPLAY_PREFS,
 				MODE_PRIVATE);
 		
+		/*
 		User user = User.getCurrentUser(MapDisplayActivity.this);
 
 		TextView userNameView = (TextView) findViewById(R.id.user_name);
@@ -104,6 +108,7 @@ public final class MapDisplayActivity extends FragmentActivity {
 
 		TextView emailView = (TextView) findViewById(R.id.user_email);
 		emailView.setText(user.getEmail());
+		*/
 
 		boolean calIntEnabled = isCalendarIntegrationEnabled(this);
 		calendarIntegration = (ToggleButton) findViewById(R.id.calendar_integration);
@@ -125,6 +130,16 @@ public final class MapDisplayActivity extends FragmentActivity {
 			public void onCheckedChanged(CompoundButton buttonView,
 					boolean isChecked) {
 				prefs.edit().putBoolean(PREDICT_DESTINATION, isChecked)
+						.commit();
+			}
+		});
+		
+		boolean includeTollRoadsEnabled = isIncludeTollRoadsEnabled(this);
+		includeTollRoads = (ToggleButton) findViewById(R.id.include_toll_roads);
+		includeTollRoads.setChecked(includeTollRoadsEnabled);
+		includeTollRoads.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
+				prefs.edit().putBoolean(INCLUDE_TOLL_ROADS, isChecked)
 						.commit();
 			}
 		});
@@ -194,10 +209,12 @@ public final class MapDisplayActivity extends FragmentActivity {
 			}
 		});
 
+		/*
 		TextView veNum = (TextView) findViewById(R.id.version_number);
 		try{
 		    veNum.setText("Version " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
 		}catch(NameNotFoundException e){}
+		*/
 		
 		TextView logout = (TextView) findViewById(R.id.logout);
 		logout.setOnClickListener(new OnClickListener() {
@@ -219,14 +236,17 @@ public final class MapDisplayActivity extends FragmentActivity {
 			}
 		});
 		
-		Font.setTypeface(boldFont, (TextView) findViewById(R.id.header), logout);
-        Font.setTypeface(lightFont, userNameView, emailView, veNum,
+		Font.setTypeface(boldFont, logout, (TextView) findViewById(R.id.header),
+				(TextView) findViewById(R.id.metropia_title),
+				(TextView) findViewById(R.id.back_button));
+        Font.setTypeface(lightFont, /*userNameView, emailView, veNum,*/
 				(TextView) findViewById(R.id.predict_destination_text),
 				(TextView) findViewById(R.id.calendar_integration_text),
 				(TextView) findViewById(R.id.tutorial),
 				(TextView) findViewById(R.id.introduction_screens),
 				(TextView) findViewById(R.id.terms_and_privacy),
-				(TextView) findViewById(R.id.help_our_research));
+				(TextView) findViewById(R.id.help_our_research), 
+				(TextView) findViewById(R.id.include_toll_roads_text));
         
         //init Tracker
       	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
@@ -250,6 +270,10 @@ public final class MapDisplayActivity extends FragmentActivity {
 	public static boolean isPredictDestEnabled(Context ctx) {
 		return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
 				.getBoolean(PREDICT_DESTINATION, true);
+	}
+	
+	public static boolean isIncludeTollRoadsEnabled(Context ctx) {
+		return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE).getBoolean(INCLUDE_TOLL_ROADS, true);
 	}
 
 	public static boolean isLocBasedServiceEnabled(Context ctx) {
