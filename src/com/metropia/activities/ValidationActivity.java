@@ -289,6 +289,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		route.setCredits(reservation.getCredits());
 		reservation.setRoute(route);
 		
+		// init
+		lastCheckTime.set(0);
 		// Define a listener that responds to location updates
 		locationListener = new ValidationLocationListener();
 
@@ -1875,7 +1877,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    	lastCheckTime.set(System.currentTimeMillis());
 	    }
 	    
-	    if(System.currentTimeMillis() - lastCheckTime.get() >= 5 * 60 * 1000 && getRouteOrReroute().getDistanceToNextTurn(lat, lng) >= 20 * location.getSpeed()) {
+	    if(lastCheckTime.get() != 0 && System.currentTimeMillis() - lastCheckTime.get() >= 5 * 60 * 1000 && getRouteOrReroute().getDistanceToNextTurn(lat, lng) >= 20 * location.getSpeed()) {
 	    	lastCheckTime.set(System.currentTimeMillis());
 	    	enrouteCheck();
 	    }
