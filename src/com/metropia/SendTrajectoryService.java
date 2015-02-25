@@ -32,6 +32,7 @@ public class SendTrajectoryService extends IntentService {
     private static long sevenDays = 7 * 24 * 60 * 60 * 1000;
     
     private static long twoMins = 2 * 60 * 1000;
+    private static long eightHours = 8 * 60 * 60 * 1000;
     
     private static final String IMD_PREFIX = "[";
     
@@ -167,7 +168,7 @@ public class SendTrajectoryService extends IntentService {
                 ctx, SendTrajectoryService.class), PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
         alarm.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 
-            SystemClock.elapsedRealtime() + twoMins, twoMins, sendTrajServ);
+            SystemClock.elapsedRealtime() + twoMins, eightHours, sendTrajServ);
     }
 
 }
