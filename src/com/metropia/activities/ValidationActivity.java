@@ -1105,10 +1105,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             mapView.rotateTheMapToNorth();
             GeoPoint topLeft = _rect.getTopLeftPoint();
             GeoPoint bottomRight = _rect.getBottomRightPoint();
-            // paddding parameter of fitBoundingBox not work, use PADDING
             SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude());
-            int navigationViewHeight = hasNavigationHeader ? navigationView.getMeasuredHeight() : 0; 
-            mapView.fitBoundingBox(boundingBox, 100, navigationViewHeight);
+            int offsetHeight = hasNavigationHeader ? navigationView.getMeasuredHeight() : 0; 
+            mapView.fitBoundingBox(boundingBox, 100, offsetHeight);
             GeoPoint mid = _rect.getMidPoint();
             SKCoordinate coordinate = new SKCoordinate(mid.getLongitude(), mid.getLatitude());
             mapView.centerMapOnPosition(coordinate);
@@ -2596,6 +2595,15 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 	}
 	
+	private void enRouteCueSpeak(String text, boolean flush) {
+		if(mTts != null) {
+			mTts.stop();
+			ttsBuffer.clear();
+			mTts.setLanguage(Locale.US);
+			speak(text, flush);
+		}
+	}
+	
 	private void speak(String text, boolean flush) {
 		if (mTts != null) {
 			try {
@@ -2802,9 +2810,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    	    findViewById(R.id.mapview_options).setVisibility(View.GONE);
 	    	    findViewById(R.id.en_route_alert_panel).setVisibility(View.VISIBLE);
 	    	    StringBuffer alertMessage = new StringBuffer(getResources().getText(R.string.en_route_desc1));
-	    	    alertMessage.append("\n").append(getResources().getText(R.string.en_route_desc2));
-	    	    speakIfTtsEnabled(alertMessage.toString(), true);
-	    	    ttsBuffer.clear();
+//	    	    alertMessage.append("\n").append(getResources().getText(R.string.en_route_desc2));
+	    	    enRouteCueSpeak(alertMessage.toString(), true);
+	    	    
 	    	    final CharSequence autoAcceptDesc = getResources().getText(R.string.en_route_auto_accept);
 	    	    final NumberFormat nf = new DecimalFormat("#");
 	    	    countDown = new CountDownTimer(6000, 1000) {
