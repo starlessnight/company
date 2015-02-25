@@ -290,7 +290,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		reservation.setRoute(route);
 		
 		// init
-		lastCheckTime.set(0);
+		lastEnRouteCheckTime.set(0);
 		// Define a listener that responds to location updates
 		locationListener = new ValidationLocationListener();
 
@@ -1873,12 +1873,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    	Misc.parallelExecute(retriveIncidentTask);
 	    }
 	    
-	    if(lastCheckTime.get() == 0) {
-	    	lastCheckTime.set(System.currentTimeMillis());
+	    if(lastEnRouteCheckTime.get() == 0) {
+	    	lastEnRouteCheckTime.set(System.currentTimeMillis());
 	    }
 	    
-	    if(lastCheckTime.get() != 0 && System.currentTimeMillis() - lastCheckTime.get() >= 5 * 60 * 1000 && getRouteOrReroute().getDistanceToNextTurn(lat, lng) >= 20 * location.getSpeed()) {
-	    	lastCheckTime.set(System.currentTimeMillis());
+	    if(lastEnRouteCheckTime.get() != 0 && System.currentTimeMillis() - lastEnRouteCheckTime.get() >= 5 * 60 * 1000 && getRouteOrReroute().getDistanceToNextTurn(lat, lng) >= 20 * location.getSpeed()) {
+	    	lastEnRouteCheckTime.set(System.currentTimeMillis());
 	    	enrouteCheck();
 	    }
 	    
@@ -2746,7 +2746,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     };
     
     private long realTravelRemainTimeInSec = -1;  //ms
-    private AtomicLong lastCheckTime = new AtomicLong(0);
+    private AtomicLong lastEnRouteCheckTime = new AtomicLong(0);
     
     private void enrouteCheck() {
     	AsyncTask<Void, Void, Route> checkTask = new AsyncTask<Void, Void, Route>() {
@@ -2756,7 +2756,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					realTravelRemainTimeInSec = -1;
 					double realRemainTimeInMin = -1;
 					Route enRoute = null;
-					lastCheckTime.set(System.currentTimeMillis());
+					lastEnRouteCheckTime.set(System.currentTimeMillis());
 					try {
 						TravelTimeRequest travelTimeReq = new TravelTimeRequest(User.getCurrentUser(ValidationActivity.this), 
 								reservation.getCity(), getRouteOrReroute().getRemainNodes(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
