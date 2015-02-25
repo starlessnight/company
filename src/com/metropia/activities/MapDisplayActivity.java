@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -209,12 +210,10 @@ public final class MapDisplayActivity extends FragmentActivity {
 			}
 		});
 
-		/*
 		TextView veNum = (TextView) findViewById(R.id.version_number);
 		try{
-		    veNum.setText("Version " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
+		    veNum.setText("V. " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
 		}catch(NameNotFoundException e){}
-		*/
 		
 		TextView logout = (TextView) findViewById(R.id.logout);
 		logout.setOnClickListener(new OnClickListener() {
@@ -236,7 +235,7 @@ public final class MapDisplayActivity extends FragmentActivity {
 			}
 		});
 		
-		Font.setTypeface(boldFont, logout, (TextView) findViewById(R.id.header),
+		Font.setTypeface(boldFont, logout, veNum, (TextView) findViewById(R.id.header),
 				(TextView) findViewById(R.id.metropia_title),
 				(TextView) findViewById(R.id.back_button));
         Font.setTypeface(lightFont, /*userNameView, emailView, veNum,*/

@@ -40,63 +40,6 @@
                 android:textSize="@dimen/smaller_font" />
         </FrameLayout>
 
-        <!--
-		    <View
-			   android:layout_width="fill_parent"
-			   android:layout_height="3dp"
-			   android:background="@color/metropia_blue"/>
-		    
-		    <LinearLayout 
-		        android:layout_width="fill_parent"
-		        android:layout_height="75dp"
-		        android:background="@android:color/white"
-		        android:paddingTop="5dp"
-		        android:paddingBottom="5dp"
-		        android:orientation="vertical">
-		        
-		        <TextView 
-		            android:id="@+id/user_name"
-		            android:layout_width="fill_parent"
-		            android:layout_height="0dp"
-		            android:layout_weight="1"
-		            android:gravity="center"
-		            android:layout_gravity="center_horizontal"
-		            android:text=""
-		            android:textSize="@dimen/medium_font"
-		            android:textColor="@color/gray"
-		            android:includeFontPadding="false"/>
-		        
-		        <TextView 
-		            android:id="@+id/user_email"
-		            android:layout_width="fill_parent"
-		            android:layout_height="0dp"
-		            android:layout_weight="1"
-		            android:gravity="center"
-		            android:layout_gravity="center_horizontal"
-		            android:text=""
-		            android:textSize="@dimen/smallest_font"
-		            android:textColor="@color/gray"
-		            android:includeFontPadding="false"/>
-		        
-			    <TextView 
-			        android:id="@+id/version_number"
-			        android:layout_width="fill_parent"
-			        android:layout_height="0dp"
-		            android:layout_weight="1"
-			        android:background="@android:color/transparent"
-			        android:textSize="@dimen/medium_font"
-			        android:textColor="@color/gray"
-			        android:gravity="center"
-			        android:layout_gravity="center_vertical"
-			        android:includeFontPadding="false"/>
-		    </LinearLayout>
-		    
-		    <View
-			   android:layout_width="fill_parent"
-			   android:layout_height="3dp"
-			   android:background="@color/metropia_blue"/>
-        -->
-
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -106,10 +49,10 @@
             <FrameLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:paddingBottom="10dp"
                 android:paddingLeft="15dp"
                 android:paddingRight="15dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp" >
+                android:paddingTop="10dp" >
 
                 <TextView
                     android:id="@+id/include_toll_roads_text"
@@ -143,10 +86,10 @@
             <FrameLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:paddingBottom="10dp"
                 android:paddingLeft="15dp"
                 android:paddingRight="15dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp" >
+                android:paddingTop="10dp" >
 
                 <TextView
                     android:id="@+id/predict_destination_text"
@@ -180,10 +123,10 @@
             <FrameLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:paddingBottom="10dp"
                 android:paddingLeft="15dp"
                 android:paddingRight="15dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp" >
+                android:paddingTop="10dp" >
 
                 <TextView
                     android:id="@+id/calendar_integration_text"
@@ -209,14 +152,32 @@
             </FrameLayout>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/metropia_title"
-            android:layout_width="fill_parent"
+        <LinearLayout 
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="15dp"
-            android:text="Metropia"
-            android:textColor="@android:color/white"
-            android:textSize="@dimen/smaller_font" />
+            android:orientation="horizontal"
+            android:background="@color/metropia_blue">
+            
+	        <TextView
+	            android:id="@+id/metropia_title"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:padding="15dp"
+	            android:text="Metropia"
+	            android:textColor="@android:color/white"
+	            android:textSize="@dimen/smaller_font" />
+	        
+	        <TextView 
+			    android:id="@+id/version_number"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:textSize="@dimen/smaller_font"
+			    android:textColor="@android:color/white"
+			    android:gravity="center|left"
+			    android:layout_gravity="center_vertical"
+			    android:includeFontPadding="false"/>
+        
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -231,10 +192,10 @@
                 android:layout_gravity="center_vertical"
                 android:drawableRight="@drawable/setting_grey_right_arrow"
                 android:gravity="center_vertical"
+                android:paddingBottom="15dp"
                 android:paddingLeft="15dp"
                 android:paddingRight="35dp"
                 android:paddingTop="15dp"
-                android:paddingBottom="15dp"
                 android:text="Introduction Screens"
                 android:textColor="@color/gray"
                 android:textSize="@dimen/smaller_font" />
@@ -252,10 +213,10 @@
                 android:layout_gravity="center_vertical"
                 android:drawableRight="@drawable/setting_grey_right_arrow"
                 android:gravity="center_vertical"
+                android:paddingBottom="15dp"
                 android:paddingLeft="15dp"
                 android:paddingRight="35dp"
                 android:paddingTop="15dp"
-                android:paddingBottom="15dp"
                 android:text="Tutorial"
                 android:textColor="@color/gray"
                 android:textSize="@dimen/smaller_font" />
@@ -273,10 +234,10 @@
                 android:layout_gravity="center_vertical"
                 android:drawableRight="@drawable/setting_grey_right_arrow"
                 android:gravity="center_vertical"
+                android:paddingBottom="15dp"
                 android:paddingLeft="15dp"
                 android:paddingRight="35dp"
                 android:paddingTop="15dp"
-                android:paddingBottom="15dp"
                 android:text="Help our Research"
                 android:textColor="@color/gray"
                 android:textSize="@dimen/smaller_font" />
@@ -294,10 +255,10 @@
                 android:layout_gravity="center_vertical"
                 android:drawableRight="@drawable/setting_grey_right_arrow"
                 android:gravity="center_vertical"
+                android:paddingBottom="15dp"
                 android:paddingLeft="15dp"
                 android:paddingRight="35dp"
                 android:paddingTop="15dp"
-                android:paddingBottom="15dp"
                 android:text="Terms &amp; Privacy"
                 android:textColor="@color/gray"
                 android:textSize="@dimen/smaller_font" />
@@ -311,7 +272,8 @@
             android:drawableLeft="@drawable/menu_logout"
             android:drawablePadding="20dp"
             android:gravity="center"
-            android:padding="15dp"
+            android:paddingTop="30dp"
+            android:paddingLeft="15dp"
             android:text="Log Out"
             android:textColor="@android:color/white"
             android:textSize="@dimen/smaller_font" />
