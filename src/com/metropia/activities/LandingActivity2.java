@@ -2953,10 +2953,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void refreshStarredPOIs(){
-        refreshStarredPOIs(null);
+        refreshStarredPOIs(null, false);
     }
     
-    private void refreshStarredPOIs(final Runnable callback){
+    private void refreshStarredPOIsAndUpdateFavoriteList() {
+    	refreshStarredPOIs(null, true);
+    }
+    
+    private void refreshStarredPOIs(final Runnable callback, final boolean forceUpdateFavorite){
         AsyncTask<Void, Void, List<com.metropia.models.Address>> task = new AsyncTask<Void, Void, List<com.metropia.models.Address>>(){
             @Override
             protected List<com.metropia.models.Address> doInBackground(
@@ -3047,7 +3051,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     handleFavoriteIconByZoomLevel(mapView);
                     mapView.postInvalidate();
 //                    write2SearchBoxTag(addrList);
-                    initFavoriteDropdownIfNessary(addrList);
+                    initFavoriteDropdownIfNessary(addrList, forceUpdateFavorite);
                 }
             }
             
@@ -3055,8 +3059,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         Misc.parallelExecute(task);
     }
     
-    private synchronized void initFavoriteDropdownIfNessary(Set<Address> favorites) {
-    	if(favoriteAddresses.size() != favorites.size()) {
+    private synchronized void initFavoriteDropdownIfNessary(Set<Address> favorites, boolean forceUpdate) {
+    	if(forceUpdate || favoriteAddresses.size() != favorites.size()) {
     		List<Address> newFavorites = new ArrayList<Address>();
     		List<Address> homeFavorite = new ArrayList<Address>();
     		List<Address> workFavorite = new ArrayList<Address>();
@@ -3364,7 +3368,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 //                            write2SearchBoxTag(addrSet);
                             refreshSearchAutoCompleteData();
                         }
-                    });
+                    }, false);
                 }
             }
         };
@@ -3539,7 +3543,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		synchronized(mutex) {
 			if(popupPanel.getVisibility() == View.VISIBLE && popupPanel.getTag() != null) {
 				PoiOverlayInfo info = (PoiOverlayInfo) popupPanel.getTag();
-				info.label = address;
+				info.label = "";
 				info.address = address;
 				popupPanel.setTag(info);
 				addressInfo.setText(address);
@@ -4138,7 +4142,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         	MapView mapView = (MapView) findViewById(R.id.mapview);
         	String optType = extras.getString(FavoriteOperationActivity.FAVORITE_OPT_TYPE);
         	if(FavoriteOperationActivity.FAVORITE_UPDATE.equals(optType)) {
-	        	refreshStarredPOIs();
+	        	refreshStarredPOIsAndUpdateFavoriteList();
 	        	removePOIMarker(mapView);
         	}
         	else if(FavoriteOperationActivity.FAVORITE_DELETE.equals(optType)) {

@@ -365,7 +365,8 @@ public class FavoriteOperationActivity extends FragmentActivity {
 	private void writeInfo2FavoritePanel(PoiOverlayInfo info) {
     	if(info != null) {
 	    	favOptPanel.setTag(info);
-	    	((EditText) favOptPanel.findViewById(R.id.label_input)).setText(info.label);
+	    	String label = info.id != 0 ? info.label : StringUtils.equalsIgnoreCase(info.address, info.label) ? "" : info.label;
+	    	((EditText) favOptPanel.findViewById(R.id.label_input)).setText(label);
 	    	FavoriteIcon icon = FavoriteIcon.fromName(info.iconName, FavoriteIcon.star);
 	    	if(icon != null) {
 	    		favOptPanel.findViewById(R.id.icon).setTag(icon);
