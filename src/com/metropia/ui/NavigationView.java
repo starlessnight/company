@@ -839,6 +839,7 @@ public class NavigationView extends LinearLayout {
 	}
 
 	private void updateViewPager(List<DirectionItem> items) {
+		roadPager.setPagingEnabled(false);
 	    SlideAdapter adapter = new SlideAdapter();
 		for(int i = 0 ; i < items.size() ; i++) {
 			DirectionItem item = items.get(i);
@@ -866,6 +867,7 @@ public class NavigationView extends LinearLayout {
 			adapter.addView(v);
 		}
 		roadPager.setAdapter(adapter);
+		roadPager.setPagingEnabled(true);
 	}
 	
 	public static class SlideAdapter extends PagerAdapter {

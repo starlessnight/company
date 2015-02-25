@@ -1,13 +1,16 @@
 package com.metropia.ui;
 
-import com.metropia.utils.Dimension;
-
 import android.content.Context;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
+import com.metropia.utils.Dimension;
+
 public class WrapContentHeightViewPager extends ViewPager {
+	
+	private boolean enabled = true;
 
 	public WrapContentHeightViewPager(Context context) {
 		super(context);
@@ -44,5 +47,27 @@ public class WrapContentHeightViewPager extends ViewPager {
 	public void setMinimemHeight(Integer minimumHeight) {
 		this.MINIMUM_HEIGHT = minimumHeight;
 	}
+	
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+	    if (this.enabled) {
+	        return super.onTouchEvent(event);
+	    }
+
+	    return false;
+	}
+
+	@Override
+	public boolean onInterceptTouchEvent(MotionEvent event) {
+	    if (this.enabled) {
+	        return super.onInterceptTouchEvent(event);
+	    }
+
+	    return false;
+	}
+
+	public void setPagingEnabled(boolean enabled) {
+	    this.enabled = enabled;
+	} 
 
 }
