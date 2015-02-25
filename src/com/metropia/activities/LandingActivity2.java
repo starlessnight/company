@@ -1655,29 +1655,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 						@Override
 						public void onAnimationEnd() {
 							if(reserv.isEligibleTrip()) {
-								if(lessThanOneMinite) {
-									startValidationActivity(reserv);
-								}
-								else {
-									NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, "Would you like to start your trip early?");
-									dialog.setVerticalOrientation(false);
-									dialog.setTitle("");
-									dialog.setNegativeButtonText("Yes");
-									dialog.setNegativeActionListener(new ActionListener() {
-										@Override
-										public void onClick() {
-											startValidationActivity(reserv);
-										}
-									});
-									dialog.setPositiveButtonText("No");
-									dialog.setPositiveActionListener(new ActionListener() {
-										@Override
-										public void onClick() {
-											//do nothing
-										}
-									});
-									dialog.show();
-								}
+								startValidationActivity(reserv);
 							}
 							else {
 								NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, "Would you like to start your trip early?");
