@@ -3,9 +3,7 @@ package com.metropia.activities;
 import java.text.DecimalFormat;
 
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.graphics.BitmapFactory;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.Html;
@@ -20,7 +18,6 @@ import com.metropia.ui.ClickAnimation;
 import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.utils.Font;
 import com.metropia.utils.Misc;
-import com.metropia.activities.R;
 
 public class CongratulationActivity extends FragmentActivity {
 
@@ -28,17 +25,12 @@ public class CongratulationActivity extends FragmentActivity {
 	
 	public static final String DESTINATION = "DESTINATION";
 
-	private Typeface boldFont;
-
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.congratulation);
 		
 		Localytics.integrate(this);
 
-		AssetManager assets = getAssets();
-		boldFont = Font.getBold(assets);
-		
 		Bundle extras = getIntent().getExtras();
 		final int credit = extras.getInt(ValidationActivity.CREDIT);
 		final long departureTime = extras.getLong(DEPARTURE_TIME);
@@ -183,7 +175,10 @@ public class CongratulationActivity extends FragmentActivity {
 			}
         });
         
-        Font.setTypeface(boldFont, co2, mpoint, driveScore);
+        Font.setTypeface(Font.getRobotoBold(getAssets()), co2, mpoint, driveScore, 
+        		(TextView) findViewById(R.id.congrats_msg), 
+        		(TextView) findViewById(R.id.close), 
+        		(TextView) findViewById(R.id.feedback));
 	}
 	
 	@Override

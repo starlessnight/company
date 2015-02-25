@@ -64,6 +64,7 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.format.Time;
 import android.text.style.AbsoluteSizeSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -1252,10 +1253,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		int indexOfNewline = message.indexOf("\n");
 		SpannableString congrSpan = SpannableString.valueOf(message);
 		congrSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
-				.getDimensionPixelSize(R.dimen.smaller_font)), indexOfNewline,
+				.getDimensionPixelSize(R.dimen.medium_font)), indexOfNewline,
 				message.length(),
 				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
+		congrSpan.setSpan(new ForegroundColorSpan(ctx.getResources().getColor(R.color.transparent_light_gray)), 
+				indexOfNewline + 1, message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		return congrSpan;
 	}
 	
@@ -2243,7 +2245,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             ImageView share = (ImageView) findViewById(R.id.share);
             share.setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.menu_share_new)));
             
-            Font.setTypeface(boldFont, co2, mpoint, driveScore);
+            Font.setTypeface(Font.getRobotoBold(getAssets()), co2, mpoint, driveScore, 
+            		(TextView) findViewById(R.id.congrats_msg), 
+            		(TextView) findViewById(R.id.close), 
+            		(TextView) findViewById(R.id.feedback));
             
             //hide map view options
             findViewById(R.id.mapview_options).setVisibility(View.GONE);
@@ -2737,19 +2742,21 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     private BroadcastReceiver tripValidator = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String id = intent.getStringExtra(ID);
-            boolean success = intent.getBooleanExtra(REQUEST_SUCCESS, false);
-            if(String.valueOf(reservation.getRid()).equals(id) && success){
-                String message = intent.getStringExtra(MESSAGE);
-                double co2Saving = intent.getDoubleExtra(CO2_SAVING, 0);
-                int credit = intent.getIntExtra(CREDIT, reservation.getCredits());
-                String voice = intent.getStringExtra(VOICE);
-                double timeSavingInMinute = intent.getDoubleExtra(TIME_SAVING_IN_MINUTE, 0);
-                doDisplayArrivalMsg(credit, co2Saving, message, voice, timeSavingInMinute);
-            }
-            else if(String.valueOf(reservation.getRid()).equals(id) && !success) {
-            	showNotifyLaterDialog();
-            }
+        	if(arrivalMsgTiggered.get()) {
+	            String id = intent.getStringExtra(ID);
+	            boolean success = intent.getBooleanExtra(REQUEST_SUCCESS, false);
+	            if(String.valueOf(reservation.getRid()).equals(id) && success){
+	                String message = intent.getStringExtra(MESSAGE);
+	                double co2Saving = intent.getDoubleExtra(CO2_SAVING, 0);
+	                int credit = intent.getIntExtra(CREDIT, reservation.getCredits());
+	                String voice = intent.getStringExtra(VOICE);
+	                double timeSavingInMinute = intent.getDoubleExtra(TIME_SAVING_IN_MINUTE, 0);
+	                doDisplayArrivalMsg(credit, co2Saving, message, voice, timeSavingInMinute);
+	            }
+	            else if(String.valueOf(reservation.getRid()).equals(id) && !success) {
+	            	showNotifyLaterDialog();
+	            }
+        	}
         }
     };
     
