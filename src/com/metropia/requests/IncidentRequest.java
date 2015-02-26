@@ -26,9 +26,21 @@ public class IncidentRequest extends FetchRequest<List<Incident>> {
 		public double lon;
 		public Date startTime;
 		public Date endTime;
+		public int severity;
 		
 		public boolean isInTimeRange(long departureUTCTime) {
 			return departureUTCTime >= startTime.getTime() && departureUTCTime <= endTime.getTime();
+		}
+		
+		public int getMinimalDisplayZoomLevel() {
+			switch(severity) {
+				case 2 :
+					return 10;
+				case 1 : 
+					return 17;
+				default : 
+					return 6;
+			}
 		}
 	}
 
@@ -70,6 +82,7 @@ public class IncidentRequest extends FetchRequest<List<Incident>> {
 						incident.shortDesc = incidentJSON.optString("ShortDesc");
 						incident.startTime = df.parse(incidentJSON.optString("startTime"));
 						incident.endTime = df.parse(incidentJSON.optString("endTime"));
+						incident.severity = incidentJSON.optInt("severity");
 						incidents.add(incident);
 					}
 				}

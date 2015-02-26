@@ -2077,7 +2077,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				SKAnnotation incAnn = new SKAnnotation();
 				incAnn.setUniqueID(getIncidentUniqueId(incident));
 				incAnn.setLocation(new SKCoordinate(incident.lon, incident.lat));
-				incAnn.setMininumZoomLevel(5);
+				incAnn.setMininumZoomLevel(incident.getMinimalDisplayZoomLevel());
 //				incAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_MARKER);
 				SKAnnotationView iconView = new SKAnnotationView();
 				ImageView incImage = new ImageView(ValidationActivity.this);

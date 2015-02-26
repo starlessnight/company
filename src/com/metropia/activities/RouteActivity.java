@@ -13,6 +13,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osmdroid.api.IMapController;
+import org.osmdroid.events.MapListener;
+import org.osmdroid.events.ScrollEvent;
+import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.OverlayItem;
@@ -1141,6 +1144,20 @@ public final class RouteActivity extends FragmentActivity {
 			}
         });
         mapView.getOverlays().add(eventOverlay);
+        
+        mapView.setMapListener(new MapListener() {
+			@Override
+			public boolean onScroll(ScrollEvent event) {
+				return false;
+			}
+
+			@Override
+			public boolean onZoom(ZoomEvent event) {
+				showIncidentOverlays(timeLayout.getSelectedDepartureTime());
+				return false;
+			}
+		});
+        
         mapView.postInvalidate();
     }
     
@@ -1894,7 +1911,7 @@ public final class RouteActivity extends FragmentActivity {
     	List<Incident> incidentOfDepTime = new ArrayList<Incident>();
     	if(incidents != null && incidents.size() > 0) {
     		for(Incident incident : incidents) {
-    			if(incident.isInTimeRange(departureUTCTime)) {
+    			if(incident.isInTimeRange(departureUTCTime) && incident.getMinimalDisplayZoomLevel() <= mapView.getZoomLevel()) {
     				incidentOfDepTime.add(incident);
     			}
     		}
