@@ -2855,6 +2855,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			        _location.setLatitude(locationInfo.lastLat);
 			        _location.setLongitude(locationInfo.lastLong);
 				}
+				Log.d("LandingActivity2", String.format("current loc lat : %s, lon : %s, address : %s", _location.getLatitude() + "", _location.getLongitude() + "", address));
 				searchPOIAddress(address, true, _location, false);
 			}
     	});
@@ -2864,7 +2865,16 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         String address = null;
         Uri uri = intent.getData();
         if(uri != null){
-            address = uri.getQueryParameter("q");
+        	try {
+	        	if(StringUtils.startsWith(uri.toString(), "http")) {
+	        		address = uri.getQueryParameter("q");
+	        	}
+	        	else {
+	        		address = Uri.decode(StringUtils.substringAfterLast(uri.toString(), "q="));
+	        		address = StringUtils.replace(address, "+", " ");
+	        	}
+        	}
+        	catch(Throwable ignore) {}
         }
         return address;
     }

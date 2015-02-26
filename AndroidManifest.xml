@@ -124,6 +124,7 @@
 		        <category android:name="android.intent.category.BROWSABLE" />
 		        <data android:scheme="geo"/>
 		        <data android:scheme="google.navigation" />
+		        <data android:scheme="http"/>
 		    </intent-filter>
         </activity>
         <activity
