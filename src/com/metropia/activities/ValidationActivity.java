@@ -1779,7 +1779,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                                    }
                                 }
                             } catch (Exception e) {
-                                ehs.registerException(e);
+                                ehs.registerException(e, e.getMessage());
                             }
                             return navRoutes;
                         }
