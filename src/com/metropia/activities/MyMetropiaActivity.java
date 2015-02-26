@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.localytics.android.Localytics;
+import com.metropia.LocalyticsUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.utils.Dimension;
@@ -37,6 +38,7 @@ public class MyMetropiaActivity extends FragmentActivity{
 		setContentView(R.layout.my_metropia);
 		
 		Localytics.integrate(this);
+		LocalyticsUtils.tagVisitMyMetropia();
 		
 		TextView backButton = (TextView) findViewById(R.id.back_button);
 		backButton.setOnClickListener(new OnClickListener() {

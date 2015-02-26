@@ -36,6 +36,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.localytics.android.Localytics;
+import com.metropia.LocalyticsUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.activities.FavoriteOperationActivity.FavoriteSlideFragment.ClickCallback;
@@ -235,7 +236,7 @@ public class FavoriteOperationActivity extends FragmentActivity {
 											id = request.execute(FavoriteOperationActivity.this);
 										} else {
 											FavoriteAddressUpdateRequest request = new FavoriteAddressUpdateRequest(new AddressLinkRequest(user).execute(FavoriteOperationActivity.this),
-													_info.id, user, lbl, addr, favIcon.name(), _info.lat,	_info.lon);
+													_info.id, user, lbl, addr, favIcon.name(), _info.lat, _info.lon);
 											req = request;
 											request.execute(FavoriteOperationActivity.this);
 										}
@@ -250,6 +251,7 @@ public class FavoriteOperationActivity extends FragmentActivity {
 									if (ehs.hasExceptions()) {
 										ehs.reportExceptions();
 									} else {
+										LocalyticsUtils.tagSaveMyFavorite(_info.iconName);
 										_info.id = _info.id != 0 ? _info.id	: id;
 										Intent result = new Intent();
 										result.putExtra(FAVORITE_OPT_TYPE, FAVORITE_UPDATE);

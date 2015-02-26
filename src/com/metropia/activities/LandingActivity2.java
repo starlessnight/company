@@ -102,6 +102,7 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
 import com.localytics.android.Localytics;
 import com.metropia.CalendarService;
+import com.metropia.LocalyticsUtils;
 import com.metropia.ResumeNavigationUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
@@ -1297,6 +1298,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			}
     	});
         */
+        
+        LocalyticsUtils.tagAppStartFromOrganic();
         
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, fromSearchBox, myMetropiaMenu, 
@@ -4252,6 +4255,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 }
                 rs = BitmapFactory.decodeStream(is);
             }catch(Exception e){
+            	LocalyticsUtils.tagAppError(LocalyticsUtils.NETWORK_ERROR);
             }finally{
                 IOUtils.closeQuietly(is);
             }

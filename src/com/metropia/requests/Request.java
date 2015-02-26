@@ -18,6 +18,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.metropia.LocalyticsUtils;
 import com.metropia.activities.DebugOptionsActivity;
 import com.metropia.models.User;
 import com.metropia.utils.Cache;
@@ -172,6 +173,7 @@ public abstract class Request {
 	    Log.d(LOG_TAG, "executeHttpRequest(): method=" + method + ", url="+url 
             + ", params=" + params);
         String responseBody = null;
+        boolean hasResponse = false;
 	    try{
             HTTP http = new HTTP(url);
             http.setTimeout(timeout);
@@ -197,12 +199,19 @@ public abstract class Request {
                 return responseBody;
             }
             else if(responseCode == 500 || responseCode == 400){
+            	hasResponse = true;
+            	LocalyticsUtils.tagAppError(LocalyticsUtils.BAD_RESULT);
                 throw new HttpResponseException(responseCode, responseBody);
             }
             else {
+            	hasResponse = true;
+            	LocalyticsUtils.tagAppError(LocalyticsUtils.BAD_RESULT);
                 throw new IOException(String.format("HTTP %d: %s", responseCode, responseBody));
             }
 	    }catch(Throwable t){
+	    	if(!hasResponse) {
+	    		LocalyticsUtils.tagAppError(LocalyticsUtils.NETWORK_ERROR);
+	    	}
 	    	String detailMessage = url;
 	    	if(StringUtils.isNotBlank(getLinkUrl(Link.issue)) && !StringUtils.equalsIgnoreCase(getLinkUrl(Link.issue), url)) {
 	    		sendIssueReport(ctx, url, params, t.getMessage(), responseCode, responseBody);

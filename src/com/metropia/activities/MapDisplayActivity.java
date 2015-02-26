@@ -19,6 +19,7 @@ import android.widget.ToggleButton;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.localytics.android.Localytics;
+import com.metropia.LocalyticsUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.dialogs.ProfileSelectionDialog;
@@ -118,6 +119,7 @@ public final class MapDisplayActivity extends FragmentActivity {
 					@Override
 					public void onCheckedChanged(CompoundButton buttonView,
 							boolean isChecked) {
+						LocalyticsUtils.tagCalendarIntegrationSettings(isChecked);
 						prefs.edit()
 								.putBoolean(CALENDAR_INTEGRATION, isChecked)
 								.commit();

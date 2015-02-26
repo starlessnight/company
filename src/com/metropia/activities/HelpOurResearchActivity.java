@@ -15,6 +15,7 @@ import android.widget.ToggleButton;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.localytics.android.Localytics;
+import com.metropia.LocalyticsUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.ui.ClickAnimation;
@@ -66,6 +67,7 @@ public class HelpOurResearchActivity extends FragmentActivity {
 			@Override
 			public void onCheckedChanged(CompoundButton button,
 					boolean isChecked) {
+				LocalyticsUtils.tagHelpOurResearchSettings(LocalyticsUtils.PAYDAYS, isChecked);
 				prefs.edit().putBoolean(PAYDAYS, isChecked).commit();
 			}
 		});
@@ -85,6 +87,7 @@ public class HelpOurResearchActivity extends FragmentActivity {
 			@Override
 			public void onCheckedChanged(CompoundButton button,
 					boolean isChecked) {
+				LocalyticsUtils.tagHelpOurResearchSettings(LocalyticsUtils.DRIVE_SMART, isChecked);
 				prefs.edit().putBoolean(DRIVE_SMART, isChecked).commit();
 			}
 		});

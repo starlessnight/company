@@ -29,6 +29,7 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.plus.PlusShare;
 import com.localytics.android.Localytics;
+import com.metropia.LocalyticsUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.dialogs.NotificationDialog2;
@@ -358,6 +359,7 @@ public final class ShareActivity extends FragmentActivity {
 		switch(type) {
 			case googlePlus:
 				if (isNotLoading()) {
+					LocalyticsUtils.tagSocialSharing(LocalyticsUtils.GOOGLE_PLUS);
 					int errorCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(ShareActivity.this);
 					if (!StringUtils.equalsIgnoreCase(GooglePlayServicesUtil.getErrorString(errorCode), "success")) {
 						GooglePlayServicesUtil.getErrorDialog(errorCode,
@@ -373,12 +375,14 @@ public final class ShareActivity extends FragmentActivity {
 				break;
 			case twitter:
 				if (isNotLoading()) {
+					LocalyticsUtils.tagSocialSharing(LocalyticsUtils.TWITTER);
 					updateTwitterStatus();
 				}
 				break;
 			case facebook:
 				fbClicked = true;
 				if (isNotLoading()) {
+					LocalyticsUtils.tagSocialSharing(LocalyticsUtils.FACEBOOK);
 					Session session = Session.getActiveSession();
 					if (session != null && session.isOpened()) {
 						publishFB();
@@ -391,6 +395,7 @@ public final class ShareActivity extends FragmentActivity {
 				break;
 			case textMessage:
 				if (isNotLoading()) {
+					LocalyticsUtils.tagSocialSharing(LocalyticsUtils.TEXT_MESSAGE);
 				    Misc.suppressTripInfoPanel(ShareActivity.this);
 					Intent sendIntent = new Intent(Intent.ACTION_VIEW);
 					sendIntent.putExtra("sms_body", shareText);
@@ -401,6 +406,7 @@ public final class ShareActivity extends FragmentActivity {
 				break;
 			case email:
 				if (isNotLoading()) {
+					LocalyticsUtils.tagSocialSharing(LocalyticsUtils.EMAIL);
 				    Misc.suppressTripInfoPanel(ShareActivity.this);
 					Intent sendIntent = new Intent(Intent.ACTION_SEND);
 					sendIntent.putExtra(Intent.EXTRA_SUBJECT, title);

@@ -53,6 +53,7 @@ import android.widget.TextView;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.localytics.android.Localytics;
 import com.metropia.CalendarService;
+import com.metropia.LocalyticsUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.activities.DebugOptionsActivity.FakeRoute;
@@ -784,6 +785,13 @@ public final class RouteActivity extends FragmentActivity {
 		                            deleteRescheduledReservation();
 		                            Reservation.scheduleNotification(RouteActivity.this, result, route);
 		                            
+		                            if(rescheduleReservId > 0) {
+		                            	LocalyticsUtils.tagReschedule();
+		                            }
+		                            else {
+		                            	LocalyticsUtils.tagMakeAReservation();
+		                            }
+		                            
 		                            if(route.isFake()){
 		                                FakeRoute fakeRoute = new FakeRoute();
 		                                fakeRoute.id = route.getId();
@@ -848,6 +856,13 @@ public final class RouteActivity extends FragmentActivity {
 	                        task.callback = new ShortcutNavigationTask.Callback() {
 	                            @Override
 	                            public void run(Reservation reservation) {
+	                            	if(rescheduleReservId > 0) {
+	                            		LocalyticsUtils.tagReschedule();
+	                            	}
+	                            	else {
+	                            		LocalyticsUtils.tagMakeAReservation();
+	                            	}
+	                            	
 	                                if(reservation.isEligibleTrip()){
 	                                    deleteRescheduledReservation();
 	                                    Misc.suppressTripInfoPanel(RouteActivity.this);

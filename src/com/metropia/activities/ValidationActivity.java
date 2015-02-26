@@ -88,6 +88,7 @@ import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.localytics.android.Localytics;
+import com.metropia.LocalyticsUtils;
 import com.metropia.ResumeNavigationUtils;
 import com.metropia.SendTrajectoryService;
 import com.metropia.SkobblerUtils;
@@ -1483,6 +1484,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     									msg = "On My Way sent";
     								}
     								if(success) {
+    									LocalyticsUtils.tagSendOnMyWay();
     									Misc.playOnMyWaySound(ValidationActivity.this);
     								}
     								Toast.makeText(ValidationActivity.this, msg,
@@ -2229,9 +2231,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             
             TextView mpoint = (TextView) findViewById(R.id.mpoint_circle);
             if(uPoints > 0){
+            	LocalyticsUtils.tagTrip(LocalyticsUtils.TRIP_FINISHED);
                 mpoint.setText(formatCongrValueDesc(ValidationActivity.this, uPoints + "\nPoints"));
                 ((ImageView)findViewById(R.id.mpoint_circle_background)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.green_circle)));
                 findViewById(R.id.mpoint_circle_panel).setVisibility(View.VISIBLE);
+            }
+            else {
+            	LocalyticsUtils.tagTrip(LocalyticsUtils.TRIP_UNFINISHED);
             }
             
             TextView driveScore = (TextView) findViewById(R.id.drive_score_circle);
@@ -2311,6 +2317,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         	dialog.setNegativeActionListener(new NotificationDialog2.ActionListener() {
 				@Override
 				public void onClick() {
+					LocalyticsUtils.tagTrip(LocalyticsUtils.TRIP_EXITED_MANUALLY);
 					doCancelValidation();
 				}
 			});

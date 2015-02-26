@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.localytics.android.Localytics;
+import com.metropia.LocalyticsUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.models.User;
@@ -40,6 +41,7 @@ public class WebMyMetropiaActivity extends FragmentActivity{
 		setContentView(R.layout.web_my_metropia);
 		
 		Localytics.integrate(this);
+		LocalyticsUtils.tagVisitMyMetropia();
 		
 		Bundle extras = getIntent().getExtras();
 		Integer page = extras.getInt(WHICH_PAGE);

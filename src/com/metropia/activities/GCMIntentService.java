@@ -13,6 +13,7 @@ import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
 import com.google.android.gcm.GCMConstants;
+import com.metropia.LocalyticsUtils;
 import com.metropia.utils.Misc;
 import com.metropia.utils.Preferences;
 import com.metropia.activities.R;
@@ -40,6 +41,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 	    try {
     		Log.i(LOG_TAG, "GCMIntentService onMessage called");
     		String type = intent.getStringExtra("type");
+    		LocalyticsUtils.tagAppStartFromPush();
     		if("pretrip".equalsIgnoreCase(type)){
     		    String msg = intent.getStringExtra("message");
                 Intent alertIntent = new Intent(context, PreTripAlertActivity.class);
