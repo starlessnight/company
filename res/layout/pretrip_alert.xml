@@ -70,7 +70,7 @@
 		        android:layout_width="fill_parent"
 		        android:layout_weight="1"
 		        android:gravity="center"
-		        android:text="Next"
+		        android:text="Reschedule"
 		        android:textColor="@color/light_blue"
 		        android:textSize="@dimen/smaller_font"
 	    	/>

@@ -41,7 +41,7 @@ public final class PreTripAlertActivity extends FragmentActivity {
         Bundle extras = getIntent().getExtras();
         
         TextView msg = (TextView)findViewById(R.id.message);
-        msg.setText(extras.getString(MSG) + "\nClick \"Next\" to reschedule.");
+        msg.setText(extras.getString(MSG));
         
         TextView cancel = (TextView)findViewById(R.id.cancel);
         cancel.setOnClickListener(new OnClickListener() {
