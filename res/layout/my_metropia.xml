@@ -641,7 +641,7 @@
                 android:background="@android:color/transparent"
                 android:layout_gravity="center|bottom"/>
             
-				<com.sessionm.api.PortalButton
+				<View
 					android:id="@+id/portalButton"
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
