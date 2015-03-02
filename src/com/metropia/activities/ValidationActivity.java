@@ -847,7 +847,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-							NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "On My Way is available to passengers only.");
+							NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "On my Way is currently available for passengers only.");
 							dialog.setVerticalOrientation(false);
 							dialog.setTitle("Are you the passenger?");
 							dialog.setPositiveButtonText("No");

@@ -221,7 +221,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private static final String SEARCHING = "Searching...";
     
-    private static final String TAP_TO_ADD_FAVORITE = "Tap to Add Favorite";
+//    private static final String TAP_TO_ADD_FAVORITE = "Tap to Add Favorite";
     
     private AtomicBoolean showAutoComplete = new AtomicBoolean(true);
     
@@ -494,13 +494,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	                showAutoComplete.set(false);
 	                clearSearchResult();
             	}
-            	else if(TAP_TO_ADD_FAVORITE.equals(selected.getName())) {
-            		clearSearchResult();
-            		removePOIMarker(mapView);
-            		hideBulbBalloon();
-            		hideStarredBalloon();
-            		showFavoriteOptPanel(null);
-            	}
+//            	else if(TAP_TO_ADD_FAVORITE.equals(selected.getName())) {
+//            		clearSearchResult();
+//            		removePOIMarker(mapView);
+//            		hideBulbBalloon();
+//            		hideStarredBalloon();
+//            		showFavoriteOptPanel(null);
+//            	}
             }
         });
         
@@ -516,13 +516,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     showAutoComplete.set(false);
                     clearFromSearchResult();
                 }
-                else if(TAP_TO_ADD_FAVORITE.equals(selected.getName())) {
-                    clearFromSearchResult();
-                    removePOIMarker(mapView);
-                    hideBulbBalloon();
-                    hideStarredBalloon();
-                    showFavoriteOptPanel(null);
-                }
+//                else if(TAP_TO_ADD_FAVORITE.equals(selected.getName())) {
+//                    clearFromSearchResult();
+//                    removePOIMarker(mapView);
+//                    hideBulbBalloon();
+//                    hideStarredBalloon();
+//                    showFavoriteOptPanel(null);
+//                }
             }
         });
         
@@ -1072,10 +1072,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
              }
         });
         
+        /*
         TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
         RelativeLayout.LayoutParams osmCreditLp = (RelativeLayout.LayoutParams) osmCredit.getLayoutParams();
         osmCreditLp.bottomMargin = Dimension.dpToPx(48, getResources().getDisplayMetrics());
         osmCredit.setLayoutParams(osmCreditLp);
+        */
         
         findViewById(R.id.left_drawer).setOnClickListener(noopClick);
         
@@ -1302,7 +1304,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         LocalyticsUtils.tagAppStartFromOrganic();
         
         AssetManager assets = getAssets();
-        Font.setTypeface(Font.getLight(assets), osmCredit, searchBox, fromSearchBox, myMetropiaMenu, 
+        Font.setTypeface(Font.getLight(assets), (TextView) findViewById(R.id.osm_credit), searchBox, fromSearchBox, myMetropiaMenu, 
             reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu);
         Font.setTypeface(Font.getMedium(assets), upointView, saveTimeView, co2View, (TextView) findViewById(R.id.head));
         Font.setTypeface(Font.getRobotoBold(assets), getRouteView);
@@ -1855,22 +1857,24 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 
                 initFontsIfNecessary();
                 
-                if(TAP_TO_ADD_FAVORITE.equals(item.getName())) {
-                	name.setCompoundDrawablesWithIntrinsicBounds(R.drawable.star, 0, 0, 0);
-                	name.setCompoundDrawablePadding(Dimension.dpToPx(20, getResources().getDisplayMetrics()));
+//                if(TAP_TO_ADD_FAVORITE.equals(item.getName())) {
+//                	name.setCompoundDrawablesWithIntrinsicBounds(R.drawable.star, 0, 0, 0);
+//                	name.setCompoundDrawablePadding(Dimension.dpToPx(20, getResources().getDisplayMetrics()));
+//                	int paddingSize = Dimension.dpToPx(5, getResources().getDisplayMetrics());
+//                	namePanel.setPadding(Dimension.dpToPx(20, getResources().getDisplayMetrics()), paddingSize, 0, paddingSize);
+//                	Font.setTypeface(lightFont, name);
+//                	address.setVisibility(View.GONE);
+//                }
+//                else {
+//                	name.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+//                	name.setCompoundDrawablePadding(0);
                 	int paddingSize = Dimension.dpToPx(5, getResources().getDisplayMetrics());
-                	namePanel.setPadding(Dimension.dpToPx(20, getResources().getDisplayMetrics()), paddingSize, 0, paddingSize);
-                	Font.setTypeface(lightFont, name);
-                	address.setVisibility(View.GONE);
-                }
-                else {
-                	name.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-                	name.setCompoundDrawablePadding(0);
-                	int paddingSize = Dimension.dpToPx(5, getResources().getDisplayMetrics());
-                	namePanel.setPadding(paddingSize, paddingSize, 0, 0);
+//                	namePanel.setPadding(paddingSize, 0, 0, 0);
+                	name.setPadding(paddingSize, paddingSize, 0, 0);
+//                	name.setGravity(Gravity.CENTER_VERTICAL|Gravity.LEFT);
                 	Font.setTypeface(boldFont, name);
                 	address.setVisibility(View.VISIBLE);
-                }
+//                }
                 Font.setTypeface(boldFont, distance);
                 Font.setTypeface(lightFont, address);
                 namePanel.requestLayout();
@@ -2146,7 +2150,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		poiInfo.lon = model.lon;
     		poiInfo.geopoint = model.geopoint;
     		poiInfo.marker = R.drawable.poi_pin;
-    		poiInfo.markerWithShadow = R.drawable.poi_pin;
+    		poiInfo.markerWithShadow = R.drawable.poi_pin_with_shadow;
     		return poiInfo;
     	}
     	
@@ -3479,14 +3483,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
 	private void showPopupMenu(Screen xy, PoiOverlayInfo info) {
     	poiIcon.setVisibility(View.VISIBLE);
-    	poiIcon.setImageResource(info.marker);
+    	poiIcon.setImageResource(info.markerWithShadow);
     	
-    	BitmapFactory.Options dimensions = new BitmapFactory.Options(); 
-    	dimensions.inJustDecodeBounds = false;
-    	Bitmap decodeResource = BitmapFactory.decodeResource(getResources(), info.marker, dimensions);
-    	int poiIconWidth = decodeResource.getWidth();
-    	int poiIconHeight = decodeResource.getHeight();
-    	decodeResource.recycle();
+//    	BitmapFactory.Options dimensions = new BitmapFactory.Options(); 
+//    	dimensions.inJustDecodeBounds = false;
+//    	Bitmap decodeResource = BitmapFactory.decodeResource(getResources(), info.markerWithShadow, dimensions);
+//    	int poiIconWidth = decodeResource.getWidth();
+//    	int poiIconHeight = decodeResource.getHeight();
+//    	decodeResource.recycle();
+    	
+    	int poiIconWidth = Dimension.dpToPx(45, getResources().getDisplayMetrics());
+    	int poiIconHeight = poiIconWidth;
     	
     	FrameLayout.LayoutParams poiLp = (android.widget.FrameLayout.LayoutParams) poiIcon.getLayoutParams();
     	poiLp.leftMargin = xy.x - (poiIconWidth / 2);
@@ -3746,8 +3753,18 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         	getRouteAnimator = ObjectAnimator.ofFloat(getRouteView, "translationY", 0, myMetropiaPanelHeight);
         }
         
+        View osmCredit = findViewById(R.id.osm_credit);
+        ObjectAnimator osmCreditAnimator;
+        if(collapsed) {
+        	osmCreditAnimator = ObjectAnimator.ofFloat(osmCredit, "translationY", myMetropiaPanelHeight, 0);
+        }
+        else {
+        	osmCreditAnimator = ObjectAnimator.ofFloat(osmCredit, "translationY", 0, myMetropiaPanelHeight);
+        }
+        
 		AnimatorSet animatorSet = new AnimatorSet();
-		animatorSet.play(landingPanelAnimator).with(myMetropiaPanelAnimator).with(compassAnimator).with(notifyTripAnimator).with(getRouteAnimator);
+		animatorSet.play(landingPanelAnimator).with(myMetropiaPanelAnimator).with(compassAnimator)
+			.with(notifyTripAnimator).with(getRouteAnimator).with(osmCreditAnimator);
 		animatorSet.start();
     }
     

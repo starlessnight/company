@@ -3,17 +3,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
     android:orientation="vertical">
     
     <LinearLayout
         android:id="@+id/name_panel"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="35dp"
         android:paddingTop="5dp"
         android:paddingLeft="5dp"
         android:orientation="horizontal">
         
+        <!-- 
         <FrameLayout 
             android:id="@+id/icon_panel"
             android:layout_width="40dp"
@@ -27,14 +31,22 @@
 	            android:visibility="gone"/>
         
         </FrameLayout>
+         -->
+         
+        <ImageView 
+	        android:id="@+id/fav_icon"
+	        android:layout_width="30dp"
+	        android:layout_height="30dp"
+	        android:scaleType="fitCenter"
+	        android:visibility="gone"/>
     
 		<TextView  
 		    android:id="@+id/name"
 		    android:singleLine="true"
 		    android:layout_width="0dp"
-		    android:layout_height="wrap_content"
+		    android:layout_height="match_parent"
 		    android:layout_weight="1"
-		    android:textSize="@dimen/smaller_font"
+		    android:textSize="16dp"
 		    android:textColor="@android:color/black"
 		    android:gravity="center|left"
 		    android:ellipsize="marquee" />
@@ -43,7 +55,7 @@
 		    android:id="@+id/distance"
 		    android:singleLine="true"
 		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
+		    android:layout_height="match_parent"
 		    android:textSize="@dimen/smallest_font"
 		    android:textColor="@color/transparent_gray"
 		    android:paddingLeft="5dp"

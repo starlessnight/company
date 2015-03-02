@@ -101,8 +101,8 @@
 
                 <ImageView
                     android:id="@+id/poi_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
                     android:src="@drawable/home"
                     android:visibility="invisible" />
             </FrameLayout>
@@ -437,6 +437,72 @@
                     -->
 
                 </LinearLayout>
+                
+                <ListView
+                    android:id="@+id/search_result_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/landing_panel_content"
+                    android:layout_marginBottom="40dp"
+                    android:layout_marginLeft="53dp"
+                    android:layout_marginRight="8dp"
+                    android:background="@android:color/white"
+                    android:cacheColorHint="#00000000"
+                    android:divider="@color/transparent_black"
+                    android:dividerHeight="0.5dp"
+                    android:drawSelectorOnTop="false"
+                    android:listSelector="#3396C93C"
+                    android:visibility="gone" />
+
+                <ListView
+                    android:id="@+id/from_search_result_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/landing_panel_content"
+                    android:layout_marginBottom="40dp"
+                    android:layout_marginLeft="53dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginTop="-47dp"
+                    android:background="@android:color/white"
+                    android:cacheColorHint="#00000000"
+                    android:divider="@color/transparent_black"
+                    android:dividerHeight="0.5dp"
+                    android:drawSelectorOnTop="false"
+                    android:listSelector="#3396C93C"
+                    android:visibility="gone" />
+                
+                <ListView
+                    android:id="@+id/from_favorite_drop_down"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/landing_panel_content"
+                    android:layout_marginBottom="40dp"
+                    android:layout_marginLeft="53dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginTop="-47dp"
+                    android:background="@android:color/white"
+                    android:cacheColorHint="#00000000"
+                    android:divider="@color/transparent_black"
+                    android:dividerHeight="0.5dp"
+                    android:drawSelectorOnTop="false"
+                    android:listSelector="#3396C93C"
+                    android:visibility="gone" />
+                
+                <ListView
+                    android:id="@+id/to_favorite_drop_down"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/landing_panel_content"
+                    android:layout_marginBottom="40dp"
+                    android:layout_marginLeft="53dp"
+                    android:layout_marginRight="8dp"
+                    android:background="@android:color/white"
+                    android:cacheColorHint="#00000000"
+                    android:divider="@color/transparent_black"
+                    android:dividerHeight="0.5dp"
+                    android:drawSelectorOnTop="false"
+                    android:listSelector="#3396C93C"
+                    android:visibility="gone" />
 
                 <LinearLayout
                     android:id="@+id/my_metropia_panel"
@@ -531,72 +597,6 @@
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
-
-                <ListView
-                    android:id="@+id/search_result_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/landing_panel_content"
-                    android:layout_marginBottom="60dp"
-                    android:layout_marginLeft="53dp"
-                    android:layout_marginRight="8dp"
-                    android:background="@android:color/white"
-                    android:cacheColorHint="#00000000"
-                    android:divider="@color/transparent_black"
-                    android:dividerHeight="0.5dp"
-                    android:drawSelectorOnTop="false"
-                    android:listSelector="#3396C93C"
-                    android:visibility="gone" />
-
-                <ListView
-                    android:id="@+id/from_search_result_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/landing_panel_content"
-                    android:layout_marginBottom="60dp"
-                    android:layout_marginLeft="53dp"
-                    android:layout_marginRight="8dp"
-                    android:layout_marginTop="-47dp"
-                    android:background="@android:color/white"
-                    android:cacheColorHint="#00000000"
-                    android:divider="@color/transparent_black"
-                    android:dividerHeight="0.5dp"
-                    android:drawSelectorOnTop="false"
-                    android:listSelector="#3396C93C"
-                    android:visibility="gone" />
-                
-                <ListView
-                    android:id="@+id/from_favorite_drop_down"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/landing_panel_content"
-                    android:layout_marginBottom="60dp"
-                    android:layout_marginLeft="53dp"
-                    android:layout_marginRight="8dp"
-                    android:layout_marginTop="-47dp"
-                    android:background="@android:color/white"
-                    android:cacheColorHint="#00000000"
-                    android:divider="@color/transparent_black"
-                    android:dividerHeight="0.5dp"
-                    android:drawSelectorOnTop="false"
-                    android:listSelector="#3396C93C"
-                    android:visibility="gone" />
-                
-                <ListView
-                    android:id="@+id/to_favorite_drop_down"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/landing_panel_content"
-                    android:layout_marginBottom="60dp"
-                    android:layout_marginLeft="53dp"
-                    android:layout_marginRight="8dp"
-                    android:background="@android:color/white"
-                    android:cacheColorHint="#00000000"
-                    android:divider="@color/transparent_black"
-                    android:dividerHeight="0.5dp"
-                    android:drawSelectorOnTop="false"
-                    android:listSelector="#3396C93C"
-                    android:visibility="gone" />
                 
             </RelativeLayout>
 

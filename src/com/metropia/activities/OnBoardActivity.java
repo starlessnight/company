@@ -33,6 +33,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Filter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -579,8 +580,8 @@ public class OnBoardActivity extends FragmentActivity {
                 TextView address = (TextView) view.findViewById(R.id.address);
                 address.setText(item.getAddress());
                 TextView distance = (TextView) view.findViewById(R.id.distance);
-                View iconPanel = view.findViewById(R.id.icon_panel);
-//                ImageView favIcon = (ImageView) view.findViewById(R.id.fav_icon);
+//                View iconPanel = view.findViewById(R.id.icon_panel);
+                ImageView favIcon = (ImageView) view.findViewById(R.id.fav_icon);
                 if(item.getDistance() >= 0) {
                 	distance.setVisibility(View.VISIBLE);
                 	distance.setText("> " + item.getDistance() + "mi");
@@ -589,7 +590,7 @@ public class OnBoardActivity extends FragmentActivity {
                 	distance.setVisibility(View.GONE);
                 }
                 
-                iconPanel.setVisibility(View.GONE);
+                favIcon.setVisibility(View.GONE);
                 
                 name.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
                 name.setCompoundDrawablePadding(0);
@@ -604,7 +605,7 @@ public class OnBoardActivity extends FragmentActivity {
                 name.requestLayout();
                 distance.requestLayout();
                 address.requestLayout();
-                iconPanel.requestLayout();
+                favIcon.requestLayout();
 //                view.setPadding(0, 0, 0, position == getCount() - 1 ? 
 //                    Dimension.dpToPx(135, getResources().getDisplayMetrics()) : 0);
                 return view;
