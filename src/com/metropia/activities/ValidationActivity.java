@@ -2886,8 +2886,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     	RelativeLayout.LayoutParams enRoutePanelLp = (LayoutParams) enRoutePanel.getLayoutParams();
     	enRoutePanelLp.width = landscape ? LayoutParams.WRAP_CONTENT : LayoutParams.MATCH_PARENT;
     	enRoutePanelLp.height = landscape ? LayoutParams.MATCH_PARENT : LayoutParams.WRAP_CONTENT;
-    	enRoutePanelLp.removeRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-    	enRoutePanelLp.removeRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+    	enRoutePanelLp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
+    	enRoutePanelLp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, 0);
     	enRoutePanelLp.addRule(landscape ? RelativeLayout.ALIGN_PARENT_RIGHT : RelativeLayout.ALIGN_PARENT_BOTTOM , RelativeLayout.TRUE);
     }
     
