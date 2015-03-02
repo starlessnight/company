@@ -150,6 +150,8 @@ import com.skobbler.ngx.map.SKMapViewHolder;
 import com.skobbler.ngx.map.SKPOICluster;
 import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
+import com.skobbler.ngx.routing.SKRouteInfo;
+import com.skobbler.ngx.routing.SKRouteJsonAnswer;
 import com.skobbler.ngx.routing.SKRouteListener;
 import com.skobbler.ngx.routing.SKRouteManager;
 import com.skobbler.ngx.routing.SKRouteSettings;
@@ -707,7 +709,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		mapPopup.setVerticalOffset(-30);
 		mapPopup.setLeftImage(null);
 		mapPopup.setRightImage(null);
-        
+		
 		mapView.setMapSurfaceListener(this);
 		mapView.clearAllOverlays();
 		mapView.getMapSettings().setCurrentPositionShown(false);
@@ -1339,7 +1341,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				routeManager.clearRouteAlternatives();
 				routeManager.clearAllRoutesFromCache();
 				routeManager.createRouteFromTrackElement(routeGpx.getRootTrackElement(), 
-						SKRouteSettings.SKROUTE_CAR_FASTEST, false, false, false);
+						SKRouteSettings.SKRouteMode.CAR_FASTEST, false, false, false);
 				drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
 			}
 			/*
@@ -1374,8 +1376,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 	
 	private void drawDestinationAnnotation(double lat, double lon) {
-		SKAnnotation destAnn = new SKAnnotation();
-		destAnn.setUniqueID(DEST_ANNOTATION_ID);
+		SKAnnotation destAnn = new SKAnnotation(DEST_ANNOTATION_ID);
 		destAnn.setLocation(new SKCoordinate(lon, lat));
 		destAnn.setMininumZoomLevel(5);
 		destAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_DESTINATION_FLAG);
@@ -2076,8 +2077,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			Log.d("ValidationActivity", "show incident size : " + incidentsOfTime.size());
 			for(Incident incident : incidentsOfTime) {
 				Log.d("validationActivity", "Incident Unique Id : " + getIncidentUniqueId(incident));
-				SKAnnotation incAnn = new SKAnnotation();
-				incAnn.setUniqueID(getIncidentUniqueId(incident));
+				SKAnnotation incAnn = new SKAnnotation(getIncidentUniqueId(incident));
 				incAnn.setLocation(new SKCoordinate(incident.lon, incident.lat));
 				incAnn.setMininumZoomLevel(incident.getMinimalDisplayZoomLevel());
 //				incAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_MARKER);
@@ -2921,8 +2921,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	public void onActionZoom() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -2937,14 +2935,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	public void onCompassSelected() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void onCustomPOISelected(SKMapCustomPOI arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -2954,14 +2948,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	public void onInternationalisationCalled(int arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void onInternetConnectionNeeded() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -3002,9 +2992,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 
 	@Override
-	public void onOffportRequestCompleted(int arg0) {}
-
-	@Override
 	public void onPOIClusterSelected(SKPOICluster arg0) {}
 
 	@Override
@@ -3026,44 +3013,42 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	public void onCurrentPositionSelected() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void onObjectSelected(int arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void onAllRoutesCompleted() {
+		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
 	}
 
 	@Override
 	public void onOnlineRouteComputationHanging(int arg0) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
-	public void onRouteCalculationCompleted(int statusMessage, int routeDistance, int routeEta, boolean thisRouteIsComplete, int id) {
-		if(ROUTE_INTERNAL_ERROR == statusMessage){
-			Log.d("ValidationActivity", "draw route internal error!");
-			drawRoute(mapView, getRouteOrReroute());
-		}
-		else {
-			Log.d("ValidationActivity", "draw route success : " + (ROUTE_SUCCESS == statusMessage));
-			if((Boolean)buttonFollow.getTag()) {
-				mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
-			}
-		}
+	public void onRouteCalculationCompleted(SKRouteInfo arg0) {
+		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
 	}
 
 	@Override
-	public void onServerLikeRouteCalculationCompleted(int arg0) {
-		// TODO Auto-generated method stub
-		
+	public void onRouteCalculationFailed(SKRoutingErrorCode arg0) {
+		Log.d("ValidationActivity", "draw route internal error!");
+		drawRoute(mapView, getRouteOrReroute());
+	}
+
+	@Override
+	public void onServerLikeRouteCalculationCompleted(SKRouteJsonAnswer arg0) {
+	}
+
+	@Override
+	public void onBoundingBoxImageRendered(int arg0) {
+	}
+
+	@Override
+	public void onGLInitializationError(String arg0) {
 	}
 
 }
