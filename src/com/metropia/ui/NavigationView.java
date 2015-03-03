@@ -942,5 +942,9 @@ public class NavigationView extends LinearLayout {
 	public void setRestrictVoiceGuidance(boolean restrictVoiceGuidance) {
 		this.restrictVoiceGuidance = restrictVoiceGuidance;
 	}
+	
+	public boolean isPortraitMode() {
+		return this.portraitMode;
+	}
 
 }

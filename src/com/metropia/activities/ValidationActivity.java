@@ -71,6 +71,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -738,7 +739,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             public void onClick(View v) {
             	ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v);
             	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-
 					@Override
 					public void onAnimationEnd() {
 						Boolean tagAfterClick = !((Boolean) buttonFollow.getTag());
@@ -751,7 +751,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		                }
 		            	navigationView.setToCurrentDireciton();
 					}
-            		
             	});
             }
         });
@@ -1102,16 +1101,38 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		Font.setTypeface(lightFont/*, osmCredit*/, remainTimesDirectListView);
 	}
 	
-	private void to2DMap(RouteRect _rect, boolean hasNavigationHeader) {
+	private ViewTreeObserver.OnPreDrawListener onPreDrawListener;
+	
+	private void to2DMap(final RouteRect _rect, final boolean hasNavigationHeader) {
 		if(_rect != null){
             /* Get a midpoint to center the view of  the routes */
+			changeEnRoutePanelMode(!navigationView.isPortraitMode());
             mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
             mapView.rotateTheMapToNorth();
-            GeoPoint topLeft = _rect.getTopLeftPoint();
+            final int offsetHeight = hasNavigationHeader ? navigationView.getMeasuredHeight() : 0; 
+			GeoPoint topLeft = _rect.getTopLeftPoint();
             GeoPoint bottomRight = _rect.getBottomRightPoint();
-            SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude());
-            int offsetHeight = hasNavigationHeader ? navigationView.getMeasuredHeight() : 0; 
-            mapView.fitBoundingBox(boundingBox, 100, offsetHeight);
+			final SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude());
+            if(!hasNavigationHeader) {
+	            ViewTreeObserver vto = findViewById(R.id.alert_content).getViewTreeObserver();
+	            onPreDrawListener = new ViewTreeObserver.OnPreDrawListener() {
+	        		@Override
+	        		public boolean onPreDraw() {
+	        			int alertHeight = findViewById(R.id.alert_content).getMeasuredHeight();
+	        			int alertWidth = findViewById(R.id.alert_content).getMeasuredWidth();
+	        			RelativeLayout.LayoutParams mapViewLp = (LayoutParams) mapView.getLayoutParams();
+	        			mapViewLp.bottomMargin = navigationView.isPortraitMode() ? alertHeight : 0;
+	        			mapViewLp.rightMargin = navigationView.isPortraitMode() ? 0 : alertWidth;
+	        			mapView.setLayoutParams(mapViewLp);
+	                    mapView.fitBoundingBox(boundingBox, 100, offsetHeight);
+	        			return true;
+	        		}
+	        	};
+		        vto.addOnPreDrawListener(onPreDrawListener);
+            }
+            else {
+            	mapView.fitBoundingBox(boundingBox, 100, offsetHeight);
+            }
             GeoPoint mid = _rect.getMidPoint();
             SKCoordinate coordinate = new SKCoordinate(mid.getLongitude(), mid.getLatitude());
             mapView.centerMapOnPosition(coordinate);
@@ -1122,8 +1143,21 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 	
 	private void to3DMap() {
+		Misc.doQuietly(new Runnable() {
+			@Override
+			public void run() {
+				ViewTreeObserver vto = findViewById(R.id.alert_content).getViewTreeObserver();
+				vto.removeOnPreDrawListener(onPreDrawListener);
+			}
+		});
 		mapPopup.setVisibility(View.GONE);
 		removeAllIncident();
+	    LayoutParams mapViewLp = (LayoutParams) mapView.getLayoutParams();
+	    mapViewLp.width = LayoutParams.MATCH_PARENT;
+	    mapViewLp.height = LayoutParams.MATCH_PARENT;
+	    mapViewLp.bottomMargin = 0;
+	    mapViewLp.rightMargin = 0;
+	    mapView.setLayoutParams(mapViewLp);
         if (lastKnownLocation != null) {
         	double latitude = lastKnownLocation.getLatitude();
         	double longitude = lastKnownLocation.getLongitude();
@@ -2817,7 +2851,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				to2DMap(routeRect, false);
 				findViewById(R.id.loading).setVisibility(View.GONE);
 	    	    navigationView.setVisibility(View.GONE);
 	    	    findViewById(R.id.directions_view).setVisibility(View.INVISIBLE);
@@ -2826,7 +2859,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    	    StringBuffer alertMessage = new StringBuffer(getResources().getText(R.string.en_route_desc1));
 //	    	    alertMessage.append("\n").append(getResources().getText(R.string.en_route_desc2));
 	    	    enRouteCueSpeak(alertMessage.toString(), true);
-	    	    
 	    	    final CharSequence autoAcceptDesc = getResources().getText(R.string.en_route_auto_accept);
 	    	    final NumberFormat nf = new DecimalFormat("#");
 	    	    countDown = new CountDownTimer(6000, 1000) {
@@ -2839,6 +2871,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	   		     		findViewById(R.id.yes_button).performClick();
 	   		     	}
 	   		 	}.start();
+	   		 	buttonFollow.setTag(Boolean.valueOf(false));
+	   		 	to2DMap(routeRect, false);
 			}
     	});
     }
@@ -2869,7 +2903,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				to3DMap();
 				for(View view : getMapViews()) {
 					view.setVisibility(View.VISIBLE);
 				}
@@ -2877,18 +2910,23 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    	    findViewById(R.id.en_route_alert_panel).setVisibility(View.GONE);
 	    	    ((TextView)findViewById(R.id.en_route_auto_accept_desc)).setText("");
 	    	    enRoute = null;
+	    	    buttonFollow.setTag(Boolean.valueOf(true));
+	    	    to3DMap();
 			}
     	});
     }
     
     private void changeEnRoutePanelMode(boolean landscape) {
-    	View enRoutePanel = findViewById(R.id.alert_content);
-    	RelativeLayout.LayoutParams enRoutePanelLp = (LayoutParams) enRoutePanel.getLayoutParams();
-    	enRoutePanelLp.width = landscape ? LayoutParams.WRAP_CONTENT : LayoutParams.MATCH_PARENT;
-    	enRoutePanelLp.height = landscape ? LayoutParams.MATCH_PARENT : LayoutParams.WRAP_CONTENT;
-    	enRoutePanelLp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
-    	enRoutePanelLp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, 0);
-    	enRoutePanelLp.addRule(landscape ? RelativeLayout.ALIGN_PARENT_RIGHT : RelativeLayout.ALIGN_PARENT_BOTTOM , RelativeLayout.TRUE);
+    	if(findViewById(R.id.en_route_alert_panel).getVisibility() == View.VISIBLE) {
+	    	View enRoutePanel = findViewById(R.id.alert_content);
+	    	RelativeLayout.LayoutParams enRoutePanelLp = (LayoutParams) enRoutePanel.getLayoutParams();
+	    	enRoutePanelLp.width = landscape ? LayoutParams.WRAP_CONTENT : LayoutParams.MATCH_PARENT;
+	    	enRoutePanelLp.height = landscape ? LayoutParams.MATCH_PARENT : LayoutParams.WRAP_CONTENT;
+	    	enRoutePanelLp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
+	    	enRoutePanelLp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, 0);
+	    	enRoutePanelLp.addRule(landscape ? RelativeLayout.ALIGN_PARENT_RIGHT : RelativeLayout.ALIGN_PARENT_BOTTOM , RelativeLayout.TRUE);
+	    	enRoutePanel.setLayoutParams(enRoutePanelLp);
+    	}
     }
     
 //    private void scheduleNextEnRouteCheck(){
@@ -3022,6 +3060,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	@Override
 	public void onAllRoutesCompleted() {
 		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
+    	mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
+    	mapView.getMapSettings().setMapRotationEnabled(true);
 	}
 
 	@Override
@@ -3031,6 +3071,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	@Override
 	public void onRouteCalculationCompleted(SKRouteInfo arg0) {
 		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
+    	mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
+    	mapView.getMapSettings().setMapRotationEnabled(true);
 	}
 
 	@Override
