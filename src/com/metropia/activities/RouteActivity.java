@@ -311,12 +311,17 @@ public final class RouteActivity extends FragmentActivity {
 			    ehs.reportExceptions(goBackToWhereTo);
 			}
 			else {
-				retriveIncident(new Runnable() {
+				MainActivity.initApiLinksIfNecessary(RouteActivity.this, new Runnable() {
 					@Override
 					public void run() {
-						RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
-				        routeTasks.add(routeTask);
-				        routeTask.execute();
+						retriveIncident(new Runnable() {
+							@Override
+							public void run() {
+								RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
+						        routeTasks.add(routeTask);
+						        routeTask.execute();
+							}
+						});
 					}
 				});
 			}
@@ -969,7 +974,7 @@ public final class RouteActivity extends FragmentActivity {
 	    		@Override
 				protected Void doInBackground(Void... params) {
 	    			if(originCoord != null) {
-		    			CityRequest cityReq = new CityRequest(originCoord.getLatitude(), originCoord.getLongitude());
+	    				CityRequest cityReq = new CityRequest(originCoord.getLatitude(), originCoord.getLongitude());
 		                try {
 							City city = cityReq.execute(RouteActivity.this);
 							if(city != null && StringUtils.isBlank(city.html)) {
@@ -1015,28 +1020,28 @@ public final class RouteActivity extends FragmentActivity {
 			try {
 				incidents.addAll(incidentReq.execute(RouteActivity.this));
 			} catch (Exception ignore) {}
-			List<Overlay> oldIncidentOverlay = new ArrayList<Overlay>();
-			List<Overlay> all = mapView.getOverlays();
-			for(final Overlay overlay : all) {
-				if(overlay instanceof RouteDestinationOverlay) {
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					List<Overlay> oldIncidentOverlay = new ArrayList<Overlay>();
+					List<Overlay> all = mapView.getOverlays();
+					for(final Overlay overlay : all) {
+						if(overlay instanceof RouteDestinationOverlay) {
 							if(((RouteDestinationOverlay) overlay).isBalloonVisible()) {
 								curShowOverlay = (RouteDestinationOverlay)overlay;
 								((RouteDestinationOverlay) overlay).hideBalloon();
 							}
+							oldIncidentOverlay.add(overlay);
 						}
-					});
-					oldIncidentOverlay.add(overlay);
+					}
+					all.removeAll(oldIncidentOverlay);
+					if(timeLayout.getSelectedTimeButton() != null) {
+						showIncidentOverlays(timeLayout.getSelectedDepartureTime());
+					}
+					curShowOverlay = null;
+					mapView.postInvalidate();
 				}
-			}
-			all.removeAll(oldIncidentOverlay);
-			if(timeLayout.getSelectedTimeButton() != null) {
-				showIncidentOverlays(timeLayout.getSelectedDepartureTime());
-			}
-			curShowOverlay = null;
-			mapView.postInvalidate();
+			});
 		}
     }
     
@@ -1294,13 +1299,18 @@ public final class RouteActivity extends FragmentActivity {
             task.execute(destAddr);
             geocodingTasks.add(task);
         }else{
-        	retriveIncident(new Runnable() {
-				@Override
-				public void run() {
-					RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
-		            routeTasks.add(routeTask);
-		            routeTask.execute();
-				}
+        	MainActivity.initApiLinksIfNecessary(RouteActivity.this, new Runnable() {
+    			@Override
+    			public void run() {
+		        	retriveIncident(new Runnable() {
+						@Override
+						public void run() {
+							RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
+				            routeTasks.add(routeTask);
+				            routeTask.execute();
+						}
+		        	});
+    			}
         	});
         }
     }
@@ -1315,7 +1325,12 @@ public final class RouteActivity extends FragmentActivity {
 	    Localytics.handleTestMode(getIntent());
 	    Localytics.handlePushNotificationOpened(getIntent());
 	    // refresh incident
-		retriveIncident(null);
+	    MainActivity.initApiLinksIfNecessary(RouteActivity.this, new Runnable() {
+			@Override
+			public void run() {
+				retriveIncident(null);
+			}
+	    });
     }
     
 	@Override
