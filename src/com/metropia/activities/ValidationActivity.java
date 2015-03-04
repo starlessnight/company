@@ -2135,7 +2135,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		List<Incident> incidentOfDepTime = new ArrayList<Incident>();
     	if(incidents != null && incidents.size() > 0) {
     		for(Incident incident : incidents.values()) {
-    			if(incident.isInTimeRange(reservation.getDepartureTimeUtc())) {
+    			if(incident.severity > 0 && incident.isInTimeRange(reservation.getDepartureTimeUtc())) {
     				incidentOfDepTime.add(incident);
     			}
     		}

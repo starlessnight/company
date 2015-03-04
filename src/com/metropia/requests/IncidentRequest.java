@@ -37,9 +37,9 @@ public class IncidentRequest extends FetchRequest<List<Incident>> {
 				case 2 :
 					return 10;
 				case 1 : 
-					return 17;
+					return 13;
 				default : 
-					return 6;
+					return 9;
 			}
 		}
 	}

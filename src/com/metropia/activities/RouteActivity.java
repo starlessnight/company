@@ -1941,7 +1941,7 @@ public final class RouteActivity extends FragmentActivity {
     	List<Incident> incidentOfDepTime = new ArrayList<Incident>();
     	if(incidents != null && incidents.size() > 0) {
     		for(Incident incident : incidents) {
-    			if(incident.isInTimeRange(departureUTCTime) && incident.getMinimalDisplayZoomLevel() <= mapView.getZoomLevel()) {
+    			if(incident.severity > 0 && incident.isInTimeRange(departureUTCTime) && incident.getMinimalDisplayZoomLevel() <= mapView.getZoomLevel()) {
     				incidentOfDepTime.add(incident);
     			}
     		}
