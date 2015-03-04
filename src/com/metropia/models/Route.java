@@ -900,4 +900,12 @@ public final class Route implements Parcelable {
 //    		}
 //    	}
     }
+    
+    public int getDurationFromNodes() {
+    	int durationFromNodes = 0;
+    	for(RouteNode node : getNodes()) {
+    		durationFromNodes = durationFromNodes + node.getTime();
+    	}
+    	return durationFromNodes;
+    }
 }

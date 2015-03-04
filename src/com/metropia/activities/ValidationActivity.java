@@ -1048,7 +1048,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	                        reroute.preprocessNodes();
 	                        routeRect = initRouteRect(reroute);
 	                        updateDirectionsList();
-	                        drawRoute(mapView, reroute);
 	                        navigationView.setHasVoice(reroute.hasVoice());
 	                        sendOnMyWayEmail.set(true);
 						}
@@ -1079,6 +1078,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						if(realTravelRemainTimeInSec > 0) {
 							sendImComingMsg(realTravelRemainTimeInSec);
 						}
+						drawRoute(mapView, getRouteOrReroute()); // draw route before en-route
                         hideEnRouteAlert();
                         v.setClickable(true);
                         Misc.doQuietly(new Runnable() {
@@ -2800,7 +2800,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         }
     };
     
-    private long realTravelRemainTimeInSec = -1;  //ms
+    private long realTravelRemainTimeInSec = -1;  //sec
     private AtomicLong lastEnRouteCheckTime = new AtomicLong(0);
     
     private void enrouteCheck() {
@@ -2809,17 +2809,18 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			protected Route doInBackground(Void... params) {
 				if(lastKnownLocation != null) {
 					realTravelRemainTimeInSec = -1;
-					double realRemainTimeInMin = -1;
+					double realRemainTimeInSec = -1;
 					Route enRoute = null;
 					lastEnRouteCheckTime.set(System.currentTimeMillis());
+					Log.d("ValidationActivity", "En-Route Check");
 					try {
 						TravelTimeRequest travelTimeReq = new TravelTimeRequest(User.getCurrentUser(ValidationActivity.this), 
 								reservation.getCity(), getRouteOrReroute().getRemainNodes(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
-						realRemainTimeInMin = travelTimeReq.execute(ValidationActivity.this);  // min
-						realTravelRemainTimeInSec = Double.valueOf(realRemainTimeInMin * 60).longValue(); // sec
-						if(realRemainTimeInMin > 0 && (remainingTime.get() - realRemainTimeInMin) >= Math.max(5 * 60, 0.2 * getRouteOrReroute().getDuration())) {
+						realRemainTimeInSec = travelTimeReq.execute(ValidationActivity.this);  // sec
+						realTravelRemainTimeInSec = Double.valueOf(realRemainTimeInSec).longValue(); // sec
+						if(realRemainTimeInSec > 0 && (realRemainTimeInSec - remainingTime.get()) >= Math.max(5 * 60, 0.2 * getRouteOrReroute().getDurationFromNodes())) {
 							enRoute = getNewRoute(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), lastKnownLocation.getSpeed(), lastKnownLocation.getBearing());
-							if(enRoute != null && (realTravelRemainTimeInSec - enRoute.getDuration()) > Math.max(3 * 60, 0.15 * realRemainTimeInMin)) {
+							if(enRoute != null && (realTravelRemainTimeInSec - enRoute.getDurationFromNodes()) > Math.max(3 * 60, 0.15 * realRemainTimeInSec)) {
 								return enRoute;
 							}
 						}
@@ -2835,7 +2836,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	        protected void onPostExecute(Route result) {
     			if(result != null) {
     				enRoute = result;
-    				showEnRouteAlert();
+    				drawEnRoute.set(true);
+    				drawRoute(mapView, enRoute);
     			}
     		}
     		
@@ -2845,6 +2847,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     
     private Route enRoute;
     private CountDownTimer countDown;
+    private AtomicBoolean drawEnRoute = new AtomicBoolean(false);
     
     private void showEnRouteAlert() {
     	runOnUiThread(new Runnable() {
@@ -2871,7 +2874,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	   		     	}
 	   		 	}.start();
 	   		 	buttonFollow.setTag(Boolean.valueOf(false));
-	   		 	to2DMap(routeRect, false);
+	   		 	RouteRect enRouteRect = initRouteRect(enRoute);
+	   		 	to2DMap(enRouteRect, false);
 			}
     	});
     }
@@ -3058,9 +3062,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	public void onAllRoutesCompleted() {
-		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
-    	mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
-    	mapView.getMapSettings().setMapRotationEnabled(true);
+		if(drawEnRoute.get()) {
+			drawEnRoute.set(false);
+			showEnRouteAlert();
+		}
+		else {
+			mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
+		}
 	}
 
 	@Override
@@ -3069,15 +3077,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	public void onRouteCalculationCompleted(SKRouteInfo arg0) {
-		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
-    	mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
-    	mapView.getMapSettings().setMapRotationEnabled(true);
 	}
 
 	@Override
 	public void onRouteCalculationFailed(SKRoutingErrorCode arg0) {
 		Log.d("ValidationActivity", "draw route internal error!");
-		drawRoute(mapView, getRouteOrReroute());
+		drawRoute(mapView, drawEnRoute.get() ? enRoute : getRouteOrReroute());
 	}
 
 	@Override
