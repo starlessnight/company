@@ -3753,18 +3753,9 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         	getRouteAnimator = ObjectAnimator.ofFloat(getRouteView, "translationY", 0, myMetropiaPanelHeight);
         }
         
-        View osmCredit = findViewById(R.id.osm_credit);
-        ObjectAnimator osmCreditAnimator;
-        if(collapsed) {
-        	osmCreditAnimator = ObjectAnimator.ofFloat(osmCredit, "translationY", myMetropiaPanelHeight, 0);
-        }
-        else {
-        	osmCreditAnimator = ObjectAnimator.ofFloat(osmCredit, "translationY", 0, myMetropiaPanelHeight);
-        }
-        
 		AnimatorSet animatorSet = new AnimatorSet();
 		animatorSet.play(landingPanelAnimator).with(myMetropiaPanelAnimator).with(compassAnimator)
-			.with(notifyTripAnimator).with(getRouteAnimator).with(osmCreditAnimator);
+			.with(notifyTripAnimator).with(getRouteAnimator);
 		animatorSet.start();
     }
     
