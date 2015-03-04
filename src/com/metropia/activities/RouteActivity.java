@@ -794,7 +794,7 @@ public final class RouteActivity extends FragmentActivity {
 		                            	LocalyticsUtils.tagReschedule();
 		                            }
 		                            else {
-		                            	LocalyticsUtils.tagMakeAReservation();
+		                            	LocalyticsUtils.tagMakeAReservation(timeLayout.getSelectedColumn());
 		                            }
 		                            
 		                            if(route.isFake()){
@@ -865,7 +865,7 @@ public final class RouteActivity extends FragmentActivity {
 	                            		LocalyticsUtils.tagReschedule();
 	                            	}
 	                            	else {
-	                            		LocalyticsUtils.tagMakeAReservation();
+	                            		LocalyticsUtils.tagMakeAReservation(timeLayout.getSelectedColumn());
 	                            	}
 	                            	
 	                                if(reservation.isEligibleTrip()){

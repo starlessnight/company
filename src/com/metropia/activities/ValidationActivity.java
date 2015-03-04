@@ -2264,13 +2264,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             
             TextView mpoint = (TextView) findViewById(R.id.mpoint_circle);
             if(uPoints > 0){
-            	LocalyticsUtils.tagTrip(LocalyticsUtils.TRIP_FINISHED);
+            	LocalyticsUtils.tagTrip(LocalyticsUtils.COMPLETED_TRIP);
                 mpoint.setText(formatCongrValueDesc(ValidationActivity.this, uPoints + "\nPoints"));
                 ((ImageView)findViewById(R.id.mpoint_circle_background)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.green_circle)));
                 findViewById(R.id.mpoint_circle_panel).setVisibility(View.VISIBLE);
             }
             else {
-            	LocalyticsUtils.tagTrip(LocalyticsUtils.TRIP_UNFINISHED);
+            	LocalyticsUtils.tagTrip(LocalyticsUtils.ABORTED_TRIP);
             }
             
             TextView driveScore = (TextView) findViewById(R.id.drive_score_circle);

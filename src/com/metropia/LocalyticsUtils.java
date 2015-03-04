@@ -73,12 +73,24 @@ public class LocalyticsUtils {
 		Localytics.tagEvent(EVENT_NAME_APP_ERROR, values);
 	}
 	
-	public static void tagMakeAReservation() {
-		Localytics.tagEvent(EVENT_NAME_MAKE_RESERVATION);
+	public static void tagMakeAReservation(int columnNum) {
+		Map<String, String> values = new HashMap<String, String>();
+		values.put("Time ahead", getDescFromColumnNum(columnNum));
+		Localytics.tagEvent(EVENT_NAME_MAKE_RESERVATION, values);
 	}
 	
-	public static final String TRIP_UNFINISHED = "trip unfinished";
-	public static final String TRIP_FINISHED = "trip finished";
+	private static String getDescFromColumnNum(int columnNum) {
+		int timeWindowEnd = (columnNum + 1) * 15;
+		if(( timeWindowEnd / 60) > 0) {
+			return timeWindowEnd / 60 + "hr";
+		}
+		else {
+			return columnNum * 15 + "~" + timeWindowEnd + "min";
+		}
+	}
+	
+	public static final String ABORTED_TRIP = "aborted trip";
+	public static final String COMPLETED_TRIP = "completed trip";
 	public static final String TRIP_EXITED_MANUALLY = "exited manually";
 	
 	public static void tagTrip(String type) {
