@@ -1631,7 +1631,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     
     private double distanceOutOfRouteThreshold = 40;  //meter
 	
-	public static final double speedOutOfRouteThreshold = 7;
+	public static final double speedOutOfRouteThreshold = 5;
 	
 	private static final double odZoomDistanceLimit = 1200; //feet
 	
@@ -2101,7 +2101,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private int getIncidentUniqueId(Incident incident) {
 		return new HashCodeBuilder().append(incident.lat).append("+").append(incident.lon).toHashCode();
 	}
-	
 	
 	private void showIncidentsIfNessary() {
 		if(DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this) && mapView.getMapSettings().getMapDisplayMode() == SKMapDisplayMode.MODE_2D) {
