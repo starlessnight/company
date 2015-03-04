@@ -2821,6 +2821,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						if(realRemainTimeInSec > 0 && (realRemainTimeInSec - remainingTime.get()) >= Math.max(5 * 60, 0.2 * getRouteOrReroute().getDurationFromNodes())) {
 							enRoute = getNewRoute(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), lastKnownLocation.getSpeed(), lastKnownLocation.getBearing());
 							if(enRoute != null && (realTravelRemainTimeInSec - enRoute.getDurationFromNodes()) > Math.max(3 * 60, 0.15 * realRemainTimeInSec)) {
+								((TextView) findViewById(R.id.en_route_debug_msg)).setText(
+										String.format(getResources().getString(R.string.en_route_debug_msg), getFormatedEstimateArrivalTime(getETA(remainingTime.get()), route.getTimezoneOffset()), 
+												getFormatedEstimateArrivalTime(getETA(realTravelRemainTimeInSec), route.getTimezoneOffset()), 
+												getFormatedEstimateArrivalTime(getETA(enRoute.getDurationFromNodes()), route.getTimezoneOffset())));
 								return enRoute;
 							}
 						}
@@ -2858,6 +2862,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    	    findViewById(R.id.directions_view).setVisibility(View.INVISIBLE);
 	    	    findViewById(R.id.mapview_options).setVisibility(View.GONE);
 	    	    findViewById(R.id.en_route_alert_panel).setVisibility(View.VISIBLE);
+	    	    if(DebugOptionsActivity.isEnrouteDebugMsgEnabled(ValidationActivity.this)) {
+	    	    	findViewById(R.id.en_route_debug_msg).setVisibility(View.VISIBLE);
+	    	    }
 	    	    StringBuffer alertMessage = new StringBuffer(getResources().getText(R.string.en_route_desc1));
 //	    	    alertMessage.append("\n").append(getResources().getText(R.string.en_route_desc2));
 	    	    enRouteCueSpeak(alertMessage.toString(), true);
@@ -2911,6 +2918,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				}
 	    	    findViewById(R.id.directions_view).setVisibility(View.INVISIBLE);
 	    	    findViewById(R.id.en_route_alert_panel).setVisibility(View.GONE);
+	    	    findViewById(R.id.en_route_debug_msg).setVisibility(View.GONE);
 	    	    ((TextView)findViewById(R.id.en_route_auto_accept_desc)).setText("");
 	    	    enRoute = null;
 	    	    buttonFollow.setTag(Boolean.valueOf(true));

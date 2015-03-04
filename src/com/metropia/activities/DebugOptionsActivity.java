@@ -444,6 +444,15 @@ public final class DebugOptionsActivity extends FragmentActivity {
                 setPopupMessageMoreEnabled(DebugOptionsActivity.this, isChecked);
             }
         });
+        
+        CheckBox enRouteDebugMsg = (CheckBox) findViewById(R.id.en_route_debug_msg);
+        enRouteDebugMsg.setChecked(isEnrouteDebugMsgEnabled(this));
+        enRouteDebugMsg.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setEnrouteDebugMsgEnabled(DebugOptionsActivity.this, isChecked);
+            }
+        });
     }
     
     @Override
@@ -1210,6 +1219,24 @@ public final class DebugOptionsActivity extends FragmentActivity {
     
     public static boolean isIncidentEnabled(Context ctx) {
     	return "http://sandbox.metropia.com/v1/rest/index.json".equalsIgnoreCase(getDebugEntrypoint(ctx));
+    }
+    
+    private static final String EN_ROUTE_DEBUG_MSG = "EN_ROUTE_DEBUG_MSG";
+    
+    public static boolean isEnrouteDebugMsgEnabled(Context ctx){
+        boolean enabled;
+        try{
+            enabled = getPrefs(ctx).getBoolean(EN_ROUTE_DEBUG_MSG, false);
+        }catch(Throwable t){
+            enabled = false;
+        }
+        return enabled;
+    }
+    
+    public static void setEnrouteDebugMsgEnabled(Context ctx, boolean enabled){
+        getPrefs(ctx).edit()
+            .putBoolean(EN_ROUTE_DEBUG_MSG, enabled)
+            .commit();
     }
     
 }
