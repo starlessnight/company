@@ -93,7 +93,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
@@ -1847,43 +1846,27 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 
                 FavoriteIcon icon = FavoriteIcon.fromName(item.getIconName(), null);
                 if(icon == null) {
-                	favIcon.setImageResource(R.drawable.poi_pin);
+                	favIcon.setImageBitmap(Misc.getBitmap(LandingActivity2.this, R.drawable.poi_pin, 1));
                 	favIcon.setVisibility(View.VISIBLE);
                 }
                 else {
-                	favIcon.setImageResource(icon.getResourceId(LandingActivity2.this));
+                	favIcon.setImageBitmap(Misc.getBitmap(LandingActivity2.this, icon.getFavoritePageResourceId(LandingActivity2.this), 2));
                 	favIcon.setVisibility(View.VISIBLE);
                 }
                 
                 initFontsIfNecessary();
                 
-//                if(TAP_TO_ADD_FAVORITE.equals(item.getName())) {
-//                	name.setCompoundDrawablesWithIntrinsicBounds(R.drawable.star, 0, 0, 0);
-//                	name.setCompoundDrawablePadding(Dimension.dpToPx(20, getResources().getDisplayMetrics()));
-//                	int paddingSize = Dimension.dpToPx(5, getResources().getDisplayMetrics());
-//                	namePanel.setPadding(Dimension.dpToPx(20, getResources().getDisplayMetrics()), paddingSize, 0, paddingSize);
-//                	Font.setTypeface(lightFont, name);
-//                	address.setVisibility(View.GONE);
-//                }
-//                else {
-//                	name.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
-//                	name.setCompoundDrawablePadding(0);
-                	int paddingSize = Dimension.dpToPx(5, getResources().getDisplayMetrics());
-//                	namePanel.setPadding(paddingSize, 0, 0, 0);
-                	name.setPadding(paddingSize, paddingSize, 0, 0);
-//                	name.setGravity(Gravity.CENTER_VERTICAL|Gravity.LEFT);
-                	Font.setTypeface(boldFont, name);
-                	address.setVisibility(View.VISIBLE);
-//                }
-                Font.setTypeface(boldFont, distance);
+                Font.setTypeface(boldFont, name, distance);
                 Font.setTypeface(lightFont, address);
                 namePanel.requestLayout();
                 name.requestLayout();
                 distance.requestLayout();
                 address.requestLayout();
                 favIcon.requestLayout();
-//                view.setPadding(0, 0, 0, position == getCount() - 1 ? 
-//                    Dimension.dpToPx(135, getResources().getDisplayMetrics()) : 0);
+                int leftRightPadding = Dimension.dpToPx(10, getResources().getDisplayMetrics());
+                int topBottomPadding = Dimension.dpToPx(2, getResources().getDisplayMetrics());
+                view.setPadding(leftRightPadding, topBottomPadding, leftRightPadding, position == getCount() - 1 ? 
+                		leftRightPadding : topBottomPadding);
                 return view;
         	}
         	
@@ -2013,15 +1996,29 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private POIOverlay getPOIOverlayByAddress(MapView mapView, String addr) {
     	List<Overlay> overlays = mapView.getOverlays();
+    	List<POIOverlay> overlaysWithSameAddress = new ArrayList<POIOverlay>();
     	for(Overlay overlay : overlays) {
     		if(overlay instanceof POIOverlay) {
     			POIOverlay poi = (POIOverlay)overlay;
     			if(StringUtils.equalsIgnoreCase(addr, poi.getAddress())) {
-    				return poi;
+    				overlaysWithSameAddress.add(poi);
     			}
     		}
     	}
-    	return null;
+    	
+    	POIOverlay overlay = null;
+    	if(!overlaysWithSameAddress.isEmpty()) {
+    		for(int i = 0 ; i < overlaysWithSameAddress.size() && overlay == null; i++) {
+    			POIOverlay poi = overlaysWithSameAddress.get(i);
+    			if(poi.getMarker() != R.drawable.bulb_poi) {
+    				overlay = poi;
+    			}
+    		}
+    		if(overlay == null) {
+    			overlay = overlaysWithSameAddress.get(0);
+    		}
+    	}
+    	return overlay;
     }
     
     private void refreshAutoCompleteData(ListView searchList, ArrayAdapter<Address> adapter, List<Address> searchedAddresses, EditText _searchBox) {

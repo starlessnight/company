@@ -529,7 +529,7 @@
                             android:layout_height="wrap_content"
                             android:gravity="center"
                             android:text="My Metropia Scores"
-                            android:textColor="@color/gray"
+                            android:textColor="@color/light_gray"
                             android:textSize="11dp" />
 
                         <LinearLayout
