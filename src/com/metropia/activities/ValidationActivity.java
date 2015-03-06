@@ -2866,7 +2866,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    	    	findViewById(R.id.en_route_debug_msg).setVisibility(View.VISIBLE);
 	    	    }
 	    	    StringBuffer alertMessage = new StringBuffer(getResources().getText(R.string.en_route_desc1));
-//	    	    alertMessage.append("\n").append(getResources().getText(R.string.en_route_desc2));
+	    	    alertMessage.append("\n").append(getResources().getText(R.string.en_route_desc2));
 	    	    enRouteCueSpeak(alertMessage.toString(), true);
 	    	    final CharSequence autoAcceptDesc = getResources().getText(R.string.en_route_auto_accept);
 	    	    final NumberFormat nf = new DecimalFormat("#");
