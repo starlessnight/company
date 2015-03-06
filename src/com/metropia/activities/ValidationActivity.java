@@ -700,6 +700,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		initial.set(true);
 		SKLogging.enableLogs(true);
 		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
+		mapViewHolder.hideAllAttributionTextViews();
 		mapView = mapViewHolder.getMapSurfaceView();
 		CloudmadeUtil.retrieveCloudmadeKey(this);
 		
