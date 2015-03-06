@@ -2508,9 +2508,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	while(curReservIdx < (reservations.size()-1) && cont) {
     		curReservIdx++;
     		Reservation tempReserv = reservations.get(curReservIdx);
-    		long departureTimeUtc = tempReserv.getDepartureTimeUtc();
-    		long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
-    		if(timeUntilDepart > -1*Reservation.GRACE_INTERVAL) {
+    		if(!tempReserv.hasExpired()) {
     			notifyReserv = tempReserv;
     			cont = false;
     		}

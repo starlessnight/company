@@ -40,7 +40,7 @@ public final class Reservation implements Parcelable {
     
     private static final String TIME_FORMAT_SINGLE_LINE = "EEEE MMM dd, yyyy hh:mm a";
 
-    public static final long GRACE_INTERVAL = 15*60*1000L;
+    public static final long GRACE_INTERVAL = 30*60*1000L;
     
 	/**
 	 * Reservation ID
@@ -217,7 +217,7 @@ public final class Reservation implements Parcelable {
 	 * reserved departure time whereas {@code hasExpired()} considers grace
 	 * period.
 	 * 
-	 * Grace period: 15 minutes
+	 * Grace period: 30 minutes
 	 * 
 	 * @return True if (the current system time) > (departure time) + (grace period)
 	 */
@@ -248,8 +248,10 @@ public final class Reservation implements Parcelable {
 		return isTooEarlyToStart(getDepartureTimeUtc());
 	}
 	
+	private static final long EARLY_GRACE_INTERVAL = 15 * 60 * 1000;
+	
 	public static boolean isTooEarlyToStart(long departureTime) {
-        return departureTime - (GRACE_INTERVAL) > System.currentTimeMillis();
+        return departureTime - (EARLY_GRACE_INTERVAL) > System.currentTimeMillis();
     }
 	
 	public boolean isEligibleTrip() {
