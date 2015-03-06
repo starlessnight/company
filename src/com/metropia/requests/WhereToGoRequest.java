@@ -1,7 +1,11 @@
 package com.metropia.requests;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -26,14 +30,9 @@ public final class WhereToGoRequest extends FetchRequest<List<Location>> {
         public String addr;
         
     }
-	
+    
 	public WhereToGoRequest(User user, double lat, double lon) {
-        super(getLinkUrl(Link.where_to_go)
-            .replaceAll("\\{lat\\}", String.valueOf(lat))
-            .replaceAll("\\{lon\\}", String.valueOf(lon))
-            .replaceAll("\\{user_id\\}", String.valueOf(user.getId()))
-            .replaceAll("\\{YYYYmmddHHMM\\}", String.valueOf(System.currentTimeMillis()))
-        );
+        super(buildUrl(user.getId(), lat, lon));
         this.username = user.getUsername();
         this.password = user.getPassword();
     }
@@ -53,6 +52,16 @@ public final class WhereToGoRequest extends FetchRequest<List<Location>> {
             locs.add(l);
         }
         return locs;
+	}
+	
+	private static String buildUrl(int userId, double lat, double lon) {
+		DateFormat YYYYMMDDHHMM = new SimpleDateFormat("yyyyMMddHHmm");
+		YYYYMMDDHHMM.setTimeZone(TimeZone.getTimeZone("UTC"));
+		return getLinkUrl(Link.where_to_go)
+				.replaceAll("\\{lat\\}", String.valueOf(lat))
+	            .replaceAll("\\{lon\\}", String.valueOf(lon))
+	            .replaceAll("\\{user_id\\}", String.valueOf(userId))
+	            .replaceAll("\\{YYYYmmddHHMM\\}", YYYYMMDDHHMM.format(new Date(System.currentTimeMillis())));
 	}
 	
 
