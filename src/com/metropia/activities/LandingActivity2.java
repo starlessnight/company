@@ -3482,12 +3482,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	poiIcon.setVisibility(View.VISIBLE);
     	poiIcon.setImageResource(info.markerWithShadow);
     	
-//    	BitmapFactory.Options dimensions = new BitmapFactory.Options(); 
-//    	dimensions.inJustDecodeBounds = false;
-//    	Bitmap decodeResource = BitmapFactory.decodeResource(getResources(), info.markerWithShadow, dimensions);
-//    	int poiIconWidth = decodeResource.getWidth();
-//    	int poiIconHeight = decodeResource.getHeight();
-//    	decodeResource.recycle();
+    	BitmapFactory.Options dimensions = new BitmapFactory.Options(); 
+    	dimensions.inJustDecodeBounds = false;
+    	Bitmap decodeResource = BitmapFactory.decodeResource(getResources(), R.drawable.edit_menu, dimensions);
+    	int menuButtonWidth = decodeResource.getWidth();
+    	int menuButtonHeight = decodeResource.getHeight();
+    	decodeResource.recycle();
     	
     	int poiIconWidth = Dimension.dpToPx(45, getResources().getDisplayMetrics());
     	int poiIconHeight = poiIconWidth;
@@ -3510,25 +3510,25 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	DisplayMetrics dm = getResources().getDisplayMetrics();
     	editMenu.setTag(imageResourceIds);
     	FrameLayout.LayoutParams editMenuLp = (android.widget.FrameLayout.LayoutParams) editMenu.getLayoutParams();
-    	editMenuLp.leftMargin = xy.x - (editMenu.getMeasuredWidth() / 2);
-    	editMenuLp.topMargin = xy.y - (editMenu.getMeasuredHeight() + poiIconHeight / 2 + Dimension.dpToPx(20, dm));
+    	editMenuLp.leftMargin = xy.x - (menuButtonWidth / 2);
+    	editMenuLp.topMargin = xy.y - (menuButtonHeight + poiIconHeight / 2 + Dimension.dpToPx(20, dm));
     	editMenu.setLayoutParams(editMenuLp);
     	
     	Screen corespondXY = new Screen();
     	corespondXY.x = 0;
-    	corespondXY.y = (editMenu.getMeasuredHeight() / 2 + poiIconHeight / 2 + Dimension.dpToPx(20, dm));
+    	corespondXY.y = (menuButtonHeight / 2 + poiIconHeight / 2 + Dimension.dpToPx(20, dm));
     	
     	Screen fromXY = getRelativeCoorOfDegree(corespondXY, -65);
     	fromMenu.setVisibility(View.VISIBLE);
     	FrameLayout.LayoutParams fromMenuLp = (android.widget.FrameLayout.LayoutParams) fromMenu.getLayoutParams();
-    	fromMenuLp.leftMargin = xy.x - fromXY.x - (editMenu.getMeasuredWidth() / 2);
-    	fromMenuLp.topMargin = xy.y - fromXY.y - (editMenu.getMeasuredWidth() / 2);
+    	fromMenuLp.leftMargin = xy.x - fromXY.x - (menuButtonWidth / 2);
+    	fromMenuLp.topMargin = xy.y - fromXY.y - (menuButtonWidth / 2);
     	fromMenu.setLayoutParams(fromMenuLp);
     	
     	toMenu.setVisibility(View.VISIBLE);
     	FrameLayout.LayoutParams toMenuLp = (android.widget.FrameLayout.LayoutParams) toMenu.getLayoutParams();
-    	toMenuLp.leftMargin = xy.x + fromXY.x - (editMenu.getMeasuredWidth() / 2);
-    	toMenuLp.topMargin = xy.y - fromXY.y - (editMenu.getMeasuredWidth() / 2);
+    	toMenuLp.leftMargin = xy.x + fromXY.x - (menuButtonWidth / 2);
+    	toMenuLp.topMargin = xy.y - fromXY.y - (menuButtonWidth / 2);
     	toMenu.setLayoutParams(toMenuLp);
     	
     	addressInfo.setVisibility(View.VISIBLE);
