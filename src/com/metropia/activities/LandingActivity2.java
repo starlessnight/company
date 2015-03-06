@@ -157,7 +157,7 @@ import com.skobbler.ngx.SKMaps;
 
 public final class LandingActivity2 extends FragmentActivity implements SensorEventListener{ 
     
-    private static final int DEFAULT_ZOOM_LEVEL = 13;
+    private static final int DEFAULT_ZOOM_LEVEL = 12;
     
     private static final int SEARCH_ZOOM_LEVEL = 16;
     
@@ -3321,14 +3321,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
             @Override
             protected void onPostExecute(final List<com.metropia.requests.WhereToGoRequest.Location> locs) {
-                final int zoomLevel = calculateZoomLevel(lat);
+//                final int zoomLevel = calculateZoomLevel(lat);
                 final MapView mapView = (MapView) findViewById(R.id.mapview);
                 final IMapController mc = mapView.getController();
                 if (ehs.hasExceptions()) {
                     //ehs.reportExceptions();
                     routeRect = null;
                     if(rezoom){
-                        mc.setZoom(zoomLevel);
+                        mc.setZoom(DEFAULT_ZOOM_LEVEL);
                         mc.setCenter(new GeoPoint(lat, lon));
                     }
                 }
@@ -3359,7 +3359,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             if(locs.isEmpty()){
                                 routeRect = null;
                                 if(rezoom){
-                                    mc.setZoom(zoomLevel);
+                                    mc.setZoom(DEFAULT_ZOOM_LEVEL);
                                     mc.setCenter(new GeoPoint(lat, lon));
                                 }
                             }else{
