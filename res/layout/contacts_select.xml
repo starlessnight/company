@@ -57,7 +57,8 @@
                 android:textSize="@dimen/smaller_font" />
         </FrameLayout>
 
-        <LinearLayout
+        <LinearLayout 
+            android:id="@+id/search_panel"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:background="#E7E7E7"
@@ -96,13 +97,16 @@
                     android:visibility="gone" />
             </RelativeLayout>
 
-            <ImageView
+            <TextView
                 android:id="@+id/add_button"
                 android:layout_width="28dp"
                 android:layout_height="28dp"
-                android:layout_gravity="center|right"
-                android:gravity="right"
-                android:src="@drawable/icon_add"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="+"
+                android:textSize="25dp"
+                android:textColor="@color/metropia_blue"
+                android:includeFontPadding="false"
                 android:visibility="gone" />
         </LinearLayout>
 

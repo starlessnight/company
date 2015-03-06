@@ -61,6 +61,7 @@ import com.metropia.dialogs.NotificationDialog;
 import com.metropia.models.Contact;
 import com.metropia.ui.ClickAnimation;
 import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
+import com.metropia.utils.Dimension;
 import com.metropia.utils.Font;
 import com.metropia.utils.Misc;
 import com.metropia.activities.R;
@@ -73,7 +74,7 @@ public class ContactsSelectActivity extends FragmentActivity {
 	private Typeface boldFont;
 	private EditText searchTextView;
 	private ListView contactListView;
-	private ImageView addButton;
+	private View addButton;
 	private ArrayAdapter<Contact> contactListAdapter;
 	private Set<String> selectedContactEmails = new HashSet<String>();
 	private Set<String> selectedContactPhones = new HashSet<String>();
@@ -141,9 +142,8 @@ public class ContactsSelectActivity extends FragmentActivity {
 			}
 		});
 		
-		addButton = (ImageView) findViewById(R.id.add_button);
+		addButton = findViewById(R.id.add_button);
 		addButton.setEnabled(true);
-        addButton.setBackgroundResource(R.drawable.icon_add);
         addButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -183,7 +183,10 @@ public class ContactsSelectActivity extends FragmentActivity {
 				String filter = s.toString();
 				searchBoxClear.setVisibility(StringUtils.isBlank(filter)?View.GONE:View.VISIBLE); 
 				updateContactList(filter);
-				addButton.setVisibility(emailFormatIsGood(filter) || phoneFormatIsGood(filter) ?View.VISIBLE:View.GONE);
+				boolean showAdd = emailFormatIsGood(filter) || phoneFormatIsGood(filter);
+				int searchPanelPadding = Dimension.dpToPx(10, getResources().getDisplayMetrics());
+				findViewById(R.id.search_panel).setPadding(searchPanelPadding, searchPanelPadding, showAdd ? 0 : searchPanelPadding, searchPanelPadding);
+				addButton.setVisibility(showAdd ?View.VISIBLE:View.GONE);
 			}
 
 			@Override
