@@ -71,9 +71,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -151,8 +151,6 @@ import com.skobbler.ngx.map.SKMapViewHolder;
 import com.skobbler.ngx.map.SKPOICluster;
 import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
-import com.skobbler.ngx.routing.SKRouteInfo;
-import com.skobbler.ngx.routing.SKRouteJsonAnswer;
 import com.skobbler.ngx.routing.SKRouteListener;
 import com.skobbler.ngx.routing.SKRouteManager;
 import com.skobbler.ngx.routing.SKRouteSettings;
@@ -1375,7 +1373,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				routeManager.clearRouteAlternatives();
 				routeManager.clearAllRoutesFromCache();
 				routeManager.createRouteFromTrackElement(routeGpx.getRootTrackElement(), 
-						SKRouteSettings.SKRouteMode.CAR_FASTEST, false, false, false);
+						SKRouteSettings.SKROUTE_CAR_FASTEST, false, false, false);
 				drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
 			}
 			/*
@@ -1410,7 +1408,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 	
 	private void drawDestinationAnnotation(double lat, double lon) {
-		SKAnnotation destAnn = new SKAnnotation(DEST_ANNOTATION_ID);
+		SKAnnotation destAnn = new SKAnnotation();
+		destAnn.setUniqueID(DEST_ANNOTATION_ID);
 		destAnn.setLocation(new SKCoordinate(lon, lat));
 		destAnn.setMininumZoomLevel(5);
 		destAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_DESTINATION_FLAG);
@@ -2109,8 +2108,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			List<Incident> incidentsOfTime = getIncidentsOfTime();
 			Log.d("ValidationActivity", "show incident size : " + incidentsOfTime.size());
 			for(Incident incident : incidentsOfTime) {
-				Log.d("validationActivity", "Incident Unique Id : " + getIncidentUniqueId(incident));
-				SKAnnotation incAnn = new SKAnnotation(getIncidentUniqueId(incident));
+				SKAnnotation incAnn = new SKAnnotation();
+				incAnn.setUniqueID(getIncidentUniqueId(incident));
 				incAnn.setLocation(new SKCoordinate(incident.lon, incident.lat));
 				incAnn.setMininumZoomLevel(incident.getMinimalDisplayZoomLevel());
 //				incAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_MARKER);
@@ -2809,18 +2808,18 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			protected Route doInBackground(Void... params) {
 				if(lastKnownLocation != null) {
 					realTravelRemainTimeInSec = -1;
-					double realRemainTimeInSec = -1;
+					double realRemainTimeInMin = -1;
 					Route enRoute = null;
 					lastEnRouteCheckTime.set(System.currentTimeMillis());
 					Log.d("ValidationActivity", "En-Route Check");
 					try {
 						TravelTimeRequest travelTimeReq = new TravelTimeRequest(User.getCurrentUser(ValidationActivity.this), 
 								reservation.getCity(), getRouteOrReroute().getRemainNodes(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
-						realRemainTimeInSec = travelTimeReq.execute(ValidationActivity.this);  // sec
-						realTravelRemainTimeInSec = Double.valueOf(realRemainTimeInSec).longValue(); // sec
-						if(realRemainTimeInSec > 0 && (realRemainTimeInSec - remainingTime.get()) >= Math.max(5 * 60, 0.2 * getRouteOrReroute().getDurationFromNodes())) {
+						realRemainTimeInMin = travelTimeReq.execute(ValidationActivity.this);  // min
+						realTravelRemainTimeInSec = Double.valueOf(realRemainTimeInMin * 60).longValue(); // sec
+						if(realRemainTimeInMin > 0 && (realTravelRemainTimeInSec - remainingTime.get()) >= Math.max(5 * 60, 0.2 * getRouteOrReroute().getDurationFromNodes())) {
 							enRoute = getNewRoute(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), lastKnownLocation.getSpeed(), lastKnownLocation.getBearing());
-							if(enRoute != null && (realTravelRemainTimeInSec - enRoute.getDurationFromNodes()) > Math.max(3 * 60, 0.15 * realRemainTimeInSec)) {
+							if(enRoute != null && (realTravelRemainTimeInSec - enRoute.getDurationFromNodes()) > Math.max(3 * 60, 0.15 * realTravelRemainTimeInSec)) {
 								((TextView) findViewById(R.id.en_route_debug_msg)).setText(
 										String.format(getResources().getString(R.string.en_route_debug_msg), getFormatedEstimateArrivalTime(getETA(remainingTime.get()), route.getTimezoneOffset()), 
 												getFormatedEstimateArrivalTime(getETA(realTravelRemainTimeInSec), route.getTimezoneOffset()), 
@@ -3070,13 +3069,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	public void onAllRoutesCompleted() {
-		if(drawEnRoute.get()) {
-			drawEnRoute.set(false);
-			showEnRouteAlert();
-		}
-		else {
-			mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
-		}
 	}
 
 	@Override
@@ -3084,25 +3076,34 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 
 	@Override
-	public void onRouteCalculationCompleted(SKRouteInfo arg0) {
+	public void onRouteCalculationCompleted(int statusMessage, int routeDistance, int routeEta, boolean thisRouteIsComplete, int id) {
+        if(ROUTE_INTERNAL_ERROR == statusMessage){
+	        Log.d("ValidationActivity", "draw route internal error!");
+	        drawRoute(mapView, getRouteOrReroute());
+        }
+        else {
+        	if(drawEnRoute.get()) {
+    			drawEnRoute.set(false);
+    			showEnRouteAlert();
+    		}
+        	else {
+        		if((Boolean)buttonFollow.getTag()) {
+        			mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
+        		}
+    		}
+        }
 	}
 
 	@Override
-	public void onRouteCalculationFailed(SKRoutingErrorCode arg0) {
-		Log.d("ValidationActivity", "draw route internal error!");
-		drawRoute(mapView, drawEnRoute.get() ? enRoute : getRouteOrReroute());
+	public void onServerLikeRouteCalculationCompleted(int arg0) {
 	}
 
 	@Override
-	public void onServerLikeRouteCalculationCompleted(SKRouteJsonAnswer arg0) {
+	public void onDebugInfo(double arg0, float arg1, double arg2) {
 	}
 
 	@Override
-	public void onBoundingBoxImageRendered(int arg0) {
-	}
-
-	@Override
-	public void onGLInitializationError(String arg0) {
+	public void onOffportRequestCompleted(int arg0) {
 	}
 
 }
