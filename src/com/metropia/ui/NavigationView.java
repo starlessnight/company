@@ -144,6 +144,7 @@ public class NavigationView extends LinearLayout {
 	private boolean needNotification; 
 	
 	private int mStartingY = -1000;
+	private int mStartingX = -1000;
 	
 	private boolean move = false;
 	
@@ -224,18 +225,21 @@ public class NavigationView extends LinearLayout {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				final int Y = (int) event.getY();
+				final int X = (int) event.getX();
 			    switch (event.getAction() & MotionEvent.ACTION_MASK) {
 				    case MotionEvent.ACTION_DOWN:
 				        mStartingY = Y;
+				        mStartingX = X;
 				        break;
 				    case MotionEvent.ACTION_MOVE:
 				    	move = true;
 				    	break;
 				    case MotionEvent.ACTION_UP:
-				        if(mStartingY != -1000 && move && Y-mStartingY > 100 && openDirectionViewEvent!=null){
+				        if(mStartingY != -1000 && mStartingX != -1000 && move &&  Math.abs(X-mStartingX) < 150 && openDirectionViewEvent!=null){
 				        	openDirectionViewEvent.run();
 				        }
 				        mStartingY = -1000;
+				        mStartingX = -1000;
 				        move = false;
 				        break;
 			    }
