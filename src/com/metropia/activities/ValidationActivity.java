@@ -157,8 +157,14 @@ import com.skobbler.ngx.routing.SKRouteSettings;
 import com.skobbler.ngx.tracks.SKTracksFile;
 import com.skobbler.ngx.util.SKLogging;
 
+import edu.cmu.pocketsphinx.Assets;
+import edu.cmu.pocketsphinx.Hypothesis;
+import edu.cmu.pocketsphinx.RecognitionListener;
+import edu.cmu.pocketsphinx.SpeechRecognizer;
+import static edu.cmu.pocketsphinx.SpeechRecognizerSetup.defaultSetup;
+
 public class ValidationActivity extends FragmentActivity implements OnInitListener, 
-        OnAudioFocusChangeListener, SKMapSurfaceListener, SKRouteListener {
+        OnAudioFocusChangeListener, SKMapSurfaceListener, SKRouteListener, RecognitionListener {
 	public static final int DEFAULT_ZOOM_LEVEL = 18;
 	
 	public static final int NAVIGATION_ZOOM_LEVEL = 17;
@@ -293,7 +299,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		reservation.setRoute(route);
 		
 		// init
-		lastEnRouteCheckTime.set(0);
+		lastEnRouteCheckTime.set(-100);
 		// Define a listener that responds to location updates
 		locationListener = new ValidationLocationListener();
 
@@ -471,6 +477,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		if(!stopValidation.get() && StringUtils.isNotBlank(phones)) {
 			sendOnMyWaySms();
 		}
+		
+		initRecognizer();
 		
 		//init Tracker
       	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
@@ -727,6 +735,53 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         mapView.getMapSettings().setStreetNamePopupsShown(!dayMode.get());
         SKRouteManager.getInstance().setRouteListener(this);
 	}
+	
+	private static final String EN_ROUTE_NOT_ACCEPT_TEXT = "cancel";
+	
+	private void initRecognizer() {
+		new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    Assets assets = new Assets(ValidationActivity.this);
+                    File assetDir = assets.syncAssets();
+                    setupRecognizer(assetDir);
+                } catch (IOException ignore) {
+                    Log.d("ValidationActivity", "recognizer init fail!");
+                }
+                return null;
+            }
+
+        }.execute();
+	}
+	
+	private static final String KWS_SEARCH = "wakeup";
+	private SpeechRecognizer recognizer;
+	
+	private void setupRecognizer(File assetsDir) {
+        File modelsDir = new File(assetsDir, "models");
+        recognizer = defaultSetup()
+                .setAcousticModel(new File(modelsDir, "hmm/en-us-semi"))
+                .setDictionary(new File(modelsDir, "dict/cmu07a.dic"))
+                .setRawLogDir(assetsDir).setKeywordThreshold(1e-20f)
+                .getRecognizer();
+        recognizer.addListener(this);
+
+        recognizer.addKeyphraseSearch(KWS_SEARCH, EN_ROUTE_NOT_ACCEPT_TEXT);
+     // Create grammar-based searches.
+//        File menuGrammar = new File(modelsDir, "grammar/menu.gram");
+//        recognizer.addGrammarSearch(MENU_SEARCH, menuGrammar);
+//        File digitsGrammar = new File(modelsDir, "grammar/digits.gram");
+//        recognizer.addGrammarSearch(DIGITS_SEARCH, digitsGrammar);
+//        // Create language model search.
+//        File languageModel = new File(modelsDir, "lm/weather.dmp");
+//        recognizer.addNgramSearch(FORECAST_SEARCH, languageModel);
+    }
+	
+	private void switchSearch(String searchName) {
+        recognizer.stop();
+        recognizer.startListening(searchName);
+    }
 	
 	private void initViews() {
 		
@@ -1911,11 +1966,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    	Misc.parallelExecute(retriveIncidentTask);
 	    }
 	    
-	    if(lastEnRouteCheckTime.get() == 0) {
+	    if(lastEnRouteCheckTime.get() < 0) {
 	    	lastEnRouteCheckTime.set(System.currentTimeMillis());
 	    }
 	    
-	    if(lastEnRouteCheckTime.get() != 0 && System.currentTimeMillis() - lastEnRouteCheckTime.get() >= 5 * 60 * 1000 && getRouteOrReroute().getDistanceToNextTurn(lat, lng) >= 20 * location.getSpeed()) {
+	    if(lastEnRouteCheckTime.get() > 0 && System.currentTimeMillis() - lastEnRouteCheckTime.get() >= 5 * 60 * 1000 && getRouteOrReroute().getDistanceToNextTurn(lat, lng) >= 20 * location.getSpeed()) {
 	    	lastEnRouteCheckTime.set(System.currentTimeMillis());
 	    	enrouteCheck();
 	    }
@@ -2801,7 +2856,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     };
     
     private long realTravelRemainTimeInSec = -1;  //sec
-    private AtomicLong lastEnRouteCheckTime = new AtomicLong(0);
+    private AtomicLong lastEnRouteCheckTime = new AtomicLong(-100);
     
     private void enrouteCheck() {
     	AsyncTask<Void, Void, Route> checkTask = new AsyncTask<Void, Void, Route>() {
@@ -2883,6 +2938,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	   		 	buttonFollow.setTag(Boolean.valueOf(false));
 	   		 	RouteRect enRouteRect = initRouteRect(enRoute);
 	   		 	to2DMap(enRouteRect, false);
+	   		 	if(recognizer != null) {
+	   		 		switchSearch(KWS_SEARCH);
+	   		 	}
 			}
     	});
     }
@@ -2923,6 +2981,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    	    enRoute = null;
 	    	    buttonFollow.setTag(Boolean.valueOf(true));
 	    	    to3DMap();
+	    	    if(recognizer != null) {
+	    	    	recognizer.stop();
+	    	    	enRouteNoTriggered.set(false);
+	    	    }
 			}
     	});
     }
@@ -3106,5 +3168,30 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	@Override
 	public void onOffportRequestCompleted(int arg0) {
 	}
+	
+	private AtomicBoolean enRouteNoTriggered = new AtomicBoolean(false);
+	
+	@Override
+    public void onPartialResult(Hypothesis hypothesis) {
+        String text = hypothesis.getHypstr();
+        Log.d("ValidationActivity", "Voice : " + text);
+        if(!enRouteNoTriggered.get() && StringUtils.startsWithIgnoreCase(text, EN_ROUTE_NOT_ACCEPT_TEXT)) {
+        	enRouteNoTriggered.set(true);
+        	findViewById(R.id.no_button).performClick();
+        }
+    }
+
+    @Override
+    public void onResult(Hypothesis hypothesis) {
+    }
+
+    @Override
+    public void onBeginningOfSpeech() {
+    	Log.d("PocketSphinxActivity", "Start Speech");
+    }
+
+    @Override
+    public void onEndOfSpeech() {
+    }
 
 }
