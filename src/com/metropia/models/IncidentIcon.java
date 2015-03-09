@@ -4,7 +4,7 @@ import android.content.Context;
 
 public enum IncidentIcon {
 	
-	accident(1), fullclosure(2), partialclosure(3), incident(4), congested(5), hazards(6);
+	accident(1), fullclosure(2), partialclosure(3), incident(4), congested(5), hazards(6), entertainment(7);
 	
 	private int type;
 	
@@ -28,6 +28,8 @@ public enum IncidentIcon {
 				return incident;
 			case 5:
 				return congested;
+			case 7:
+				return entertainment;
 			default:
 				return hazards;
 		}
