@@ -2938,6 +2938,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	   		 	buttonFollow.setTag(Boolean.valueOf(false));
 	   		 	RouteRect enRouteRect = initRouteRect(enRoute);
 	   		 	to2DMap(enRouteRect, false);
+	   		 	if(DebugOptionsActivity.isEnrouteVoiceInputDebugMsgEnabled(ValidationActivity.this)) {
+	   		 		findViewById(R.id.voice_input_debug_msg).setVisibility(View.VISIBLE);
+	   		 	}
 	   		 	if(recognizer != null) {
 	   		 		switchSearch(KWS_SEARCH);
 	   		 	}
@@ -2981,6 +2984,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    	    enRoute = null;
 	    	    buttonFollow.setTag(Boolean.valueOf(true));
 	    	    to3DMap();
+	    	    if(DebugOptionsActivity.isEnrouteVoiceInputDebugMsgEnabled(ValidationActivity.this)) {
+	   		 		findViewById(R.id.voice_input_debug_msg).setVisibility(View.GONE);
+	   		 	}
 	    	    if(recognizer != null) {
 	    	    	recognizer.stop();
 	    	    	enRouteNoTriggered.set(false);
@@ -3175,6 +3181,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     public void onPartialResult(Hypothesis hypothesis) {
         String text = hypothesis.getHypstr();
         Log.d("ValidationActivity", "Voice : " + text);
+        if(!enRouteNoTriggered.get()) {
+        	((TextView)findViewById(R.id.voice_input_debug_msg)).setText(text);
+        }
         if(!enRouteNoTriggered.get() && StringUtils.startsWithIgnoreCase(text, EN_ROUTE_NOT_ACCEPT_TEXT)) {
         	enRouteNoTriggered.set(true);
         	findViewById(R.id.no_button).performClick();
