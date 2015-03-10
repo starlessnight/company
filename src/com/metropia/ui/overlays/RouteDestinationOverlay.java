@@ -9,9 +9,11 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import com.metropia.activities.R;
 import com.metropia.utils.Dimension;
@@ -173,6 +175,68 @@ public class RouteDestinationOverlay extends BalloonItemizedOverlay<OverlayItem>
             handled = super.onLongPressHelper(index, item); 
         }
         return handled;
+    }
+    
+    private final Rect mRect = new Rect();
+    
+    @Override
+    protected synchronized Drawable boundToHotspot(final Drawable marker, HotspotPlace hotspot) {
+    	if(this.marker == R.drawable.pin_destination) {
+    		return super.boundToHotspot(marker, hotspot);
+    	}
+    	else {
+			final int markerWidth = marker.getIntrinsicWidth();
+			final int markerHeight = marker.getIntrinsicHeight();
+			
+			int widthShrink = getShirkSize(markerWidth, mapView.getZoomLevel());
+			int heightShrink = getShirkSize(markerHeight, mapView.getZoomLevel());
+			
+			mRect.set(0 + (widthShrink / 2), 0 + (heightShrink / 2), 0 + markerWidth - (widthShrink / 2), 0 + markerHeight - (heightShrink / 2));
+	
+			if (hotspot == null) {
+				hotspot = HotspotPlace.BOTTOM_CENTER;
+			}
+	
+			switch (hotspot) {
+			default:
+			case NONE:
+				break;
+			case CENTER:
+				mRect.offset(-markerWidth / 2, -markerHeight / 2);
+				break;
+			case BOTTOM_CENTER:
+				mRect.offset(-markerWidth / 2, -markerHeight);
+				break;
+			case TOP_CENTER:
+				mRect.offset(-markerWidth / 2, 0);
+				break;
+			case RIGHT_CENTER:
+				mRect.offset(-markerWidth, -markerHeight / 2);
+				break;
+			case LEFT_CENTER:
+				mRect.offset(0, -markerHeight / 2);
+				break;
+			case UPPER_RIGHT_CORNER:
+				mRect.offset(-markerWidth, 0);
+				break;
+			case LOWER_RIGHT_CORNER:
+				mRect.offset(-markerWidth, -markerHeight);
+				break;
+			case UPPER_LEFT_CORNER:
+				mRect.offset(0, 0);
+				break;
+			case LOWER_LEFT_CORNER:
+				mRect.offset(0, -markerHeight);
+				break;
+			}
+			marker.setBounds(mRect);
+			return marker;
+    	}
+	}
+    
+    private int getShirkSize(int originalSize, int zoomLevel) {
+    	double ratio = zoomLevel < 10 ? 0.7 : (zoomLevel < 17 ? 0.8 : 1);
+    	return Double.valueOf((originalSize * (1 - ratio))).intValue();
     }
 	
 }
