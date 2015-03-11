@@ -1227,7 +1227,8 @@ public final class DebugOptionsActivity extends FragmentActivity {
     }
     
     public static boolean isIncidentEnabled(Context ctx) {
-    	return "http://sandbox.metropia.com/v1/rest/index.json".equalsIgnoreCase(getDebugEntrypoint(ctx));
+//    	return "http://sandbox.metropia.com/v1/rest/index.json".equalsIgnoreCase(getDebugEntrypoint(ctx));
+    	return true;
     }
     
     private static final String EN_ROUTE_DEBUG_MSG = "EN_ROUTE_DEBUG_MSG";
