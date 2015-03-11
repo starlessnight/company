@@ -1,4 +1,5 @@
 models/dict/cmu07a.dic
+models/grammar/decisiontwo.gram
 models/hmm/en-us-semi/README
 models/hmm/en-us-semi/feat.params
 models/hmm/en-us-semi/mdef

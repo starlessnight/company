@@ -602,6 +602,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	public void onStop() {
 		super.onStop();
 		GoogleAnalytics.getInstance(this).reportActivityStop(this);
+		if(rawLogDir != null && rawLogDir.exists()) {
+			try {
+				FileUtils.cleanDirectory(rawLogDir);
+			}
+			catch(Exception ignore) {}
+		}
 	}
 
 	@Override
@@ -736,7 +742,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         SKRouteManager.getInstance().setRouteListener(this);
 	}
 	
-	private static final String EN_ROUTE_NOT_ACCEPT_TEXT = "cancel";
+	private static final String EN_ROUTE_NOT_ACCEPT_TEXT_1 = "no";
+	private static final String EN_ROUTE_NOT_ACCEPT_TEXT_2 = "cancel";
+	private static final String EN_ROUTE_ACCEPT_TEXT = "yes";
 	
 	private void initRecognizer() {
 		new AsyncTask<Void, Void, Void>() {
@@ -753,24 +761,33 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             }
 
         }.execute();
+        
+		findViewById(R.id.voice_input_debug_msg).setVisibility(DebugOptionsActivity.isEnrouteVoiceInputDebugMsgEnabled(ValidationActivity.this) ? View.VISIBLE : View.GONE);
 	}
 	
 	private static final String KWS_SEARCH = "wakeup";
 	private SpeechRecognizer recognizer;
+	private File rawLogDir;
 	
 	private void setupRecognizer(File assetsDir) {
         File modelsDir = new File(assetsDir, "models");
+        rawLogDir = new File(modelsDir, "raws");
+        if(!rawLogDir.exists()) {
+        	rawLogDir.mkdir();
+        }
         recognizer = defaultSetup()
                 .setAcousticModel(new File(modelsDir, "hmm/en-us-semi"))
                 .setDictionary(new File(modelsDir, "dict/cmu07a.dic"))
-                .setRawLogDir(assetsDir).setKeywordThreshold(1e-20f)
+                .setRawLogDir(rawLogDir).setKeywordThreshold(1e-1f)
                 .getRecognizer();
         recognizer.addListener(this);
 
-        recognizer.addKeyphraseSearch(KWS_SEARCH, EN_ROUTE_NOT_ACCEPT_TEXT);
      // Create grammar-based searches.
-//        File menuGrammar = new File(modelsDir, "grammar/menu.gram");
-//        recognizer.addGrammarSearch(MENU_SEARCH, menuGrammar);
+        File decisionGrammar = new File(modelsDir, "grammar/decisiontwo.gram");
+        recognizer.addKeywordSearch(KWS_SEARCH, decisionGrammar);
+        
+//        recognizer.addKeyphraseSearch(KWS_SEARCH, EN_ROUTE_NOT_ACCEPT_TEXT);
+//        recognizer.addKeyphraseSearch(KWS_SEARCH, EN_ROUTE_ACCEPT_TEXT);
 //        File digitsGrammar = new File(modelsDir, "grammar/digits.gram");
 //        recognizer.addGrammarSearch(DIGITS_SEARCH, digitsGrammar);
 //        // Create language model search.
@@ -2942,6 +2959,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	   		 		findViewById(R.id.voice_input_debug_msg).setVisibility(View.VISIBLE);
 	   		 	}
 	   		 	if(recognizer != null) {
+	   		 		((TextView)findViewById(R.id.voice_input_debug_msg)).setText("");
 	   		 		switchSearch(KWS_SEARCH);
 	   		 	}
 			}
@@ -2984,12 +3002,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    	    enRoute = null;
 	    	    buttonFollow.setTag(Boolean.valueOf(true));
 	    	    to3DMap();
-	    	    if(DebugOptionsActivity.isEnrouteVoiceInputDebugMsgEnabled(ValidationActivity.this)) {
-	   		 		findViewById(R.id.voice_input_debug_msg).setVisibility(View.GONE);
-	   		 	}
 	    	    if(recognizer != null) {
 	    	    	recognizer.stop();
-	    	    	enRouteNoTriggered.set(false);
+	    	    	enRouteResultTriggered.set(false);
 	    	    }
 			}
     	});
@@ -3175,18 +3190,23 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	public void onOffportRequestCompleted(int arg0) {
 	}
 	
-	private AtomicBoolean enRouteNoTriggered = new AtomicBoolean(false);
+	private AtomicBoolean enRouteResultTriggered = new AtomicBoolean(false);
 	
 	@Override
     public void onPartialResult(Hypothesis hypothesis) {
         String text = hypothesis.getHypstr();
         Log.d("ValidationActivity", "Voice : " + text);
-        if(!enRouteNoTriggered.get()) {
+        if(!enRouteResultTriggered.get()) {
         	((TextView)findViewById(R.id.voice_input_debug_msg)).setText(text);
         }
-        if(!enRouteNoTriggered.get() && StringUtils.startsWithIgnoreCase(text, EN_ROUTE_NOT_ACCEPT_TEXT)) {
-        	enRouteNoTriggered.set(true);
+        if(!enRouteResultTriggered.get() && 
+        		(StringUtils.startsWithIgnoreCase(text, EN_ROUTE_NOT_ACCEPT_TEXT_1) || StringUtils.startsWithIgnoreCase(text, EN_ROUTE_NOT_ACCEPT_TEXT_2))) {
+        	enRouteResultTriggered.set(true);
         	findViewById(R.id.no_button).performClick();
+        }
+        else if(!enRouteResultTriggered.get() && StringUtils.startsWithIgnoreCase(text, EN_ROUTE_ACCEPT_TEXT)) {
+        	enRouteResultTriggered.set(true);
+        	findViewById(R.id.yes_button).performClick();
         }
     }
 

@@ -13,7 +13,6 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
 import com.metropia.activities.R;
 import com.metropia.utils.Dimension;
