@@ -101,6 +101,7 @@ import com.metropia.utils.Font;
 import com.metropia.utils.GeoPoint;
 import com.metropia.utils.Geocoding;
 import com.metropia.utils.Misc;
+import com.metropia.utils.Preferences;
 import com.metropia.utils.RouteNode;
 import com.metropia.utils.RouteRect;
 import com.metropia.utils.SmartrekTileProvider;
@@ -934,10 +935,38 @@ public final class RouteActivity extends FragmentActivity {
         timeLayout.setDisplayMode(DisplayMode.Duration);
         durationRow.setText(DisplayMode.Duration.name());
         
-        TextView arriveRow = (TextView)findViewById(R.id.arrive_row);
+        findViewById(R.id.tutorial).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+			}
+        });
         
-        Font.setTypeface(mediumFont, (TextView)findViewById(R.id.departure_row), arriveRow, 
-                durationRow, (TextView)findViewById(R.id.mpoint_row), onMyWayView, letsGoView, reserveView);
+        TextView skipTutorial = (TextView) findViewById(R.id.skip_tutorial);
+        skipTutorial.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(final View v) {
+				v.setClickable(false);
+				ClickAnimation click = new ClickAnimation(RouteActivity.this, v);
+				click.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						findViewById(R.id.tutorial).setVisibility(View.GONE);
+						SharedPreferences prefs = Preferences.getGlobalPreferences(RouteActivity.this);
+		                SharedPreferences.Editor editor = prefs.edit();
+		                editor.putInt(Preferences.Global.ROUTE_TUTORIAL_FINISH, TutorialActivity.TUTORIAL_FINISH);
+		                editor.commit();
+		                v.setClickable(true);
+					}
+				});
+			}
+        });
+        
+        Font.setTypeface(mediumFont, skipTutorial, durationRow, onMyWayView, letsGoView, reserveView,
+        		(TextView)findViewById(R.id.arrive_row),
+                (TextView)findViewById(R.id.mpoint_row), 
+                (TextView)findViewById(R.id.departure_row));
+        
+        showTutorialIfNessary();
         
         //init Tracker
       	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
@@ -1949,5 +1978,12 @@ public final class RouteActivity extends FragmentActivity {
     	return incidentOfDepTime;
     }
     
+    private void showTutorialIfNessary() {
+    	SharedPreferences prefs = Preferences.getGlobalPreferences(this);
+    	int routeTutorialFinish = prefs.getInt(Preferences.Global.ROUTE_TUTORIAL_FINISH, 0);
+    	if(routeTutorialFinish != TutorialActivity.TUTORIAL_FINISH) {
+    		findViewById(R.id.tutorial).setVisibility(View.VISIBLE);
+    	}
+    }
 
 }

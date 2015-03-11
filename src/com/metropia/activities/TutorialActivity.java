@@ -31,6 +31,8 @@ import com.metropia.utils.Preferences;
 
 public class TutorialActivity extends FragmentActivity implements OnPageChangeListener {
 	
+	public static final String FROM_LANDING_PAGE = "FROM_LANDING_PAGE";
+	
 	public static final Integer TUTORIAL_FINISH = Integer.valueOf(1);
 	
 	private static final SlideMarginInfo[] indicatorMargins = new SlideMarginInfo[] {
@@ -50,9 +52,12 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
         
         Localytics.integrate(this);
         
+        Bundle extras = getIntent().getExtras();
+        boolean fromLandingPage = extras != null ? extras.getBoolean(FROM_LANDING_PAGE, false) : false;
+        
         mPager = (ViewPager) findViewById(R.id.pager);
         mPager.setOnPageChangeListener(this);
-        SlideAdapter slideAdapter = new SlideAdapter(getSupportFragmentManager());
+        SlideAdapter slideAdapter = new SlideAdapter(getSupportFragmentManager(), fromLandingPage);
         mPager.setAdapter(slideAdapter);
         
         indicatorsPanel = (LinearLayout) findViewById(R.id.indicators_panel);
@@ -171,15 +176,23 @@ public class TutorialActivity extends FragmentActivity implements OnPageChangeLi
     }
     
     public static class SlideAdapter extends FragmentPagerAdapter {
-        
+    	
+    	private static int[] landingSlides = {
+    		R.drawable.new_tutorial_1,
+            R.drawable.new_tutorial_2
+    	};
+    	
         private static int[] slides = {
             R.drawable.new_tutorial_1,
             R.drawable.new_tutorial_2, 
             R.drawable.new_tutorial_3
         };
         
-        public SlideAdapter(FragmentManager fm) {
+        public SlideAdapter(FragmentManager fm, boolean fromLandingPage) {
             super(fm);
+            if(fromLandingPage) {
+            	slides = landingSlides;
+            }
         }
  
         @Override

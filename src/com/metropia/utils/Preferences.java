@@ -13,6 +13,7 @@ public final class Preferences {
 		public static final String LICENSE_AGREEMENT = "LicenseAgreement";
 		public static final String INTRO_FINISH = "IntroFinish";
 		public static final String TUTORIAL_FINISH = "TutorialFinish";
+		public static final String ROUTE_TUTORIAL_FINISH = "RouteTutorialFinish";
 	}
 	
 	public static SharedPreferences getGlobalPreferences(Context context) {

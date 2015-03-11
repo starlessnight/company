@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
@@ -8,7 +8,9 @@
     <RelativeLayout 
         android:layout_weight="1"
 	    android:layout_width="match_parent"
-	    android:layout_height="0dp">
+	    android:layout_height="match_parent"
+	    android:layout_marginBottom="56dp"
+	    android:layout_alignParentTop="true">
         <include layout="@layout/mapview" />
         <ImageView
             android:id="@+id/back_button"
@@ -31,7 +33,8 @@
           	android:id="@+id/lets_go_panel"
 	       	android:layout_width="match_parent"
 	       	android:layout_height="56dp"
-	       	android:orientation="horizontal">
+	       	android:orientation="horizontal"
+	       	android:layout_alignParentBottom="true">
       	<FrameLayout
       	    	android:layout_width="0dp"
 	        	android:layout_height="match_parent"
@@ -77,6 +80,7 @@
 	      	android:layout_height="56dp"
 	      	android:orientation="horizontal"
 	      	android:background="#ff5f00"
+	      	android:layout_alignParentBottom="true"
 	      	android:visibility="gone">
       	<TextView 
        	    android:id="@+id/reserve"
@@ -91,5 +95,30 @@
         	android:singleLine="true"
 		/>
 	</FrameLayout>
+	
+    <RelativeLayout 
+        android:id="@+id/tutorial"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+      	
+        <ImageView 
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/new_tutorial_3"
+            android:scaleType="fitXY"/>
+      	
+        <TextView 
+            android:id="@+id/skip_tutorial"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="250dp"
+            android:text="skip"
+            android:textColor="@color/metropia_orange"
+        	android:textSize="@dimen/smaller_font"
+        	android:gravity="center"/>
         
-</LinearLayout>
+    </RelativeLayout>
+        
+</RelativeLayout>

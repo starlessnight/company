@@ -1350,6 +1350,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	int tutorialFinish = prefs.getInt(Preferences.Global.TUTORIAL_FINISH, 0);
     	if(tutorialFinish != TutorialActivity.TUTORIAL_FINISH) {
     		Intent intent = new Intent(this, TutorialActivity.class);
+    		intent.putExtra(TutorialActivity.FROM_LANDING_PAGE, true);
             startActivity(intent);
     	}
     }
