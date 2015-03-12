@@ -44,7 +44,7 @@ public class SystemService {
 //                   reverseButtons?rightOnClick:leftOnClick);
 //        final AlertDialog alert = builder.create();
 //        alert.show();
-    	NotificationDialog2 dialog = new NotificationDialog2(context, "Your Location Service seems to be disabled. Do you want to enable it?");
+    	NotificationDialog2 dialog = new NotificationDialog2(context, "Your location couldn't be found. Do you like to enable the location service?");
     	dialog.setVerticalOrientation(false);
     	dialog.setTitle("Notification");
     	dialog.setPositiveButtonText("No");
