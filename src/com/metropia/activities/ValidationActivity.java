@@ -2381,6 +2381,16 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 		});
 	}
+	
+	private boolean isCloseToOrigin() {
+		if(lastKnownLocation != null && getRouteOrReroute() != null) {
+			RouteNode firstNode = getRouteOrReroute().getFirstNode();
+			double speedInMph = Trajectory.msToMph(lastKnownLocation.getSpeed());
+			return RouteNode.distanceBetween(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), firstNode.getLatitude(), firstNode.getLongitude()) < ValidationParameters.getInstance().getArrivalDistanceThreshold() && 
+					speedInMph < ValidationParameters.getInstance().getStopSpeedThreshold(); 
+		}
+		return false;
+	}
 
 	private void reportValidation(final Runnable callback) {
 		if (!reported.get()) {
@@ -2707,7 +2717,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 
 	private void speakIfTtsEnabled(String text, boolean flush) {
-		if (MapDisplayActivity.isNavigationTtsEnabled(this)) {
+		if (MapDisplayActivity.isNavigationTtsEnabled(this) && !isCloseToOrigin()) {
 			speak(text, flush);
 		}
 	}
