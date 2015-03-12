@@ -2942,6 +2942,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    	    enRouteCueSpeak(alertMessage.toString(), true);
 	    	    final CharSequence autoAcceptDesc = getResources().getText(R.string.en_route_auto_accept);
 	    	    final NumberFormat nf = new DecimalFormat("#");
+	    	    String message = String.format(autoAcceptDesc.toString(), nf.format(5));
+	    		((TextView)findViewById(R.id.en_route_auto_accept_desc)).setText(formatAutoAcceptDesc(message));
 	    	    countDown = new CountDownTimer(6000, 1000) {
 	    	    	public void onTick(long millisUntilFinished) {
 	    	    		String message = String.format(autoAcceptDesc.toString(), nf.format(millisUntilFinished / 1000));
@@ -2951,16 +2953,24 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	   		     	public void onFinish() {
 	   		     		findViewById(R.id.yes_button).performClick();
 	   		     	}
-	   		 	}.start();
+	   		 	};
+	   		 	
+	   		 	new Handler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						countDown.start();
+						if(recognizer != null) {
+			   		 		((TextView)findViewById(R.id.voice_input_debug_msg)).setText("");
+			   		 		switchSearch(KWS_SEARCH);
+			   		 	}
+					}
+	   		 	}, 2000);
+	   		 	
 	   		 	buttonFollow.setTag(Boolean.valueOf(false));
 	   		 	RouteRect enRouteRect = initRouteRect(enRoute);
 	   		 	to2DMap(enRouteRect, false);
 	   		 	if(DebugOptionsActivity.isEnrouteVoiceInputDebugMsgEnabled(ValidationActivity.this)) {
 	   		 		findViewById(R.id.voice_input_debug_msg).setVisibility(View.VISIBLE);
-	   		 	}
-	   		 	if(recognizer != null) {
-	   		 		((TextView)findViewById(R.id.voice_input_debug_msg)).setText("");
-	   		 		switchSearch(KWS_SEARCH);
 	   		 	}
 			}
     	});
