@@ -48,7 +48,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -72,7 +71,6 @@ import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -283,7 +281,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private SKMapViewHolder mapViewHolder;
 	private SKMapSurfaceView mapView;
-	private SKCalloutView mapPopup;
 	
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -729,12 +726,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 //		mapViewHolder.hideAllAttributionTextViews();
 		mapView = mapViewHolder.getMapSurfaceView();
 		CloudmadeUtil.retrieveCloudmadeKey(this);
-		
-		mapPopup = mapViewHolder.getCalloutView();
-		mapPopup.setDescriptionTextSize(3);
-		mapPopup.setVerticalOffset(-30);
-		mapPopup.setLeftImage(null);
-		mapPopup.setRightImage(null);
 		
 		mapView.setMapSurfaceListener(this);
 		mapView.clearAllOverlays();
@@ -1233,7 +1224,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				vto.removeOnPreDrawListener(onPreDrawListener);
 			}
 		});
-		mapPopup.setVisibility(View.GONE);
+		mapView.deleteAnnotation(INCIDENT_BALLOON_ID);
 		removeAllIncident();
 	    LayoutParams mapViewLp = (LayoutParams) mapView.getLayoutParams();
 	    mapViewLp.width = LayoutParams.MATCH_PARENT;
@@ -3078,22 +3069,47 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	public void onActionPan() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void onActionZoom() {
 	}
 	
+	private static final Integer INCIDENT_BALLOON_ID = Integer.valueOf(1234);
+	
 	@Override
 	public void onAnnotationSelected(SKAnnotation annotation) {
 		int selectedAnnotationId = annotation.getUniqueID();
 		Incident selectedInc = incidents.get(selectedAnnotationId);
 		if(selectedInc != null) {
-			mapPopup.setDescription(selectedInc.shortDesc);
-			mapPopup.showAtLocation(annotation.getLocation(), true);
+			DisplayMetrics dm = getResources().getDisplayMetrics();
+            SKAnnotation fromAnnotation = new SKAnnotation(INCIDENT_BALLOON_ID);
+            SKAnnotationView fromView = new SKAnnotationView();
+            fromAnnotation.setLocation(annotation.getLocation());
+            fromAnnotation.setOffset(new SKScreenPoint(0, Dimension.dpToPx(85, dm)));
+            ImageView balloon = new ImageView(ValidationActivity.this);
+            balloon.setImageBitmap(loadBitmapFromView(ValidationActivity.this, selectedInc));
+            fromView.setView(balloon);
+            fromAnnotation.setAnnotationView(fromView);
+            mapView.addAnnotation(fromAnnotation, SKAnimationSettings.ANIMATION_NONE);
 		}
+	}
+	
+	public static Bitmap loadBitmapFromView(Context ctx, Incident selectedInc) {
+        FrameLayout layout = new FrameLayout(ctx);
+        ViewGroup.LayoutParams layoutLp = new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        layout.setLayoutParams(layoutLp);
+        LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View v = inflater.inflate(R.layout.incident_balloon, layout);
+        TextView textView = (TextView) v.findViewById(R.id.text);
+        textView.setText(selectedInc.shortDesc);
+        Font.setTypeface(Font.getRegular(ctx.getAssets()), textView);
+        layout.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+        layout.layout(0, 0, layout.getMeasuredWidth(), layout.getMeasuredHeight());
+        Bitmap bitmap = Bitmap.createBitmap(layout.getMeasuredWidth(), layout.getMeasuredHeight(), Bitmap.Config.ARGB_8888);                
+        Canvas canvas = new Canvas(bitmap);
+        v.draw(canvas);
+        return bitmap;
 	}
 	
 	@Override
@@ -3167,7 +3183,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	public void onSingleTap(SKScreenPoint arg0) {
 		buttonFollow.setTag(Boolean.valueOf(false));
 		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
-		mapPopup.setVisibility(View.GONE);
+		mapView.deleteAnnotation(INCIDENT_BALLOON_ID);
 	}
 
 	@Override

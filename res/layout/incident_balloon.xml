@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    	xmlns:android="http://schemas.android.com/apk/res/android" 
+	    android:layout_height="85dp"
+	    android:layout_width="170dp"
+	    android:background="@drawable/poi_action_bg"
+	    android:id="@+id/balloon_main_layout">
+	<TextView
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/black"
+        android:paddingTop="8dp"
+    	android:paddingLeft="20dp"
+    	android:paddingRight="20dp"
+    	android:paddingBottom="15dp"
+    	android:maxLines="5"
+        android:text="@string/placeholder"
+        android:textSize="@dimen/micro_font"
+    />
+</FrameLayout>
