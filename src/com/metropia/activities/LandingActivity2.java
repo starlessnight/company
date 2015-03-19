@@ -1348,7 +1348,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private void showTutorialIfNessary() {
     	SharedPreferences prefs = Preferences.getGlobalPreferences(this);
     	int tutorialFinish = prefs.getInt(Preferences.Global.TUTORIAL_FINISH, 0);
-    	if(tutorialFinish != TutorialActivity.TUTORIAL_FINISH) {
+    	// hide tutorial page
+    	if(false && tutorialFinish != TutorialActivity.TUTORIAL_FINISH) {
     		Intent intent = new Intent(this, TutorialActivity.class);
     		intent.putExtra(TutorialActivity.FROM_LANDING_PAGE, true);
             startActivity(intent);

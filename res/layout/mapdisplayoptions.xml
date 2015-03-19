@@ -219,13 +219,15 @@
                 android:paddingTop="15dp"
                 android:text="Tutorial"
                 android:textColor="@color/gray"
-                android:textSize="@dimen/smaller_font" />
+                android:textSize="@dimen/smaller_font"
+                android:visibility="gone" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginRight="5dp"
-                android:background="@color/transparent_gray" />
+                android:background="@color/transparent_gray"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/help_our_research"
@@ -272,7 +274,7 @@
             android:drawableLeft="@drawable/menu_logout"
             android:drawablePadding="20dp"
             android:gravity="center"
-            android:paddingTop="30dp"
+            android:paddingTop="60dp"
             android:paddingLeft="15dp"
             android:text="Log Out"
             android:textColor="@android:color/white"

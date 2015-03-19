@@ -1981,7 +1981,8 @@ public final class RouteActivity extends FragmentActivity {
     private void showTutorialIfNessary() {
     	SharedPreferences prefs = Preferences.getGlobalPreferences(this);
     	int routeTutorialFinish = prefs.getInt(Preferences.Global.ROUTE_TUTORIAL_FINISH, 0);
-    	if(routeTutorialFinish != TutorialActivity.TUTORIAL_FINISH) {
+    	// hide tutorial page
+    	if(false && routeTutorialFinish != TutorialActivity.TUTORIAL_FINISH) {
     		findViewById(R.id.tutorial).setVisibility(View.VISIBLE);
     	}
     }
