@@ -1,5 +1,7 @@
 package com.metropia.activities;
 
+import static edu.cmu.pocketsphinx.SpeechRecognizerSetup.defaultSetup;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -41,9 +43,12 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -65,17 +70,22 @@ import android.text.SpannableString;
 import android.text.format.Time;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -122,6 +132,7 @@ import com.metropia.ui.NavigationView.CheckPointListener;
 import com.metropia.ui.NavigationView.DirectionItem;
 import com.metropia.ui.menu.MainMenu;
 import com.metropia.ui.timelayout.TimeColumn;
+import com.metropia.utils.Dimension;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
 import com.metropia.utils.GeoPoint;
@@ -151,6 +162,8 @@ import com.skobbler.ngx.map.SKMapViewHolder;
 import com.skobbler.ngx.map.SKPOICluster;
 import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
+import com.skobbler.ngx.routing.SKRouteInfo;
+import com.skobbler.ngx.routing.SKRouteJsonAnswer;
 import com.skobbler.ngx.routing.SKRouteListener;
 import com.skobbler.ngx.routing.SKRouteManager;
 import com.skobbler.ngx.routing.SKRouteSettings;
@@ -161,7 +174,6 @@ import edu.cmu.pocketsphinx.Assets;
 import edu.cmu.pocketsphinx.Hypothesis;
 import edu.cmu.pocketsphinx.RecognitionListener;
 import edu.cmu.pocketsphinx.SpeechRecognizer;
-import static edu.cmu.pocketsphinx.SpeechRecognizerSetup.defaultSetup;
 
 public class ValidationActivity extends FragmentActivity implements OnInitListener, 
         OnAudioFocusChangeListener, SKMapSurfaceListener, SKRouteListener, RecognitionListener {
@@ -714,7 +726,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		initial.set(true);
 		SKLogging.enableLogs(true);
 		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
-		mapViewHolder.hideAllAttributionTextViews();
+//		mapViewHolder.hideAllAttributionTextViews();
 		mapView = mapViewHolder.getMapSurfaceView();
 		CloudmadeUtil.retrieveCloudmadeKey(this);
 		
@@ -1446,7 +1458,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				routeManager.clearRouteAlternatives();
 				routeManager.clearAllRoutesFromCache();
 				routeManager.createRouteFromTrackElement(routeGpx.getRootTrackElement(), 
-						SKRouteSettings.SKROUTE_CAR_FASTEST, false, false, false);
+						SKRouteSettings.SKRouteMode.CAR_FASTEST, false, false, false);
 				drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
 			}
 			/*
@@ -1481,8 +1493,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 	
 	private void drawDestinationAnnotation(double lat, double lon) {
-		SKAnnotation destAnn = new SKAnnotation();
-		destAnn.setUniqueID(DEST_ANNOTATION_ID);
+		SKAnnotation destAnn = new SKAnnotation(DEST_ANNOTATION_ID);
 		destAnn.setLocation(new SKCoordinate(lon, lat));
 		destAnn.setMininumZoomLevel(5);
 		destAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_DESTINATION_FLAG);
@@ -2181,8 +2192,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			List<Incident> incidentsOfTime = getIncidentsOfTime();
 			Log.d("ValidationActivity", "show incident size : " + incidentsOfTime.size());
 			for(Incident incident : incidentsOfTime) {
-				SKAnnotation incAnn = new SKAnnotation();
-				incAnn.setUniqueID(getIncidentUniqueId(incident));
+				SKAnnotation incAnn = new SKAnnotation(getIncidentUniqueId(incident));
+//				incAnn.setUniqueID(getIncidentUniqueId(incident));
 				incAnn.setLocation(new SKCoordinate(incident.lon, incident.lat));
 				incAnn.setMininumZoomLevel(incident.getMinimalDisplayZoomLevel());
 //				incAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_MARKER);
@@ -3074,7 +3085,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	@Override
 	public void onActionZoom() {
 	}
-
+	
 	@Override
 	public void onAnnotationSelected(SKAnnotation annotation) {
 		int selectedAnnotationId = annotation.getUniqueID();
@@ -3084,7 +3095,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			mapPopup.showAtLocation(annotation.getLocation(), true);
 		}
 	}
-
+	
 	@Override
 	public void onCompassSelected() {
 	}
@@ -3178,38 +3189,26 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	@Override
 	public void onOnlineRouteComputationHanging(int arg0) {
 	}
-
+	
 	@Override
-	public void onRouteCalculationCompleted(int statusMessage, int routeDistance, int routeEta, boolean thisRouteIsComplete, int id) {
-        if(ROUTE_INTERNAL_ERROR == statusMessage){
-	        Log.d("ValidationActivity", "draw route internal error!");
-	        drawRoute(mapView, getRouteOrReroute());
-        }
-        else {
-        	if(drawEnRoute.get()) {
-    			drawEnRoute.set(false);
-    			showEnRouteAlert();
+	public void onRouteCalculationCompleted(SKRouteInfo arg0) {
+		if(drawEnRoute.get()) {
+			drawEnRoute.set(false);
+			showEnRouteAlert();
+		}
+    	else {
+    		if((Boolean)buttonFollow.getTag()) {
+    			mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
     		}
-        	else {
-        		if((Boolean)buttonFollow.getTag()) {
-        			mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
-        		}
-    		}
-        }
-	}
-
-	@Override
-	public void onServerLikeRouteCalculationCompleted(int arg0) {
-	}
-
-	@Override
-	public void onDebugInfo(double arg0, float arg1, double arg2) {
-	}
-
-	@Override
-	public void onOffportRequestCompleted(int arg0) {
+		}
 	}
 	
+	@Override
+	public void onRouteCalculationFailed(SKRoutingErrorCode arg0) {
+		Log.d("ValidationActivity", "draw route internal error!");
+		drawRoute(mapView, getRouteOrReroute());
+	}
+
 	private AtomicBoolean enRouteResultTriggered = new AtomicBoolean(false);
 	
 	@Override
@@ -3242,5 +3241,17 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     @Override
     public void onEndOfSpeech() {
     }
+
+	@Override
+	public void onServerLikeRouteCalculationCompleted(SKRouteJsonAnswer arg0) {
+	}
+
+	@Override
+	public void onBoundingBoxImageRendered(int arg0) {
+	}
+
+	@Override
+	public void onGLInitializationError(String arg0) {
+	}
 
 }
