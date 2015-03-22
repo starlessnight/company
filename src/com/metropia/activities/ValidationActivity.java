@@ -148,7 +148,6 @@ import com.skobbler.ngx.map.SKAnimationSettings;
 import com.skobbler.ngx.map.SKAnnotation;
 import com.skobbler.ngx.map.SKAnnotationView;
 import com.skobbler.ngx.map.SKBoundingBox;
-import com.skobbler.ngx.map.SKCalloutView;
 import com.skobbler.ngx.map.SKCoordinateRegion;
 import com.skobbler.ngx.map.SKMapCustomPOI;
 import com.skobbler.ngx.map.SKMapPOI;
@@ -1459,19 +1458,19 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 			SKPolyline routeLine = new SKPolyline();
 			routeLine.setNodes(routeCoors);
-			routeLine.setColor(new float[] {0.6f, 0.8f, 0f, 1f}); //RGBA
-			routeLine.setLineSize(20);
+			routeLine.setColor(new float[] {0f, 0.6f, 0.8f, 0.5f}); //RGBA
+			routeLine.setLineSize(30);
 			
 			//outline properties, otherwise map crash
-			routeLine.setOutlineColor(new float[] { 0f, 0f, 1f, 1f });
-			routeLine.setOutlineSize(0);
+			routeLine.setOutlineColor(new float[] { 0f, 0.6f, 0.8f, 0.5f });
+			routeLine.setOutlineSize(10);
 			routeLine.setOutlineDottedPixelsSolid(3);
 			routeLine.setOutlineDottedPixelsSkip(3);
 			//
 			
 			mapView.addPolyline(routeLine);
 			
-			drawDestinationAnnotation(route.getLastNode());
+			drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
 			if((Boolean)buttonFollow.getTag()) {
 				mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
 			}
@@ -3095,20 +3094,24 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 	}
 	
-	public static Bitmap loadBitmapFromView(Context ctx, Incident selectedInc) {
-        FrameLayout layout = new FrameLayout(ctx);
-        ViewGroup.LayoutParams layoutLp = new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        layout.setLayoutParams(layoutLp);
-        LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View v = inflater.inflate(R.layout.incident_balloon, layout);
-        TextView textView = (TextView) v.findViewById(R.id.text);
+	View incidentBalloon;
+	
+	public Bitmap loadBitmapFromView(Context ctx, Incident selectedInc) {
+		if(incidentBalloon == null) {
+			FrameLayout layout = new FrameLayout(ctx);
+			ViewGroup.LayoutParams layoutLp = new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			layout.setLayoutParams(layoutLp);
+			LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			incidentBalloon = inflater.inflate(R.layout.incident_balloon, layout);
+		}
+        TextView textView = (TextView) incidentBalloon.findViewById(R.id.text);
         textView.setText(selectedInc.shortDesc);
         Font.setTypeface(Font.getRegular(ctx.getAssets()), textView);
-        layout.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-        layout.layout(0, 0, layout.getMeasuredWidth(), layout.getMeasuredHeight());
-        Bitmap bitmap = Bitmap.createBitmap(layout.getMeasuredWidth(), layout.getMeasuredHeight(), Bitmap.Config.ARGB_8888);                
+        incidentBalloon.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+        incidentBalloon.layout(0, 0, incidentBalloon.getMeasuredWidth(), incidentBalloon.getMeasuredHeight());
+        Bitmap bitmap = Bitmap.createBitmap(incidentBalloon.getMeasuredWidth(), incidentBalloon.getMeasuredHeight(), Bitmap.Config.ARGB_8888);                
         Canvas canvas = new Canvas(bitmap);
-        v.draw(canvas);
+        incidentBalloon.draw(canvas);
         return bitmap;
 	}
 	
