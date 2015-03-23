@@ -10,16 +10,10 @@ import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.osmdroid.api.IMapController;
-import org.osmdroid.events.MapListener;
-import org.osmdroid.events.ScrollEvent;
-import org.osmdroid.events.ZoomEvent;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.Overlay;
-import org.osmdroid.views.overlay.OverlayItem;
-import org.osmdroid.views.overlay.OverlayItem.HotspotPlace;
+import org.osmdroid.tileprovider.util.CloudmadeUtil;
 
 import android.app.Activity;
 import android.app.NotificationManager;
@@ -29,7 +23,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
-import android.graphics.Color;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
@@ -42,18 +37,24 @@ import android.support.v4.app.FragmentActivity;
 import android.text.format.Time;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.localytics.android.Localytics;
 import com.metropia.CalendarService;
 import com.metropia.LocalyticsUtils;
+import com.metropia.SkobblerUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.activities.DebugOptionsActivity.FakeRoute;
@@ -80,12 +81,7 @@ import com.metropia.ui.ClickAnimation;
 import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.ui.EditAddress;
 import com.metropia.ui.menu.MainMenu;
-import com.metropia.ui.overlays.EventOverlay;
-import com.metropia.ui.overlays.OverlayCallback;
-import com.metropia.ui.overlays.POIOverlay;
 import com.metropia.ui.overlays.PointOverlay;
-import com.metropia.ui.overlays.RouteDestinationOverlay;
-import com.metropia.ui.overlays.RoutePathOverlay;
 import com.metropia.ui.timelayout.ScrollableTimeLayout;
 import com.metropia.ui.timelayout.TimeButton;
 import com.metropia.ui.timelayout.TimeButton.DisplayMode;
@@ -104,14 +100,31 @@ import com.metropia.utils.Misc;
 import com.metropia.utils.Preferences;
 import com.metropia.utils.RouteNode;
 import com.metropia.utils.RouteRect;
-import com.metropia.utils.SmartrekTileProvider;
 import com.metropia.utils.SystemService;
+import com.skobbler.ngx.SKCoordinate;
+import com.skobbler.ngx.SKMaps;
+import com.skobbler.ngx.map.SKAnimationSettings;
+import com.skobbler.ngx.map.SKAnnotation;
+import com.skobbler.ngx.map.SKAnnotationView;
+import com.skobbler.ngx.map.SKBoundingBox;
+import com.skobbler.ngx.map.SKCoordinateRegion;
+import com.skobbler.ngx.map.SKMapCustomPOI;
+import com.skobbler.ngx.map.SKMapPOI;
+import com.skobbler.ngx.map.SKMapSettings.SKMapDisplayMode;
+import com.skobbler.ngx.map.SKMapSettings.SKMapFollowerMode;
+import com.skobbler.ngx.map.SKMapSurfaceListener;
+import com.skobbler.ngx.map.SKMapSurfaceView;
+import com.skobbler.ngx.map.SKMapViewHolder;
+import com.skobbler.ngx.map.SKPOICluster;
+import com.skobbler.ngx.map.SKPolyline;
+import com.skobbler.ngx.map.SKScreenPoint;
+import com.skobbler.ngx.util.SKLogging;
 
 /**
  * 
  *
  */
-public final class RouteActivity extends FragmentActivity {
+public final class RouteActivity extends FragmentActivity implements SKMapSurfaceListener{
 	
 	public static final int ON_MY_WAY = Integer.valueOf(100);
 	
@@ -158,9 +171,9 @@ public final class RouteActivity extends FragmentActivity {
     private Typeface mediumFont;
     
     //private RouteInfoOverlay[] routeInfoOverlays = new RouteInfoOverlay[3];
-    private RoutePathOverlay[] routePathOverlays = new RoutePathOverlay[3];
-    private POIOverlay[] routeOriginOverlays = new POIOverlay[3];
-    private POIOverlay[] routeDestOverlays = new POIOverlay[3];
+//    private RoutePathOverlay[] routePathOverlays = new RoutePathOverlay[3];
+//    private POIOverlay[] routeOriginOverlays = new POIOverlay[3];
+//    private POIOverlay[] routeDestOverlays = new POIOverlay[3];
     
     
     private String originAddr;
@@ -178,7 +191,7 @@ public final class RouteActivity extends FragmentActivity {
     // TODO: 'dialog' isn't really meaningful. Rename this variable.
     private ProgressDialog dialog;
     
-    private MapView mapView;
+//    private MapView mapView;
     
     private Time selectedTime;
     
@@ -199,7 +212,7 @@ public final class RouteActivity extends FragmentActivity {
     private PoiOverlayInfo originOverlayInfo;
     private PoiOverlayInfo destOverlayInfo;
     
-    private List<Incident> incidents = new ArrayList<Incident>();
+    private Map<Integer, Incident> incidents = new HashMap<Integer, Incident>();
     
     private Runnable goBackToWhereTo = new Runnable() {
         @Override
@@ -340,7 +353,11 @@ public final class RouteActivity extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // init skmap
+        SkobblerUtils.initializeLibrary(RouteActivity.this);
         setContentView(R.layout.pre_reservation_map); 
+        
+        initSKMaps();
         
         Localytics.integrate(this);
         
@@ -374,16 +391,13 @@ public final class RouteActivity extends FragmentActivity {
         
         debugMode = extras.getBoolean("debugMode");
         
-        mapView = (MapView) findViewById(R.id.mapview);
-        Misc.disableHardwareAcceleration(mapView);
-        mapView.setBuiltInZoomControls(false);
-        mapView.setMultiTouchControls(true);
-        mapView.setTileSource(new SmartrekTileProvider());
-        
-        bindMapFunctions();
-        
-        TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
-        Font.setTypeface(lightFont, osmCredit);
+//        mapView = (MapView) findViewById(R.id.mapview);
+//        Misc.disableHardwareAcceleration(mapView);
+//        mapView.setBuiltInZoomControls(false);
+//        mapView.setMultiTouchControls(true);
+//        mapView.setTileSource(new SmartrekTileProvider());
+//        TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
+//        Font.setTypeface(lightFont, osmCredit);
         
         /* Set the map view for a view of North America before zooming in on route */
         setViewToNorthAmerica(mapView);
@@ -972,6 +986,36 @@ public final class RouteActivity extends FragmentActivity {
       	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
     }
     
+    private AtomicBoolean initial = new AtomicBoolean(false);
+	private AtomicBoolean dayMode = new AtomicBoolean();
+	private SKMapViewHolder mapViewHolder;
+	private SKMapSurfaceView mapView;
+    
+    private void initSKMaps() {
+		initial.set(true);
+		SKLogging.enableLogs(true);
+		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
+//		mapViewHolder.hideAllAttributionTextViews();
+		mapView = mapViewHolder.getMapSurfaceView();
+		CloudmadeUtil.retrieveCloudmadeKey(this);
+		
+		mapView.setMapSurfaceListener(this);
+		mapView.clearAllOverlays();
+		mapView.getMapSettings().setCurrentPositionShown(false);
+		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
+		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
+		mapView.getMapSettings().setMapRotationEnabled(true);
+        mapView.getMapSettings().setMapZoomingEnabled(true);
+        mapView.getMapSettings().setMapPanningEnabled(true);
+        mapView.getMapSettings().setZoomWithAnchorEnabled(true);
+        mapView.getMapSettings().setInertiaRotatingEnabled(true);
+        mapView.getMapSettings().setInertiaZoomingEnabled(true);
+        mapView.getMapSettings().setInertiaPanningEnabled(true);
+        mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(RouteActivity.this));
+        dayMode.set(SkobblerUtils.isDayMode());
+        mapView.getMapSettings().setStreetNamePopupsShown(!dayMode.get());
+	}
+    
     private String incidentUrl;
     private AtomicBoolean showProgressDialog = new AtomicBoolean(true);
     
@@ -1039,176 +1083,108 @@ public final class RouteActivity extends FragmentActivity {
     	}
     }
     
-    private RouteDestinationOverlay curShowOverlay;
-    
     private void refreshIncident() {
     	if(StringUtils.isNotBlank(incidentUrl)) {
     		incidents.clear();
 			IncidentRequest incidentReq = new IncidentRequest(User.getCurrentUser(RouteActivity.this), incidentUrl);
 			incidentReq.invalidateCache(RouteActivity.this);
 			try {
-				incidents.addAll(incidentReq.execute(RouteActivity.this));
-			} catch (Exception ignore) {}
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					List<Overlay> oldIncidentOverlay = new ArrayList<Overlay>();
-					List<Overlay> all = mapView.getOverlays();
-					for(final Overlay overlay : all) {
-						if(overlay instanceof RouteDestinationOverlay) {
-							if(((RouteDestinationOverlay) overlay).isBalloonVisible()) {
-								curShowOverlay = (RouteDestinationOverlay)overlay;
-								((RouteDestinationOverlay) overlay).hideBalloon();
-							}
-							oldIncidentOverlay.add(overlay);
-						}
-					}
-					all.removeAll(oldIncidentOverlay);
-					if(timeLayout.getSelectedTimeButton() != null) {
-						showIncidentOverlays(timeLayout.getSelectedDepartureTime());
-					}
-					curShowOverlay = null;
-					mapView.postInvalidate();
+				List<Incident> allIncident = incidentReq.execute(RouteActivity.this);
+				for(Incident inc : allIncident) {
+					incidents.put(getIncidentUniqueId(inc), inc);
 				}
-			});
+			} catch (Exception ignore) {
+				Log.d("RouteActivity", Log.getStackTraceString(ignore));
+			}
 		}
-    }
-    
-    private void addIncidentIcons(Incident incident) {
-		IncidentIcon icon = IncidentIcon.fromType(incident.type);
-		boolean showBoolean = curShowOverlay != null && curShowOverlay.getGeoPoint().equals(new GeoPoint(incident.lat, incident.lon)); 
-		final RouteDestinationOverlay inc = new RouteDestinationOverlay(mapView, new GeoPoint(incident.lat, incident.lon), mediumFont, incident.shortDesc, icon.getResourceId(RouteActivity.this));
-		inc.setCallback(new OverlayCallback() {
-			@Override
-			public boolean onBalloonTap(int index, OverlayItem item) {
-				return false;
-			}
-					
-			@Override
-			public boolean onTap(int index) {
-				if(inc.isEnabled()) {
-					mapView.getController().animateTo(inc.getGeoPoint());
-					List<Overlay> overlays = mapView.getOverlays();
-					for(Overlay overlay : overlays) {
-						if(overlay instanceof RouteDestinationOverlay) {
-							((RouteDestinationOverlay) overlay).hideBalloon();
-						}
-					}
-					inc.showBalloonOverlay();
-					return true;
-				}
-				return false;
-			}
-					
-			@Override
-			public boolean onClose() {
-				return false;
-			}
-
-			@Override
-			public void onChange() {
-			}
-
-			@Override
-			public boolean onLongPress(int index, OverlayItem item) {
-				return false;
-			}
-		});
-		if(showBoolean) {
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					inc.showBalloonOverlay();
-				}
-			});
-		}
-		mapView.getOverlays().add(inc);
-		mapView.postInvalidate();
     }
     
     private void showIncidentOverlays(long depTimeInMillis) {
-    	hideIncidentOverlays();
-    	List<Incident> incidentOfDepTime = getIncidentOfDepartureTime(depTimeInMillis);
-    	for(Incident incident : incidentOfDepTime) {
-    		final RouteDestinationOverlay incidentOverlay = getOverlayOfGeoPoint(new GeoPoint(incident.lat, incident.lon));
-    		if(incidentOverlay == null) {
-    			addIncidentIcons(incident);
-    		}
-    		else {
-    			incidentOverlay.setEnabled(true);
-    			if(curShowOverlay != null && incidentOverlay.getGeoPoint().equals(curShowOverlay.getGeoPoint())) {
-    				runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							incidentOverlay.showBalloonOverlay();
-						}
-    				});
-    			}
-    		}
+    	if(mapReady.get()) {
+	    	removeIncidentOverlays();
+	    	List<Incident> incidentOfDepTime = getIncidentOfDepartureTime(depTimeInMillis);
+	    	Log.d("RouteActivity", "Incident Count : " + incidentOfDepTime.size());
+	    	for(Incident incident : incidentOfDepTime) {
+	    		SKAnnotation incAnn = new SKAnnotation(getIncidentUniqueId(incident));
+				incAnn.setLocation(new SKCoordinate(incident.lon, incident.lat));
+				incAnn.setMininumZoomLevel(incident.getMinimalDisplayZoomLevel());
+				SKAnnotationView iconView = new SKAnnotationView();
+				ImageView incImage = new ImageView(RouteActivity.this);
+				incImage.setImageBitmap(Misc.getBitmap(RouteActivity.this, IncidentIcon.fromType(incident.type).getResourceId(RouteActivity.this), 1));
+				iconView.setView(incImage);
+				incAnn.setAnnotationView(iconView);
+				mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+	    	}
     	}
-    	mapView.postInvalidate();
     }
     
-    private RouteDestinationOverlay getOverlayOfGeoPoint(GeoPoint point) {
-    	List<Overlay> mapOverlays = mapView.getOverlays();
-    	for(Overlay overlay : mapOverlays) {
-    		if(overlay instanceof RouteDestinationOverlay) {
-    			if(((RouteDestinationOverlay)overlay).getGeoPoint().equals(point)) {
-    				return (RouteDestinationOverlay)overlay;
-    			}
-    		}
-    	}
-    	return null;
+    private static final Integer FROM_BALLOON_ID = Integer.valueOf(2456);
+    private static final Integer TO_BALLOON_ID = Integer.valueOf(1357);
+    private static final Integer FROM_OVERLAY_ID = Integer.valueOf(2457);
+    private static final Integer TO_OVERLAY_ID = Integer.valueOf(1368);
+    private static final Integer ROUTE_ID = Integer.valueOf(1111);
+    
+    private void removeIncidentOverlays() {
+//    	for(Integer incId : incidents.keySet()) {
+//    		mapView.deleteAnnotation(incId);
+//    	}
     }
     
-    private void hideIncidentOverlays() {
-    	List<Overlay> overlays = mapView.getOverlays();
-    	for(Overlay overlay : overlays) {
-    		if(overlay instanceof RouteDestinationOverlay) {
-    			((RouteDestinationOverlay) overlay).hideBalloon();
-    			overlay.setEnabled(false);
-    		}
+    private void drawODOverlayAndBalloon(Route _route) {
+    	mapView.deleteAnnotation(FROM_OVERLAY_ID);
+    	mapView.deleteAnnotation(TO_OVERLAY_ID);
+    	mapView.deleteAnnotation(FROM_BALLOON_ID);
+    	mapView.deleteAnnotation(TO_BALLOON_ID);
+    	int originDrawableId = 0;
+    	if(EditAddress.CURRENT_LOCATION.equals(originAddr)) {
+    		originDrawableId = R.drawable.landing_page_current_location;
     	}
-    	mapView.postInvalidate();
-    }
-    
-    private void bindMapFunctions() {
-    	EventOverlay eventOverlay = new EventOverlay(this);
-        eventOverlay.setActionListener(new EventOverlay.ActionListener() {
-            
-            @Override
-            public void onSingleTap() {
-            	List<Overlay> overlays = mapView.getOverlays();
-            	for(Overlay overlay : overlays) {
-            		if(overlay instanceof RouteDestinationOverlay) {
-            			if(((RouteDestinationOverlay) overlay).isBalloonVisible()) {
-            				((RouteDestinationOverlay) overlay).hideBalloon();
-            			}
-            		}
-            	}
-            }
-
-			@Override
-			public void onLongPress(double latitude, double longitude) {
-			}
-        });
-        mapView.getOverlays().add(eventOverlay);
+    	else {
+    		originDrawableId = originOverlayInfo.markerWithShadow;
+    	}
+    	
+    	SKAnnotation fromOverlay = new SKAnnotation(FROM_OVERLAY_ID);
+    	fromOverlay.setLocation(new SKCoordinate(_route.getFirstNode().getLongitude(), _route.getFirstNode().getLatitude()));
+    	SKAnnotationView fromOverlayView = new SKAnnotationView();
+    	ImageView fromOverlayImageView = new ImageView(RouteActivity.this);
+    	fromOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, originDrawableId, 1));
+    	fromOverlayView.setView(fromOverlayImageView);
+    	fromOverlay.setAnnotationView(fromOverlayView);
+    	mapView.addAnnotation(fromOverlay, SKAnimationSettings.ANIMATION_NONE);
+    	
+        SKAnnotation toOverlay = new SKAnnotation(TO_OVERLAY_ID);
+    	toOverlay.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
+    	SKAnnotationView toOverlayView = new SKAnnotationView();
+    	ImageView toOverlayImageView = new ImageView(RouteActivity.this);
+    	toOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, destOverlayInfo.markerWithShadow, 1));
+    	toOverlayView.setView(toOverlayImageView);
+    	toOverlay.setAnnotationView(toOverlayView);
+    	mapView.addAnnotation(toOverlay, SKAnimationSettings.ANIMATION_NONE);
+    	
+    	SKAnnotation toBalloon = new SKAnnotation(TO_BALLOON_ID);
+    	toBalloon.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
+    	toBalloon.setOffset(new SKScreenPoint(0, Dimension.dpToPx(41, getResources().getDisplayMetrics())));
+    	SKAnnotationView toBalloonView = new SKAnnotationView();
+        ImageView toBalloonImage = new ImageView(RouteActivity.this);
+        toBalloonImage.setImageBitmap(loadBitmapOfFromToBalloon(RouteActivity.this, false));
+        toBalloonView.setView(toBalloonImage);
+        toBalloon.setAnnotationView(toBalloonView);
+        mapView.addAnnotation(toBalloon, SKAnimationSettings.ANIMATION_NONE);
         
-        mapView.setMapListener(new MapListener() {
-			@Override
-			public boolean onScroll(ScrollEvent event) {
-				return false;
-			}
-
-			@Override
-			public boolean onZoom(ZoomEvent event) {
-				showIncidentOverlays(timeLayout.getSelectedDepartureTime());
-				return false;
-			}
-		});
-        
-        mapView.postInvalidate();
+        SKAnnotation fromBalloon = new SKAnnotation(FROM_BALLOON_ID);
+    	fromBalloon.setLocation(new SKCoordinate(_route.getFirstNode().getLongitude(), _route.getFirstNode().getLatitude()));
+    	fromBalloon.setOffset(new SKScreenPoint(0, Dimension.dpToPx(41, getResources().getDisplayMetrics())));
+    	SKAnnotationView fromBalloonView = new SKAnnotationView();
+        ImageView balloon = new ImageView(RouteActivity.this);
+        balloon.setImageBitmap(loadBitmapOfFromToBalloon(RouteActivity.this, true));
+        fromBalloonView.setView(balloon);
+        fromBalloon.setAnnotationView(fromBalloonView);
+        mapView.addAnnotation(fromBalloon, SKAnimationSettings.ANIMATION_NONE);
     }
+    
+    private int getIncidentUniqueId(Incident incident) {
+		return new HashCodeBuilder().append(incident.lat).append("+").append(incident.lon).toHashCode();
+	}
     
     private void removeTerminateReservationId(Long result) {
     	DebugOptionsActivity.removeTerminatedReservIds(RouteActivity.this, result);
@@ -1261,12 +1237,9 @@ public final class RouteActivity extends FragmentActivity {
         */
     }
     
-    public static void setViewToNorthAmerica(MapView mapView){
-        IMapController mc = mapView.getController();
-        int lat = (int) Math.round(38.27268853598097f*1E6);
-        int lon = (int) Math.round(-99.1406250000000f*1E6);
-        mc.setZoom(3); 
-        mc.setCenter(new GeoPoint(lat, lon));
+    public static void setViewToNorthAmerica(SKMapSurfaceView mapView){
+        mapView.setZoom(3);
+        mapView.centerMapOnPosition(new SKCoordinate(-99.1406250000000f*1E6, 38.27268853598097f*1E6));
     }
     
     private AtomicBoolean locationChanged = new AtomicBoolean();
@@ -1294,21 +1267,23 @@ public final class RouteActivity extends FragmentActivity {
     private void handleImComing(String msg, final double lat, final double lon){
         findViewById(R.id.time_layout).setVisibility(View.GONE);
         findViewById(R.id.lets_go_panel).setVisibility(View.GONE);
-        final MapView mapView = (MapView) findViewById(R.id.mapview);
-        final List<Overlay> mapOverlays = mapView.getOverlays();
-        mapOverlays.clear();
-        othersPointOverlay.setLocation((float) lat, (float)lon);
-        mapOverlays.add(othersPointOverlay);
-        RouteDestinationOverlay msgView = new RouteDestinationOverlay(mapView, 
-            new GeoPoint(lat, lon), lightFont, msg, android.R.color.transparent);
-        msgView.setBalloonOffsetY(0);
-        mapOverlays.add(msgView);
-        msgView.showBalloonOverlay();
-        mapView.postInvalidate();
-        IMapController mc = mapView.getController();
-        mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
-        mc.setCenter(new GeoPoint(lat, lon));
+        SKMapViewHolder mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
+        SKMapSurfaceView mapView = mapViewHolder.getMapSurfaceView();
+        mapView.deleteAllAnnotationsAndCustomPOIs();
+        drawDestinationAnnotation(lat, lon);
+        mapView.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+        mapView.centerMapOnPosition(new SKCoordinate(lon, lat));
     }
+    
+    private static final Integer DEST_ANNOTATION_ID = Integer.valueOf(1010);
+    
+    private void drawDestinationAnnotation(double lat, double lon) {
+		SKAnnotation destAnn = new SKAnnotation(DEST_ANNOTATION_ID);
+		destAnn.setLocation(new SKCoordinate(lon, lat));
+		destAnn.setMininumZoomLevel(5);
+		destAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_DESTINATION_FLAG);
+		mapView.addAnnotation(destAnn, SKAnimationSettings.ANIMATION_NONE);
+	}
     
     private void updateTimetableScreenWidth(){
         if(scrollableTimeLayout != null){
@@ -1353,6 +1328,7 @@ public final class RouteActivity extends FragmentActivity {
 	    Localytics.setInAppMessageDisplayActivity(this);
 	    Localytics.handleTestMode(getIntent());
 	    Localytics.handlePushNotificationOpened(getIntent());
+	    mapView.onResume();
 	    // refresh incident
 	    MainActivity.initApiLinksIfNecessary(RouteActivity.this, new Runnable() {
 			@Override
@@ -1388,6 +1364,7 @@ public final class RouteActivity extends FragmentActivity {
 	    Localytics.closeSession();
 	    Localytics.upload();
 	    super.onPause();
+	    mapView.onPause();
     } 
     
     @Override
@@ -1399,20 +1376,15 @@ public final class RouteActivity extends FragmentActivity {
     
     private void fitRouteToMap(boolean zoomToSpan){
         if(routeRect != null){
-            /* Get a midpoint to center the view of  the routes */
-            GeoPoint mid = routeRect.getMidPoint();
-            /* range holds 2 points consisting of the lat/lon range to be displayed */
-            int[] range = routeRect.getRange();
-            /* Get the MapController set the midpoint and range */
-            IMapController mc = mapView.getController();
-            if(zoomToSpan) {
-            	mc.zoomToSpan(range[0], range[1]);
-            }
-            mc.setCenter(mid); // setCenter only works properly after zoomToSpan
+            GeoPoint topLeft = routeRect.getTopLeftPoint();
+            GeoPoint bottomRight = routeRect.getBottomRightPoint();
+			final SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude());
+			mapView.fitBoundingBox(boundingBox, 100, 100);
         }
     }
     
     private static final double mapZoomVerticalOffset = -0.3;
+    private AtomicBoolean mapReady = new AtomicBoolean(false);
     
     /**
      * This function will be called when BackgroundDownloadTask().execute()
@@ -1421,88 +1393,22 @@ public final class RouteActivity extends FragmentActivity {
      * @param possibleRoutes
      */
     private void updateMap(List<Route> possibleRoutes, boolean zoomToSpan) {
-    	
-        if(possibleRoutes != null && possibleRoutes.size() > 0) {
+        if(mapReady.get() && possibleRoutes != null && possibleRoutes.size() > 0) {
             
             List<RouteNode> nodes = new ArrayList<RouteNode>(); 
             
             /* Iterate through the routes to draw each to the screen */
             for (int i = 0; i < possibleRoutes.size(); i++) {
                 Route route = possibleRoutes.get(i);
-            
                 /* Draw the route to the screen and hold on to the range */
                 drawRoute(mapView, route, i);
-                
+                drawODOverlayAndBalloon(route);
                 nodes.addAll(route.getNodes());
             }
             
             routeRect = new RouteRect(nodes, mapZoomVerticalOffset);
             
-            // Overlays must be drawn in orders
-            for (int i = 0; i < possibleRoutes.size(); i++) {
-            	final int _i = i;
-            	mapOverlays.add(routePathOverlays[i]);
-            	if(!EditAddress.CURRENT_LOCATION.equals(originAddr)) {
-            		mapOverlays.add(routeOriginOverlays[i]);
-            		routeOriginOverlays[i].setCallback(new OverlayCallback() {
-            			@Override
-            			public boolean onBalloonTap(int index, OverlayItem item) {
-            				routeOriginOverlays[_i].switchBalloon();
-            				return true;
-            			}
-            			@Override
-            			public boolean onTap(int index) {
-            				routeOriginOverlays[_i].switchBalloon();
-            				return true;
-            			}
-            			@Override
-            			public boolean onClose() {
-            				return false;
-            			}
-            			@Override
-            			public void onChange() {
-            			}
-            			@Override
-            			public boolean onLongPress(int index, OverlayItem item) {
-            				return false;
-            			}
-            		});
-            		routeOriginOverlays[i].showBalloonOverlay();
-            	}
-            	mapOverlays.add(routeDestOverlays[i]);
-            	
-            	routeDestOverlays[i].setCallback(new OverlayCallback() {
-                    @Override
-                    public boolean onTap(int index) {
-                        routeDestOverlays[_i].switchBalloon();
-                        return true;
-                    }
-                    @Override
-                    public boolean onLongPress(int index, OverlayItem item) {
-                        return false;
-                    }
-                    @Override
-                    public boolean onClose() {
-                        return false;
-                    }
-                    @Override
-                    public void onChange() {
-                    }
-                    @Override
-                    public boolean onBalloonTap(int index, OverlayItem item) {
-                    	routeDestOverlays[_i].switchBalloon();
-                        return true;
-                    }
-                });
-            	routeDestOverlays[i].showBalloonOverlay();
-            }
-            /*for (int i = 0; i < possibleRoutes.size(); i++) {
-            	mapOverlays.add(routeInfoOverlays[i]);
-            }*/
-            
             fitRouteToMap(zoomToSpan);
-            
-            mapView.postInvalidate();
         }
         else {
         	Log.d(LOG_TAG, "updateMap(): no route available.");
@@ -1594,7 +1500,7 @@ public final class RouteActivity extends FragmentActivity {
         findViewById(R.id.reserve_panel).setVisibility(reservePanelVis);
     }
 
-    private List<Overlay> mapOverlays;
+//    private List<Overlay> mapOverlays;
 
     private LocationManager locationManager;
 
@@ -1612,66 +1518,49 @@ public final class RouteActivity extends FragmentActivity {
      * @param routeNum - 
      *
      ****************************************************************************************************************/
-    public void drawRoute (MapView mapView, Route route, int routeNum) {
-        mapOverlays = mapView.getOverlays();
-        
-        List<Overlay> resetOverlays = new ArrayList<Overlay>();
-        for (Overlay o : mapOverlays) {
-            if(o instanceof POIOverlay){
-            	resetOverlays.add(o);
-                ((POIOverlay) o).hideBalloon();
-            }
-            else if(o instanceof RouteDestinationOverlay) {
-            	((RouteDestinationOverlay) o).hideBalloon();
-            }
-            else if(!(o instanceof EventOverlay)){
-            	resetOverlays.add(o);
-            }
-        }
-        
-        if(routeNum == 0) {
-            mapOverlays.removeAll(resetOverlays);
-        }
-        
-        int routeColor = route.getColor()!=null?Color.parseColor(route.getColor()):RoutePathOverlay.COLORS[routeNum];
-        
-        int originDrawableId = 0;
-        if(EditAddress.CURRENT_LOCATION.equals(originAddr)) {
-        	originDrawableId = R.drawable.landing_page_current_location;
-        }
-        routePathOverlays[routeNum] = new RoutePathOverlay(this, route, routeColor, originDrawableId);
-        //mapOverlays.add(routePathOverlays[routeNum]);
-        if(!EditAddress.CURRENT_LOCATION.equals(originAddr)) {
-	        routeOriginOverlays[routeNum] = new POIOverlay(mapView, lightFont, 
-	        		getPoiOverlayInfo(originOverlayInfo, route.getFirstNode().getGeoPoint(), originAddr), 
-	        		HotspotPlace.CENTER, null);
-	        routeOriginOverlays[routeNum].inRoutePage();
-	        routeOriginOverlays[routeNum].setIsFromPoi(true);
-        }
-        routeDestOverlays[routeNum] = new POIOverlay(mapView, lightFont, 
-        		getPoiOverlayInfo(destOverlayInfo, route.getLastNode().getGeoPoint(), destAddr), 
-        		HotspotPlace.CENTER, null);
-        routeDestOverlays[routeNum].inRoutePage();
-        routeDestOverlays[routeNum].setIsFromPoi(false);
-        
+    public void drawRoute (SKMapSurfaceView mapView, Route _route, int routeNum) {
+    	mapView.deleteAnnotation(ROUTE_ID);
+    	List<SKCoordinate> routeCoors = new ArrayList<SKCoordinate>();
+		for(RouteNode node : _route.getNodes()) {
+			routeCoors.add(new SKCoordinate(node.getLongitude(), node.getLatitude()));
+		}
+		
+		SKPolyline routeLine = new SKPolyline();
+		routeLine.setIdentifier(ROUTE_ID);
+		routeLine.setNodes(routeCoors);
+		routeLine.setColor(getRouteColorArray(_route.getColor())); //RGBA
+		routeLine.setLineSize(30);
+		
+		//outline properties, otherwise map crash
+		routeLine.setOutlineColor(getRouteColorArray(_route.getColor()));
+		routeLine.setOutlineSize(10);
+		routeLine.setOutlineDottedPixelsSolid(3);
+		routeLine.setOutlineDottedPixelsSkip(3);
+		//
+		mapView.addPolyline(routeLine);
+    	
         /* Set values into route to be passed to next Activity */
-        route.setAddresses(originAddr, destAddr);
+        _route.setAddresses(originAddr, destAddr);
         
         // FIXME:
-        route.setUserId(User.getCurrentUser(this).getId());
-        findViewById(R.id.reserve).setTag(route);
-//        routeInfoOverlays[routeNum] = new RouteInfoOverlay(mapView, route, routeNum, new GeoPoint(lat, lon), boldFont, lightFont);
-//        routeInfoOverlays[routeNum].setCallback(new RouteOverlayCallbackImpl(route, routeNum));
-        //mapOverlays.add(routeOverlays[routeNum]);
+        _route.setUserId(User.getCurrentUser(this).getId());
+        findViewById(R.id.reserve).setTag(_route);
     }
     
-    private PoiOverlayInfo getPoiOverlayInfo(PoiOverlayInfo poiInfo, GeoPoint geoPoint, String address) {
-    	if(poiInfo == null) {
-    		poiInfo = new PoiOverlayInfo();
-    		poiInfo.address = address;
-    		poiInfo.geopoint = geoPoint;
+    /**
+     * return RGBA Array (0~1)
+     */
+    private float[] getRouteColorArray(String color) {
+    	float[] skColor = {0.6f, 0.8f, 0.0f, 1.0f}; // GREEN
+    	if(StringUtils.isNotBlank(color) && StringUtils.startsWith(color, "#")) {
+    		String RR = color.substring(1, 3);
+    		String GG = color.substring(3, 5);
+    		String BB = color.substring(5, color.length());
+    		skColor[0] = Float.valueOf(Integer.parseInt(RR, 16)) / 255.0f;
+    		skColor[1] = Float.valueOf(Integer.parseInt(GG, 16)) / 255.0f;
+    		skColor[2] = Float.valueOf(Integer.parseInt(BB, 16)) / 255.0f;
     	}
-    	return poiInfo;
+    	return skColor;
     }
     
     private void setHighlightedRoutePathOverlays(boolean highlighted) {
@@ -1792,6 +1681,7 @@ public final class RouteActivity extends FragmentActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        SKMaps.getInstance().destroySKMaps();
         for(GeocodingTask t:geocodingTasks){
             t.cancel(true);
         }
@@ -1969,12 +1859,13 @@ public final class RouteActivity extends FragmentActivity {
     private List<Incident> getIncidentOfDepartureTime(long departureUTCTime) {
     	List<Incident> incidentOfDepTime = new ArrayList<Incident>();
     	if(incidents != null && incidents.size() > 0) {
-    		for(Incident incident : incidents) {
-    			if(incident.severity > 0 && incident.isInTimeRange(departureUTCTime) && incident.getMinimalDisplayZoomLevel() <= mapView.getZoomLevel()) {
+    		for(Incident incident : incidents.values()) {
+    			if(incident.severity > 0 && incident.isInTimeRange(departureUTCTime)) {
     				incidentOfDepTime.add(incident);
     			}
     		}
     	}
+    	
     	return incidentOfDepTime;
     }
     
@@ -1986,5 +1877,224 @@ public final class RouteActivity extends FragmentActivity {
     		findViewById(R.id.tutorial).setVisibility(View.VISIBLE);
     	}
     }
+
+	@Override
+	public void onActionPan() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onActionZoom() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	private static final Integer INCIDENT_BALLOON_ID = Integer.valueOf(1234);
+	private View incidentBalloon;
+
+	@Override
+	public void onAnnotationSelected(SKAnnotation annotation) {
+		int selectedAnnotationId = annotation.getUniqueID();
+		Incident selectedInc = incidents.get(selectedAnnotationId);
+		if(selectedInc != null) {
+			DisplayMetrics dm = getResources().getDisplayMetrics();
+            SKAnnotation fromAnnotation = new SKAnnotation(INCIDENT_BALLOON_ID);
+            SKAnnotationView fromView = new SKAnnotationView();
+            fromAnnotation.setLocation(annotation.getLocation());
+            fromAnnotation.setOffset(new SKScreenPoint(0, Dimension.dpToPx(85, dm)));
+            ImageView balloon = new ImageView(RouteActivity.this);
+            balloon.setImageBitmap(loadBitmapFromView(RouteActivity.this, selectedInc));
+            fromView.setView(balloon);
+            fromAnnotation.setAnnotationView(fromView);
+            mapView.addAnnotation(fromAnnotation, SKAnimationSettings.ANIMATION_NONE);
+		}
+	}
+	
+	public Bitmap loadBitmapFromView(Context ctx, Incident selectedInc) {
+		if(incidentBalloon == null) {
+			FrameLayout layout = new FrameLayout(ctx);
+			ViewGroup.LayoutParams layoutLp = new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			layout.setLayoutParams(layoutLp);
+			LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			incidentBalloon = inflater.inflate(R.layout.incident_balloon, layout);
+		}
+        TextView textView = (TextView) incidentBalloon.findViewById(R.id.text);
+        textView.setText(selectedInc.shortDesc);
+        Font.setTypeface(Font.getRegular(ctx.getAssets()), textView);
+        incidentBalloon.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+        incidentBalloon.layout(0, 0, incidentBalloon.getMeasuredWidth(), incidentBalloon.getMeasuredHeight());
+        Bitmap bitmap = Bitmap.createBitmap(incidentBalloon.getMeasuredWidth(), incidentBalloon.getMeasuredHeight(), Bitmap.Config.ARGB_8888);                
+        Canvas canvas = new Canvas(bitmap);
+        incidentBalloon.draw(canvas);
+        return bitmap;
+	}
+	
+	private View fromToBalloon;
+	
+	private Bitmap loadBitmapOfFromToBalloon(Context ctx, boolean from) {
+		if(fromToBalloon == null) {
+			FrameLayout layout = new FrameLayout(ctx);
+			ViewGroup.LayoutParams layoutLp = new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			layout.setLayoutParams(layoutLp);
+			LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			fromToBalloon = inflater.inflate(R.layout.from_to_balloon, layout);
+		}
+        TextView textView = (TextView) fromToBalloon.findViewById(R.id.poi_mini_title);
+        textView.setText(from ? "FROM" : "TO");
+        Font.setTypeface(Font.getRegular(ctx.getAssets()), textView);
+        fromToBalloon.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+        fromToBalloon.layout(0, 0, fromToBalloon.getMeasuredWidth(), fromToBalloon.getMeasuredHeight());
+        Bitmap bitmap = Bitmap.createBitmap(fromToBalloon.getMeasuredWidth(), fromToBalloon.getMeasuredHeight(), Bitmap.Config.ARGB_8888);                
+        Canvas canvas = new Canvas(bitmap);
+        fromToBalloon.draw(canvas);
+        return bitmap;
+	}
+
+	@Override
+	public void onBoundingBoxImageRendered(int arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onCompassSelected() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onCurrentPositionSelected() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onCustomPOISelected(SKMapCustomPOI arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onDoubleTap(SKScreenPoint arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onGLInitializationError(String arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInternationalisationCalled(int arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onInternetConnectionNeeded() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onLongPress(SKScreenPoint arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onMapActionDown(SKScreenPoint arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onMapActionUp(SKScreenPoint arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onMapPOISelected(SKMapPOI arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onMapRegionChangeEnded(SKCoordinateRegion arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onMapRegionChangeStarted(SKCoordinateRegion arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onMapRegionChanged(SKCoordinateRegion arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onObjectSelected(int arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onPOIClusterSelected(SKPOICluster arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onRotateMap() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onScreenOrientationChanged() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onSingleTap(SKScreenPoint arg0) {
+		mapView.deleteAnnotation(INCIDENT_BALLOON_ID);
+	}
+
+	@Override
+	public void onSurfaceCreated() {
+		new Handler().postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				mapReady.set(true);
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						if(timeLayout.getSelectedTimeButton() != null) {
+							showIncidentOverlays(timeLayout.getSelectedDepartureTime());
+						}
+						int column = timeLayout.getSelectedColumn();
+						if (!timeLayout.getColumnState(column).equals(State.InProgress)) {
+							timeLayout.setColumnState(column, State.InProgress);
+							long departureTime = timeLayout.getDepartureTime(column);
+		                    try {
+		                        updateRoute(originCoord, destCoord, departureTime, column);
+		                    }
+		                    catch (InterruptedException e) {}
+		                }
+					}
+				});
+			}
+		}, 2000);
+	}
 
 }

@@ -103,6 +103,7 @@ import com.localytics.android.Localytics;
 import com.metropia.CalendarService;
 import com.metropia.LocalyticsUtils;
 import com.metropia.ResumeNavigationUtils;
+import com.metropia.SkobblerUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.dialogs.CancelableProgressDialog;
@@ -286,7 +287,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.landing2);
-        
         Localytics.integrate(this);
         
         registerReceiver(tripInfoCachedUpdater, new IntentFilter(TRIP_INFO_CACHED_UPDATES));
@@ -303,7 +303,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         mapView.setMultiTouchControls(true);
         mapView.setTileSource(new SmartrekTileProvider());
         bindMapFunctions(mapView);
-        RouteActivity.setViewToNorthAmerica(mapView);
+        setViewToNorthAmerica(mapView);
         
         searchResultList = (ListView) findViewById(R.id.search_result_list);
         fromSearchResultList = (ListView) findViewById(R.id.from_search_result_list);
@@ -1570,10 +1570,18 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	}
     	else {
     		// simulate default view
-    		RouteActivity.setViewToNorthAmerica(mapView);
+    		setViewToNorthAmerica(mapView);
     		zoomMapToFitBulbPOIs();
     		mapView.postInvalidate();
     	}
+    }
+    
+    private void setViewToNorthAmerica(MapView mapView){
+        IMapController mc = mapView.getController();
+        int lat = (int) Math.round(38.27268853598097f*1E6);
+        int lon = (int) Math.round(-99.1406250000000f*1E6);
+        mc.setZoom(3); 
+        mc.setCenter(new GeoPoint(lat, lon));
     }
     
     private View createReservationInfoView(final Reservation reserv, boolean isFirst) {
@@ -2158,6 +2166,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     		poiInfo.lat = currentLoc.getLocation().getLatitude();
     		poiInfo.lon = currentLoc.getLocation().getLongitude();
     		poiInfo.geopoint = currentLoc.getLocation();
+    		poiInfo.marker = R.drawable.landing_page_current_location;
+    		poiInfo.markerWithShadow = R.drawable.landing_page_current_location;
     		return poiInfo;
     	}
     	

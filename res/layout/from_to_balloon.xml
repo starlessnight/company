@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/poi_content_mini"
+    android:layout_width="80dp"
+    android:layout_height="41dp"
+    android:layout_gravity="center|bottom"
+    android:background="@drawable/from_to_pin"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/poi_mini_title"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:text="FROM"
+        android:textColor="@color/metropia_blue"
+        android:textSize="17dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

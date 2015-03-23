@@ -11,7 +11,21 @@
 	    android:layout_height="match_parent"
 	    android:layout_marginBottom="56dp"
 	    android:layout_alignParentTop="true">
-        <include layout="@layout/mapview" />
+	    
+        <com.skobbler.ngx.map.SKMapViewHolder
+		    android:id="@+id/mapview_holder"
+		    android:layout_width="fill_parent"
+		    android:layout_height="fill_parent"/>
+        
+        <!-- 
+        <RelativeLayout
+            android:id="@+id/chess_board_background"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@drawable/map_background">
+        </RelativeLayout>
+         -->
+        
         <ImageView
             android:id="@+id/back_button"
             android:layout_width="wrap_content"
@@ -19,8 +33,7 @@
             android:src="@drawable/map_back_arrow"
             android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
-            android:layout_gravity="top|left"
-		/>
+            android:layout_gravity="top|left"/>
         
         <include
             android:layout_height="wrap_content"
