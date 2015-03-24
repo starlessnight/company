@@ -159,8 +159,6 @@ import com.skobbler.ngx.map.SKMapViewHolder;
 import com.skobbler.ngx.map.SKPOICluster;
 import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
-import com.skobbler.ngx.routing.SKRouteInfo;
-import com.skobbler.ngx.routing.SKRouteJsonAnswer;
 import com.skobbler.ngx.routing.SKRouteListener;
 import com.skobbler.ngx.routing.SKRouteManager;
 import com.skobbler.ngx.routing.SKRouteSettings;
@@ -1448,7 +1446,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				routeManager.clearRouteAlternatives();
 				routeManager.clearAllRoutesFromCache();
 				routeManager.createRouteFromTrackElement(routeGpx.getRootTrackElement(), 
-						SKRouteSettings.SKRouteMode.CAR_FASTEST, false, false, false);
+						SKRouteSettings.SKROUTE_CAR_FASTEST, false, false, false);
 				drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
 			}
 			/*
@@ -1483,7 +1481,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 	
 	private void drawDestinationAnnotation(double lat, double lon) {
-		SKAnnotation destAnn = new SKAnnotation(DEST_ANNOTATION_ID);
+		SKAnnotation destAnn = new SKAnnotation();
+		destAnn.setUniqueID(DEST_ANNOTATION_ID);
 		destAnn.setLocation(new SKCoordinate(lon, lat));
 		destAnn.setMininumZoomLevel(5);
 		destAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_DESTINATION_FLAG);
@@ -2182,8 +2181,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			List<Incident> incidentsOfTime = getIncidentsOfTime();
 			Log.d("ValidationActivity", "show incident size : " + incidentsOfTime.size());
 			for(Incident incident : incidentsOfTime) {
-				SKAnnotation incAnn = new SKAnnotation(getIncidentUniqueId(incident));
-//				incAnn.setUniqueID(getIncidentUniqueId(incident));
+				SKAnnotation incAnn = new SKAnnotation();
+				incAnn.setUniqueID(getIncidentUniqueId(incident));
 				incAnn.setLocation(new SKCoordinate(incident.lon, incident.lat));
 				incAnn.setMininumZoomLevel(incident.getMinimalDisplayZoomLevel());
 //				incAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_MARKER);
@@ -3082,19 +3081,20 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		Incident selectedInc = incidents.get(selectedAnnotationId);
 		if(selectedInc != null) {
 			DisplayMetrics dm = getResources().getDisplayMetrics();
-            SKAnnotation fromAnnotation = new SKAnnotation(INCIDENT_BALLOON_ID);
+            SKAnnotation fromAnnotation = new SKAnnotation();
+            fromAnnotation.setUniqueID(INCIDENT_BALLOON_ID);
             SKAnnotationView fromView = new SKAnnotationView();
             fromAnnotation.setLocation(annotation.getLocation());
-            fromAnnotation.setOffset(new SKScreenPoint(0, Dimension.dpToPx(85, dm)));
+            fromAnnotation.setOffset(new SKScreenPoint(0, Dimension.dpToPx(42, dm)));
             ImageView balloon = new ImageView(ValidationActivity.this);
             balloon.setImageBitmap(loadBitmapFromView(ValidationActivity.this, selectedInc));
             fromView.setView(balloon);
             fromAnnotation.setAnnotationView(fromView);
-            mapView.addAnnotation(fromAnnotation, SKAnimationSettings.ANIMATION_NONE);
+            mapView.addAnnotation(fromAnnotation, SKAnimationSettings.ANIMATION_POP_OUT);
 		}
 	}
 	
-	View incidentBalloon;
+	private View incidentBalloon;
 	
 	public Bitmap loadBitmapFromView(Context ctx, Incident selectedInc) {
 		if(incidentBalloon == null) {
@@ -3209,24 +3209,24 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	public void onOnlineRouteComputationHanging(int arg0) {
 	}
 	
-	@Override
-	public void onRouteCalculationCompleted(SKRouteInfo arg0) {
-		if(drawEnRoute.get()) {
-			drawEnRoute.set(false);
-			showEnRouteAlert();
-		}
-    	else {
-    		if((Boolean)buttonFollow.getTag()) {
-    			mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
-    		}
-		}
-	}
-	
-	@Override
-	public void onRouteCalculationFailed(SKRoutingErrorCode arg0) {
-		Log.d("ValidationActivity", "draw route internal error!");
-		drawRoute(mapView, getRouteOrReroute());
-	}
+//	@Override
+//	public void onRouteCalculationCompleted(SKRouteInfo arg0) {
+//		if(drawEnRoute.get()) {
+//			drawEnRoute.set(false);
+//			showEnRouteAlert();
+//		}
+//    	else {
+//    		if((Boolean)buttonFollow.getTag()) {
+//    			mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
+//    		}
+//		}
+//	}
+//	
+//	@Override
+//	public void onRouteCalculationFailed(SKRoutingErrorCode arg0) {
+//		Log.d("ValidationActivity", "draw route internal error!");
+//		drawRoute(mapView, getRouteOrReroute());
+//	}
 
 	private AtomicBoolean enRouteResultTriggered = new AtomicBoolean(false);
 	
@@ -3262,15 +3262,42 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     }
 
 	@Override
-	public void onServerLikeRouteCalculationCompleted(SKRouteJsonAnswer arg0) {
+	public void onRouteCalculationCompleted(int statusMessage, int routeDistance, int routeEta, boolean thisRouteIsComplete, int id) {
+		if(ROUTE_INTERNAL_ERROR == statusMessage) {
+			drawRoute(mapView, getRouteOrReroute());
+		}
+		else {
+			if(drawEnRoute.get()) {
+				drawEnRoute.set(false);
+				showEnRouteAlert();
+			}
+			else {
+				if((Boolean)buttonFollow.getTag()) {
+					mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
+				}
+			}
+		}
 	}
 
 	@Override
-	public void onBoundingBoxImageRendered(int arg0) {
-	}
+	public void onServerLikeRouteCalculationCompleted(int arg0) {}
 
 	@Override
-	public void onGLInitializationError(String arg0) {
-	}
+	public void onDebugInfo(double arg0, float arg1, double arg2) {}
+
+	@Override
+	public void onOffportRequestCompleted(int arg0) {}
+
+//	@Override
+//	public void onServerLikeRouteCalculationCompleted(SKRouteJsonAnswer arg0) {
+//	}
+//
+//	@Override
+//	public void onBoundingBoxImageRendered(int arg0) {
+//	}
+//
+//	@Override
+//	public void onGLInitializationError(String arg0) {
+//	}
 
 }

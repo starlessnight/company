@@ -21,7 +21,7 @@ public class SkobblerUtils {
 	
 	private static final String API_KEY = "18dc78a75415e2e1f4260fd7e5990fd0f9a1ad42160171997d823bf79eb09d63";
 	
-	public static final String SDK_VERSION = "2.4";
+	public static final String SDK_VERSION = "2.3";
 	
 	public static void initSkobbler(Context ctx, SKPrepareMapTextureListener listener, Runnable checkLogin) {
         String mapResourcesDirPath = getMapResourceDirPath(ctx);
@@ -48,7 +48,7 @@ public class SkobblerUtils {
         initMapSettings.setMapResourcesPaths(getMapResourceDirPath(ctx), getMapViewStyle(ctx));
         
         SKAdvisorSettings advisorSettings = initMapSettings.getAdvisorSettings();
-        advisorSettings.setLanguage(SKAdvisorSettings.SKAdvisorLanguage.LANGUAGE_EN_US);
+        advisorSettings.setLanguage("en");
         advisorSettings.setAdvisorVoice("en");
         initMapSettings.setAdvisorSettings(advisorSettings);
        

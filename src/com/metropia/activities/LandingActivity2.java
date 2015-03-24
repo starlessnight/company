@@ -103,7 +103,6 @@ import com.localytics.android.Localytics;
 import com.metropia.CalendarService;
 import com.metropia.LocalyticsUtils;
 import com.metropia.ResumeNavigationUtils;
-import com.metropia.SkobblerUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.dialogs.CancelableProgressDialog;
