@@ -15,21 +15,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.json.JSONObject;
-import org.osmdroid.api.IGeoPoint;
-import org.osmdroid.api.IMapController;
-import org.osmdroid.events.MapListener;
-import org.osmdroid.events.ScrollEvent;
-import org.osmdroid.events.ZoomEvent;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.MapView.Projection;
-import org.osmdroid.views.overlay.Overlay;
-import org.osmdroid.views.overlay.OverlayItem;
-import org.osmdroid.views.overlay.OverlayItem.HotspotPlace;
+import org.osmdroid.tileprovider.util.CloudmadeUtil;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -42,8 +34,7 @@ import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.Point;
+import android.graphics.Canvas;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -72,8 +63,10 @@ import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnLongClickListener;
@@ -103,6 +96,7 @@ import com.localytics.android.Localytics;
 import com.metropia.CalendarService;
 import com.metropia.LocalyticsUtils;
 import com.metropia.ResumeNavigationUtils;
+import com.metropia.SkobblerUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.dialogs.CancelableProgressDialog;
@@ -110,6 +104,7 @@ import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.dialogs.NotificationDialog2.ActionListener;
 import com.metropia.dialogs.NotifyResumeDialog;
 import com.metropia.models.FavoriteIcon;
+import com.metropia.models.POIContainer;
 import com.metropia.models.Reservation;
 import com.metropia.models.Route;
 import com.metropia.models.User;
@@ -133,11 +128,6 @@ import com.metropia.ui.EditAddress;
 import com.metropia.ui.SwipeDeleteTouchListener;
 import com.metropia.ui.menu.MainMenu;
 import com.metropia.ui.overlays.CurrentLocationOverlay;
-import com.metropia.ui.overlays.EventOverlay;
-import com.metropia.ui.overlays.OverlayCallback;
-import com.metropia.ui.overlays.POIOverlay;
-import com.metropia.ui.overlays.RouteDestinationOverlay;
-import com.metropia.ui.overlays.RoutePathOverlay;
 import com.metropia.ui.timelayout.AdjustableTime;
 import com.metropia.utils.Cache;
 import com.metropia.utils.CalendarContract.Instances;
@@ -150,12 +140,30 @@ import com.metropia.utils.Geocoding.Address;
 import com.metropia.utils.HTTP;
 import com.metropia.utils.Misc;
 import com.metropia.utils.Preferences;
+import com.metropia.utils.RouteNode;
 import com.metropia.utils.RouteRect;
-import com.metropia.utils.SmartrekTileProvider;
 import com.metropia.utils.SystemService;
+import com.skobbler.ngx.SKCoordinate;
 import com.skobbler.ngx.SKMaps;
+import com.skobbler.ngx.map.SKAnimationSettings;
+import com.skobbler.ngx.map.SKAnnotation;
+import com.skobbler.ngx.map.SKAnnotationView;
+import com.skobbler.ngx.map.SKBoundingBox;
+import com.skobbler.ngx.map.SKCoordinateRegion;
+import com.skobbler.ngx.map.SKMapCustomPOI;
+import com.skobbler.ngx.map.SKMapPOI;
+import com.skobbler.ngx.map.SKMapSettings.SKMapDisplayMode;
+import com.skobbler.ngx.map.SKMapSettings.SKMapFollowerMode;
+import com.skobbler.ngx.map.SKMapSurfaceListener;
+import com.skobbler.ngx.map.SKMapSurfaceView;
+import com.skobbler.ngx.map.SKMapViewHolder;
+import com.skobbler.ngx.map.SKPOICluster;
+import com.skobbler.ngx.map.SKPolyline;
+import com.skobbler.ngx.map.SKScreenPoint;
+import com.skobbler.ngx.positioner.SKPosition;
+import com.skobbler.ngx.util.SKLogging;
 
-public final class LandingActivity2 extends FragmentActivity implements SensorEventListener{ 
+public final class LandingActivity2 extends FragmentActivity implements SKMapSurfaceListener, SensorEventListener{ 
     
     private static final int DEFAULT_ZOOM_LEVEL = 12;
     
@@ -228,8 +236,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private TextView getRouteView;
     
-    private POIOverlay curFrom;
-    private POIOverlay curTo;
+    private PoiOverlayInfo curFrom;
+    private PoiOverlayInfo curTo;
     
     private String curFromProvider;
     private long curFromTime;
@@ -266,6 +274,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private AtomicBoolean checkCalendarEvent = new AtomicBoolean(true);
     
+    private AtomicBoolean dayMode = new AtomicBoolean();
+    
+    private POIContainer poiContainer = new POIContainer();
+    
+    private SKMapViewHolder mapViewHolder;
+    private SKMapSurfaceView mapView;
+    
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
     
@@ -285,7 +300,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SkobblerUtils.initializeLibrary(LandingActivity2.this);
         setContentView(R.layout.landing2);
+        
+        initSKMaps();
+        
         Localytics.integrate(this);
         
         registerReceiver(tripInfoCachedUpdater, new IntentFilter(TRIP_INFO_CACHED_UPDATES));
@@ -296,13 +315,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         
-        final MapView mapView = (MapView) findViewById(R.id.mapview);
-        Misc.disableHardwareAcceleration(mapView);
-        mapView.setBuiltInZoomControls(false);
-        mapView.setMultiTouchControls(true);
-        mapView.setTileSource(new SmartrekTileProvider());
-        bindMapFunctions(mapView);
-        setViewToNorthAmerica(mapView);
+        Location la = new Location("");
+        la.setLatitude(34.0291747); // LA
+        la.setLongitude(-118.2734106);
+        mapView.reportNewGPSPosition(new SKPosition(la));
+        
+        RouteActivity.setViewToNorthAmerica(mapView);
         
         searchResultList = (ListView) findViewById(R.id.search_result_list);
         fromSearchResultList = (ListView) findViewById(R.id.from_search_result_list);
@@ -331,9 +349,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         View landingPanelView = findViewById(R.id.landing_panel_content);
         landingPanelView.setOnClickListener(noopClick);
-        
-//        fromMask.setOnClickListener(noopClick);
-//        toMask.setOnClickListener(noopClick);
         
         refreshSearchAutoCompleteData();
         refreshFromSearchAutoCompleteData();
@@ -634,7 +649,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			public void onTextChanging() {
 				showAutoComplete.set(true);
 				if(removeOD.get()) {
-					removeOldOD(mapView, false);
+					removeOldOD(false);
 				}
 				if(searchAddresses.isEmpty()) {
 					Address searching = new Address();
@@ -666,12 +681,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         searchBoxClear.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-            	removeOldOD(mapView, false);
+            	removeOldOD(false);
                 searchBox.setText("");
                 toIcon.setImageResource(0);
                 toIcon.setVisibility(View.INVISIBLE);
                 clearSearchResult();
-                if(curFrom != null && StringUtils.isBlank(curFrom.getAddress())) {
+                if(curFrom != null && StringUtils.isBlank(curFrom.address)) {
                 	fromSearchBoxClear.performClick();
                 }
             }
@@ -732,7 +747,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			public void onTextChanging() {
             	showAutoComplete.set(true);
             	if(removeOD.get()) {
-                	removeOldOD(mapView, true);
+                	removeOldOD(true);
                 }
 				if(fromSearchAddresses.isEmpty()) {
 					Address searching = new Address();
@@ -763,7 +778,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         fromSearchBoxClear.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-            	removeOldOD(mapView, true);
+            	removeOldOD(true);
                 fromIcon.setImageResource(0);
                 fromIcon.setVisibility(View.INVISIBLE);
                 fromSearchBox.setText("");
@@ -793,8 +808,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         initReservationListView();
         
-        final IMapController mc = mapView.getController();
-        
         final Bundle extras = getIntent().getExtras();
         
         locationListener = new LocationListener(){
@@ -814,7 +827,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     final boolean rezoom = mapRezoom.getAndSet(false);
                     final double lat = location.getLatitude();
                     final double lon = location.getLongitude();
-                    refreshMyLocation(lat, lon);
+                    refreshMyLocation(location);
                     popupResumeNavigationIfNeccessary();
                     if(checkCalendarEvent.getAndSet(false) && extras != null) {
                     	handleCalendarNotification(extras.getInt(RouteActivity.EVENT_ID));
@@ -824,7 +837,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                             GeoPoint loc = myPointOverlay.getLocation();
                             int latE6 = loc.getLatitudeE6();
                             int lonE6 = loc.getLongitudeE6();
-                            mc.animateTo(new GeoPoint(latE6, lonE6));
+                            mapView.centerMapOnPosition(new SKCoordinate(loc.getLongitude(), loc.getLatitude()));
                             mapCenterLat.set(latE6);
                             mapCenterLon.set(lonE6);
                         }
@@ -867,24 +880,25 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						IGeoPoint mapCenter = mapView.getMapCenter();
-		                int latE6 = mapCenter.getLatitudeE6();
-		                int lonE6 = mapCenter.getLongitudeE6();
+						SKCoordinateRegion mapRegion = mapView.getCurrentMapRegion();
+						SKCoordinate centerPoint = mapRegion.getCenter();
+		                int latE6 = Double.valueOf(centerPoint.getLatitude() * 1E6).intValue();
+		                int lonE6 = Double.valueOf(centerPoint.getLongitude() * 1E6).intValue();
 		                int lastLatE6 = mapCenterLat.get();
 		                int lastLonE6 = mapCenterLon.get();
-		                int threshold = 100 + 2300 * (Math.max(18 - mapView.getZoomLevel(), 0));
+		                int threshold = 100 + 2300 * (Math.max(Double.valueOf(18 - mapView.getZoomLevel()).intValue(), 0));
 		                if(Math.abs(latE6 - lastLatE6) < threshold && Math.abs(lonE6 - lastLonE6) < threshold){
 		                    if(mapView.getZoomLevel() == ValidationActivity.DEFAULT_ZOOM_LEVEL){
 		                    	if(routeRect != null) {
 		                    		zoomMapToFitBulbPOIs();
 		                    	}
 		                    	else {
-		                    	    mc.setZoom(calculateZoomLevel(mapCenter.getLatitude()));
+		                    	    mapView.setZoom(calculateZoomLevel(centerPoint.getLatitude()));
 		                    	}
 		                    }else{
-		                        mc.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+		                        mapView.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
 		                        if(myPointOverlay != null){
-		                            mc.setCenter(myPointOverlay.getLocation());
+		                            mapView.centerMapOnPosition(new SKCoordinate(myPointOverlay.getLocation().getLongitude(), myPointOverlay.getLocation().getLatitude()));
 		                        }
 		                    }
 		                }else{
@@ -896,8 +910,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 				});
             }
         });
-        
-        
         
         Display display = getWindowManager().getDefaultDisplay();
         DrawerLayout.LayoutParams leftDrawerLp = (DrawerLayout.LayoutParams) findViewById(R.id.left_drawer).getLayoutParams();
@@ -1070,13 +1082,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
              }
         });
         
-        /*
-        TextView osmCredit = (TextView) findViewById(R.id.osm_credit);
-        RelativeLayout.LayoutParams osmCreditLp = (RelativeLayout.LayoutParams) osmCredit.getLayoutParams();
-        osmCreditLp.bottomMargin = Dimension.dpToPx(48, getResources().getDisplayMetrics());
-        osmCredit.setLayoutParams(osmCreditLp);
-        */
-        
         findViewById(R.id.left_drawer).setOnClickListener(noopClick);
         
         getRouteView = (TextView) findViewById(R.id.get_route);
@@ -1104,7 +1109,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 						@Override
 						public void onAnimationEnd() {
-							startRouteActivity(mapView);
+							startRouteActivity();
 						}
 					});
 				}
@@ -1302,7 +1307,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         LocalyticsUtils.tagAppStartFromOrganic();
         
         AssetManager assets = getAssets();
-        Font.setTypeface(Font.getLight(assets), (TextView) findViewById(R.id.osm_credit), searchBox, fromSearchBox, myMetropiaMenu, 
+        Font.setTypeface(Font.getLight(assets), searchBox, fromSearchBox, myMetropiaMenu, 
             reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu);
         Font.setTypeface(Font.getMedium(assets), upointView, saveTimeView, co2View, (TextView) findViewById(R.id.head));
         Font.setTypeface(Font.getRobotoBold(assets), getRouteView);
@@ -1312,6 +1317,31 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
         //end oncreate
     }
+    
+    private void initSKMaps() {
+		SKLogging.enableLogs(true);
+		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
+		mapViewHolder.hideAllAttributionTextViews();
+		mapView = mapViewHolder.getMapSurfaceView();
+		CloudmadeUtil.retrieveCloudmadeKey(this);
+		
+		mapView.setMapSurfaceListener(this);
+		mapView.clearAllOverlays();
+		mapView.deleteAllAnnotationsAndCustomPOIs();
+		mapView.getMapSettings().setCurrentPositionShown(true);
+		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
+		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
+		mapView.getMapSettings().setMapRotationEnabled(true);
+        mapView.getMapSettings().setMapZoomingEnabled(true);
+        mapView.getMapSettings().setMapPanningEnabled(true);
+        mapView.getMapSettings().setZoomWithAnchorEnabled(true);
+        mapView.getMapSettings().setInertiaRotatingEnabled(true);
+        mapView.getMapSettings().setInertiaZoomingEnabled(true);
+        mapView.getMapSettings().setInertiaPanningEnabled(true);
+        mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(LandingActivity2.this));
+        dayMode.set(SkobblerUtils.isDayMode());
+        mapView.getMapSettings().setStreetNamePopupsShown(!dayMode.get());
+	}
     
     private void handleCalendarNotification(int eventId) {
     	if(eventId > 0) {
@@ -1323,27 +1353,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void setMenuInfo2Searchbox(PoiOverlayInfo info, boolean from) {
-    	MapView mapView = (MapView) findViewById(R.id.mapview);
-    	POIOverlay overlay = findOverlayByInfo(mapView, info);
-    	if(overlay != null) {
-    		overlay.setAddress(info.address);
-    		overlay.getPoiOverlayInfo().address = info.address;
-            handleOD(mapView, overlay, from);
+    	if(info != null) {
+            handleOD(info, from);
     	}
     }
     
-    private POIOverlay findOverlayByInfo(MapView mapView, PoiOverlayInfo poiInfo) {
-    	List<Overlay> overlays = mapView.getOverlays();
-    	for(Overlay overlay : overlays) {
-    		if(overlay instanceof POIOverlay) {
-    			if(poiInfo.equals(((POIOverlay)overlay).getPoiOverlayInfo())) {
-    				return (POIOverlay)overlay;
-    			}
-    		}
-    	}
-    	return null;
-    }
-     
     private void showTutorialIfNessary() {
     	SharedPreferences prefs = Preferences.getGlobalPreferences(this);
     	int tutorialFinish = prefs.getInt(Preferences.Global.TUTORIAL_FINISH, 0);
@@ -1560,27 +1574,16 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void centerMap() {
-    	MapView mapView = ((MapView)findViewById(R.id.mapview));
-    	IMapController mc = mapView.getController();
-    	if(routeRect == null && myPointOverlay != null) {
-    		mc.setZoom(calculateZoomLevel(myPointOverlay.getLocation().getLatitude()));
-    		mc.setCenter(myPointOverlay.getLocation());
+     	if(routeRect == null && myPointOverlay != null) {
+    		mapView.setZoom(calculateZoomLevel(myPointOverlay.getLocation().getLatitude()));
+    		mapView.centerMapOnPosition(new SKCoordinate(myPointOverlay.getLocation().getLongitude(), myPointOverlay.getLocation().getLatitude()));
     		mapView.postInvalidate();
     	}
     	else {
     		// simulate default view
-    		setViewToNorthAmerica(mapView);
+    		RouteActivity.setViewToNorthAmerica(mapView);
     		zoomMapToFitBulbPOIs();
-    		mapView.postInvalidate();
     	}
-    }
-    
-    private void setViewToNorthAmerica(MapView mapView){
-        IMapController mc = mapView.getController();
-        int lat = (int) Math.round(38.27268853598097f*1E6);
-        int lon = (int) Math.round(-99.1406250000000f*1E6);
-        mc.setZoom(3); 
-        mc.setCenter(new GeoPoint(lat, lon));
     }
     
     private View createReservationInfoView(final Reservation reserv, boolean isFirst) {
@@ -1753,8 +1756,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			                extras.putParcelable(RouteActivity.DEST_COORD, reserv.getEndGpFromNavLink());
 			                extras.putLong(RouteActivity.RESCHEDULE_DEPARTURE_TIME, reserv.getDepartureTimeUtc());
 			                intent.putExtras(extras);
-			                hideBulbBalloon();
-			                hideStarredBalloon();
+//			                hideBulbBalloon();
+//			                hideStarredBalloon();
 			                removeAllOD();
 			                startActivity(intent);
 						}
@@ -1809,15 +1812,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         emptyReservInfo.findViewById(R.id.reschedule_panel).setVisibility(View.INVISIBLE);
         emptyReservInfo.findViewById(R.id.center_line).setVisibility(View.VISIBLE);;
         return emptyReservInfo;
-    }
-    
-    private boolean isFavoriteMark(int markResourceId) {
-    	for(FavoriteIcon icon : FavoriteIcon.values()) {
-    		if(markResourceId == icon.getResourceId(LandingActivity2.this)) {
-    			return true;
-    		}
-    	}
-    	return false;
     }
     
     private void clearSearchResult() {
@@ -1983,51 +1977,20 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private void dropPinForAddress(Address addr, boolean zoomIn, boolean isFrom) {
     	GeoPoint gp = addr.getGeoPoint();
         DebugOptionsActivity.addRecentAddress(LandingActivity2.this, addr.getAddress());
-        MapView mapView = (MapView) findViewById(R.id.mapview);
-        POIOverlay poiOverlay = getPOIOverlayByAddress(mapView, addr.getAddress());
-        if(poiOverlay != null) {
-        	handleOD(mapView, poiOverlay, isFrom);
+        PoiOverlayInfo poiOverlayInfo = poiContainer.getExistedPOIByAddress(addr.getAddress());
+        if(poiOverlayInfo != null) {
+        	handleOD(poiOverlayInfo, isFrom);
         }
         else {
-        	POIOverlay poi = refreshPOIMarker(mapView, gp.getLatitude(), gp.getLongitude(), addr.getAddress(), addr.getName());
-        	handleOD(mapView, poi, isFrom);
+        	PoiOverlayInfo poiInfo = refreshPOIMarker(gp.getLatitude(), gp.getLongitude(), addr.getAddress(), addr.getName());
+        	handleOD(poiInfo, isFrom);
         }
         // record input address
         addInputAddress(addr);
-        
-        IMapController mc = mapView.getController();
         if(zoomIn){
-            mc.setZoom(SEARCH_ZOOM_LEVEL);
+            mapView.setZoom(SEARCH_ZOOM_LEVEL);
         }
-        mc.animateTo(gp);
-        mapView.postInvalidate();
-    }
-    
-    private POIOverlay getPOIOverlayByAddress(MapView mapView, String addr) {
-    	List<Overlay> overlays = mapView.getOverlays();
-    	List<POIOverlay> overlaysWithSameAddress = new ArrayList<POIOverlay>();
-    	for(Overlay overlay : overlays) {
-    		if(overlay instanceof POIOverlay) {
-    			POIOverlay poi = (POIOverlay)overlay;
-    			if(StringUtils.equalsIgnoreCase(addr, poi.getAddress())) {
-    				overlaysWithSameAddress.add(poi);
-    			}
-    		}
-    	}
-    	
-    	POIOverlay overlay = null;
-    	if(!overlaysWithSameAddress.isEmpty()) {
-    		for(int i = 0 ; i < overlaysWithSameAddress.size() && overlay == null; i++) {
-    			POIOverlay poi = overlaysWithSameAddress.get(i);
-    			if(poi.getMarker() != R.drawable.bulb_poi) {
-    				overlay = poi;
-    			}
-    		}
-    		if(overlay == null) {
-    			overlay = overlaysWithSameAddress.get(0);
-    		}
-    	}
-    	return overlay;
+        mapView.centerMapOnPositionSmooth(new SKCoordinate(gp.getLongitude(), gp.getLatitude()), MAP_ANIMATION_DURATION);
     }
     
     private void refreshAutoCompleteData(ListView searchList, ArrayAdapter<Address> adapter, List<Address> searchedAddresses, EditText _searchBox) {
@@ -2079,6 +2042,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	
     	public String iconName;
     	
+    	public int uniqueId;
+    	
     	public static final Parcelable.Creator<PoiOverlayInfo> CREATOR = new Parcelable.Creator<PoiOverlayInfo>() {
             public PoiOverlayInfo createFromParcel(Parcel in) {
                 return new PoiOverlayInfo(in);
@@ -2101,6 +2066,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             markerWithShadow = in.readInt();
             iconName = in.readString();
             geopoint = new GeoPoint(lat, lon);
+            uniqueId = in.readInt();
 		}
 
 		@Override
@@ -2118,6 +2084,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 			dest.writeInt(marker);
 			dest.writeInt(markerWithShadow);
 			dest.writeString(iconName);
+			dest.writeInt(uniqueId);
 		}
     	
     	public static PoiOverlayInfo fromAddress(Context ctx, com.metropia.models.Address address) {
@@ -2269,7 +2236,10 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     			runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						refreshMyLocation(lat, lon);
+						Location loc = new Location("");
+						loc.setLatitude(lat);
+						loc.setLongitude(lon);
+						refreshMyLocation(loc);
 						centerMap();
 					}
     			});
@@ -2292,15 +2262,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	}
     };
     
-    private void refreshMyLocation(double lat, double lon){
-        MapView mapView = (MapView)findViewById(R.id.mapview);
-        List<Overlay> mapOverlays = mapView.getOverlays();
+    private void refreshMyLocation(Location loc){
+    	SKMapViewHolder mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
+    	SKMapSurfaceView mapView = mapViewHolder.getMapSurfaceView();
         if(myPointOverlay == null){
             myPointOverlay = new CurrentLocationOverlay(LandingActivity2.this, 0, 0, R.drawable.landing_page_current_location);
-            mapOverlays.add(myPointOverlay);
         }
-        myPointOverlay.setLocation((float) lat, (float) lon);
-        mapView.postInvalidate();
+        myPointOverlay.setLocation((float) loc.getLatitude(), (float) loc.getLongitude());
+        mapView.reportNewGPSPosition(new SKPosition(loc));
     }
     
     private void prepareGPS(){
@@ -2324,26 +2293,35 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private void showODBalloon() {
-    	MapView mapView = (MapView) findViewById(R.id.mapview);
-    	List<Overlay> allOverlays = mapView.getOverlays();
-    	for(Overlay overlay : allOverlays) {
-    		if(overlay instanceof POIOverlay) {
-    			POIOverlay poi = (POIOverlay)overlay;
-    			if(curFrom != null && ((curFrom.getAid() != 0 && curFrom.getAid() == poi.getAid()) 
-    					|| (StringUtils.isNotBlank(curFrom.getAddress()) && curFrom.getAddress().equals(poi.getAddress())))) {
-    				curFrom = poi;
-    				curFrom.markODPoi();
-    				curFrom.setIsFromPoi(true);
-    			}
-    			else if(curTo!=null && ((curTo.getAid() != 0 && curTo.getAid() == poi.getAid()) 
-    					|| (StringUtils.isNotBlank(curTo.getAddress()) && curTo.getAddress().equals(poi.getAddress())))) {
-    				curTo = poi;
-    				curTo.markODPoi();
-    				curTo.setIsFromPoi(false);
-    			}
-    		}
+    	if(curFrom != null) {
+    		drawODBalloon(curFrom, true);
+    	}
+    	
+    	if(curTo != null) {
+    		drawODBalloon(curTo, false);
     	}
     }
+    
+    private View fromToBalloon;
+    
+    private Bitmap loadBitmapOfFromToBalloon(Context ctx, boolean from) {
+		if(fromToBalloon == null) {
+			FrameLayout layout = new FrameLayout(ctx);
+			ViewGroup.LayoutParams layoutLp = new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			layout.setLayoutParams(layoutLp);
+			LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			fromToBalloon = inflater.inflate(R.layout.from_to_balloon, layout);
+		}
+        TextView textView = (TextView) fromToBalloon.findViewById(R.id.poi_mini_title);
+        textView.setText(from ? "FROM" : "TO");
+        Font.setTypeface(Font.getRegular(ctx.getAssets()), textView);
+        fromToBalloon.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+        fromToBalloon.layout(0, 0, fromToBalloon.getMeasuredWidth(), fromToBalloon.getMeasuredHeight());
+        Bitmap bitmap = Bitmap.createBitmap(fromToBalloon.getMeasuredWidth(), fromToBalloon.getMeasuredHeight(), Bitmap.Config.ARGB_8888);                
+        Canvas canvas = new Canvas(bitmap);
+        fromToBalloon.draw(canvas);
+        return bitmap;
+	}
     
     @Override
     protected void onResume() {
@@ -2354,6 +2332,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	    Localytics.setInAppMessageDisplayActivity(this);
 	    Localytics.handleTestMode(getIntent());
 	    Localytics.handlePushNotificationOpened(getIntent());
+	    mapView.onResume();
         registerReceiver(tripInfoUpdater, new IntentFilter(TRIP_INFO_UPDATES));
         registerReceiver(onTheWayNotifier, new IntentFilter(ON_THE_WAY_NOTICE));
         mapRefresh.set(true);
@@ -2397,6 +2376,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	    unregisterReceiver(tripInfoUpdater);
 	    unregisterReceiver(onTheWayNotifier);
 	    super.onPause();
+	    mapView.onPause();
 	    mSensorManager.unregisterListener(this, accelerometer);
 	    mSensorManager.unregisterListener(this, magnetometer);
 	    closeGPS();
@@ -2410,23 +2390,17 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         refreshTripsInfo(false, true);
     }
     
+    
+    
     private void refreshTripsInfo(final boolean cached, final boolean closeIfEmpty){
         ReservationListTask task = new ReservationListTask(this, cached){
 	        @Override
 	        protected void onPostExecute(List<Reservation> reservations) {
 	            if (reservations == null || reservations.isEmpty()) {
-	                MapView mapView = (MapView) findViewById(R.id.mapview);
-	                List<Overlay> mapOverlays = mapView.getOverlays();
-	                List<Overlay> need2Remove = getDrawedRouteOverlays(mapOverlays);
-	                if(!need2Remove.isEmpty()) {
-	                	for(Overlay remove : need2Remove) {
-	                		if(remove instanceof RouteDestinationOverlay) {
-	                			((RouteDestinationOverlay)remove).hideBalloon();
-	                		}
-	                	}
-	                    mapOverlays.removeAll(need2Remove);
-	                    mapView.postInvalidate();
-	                }
+	                SKMapViewHolder mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
+	                SKMapSurfaceView mapView = mapViewHolder.getMapSurfaceView();
+	                mapView.clearAllOverlays();
+	                mapView.deleteAnnotation(ROUTE_DESTINATION_ID);
 	                tripNotifyIcon.setVisibility(View.GONE);
 	                refreshReservationList(new ArrayList<Reservation>());
 	                unlockMenu();
@@ -2797,41 +2771,43 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private void updateMap(List<Route> possibleRoutes, String destinationAddr) {
     	if(!possibleRoutes.isEmpty()) {
-    		final MapView mapView = (MapView) findViewById(R.id.mapview);
-    		Route route = possibleRoutes.get(0);
-    		
+    		SKMapViewHolder mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
+    		SKMapSurfaceView mapView = mapViewHolder.getMapSurfaceView();
+    		Route _route = possibleRoutes.get(0);
     		// remove previous drew route
-    		List<Overlay> mapOverlays = mapView.getOverlays();
-    		List<Overlay> need2Remove = getDrawedRouteOverlays(mapOverlays);
-    		mapOverlays.removeAll(need2Remove);
-    		int routeColor = route.getColor()!=null?Color.parseColor(route.getColor()):RoutePathOverlay.GREEN;
-    		RoutePathOverlay path = new RoutePathOverlay(this, route, routeColor, R.drawable.pin_origin);
-    		path.setDashEffect();
-    		mapOverlays.add(0, path);
-    		
-    		POIOverlay poi = getPOIOverlayByAddress(mapView, destinationAddr);
-    		if(poi==null) {
-	    		RouteDestinationOverlay destOverlay = new RouteDestinationOverlay(mapView, route.getLastNode().getGeoPoint(), 
-	    				lightFont, destinationAddr, R.drawable.pin_destination);
-	    		mapOverlays.add(destOverlay);
+    		mapView.clearAllOverlays();
+    		mapView.deleteAnnotation(ROUTE_DESTINATION_ID);
+    		List<SKCoordinate> routeCoors = new ArrayList<SKCoordinate>();
+    		for(RouteNode node : _route.getNodes()) {
+    			routeCoors.add(new SKCoordinate(node.getLongitude(), node.getLatitude()));
     		}
     		
-    		RouteRect routeRect = new RouteRect(route.getNodes());
-    		GeoPoint center = routeRect.getMidPoint();
-    		IMapController imc = mapView.getController();
-    		imc.setCenter(center);
-    		mapView.postInvalidate();
-    	}
-    }
-    
-    private List<Overlay> getDrawedRouteOverlays(List<Overlay> currentOverlays) {
-    	List<Overlay> routeOverlays = new ArrayList<Overlay>();
-    	for(Overlay overlay : currentOverlays) {
-    		if(overlay instanceof RoutePathOverlay || overlay instanceof RouteDestinationOverlay) {
-    			routeOverlays.add(overlay);
+    		SKPolyline routeLine = new SKPolyline();
+    		routeLine.setNodes(routeCoors);
+    		routeLine.setColor(SkobblerUtils.getRouteColorArray(_route.getColor())); //RGBA
+    		routeLine.setLineSize(10);
+    		
+    		//outline properties, otherwise map crash
+    		routeLine.setOutlineColor(SkobblerUtils.getRouteColorArray(_route.getColor()));
+    		routeLine.setOutlineSize(10);
+    		routeLine.setOutlineDottedPixelsSolid(3);
+    		routeLine.setOutlineDottedPixelsSkip(3);
+    		//
+    		mapView.addPolyline(routeLine);
+    		
+    		PoiOverlayInfo poiInfo = poiContainer.getExistedPOIByAddress(destinationAddr);
+    		if(poiInfo == null) {
+    			SKAnnotation destAnn = new SKAnnotation();
+    			destAnn.setUniqueID(ROUTE_DESTINATION_ID);
+    			destAnn.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
+    			destAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
+    			destAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_DESTINATION_FLAG);
+    			mapView.addAnnotation(destAnn, SKAnimationSettings.ANIMATION_NONE);
     		}
+    		
+    		RouteRect routeRect = new RouteRect(_route.getNodes());
+    		mapView.centerMapOnPosition(new SKCoordinate(routeRect.getMidPoint().getLongitude(), routeRect.getMidPoint().getLatitude()));
     	}
-    	return routeOverlays;
     }
     
     @Override
@@ -2923,7 +2899,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     
     private AtomicBoolean poiTapThrottle = new AtomicBoolean();
     
-    private void startRouteActivity(MapView mapView){
+    private void startRouteActivity(){
         if(!poiTapThrottle.get()){
             poiTapThrottle.set(true);
             new Handler().postDelayed(new Runnable() {
@@ -2932,13 +2908,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                     poiTapThrottle.set(false);
                 }
             }, 500);
-            boolean hasFromAddr = curFrom == null?false:StringUtils.isNotBlank(curFrom.getAddress());
+            boolean hasFromAddr = curFrom == null?false:StringUtils.isNotBlank(curFrom.address);
             Intent intent = new Intent(this, RouteActivity.class);
             Bundle extras = new Bundle();
-            extras.putString(RouteActivity.ORIGIN_ADDR, hasFromAddr?curFrom.getAddress():EditAddress.CURRENT_LOCATION);
+            extras.putString(RouteActivity.ORIGIN_ADDR, hasFromAddr?curFrom.address:EditAddress.CURRENT_LOCATION);
             if(curFrom != null){
-                extras.putParcelable(RouteActivity.ORIGIN_COORD, curFrom.getGeoPoint());
-                extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, curFrom.getPoiOverlayInfo());
+                extras.putParcelable(RouteActivity.ORIGIN_COORD, curFrom.geopoint);
+                extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, curFrom);
             }else if(myPointOverlay != null){
                 extras.putParcelable(RouteActivity.ORIGIN_COORD, myPointOverlay.getLocation());
                 extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, PoiOverlayInfo.fromCurrentLocation(myPointOverlay));
@@ -2946,12 +2922,12 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             extras.putString(RouteActivity.ORIGIN_COORD_PROVIDER, curFromProvider);
             extras.putLong(RouteActivity.ORIGIN_COORD_TIME, curFromTime);
             if(curTo != null){
-                extras.putString(RouteActivity.DEST_ADDR, curTo.getAddress());
-                extras.putParcelable(RouteActivity.DEST_COORD, curTo.getGeoPoint());
-                extras.putParcelable(RouteActivity.DEST_OVERLAY_INFO, curTo.getPoiOverlayInfo());
+                extras.putString(RouteActivity.DEST_ADDR, curTo.address);
+                extras.putParcelable(RouteActivity.DEST_COORD, curTo.geopoint);
+                extras.putParcelable(RouteActivity.DEST_OVERLAY_INFO, curTo);
                 intent.putExtras(extras);
-                hideBulbBalloon();
-                hideStarredBalloon();
+//                hideBulbBalloon();
+//                hideStarredBalloon();
                 removeAllOD();
                 startActivity(intent);
             }
@@ -2968,8 +2944,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		        JSONObject reservRecipients = DebugOptionsActivity.getReservRecipientsAndRemove(LandingActivity2.this, reserv.getRid());
 		        intent.putExtra(ValidationActivity.EMAILS, reservRecipients.optString("emails", ""));
 		        intent.putExtra(ValidationActivity.PHONES, reservRecipients.optString("phones", ""));
-		        hideBulbBalloon();
-		        hideStarredBalloon();
+//		        hideBulbBalloon();
+//                hideStarredBalloon();
 		        removeAllOD();
 		        startActivity(intent);
 			}
@@ -3007,74 +2983,26 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                 if(callback != null){
                     callback.run();
                 }
+                
                 if (ehs.hasExceptions()) {
                     //ehs.reportExceptions();
                 }
                 else {
                     Set<Address> addrList = new HashSet<Address>();
-                    final MapView mapView = (MapView) findViewById(R.id.mapview);
-                    List<Overlay> overlays = mapView.getOverlays();
-                    List<Overlay> otherOverlays = new ArrayList<Overlay>();
-                    for (Overlay overlay : overlays) {
-                        boolean isOther;
-                        if(overlay instanceof POIOverlay){
-                            POIOverlay poiOverlay = (POIOverlay)overlay;
-                            isOther = !isFavoriteMark(poiOverlay.getMarker());
-                            if(!isOther && poiOverlay.isBalloonVisible()){
-                                poiOverlay.hideBalloon();
-                            }
-                        }else{
-                            isOther = true;
-                        }
-                        if(isOther){
-                            otherOverlays.add(overlay);
-                        }
+                    Set<Integer> existedStarPoiUniqueIdSet = poiContainer.getStarUniqueIdSet();
+                    for (Integer uniqueId : existedStarPoiUniqueIdSet) {
+                        mapView.deleteAnnotation(uniqueId);
                     }
-                    overlays.clear();
-                    overlays.addAll(otherOverlays);
+                    poiContainer.cleanStarPois();
                     if (result != null && result.size() > 0) {
                         initFontsIfNecessary();
-                        for(final com.metropia.models.Address a : result){
-                            final PoiOverlayInfo poiInfo = PoiOverlayInfo.fromAddress(LandingActivity2.this, a);
-                            final POIOverlay star = new POIOverlay(mapView, boldFont, poiInfo, HotspotPlace.CENTER, null);
-                            star.setAid(a.getId());
-                            star.setCallback(new OverlayCallback() {
-                                @Override
-                                public boolean onTap(int index) {
-                                	if(star.isEnabled()) {
-	                                	mapView.getController().animateTo(getCenterGeoPointByMapSize(mapView, poiInfo.lat, poiInfo.lon));
-	                                	Screen xy = getPopupFavIconPosition(mapView);
-	                                    showPopupMenu(xy, poiInfo);
-	                                    mapView.postInvalidate();
-	                                    return true;
-                                	}
-                                	return false;
-                                }
-                                @Override
-                                public boolean onLongPress(int index, OverlayItem item) {
-                                    return true;
-                                }
-                                @Override
-                                public boolean onClose() {
-                                    return false;
-                                }
-                                @Override
-                                public void onChange() {
-                                }
-                                @Override
-                                public boolean onBalloonTap(int index, OverlayItem item) {
-                                    return false;
-                                }
-                            });
-                            insertOverlayByOrderOrSort(overlays, star);
-                            star.showOverlay();
+                        for(com.metropia.models.Address a : result){
+                            PoiOverlayInfo poiInfo = PoiOverlayInfo.fromAddress(LandingActivity2.this, a);
+                            addAnnotationFromPoiInfo(poiInfo);
                             addrList.add(Address.fromModelAddress(a, lastLocation));
                         }
                     }
                     showODBalloon();
-                    handleFavoriteIconByZoomLevel(mapView);
-                    mapView.postInvalidate();
-//                    write2SearchBoxTag(addrList);
                     initFavoriteDropdownIfNessary(addrList, forceUpdateFavorite);
                 }
             }
@@ -3143,29 +3071,24 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	refreshInputAddresses();
     }
     
-    private void handleOD(MapView mapView, POIOverlay poi, boolean isFrom) {
-    	removeOldOD(mapView, isFrom);
-    	poi.markODPoi();
-    	poi.setIsFromPoi(isFrom);
-    	PoiOverlayInfo info = poi.getPoiOverlayInfo();
+    private void handleOD(PoiOverlayInfo poiInfo, boolean isFrom) {
+    	removeOldOD(isFrom);
     	if(isFrom) {
-    		curFrom = poi;
+    		curFrom = poiInfo;
+    		drawODBalloon(poiInfo, true);
     		curFromProvider = null;
     		curFromTime = 0;
-    		setFromInfo(info);
+    		setFromInfo(poiInfo);
     	}
     	else {
-    		curTo = poi;
-    		setToInfo(info);
+    		curTo = poiInfo;
+    		drawODBalloon(poiInfo, false);
+    		setToInfo(poiInfo);
     		if(curFrom == null && myPointOverlay != null) {
     			PoiOverlayInfo currentLocationInfo = PoiOverlayInfo.fromCurrentLocation(myPointOverlay);
-    			curFrom = new POIOverlay(mapView, Font.getBold(getAssets()), currentLocationInfo, 
-    					HotspotPlace.CENTER, null);
-    			curFrom.markODPoi();
-    			curFrom.setIsFromPoi(true);
-    			mapView.getOverlays().add(curFrom);
+    			curFrom = currentLocationInfo;
+    			drawODBalloon(currentLocationInfo, true);
     			setFromInfo(currentLocationInfo);
-    			curFrom.showBalloonOverlay();
     			if(lastLocation != null){
         			curFromProvider = lastLocation.getProvider();
                     curFromTime = lastLocation.getTime();
@@ -3176,10 +3099,22 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	if(!isMapCollapsed()) {
     		resizeMap(true);
     	}
-    	poi.showBalloonOverlay();
     }
     
-    AtomicBoolean removeOD = new AtomicBoolean(true);
+    private void drawODBalloon(PoiOverlayInfo info, boolean from) {
+    	SKAnnotation balloonAnn = new SKAnnotation();
+    	balloonAnn.setUniqueID(from ? FROM_BALLOON_ID : TO_BALLOON_ID);
+    	balloonAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
+    	balloonAnn.setLocation(new SKCoordinate(info.lon, info.lat));
+    	SKAnnotationView balloonView = new SKAnnotationView();
+    	ImageView balloonImage = new ImageView(LandingActivity2.this);
+    	balloonImage.setImageBitmap(loadBitmapOfFromToBalloon(LandingActivity2.this, from));
+    	balloonView.setView(balloonImage);
+    	balloonAnn.setAnnotationView(balloonView);
+    	mapView.addAnnotation(balloonAnn, SKAnimationSettings.ANIMATION_POP_OUT);
+    }
+    
+    private AtomicBoolean removeOD = new AtomicBoolean(true);
     
     private void setFromInfo(PoiOverlayInfo info) {
     	int marker = (info.marker == R.drawable.transparent_poi && StringUtils.isBlank(info.address)) ? R.drawable.landing_page_current_location : info.marker;
@@ -3200,41 +3135,41 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	    removeOD.set(true);
     }
     
-    private boolean hideStarredBalloon(){
-        boolean handled = false;
-        MapView mapView = (MapView) findViewById(R.id.mapview);
-        List<Overlay> overlays = mapView.getOverlays();
-        for (Overlay overlay : overlays) {
-            if(overlay instanceof POIOverlay){
-                POIOverlay poiOverlay = (POIOverlay)overlay;
-                if(isFavoriteMark(poiOverlay.getMarker())){
-                    if(poiOverlay.isBalloonVisible() && !isMarkedOD(poiOverlay)){
-                	    poiOverlay.hideBalloon();
-                        handled = true;
-                    }
-                }
-            }
-        }
-        return handled;
-    }
-    
-    private boolean hideBulbBalloon(){
-        boolean handled = false;
-        MapView mapView = (MapView) findViewById(R.id.mapview);
-        List<Overlay> overlays = mapView.getOverlays();
-        for (Overlay overlay : overlays) {
-            if(overlay instanceof POIOverlay){
-                POIOverlay poiOverlay = (POIOverlay)overlay;
-                if(poiOverlay.getMarker() == R.drawable.bulb_poi){
-                    if(poiOverlay.isBalloonVisible() && !isMarkedOD(poiOverlay)){
-                    	poiOverlay.hideBalloon();
-                        handled = true;
-                    }
-                }
-            }
-        }
-        return handled;
-    }
+//    private boolean hideStarredBalloon(){
+//        boolean handled = false;
+//        MapView mapView = (MapView) findViewById(R.id.mapview);
+//        List<Overlay> overlays = mapView.getOverlays();
+//        for (Overlay overlay : overlays) {
+//            if(overlay instanceof POIOverlay){
+//                POIOverlay poiOverlay = (POIOverlay)overlay;
+//                if(isFavoriteMark(poiOverlay.getMarker())){
+//                    if(poiOverlay.isBalloonVisible() && !isMarkedOD(poiOverlay)){
+//                	    poiOverlay.hideBalloon();
+//                        handled = true;
+//                    }
+//                }
+//            }
+//        }
+//        return handled;
+//    }
+//    
+//    private boolean hideBulbBalloon(){
+//        boolean handled = false;
+//        MapView mapView = (MapView) findViewById(R.id.mapview);
+//        List<Overlay> overlays = mapView.getOverlays();
+//        for (Overlay overlay : overlays) {
+//            if(overlay instanceof POIOverlay){
+//                POIOverlay poiOverlay = (POIOverlay)overlay;
+//                if(poiOverlay.getMarker() == R.drawable.bulb_poi){
+//                    if(poiOverlay.isBalloonVisible() && !isMarkedOD(poiOverlay)){
+//                    	poiOverlay.hideBalloon();
+//                        handled = true;
+//                    }
+//                }
+//            }
+//        }
+//        return handled;
+//    }
     
     private RouteRect cityRange;
     private String cityName = CityRequest.NO_CITY_NAME;
@@ -3302,13 +3237,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private RouteRect routeRect;
     
     private void zoomMapToFitBulbPOIs(){
-        if(routeRect != null){
-        	MapView mapView = (MapView) findViewById(R.id.mapview);
-            IMapController mc = mapView.getController();
-            GeoPoint mid = routeRect.getMidPoint();
-            int[] range = routeRect.getRange();
-            mc.zoomToSpan(range[0], range[1]);
-            mc.setCenter(mid);
+    	if(routeRect != null){
+            GeoPoint topLeft = routeRect.getTopLeftPoint();
+            GeoPoint bottomRight = routeRect.getBottomRightPoint();
+			final SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude());
+			mapView.fitBoundingBox(boundingBox, 100, 100);
         }
     }
     
@@ -3331,49 +3264,32 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
             @Override
             protected void onPostExecute(final List<com.metropia.requests.WhereToGoRequest.Location> locs) {
-//                final int zoomLevel = calculateZoomLevel(lat);
-                final MapView mapView = (MapView) findViewById(R.id.mapview);
-                final IMapController mc = mapView.getController();
                 if (ehs.hasExceptions()) {
                     //ehs.reportExceptions();
                     routeRect = null;
                     if(rezoom){
-                        mc.setZoom(DEFAULT_ZOOM_LEVEL);
-                        mc.setCenter(new GeoPoint(lat, lon));
+                        mapView.setZoom(DEFAULT_ZOOM_LEVEL);
+                        mapView.centerMapOnPosition(new SKCoordinate(lon, lat));
                     }
                 }
                 else {
                     refreshStarredPOIs(new Runnable() {
                         @Override
                         public void run() {
-                            List<Overlay> overlays = mapView.getOverlays();
-                            List<Overlay> otherOverlays = new ArrayList<Overlay>();
-                            for (Overlay overlay : overlays) {
-                                boolean isOther;
-                                if(overlay instanceof POIOverlay){
-                                    POIOverlay poiOverlay = (POIOverlay)overlay;
-                                    isOther = poiOverlay.getMarker() != R.drawable.bulb_poi;
-                                    if(!isOther && poiOverlay.isBalloonVisible()) {
-                                    	poiOverlay.hideBalloon();
-                                    }
-                                }else{
-                                    isOther = true;
-                                }
-                                if(isOther){
-                                    otherOverlays.add(overlay);
-                                }
+                            Set<Integer> bulbUniqueIdSet = poiContainer.getBulbUniqueIdSet();
+                            for (Integer uniqueId : bulbUniqueIdSet) {
+                                mapView.deleteAnnotation(uniqueId);
                             }
-                            overlays.clear();
-                            overlays.addAll(otherOverlays);
+                            poiContainer.cleanBulbPois();
                             Set<String> addrSet = new HashSet<String>();
                             if(locs.isEmpty()){
                                 routeRect = null;
                                 if(rezoom){
-                                    mc.setZoom(DEFAULT_ZOOM_LEVEL);
-                                    mc.setCenter(new GeoPoint(lat, lon));
+                                    mapView.setZoom(DEFAULT_ZOOM_LEVEL);
+                                    mapView.centerMapOnPosition(new SKCoordinate(lon, lat));
                                 }
                             }else{
-                                drawBulbPOIs(mapView, locs);
+                                drawBulbPOIs(locs);
                                 List<GeoPoint> points = new ArrayList<GeoPoint>();
                                 points.add(new GeoPoint(lat, lon));
                                 for(com.metropia.requests.WhereToGoRequest.Location l : locs){
@@ -3388,8 +3304,6 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
                                 }
                             }
                             showODBalloon();
-                            mapView.postInvalidate();
-//                            write2SearchBoxTag(addrSet);
                             refreshSearchAutoCompleteData();
                         }
                     }, false);
@@ -3402,91 +3316,31 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     private static final Integer POIOVERLAY_HIDE_ZOOM_LEVEL = 5;
     private static final String LOADING_ADDRESS = "Loading Address...";
     
-    private void bindMapFunctions(final MapView mapView){
-        EventOverlay eventOverlay = new EventOverlay(this);
-        eventOverlay.setActionListener(new EventOverlay.ActionListener() {
-            @Override
-            public void onLongPress(final double lat, final double lon) {
-            	mapView.getController().animateTo(getCenterGeoPointByMapSize(mapView, lat, lon));
-            	Screen xy = getPopupFavIconPosition(mapView);
-                POIOverlay marker = refreshPOIMarker(mapView, lat, lon, LOADING_ADDRESS, "");
-                showPopupMenu(xy, marker.getPoiOverlayInfo());
-                ReverseGeocodingTask task = new ReverseGeocodingTask(LandingActivity2.this, lat, lon){
-                    @Override
-                    protected void onPostExecute(String result) {
-                    	updatePopupMenu(result);
-                    }
-                };
-                Misc.parallelExecute(task);
-            }
-            @Override
-            public void onSingleTap() {
-//	            boolean handledStarred = hideStarredBalloon();
-//	            boolean handledBulb = hideBulbBalloon();
-//	            boolean handledPOI = removePOIMarker(mapView);
-//	            boolean handledOD = removeOldOD(mapView, isFromPoi());
-	            boolean hasFocus = searchBox.isFocused() || fromSearchBox.isFocused();
-	            boolean hasFavoriteDropDown = DROP_STATE.equals(fromDropDownButton.getTag()) || 
-	             		DROP_STATE.equals(toDropDownButton.getTag());
-	            if(hasFavoriteDropDown) {
-	              	if(DROP_STATE.equals(fromDropDownButton.getTag())) {
-	               		fromDropDownButton.performClick();
-	               	}
-	               	else {
-	               		toDropDownButton.performClick();
-	               	}
-	            }
-	                
-	            if(hasFocus) {
-	              	searchBox.clearFocus();
-	               	fromSearchBox.clearFocus();
-	            }
-	            if(/*!handledStarred && !handledBulb && !handledPOI && !handledOD &&*/ !hasFocus && !hasFavoriteDropDown){
-	                resizeMap(!isMapCollapsed());
-	            }
-            }
-        });
-        mapView.getOverlays().add(eventOverlay);
-        
-        mapView.setMapListener(new MapListener() {
-			@Override
-			public boolean onScroll(ScrollEvent event) {
-				return false;
-			}
-
-			@Override
-			public boolean onZoom(ZoomEvent event) {
-				handleFavoriteIconByZoomLevel(mapView);
-				return false;
-			}
-		});
-    }
-    
-    private void handleFavoriteIconByZoomLevel(MapView mapView) {
-    	List<Overlay> overlays = mapView.getOverlays();
-    	if(mapView.getZoomLevel() <= POIOVERLAY_HIDE_ZOOM_LEVEL) {
-			for(Overlay overlay : overlays) {
-				if(overlay instanceof POIOverlay && overlay.isEnabled()) {
-					overlay.setEnabled(false);
-				}
-			}
-			mapView.postInvalidate();
-		}
-		else if(mapView.getZoomLevel() > POIOVERLAY_HIDE_ZOOM_LEVEL){
-			for(Overlay overlay : overlays) {
-				if(overlay instanceof POIOverlay && !overlay.isEnabled()) {
-					if(((POIOverlay)overlay).getMarker() == R.drawable.bulb_poi) {
-						overlay.setEnabled(MapDisplayActivity.isPredictDestEnabled(LandingActivity2.this));
-					}
-					else {
-						overlay.setEnabled(true);
-					}
-				}
-			}
-			insertOverlayByOrderOrSort(mapView.getOverlays(), null);
-			mapView.postInvalidate();
-		}
-    }
+//    private void handleFavoriteIconByZoomLevel(MapView mapView) {
+//    	List<Overlay> overlays = mapView.getOverlays();
+//    	if(mapView.getZoomLevel() <= POIOVERLAY_HIDE_ZOOM_LEVEL) {
+//			for(Overlay overlay : overlays) {
+//				if(overlay instanceof POIOverlay && overlay.isEnabled()) {
+//					overlay.setEnabled(false);
+//				}
+//			}
+//			mapView.postInvalidate();
+//		}
+//		else if(mapView.getZoomLevel() > POIOVERLAY_HIDE_ZOOM_LEVEL){
+//			for(Overlay overlay : overlays) {
+//				if(overlay instanceof POIOverlay && !overlay.isEnabled()) {
+//					if(((POIOverlay)overlay).getMarker() == R.drawable.bulb_poi) {
+//						overlay.setEnabled(MapDisplayActivity.isPredictDestEnabled(LandingActivity2.this));
+//					}
+//					else {
+//						overlay.setEnabled(true);
+//					}
+//				}
+//			}
+//			insertOverlayByOrderOrSort(mapView.getOverlays(), null);
+//			mapView.postInvalidate();
+//		}
+//    }
     
 	private void showPopupMenu(Screen xy, PoiOverlayInfo info) {
     	poiIcon.setVisibility(View.VISIBLE);
@@ -3503,8 +3357,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	int poiIconHeight = poiIconWidth;
     	
     	FrameLayout.LayoutParams poiLp = (android.widget.FrameLayout.LayoutParams) poiIcon.getLayoutParams();
-    	poiLp.leftMargin = xy.x - (poiIconWidth / 2);
-    	poiLp.topMargin = xy.y - (poiIconHeight / 2);
+    	poiLp.leftMargin = Float.valueOf(xy.x).intValue() - (poiIconWidth / 2);
+    	poiLp.topMargin = Float.valueOf(xy.y).intValue() - (poiIconHeight / 2);
     	poiIcon.setLayoutParams(poiLp);
     	
     	editMenu.setVisibility(View.VISIBLE);
@@ -3520,8 +3374,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	DisplayMetrics dm = getResources().getDisplayMetrics();
     	editMenu.setTag(imageResourceIds);
     	FrameLayout.LayoutParams editMenuLp = (android.widget.FrameLayout.LayoutParams) editMenu.getLayoutParams();
-    	editMenuLp.leftMargin = xy.x - (menuButtonWidth / 2);
-    	editMenuLp.topMargin = xy.y - (menuButtonHeight + poiIconHeight / 2 + Dimension.dpToPx(20, dm));
+    	editMenuLp.leftMargin = Float.valueOf(xy.x).intValue() - (menuButtonWidth / 2);
+    	editMenuLp.topMargin = Float.valueOf(xy.y).intValue() - (menuButtonHeight + poiIconHeight / 2 + Dimension.dpToPx(20, dm));
     	editMenu.setLayoutParams(editMenuLp);
     	
     	Screen corespondXY = new Screen();
@@ -3531,14 +3385,14 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	Screen fromXY = getRelativeCoorOfDegree(corespondXY, -65);
     	fromMenu.setVisibility(View.VISIBLE);
     	FrameLayout.LayoutParams fromMenuLp = (android.widget.FrameLayout.LayoutParams) fromMenu.getLayoutParams();
-    	fromMenuLp.leftMargin = xy.x - fromXY.x - (menuButtonWidth / 2);
-    	fromMenuLp.topMargin = xy.y - fromXY.y - (menuButtonWidth / 2);
+    	fromMenuLp.leftMargin = Float.valueOf(xy.x).intValue() - Float.valueOf(fromXY.x).intValue() - (menuButtonWidth / 2);
+    	fromMenuLp.topMargin = Float.valueOf(xy.y).intValue() - Float.valueOf(fromXY.y).intValue() - (menuButtonWidth / 2);
     	fromMenu.setLayoutParams(fromMenuLp);
     	
     	toMenu.setVisibility(View.VISIBLE);
     	FrameLayout.LayoutParams toMenuLp = (android.widget.FrameLayout.LayoutParams) toMenu.getLayoutParams();
-    	toMenuLp.leftMargin = xy.x + fromXY.x - (menuButtonWidth / 2);
-    	toMenuLp.topMargin = xy.y - fromXY.y - (menuButtonWidth / 2);
+    	toMenuLp.leftMargin = Float.valueOf(xy.x).intValue() + Float.valueOf(fromXY.x).intValue() - (menuButtonWidth / 2);
+    	toMenuLp.topMargin = Float.valueOf(xy.y).intValue() - Float.valueOf(fromXY.y).intValue() - (menuButtonWidth / 2);
     	toMenu.setLayoutParams(toMenuLp);
     	
     	addressInfo.setVisibility(View.VISIBLE);
@@ -3557,8 +3411,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	popupPanel.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				MapView mapView = (MapView) findViewById(R.id.mapview);
-				removePOIMarker(mapView);
+				removePOIMarker();
 				hidePopupMenu();
 			}
         });
@@ -3615,40 +3468,20 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	}
     
 	// temporarily always show center
-    public Screen getScreenXY(MapView mapView, double lat, double lon) {
-    	Screen widthHeight = getScreenWidthHeight(mapView);
-    	Point reuse = null;
-    	Projection projection = mapView.getProjection();
-    	IGeoPoint northEast = projection.getNorthEast();
-    	GeoPoint in = new GeoPoint(lat, lon);
-    	reuse = projection.toPixels(in, reuse);
-    	int x = reuse.x;
-    	int y = reuse.y;
-    	reuse = projection.toPixels(northEast, reuse);
-    	int nx = reuse.x;
-    	int ny = reuse.y;
+    public Screen getScreenXY(double lat, double lon) {
+    	SKScreenPoint poiScreenPoint = mapView.coordinateToPoint(new SKCoordinate(lon, lat));
     	Screen pointXY = new Screen();
-    	pointXY.x = widthHeight.x / 2;
-    	pointXY.y = widthHeight.y / 2 ;
-    	pointXY.x = widthHeight.x + x - nx;
-    	pointXY.y = y-ny;
+    	pointXY.x = poiScreenPoint.getX();
+    	pointXY.y = poiScreenPoint.getY();
     	return pointXY;
     }
     
-    public Screen getScreenWidthHeight(MapView mapView) {
-    	Point reuse = null;
-    	Projection projection = mapView.getProjection();
-    	IGeoPoint northEast = projection.getNorthEast();
-    	reuse = projection.toPixels(northEast, reuse);
-    	int nx = reuse.x;
-    	int ny = reuse.y;
-    	IGeoPoint southWest = projection.getSouthWest();
-    	reuse = projection.toPixels(southWest, reuse);
-    	int sx = reuse.x;
-    	int sy = reuse.y;
+    public Screen getScreenWidthHeight() {
+    	SKCoordinateRegion currentMapRegion = mapView.getCurrentMapRegion();
+    	SKScreenPoint centerPoint = mapView.coordinateToPoint(currentMapRegion.getCenter());
     	Screen screen = new Screen();
-    	screen.x = nx - sx;
-    	screen.y = sy - ny;
+    	screen.x = 2 * centerPoint.getX();
+    	screen.y = 2 * centerPoint.getY();
     	return screen;
     }
     
@@ -3661,20 +3494,21 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private static class Screen {
-    	public int x;
-    	public int y;
+    	public float x;
+    	public float y;
     }
     
-    private Screen getScreenCenter(MapView mapView) {
-       	Screen widthHeight = getScreenWidthHeight(mapView);
+    private Screen getScreenCenter() {
+    	SKCoordinateRegion currentMapRegion = mapView.getCurrentMapRegion();
+    	SKScreenPoint centerPoint = mapView.coordinateToPoint(currentMapRegion.getCenter());
        	Screen pointXY = new Screen();
-       	pointXY.x = widthHeight.x / 2;
-       	pointXY.y = widthHeight.y / 2 ;
+       	pointXY.x = centerPoint.getX();
+       	pointXY.y = centerPoint.getY();
        	return pointXY;
     }
     
-    private IGeoPoint getCenterGeoPointByMapSize(MapView mapView, double lat, double lon) {
-    	Screen favXY = getScreenXY(mapView, lat, lon);
+    private SKCoordinate getCenterGeoPointByMapSize(double lat, double lon) {
+    	Screen favXY = getScreenXY(lat, lon);
     	Screen centerOfMap = new Screen();
     	centerOfMap.x = favXY.x;
     	centerOfMap.y = favXY.y;
@@ -3685,11 +3519,11 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 	        int myMetropiaPanelHeight = myMetropiaPanel.getHeight();
 	        centerOfMap.y = favXY.y - landingPanelHeight + myMetropiaPanelHeight;
     	}
-    	return mapView.getProjection().fromPixels(centerOfMap.x, centerOfMap.y);
+    	return mapView.pointToCoordinate(new SKScreenPoint(centerOfMap.x, centerOfMap.y));
     }
     
-    private Screen getPopupFavIconPosition(MapView mapView) {
-    	Screen center = getScreenCenter(mapView);
+    private Screen getPopupFavIconPosition() {
+    	Screen center = getScreenCenter();
     	Screen centerOfMap = new Screen();
     	centerOfMap.x = center.x;
     	centerOfMap.y = center.y;
@@ -3704,15 +3538,13 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     }
     
     private boolean isMapCollapsed(){
-        View mapView = findViewById(R.id.mapview);
-        Boolean collapsedTag = (Boolean) mapView.getTag();
+        Boolean collapsedTag = (Boolean) mapViewHolder.getTag();
         boolean collapsed = collapsedTag == null?true:collapsedTag.booleanValue();
         return collapsed;
     }
     
     private void resizeMap(boolean collapsed){
-        View mapView = findViewById(R.id.mapview);
-        mapView.setTag(collapsed);
+        mapViewHolder.setTag(collapsed);
         View landingPanelView = findViewById(R.id.landing_panel_content);
         int landingPanelHeight = landingPanelView.getHeight();
         ObjectAnimator landingPanelAnimator;
@@ -3807,41 +3639,32 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         
     }
     
-    private boolean removePOIMarker(MapView mapView){
-        boolean handled = false;
-        List<Overlay> overlays = mapView.getOverlays();
-        for (Overlay overlay : overlays) {
-            if(overlay instanceof POIOverlay ){
-            	POIOverlay curOverlay = (POIOverlay)overlay;
-            	if(curOverlay.getMarker() == R.drawable.poi_pin && !isMarkedOD(curOverlay)) {
-	            	Log.d("LandingActivity2", "removePOIMarker : " + curOverlay);
-	                if(curOverlay.isBalloonVisible()){
-	                    curOverlay.hideBalloon();
-	                    handled = true;
-	                }
-	                overlays.remove(curOverlay);
-	                mapView.postInvalidate();
-	                break;
-            	}
-            }
+    private void removePOIMarker(){
+        for(Integer removeUniqueId : getRemainPOIMarkerId()) {
+        	mapView.deleteAnnotation(removeUniqueId);
         }
-        return handled;
     }
     
-    private boolean isMarkedOD(Overlay overlay) {
-    	return overlay == curFrom || overlay == curTo;
+    private Integer[] getRemainPOIMarkerId() {
+    	Integer[] poiMarkerUniqueIds = {POI_MARKER_ONE, POI_MARKER_TWO, POI_MARKER_THREE};
+        if(curFrom != null && ArrayUtils.contains(poiMarkerUniqueIds, curFrom.uniqueId)) {
+        	poiMarkerUniqueIds = ArrayUtils.removeElement(poiMarkerUniqueIds, curFrom.uniqueId);
+        }
+        
+        if(curTo != null && ArrayUtils.contains(poiMarkerUniqueIds, curTo.uniqueId)) {
+        	poiMarkerUniqueIds = ArrayUtils.removeElement(poiMarkerUniqueIds, curTo.uniqueId);
+        }
+        return poiMarkerUniqueIds;
     }
     
     private boolean isFromOrToSetted() {
     	return curFrom != null || curTo != null;
     }
     
-    private boolean removeAllOD() {
-    	MapView mapView = (MapView) findViewById(R.id.mapview);
-    	boolean handleFrom = removeOldOD(mapView, true);
-    	boolean handleTo = removeOldOD(mapView, false);
+    private void removeAllOD() {
+    	removeOldOD(true);
+    	removeOldOD(false);
     	cleanSearchBox();
-    	return handleFrom || handleTo;
     }
     
     private void cleanSearchBox() {
@@ -3853,44 +3676,35 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 		clearFromSearchResult();
     }
     
-    private boolean removeOldOD(MapView mapView, boolean from) {
-    	List<Overlay> overlays = mapView.getOverlays();
+    private static final Integer FROM_BALLOON_ID = 0;
+    private static final Integer TO_BALLOON_ID = FROM_BALLOON_ID + 100;
+    private static final Integer ROUTE_DESTINATION_ID = TO_BALLOON_ID + 1;
+    private static final Integer POI_MARKER_ONE = ROUTE_DESTINATION_ID + 1;
+    private static final Integer POI_MARKER_TWO = POI_MARKER_ONE + 1;
+    private static final Integer POI_MARKER_THREE = POI_MARKER_TWO + 1;
+    
+    private void removeOldOD(boolean from) {
+    	Integer[] poiMarkerIds = {POI_MARKER_ONE, POI_MARKER_TWO, POI_MARKER_THREE};
     	if(from) {
     		fromIcon.setVisibility(View.INVISIBLE);
+    		if(curFrom != null && curFrom.uniqueId > 0 && ArrayUtils.contains(poiMarkerIds, curFrom.uniqueId)) {
+    			mapView.deleteAnnotation(curFrom.uniqueId);
+    		}
+    		mapView.deleteAnnotation(FROM_BALLOON_ID);
     		curFrom = null;
     	}
     	else {
     		toIcon.setVisibility(View.INVISIBLE);
+    		if(curTo != null && curTo.uniqueId > 0 && ArrayUtils.contains(poiMarkerIds, curTo.uniqueId)) {
+    			mapView.deleteAnnotation(curTo.uniqueId);
+    		}
+    		mapView.deleteAnnotation(TO_BALLOON_ID);
     		curTo = null;
     		toggleGetRouteButton(false);
     	}
-    	
-    	boolean handle = false;
-	    for (Overlay overlay : overlays) {
-	        if(overlay instanceof POIOverlay){
-	            POIOverlay poiOverlay = (POIOverlay)overlay;
-	            if(poiOverlay.isMarked() && (from == poiOverlay.isFromPoi())){
-	             	handle = true;
-	                if(poiOverlay.isBalloonVisible()){
-	              	    poiOverlay.hideBalloon();
-	                }
-	                if(poiOverlay.getMarker() == R.drawable.poi_pin || poiOverlay.getMarker() == R.drawable.transparent_poi) {
-	                 	overlays.remove(poiOverlay);
-	                }
-	                else {
-	                  	poiOverlay.cancelMark();
-	                }
-	                mapView.postInvalidate();
-	                break;
-	            }
-	        }
-	    }
-	    
-        return handle;
     }
     
-    private POIOverlay refreshPOIMarker(final MapView mapView, final double lat, final double lon,
-            final String address, final String label){
+    private PoiOverlayInfo refreshPOIMarker(double lat, double lon, String address, String label){
         GeoPoint gp = new GeoPoint(lat, lon);
         BalloonModel model = new BalloonModel();
         model.lat = lat;
@@ -3898,44 +3712,40 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         model.address = address;
         model.label = label;
         model.geopoint = gp;
-        final PoiOverlayInfo poiInfo = PoiOverlayInfo.fromBalloonModel(model);
-        final POIOverlay marker = new POIOverlay(mapView, Font.getBold(getAssets()), poiInfo, 
-        		HotspotPlace.CENTER , null);
-        
-        marker.setCallback(new OverlayCallback() {
-            @Override
-            public boolean onTap(int index) {
-            	if(marker.isEnabled()) {
-	            	mapView.getController().animateTo(getCenterGeoPointByMapSize(mapView, poiInfo.lat, poiInfo.lon));
-	            	Screen xy = getPopupFavIconPosition(mapView);
-	                showPopupMenu(xy, poiInfo);
-	                mapView.postInvalidate();
-	                return true;
-            	}
-            	return false;
-            }
-            @Override
-            public boolean onLongPress(int index, OverlayItem item) {
-                return false;
-            }
-            
-            @Override
-            public boolean onClose() {
-                return false;
-            }
-            @Override
-            public void onChange() {
-            }
-            @Override
-            public boolean onBalloonTap(int index, OverlayItem item) {
-            	return false;
-            }
-        });
-        List<Overlay> overlays = mapView.getOverlays();
-        overlays.add(marker);
-        marker.showOverlay();
-        mapView.postInvalidate();
-        return marker;
+        PoiOverlayInfo poiInfo = PoiOverlayInfo.fromBalloonModel(model);
+        addPOIMarker(poiInfo);
+        return poiInfo;
+    }
+    
+    private void addPOIMarker(PoiOverlayInfo markerInfo) {
+    	Integer[] poiMarkerIds = getRemainPOIMarkerId();
+    	if(poiMarkerIds.length > 0) {
+    		Integer uniqueId = poiMarkerIds[0];
+    		markerInfo.uniqueId = uniqueId;
+    		SKAnnotation incAnn = new SKAnnotation();
+    		incAnn.setUniqueID(uniqueId);
+    		incAnn.setLocation(new SKCoordinate(markerInfo.lon, markerInfo.lat));
+    		incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
+    		SKAnnotationView iconView = new SKAnnotationView();
+    		ImageView incImage = new ImageView(LandingActivity2.this);
+    		incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, markerInfo.markerWithShadow, 1));
+    		iconView.setView(incImage);
+    		incAnn.setAnnotationView(iconView);
+    		mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+    	}
+    }
+    
+    private void addAnnotationFromPoiInfo(PoiOverlayInfo poiInfo) {
+    	SKAnnotation incAnn = new SKAnnotation();
+		incAnn.setUniqueID(poiContainer.addPOIToMap(poiInfo));
+		incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
+		incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
+		SKAnnotationView iconView = new SKAnnotationView();
+		ImageView incImage = new ImageView(LandingActivity2.this);
+		incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, 1));
+		iconView.setView(incImage);
+		incAnn.setAnnotationView(iconView);
+		mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
     }
     
     private void updateMyMetropiaInfo() {
@@ -4025,117 +3835,82 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
     	return -1;
     }
     
-    private synchronized void drawBulbPOIs(final MapView mapView, List<com.metropia.requests.WhereToGoRequest.Location> locs) {
-        List<Overlay> overlays = mapView.getOverlays();
-        for (Overlay overlay : overlays) {
-            if(overlay instanceof POIOverlay){
-                POIOverlay poiOverlay = (POIOverlay)overlay;
-                if(poiOverlay.getMarker() == R.drawable.bulb_poi){
-                    overlays.remove(overlay);
-                }
-            }
+    private synchronized void drawBulbPOIs(List<com.metropia.requests.WhereToGoRequest.Location> locs) {
+        Set<Integer> bulbUniqueIdSet = poiContainer.getBulbUniqueIdSet();
+        for (Integer uniqueId : bulbUniqueIdSet) {
+            mapView.deleteAnnotation(uniqueId);
         }
+        poiContainer.cleanBulbPois();
         
         initFontsIfNecessary();
         for(final com.metropia.requests.WhereToGoRequest.Location l:locs){
-            final PoiOverlayInfo poiInfo = PoiOverlayInfo.fromLocation(l);
-            final POIOverlay bulb = new POIOverlay(mapView, boldFont, poiInfo, 
-            		HotspotPlace.CENTER, null);
-            bulb.setCallback(new OverlayCallback() {
-                @Override
-                public boolean onTap(int index) {
-                	if(bulb.isEnabled()) {
-	                	mapView.getController().animateTo(getCenterGeoPointByMapSize(mapView, poiInfo.lat, poiInfo.lon));
-	                    Screen xy = getPopupFavIconPosition(mapView);
-	                    showPopupMenu(xy, poiInfo);
-	                    mapView.postInvalidate();
-	                    return true;
-                	}
-                	return false;
-                }
-                @Override
-                public boolean onLongPress(int index, OverlayItem item) {
-                    return true;
-                }
-                @Override
-                public boolean onClose() {
-                    return false;
-                }
-                @Override
-                public void onChange() {
-                }
-                @Override
-                public boolean onBalloonTap(int index, OverlayItem item) {
-                    return false;
-                }
-            });
-            insertOverlayByOrderOrSort(overlays, bulb);
-            bulb.showOverlay();
-            showODBalloon();
+            PoiOverlayInfo poiInfo = PoiOverlayInfo.fromLocation(l);
+            addAnnotationFromPoiInfo(poiInfo);
         }
+        showODBalloon();
     }
     
-    /**
-     * insert overlay by the order, current location > home > work > fav
-     * @param mapOverlays
-     * @param overlay
-     */
-    private void insertOverlayByOrderOrSort(List<Overlay> mapOverlays, POIOverlay overlay) {
-    	List<Overlay> homeOverlay = new ArrayList<Overlay>();
-    	List<Overlay> workOverlay = new ArrayList<Overlay>();
-    	List<Overlay> otherFavOverlay = new ArrayList<Overlay>();
-    	List<Overlay> bulbOverlay = new ArrayList<Overlay>();
-    	List<Overlay> otherOverlay = new ArrayList<Overlay>();
-    	Overlay currentLocationOverlay = null;
-    	if(overlay != null) {
-	    	if(R.drawable.home == overlay.getMarker()) {
-	    		homeOverlay.add(overlay);
-	    	}
-	    	else if(R.drawable.work == overlay.getMarker()){
-	    		 workOverlay.add(overlay);
-	    	}
-	    	else if(R.drawable.bulb_poi == overlay.getMarker()) {
-	    		overlay.setEnabled(MapDisplayActivity.isPredictDestEnabled(LandingActivity2.this));
-	    		bulbOverlay.add(overlay);
-	    	}
-	    	else {
-	    		otherFavOverlay.add(overlay);
-	    	}
-    	}
-    	
-    	for(Overlay cur : mapOverlays) {
-    		if(cur instanceof POIOverlay) {
-    			if(R.drawable.home == ((POIOverlay)cur).getMarker()) {
-    				homeOverlay.add(cur);
-    			}
-    			else if(R.drawable.work == ((POIOverlay)cur).getMarker()) {
-    				workOverlay.add(cur);
-    			}
-    			else if(R.drawable.bulb_poi == ((POIOverlay)cur).getMarker()) {
-    	    		bulbOverlay.add(cur);
-    	    	}
-    			else {
-    				otherFavOverlay.add(cur);
-    			}
-    		}
-    		else if(cur instanceof CurrentLocationOverlay) {
-    			currentLocationOverlay = cur;
-    		}
-    		else {
-    			otherOverlay.add(cur);
-    		}
-    	}
-    	
-    	mapOverlays.clear();
-    	mapOverlays.addAll(otherOverlay);
-    	mapOverlays.addAll(bulbOverlay);
-    	if(currentLocationOverlay != null) {
-    		mapOverlays.add(currentLocationOverlay);
-    	}
-    	mapOverlays.addAll(otherFavOverlay);
-    	mapOverlays.addAll(workOverlay);
-    	mapOverlays.addAll(homeOverlay);
-    }
+//    /**
+//     * insert overlay by the order, current location > home > work > fav
+//     * @param mapOverlays
+//     * @param overlay
+//     */
+//    private void insertOverlayByOrderOrSort(List<Overlay> mapOverlays, POIOverlay overlay) {
+//    	List<Overlay> homeOverlay = new ArrayList<Overlay>();
+//    	List<Overlay> workOverlay = new ArrayList<Overlay>();
+//    	List<Overlay> otherFavOverlay = new ArrayList<Overlay>();
+//    	List<Overlay> bulbOverlay = new ArrayList<Overlay>();
+//    	List<Overlay> otherOverlay = new ArrayList<Overlay>();
+//    	Overlay currentLocationOverlay = null;
+//    	if(overlay != null) {
+//	    	if(R.drawable.home == overlay.getMarker()) {
+//	    		homeOverlay.add(overlay);
+//	    	}
+//	    	else if(R.drawable.work == overlay.getMarker()){
+//	    		 workOverlay.add(overlay);
+//	    	}
+//	    	else if(R.drawable.bulb_poi == overlay.getMarker()) {
+//	    		overlay.setEnabled(MapDisplayActivity.isPredictDestEnabled(LandingActivity2.this));
+//	    		bulbOverlay.add(overlay);
+//	    	}
+//	    	else {
+//	    		otherFavOverlay.add(overlay);
+//	    	}
+//    	}
+//    	
+//    	for(Overlay cur : mapOverlays) {
+//    		if(cur instanceof POIOverlay) {
+//    			if(R.drawable.home == ((POIOverlay)cur).getMarker()) {
+//    				homeOverlay.add(cur);
+//    			}
+//    			else if(R.drawable.work == ((POIOverlay)cur).getMarker()) {
+//    				workOverlay.add(cur);
+//    			}
+//    			else if(R.drawable.bulb_poi == ((POIOverlay)cur).getMarker()) {
+//    	    		bulbOverlay.add(cur);
+//    	    	}
+//    			else {
+//    				otherFavOverlay.add(cur);
+//    			}
+//    		}
+//    		else if(cur instanceof CurrentLocationOverlay) {
+//    			currentLocationOverlay = cur;
+//    		}
+//    		else {
+//    			otherOverlay.add(cur);
+//    		}
+//    	}
+//    	
+//    	mapOverlays.clear();
+//    	mapOverlays.addAll(otherOverlay);
+//    	mapOverlays.addAll(bulbOverlay);
+//    	if(currentLocationOverlay != null) {
+//    		mapOverlays.add(currentLocationOverlay);
+//    	}
+//    	mapOverlays.addAll(otherFavOverlay);
+//    	mapOverlays.addAll(workOverlay);
+//    	mapOverlays.addAll(homeOverlay);
+//    }
     
     @Override
     protected void onDestroy() {
@@ -4167,36 +3942,18 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
         }
         else if(requestCode == FavoriteOperationActivity.FAVORITE_OPT && resultCode == Activity.RESULT_OK) {
         	hideTripInfoPanel();
-        	MapView mapView = (MapView) findViewById(R.id.mapview);
         	String optType = extras.getString(FavoriteOperationActivity.FAVORITE_OPT_TYPE);
         	if(FavoriteOperationActivity.FAVORITE_UPDATE.equals(optType)) {
 	        	refreshStarredPOIsAndUpdateFavoriteList();
-	        	removePOIMarker(mapView);
+	        	removePOIMarker();
         	}
         	else if(FavoriteOperationActivity.FAVORITE_DELETE.equals(optType)) {
-        		Integer deleteId = extras.getInt(FavoriteOperationActivity.FAVORITE_POI_ID);
-        		List<Overlay> overlays = mapView.getOverlays();
-				List<Overlay> overlaysToKeep = new ArrayList<Overlay>();
-				for (Overlay overlay : overlays) {
-					boolean toKeep;
-					if (overlay instanceof POIOverlay) {
-						POIOverlay poiOverlay = (POIOverlay) overlay;
-						toKeep = !isFavoriteMark(poiOverlay.getMarker()) || poiOverlay.getAid() != deleteId;
-					} else {
-						toKeep = true;
-					}
-					if (toKeep) {
-						overlaysToKeep
-								.add(overlay);
-					}
-				}
-				overlays.clear();
-				overlays.addAll(overlaysToKeep);
-				mapView.postInvalidate();
+        		Integer deleteUniqueId = extras.getInt(FavoriteOperationActivity.FAVORITE_POI_UNIQUE_ID);
+        		mapView.deleteAnnotation(deleteUniqueId);
 				refreshStarredPOIs();
         	}
         	else {
-        		removePOIMarker(mapView);
+        		removePOIMarker();
         	}
         }
     }
@@ -4286,6 +4043,7 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 
     float[] mGravity;
     float[] mGeomagnetic;
+    
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
             mGravity = event.values;
@@ -4302,8 +4060,8 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
 //                float azimut = Double.valueOf(Math.toDegrees(orientation[0])).floatValue();
                 if(myPointOverlay != null){
 //                    myPointOverlay.setDegrees(azimut);
-                    MapView mapView = (MapView)findViewById(R.id.mapview);
-                    mapView.postInvalidate();
+//                    MapView mapView = (MapView)findViewById(R.id.mapview);
+//                    mapView.postInvalidate();
                 }
             }
         }
@@ -4486,5 +4244,123 @@ public final class LandingActivity2 extends FragmentActivity implements SensorEv
             }
         }
     }
+
+	@Override
+	public void onActionPan() {}
+
+	@Override
+	public void onActionZoom() {}
+
+	@Override
+	public void onAnnotationSelected(SKAnnotation annotation) {
+		if(mapView.getZoomLevel() >= POIOVERLAY_HIDE_ZOOM_LEVEL) {
+			Log.d("LandingActivity2", "Selected Annotation Unique ID : " + annotation.getUniqueID());
+			PoiOverlayInfo poiInfo = poiContainer.getExistedPOIByUniqueId(annotation.getUniqueID());
+			Log.d("LandingActivity2", "poiInfo is null ? " + (poiInfo == null));
+			if(poiInfo != null) {
+				mapView.centerMapOnPositionSmooth(getCenterGeoPointByMapSize(poiInfo.lat, poiInfo.lon), MAP_ANIMATION_DURATION);
+	        	Screen xy = getPopupFavIconPosition();
+	            showPopupMenu(xy, poiInfo);
+			}
+		}
+	}
+
+	@Override
+	public void onCompassSelected() {}
+
+	@Override
+	public void onCurrentPositionSelected() {}
+
+	@Override
+	public void onCustomPOISelected(SKMapCustomPOI arg0) {}
+
+	@Override
+	public void onDebugInfo(double arg0, float arg1, double arg2) {}
+
+	@Override
+	public void onDoubleTap(SKScreenPoint arg0) {}
+
+	@Override
+	public void onInternationalisationCalled(int arg0) {}
+
+	@Override
+	public void onInternetConnectionNeeded() {}
+	
+	private static final Integer MAP_ANIMATION_DURATION = Integer.valueOf(500);
+
+	@Override
+	public void onLongPress(SKScreenPoint screenPoint) {
+		SKCoordinate coordinate = mapView.pointToCoordinate(screenPoint);
+		mapView.centerMapOnPositionSmooth(getCenterGeoPointByMapSize(coordinate.getLatitude(), coordinate.getLongitude()), MAP_ANIMATION_DURATION);
+    	Screen xy = getPopupFavIconPosition();
+        PoiOverlayInfo marker = refreshPOIMarker(coordinate.getLatitude(), coordinate.getLongitude(), LOADING_ADDRESS, "");
+        showPopupMenu(xy, marker);
+        ReverseGeocodingTask task = new ReverseGeocodingTask(LandingActivity2.this, coordinate.getLatitude(), coordinate.getLongitude()){
+            @Override
+            protected void onPostExecute(String result) {
+            	updatePopupMenu(result);
+            }
+        };
+        Misc.parallelExecute(task);
+	}
+
+	@Override
+	public void onMapActionDown(SKScreenPoint arg0) {}
+
+	@Override
+	public void onMapActionUp(SKScreenPoint arg0) {}
+
+	@Override
+	public void onMapPOISelected(SKMapPOI arg0) {}
+
+	@Override
+	public void onMapRegionChangeEnded(SKCoordinateRegion arg0) {}
+
+	@Override
+	public void onMapRegionChangeStarted(SKCoordinateRegion arg0) {}
+
+	@Override
+	public void onMapRegionChanged(SKCoordinateRegion arg0) {}
+
+	@Override
+	public void onObjectSelected(int arg0) {}
+
+	@Override
+	public void onOffportRequestCompleted(int arg0) {}
+
+	@Override
+	public void onPOIClusterSelected(SKPOICluster arg0) {}
+
+	@Override
+	public void onRotateMap() {}
+
+	@Override
+	public void onScreenOrientationChanged() {}
+
+	@Override
+	public void onSingleTap(SKScreenPoint arg0) {
+		boolean hasFocus = searchBox.isFocused() || fromSearchBox.isFocused();
+        boolean hasFavoriteDropDown = DROP_STATE.equals(fromDropDownButton.getTag()) || 
+         		DROP_STATE.equals(toDropDownButton.getTag());
+        if(hasFavoriteDropDown) {
+          	if(DROP_STATE.equals(fromDropDownButton.getTag())) {
+           		fromDropDownButton.performClick();
+           	}
+           	else {
+           		toDropDownButton.performClick();
+           	}
+        }
+            
+        if(hasFocus) {
+          	searchBox.clearFocus();
+           	fromSearchBox.clearFocus();
+        }
+        if(!hasFocus && !hasFavoriteDropDown){
+            resizeMap(!isMapCollapsed());
+        }
+	}
+
+	@Override
+	public void onSurfaceCreated() {}
     
 }

@@ -6,6 +6,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import android.content.Context;
 
@@ -82,5 +84,25 @@ public class SkobblerUtils {
         }
         return mapResourcesDirPath;
 	}
+	
+	public static Integer getUniqueId(double lat, double lon) {
+		return new HashCodeBuilder().append(lat).append("+").append(lon).toHashCode();
+	}
+	
+	/**
+     * return RGBA Array (0~1)
+     */
+    public static float[] getRouteColorArray(String color) {
+    	float[] skColor = {0.6f, 0.8f, 0.0f, 1.0f}; // GREEN
+    	if(StringUtils.isNotBlank(color) && StringUtils.startsWith(color, "#")) {
+    		String RR = color.substring(1, 3);
+    		String GG = color.substring(3, 5);
+    		String BB = color.substring(5, color.length());
+    		skColor[0] = Float.valueOf(Integer.parseInt(RR, 16)) / 255.0f;
+    		skColor[1] = Float.valueOf(Integer.parseInt(GG, 16)) / 255.0f;
+    		skColor[2] = Float.valueOf(Integer.parseInt(BB, 16)) / 255.0f;
+    	}
+    	return skColor;
+    }
 
 }

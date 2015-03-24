@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -1966,7 +1965,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    			try {
 	    				List<Incident> allIncident = incidentReq.execute(ValidationActivity.this);
 	    				for(Incident inc : allIncident) {
-	    					incidents.put(getIncidentUniqueId(inc), inc);
+	    					incidents.put(SkobblerUtils.getUniqueId(inc.lat, inc.lon), inc);
 	    				}
 	    			} catch (Exception ignore) {return false;}
 	    			return true;
@@ -2170,10 +2169,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    mapView.getMapSettings().setCurrentPositionShown(true);
 	}
 	
-	private int getIncidentUniqueId(Incident incident) {
-		return new HashCodeBuilder().append(incident.lat).append("+").append(incident.lon).toHashCode();
-	}
-	
 	private void showIncidentsIfNessary() {
 		if(DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this) && mapView.getMapSettings().getMapDisplayMode() == SKMapDisplayMode.MODE_2D) {
 			mapView.deleteAllAnnotationsAndCustomPOIs();
@@ -2182,7 +2177,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			Log.d("ValidationActivity", "show incident size : " + incidentsOfTime.size());
 			for(Incident incident : incidentsOfTime) {
 				SKAnnotation incAnn = new SKAnnotation();
-				incAnn.setUniqueID(getIncidentUniqueId(incident));
+				incAnn.setUniqueID(SkobblerUtils.getUniqueId(incident.lat, incident.lon));
 				incAnn.setLocation(new SKCoordinate(incident.lon, incident.lat));
 				incAnn.setMininumZoomLevel(incident.getMinimalDisplayZoomLevel());
 //				incAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_MARKER);

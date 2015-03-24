@@ -65,7 +65,7 @@ public class FavoriteOperationActivity extends FragmentActivity {
 	public static final String FAVORITE_POI_INFO = "favoritePoi";
 	public static final String FAVORITE_DELETE = "favoriteDel";
 	public static final String FAVORITE_UPDATE = "favoriteUpdate";
-	public static final String FAVORITE_POI_ID = "favoritePoiId";
+	public static final String FAVORITE_POI_UNIQUE_ID = "favoritePoiUniqueId";
 	
 	private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 
@@ -302,6 +302,7 @@ public class FavoriteOperationActivity extends FragmentActivity {
 									findViewById(R.id.confirm_panel).setVisibility(View.GONE);
 									final PoiOverlayInfo info = (PoiOverlayInfo) favOptPanel.getTag();
 									final int oldId = info.id;
+									final int uniqueId = info.uniqueId;
 									AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 										@Override
 										protected Void doInBackground(Void... params) {
@@ -327,7 +328,7 @@ public class FavoriteOperationActivity extends FragmentActivity {
 												favOptPanel.setTag(null);
 												Intent result = new Intent();
 												result.putExtra(FAVORITE_OPT_TYPE, FAVORITE_DELETE);
-												result.putExtra(FAVORITE_POI_ID, oldId);
+												result.putExtra(FAVORITE_POI_UNIQUE_ID, uniqueId);
 												setResult(Activity.RESULT_OK, result);
 												finish();
 											}

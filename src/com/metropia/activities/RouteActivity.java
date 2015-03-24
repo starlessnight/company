@@ -10,7 +10,6 @@ import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osmdroid.tileprovider.util.CloudmadeUtil;
@@ -986,13 +985,11 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
       	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
     }
     
-    private AtomicBoolean initial = new AtomicBoolean(false);
 	private AtomicBoolean dayMode = new AtomicBoolean();
 	private SKMapViewHolder mapViewHolder;
 	private SKMapSurfaceView mapView;
     
     private void initSKMaps() {
-		initial.set(true);
 		SKLogging.enableLogs(true);
 		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
 		mapViewHolder.hideAllAttributionTextViews();
@@ -1001,6 +998,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		
 		mapView.setMapSurfaceListener(this);
 		mapView.clearAllOverlays();
+		mapView.deleteAllAnnotationsAndCustomPOIs();
 		mapView.getMapSettings().setCurrentPositionShown(false);
 		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
 		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
@@ -1091,7 +1089,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 			try {
 				List<Incident> allIncident = incidentReq.execute(RouteActivity.this);
 				for(Incident inc : allIncident) {
-					incidents.put(getIncidentUniqueId(inc), inc);
+					incidents.put(SkobblerUtils.getUniqueId(inc.lat, inc.lon), inc);
 				}
 			} catch (Exception ignore) {
 				Log.d("RouteActivity", Log.getStackTraceString(ignore));
@@ -1106,7 +1104,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    	Log.d("RouteActivity", "Incident Count : " + incidentOfDepTime.size());
 	    	for(Incident incident : incidentOfDepTime) {
 	    		SKAnnotation incAnn = new SKAnnotation();
-	    		incAnn.setUniqueID(getIncidentUniqueId(incident));
+	    		incAnn.setUniqueID(SkobblerUtils.getUniqueId(incident.lat, incident.lon));
 				incAnn.setLocation(new SKCoordinate(incident.lon, incident.lat));
 				incAnn.setMininumZoomLevel(incident.getMinimalDisplayZoomLevel());
 				SKAnnotationView iconView = new SKAnnotationView();
@@ -1185,10 +1183,6 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         fromBalloon.setAnnotationView(fromBalloonView);
         mapView.addAnnotation(fromBalloon, SKAnimationSettings.ANIMATION_NONE);
     }
-    
-    private int getIncidentUniqueId(Incident incident) {
-		return new HashCodeBuilder().append(incident.lat).append("+").append(incident.lon).toHashCode();
-	}
     
     private void removeTerminateReservationId(Long result) {
     	DebugOptionsActivity.removeTerminatedReservIds(RouteActivity.this, result);
@@ -1380,7 +1374,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     private RouteRect routeRect;
     
     private void fitRouteToMap(boolean zoomToSpan){
-        if(routeRect != null){
+        if(routeRect != null && zoomToSpan){
             GeoPoint topLeft = routeRect.getTopLeftPoint();
             GeoPoint bottomRight = routeRect.getBottomRightPoint();
 			final SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude());
@@ -1532,11 +1526,11 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		
 		SKPolyline routeLine = new SKPolyline();
 		routeLine.setNodes(routeCoors);
-		routeLine.setColor(getRouteColorArray(_route.getColor())); //RGBA
+		routeLine.setColor(SkobblerUtils.getRouteColorArray(_route.getColor())); //RGBA
 		routeLine.setLineSize(10);
 		
 		//outline properties, otherwise map crash
-		routeLine.setOutlineColor(getRouteColorArray(_route.getColor()));
+		routeLine.setOutlineColor(SkobblerUtils.getRouteColorArray(_route.getColor()));
 		routeLine.setOutlineSize(10);
 		routeLine.setOutlineDottedPixelsSolid(3);
 		routeLine.setOutlineDottedPixelsSkip(3);
@@ -1549,22 +1543,6 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         // FIXME:
         _route.setUserId(User.getCurrentUser(this).getId());
         findViewById(R.id.reserve).setTag(_route);
-    }
-    
-    /**
-     * return RGBA Array (0~1)
-     */
-    private float[] getRouteColorArray(String color) {
-    	float[] skColor = {0.6f, 0.8f, 0.0f, 1.0f}; // GREEN
-    	if(StringUtils.isNotBlank(color) && StringUtils.startsWith(color, "#")) {
-    		String RR = color.substring(1, 3);
-    		String GG = color.substring(3, 5);
-    		String BB = color.substring(5, color.length());
-    		skColor[0] = Float.valueOf(Integer.parseInt(RR, 16)) / 255.0f;
-    		skColor[1] = Float.valueOf(Integer.parseInt(GG, 16)) / 255.0f;
-    		skColor[2] = Float.valueOf(Integer.parseInt(BB, 16)) / 255.0f;
-    	}
-    	return skColor;
     }
     
     private void setHighlightedRoutePathOverlays(boolean highlighted) {
@@ -1894,7 +1872,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	public void onAnnotationSelected(SKAnnotation annotation) {
 		int selectedAnnotationId = annotation.getUniqueID();
 		Incident selectedInc = incidents.get(selectedAnnotationId);
-		if(selectedInc != null) {
+		if(selectedInc != null && mapView.getZoomLevel() >= selectedInc.getMinimalDisplayZoomLevel()) {
 			DisplayMetrics dm = getResources().getDisplayMetrics();
             SKAnnotation fromAnnotation = new SKAnnotation();
             fromAnnotation.setUniqueID(INCIDENT_BALLOON_ID);
