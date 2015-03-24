@@ -719,7 +719,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		initial.set(true);
 		SKLogging.enableLogs(true);
 		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
-//		mapViewHolder.hideAllAttributionTextViews();
+		mapViewHolder.hideAllAttributionTextViews();
 		mapView = mapViewHolder.getMapSurfaceView();
 		CloudmadeUtil.retrieveCloudmadeKey(this);
 		
@@ -3074,7 +3074,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	public void onAnnotationSelected(SKAnnotation annotation) {
 		int selectedAnnotationId = annotation.getUniqueID();
 		Incident selectedInc = incidents.get(selectedAnnotationId);
-		if(selectedInc != null) {
+		if(selectedInc != null && mapView.getZoomLevel() >= selectedInc.getMinimalDisplayZoomLevel()) {
 			DisplayMetrics dm = getResources().getDisplayMetrics();
             SKAnnotation fromAnnotation = new SKAnnotation();
             fromAnnotation.setUniqueID(INCIDENT_BALLOON_ID);
