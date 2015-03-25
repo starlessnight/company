@@ -1128,60 +1128,60 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     	}
     }
     
+    private AtomicBoolean OD_DRAWED = new AtomicBoolean(false);
+    
     private void drawODOverlayAndBalloon(Route _route) {
-    	mapView.deleteAnnotation(FROM_OVERLAY_ID);
-    	mapView.deleteAnnotation(TO_OVERLAY_ID);
-    	mapView.deleteAnnotation(FROM_BALLOON_ID);
-    	mapView.deleteAnnotation(TO_BALLOON_ID);
-    	int originDrawableId = 0;
-    	if(EditAddress.CURRENT_LOCATION.equals(originAddr)) {
-    		originDrawableId = R.drawable.landing_page_current_location;
+    	if(!OD_DRAWED.getAndSet(true)) {
+	    	int originDrawableId = 0;
+	    	if(EditAddress.CURRENT_LOCATION.equals(originAddr)) {
+	    		originDrawableId = R.drawable.landing_page_current_location;
+	    	}
+	    	else {
+	    		originDrawableId = originOverlayInfo.markerWithShadow;
+	    	}
+	    	
+	    	SKAnnotation fromOverlay = new SKAnnotation();
+	    	fromOverlay.setUniqueID(FROM_OVERLAY_ID);
+	    	fromOverlay.setLocation(new SKCoordinate(_route.getFirstNode().getLongitude(), _route.getFirstNode().getLatitude()));
+	    	SKAnnotationView fromOverlayView = new SKAnnotationView();
+	    	ImageView fromOverlayImageView = new ImageView(RouteActivity.this);
+	    	fromOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, originDrawableId, 1));
+	    	fromOverlayView.setView(fromOverlayImageView);
+	    	fromOverlay.setAnnotationView(fromOverlayView);
+	    	mapView.addAnnotation(fromOverlay, SKAnimationSettings.ANIMATION_POP_OUT);
+	    	
+	        SKAnnotation toOverlay = new SKAnnotation();
+	        toOverlay.setUniqueID(TO_OVERLAY_ID);
+	    	toOverlay.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
+	    	SKAnnotationView toOverlayView = new SKAnnotationView();
+	    	ImageView toOverlayImageView = new ImageView(RouteActivity.this);
+	    	toOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, destOverlayInfo.markerWithShadow, 1));
+	    	toOverlayView.setView(toOverlayImageView);
+	    	toOverlay.setAnnotationView(toOverlayView);
+	    	mapView.addAnnotation(toOverlay, SKAnimationSettings.ANIMATION_POP_OUT);
+	    	
+	    	SKAnnotation toBalloon = new SKAnnotation();
+	    	toBalloon.setUniqueID(TO_BALLOON_ID);
+	    	toBalloon.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
+	    	toBalloon.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
+	    	SKAnnotationView toBalloonView = new SKAnnotationView();
+	        ImageView toBalloonImage = new ImageView(RouteActivity.this);
+	        toBalloonImage.setImageBitmap(loadBitmapOfFromToBalloon(RouteActivity.this, false));
+	        toBalloonView.setView(toBalloonImage);
+	        toBalloon.setAnnotationView(toBalloonView);
+	        mapView.addAnnotation(toBalloon, SKAnimationSettings.ANIMATION_POP_OUT);
+	        
+	        SKAnnotation fromBalloon = new SKAnnotation();
+	        fromBalloon.setUniqueID(FROM_BALLOON_ID);
+	    	fromBalloon.setLocation(new SKCoordinate(_route.getFirstNode().getLongitude(), _route.getFirstNode().getLatitude()));
+	    	fromBalloon.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
+	    	SKAnnotationView fromBalloonView = new SKAnnotationView();
+	        ImageView balloon = new ImageView(RouteActivity.this);
+	        balloon.setImageBitmap(loadBitmapOfFromToBalloon(RouteActivity.this, true));
+	        fromBalloonView.setView(balloon);
+	        fromBalloon.setAnnotationView(fromBalloonView);
+	        mapView.addAnnotation(fromBalloon, SKAnimationSettings.ANIMATION_POP_OUT);
     	}
-    	else {
-    		originDrawableId = originOverlayInfo.markerWithShadow;
-    	}
-    	
-    	SKAnnotation fromOverlay = new SKAnnotation();
-    	fromOverlay.setUniqueID(FROM_OVERLAY_ID);
-    	fromOverlay.setLocation(new SKCoordinate(_route.getFirstNode().getLongitude(), _route.getFirstNode().getLatitude()));
-    	SKAnnotationView fromOverlayView = new SKAnnotationView();
-    	ImageView fromOverlayImageView = new ImageView(RouteActivity.this);
-    	fromOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, originDrawableId, 1));
-    	fromOverlayView.setView(fromOverlayImageView);
-    	fromOverlay.setAnnotationView(fromOverlayView);
-    	mapView.addAnnotation(fromOverlay, SKAnimationSettings.ANIMATION_NONE);
-    	
-        SKAnnotation toOverlay = new SKAnnotation();
-        toOverlay.setUniqueID(TO_OVERLAY_ID);
-    	toOverlay.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
-    	SKAnnotationView toOverlayView = new SKAnnotationView();
-    	ImageView toOverlayImageView = new ImageView(RouteActivity.this);
-    	toOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, destOverlayInfo.markerWithShadow, 1));
-    	toOverlayView.setView(toOverlayImageView);
-    	toOverlay.setAnnotationView(toOverlayView);
-    	mapView.addAnnotation(toOverlay, SKAnimationSettings.ANIMATION_NONE);
-    	
-    	SKAnnotation toBalloon = new SKAnnotation();
-    	toBalloon.setUniqueID(TO_BALLOON_ID);
-    	toBalloon.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
-    	toBalloon.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
-    	SKAnnotationView toBalloonView = new SKAnnotationView();
-        ImageView toBalloonImage = new ImageView(RouteActivity.this);
-        toBalloonImage.setImageBitmap(loadBitmapOfFromToBalloon(RouteActivity.this, false));
-        toBalloonView.setView(toBalloonImage);
-        toBalloon.setAnnotationView(toBalloonView);
-        mapView.addAnnotation(toBalloon, SKAnimationSettings.ANIMATION_NONE);
-        
-        SKAnnotation fromBalloon = new SKAnnotation();
-        fromBalloon.setUniqueID(FROM_BALLOON_ID);
-    	fromBalloon.setLocation(new SKCoordinate(_route.getFirstNode().getLongitude(), _route.getFirstNode().getLatitude()));
-    	fromBalloon.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
-    	SKAnnotationView fromBalloonView = new SKAnnotationView();
-        ImageView balloon = new ImageView(RouteActivity.this);
-        balloon.setImageBitmap(loadBitmapOfFromToBalloon(RouteActivity.this, true));
-        fromBalloonView.setView(balloon);
-        fromBalloon.setAnnotationView(fromBalloonView);
-        mapView.addAnnotation(fromBalloon, SKAnimationSettings.ANIMATION_NONE);
     }
     
     private void removeTerminateReservationId(Long result) {
