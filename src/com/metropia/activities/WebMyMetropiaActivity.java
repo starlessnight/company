@@ -49,7 +49,7 @@ public class WebMyMetropiaActivity extends FragmentActivity{
 		LocalyticsUtils.tagVisitMyMetropia();
 		
 		Bundle extras = getIntent().getExtras();
-		Integer page = extras.getInt(WHICH_PAGE);
+		final Integer page = extras.getInt(WHICH_PAGE);
 		
 		TextView backButton = (TextView) findViewById(R.id.back_button);
 		backButton.setOnClickListener(new OnClickListener() {
@@ -71,7 +71,12 @@ public class WebMyMetropiaActivity extends FragmentActivity{
             
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if (url != null && !url.contains("metropia.com")) {
+            	String host = "null";
+            	try {
+            		host = Uri.parse(getUrl(WebMyMetropiaActivity.this, page)).getHost();
+            	}
+            	catch(Exception ignore) {}
+                if (url != null && !url.contains(host)) {
                     view.getContext().startActivity(
                         new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                     return true;
