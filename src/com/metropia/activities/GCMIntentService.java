@@ -16,7 +16,6 @@ import com.google.android.gcm.GCMConstants;
 import com.metropia.LocalyticsUtils;
 import com.metropia.utils.Misc;
 import com.metropia.utils.Preferences;
-import com.metropia.activities.R;
 
 public class GCMIntentService extends GCMBaseIntentService {
 
@@ -117,7 +116,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 		SharedPreferences prefs = Preferences.getGlobalPreferences(context);
 		SharedPreferences.Editor editor = prefs.edit();
 		
-		editor.putString("GCMRegistrationID", registrationId);
+		editor.putString(Preferences.Global.GCM_REG_ID, registrationId);
 		editor.commit();
 	}
 

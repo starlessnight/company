@@ -37,6 +37,7 @@ import android.webkit.WebViewClient;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gcm.GCMRegistrar;
 import com.metropia.activities.GCMIntentService;
 import com.metropia.activities.LandingActivity2;
@@ -103,16 +104,21 @@ public class Misc {
     }
     
     public static void initGCM(Context ctx){
-        GCMRegistrar.checkDevice(ctx);
-        GCMRegistrar.checkManifest(ctx);
-        final String regId = GCMRegistrar.getRegistrationId(ctx);
-        if (regId.equals("")) {
-            GCMRegistrar.register(ctx, GCMIntentService.GCM_SENDER_ID);
-            Log.v(LOG_TAG, "Registered to GCM.");
-        }
-        else {
-            Log.v(LOG_TAG, "Already registered to GCM.");
-        }
+    	try {
+	        GCMRegistrar.checkDevice(ctx);
+	        GCMRegistrar.checkManifest(ctx);
+	        final String regId = GCMRegistrar.getRegistrationId(ctx);
+	        if (regId.equals("")) {
+	            GCMRegistrar.register(ctx, GCMIntentService.GCM_SENDER_ID);
+	            Log.v(LOG_TAG, "Registered to GCM.");
+	        }
+	        else {
+	            Log.v(LOG_TAG, "Already registered to GCM.");
+	        }
+    	}
+    	catch(Exception e) {
+    		Crashlytics.logException(e);
+    	}
     }
     
     public static void initOsmCredit(TextView v){

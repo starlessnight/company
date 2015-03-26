@@ -283,7 +283,7 @@ public final class User implements JSONModel, Parcelable {
                     final String password = loginPrefs.getString(User.PASSWORD, "");
                     if (!username.equals("") && !password.equals("")) {
                         final String gcmRegistrationId = Preferences.getGlobalPreferences(ctx)
-                                .getString("GCMRegistrationID", "");
+                                .getString(Preferences.Global.GCM_REG_ID, "");
                         final LoginTask loginTask = new LoginTask(ctx, username, password, gcmRegistrationId) {
                             @Override
                             protected void onPostLogin(final User user) {

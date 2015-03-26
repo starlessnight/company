@@ -18,6 +18,7 @@ import com.metropia.models.User;
 import com.metropia.requests.UserIdRequest;
 import com.metropia.tasks.LoginTask;
 import com.metropia.utils.Preferences;
+import com.metropia.utils.Preferences.Global;
 
 public class CheckLoginActivity extends FragmentActivity {
 
@@ -77,7 +78,7 @@ public class CheckLoginActivity extends FragmentActivity {
 								final String gcmRegistrationId = Preferences
 										.getGlobalPreferences(
 												CheckLoginActivity.this)
-										.getString("GCMRegistrationID", "");
+										.getString(Preferences.Global.GCM_REG_ID, "");
 								final LoginTask loginTask = new LoginTask(
 										CheckLoginActivity.this, username,
 										password, gcmRegistrationId) {

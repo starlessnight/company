@@ -314,7 +314,7 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 	
 	private LoginTask newLoginTask(String username, String password){
 	    final String gcmRegistrationId = Preferences.getGlobalPreferences(this)
-            .getString("GCMRegistrationID", "");
+            .getString(Preferences.Global.GCM_REG_ID, "");
 	    return new LoginTask(this, username, password, gcmRegistrationId) {
             @Override
             protected void onPostLogin(final User user) {
