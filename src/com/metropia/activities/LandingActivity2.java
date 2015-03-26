@@ -4292,15 +4292,30 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	@Override
 	public void onAnnotationSelected(SKAnnotation annotation) {
 		if(mapView.getZoomLevel() >= POIOVERLAY_HIDE_ZOOM_LEVEL) {
-			Log.d("LandingActivity2", "Selected Annotation Unique ID : " + annotation.getUniqueID());
-			PoiOverlayInfo poiInfo = poiContainer.getExistedPOIByUniqueId(annotation.getUniqueID());
-			Log.d("LandingActivity2", "poiInfo is null ? " + (poiInfo == null));
+			PoiOverlayInfo poiInfo;
+			if(annotation.getUniqueID() == POI_MARKER_ONE || annotation.getUniqueID() == POI_MARKER_TWO || 
+					annotation.getUniqueID() == POI_MARKER_THREE) {
+				poiInfo = getPoiOverlayInfoFromCurrentOD(annotation.getUniqueID());
+			}
+			else {
+				poiInfo = poiContainer.getExistedPOIByUniqueId(annotation.getUniqueID());
+			}
 			if(poiInfo != null) {
 				mapView.centerMapOnPositionSmooth(getCenterGeoPointByMapSize(poiInfo.lat, poiInfo.lon), MAP_ANIMATION_DURATION);
 	        	Screen xy = getPopupFavIconPosition();
 	            showPopupMenu(xy, poiInfo);
 			}
 		}
+	}
+	
+	private PoiOverlayInfo getPoiOverlayInfoFromCurrentOD(Integer uniqueId) {
+		if(curFrom != null && uniqueId.equals(curFrom.uniqueId)) {
+			return curFrom;
+		}
+		else if(curTo != null && uniqueId.equals(curTo.uniqueId)) {
+			return curTo;
+		}
+		return null;
 	}
 
 	@Override
