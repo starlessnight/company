@@ -1137,7 +1137,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    		originDrawableId = R.drawable.landing_page_current_location;
 	    	}
 	    	else {
-	    		originDrawableId = originOverlayInfo.markerWithShadow;
+	    		originDrawableId = originOverlayInfo != null ? originOverlayInfo.markerWithShadow : R.drawable.poi_pin_with_shadow;
 	    	}
 	    	
 	    	SKAnnotation fromOverlay = new SKAnnotation();
@@ -1155,7 +1155,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    	toOverlay.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
 	    	SKAnnotationView toOverlayView = new SKAnnotationView();
 	    	ImageView toOverlayImageView = new ImageView(RouteActivity.this);
-	    	toOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, destOverlayInfo.markerWithShadow, 1));
+	    	toOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, destOverlayInfo != null ? destOverlayInfo.markerWithShadow : R.drawable.poi_pin_with_shadow, 1));
 	    	toOverlayView.setView(toOverlayImageView);
 	    	toOverlay.setAnnotationView(toOverlayView);
 	    	mapView.addAnnotation(toOverlay, SKAnimationSettings.ANIMATION_POP_OUT);
@@ -1377,7 +1377,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         if(routeRect != null && zoomToSpan){
             GeoPoint topLeft = routeRect.getTopLeftPoint();
             GeoPoint bottomRight = routeRect.getBottomRightPoint();
-			final SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude());
+			SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude());
 			mapView.fitBoundingBox(boundingBox, 100, 100);
         }
     }

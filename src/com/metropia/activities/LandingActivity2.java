@@ -1752,9 +1752,11 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 			                extras.putParcelable(RouteActivity.ORIGIN_COORD, reserv.getStartGpFromNavLink());
 			                extras.putString(RouteActivity.ORIGIN_COORD_PROVIDER, null);
 			                extras.putLong(RouteActivity.ORIGIN_COORD_TIME, 0);
+			                extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, poiContainer.getExistedPOIByLocation(reserv.getStartGpFromNavLink().getLatitude(), reserv.getStartGpFromNavLink().getLongitude()));
 			                extras.putString("destAddr", reserv.getDestinationAddress());
 			                extras.putParcelable(RouteActivity.DEST_COORD, reserv.getEndGpFromNavLink());
 			                extras.putLong(RouteActivity.RESCHEDULE_DEPARTURE_TIME, reserv.getDepartureTimeUtc());
+			                extras.putParcelable(RouteActivity.DEST_OVERLAY_INFO, poiContainer.getExistedPOIByLocation(reserv.getEndGpFromNavLink().getLatitude(), reserv.getEndGpFromNavLink().getLongitude()));
 			                intent.putExtras(extras);
 //			                hideBulbBalloon();
 //			                hideStarredBalloon();
@@ -2761,7 +2763,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	                    Route route = routes.get(0);
 	                    route.setCredits(reserv.getCredits());
 	                    route.preprocessNodes();
-	                    updateMap(routes, reserv.getDestinationAddress());
+	                    updateMap(routes);
 	                } 
 	            }
 	        };
@@ -2769,7 +2771,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	}
 	}
     
-    private void updateMap(List<Route> possibleRoutes, String destinationAddr) {
+    private void updateMap(List<Route> possibleRoutes) {
     	if(!possibleRoutes.isEmpty()) {
     		SKMapViewHolder mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
     		SKMapSurfaceView mapView = mapViewHolder.getMapSurfaceView();
@@ -2795,7 +2797,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		//
     		mapView.addPolyline(routeLine);
     		
-    		PoiOverlayInfo poiInfo = poiContainer.getExistedPOIByAddress(destinationAddr);
+    		PoiOverlayInfo poiInfo = poiContainer.getExistedPOIByLocation(_route.getLastNode().getLatitude(), _route.getLastNode().getLongitude());
     		if(poiInfo == null) {
     			SKAnnotation destAnn = new SKAnnotation();
     			destAnn.setUniqueID(ROUTE_DESTINATION_ID);
@@ -2944,7 +2946,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		        JSONObject reservRecipients = DebugOptionsActivity.getReservRecipientsAndRemove(LandingActivity2.this, reserv.getRid());
 		        intent.putExtra(ValidationActivity.EMAILS, reservRecipients.optString("emails", ""));
 		        intent.putExtra(ValidationActivity.PHONES, reservRecipients.optString("phones", ""));
-//		        hideBulbBalloon();
+//		          hideBulbBalloon();
 //                hideStarredBalloon();
 		        removeAllOD();
 		        startActivity(intent);
