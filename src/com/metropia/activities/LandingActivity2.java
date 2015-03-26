@@ -127,7 +127,6 @@ import com.metropia.ui.DelayTextWatcher.TextChangeListener;
 import com.metropia.ui.EditAddress;
 import com.metropia.ui.SwipeDeleteTouchListener;
 import com.metropia.ui.menu.MainMenu;
-import com.metropia.ui.overlays.CurrentLocationOverlay;
 import com.metropia.ui.timelayout.AdjustableTime;
 import com.metropia.utils.Cache;
 import com.metropia.utils.CalendarContract.Instances;
@@ -187,7 +186,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
-    CurrentLocationOverlay myPointOverlay;
+    SKAnnotation myPointOverlay;
     
     private LocationManager locationManager;
 
@@ -834,10 +833,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                     }
                     if(mapRecenter.getAndSet(false)){
                         if(myPointOverlay != null){
-                            GeoPoint loc = myPointOverlay.getLocation();
-                            int latE6 = loc.getLatitudeE6();
-                            int lonE6 = loc.getLongitudeE6();
-                            mapView.centerMapOnPosition(new SKCoordinate(loc.getLongitude(), loc.getLatitude()));
+                            SKCoordinate loc = myPointOverlay.getLocation();
+                            int latE6 = (int) (loc.getLatitude() * 1E6);
+                            int lonE6 = (int) (loc.getLongitude() * 1E6);
+                            mapView.centerMapOnPosition(loc);
                             mapCenterLat.set(latE6);
                             mapCenterLon.set(lonE6);
                         }
@@ -1683,7 +1682,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 									public void onClick() {
 									    GeoPoint origin = null;
 									    if(myPointOverlay != null){
-									        origin = myPointOverlay.getLocation();
+									        origin = new GeoPoint(myPointOverlay.getLocation().getLatitude(), myPointOverlay.getLocation().getLongitude());
 									    }
 										RescheduleTripTask rescheduleTask = new RescheduleTripTask(LandingActivity2.this, 
 										        origin, null, reserv.getDestinationAddress(), 
@@ -2129,11 +2128,11 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		return poiInfo;
     	}
     	
-    	public static PoiOverlayInfo fromCurrentLocation(CurrentLocationOverlay currentLoc) {
+    	public static PoiOverlayInfo fromCurrentLocation(SKAnnotation currentLoc) {
     		PoiOverlayInfo poiInfo = new PoiOverlayInfo();
     		poiInfo.lat = currentLoc.getLocation().getLatitude();
     		poiInfo.lon = currentLoc.getLocation().getLongitude();
-    		poiInfo.geopoint = currentLoc.getLocation();
+    		poiInfo.geopoint = new GeoPoint(currentLoc.getLocation().getLatitude(), currentLoc.getLocation().getLongitude());
     		poiInfo.marker = R.drawable.landing_page_current_location;
     		poiInfo.markerWithShadow = R.drawable.landing_page_current_location;
     		return poiInfo;
@@ -2264,13 +2263,19 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	}
     };
     
-    private void refreshMyLocation(Location loc){
-    	SKMapViewHolder mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
-    	SKMapSurfaceView mapView = mapViewHolder.getMapSurfaceView();
+    private void refreshMyLocation(Location loc) {
         if(myPointOverlay == null){
-            myPointOverlay = new CurrentLocationOverlay(LandingActivity2.this, 0, 0, R.drawable.landing_page_current_location);
+            myPointOverlay = new SKAnnotation();
+            myPointOverlay.setUniqueID(CURRENT_LOCATION_ID);
+            myPointOverlay.setLocation(new SKCoordinate(loc.getLongitude(), loc.getLatitude()));
+            SKAnnotationView iconView = new SKAnnotationView();
+    		ImageView incImage = new ImageView(LandingActivity2.this);
+    		incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, R.drawable.landing_page_current_location, 1));
+    		iconView.setView(incImage);
+    		myPointOverlay.setAnnotationView(iconView);
+//            mapView.addAnnotation(myPointOverlay, SKAnimationSettings.ANIMATION_NONE);
         }
-        myPointOverlay.setLocation((float) loc.getLatitude(), (float) loc.getLongitude());
+//        myPointOverlay.setLocation(new SKCoordinate(loc.getLongitude(), loc.getLatitude()));
         mapView.reportNewGPSPosition(new SKPosition(loc));
     }
     
@@ -2378,6 +2383,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    unregisterReceiver(tripInfoUpdater);
 	    unregisterReceiver(onTheWayNotifier);
 	    super.onPause();
+	    mapView.clearAllOverlays();
+	    mapView.deleteAnnotation(ROUTE_DESTINATION_ID);
 	    mapView.onPause();
 	    mSensorManager.unregisterListener(this, accelerometer);
 	    mSensorManager.unregisterListener(this, magnetometer);
@@ -2792,8 +2799,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		//outline properties, otherwise map crash
     		routeLine.setOutlineColor(SkobblerUtils.getRouteColorArray(_route.getColor()));
     		routeLine.setOutlineSize(10);
-    		routeLine.setOutlineDottedPixelsSolid(3);
-    		routeLine.setOutlineDottedPixelsSkip(3);
+    		routeLine.setOutlineDottedPixelsSolid(0);
+    		routeLine.setOutlineDottedPixelsSkip(0);
     		//
     		mapView.addPolyline(routeLine);
     		
@@ -2918,7 +2925,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 extras.putParcelable(RouteActivity.ORIGIN_COORD, curFrom.geopoint);
                 extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, curFrom);
             }else if(myPointOverlay != null){
-                extras.putParcelable(RouteActivity.ORIGIN_COORD, myPointOverlay.getLocation());
+                extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(myPointOverlay.getLocation().getLatitude(), myPointOverlay.getLocation().getLongitude()));
                 extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, PoiOverlayInfo.fromCurrentLocation(myPointOverlay));
             }
             extras.putString(RouteActivity.ORIGIN_COORD_PROVIDER, curFromProvider);
@@ -3684,6 +3691,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private static final Integer POI_MARKER_ONE = ROUTE_DESTINATION_ID + 1;
     private static final Integer POI_MARKER_TWO = POI_MARKER_ONE + 1;
     private static final Integer POI_MARKER_THREE = POI_MARKER_TWO + 1;
+    private static final Integer CURRENT_LOCATION_ID = POI_MARKER_THREE + 1;
     
     private void removeOldOD(boolean from) {
     	Integer[] poiMarkerIds = {POI_MARKER_ONE, POI_MARKER_TWO, POI_MARKER_THREE};
