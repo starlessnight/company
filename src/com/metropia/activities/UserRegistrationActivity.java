@@ -344,7 +344,12 @@ public final class UserRegistrationActivity extends FragmentActivity
     	
 		@Override
 		protected void onPostExecute(final User result) {
-		    dialog.cancel();
+			Misc.doQuietly(new Runnable() {
+				@Override
+				public void run() {
+					dialog.cancel();
+				}
+			});
 		    if (ehs.hasExceptions()) {
 		        ehs.reportExceptions();
 		    }
