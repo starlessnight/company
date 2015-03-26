@@ -306,7 +306,13 @@ public class FavoriteOperationActivity extends FragmentActivity {
 									AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 										@Override
 										protected Void doInBackground(Void... params) {
-											loadingPanel.setVisibility(View.VISIBLE);
+											runOnUiThread(new Runnable() {
+												@Override
+												public void run() {
+													loadingPanel.setVisibility(View.VISIBLE);
+												}
+											});
+											
 											Request req = null;
 											User user = User.getCurrentUser(FavoriteOperationActivity.this);
 											try {
@@ -321,7 +327,12 @@ public class FavoriteOperationActivity extends FragmentActivity {
 										}
 
 										protected void onPostExecute(Void param) {
-											loadingPanel.setVisibility(View.GONE);
+											runOnUiThread(new Runnable() {
+												@Override
+												public void run() {
+													loadingPanel.setVisibility(View.GONE);
+												}
+											});
 											if (ehs.hasExceptions()) {
 												ehs.reportExceptions();
 											}else {
@@ -340,8 +351,7 @@ public class FavoriteOperationActivity extends FragmentActivity {
 					}
 				});
 
-		findViewById(R.id.confirm_cancel).setOnClickListener(
-				new OnClickListener() {
+		findViewById(R.id.confirm_cancel).setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						ClickAnimation clickAnimation = new ClickAnimation(
