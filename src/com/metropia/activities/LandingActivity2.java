@@ -3370,6 +3370,34 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	poiLp.topMargin = Float.valueOf(xy.y).intValue() - (poiIconHeight / 2);
     	poiIcon.setLayoutParams(poiLp);
     	
+    	final View predictiveDesttutorial = findViewById(R.id.predictive_destination_tutorial);
+    	if(info.markerWithShadow == R.drawable.bulb_poi_with_shadow && !DebugOptionsActivity.isPredictiveDestinationTutorialShown(LandingActivity2.this)) {
+    		DebugOptionsActivity.setPredictiveDestinationTutorialShown(LandingActivity2.this);
+    		FrameLayout.LayoutParams predictiveDestTutorialLp = (android.widget.FrameLayout.LayoutParams) predictiveDesttutorial.getLayoutParams();
+    		predictiveDestTutorialLp.topMargin = Float.valueOf(xy.y).intValue() + (poiIconHeight / 2);
+    		predictiveDesttutorial.setLayoutParams(predictiveDestTutorialLp);
+    		predictiveDesttutorial.setVisibility(View.VISIBLE);
+    		ImageView tutorialCloseView = (ImageView) findViewById(R.id.tutorial_close);
+        	tutorialCloseView.setImageBitmap(Misc.getBitmap(LandingActivity2.this, R.drawable.tip_close, 1));
+        	tutorialCloseView.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(final View v) {
+					v.setClickable(false);
+					ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
+					clickAni.startAnimation(new ClickAnimationEndCallback() {
+						@Override
+						public void onAnimationEnd() {
+							predictiveDesttutorial.setVisibility(View.GONE);
+							v.setClickable(true);
+						}
+					});
+				}
+        	});
+    	}
+    	else {
+    		predictiveDesttutorial.setVisibility(View.GONE);
+    	}
+    	
     	editMenu.setVisibility(View.VISIBLE);
     	Integer[] imageResourceIds;
     	if(info.id == 0) {

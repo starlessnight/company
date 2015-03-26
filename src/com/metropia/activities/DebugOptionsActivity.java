@@ -1267,4 +1267,22 @@ public final class DebugOptionsActivity extends FragmentActivity {
             .commit();
     }
     
+    private static final String PREDICTIVE_DESTINATION_TUTORIAL = "PREDICTIVE_DESTINATION_TUTORIAL";
+    
+    public static boolean isPredictiveDestinationTutorialShown(Context ctx) {
+    	boolean enabled;
+        try{
+            enabled = getPrefs(ctx).getBoolean(PREDICTIVE_DESTINATION_TUTORIAL, false);
+        }catch(Throwable t){
+            enabled = false;
+        }
+        return enabled;
+    }
+    
+    public static void setPredictiveDestinationTutorialShown(Context ctx){
+        getPrefs(ctx).edit()
+            .putBoolean(PREDICTIVE_DESTINATION_TUTORIAL, true)
+            .commit();
+    }
+    
 }

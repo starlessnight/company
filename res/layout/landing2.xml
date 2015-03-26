@@ -108,6 +108,38 @@
                     android:layout_height="45dp"
                     android:src="@drawable/home"
                     android:visibility="invisible" />
+                
+                <RelativeLayout 
+	                    android:id="@+id/predictive_destination_tutorial"
+	                    android:layout_width="match_parent"
+	                    android:layout_height="wrap_content"
+	                    android:layout_marginLeft="30dp"
+	                    android:layout_marginRight="30dp"
+	                    android:layout_marginBottom="30dp"
+	                    android:visibility="gone">
+	                    
+	                    <TextView 
+	                        android:id="@+id/tutorial_content"
+	                        android:layout_width="match_parent"
+	                        android:layout_height="wrap_content"
+	                        android:text="@string/predictive_destination_tutorial"
+	                        android:textColor="@color/metropia_blue"
+	                        android:textSize="@dimen/smallest_font"
+	                        android:layout_marginTop="10dp"
+	                        android:layout_marginRight="10dp"
+	                        android:padding="5dp"
+	                        android:gravity="center"
+	                        android:background="@drawable/predictive_destination_tutorial_background"/>
+	                    
+	                    <ImageView 
+	                        android:id="@+id/tutorial_close"
+	                        android:layout_width="29dp"
+	                        android:layout_height="29dp"
+	                        android:layout_alignParentTop="true"
+	                        android:layout_alignParentRight="true"/>
+	                    
+	                </RelativeLayout>
+                
             </FrameLayout>
 
             <RelativeLayout
