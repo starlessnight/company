@@ -1892,7 +1892,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
             fromAnnotation.setUniqueID(INCIDENT_BALLOON_ID);
             SKAnnotationView fromView = new SKAnnotationView();
             fromAnnotation.setLocation(annotation.getLocation());
-            fromAnnotation.setOffset(new SKScreenPoint(0, Dimension.dpToPx(42, dm)));
+            fromAnnotation.setOffset(new SKScreenPoint(0, Dimension.dpToPx(60, dm)));
             ImageView balloon = new ImageView(RouteActivity.this);
             balloon.setImageBitmap(loadBitmapFromView(RouteActivity.this, selectedInc));
             fromView.setView(balloon);
