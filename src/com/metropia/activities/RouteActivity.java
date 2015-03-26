@@ -211,7 +211,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     private PoiOverlayInfo originOverlayInfo;
     private PoiOverlayInfo destOverlayInfo;
     
-    private Map<Integer, Incident> incidents = new HashMap<Integer, Incident>();
+    private Map<Integer, Incident> idIncidentMap = new HashMap<Integer, Incident>();
     
     private Runnable goBackToWhereTo = new Runnable() {
         @Override
@@ -1081,20 +1081,24 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     	}
     }
     
+    private Object mutex = new Object();
+    
     private void refreshIncident() {
-    	if(StringUtils.isNotBlank(incidentUrl)) {
-    		incidents.clear();
-			IncidentRequest incidentReq = new IncidentRequest(User.getCurrentUser(RouteActivity.this), incidentUrl);
-			incidentReq.invalidateCache(RouteActivity.this);
-			try {
-				List<Incident> allIncident = incidentReq.execute(RouteActivity.this);
-				for(Incident inc : allIncident) {
-					incidents.put(SkobblerUtils.getUniqueId(inc.lat, inc.lon), inc);
-				}
-			} catch (Exception ignore) {
-				Log.d("RouteActivity", Log.getStackTraceString(ignore));
-			}
-		}
+    	synchronized(mutex) {
+    		if(StringUtils.isNotBlank(incidentUrl)) {
+        		idIncidentMap.clear();
+    			IncidentRequest incidentReq = new IncidentRequest(User.getCurrentUser(RouteActivity.this), incidentUrl);
+    			incidentReq.invalidateCache(RouteActivity.this);
+    			try {
+    				List<Incident> allIncident = incidentReq.execute(RouteActivity.this);
+    				for(Incident inc : allIncident) {
+    					idIncidentMap.put(SkobblerUtils.getUniqueId(inc.lat, inc.lon), inc);
+    				}
+    			} catch (Exception ignore) {
+    				Log.d("RouteActivity", Log.getStackTraceString(ignore));
+    			}
+    		}
+    	}
     }
     
     private void showIncidentOverlays(long depTimeInMillis) {
@@ -1123,8 +1127,10 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     private static final Integer TO_OVERLAY_ID = Integer.valueOf(1368);
     
     private void removeIncidentOverlays() {
-    	for(Integer incId : incidents.keySet()) {
-    		mapView.deleteAnnotation(incId);
+    	synchronized(mutex) {
+    		for(Integer incId : idIncidentMap.keySet()) {
+        		mapView.deleteAnnotation(incId);
+        	}
     	}
     }
     
@@ -1839,15 +1845,17 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     }
     
     private List<Incident> getIncidentOfDepartureTime(long departureUTCTime) {
-    	List<Incident> incidentOfDepTime = new ArrayList<Incident>();
-    	if(incidents != null && incidents.size() > 0) {
-    		for(Incident incident : incidents.values()) {
-    			if(incident.severity > 0 && incident.isInTimeRange(departureUTCTime)) {
-    				incidentOfDepTime.add(incident);
-    			}
-    		}
+    	synchronized(mutex) {
+	    	List<Incident> incidentOfDepTime = new ArrayList<Incident>();
+	    	if(idIncidentMap.size() > 0) {
+	    		for(Incident incident : idIncidentMap.values()) {
+	    			if(incident.severity > 0 && incident.isInTimeRange(departureUTCTime)) {
+	    				incidentOfDepTime.add(incident);
+	    			}
+	    		}
+	    	}
+	    	return incidentOfDepTime;
     	}
-    	return incidentOfDepTime;
     }
     
     private void showTutorialIfNessary() {
@@ -1856,6 +1864,12 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     	// hide tutorial page
     	if(false && routeTutorialFinish != TutorialActivity.TUTORIAL_FINISH) {
     		findViewById(R.id.tutorial).setVisibility(View.VISIBLE);
+    	}
+    }
+    
+    private Incident getIncident(Integer uniqueId) {
+    	synchronized(mutex) {
+    		return idIncidentMap.get(uniqueId);
     	}
     }
 
@@ -1871,7 +1885,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	@Override
 	public void onAnnotationSelected(SKAnnotation annotation) {
 		int selectedAnnotationId = annotation.getUniqueID();
-		Incident selectedInc = incidents.get(selectedAnnotationId);
+		Incident selectedInc = getIncident(selectedAnnotationId);
 		if(selectedInc != null && mapView.getZoomLevel() >= selectedInc.getMinimalDisplayZoomLevel()) {
 			DisplayMetrics dm = getResources().getDisplayMetrics();
             SKAnnotation fromAnnotation = new SKAnnotation();
