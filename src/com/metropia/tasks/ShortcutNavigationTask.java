@@ -96,6 +96,7 @@ public class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
         _route = route;
         dialog = new CancelableProgressDialog(ctx, "Loading...");
         this.id = id;
+        this.versionNumber = versionNumber;
     }
     
     public ShortcutNavigationTask(Context ctx, GeoPoint origin, String originAddress, GeoPoint dest,
@@ -107,6 +108,7 @@ public class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
         this.dest = dest;
         this.address = destAddress;
         dialog = new CancelableProgressDialog(ctx, "Loading...");
+        this.versionNumber = versionNumber;
     }
     
     @Override
