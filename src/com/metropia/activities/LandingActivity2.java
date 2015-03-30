@@ -2275,7 +2275,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		myPointOverlay.setAnnotationView(iconView);
 //            mapView.addAnnotation(myPointOverlay, SKAnimationSettings.ANIMATION_NONE);
         }
-//        myPointOverlay.setLocation(new SKCoordinate(loc.getLongitude(), loc.getLatitude()));
+        myPointOverlay.setLocation(new SKCoordinate(loc.getLongitude(), loc.getLatitude()));
+        mapView.getMapSettings().setCurrentPositionShown(true);
         mapView.reportNewGPSPosition(new SKPosition(loc));
     }
     
