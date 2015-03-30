@@ -1491,7 +1491,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		destAnn.setUniqueID(DEST_ANNOTATION_ID);
 		destAnn.setLocation(new SKCoordinate(lon, lat));
 		destAnn.setMininumZoomLevel(5);
-		destAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_DESTINATION_FLAG);
+		SKAnnotationView destAnnView = new SKAnnotationView();
+        ImageView destImage = new ImageView(ValidationActivity.this);
+        destImage.setImageBitmap(Misc.getBitmap(ValidationActivity.this, R.drawable.pin_destination, 1));
+        destAnnView.setView(destImage);
+        destAnn.setAnnotationView(destAnnView);
+        destAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
 		mapView.addAnnotation(destAnn, SKAnimationSettings.ANIMATION_NONE);
 	}
 	

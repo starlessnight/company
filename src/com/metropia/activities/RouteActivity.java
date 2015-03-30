@@ -1109,22 +1109,19 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     }
     
     private void showIncidentOverlays(long depTimeInMillis) {
-    	if(mapReady.get()) {
-	    	removeIncidentOverlays();
-	    	List<Incident> incidentOfDepTime = getIncidentOfDepartureTime(depTimeInMillis);
-	    	Log.d("RouteActivity", "Incident Count : " + incidentOfDepTime.size());
-	    	for(Incident incident : incidentOfDepTime) {
-	    		SKAnnotation incAnn = new SKAnnotation();
-	    		incAnn.setUniqueID(SkobblerUtils.getUniqueId(incident.lat, incident.lon));
-				incAnn.setLocation(new SKCoordinate(incident.lon, incident.lat));
-				incAnn.setMininumZoomLevel(incident.getMinimalDisplayZoomLevel());
-				SKAnnotationView iconView = new SKAnnotationView();
-				ImageView incImage = new ImageView(RouteActivity.this);
-				incImage.setImageBitmap(Misc.getBitmap(RouteActivity.this, IncidentIcon.fromType(incident.type).getResourceId(RouteActivity.this), 1));
-				iconView.setView(incImage);
-				incAnn.setAnnotationView(iconView);
-				mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
-	    	}
+	    removeIncidentOverlays();
+	    List<Incident> incidentOfDepTime = getIncidentOfDepartureTime(depTimeInMillis);
+    	for(Incident incident : incidentOfDepTime) {
+    		SKAnnotation incAnn = new SKAnnotation();
+    		incAnn.setUniqueID(SkobblerUtils.getUniqueId(incident.lat, incident.lon));
+			incAnn.setLocation(new SKCoordinate(incident.lon, incident.lat));
+			incAnn.setMininumZoomLevel(incident.getMinimalDisplayZoomLevel());
+			SKAnnotationView iconView = new SKAnnotationView();
+			ImageView incImage = new ImageView(RouteActivity.this);
+			incImage.setImageBitmap(Misc.getBitmap(RouteActivity.this, IncidentIcon.fromType(incident.type).getResourceId(RouteActivity.this), 1));
+			iconView.setView(incImage);
+			incAnn.setAnnotationView(iconView);
+			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
     	}
     }
     
@@ -1289,11 +1286,16 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     private static final Integer DEST_ANNOTATION_ID = Integer.valueOf(1010);
     
     private void drawDestinationAnnotation(double lat, double lon) {
-		SKAnnotation destAnn = new SKAnnotation();
+    	SKAnnotation destAnn = new SKAnnotation();
 		destAnn.setUniqueID(DEST_ANNOTATION_ID);
 		destAnn.setLocation(new SKCoordinate(lon, lat));
 		destAnn.setMininumZoomLevel(5);
-		destAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_DESTINATION_FLAG);
+		SKAnnotationView destAnnView = new SKAnnotationView();
+        ImageView destImage = new ImageView(RouteActivity.this);
+        destImage.setImageBitmap(Misc.getBitmap(RouteActivity.this, R.drawable.pin_destination, 1));
+        destAnnView.setView(destImage);
+        destAnn.setAnnotationView(destAnnView);
+        destAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
 		mapView.addAnnotation(destAnn, SKAnimationSettings.ANIMATION_NONE);
 	}
     
@@ -1396,7 +1398,6 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     }
     
     private static final double mapZoomVerticalOffset = -0.3;
-    private AtomicBoolean mapReady = new AtomicBoolean(false);
     
     /**
      * This function will be called when BackgroundDownloadTask().execute()
@@ -1405,7 +1406,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
      * @param possibleRoutes
      */
     private void updateMap(List<Route> possibleRoutes, boolean zoomToSpan) {
-        if(mapReady.get() && possibleRoutes != null && possibleRoutes.size() > 0) {
+        if(possibleRoutes != null && possibleRoutes.size() > 0) {
             
             List<RouteNode> nodes = new ArrayList<RouteNode>(); 
             
@@ -2008,26 +2009,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	}
 
 	@Override
-	public void onSurfaceCreated() {
-		mapReady.set(true);
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if(timeLayout.getSelectedTimeButton() != null) {
-					showIncidentOverlays(timeLayout.getSelectedDepartureTime());
-				}
-				int column = timeLayout.getSelectedColumn();
-				if (!timeLayout.getColumnState(column).equals(State.InProgress)) {
-					timeLayout.setColumnState(column, State.InProgress);
-					long departureTime = timeLayout.getDepartureTime(column);
-                    try {
-                        updateRoute(originCoord, destCoord, departureTime, column);
-                    }
-                    catch (InterruptedException e) {}
-                }
-			}
-		});
-	}
+	public void onSurfaceCreated() {}
 
 	@Override
 	public void onDebugInfo(double arg0, float arg1, double arg2) {}

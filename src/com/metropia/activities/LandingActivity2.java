@@ -2741,10 +2741,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private void drawRoute(final Reservation reserv) {
     	if(!drawedReservId.equals(reserv.getRid()) && canDrawReservRoute.get()) {
     		drawedReservId = reserv.getRid();
-			final AsyncTask<Void, Void, List<Route>> routeTask = new AsyncTask<Void, Void, List<Route>>() {
+			final AsyncTask<Void, Void, Route> routeTask = new AsyncTask<Void, Void, Route>() {
 	            @Override
-	            protected List<Route> doInBackground(Void... params) {
-	                List<Route> routes = null;
+	            protected Route doInBackground(Void... params) {
+	            	Route drawRoute = null;
 	                try {
 	                    RouteFetchRequest reservRequest = new RouteFetchRequest(
 	                    		reserv.getNavLink(),
@@ -2753,28 +2753,21 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	                        0,
 	                        0);
 	                    List<Route> tempRoutes = reservRequest.execute(LandingActivity2.this);
-	                    if(tempRoutes !=null && tempRoutes.size() > 0) {
+	                    if(tempRoutes != null && tempRoutes.size() > 0) {
 	                    	Route route = tempRoutes.get(0);
 		                    route.setCredits(reserv.getCredits());
 		                    route.preprocessNodes();
-	                    	RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(LandingActivity2.this), 
-	                    	        route.getFirstNode().getGeoPoint(), route.getLastNode().getGeoPoint(), 
-	                    	        reserv.getDepartureTimeUtc(), 0, 0, reserv.getOriginAddress(), reserv.getDestinationAddress(), 
-	                    	        MapDisplayActivity.isIncludeTollRoadsEnabled(LandingActivity2.this), versionNumber);
-	                    	routes = request.execute(LandingActivity2.this);
+		                    drawRoute = route;
 	                    }
 	                }
 	                catch(Exception e) {
 	                	Log.d("drawRoute", Log.getStackTraceString(e));
 	                }                                
-	                return routes;
+	                return drawRoute;
 	            }
-	            protected void onPostExecute(java.util.List<Route> routes) {
-	                if(routes != null && routes.size() > 0) {
-	                    Route route = routes.get(0);
-	                    route.setCredits(reserv.getCredits());
-	                    route.preprocessNodes();
-	                    updateMap(routes);
+	            protected void onPostExecute(Route _route) {
+	                if(_route != null) {
+	                    updateMap(_route, reserv.getDestinationAddress());
 	                } 
 	            }
 	        };
@@ -2782,11 +2775,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	}
 	}
     
-    private void updateMap(List<Route> possibleRoutes) {
-    	if(!possibleRoutes.isEmpty()) {
-    		SKMapViewHolder mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
-    		SKMapSurfaceView mapView = mapViewHolder.getMapSurfaceView();
-    		Route _route = possibleRoutes.get(0);
+    private void updateMap(Route _route, String address) {
+    	if(_route != null) {
     		// remove previous drew route
     		mapView.clearAllOverlays();
     		mapView.deleteAnnotation(ROUTE_DESTINATION_ID);
@@ -2808,13 +2798,18 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		//
     		mapView.addPolyline(routeLine);
     		
-    		PoiOverlayInfo poiInfo = poiContainer.getExistedPOIByLocation(_route.getLastNode().getLatitude(), _route.getLastNode().getLongitude());
+    		PoiOverlayInfo poiInfo = poiContainer.getExistedPOIByAddress(address);
     		if(poiInfo == null) {
     			SKAnnotation destAnn = new SKAnnotation();
     			destAnn.setUniqueID(ROUTE_DESTINATION_ID);
     			destAnn.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
     			destAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
-    			destAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_DESTINATION_FLAG);
+    			SKAnnotationView destAnnView = new SKAnnotationView();
+                ImageView destImage = new ImageView(LandingActivity2.this);
+                destImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, R.drawable.pin_destination, 1));
+                destAnnView.setView(destImage);
+                destAnn.setAnnotationView(destAnnView);
+                destAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
     			mapView.addAnnotation(destAnn, SKAnimationSettings.ANIMATION_NONE);
     		}
     		
