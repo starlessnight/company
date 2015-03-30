@@ -31,6 +31,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -280,6 +281,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private SKMapViewHolder mapViewHolder;
     private SKMapSurfaceView mapView;
     
+    private String versionNumber = "";
+    
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
     
@@ -314,10 +317,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         
-        Location la = new Location("");
-        la.setLatitude(34.0291747); // LA
-        la.setLongitude(-118.2734106);
-        mapView.reportNewGPSPosition(new SKPosition(la));
+        try {
+			versionNumber = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+		}catch(NameNotFoundException ignore) {}
         
         RouteActivity.setViewToNorthAmerica(mapView);
         
@@ -1686,7 +1688,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 									    }
 										RescheduleTripTask rescheduleTask = new RescheduleTripTask(LandingActivity2.this, 
 										        origin, null, reserv.getDestinationAddress(), 
-								        		reserv.getRid(), ehs);
+								        		reserv.getRid(), versionNumber, ehs);
 										rescheduleTask.callback = new RescheduleTripTask.Callback() {
 				                            @Override
 				                            public void run(Reservation reservation) {
@@ -2158,14 +2160,16 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         SharedPreferences globalPrefs = Preferences.getGlobalPreferences(this);
         final String gcmRegistrationId = globalPrefs.getString(Preferences.Global.GCM_REG_ID, "");
         final User currentUser = User.getCurrentUser(this);
-        if(!gcmRegistrationId.equals(currentUser.getDeviceId())){
+        final String appVersion = StringUtils.defaultString(currentUser.getAppVersion(), "");
+        if(!gcmRegistrationId.equals(currentUser.getDeviceId()) || !appVersion.equals(versionNumber)){
             currentUser.setDeviceId(gcmRegistrationId);
+            currentUser.setAppVersion(versionNumber);
             AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
                 @Override
                 protected Void doInBackground(Void... params) {
                     try {
                         new UpdateDeviceIdRequest().execute(currentUser.getId(), gcmRegistrationId,
-                            currentUser.getUsername(), currentUser.getPassword(), LandingActivity2.this);
+                            currentUser.getUsername(), currentUser.getPassword(), LandingActivity2.this, versionNumber);
                     }
                     catch (Exception e) {}
                     return null;
@@ -2385,7 +2389,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    unregisterReceiver(onTheWayNotifier);
 	    super.onPause();
 	    mapView.clearAllOverlays();
-	    mapView.deleteAnnotation(ROUTE_DESTINATION_ID);
 	    mapView.onPause();
 	    mSensorManager.unregisterListener(this, accelerometer);
 	    mSensorManager.unregisterListener(this, magnetometer);
@@ -2757,7 +2760,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	                    	RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(LandingActivity2.this), 
 	                    	        route.getFirstNode().getGeoPoint(), route.getLastNode().getGeoPoint(), 
 	                    	        reserv.getDepartureTimeUtc(), 0, 0, reserv.getOriginAddress(), reserv.getDestinationAddress(), 
-	                    	        MapDisplayActivity.isIncludeTollRoadsEnabled(LandingActivity2.this));
+	                    	        MapDisplayActivity.isIncludeTollRoadsEnabled(LandingActivity2.this), versionNumber);
 	                    	routes = request.execute(LandingActivity2.this);
 	                    }
 	                }
@@ -4134,6 +4137,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         
         boolean startedMakingReserv;
         
+        String versionNumber = "";
+        
         Callback callback = new Callback() {
             @Override
             public void run(Reservation reserv) {
@@ -4147,7 +4152,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         long id;
         
         RescheduleTripTask(LandingActivity2 ctx, GeoPoint origin, String originAddress, String destAddress, 
-        		long rescheduleId, ExceptionHandlingService ehs){
+        		long rescheduleId, String versionNumber, ExceptionHandlingService ehs){
             this.ehs = ehs;
             this.ctx = ctx;
             this.activity = ctx;
@@ -4156,6 +4161,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             this.address = destAddress;
             this.id = rescheduleId;
             dialog = new CancelableProgressDialog(ctx, "Loading...");
+            this.versionNumber = versionNumber;
         }
         
         @Override
@@ -4245,7 +4251,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                             if(_route == null){
                                 RouteFetchRequest routeReq = new RouteFetchRequest(user, 
                                     origin, dest, departureTime.initTime().toMillis(false),
-                                    0, 0, originAddress, address, MapDisplayActivity.isIncludeTollRoadsEnabled(ctx));
+                                    0, 0, originAddress, address, MapDisplayActivity.isIncludeTollRoadsEnabled(ctx), versionNumber);
                                 route = routeReq.execute(ctx).get(0);
                                 route.setAddresses(originAddress, address);
                                 route.setUserId(user.getId());

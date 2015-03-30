@@ -32,6 +32,7 @@ public final class User implements JSONModel, Parcelable {
 	public static final String TRIP = "TRIP";
 	public static final String ZIP_CODE = "ZIP_CODE";
 	public static final String NEW_USER = "NEW_USER";
+	public static final String APP_VERSION = "app_version";
 	
 	private static User currentUser;
 
@@ -45,6 +46,7 @@ public final class User implements JSONModel, Parcelable {
 	private int credit;
 	private int trip;
 	private String zipCode;
+	private String appVersion;
 	
 	public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
 		public User createFromParcel(Parcel in) {
@@ -68,6 +70,7 @@ public final class User implements JSONModel, Parcelable {
 		credit = in.readInt();
 		trip = in.readInt();
 		zipCode = in.readString();
+		appVersion = in.readString();
 	}
 	
 	public User(int id, String username) {
@@ -135,6 +138,7 @@ public final class User implements JSONModel, Parcelable {
 		obj.put(CREDIT, getCredit());
 		obj.put(TRIP, getTrip());
 		obj.put(ZIP_CODE, getZipCode());
+		obj.put(APP_VERSION, getAppVersion());
 		
 		return obj.toString();
 	}
@@ -154,6 +158,7 @@ public final class User implements JSONModel, Parcelable {
 		if (object.has(CREDIT)) user.credit = object.getInt(CREDIT);
 		if (object.has(TRIP)) user.trip = object.getInt(TRIP);
 		if (object.has(ZIP_CODE)) user.zipCode = object.getString(ZIP_CODE);
+		if(object.has(APP_VERSION)) user.appVersion = object.getString(APP_VERSION);
 		
 		return user;
 	}
@@ -233,6 +238,7 @@ public final class User implements JSONModel, Parcelable {
 		dest.writeInt(credit);
 		dest.writeInt(trip);
 		dest.writeString(zipCode);
+		dest.writeString(appVersion);
 	}
 
     public void setId(int id) {
@@ -269,6 +275,14 @@ public final class User implements JSONModel, Parcelable {
     
     public void setZipCode(String zipCode) {
     	this.zipCode = zipCode;
+    }
+    
+    public String getAppVersion() {
+    	return appVersion;
+    }
+    
+    public void setAppVersion(String appVersion) {
+    	this.appVersion = appVersion;
     }
     
     public static void initializeIfNeccessary(final Context ctx, final Runnable callback){

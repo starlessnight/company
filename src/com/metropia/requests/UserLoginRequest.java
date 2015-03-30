@@ -55,6 +55,7 @@ public class UserLoginRequest extends FetchRequest<User> {
 	        user.setFirstname(data.getString("first_name"));
 	        user.setLastname(data.getString("last_name"));
 	        user.setDeviceId(data.getString("device_id"));
+	        user.setAppVersion(data.optString("app_version", ""));
 	        String balance = data.optString("balance");
 	        if(StringUtils.isNotBlank(balance)){
 	            JSONObject balanceJson = new JSONObject(balance);

@@ -53,6 +53,8 @@ public class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
     
     boolean startedMakingReserv;
     
+    String versionNumber;
+    
     public Callback callback = new Callback() {
         @Override
         public void run(Reservation reserv) {
@@ -88,7 +90,7 @@ public class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
     
     long id;
     
-    public ShortcutNavigationTask(Context ctx, Route route, ExceptionHandlingService ehs, long id){
+    public ShortcutNavigationTask(Context ctx, Route route, ExceptionHandlingService ehs, long id, String versionNumber){
         this.ehs = ehs;
         this.ctx = ctx;
         _route = route;
@@ -97,7 +99,7 @@ public class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
     }
     
     public ShortcutNavigationTask(Context ctx, GeoPoint origin, String originAddress, GeoPoint dest,
-            String destAddress, ExceptionHandlingService ehs){
+            String destAddress, ExceptionHandlingService ehs, String versionNumber){
         this.ehs = ehs;
         this.ctx = ctx;
         this.origin = origin;
@@ -196,7 +198,7 @@ public class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
                             RouteFetchRequest routeReq = new RouteFetchRequest(user, 
                                 origin, dest, departureTime.initTime().toMillis(false),
                                 0, 0, originAddress, address, 
-                    	        MapDisplayActivity.isIncludeTollRoadsEnabled(ctx));
+                    	        MapDisplayActivity.isIncludeTollRoadsEnabled(ctx), versionNumber);
                             route = routeReq.execute(ctx).get(0);
                             route.setAddresses(originAddress, address);
                             route.setUserId(user.getId());

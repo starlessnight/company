@@ -40,6 +40,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -278,6 +279,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private SKMapViewHolder mapViewHolder;
 	private SKMapSurfaceView mapView;
 	
+	private String versionNumber = "";
+	
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -353,6 +356,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		
 		remainDistDirecListView = (TextView) findViewById(R.id.remain_dist_direc_list);
 		remainTimesDirectListView = (TextView) findViewById(R.id.remain_times_direc_list);
+		
+		try {
+			versionNumber = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+		}catch(NameNotFoundException ignore) {}
 
  		dirListadapter = new ArrayAdapter<DirectionItem>(this,
 				R.layout.direction_list_item, R.id.text_view_road) {
@@ -1757,7 +1764,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         RouteFetchRequest routeReq = new RouteFetchRequest(User.getCurrentUser(ValidationActivity.this), 
             new GeoPoint(lat, lon), new GeoPoint(reservation.getEndlat(), reservation.getEndlon()), 
             System.currentTimeMillis(), speedInMph, bearing, null,
-            reservation.getDestinationAddress(), MapDisplayActivity.isIncludeTollRoadsEnabled(ValidationActivity.this));
+            reservation.getDestinationAddress(), MapDisplayActivity.isIncludeTollRoadsEnabled(ValidationActivity.this), versionNumber);
         try{
             List<Route> list = routeReq.execute(ValidationActivity.this);
             if(list != null && !list.isEmpty()){
@@ -1859,7 +1866,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                                 	request = new RouteFetchRequest(User.getCurrentUser(ValidationActivity.this), 
                                 		curPosi, new GeoPoint(reser.getEndlat(), reser.getEndlon()), 
                                 		System.currentTimeMillis(), speedInMph, bearing, null, reser.getDestinationAddress(), 
-                                		MapDisplayActivity.isIncludeTollRoadsEnabled(ValidationActivity.this));
+                                		MapDisplayActivity.isIncludeTollRoadsEnabled(ValidationActivity.this), versionNumber);
                                 }
                                 List<Route> routes = request.execute(ValidationActivity.this);
                                 if (routes != null && routes.size() > 0) {

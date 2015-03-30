@@ -24,6 +24,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -222,13 +223,18 @@ public final class DebugOptionsActivity extends FragmentActivity {
                             ehs.reportExceptions();
                         }
                         else {
+                        	String versionNumber = "";
+                        	try {
+                    			versionNumber = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+                    		}catch(NameNotFoundException ignore) {}
+                        	
                             try {
                                 List<Record> records = Trajectory.from(result.getJSONArray("trajectory")).getRecords();
                                 Record origin = records.get(0);
                                 Record dest = records.get(records.size() - 1);
                                 ShortcutNavigationTask task = new ShortcutNavigationTask(DebugOptionsActivity.this, 
                                     new GeoPoint(origin.getLatitude(), origin.getLongitude()), result.optString("origin"), 
-                                    new GeoPoint(dest.getLatitude(), dest.getLongitude()), result.optString("destination"), ehs);
+                                    new GeoPoint(dest.getLatitude(), dest.getLongitude()), result.optString("destination"), ehs, versionNumber);
                                 task.callback = new ShortcutNavigationTask.Callback() {
                                     @Override
                                     public void run(final Reservation reservation) {

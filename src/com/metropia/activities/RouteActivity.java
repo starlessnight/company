@@ -20,6 +20,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -213,6 +214,8 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     
     private Map<Integer, Incident> idIncidentMap = new HashMap<Integer, Incident>();
     
+    private String versionNumber = "";
+    
     private Runnable goBackToWhereTo = new Runnable() {
         @Override
         public void run() {
@@ -271,7 +274,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 				task.execute(destAddr);
                 geocodingTasks.add(task);
 			}else{
-			    RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
+			    RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true, versionNumber);
 	            routeTasks.add(routeTask);
 	            routeTask.execute();
 			}
@@ -330,7 +333,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 						retriveIncident(new Runnable() {
 							@Override
 							public void run() {
-								RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
+								RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true, versionNumber);
 						        routeTasks.add(routeTask);
 						        routeTask.execute();
 							}
@@ -377,6 +380,10 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         
         originOverlayInfo = extras.getParcelable(ORIGIN_OVERLAY_INFO);
         destOverlayInfo = extras.getParcelable(DEST_OVERLAY_INFO);
+        
+        try {
+			versionNumber = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+		}catch(NameNotFoundException ignore) {}
         
         int eventId = extras.getInt(EVENT_ID, 0);
         if(eventId > 0){
@@ -600,7 +607,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
                             timeLayout.setColumnState(column, State.InProgress);
                             long departureTime = timeLayout.getDepartureTime(column);
                             
-                            RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime, column, false);
+                            RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime, column, false, versionNumber);
                             routeTasks.add(routeTask);
                             loadingTasks.put(column, routeTask);
                             routeTask.execute();
@@ -871,7 +878,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	                    }else{
 //	                    	timeLayout.cancelOtherRouteTask();
 	                        final Route route = (Route) reserveView.getTag();
-	                        ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs, rescheduleReservId);
+	                        ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs, rescheduleReservId, versionNumber);
 	                        task.callback = new ShortcutNavigationTask.Callback() {
 	                            @Override
 	                            public void run(Reservation reservation) {
@@ -1314,7 +1321,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		        	retriveIncident(new Runnable() {
 						@Override
 						public void run() {
-							RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
+							RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true, versionNumber);
 				            routeTasks.add(routeTask);
 				            routeTask.execute();
 						}
@@ -1449,7 +1456,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         int reservePanelVis = column == 0?View.GONE:View.VISIBLE;
         final RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(this), 
             origin, destination, departureTime, speed, course, getOriginAddrRouteReqParam(), destAddr, 
-            MapDisplayActivity.isIncludeTollRoadsEnabled(RouteActivity.this));
+            MapDisplayActivity.isIncludeTollRoadsEnabled(RouteActivity.this), versionNumber);
         if (request.isCached(this)) {
             try {
                 List<Route> routes = request.execute(this);
@@ -1494,7 +1501,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
                 task.cancel(true);
             }
             timeLayout.refresh();
-            RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true);
+            RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true, versionNumber);
             routeTasks.add(routeTask);
             routeTask.execute();
             letsGoPanelVis = View.VISIBLE;
@@ -1617,7 +1624,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
             }else{
             	final TextView reserveView = (TextView) findViewById(R.id.reserve);
                 final Route route = (Route) reserveView.getTag();
-                ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs, rescheduleReservId);
+                ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs, rescheduleReservId, versionNumber);
                 task.callback = new ShortcutNavigationTask.Callback() {
                     @Override
                     public void run(Reservation reservation) {
@@ -1712,7 +1719,9 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         
         private CancelableProgressDialog dialog;
         
-        public RouteTask(GeoPoint origin, GeoPoint destination, long departureTime, int column, boolean updateMap) {
+        private String versionNumber;
+        
+        public RouteTask(GeoPoint origin, GeoPoint destination, long departureTime, int column, boolean updateMap, String versionNumber) {
         	super();
         	
         	this.origin = origin;
@@ -1720,19 +1729,20 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         	this.departureTime = departureTime;
         	this.selectedColumn = column;
         	this.updateMap = updateMap;
+        	this.versionNumber = versionNumber;
         }
         
         public boolean isCached() {
         	RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(RouteActivity.this), 
     	        origin, destination, departureTime, speed, course, getOriginAddrRouteReqParam(), destAddr, 
-    	        MapDisplayActivity.isIncludeTollRoadsEnabled(RouteActivity.this));
+    	        MapDisplayActivity.isIncludeTollRoadsEnabled(RouteActivity.this), versionNumber);
         	return request.isCached(RouteActivity.this);
         }
         
         public List<Route> getData() throws RouteNotFoundException, IOException, JSONException, InterruptedException {
         	RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(RouteActivity.this), 
     	        origin, destination, departureTime, speed, course, getOriginAddrRouteReqParam(), destAddr, 
-    	        MapDisplayActivity.isIncludeTollRoadsEnabled(RouteActivity.this));
+    	        MapDisplayActivity.isIncludeTollRoadsEnabled(RouteActivity.this), versionNumber);
         	return request.execute(RouteActivity.this);
         }
         
