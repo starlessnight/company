@@ -134,6 +134,7 @@ import com.metropia.utils.Dimension;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
 import com.metropia.utils.GeoPoint;
+import com.metropia.utils.HTTP;
 import com.metropia.utils.Misc;
 import com.metropia.utils.RouteLink;
 import com.metropia.utils.RouteNode;
@@ -1951,7 +1952,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					AsyncTask<Void, Void, Void> getIncidentTask = new AsyncTask<Void, Void, Void>() {
 				   		@Override
 						protected Void doInBackground(Void... params) {
-				    		CityRequest cityReq = new CityRequest(lat, lng);
+				    		CityRequest cityReq = new CityRequest(lat, lng, HTTP.defaultTimeout);
 				            try {
 				            	City city = cityReq.execute(ValidationActivity.this);
 								if(city != null && StringUtils.isBlank(city.html)) {
@@ -1972,7 +1973,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    		@Override
 				protected Boolean doInBackground(Void... params) {
 	    			incidents.clear();
-	    			IncidentRequest incidentReq = new IncidentRequest(User.getCurrentUser(ValidationActivity.this), incidentUrl);
+	    			IncidentRequest incidentReq = new IncidentRequest(User.getCurrentUser(ValidationActivity.this), incidentUrl, HTTP.defaultTimeout);
 	    			incidentReq.invalidateCache(ValidationActivity.this);
 	    			try {
 	    				List<Incident> allIncident = incidentReq.execute(ValidationActivity.this);

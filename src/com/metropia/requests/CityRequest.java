@@ -36,11 +36,12 @@ public final class CityRequest extends FetchRequest<City> {
         
     }
     
-	public CityRequest(double lat, double lon) {
+	public CityRequest(double lat, double lon, int timeoutInMillis) {
 		super(getLinkUrl(Link.city)
 	        .replaceAll("\\{lat\\}", String.valueOf(lat))
 	        .replaceAll("\\{lon\\}", String.valueOf(lon))
         );
+		this.timeout = timeoutInMillis;
 	}
 	
 	public static final String NO_CITY_NAME = "noCityName";

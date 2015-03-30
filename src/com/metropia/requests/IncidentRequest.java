@@ -44,10 +44,11 @@ public class IncidentRequest extends FetchRequest<List<Incident>> {
 		}
 	}
 
-	public IncidentRequest(User user, String url) {
+	public IncidentRequest(User user, String url, int timeoutInMillis) {
 		super(url);
 		username = user.getUsername();
 		password = user.getPassword();
+		this.timeout = timeoutInMillis;
 	}
 	
 	private static final DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");

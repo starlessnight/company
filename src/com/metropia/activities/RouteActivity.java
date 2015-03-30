@@ -1052,7 +1052,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    		@Override
 				protected Void doInBackground(Void... params) {
 	    			if(originCoord != null) {
-	    				CityRequest cityReq = new CityRequest(originCoord.getLatitude(), originCoord.getLongitude());
+	    				CityRequest cityReq = new CityRequest(originCoord.getLatitude(), originCoord.getLongitude(), 10000); // timeout 10 secs.
 		                try {
 							City city = cityReq.execute(RouteActivity.this);
 							if(city != null && StringUtils.isBlank(city.html)) {
@@ -1094,7 +1094,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     	synchronized(mutex) {
     		if(StringUtils.isNotBlank(incidentUrl)) {
         		idIncidentMap.clear();
-    			IncidentRequest incidentReq = new IncidentRequest(User.getCurrentUser(RouteActivity.this), incidentUrl);
+    			IncidentRequest incidentReq = new IncidentRequest(User.getCurrentUser(RouteActivity.this), incidentUrl, 10000); // timeout 10 secs.
     			incidentReq.invalidateCache(RouteActivity.this);
     			try {
     				List<Incident> allIncident = incidentReq.execute(RouteActivity.this);

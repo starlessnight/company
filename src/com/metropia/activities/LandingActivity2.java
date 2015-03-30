@@ -3193,7 +3193,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             protected City doInBackground(Void... params) {
                 City result;
                 try{
-                    CityRequest req = new CityRequest(lat, lon);
+                    CityRequest req = new CityRequest(lat, lon, HTTP.defaultTimeout);
                     req.invalidateCache(LandingActivity2.this);
                     result = req.execute(LandingActivity2.this);
                 }catch(Throwable t){
