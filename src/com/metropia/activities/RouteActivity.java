@@ -1009,11 +1009,11 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		mapView.getMapSettings().setCurrentPositionShown(false);
 		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
 		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
-		mapView.getMapSettings().setMapRotationEnabled(true);
+		mapView.getMapSettings().setMapRotationEnabled(false);
         mapView.getMapSettings().setMapZoomingEnabled(true);
         mapView.getMapSettings().setMapPanningEnabled(true);
         mapView.getMapSettings().setZoomWithAnchorEnabled(true);
-        mapView.getMapSettings().setInertiaRotatingEnabled(true);
+        mapView.getMapSettings().setInertiaRotatingEnabled(false);
         mapView.getMapSettings().setInertiaZoomingEnabled(true);
         mapView.getMapSettings().setInertiaPanningEnabled(true);
         mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(RouteActivity.this));

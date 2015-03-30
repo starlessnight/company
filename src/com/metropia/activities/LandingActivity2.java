@@ -1332,11 +1332,11 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		mapView.getMapSettings().setCurrentPositionShown(true);
 		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
 		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
-		mapView.getMapSettings().setMapRotationEnabled(true);
+		mapView.getMapSettings().setMapRotationEnabled(false);
         mapView.getMapSettings().setMapZoomingEnabled(true);
         mapView.getMapSettings().setMapPanningEnabled(true);
         mapView.getMapSettings().setZoomWithAnchorEnabled(true);
-        mapView.getMapSettings().setInertiaRotatingEnabled(true);
+        mapView.getMapSettings().setInertiaRotatingEnabled(false);
         mapView.getMapSettings().setInertiaZoomingEnabled(true);
         mapView.getMapSettings().setInertiaPanningEnabled(true);
         mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(LandingActivity2.this));
