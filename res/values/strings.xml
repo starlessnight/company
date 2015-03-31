@@ -170,6 +170,6 @@
     <string name="en_route_auto_accept">Automatically accept in %s secounds</string>
     <string name="en_route_debug_msg">Original ETA : %1$s, Updated ETA : %2$s, Final ETA : %3$s.</string>
     
-    <string name="predictive_destination_tutorial">Been here before, right? Metropia remembers familiar trips and shows this light bulb for you to get there easily!</string>
+    <string name="predictive_destination_tutorial">Been here before, right? Metropia remembers familiar trips and shows a green light bulb for easier reference!</string>
     
 </resources>
