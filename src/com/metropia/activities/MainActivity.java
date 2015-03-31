@@ -132,7 +132,12 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
                     public void run() {
                     	showWaitOrCancelDialog.set(false);
                     	if(waitOrCancelDialog.isShowing()) {
-                    		waitOrCancelDialog.dismiss();
+                    		Misc.doQuietly(new Runnable() {
+								@Override
+								public void run() {
+									waitOrCancelDialog.dismiss();
+								}
+                    		});
                     	}
                     	
                     	findViewById(R.id.progress).setVisibility(View.GONE);
@@ -174,7 +179,12 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
                     public void run() {
                     	showWaitOrCancelDialog.set(false);
                     	if(waitOrCancelDialog.isShowing()) {
-                    		waitOrCancelDialog.dismiss();
+                    		Misc.doQuietly(new Runnable() {
+								@Override
+								public void run() {
+									waitOrCancelDialog.dismiss();
+								}
+                    		});
                     	}
                     	findViewById(R.id.progress).setVisibility(View.GONE);
                         finish();
@@ -185,7 +195,12 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
         			@Override
         			public void run() {
         				if(showWaitOrCancelDialog.getAndSet(false) && !isFinishing()) {
-        					waitOrCancelDialog.show();
+        					Misc.doQuietly(new Runnable() {
+								@Override
+								public void run() {
+									waitOrCancelDialog.show();
+								}
+        					});
         				}
         			}
                 }, 10000);
