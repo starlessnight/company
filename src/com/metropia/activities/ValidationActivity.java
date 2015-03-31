@@ -3099,6 +3099,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             fromView.setView(balloon);
             fromAnnotation.setAnnotationView(fromView);
             mapView.addAnnotation(fromAnnotation, SKAnimationSettings.ANIMATION_POP_OUT);
+            View roadPanel = findViewById(R.id.road_panel);
+            SKScreenPoint annotationPoint = mapView.coordinateToPoint(annotation.getLocation());
+            SKScreenPoint centerPoint = new SKScreenPoint();
+            centerPoint.setY(annotationPoint.getY() - roadPanel.getMeasuredHeight());
+            centerPoint.setX(annotationPoint.getX());
+            mapView.centerMapOnPositionSmooth(mapView.pointToCoordinate(centerPoint), 500);
 		}
 	}
 	

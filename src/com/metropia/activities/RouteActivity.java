@@ -1909,6 +1909,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
             fromView.setView(balloon);
             fromAnnotation.setAnnotationView(fromView);
             mapView.addAnnotation(fromAnnotation, SKAnimationSettings.ANIMATION_POP_OUT);
+            mapView.centerMapOnPositionSmooth(annotation.getLocation(), 500);
 		}
 	}
 	
