@@ -2,341 +2,414 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
-    
-<LinearLayout
-    android:background="@drawable/background_gradient"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:focusable="true"
-    android:focusableInTouchMode="true">
-    
-    <TextView
-        android:id="@+id/time_heading"
+    android:fillViewport="true" >
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingTop="8dp"
-        android:text="GPS options"
-        android:textColor="#FFFFFFFF"
-        android:textSize="20dp" >
-    </TextView>
+        android:background="@drawable/background_gradient"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="vertical" >
 
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="65dp" >
+        <TextView
+            android:id="@+id/time_heading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:text="GPS options"
+            android:textColor="#FFFFFFFF"
+            android:textSize="20dp" >
+        </TextView>
 
-        <RadioGroup
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="65dp" >
 
-            <RadioButton
-                android:id="@+id/radio_real_gps"
+            <RadioGroup
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <RadioButton
+                    android:id="@+id/radio_real_gps"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:enabled="true"
+                    android:text="Real GPS data"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="18dp" >
+                </RadioButton>
+
+                <RadioButton
+                    android:id="@+id/radio_long_press"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:enabled="true"
+                    android:text="Long press"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="18dp" >
+                </RadioButton>
+            </RadioGroup>
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Pre-recorded data URL:"
+            android:textColor="#FFFFFFFF"
+            android:textSize="18dp" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp" >
+
+            <EditText
+                android:id="@+id/pre_recorded_data_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:singleLine="true"
+                android:text="@string/placeholder"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="18dp" />
+
+            <Button
+                android:id="@+id/button_replay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:enabled="true"
-                android:text="Real GPS data"
-                android:textColor="#FFFFFFFF"
-                android:textSize="18dp" >
-            </RadioButton>
+                android:layout_gravity="center"
+                android:layout_margin="4dp"
+                android:text="Replay" />
+        </LinearLayout>
 
-            <RadioButton
-                android:id="@+id/radio_long_press"
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Update interval (milliseconds):"
+            android:textColor="#FFFFFFFF"
+            android:textSize="18dp" />
+
+        <EditText
+            android:id="@+id/update_interval"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:inputType="number"
+            android:text="@string/placeholder"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="18dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Current location:"
+            android:textColor="#FFFFFFFF"
+            android:textSize="18dp" />
+
+        <EditText
+            android:id="@+id/current_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:singleLine="true"
+            android:text="@string/placeholder"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="18dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Entrypoint:"
+            android:textColor="#FFFFFFFF"
+            android:textSize="18dp" />
+
+        <EditText
+            android:id="@+id/entry_point"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:singleLine="true"
+            android:text="@string/placeholder"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="18dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal" >
+
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:enabled="true"
-                android:text="Long press"
+                android:text="Rerouting notification sound:"
                 android:textColor="#FFFFFFFF"
-                android:textSize="18dp" >
-            </RadioButton>
-        </RadioGroup>
-    </RelativeLayout>
-    
-    
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="#FFFFFFFF"
-        android:textSize="18dp"
-        android:gravity="center"
-        android:text="Pre-recorded data URL:"
-	/>
-    <LinearLayout 
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_marginLeft="30dp"
-       		android:layout_marginRight="30dp">
-	    <EditText
-	        android:id="@+id/pre_recorded_data_url"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:textColor="@android:color/darker_gray"
-	        android:textSize="18dp"
-	        android:layout_weight="1"
-	        android:text="@string/placeholder"
-	        android:singleLine="true"
-		/>
-	    <Button
-	        android:id="@+id/button_replay"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_gravity="center"
-	        android:layout_margin="4dp"
-	        android:text="Replay" 
-        />
-    </LinearLayout>
-    
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="#FFFFFFFF"
-        android:textSize="18dp"
-        android:gravity="center"
-        android:text="Update interval (milliseconds):"
-	/>
-    <EditText
-        android:id="@+id/update_interval"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:textColor="@android:color/darker_gray"
-        android:textSize="18dp"
-        android:text="@string/placeholder"
-        android:inputType="number" 
-	/>
-    
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="#FFFFFFFF"
-        android:textSize="18dp"
-        android:gravity="center"
-        android:text="Current location:"
-	/>
-    <EditText
-        android:id="@+id/current_location"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:textColor="@android:color/darker_gray"
-        android:textSize="18dp"
-        android:singleLine="true"
-        android:text="@string/placeholder"
-	/>
-    
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="#FFFFFFFF"
-        android:textSize="18dp"
-        android:gravity="center"
-        android:text="Entrypoint:"
-	/>
-    <EditText
-        android:id="@+id/entry_point"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:textColor="@android:color/darker_gray"
-        android:textSize="18dp"
-        android:singleLine="true"
-        android:text="@string/placeholder"
-	/>
-    
-    <LinearLayout 
-        	android:layout_width="match_parent"
-         	android:layout_height="wrap_content"
-         	android:orientation="horizontal"
-         	android:gravity="center_horizontal">
-	    <TextView
-	         android:layout_width="wrap_content"
-	         android:layout_height="wrap_content"
-	         android:text="Rerouting notification sound:"
-	         android:textColor="#FFFFFFFF"
-	         android:textSize="18dp"
-		/>
-	    <CheckBox 
-	    	android:id="@+id/rerouting_notification_sound"
-	    	android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"   
-		/>
-    </LinearLayout>
-    
-    <LinearLayout 
-        	android:layout_width="match_parent"
-         	android:layout_height="wrap_content"
-         	android:orientation="horizontal"
-         	android:gravity="center_horizontal">
-	    <TextView
-	         android:layout_width="wrap_content"
-	         android:layout_height="wrap_content"
-	         android:text="Rerouting log:"
-	         android:textColor="#FFFFFFFF"
-	         android:textSize="18dp"
-		/>
-	    <CheckBox 
-	    	android:id="@+id/rerouting_debug_msg"
-	    	android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"   
-		/>
-    </LinearLayout>
-    
-    <LinearLayout 
-        	android:layout_width="match_parent"
-         	android:layout_height="wrap_content"
-         	android:orientation="horizontal"
-         	android:gravity="center_horizontal">
-	    <TextView
-	         android:layout_width="wrap_content"
-	         android:layout_height="wrap_content"
-	         android:text="Navigation voice log:"
-	         android:textColor="#FFFFFFFF"
-	         android:textSize="18dp"
-		/>
-	    <CheckBox 
-	    	android:id="@+id/voice_debug_msg"
-	    	android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"   
-		/>
-    </LinearLayout>
-    
-    <LinearLayout 
-        	android:layout_width="match_parent"
-         	android:layout_height="wrap_content"
-         	android:orientation="horizontal"
-         	android:gravity="center_horizontal">
-	    <TextView
-	         android:layout_width="wrap_content"
-	         android:layout_height="wrap_content"
-	         android:text="Navigation API log:"
-	         android:textColor="#FFFFFFFF"
-	         android:textSize="18dp"
-		/>
-	    <CheckBox 
-	    	android:id="@+id/nav_api_log"
-	    	android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"   
-		/>
-    </LinearLayout>
-    
-    <LinearLayout 
-        	android:layout_width="match_parent"
-         	android:layout_height="wrap_content"
-         	android:orientation="horizontal"
-         	android:gravity="center_horizontal">
-	    <TextView
-	         android:layout_width="wrap_content"
-	         android:layout_height="wrap_content"
-	         android:text="GPS accuracy log:"
-	         android:textColor="#FFFFFFFF"
-	         android:textSize="18dp"
-		/>
-	    <CheckBox 
-	    	android:id="@+id/gps_accuracy_debug_msg"
-	    	android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"   
-		/>
-    </LinearLayout>
-    
-    <LinearLayout 
-        	android:layout_width="match_parent"
-         	android:layout_height="wrap_content"
-         	android:orientation="horizontal"
-         	android:gravity="center_horizontal">
-	    <TextView
-	         android:layout_width="wrap_content"
-	         android:layout_height="wrap_content"
-	         android:text="HTTP 4xx/5xx log:"
-	         android:textColor="#FFFFFFFF"
-	         android:textSize="18dp"
-		/>
-	    <CheckBox 
-	    	android:id="@+id/http_4xx_5xx_log"
-	    	android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"   
-		/>
-    </LinearLayout>
-    
-    <LinearLayout 
-        	android:layout_width="match_parent"
-         	android:layout_height="wrap_content"
-         	android:orientation="horizontal"
-         	android:gravity="center_horizontal">
-	    <TextView
-	         android:layout_width="wrap_content"
-	         android:layout_height="wrap_content"
-	         android:text="Enable popup message More button:"
-	         android:textColor="#FFFFFFFF"
-	         android:textSize="18dp"
-		/>
-	    <CheckBox 
-	    	android:id="@+id/popup_message_more"
-	    	android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"   
-		/>
-    </LinearLayout>
-    
-    <LinearLayout 
-        	android:layout_width="match_parent"
-         	android:layout_height="wrap_content"
-         	android:orientation="horizontal"
-         	android:gravity="center_horizontal">
-	    <TextView
-	         android:layout_width="wrap_content"
-	         android:layout_height="wrap_content"
-	         android:text="En-Route log:"
-	         android:textColor="#FFFFFFFF"
-	         android:textSize="18dp"
-		/>
-	    <CheckBox 
-	    	android:id="@+id/en_route_debug_msg"
-	    	android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"   
-		/>
-    </LinearLayout>
-    
-    <LinearLayout 
-        	android:layout_width="match_parent"
-         	android:layout_height="wrap_content"
-         	android:orientation="horizontal"
-         	android:gravity="center_horizontal">
-	    <TextView
-	         android:layout_width="wrap_content"
-	         android:layout_height="wrap_content"
-	         android:text="Voice input log:"
-	         android:textColor="#FFFFFFFF"
-	         android:textSize="18dp"
-		/>
-	    <CheckBox 
-	    	android:id="@+id/voice_input_debug_msg"
-	    	android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"   
-		/>
-    </LinearLayout>
+                android:textSize="18dp" />
 
-    <Button
-        android:id="@+id/button_clear_cache"
-        android:layout_width="160dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="4dp"
-        android:text="Clear cache" />
+            <CheckBox
+                android:id="@+id/rerouting_notification_sound"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
 
-    <Button
-        android:id="@+id/button_crash"
-        android:layout_width="160dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="4dp"
-        android:text="Crash app (!)"
-        android:textColor="#FF2000" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal" >
 
-</LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Rerouting log:"
+                android:textColor="#FFFFFFFF"
+                android:textSize="18dp" />
+
+            <CheckBox
+                android:id="@+id/rerouting_debug_msg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Navigation voice log:"
+                android:textColor="#FFFFFFFF"
+                android:textSize="18dp" />
+
+            <CheckBox
+                android:id="@+id/voice_debug_msg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Navigation API log:"
+                android:textColor="#FFFFFFFF"
+                android:textSize="18dp" />
+
+            <CheckBox
+                android:id="@+id/nav_api_log"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="GPS accuracy log:"
+                android:textColor="#FFFFFFFF"
+                android:textSize="18dp" />
+
+            <CheckBox
+                android:id="@+id/gps_accuracy_debug_msg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HTTP 4xx/5xx log:"
+                android:textColor="#FFFFFFFF"
+                android:textSize="18dp" />
+
+            <CheckBox
+                android:id="@+id/http_4xx_5xx_log"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Enable popup message More button:"
+                android:textColor="#FFFFFFFF"
+                android:textSize="18dp" />
+
+            <CheckBox
+                android:id="@+id/popup_message_more"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="En-Route log:"
+                android:textColor="#FFFFFFFF"
+                android:textSize="18dp" />
+
+            <CheckBox
+                android:id="@+id/en_route_debug_msg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Voice input log:"
+                android:textColor="#FFFFFFFF"
+                android:textSize="18dp" />
+
+            <CheckBox
+                android:id="@+id/voice_input_debug_msg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        
+        <LinearLayout 
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+	        <LinearLayout
+	            android:layout_width="match_parent"
+	            android:layout_height="30dp"
+	            android:gravity="center"
+	            android:orientation="horizontal" >
+	
+	            <TextView
+	                android:id="@+id/voice_command"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:layout_gravity="center"
+	                android:gravity="center"
+	                android:background="@color/metropia_green"
+	                android:text="Voice Command"
+	                android:textColor="@android:color/white"
+	                android:textSize="18dp"
+	                android:padding="5dp" />
+	
+	            <FrameLayout
+	                android:id="@+id/count_down_panel"
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:visibility="gone" >
+	
+	                <ProgressBar
+	                    style="@style/HoloProgressBar"
+	                    android:layout_width="match_parent"
+	                    android:layout_height="match_parent"
+	                    android:layout_gravity="center" />
+	
+	                <TextView
+	                    android:id="@+id/count_down"
+	                    android:layout_width="match_parent"
+	                    android:layout_height="match_parent"
+	                    android:gravity="center"
+	                    android:text="20"
+	                    android:textColor="@android:color/black"
+	                    android:textSize="@dimen/smallest_font" />
+	            </FrameLayout>
+	        </LinearLayout>
+	        
+	        <LinearLayout 
+	            android:id="@+id/recognize_result_panel"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:orientation="horizontal"
+	            android:padding="5dp"
+	            android:visibility="gone">
+	            
+	            <TextView 
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:paddingLeft="10dp"
+	                android:text="Recognized:"
+	                android:textColor="@android:color/white"
+	                android:textSize="18dp"
+	                android:layout_gravity="left|center"/>
+	            
+	            <TextView
+	                android:id="@+id/recognized"
+	                android:layout_width="0dp"
+	                android:layout_height="wrap_content"
+	                android:layout_weight="1"
+	                android:gravity="left|center"
+	                android:paddingLeft="10dp"
+	                android:text=""
+	                android:textColor="@android:color/white"
+	                android:textSize="25dp"/>
+	            
+	        </LinearLayout>
+        
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/button_clear_cache"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="4dp"
+            android:text="Clear cache" />
+
+        <Button
+            android:id="@+id/button_crash"
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="4dp"
+            android:text="Crash app (!)"
+            android:textColor="#FF2000" />
+    </LinearLayout>
 
 </ScrollView>

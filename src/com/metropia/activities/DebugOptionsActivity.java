@@ -1,6 +1,9 @@
 package com.metropia.activities;
 
+import static edu.cmu.pocketsphinx.SpeechRecognizerSetup.defaultSetup;
+
 import java.io.File;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -28,6 +31,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
@@ -38,6 +42,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -63,7 +68,12 @@ import com.metropia.utils.Geocoding.Address;
 import com.metropia.utils.Misc;
 import com.metropia.utils.RouteNode;
 
-public final class DebugOptionsActivity extends FragmentActivity {
+import edu.cmu.pocketsphinx.Assets;
+import edu.cmu.pocketsphinx.Hypothesis;
+import edu.cmu.pocketsphinx.RecognitionListener;
+import edu.cmu.pocketsphinx.SpeechRecognizer;
+
+public final class DebugOptionsActivity extends FragmentActivity implements RecognitionListener {
     
     /**
      * Name of the shared preference file
@@ -468,7 +478,37 @@ public final class DebugOptionsActivity extends FragmentActivity {
                 setEnrouteVoiceInputDebugMsgEnabled(DebugOptionsActivity.this, isChecked);
             }
         });
+        
+        initRecognizer();
+        
+        findViewById(R.id.voice_command).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				findViewById(R.id.count_down_panel).setVisibility(View.VISIBLE);
+				findViewById(R.id.recognize_result_panel).setVisibility(View.VISIBLE);
+				countDown = new CountDownTimer(20000, 1000) {
+	    	    	public void onTick(long millisUntilFinished) {
+	    	    		((TextView)findViewById(R.id.count_down)).setText(nf.format(millisUntilFinished / 1000));
+	   		     	}
+
+	   		     	public void onFinish() {
+	   		     		findViewById(R.id.count_down_panel).setVisibility(View.GONE);
+	   		     		findViewById(R.id.recognize_result_panel).setVisibility(View.GONE);
+	   		     		if(recognizer != null) {
+	   		     			recognizer.stop();
+	   		     		}
+	   		     	}
+	   		 	};
+	   		 	countDown.start();
+	   		 	((TextView)findViewById(R.id.recognized)).setText("");
+	   		 	if(recognizer != null) {
+	   		 		switchSearch(KWS_SEARCH);
+	   		 	}
+			}
+        });
     }
+    
+    private CountDownTimer countDown;
     
     @Override
     protected void onResume() {
@@ -1290,5 +1330,77 @@ public final class DebugOptionsActivity extends FragmentActivity {
             .putBoolean(PREDICTIVE_DESTINATION_TUTORIAL, true)
             .commit();
     }
+    
+    private void initRecognizer() {
+		new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    Assets assets = new Assets(DebugOptionsActivity.this);
+                    File assetDir = assets.syncAssets();
+                    setupRecognizer(assetDir);
+                } catch (IOException ignore) {
+                    Log.d("DebugOptionsActivity", "recognizer init fail!");
+                }
+                return null;
+            }
+
+        }.execute();
+        
+	}
+    
+    private static final String KWS_SEARCH = "wakeup";
+	private SpeechRecognizer recognizer;
+	private File rawLogDir;
+    
+    private void setupRecognizer(File assetsDir) {
+        File modelsDir = new File(assetsDir, "models");
+        rawLogDir = new File(modelsDir, "raws");
+        if(!rawLogDir.exists()) {
+        	rawLogDir.mkdir();
+        }
+        recognizer = defaultSetup()
+                .setAcousticModel(new File(modelsDir, "hmm/en-us-semi"))
+                .setDictionary(new File(modelsDir, "dict/cmu07a.dic"))
+                .setRawLogDir(rawLogDir).setKeywordThreshold(1e-1f)
+                .getRecognizer();
+        recognizer.addListener(this);
+
+     // Create grammar-based searches.
+        File decisionGrammar = new File(modelsDir, "grammar/decisiontwo.gram");
+        recognizer.addKeywordSearch(KWS_SEARCH, decisionGrammar);
+    }
+	
+	private void switchSearch(String searchName) {
+        recognizer.stop();
+        recognizer.startListening(searchName);
+    }
+
+	@Override
+	public void onBeginningOfSpeech() {}
+
+	@Override
+	public void onEndOfSpeech() {}
+
+	@Override
+	public void onPartialResult(Hypothesis hypothesis) {
+		if(hypothesis != null) {
+			((TextView)findViewById(R.id.recognized)).setText(hypothesis.getHypstr());
+		}
+	}
+
+	@Override
+	public void onResult(Hypothesis hypothesis) {}
+	
+	@Override
+	public void onStop() {
+		super.onStop();
+		if(rawLogDir != null && rawLogDir.exists()) {
+			try {
+				FileUtils.cleanDirectory(rawLogDir);
+			}
+			catch(Exception ignore) {}
+		}
+	}
     
 }
