@@ -1967,10 +1967,15 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                     dropPinForAddress(addr, zoomIn, isFrom);
                 }
                 else {
-                	NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, "No results");
+                	final NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, "No results");
                 	dialog.setTitle("");
                 	dialog.setPositiveButtonText("OK");
-                	dialog.show();
+                	Misc.doQuietly(new Runnable() {
+						@Override
+						public void run() {
+							dialog.show();
+						}
+                	});
                 }
             }
         };
