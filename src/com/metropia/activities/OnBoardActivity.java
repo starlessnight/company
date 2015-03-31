@@ -702,10 +702,15 @@ public class OnBoardActivity extends FragmentActivity {
                     saveFavorite(addr, isHome);
                 }
                 else {
-                	NotificationDialog2 dialog = new NotificationDialog2(OnBoardActivity.this, "No results");
+                	final NotificationDialog2 dialog = new NotificationDialog2(OnBoardActivity.this, "No results");
                 	dialog.setTitle("");
                 	dialog.setPositiveButtonText("OK");
-                	dialog.show();
+                	Misc.doQuietly(new Runnable() {
+						@Override
+						public void run() {
+							dialog.show();
+						}
+                	});
                 }
             }
         };
