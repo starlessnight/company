@@ -2317,6 +2317,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				}
 	    	});
 	    	dialog.show();
+	    	navigationView.notifyIfNecessary("There's a temporary connection issue, but we'll update your trip results shortly. Thanks for your patience!", false);
 		}
 	}
 	
@@ -2339,6 +2340,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                 congratsMsg.setText(formatCongrMessage(ValidationActivity.this, msg));
                 congratsMsg.setVisibility(View.VISIBLE);
                 findViewById(R.id.congrats_msg_shadow).setVisibility(View.VISIBLE);
+                navigationView.notifyIfNecessary(message, false);
             }
             
             TextView co2 = (TextView) findViewById(R.id.co2_circle);

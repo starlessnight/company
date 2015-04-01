@@ -745,7 +745,7 @@ public class NavigationView extends LinearLayout {
 	
 	private static final Integer ID = 123451;
 	
-	private void notifyIfNecessary(String message, boolean force) {
+	public void notifyIfNecessary(String message, boolean force) {
 		if(force || !notifiedMsg.equalsIgnoreCase(message) && needNotification) {
 			notifiedMsg = message;
 			Intent validationIntent = new Intent(getContext(), MainActivity.class);
