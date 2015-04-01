@@ -541,24 +541,22 @@ public final class Route implements Parcelable {
 	public double getDistanceToNextTurn(double latitude, double longitude) {
 		double distance = 0.0;
 		RouteLink nearestLink = getNearestLink(latitude, longitude);
-		
+		if(nearestLink != null) {
 		// nearest downstream node
-		RouteNode nearestNode = nearestLink.getEndNode();
-		
-		if (nearestNode != null) {
-			distance = nearestNode.distanceTo(latitude, longitude);
-			
-			RouteNode nextNode = nearestNode;//.getNextNode();
-			while (nearestNode.getFlag() == 0 && nextNode != null && nextNode.getFlag() == 0) {
-				distance += nextNode.getDistance();
+			RouteNode nearestNode = nearestLink.getEndNode();
+			if (nearestNode != null) {
+				distance = nearestNode.distanceTo(latitude, longitude);
+				RouteNode nextNode = nearestNode;//.getNextNode();
+				while (nearestNode.getFlag() == 0 && nextNode != null && nextNode.getFlag() == 0) {
+					distance += nextNode.getDistance();
+					nextNode = nextNode.getNextNode();
+				}
 				
-				nextNode = nextNode.getNextNode();
+				// FIXME: Temporary
+	//			if (nearestNode.getFlag() != 0 && nearestNode.distanceTo(latitude, longitude) < 5) {
+	//			    nearestNode.setFlag(0);
+	//			}
 			}
-			
-			// FIXME: Temporary
-//			if (nearestNode.getFlag() != 0 && nearestNode.distanceTo(latitude, longitude) < 5) {
-//			    nearestNode.setFlag(0);
-//			}
 		}
 		return distance;
 	}
