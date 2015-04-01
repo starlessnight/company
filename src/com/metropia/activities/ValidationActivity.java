@@ -961,7 +961,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		finishButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				finish();
+				ClickAnimation clickAnim = new ClickAnimation(ValidationActivity.this, v);
+				clickAnim.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						SKRouteManager.getInstance().clearCurrentRoute();
+						finish();
+					}
+				});
 			}
 		});
 		
