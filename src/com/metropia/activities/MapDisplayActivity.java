@@ -292,7 +292,6 @@ public final class MapDisplayActivity extends FragmentActivity {
 			@Override
 			public void onClick(View v) {
 				LayoutParams tutorialPanelLp = tutorialPanel.getLayoutParams();
-				tutorialPanel.setTop(firstPanel.getTop());
 				tutorialPanelLp.height = firstPanel.getMeasuredHeight();
 				tutorialPanelLp.width = LayoutParams.MATCH_PARENT;
 				tutorialPanel.setLayoutParams(tutorialPanelLp);
