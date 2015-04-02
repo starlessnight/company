@@ -177,6 +177,7 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
                         boolean toOnBoard =  StringUtils.equalsIgnoreCase(username, loginPrefs.getString(User.NEW_USER, ""));
                         if(toOnBoard) {
                         	loginPrefsEditor.remove(User.NEW_USER);
+                        	loginPrefsEditor.putString(User.PLAY_SCORE_ANIMATION, username);
                         }
                         loginPrefsEditor.commit();
                         

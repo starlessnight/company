@@ -47,6 +47,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -3792,9 +3793,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     
     private void updateMyMetropiaInfo() {
     	AsyncTask<Void, Void, MyMetropia> updateTask = new AsyncTask<Void, Void, MyMetropia>() {
+    		final User user = User.getCurrentUser(LandingActivity2.this);
 			@Override
 			protected MyMetropia doInBackground(Void... params) {
-				User user = User.getCurrentUser(LandingActivity2.this);
 				MyMetropiaRequest request = new MyMetropiaRequest(user.getUsername());
 				MyMetropia info = null;
 				try {
@@ -3808,20 +3809,46 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 			
 			protected void onPostExecute(MyMetropia info) {
 				if(!ehs.hasExceptions()) {
-					int reward = info.getCredit();
-					StringBuffer rewardString = new StringBuffer();
-					if(reward >= 1000) {
-						rewardString = rewardString.append(reward / 1000).append("K");
-					}
-					else {
-						rewardString.append(reward); 
-						while(rewardString.length() < 3) {
-							rewardString.insert(0, "0");
+					SharedPreferences loginPrefs = Preferences.getAuthPreferences(LandingActivity2.this);
+                    SharedPreferences.Editor loginPrefsEditor = loginPrefs.edit();
+                    final boolean play = StringUtils.equalsIgnoreCase(user.getUsername(), loginPrefs.getString(User.PLAY_SCORE_ANIMATION, ""));
+                    if(play) {
+                    	loginPrefsEditor.remove(User.PLAY_SCORE_ANIMATION);
+                    }
+                    loginPrefsEditor.commit();
+                    
+                    final StringBuffer rewardString = new StringBuffer();
+                    final String formatScore = "%spts";
+                    if(play) {
+                    	rewardString.append(100);
+                    	new CountDownTimer(2000, 10) {
+    						
+    						@Override
+    						public void onTick(long millisUntilFinished) {
+    							String score = Integer.valueOf(rewardString.toString()) - (millisUntilFinished / 20) + "";
+    							upointView.setText(formatMyMetropiaInfo(String.format(formatScore, score)));
+    						}
+    						
+    						@Override
+    						public void onFinish() {
+    							upointView.setText(formatMyMetropiaInfo(String.format(formatScore, rewardString.toString())));
+    						}
+    					}.start();
+                    }
+                    else {
+						int reward = info.getCredit();
+						if(reward >= 1000) {
+							rewardString.append(reward / 1000).append("K");
 						}
-					}
-					rewardString.append("pts");
-					upointView.setText(formatMyMetropiaInfo(rewardString.toString()));
-					
+						else {
+							rewardString.append(reward); 
+							while(rewardString.length() < 3) {
+								rewardString.insert(0, "0");
+							}
+						}
+						upointView.setText(formatMyMetropiaInfo(String.format(formatScore, rewardString.toString())));
+                    }
+                    
 					int timeSaving = info.getTimeSaving();
 					StringBuffer timeSavingString = new StringBuffer();
 					if(timeSaving >= 1000) {

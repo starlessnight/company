@@ -33,6 +33,7 @@ public final class User implements JSONModel, Parcelable {
 	public static final String ZIP_CODE = "ZIP_CODE";
 	public static final String NEW_USER = "NEW_USER";
 	public static final String APP_VERSION = "app_version";
+	public static final String PLAY_SCORE_ANIMATION = "play_score_animation";
 	
 	private static User currentUser;
 
