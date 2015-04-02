@@ -12,11 +12,17 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
+import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.AnimatorListener;
+import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
+import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.localytics.android.Localytics;
 import com.metropia.LocalyticsUtils;
@@ -102,12 +108,12 @@ public final class MapDisplayActivity extends FragmentActivity {
 		final SharedPreferences prefs = getSharedPreferences(MAP_DISPLAY_PREFS,
 				MODE_PRIVATE);
 		
-		/*
 		User user = User.getCurrentUser(MapDisplayActivity.this);
 
 		TextView userNameView = (TextView) findViewById(R.id.user_name);
-		userNameView.setText(user.getFirstname() + " " + user.getLastname());
+		userNameView.setText(user.getUsername());
 
+		/*
 		TextView emailView = (TextView) findViewById(R.id.user_email);
 		emailView.setText(user.getEmail());
 		*/
@@ -237,10 +243,104 @@ public final class MapDisplayActivity extends FragmentActivity {
 			}
 		});
 		
-		Font.setTypeface(boldFont, logout, veNum, (TextView) findViewById(R.id.header),
+		final View tutorialPanel = findViewById(R.id.tutorial_panel);
+		final View firstPanel = findViewById(R.id.first_column);
+		tutorialPanel.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ObjectAnimator tutorialFlipAnimator = ObjectAnimator.ofFloat(tutorialPanel, "rotationY", 0f, -180f);
+	    		tutorialFlipAnimator.setDuration(500);
+	    		tutorialFlipAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				ObjectAnimator tutorialAlphaAnimator = ObjectAnimator.ofFloat(tutorialPanel, "alpha", 1f, 0f);
+				tutorialAlphaAnimator.setStartDelay(250);
+				tutorialAlphaAnimator.setDuration(1);
+				tutorialAlphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				ObjectAnimator columnShowAnimator = ObjectAnimator.ofFloat(firstPanel, "alpha", 1f, 0f);
+				columnShowAnimator.setDuration(0);
+				columnShowAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				ObjectAnimator columnFlipAnimator = ObjectAnimator.ofFloat(firstPanel, "rotationY", 180f, 0f);
+				columnFlipAnimator.setDuration(500);
+				columnFlipAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				ObjectAnimator columnAlphaAnimator = ObjectAnimator.ofFloat(firstPanel, "alpha", 0f, 1f);
+				columnAlphaAnimator.setStartDelay(250);
+				columnAlphaAnimator.setDuration(1);
+				columnAlphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				AnimatorSet allAnimatorSet = new AnimatorSet();
+				allAnimatorSet.playTogether(tutorialFlipAnimator, tutorialAlphaAnimator, columnFlipAnimator, columnAlphaAnimator, columnShowAnimator);
+				allAnimatorSet.addListener(new AnimatorListener() {
+
+					@Override
+					public void onAnimationStart(Animator animation) {}
+
+					@Override
+					public void onAnimationEnd(Animator animation) {
+						tutorialPanel.setVisibility(View.GONE);
+					}
+
+					@Override
+					public void onAnimationCancel(Animator animation) {}
+
+					@Override
+					public void onAnimationRepeat(Animator animation) {}
+					
+				});
+				allAnimatorSet.start();
+			}
+		});
+		
+		findViewById(R.id.predict_destination_tutorial_button).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				LayoutParams tutorialPanelLp = tutorialPanel.getLayoutParams();
+				tutorialPanel.setTop(firstPanel.getTop());
+				tutorialPanelLp.height = firstPanel.getMeasuredHeight();
+				tutorialPanelLp.width = LayoutParams.MATCH_PARENT;
+				tutorialPanel.setLayoutParams(tutorialPanelLp);
+				ObjectAnimator tutorialShowAnimator = ObjectAnimator.ofFloat(tutorialPanel, "alpha", 1f, 0f);
+				tutorialShowAnimator.setDuration(0);
+				tutorialShowAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				ObjectAnimator tutorialFlipAnimator = ObjectAnimator.ofFloat(tutorialPanel, "rotationY", -180f, 0f);
+	    		tutorialFlipAnimator.setDuration(500);
+	    		tutorialFlipAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				ObjectAnimator tutorialAlphaAnimator = ObjectAnimator.ofFloat(tutorialPanel, "alpha", 0f, 1f);
+				tutorialAlphaAnimator.setStartDelay(250);
+				tutorialAlphaAnimator.setDuration(1);
+				tutorialAlphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				ObjectAnimator columnFlipAnimator = ObjectAnimator.ofFloat(firstPanel, "rotationY", 0f, 180f);
+				columnFlipAnimator.setDuration(500);
+				columnFlipAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				ObjectAnimator columnAlphaAnimator = ObjectAnimator.ofFloat(firstPanel, "alpha", 1f, 0f);
+				columnAlphaAnimator.setStartDelay(250);
+				columnAlphaAnimator.setDuration(1);
+				columnAlphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				AnimatorSet allAnimatorSet = new AnimatorSet();
+				allAnimatorSet.playTogether(tutorialFlipAnimator, tutorialAlphaAnimator, tutorialShowAnimator, columnFlipAnimator, columnAlphaAnimator);
+				allAnimatorSet.addListener(new AnimatorListener() {
+					@Override
+					public void onAnimationStart(Animator animation) {
+						tutorialPanel.setVisibility(View.VISIBLE);
+					}
+
+					@Override
+					public void onAnimationEnd(Animator animation) {}
+
+					@Override
+					public void onAnimationCancel(Animator animation) {}
+
+					@Override
+					public void onAnimationRepeat(Animator animation) {}
+					
+				});
+				allAnimatorSet.start();
+			}
+		});
+		
+		Font.setTypeface(boldFont, logout, veNum, userNameView, 
+				(TextView) findViewById(R.id.header),
 				(TextView) findViewById(R.id.metropia_title),
-				(TextView) findViewById(R.id.back_button));
-        Font.setTypeface(lightFont, /*userNameView, emailView, veNum,*/
+				(TextView) findViewById(R.id.back_button), 
+				(TextView) findViewById(R.id.tutorial_text));
+        Font.setTypeface(lightFont, 
 				(TextView) findViewById(R.id.predict_destination_text),
 				(TextView) findViewById(R.id.calendar_integration_text),
 				(TextView) findViewById(R.id.tutorial),

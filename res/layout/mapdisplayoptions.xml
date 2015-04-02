@@ -14,7 +14,7 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp" >
+            android:layout_height="50dp" >"
 
             <TextView
                 android:id="@+id/header"
@@ -39,118 +39,167 @@
                 android:textColor="@android:color/white"
                 android:textSize="@dimen/smaller_font" />
         </FrameLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/white"
-            android:orientation="vertical" >
-
-            <FrameLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="10dp"
-                android:paddingLeft="15dp"
-                android:paddingRight="15dp"
-                android:paddingTop="10dp" >
-
-                <TextView
-                    android:id="@+id/include_toll_roads_text"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:gravity="left"
-                    android:singleLine="true"
-                    android:text="Include Toll Roads"
-                    android:textColor="@color/gray"
-                    android:textSize="@dimen/smaller_font" />
-
-                <ToggleButton
-                    android:id="@+id/include_toll_roads"
-                    android:layout_width="51dp"
-                    android:layout_height="31dp"
-                    android:layout_gravity="center|right"
-                    android:background="@drawable/setting_toggle_button"
-                    android:checked="true"
-                    android:gravity="right"
-                    android:textOff=""
-                    android:textOn="" />
-            </FrameLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginRight="10dp"
-                android:background="@color/transparent_gray" />
-
-            <FrameLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="10dp"
-                android:paddingLeft="15dp"
-                android:paddingRight="15dp"
-                android:paddingTop="10dp" >
-
-                <TextView
-                    android:id="@+id/predict_destination_text"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:gravity="left"
-                    android:singleLine="true"
-                    android:text="Destination Prediction"
-                    android:textColor="@color/gray"
-                    android:textSize="@dimen/smaller_font" />
-
-                <ToggleButton
-                    android:id="@+id/predict_destination"
-                    android:layout_width="51dp"
-                    android:layout_height="31dp"
-                    android:layout_gravity="center|right"
-                    android:background="@drawable/setting_toggle_button"
-                    android:checked="true"
-                    android:gravity="right"
-                    android:textOff=""
-                    android:textOn="" />
-            </FrameLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginRight="10dp"
-                android:background="@color/transparent_gray" />
-
-            <FrameLayout
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="10dp"
-                android:paddingLeft="15dp"
-                android:paddingRight="15dp"
-                android:paddingTop="10dp" >
-
-                <TextView
-                    android:id="@+id/calendar_integration_text"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:gravity="left"
-                    android:singleLine="true"
-                    android:text="Calendar Integration"
-                    android:textColor="@color/gray"
-                    android:textSize="@dimen/smaller_font" />
-
-                <ToggleButton
-                    android:id="@+id/calendar_integration"
-                    android:layout_width="51dp"
-                    android:layout_height="31dp"
-                    android:layout_gravity="center|right"
-                    android:background="@drawable/setting_toggle_button"
-                    android:checked="true"
-                    android:gravity="right"
-                    android:textOff=""
-                    android:textOn="" />
-            </FrameLayout>
-        </LinearLayout>
+        
+        <FrameLayout 
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        
+	        <LinearLayout
+	            android:id="@+id/first_column"
+	            android:layout_width="fill_parent"
+	            android:layout_height="wrap_content"
+	            android:background="@android:color/white"
+	            android:orientation="vertical" >
+	
+	            <FrameLayout
+	                android:layout_width="fill_parent"
+	                android:layout_height="wrap_content"
+	                android:paddingBottom="10dp"
+	                android:paddingLeft="15dp"
+	                android:paddingRight="15dp"
+	                android:paddingTop="10dp" >
+	
+	                <TextView
+	                    android:id="@+id/include_toll_roads_text"
+	                    android:layout_width="fill_parent"
+	                    android:layout_height="wrap_content"
+	                    android:layout_gravity="center_vertical"
+	                    android:gravity="left"
+	                    android:singleLine="true"
+	                    android:text="Include Toll Roads"
+	                    android:textColor="@color/gray"
+	                    android:textSize="@dimen/smaller_font" />
+	
+	                <ToggleButton
+	                    android:id="@+id/include_toll_roads"
+	                    android:layout_width="51dp"
+	                    android:layout_height="31dp"
+	                    android:layout_gravity="center|right"
+	                    android:background="@drawable/setting_toggle_button"
+	                    android:checked="true"
+	                    android:gravity="right"
+	                    android:textOff=""
+	                    android:textOn="" />
+	            </FrameLayout>
+	
+	            <View
+	                android:layout_width="match_parent"
+	                android:layout_height="1dp"
+	                android:layout_marginRight="10dp"
+	                android:background="@color/transparent_gray" />
+	
+	            <FrameLayout
+	                android:layout_width="fill_parent"
+	                android:layout_height="wrap_content"
+	                android:paddingBottom="10dp"
+	                android:paddingLeft="15dp"
+	                android:paddingRight="15dp"
+	                android:paddingTop="10dp" >
+	
+	                <LinearLayout 
+	                    android:id="@+id/predict_dest_panel"
+	                    android:layout_width="fill_parent"
+	                    android:layout_height="wrap_content"
+	                    android:orientation="horizontal">
+	                    
+		                <TextView
+		                    android:id="@+id/predict_destination_text"
+		                    android:layout_width="wrap_content"
+		                    android:layout_height="wrap_content"
+		                    android:layout_gravity="center_vertical"
+		                    android:gravity="left"
+		                    android:singleLine="true"
+		                    android:text="Destination Prediction"
+		                    android:textColor="@color/gray"
+		                    android:textSize="@dimen/smaller_font" />
+		                
+		                <ImageView 
+		                    android:id="@+id/predict_destination_tutorial_button"
+		                    android:layout_width="wrap_content"
+		                    android:layout_height="wrap_content"
+		                    android:layout_marginLeft="10dp"
+		                    android:layout_gravity="center_vertical"
+		                    android:src="@drawable/predict_destination_tutorial"/>
+		                
+	                </LinearLayout>
+	
+	                <ToggleButton
+	                    android:id="@+id/predict_destination"
+	                    android:layout_width="51dp"
+	                    android:layout_height="31dp"
+	                    android:layout_gravity="center|right"
+	                    android:background="@drawable/setting_toggle_button"
+	                    android:checked="true"
+	                    android:gravity="right"
+	                    android:textOff=""
+	                    android:textOn="" />
+	            </FrameLayout>
+	
+	            <View
+	                android:layout_width="match_parent"
+	                android:layout_height="1dp"
+	                android:layout_marginRight="10dp"
+	                android:background="@color/transparent_gray" />
+	
+	            <FrameLayout
+	                android:layout_width="fill_parent"
+	                android:layout_height="wrap_content"
+	                android:paddingBottom="10dp"
+	                android:paddingLeft="15dp"
+	                android:paddingRight="15dp"
+	                android:paddingTop="10dp" >
+	
+	                <TextView
+	                    android:id="@+id/calendar_integration_text"
+	                    android:layout_width="fill_parent"
+	                    android:layout_height="wrap_content"
+	                    android:layout_gravity="center_vertical"
+	                    android:gravity="left"
+	                    android:singleLine="true"
+	                    android:text="Calendar Integration"
+	                    android:textColor="@color/gray"
+	                    android:textSize="@dimen/smaller_font" />
+	
+	                <ToggleButton
+	                    android:id="@+id/calendar_integration"
+	                    android:layout_width="51dp"
+	                    android:layout_height="31dp"
+	                    android:layout_gravity="center|right"
+	                    android:background="@drawable/setting_toggle_button"
+	                    android:checked="true"
+	                    android:gravity="right"
+	                    android:textOff=""
+	                    android:textOn="" />
+	            </FrameLayout>
+	        </LinearLayout>
+	        
+	        <LinearLayout 
+	            android:id="@+id/tutorial_panel"
+	            android:layout_width="0dp"
+	            android:layout_height="0dp"
+	            android:orientation="horizontal"
+	            android:background="@android:color/white"
+	            android:padding="10dp">
+	            
+	            <ImageView 
+	                android:layout_width="wrap_content"
+	                android:layout_height="wrap_content"
+	                android:src="@drawable/selected_predict_destination_tutorial"
+	                android:layout_gravity="top"/>
+	            
+	            <TextView 
+	                android:id="@+id/tutorial_text"
+	                android:layout_width="0dp"
+	                android:layout_height="match_parent"
+	                android:layout_weight="1"
+	                android:padding="5dp"
+	                android:text="@string/predictive_destination_tutorial"
+	                android:textColor="@color/metropia_blue"
+	                android:textSize="@dimen/medium_font"/>
+	            
+	        </LinearLayout>
+        
+        </FrameLayout>
 
         <LinearLayout 
             android:layout_width="match_parent"
@@ -267,6 +316,18 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|left"
+            android:gravity="center"
+            android:paddingTop="30dp"
+            android:paddingLeft="15dp"
+            android:text=""
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/smaller_font" />
+        
+        <TextView
             android:id="@+id/logout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -274,7 +335,7 @@
             android:drawableLeft="@drawable/menu_logout"
             android:drawablePadding="20dp"
             android:gravity="center"
-            android:paddingTop="60dp"
+            android:paddingTop="15dp"
             android:paddingLeft="15dp"
             android:text="Log Out"
             android:textColor="@android:color/white"
