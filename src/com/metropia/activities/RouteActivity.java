@@ -106,7 +106,6 @@ import com.skobbler.ngx.SKMaps;
 import com.skobbler.ngx.map.SKAnimationSettings;
 import com.skobbler.ngx.map.SKAnnotation;
 import com.skobbler.ngx.map.SKAnnotationView;
-import com.skobbler.ngx.map.SKBoundingBox;
 import com.skobbler.ngx.map.SKCoordinateRegion;
 import com.skobbler.ngx.map.SKMapCustomPOI;
 import com.skobbler.ngx.map.SKMapPOI;
@@ -575,7 +574,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
                             long departureTime = timeButton.getDepartureTime();
                             
                             try {
-                                updateRoute(originCoord, destCoord, departureTime, column);
+                            	updateRoute(originCoord, destCoord, departureTime, column);
                             }
                             catch (InterruptedException e) {
                             }
@@ -1390,12 +1389,42 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     
     private void fitRouteToMap(boolean zoomToSpan){
         if(routeRect != null && zoomToSpan){
-            GeoPoint topLeft = routeRect.getTopLeftPoint();
-            GeoPoint bottomRight = routeRect.getBottomRightPoint();
-			SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude());
-			mapView.fitBoundingBox(boundingBox, 100, 100);
+//            GeoPoint topLeft = routeRect.getTopLeftPoint();
+//            GeoPoint bottomRight = routeRect.getBottomRightPoint();
+//			SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude());
+//			mapView.fitBoundingBox(boundingBox, 100, 100);
+//        	mapView.setZoom(SKMapSurfaceView.DEFAULT_ZOOM_LEVEL);
+        	int[] range = routeRect.getRange();
+			float newZoomLevel = getSpanZoomLevel(range[0], range[1]);
+			SKCoordinateRegion region = new SKCoordinateRegion();
+			region.setCenter(new SKCoordinate(routeRect.getMidPoint().getLongitude(), routeRect.getMidPoint().getLatitude()));
+			region.setZoomLevel(newZoomLevel);
+			mapView.changeMapVisibleRegion(region, false);
         }
     }
+    
+    private float getSpanZoomLevel(int reqLatSpan, int reqLonSpan) {
+		if (reqLatSpan <= 0 || reqLonSpan <= 0) {
+			return mapView.getZoomLevel();
+		}
+
+		// zoom level : 14.9101 , BoundingBox topLat:24.968921851853025, bottomLat:24.96617906512892, topLon:121.53976321220398, bottomLon:121.5416944026947
+		float curZoomLevel = 14.9101f;
+		int curLatSpan = Math.abs((int)(24.968921851853025 * 1E6) - (int)(24.96617906512892 * 1E6));
+		int curLonSpan = Math.abs((int)(121.53976321220398 * 1E6) - (int)(121.5416944026947 * 1E6));
+
+		float diffNeededLat = (float) reqLatSpan / curLatSpan; // i.e. 600/500 = 1,2
+		float diffNeededLon = (float) reqLonSpan / curLonSpan; // i.e. 300/400 = 0,75
+
+		float diffNeeded = Math.max(diffNeededLat, diffNeededLon); // i.e. 1,2
+
+		if (diffNeeded > 1) { // Zoom Out
+			return curZoomLevel - Misc.getNextSquareNumberAbove(diffNeeded) + 2.5f;
+		} else if (diffNeeded < 0.5) { // Can Zoom in
+			return curZoomLevel + Misc.getNextSquareNumberAbove(1 / diffNeeded) - 1 ;
+		}
+		return curZoomLevel;
+	}
     
     private static final double mapZoomVerticalOffset = -0.3;
     
@@ -1546,8 +1575,8 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		//outline properties, otherwise map crash
 		routeLine.setOutlineColor(SkobblerUtils.getRouteColorArray(_route.getColor()));
 		routeLine.setOutlineSize(10);
-		routeLine.setOutlineDottedPixelsSolid(3);
-		routeLine.setOutlineDottedPixelsSkip(3);
+		routeLine.setOutlineDottedPixelsSolid(0);
+		routeLine.setOutlineDottedPixelsSkip(0);
 		//
 		mapView.addPolyline(routeLine);
 		
@@ -2008,7 +2037,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	public void onSingleTap(SKScreenPoint arg0) {
 		mapView.deleteAnnotation(INCIDENT_BALLOON_ID);
 	}
-
+	
 	@Override
 	public void onSurfaceCreated() {}
 

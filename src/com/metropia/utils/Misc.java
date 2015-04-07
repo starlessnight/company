@@ -281,4 +281,18 @@ public class Misc {
     	return paramValueMap;
     }
     
+    public static int getNextSquareNumberAbove(final double factor) {
+		int out = 0;
+		int cur = 1;
+		int i = 1;
+		while (true) {
+			if (cur > factor)
+				return out;
+
+			out = i;
+			cur *= 2;
+			i++;
+		}
+	}
+    
 }
