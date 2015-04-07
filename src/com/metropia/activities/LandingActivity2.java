@@ -3255,7 +3255,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             GeoPoint topLeft = routeRect.getTopLeftPoint();
             GeoPoint bottomRight = routeRect.getBottomRightPoint();
 			final SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude());
-			mapView.fitBoundingBox(boundingBox, 100, 100);
+			mapView.fitBoundingBox(boundingBox, 200, 200);
         }
     }
     
