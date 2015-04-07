@@ -109,7 +109,7 @@
 		                    android:layout_gravity="center_vertical"
 		                    android:gravity="left"
 		                    android:singleLine="true"
-		                    android:text="Destination Prediction"
+		                    android:text="Predictive Destination"
 		                    android:textColor="@color/gray"
 		                    android:textSize="@dimen/smaller_font" />
 		                
