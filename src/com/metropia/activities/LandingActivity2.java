@@ -275,8 +275,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     
     private AtomicBoolean checkCalendarEvent = new AtomicBoolean(true);
     
-    private AtomicBoolean dayMode = new AtomicBoolean();
-    
     private POIContainer poiContainer = new POIContainer();
     
     private SKMapViewHolder mapViewHolder;
@@ -1340,9 +1338,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         mapView.getMapSettings().setInertiaRotatingEnabled(false);
         mapView.getMapSettings().setInertiaZoomingEnabled(true);
         mapView.getMapSettings().setInertiaPanningEnabled(true);
-        mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(LandingActivity2.this));
-        dayMode.set(SkobblerUtils.isDayMode());
-        mapView.getMapSettings().setStreetNamePopupsShown(!dayMode.get());
+        mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(LandingActivity2.this, true));
 	}
     
     private void handleCalendarNotification(int eventId) {
@@ -2351,6 +2347,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    Localytics.handleTestMode(getIntent());
 	    Localytics.handlePushNotificationOpened(getIntent());
 	    mapView.onResume();
+	    mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(LandingActivity2.this, true));
         registerReceiver(tripInfoUpdater, new IntentFilter(TRIP_INFO_UPDATES));
         registerReceiver(onTheWayNotifier, new IntentFilter(ON_THE_WAY_NOTICE));
         mapRefresh.set(true);

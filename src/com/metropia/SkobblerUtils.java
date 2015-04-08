@@ -47,7 +47,7 @@ public class SkobblerUtils {
         // get object holding map initialization settings
         SKMapsInitSettings initMapSettings = new SKMapsInitSettings();
         // set path to map resources and initial map style
-        initMapSettings.setMapResourcesPaths(getMapResourceDirPath(ctx), getMapViewStyle(ctx));
+        initMapSettings.setMapResourcesPaths(getMapResourceDirPath(ctx), getMapViewStyle(ctx, true));
         
         SKAdvisorSettings advisorSettings = initMapSettings.getAdvisorSettings();
         advisorSettings.setLanguage("en");
@@ -58,8 +58,8 @@ public class SkobblerUtils {
     }
 	
 	
-	public static SKMapViewStyle getMapViewStyle(Context ctx) {
-		if(isDayMode()) {
+	public static SKMapViewStyle getMapViewStyle(Context ctx, boolean dayMode) {
+		if(dayMode) {
 			return new SKMapViewStyle(getMapResourceDirPath(ctx) + "daystyle/", "daystyle.json");
 		}
 		return new SKMapViewStyle(getMapResourceDirPath(ctx) + "nightstyle/", "nightstyle.json");

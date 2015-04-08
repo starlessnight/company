@@ -991,7 +991,6 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
       	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
     }
     
-	private AtomicBoolean dayMode = new AtomicBoolean();
 	private SKMapViewHolder mapViewHolder;
 	private SKMapSurfaceView mapView;
     
@@ -1015,9 +1014,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         mapView.getMapSettings().setInertiaRotatingEnabled(false);
         mapView.getMapSettings().setInertiaZoomingEnabled(true);
         mapView.getMapSettings().setInertiaPanningEnabled(true);
-        mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(RouteActivity.this));
-        dayMode.set(SkobblerUtils.isDayMode());
-        mapView.getMapSettings().setStreetNamePopupsShown(!dayMode.get());
+        mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(RouteActivity.this, true));
 	}
     
     private String incidentUrl;

@@ -11,7 +11,6 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.util.Log;
-import android.util.TimeUtils;
 
 import com.metropia.utils.GeoPoint;
 import com.metropia.utils.RouteNode;

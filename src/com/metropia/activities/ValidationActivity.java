@@ -749,8 +749,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         mapView.getMapSettings().setInertiaRotatingEnabled(true);
         mapView.getMapSettings().setInertiaZoomingEnabled(true);
         mapView.getMapSettings().setInertiaPanningEnabled(true);
-        mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(ValidationActivity.this));
         dayMode.set(SkobblerUtils.isDayMode());
+        mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(ValidationActivity.this, dayMode.get()));
         mapView.getMapSettings().setStreetNamePopupsShown(!dayMode.get());
         SKRouteManager.getInstance().setRouteListener(this);
 	}
@@ -2555,7 +2555,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(ValidationActivity.this));
+						mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(ValidationActivity.this, currentMode));
 						TextView timeInfo = (TextView) findViewById(R.id.remain_times);
 						if(currentMode) {
 							timeInfo.setTextColor(Color.parseColor("#ad000000"));
