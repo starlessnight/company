@@ -282,6 +282,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private String versionNumber = "";
 	
+	private AtomicBoolean isReplay = new AtomicBoolean(false);
+	
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -318,6 +320,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			emails = savedInstanceState.getString(EMAILS);
 			phones = savedInstanceState.getString(PHONES);
 			trajectoryData = savedInstanceState.getString(TRAJECTORY_DATA);
+			isReplay.set(savedInstanceState.getBoolean(DebugOptionsActivity.REPLAY));
 		} else {
 			Time now = new Time();
 			now.setToNow();
@@ -325,6 +328,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			emails = extras.getString(EMAILS);
 			phones = extras.getString(PHONES);
 			trajectoryData = extras.getString(TRAJECTORY_DATA);
+			isReplay.set(extras.getBoolean(DebugOptionsActivity.REPLAY, false));
 		}
 		timeoutReceiver = new BroadcastReceiver() {
 			@Override
@@ -603,6 +607,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		outState.putString(EMAILS, emails);
 		outState.putString(PHONES, phones);
 		outState.putString(TRAJECTORY_DATA, trajectoryData);
+		outState.putBoolean(DebugOptionsActivity.REPLAY, isReplay.get());
 	}
 
 	@Override
@@ -2159,10 +2164,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		    speakIfTtsEnabled(ttsBuffer.remove(0), false);
 		}
 
-		trajectory.accumulate(location, linkId);
-
-		if (!arrived.get() && trajectory.size() >= 8) {
-			saveTrajectory();
+		if(!isReplay.get()) {
+			trajectory.accumulate(location, linkId);
+	
+			if (!arrived.get() && trajectory.size() >= 8) {
+				saveTrajectory();
+			}
 		}
 
 		if(sendOnMyWayEmail.getAndSet(false)) {
@@ -2251,17 +2258,19 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		    
 		    ResumeNavigationUtils.cleanTripLog(ValidationActivity.this);
 		    
-		    saveTrajectory(new Runnable() {
-                @Override
-                public void run() {
-                    saveTrip(new Runnable() {
-                        @Override
-                        public void run() {
-                            TripService.runImd(ValidationActivity.this, User.getCurrentUser(ValidationActivity.this), reservation.getRid());
-                        }
-                    });
-                }
-            });
+		    if(!isReplay.get()) {
+			    saveTrajectory(new Runnable() {
+	                @Override
+	                public void run() {
+	                    saveTrip(new Runnable() {
+	                        @Override
+	                        public void run() {
+	                            TripService.runImd(ValidationActivity.this, User.getCurrentUser(ValidationActivity.this), reservation.getRid());
+	                        }
+	                    });
+	                }
+	            });
+		    }
 		    
 		    SKPosition currentPosition = mapView.getCurrentGPSPosition(true);
 		    if(currentPosition != null) {
@@ -2279,18 +2288,36 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			
 			findViewById(R.id.loading).setVisibility(View.VISIBLE);
 			
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    try{
-                        if(callback!=null) {
-                            callback.run();
-                        }
-                        showNotifyLaterDialog();
-                    }catch(Throwable t){}
-                }
-            }, Request.fifteenSecsTimeout * 2);
-
+			if(isReplay.get()) {
+				int uPoints = 0;
+				double co2Value = 0, timeSavingInMinute = 0;
+				String message = "", voice = "";
+				if(StringUtils.isNotBlank(trajectoryData)) {
+					try {
+						JSONObject trajectoryJson = new JSONObject(trajectoryData);
+						uPoints = trajectoryJson.optInt("credit", 0);
+						co2Value = trajectoryJson.optDouble("co2_saving", 0);
+						timeSavingInMinute = trajectoryJson.optDouble("time_saving_in_second", 0) / 60;
+						voice = trajectoryJson.optString("voice", "");
+						message = trajectoryJson.optString("message", "");
+					}
+					catch(Exception ignore) {}
+				}
+				doDisplayArrivalMsg(uPoints, co2Value, message, voice, timeSavingInMinute);
+			}
+			else {
+	            new Handler().postDelayed(new Runnable() {
+	                @Override
+	                public void run() {
+	                    try{
+	                        if(callback!=null) {
+	                            callback.run();
+	                        }
+	                        showNotifyLaterDialog();
+	                    }catch(Throwable t){}
+	                }
+	            }, Request.fifteenSecsTimeout * 2);
+			}
 		}
 	}
 	
@@ -2391,7 +2418,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 
 	private void arriveAtDestination() {
-		saveTrajectory();
+		if(!isReplay.get()) {
+			saveTrajectory();
+		}
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -2488,12 +2517,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         
         // Stop the activity
         if (!isTripValidated()) {
-            saveTrajectory(new Runnable() {
-                @Override
-                public void run() {
-                    saveTrip(null);
-                }
-            });
+        	if(!isReplay.get()) {
+	            saveTrajectory(new Runnable() {
+	                @Override
+	                public void run() {
+	                    saveTrip(null);
+	                }
+	            });
+        	}
             if (!isFinishing()) {
                 finish();
             }
@@ -2790,7 +2821,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		if (mTts != null) {
 			mTts.shutdown();
 		}
-		if (Request.NEW_API && !arrivalMsgTiggered.get() && isTripValidated()) {
+		if (Request.NEW_API && !arrivalMsgTiggered.get() && isTripValidated() && !isReplay.get()) {
 	        saveTrajectory(new Runnable() {
                 @Override
                 public void run() {

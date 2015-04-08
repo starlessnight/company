@@ -143,6 +143,8 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
     
     private static final String POPUP_MESSAGE_MORE = "POPUP_MESSAGE_MORE";
     
+    public static final String REPLAY = "replay";
+    
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     
     private SharedPreferences prefs;
@@ -255,6 +257,7 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
 		                                        intent.putExtra(ValidationActivity.TRAJECTORY_DATA, result.toString());
 		                                        intent.putExtra("route", reservation.getRoute());
 		                                        intent.putExtra("reservation", reservation);
+		                                        intent.putExtra(REPLAY, true);
 		                                        startActivity(intent);
 		                                        finish();
 											}
