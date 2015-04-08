@@ -2192,7 +2192,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 		}
 		// for resume interrupt trip
-		writeTripLog();
+		if(!isReplay.get()) {
+			writeTripLog();
+		}
 		//show current location
 	    mapView.getMapSettings().setCurrentPositionShown(true);
 	}
