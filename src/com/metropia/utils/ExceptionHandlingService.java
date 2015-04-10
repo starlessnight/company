@@ -175,13 +175,14 @@ public class ExceptionHandlingService {
             String detailMessage;
             if(ec.e instanceof ConnectException || ec.e instanceof UnknownHostException){
                 detailMessage = context.getString(R.string.no_connection);
+                message = detailMessage;
             }else if(ec.e instanceof SocketTimeoutException){
                 detailMessage = context.getString(R.string.connection_timeout);
+                message = detailMessage;
             }else if(ec.e instanceof ServiceFailException) {
             	message = ec.e.getMessage();
             	detailMessage = ((ServiceFailException)ec.e).getDetailMessage();
             }else{
-            	message = ec.getPreferredMessage();
                 detailMessage = ec.getMessage();
             }
             reportException(message, detailMessage, callback);
