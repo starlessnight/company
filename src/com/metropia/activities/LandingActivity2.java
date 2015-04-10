@@ -3017,7 +3017,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                     initFavoriteDropdownIfNessary(addrList, forceUpdateFavorite);
                 }
             }
-            
         };
         Misc.parallelExecute(task);
     }
@@ -3318,40 +3317,15 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                             refreshSearchAutoCompleteData();
                         }
                     }, false);
+                    updateAnnotationSize(getSizeRatioByZoomLevel());
                 }
             }
         };
         Misc.parallelExecute(task);
     }
     
-    private static final Integer POIOVERLAY_HIDE_ZOOM_LEVEL = 5;
+    private static final Integer POIOVERLAY_HIDE_ZOOM_LEVEL = 9;
     private static final String LOADING_ADDRESS = "Loading Address...";
-    
-//    private void handleFavoriteIconByZoomLevel(MapView mapView) {
-//    	List<Overlay> overlays = mapView.getOverlays();
-//    	if(mapView.getZoomLevel() <= POIOVERLAY_HIDE_ZOOM_LEVEL) {
-//			for(Overlay overlay : overlays) {
-//				if(overlay instanceof POIOverlay && overlay.isEnabled()) {
-//					overlay.setEnabled(false);
-//				}
-//			}
-//			mapView.postInvalidate();
-//		}
-//		else if(mapView.getZoomLevel() > POIOVERLAY_HIDE_ZOOM_LEVEL){
-//			for(Overlay overlay : overlays) {
-//				if(overlay instanceof POIOverlay && !overlay.isEnabled()) {
-//					if(((POIOverlay)overlay).getMarker() == R.drawable.bulb_poi) {
-//						overlay.setEnabled(MapDisplayActivity.isPredictDestEnabled(LandingActivity2.this));
-//					}
-//					else {
-//						overlay.setEnabled(true);
-//					}
-//				}
-//			}
-//			insertOverlayByOrderOrSort(mapView.getOverlays(), null);
-//			mapView.postInvalidate();
-//		}
-//    }
     
 	private void showPopupMenu(Screen xy, PoiOverlayInfo info) {
     	poiIcon.setVisibility(View.VISIBLE);
@@ -3760,6 +3734,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private void addPOIMarker(PoiOverlayInfo markerInfo) {
     	Integer[] poiMarkerIds = getRemainPOIMarkerId();
     	if(poiMarkerIds.length > 0) {
+    		DisplayMetrics dm = getResources().getDisplayMetrics();
     		Integer uniqueId = poiMarkerIds[0];
     		markerInfo.uniqueId = uniqueId;
     		SKAnnotation incAnn = new SKAnnotation();
@@ -3768,7 +3743,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
     		SKAnnotationView iconView = new SKAnnotationView();
     		ImageView incImage = new ImageView(LandingActivity2.this);
-    		incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, markerInfo.markerWithShadow, 1));
+    		incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, markerInfo.markerWithShadow, sizeRatio.get()));
     		iconView.setView(incImage);
     		incAnn.setAnnotationView(iconView);
     		mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
@@ -3782,10 +3757,63 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
 		SKAnnotationView iconView = new SKAnnotationView();
 		ImageView incImage = new ImageView(LandingActivity2.this);
-		incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, 1));
+		incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, sizeRatio.get()));
 		iconView.setView(incImage);
 		incAnn.setAnnotationView(iconView);
 		mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+    }
+    
+    private AtomicInteger sizeRatio = new AtomicInteger(1);
+    
+    private void updateAnnotationSize(int ratio) {
+    	if(sizeRatio.get() != ratio) {
+    		sizeRatio.set(ratio);
+	    	Set<Integer> starIds = poiContainer.getStarUniqueIdSet();
+	    	for(Integer uniqueId : starIds) {
+	    		PoiOverlayInfo poiInfo = poiContainer.getExistedPOIByUniqueId(uniqueId);
+	    		if(poiInfo != null) {
+	    			SKAnnotation incAnn = new SKAnnotation();
+	    			incAnn.setUniqueID(uniqueId);
+	    			incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
+	    			incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
+	    			SKAnnotationView iconView = new SKAnnotationView();
+	    			ImageView incImage = new ImageView(LandingActivity2.this);
+	    			incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, ratio));
+	    			iconView.setView(incImage);
+	    			incAnn.setAnnotationView(iconView);
+	    			mapView.deleteAnnotation(uniqueId);
+	    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+	    		}
+	    	}
+	    	Set<Integer> bulbIds = poiContainer.getBulbUniqueIdSet();
+	    	for(Integer uniqueId : bulbIds) {
+	    		PoiOverlayInfo poiInfo = poiContainer.getExistedPOIByUniqueId(uniqueId);
+	    		if(poiInfo != null) {
+	    			SKAnnotation incAnn = new SKAnnotation();
+	    			incAnn.setUniqueID(uniqueId);
+	    			incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
+	    			incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
+	    			SKAnnotationView iconView = new SKAnnotationView();
+	    			ImageView incImage = new ImageView(LandingActivity2.this);
+	    			incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, ratio));
+	    			iconView.setView(incImage);
+	    			incAnn.setAnnotationView(iconView);
+	    			mapView.deleteAnnotation(uniqueId);
+	    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+	    		}
+	    	}
+    	}
+    }
+    
+    private int getSizeRatioByZoomLevel() {
+    	float zoomLevel = mapView.getZoomLevel();
+    	if(zoomLevel >= 13) {
+    		return 1;
+    	}
+    	else if(zoomLevel >= 9) {
+    		return 2;
+    	}
+    	return 1;
     }
     
     private void updateMyMetropiaInfo() {
@@ -4318,7 +4346,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	public void onActionPan() {}
 
 	@Override
-	public void onActionZoom() {}
+	public void onActionZoom() {
+		updateAnnotationSize(getSizeRatioByZoomLevel());
+	}
 
 	@Override
 	public void onAnnotationSelected(SKAnnotation annotation) {
@@ -4362,7 +4392,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	public void onDebugInfo(double arg0, float arg1, double arg2) {}
 
 	@Override
-	public void onDoubleTap(SKScreenPoint arg0) {}
+	public void onDoubleTap(SKScreenPoint arg0) {
+		updateAnnotationSize(getSizeRatioByZoomLevel());
+	}
 
 	@Override
 	public void onInternationalisationCalled(int arg0) {}

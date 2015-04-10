@@ -3,7 +3,6 @@ package com.metropia.models;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
@@ -76,5 +75,5 @@ public class POICollection {
 		}
 		return uniqueId;
 	}
-
+	
 }
