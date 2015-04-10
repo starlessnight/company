@@ -797,10 +797,10 @@
                     
                     <ImageView 
 	                    android:id="@+id/logo"
-	                    android:layout_width="wrap_content"
-	                    android:layout_height="wrap_content"
-	                    android:layout_gravity="right|center"
-	                    android:scaleType="fitCenter"/>
+	                    android:layout_width="100dp"
+	                    android:layout_height="100dp"
+	                    android:layout_gravity="right|bottom"
+	                    android:scaleType="fitEnd"/>
 
                     <include layout="@layout/metropia_color_bar" />
 
