@@ -801,6 +801,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		                    
 		                    @Override
 		                    protected void onPostExecute(Long result) {
+		                    	mapView.clearAllOverlays();
 		                        if (ehs.hasExceptions()) {
 		                            ehs.reportExceptions();
 		                            scrollableTimeLayout.notifyScrollChanged();
@@ -866,6 +867,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 					public void onAnimationEnd() {
 						v.setClickable(false);
 						if(hasReserv){
+							mapView.clearAllOverlays();
 	                        deleteRescheduledReservation();
 	                        Misc.suppressTripInfoPanel(RouteActivity.this);
 	                        Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
@@ -889,6 +891,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	                            	}
 	                            	
 	                                if(reservation.isEligibleTrip()){
+	                                	mapView.clearAllOverlays();
 	                                    deleteRescheduledReservation();
 	                                    Misc.suppressTripInfoPanel(RouteActivity.this);
 	                                    Intent intent = new Intent(RouteActivity.this, ValidationActivity.class);
@@ -943,6 +946,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
             	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
+						mapView.clearAllOverlays();
 						onBackPressed();
 					}
 				});
