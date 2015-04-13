@@ -110,6 +110,7 @@ public final class ShareActivity extends FragmentActivity {
 //		userNameView.setText(user.getFirstname() + " " + user.getLastname());
 		
 		shareButtonView = (TextView) findViewById(R.id.share_button);
+		shareButtonView.setTag(ShareType.facebook);
 		shareButtonView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
