@@ -708,7 +708,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		// Handle the back button
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			cancelValidation();
-
 			return true;
 		} else {
 			return super.onKeyDown(keyCode, event);
@@ -2469,6 +2468,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private void cancelValidation() {
 	    if(arrivalMsgTiggered.get()){
             if (!isFinishing()) {
+            	SKRouteManager.getInstance().clearCurrentRoute();
                 finish();
             }
         }else{
