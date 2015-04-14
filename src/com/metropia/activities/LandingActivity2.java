@@ -846,15 +846,20 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                         @Override
                         public void run() {
                             if(refresh){
-                                refreshCobranding(lat, lon, alertAvailability, new Runnable() {
-                                    public void run() {
-                                    	refreshInputAddresses();
-                                        refreshBulbPOIs(lat , lon, rezoom);
-                                        if(!canDrawReservRoute.getAndSet(true)) {
-                                        	refreshTripsInfo();
-                                        }
-                                    }
-                                });
+                            	MainActivity.initApiLinksIfNecessary(LandingActivity2.this, new Runnable() {
+									@Override
+									public void run() {
+										refreshCobranding(lat, lon, alertAvailability, new Runnable() {
+		                                    public void run() {
+		                                    	refreshInputAddresses();
+		                                        refreshBulbPOIs(lat , lon, rezoom);
+		                                        if(!canDrawReservRoute.getAndSet(true)) {
+		                                        	refreshTripsInfo();
+		                                        }
+		                                    }
+		                                });
+									}
+                            	});
                             }
                         }
                     });
