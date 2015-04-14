@@ -26,6 +26,7 @@ import com.metropia.requests.TripValidationRequest;
 public class TripService extends IntentService {
     
     private static long threeMins = 3 * 60 * 1000;
+    private static long eightHours = 8 * 60 * 60 * 1000;
     
     public TripService() {
         super(TripService.class.getName());
@@ -140,7 +141,7 @@ public class TripService extends IntentService {
                 ctx, TripService.class), PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
         alarm.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 
-            SystemClock.elapsedRealtime() + threeMins, threeMins, sendTrajServ);
+            SystemClock.elapsedRealtime() + threeMins, eightHours, sendTrajServ);
     }
 
 }
