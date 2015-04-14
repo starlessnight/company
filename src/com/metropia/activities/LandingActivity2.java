@@ -2874,6 +2874,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         	try {
 	        	if(StringUtils.startsWith(uri.toString(), "http")) {
 	        		address = uri.getQueryParameter("q");
+	        		if(StringUtils.isBlank(address)) {
+	        			address = uri.getQueryParameter("daddr");
+	        		}
 	        	}
 	        	else {
 	        		address = Uri.decode(StringUtils.substringAfterLast(uri.toString(), "q="));
