@@ -45,7 +45,6 @@ import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
@@ -64,7 +63,6 @@ import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.utils.Dimension;
 import com.metropia.utils.Font;
 import com.metropia.utils.Misc;
-import com.metropia.activities.R;
 
 public class ContactsSelectActivity extends FragmentActivity {
 	

@@ -1,6 +1,9 @@
 package com.metropia.models;
 
-public final class Address {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public final class Address implements Parcelable {
 
     public static final String HOME_STRING = "home";
     
@@ -14,7 +17,27 @@ public final class Address {
 	private double longitude;
 	private String iconName;
 	
+	public static final Parcelable.Creator<Address> CREATOR = new Parcelable.Creator<Address>() {
+        public Address createFromParcel(Parcel in) {
+            return new Address(in);
+        }
+
+        public Address[] newArray(int size) {
+            return new Address[size];
+        }
+    };
+	
 	public Address() {
+	}
+	
+	public Address(Parcel in) {
+		aid = in.readInt();
+		uid = in.readInt();
+		latitude = in.readDouble();
+		longitude = in.readDouble();
+		address = in.readString();
+		name = in.readString();
+		iconName = in.readString();
 	}
 	
 	public Address(int id, int uid, String name, String address, double latitude, double longitude, String iconName) {
@@ -82,4 +105,21 @@ public final class Address {
 	public void setIconName(String iconName) {
 		this.iconName = iconName;
 	}
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(aid);
+		dest.writeInt(uid);
+		dest.writeDouble(latitude);
+		dest.writeDouble(longitude);
+		dest.writeString(address);
+		dest.writeString(name);
+		dest.writeString(iconName);
+	}
+	
 }

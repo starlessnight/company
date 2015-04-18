@@ -723,6 +723,20 @@
                         android:text="Reservations"
                         android:textColor="@android:color/white"
                         android:textSize="@dimen/medium_font" />
+                    
+                    <TextView
+                        android:id="@+id/favorite_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/menu_favorites"
+                        android:drawablePadding="20dp"
+                        android:paddingLeft="20dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="25dp"
+                        android:singleLine="true"
+                        android:text="Favorites"
+                        android:textColor="@android:color/white"
+                        android:textSize="@dimen/medium_font" />
 
                     <TextView
                         android:id="@+id/share_menu"
@@ -751,7 +765,7 @@
                         android:text="Feedback"
                         android:textColor="@android:color/white"
                         android:textSize="@dimen/medium_font" />
-
+                    
                     <TextView
                         android:id="@+id/map_display_options"
                         android:layout_width="match_parent"

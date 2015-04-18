@@ -1,7 +1,9 @@
 package com.metropia.activities;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -21,6 +23,7 @@ import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,12 +32,17 @@ import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
 import com.localytics.android.Localytics;
 import com.metropia.LocalyticsUtils;
 import com.metropia.SmarTrekApplication;
@@ -50,6 +58,8 @@ import com.metropia.requests.FavoriteAddressUpdateRequest;
 import com.metropia.requests.Request;
 import com.metropia.ui.ClickAnimation;
 import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
+import com.metropia.ui.DelayTextWatcher;
+import com.metropia.ui.DelayTextWatcher.TextChangeListener;
 import com.metropia.utils.Dimension;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
@@ -61,6 +71,7 @@ import com.metropia.utils.Misc;
 public class FavoriteOperationActivity extends FragmentActivity {
 	
 	public static final Integer FAVORITE_OPT = Integer.valueOf(3345);
+	public static final String FROM_LIST = "fromList";
 	public static final String FAVORITE_OPT_TYPE = "favoriteOptType";
 	public static final String FAVORITE_POI_INFO = "favoritePoi";
 	public static final String FAVORITE_DELETE = "favoriteDel";
@@ -71,9 +82,15 @@ public class FavoriteOperationActivity extends FragmentActivity {
 
 	private View favOptPanel;
 	private ImageView labelIcon;
-	private TextView favSearchBox;
+	private EditText favSearchBox;
 	private GeoPoint lastLocation;
 	private View loadingPanel;
+	private AtomicBoolean fromList = new AtomicBoolean(false);
+	
+	private ListView searchList;
+	private ArrayAdapter<Address> searchAdapter;
+	private List<Address> searchAddresses = new ArrayList<Address>();
+	private AtomicBoolean showAutoComplete = new AtomicBoolean(false);
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -84,11 +101,12 @@ public class FavoriteOperationActivity extends FragmentActivity {
 		Localytics.integrate(this);
 		
 		favOptPanel = findViewById(R.id.fav_opt);
-		favSearchBox = (TextView) favOptPanel.findViewById(R.id.favorite_search_box);
+		favSearchBox = (EditText) favOptPanel.findViewById(R.id.favorite_search_box);
 		labelIcon = (ImageView) findViewById(R.id.label_icon);
 		
 		Bundle extras = getIntent().getExtras();
 		PoiOverlayInfo info = extras.getParcelable(FAVORITE_POI_INFO);
+		fromList.set(extras.getBoolean(FROM_LIST, false));
 		favOptPanel.setTag(info);
 		writeInfo2FavoritePanel(info);
 
@@ -158,9 +176,11 @@ public class FavoriteOperationActivity extends FragmentActivity {
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						Intent result = new Intent();
-						result.putExtra(FAVORITE_OPT_TYPE, "");
-						setResult(Activity.RESULT_OK, result);
+						if(!fromList.get()) {
+							Intent result = new Intent();
+							result.putExtra(FAVORITE_OPT_TYPE, "");
+							setResult(Activity.RESULT_OK, result);
+						}
 						finish();
 					}
 				});
@@ -253,10 +273,12 @@ public class FavoriteOperationActivity extends FragmentActivity {
 									} else {
 										LocalyticsUtils.tagSaveMyFavorite(_info.iconName);
 										_info.id = _info.id != 0 ? _info.id	: id;
-										Intent result = new Intent();
-										result.putExtra(FAVORITE_OPT_TYPE, FAVORITE_UPDATE);
-										result.putExtra(FAVORITE_POI_INFO, _info);
-										setResult(Activity.RESULT_OK, result);
+										if(!fromList.get()) {
+											Intent result = new Intent();
+											result.putExtra(FAVORITE_OPT_TYPE, FAVORITE_UPDATE);
+											result.putExtra(FAVORITE_POI_INFO, _info);
+											setResult(Activity.RESULT_OK, result);
+										}
 										finish();
 									}
 								}
@@ -337,10 +359,12 @@ public class FavoriteOperationActivity extends FragmentActivity {
 												ehs.reportExceptions();
 											}else {
 												favOptPanel.setTag(null);
-												Intent result = new Intent();
-												result.putExtra(FAVORITE_OPT_TYPE, FAVORITE_DELETE);
-												result.putExtra(FAVORITE_POI_UNIQUE_ID, uniqueId);
-												setResult(Activity.RESULT_OK, result);
+												if(!fromList.get()) {
+													Intent result = new Intent();
+													result.putExtra(FAVORITE_OPT_TYPE, FAVORITE_DELETE);
+													result.putExtra(FAVORITE_POI_UNIQUE_ID, uniqueId);
+													setResult(Activity.RESULT_OK, result);
+												}
 												finish();
 											}
 										}
@@ -366,6 +390,116 @@ public class FavoriteOperationActivity extends FragmentActivity {
 				});
 
 		initFavoritePage();
+		
+		searchList = (ListView) findViewById(R.id.search_result_list);
+		searchAdapter = LandingActivity2.createAutoCompleteAdapter(FavoriteOperationActivity.this, favSearchBox);
+		searchList.setAdapter(searchAdapter);
+		searchList.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Address selected = (Address)parent.getItemAtPosition(position);
+            	if(StringUtils.isNotBlank(selected.getAddress())) {
+            		InputMethodManager imm = (InputMethodManager)getSystemService(
+	                        Context.INPUT_METHOD_SERVICE);
+	                imm.hideSoftInputFromWindow(favSearchBox.getWindowToken(), 0);
+	                favSearchBox.setText(selected.getAddress());
+	                showAutoComplete.set(false);
+	                clearSearchResult();
+	                updatePoiInfo(selected);
+            	}
+			}
+		});
+		
+		final View searchBoxClear = findViewById(R.id.search_box_clear);
+		
+		DelayTextWatcher delayTextWatcher = new DelayTextWatcher(favSearchBox, new TextChangeListener(){
+			@Override
+			public void onTextChanged(CharSequence text) {
+				searchBoxClear.setVisibility(StringUtils.isBlank(text)?View.GONE:View.VISIBLE); 
+                final String addrInput = text.toString();
+                if(StringUtils.isNotBlank(addrInput)) {
+                	AsyncTask<Void, Void, List<Address>> searchPoiTask = new AsyncTask<Void, Void, List<Address>>(){
+                		
+        				@Override
+        				protected List<Address> doInBackground(Void... params) {
+        					List<Address> addresses = new ArrayList<Address>();
+        					try {
+        						if(lastLocation != null) {
+        							addresses = Geocoding.searchPoi(FavoriteOperationActivity.this, addrInput, lastLocation.getLatitude(), lastLocation.getLongitude());
+        						}
+        						else {
+        							addresses = Geocoding.searchPoi(FavoriteOperationActivity.this, addrInput);
+        						}
+        					}
+        					catch(Exception e) {
+        						Log.e("FavoriteOperationActivity", "search error!");
+        					}
+        					return addresses;
+        				}
+        				
+        				@Override
+        				protected void onPostExecute(List<Address> addresses) {
+        					searchAddresses.clear();
+        					for(Address a:addresses){
+        					    if(StringUtils.isNotBlank(a.getAddress())){
+        					        searchAddresses.add(a);
+        					    }
+        					}
+        					if(searchAddresses.isEmpty()) {
+        						Address notFound = new Address();
+        						notFound.setName(LandingActivity2.NO_AUTOCOMPLETE_RESULT);
+        						notFound.setAddress("");
+        						searchAddresses.add(notFound);
+        					}
+        					refreshAutoCompleteData();
+        				}
+                	};
+                	Misc.parallelExecute(searchPoiTask); 
+                }
+                else {
+                	clearSearchResult();
+                }
+			}
+
+			@Override
+			public void onTextChanging() {
+				showAutoComplete.set(true);
+				cleanPoiInfo();
+				if(searchAddresses.isEmpty()) {
+					Address searching = new Address();
+					searching.setName(LandingActivity2.SEARCHING);
+					searching.setAddress("");
+					searchAddresses.add(searching);
+				}
+				else {
+					boolean hasResult = false;
+					for(Address addr : searchAddresses) {
+						if(StringUtils.isNotBlank(addr.getAddress())) {
+							hasResult = true;
+						}
+					}
+					if(!hasResult) {
+						searchAddresses.clear();
+						Address searching = new Address();
+						searching.setName(LandingActivity2.SEARCHING);
+						searching.setAddress("");
+						searchAddresses.add(searching);
+					}
+				}
+				refreshAutoCompleteData();
+			}
+		}, 500);
+        
+		favSearchBox.addTextChangedListener(delayTextWatcher);
+		
+		searchBoxClear.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            	favSearchBox.setText("");
+            	cleanPoiInfo();
+                clearSearchResult();
+            }
+        });
 
 		AssetManager assets = getAssets();
 		Font.setTypeface(Font.getMedium(assets), favSearchBox, labelInput, (TextView) findViewById(R.id.favorite_address_desc),
@@ -374,6 +508,51 @@ public class FavoriteOperationActivity extends FragmentActivity {
 		
 		((SmarTrekApplication)getApplication()).getTracker(TrackerName.APP_TRACKER);
 	}
+	
+	private void cleanPoiInfo() {
+		PoiOverlayInfo info = (PoiOverlayInfo) favOptPanel.getTag();
+		if(info != null) {
+			info.lat = 0;
+			info.lon = 0;
+			info.geopoint = new GeoPoint(0, 0);
+			info.address = "";
+		}
+		findViewById(R.id.fav_save).setVisibility(View.GONE);
+	}
+	
+	private void clearSearchResult() {
+    	searchAddresses.clear();
+    	searchAdapter.clear();
+    	refreshAutoCompleteData();
+    }
+	
+	private void updatePoiInfo(Address addr) {
+		PoiOverlayInfo info = (PoiOverlayInfo) favOptPanel.getTag();
+		if(info != null) {
+			info.lat = addr.getLatitude();
+			info.lon = addr.getLongitude();
+			info.address = addr.getAddress();
+			info.geopoint = new GeoPoint(addr.getLatitude(), addr.getLongitude());
+		}
+		findViewById(R.id.fav_save).setVisibility(View.VISIBLE);
+	}
+	
+	private void refreshAutoCompleteData() {
+		searchAdapter.clear();
+    	if(showAutoComplete.get() && favSearchBox.isFocused()) {
+	        for(Address a : searchAddresses) {
+	        	searchAdapter.add(a);
+	        }
+	        if(!searchAdapter.isEmpty()) {
+	        	searchList.setVisibility(View.VISIBLE);
+	        }else{
+	        	searchList.setVisibility(View.GONE);
+	        }
+    	}
+    	else {
+    		searchList.setVisibility(View.GONE);
+    	}
+    }
 	
 	private void writeInfo2FavoritePanel(PoiOverlayInfo info) {
     	if(info != null) {
@@ -388,7 +567,6 @@ public class FavoriteOperationActivity extends FragmentActivity {
 	    	}
 	    	TextView favSearchBox = (TextView) favOptPanel.findViewById(R.id.favorite_search_box); 
 	    	favSearchBox.setText(info.address);
-	    	favSearchBox.setTextIsSelectable(true);
 	    	favOptPanel.findViewById(R.id.fav_save).setVisibility(StringUtils.isNotBlank(info.address) ? View.VISIBLE : View.GONE);
 	    	favOptPanel.findViewById(R.id.fav_del_panel).setVisibility(info.id!=0 ? View.VISIBLE : View.GONE);
 	    	((TextView)favOptPanel.findViewById(R.id.header)).setText(info.id!=0 ? "Edit Favorite" : "Save Favorite");
@@ -571,6 +749,14 @@ public class FavoriteOperationActivity extends FragmentActivity {
 		return StringUtils.isNotBlank(favAddr);
 	}
 	
+	private void initLocation() {
+		if(lastLocation == null) {
+			LocationInfo location = new LocationInfo(FavoriteOperationActivity.this);
+			lastLocation = new GeoPoint(location.lastLat, location.lastLong);
+			Log.d("FavoriteOperationActivity", String.format("cache location : %s, %s", location.lastLat + "", location.lastLong + ""));
+		}
+	}
+	
 	@Override
 	public void onResume() {
 	    super.onResume();
@@ -580,6 +766,7 @@ public class FavoriteOperationActivity extends FragmentActivity {
 	    Localytics.setInAppMessageDisplayActivity(this);
 	    Localytics.handleTestMode(getIntent());
 	    Localytics.handlePushNotificationOpened(getIntent());
+	    initLocation();
 	}
 	
 	@Override

@@ -140,6 +140,12 @@
             android:theme="@android:style/Theme.NoTitleBar"
             android:windowSoftInputMode="adjustPan"/>
         <activity
+            android:name=".FavoriteListActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:windowSoftInputMode="adjustPan"/>
+        <activity
             android:name=".UserRegistrationActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
             android:theme="@android:style/Theme.NoTitleBar" />

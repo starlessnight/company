@@ -79,7 +79,7 @@ public class PassiveLocationChangedReceiver extends BroadcastReceiver {
     }
   }
   
-  protected static void processLocation(final Context context, final Location location) {
+  public static void processLocation(final Context context, final Location location) {
       processLocation(context, location, false, false);
   }
   

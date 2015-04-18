@@ -94,6 +94,7 @@ import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
+import com.littlefluffytoys.littlefluffylocationlibrary.PassiveLocationChangedReceiver;
 import com.localytics.android.Localytics;
 import com.metropia.CalendarService;
 import com.metropia.LocalyticsUtils;
@@ -211,7 +212,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private List<Address> searchAddresses = new ArrayList<Address>();
     private List<Address> fromSearchAddresses = new ArrayList<Address>();
     private List<Address> inputAddresses = new ArrayList<Address>();
-    private List<Address> favoriteAddresses = new ArrayList<Address>();
+    private ArrayList<com.metropia.models.Address> favoriteAddresses = new ArrayList<com.metropia.models.Address>();
     
     private AtomicBoolean canDrawReservRoute = new AtomicBoolean();
     
@@ -225,9 +226,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private ArrayAdapter<Address> fromFavoriteAutoCompleteAdapter;
     private ArrayAdapter<Address> toFavoriteAutoCompleteAdapter;
     
-    private static final String NO_AUTOCOMPLETE_RESULT = "No results found.";
+    public static final String NO_AUTOCOMPLETE_RESULT = "No results found.";
     
-    private static final String SEARCHING = "Searching...";
+    public static final String SEARCHING = "Searching...";
     
 //    private static final String TAP_TO_ADD_FAVORITE = "Tap to Add Favorite";
     
@@ -330,10 +331,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         searchBox.setHint(Html.fromHtml("<b>Enter Destination</b>"));
         fromSearchBox = (EditText) findViewById(R.id.from_search_box);
         fromSearchBox.setHint(Html.fromHtml("<b>Current Location</b>"));
-        autoCompleteAdapter = createAutoCompleteAdapter(searchBox);
-        fromAutoCompleteAdapter = createAutoCompleteAdapter(fromSearchBox);
-        fromFavoriteAutoCompleteAdapter = createAutoCompleteAdapter(fromSearchBox);
-        toFavoriteAutoCompleteAdapter = createAutoCompleteAdapter(searchBox);
+        autoCompleteAdapter = createAutoCompleteAdapter(LandingActivity2.this, searchBox);
+        fromAutoCompleteAdapter = createAutoCompleteAdapter(LandingActivity2.this, fromSearchBox);
+        fromFavoriteAutoCompleteAdapter = createAutoCompleteAdapter(LandingActivity2.this, fromSearchBox);
+        toFavoriteAutoCompleteAdapter = createAutoCompleteAdapter(LandingActivity2.this, searchBox);
         searchResultList.setAdapter(autoCompleteAdapter);
         fromSearchResultList.setAdapter(fromAutoCompleteAdapter);
         fromFavoriteDropdown.setAdapter(fromFavoriteAutoCompleteAdapter);
@@ -1060,6 +1061,22 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             }
         });
         
+        TextView favoriteListMenu = (TextView) findViewById(R.id.favorite_list);
+        favoriteListMenu.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						Intent favListIntent = new Intent(LandingActivity2.this, FavoriteListActivity.class);
+						favListIntent.putParcelableArrayListExtra(FavoriteListActivity.FAVORITE_LIST, favoriteAddresses);
+						startActivity(favListIntent);
+					}
+				});
+			}
+        });
+        
         settingsMenu.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -1313,7 +1330,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getLight(assets), searchBox, fromSearchBox, myMetropiaMenu, 
-            reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu);
+            reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu, favoriteListMenu);
         Font.setTypeface(Font.getMedium(assets), upointView, saveTimeView, co2View, (TextView) findViewById(R.id.head));
         Font.setTypeface(Font.getRobotoBold(assets), getRouteView);
         //init Tracker
@@ -1831,8 +1848,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         refreshFromSearchAutoCompleteData();
     }
     
-    private ArrayAdapter<Address> createAutoCompleteAdapter(final EditText searchBox) {
-    	return new ArrayAdapter<Address>(LandingActivity2.this, R.layout.dropdown_select, R.id.name) {
+    public static ArrayAdapter<Address> createAutoCompleteAdapter(final Context ctx, final EditText searchBox) {
+    	return new ArrayAdapter<Address>(ctx, R.layout.dropdown_select, R.id.name) {
         	@Override
         	public View getView(int position, View convertView, ViewGroup parent) {
         		View view = super.getView(position, convertView, parent);
@@ -1854,25 +1871,24 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 
                 FavoriteIcon icon = FavoriteIcon.fromName(item.getIconName(), null);
                 if(icon == null) {
-                	favIcon.setImageBitmap(Misc.getBitmap(LandingActivity2.this, R.drawable.poi_pin, 1));
+                	favIcon.setImageBitmap(Misc.getBitmap(ctx, R.drawable.poi_pin, 1));
                 	favIcon.setVisibility(View.VISIBLE);
                 }
                 else {
-                	favIcon.setImageBitmap(Misc.getBitmap(LandingActivity2.this, icon.getFavoritePageResourceId(LandingActivity2.this), 2));
+                	favIcon.setImageBitmap(Misc.getBitmap(ctx, icon.getFavoritePageResourceId(ctx), 2));
                 	favIcon.setVisibility(View.VISIBLE);
                 }
                 
-                initFontsIfNecessary();
                 
-                Font.setTypeface(boldFont, name, distance);
-                Font.setTypeface(lightFont, address);
+                Font.setTypeface(Font.getBold(ctx.getAssets()), name, distance);
+                Font.setTypeface(Font.getLight(ctx.getAssets()), address);
                 namePanel.requestLayout();
                 name.requestLayout();
                 distance.requestLayout();
                 address.requestLayout();
                 favIcon.requestLayout();
-                int leftRightPadding = Dimension.dpToPx(10, getResources().getDisplayMetrics());
-                int topBottomPadding = Dimension.dpToPx(2, getResources().getDisplayMetrics());
+                int leftRightPadding = Dimension.dpToPx(10, ctx.getResources().getDisplayMetrics());
+                int topBottomPadding = Dimension.dpToPx(2, ctx.getResources().getDisplayMetrics());
                 view.setPadding(leftRightPadding, topBottomPadding, leftRightPadding, position == getCount() - 1 ? 
                 		leftRightPadding : topBottomPadding);
                 return view;
@@ -2289,6 +2305,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         myPointOverlay.setLocation(new SKCoordinate(loc.getLongitude(), loc.getLatitude()));
         mapView.getMapSettings().setCurrentPositionShown(true);
         mapView.reportNewGPSPosition(new SKPosition(loc));
+        
+        try {
+        	PassiveLocationChangedReceiver.processLocation(getApplicationContext(), loc);
+        }catch(Exception ignore){}
     }
     
     private void prepareGPS(){
@@ -3007,7 +3027,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                     //ehs.reportExceptions();
                 }
                 else {
-                    Set<Address> addrList = new HashSet<Address>();
+                    Set<com.metropia.models.Address> addrList = new HashSet<com.metropia.models.Address>();
                     Set<Integer> existedStarPoiUniqueIdSet = poiContainer.getStarUniqueIdSet();
                     for (Integer uniqueId : existedStarPoiUniqueIdSet) {
                         mapView.deleteAnnotation(uniqueId);
@@ -3018,7 +3038,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                         for(com.metropia.models.Address a : result){
                             PoiOverlayInfo poiInfo = PoiOverlayInfo.fromAddress(LandingActivity2.this, a);
                             addAnnotationFromPoiInfo(poiInfo);
-                            addrList.add(Address.fromModelAddress(a, lastLocation));
+                            addrList.add(a);
                         }
                     }
                     showODBalloon();
@@ -3029,21 +3049,28 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         Misc.parallelExecute(task);
     }
     
-    private synchronized void initFavoriteDropdownIfNessary(Set<Address> favorites, boolean forceUpdate) {
+    private synchronized void initFavoriteDropdownIfNessary(Set<com.metropia.models.Address> favorites, boolean forceUpdate) {
     	if(forceUpdate || favoriteAddresses.size() != favorites.size()) {
     		List<Address> newFavorites = new ArrayList<Address>();
     		List<Address> homeFavorite = new ArrayList<Address>();
     		List<Address> workFavorite = new ArrayList<Address>();
     		List<Address> otherFavorite = new ArrayList<Address>();
-    		for(Address addr : favorites) {
+    		List<com.metropia.models.Address> newModelFavs = new ArrayList<com.metropia.models.Address>();
+    		List<com.metropia.models.Address> homeModelFavs = new ArrayList<com.metropia.models.Address>();
+    		List<com.metropia.models.Address> workModelFavs = new ArrayList<com.metropia.models.Address>();
+    		List<com.metropia.models.Address> otherModelFavs = new ArrayList<com.metropia.models.Address>();
+    		for(com.metropia.models.Address addr : favorites) {
     			if(FavoriteIcon.home.name().equals(addr.getIconName())) {
-    				homeFavorite.add(addr);
+    				homeFavorite.add(Address.fromModelAddress(addr, lastLocation));
+    				homeModelFavs.add(addr);
     			}
     			else if(FavoriteIcon.work.name().equals(addr.getIconName())) {
-    				workFavorite.add(addr);
+    				workFavorite.add(Address.fromModelAddress(addr, lastLocation));
+    				workModelFavs.add(addr);
     			}
     			else {
-    				otherFavorite.add(addr);
+    				otherFavorite.add(Address.fromModelAddress(addr, lastLocation));
+    				otherModelFavs.add(addr);
     			}
     		}
     		Collections.sort(homeFavorite, DebugOptionsActivity.distanceComparator);
@@ -3052,13 +3079,16 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		newFavorites.addAll(homeFavorite);
     		newFavorites.addAll(workFavorite);
     		newFavorites.addAll(otherFavorite);
+    		newModelFavs.addAll(homeModelFavs);
+    		newModelFavs.addAll(workModelFavs);
+    		newModelFavs.addAll(otherModelFavs);
     		favoriteAddresses.clear();
-    		favoriteAddresses.addAll(newFavorites);
+    		favoriteAddresses.addAll(newModelFavs);
 
     		fromFavoriteAutoCompleteAdapter.clear();
-    		fromFavoriteAutoCompleteAdapter.addAll(favoriteAddresses);
+    		fromFavoriteAutoCompleteAdapter.addAll(newFavorites);
     		toFavoriteAutoCompleteAdapter.clear();
-    		toFavoriteAutoCompleteAdapter.addAll(favoriteAddresses);
+    		toFavoriteAutoCompleteAdapter.addAll(newFavorites);
     	}
     }
     
@@ -3742,7 +3772,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private void addPOIMarker(PoiOverlayInfo markerInfo) {
     	Integer[] poiMarkerIds = getRemainPOIMarkerId();
     	if(poiMarkerIds.length > 0) {
-    		DisplayMetrics dm = getResources().getDisplayMetrics();
     		Integer uniqueId = poiMarkerIds[0];
     		markerInfo.uniqueId = uniqueId;
     		SKAnnotation incAnn = new SKAnnotation();
