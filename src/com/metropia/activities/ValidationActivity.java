@@ -96,6 +96,7 @@ import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.Animato
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
 import com.localytics.android.Localytics;
 import com.metropia.LocalyticsUtils;
 import com.metropia.ResumeNavigationUtils;
@@ -425,6 +426,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
         int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
         org.osmdroid.util.GeoPoint curLoc = extras.getParcelable(CURRENT_LOCATION);
+        LocationInfo cacheLoc = new LocationInfo(ValidationActivity.this);
+        if(curLoc == null && !isReplay.get() && System.currentTimeMillis() - cacheLoc.lastLocationUpdateTimestamp < 5 * 60 * 1000) {
+        	curLoc = new org.osmdroid.util.GeoPoint(cacheLoc.lastLat, cacheLoc.lastLong);
+        }
+        
         if (gpsMode == DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
             Location location = new Location("");
             location.setTime(System.currentTimeMillis());

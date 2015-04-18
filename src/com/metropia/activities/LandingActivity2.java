@@ -822,48 +822,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //	              location.setLatitude(22.980648); // Tainan
 //	              location.setLongitude(120.236046);
                 if (ValidationActivity.isBetterLocation(location, lastLocation)) {
-                    lastLocation = location;
-                    final boolean refresh = mapRefresh.getAndSet(false);
-                    final boolean alertAvailability = mapAlertAvailability.getAndSet(false);
-                    final boolean rezoom = mapRezoom.getAndSet(false);
-                    final double lat = location.getLatitude();
-                    final double lon = location.getLongitude();
-                    refreshMyLocation(location);
-                    popupResumeNavigationIfNeccessary();
+                    locationChanged(location);
                     if(checkCalendarEvent.getAndSet(false) && extras != null) {
                     	handleCalendarNotification(extras.getInt(RouteActivity.EVENT_ID));
                     }
-                    if(mapRecenter.getAndSet(false)){
-                        if(myPointOverlay != null){
-                            SKCoordinate loc = myPointOverlay.getLocation();
-                            int latE6 = (int) (loc.getLatitude() * 1E6);
-                            int lonE6 = (int) (loc.getLongitude() * 1E6);
-                            mapView.centerMapOnPosition(loc);
-                            mapCenterLat.set(latE6);
-                            mapCenterLon.set(lonE6);
-                        }
-                    }
-                    User.initializeIfNeccessary(LandingActivity2.this, new Runnable() {
-                        @Override
-                        public void run() {
-                            if(refresh){
-                            	MainActivity.initApiLinksIfNecessary(LandingActivity2.this, new Runnable() {
-									@Override
-									public void run() {
-										refreshCobranding(lat, lon, alertAvailability, new Runnable() {
-		                                    public void run() {
-		                                    	refreshInputAddresses();
-		                                        refreshBulbPOIs(lat , lon, rezoom);
-		                                        if(!canDrawReservRoute.getAndSet(true)) {
-		                                        	refreshTripsInfo();
-		                                        }
-		                                    }
-		                                });
-									}
-                            	});
-                            }
-                        }
-                    });
                 }
             }
             @Override
@@ -886,20 +848,21 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						SKCoordinateRegion mapRegion = mapView.getCurrentMapRegion();
-						SKCoordinate centerPoint = mapRegion.getCenter();
-		                int latE6 = Double.valueOf(centerPoint.getLatitude() * 1E6).intValue();
-		                int lonE6 = Double.valueOf(centerPoint.getLongitude() * 1E6).intValue();
-		                int lastLatE6 = mapCenterLat.get();
-		                int lastLonE6 = mapCenterLon.get();
-		                int threshold = 100 + 2300 * (Math.max(Double.valueOf(18 - mapView.getZoomLevel()).intValue(), 0));
-		                if(Math.abs(latE6 - lastLatE6) < threshold && Math.abs(lonE6 - lastLonE6) < threshold){
+//						SKCoordinateRegion mapRegion = mapView.getCurrentMapRegion();
+//						SKCoordinate centerPoint = mapRegion.getCenter();
+//		                int latE6 = Double.valueOf(centerPoint.getLatitude() * 1E6).intValue();
+//		                int lonE6 = Double.valueOf(centerPoint.getLongitude() * 1E6).intValue();
+//		                int lastLatE6 = mapCenterLat.get();
+//		                int lastLonE6 = mapCenterLon.get();
+//		                int threshold = 100 + 2300 * (Math.max(Double.valueOf(18 - mapView.getZoomLevel()).intValue(), 0));
+//		                if(Math.abs(latE6 - lastLatE6) < threshold && Math.abs(lonE6 - lastLonE6) < threshold){
+						if(lastLocation != null) {
 		                    if(mapView.getZoomLevel() == ValidationActivity.DEFAULT_ZOOM_LEVEL){
 		                    	if(routeRect != null) {
 		                    		zoomMapToFitBulbPOIs();
 		                    	}
 		                    	else {
-		                    	    mapView.setZoom(calculateZoomLevel(centerPoint.getLatitude()));
+		                    	    mapView.setZoom(calculateZoomLevel(lastLocation.getLatitude()));
 		                    	}
 		                    }else{
 		                        mapView.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
@@ -1326,6 +1289,17 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	});
         */
         
+        LocationInfo cacheLoc = new LocationInfo(LandingActivity2.this);
+        if(System.currentTimeMillis() - cacheLoc.lastLocationUpdateTimestamp <= 60 * 60 * 1000) {
+        	Location loc = new Location("");
+        	loc.setLatitude(cacheLoc.lastLat);
+        	loc.setLongitude(cacheLoc.lastLong);
+        	loc.setTime(System.currentTimeMillis());
+        	loc.setAccuracy(cacheLoc.lastAccuracy);
+        	loc.setBearing(cacheLoc.lastHeading);
+        	locationChanged(loc);
+        }
+        
         LocalyticsUtils.tagAppStartFromOrganic();
         
         AssetManager assets = getAssets();
@@ -1338,6 +1312,48 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         showTutorialIfNessary();
         
         //end oncreate
+    }
+    
+    private synchronized void locationChanged(Location location) {
+    	lastLocation = location;
+        final boolean refresh = mapRefresh.getAndSet(false);
+        final boolean alertAvailability = mapAlertAvailability.getAndSet(false);
+        final boolean rezoom = mapRezoom.getAndSet(false);
+        final double lat = location.getLatitude();
+        final double lon = location.getLongitude();
+        refreshMyLocation(location);
+        popupResumeNavigationIfNeccessary();
+        if(mapRecenter.getAndSet(false)){
+            if(myPointOverlay != null){
+                SKCoordinate loc = myPointOverlay.getLocation();
+                int latE6 = (int) (loc.getLatitude() * 1E6);
+                int lonE6 = (int) (loc.getLongitude() * 1E6);
+                mapView.centerMapOnPosition(loc);
+                mapCenterLat.set(latE6);
+                mapCenterLon.set(lonE6);
+            }
+        }
+        User.initializeIfNeccessary(LandingActivity2.this, new Runnable() {
+            @Override
+            public void run() {
+                if(refresh){
+                	MainActivity.initApiLinksIfNecessary(LandingActivity2.this, new Runnable() {
+						@Override
+						public void run() {
+							refreshCobranding(lat, lon, alertAvailability, new Runnable() {
+                                public void run() {
+                                	refreshInputAddresses();
+                                    refreshBulbPOIs(lat , lon, rezoom);
+                                    if(!canDrawReservRoute.getAndSet(true)) {
+                                    	refreshTripsInfo();
+                                    }
+                                }
+                            });
+						}
+                	});
+                }
+            }
+        });
     }
     
     private void initSKMaps() {
@@ -2306,9 +2322,20 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         mapView.getMapSettings().setCurrentPositionShown(true);
         mapView.reportNewGPSPosition(new SKPosition(loc));
         
+       	updateCurrentLocationOrigin(loc);
+        
         try {
         	PassiveLocationChangedReceiver.processLocation(getApplicationContext(), loc);
         }catch(Exception ignore){}
+    }
+    
+    private void updateCurrentLocationOrigin(Location loc) {
+    	if(curFrom != null && StringUtils.isBlank(curFrom.address) && !curFrom.geopoint.equals(new GeoPoint(loc.getLatitude(), loc.getLongitude()))) {
+	    	curFrom.lat = loc.getLatitude();
+	    	curFrom.lon = loc.getLongitude();
+	    	curFrom.geopoint = new GeoPoint(loc.getLatitude(), loc.getLongitude());
+	    	drawODBalloon(curFrom, true);
+    	}
     }
     
     private void prepareGPS(){
@@ -2983,6 +3010,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		        JSONObject reservRecipients = DebugOptionsActivity.getReservRecipientsAndRemove(LandingActivity2.this, reserv.getRid());
 		        intent.putExtra(ValidationActivity.EMAILS, reservRecipients.optString("emails", ""));
 		        intent.putExtra(ValidationActivity.PHONES, reservRecipients.optString("phones", ""));
+		        LocationInfo cacheLoc = new LocationInfo(LandingActivity2.this);
+		        if(System.currentTimeMillis() - cacheLoc.lastLocationUpdateTimestamp < 5 * 60 * 1000) {
+		        	intent.putExtra(ValidationActivity.CURRENT_LOCATION, (Parcelable)new GeoPoint(cacheLoc.lastLat, cacheLoc.lastLong));
+		        }
 //		          hideBulbBalloon();
 //                hideStarredBalloon();
 		        removeAllOD();
