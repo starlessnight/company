@@ -8,16 +8,20 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Handler;
 import android.text.format.Time;
 import android.util.Log;
 
 import com.metropia.activities.LandingActivity2;
+import com.metropia.activities.R;
 import com.metropia.models.Reservation;
 import com.metropia.models.Route;
 import com.metropia.utils.Misc;
 import com.metropia.utils.ValidationParameters;
 import com.metropia.utils.datetime.TimeRange;
-import com.metropia.activities.R;
 
 /**
  * Route validation happens here
@@ -80,7 +84,7 @@ public final class ReservationReceiver extends BroadcastReceiver {
             notification.flags = Notification.FLAG_AUTO_CANCEL;
             notificationManager.notify(ID, notification);
             
-            Misc.playDefaultNotificationSound(context);
+            playLouderNotification(context);
             Misc.wakeUpScreen(context, ReservationReceiver.class.getSimpleName());
             
             Intent expiry = new Intent(context, NotificationExpiry.class);
@@ -110,6 +114,38 @@ public final class ReservationReceiver extends BroadcastReceiver {
 		
 		// TODO: What's going to happen when the app terminates in the middle of validation?
 		 */
+	}
+	
+	private void playLouderNotification(Context ctx) {
+		try {
+			final AudioManager audioManager = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
+			final int userVolume = audioManager.getStreamVolume(AudioManager.STREAM_ALARM);
+			if(userVolume > 0) {
+				final MediaPlayer mp = new MediaPlayer();
+				Uri ding = Uri.parse("android.resource://" + ctx.getPackageName() + "/" + R.raw.omw);
+		    	if(!mp.isPlaying()) {
+		    		mp.setDataSource(ctx, ding);
+		    		mp.setAudioStreamType(AudioManager.STREAM_ALARM);
+		            mp.setLooping(true);
+		            mp.prepare();
+		            mp.start();
+		    	}
+		    	audioManager.setStreamVolume(AudioManager.STREAM_ALARM, audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM), AudioManager.FLAG_PLAY_SOUND);
+		    	new Handler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							audioManager.setStreamVolume(AudioManager.STREAM_ALARM, userVolume, AudioManager.FLAG_PLAY_SOUND);
+							mp.stop();
+							mp.reset();
+							mp.release();
+						}
+						catch(Exception ignore) {}
+					}
+		    	}, 3000);
+			}
+		}
+		catch(Exception ignore) {}
 	}
 
 }
