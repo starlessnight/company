@@ -4414,9 +4414,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	public void onActionPan() {}
 
 	@Override
-	public void onActionZoom() {
-		updateAnnotationSize(getSizeRatioByZoomLevel());
-	}
+	public void onActionZoom() {}
 
 	@Override
 	public void onAnnotationSelected(SKAnnotation annotation) {
@@ -4460,9 +4458,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	public void onDebugInfo(double arg0, float arg1, double arg2) {}
 
 	@Override
-	public void onDoubleTap(SKScreenPoint arg0) {
-		updateAnnotationSize(getSizeRatioByZoomLevel());
-	}
+	public void onDoubleTap(SKScreenPoint arg0) {}
 
 	@Override
 	public void onInternationalisationCalled(int arg0) {}
@@ -4504,7 +4500,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	public void onMapRegionChangeStarted(SKCoordinateRegion arg0) {}
 
 	@Override
-	public void onMapRegionChanged(SKCoordinateRegion arg0) {}
+	public void onMapRegionChanged(SKCoordinateRegion arg0) {
+		updateAnnotationSize(getSizeRatioByZoomLevel());
+	}
 
 	@Override
 	public void onObjectSelected(int arg0) {}

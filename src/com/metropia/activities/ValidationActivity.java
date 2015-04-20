@@ -1234,7 +1234,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             mapView.centerMapOnPosition(coordinate);
             mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
             mapView.getMapSettings().setMapRotationEnabled(false);
-            showIncidentsIfNessary();
+            updateIncidentAnnotationSize(getSizeRatioByZoomLevel());
         }
 	}
 	
@@ -2006,7 +2006,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		        protected void onPostExecute(Boolean result) {
 	    			if(result) {
 	    				incidentInitTime = System.currentTimeMillis();
-	    				showIncidentsIfNessary();
+	    				updateIncidentAnnotationSize(getSizeRatioByZoomLevel());
 	    			}
 	    		}
 	    	};
@@ -2202,28 +2202,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 		//show current location
 	    mapView.getMapSettings().setCurrentPositionShown(true);
-	}
-	
-	private void showIncidentsIfNessary() {
-		if(DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this) && mapView.getMapSettings().getMapDisplayMode() == SKMapDisplayMode.MODE_2D) {
-			mapView.deleteAllAnnotationsAndCustomPOIs();
-			drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
-			List<Incident> incidentsOfTime = getIncidentsOfTime();
-			Log.d("ValidationActivity", "show incident size : " + incidentsOfTime.size());
-			for(Incident incident : incidentsOfTime) {
-				SKAnnotation incAnn = new SKAnnotation();
-				incAnn.setUniqueID(SkobblerUtils.getUniqueId(incident.lat, incident.lon));
-				incAnn.setLocation(new SKCoordinate(incident.lon, incident.lat));
-				incAnn.setMininumZoomLevel(incident.getMinimalDisplayZoomLevel());
-//				incAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_MARKER);
-				SKAnnotationView iconView = new SKAnnotationView();
-				ImageView incImage = new ImageView(ValidationActivity.this);
-				incImage.setImageBitmap(Misc.getBitmap(ValidationActivity.this, IncidentIcon.fromType(incident.type).getResourceId(ValidationActivity.this), 1));
-				iconView.setView(incImage);
-				incAnn.setAnnotationView(iconView);
-				mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
-			}
-		}
 	}
 	
 	private void removeAllIncident() {
@@ -2661,6 +2639,40 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 		return provider1.equals(provider2);
 	}
+	
+	private AtomicInteger sizeRatio = new AtomicInteger(1);
+    
+    private void updateIncidentAnnotationSize(int ratio) {
+	    if(DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this) && sizeRatio.get() != ratio) {
+	    	sizeRatio.set(ratio);
+		   	List<Incident> incs = getIncidentsOfTime();
+		   	for(Incident inc : incs) {
+		   		if(inc != null) {
+		   			SKAnnotation incAnn = new SKAnnotation();
+		   			incAnn.setUniqueID(SkobblerUtils.getUniqueId(inc.lat, inc.lon));
+		   			incAnn.setLocation(new SKCoordinate(inc.lon, inc.lat));
+		   			incAnn.setMininumZoomLevel(inc.getMinimalDisplayZoomLevel());
+		   			SKAnnotationView iconView = new SKAnnotationView();
+		   			ImageView incImage = new ImageView(ValidationActivity.this);
+		   			incImage.setImageBitmap(Misc.getBitmap(ValidationActivity.this, IncidentIcon.fromType(inc.type).getResourceId(ValidationActivity.this), ratio));
+		   			iconView.setView(incImage);
+		   			incAnn.setAnnotationView(iconView);
+		   			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+		   		}
+		   	}
+	    }
+    }
+    
+    private int getSizeRatioByZoomLevel() {
+    	float zoomLevel = mapView.getZoomLevel();
+    	if(zoomLevel >= 13) {
+    		return 1;
+    	}
+    	else if(zoomLevel >= 9) {
+    		return 2;
+    	}
+    	return 1;
+    }
 
 	/**
 	 * Fake data player
@@ -3234,6 +3246,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	public void onMapRegionChanged(SKCoordinateRegion region) {
+		updateIncidentAnnotationSize(getSizeRatioByZoomLevel());
 	}
 
 	@Override
@@ -3253,44 +3266,20 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 
 	@Override
-	public void onSurfaceCreated() {
-	}
+	public void onSurfaceCreated() {}
 
 	@Override
-	public void onCurrentPositionSelected() {
-	}
+	public void onCurrentPositionSelected() {}
 
 	@Override
-	public void onObjectSelected(int arg0) {
-	}
+	public void onObjectSelected(int arg0) {}
 
 	@Override
-	public void onAllRoutesCompleted() {
-	}
+	public void onAllRoutesCompleted() {}
 
 	@Override
-	public void onOnlineRouteComputationHanging(int arg0) {
-	}
+	public void onOnlineRouteComputationHanging(int arg0) {}
 	
-//	@Override
-//	public void onRouteCalculationCompleted(SKRouteInfo arg0) {
-//		if(drawEnRoute.get()) {
-//			drawEnRoute.set(false);
-//			showEnRouteAlert();
-//		}
-//    	else {
-//    		if((Boolean)buttonFollow.getTag()) {
-//    			mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
-//    		}
-//		}
-//	}
-//	
-//	@Override
-//	public void onRouteCalculationFailed(SKRoutingErrorCode arg0) {
-//		Log.d("ValidationActivity", "draw route internal error!");
-//		drawRoute(mapView, getRouteOrReroute());
-//	}
-
 	private AtomicBoolean enRouteResultTriggered = new AtomicBoolean(false);
 	
 	@Override
@@ -3312,17 +3301,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     }
 
     @Override
-    public void onResult(Hypothesis hypothesis) {
-    }
+    public void onResult(Hypothesis hypothesis) {}
 
     @Override
-    public void onBeginningOfSpeech() {
-    	Log.d("PocketSphinxActivity", "Start Speech");
-    }
+    public void onBeginningOfSpeech() {}
 
     @Override
-    public void onEndOfSpeech() {
-    }
+    public void onEndOfSpeech() {}
 
 	@Override
 	public void onRouteCalculationCompleted(int statusMessage, int routeDistance, int routeEta, boolean thisRouteIsComplete, int id) {
@@ -3350,17 +3335,5 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	public void onOffportRequestCompleted(int arg0) {}
-
-//	@Override
-//	public void onServerLikeRouteCalculationCompleted(SKRouteJsonAnswer arg0) {
-//	}
-//
-//	@Override
-//	public void onBoundingBoxImageRendered(int arg0) {
-//	}
-//
-//	@Override
-//	public void onGLInitializationError(String arg0) {
-//	}
 
 }

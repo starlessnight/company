@@ -6,8 +6,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -1589,6 +1591,44 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         findViewById(R.id.reserve).setTag(_route);
     }
     
+    private AtomicInteger sizeRatio = new AtomicInteger(1);
+    
+    private void updateIncidentAnnotationSize(int ratio) {
+    	synchronized(mutex) {
+	    	if(DebugOptionsActivity.isIncidentEnabled(RouteActivity.this) && sizeRatio.get() != ratio) {
+	    		sizeRatio.set(ratio);
+		    	Set<Integer> incidentIds = idIncidentMap.keySet();
+		    	for(Integer uniqueId : incidentIds) {
+		    		Incident inc = idIncidentMap.get(uniqueId);
+		    		if(inc != null) {
+		    			SKAnnotation incAnn = new SKAnnotation();
+		    			incAnn.setUniqueID(uniqueId);
+		    			incAnn.setLocation(new SKCoordinate(inc.lon, inc.lat));
+		    			incAnn.setMininumZoomLevel(inc.getMinimalDisplayZoomLevel());
+		    			SKAnnotationView iconView = new SKAnnotationView();
+		    			ImageView incImage = new ImageView(RouteActivity.this);
+		    			incImage.setImageBitmap(Misc.getBitmap(RouteActivity.this, IncidentIcon.fromType(inc.type).getResourceId(RouteActivity.this), ratio));
+		    			iconView.setView(incImage);
+		    			incAnn.setAnnotationView(iconView);
+		    			mapView.deleteAnnotation(uniqueId);
+		    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+		    		}
+		    	}
+	    	}
+    	}
+    }
+    
+    private int getSizeRatioByZoomLevel() {
+    	float zoomLevel = mapView.getZoomLevel();
+    	if(zoomLevel >= 13) {
+    		return 1;
+    	}
+    	else if(zoomLevel >= 9) {
+    		return 2;
+    	}
+    	return 1;
+    }
+    
     private void setHighlightedRoutePathOverlays(boolean highlighted) {
         /*for (int i = 0; i < routeInfoOverlays.length; i++) {
             RoutePathOverlay overlay = routePathOverlays[i];
@@ -2020,7 +2060,9 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	public void onMapRegionChangeStarted(SKCoordinateRegion arg0) {}
 
 	@Override
-	public void onMapRegionChanged(SKCoordinateRegion arg0) {}
+	public void onMapRegionChanged(SKCoordinateRegion arg0) {
+		updateIncidentAnnotationSize(getSizeRatioByZoomLevel());
+	}
 
 	@Override
 	public void onObjectSelected(int arg0) {}
