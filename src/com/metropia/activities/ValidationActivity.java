@@ -1200,7 +1200,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private ViewTreeObserver.OnPreDrawListener onPreDrawListener;
 	
 	private void to2DMap(final RouteRect _rect, final boolean hasNavigationHeader) {
-		if(_rect != null){
+		if(_rect != null) {
             /* Get a midpoint to center the view of  the routes */
 			changeEnRoutePanelMode(!navigationView.isPortraitMode());
             mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
@@ -1247,7 +1247,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 		});
 		mapView.deleteAnnotation(INCIDENT_BALLOON_ID);
-		removeAllIncident();
+//		removeAllIncident();
 	    LayoutParams mapViewLp = (LayoutParams) mapView.getLayoutParams();
 	    mapViewLp.width = LayoutParams.MATCH_PARENT;
 	    mapViewLp.height = LayoutParams.MATCH_PARENT;
