@@ -163,6 +163,7 @@ import com.skobbler.ngx.map.SKPOICluster;
 import com.skobbler.ngx.map.SKPolyline;
 import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
+import com.skobbler.ngx.routing.SKRouteManager;
 import com.skobbler.ngx.util.SKLogging;
 
 public final class LandingActivity2 extends FragmentActivity implements SKMapSurfaceListener, SensorEventListener{ 
@@ -2398,8 +2399,11 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    Localytics.setInAppMessageDisplayActivity(this);
 	    Localytics.handleTestMode(getIntent());
 	    Localytics.handlePushNotificationOpened(getIntent());
+	    //SKobbler 
 	    mapView.onResume();
 	    mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(LandingActivity2.this, true));
+	    mapView.getMapSettings().setCurrentPositionShown(true);
+	    //
         registerReceiver(tripInfoUpdater, new IntentFilter(TRIP_INFO_UPDATES));
         registerReceiver(onTheWayNotifier, new IntentFilter(ON_THE_WAY_NOTICE));
         mapRefresh.set(true);
@@ -2407,6 +2411,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         drawedReservId = Long.valueOf(-1);
         dismissReservId = Long.valueOf(-1);
         
+        //redraw poi
+        sizeRatio.set(0);
+        updateAnnotationSize(getSizeRatioByZoomLevel());
+        //
         User.initializeIfNeccessary(LandingActivity2.this, new Runnable() {
 			@Override
 			public void run() {
@@ -2968,6 +2976,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private void startRouteActivity(){
         if(!poiTapThrottle.get()){
             poiTapThrottle.set(true);
+            mapView.deleteAllAnnotationsAndCustomPOIs();
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {

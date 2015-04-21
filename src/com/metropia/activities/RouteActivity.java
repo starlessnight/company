@@ -1128,7 +1128,9 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     }
     
     private static final Integer FROM_BALLOON_ID = Integer.valueOf(2456);
+    private static final Integer FROM_DETAIL_BALLOON_ID = Integer.valueOf(2455);
     private static final Integer TO_BALLOON_ID = Integer.valueOf(1357);
+    private static final Integer TO_DETAIL_BALLOON_ID = Integer.valueOf(1356);
     private static final Integer FROM_OVERLAY_ID = Integer.valueOf(2457);
     private static final Integer TO_OVERLAY_ID = Integer.valueOf(1368);
     
@@ -1141,6 +1143,10 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     }
     
     private AtomicBoolean OD_DRAWED = new AtomicBoolean(false);
+    private SKAnnotation toBalloonAnn;
+    private SKAnnotation fromBalloonAnn;
+    private SKAnnotation toDetailBalloonAnn;
+    private SKAnnotation fromDetailBalloonAnn; 
     
     private void drawODOverlayAndBalloon(Route _route) {
     	if(!OD_DRAWED.getAndSet(true)) {
@@ -1167,32 +1173,58 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    	toOverlay.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
 	    	SKAnnotationView toOverlayView = new SKAnnotationView();
 	    	ImageView toOverlayImageView = new ImageView(RouteActivity.this);
-	    	toOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, destOverlayInfo != null ? destOverlayInfo.markerWithShadow : R.drawable.poi_pin_with_shadow, 1));
+	    	int destResourceId = destOverlayInfo != null ? (destOverlayInfo.markerWithShadow == R.drawable.poi_pin_with_shadow ? R.drawable.pin_destination : destOverlayInfo.markerWithShadow) : R.drawable.pin_destination;
+	    	boolean isFlag = destResourceId == R.drawable.pin_destination;
+	    	toOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, destResourceId, 1));
 	    	toOverlayView.setView(toOverlayImageView);
 	    	toOverlay.setAnnotationView(toOverlayView);
+	    	if(isFlag) {
+	    		toOverlay.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
+	    	}
 	    	mapView.addAnnotation(toOverlay, SKAnimationSettings.ANIMATION_POP_OUT);
 	    	
-	    	SKAnnotation toBalloon = new SKAnnotation();
-	    	toBalloon.setUniqueID(TO_BALLOON_ID);
-	    	toBalloon.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
-	    	toBalloon.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
+	    	toBalloonAnn = new SKAnnotation();
+	    	toBalloonAnn.setUniqueID(TO_BALLOON_ID);
+	    	toBalloonAnn.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
+	    	int toOffset = isFlag ? 40 : 36;
+	    	toBalloonAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(toOffset, getResources().getDisplayMetrics())));
 	    	SKAnnotationView toBalloonView = new SKAnnotationView();
 	        ImageView toBalloonImage = new ImageView(RouteActivity.this);
 	        toBalloonImage.setImageBitmap(loadBitmapOfFromToBalloon(RouteActivity.this, false));
 	        toBalloonView.setView(toBalloonImage);
-	        toBalloon.setAnnotationView(toBalloonView);
-	        mapView.addAnnotation(toBalloon, SKAnimationSettings.ANIMATION_POP_OUT);
+	        toBalloonAnn.setAnnotationView(toBalloonView);
+	        mapView.addAnnotation(toBalloonAnn, SKAnimationSettings.ANIMATION_POP_OUT);
 	        
-	        SKAnnotation fromBalloon = new SKAnnotation();
-	        fromBalloon.setUniqueID(FROM_BALLOON_ID);
-	    	fromBalloon.setLocation(new SKCoordinate(_route.getFirstNode().getLongitude(), _route.getFirstNode().getLatitude()));
-	    	fromBalloon.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
+	        toDetailBalloonAnn = new SKAnnotation();
+	        toDetailBalloonAnn.setUniqueID(TO_DETAIL_BALLOON_ID);
+	        toDetailBalloonAnn.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
+	        toDetailBalloonAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(toOffset, getResources().getDisplayMetrics())));
+	    	SKAnnotationView toDetailBalloonView = new SKAnnotationView();
+	        ImageView toDetailBalloonImage = new ImageView(RouteActivity.this);
+	        toDetailBalloonImage.setImageBitmap(loadBitmapOfFromToDetailBalloon(RouteActivity.this, destAddr, false));
+	        toDetailBalloonView.setView(toDetailBalloonImage);
+	        toDetailBalloonAnn.setAnnotationView(toDetailBalloonView);
+	        
+	        fromBalloonAnn = new SKAnnotation();
+	        fromBalloonAnn.setUniqueID(FROM_BALLOON_ID);
+	        fromBalloonAnn.setLocation(new SKCoordinate(_route.getFirstNode().getLongitude(), _route.getFirstNode().getLatitude()));
+	        fromBalloonAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(36, getResources().getDisplayMetrics())));
 	    	SKAnnotationView fromBalloonView = new SKAnnotationView();
 	        ImageView balloon = new ImageView(RouteActivity.this);
 	        balloon.setImageBitmap(loadBitmapOfFromToBalloon(RouteActivity.this, true));
 	        fromBalloonView.setView(balloon);
-	        fromBalloon.setAnnotationView(fromBalloonView);
-	        mapView.addAnnotation(fromBalloon, SKAnimationSettings.ANIMATION_POP_OUT);
+	        fromBalloonAnn.setAnnotationView(fromBalloonView);
+	        mapView.addAnnotation(fromBalloonAnn, SKAnimationSettings.ANIMATION_POP_OUT);
+	        
+	        fromDetailBalloonAnn = new SKAnnotation();
+	        fromDetailBalloonAnn.setUniqueID(FROM_DETAIL_BALLOON_ID);
+	        fromDetailBalloonAnn.setLocation(new SKCoordinate(_route.getFirstNode().getLongitude(), _route.getFirstNode().getLatitude()));
+	        fromDetailBalloonAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(36, getResources().getDisplayMetrics())));
+	    	SKAnnotationView fromDetailBalloonView = new SKAnnotationView();
+	        ImageView detailBalloon = new ImageView(RouteActivity.this);
+	        detailBalloon.setImageBitmap(loadBitmapOfFromToDetailBalloon(RouteActivity.this, originAddr, true));
+	        fromDetailBalloonView.setView(detailBalloon);
+	        fromDetailBalloonAnn.setAnnotationView(fromDetailBalloonView);
     	}
     }
     
@@ -1422,7 +1454,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		float diffNeeded = Math.max(diffNeededLat, diffNeededLon); // i.e. 1,2
 
 		if (diffNeeded > 1) { // Zoom Out
-			return curZoomLevel - Misc.getNextSquareNumberAbove(diffNeeded) + 2.5f;
+			return curZoomLevel - Misc.getNextSquareNumberAbove(diffNeeded) + 2.7f;
 		} else if (diffNeeded < 0.5) { // Can Zoom in
 			return curZoomLevel + Misc.getNextSquareNumberAbove(1 / diffNeeded) - 1 ;
 		}
@@ -1981,6 +2013,22 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
             mapView.addAnnotation(fromAnnotation, SKAnimationSettings.ANIMATION_POP_OUT);
             mapView.centerMapOnPositionSmooth(annotation.getLocation(), 500);
 		}
+		else if(selectedAnnotationId == FROM_BALLOON_ID) {
+			mapView.deleteAnnotation(FROM_BALLOON_ID);
+			mapView.addAnnotation(fromDetailBalloonAnn, SKAnimationSettings.ANIMATION_POP_OUT);
+		}
+		else if(selectedAnnotationId == FROM_DETAIL_BALLOON_ID) {
+			mapView.deleteAnnotation(FROM_DETAIL_BALLOON_ID);
+			mapView.addAnnotation(fromBalloonAnn, SKAnimationSettings.ANIMATION_POP_OUT);
+		}
+		else if(selectedAnnotationId == TO_BALLOON_ID) {
+			mapView.deleteAnnotation(TO_BALLOON_ID);
+			mapView.addAnnotation(toDetailBalloonAnn, SKAnimationSettings.ANIMATION_POP_OUT);
+		}
+		else if(selectedAnnotationId == TO_DETAIL_BALLOON_ID) {
+			mapView.deleteAnnotation(TO_DETAIL_BALLOON_ID);
+			mapView.addAnnotation(toBalloonAnn, SKAnimationSettings.ANIMATION_POP_OUT);
+		}
 	}
 	
 	public Bitmap loadBitmapFromView(Context ctx, Incident selectedInc) {
@@ -2002,24 +2050,71 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         return bitmap;
 	}
 	
-	private View fromToBalloon;
+	private View fromBalloon;
+	private View toBalloon;
 	
 	private Bitmap loadBitmapOfFromToBalloon(Context ctx, boolean from) {
-		if(fromToBalloon == null) {
+		if(from && fromBalloon == null) {
 			FrameLayout layout = new FrameLayout(ctx);
 			ViewGroup.LayoutParams layoutLp = new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 			layout.setLayoutParams(layoutLp);
 			LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			fromToBalloon = inflater.inflate(R.layout.from_to_balloon, layout);
+			fromBalloon = inflater.inflate(R.layout.from_to_balloon, layout);
+			fromBalloon.findViewById(R.id.poi_content_mini).setBackgroundResource(R.drawable.from_to_pin);
 		}
-        TextView textView = (TextView) fromToBalloon.findViewById(R.id.poi_mini_title);
+		else if(!from && toBalloon == null) {
+			FrameLayout layout = new FrameLayout(ctx);
+			ViewGroup.LayoutParams layoutLp = new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			layout.setLayoutParams(layoutLp);
+			LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			toBalloon = inflater.inflate(R.layout.from_to_balloon, layout);
+			toBalloon.findViewById(R.id.poi_content_mini).setBackgroundResource(R.drawable.departure_to_pin);
+		}
+		View balloon = from ? fromBalloon : toBalloon;
+        TextView textView = (TextView) balloon.findViewById(R.id.poi_mini_title);
         textView.setText(from ? "FROM" : "TO");
+        textView.setTextColor(ctx.getResources().getColor(from ? R.color.metropia_blue : android.R.color.white));
         Font.setTypeface(Font.getRegular(ctx.getAssets()), textView);
-        fromToBalloon.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-        fromToBalloon.layout(0, 0, fromToBalloon.getMeasuredWidth(), fromToBalloon.getMeasuredHeight());
-        Bitmap bitmap = Bitmap.createBitmap(fromToBalloon.getMeasuredWidth(), fromToBalloon.getMeasuredHeight(), Bitmap.Config.ARGB_8888);                
+        balloon.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+        balloon.layout(0, 0, balloon.getMeasuredWidth(), balloon.getMeasuredHeight());
+        Bitmap bitmap = Bitmap.createBitmap(balloon.getMeasuredWidth(), balloon.getMeasuredHeight(), Bitmap.Config.ARGB_8888);                
         Canvas canvas = new Canvas(bitmap);
-        fromToBalloon.draw(canvas);
+        balloon.draw(canvas);
+        return bitmap;
+	}
+	
+	private View fromDetailBalloon;
+	private View toDetailBalloon;
+	
+	private Bitmap loadBitmapOfFromToDetailBalloon(Context ctx, String address, boolean from) {
+		if(from && fromDetailBalloon == null) {
+			FrameLayout layout = new FrameLayout(ctx);
+			ViewGroup.LayoutParams layoutLp = new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			layout.setLayoutParams(layoutLp);
+			LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			fromDetailBalloon = inflater.inflate(R.layout.from_to_detail_balloon, layout);
+			fromDetailBalloon.findViewById(R.id.poi_content_detail).setBackgroundResource(R.drawable.from_departure_page_detail);
+		}
+		else if(!from && toDetailBalloon == null) {
+			FrameLayout layout = new FrameLayout(ctx);
+			ViewGroup.LayoutParams layoutLp = new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			layout.setLayoutParams(layoutLp);
+			LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			toDetailBalloon = inflater.inflate(R.layout.from_to_detail_balloon, layout);
+			toDetailBalloon.findViewById(R.id.poi_content_detail).setBackgroundResource(R.drawable.to_departure_page_detail);
+		}
+		View balloon = from ? fromDetailBalloon : toDetailBalloon;
+        TextView titleView = (TextView) balloon.findViewById(R.id.poi_detail_title);
+        titleView.setText(from ? "FROM" : "TO");
+        titleView.setTextColor(ctx.getResources().getColor(from ? R.color.metropia_blue : android.R.color.white));
+        TextView addressView = (TextView) balloon.findViewById(R.id.detail_address);
+        addressView.setText(address);
+        Font.setTypeface(Font.getRegular(ctx.getAssets()), titleView, addressView);
+        balloon.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+        balloon.layout(0, 0, balloon.getMeasuredWidth(), balloon.getMeasuredHeight());
+        Bitmap bitmap = Bitmap.createBitmap(balloon.getMeasuredWidth(), balloon.getMeasuredHeight(), Bitmap.Config.ARGB_8888);                
+        Canvas canvas = new Canvas(bitmap);
+        balloon.draw(canvas);
         return bitmap;
 	}
 
