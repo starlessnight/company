@@ -2403,6 +2403,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    mapView.onResume();
 	    mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(LandingActivity2.this, true));
 	    mapView.getMapSettings().setCurrentPositionShown(true);
+	    SKRouteManager.getInstance().clearAllRoutesFromCache();
+	    SKRouteManager.getInstance().clearCurrentRoute();
+	    SKRouteManager.getInstance().clearRouteAlternatives();
 	    //
         registerReceiver(tripInfoUpdater, new IntentFilter(TRIP_INFO_UPDATES));
         registerReceiver(onTheWayNotifier, new IntentFilter(ON_THE_WAY_NOTICE));
