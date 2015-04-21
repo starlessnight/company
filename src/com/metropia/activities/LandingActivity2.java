@@ -1821,7 +1821,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         Font.setTypeface(robotoLightFont, reservationOnMyWay, (TextView) reservInfo.findViewById(R.id.reschedule_desc));
         
         if(isFirst) {
-	        tripNotifyIcon.setImageResource(reserv.isEligibleTrip()?R.drawable.upcoming_trip_green:R.drawable.upcoming_trip_orange);
+	        tripNotifyIcon.setImageResource(lessThanOneMinite?R.drawable.upcoming_trip_green:R.drawable.upcoming_trip_orange);
 	        tripNotifyIcon.setVisibility(View.VISIBLE);
         }
         
