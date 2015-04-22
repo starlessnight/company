@@ -2384,7 +2384,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             }
             
             ImageView share = (ImageView) findViewById(R.id.share);
-            share.setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.menu_share_new)));
+            share.setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.trip_share)));
             
             Font.setTypeface(Font.getRobotoBold(getAssets()), co2, mpoint, driveScore, 
             		(TextView) findViewById(R.id.congrats_msg), 

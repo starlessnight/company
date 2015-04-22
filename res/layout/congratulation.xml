@@ -160,7 +160,7 @@
                 <TextView
                     android:id="@+id/close"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="Close"
@@ -174,12 +174,12 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_gravity="center"
-                    android:src="@drawable/menu_share_new" />
+                    android:src="@drawable/trip_share" />
 
                 <TextView
                     android:id="@+id/feedback"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="Feedback"
