@@ -215,7 +215,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     
     private Map<Integer, Incident> idIncidentMap = new HashMap<Integer, Incident>();
     
-    private String versionNumber = "";
+    private String versionNumber = "Android ";
     
     private Runnable goBackToWhereTo = new Runnable() {
         @Override
@@ -383,7 +383,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         destOverlayInfo = extras.getParcelable(DEST_OVERLAY_INFO);
         
         try {
-			versionNumber = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+			versionNumber = versionNumber + getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
 		}catch(NameNotFoundException ignore) {}
         
         int eventId = extras.getInt(EVENT_ID, 0);

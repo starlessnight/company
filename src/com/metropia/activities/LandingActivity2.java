@@ -282,7 +282,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private SKMapViewHolder mapViewHolder;
     private SKMapSurfaceView mapView;
     
-    private String versionNumber = "";
+    private String versionNumber = "Android ";
     
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
@@ -319,7 +319,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         
         try {
-			versionNumber = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+			versionNumber = versionNumber + getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
 		}catch(NameNotFoundException ignore) {}
         
         RouteActivity.setViewToNorthAmerica(mapView);

@@ -51,9 +51,11 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
             dateFormatUtc.setTimeZone(TimeZone.getTimeZone(UTC_TIMEZONE));
             String originAddrEncoded = StringUtils.defaultString(originAddr);
             String destAddrEncoded = StringUtils.defaultString(destAddr);
+            String versionNumberEncoded = StringUtils.defaultString(versionNumber);
             try {
                 originAddrEncoded = URLEncoder.encode(originAddrEncoded, "utf-8");
                 destAddrEncoded = URLEncoder.encode(destAddrEncoded, "utf-8");
+                versionNumberEncoded = URLEncoder.encode(versionNumberEncoded, "utf-8");
             }
             catch (UnsupportedEncodingException e) {}
 		    url = getLinkUrl(Link.route)
@@ -67,7 +69,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
                 .replaceAll("\\{origin\\}", originAddrEncoded)
                 .replaceAll("\\{destination\\}", destAddrEncoded)
                 .replaceAll("\\{toll\\}", includeTollRoads + "")
-                .replaceAll("\\{app_version\\}", versionNumber);
+                .replaceAll("\\{app_version\\}", versionNumberEncoded);
 		}else{
 		    Time t = new Time();
 	        t.set(departureTime);
