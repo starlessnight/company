@@ -1024,32 +1024,13 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	}
     
     private String incidentUrl;
-    private AtomicBoolean showProgressDialog = new AtomicBoolean(true);
     
     private void retriveIncident(final Runnable callback) {
+    	if(callback != null) {
+    		callback.run();
+    	}
     	if(DebugOptionsActivity.isIncidentEnabled(RouteActivity.this)) {
 	    	AsyncTask<Void, Void, Void> getIncidentTask = new AsyncTask<Void, Void, Void>() {
-	    		
-	    		private CancelableProgressDialog dialog;
-	    		
-	    		@Override
-	            protected void onPreExecute() {
-	    			dialog = new CancelableProgressDialog(RouteActivity.this, "Getting Incident...");
-	                dialog.setActionListener(new CancelableProgressDialog.ActionListener() {
-	                    @Override
-	                    public void onClickNegativeButton() {
-	                        goBackToWhereTo.run();
-	                    }
-	                });
-	                if(showProgressDialog.getAndSet(false)) {
-		                Misc.doQuietly(new Runnable() {
-		                    @Override
-		                    public void run() {
-		                        dialog.show();
-		                    }
-		                });
-	                }
-	    		}
 	    		
 	    		@Override
 				protected Void doInBackground(Void... params) {
@@ -1068,25 +1049,12 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    		
 				@Override
 		        protected void onPostExecute(Void result) {
-					if (dialog.isShowing()) {
-		                Misc.doQuietly(new Runnable() {
-		                    @Override
-		                    public void run() {
-		                        dialog.dismiss();
-		                    }
-		                });
-		            }
-					if(callback != null) {
-						callback.run();
+					if(timeLayout.getSelectedTimeButton() != null) {
+						showIncidentOverlays(timeLayout.getSelectedDepartureTime());
 					}
 				}
 	    	};
 	    	Misc.parallelExecute(getIncidentTask);
-    	}
-    	else {
-    		if(callback != null) {
-    			callback.run();
-    		}
     	}
     }
     
@@ -1112,6 +1080,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     
     private void showIncidentOverlays(long depTimeInMillis) {
 	    removeIncidentOverlays();
+	    sizeRatio.set(0); // init for zoom action
 	    List<Incident> incidentOfDepTime = getIncidentOfDepartureTime(depTimeInMillis);
     	for(Incident incident : incidentOfDepTime) {
     		SKAnnotation incAnn = new SKAnnotation();
@@ -1120,7 +1089,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 			incAnn.setMininumZoomLevel(incident.getMinimalDisplayZoomLevel());
 			SKAnnotationView iconView = new SKAnnotationView();
 			ImageView incImage = new ImageView(RouteActivity.this);
-			incImage.setImageBitmap(Misc.getBitmap(RouteActivity.this, IncidentIcon.fromType(incident.type).getResourceId(RouteActivity.this), 1));
+			incImage.setImageBitmap(Misc.getBitmap(RouteActivity.this, IncidentIcon.fromType(incident.type).getResourceId(RouteActivity.this), getSizeRatioByZoomLevel()));
 			iconView.setView(incImage);
 			incAnn.setAnnotationView(iconView);
 			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
@@ -1625,26 +1594,33 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     
     private AtomicInteger sizeRatio = new AtomicInteger(1);
     
-    private void updateIncidentAnnotationSize(int ratio) {
+    private void updateIncidentAnnotationSize(int ratio, long departureTime) {
     	synchronized(mutex) {
-	    	if(DebugOptionsActivity.isIncidentEnabled(RouteActivity.this) && sizeRatio.get() != ratio) {
+	    	if(DebugOptionsActivity.isIncidentEnabled(RouteActivity.this) && sizeRatio.get() != ratio && departureTime > 0) {
 	    		sizeRatio.set(ratio);
 		    	Set<Integer> incidentIds = idIncidentMap.keySet();
 		    	for(Integer uniqueId : incidentIds) {
-		    		Incident inc = idIncidentMap.get(uniqueId);
-		    		if(inc != null) {
-		    			SKAnnotation incAnn = new SKAnnotation();
-		    			incAnn.setUniqueID(uniqueId);
-		    			incAnn.setLocation(new SKCoordinate(inc.lon, inc.lat));
-		    			incAnn.setMininumZoomLevel(inc.getMinimalDisplayZoomLevel());
-		    			SKAnnotationView iconView = new SKAnnotationView();
-		    			ImageView incImage = new ImageView(RouteActivity.this);
-		    			incImage.setImageBitmap(Misc.getBitmap(RouteActivity.this, IncidentIcon.fromType(inc.type).getResourceId(RouteActivity.this), ratio));
-		    			iconView.setView(incImage);
-		    			incAnn.setAnnotationView(iconView);
-		    			mapView.deleteAnnotation(uniqueId);
-		    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+		    		mapView.deleteAnnotation(uniqueId);
+		    	}
+		    	List<Incident> incidentOfDepTime = new ArrayList<Incident>();
+		    	if(idIncidentMap.size() > 0) {
+		    		for(Incident incident : idIncidentMap.values()) {
+		    			if(incident.severity > 0 && incident.isInTimeRange(departureTime)) {
+		    				incidentOfDepTime.add(incident);
+		    			}
 		    		}
+		    	}
+		    	for(Incident incident : incidentOfDepTime) {
+		    		SKAnnotation incAnn = new SKAnnotation();
+		    		incAnn.setUniqueID(SkobblerUtils.getUniqueId(incident.lat, incident.lon));
+					incAnn.setLocation(new SKCoordinate(incident.lon, incident.lat));
+					incAnn.setMininumZoomLevel(incident.getMinimalDisplayZoomLevel());
+					SKAnnotationView iconView = new SKAnnotationView();
+					ImageView incImage = new ImageView(RouteActivity.this);
+					incImage.setImageBitmap(Misc.getBitmap(RouteActivity.this, IncidentIcon.fromType(incident.type).getResourceId(RouteActivity.this), getSizeRatioByZoomLevel()));
+					iconView.setView(incImage);
+					incAnn.setAnnotationView(iconView);
+					mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
 		    	}
 	    	}
     	}
@@ -2156,7 +2132,9 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 
 	@Override
 	public void onMapRegionChanged(SKCoordinateRegion arg0) {
-		updateIncidentAnnotationSize(getSizeRatioByZoomLevel());
+		if(timeLayout != null && timeLayout.getSelectedTimeButton() != null) {
+			updateIncidentAnnotationSize(getSizeRatioByZoomLevel(), timeLayout.getSelectedDepartureTime());
+		}
 	}
 
 	@Override
