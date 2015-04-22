@@ -879,7 +879,7 @@ public final class Route implements Parcelable {
     	return new String[0];
     }
     
-    public String getRemainNodes(double latitude, double longitude) {
+    public String getRemainNodeIds(double latitude, double longitude) {
     	RouteNode nearestNode = getNearestNode(latitude, longitude);
 //    	List<Integer> remainNodes = new ArrayList<Integer>();
     	String[] navigationNodes = getNodesFromNavigationUrl();
@@ -905,5 +905,18 @@ public final class Route implements Parcelable {
     		durationFromNodes = durationFromNodes + node.getTime();
     	}
     	return durationFromNodes;
+    }
+    
+    public List<RouteNode> getRemainNodes(double lat, double lon) {
+    	RouteNode currentLoc = new RouteNode(lat, lon, 0, 0);
+    	List<RouteNode> remainNodes = new ArrayList<RouteNode>();
+    	remainNodes.add(currentLoc);
+    	RouteNode nearestNode = getNearestNode(lat, lon);
+    	remainNodes.add(nearestNode);
+    	while(nearestNode.getNextNode() != null) {
+    		nearestNode = nearestNode.getNextNode();
+    		remainNodes.add(nearestNode);
+    	}
+    	return remainNodes;
     }
 }

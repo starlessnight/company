@@ -836,7 +836,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		            		to3DMap();
 		                }
 		                else {
-		                    to2DMap(routeRect, true);
+		                	if(lastKnownLocation != null) {
+		                		to2DMap(new RouteRect(getRouteOrReroute().getRemainNodes(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude())), true);
+		                	}
+		                	else {
+		                		to2DMap(routeRect, true);
+		                	}
 		                }
 		            	navigationView.setToCurrentDireciton();
 					}
@@ -2966,7 +2971,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					Log.d("ValidationActivity", "En-Route Check");
 					try {
 						TravelTimeRequest travelTimeReq = new TravelTimeRequest(User.getCurrentUser(ValidationActivity.this), 
-								reservation.getCity(), getRouteOrReroute().getRemainNodes(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
+								reservation.getCity(), getRouteOrReroute().getRemainNodeIds(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
 						realRemainTimeInMin = travelTimeReq.execute(ValidationActivity.this);  // min
 						realTravelRemainTimeInSec = Double.valueOf(realRemainTimeInMin * 60).longValue(); // sec
 						if(realRemainTimeInMin > 0 && (realTravelRemainTimeInSec - remainingTime.get()) >= Math.max(5 * 60, 0.2 * getRouteOrReroute().getDurationFromNodes())) {
