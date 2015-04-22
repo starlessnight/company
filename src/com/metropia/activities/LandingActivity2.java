@@ -283,6 +283,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private SKMapSurfaceView mapView;
     
     private String versionNumber = "Android ";
+    private AtomicBoolean locationRefreshed = new AtomicBoolean(false);
     
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
@@ -823,6 +824,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //	              location.setLatitude(22.980648); // Tainan
 //	              location.setLongitude(120.236046);
                 if (ValidationActivity.isBetterLocation(location, lastLocation)) {
+					locationRefreshed.set(true);
                     locationChanged(location);
                     if(checkCalendarEvent.getAndSet(false) && extras != null) {
                     	handleCalendarNotification(extras.getInt(RouteActivity.EVENT_ID));
@@ -1069,6 +1071,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         });
         
         findViewById(R.id.left_drawer).setOnClickListener(noopClick);
+        findViewById(R.id.loading_panel).setOnClickListener(noopClick);
         
         getRouteView = (TextView) findViewById(R.id.get_route);
         getRouteView.setOnClickListener(new OnClickListener() {
@@ -1095,7 +1098,30 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 						@Override
 						public void onAnimationEnd() {
-							startRouteActivity();
+							Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
+								
+								@Override
+								protected void onPreExecute() {
+									findViewById(R.id.loading_panel).setVisibility(View.VISIBLE);
+								}
+								
+								@Override
+								protected Void doInBackground(Void... params) {
+									try {
+										while(!locationRefreshed.get()) {
+											Thread.sleep(1000);
+										}
+									}
+									catch(Exception ignore) {}
+									return null;
+								}
+								
+								@Override
+		        				protected void onPostExecute(Void result) {
+									findViewById(R.id.loading_panel).setVisibility(View.GONE);
+									startRouteActivity();
+								}
+							});
 						}
 					});
 				}
@@ -1291,11 +1317,11 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         */
         
         LocationInfo cacheLoc = new LocationInfo(LandingActivity2.this);
-        if(System.currentTimeMillis() - cacheLoc.lastLocationUpdateTimestamp <= 60 * 60 * 1000) {
+        if(System.currentTimeMillis() - cacheLoc.lastLocationUpdateTimestamp <= ONE_HOUR) {
         	Location loc = new Location("");
         	loc.setLatitude(cacheLoc.lastLat);
         	loc.setLongitude(cacheLoc.lastLong);
-        	loc.setTime(System.currentTimeMillis());
+        	loc.setTime(cacheLoc.lastLocationUpdateTimestamp);
         	loc.setAccuracy(cacheLoc.lastAccuracy);
         	loc.setBearing(cacheLoc.lastHeading);
         	locationChanged(loc);
@@ -1314,6 +1340,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         
         //end oncreate
     }
+    
+    private static final long ONE_HOUR = 60 * 60 * 1000L;
     
     private synchronized void locationChanged(Location location) {
     	lastLocation = location;
@@ -2463,6 +2491,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    dismissReservId = Long.valueOf(-1);
 	    refreshTripsInfo(true, true);
 	    hidePopupMenu();
+	    findViewById(R.id.loading_panel).setVisibility(View.GONE);
     } 
     
     private void refreshTripsInfo(){
@@ -4147,6 +4176,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 }
                 return true;
             case KeyEvent.KEYCODE_BACK:
+            	if(findViewById(R.id.loading_panel).getVisibility() == View.VISIBLE) {
+            		return true;
+            	}
+            	
             	if(isPopupMenuShown()) {
             		hidePopupMenu();
             		return true;

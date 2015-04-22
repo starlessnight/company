@@ -639,6 +639,24 @@
             </RelativeLayout>
 
             <include layout="@layout/reservations_list" />
+            
+            <FrameLayout 
+                android:id="@+id/loading_panel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/transparent_black"
+                android:visibility="gone">
+                
+                <ProgressBar
+			        android:id="@+id/loading"
+			        style="@style/ProgressBar"
+			        android:layout_width="wrap_content"
+			        android:layout_height="wrap_content"
+			        android:layout_gravity="center"
+			        android:indeterminate="true" />
+                
+            </FrameLayout>
+            
         </RelativeLayout>    
     </LinearLayout>
 

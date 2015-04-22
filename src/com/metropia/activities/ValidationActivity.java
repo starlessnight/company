@@ -1857,6 +1857,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private String incidentUrl;
 	private Map<Integer, Incident> incidents = new HashMap<Integer, Incident>();
 	private AtomicBoolean sendOnMyWayEmail = new AtomicBoolean(true);
+	private AtomicBoolean locationRefreshed = new AtomicBoolean(false);
 	
 	private synchronized void locationChanged(final Location location) {
 	    final double speedInMph = Trajectory.msToMph(location.getSpeed());
@@ -1864,7 +1865,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	    final double lat = location.getLatitude();
 	    final double lng = location.getLongitude();
 	    final float accuracy = location.getAccuracy();
-	    if (!routeLoaded.get() && isLoadRoute()) {
+	    if (!routeLoaded.get() && isLoadRoute() && locationRefreshed.get()) {
             routeLoaded.set(true);
             runOnUiThread(new Runnable(){
                 @Override
@@ -2534,6 +2535,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					DebugOptionsActivity.GPS_MODE_DEFAULT);
 			if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL) {
 				if (isBetterLocation(location, lastLocation)) {
+					locationRefreshed.set(true);
 					lastLocation = location;
 					locationChanged(location);
 				}
