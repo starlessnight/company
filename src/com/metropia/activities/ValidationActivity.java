@@ -331,6 +331,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			trajectoryData = extras.getString(TRAJECTORY_DATA);
 			isReplay.set(extras.getBoolean(DebugOptionsActivity.REPLAY, false));
 		}
+		
+		if(isReplay.get()) {
+			locationRefreshed.set(true);
+		}
+		
 		timeoutReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
@@ -435,6 +440,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             Location location = new Location("");
             location.setTime(System.currentTimeMillis());
             locationChanged(location);
+            locationRefreshed.set(true);
         } else if(curLoc != null){
             Location location = new Location("");
             location.setTime(System.currentTimeMillis());
