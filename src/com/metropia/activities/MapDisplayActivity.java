@@ -334,11 +334,102 @@ public final class MapDisplayActivity extends FragmentActivity {
 			}
 		});
 		
+		final View calendarIntegrationTutorialPanel = findViewById(R.id.calendar_integration_tutorial_panel);
+		calendarIntegrationTutorialPanel.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ObjectAnimator tutorialFlipAnimator = ObjectAnimator.ofFloat(calendarIntegrationTutorialPanel, "rotationY", 0f, -180f);
+	    		tutorialFlipAnimator.setDuration(500);
+	    		tutorialFlipAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				ObjectAnimator tutorialAlphaAnimator = ObjectAnimator.ofFloat(calendarIntegrationTutorialPanel, "alpha", 1f, 0f);
+				tutorialAlphaAnimator.setStartDelay(250);
+				tutorialAlphaAnimator.setDuration(1);
+				tutorialAlphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				ObjectAnimator columnShowAnimator = ObjectAnimator.ofFloat(firstPanel, "alpha", 1f, 0f);
+				columnShowAnimator.setDuration(0);
+				columnShowAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				ObjectAnimator columnFlipAnimator = ObjectAnimator.ofFloat(firstPanel, "rotationY", 180f, 0f);
+				columnFlipAnimator.setDuration(500);
+				columnFlipAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				ObjectAnimator columnAlphaAnimator = ObjectAnimator.ofFloat(firstPanel, "alpha", 0f, 1f);
+				columnAlphaAnimator.setStartDelay(250);
+				columnAlphaAnimator.setDuration(1);
+				columnAlphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				AnimatorSet allAnimatorSet = new AnimatorSet();
+				allAnimatorSet.playTogether(tutorialFlipAnimator, tutorialAlphaAnimator, columnFlipAnimator, columnAlphaAnimator, columnShowAnimator);
+				allAnimatorSet.addListener(new AnimatorListener() {
+
+					@Override
+					public void onAnimationStart(Animator animation) {}
+
+					@Override
+					public void onAnimationEnd(Animator animation) {
+						calendarIntegrationTutorialPanel.setVisibility(View.GONE);
+					}
+
+					@Override
+					public void onAnimationCancel(Animator animation) {}
+
+					@Override
+					public void onAnimationRepeat(Animator animation) {}
+					
+				});
+				allAnimatorSet.start();
+			}
+		});
+		
+		findViewById(R.id.calendar_integration_tutorial_button).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				LayoutParams tutorialPanelLp = calendarIntegrationTutorialPanel.getLayoutParams();
+				tutorialPanelLp.height = firstPanel.getMeasuredHeight();
+				tutorialPanelLp.width = LayoutParams.MATCH_PARENT;
+				calendarIntegrationTutorialPanel.setLayoutParams(tutorialPanelLp);
+				ObjectAnimator tutorialShowAnimator = ObjectAnimator.ofFloat(calendarIntegrationTutorialPanel, "alpha", 1f, 0f);
+				tutorialShowAnimator.setDuration(0);
+				tutorialShowAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				ObjectAnimator tutorialFlipAnimator = ObjectAnimator.ofFloat(calendarIntegrationTutorialPanel, "rotationY", -180f, 0f);
+	    		tutorialFlipAnimator.setDuration(500);
+	    		tutorialFlipAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				ObjectAnimator tutorialAlphaAnimator = ObjectAnimator.ofFloat(calendarIntegrationTutorialPanel, "alpha", 0f, 1f);
+				tutorialAlphaAnimator.setStartDelay(250);
+				tutorialAlphaAnimator.setDuration(1);
+				tutorialAlphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				ObjectAnimator columnFlipAnimator = ObjectAnimator.ofFloat(firstPanel, "rotationY", 0f, 180f);
+				columnFlipAnimator.setDuration(500);
+				columnFlipAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				ObjectAnimator columnAlphaAnimator = ObjectAnimator.ofFloat(firstPanel, "alpha", 1f, 0f);
+				columnAlphaAnimator.setStartDelay(250);
+				columnAlphaAnimator.setDuration(1);
+				columnAlphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+				AnimatorSet allAnimatorSet = new AnimatorSet();
+				allAnimatorSet.playTogether(tutorialFlipAnimator, tutorialAlphaAnimator, tutorialShowAnimator, columnFlipAnimator, columnAlphaAnimator);
+				allAnimatorSet.addListener(new AnimatorListener() {
+					@Override
+					public void onAnimationStart(Animator animation) {
+						calendarIntegrationTutorialPanel.setVisibility(View.VISIBLE);
+					}
+
+					@Override
+					public void onAnimationEnd(Animator animation) {}
+
+					@Override
+					public void onAnimationCancel(Animator animation) {}
+
+					@Override
+					public void onAnimationRepeat(Animator animation) {}
+					
+				});
+				allAnimatorSet.start();
+			}
+		});
+		
 		Font.setTypeface(boldFont, logout, veNum, userNameView, 
 				(TextView) findViewById(R.id.header),
 				(TextView) findViewById(R.id.metropia_title),
 				(TextView) findViewById(R.id.back_button), 
-				(TextView) findViewById(R.id.tutorial_text));
+				(TextView) findViewById(R.id.tutorial_text), 
+				(TextView) findViewById(R.id.calendar_integration_tutorial_text));
         Font.setTypeface(lightFont, 
 				(TextView) findViewById(R.id.predict_destination_text),
 				(TextView) findViewById(R.id.calendar_integration_text),
