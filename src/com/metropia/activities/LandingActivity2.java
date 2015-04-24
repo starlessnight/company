@@ -90,6 +90,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
 import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.google.android.gms.analytics.GoogleAnalytics;
@@ -3672,6 +3673,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         mapViewHolder.setTag(collapsed);
         View landingPanelView = findViewById(R.id.landing_panel_content);
         int landingPanelHeight = landingPanelView.getHeight();
+        List<Animator> allAnimators = new ArrayList<Animator>();
         ObjectAnimator landingPanelAnimator;
         if(collapsed) {
         	landingPanelAnimator = ObjectAnimator.ofFloat(landingPanelView, "translationY", -landingPanelHeight, 0); 
@@ -3681,6 +3683,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }
         landingPanelAnimator.setDuration(500);
         landingPanelAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        allAnimators.add(landingPanelAnimator);
         
         View myMetropiaPanel = findViewById(R.id.my_metropia_panel);
         int myMetropiaPanelHeight = myMetropiaPanel.getHeight();
@@ -3691,6 +3694,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         else {
         	myMetropiaPanelAnimator = ObjectAnimator.ofFloat(myMetropiaPanel, "translationY", 0, myMetropiaPanelHeight);
         }
+        myMetropiaPanelAnimator.setDuration(500);
+        myMetropiaPanelAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        allAnimators.add(myMetropiaPanelAnimator);
+        
         View compass = findViewById(R.id.center_map_icon);
         ObjectAnimator compassAnimator;
         if(collapsed) {
@@ -3699,6 +3706,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         else {
         	compassAnimator = ObjectAnimator.ofFloat(compass, "translationY", 0, myMetropiaPanelHeight);
         }
+        compassAnimator.setDuration(500);
+        compassAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        allAnimators.add(compassAnimator);
         
         View notifyTrip = findViewById(R.id.trip_notify_icon);
         ObjectAnimator notifyTripAnimator;
@@ -3708,6 +3718,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         else {
         	notifyTripAnimator = ObjectAnimator.ofFloat(notifyTrip, "translationY", 0, myMetropiaPanelHeight);
         }
+        notifyTripAnimator.setDuration(500);
+        notifyTripAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        allAnimators.add(notifyTripAnimator);
         
         ObjectAnimator getRouteAnimator;
         if(collapsed) {
@@ -3716,10 +3729,26 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         else {
         	getRouteAnimator = ObjectAnimator.ofFloat(getRouteView, "translationY", 0, myMetropiaPanelHeight);
         }
+        getRouteAnimator.setDuration(500);
+        getRouteAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        allAnimators.add(getRouteAnimator);
+        
+        View scoreNotifyPanel = findViewById(R.id.score_notify);
+        ObjectAnimator scoreNotifyAnimator;
+        if(scoreNotifyPanel.getVisibility() == View.VISIBLE) {
+        	if(collapsed) {
+        		scoreNotifyAnimator = ObjectAnimator.ofFloat(scoreNotifyPanel, "translationY", myMetropiaPanelHeight, 0);
+            }
+            else {
+            	scoreNotifyAnimator = ObjectAnimator.ofFloat(scoreNotifyPanel, "translationY", 0, myMetropiaPanelHeight);
+            }
+        	scoreNotifyAnimator.setDuration(500);
+        	scoreNotifyAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        	allAnimators.add(scoreNotifyAnimator);
+        }
         
 		AnimatorSet animatorSet = new AnimatorSet();
-		animatorSet.play(landingPanelAnimator).with(myMetropiaPanelAnimator).with(compassAnimator)
-			.with(notifyTripAnimator).with(getRouteAnimator);
+		animatorSet.playTogether(allAnimators);
 		animatorSet.start();
     }
     
@@ -3953,10 +3982,29 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                     }
                     loginPrefsEditor.commit();
                     
+                    final View scoreNotify = findViewById(R.id.score_notify);
+                	ImageView scoreNotifyCloseView = (ImageView) findViewById(R.id.score_notify_close);
+                    scoreNotifyCloseView.setImageBitmap(Misc.getBitmap(LandingActivity2.this, R.drawable.tip_close, 1));
+                    scoreNotifyCloseView.setOnClickListener(new OnClickListener() {
+            			@Override
+            			public void onClick(final View v) {
+            				v.setClickable(false);
+            				ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
+            				clickAni.startAnimation(new ClickAnimationEndCallback() {
+            					@Override
+            					public void onAnimationEnd() {
+            						scoreNotify.setVisibility(View.GONE);
+            						v.setClickable(true);
+            					}
+            				});
+            			}
+                	});
+                    
                     final StringBuffer rewardString = new StringBuffer();
                     final String formatScore = "%spts";
                     if(play) {
                     	rewardString.append(100);
+                    	scoreNotify.setVisibility(View.VISIBLE);
                     	new CountDownTimer(2000, 10) {
     						
     						@Override

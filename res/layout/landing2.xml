@@ -476,6 +476,41 @@
 
                 </LinearLayout>
                 
+                <RelativeLayout 
+	                android:id="@+id/score_notify"
+	                android:layout_width="match_parent"
+	                android:layout_height="wrap_content"
+	                android:layout_marginLeft="10dp"
+	                android:layout_marginRight="120dp"
+	                android:layout_marginBottom="5dp"
+	                android:layout_above="@+id/my_metropia_panel"
+	                android:visibility="gone">
+	                    
+	                <TextView 
+	                    android:id="@+id/score_notify_content"
+	                    android:layout_width="match_parent"
+	                    android:layout_height="wrap_content"
+	                    android:text="receiving 100 pts for sign up"
+	                    android:textColor="@color/metropia_blue"
+	                    android:textSize="@dimen/smallest_font"
+	                    android:layout_marginTop="10dp"
+	                    android:layout_marginRight="10dp"
+	                    android:paddingLeft="5dp"
+	                    android:paddingRight="5dp"
+	                    android:paddingBottom="5dp"
+	                    android:paddingTop="15dp"
+	                    android:gravity="center"
+	                    android:background="@drawable/predictive_destination_tutorial_background"/>
+	                    
+	                <ImageView 
+	                    android:id="@+id/score_notify_close"
+	                    android:layout_width="29dp"
+	                    android:layout_height="29dp"
+	                    android:layout_alignParentTop="true"
+	                    android:layout_alignParentRight="true"/>
+	                    
+	            </RelativeLayout>
+                
                 <ListView
                     android:id="@+id/search_result_list"
                     android:layout_width="match_parent"
