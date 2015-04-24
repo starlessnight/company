@@ -284,6 +284,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     
     private String versionNumber = "Android ";
     private AtomicBoolean locationRefreshed = new AtomicBoolean(false);
+    private AtomicBoolean needTagAustinLaunch = new AtomicBoolean(true);
     
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
@@ -825,6 +826,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //	              location.setLongitude(120.236046);
                 if (ValidationActivity.isBetterLocation(location, lastLocation)) {
 					locationRefreshed.set(true);
+					if(needTagAustinLaunch.getAndSet(false)) {
+						LocalyticsUtils.setAustinLaunchIfInBoundingBox(location.getLatitude(), location.getLongitude());
+					}
                     locationChanged(location);
                     if(checkCalendarEvent.getAndSet(false) && extras != null) {
                     	handleCalendarNotification(extras.getInt(RouteActivity.EVENT_ID));
@@ -1326,8 +1330,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         	loc.setBearing(cacheLoc.lastHeading);
         	locationChanged(loc);
         }
-        
-        LocalyticsUtils.tagAppStartFromOrganic();
         
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getLight(assets), searchBox, fromSearchBox, myMetropiaMenu, 

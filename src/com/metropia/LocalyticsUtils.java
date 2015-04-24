@@ -1,5 +1,6 @@
 package com.metropia;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,12 +24,32 @@ public class LocalyticsUtils {
 		Map<String, String> values = new HashMap<String, String>();
 		values.put("Source", "push");
 		Localytics.tagEvent(EVENT_NAME_APP_START, values);
+		setProfileLastLoginDate();
 	}
 	
 	public static void tagAppStartFromOrganic() {
 		Map<String, String> values = new HashMap<String, String>();
 		values.put("Source", "organic");
 		Localytics.tagEvent(EVENT_NAME_APP_START, values);
+		setProfileLastLoginDate();
+	}
+	
+	private static final String LAST_LOGIN_DATE = "Last Login Date";
+	
+	private static void setProfileLastLoginDate() {
+		Localytics.setProfileAttribute(LAST_LOGIN_DATE, new Date(System.currentTimeMillis()));
+	}
+	
+	private static final String AUSTIN_LAUNCH = "Austin Launch";
+	private static final double AUSTIN_LAUNCH_MAX_LAT = 30.293991;
+	private static final double AUSTIN_LAUNCH_MAX_LON = -97.724856;
+	private static final double AUSTIN_LAUNCH_MIN_LAT = 30.277129;
+	private static final double AUSTIN_LAUNCH_MIN_LON = -97.743492;
+	
+	public static void setAustinLaunchIfInBoundingBox(double lat, double lon) {
+		if(lat >= AUSTIN_LAUNCH_MIN_LAT && lat <= AUSTIN_LAUNCH_MAX_LAT && lon >=AUSTIN_LAUNCH_MIN_LON && lon <= AUSTIN_LAUNCH_MAX_LON) {
+			Localytics.setProfileAttribute(AUSTIN_LAUNCH, "AustinLaunch");
+		}
 	}
 	
 	public static void tagCalendarIntegrationSettings(boolean turnOn) {
