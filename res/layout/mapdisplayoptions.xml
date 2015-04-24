@@ -181,11 +181,23 @@
 	            android:background="@android:color/white"
 	            android:padding="10dp">
 	            
-	            <ImageView 
+	            <LinearLayout 
 	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:src="@drawable/selected_predict_destination_tutorial"
-	                android:layout_gravity="top"/>
+	                android:layout_height="match_parent"
+	                android:orientation="vertical">
+	                
+		            <ImageView 
+		                android:layout_width="match_parent"
+		                android:layout_height="wrap_content"
+		                android:src="@drawable/selected_predict_destination_tutorial"/>
+		            
+		            <ImageView 
+		                android:layout_width="wrap_content"
+		                android:layout_height="wrap_content"
+		                android:paddingTop="5dp"
+		                android:src="@drawable/bulb_poi"/>
+	            
+	            </LinearLayout>
 	            
 	            <TextView 
 	                android:id="@+id/tutorial_text"
