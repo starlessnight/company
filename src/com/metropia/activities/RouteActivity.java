@@ -2155,7 +2155,14 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	}
 	
 	@Override
-	public void onSurfaceCreated() {}
+	public void onSurfaceCreated() {
+		Route route = (Route) findViewById(R.id.reserve).getTag();
+		if(route != null) {
+			List<Route> possibleRoutes = new ArrayList<Route>();
+			possibleRoutes.add(route);
+			updateMap(possibleRoutes, timeLayout.getSelectedColumn() == 0);
+		}
+	}
 
 	@Override
 	public void onDebugInfo(double arg0, float arg1, double arg2) {}
