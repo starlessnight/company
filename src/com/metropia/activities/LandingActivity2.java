@@ -286,6 +286,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private String versionNumber = "Android ";
     private AtomicBoolean locationRefreshed = new AtomicBoolean(false);
     private AtomicBoolean needTagAustinLaunch = new AtomicBoolean(true);
+    private AtomicBoolean cancelGetRoute = new AtomicBoolean(false);
     
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
@@ -1103,30 +1104,37 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 						@Override
 						public void onAnimationEnd() {
-							Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
-								
-								@Override
-								protected void onPreExecute() {
-									findViewById(R.id.loading_panel).setVisibility(View.VISIBLE);
-								}
-								
-								@Override
-								protected Void doInBackground(Void... params) {
-									try {
-										while(!locationRefreshed.get()) {
-											Thread.sleep(1000);
+							if(curFrom != null && StringUtils.isBlank(curFrom.address)) {
+								Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
+									
+									@Override
+									protected void onPreExecute() {
+										findViewById(R.id.loading_panel).setVisibility(View.VISIBLE);
+									}
+									
+									@Override
+									protected Void doInBackground(Void... params) {
+										try {
+											while(!locationRefreshed.get() && !cancelGetRoute.get()) {
+												Thread.sleep(1000);
+											}
+										}
+										catch(Exception ignore) {}
+										return null;
+									}
+									
+									@Override
+			        				protected void onPostExecute(Void result) {
+										findViewById(R.id.loading_panel).setVisibility(View.GONE);
+										if(!cancelGetRoute.getAndSet(false)) {
+											startRouteActivity();
 										}
 									}
-									catch(Exception ignore) {}
-									return null;
-								}
-								
-								@Override
-		        				protected void onPostExecute(Void result) {
-									findViewById(R.id.loading_panel).setVisibility(View.GONE);
-									startRouteActivity();
-								}
-							});
+								});
+							}
+							else {
+								startRouteActivity();
+							}
 						}
 					});
 				}
@@ -1326,7 +1334,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         	Location loc = new Location("");
         	loc.setLatitude(cacheLoc.lastLat);
         	loc.setLongitude(cacheLoc.lastLong);
-        	loc.setTime(cacheLoc.lastLocationUpdateTimestamp);
+        	loc.setTime(cacheLoc.lastLocationUpdateTimestamp - ValidationActivity.TWO_MINUTES);
         	loc.setAccuracy(cacheLoc.lastAccuracy);
         	loc.setBearing(cacheLoc.lastHeading);
         	locationChanged(loc);
@@ -1341,7 +1349,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         ((SmarTrekApplication)getApplication()).getTracker(TrackerName.APP_TRACKER);
         showTutorialIfNessary();
         
-        //end oncreate
     }
     
     private static final long ONE_HOUR = 60 * 60 * 1000L;
@@ -4227,6 +4234,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 return true;
             case KeyEvent.KEYCODE_BACK:
             	if(findViewById(R.id.loading_panel).getVisibility() == View.VISIBLE) {
+            		findViewById(R.id.loading_panel).setVisibility(View.GONE);
+            		cancelGetRoute.set(true);
             		return true;
             	}
             	
