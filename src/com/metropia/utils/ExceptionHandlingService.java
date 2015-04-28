@@ -183,6 +183,7 @@ public class ExceptionHandlingService {
             	message = ec.e.getMessage();
             	detailMessage = ((ServiceFailException)ec.e).getDetailMessage();
             }else{
+            	message = ec.getPreferredMessage();
                 detailMessage = ec.getMessage();
             }
             reportException(message, detailMessage, callback);

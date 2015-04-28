@@ -1894,6 +1894,8 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
             mapView.postInvalidate();
             
             if (ehs.hasExceptions() && selectedColumn == 0) {
+            	mapView.clearAllOverlays();
+            	mapView.deleteAllAnnotationsAndCustomPOIs();
                 ehs.reportExceptions(goBackToWhereTo);
             }
             else {
