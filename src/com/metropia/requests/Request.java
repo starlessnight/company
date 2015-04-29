@@ -20,11 +20,12 @@ import android.util.Log;
 
 import com.metropia.LocalyticsUtils;
 import com.metropia.activities.DebugOptionsActivity;
+import com.metropia.exceptions.WrappedIOException;
 import com.metropia.models.User;
 import com.metropia.utils.Cache;
 import com.metropia.utils.HTTP;
-import com.metropia.utils.Misc;
 import com.metropia.utils.HTTP.Method;
+import com.metropia.utils.Misc;
 
 /**
  * A request is a unit sent to the server to perform a certain task such as
@@ -221,8 +222,8 @@ public abstract class Request {
 					detailMessage = responseBody;
 				}
 	    	}
-	        IOException e = new IOException(detailMessage);
-	        e.initCause(t);
+	    	WrappedIOException e = new WrappedIOException(t.getMessage(), detailMessage, t);
+//	        e.initCause(t);
 	        throw e;
 	    }
 	}

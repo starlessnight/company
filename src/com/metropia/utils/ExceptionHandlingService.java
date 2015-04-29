@@ -18,6 +18,7 @@ import com.metropia.activities.DebugOptionsActivity;
 import com.metropia.activities.R;
 import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.exceptions.ServiceFailException;
+import com.metropia.exceptions.WrappedIOException;
 import com.metropia.requests.Request;
 
 public class ExceptionHandlingService {
@@ -30,14 +31,16 @@ public class ExceptionHandlingService {
 	public static class ExceptionContainer {
 		private Exception e;
 		private String preferredMessage;
+		private String detailMessage;
 		
 		public ExceptionContainer(Exception e) {
 			this.e = e;
 		}
 		
-		public ExceptionContainer(Exception e, String preferredMessage) {
+		public ExceptionContainer(Exception e, String preferredMessage, String detailMessage) {
 			this.e = e;
 			this.preferredMessage = preferredMessage;
+			this.detailMessage = detailMessage;
 		}
 		
 		public Exception getException() {
@@ -59,6 +62,10 @@ public class ExceptionHandlingService {
 		@Override
 		public String toString() {
 			return String.format("%s: %s", e.getClass().toString(), preferredMessage != null ? preferredMessage : Log.getStackTraceString(e));
+		}
+
+		public String getDetailMessage() {
+			return detailMessage;
 		}
 	}
 	
@@ -84,12 +91,18 @@ public class ExceptionHandlingService {
      * Adds an exception instance to the stack
      */
     public synchronized void registerException(Exception e, String preferredMessage) {
+    	String detailMessage = null;
+    	Exception cause = null;
     	try {
-    		JSONObject detailMessage = new JSONObject(StringUtils.defaultString(preferredMessage, ""));
-    		preferredMessage = detailMessage.optString(Request.ERROR_MESSAGE, preferredMessage);
+    		if(e instanceof WrappedIOException) {
+    			WrappedIOException wioe = (WrappedIOException) e;
+    			cause = (wioe.getCause() != null && wioe.getCause() instanceof Exception) ? (Exception)wioe.getCause() : e;
+    			JSONObject detailMessageJson = new JSONObject(StringUtils.defaultString(wioe.getDetailMessage(), ""));
+    			detailMessage = detailMessageJson.optString(Request.ERROR_MESSAGE, preferredMessage);
+    		}
     	}
     	catch(JSONException ignore) {}
-    	ExceptionContainer ec = new ExceptionContainer(e, preferredMessage);
+    	ExceptionContainer ec = new ExceptionContainer(cause != null ? cause : e, preferredMessage, detailMessage);
     	exceptions.push(ec);
     	
     	Log.d(LOG_TAG, ec.toString());
@@ -173,18 +186,19 @@ public class ExceptionHandlingService {
         	ExceptionContainer ec = exceptions.pop();
             String message = "";
             String detailMessage;
+            Log.d("ExceptionHandler", (ec.e.getCause() != null ? ec.e.getCause().toString() : ""));
             if(ec.e instanceof ConnectException || ec.e instanceof UnknownHostException){
-                detailMessage = context.getString(R.string.no_connection);
-                message = detailMessage;
+                message = context.getString(R.string.no_connection);
+                detailMessage = StringUtils.defaultString(ec.detailMessage, message);
             }else if(ec.e instanceof SocketTimeoutException){
-                detailMessage = context.getString(R.string.connection_timeout);
-                message = detailMessage;
+            	message = context.getString(R.string.connection_timeout);
+                detailMessage = StringUtils.defaultString(ec.detailMessage, message);
             }else if(ec.e instanceof ServiceFailException) {
             	message = ec.e.getMessage();
             	detailMessage = ((ServiceFailException)ec.e).getDetailMessage();
             }else{
             	message = ec.getPreferredMessage();
-                detailMessage = ec.getMessage();
+                detailMessage = ec.getDetailMessage();
             }
             reportException(message, detailMessage, callback);
         }

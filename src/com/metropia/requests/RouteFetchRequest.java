@@ -22,6 +22,7 @@ import android.text.format.Time;
 import com.metropia.activities.DebugOptionsActivity;
 import com.metropia.activities.DebugOptionsActivity.NavigationLink;
 import com.metropia.exceptions.RouteNotFoundException;
+import com.metropia.exceptions.WrappedIOException;
 import com.metropia.models.Route;
 import com.metropia.models.User;
 import com.metropia.utils.GeoPoint;
@@ -141,6 +142,9 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 		    if(msg == null){
 		        throw e;
 		    }else{
+		    	if(e instanceof WrappedIOException) {
+		    		throw new WrappedIOException(msg, ((WrappedIOException)e).getDetailMessage(), e.getCause());
+		    	}
 		        throw new IOException(msg);
 		    }
 		}
