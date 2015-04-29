@@ -493,7 +493,7 @@ public final class Reservation implements Parcelable {
 
 		// Get the AlarmManager service
 		AlarmManager am = (AlarmManager) ctx.getSystemService(Context.ALARM_SERVICE);
-		am.set(AlarmManager.RTC_WAKEUP, departureTime - Reservation.GRACE_INTERVAL, pendingOperation);
+		am.set(AlarmManager.RTC_WAKEUP, departureTime - EARLY_GRACE_INTERVAL, pendingOperation);
 	}
 	
 	public static void cancelNotification(Context ctx){
