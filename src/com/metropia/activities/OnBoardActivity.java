@@ -436,9 +436,7 @@ public class OnBoardActivity extends FragmentActivity {
 //                location.setLongitude(-118.2734106);
 //                location.setLatitude(32.1559094); // Tucson
 //                location.setLongitude(-110.883805);
-                if (ValidationActivity.isBetterLocation(location, lastLocation)) {
-                    lastLocation = location;
-                }
+                  lastLocation = location;
             }
             @Override
             public void onProviderDisabled(String provider) {
@@ -902,7 +900,8 @@ public class OnBoardActivity extends FragmentActivity {
 	private void prepareGPS(){
         closeGPS();
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && 
+        		locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                 10000, 5, locationListener);
         }else{
@@ -910,6 +909,8 @@ public class OnBoardActivity extends FragmentActivity {
         }
         locationManager.requestLocationUpdates(
             LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+        locationManager.requestLocationUpdates(
+                LocationManager.PASSIVE_PROVIDER, 0, 0, locationListener);
     }
     
     private void closeGPS(){
