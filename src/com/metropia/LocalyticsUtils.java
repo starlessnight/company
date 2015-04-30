@@ -40,6 +40,7 @@ public class LocalyticsUtils {
 		Localytics.setProfileAttribute(LAST_LOGIN_DATE, new Date(System.currentTimeMillis()));
 	}
 	
+	private static final String CURRENT_LOCATION = "Current Location";
 	private static final String AUSTIN_LAUNCH = "Austin Launch";
 	private static final double AUSTIN_LAUNCH_MAX_LAT = 30.293991;
 	private static final double AUSTIN_LAUNCH_MAX_LON = -97.724856;
@@ -48,7 +49,7 @@ public class LocalyticsUtils {
 	
 	public static void setAustinLaunchIfInBoundingBox(double lat, double lon) {
 		if(lat >= AUSTIN_LAUNCH_MIN_LAT && lat <= AUSTIN_LAUNCH_MAX_LAT && lon >=AUSTIN_LAUNCH_MIN_LON && lon <= AUSTIN_LAUNCH_MAX_LON) {
-			Localytics.setProfileAttribute(AUSTIN_LAUNCH, "AustinLaunch");
+			Localytics.setProfileAttribute(CURRENT_LOCATION, AUSTIN_LAUNCH);
 		}
 	}
 	
