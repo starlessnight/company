@@ -3114,7 +3114,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                     for (Integer uniqueId : existedStarPoiUniqueIdSet) {
                         mapView.deleteAnnotation(uniqueId);
                     }
-                    poiContainer.cleanStarPois();
+                    synchronized(poiMutex) {
+                    	poiContainer.cleanStarPois();
+                    }
                     if (result != null && result.size() > 0) {
                         initFontsIfNecessary();
                         for(com.metropia.models.Address a : result){
@@ -3410,7 +3412,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                             for (Integer uniqueId : bulbUniqueIdSet) {
                                 mapView.deleteAnnotation(uniqueId);
                             }
-                            poiContainer.cleanBulbPois();
+                            synchronized(poiMutex) {
+                            	poiContainer.cleanBulbPois();
+                            }
                             Set<String> addrSet = new HashSet<String>();
                             if(locs.isEmpty()){
                                 routeRect = null;
@@ -3897,57 +3901,63 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	}
     }
     
+    private static final Object poiMutex = new Object();
+    
     private void addAnnotationFromPoiInfo(PoiOverlayInfo poiInfo) {
-    	SKAnnotation incAnn = new SKAnnotation();
-		incAnn.setUniqueID(poiContainer.addPOIToMap(poiInfo));
-		incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
-		incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
-		SKAnnotationView iconView = new SKAnnotationView();
-		ImageView incImage = new ImageView(LandingActivity2.this);
-		incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, sizeRatio.get()));
-		iconView.setView(incImage);
-		incAnn.setAnnotationView(iconView);
-		mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+    	synchronized (poiMutex) {
+    		SKAnnotation incAnn = new SKAnnotation();
+    		incAnn.setUniqueID(poiContainer.addPOIToMap(poiInfo));
+    		incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
+    		incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
+    		SKAnnotationView iconView = new SKAnnotationView();
+    		ImageView incImage = new ImageView(LandingActivity2.this);
+    		incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, sizeRatio.get()));
+    		iconView.setView(incImage);
+    		incAnn.setAnnotationView(iconView);
+    		mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+		}
     }
     
     private AtomicInteger sizeRatio = new AtomicInteger(1);
     
     private void updateAnnotationSize(int ratio) {
-    	if(sizeRatio.get() != ratio) {
-    		sizeRatio.set(ratio);
-	    	Set<Integer> starIds = poiContainer.getStarUniqueIdSet();
-	    	for(Integer uniqueId : starIds) {
-	    		PoiOverlayInfo poiInfo = poiContainer.getExistedPOIByUniqueId(uniqueId);
-	    		if(poiInfo != null) {
-	    			SKAnnotation incAnn = new SKAnnotation();
-	    			incAnn.setUniqueID(uniqueId);
-	    			incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
-	    			incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
-	    			SKAnnotationView iconView = new SKAnnotationView();
-	    			ImageView incImage = new ImageView(LandingActivity2.this);
-	    			incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, ratio));
-	    			iconView.setView(incImage);
-	    			incAnn.setAnnotationView(iconView);
-	    			mapView.deleteAnnotation(uniqueId);
-	    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
-	    		}
-	    	}
-	    	Set<Integer> bulbIds = poiContainer.getBulbUniqueIdSet();
-	    	for(Integer uniqueId : bulbIds) {
-	    		PoiOverlayInfo poiInfo = poiContainer.getExistedPOIByUniqueId(uniqueId);
-	    		if(poiInfo != null) {
-	    			SKAnnotation incAnn = new SKAnnotation();
-	    			incAnn.setUniqueID(uniqueId);
-	    			incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
-	    			incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
-	    			SKAnnotationView iconView = new SKAnnotationView();
-	    			ImageView incImage = new ImageView(LandingActivity2.this);
-	    			incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, ratio));
-	    			iconView.setView(incImage);
-	    			incAnn.setAnnotationView(iconView);
-	    			mapView.deleteAnnotation(uniqueId);
-	    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
-	    		}
+    	synchronized(poiMutex) {
+	    	if(sizeRatio.get() != ratio) {
+	    		sizeRatio.set(ratio);
+		    	Set<Integer> starIds = poiContainer.getStarUniqueIdSet();
+		    	for(Integer uniqueId : starIds) {
+		    		PoiOverlayInfo poiInfo = poiContainer.getExistedPOIByUniqueId(uniqueId);
+		    		if(poiInfo != null) {
+		    			SKAnnotation incAnn = new SKAnnotation();
+		    			incAnn.setUniqueID(uniqueId);
+		    			incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
+		    			incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
+		    			SKAnnotationView iconView = new SKAnnotationView();
+		    			ImageView incImage = new ImageView(LandingActivity2.this);
+		    			incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, ratio));
+		    			iconView.setView(incImage);
+		    			incAnn.setAnnotationView(iconView);
+		    			mapView.deleteAnnotation(uniqueId);
+		    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+		    		}
+		    	}
+		    	Set<Integer> bulbIds = poiContainer.getBulbUniqueIdSet();
+		    	for(Integer uniqueId : bulbIds) {
+		    		PoiOverlayInfo poiInfo = poiContainer.getExistedPOIByUniqueId(uniqueId);
+		    		if(poiInfo != null) {
+		    			SKAnnotation incAnn = new SKAnnotation();
+		    			incAnn.setUniqueID(uniqueId);
+		    			incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
+		    			incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
+		    			SKAnnotationView iconView = new SKAnnotationView();
+		    			ImageView incImage = new ImageView(LandingActivity2.this);
+		    			incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, ratio));
+		    			iconView.setView(incImage);
+		    			incAnn.setAnnotationView(iconView);
+		    			mapView.deleteAnnotation(uniqueId);
+		    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+		    		}
+		    	}
 	    	}
     	}
     }
@@ -4096,18 +4106,20 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     private synchronized void drawBulbPOIs(List<com.metropia.requests.WhereToGoRequest.Location> locs) {
-        Set<Integer> bulbUniqueIdSet = poiContainer.getBulbUniqueIdSet();
-        for (Integer uniqueId : bulbUniqueIdSet) {
-            mapView.deleteAnnotation(uniqueId);
-        }
-        poiContainer.cleanBulbPois();
-        
-        initFontsIfNecessary();
-        for(final com.metropia.requests.WhereToGoRequest.Location l:locs){
-            PoiOverlayInfo poiInfo = PoiOverlayInfo.fromLocation(l);
-            addAnnotationFromPoiInfo(poiInfo);
-        }
-        showODBalloon();
+    	synchronized(poiMutex) {
+    		Set<Integer> bulbUniqueIdSet = poiContainer.getBulbUniqueIdSet();
+    		for (Integer uniqueId : bulbUniqueIdSet) {
+    			mapView.deleteAnnotation(uniqueId);
+    		}
+    		poiContainer.cleanBulbPois();
+    		
+    		initFontsIfNecessary();
+    		for(final com.metropia.requests.WhereToGoRequest.Location l:locs){
+    			PoiOverlayInfo poiInfo = PoiOverlayInfo.fromLocation(l);
+    			addAnnotationFromPoiInfo(poiInfo);
+    		}
+    		showODBalloon();
+    	}
     }
     
 //    /**
