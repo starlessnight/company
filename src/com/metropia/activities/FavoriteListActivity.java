@@ -83,25 +83,6 @@ public class FavoriteListActivity extends FragmentActivity {
                 	favIcon.setVisibility(View.VISIBLE);
                 }
                 
-                editView.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(final View v) {
-						v.setClickable(false);
-						ClickAnimation clickAnimation = new ClickAnimation(FavoriteListActivity.this, v);
-						clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-							@Override
-							public void onAnimationEnd() {
-								Misc.suppressTripInfoPanel(FavoriteListActivity.this);
-								Intent editIntent = new Intent(FavoriteListActivity.this, FavoriteOperationActivity.class);
-								editIntent.putExtra(FavoriteOperationActivity.FROM_LIST, true);
-								editIntent.putExtra(FavoriteOperationActivity.FAVORITE_POI_INFO, PoiOverlayInfo.fromAddress(FavoriteListActivity.this, item));
-								startActivity(editIntent);
-								v.setClickable(true);
-							}
-						});
-					}
-                });
-                
                 favIcon.setVisibility(addNew ? View.GONE : View.VISIBLE);
                 editView.setVisibility(addNew ? View.GONE : View.VISIBLE);
                 
@@ -132,6 +113,13 @@ public class FavoriteListActivity extends FragmentActivity {
 					info.label = "";
 					addIntent.putExtra(FavoriteOperationActivity.FAVORITE_POI_INFO, info);
 					startActivity(addIntent);
+				}
+				else {
+					Misc.suppressTripInfoPanel(FavoriteListActivity.this);
+					Intent editIntent = new Intent(FavoriteListActivity.this, FavoriteOperationActivity.class);
+					editIntent.putExtra(FavoriteOperationActivity.FROM_LIST, true);
+					editIntent.putExtra(FavoriteOperationActivity.FAVORITE_POI_INFO, PoiOverlayInfo.fromAddress(FavoriteListActivity.this, selected));
+					startActivity(editIntent);
 				}
 			}
         });
