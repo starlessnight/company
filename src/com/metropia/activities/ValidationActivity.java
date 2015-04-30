@@ -281,7 +281,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private SKMapViewHolder mapViewHolder;
 	private SKMapSurfaceView mapView;
 	
-	private String versionNumber = "Android ";
+	private String versionNumber = "";
 	
 	private AtomicBoolean isReplay = new AtomicBoolean(false);
 	
@@ -369,7 +369,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		remainTimesDirectListView = (TextView) findViewById(R.id.remain_times_direc_list);
 		
 		try {
-			versionNumber = versionNumber + getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+			versionNumber = MapDisplayActivity.OS_NAME + getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
 		}catch(NameNotFoundException ignore) {}
 
  		dirListadapter = new ArrayAdapter<DirectionItem>(this,

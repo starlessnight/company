@@ -235,9 +235,9 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
                             ehs.reportExceptions();
                         }
                         else {
-                        	String versionNumber = "Android ";
+                        	String versionNumber = "";
                         	try {
-                    			versionNumber = versionNumber + getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+                    			versionNumber = MapDisplayActivity.OS_NAME + getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
                     		}catch(NameNotFoundException ignore) {}
                         	
                             try {

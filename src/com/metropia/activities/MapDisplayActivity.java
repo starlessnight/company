@@ -50,6 +50,8 @@ public final class MapDisplayActivity extends FragmentActivity {
 
 	public static final String TIME_INCREMENT = "TimeIncrement";
 	public static final int TIME_INCREMENT_DEFAULT = 15;
+	
+	public static final String OS_NAME = "android";
 
 	private static final String CALENDAR_INTEGRATION = "CALENDAR_INTEGRATION";
 

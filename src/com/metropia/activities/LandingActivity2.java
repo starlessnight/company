@@ -283,7 +283,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private SKMapViewHolder mapViewHolder;
     private SKMapSurfaceView mapView;
     
-    private String versionNumber = "Android ";
+    private String versionNumber = "";
     private AtomicBoolean locationRefreshed = new AtomicBoolean(false);
     private AtomicBoolean needTagAustinLaunch = new AtomicBoolean(true);
     private AtomicBoolean cancelGetRoute = new AtomicBoolean(false);
@@ -323,7 +323,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         
         try {
-			versionNumber = versionNumber + getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+			versionNumber = MapDisplayActivity.OS_NAME + getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
 		}catch(NameNotFoundException ignore) {}
         
         RouteActivity.setViewToNorthAmerica(mapView);
