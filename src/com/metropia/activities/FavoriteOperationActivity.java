@@ -788,7 +788,6 @@ public class FavoriteOperationActivity extends FragmentActivity {
 	public void onStop() {
 		super.onStop();
 		GoogleAnalytics.getInstance(this).reportActivityStop(this);
-        Misc.tripInfoPanelOnActivityStop(this);
 	}
 	
 	@Override

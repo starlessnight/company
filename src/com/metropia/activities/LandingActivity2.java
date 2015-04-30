@@ -1510,7 +1510,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     
     private void initReservationListView() {
     	reservationListPanel = (LinearLayout) findViewById(R.id.reservation_list);
-    	
     	tripNotifyIcon = (ImageView) findViewById(R.id.trip_notify_icon);
     	tripNotifyIcon.setOnClickListener(new OnClickListener() {
 			@Override
@@ -2449,17 +2448,20 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         registerReceiver(onTheWayNotifier, new IntentFilter(ON_THE_WAY_NOTICE));
         mapRefresh.set(true);
         prepareGPS();
-        drawedReservId = Long.valueOf(-1);
-        dismissReservId = Long.valueOf(-1);
         
         //redraw poi
         sizeRatio.set(0);
         updateAnnotationSize(getSizeRatioByZoomLevel());
         //
+        Log.d("LandingActivity2", "onResume : " + disableRefreshTripInfo.get());
         User.initializeIfNeccessary(LandingActivity2.this, new Runnable() {
 			@Override
 			public void run() {
-				refreshTripsInfo();
+				drawedReservId = Long.valueOf(-1);
+				if(!disableRefreshTripInfo.getAndSet(false)) {
+					dismissReservId = Long.valueOf(-1);
+					refreshTripsInfo();
+				}
 		        updateMyMetropiaInfo();
 		        if(!mapRecenter.get()) {
 		        	centerMap();
@@ -2507,8 +2509,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private void refreshTripsInfo(){
         refreshTripsInfo(false, true);
     }
-    
-    
     
     private void refreshTripsInfo(final boolean cached, final boolean closeIfEmpty){
         ReservationListTask task = new ReservationListTask(this, cached){
@@ -4194,6 +4194,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         SKMaps.getInstance().destroySKMaps();
     }
     
+    private AtomicBoolean disableRefreshTripInfo = new AtomicBoolean(false);
+    
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
@@ -4214,6 +4216,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }
         else if(requestCode == FavoriteOperationActivity.FAVORITE_OPT && resultCode == Activity.RESULT_OK) {
         	hideTripInfoPanel();
+        	disableRefreshTripInfo.set(true);
         	String optType = extras.getString(FavoriteOperationActivity.FAVORITE_OPT_TYPE);
         	if(FavoriteOperationActivity.FAVORITE_UPDATE.equals(optType)) {
 	        	refreshStarredPOIsAndUpdateFavoriteList();

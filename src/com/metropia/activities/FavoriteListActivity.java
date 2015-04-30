@@ -91,6 +91,7 @@ public class FavoriteListActivity extends FragmentActivity {
 						clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 							@Override
 							public void onAnimationEnd() {
+								Misc.suppressTripInfoPanel(FavoriteListActivity.this);
 								Intent editIntent = new Intent(FavoriteListActivity.this, FavoriteOperationActivity.class);
 								editIntent.putExtra(FavoriteOperationActivity.FROM_LIST, true);
 								editIntent.putExtra(FavoriteOperationActivity.FAVORITE_POI_INFO, PoiOverlayInfo.fromAddress(FavoriteListActivity.this, item));
@@ -124,6 +125,7 @@ public class FavoriteListActivity extends FragmentActivity {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Address selected = (Address)parent.getItemAtPosition(position);
 				if(selected.getId() == 0 && ADD_NEW.equals(selected.getName())) {
+					Misc.suppressTripInfoPanel(FavoriteListActivity.this);
 					Intent addIntent = new Intent(FavoriteListActivity.this, FavoriteOperationActivity.class);
 					addIntent.putExtra(FavoriteOperationActivity.FROM_LIST, true);
 					PoiOverlayInfo info = PoiOverlayInfo.fromAddress(FavoriteListActivity.this, selected);
