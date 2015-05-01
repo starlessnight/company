@@ -3281,7 +3281,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	@Override
 	public void onSurfaceCreated() {
 		if(lastKnownLocation != null) {
-			mapView.reportNewGPSPosition(new SKPosition(lastKnownLocation));
+			mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
+			mapView.centerMapOnCurrentPosition();
 		}
 	}
 
