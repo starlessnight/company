@@ -2,6 +2,7 @@ package com.metropia.activities;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import android.content.Intent;
@@ -22,6 +23,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
 import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
@@ -36,6 +38,7 @@ import com.metropia.utils.Dimension;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
 import com.metropia.utils.Misc;
+import com.metropia.utils.RouteNode;
 
 public class FavoriteListActivity extends FragmentActivity {
 
@@ -47,6 +50,7 @@ public class FavoriteListActivity extends FragmentActivity {
 	
 	private ListView favoriteListView;
     private ArrayAdapter<Address> favoriteAdapter;
+    private LocationInfo userLoc;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -138,6 +142,8 @@ public class FavoriteListActivity extends FragmentActivity {
 			}
 		});
 		
+		userLoc = new LocationInfo(FavoriteListActivity.this);
+		
 		Bundle extras = getIntent().getExtras();
 		if(extras != null) {
 			List<Address> favs = extras.getParcelableArrayList(FAVORITE_LIST);
@@ -191,6 +197,10 @@ public class FavoriteListActivity extends FragmentActivity {
     		List<Address> workFavorite = new ArrayList<Address>();
     		List<Address> otherFavorite = new ArrayList<Address>();
     		for(Address addr : favorites) {
+    			if(userLoc != null) {
+    				addr.setDistance(RouteNode.distanceBetween(addr.getLatitude(), addr.getLongitude(), userLoc.lastLat, userLoc.lastLong));
+    			}
+    			
     			if(FavoriteIcon.home.name().equals(addr.getIconName())) {
     				homeFavorite.add(addr);
     			}
@@ -201,10 +211,20 @@ public class FavoriteListActivity extends FragmentActivity {
     				otherFavorite.add(addr);
     			}
     		}
+    		
+    		Comparator<Address> comparator = new Comparator<Address>() {
+				@Override
+				public int compare(Address lhs, Address rhs) {
+					return Double.valueOf(lhs.getDistance()).compareTo(Double.valueOf(rhs.getDistance()));
+				}
+    		};
+    		
+    		Collections.sort(homeFavorite, comparator);
+    		Collections.sort(workFavorite, comparator);
+    		Collections.sort(otherFavorite, comparator);
     		newFavorites.addAll(homeFavorite);
     		newFavorites.addAll(workFavorite);
     		newFavorites.addAll(otherFavorite);
-    		
     	}
 		// add new
 		Address addNew = new Address();

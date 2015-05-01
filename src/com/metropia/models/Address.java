@@ -16,6 +16,7 @@ public final class Address implements Parcelable {
 	private double latitude;
 	private double longitude;
 	private String iconName;
+	private double distance = -1;
 	
 	public static final Parcelable.Creator<Address> CREATOR = new Parcelable.Creator<Address>() {
         public Address createFromParcel(Parcel in) {
@@ -38,6 +39,7 @@ public final class Address implements Parcelable {
 		address = in.readString();
 		name = in.readString();
 		iconName = in.readString();
+		distance = in.readDouble();
 	}
 	
 	public Address(int id, int uid, String name, String address, double latitude, double longitude, String iconName) {
@@ -120,6 +122,15 @@ public final class Address implements Parcelable {
 		dest.writeString(address);
 		dest.writeString(name);
 		dest.writeString(iconName);
+		dest.writeDouble(distance);
+	}
+
+	public double getDistance() {
+		return distance;
+	}
+
+	public void setDistance(double distance) {
+		this.distance = distance;
 	}
 	
 }
