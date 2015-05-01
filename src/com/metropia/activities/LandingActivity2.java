@@ -2846,10 +2846,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private void drawRoute(final Reservation reserv) {
     	if(!drawedReservId.equals(reserv.getRid()) && canDrawReservRoute.get()) {
     		drawedReservId = reserv.getRid();
-			final AsyncTask<Void, Void, Route> routeTask = new AsyncTask<Void, Void, Route>() {
+			final AsyncTask<Void, Void, List<Route>> routeTask = new AsyncTask<Void, Void, List<Route>>() {
 	            @Override
-	            protected Route doInBackground(Void... params) {
-	            	Route drawRoute = null;
+	            protected List<Route> doInBackground(Void... params) {
+	                List<Route> routes = null;
 	                try {
 	                    RouteFetchRequest reservRequest = new RouteFetchRequest(
 	                    		reserv.getNavLink(),
@@ -2858,21 +2858,28 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	                        0,
 	                        0);
 	                    List<Route> tempRoutes = reservRequest.execute(LandingActivity2.this);
-	                    if(tempRoutes != null && tempRoutes.size() > 0) {
+	                    if(tempRoutes !=null && tempRoutes.size() > 0) {
 	                    	Route route = tempRoutes.get(0);
 		                    route.setCredits(reserv.getCredits());
 		                    route.preprocessNodes();
-		                    drawRoute = route;
+	                    	RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(LandingActivity2.this), 
+	                    	        route.getFirstNode().getGeoPoint(), route.getLastNode().getGeoPoint(), 
+	                    	        reserv.getDepartureTimeUtc(), 0, 0, reserv.getOriginAddress(), reserv.getDestinationAddress(), 
+	                    	        MapDisplayActivity.isIncludeTollRoadsEnabled(LandingActivity2.this), versionNumber);
+	                    	routes = request.execute(LandingActivity2.this);
 	                    }
 	                }
 	                catch(Exception e) {
 	                	Log.d("drawRoute", Log.getStackTraceString(e));
 	                }                                
-	                return drawRoute;
+	                return routes;
 	            }
-	            protected void onPostExecute(Route _route) {
-	                if(_route != null) {
-	                    updateMap(_route, reserv.getDestinationAddress());
+	            protected void onPostExecute(java.util.List<Route> routes) {
+	                if(routes != null && routes.size() > 0) {
+	                    Route route = routes.get(0);
+	                    route.setCredits(reserv.getCredits());
+	                    route.preprocessNodes();
+	                    updateMap(route, reserv.getDestinationAddress());
 	                } 
 	            }
 	        };
