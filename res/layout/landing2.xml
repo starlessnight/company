@@ -481,7 +481,7 @@
 	                android:layout_width="match_parent"
 	                android:layout_height="wrap_content"
 	                android:layout_marginLeft="10dp"
-	                android:layout_marginRight="120dp"
+	                android:layout_marginRight="90dp"
 	                android:layout_marginBottom="5dp"
 	                android:layout_above="@+id/my_metropia_panel"
 	                android:visibility="gone">
@@ -490,7 +490,7 @@
 	                    android:id="@+id/score_notify_content"
 	                    android:layout_width="match_parent"
 	                    android:layout_height="wrap_content"
-	                    android:text="receiving 100 pts for sign up"
+	                    android:text="100 reward points just for signing up!"
 	                    android:textColor="@color/metropia_blue"
 	                    android:textSize="@dimen/smallest_font"
 	                    android:layout_marginTop="10dp"
