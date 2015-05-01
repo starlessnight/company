@@ -1819,6 +1819,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 					@Override
 					public void onAnimationEnd() {
 						try {
+							mapView.deleteAllAnnotationsAndCustomPOIs();
 			                Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
 			                Bundle extras = new Bundle();
 			                extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
