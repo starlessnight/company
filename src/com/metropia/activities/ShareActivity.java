@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.FacebookRequestError;
+import com.facebook.HttpMethod;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
@@ -37,7 +38,6 @@ import com.metropia.ui.ClickAnimation;
 import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.utils.Font;
 import com.metropia.utils.Misc;
-import com.metropia.activities.R;
 import com.twitter.android.TwitterApp;
 import com.twitter.android.TwitterApp.TwDialogListener;
 
@@ -239,20 +239,22 @@ public final class ShareActivity extends FragmentActivity {
 		final Session session = Session.getActiveSession();
 		if (session != null && ShareActivity.this != null) {
 			final View loading = findViewById(R.id.loading);
-			Request request = Request.newStatusUpdateRequest(session,
-					shareText, new Request.Callback() {
-						@Override
-						public void onCompleted(Response response) {
-							loading.setVisibility(View.GONE);
-							FacebookRequestError error = response.getError();
-							if (error != null && error.getErrorCode() != 506) {
-								fbPending = true;
-								session.closeAndClearTokenInformation();
-							} else {
-								displaySharedNotification();
-							}
-						}
-					});
+			Bundle params = new Bundle();
+			params.putString("link", "https://dl.dropboxusercontent.com/u/22414157/appLink.html");
+			params.putString("message", shareText);
+			Request request = new Request(session, "me/feed", params, HttpMethod.POST, new Request.Callback() {
+				@Override
+				public void onCompleted(Response response) {
+					loading.setVisibility(View.GONE);
+					FacebookRequestError error = response.getError();
+					if (error != null && error.getErrorCode() != 506) {
+						fbPending = true;
+						session.closeAndClearTokenInformation();
+					} else {
+						displaySharedNotification();
+					}
+				}
+			});
 			request.executeAsync();
 			loading.setVisibility(View.VISIBLE);
 		}
