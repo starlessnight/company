@@ -4533,6 +4533,12 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 					annotation.getUniqueID() == POI_MARKER_THREE) {
 				poiInfo = getPoiOverlayInfoFromCurrentOD(annotation.getUniqueID());
 			}
+			else if(annotation.getUniqueID() == FROM_BALLOON_ID && curFrom != null && StringUtils.isNotBlank(curFrom.address)) {
+				poiInfo = curFrom;
+			}
+			else if(annotation.getUniqueID() == TO_BALLOON_ID) {
+				poiInfo = curTo;
+			}
 			else {
 				poiInfo = poiContainer.getExistedPOIByUniqueId(annotation.getUniqueID());
 			}
