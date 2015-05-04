@@ -126,7 +126,7 @@ public final class ReservationReceiver extends BroadcastReceiver {
 		    	if(!mp.isPlaying()) {
 		    		mp.setDataSource(ctx, ding);
 		    		mp.setAudioStreamType(AudioManager.STREAM_ALARM);
-		            mp.setLooping(true);
+		            mp.setLooping(false);
 		            mp.prepare();
 		            mp.start();
 		    	}
