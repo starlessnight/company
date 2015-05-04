@@ -2494,14 +2494,14 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    unregisterReceiver(tripInfoUpdater);
 	    unregisterReceiver(onTheWayNotifier);
 	    super.onPause();
-	    mapView.clearAllOverlays();
+//	    mapView.clearAllOverlays();
 	    mapView.onPause();
 	    mSensorManager.unregisterListener(this, accelerometer);
 	    mSensorManager.unregisterListener(this, magnetometer);
 	    closeGPS();
-	    drawedReservId = Long.valueOf(-1);
-	    dismissReservId = Long.valueOf(-1);
-	    refreshTripsInfo(true, true);
+//	    drawedReservId = Long.valueOf(-1);
+//	    dismissReservId = Long.valueOf(-1);
+//	    refreshTripsInfo(true, true);
 	    hidePopupMenu();
 	    findViewById(R.id.loading_panel).setVisibility(View.GONE);
     } 
