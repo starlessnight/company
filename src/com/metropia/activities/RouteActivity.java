@@ -1642,7 +1642,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		    	fromOverlay.setLocation(new SKCoordinate(routeFirstNode.getLongitude(), routeFirstNode.getLatitude()));
 		    	SKAnnotationView fromOverlayView = new SKAnnotationView();
 		    	ImageView fromOverlayImageView = new ImageView(RouteActivity.this);
-		    	fromOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, originOverlayInfo.markerWithShadow, getSizeRatioByZoomLevel()));
+		    	fromOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, originOverlayInfo.markerWithShadow, ratio));
 		    	fromOverlayView.setView(fromOverlayImageView);
 		    	fromOverlay.setAnnotationView(fromOverlayView);
 		    	mapView.addAnnotation(fromOverlay, SKAnimationSettings.ANIMATION_POP_OUT);
@@ -1656,11 +1656,11 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    		ImageView toOverlayImageView = new ImageView(RouteActivity.this);
 	    		int destResourceId = destOverlayInfo != null ? (destOverlayInfo.markerWithShadow == R.drawable.poi_pin_with_shadow ? R.drawable.pin_destination : destOverlayInfo.markerWithShadow) : R.drawable.pin_destination;
 	    		boolean isFlag = destResourceId == R.drawable.pin_destination;
-	    		toOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, destResourceId, getSizeRatioByZoomLevel()));
+	    		toOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, destResourceId, ratio));
 	    		toOverlayView.setView(toOverlayImageView);
 	    		toOverlay.setAnnotationView(toOverlayView);
 	    		if(isFlag) {
-	    			toOverlay.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
+	    			toOverlay.setOffset(new SKScreenPoint(Dimension.dpToPx((ratio == 2 ? 1 : 0), getResources().getDisplayMetrics()), Dimension.dpToPx((ratio == 2 ? 11 : 20), getResources().getDisplayMetrics())));
 	    		}
 	    		mapView.addAnnotation(toOverlay, SKAnimationSettings.ANIMATION_POP_OUT);
 	    	}
@@ -2206,6 +2206,8 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 			possibleRoutes.add(route);
 			updateMap(possibleRoutes, timeLayout.getSelectedColumn() == 0);
 		}
+		odSizeRatio.set(0);
+		updateODAnnotationSize(getSizeRatioByZoomLevel());
 	}
 
 	@Override
