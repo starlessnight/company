@@ -13,17 +13,18 @@ public class NaiveNNS {
 
     public static RouteNode findClosestNode(List<RouteNode> nodes, double lat, double lng) {
     	double minDistance = Double.MAX_VALUE;
-        RouteNode cloestNode = nodes.get(0);
-        
-        for (RouteNode node : nodes) {
-            double distance = LocationService.distanceBetween(node.getLatitude(), node.getLongitude(), lat, lng);
-            
-            if (distance < minDistance) {
-                minDistance = distance;
-                cloestNode = node;
-            }
-        }
-        
+    	RouteNode cloestNode = null;
+    	if(nodes != null && !nodes.isEmpty()) {
+	        cloestNode = nodes.get(0);
+	        for (RouteNode node : nodes) {
+	            double distance = LocationService.distanceBetween(node.getLatitude(), node.getLongitude(), lat, lng);
+	            
+	            if (distance < minDistance) {
+	                minDistance = distance;
+	                cloestNode = node;
+	            }
+	        }
+    	}
         return cloestNode;
     }
 }

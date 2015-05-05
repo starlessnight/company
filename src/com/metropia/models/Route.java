@@ -880,12 +880,14 @@ public final class Route implements Parcelable {
     }
     
     public String getRemainNodeIds(double latitude, double longitude) {
-    	RouteNode nearestNode = getNearestNode(latitude, longitude);
-//    	List<Integer> remainNodes = new ArrayList<Integer>();
-    	String[] navigationNodes = getNodesFromNavigationUrl();
-    	int idx = ArrayUtils.indexOf(navigationNodes, String.valueOf(nearestNode.getNodeNum()));
-    	if(idx > -1) {
-    		return StringUtils.join(ArrayUtils.subarray(navigationNodes, idx, navigationNodes.length), COMMA);
+    	if(routeNodes != null && !routeNodes.isEmpty()) {
+	    	RouteNode nearestNode = getNearestNode(latitude, longitude);
+	//    	List<Integer> remainNodes = new ArrayList<Integer>();
+	    	String[] navigationNodes = getNodesFromNavigationUrl();
+	    	int idx = ArrayUtils.indexOf(navigationNodes, String.valueOf(nearestNode.getNodeNum()));
+	    	if(idx > -1) {
+	    		return StringUtils.join(ArrayUtils.subarray(navigationNodes, idx, navigationNodes.length), COMMA);
+	    	}
     	}
     	return "";
 //    	if(ArrayUtils.contains(navigationNodes, String.valueOf(nearestNode.getNodeNum()))) {
@@ -908,14 +910,18 @@ public final class Route implements Parcelable {
     }
     
     public List<RouteNode> getRemainNodes(double lat, double lon) {
-    	RouteNode currentLoc = new RouteNode(lat, lon, 0, 0);
     	List<RouteNode> remainNodes = new ArrayList<RouteNode>();
-    	remainNodes.add(currentLoc);
-    	RouteNode nearestNode = getNearestNode(lat, lon);
-    	remainNodes.add(nearestNode);
-    	while(nearestNode.getNextNode() != null) {
-    		nearestNode = nearestNode.getNextNode();
-    		remainNodes.add(nearestNode);
+    	if(routeNodes != null && !routeNodes.isEmpty()) {
+    		RouteNode currentLoc = new RouteNode(lat, lon, 0, 0);
+	    	remainNodes.add(currentLoc);
+	    	RouteNode nearestNode = getNearestNode(lat, lon);
+	    	if(nearestNode != null) {
+		    	remainNodes.add(nearestNode);
+		    	while(nearestNode.getNextNode() != null) {
+		    		nearestNode = nearestNode.getNextNode();
+		    		remainNodes.add(nearestNode);
+		    	}
+	    	}
     	}
     	return remainNodes;
     }
