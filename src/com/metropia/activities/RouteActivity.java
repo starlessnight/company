@@ -1672,10 +1672,9 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     	if(zoomLevel >= 13) {
     		return 1;
     	}
-    	else if(zoomLevel >= 9) {
+    	else {
     		return 2;
     	}
-    	return 1;
     }
     
     private void setHighlightedRoutePathOverlays(boolean highlighted) {
