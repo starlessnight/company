@@ -160,8 +160,8 @@
     <string name="redemptions_award_share_hint">Let friends know you’re getting gifts for helping reduce congestion!</string>
     
     <string name="splash_page_support_city">Austin, Tucson</string>
-    <string name="on_board_page_desc">You can edit and add more favorites by selecting any map icon or from within the favorites menu. Now that sign up is complete, you\’ll receive 100 reward points to start! To earn more points simply begin reserving and taking trips.</string>
-    <string name="on_board_page_finish_desc">You can edit and add \n more favorites by selecting \n any map icon or from \n within the favorite menu.</string>
+    <string name="on_board_page_desc">Let\'s save your \n home and work locations \n to set up your commute!</string>
+    <string name="on_board_page_finish_desc">You can edit and add more favorites by selecting any map icon or from within the favorites menu. Now that sign up is complete, you\’ll receive 100 reward points to start! To earn more points simply begin reserving and taking trips.</string>
     
     <string name="reservation_new_user_tip">You have no more schedule trips. \n TIP: You can schedule \n multiple trips in advance \n and they will be listed here</string>
     
