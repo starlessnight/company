@@ -1814,12 +1814,13 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 			@Override
 			public void onClick(final View v) {
 				v.setClickable(false);
+				mapView.deleteAllAnnotationsAndCustomPOIs();
+				mapView.clearAllOverlays();
 				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
 						try {
-							mapView.deleteAllAnnotationsAndCustomPOIs();
 			                Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
 			                Bundle extras = new Bundle();
 			                extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
@@ -2428,6 +2429,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         return bitmap;
 	}
     
+    private AtomicBoolean enableDrawRoute = new AtomicBoolean(true);
+    
     @Override
     protected void onResume() {
         super.onResume();
@@ -2439,6 +2442,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    Localytics.handlePushNotificationOpened(getIntent());
 	    //SKobbler 
 	    mapView.onResume();
+	    enableDrawRoute.set(true);
 	    mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(LandingActivity2.this, true));
 	    mapView.getMapSettings().setCurrentPositionShown(true);
 	    SKRouteManager.getInstance().clearAllRoutesFromCache();
@@ -2494,7 +2498,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    unregisterReceiver(tripInfoUpdater);
 	    unregisterReceiver(onTheWayNotifier);
 	    super.onPause();
-//	    mapView.clearAllOverlays();
+	    mapView.clearAllOverlays();
+	    enableDrawRoute.set(false);
 	    mapView.onPause();
 	    mSensorManager.unregisterListener(this, accelerometer);
 	    mSensorManager.unregisterListener(this, magnetometer);
@@ -2844,7 +2849,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private Long drawedReservId = Long.valueOf(-1);
     
     private void drawRoute(final Reservation reserv) {
-    	if(!drawedReservId.equals(reserv.getRid()) && canDrawReservRoute.get()) {
+    	if(!drawedReservId.equals(reserv.getRid()) && canDrawReservRoute.get() && enableDrawRoute.get()) {
     		drawedReservId = reserv.getRid();
 			final AsyncTask<Void, Void, List<Route>> routeTask = new AsyncTask<Void, Void, List<Route>>() {
 	            @Override
@@ -3026,6 +3031,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         if(!poiTapThrottle.get()){
             poiTapThrottle.set(true);
             mapView.deleteAllAnnotationsAndCustomPOIs();
+            mapView.clearAllOverlays();
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
