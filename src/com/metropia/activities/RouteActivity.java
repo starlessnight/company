@@ -1597,7 +1597,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         findViewById(R.id.reserve).setTag(_route);
     }
     
-    private AtomicInteger sizeRatio = new AtomicInteger(1);
+    private AtomicInteger sizeRatio = new AtomicInteger(0);
     
     private void updateIncidentAnnotationSize(int ratio, long departureTime) {
     	synchronized(mutex) {
@@ -1622,7 +1622,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 					incAnn.setMininumZoomLevel(incident.getMinimalDisplayZoomLevel());
 					SKAnnotationView iconView = new SKAnnotationView();
 					ImageView incImage = new ImageView(RouteActivity.this);
-					incImage.setImageBitmap(Misc.getBitmap(RouteActivity.this, IncidentIcon.fromType(incident.type).getResourceId(RouteActivity.this), getSizeRatioByZoomLevel()));
+					incImage.setImageBitmap(Misc.getBitmap(RouteActivity.this, IncidentIcon.fromType(incident.type).getResourceId(RouteActivity.this), ratio));
 					iconView.setView(incImage);
 					incAnn.setAnnotationView(iconView);
 					mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
@@ -1631,7 +1631,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     	}
     }
     
-    private AtomicInteger odSizeRatio = new AtomicInteger(1);
+    private AtomicInteger odSizeRatio = new AtomicInteger(0);
     
     private void updateODAnnotationSize(int ratio) {
     	if(odSizeRatio.get() != ratio) {
@@ -1639,6 +1639,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    	if(routeFirstNode != null && originOverlayInfo != null) {
 		    	SKAnnotation fromOverlay = new SKAnnotation();
 		    	fromOverlay.setUniqueID(FROM_OVERLAY_ID);
+		    	fromOverlay.setMininumZoomLevel(MINIAL_ZOOM_LEVEL + 1);
 		    	fromOverlay.setLocation(new SKCoordinate(routeFirstNode.getLongitude(), routeFirstNode.getLatitude()));
 		    	SKAnnotationView fromOverlayView = new SKAnnotationView();
 		    	ImageView fromOverlayImageView = new ImageView(RouteActivity.this);
@@ -1651,6 +1652,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    	if(routeLastNode != null && destOverlayInfo != null) {
 	    		SKAnnotation toOverlay = new SKAnnotation();
 	    		toOverlay.setUniqueID(TO_OVERLAY_ID);
+	    		toOverlay.setMininumZoomLevel(MINIAL_ZOOM_LEVEL + 1);
 	    		toOverlay.setLocation(new SKCoordinate(routeLastNode.getLongitude(), routeLastNode.getLatitude()));
 	    		SKAnnotationView toOverlayView = new SKAnnotationView();
 	    		ImageView toOverlayImageView = new ImageView(RouteActivity.this);
@@ -1667,14 +1669,17 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     	}
     }
     
+    private static final int MINIAL_ZOOM_LEVEL = 5;
+    
     private int getSizeRatioByZoomLevel() {
     	float zoomLevel = mapView.getZoomLevel();
     	if(zoomLevel >= 13) {
     		return 1;
     	}
-    	else {
+    	else if(zoomLevel >= MINIAL_ZOOM_LEVEL){
     		return 2;
     	}
+    	return 1;
     }
     
     private void setHighlightedRoutePathOverlays(boolean highlighted) {
