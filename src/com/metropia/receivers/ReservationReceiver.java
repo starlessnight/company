@@ -84,7 +84,8 @@ public final class ReservationReceiver extends BroadcastReceiver {
             notification.flags = Notification.FLAG_AUTO_CANCEL;
             notificationManager.notify(ID, notification);
             
-            playLouderNotification(context);
+//            playLouderNotification(context);
+            Misc.playOnMyWaySound(context);
             Misc.wakeUpScreen(context, ReservationReceiver.class.getSimpleName());
             
             Intent expiry = new Intent(context, NotificationExpiry.class);
@@ -119,23 +120,25 @@ public final class ReservationReceiver extends BroadcastReceiver {
 	private void playLouderNotification(Context ctx) {
 		try {
 			final AudioManager audioManager = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
-			final int userVolume = audioManager.getStreamVolume(AudioManager.STREAM_ALARM);
+			final int userVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+//			int mode = audioManager.getMode();
+			Log.d(LOG_TAG, "current volume : " + userVolume);
 			if(userVolume > 0) {
 				final MediaPlayer mp = new MediaPlayer();
 				Uri ding = Uri.parse("android.resource://" + ctx.getPackageName() + "/" + R.raw.omw);
 		    	if(!mp.isPlaying()) {
 		    		mp.setDataSource(ctx, ding);
-		    		mp.setAudioStreamType(AudioManager.STREAM_ALARM);
+		    		mp.setAudioStreamType(AudioManager.STREAM_MUSIC);
 		            mp.setLooping(false);
 		            mp.prepare();
 		            mp.start();
 		    	}
-		    	audioManager.setStreamVolume(AudioManager.STREAM_ALARM, audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM), AudioManager.FLAG_PLAY_SOUND);
+		    	audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), AudioManager.FLAG_PLAY_SOUND);
 		    	new Handler().postDelayed(new Runnable() {
 					@Override
 					public void run() {
 						try {
-							audioManager.setStreamVolume(AudioManager.STREAM_ALARM, userVolume, AudioManager.FLAG_PLAY_SOUND);
+							audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, userVolume, AudioManager.FLAG_PLAY_SOUND);
 							mp.stop();
 							mp.reset();
 							mp.release();
