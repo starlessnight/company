@@ -97,6 +97,7 @@ import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
+import com.littlefluffytoys.littlefluffylocationlibrary.PassiveLocationChangedReceiver;
 import com.localytics.android.Localytics;
 import com.metropia.LocalyticsUtils;
 import com.metropia.ResumeNavigationUtils;
@@ -2544,8 +2545,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					locationRefreshed.set(true);
 					lastLocation = location;
 					locationChanged(location);
+					try {
+			        	PassiveLocationChangedReceiver.processLocation(getApplicationContext(), location);
+			        }catch(Exception ignore){}
 				}
 			} else {
+				locationRefreshed.set(true);
 				locationChanged(location);
 			}
 			
