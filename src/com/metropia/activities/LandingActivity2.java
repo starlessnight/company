@@ -3395,9 +3395,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             @Override
             protected List<com.metropia.requests.WhereToGoRequest.Location> doInBackground(Void... params) {
                 List<com.metropia.requests.WhereToGoRequest.Location> locs = Collections.emptyList();
-                WhereToGoRequest req = new WhereToGoRequest(user, lat, lon);
-                req.invalidateCache(LandingActivity2.this);
                 try {
+                	WhereToGoRequest req = new WhereToGoRequest(user, lat, lon);
+                	req.invalidateCache(LandingActivity2.this);
                     locs = req.execute(LandingActivity2.this);
                 }
                 catch (Exception e) {
