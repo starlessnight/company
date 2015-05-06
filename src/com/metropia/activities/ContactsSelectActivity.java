@@ -155,11 +155,21 @@ public class ContactsSelectActivity extends FragmentActivity {
 		                        manualInputEmail.add(newInput);
 		                        selectedContactEmails.add(newInput);
 		                        searchTextView.setText("");
+		                        try {
+		                        	topFiveFrequencyAndSelectedContacts.put(newInput, Integer.MAX_VALUE);
+		                        }
+		                        catch(Throwable ignore) {}
+		                        updateContactList("");
 		                    }
 		                    else if(phoneFormatIsGood(newInput)) {
 		                    	manualInputPhone.add(newInput);
 		                        selectedContactPhones.add(newInput);
 		                        searchTextView.setText("");
+		                        try {
+		                        	topFiveFrequencyAndSelectedContacts.put(newInput, Integer.MAX_VALUE - 1);
+		                        }
+		                        catch(Throwable ignore) {}
+		                        updateContactList("");
 		                    }
 		                    else {
 		                        NotificationDialog dialog = new NotificationDialog(ContactsSelectActivity.this, 
