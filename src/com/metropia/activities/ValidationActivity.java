@@ -285,6 +285,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private String versionNumber = "";
 	
 	private AtomicBoolean isReplay = new AtomicBoolean(false);
+	private RouteNode firstNode;
 	
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -1967,6 +1968,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                                 if(lastKnownLocation != null && gpsMode != DebugOptionsActivity.GPS_MODE_LONG_PRESS){
                                     locationChanged(lastKnownLocation);
                                 }
+                                firstNode = route.getFirstNode();
                             }
                             
                         }
@@ -2348,6 +2350,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 	
 	private AtomicBoolean arrivalMsgDisplayed = new AtomicBoolean();
+	private NumberFormat nf = new DecimalFormat("#.#");
 	
 	private void doDisplayArrivalMsg(int uPoints, double co2Value,
 	        String message, String voice, double timeSavingInMinute){
@@ -2371,7 +2374,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
             
             TextView co2 = (TextView) findViewById(R.id.co2_circle);
             if(co2Value != 0) {
-                String co2String = co2Value + "lbs\nCO2";  
+                String co2String = nf.format(co2Value) + "lbs\nCO2";  
                 co2.setText(formatCO2Desc(ValidationActivity.this, co2String));
                 ((ImageView)findViewById(R.id.co2_circle_background)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.blue_circle)));
                 findViewById(R.id.co2_circle_panel).setVisibility(View.VISIBLE);
@@ -2428,8 +2431,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 	
 	private boolean isCloseToOrigin() {
-		if(lastKnownLocation != null && getRouteOrReroute() != null) {
-			RouteNode firstNode = getRouteOrReroute().getFirstNode();
+		if(lastKnownLocation != null && firstNode != null) {
 			double speedInMph = Trajectory.msToMph(lastKnownLocation.getSpeed());
 			return RouteNode.distanceBetween(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), firstNode.getLatitude(), firstNode.getLongitude()) < ValidationParameters.getInstance().getArrivalDistanceThreshold() && 
 					speedInMph < ValidationParameters.getInstance().getStopSpeedThreshold(); 
