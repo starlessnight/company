@@ -4003,8 +4003,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                     loginPrefsEditor.commit();
                     
                     final View scoreNotify = findViewById(R.id.score_notify);
-                	ImageView scoreNotifyCloseView = (ImageView) findViewById(R.id.score_notify_close);
-                    scoreNotifyCloseView.setImageBitmap(Misc.getBitmap(LandingActivity2.this, R.drawable.tip_close, 1));
+                	TextView scoreNotifyCloseView = (TextView) findViewById(R.id.score_notify_close);
                     scoreNotifyCloseView.setOnClickListener(new OnClickListener() {
             			@Override
             			public void onClick(final View v) {

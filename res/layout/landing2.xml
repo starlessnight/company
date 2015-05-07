@@ -476,40 +476,53 @@
 
                 </LinearLayout>
                 
-                <RelativeLayout 
+                <LinearLayout 
 	                android:id="@+id/score_notify"
-	                android:layout_width="match_parent"
-	                android:layout_height="wrap_content"
+	                android:layout_width="wrap_content"
+	                android:layout_height="80dp"
 	                android:layout_marginLeft="10dp"
-	                android:layout_marginRight="90dp"
-	                android:layout_marginBottom="5dp"
+	                android:layout_marginRight="40dp"
+	                android:layout_marginBottom="-5dp"
 	                android:layout_above="@+id/my_metropia_panel"
+	                android:background="@drawable/score_bubble"
+	                android:orientation="horizontal"
 	                android:visibility="gone">
 	                    
 	                <TextView 
 	                    android:id="@+id/score_notify_content"
-	                    android:layout_width="match_parent"
-	                    android:layout_height="wrap_content"
+	                    android:layout_width="wrap_content"
+	                    android:layout_height="match_parent"
 	                    android:text="100 reward points just for signing up!"
 	                    android:textColor="@color/metropia_blue"
 	                    android:textSize="@dimen/smallest_font"
-	                    android:layout_marginTop="10dp"
-	                    android:layout_marginRight="10dp"
-	                    android:paddingLeft="5dp"
+	                    android:paddingLeft="10dp"
 	                    android:paddingRight="5dp"
-	                    android:paddingBottom="5dp"
-	                    android:paddingTop="15dp"
-	                    android:gravity="center"
-	                    android:background="@drawable/predictive_destination_tutorial_background"/>
+	                    android:paddingBottom="25dp"
+	                    android:paddingTop="5dp"
+	                    android:gravity="center"/>
+	                
+	                <View 
+	                    android:layout_height="match_parent"
+	                    android:layout_width="0.5dp"
+	                    android:layout_marginBottom="28dp"
+	                    android:layout_marginTop="8dp"
+	                    android:paddingLeft="5dp"
+	                    android:background="@color/transparent_gray"/>
 	                    
-	                <ImageView 
+	                <TextView 
 	                    android:id="@+id/score_notify_close"
-	                    android:layout_width="29dp"
-	                    android:layout_height="29dp"
-	                    android:layout_alignParentTop="true"
-	                    android:layout_alignParentRight="true"/>
+	                    android:layout_width="match_parent"
+	                    android:layout_height="match_parent"
+	                    android:layout_weight="1"
+	                    android:text="Get it"
+	                    android:textColor="#0130CB"
+	                    android:textSize="@dimen/smallest_font"
+	                    android:paddingRight="9dp"
+	                    android:paddingBottom="25dp"
+	                    android:paddingTop="5dp"
+	                    android:gravity="center"/>
 	                    
-	            </RelativeLayout>
+	            </LinearLayout>
                 
                 <ListView
                     android:id="@+id/search_result_list"
