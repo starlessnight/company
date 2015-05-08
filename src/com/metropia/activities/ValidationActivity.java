@@ -195,6 +195,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	public static final String TRAJECTORY_DATA = "TRAJECTORY_DATA";
 	
+	private static final String LAST_ENROUTE_CHECK_TIME = "LAST_ENROUTE_CHECK_TIME";
+	private static final String SEND_ON_MY_WAY_EMAIL = "SEND_ON_MY_WAY_EMAIL";
+	
 	public static final Integer REPORT_PROBLEM = Integer.valueOf(100);
 	
 	public static final int ON_MY_WAY = Integer.valueOf(110);
@@ -312,8 +315,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		route.setCredits(reservation.getCredits());
 		reservation.setRoute(route);
 		
-		// init
-		lastEnRouteCheckTime.set(-100);
 		// Define a listener that responds to location updates
 		locationListener = new ValidationLocationListener();
 
@@ -324,6 +325,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			phones = savedInstanceState.getString(PHONES);
 			trajectoryData = savedInstanceState.getString(TRAJECTORY_DATA);
 			isReplay.set(savedInstanceState.getBoolean(DebugOptionsActivity.REPLAY));
+			lastEnRouteCheckTime.set(savedInstanceState.getLong(LAST_ENROUTE_CHECK_TIME));
+			sendOnMyWayEmail.set(savedInstanceState.getBoolean(SEND_ON_MY_WAY_EMAIL));
 		} else {
 			Time now = new Time();
 			now.setToNow();
@@ -332,6 +335,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			phones = extras.getString(PHONES);
 			trajectoryData = extras.getString(TRAJECTORY_DATA);
 			isReplay.set(extras.getBoolean(DebugOptionsActivity.REPLAY, false));
+			lastEnRouteCheckTime.set(-100);
+			sendOnMyWayEmail.set(true);
 		}
 		
 		if(isReplay.get()) {
@@ -622,6 +627,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		outState.putString(PHONES, phones);
 		outState.putString(TRAJECTORY_DATA, trajectoryData);
 		outState.putBoolean(DebugOptionsActivity.REPLAY, isReplay.get());
+		outState.putLong(LAST_ENROUTE_CHECK_TIME, lastEnRouteCheckTime.get());
+		outState.putBoolean(SEND_ON_MY_WAY_EMAIL, sendOnMyWayEmail.get());
 	}
 
 	@Override
@@ -2192,7 +2199,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 		}
 
-		if(sendOnMyWayEmail.getAndSet(false)) {
+		if(firstNode != null && sendOnMyWayEmail.getAndSet(false)) {
 			sendImComingMsg(remainingTime.get());
 		}
 
