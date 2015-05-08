@@ -289,6 +289,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private AtomicBoolean isReplay = new AtomicBoolean(false);
 	private RouteNode firstNode;
+	private Runnable followModeRestore;
+	private Handler restoreHandler;
+	private static final Long RESTORE_TIME = Long.valueOf(30000);
 	
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -835,6 +838,19 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private void initViews() {
 		
+		restoreHandler = new Handler();
+		followModeRestore = new Runnable() {
+			@Override
+			public void run() {
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						buttonFollow.performClick();
+					}
+				});
+			}
+		};
+		
 		buttonFollow = (ImageView) findViewById(R.id.center_map_icon);
 		buttonFollow.setTag(true);
 		
@@ -848,6 +864,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						Boolean tagAfterClick = !((Boolean) buttonFollow.getTag());
 		            	buttonFollow.setTag(tagAfterClick);
 		            	if (tagAfterClick) {
+		            		restoreHandler.removeCallbacks(followModeRestore);
 		            		to3DMap();
 		                }
 		                else {
@@ -857,6 +874,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		                	else {
 		                		to2DMap(routeRect, true);
 		                	}
+		                	restoreHandler.postDelayed(followModeRestore, RESTORE_TIME);
 		                }
 		            	navigationView.setToCurrentDireciton();
 					}
@@ -3290,6 +3308,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		buttonFollow.setTag(Boolean.valueOf(false));
 		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
 		mapView.deleteAnnotation(INCIDENT_BALLOON_ID);
+		restoreHandler.postDelayed(followModeRestore, RESTORE_TIME);
 	}
 
 	@Override
