@@ -297,7 +297,7 @@ public class OnBoardActivity extends FragmentActivity {
 				}
 				refreshHomeSearchAutoCompleteData();
 			}
-		}, 500);
+		}, LandingActivity2.TEXT_INPUT_DELAY);
         
         homeSearchBox.addTextChangedListener(homeDelayTextWatcher);
         homeSearchBoxClear.setOnClickListener(new OnClickListener() {
@@ -416,7 +416,7 @@ public class OnBoardActivity extends FragmentActivity {
 				}
 				refreshWorkSearchAutoCompleteData();
 			}
-        }, 500);
+        }, LandingActivity2.TEXT_INPUT_DELAY);
         
         workSearchBox.addTextChangedListener(workDelayTextWatcher);
         workSearchBoxClear.setOnClickListener(new OnClickListener() {

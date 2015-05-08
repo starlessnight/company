@@ -77,23 +77,25 @@ public class CalendarService extends IntentService {
                            Integer allDayEvent = events.getInt(5); // all day event : 1 , not all day event : 0
                            long notiTime = start - ONE_HOURS;
                            String title = events.getString(1);
-                           List<Address> addresses = geocode(location);
+                           List<Address> addresses = new ArrayList<Address>();
                            if((!file.exists() || file.length() == 0) 
                         		   && allDayEvent.equals(0) // skip all day event
                                    && StringUtils.isNotBlank(location)
                                    && isAtLeastThreeWords(location)
-                                   && canBeGeocoded(addresses) 
                                    && !isDuplicate(CalendarService.this, eventId, title, start, end) 
                                    && System.currentTimeMillis() < notiTime/* true */){
-                               hasNotification = true;
-                               Intent noti = new Intent(CalendarService.this, 
-                                   CalendarNotification.class);
-                               noti.putExtra(CalendarNotification.EVENT_ID, Integer.parseInt(eventId));
-                               PendingIntent pendingNoti = PendingIntent.getBroadcast(
-                                   CalendarService.this, Integer.parseInt(eventId), noti, 
-                                   PendingIntent.FLAG_UPDATE_CURRENT);
-                               AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-                               am.set(AlarmManager.RTC_WAKEUP, notiTime /*System.currentTimeMillis() + 3000*/, pendingNoti);
+                        	   addresses = geocode(location);
+                        	   if(canBeGeocoded(addresses)) {
+	                               hasNotification = true;
+	                               Intent noti = new Intent(CalendarService.this, 
+	                                   CalendarNotification.class);
+	                               noti.putExtra(CalendarNotification.EVENT_ID, Integer.parseInt(eventId));
+	                               PendingIntent pendingNoti = PendingIntent.getBroadcast(
+	                                   CalendarService.this, Integer.parseInt(eventId), noti, 
+	                                   PendingIntent.FLAG_UPDATE_CURRENT);
+	                               AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+	                               am.set(AlarmManager.RTC_WAKEUP, notiTime /*System.currentTimeMillis() + 3000*/, pendingNoti);
+                        	   }
                            }
                            JSONObject eventJson = new JSONObject()
                                .put(BaseColumns._ID, eventId)

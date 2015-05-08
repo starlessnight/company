@@ -488,7 +488,7 @@ public class FavoriteOperationActivity extends FragmentActivity {
 				}
 				refreshAutoCompleteData();
 			}
-		}, 500);
+		}, LandingActivity2.TEXT_INPUT_DELAY);
         
 		favSearchBox.addTextChangedListener(delayTextWatcher);
 		

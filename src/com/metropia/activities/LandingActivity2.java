@@ -288,6 +288,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private AtomicBoolean needTagAustinLaunch = new AtomicBoolean(true);
     private AtomicBoolean cancelGetRoute = new AtomicBoolean(false);
     
+    public static final Long TEXT_INPUT_DELAY = Long.valueOf(1000);
+    
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
     
@@ -680,7 +682,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 				}
 				refreshSearchAutoCompleteData();
 			}
-		}, 500);
+		}, TEXT_INPUT_DELAY);
         
         searchBox.addTextChangedListener(delayTextWatcher);
         
@@ -778,7 +780,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 				}
 				refreshFromSearchAutoCompleteData();
 			}
-        }, 500);
+        }, TEXT_INPUT_DELAY);
         
         fromSearchBox.addTextChangedListener(fromDelayTextWatcher);
         fromSearchBoxClear.setOnClickListener(new OnClickListener() {
