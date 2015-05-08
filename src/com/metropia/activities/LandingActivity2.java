@@ -1,6 +1,7 @@
 package com.metropia.activities;
 
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -4046,10 +4047,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 							rewardString.append(reward / 1000).append("K");
 						}
 						else {
-							rewardString.append(reward); 
-							while(rewardString.length() < 3) {
-								rewardString.insert(0, "0");
-							}
+							rewardString.append(new DecimalFormat("#000.#").format(reward)); 
 						}
 						upointView.setText(formatMyMetropiaInfo(String.format(formatScore, rewardString.toString())));
                     }
@@ -4060,10 +4058,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 						timeSavingString.append(timeSaving / 1000).append("K");
 					}
 					else {
-						timeSavingString.append(timeSaving);
-						while(timeSavingString.length() < 2) {
-							timeSavingString.insert(0, "0");
-						}
+						timeSavingString.append(new DecimalFormat("#00").format(timeSaving));
 					}
 					timeSavingString.append("min");
 					saveTimeView.setText(formatMyMetropiaInfo(timeSavingString.toString()));
@@ -4071,13 +4066,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 					double co2Saving = info.getCo2Saving();
 					StringBuffer co2SavingString = new StringBuffer();
 					if(co2Saving >= 1000) {
-						co2SavingString.append(co2Saving / 1000).append("K");
+						co2SavingString.append(Double.valueOf(co2Saving / 1000).intValue()).append("K");
 					}
 					else {
-						co2SavingString.append(co2Saving);
-						while(co2SavingString.length() < 3) {
-							co2SavingString.insert(0, "0");
-						}
+						co2SavingString.append(new DecimalFormat("#000.#").format(co2Saving));
 					}
 					co2SavingString.append("lbs");
 					co2View.setText(formatMyMetropiaInfo(co2SavingString.toString()));
