@@ -447,10 +447,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         }
         
         if (gpsMode == DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
+        	locationRefreshed.set(true);
             Location location = new Location("");
             location.setTime(System.currentTimeMillis());
             locationChanged(location);
-            locationRefreshed.set(true);
         } else if(curLoc != null){
             Location location = new Location("");
             location.setTime(System.currentTimeMillis());
@@ -1469,6 +1469,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private File saveGPXFile(Route _route) {
 		try {
 			List<RecordedGeoPoint> routeGeoPoints = new ArrayList<RecordedGeoPoint>();
+			if(lastKnownLocation != null) {
+				routeGeoPoints.add(new RecordedGeoPoint(Double.valueOf(lastKnownLocation.getLatitude() * 1E6).intValue(), Double.valueOf(lastKnownLocation.getLongitude() * 1E6).intValue()));
+			}
 			for(RouteNode routeNode : _route.getNodes()) {
 				RecordedGeoPoint geoPoint = new RecordedGeoPoint(routeNode.getGeoPoint().getLatitudeE6(), routeNode.getGeoPoint().getLongitudeE6());
 				routeGeoPoints.add(geoPoint);
