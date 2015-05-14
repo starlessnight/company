@@ -514,7 +514,7 @@
 	                    android:layout_width="match_parent"
 	                    android:layout_height="match_parent"
 	                    android:layout_weight="1"
-	                    android:text="Get it"
+	                    android:text="Got it"
 	                    android:textColor="#0130CB"
 	                    android:textSize="@dimen/smallest_font"
 	                    android:paddingRight="9dp"
