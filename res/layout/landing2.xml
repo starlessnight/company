@@ -734,6 +734,7 @@
                     android:orientation="vertical"
                     android:paddingTop="33dp" >
 
+                    <!-- 
                     <TextView
                         android:id="@+id/new_trip"
                         android:layout_width="match_parent"
@@ -746,6 +747,7 @@
                         android:text="New Trip"
                         android:textColor="@android:color/white"
                         android:textSize="@dimen/medium_font" />
+                     -->
 
                     <TextView
                         android:id="@+id/dashboard"
@@ -755,26 +757,10 @@
                         android:drawablePadding="20dp"
                         android:paddingLeft="20dp"
                         android:paddingRight="10dp"
-                        android:paddingTop="25dp"
                         android:singleLine="true"
                         android:text="My Metropia"
                         android:textColor="@android:color/white"
                         android:textSize="@dimen/medium_font" />
-
-                    <TextView
-                        android:id="@+id/my_trips"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:drawableLeft="@drawable/menu_drive_score"
-                        android:drawablePadding="20dp"
-                        android:paddingLeft="20dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="25dp"
-                        android:singleLine="true"
-                        android:text="Driving Score"
-                        android:textColor="@android:color/white"
-                        android:textSize="@dimen/medium_font"
-                        android:visibility="gone" />
 
                     <TextView
                         android:id="@+id/reservations"
@@ -791,6 +777,21 @@
                         android:textSize="@dimen/medium_font" />
                     
                     <TextView
+                        android:id="@+id/my_trips"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/menu_drive_score"
+                        android:drawablePadding="20dp"
+                        android:paddingLeft="20dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="25dp"
+                        android:singleLine="true"
+                        android:text="Driving Score"
+                        android:textColor="@android:color/white"
+                        android:textSize="@dimen/medium_font"
+                        android:visibility="gone" />
+                    
+                    <TextView
                         android:id="@+id/favorite_list"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -801,6 +802,20 @@
                         android:paddingTop="25dp"
                         android:singleLine="true"
                         android:text="Favorites"
+                        android:textColor="@android:color/white"
+                        android:textSize="@dimen/medium_font" />
+                    
+                    <TextView
+                        android:id="@+id/feedback_menu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/menu_feedback"
+                        android:drawablePadding="20dp"
+                        android:paddingLeft="20dp"
+                        android:paddingRight="10dp"
+                        android:paddingTop="25dp"
+                        android:singleLine="true"
+                        android:text="Feedback"
                         android:textColor="@android:color/white"
                         android:textSize="@dimen/medium_font" />
 
@@ -818,20 +833,6 @@
                         android:textColor="@android:color/white"
                         android:textSize="@dimen/medium_font" />
 
-                    <TextView
-                        android:id="@+id/feedback_menu"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:drawableLeft="@drawable/menu_feedback"
-                        android:drawablePadding="20dp"
-                        android:paddingLeft="20dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="25dp"
-                        android:singleLine="true"
-                        android:text="Feedback"
-                        android:textColor="@android:color/white"
-                        android:textSize="@dimen/medium_font" />
-                    
                     <TextView
                         android:id="@+id/map_display_options"
                         android:layout_width="match_parent"
