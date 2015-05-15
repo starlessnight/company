@@ -319,6 +319,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         
         registerReceiver(tripInfoCachedUpdater, new IntentFilter(TRIP_INFO_CACHED_UPDATES));
         registerReceiver(updateMyLocation, new IntentFilter(UPDATE_MY_LOCATION));
+        registerReceiver(updateMenuMyTrips, new IntentFilter(UPDATE_MENU_MY_TRIPS));
         
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -938,7 +939,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             }
         });
         
-        /*
         TextView myTripsMenu = (TextView) findViewById(R.id.my_trips);
         myTripsMenu.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -957,7 +957,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         if(MyTripsActivity.hasUrl(LandingActivity2.this)) {
         	myTripsMenu.setVisibility(View.VISIBLE);
         }
-         */
         
         TextView reservationsMenu = (TextView) findViewById(R.id.reservations);
         reservationsMenu.setOnClickListener(new View.OnClickListener() {
@@ -1348,7 +1347,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getLight(assets), searchBox, fromSearchBox, myMetropiaMenu, 
-            reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView/*, myTripsMenu*/, favoriteListMenu);
+            reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu, favoriteListMenu);
         Font.setTypeface(Font.getMedium(assets), upointView, saveTimeView, co2View, (TextView) findViewById(R.id.head));
         Font.setTypeface(Font.getRobotoBold(assets), getRouteView);
         //init Tracker
@@ -2333,6 +2332,21 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 						centerMap();
 					}
     			});
+    		}
+    	}
+    };
+    
+    public static final String UPDATE_MENU_MY_TRIPS = "UPDATE_MENU_MY_TRIPS";
+    
+    private BroadcastReceiver updateMenuMyTrips = new BroadcastReceiver() {
+    	@Override
+        public void onReceive(Context context, Intent intent) {
+    		boolean hasTrips = intent.getBooleanExtra("hasTrips", false);
+    		if(hasTrips) {
+    			findViewById(R.id.my_trips).setVisibility(View.VISIBLE);
+    		}
+    		else {
+    			findViewById(R.id.my_trips).setVisibility(View.GONE);
     		}
     	}
     };
@@ -4171,6 +4185,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         super.onDestroy();
         unregisterReceiver(tripInfoCachedUpdater);
         unregisterReceiver(updateMyLocation);
+        unregisterReceiver(updateMenuMyTrips);
         closeGPS();
         SKMaps.getInstance().destroySKMaps();
     }

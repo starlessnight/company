@@ -382,7 +382,16 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
                 if(initApiLinksTask != null){
                     initApiLinksTask.cancel(true);
                 }
-                initApiLinksTask = MainActivity.initApiLinks(DebugOptionsActivity.this, entrypoint, null, null);
+                initApiLinksTask = MainActivity.initApiLinks(DebugOptionsActivity.this, entrypoint, 
+                        new Runnable() {
+    						@Override
+    						public void run() {
+    							Intent updateMenu = new Intent(LandingActivity2.UPDATE_MENU_MY_TRIPS);
+    							updateMenu.putExtra("hasTrips", MyTripsActivity.hasUrl(DebugOptionsActivity.this));
+    							sendBroadcast(updateMenu);
+    						}
+                    	
+                    }, null);
 			}
 			
 			@Override
