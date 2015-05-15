@@ -27,10 +27,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.osmdroid.api.IGeoPoint;
 import org.osmdroid.contributor.util.RecordedGeoPoint;
 import org.osmdroid.contributor.util.RecordedRouteGPXFormatter;
-import org.osmdroid.tileprovider.util.CloudmadeUtil;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -440,10 +438,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		
 		SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
         int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
-        org.osmdroid.util.GeoPoint curLoc = extras.getParcelable(CURRENT_LOCATION);
+        GeoPoint curLoc = extras.getParcelable(CURRENT_LOCATION);
         LocationInfo cacheLoc = new LocationInfo(ValidationActivity.this);
         if(curLoc == null && !isReplay.get() && System.currentTimeMillis() - cacheLoc.lastLocationUpdateTimestamp < 5 * 60 * 1000) {
-        	curLoc = new org.osmdroid.util.GeoPoint(cacheLoc.lastLat, cacheLoc.lastLong);
+        	curLoc = new GeoPoint(cacheLoc.lastLat, cacheLoc.lastLong);
         }
         
         if (gpsMode == DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
@@ -460,7 +458,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         }
         
 		if (isOnRecreate.get()) {
-            lastCenter = new GeoPoint((IGeoPoint) savedInstanceState.getParcelable(GEO_POINT));
+            lastCenter = savedInstanceState.getParcelable(GEO_POINT);
         }
 		
 		if (!loadRoute) {
@@ -757,7 +755,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
 		mapViewHolder.hideAllAttributionTextViews();
 		mapView = mapViewHolder.getMapSurfaceView();
-		CloudmadeUtil.retrieveCloudmadeKey(this);
 		
 		mapView.setMapSurfaceListener(this);
 		mapView.clearAllOverlays();

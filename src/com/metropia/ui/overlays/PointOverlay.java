@@ -1,14 +1,7 @@
 package com.metropia.ui.overlays;
 
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.MapView.Projection;
-import org.osmdroid.views.overlay.Overlay;
-
 import android.content.Context;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Point;
 
 import com.metropia.utils.GeoPoint;
 
@@ -16,14 +9,15 @@ import com.metropia.utils.GeoPoint;
  * Draws a point on a map
  * @author Sumin Byeon
  */
-public class PointOverlay extends Overlay {
+public class PointOverlay {
 	public static final float RADIUS = 12.0f;
 	
+	private Context ctx;
 	private GeoPoint geoPoint;
 	private int color = Color.GREEN;
 	
 	public PointOverlay(Context context, float lat, float lng) {
-		super(context);
+		this.ctx = context;
 		setLocation(lat, lng);
 	}
 	
@@ -39,16 +33,4 @@ public class PointOverlay extends Overlay {
 		this.color = color;
 	}
 
-	@Override
-	protected void draw(Canvas canvas, MapView mapView, boolean shadow) {
-		Projection projection = mapView.getProjection();
-		Paint paint = new Paint();
-		paint.setAntiAlias(true);
-		paint.setColor(color);
-		
-		Point point = new Point();
-		projection.toPixels(geoPoint, point);
-		
-		canvas.drawCircle(point.x, point.y, RADIUS, paint);
-	}
 }

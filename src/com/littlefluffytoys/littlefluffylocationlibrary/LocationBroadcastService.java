@@ -40,11 +40,13 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
-import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.metropia.activities.DebugOptionsActivity;
 
 /**
@@ -133,7 +135,7 @@ public class LocationBroadcastService extends Service {
         return mBinder;
     }
     
-    private LocationClient locClient;
+    private GoogleApiClient mGoogleApiClient;
     
     /**
      * 
@@ -154,17 +156,14 @@ public class LocationBroadcastService extends Service {
         }
 
         boolean keepServiceRunning;
-        if(GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext()) 
+        if(GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(getApplicationContext()) 
                 == ConnectionResult.SUCCESS){
             try{
-                locClient = new LocationClient(getApplicationContext(), new ConnectionCallbacks() {
-                    @Override
-                    public void onDisconnected() {
-                        stopSelf();
-                    }                
-                    @Override
-                    public void onConnected(Bundle arg0) {
-                        try{
+            	mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext()).addApi(LocationServices.API).addConnectionCallbacks(new ConnectionCallbacks() {
+
+					@Override
+					public void onConnected(Bundle arg0) {
+						try{
                             LocationRequest locReq = LocationRequest.create();
                             locReq.setPriority(LocationRequest.PRIORITY_NO_POWER);
                             locReq.setInterval(DebugOptionsActivity.defaultUpdateInterval);
@@ -175,12 +174,12 @@ public class LocationBroadcastService extends Service {
                                     PassiveLocationChangedReceiver.processLocation(getApplicationContext(), loc);
                                 }
                             };
-                            locClient.requestLocationUpdates(locReq, listener);
+                            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locReq, listener);
                             new Timer().schedule(new TimerTask(){
                                 public void run(){
                                     try {
-                                        locClient.removeLocationUpdates(listener);
-                                        locClient.disconnect();
+                                    	LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, listener);
+                                        mGoogleApiClient.disconnect();
                                     }
                                     catch (Throwable t) {
                                         stopSelf();
@@ -190,14 +189,23 @@ public class LocationBroadcastService extends Service {
                         }catch(Throwable t){
                             stopSelf();
                         }
-                    }
-                }, new OnConnectionFailedListener() {
-                    @Override
-                    public void onConnectionFailed(ConnectionResult arg0) {
-                        stopSelf();
-                    }
-                });
-                locClient.connect();
+					}
+
+					@Override
+					public void onConnectionSuspended(int arg0) {
+						stopSelf();
+					}
+            		
+            	}).addOnConnectionFailedListener(new OnConnectionFailedListener() {
+
+					@Override
+					public void onConnectionFailed(ConnectionResult arg0) {
+						stopSelf();
+					}
+            		
+            	}).build();
+                
+                mGoogleApiClient.connect();
                 keepServiceRunning = true;
             }catch(Throwable t){
                 keepServiceRunning = false;

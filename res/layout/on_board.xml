@@ -48,7 +48,10 @@
         android:layout_weight="1"
         android:background="@android:color/white" >
 
-        <include layout="@layout/mapview" />
+        <com.skobbler.ngx.map.SKMapViewHolder
+			android:id="@+id/mapview_holder"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"/>
 
         <LinearLayout
             android:id="@+id/on_board_page1"

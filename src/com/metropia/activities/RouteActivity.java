@@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.osmdroid.tileprovider.util.CloudmadeUtil;
 
 import android.app.Activity;
 import android.app.NotificationManager;
@@ -656,15 +655,15 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
             selectedTime = new Time();
             selectedTime.setToNow();
             
-            org.osmdroid.util.GeoPoint pOriginCoord = extras.getParcelable(ORIGIN_COORD);
+            GeoPoint pOriginCoord = extras.getParcelable(ORIGIN_COORD);
             if(pOriginCoord != null){
-                originCoord = new GeoPoint(pOriginCoord);
+                originCoord = pOriginCoord;
             }
             originCoordProvider = extras.getString(ORIGIN_COORD_PROVIDER);
             originCoordTime = extras.getLong(ORIGIN_COORD_TIME);
-            org.osmdroid.util.GeoPoint pDestCoord = extras.getParcelable(DEST_COORD);
+            GeoPoint pDestCoord = extras.getParcelable(DEST_COORD);
             if(pOriginCoord != null){
-                destCoord = new GeoPoint(pDestCoord);
+                destCoord = pDestCoord;
             }
             
             final boolean _currentLocation = currentLocation;
@@ -1005,7 +1004,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
 		mapViewHolder.hideAllAttributionTextViews();
 		mapView = mapViewHolder.getMapSurfaceView();
-		CloudmadeUtil.retrieveCloudmadeKey(this);
+//		CloudmadeUtil.retrieveCloudmadeKey(this);
 		
 		mapView.setMapSurfaceListener(this);
 		mapView.clearAllOverlays();

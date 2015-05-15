@@ -5,14 +5,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
-import org.osmdroid.api.IMapController;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.Overlay;
-import org.osmdroid.views.overlay.OverlayItem;
-import org.osmdroid.views.overlay.OverlayItem.HotspotPlace;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.location.Location;
@@ -39,11 +36,23 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.localytics.android.Localytics;
+import com.metropia.SkobblerUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
-import com.metropia.activities.LandingActivity2.BalloonModel;
-import com.metropia.activities.LandingActivity2.PoiOverlayInfo;
 import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.models.FavoriteIcon;
 import com.metropia.models.User;
@@ -56,8 +65,6 @@ import com.metropia.ui.ClickAnimation;
 import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.ui.DelayTextWatcher;
 import com.metropia.ui.DelayTextWatcher.TextChangeListener;
-import com.metropia.ui.overlays.OverlayCallback;
-import com.metropia.ui.overlays.POIOverlay;
 import com.metropia.utils.Dimension;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
@@ -66,11 +73,28 @@ import com.metropia.utils.Geocoding;
 import com.metropia.utils.Geocoding.Address;
 import com.metropia.utils.Misc;
 import com.metropia.utils.SystemService;
+import com.skobbler.ngx.SKCoordinate;
+import com.skobbler.ngx.SKMaps;
+import com.skobbler.ngx.map.SKAnimationSettings;
+import com.skobbler.ngx.map.SKAnnotation;
+import com.skobbler.ngx.map.SKAnnotationView;
+import com.skobbler.ngx.map.SKCoordinateRegion;
+import com.skobbler.ngx.map.SKMapCustomPOI;
+import com.skobbler.ngx.map.SKMapPOI;
+import com.skobbler.ngx.map.SKMapSettings.SKMapDisplayMode;
+import com.skobbler.ngx.map.SKMapSettings.SKMapFollowerMode;
+import com.skobbler.ngx.map.SKMapSurfaceListener;
+import com.skobbler.ngx.map.SKMapSurfaceView;
+import com.skobbler.ngx.map.SKMapViewHolder;
+import com.skobbler.ngx.map.SKPOICluster;
+import com.skobbler.ngx.map.SKScreenPoint;
+import com.skobbler.ngx.util.SKLogging;
 
-public class OnBoardActivity extends FragmentActivity {
+public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceListener, ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<LocationSettingsResult> {
 	
-	private MapView mapView;
-	
+	private SKMapViewHolder mapViewHolder;
+    private SKMapSurfaceView mapView;
+    
 	private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
 	private LocationManager locationManager;
@@ -105,11 +129,13 @@ public class OnBoardActivity extends FragmentActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		SkobblerUtils.initializeLibrary(OnBoardActivity.this);
 		setContentView(R.layout.on_board);
 		
 		Localytics.integrate(this);
 		
-		mapView = (MapView) findViewById(R.id.mapview);
+		initSKMaps();
+		
 		contentPanel = findViewById(R.id.content_panel);
 		contentPanel.setTag(Integer.valueOf(1));
 		back = (TextView) findViewById(R.id.back);
@@ -449,6 +475,14 @@ public class OnBoardActivity extends FragmentActivity {
                     Bundle extras) {
             }
         };
+        
+        googleLocationListener = new com.google.android.gms.location.LocationListener() {
+			
+			@Override
+			public void onLocationChanged(Location location) {
+				lastLocation = location;
+			}
+		};
 		
 		AssetManager assets = getAssets();
 		mediumFont = Font.getMedium(assets);
@@ -456,6 +490,35 @@ public class OnBoardActivity extends FragmentActivity {
 		Font.setTypeface(mediumFont, skip, next, back, page1Next, page2Next, page3Next, finish);
 		
 		((SmarTrekApplication)getApplication()).getTracker(TrackerName.APP_TRACKER);
+		
+		if(GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(OnBoardActivity.this) == ConnectionResult.SUCCESS) {
+			requestingLocationUpdates = true;
+			createGoogleApiClient();
+	        createLocationRequest();
+	        buildLocationSettingsRequest();
+		}
+	}
+	
+	private void initSKMaps() {
+		SKLogging.enableLogs(true);
+		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
+		mapViewHolder.hideAllAttributionTextViews();
+		mapView = mapViewHolder.getMapSurfaceView();
+		
+		mapView.setMapSurfaceListener(this);
+		mapView.clearAllOverlays();
+		mapView.deleteAllAnnotationsAndCustomPOIs();
+		mapView.getMapSettings().setCurrentPositionShown(true);
+		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
+		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
+		mapView.getMapSettings().setMapRotationEnabled(false);
+        mapView.getMapSettings().setMapZoomingEnabled(true);
+        mapView.getMapSettings().setMapPanningEnabled(true);
+        mapView.getMapSettings().setZoomWithAnchorEnabled(true);
+        mapView.getMapSettings().setInertiaRotatingEnabled(false);
+        mapView.getMapSettings().setInertiaZoomingEnabled(true);
+        mapView.getMapSettings().setInertiaPanningEnabled(true);
+        mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(OnBoardActivity.this, true));
 	}
 	
 	private static final Integer PAGE_SIZE = Integer.valueOf(4);
@@ -482,7 +545,7 @@ public class OnBoardActivity extends FragmentActivity {
 			  		findViewById(R.id.on_board_page3).setVisibility(View.VISIBLE);
 			  		back.setVisibility(View.VISIBLE);
 			  		skip.setVisibility(View.VISIBLE);
-			  		moveToOverlay(true);
+			  		moveToOverlay(false);
 			  		break;
 			  	case 4 : 
 			  		findViewById(R.id.on_board_page4).setVisibility(View.VISIBLE);
@@ -507,25 +570,10 @@ public class OnBoardActivity extends FragmentActivity {
 	}
 	
 	private void moveToOverlay(boolean isHome) {
-		Integer overlayId = isHome ? homeOverlayId : workOverlayId;
-		if(overlayId != null && overlayId > 0) {
-			POIOverlay overlay = null;
-			List<Overlay> overlays = mapView.getOverlays();
-			for(Overlay curOverlay : overlays) {
-				if(curOverlay instanceof POIOverlay) {
-					POIOverlay curPoiOverlay = (POIOverlay)curOverlay;
-					if(overlayId.equals(curPoiOverlay.getAid())) {
-						overlay = curPoiOverlay;
-					}
-				}
-			}
-			if(overlay != null) {
-		        overlay.hideBalloon();
-		        IMapController mc = mapView.getController();
-		        mc.setZoom(SEARCH_ZOOM_LEVEL);
-		        mc.setCenter(overlay.getGeoPoint());
-		        mapView.postInvalidate();
-			}
+		SKCoordinate coor = isHome ? homeCoor : workCoor;
+		if(coor != null) {
+			mapView.setZoom(SEARCH_ZOOM_LEVEL);
+			mapView.centerMapOnPosition(coor);
 		}
 	}
 	
@@ -773,57 +821,30 @@ public class OnBoardActivity extends FragmentActivity {
 	
 	private static final int SEARCH_ZOOM_LEVEL = 16;
 	
+	private final Integer HOME_ANNOTATION_ID = Integer.valueOf(1000);
+	private final Integer WORK_ANNOTATION_ID = Integer.valueOf(1100);
+	private SKCoordinate homeCoor;
+	private SKCoordinate workCoor;
+	
 	private void updateOrDropAddress(Address addr, boolean isHome) {
 		removeOldOverlay(isHome);
-		Integer overlayId = isHome ? homeOverlayId : workOverlayId;
-    	GeoPoint gp = addr.getGeoPoint();
-        BalloonModel model = new BalloonModel();
-        model.lat = addr.getLatitude();
-        model.lon = addr.getLongitude();
-        model.address = addr.getAddress();
-        model.label = addr.getIconName();
-        model.geopoint = gp;
-        final PoiOverlayInfo poiInfo = PoiOverlayInfo.fromBalloonModel(model);
-        poiInfo.marker = isHome ? R.drawable.home : R.drawable.work;
-        poiInfo.markerWithShadow = isHome ? R.drawable.home_with_shadow : R.drawable.work_with_shadow;
-        if(overlayId != null && overlayId > 0) {
-        	poiInfo.id = overlayId;
-        }
-        
-        final POIOverlay marker = new POIOverlay(mapView, Font.getBold(getAssets()), poiInfo, 
-        		HotspotPlace.CENTER , null);
-        
-        marker.setCallback(new OverlayCallback() {
-            @Override
-            public boolean onTap(int index) {
-                return false;
-            }
-            @Override
-            public boolean onLongPress(int index, OverlayItem item) {
-                return false;
-            }
-            
-            @Override
-            public boolean onClose() {
-                return false;
-            }
-            @Override
-            public void onChange() {
-            }
-            @Override
-            public boolean onBalloonTap(int index, OverlayItem item) {
-            	return false;
-            }
-        });
-        
-        List<Overlay> overlays = mapView.getOverlays();
-        overlays.add(marker);
-        marker.showOverlay();
-        marker.hideBalloon();
-        IMapController mc = mapView.getController();
-        mc.setZoom(SEARCH_ZOOM_LEVEL);
-        mc.setCenter(gp);
-        mapView.postInvalidate();
+		Integer annId = isHome ? HOME_ANNOTATION_ID : WORK_ANNOTATION_ID;
+		GeoPoint geo = addr.getGeoPoint();
+		int marker = isHome ? R.drawable.home : R.drawable.work;
+    	
+		SKCoordinate annCoor = new SKCoordinate(geo.getLongitude(), geo.getLatitude());
+		SKAnnotation ann = new SKAnnotation();
+		ann.setUniqueID(annId);
+		ann.setLocation(annCoor);
+   		SKAnnotationView iconView = new SKAnnotationView();
+   		ImageView annImage = new ImageView(OnBoardActivity.this);
+   		annImage.setImageBitmap(Misc.getBitmap(OnBoardActivity.this, marker, 1));
+   		iconView.setView(annImage);
+   		ann.setAnnotationView(iconView);
+   		setGlobalCoor(isHome, annCoor);
+   		mapView.addAnnotation(ann, SKAnimationSettings.ANIMATION_POP_OUT);
+   		
+   		mapView.centerMapOnPosition(annCoor);
         
         if(isHome) {
         	findViewById(R.id.home_mask).setVisibility(View.GONE);
@@ -835,15 +856,24 @@ public class OnBoardActivity extends FragmentActivity {
         }
     }
 	
+	private void setGlobalCoor(boolean isHome, SKCoordinate coor) {
+		if(isHome) {
+			homeCoor = coor;
+		}
+		else {
+			workCoor = coor;
+		}
+	}
+	
 	private void removeOldOverlay(boolean isHome) {
-		List<Overlay> overlays = mapView.getOverlays();
-		for(Overlay overlay : overlays) {
-			if(overlay instanceof POIOverlay && 
-					(isHome?FavoriteIcon.home.name() : FavoriteIcon.work.name()).equals(((POIOverlay)overlay).getPoiOverlayInfo().label)) {
-				overlays.remove(overlay);
-                mapView.postInvalidate();
-			}
- 		}
+//		List<Overlay> overlays = mapView.getOverlays();
+//		for(Overlay overlay : overlays) {
+//			if(overlay instanceof POIOverlay && 
+//					(isHome?FavoriteIcon.home.name() : FavoriteIcon.work.name()).equals(((POIOverlay)overlay).getPoiOverlayInfo().label)) {
+//				overlays.remove(overlay);
+//                mapView.postInvalidate();
+//			}
+// 		}
 	}
 		
 	private void saveFavorite(Address _address, final boolean isHome) {
@@ -897,24 +927,77 @@ public class OnBoardActivity extends FragmentActivity {
 		Misc.parallelExecute(saveTask);
 	}
 	
+	private boolean requestingLocationUpdates = false;
+	private GoogleApiClient googleApiClient;
+    private LocationRequest locationRequest;
+    private LocationSettingsRequest locationSettingsRequest;
+    private com.google.android.gms.location.LocationListener googleLocationListener;
+    private Integer REQUEST_CHECK_SETTINGS = Integer.valueOf(1111);
+    
+    private void createGoogleApiClient() {
+    	googleApiClient = new GoogleApiClient.Builder(OnBoardActivity.this).addApi(LocationServices.API)
+    			.addConnectionCallbacks(OnBoardActivity.this).addOnConnectionFailedListener(OnBoardActivity.this).build();
+    }
+    
+    private void createLocationRequest() {
+    	locationRequest = new LocationRequest();
+    	locationRequest.setInterval(5000);
+    	locationRequest.setFastestInterval(2000);
+    	locationRequest.setSmallestDisplacement(5);
+    	locationRequest.setNumUpdates(1);
+    	locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+    
+    protected void buildLocationSettingsRequest() {
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(locationRequest);
+        locationSettingsRequest = builder.build();
+    }
+    
+    protected void checkLocationSettings() {
+        PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(googleApiClient, locationSettingsRequest);
+        result.setResultCallback(OnBoardActivity.this);
+    }
+    
+    protected void startLocationUpdates() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, googleLocationListener).setResultCallback(new ResultCallback<Status>() {
+            @Override
+            public void onResult(Status status) {}
+        });
+    }
+	
 	private void prepareGPS(){
-        closeGPS();
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && 
-        		locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                10000, 5, locationListener);
-        }else{
-            SystemService.alertNoGPS(this, true);
-        }
-        locationManager.requestLocationUpdates(
-            LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-        locationManager.requestLocationUpdates(
-                LocationManager.PASSIVE_PROVIDER, 0, 0, locationListener);
+		if(googleApiClient != null && requestingLocationUpdates) {
+			checkLocationSettings();
+		}
+		else if(googleApiClient == null){
+	        closeGPS();
+	        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+	        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && 
+	        		locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+	            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+	                10000, 5, locationListener);
+	        }else{
+	            SystemService.alertNoGPS(this, true);
+	        }
+	        locationManager.requestLocationUpdates(
+	            LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+	        locationManager.requestLocationUpdates(
+	                LocationManager.PASSIVE_PROVIDER, 0, 0, locationListener);
+		}
     }
     
     private void closeGPS(){
-        if (locationManager != null) {
+    	if(googleApiClient != null && googleApiClient.isConnected()) {
+    		LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, googleLocationListener).setResultCallback(new ResultCallback<Status>() {
+	            @Override
+	            public void onResult(Status status) {
+	            	requestingLocationUpdates = true;
+	            }
+	        });
+    	}
+    	else if (locationManager != null) {
             locationManager.removeUpdates(locationListener);
         }
     }
@@ -923,12 +1006,24 @@ public class OnBoardActivity extends FragmentActivity {
     public void onStart() {
         super.onStart();
         GoogleAnalytics.getInstance(this).reportActivityStart(this);
+        if(googleApiClient != null) {
+        	googleApiClient.connect();
+        }
     }
     
     @Override
     public void onStop() {
         super.onStop();
         GoogleAnalytics.getInstance(this).reportActivityStop(this);
+        if(googleApiClient != null) {
+        	googleApiClient.disconnect();
+        }
+    }
+    
+    @Override
+    public void onDestroy() {
+    	super.onDestroy();
+    	SKMaps.getInstance().destroySKMaps();
     }
     
     @Override
@@ -940,6 +1035,7 @@ public class OnBoardActivity extends FragmentActivity {
 	    Localytics.setInAppMessageDisplayActivity(this);
 	    Localytics.handleTestMode(getIntent());
 	    Localytics.handlePushNotificationOpened(getIntent());
+	    mapView.onResume();
     	prepareGPS();
     }
     
@@ -949,8 +1045,138 @@ public class OnBoardActivity extends FragmentActivity {
 	    Localytics.clearInAppMessageDisplayActivity();
 	    Localytics.closeSession();
 	    Localytics.upload();
+	    mapView.onPause();
     	super.onPause();
     	closeGPS();
     }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        
+        if(requestCode == -1) {
+            finish();
+        }
+        
+        if(requestCode == REQUEST_CHECK_SETTINGS) {
+        	if(resultCode == Activity.RESULT_OK) {
+        		LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, googleLocationListener);
+        	}
+        	else {
+        		lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+        		requestingLocationUpdates = false;
+        	}
+        }
+    }
+
+	@Override
+	public void onActionPan() {}
+
+	@Override
+	public void onActionZoom() {}
+
+	@Override
+	public void onAnnotationSelected(SKAnnotation arg0) {}
+
+	@Override
+	public void onCompassSelected() {}
+
+	@Override
+	public void onCurrentPositionSelected() {}
+
+	@Override
+	public void onCustomPOISelected(SKMapCustomPOI arg0) {}
+
+	@Override
+	public void onDebugInfo(double arg0, float arg1, double arg2) {}
+
+	@Override
+	public void onDoubleTap(SKScreenPoint arg0) {}
+
+	@Override
+	public void onInternationalisationCalled(int arg0) {}
+
+	@Override
+	public void onInternetConnectionNeeded() {}
+
+	@Override
+	public void onLongPress(SKScreenPoint arg0) {}
+
+	@Override
+	public void onMapActionDown(SKScreenPoint arg0) {}
+
+	@Override
+	public void onMapActionUp(SKScreenPoint arg0) {}
+
+	@Override
+	public void onMapPOISelected(SKMapPOI arg0) {}
+
+	@Override
+	public void onMapRegionChangeEnded(SKCoordinateRegion arg0) {}
+
+	@Override
+	public void onMapRegionChangeStarted(SKCoordinateRegion arg0) {}
+
+	@Override
+	public void onMapRegionChanged(SKCoordinateRegion arg0) {}
+
+	@Override
+	public void onObjectSelected(int arg0) {}
+
+	@Override
+	public void onOffportRequestCompleted(int arg0) {}
+
+	@Override
+	public void onPOIClusterSelected(SKPOICluster arg0) {}
+
+	@Override
+	public void onRotateMap() {}
+
+	@Override
+	public void onScreenOrientationChanged() {}
+
+	@Override
+	public void onSingleTap(SKScreenPoint arg0) {}
+
+	@Override
+	public void onSurfaceCreated() {}
+
+	@Override
+	public void onConnectionFailed(ConnectionResult arg0) {}
+
+	@Override
+	public void onConnected(Bundle arg0) {}
+
+	@Override
+	public void onConnectionSuspended(int arg0) {}
+
+	@Override
+	public void onResult(LocationSettingsResult locationSettingsResult) {
+		final Status status = locationSettingsResult.getStatus();
+        switch (status.getStatusCode()) {
+            case LocationSettingsStatusCodes.SUCCESS:
+            	startLocationUpdates();
+                break;
+            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                Log.i("OnBoardActivity", "Location settings are not satisfied. Show the user a dialog to" +
+                        "upgrade location settings ");
+                try {
+                    // Show the dialog by calling startResolutionForResult(), and check the result
+                    // in onActivityResult().
+                    status.startResolutionForResult(OnBoardActivity.this, REQUEST_CHECK_SETTINGS);
+                } catch (IntentSender.SendIntentException e) {}
+                break;
+            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                Log.i("OnBoardActivity", "Location settings are inadequate, and cannot be fixed here. Dialog " +
+                        "not created.");
+                if(googleApiClient != null) {
+                	googleApiClient.disconnect();
+                	googleApiClient = null;
+                }
+                prepareGPS();
+                break;
+        }
+	}
 
 }
+

@@ -2,7 +2,8 @@
 package org.osmdroid.contributor.util;
 
 import org.osmdroid.contributor.util.constants.OpenStreetMapContributorConstants;
-import org.osmdroid.util.GeoPoint;
+
+import com.metropia.utils.GeoPoint;
 
 /**
  * Extends the {@link GeoPoint} with a timeStamp.

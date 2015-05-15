@@ -2,9 +2,6 @@ package com.metropia;
 
 import java.util.HashMap;
 
-import org.acra.ReportingInteractionMode;
-import org.acra.annotation.ReportsCrashes;
-
 import android.app.Application;
 import android.content.Context;
 
@@ -14,6 +11,7 @@ import com.littlefluffytoys.littlefluffylocationlibrary.LocationLibrary;
 import com.metropia.activities.R;
 import com.metropia.activities.ValidationActivity;
 
+/*
 @ReportsCrashes(formKey="dFdwTW1tbERoS1N4RlhNbFBjeHc4dXc6MQ",
                 mode = ReportingInteractionMode.DIALOG, // I have decided to use this mode for the beta testing period.
                 resToastText = R.string.crash_toast_text, // optional, displayed as soon as the crash occurs, before collecting data which can take a few seconds
@@ -22,6 +20,7 @@ import com.metropia.activities.ValidationActivity;
                 resDialogTitle = R.string.crash_dialog_title, // optional. default is your application name
                 resDialogCommentPrompt = R.string.crash_dialog_comment_prompt, // optional. when defined, adds a user text field input with this text resource as a label
                 resDialogOkToast = R.string.crash_dialog_ok_toast) // optional. displays a Toast message when the user accepts to send a report.
+*/
 public final class SmarTrekApplication extends Application {
     @Override
     public void onCreate() {

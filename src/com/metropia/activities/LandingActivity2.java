@@ -22,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.json.JSONObject;
-import org.osmdroid.tileprovider.util.CloudmadeUtil;
 
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -31,6 +30,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
@@ -43,7 +43,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -95,6 +94,20 @@ import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
 import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
 import com.littlefluffytoys.littlefluffylocationlibrary.PassiveLocationChangedReceiver;
 import com.localytics.android.Localytics;
@@ -168,7 +181,7 @@ import com.skobbler.ngx.positioner.SKPosition;
 import com.skobbler.ngx.routing.SKRouteManager;
 import com.skobbler.ngx.util.SKLogging;
 
-public final class LandingActivity2 extends FragmentActivity implements SKMapSurfaceListener, SensorEventListener{ 
+public final class LandingActivity2 extends FragmentActivity implements SKMapSurfaceListener, SensorEventListener, ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<LocationSettingsResult> { 
     
     private static final int DEFAULT_ZOOM_LEVEL = 12;
     
@@ -197,6 +210,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private LocationManager locationManager;
 
     private LocationListener locationListener;
+    private android.location.LocationListener systemLocationListener;
     
     private Location lastLocation;
     
@@ -840,16 +854,41 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                     }
                 }
             }
-            @Override
-            public void onProviderDisabled(String provider) {
-            }
-            @Override
-            public void onProviderEnabled(String provider) {
-            }
-            @Override
-            public void onStatusChanged(String provider, int status,
-                    Bundle extras) {
-            }
+        };
+        
+        systemLocationListener = new android.location.LocationListener() {
+
+			@Override
+			public void onLocationChanged(Location location) {
+//              fake lat-lon
+//              location.setLatitude(34.0291747); // LA
+//              location.setLongitude(-118.2734106);
+//              location.setLatitude(32.1559094); // Tucson
+//              location.setLongitude(-110.883805);
+//	              location.setLatitude(22.980648); // Tainan
+//	              location.setLongitude(120.236046);
+              if (ValidationActivity.isBetterLocation(location, lastLocation)) {
+					locationRefreshed.set(true);
+					if(needTagAustinLaunch.getAndSet(false)) {
+						LocalyticsUtils.setAustinLaunchIfInBoundingBox(location.getLatitude(), location.getLongitude());
+					}
+                  locationChanged(location);
+                  if(checkCalendarEvent.getAndSet(false) && extras != null) {
+                  	handleCalendarNotification(extras.getInt(RouteActivity.EVENT_ID));
+                  }
+              }
+			}
+
+			@Override
+			public void onStatusChanged(String provider, int status,
+					Bundle extras) {}
+
+			@Override
+			public void onProviderEnabled(String provider) {}
+
+			@Override
+			public void onProviderDisabled(String provider) {}
+        	
         };
         
         View centerMapIcon = findViewById(R.id.center_map_icon);
@@ -1353,7 +1392,13 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         //init Tracker
         ((SmarTrekApplication)getApplication()).getTracker(TrackerName.APP_TRACKER);
         showTutorialIfNessary();
-        
+    
+        if(GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(LandingActivity2.this) == ConnectionResult.SUCCESS) {
+	        requestingLocationUpdates = true;
+	        createGoogleApiClient();
+	        createLocationRequest();
+	        buildLocationSettingsRequest();
+        }
     }
     
     private static final long ONE_HOUR = 60 * 60 * 1000L;
@@ -1405,7 +1450,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
 		mapViewHolder.hideAllAttributionTextViews();
 		mapView = mapViewHolder.getMapSurfaceView();
-		CloudmadeUtil.retrieveCloudmadeKey(this);
 		
 		mapView.setMapSurfaceListener(this);
 		mapView.clearAllOverlays();
@@ -2383,24 +2427,73 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	}
     }
     
+    private GoogleApiClient googleApiClient;
+    private LocationRequest locationRequest;
+    private boolean requestingLocationUpdates = false;
+    private LocationSettingsRequest locationSettingsRequest;
+    private Integer REQUEST_CHECK_SETTINGS = Integer.valueOf(1111);
+    
+    private void createGoogleApiClient() {
+    	googleApiClient = new GoogleApiClient.Builder(LandingActivity2.this).addApi(LocationServices.API)
+    			.addConnectionCallbacks(LandingActivity2.this).addOnConnectionFailedListener(LandingActivity2.this).build();
+    }
+    
+    private void createLocationRequest() {
+    	locationRequest = new LocationRequest();
+    	locationRequest.setInterval(10000);
+    	locationRequest.setFastestInterval(5000);
+    	locationRequest.setSmallestDisplacement(5);
+    	locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+    
+    protected void buildLocationSettingsRequest() {
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(locationRequest);
+        locationSettingsRequest = builder.build();
+    }
+    
+    protected void checkLocationSettings() {
+        PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(googleApiClient, locationSettingsRequest);
+        result.setResultCallback(LandingActivity2.this);
+        
+    }
+    
+    protected void startLocationUpdates() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, locationListener);
+    }
+    
     private void prepareGPS(){
-        closeGPS();
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && 
-        		locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                10000, 5, locationListener);
-        }else{
-            SystemService.alertNoGPS(this, true);
-        }
-        locationManager.requestLocationUpdates(
-                LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+    	if(googleApiClient != null && requestingLocationUpdates) {
+    		checkLocationSettings();
+    	}
+    	else if(googleApiClient == null){
+    		closeGPS();
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && 
+            		locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                    10000, 5, systemLocationListener);
+            }else{
+                SystemService.alertNoGPS(this, true);
+            }
+            locationManager.requestLocationUpdates(
+                    LocationManager.NETWORK_PROVIDER, 0, 0, systemLocationListener);
+    	}
     }
     
     private void closeGPS(){
-        if (locationManager != null) {
-            locationManager.removeUpdates(locationListener);
-        }
+    	if(googleApiClient != null && googleApiClient.isConnected()) {
+	    	LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, locationListener).setResultCallback(new ResultCallback<Status>() {
+	            @Override
+	            public void onResult(Status status) {
+	                requestingLocationUpdates = true;
+	            }
+	        });
+    	}
+    	else if(locationManager != null){
+    		locationManager.removeUpdates(systemLocationListener);
+    	}
     }
     
     private void showODBalloon() {
@@ -2486,12 +2579,18 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     public void onStart() {
         super.onStart();
         GoogleAnalytics.getInstance(this).reportActivityStart(this);
+        if(googleApiClient != null) {
+        	googleApiClient.connect();
+        }
     }
     
     @Override
     public void onStop() {
         super.onStop();
         GoogleAnalytics.getInstance(this).reportActivityStop(this);
+        if(googleApiClient != null) {
+        	googleApiClient.disconnect();
+        }
     }
     
     @Override
@@ -4222,6 +4321,14 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         		removePOIMarker();
         	}
         }
+        else if(requestCode == REQUEST_CHECK_SETTINGS) {
+        	if(resultCode == Activity.RESULT_OK) {
+        		LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, locationListener);
+        	}
+        	else {
+        		requestingLocationUpdates = false;
+        	}
+        }
     }
     
     @Override
@@ -4398,8 +4505,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         protected void onPreExecute() {
             dialog.show();
             if(this._route == null && origin == null){
-                activity.locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
-                if (!activity.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                final LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     SystemService.alertNoGPS(activity, true, new SystemService.Callback() {
                         @Override
                         public void onNo() {
@@ -4409,11 +4516,11 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                         }
                     });
                 }
-                activity.locationListener = new LocationListener() {
+                android.location.LocationListener locationListener = new android.location.LocationListener() {
                     @Override
                     public void onLocationChanged(Location location) {
                         try{
-                            activity.locationManager.removeUpdates(this);
+                            locationManager.removeUpdates(this);
                             dialog.dismiss();
                             origin = new GeoPoint(location.getLatitude(), 
                                 location.getLongitude());
@@ -4426,7 +4533,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                     @Override
                     public void onProviderDisabled(String provider) {}
                 };
-                activity.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, activity.locationListener);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
             }
         }
         
@@ -4660,5 +4767,51 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 
 	@Override
 	public void onSurfaceCreated() {}
+
+	@Override
+	public void onConnectionFailed(ConnectionResult arg0) {
+		Log.d("LandingActivity2", "google api client connection failed!");
+	}
+
+	@Override
+	public void onConnected(Bundle arg0) {
+		Log.d("LandingActivity2", "google api client connected!");
+	}
+
+	@Override
+	public void onConnectionSuspended(int arg0) {
+		Log.d("LandingActivity2", "google api client connection suspended");
+	}
+
+	@Override
+	public void onResult(LocationSettingsResult locationSettingsResult) {
+		final Status status = locationSettingsResult.getStatus();
+        switch (status.getStatusCode()) {
+            case LocationSettingsStatusCodes.SUCCESS:
+            	startLocationUpdates();
+                break;
+            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                Log.i("LandingActivity2", "Location settings are not satisfied. Show the user a dialog to" +
+                        "upgrade location settings ");
+
+                try {
+                    // Show the dialog by calling startResolutionForResult(), and check the result
+                    // in onActivityResult().
+                    status.startResolutionForResult(LandingActivity2.this, REQUEST_CHECK_SETTINGS);
+                } catch (IntentSender.SendIntentException e) {
+                }
+                break;
+            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                Log.i("LandingActivity2", "Location settings are inadequate, and cannot be fixed here. Dialog " +
+                        "not created.");
+                if(googleApiClient != null) {
+                	googleApiClient.disconnect();
+                	googleApiClient = null;
+                }
+                prepareGPS();
+                break;
+        }
+	}
     
 }
+
