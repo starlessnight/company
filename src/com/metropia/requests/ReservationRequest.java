@@ -14,6 +14,7 @@ import android.content.Context;
 
 import com.metropia.activities.DebugOptionsActivity.NavigationLink;
 import com.metropia.exceptions.ServiceFailException;
+import com.metropia.exceptions.WrappedIOException;
 import com.metropia.models.Route;
 import com.metropia.models.User;
 import com.metropia.utils.HTTP.Method;
@@ -111,7 +112,12 @@ public class ReservationRequest extends Request {
                 res = executeHttpRequest(rescheduleId > 0?Method.PUT:Method.POST, url, params, ctx);
             } catch (Exception e){
             	throwException = true;
-                res = e.getMessage();
+            	if(e instanceof WrappedIOException) {
+            		res = ((WrappedIOException)e).getDetailMessage();
+            	}
+            	else {
+            		res = e.getMessage();
+            	}
             }
             if(rescheduleId!=0) {
             	id = rescheduleId;

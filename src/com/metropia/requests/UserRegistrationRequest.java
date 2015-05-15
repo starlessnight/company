@@ -13,6 +13,7 @@ import org.json.JSONObject;
 import android.content.Context;
 
 import com.metropia.exceptions.ServiceFailException;
+import com.metropia.exceptions.WrappedIOException;
 import com.metropia.models.User;
 import com.metropia.utils.HTTP.Method;
 
@@ -40,7 +41,12 @@ public class UserRegistrationRequest extends Request {
                 res = executeHttpRequest(Method.POST, url, params, ctx);
             } catch (Exception e){
             	throwException = true;
-                res = e.getMessage();
+            	if(e instanceof WrappedIOException) {
+            		res = ((WrappedIOException) e).getDetailMessage();
+            	}
+            	else {
+            		res = e.getMessage();
+            	}
             }
             JSONObject resJson = new JSONObject(res);
             String detailMessage = "";
