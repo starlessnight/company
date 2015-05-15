@@ -16,6 +16,7 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
+import com.metropia.activities.LandingActivity2.PoiOverlayInfo;
 import com.metropia.dialogs.CancelableProgressDialog;
 import com.metropia.models.Reservation;
 import com.metropia.models.User;
@@ -97,11 +98,15 @@ public final class PreTripAlertActivity extends FragmentActivity {
                             extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
                             extras.putString("originAddr", reserv.getOriginAddress());
                             try {
-                            	extras.putParcelable(RouteActivity.ORIGIN_COORD, reserv.getStartGpFromNavLink());
+                            	GeoPoint originLoc = reserv.getStartGpFromNavLink();
+                            	extras.putParcelable(RouteActivity.ORIGIN_COORD, originLoc);
+                            	extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, createPoiOverlayInfo(originLoc, reserv.getOriginAddress()));
                             }
                             catch(Exception ignore) {}
                             extras.putString("destAddr", reserv.getDestinationAddress());
-                            extras.putParcelable(RouteActivity.DEST_COORD, new GeoPoint(reserv.getEndlat(), reserv.getEndlon()));
+                            GeoPoint destLoc = new GeoPoint(reserv.getEndlat(), reserv.getEndlon());
+                            extras.putParcelable(RouteActivity.DEST_COORD, destLoc);
+                            extras.putParcelable(RouteActivity.DEST_OVERLAY_INFO, createPoiOverlayInfo(destLoc, reserv.getDestinationAddress()));
                             extras.putLong(RouteActivity.RESCHEDULE_DEPARTURE_TIME, reserv.getDepartureTimeUtc());
                             intent.putExtras(extras);
                             startActivity(intent);
@@ -119,6 +124,19 @@ public final class PreTripAlertActivity extends FragmentActivity {
         Font.setTypeface(Font.getLight(assets), msg);
         //init Tracker
       	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
+    }
+    
+    private PoiOverlayInfo createPoiOverlayInfo(GeoPoint location, String address) {
+    	PoiOverlayInfo poiInfo = new PoiOverlayInfo();
+		poiInfo.id = 0;
+		poiInfo.label = "";
+		poiInfo.address = address;
+		poiInfo.lat = location.getLatitude();
+		poiInfo.lon = location.getLongitude();
+		poiInfo.geopoint = location;
+		poiInfo.marker = R.drawable.poi_pin;
+		poiInfo.markerWithShadow = R.drawable.poi_pin_with_shadow;
+		return poiInfo;
     }
     
     @Override

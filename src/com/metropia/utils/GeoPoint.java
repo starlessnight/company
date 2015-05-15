@@ -64,6 +64,8 @@ public class GeoPoint implements Parcelable, Serializable {
 	// Parcelable
 	// ===========================================================
 	private GeoPoint(final Parcel in) {
+		this.latitude = in.readDouble();
+		this.longitude = in.readDouble();
 		this.latitudeE6 = in.readInt();
 		this.longitudeE6 = in.readInt();
 	}
@@ -75,6 +77,8 @@ public class GeoPoint implements Parcelable, Serializable {
 
 	@Override
 	public void writeToParcel(final Parcel out, final int flags) {
+		out.writeDouble(latitude);
+		out.writeDouble(longitude);
 		out.writeInt(latitudeE6);
 		out.writeInt(longitudeE6);
 	}
