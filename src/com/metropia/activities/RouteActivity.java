@@ -1157,9 +1157,15 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    	routeLastNode = _route.getLastNode();
 	    	updateODAnnotationSize(getSizeRatioByZoomLevel());
 	    	
+	    	double originLat = (originOverlayInfo != null && originOverlayInfo.geopoint != null) ? originOverlayInfo.geopoint.getLatitude() : routeFirstNode.getLatitude();
+	    	double originLon = (originOverlayInfo != null && originOverlayInfo.geopoint != null) ? originOverlayInfo.geopoint.getLongitude() : routeFirstNode.getLongitude();
+	    	double destLat = (destOverlayInfo != null && destOverlayInfo.geopoint != null) ? destOverlayInfo.geopoint.getLatitude() : routeLastNode.getLatitude();
+	    	double destLon = (destOverlayInfo != null && destOverlayInfo.geopoint != null) ? destOverlayInfo.geopoint.getLongitude() : routeLastNode.getLongitude();
+	    	
 	    	toBalloonAnn = new SKAnnotation();
 	    	toBalloonAnn.setUniqueID(TO_BALLOON_ID);
-	    	toBalloonAnn.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
+	    	
+	    	toBalloonAnn.setLocation(new SKCoordinate(destLon, destLat));
 	    	int toOffset = isFlag ? 40 : 36;
 	    	toBalloonAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(toOffset, getResources().getDisplayMetrics())));
 	    	SKAnnotationView toBalloonView = new SKAnnotationView();
@@ -1171,7 +1177,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	        
 	        toDetailBalloonAnn = new SKAnnotation();
 	        toDetailBalloonAnn.setUniqueID(TO_DETAIL_BALLOON_ID);
-	        toDetailBalloonAnn.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
+	        toDetailBalloonAnn.setLocation(new SKCoordinate(destLon, destLat));
 	        toDetailBalloonAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(toOffset, getResources().getDisplayMetrics())));
 	    	SKAnnotationView toDetailBalloonView = new SKAnnotationView();
 	        ImageView toDetailBalloonImage = new ImageView(RouteActivity.this);
@@ -1181,7 +1187,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	        
 	        fromBalloonAnn = new SKAnnotation();
 	        fromBalloonAnn.setUniqueID(FROM_BALLOON_ID);
-	        fromBalloonAnn.setLocation(new SKCoordinate(_route.getFirstNode().getLongitude(), _route.getFirstNode().getLatitude()));
+	        fromBalloonAnn.setLocation(new SKCoordinate(originLon, originLat));
 	        fromBalloonAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(36, getResources().getDisplayMetrics())));
 	    	SKAnnotationView fromBalloonView = new SKAnnotationView();
 	        ImageView balloon = new ImageView(RouteActivity.this);
@@ -1192,7 +1198,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	        
 	        fromDetailBalloonAnn = new SKAnnotation();
 	        fromDetailBalloonAnn.setUniqueID(FROM_DETAIL_BALLOON_ID);
-	        fromDetailBalloonAnn.setLocation(new SKCoordinate(_route.getFirstNode().getLongitude(), _route.getFirstNode().getLatitude()));
+	        fromDetailBalloonAnn.setLocation(new SKCoordinate(originLon, originLat));
 	        fromDetailBalloonAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(36, getResources().getDisplayMetrics())));
 	    	SKAnnotationView fromDetailBalloonView = new SKAnnotationView();
 	        ImageView detailBalloon = new ImageView(RouteActivity.this);
@@ -1640,7 +1646,9 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		    	SKAnnotation fromOverlay = new SKAnnotation();
 		    	fromOverlay.setUniqueID(FROM_OVERLAY_ID);
 		    	fromOverlay.setMininumZoomLevel(MINIAL_ZOOM_LEVEL + 1);
-		    	fromOverlay.setLocation(new SKCoordinate(routeFirstNode.getLongitude(), routeFirstNode.getLatitude()));
+		    	double originLat = originOverlayInfo.geopoint != null ? originOverlayInfo.geopoint.getLatitude() : routeFirstNode.getLatitude();
+		    	double originLon = originOverlayInfo.geopoint != null ? originOverlayInfo.geopoint.getLongitude() : routeFirstNode.getLongitude();
+		    	fromOverlay.setLocation(new SKCoordinate(originLon, originLat));
 		    	SKAnnotationView fromOverlayView = new SKAnnotationView();
 		    	ImageView fromOverlayImageView = new ImageView(RouteActivity.this);
 		    	fromOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, originOverlayInfo.markerWithShadow, ratio));
@@ -1653,7 +1661,9 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    		SKAnnotation toOverlay = new SKAnnotation();
 	    		toOverlay.setUniqueID(TO_OVERLAY_ID);
 	    		toOverlay.setMininumZoomLevel(MINIAL_ZOOM_LEVEL + 1);
-	    		toOverlay.setLocation(new SKCoordinate(routeLastNode.getLongitude(), routeLastNode.getLatitude()));
+	    		double destLat = destOverlayInfo.geopoint != null ? destOverlayInfo.geopoint.getLatitude() : routeLastNode.getLatitude();
+		    	double destLon = destOverlayInfo.geopoint != null ? destOverlayInfo.geopoint.getLongitude() : routeLastNode.getLongitude();
+	    		toOverlay.setLocation(new SKCoordinate(destLon, destLat));
 	    		SKAnnotationView toOverlayView = new SKAnnotationView();
 	    		ImageView toOverlayImageView = new ImageView(RouteActivity.this);
 	    		int destResourceId = destOverlayInfo != null ? (destOverlayInfo.markerWithShadow == R.drawable.poi_pin_with_shadow ? R.drawable.pin_destination : destOverlayInfo.markerWithShadow) : R.drawable.pin_destination;
