@@ -90,7 +90,9 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
     
     public static final String GPS_UPDATE_INTERVAL = "GPS_UPDATE_INTERVAL";
     
-    private static final String CURRENT_LOCATION = "CURRENT_LOCATION";
+//    private static final String CURRENT_LOCATION = "CURRENT_LOCATION";
+    
+    private static final String CURRENT_LOCATION_LAT_LON = "CURRENT_LOCATION_LAT_LON";
     
     private static final String ENTRYPOINT = "ENTRYPOINT";
     
@@ -355,9 +357,29 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
             }
         });
         
-        EditText curLocView = (EditText) findViewById(R.id.current_location);
-        curLocView.setText(String.valueOf(prefs.getString(CURRENT_LOCATION, "")));
-        curLocView.addTextChangedListener(new TextWatcher() {
+//        EditText curLocView = (EditText) findViewById(R.id.current_location);
+//        curLocView.setText(String.valueOf(prefs.getString(CURRENT_LOCATION, "")));
+//        curLocView.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//            }
+//            
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count,
+//                    int after) {
+//            }
+//            
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                prefs.edit()
+//                    .putString(CURRENT_LOCATION, s.toString())
+//                    .commit();
+//            }
+//        });
+        
+        EditText curLocLatLonView = (EditText) findViewById(R.id.current_location_lat_lon);
+        curLocLatLonView.setText(String.valueOf(prefs.getString(CURRENT_LOCATION_LAT_LON, "")));
+        curLocLatLonView.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
@@ -370,7 +392,7 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
             @Override
             public void afterTextChanged(Editable s) {
                 prefs.edit()
-                    .putString(CURRENT_LOCATION, s.toString())
+                    .putString(CURRENT_LOCATION_LAT_LON, s.toString())
                     .commit();
             }
         });
@@ -587,8 +609,18 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
         return getPrefs(ctx).getLong(Setting.activity_distance_interval.name(), 100);
     }
     
-    public static String getCurrentLocation(Context ctx){
-        return getPrefs(ctx).getString(CURRENT_LOCATION, "");
+//    public static String getCurrentLocation(Context ctx){
+//        return getPrefs(ctx).getString(CURRENT_LOCATION, "");
+//    }
+    
+    public static GeoPoint getCurrentLocationLatLon(Context ctx){
+    	String latLon = getPrefs(ctx).getString(CURRENT_LOCATION_LAT_LON, "");
+    	GeoPoint curLoc = null;
+    	if(StringUtils.isNotBlank(latLon) && StringUtils.split(latLon, ",").length > 1) {
+    		String[] latLonArray = StringUtils.split(latLon, ",");
+    		curLoc = new GeoPoint(Double.valueOf(StringUtils.trim(latLonArray[0])), Double.valueOf(StringUtils.trim(latLonArray[1])));
+    	}
+        return curLoc;
     }
     
     public static String getDebugEntrypoint(Context ctx){

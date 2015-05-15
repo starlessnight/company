@@ -857,6 +857,12 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //	              location.setLongitude(120.236046);
 //            	  location.setLatitude(30.18155); // Austin
 //            	  location.setLongitude(-97.62175);
+            	GeoPoint debugLoc = DebugOptionsActivity.getCurrentLocationLatLon(LandingActivity2.this);
+				if(debugLoc != null) {
+					location.setLatitude(debugLoc.getLatitude());
+					location.setLongitude(debugLoc.getLongitude());
+				}
+				
                 if (ValidationActivity.isBetterLocation(location, lastLocation)) {
                 	setLocationRefreshStatus(true);
 					if(needTagAustinLaunch.getAndSet(false)) {
@@ -881,6 +887,11 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //              location.setLongitude(-110.883805);
 //	            location.setLatitude(22.980648); // Tainan
 //	            location.setLongitude(120.236046);
+				GeoPoint debugLoc = DebugOptionsActivity.getCurrentLocationLatLon(LandingActivity2.this);
+				if(debugLoc != null) {
+					location.setLatitude(debugLoc.getLatitude());
+					location.setLongitude(debugLoc.getLongitude());
+				}
 				setLocationRefreshStatus(true);
 				if (ValidationActivity.isBetterLocation(location, lastLocation)) {
 					if(needTagAustinLaunch.getAndSet(false)) {
@@ -4810,9 +4821,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             if(this._route == null && dest == null){
                 try {
                 	dest = Geocoding.lookup(ctx, address, origin.getLatitude(), origin.getLongitude()).get(0).getGeoPoint();
-                    String curLoc = DebugOptionsActivity.getCurrentLocation(ctx);
-                    if(StringUtils.isNotBlank(curLoc)){ 
-                        origin = Geocoding.lookup(ctx, curLoc).get(0).getGeoPoint();
+                    GeoPoint curLoc = DebugOptionsActivity.getCurrentLocationLatLon(ctx);
+                    if(curLoc != null){
+                        origin = curLoc;
                     }
                 }
                 catch (Exception e) {
@@ -5112,16 +5123,25 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		        }
 			}
         });
-		
-		LocationInfo cacheLoc = new LocationInfo(LandingActivity2.this);
-        if(System.currentTimeMillis() - cacheLoc.lastLocationUpdateTimestamp <= ONE_HOUR) {
+		GeoPoint debugLoc = DebugOptionsActivity.getCurrentLocationLatLon(LandingActivity2.this);
+        if(debugLoc != null) {
         	Location loc = new Location("");
-        	loc.setLatitude(cacheLoc.lastLat);
-        	loc.setLongitude(cacheLoc.lastLong);
-        	loc.setTime(cacheLoc.lastLocationUpdateTimestamp - ValidationActivity.TWO_MINUTES);
-        	loc.setAccuracy(cacheLoc.lastAccuracy);
-        	loc.setBearing(cacheLoc.lastHeading);
+        	loc.setLatitude(debugLoc.getLatitude());
+        	loc.setLongitude(debugLoc.getLongitude());
+        	loc.setTime(System.currentTimeMillis() - ValidationActivity.TWO_MINUTES);
         	locationChanged(loc);
+        }
+        else {
+			LocationInfo cacheLoc = new LocationInfo(LandingActivity2.this);
+	        if(System.currentTimeMillis() - cacheLoc.lastLocationUpdateTimestamp <= ONE_HOUR) {
+	        	Location loc = new Location("");
+	        	loc.setLatitude(cacheLoc.lastLat);
+	        	loc.setLongitude(cacheLoc.lastLong);
+	        	loc.setTime(cacheLoc.lastLocationUpdateTimestamp - ValidationActivity.TWO_MINUTES);
+	        	loc.setAccuracy(cacheLoc.lastAccuracy);
+	        	loc.setBearing(cacheLoc.lastHeading);
+	        	locationChanged(loc);
+	        }
         }
 	}
 

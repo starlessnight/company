@@ -64,6 +64,7 @@ import com.metropia.requests.UserIdRequest;
 import com.metropia.tasks.LoginTask;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
+import com.metropia.utils.GeoPoint;
 import com.metropia.utils.HTTP;
 import com.metropia.utils.Misc;
 import com.metropia.utils.Preferences;
@@ -190,6 +191,11 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
         locationListener = new LocationListener(){
             @Override
             public void onLocationChanged(Location location) {
+            	GeoPoint curLoc = DebugOptionsActivity.getCurrentLocationLatLon(LoginActivity.this);
+				if(curLoc != null) {
+					location.setLatitude(curLoc.getLatitude());
+					location.setLongitude(curLoc.getLongitude());
+				}
             	try {
                 	PassiveLocationChangedReceiver.processLocation(getApplicationContext(), location);
                 }catch(Exception ignore){}
@@ -202,6 +208,11 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
 
 			@Override
 			public void onLocationChanged(Location location) {
+				GeoPoint curLoc = DebugOptionsActivity.getCurrentLocationLatLon(LoginActivity.this);
+				if(curLoc != null) {
+					location.setLatitude(curLoc.getLatitude());
+					location.setLongitude(curLoc.getLongitude());
+				}
 				try {
                 	PassiveLocationChangedReceiver.processLocation(getApplicationContext(), location);
                 }catch(Exception ignore){}

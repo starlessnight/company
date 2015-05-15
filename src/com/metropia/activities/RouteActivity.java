@@ -789,26 +789,10 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	                                speed = Trajectory.msToMph(location.getSpeed());
 	                                course = location.getBearing();
 	                                if(_currentLocation){
-	                                    final String curLoc = DebugOptionsActivity.getCurrentLocation(RouteActivity.this);
-	                                    if(StringUtils.isNotBlank(curLoc)){
-	                                        AsyncTask<Void, Void, GeoPoint> task = new AsyncTask<Void, Void, GeoPoint>(){
-	                                            @Override
-	                                            protected GeoPoint doInBackground(Void... params) {
-	                                                GeoPoint rs = null;
-	                                                try{
-	                                                    rs = Geocoding.lookup(getBaseContext(), curLoc, location.getLatitude(), location.getLongitude()).get(0).getGeoPoint();
-	                                                }catch(Throwable t){}
-	                                                return rs;
-	                                            }
-	                                            @Override
-	                                            protected void onPostExecute(GeoPoint result) {
-	                                                if(result != null){
-	                                                    originCoord = result;
-	                                                    doRouteTask(originCoord);
-	                                                }
-	                                            }
-	                                        };
-	                                        Misc.parallelExecute(task);
+	                                    GeoPoint curLoc = DebugOptionsActivity.getCurrentLocationLatLon(RouteActivity.this);
+	                                    if(curLoc != null){
+	                                    	originCoord = curLoc;
+                                            doRouteTask(originCoord);
 	                                    }else{
 	                                    	originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
 	                                    	originCoordProvider = location.getProvider();
