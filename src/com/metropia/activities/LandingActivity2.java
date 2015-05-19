@@ -4323,10 +4323,11 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }
         else if(requestCode == REQUEST_CHECK_SETTINGS) {
         	if(resultCode == Activity.RESULT_OK) {
-        		LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, locationListener);
+        		startLocationUpdates();
         	}
         	else {
         		requestingLocationUpdates = false;
+        		startLocationUpdates();
         	}
         }
     }
@@ -4804,11 +4805,12 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
                 Log.i("LandingActivity2", "Location settings are inadequate, and cannot be fixed here. Dialog " +
                         "not created.");
-                if(googleApiClient != null) {
-                	googleApiClient.disconnect();
-                	googleApiClient = null;
-                }
-                prepareGPS();
+//                if(googleApiClient != null) {
+//                	googleApiClient.disconnect();
+//                	googleApiClient = null;
+//                }
+//                prepareGPS();
+                startLocationUpdates();
                 break;
         }
 	}
