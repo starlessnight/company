@@ -142,7 +142,7 @@
                     android:layout_height="wrap_content"
                     android:drawableTop="@drawable/reservation_on_my_way"
                     android:gravity="center"
-                    android:text="MESSAGE"
+                    android:text="ON MY WAY"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/smaller_font" />
             </FrameLayout>
