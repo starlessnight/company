@@ -2428,7 +2428,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     private GoogleApiClient googleApiClient;
-    private LocationRequest locationRequest;
+    private LocationRequest highAccuracyLocationRequest;
+    private LocationRequest powerBalanceLocationRequest;
     private boolean requestingLocationUpdates = false;
     private LocationSettingsRequest locationSettingsRequest;
     private Integer REQUEST_CHECK_SETTINGS = Integer.valueOf(1111);
@@ -2439,16 +2440,22 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     private void createLocationRequest() {
-    	locationRequest = new LocationRequest();
-    	locationRequest.setInterval(10000);
-    	locationRequest.setFastestInterval(5000);
-    	locationRequest.setSmallestDisplacement(5);
-    	locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    	highAccuracyLocationRequest = new LocationRequest();
+    	highAccuracyLocationRequest.setInterval(10000);
+    	highAccuracyLocationRequest.setFastestInterval(5000);
+    	highAccuracyLocationRequest.setSmallestDisplacement(5);
+    	highAccuracyLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    	
+    	powerBalanceLocationRequest = new LocationRequest();
+    	powerBalanceLocationRequest.setInterval(10000);
+    	powerBalanceLocationRequest.setFastestInterval(5000);
+    	powerBalanceLocationRequest.setSmallestDisplacement(5);
+    	powerBalanceLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
     }
     
     protected void buildLocationSettingsRequest() {
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-        builder.addLocationRequest(locationRequest);
+        builder.addLocationRequest(highAccuracyLocationRequest).addLocationRequest(powerBalanceLocationRequest).setAlwaysShow(true);
         locationSettingsRequest = builder.build();
     }
     
@@ -2460,7 +2467,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     protected void startLocationUpdates() {
-        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, locationListener);
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, highAccuracyLocationRequest, locationListener);
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, powerBalanceLocationRequest, locationListener);
     }
     
     private void prepareGPS(){
