@@ -1206,9 +1206,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					@Override
 					public void onAnimationEnd() {
 						enRoute = null;
-						if(realTravelRemainTimeInSec > 0) {
-							sendImComingMsg(realTravelRemainTimeInSec);
-						}
+//						if(realTravelRemainTimeInSec > 0) {
+//							sendImComingMsg(realTravelRemainTimeInSec);
+//						}
 						drawRoute(mapView, getRouteOrReroute()); // draw route before en-route
                         hideEnRouteAlert();
                         v.setClickable(true);
@@ -1604,7 +1604,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 //	private boolean[] omwSent = new boolean[omwPercentages.length()];
 	
-	private void sendImComingMsg(final long remainTime) {
+	private void sendImComingMsg(final long remainTimeInSec) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -1640,7 +1640,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
     											emails,
     											loc.getLatitude(),
     											loc.getLongitude(),
-    											getETA(remainTime),
+    											getETA(remainTimeInSec),
     											NavigationView.metersToMiles(_distance),
     											reservation.getDestinationAddress(),
     											route.getTimezoneOffset());
@@ -3015,6 +3015,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						realRemainTimeInMin = travelTimeReq.execute(ValidationActivity.this);  // min
 						realTravelRemainTimeInSec = Double.valueOf(realRemainTimeInMin * 60).longValue(); // sec
 						if(realRemainTimeInMin > 0 && (realTravelRemainTimeInSec - remainingTime.get()) >= Math.max(5 * 60, 0.2 * getRouteOrReroute().getDurationFromNodes())) {
+							sendImComingMsg(realTravelRemainTimeInSec);
 							enRoute = getNewRoute(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), lastKnownLocation.getSpeed(), lastKnownLocation.getBearing());
 							if(enRoute != null && (realTravelRemainTimeInSec - enRoute.getDurationFromNodes()) > Math.max(3 * 60, 0.15 * realTravelRemainTimeInSec)) {
 								((TextView) findViewById(R.id.en_route_debug_msg)).setText(
