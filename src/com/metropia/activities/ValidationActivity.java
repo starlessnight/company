@@ -37,6 +37,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
@@ -94,6 +95,19 @@ import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.Animato
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
 import com.littlefluffytoys.littlefluffylocationlibrary.PassiveLocationChangedReceiver;
 import com.localytics.android.Localytics;
@@ -172,7 +186,8 @@ import edu.cmu.pocketsphinx.RecognitionListener;
 import edu.cmu.pocketsphinx.SpeechRecognizer;
 
 public class ValidationActivity extends FragmentActivity implements OnInitListener, 
-        OnAudioFocusChangeListener, SKMapSurfaceListener, SKRouteListener, RecognitionListener {
+        OnAudioFocusChangeListener, SKMapSurfaceListener, SKRouteListener, RecognitionListener, ConnectionCallbacks, 
+        OnConnectionFailedListener, ResultCallback<LocationSettingsResult> {
 	public static final int DEFAULT_ZOOM_LEVEL = 18;
 	
 	public static final int NAVIGATION_ZOOM_LEVEL = 17;
@@ -317,7 +332,35 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		reservation.setRoute(route);
 		
 		// Define a listener that responds to location updates
-		locationListener = new ValidationLocationListener();
+		locationListener = new LocationListener() {
+			
+			public void onLocationChanged(Location location) {
+				preProcessLocation(location);
+			}
+
+			public void onStatusChanged(String provider, int status, Bundle extras) {
+				Log.d(this.getClass().toString(), String.format(
+						"onStatusChanged: %s, %d, %s", provider, status, extras));
+			}
+
+			public void onProviderEnabled(String provider) {
+				Log.d(this.getClass().toString(),
+						String.format("onProviderEnabled: %s", provider));
+			}
+
+			public void onProviderDisabled(String provider) {
+				Log.d(this.getClass().toString(),
+						String.format("onProviderDisabled: %s", provider));
+			}
+			
+		};
+		
+		gpsLocationListener = new com.google.android.gms.location.LocationListener() {
+			@Override
+			public void onLocationChanged(Location location) {
+				preProcessLocation(location);
+			}
+		}; 
 
 		if (isOnRecreate.get()) {
 			startTime = savedInstanceState.getLong(START_TIME);
@@ -519,6 +562,55 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		
 		//init Tracker
       	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
+      	
+      	if(GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(ValidationActivity.this) == ConnectionResult.SUCCESS) {
+	        requestingLocationUpdates = true;
+	        createGoogleApiClient();
+	        createLocationRequest();
+	        buildLocationSettingsRequest();
+        }
+	}
+	
+	private Location lastLocation;
+	
+	private void preProcessLocation(Location location) {
+		//Log.d(this.getClass().toString(), String.format("onLocationChanged: %s", location));
+		SharedPreferences debugPrefs = getSharedPreferences(
+				DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
+		int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE,
+				DebugOptionsActivity.GPS_MODE_DEFAULT);
+		if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL) {
+			if (isBetterLocation(location, lastLocation)) {
+				locationRefreshed.set(true);
+				lastLocation = location;
+				locationChanged(location);
+				try {
+		        	PassiveLocationChangedReceiver.processLocation(getApplicationContext(), location);
+		        }catch(Exception ignore){}
+			}
+		} else {
+			locationRefreshed.set(true);
+			locationChanged(location);
+		}
+		
+		final boolean currentMode = SkobblerUtils.isDayMode();
+		if(dayMode.get() != currentMode) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(ValidationActivity.this, currentMode));
+					TextView timeInfo = (TextView) findViewById(R.id.remain_times);
+					if(currentMode) {
+						timeInfo.setTextColor(Color.parseColor("#ad000000"));
+					}
+					else {
+						timeInfo.setTextColor(Color.parseColor("#adffffff"));
+					}
+					dayMode.set(currentMode);
+					mapView.getMapSettings().setStreetNamePopupsShown(!dayMode.get());
+				}
+			});
+		}
 	}
 	
 	private void sendOnMyWaySms() {
@@ -636,6 +728,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	protected void onStart() {
 		super.onStart();
 		GoogleAnalytics.getInstance(this).reportActivityStart(this);
+		if(googleApiClient != null) {
+        	googleApiClient.connect();
+        }
 	}
 
 	@Override
@@ -1443,25 +1538,95 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		return new View[] { findViewById(R.id.mapview_holder),
 				findViewById(R.id.navigation_view), findViewById(R.id.mapview_options) };
 	}
+	
+	private GoogleApiClient googleApiClient;
+    private LocationRequest highAccuracyLocationRequest;
+    private boolean requestingLocationUpdates = false;
+    private LocationSettingsRequest locationSettingsRequest;
+    private Integer REQUEST_CHECK_SETTINGS = Integer.valueOf(1111);
+    private com.google.android.gms.location.LocationListener gpsLocationListener;
+    
+    private void createGoogleApiClient() {
+    	googleApiClient = new GoogleApiClient.Builder(ValidationActivity.this).addApi(LocationServices.API)
+    			.addConnectionCallbacks(ValidationActivity.this).addOnConnectionFailedListener(ValidationActivity.this).build();
+    }
+    
+    private void createLocationRequest() {
+    	highAccuracyLocationRequest = new LocationRequest();
+    	highAccuracyLocationRequest.setInterval(DebugOptionsActivity.getGpsUpdateInterval(this));
+    	highAccuracyLocationRequest.setFastestInterval(1000);
+    	highAccuracyLocationRequest.setSmallestDisplacement(0);
+    	highAccuracyLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+    
+    protected void buildLocationSettingsRequest() {
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(highAccuracyLocationRequest).setAlwaysShow(true);
+        locationSettingsRequest = builder.build();
+    }
+    
+    protected void checkLocationSettings() {
+        PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(googleApiClient, locationSettingsRequest);
+        result.setResultCallback(ValidationActivity.this);
+        
+    }
+    
+    protected void startLocationUpdates() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, highAccuracyLocationRequest, gpsLocationListener);
+    }
+    
+    private void prepareGPS(){
+    	if(googleApiClient != null && requestingLocationUpdates) {
+    		checkLocationSettings();
+    	}
+    	else if(googleApiClient == null){
+    		closeGPS();
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && 
+            		locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                    10000, 5, locationListener);
+            }else{
+                SystemService.alertNoGPS(this, true);
+            }
+            locationManager.requestLocationUpdates(
+                    LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+    	}
+    }
+    
+    private void closeGPS(){
+    	if(googleApiClient != null && googleApiClient.isConnected()) {
+	    	LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, gpsLocationListener).setResultCallback(new ResultCallback<Status>() {
+	            @Override
+	            public void onResult(Status status) {
+	                requestingLocationUpdates = true;
+	            }
+	        });
+    	}
+    	else if(locationManager != null){
+    		locationManager.removeUpdates(locationListener);
+    	}
+    }
 
-	private void prepareGPS() {
-		// Acquire a reference to the system Location Manager
-		if (locationManager != null) {
-			locationManager.removeUpdates(locationListener);
-		}
-		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-			SystemService.alertNoGPS(this, true);
-		} else {
-			// TODO: Turn on GSP early
-			locationManager.requestLocationUpdates(
-					LocationManager.GPS_PROVIDER,
-					DebugOptionsActivity.getGpsUpdateInterval(this), 0,
-					locationListener);
-		}
-		locationManager.requestLocationUpdates(
-				LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-	}
+//	private void prepareGPS() {
+//		// Acquire a reference to the system Location Manager
+//		if (locationManager != null) {
+//			locationManager.removeUpdates(locationListener);
+//		}
+//		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+//		if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+//			SystemService.alertNoGPS(this, true);
+//		} else {
+//			// TODO: Turn on GSP early
+//			locationManager.requestLocationUpdates(
+//					LocationManager.GPS_PROVIDER,
+//					DebugOptionsActivity.getGpsUpdateInterval(this), 0,
+//					locationListener);
+//		}
+//		locationManager.requestLocationUpdates(
+//				LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+//	}
 	
 	private File saveGPXFile(Route _route) {
 		try {
@@ -2557,66 +2722,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         }
     }
 
-	private class ValidationLocationListener implements LocationListener {
-
-		Location lastLocation;
-
-		public void onLocationChanged(Location location) {
-			//Log.d(this.getClass().toString(), String.format("onLocationChanged: %s", location));
-			SharedPreferences debugPrefs = getSharedPreferences(
-					DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
-			int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE,
-					DebugOptionsActivity.GPS_MODE_DEFAULT);
-			if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL) {
-				if (isBetterLocation(location, lastLocation)) {
-					locationRefreshed.set(true);
-					lastLocation = location;
-					locationChanged(location);
-					try {
-			        	PassiveLocationChangedReceiver.processLocation(getApplicationContext(), location);
-			        }catch(Exception ignore){}
-				}
-			} else {
-				locationRefreshed.set(true);
-				locationChanged(location);
-			}
-			
-			final boolean currentMode = SkobblerUtils.isDayMode();
-			if(dayMode.get() != currentMode) {
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(ValidationActivity.this, currentMode));
-						TextView timeInfo = (TextView) findViewById(R.id.remain_times);
-						if(currentMode) {
-							timeInfo.setTextColor(Color.parseColor("#ad000000"));
-						}
-						else {
-							timeInfo.setTextColor(Color.parseColor("#adffffff"));
-						}
-						dayMode.set(currentMode);
-						mapView.getMapSettings().setStreetNamePopupsShown(!dayMode.get());
-					}
-				});
-			}
-		}
-
-		public void onStatusChanged(String provider, int status, Bundle extras) {
-			Log.d(this.getClass().toString(), String.format(
-					"onStatusChanged: %s, %d, %s", provider, status, extras));
-		}
-
-		public void onProviderEnabled(String provider) {
-			Log.d(this.getClass().toString(),
-					String.format("onProviderEnabled: %s", provider));
-		}
-
-		public void onProviderDisabled(String provider) {
-			Log.d(this.getClass().toString(),
-					String.format("onProviderDisabled: %s", provider));
-		}
-	}
-
 	public static final int TWO_MINUTES = 1000 * 60 * 2;
 
 	/**
@@ -2878,9 +2983,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		unregisterReceiver(timeoutReceiver);
 		unregisterReceiver(tripValidator);
 //		unregisterReceiver(enRouteCheck);
-		if (locationManager != null) {
-			locationManager.removeUpdates(locationListener);
-		}
+		closeGPS();
 		deactivateLocationService();
 		NavigationView.removeNotification(this);
 		if (mTts != null) {
@@ -2898,6 +3001,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		try {
 			FileUtils.cleanDirectory(getDir(ValidationActivity.this));
 		} catch (Exception ignore) { ignore.printStackTrace();}
+		
+		if(googleApiClient != null) {
+        	googleApiClient.disconnect();
+        }
 		
 		super.onDestroy();
 		SKMaps.getInstance().destroySKMaps();
@@ -2924,6 +3031,15 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         	}
         	if(StringUtils.isNotBlank(emails)) {
         		sendOnMyWayEmail.set(true);
+        	}
+        }
+        else if(requestCode == REQUEST_CHECK_SETTINGS) {
+        	if(resultCode == Activity.RESULT_OK) {
+        		startLocationUpdates();
+        	}
+        	else {
+        		requestingLocationUpdates = false;
+        		startLocationUpdates();
         	}
         }
     }
@@ -3387,5 +3503,45 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	public void onOffportRequestCompleted(int arg0) {}
+
+	@Override
+	public void onResult(LocationSettingsResult locationSettingsResult) {
+		final Status status = locationSettingsResult.getStatus();
+        switch (status.getStatusCode()) {
+            case LocationSettingsStatusCodes.SUCCESS:
+            	startLocationUpdates();
+                break;
+            case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                Log.i("LandingActivity2", "Location settings are not satisfied. Show the user a dialog to" +
+                        "upgrade location settings ");
+
+                try {
+                    // Show the dialog by calling startResolutionForResult(), and check the result
+                    // in onActivityResult().
+                    status.startResolutionForResult(ValidationActivity.this, REQUEST_CHECK_SETTINGS);
+                } catch (IntentSender.SendIntentException e) {
+                }
+                break;
+            case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                Log.i("LandingActivity2", "Location settings are inadequate, and cannot be fixed here. Dialog " +
+                        "not created.");
+//                if(googleApiClient != null) {
+//                	googleApiClient.disconnect();
+//                	googleApiClient = null;
+//                }
+//                prepareGPS();
+                startLocationUpdates();
+                break;
+        }
+	}
+
+	@Override
+	public void onConnectionFailed(ConnectionResult arg0) {}
+
+	@Override
+	public void onConnected(Bundle arg0) {}
+
+	@Override
+	public void onConnectionSuspended(int arg0) {}
 
 }

@@ -950,7 +950,7 @@ public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceLis
     
     protected void buildLocationSettingsRequest() {
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-        builder.addLocationRequest(locationRequest);
+        builder.addLocationRequest(locationRequest).setAlwaysShow(true);
         locationSettingsRequest = builder.build();
     }
     
