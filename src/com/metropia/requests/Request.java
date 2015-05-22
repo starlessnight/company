@@ -97,7 +97,8 @@ public abstract class Request {
 	    privacy_policy, 
 	    trips, 
 	    co2_saving, 
-	    time_saving
+	    time_saving, 
+	    bulletinboard
     }
 	
 	public enum Setting {

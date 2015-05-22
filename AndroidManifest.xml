@@ -254,6 +254,10 @@
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
             android:theme="@android:style/Theme.NoTitleBar"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".InBoxActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
+            android:theme="@android:style/Theme.NoTitleBar" />
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/fb_app_id" />
 
         <receiver android:name="com.metropia.receivers.ReservationReceiver" />

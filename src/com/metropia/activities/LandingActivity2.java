@@ -1,5 +1,6 @@
 package com.metropia.activities;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -132,6 +133,7 @@ import com.metropia.requests.FavoriteAddressFetchRequest;
 import com.metropia.requests.MyMetropiaRequest;
 import com.metropia.requests.MyMetropiaRequest.MyMetropia;
 import com.metropia.requests.Request;
+import com.metropia.requests.Request.Page;
 import com.metropia.requests.ReservationDeleteRequest;
 import com.metropia.requests.ReservationListFetchRequest;
 import com.metropia.requests.ReservationRequest;
@@ -866,8 +868,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //              location.setLongitude(-118.2734106);
 //              location.setLatitude(32.1559094); // Tucson
 //              location.setLongitude(-110.883805);
-//	              location.setLatitude(22.980648); // Tainan
-//	              location.setLongitude(120.236046);
+//	            location.setLatitude(22.980648); // Tainan
+//	            location.setLongitude(120.236046);
               if (ValidationActivity.isBetterLocation(location, lastLocation)) {
 					locationRefreshed.set(true);
 					if(needTagAustinLaunch.getAndSet(false)) {
@@ -1111,6 +1113,26 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             	User user = User.getCurrentUser(LandingActivity2.this);
                 userInfoView.setText(user.getFirstname() + " " + user.getLastname());
             }
+        });
+        
+        TextView inBoxMenu = (TextView) findViewById(R.id.message_inbox);
+        inBoxMenu.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(final View v) {
+				if(StringUtils.isNotBlank(inboxCityName)) {
+					v.setClickable(false);
+					ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+						@Override
+						public void onAnimationEnd() {
+							Intent inboxIntent = new Intent(LandingActivity2.this, InBoxActivity.class);
+							inboxIntent.putExtra(InBoxActivity.CITY_NAME, inboxCityName);
+							startActivity(inboxIntent);
+							v.setClickable(false);
+						}
+					});
+				}
+			}
         });
         
         final View activityRootView = findViewById(android.R.id.content);
@@ -1387,7 +1409,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getLight(assets), searchBox, fromSearchBox, myMetropiaMenu, 
-            reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu, favoriteListMenu);
+            reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu, favoriteListMenu, inBoxMenu);
         Font.setTypeface(Font.getMedium(assets), upointView, saveTimeView, co2View, (TextView) findViewById(R.id.head));
         Font.setTypeface(Font.getRobotoBold(assets), getRouteView);
         //init Tracker
@@ -3456,6 +3478,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                     }
                 }else{
                 	serviceArea.set(true);
+                	checkInboxUrlAndUpdateMenu(result.name);
                     try{
                         cityRange = new RouteRect(Double.valueOf(result.maxLat * 1E6).intValue(), 
                     		Double.valueOf(result.maxLon * 1E6).intValue(), Double.valueOf(result.minLat * 1E6).intValue(), 
@@ -3480,6 +3503,52 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             }
         };
         Misc.parallelExecute(checkCityAvailability);
+    }
+    
+    private String inboxCityName;
+    
+    private void checkInboxUrlAndUpdateMenu(final String cityName) {
+    	if(StringUtils.isNotBlank(Request.getPageUrl(Page.bulletinboard))) {
+    		Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
+				@Override
+				protected Void doInBackground(Void... params) {
+					String inboxUrl = Request.getPageUrl(Page.bulletinboard).replaceAll("\\{city\\}", cityName);
+		    		try {
+						HTTP http = new HTTP(inboxUrl);
+						http.connect();
+						int responseCode = http.getResponseCode();
+						if(responseCode == 200) {
+							inboxCityName = cityName;
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									findViewById(R.id.message_inbox).setVisibility(View.VISIBLE);
+								}
+							});
+						}
+						else {
+							inboxCityName = "";
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									findViewById(R.id.message_inbox).setVisibility(View.GONE);
+								}
+							});
+						}
+					} catch (IOException e) {
+						inboxCityName = "";
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								findViewById(R.id.message_inbox).setVisibility(View.GONE);
+							}
+						});
+						Log.d("LandingActivity2", "no inbox url");
+					}
+					return null;
+				}
+    		});
+    	}
     }
     
     private RouteRect routeRect;
