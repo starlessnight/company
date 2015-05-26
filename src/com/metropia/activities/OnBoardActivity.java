@@ -1169,11 +1169,12 @@ public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceLis
             case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
                 Log.i("OnBoardActivity", "Location settings are inadequate, and cannot be fixed here. Dialog " +
                         "not created.");
-                if(googleApiClient != null) {
-                	googleApiClient.disconnect();
-                	googleApiClient = null;
-                }
-                prepareGPS();
+//                if(googleApiClient != null) {
+//                	googleApiClient.disconnect();
+//                	googleApiClient = null;
+//                }
+//                prepareGPS();
+                startLocationUpdates();
                 break;
         }
 	}
