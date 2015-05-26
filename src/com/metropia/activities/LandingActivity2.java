@@ -2463,8 +2463,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     
     private void createLocationRequest() {
     	highAccuracyLocationRequest = new LocationRequest();
-    	highAccuracyLocationRequest.setInterval(10000);
-    	highAccuracyLocationRequest.setFastestInterval(5000);
+    	highAccuracyLocationRequest.setInterval(5000);
+    	highAccuracyLocationRequest.setFastestInterval(2500);
     	highAccuracyLocationRequest.setSmallestDisplacement(5);
     	highAccuracyLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
