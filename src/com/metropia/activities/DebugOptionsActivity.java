@@ -477,6 +477,15 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
             }
         });
         
+        CheckBox polylineRoute = (CheckBox) findViewById(R.id.polyline_route);
+        polylineRoute.setChecked(isPolylineRouteEnabled(this));
+        polylineRoute.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setPolylineRouteEnabled(DebugOptionsActivity.this, isChecked);
+            }
+        });
+        
         CheckBox voiceInputDebugMsg = (CheckBox) findViewById(R.id.voice_input_debug_msg);
         voiceInputDebugMsg.setChecked(isEnrouteVoiceInputDebugMsgEnabled(this));
         voiceInputDebugMsg.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -1299,6 +1308,24 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
     public static void setEnrouteDebugMsgEnabled(Context ctx, boolean enabled){
         getPrefs(ctx).edit()
             .putBoolean(EN_ROUTE_DEBUG_MSG, enabled)
+            .commit();
+    }
+    
+    private static final String POLYLINE_ROUTE = "POLYLINE_ROUTE";
+    
+    public static boolean isPolylineRouteEnabled(Context ctx){
+        boolean enabled;
+        try{
+            enabled = getPrefs(ctx).getBoolean(POLYLINE_ROUTE, false);
+        }catch(Throwable t){
+            enabled = false;
+        }
+        return enabled;
+    }
+    
+    public static void setPolylineRouteEnabled(Context ctx, boolean enabled){
+        getPrefs(ctx).edit()
+            .putBoolean(POLYLINE_ROUTE, enabled)
             .commit();
     }
     

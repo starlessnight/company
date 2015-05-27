@@ -173,6 +173,7 @@ import com.skobbler.ngx.map.SKMapSurfaceListener;
 import com.skobbler.ngx.map.SKMapSurfaceView;
 import com.skobbler.ngx.map.SKMapViewHolder;
 import com.skobbler.ngx.map.SKPOICluster;
+import com.skobbler.ngx.map.SKPolyline;
 import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
 import com.skobbler.ngx.routing.SKRouteListener;
@@ -1761,10 +1762,8 @@ public class ValidationActivity extends FragmentActivity implements
 			closeGPS();
 			locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 			if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-					&& locationManager
-							.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-				locationManager.requestLocationUpdates(
-						LocationManager.GPS_PROVIDER, 10000, 5,
+					&& locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+				locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, DebugOptionsActivity.getGpsUpdateInterval(this), 5,
 						locationListener);
 			} else {
 				SystemService.alertNoGPS(this, true);
@@ -1867,28 +1866,26 @@ public class ValidationActivity extends FragmentActivity implements
 				drawDestinationAnnotation(reservation.getEndlat(),
 						reservation.getEndlon());
 			}
-			/*
-			 * List<SKCoordinate> routeCoors = new ArrayList<SKCoordinate>();
-			 * for(RouteNode node : _route.getNodes()) { routeCoors.add(new
-			 * SKCoordinate(node.getLongitude(), node.getLatitude())); }
-			 * SKPolyline routeLine = new SKPolyline();
-			 * routeLine.setNodes(routeCoors); routeLine.setColor(new float[]
-			 * {0f, 0.6f, 0.8f, 0.5f}); //RGBA routeLine.setLineSize(30);
-			 * 
-			 * //outline properties, otherwise map crash
-			 * routeLine.setOutlineColor(new float[] { 0f, 0.6f, 0.8f, 0.5f });
-			 * routeLine.setOutlineSize(10);
-			 * routeLine.setOutlineDottedPixelsSolid(3);
-			 * routeLine.setOutlineDottedPixelsSkip(3); //
-			 * 
-			 * mapView.addPolyline(routeLine);
-			 * 
-			 * drawDestinationAnnotation(reservation.getEndlat(),
-			 * reservation.getEndlon()); if((Boolean)buttonFollow.getTag()) {
-			 * mapView
-			 * .getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D); }
-			 */
-
+			
+			if(DebugOptionsActivity.isPolylineRouteEnabled(ValidationActivity.this)) {
+				List<SKCoordinate> routeCoors = new ArrayList<SKCoordinate>();
+				for(RouteNode node : _route.getNodes()) { 
+					routeCoors.add(new SKCoordinate(node.getLongitude(), node.getLatitude())); 
+				}
+				SKPolyline routeLine = new SKPolyline();
+				routeLine.setNodes(routeCoors); 
+				routeLine.setColor(new float[] {0f, 0.6f, 0.8f, 0.5f}); //RGBA 
+				routeLine.setLineSize(10);
+				  
+				//outline properties, otherwise map crash
+				routeLine.setOutlineColor(new float[] { 0f, 0.6f, 0.8f, 0.5f });
+				routeLine.setOutlineSize(10);
+				routeLine.setOutlineDottedPixelsSolid(0);
+				routeLine.setOutlineDottedPixelsSkip(0); //
+				  
+				mapView.addPolyline(routeLine);
+			}
+			  
 			_route.setUserId(User.getCurrentUser(this).getId());
 		} catch (Exception e) {
 			Crashlytics.logException(e);
