@@ -9,11 +9,11 @@ import android.content.Intent;
 import android.os.AsyncTask;
 
 import com.metropia.activities.DebugOptionsActivity;
-import com.metropia.activities.MapDisplayActivity;
 import com.metropia.activities.R;
 import com.metropia.activities.ValidationActivity;
 import com.metropia.dialogs.CancelableProgressDialog;
 import com.metropia.models.Reservation;
+import com.metropia.models.ReservationTollHovInfo;
 import com.metropia.models.Route;
 import com.metropia.models.User;
 import com.metropia.requests.ReservationListFetchRequest;
@@ -55,6 +55,8 @@ public class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
     
     String versionNumber;
     
+    ReservationTollHovInfo reservInfo;
+    
     public Callback callback = new Callback() {
         @Override
         public void run(Reservation reserv) {
@@ -90,17 +92,18 @@ public class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
     
     long id;
     
-    public ShortcutNavigationTask(Context ctx, Route route, ExceptionHandlingService ehs, long id, String versionNumber){
+    public ShortcutNavigationTask(Context ctx, Route route, ExceptionHandlingService ehs, long id, String versionNumber, ReservationTollHovInfo reservInfo){
         this.ehs = ehs;
         this.ctx = ctx;
         _route = route;
         dialog = new CancelableProgressDialog(ctx, "Loading...");
         this.id = id;
         this.versionNumber = versionNumber;
+        this.reservInfo = reservInfo;
     }
     
     public ShortcutNavigationTask(Context ctx, GeoPoint origin, String originAddress, GeoPoint dest,
-            String destAddress, ExceptionHandlingService ehs, String versionNumber){
+            String destAddress, ExceptionHandlingService ehs, String versionNumber, ReservationTollHovInfo reservInfo){
         this.ehs = ehs;
         this.ctx = ctx;
         this.origin = origin;
@@ -109,6 +112,7 @@ public class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
         this.address = destAddress;
         dialog = new CancelableProgressDialog(ctx, "Loading...");
         this.versionNumber = versionNumber;
+        this.reservInfo = reservInfo;
     }
     
     @Override
@@ -200,7 +204,7 @@ public class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
                             RouteFetchRequest routeReq = new RouteFetchRequest(user, 
                                 origin, dest, departureTime.initTime().toMillis(false),
                                 0, 0, originAddress, address, 
-                    	        MapDisplayActivity.isIncludeTollRoadsEnabled(ctx), versionNumber);
+                    	        reservInfo.isIncludeToll(), versionNumber, reservInfo.isHov());
                             route = routeReq.execute(ctx).get(0);
                             route.setAddresses(originAddress, address);
                             route.setUserId(user.getId());

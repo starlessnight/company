@@ -17,15 +17,6 @@
 		    android:layout_width="fill_parent"
 		    android:layout_height="fill_parent"/>
         
-        <!-- 
-        <RelativeLayout
-            android:id="@+id/chess_board_background"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:background="@drawable/map_background">
-        </RelativeLayout>
-         -->
-        
         <ImageView
             android:id="@+id/back_button"
             android:layout_width="wrap_content"
@@ -34,6 +25,64 @@
             android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:layout_gravity="top|left"/>
+        
+        <ImageView 
+            android:id="@+id/hov_button"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_gravity="top|right"
+            android:src="@drawable/hov_inactive"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:tag="false" />
+        
+        <LinearLayout 
+            android:layout_height="30dp"
+            android:layout_width="match_parent"
+            android:layout_above="@+id/time_layout"
+            android:orientation="horizontal"
+            android:gravity="bottom"
+            android:tag="false" >
+            
+            <RelativeLayout 
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+                
+	            <TextView 
+	                android:id="@+id/include_toll"
+	                android:layout_width="match_parent"
+	                android:layout_height="match_parent"
+	                android:background="@color/metropia_blue"
+	                android:text="Include Toll Road"
+	                android:textColor="@android:color/white"
+	                android:textSize="@dimen/smaller_font"
+	                android:gravity="center"
+	                android:layout_alignParentBottom="true"/>
+            
+            </RelativeLayout>
+            
+            <RelativeLayout 
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+            
+	            <TextView 
+	                android:id="@+id/no_toll"
+	                android:layout_width="match_parent"
+	                android:layout_height="match_parent"
+	                android:background="@color/metropia_blue"
+	                android:text="No Toll Road"
+	                android:textColor="@android:color/white"
+	                android:textSize="@dimen/smaller_font"
+	                android:gravity="center"
+	                android:layout_alignParentBottom="true"/>
+            
+            </RelativeLayout>
+            
+        </LinearLayout>
         
         <include
             android:layout_height="wrap_content"

@@ -57,7 +57,8 @@
 	                android:paddingBottom="10dp"
 	                android:paddingLeft="15dp"
 	                android:paddingRight="15dp"
-	                android:paddingTop="10dp" >
+	                android:paddingTop="10dp"
+	                android:visibility="gone" >
 	
 	                <TextView
 	                    android:id="@+id/include_toll_roads_text"
@@ -86,7 +87,8 @@
 	                android:layout_width="match_parent"
 	                android:layout_height="1dp"
 	                android:layout_marginRight="10dp"
-	                android:background="@color/transparent_gray" />
+	                android:background="@color/transparent_gray"
+	                android:visibility="gone" />
 	
 	            <FrameLayout
 	                android:layout_width="fill_parent"
@@ -223,7 +225,7 @@
 	                android:padding="5dp"
 	                android:text="@string/predictive_destination_tutorial"
 	                android:textColor="@color/metropia_blue"
-	                android:textSize="@dimen/medium_font"/>
+	                android:textSize="16dp"/>
 	            
 	        </LinearLayout>
 	        
@@ -250,7 +252,7 @@
 	                android:padding="5dp"
 	                android:text="@string/calendar_integration_tutorial"
 	                android:textColor="@color/metropia_blue"
-	                android:textSize="@dimen/medium_font"/>
+	                android:textSize="16dp"/>
 	            
 	        </LinearLayout>
         

@@ -42,15 +42,16 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.TextView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.localytics.android.Localytics;
 import com.metropia.SkobblerUtils;
 import com.metropia.models.Reservation;
+import com.metropia.models.ReservationTollHovInfo;
 import com.metropia.models.Trajectory;
 import com.metropia.models.Trajectory.Record;
 import com.metropia.requests.Request;
@@ -244,12 +245,15 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
                                 List<Record> records = Trajectory.from(result.getJSONArray("trajectory")).getRecords();
                                 Record origin = records.get(0);
                                 Record dest = records.get(records.size() - 1);
+                                final ReservationTollHovInfo reservInfo = MapDisplayActivity.getReservationTollHovInfo(DebugOptionsActivity.this, 0L);
                                 ShortcutNavigationTask task = new ShortcutNavigationTask(DebugOptionsActivity.this, 
                                     new GeoPoint(origin.getLatitude(), origin.getLongitude()), result.optString("origin"), 
-                                    new GeoPoint(dest.getLatitude(), dest.getLongitude()), result.optString("destination"), ehs, versionNumber);
+                                    new GeoPoint(dest.getLatitude(), dest.getLongitude()), result.optString("destination"), ehs, versionNumber, reservInfo);
                                 task.callback = new ShortcutNavigationTask.Callback() {
                                     @Override
                                     public void run(final Reservation reservation) {
+                                    	reservInfo.setReservationId(reservation.getRid());
+                                    	MapDisplayActivity.addReservationTollHovInfo(DebugOptionsActivity.this, reservInfo);
                                     	MainActivity.initSettingsIfNecessary(DebugOptionsActivity.this, new Runnable() {
 											@Override
 											public void run() {

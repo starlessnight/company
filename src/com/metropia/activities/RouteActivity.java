@@ -38,6 +38,7 @@ import android.support.v4.app.FragmentActivity;
 import android.text.format.Time;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -49,6 +50,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
@@ -65,6 +67,7 @@ import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.exceptions.RouteNotFoundException;
 import com.metropia.models.IncidentIcon;
 import com.metropia.models.Reservation;
+import com.metropia.models.ReservationTollHovInfo;
 import com.metropia.models.Route;
 import com.metropia.models.Trajectory;
 import com.metropia.models.User;
@@ -216,6 +219,8 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     
     private String versionNumber = "";
     
+    private ImageView hovButton;
+    
     private Runnable goBackToWhereTo = new Runnable() {
         @Override
         public void run() {
@@ -274,7 +279,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 				task.execute(destAddr);
                 geocodingTasks.add(task);
 			}else{
-			    RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true, versionNumber);
+			    RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true, versionNumber, getIncludeToll(), getHov());
 	            routeTasks.add(routeTask);
 	            routeTask.execute();
 			}
@@ -333,7 +338,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 						retriveIncident(new Runnable() {
 							@Override
 							public void run() {
-								RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true, versionNumber);
+								RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true, versionNumber, getIncludeToll(), getHov());
 						        routeTasks.add(routeTask);
 						        routeTask.execute();
 							}
@@ -607,14 +612,14 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
                             timeLayout.setColumnState(column, State.InProgress);
                             long departureTime = timeLayout.getDepartureTime(column);
                             
-                            RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime, column, false, versionNumber);
+                            RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime, column, false, versionNumber, getIncludeToll(), getHov());
                             routeTasks.add(routeTask);
                             loadingTasks.put(column, routeTask);
                             routeTask.execute();
                         }
                     }else{
                         if(State.InProgress.equals(columnState) && (task = loadingTasks.remove(column)) != null){
-                        	task.cancel(true);
+                        	task.cancelTask(true);
                         	timeLayout.setColumnState(column, State.Unknown);
                         }
                     }
@@ -809,6 +814,10 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		                            v.setClickable(true);
 		                        }
 		                        else {
+		                        	ReservationTollHovInfo reservInfo = new ReservationTollHovInfo(result);
+		                        	reservInfo.setIncludeToll(getIncludeToll());
+		                        	reservInfo.setHov(getHov());
+		                        	MapDisplayActivity.addReservationTollHovInfo(RouteActivity.this, reservInfo);
 		                            deleteRescheduledReservation();
 		                            Reservation.scheduleNotification(RouteActivity.this, result, route);
 		                            
@@ -880,10 +889,15 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	                    }else{
 //	                    	timeLayout.cancelOtherRouteTask();
 	                        final Route route = (Route) reserveView.getTag();
-	                        ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs, rescheduleReservId, versionNumber);
+	                        final ReservationTollHovInfo reservInfo = new ReservationTollHovInfo(0L);
+	                        reservInfo.setIncludeToll(getIncludeToll());
+	                        reservInfo.setHov(getHov());
+	                        ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs, rescheduleReservId, versionNumber, reservInfo);
 	                        task.callback = new ShortcutNavigationTask.Callback() {
 	                            @Override
 	                            public void run(Reservation reservation) {
+	                            	reservInfo.setReservationId(reservation.getRid());
+	                            	MapDisplayActivity.addReservationTollHovInfo(RouteActivity.this, reservInfo);
 	                            	if(rescheduleReservId > 0) {
 	                            		LocalyticsUtils.tagReschedule();
 	                            	}
@@ -985,7 +999,87 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 			}
         });
         
-        Font.setTypeface(mediumFont, skipTutorial, durationRow, onMyWayView, letsGoView, reserveView,
+        ReservationTollHovInfo info = MapDisplayActivity.getReservationTollHovInfo(RouteActivity.this, rescheduleReservId);
+        int hovResourceId;
+        hovButton = (ImageView) findViewById(R.id.hov_button);
+        if(rescheduleReservId > 0) {
+        	currentHov.set(info.isHov());
+        	hovResourceId = info.isHov() ? R.drawable.hov_active : R.drawable.hov_inactive;
+        }
+        else {
+        	currentHov.set(false);
+        	hovResourceId = R.drawable.hov_inactive;
+        }
+        hovButton.setImageBitmap(Misc.getBitmap(RouteActivity.this, hovResourceId, 1));
+        
+        hovButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(final View v) {
+				v.setClickable(false);
+				ClickAnimation clickAnimation = new ClickAnimation(RouteActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						boolean newValue = !currentHov.get();
+						currentHov.set(newValue);
+						hovButton.setImageBitmap(Misc.getBitmap(RouteActivity.this, (newValue ? R.drawable.hov_active : R.drawable.hov_inactive), 1));
+						cancelAllTask();
+						timeLayout.refreshAllColumns();
+						scrollableTimeLayout.notifyScrollChanged();
+						v.setClickable(true);
+					}
+				});
+			}
+		});
+        
+        boolean includeToll = rescheduleReservId > 0 ? info.isIncludeToll() : MapDisplayActivity.isIncludeTollRoadsEnabled(RouteActivity.this);
+        updateTollRoadView(includeToll);
+        TextView includeTollButton = (TextView) findViewById(R.id.include_toll);
+        includeTollButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(final View v) {
+				if(!currentIncludeToll.get()) {
+					v.setClickable(false);
+					ClickAnimation clickAnimation = new ClickAnimation(RouteActivity.this, v);
+					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+						@Override
+						public void onAnimationEnd() {
+							MapDisplayActivity.setIncludeTollRoadsEnabled(RouteActivity.this, true);
+							updateTollRoadView(true);
+							cancelAllTask();
+							timeLayout.refreshAllColumns();
+							scrollableTimeLayout.notifyScrollChanged();
+							v.setClickable(true);
+						}
+					});
+				}
+			}
+        });
+        
+        TextView noTollButton = (TextView) findViewById(R.id.no_toll);
+        noTollButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(final View v) {
+				if(currentIncludeToll.get()) {
+					v.setClickable(false);
+					ClickAnimation clickAnimation = new ClickAnimation(RouteActivity.this, v);
+					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+						@Override
+						public void onAnimationEnd() {
+							MapDisplayActivity.setIncludeTollRoadsEnabled(RouteActivity.this, false);
+							updateTollRoadView(false);
+							cancelAllTask();
+							timeLayout.refreshAllColumns();
+							scrollableTimeLayout.notifyScrollChanged();
+							v.setClickable(true);
+						}
+					});
+				}
+			}
+        });
+        
+        
+        Font.setTypeface(mediumFont, skipTutorial, durationRow, onMyWayView, letsGoView, reserveView, includeTollButton, noTollButton, 
         		(TextView)findViewById(R.id.arrive_row),
                 (TextView)findViewById(R.id.mpoint_row), 
                 (TextView)findViewById(R.id.departure_row));
@@ -994,6 +1088,44 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         
         //init Tracker
       	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
+    }
+    
+    private AtomicBoolean currentIncludeToll = new AtomicBoolean();
+    private AtomicBoolean currentHov = new AtomicBoolean();
+    public static final Integer TOLL_PANEL_HEIGHT = Integer.valueOf(30);
+    
+    private boolean getIncludeToll() {
+    	return currentIncludeToll.get();
+    }
+    
+    private boolean getHov() {
+    	return currentHov.get();
+    }
+    
+    private void cancelAllTask() {
+    	for(RouteTask task : routeTasks) {
+    		task.cancelTask(true);
+    	}
+    	routeTasks.clear();
+    }
+    
+    private void updateTollRoadView(boolean includeToll) {
+    	currentIncludeToll.set(includeToll);
+    	TextView includeTollButton = (TextView) findViewById(R.id.include_toll);
+    	RelativeLayout.LayoutParams includeTollLp = (RelativeLayout.LayoutParams) includeTollButton.getLayoutParams();
+    	includeTollLp.width = LayoutParams.MATCH_PARENT;
+    	includeTollLp.height = includeToll ? LayoutParams.MATCH_PARENT : (Double.valueOf(0.8 * Dimension.dpToPx(TOLL_PANEL_HEIGHT, getResources().getDisplayMetrics())).intValue());
+    	includeTollButton.setLayoutParams(includeTollLp);
+    	includeTollButton.setBackgroundColor(getResources().getColor(includeToll ? R.color.metropia_blue : R.color.light_gray));
+    	includeTollButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, includeToll ? 18 : 14);
+    	
+    	TextView noTollButton = (TextView) findViewById(R.id.no_toll);
+    	RelativeLayout.LayoutParams noTollLp = (RelativeLayout.LayoutParams) noTollButton.getLayoutParams();
+    	noTollLp.width = LayoutParams.MATCH_PARENT;
+    	noTollLp.height = includeToll ? (Double.valueOf(0.8 * Dimension.dpToPx(TOLL_PANEL_HEIGHT, getResources().getDisplayMetrics())).intValue()) : LayoutParams.MATCH_PARENT;
+    	noTollButton.setLayoutParams(noTollLp);
+    	noTollButton.setBackgroundColor(getResources().getColor(includeToll ? R.color.light_gray : R.color.metropia_blue));
+    	noTollButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, includeToll ? 14 : 18);
     }
     
 	private SKMapViewHolder mapViewHolder;
@@ -1336,7 +1468,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		        	retriveIncident(new Runnable() {
 						@Override
 						public void run() {
-							RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true, versionNumber);
+							RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true, versionNumber, getIncludeToll(), getHov());
 				            routeTasks.add(routeTask);
 				            routeTask.execute();
 						}
@@ -1500,7 +1632,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         int reservePanelVis = column == 0?View.GONE:View.VISIBLE;
         final RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(this), 
             origin, destination, departureTime, speed, course, getOriginAddrRouteReqParam(), destAddr, 
-            MapDisplayActivity.isIncludeTollRoadsEnabled(RouteActivity.this), versionNumber);
+            getIncludeToll(), versionNumber, getHov());
         if (request.isCached(this)) {
             try {
                 List<Route> routes = request.execute(this);
@@ -1542,10 +1674,10 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 //        	};
 //        	Misc.parallelExecute(fetchRoute);
             for (RouteTask task : routeTasks) {
-                task.cancel(true);
+                task.cancelTask(true);
             }
             timeLayout.refresh();
-            RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true, versionNumber);
+            RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true, versionNumber, getIncludeToll(), getHov());
             routeTasks.add(routeTask);
             routeTask.execute();
             letsGoPanelVis = View.VISIBLE;
@@ -1757,10 +1889,15 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
             }else{
             	final TextView reserveView = (TextView) findViewById(R.id.reserve);
                 final Route route = (Route) reserveView.getTag();
-                ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs, rescheduleReservId, versionNumber);
+                final ReservationTollHovInfo reservInfo = new ReservationTollHovInfo(0L);
+                reservInfo.setIncludeToll(getIncludeToll());
+                reservInfo.setHov(getHov());
+                ShortcutNavigationTask task = new ShortcutNavigationTask(RouteActivity.this, route, ehs, rescheduleReservId, versionNumber, reservInfo);
                 task.callback = new ShortcutNavigationTask.Callback() {
                     @Override
                     public void run(Reservation reservation) {
+                    	reservInfo.setReservationId(reservation.getRid());
+                    	MapDisplayActivity.addReservationTollHovInfo(RouteActivity.this, reservInfo);
                         if(reservation.isEligibleTrip()){
                             deleteRescheduledReservation();
                             Misc.suppressTripInfoPanel(RouteActivity.this);
@@ -1814,7 +1951,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
             t.cancel(true);
         }
         for (RouteTask task : routeTasks) {
-            task.cancel(true);
+            task.cancelTask(true);
         }
         if(locationManager != null && locationListener != null){
             locationManager.removeUpdates(locationListener); 
@@ -1853,8 +1990,10 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         private CancelableProgressDialog dialog;
         
         private String versionNumber;
+        private boolean includeToll;
+        private boolean hov;
         
-        public RouteTask(GeoPoint origin, GeoPoint destination, long departureTime, int column, boolean updateMap, String versionNumber) {
+        public RouteTask(GeoPoint origin, GeoPoint destination, long departureTime, int column, boolean updateMap, String versionNumber, boolean includeToll, boolean hov) {
         	super();
         	
         	this.origin = origin;
@@ -1863,19 +2002,21 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         	this.selectedColumn = column;
         	this.updateMap = updateMap;
         	this.versionNumber = versionNumber;
+        	this.includeToll = includeToll;
+        	this.hov = hov;
         }
         
         public boolean isCached() {
         	RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(RouteActivity.this), 
     	        origin, destination, departureTime, speed, course, getOriginAddrRouteReqParam(), destAddr, 
-    	        MapDisplayActivity.isIncludeTollRoadsEnabled(RouteActivity.this), versionNumber);
+    	        includeToll, versionNumber, hov);
         	return request.isCached(RouteActivity.this);
         }
         
         public List<Route> getData() throws RouteNotFoundException, IOException, JSONException, InterruptedException {
         	RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(RouteActivity.this), 
     	        origin, destination, departureTime, speed, course, getOriginAddrRouteReqParam(), destAddr, 
-    	        MapDisplayActivity.isIncludeTollRoadsEnabled(RouteActivity.this), versionNumber);
+    	        includeToll, versionNumber, hov);
         	return request.execute(RouteActivity.this);
         }
         
@@ -1980,6 +2121,13 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
                 
                 timeLayout.notifySelectColumn(selectedColumn);
             }
+        }
+        
+        public boolean cancelTask(boolean mayInterruptIfRunning) {
+        	try {
+        		return this.cancel(mayInterruptIfRunning);
+        	}catch(Throwable ignore) {}
+        	return false;
         }
     }
     

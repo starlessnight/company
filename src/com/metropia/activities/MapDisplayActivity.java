@@ -1,6 +1,13 @@
 package com.metropia.activities;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +36,7 @@ import com.metropia.LocalyticsUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.dialogs.ProfileSelectionDialog;
+import com.metropia.models.ReservationTollHovInfo;
 import com.metropia.models.User;
 import com.metropia.ui.ClickAnimation;
 import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
@@ -150,8 +158,7 @@ public final class MapDisplayActivity extends FragmentActivity {
 		includeTollRoads.setChecked(includeTollRoadsEnabled);
 		includeTollRoads.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			public void onCheckedChanged(CompoundButton buttonView,	boolean isChecked) {
-				prefs.edit().putBoolean(INCLUDE_TOLL_ROADS, isChecked)
-						.commit();
+				setIncludeTollRoadsEnabled(MapDisplayActivity.this, isChecked);
 			}
 		});
 		
@@ -468,6 +475,10 @@ public final class MapDisplayActivity extends FragmentActivity {
 	public static boolean isIncludeTollRoadsEnabled(Context ctx) {
 		return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE).getBoolean(INCLUDE_TOLL_ROADS, true);
 	}
+	
+	public static void setIncludeTollRoadsEnabled(Context ctx, boolean includeToll) {
+		ctx.getSharedPreferences(MAP_DISPLAY_PREFS,	MODE_PRIVATE).edit().putBoolean(INCLUDE_TOLL_ROADS, includeToll).commit();
+	}
 
 	public static boolean isLocBasedServiceEnabled(Context ctx) {
 		return ctx.getSharedPreferences(MAP_DISPLAY_PREFS, MODE_PRIVATE)
@@ -523,6 +534,66 @@ public final class MapDisplayActivity extends FragmentActivity {
 				.edit()
 				.putString(PROFILE_SELECTION, type == null ? null : type.name())
 				.commit();
+	}
+	
+	public static void addReservationTollHovInfo(Context ctx, ReservationTollHovInfo info) {
+		try {
+			File file = getReservationTollHovInfoFile(ctx);
+			JSONObject infos;
+			if(!file.exists()) {
+				infos = new JSONObject();
+			}
+			else {
+				infos = new JSONObject(FileUtils.readFileToString(file));
+			}
+			
+			if(infos.has(info.getReservationId() + "")) {
+				infos.remove(info.getReservationId() + "");
+			}
+			infos.put(info.getReservationId() + "", info.toJSONObject());
+			FileUtils.writeStringToFile(getReservationTollHovInfoFile(ctx), infos.toString());
+		}
+		catch(Exception ignore){}
+	}
+	
+	public static void cleanReservationTollHovInfoBeforeId(Context ctx, Long reservId) {
+		try {
+			File file = getReservationTollHovInfoFile(ctx);
+			JSONObject infos = new JSONObject(FileUtils.readFileToString(file));
+			Iterator<String> keys = infos.keys();
+			List<String> removeKeys = new ArrayList<String>();
+			while(keys.hasNext()) {
+				String key = keys.next();
+				if(Long.valueOf(key) < reservId) {
+					removeKeys.add(key);
+				}
+			}
+			for(String removeKey : removeKeys) {
+				infos.remove(removeKey);
+			}
+			FileUtils.writeStringToFile(getReservationTollHovInfoFile(ctx), infos.toString());
+		}
+		catch(Exception ignore){}
+	}
+	
+	public static ReservationTollHovInfo getReservationTollHovInfo(Context ctx, Long reservationId) {
+		ReservationTollHovInfo info = new ReservationTollHovInfo(reservationId);
+		info.setIncludeToll(isIncludeTollRoadsEnabled(ctx));
+		try {
+			JSONObject infos = new JSONObject(FileUtils.readFileToString(getReservationTollHovInfoFile(ctx)));
+			if(infos.has(reservationId + "")) {
+				ReservationTollHovInfo temp = ReservationTollHovInfo.parse(infos.optJSONObject(reservationId + ""));
+				if(temp != null) {
+					info = temp;
+				}
+			}
+		}
+		catch(Exception ignore) {}
+		return info;
+	}
+	
+	private static File getReservationTollHovInfoFile(Context ctx) {
+		return new File(ctx.getExternalFilesDir(null), "reservation_toll_hov");
 	}
 
 	@Override

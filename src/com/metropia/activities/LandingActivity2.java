@@ -125,6 +125,7 @@ import com.metropia.dialogs.NotifyResumeDialog;
 import com.metropia.models.FavoriteIcon;
 import com.metropia.models.POIContainer;
 import com.metropia.models.Reservation;
+import com.metropia.models.ReservationTollHovInfo;
 import com.metropia.models.Route;
 import com.metropia.models.User;
 import com.metropia.requests.CityRequest;
@@ -1828,16 +1829,19 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 									@Override
 									public void onClick() {
 									    GeoPoint origin = null;
+									    final ReservationTollHovInfo reservationInfo = MapDisplayActivity.getReservationTollHovInfo(LandingActivity2.this, reserv.getRid());
 									    if(myPointOverlay != null){
 									        origin = new GeoPoint(myPointOverlay.getLocation().getLatitude(), myPointOverlay.getLocation().getLongitude());
 									    }
 										RescheduleTripTask rescheduleTask = new RescheduleTripTask(LandingActivity2.this, 
 										        origin, null, reserv.getDestinationAddress(), 
-								        		reserv.getRid(), versionNumber, ehs);
+								        		reserv.getRid(), versionNumber, ehs, reservationInfo);
 										rescheduleTask.callback = new RescheduleTripTask.Callback() {
 				                            @Override
 				                            public void run(Reservation reservation) {
 				                            	Log.d("LandingActivity2", "Reschedule trip start");
+				                            	reservationInfo.setReservationId(reservation.getRid());
+				                            	MapDisplayActivity.addReservationTollHovInfo(LandingActivity2.this, reservationInfo);
 				                            	startValidationActivity(reservation);
 				                            }
 				                        };
@@ -2773,6 +2777,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     			if(!removedReservIds.contains(reserv.getRid())) {
     				boolean isFirst = i == curReservIdx;
     				View reservInfoView = createReservationInfoView(reserv, isFirst);
+    				if(isFirst) {
+    					MapDisplayActivity.cleanReservationTollHovInfoBeforeId(LandingActivity2.this, reserv.getRid());
+    				}
     				reservationListPanel.addView(reservInfoView);
     				if(isFirst) {
     					TextView scheduledDesc = new TextView(LandingActivity2.this);
@@ -2978,6 +2985,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private void drawRoute(final Reservation reserv) {
     	if(!drawedReservId.equals(reserv.getRid()) && canDrawReservRoute.get() && enableDrawRoute.get()) {
     		drawedReservId = reserv.getRid();
+    		final ReservationTollHovInfo reservInfo = MapDisplayActivity.getReservationTollHovInfo(LandingActivity2.this, drawedReservId);
 			final AsyncTask<Void, Void, List<Route>> routeTask = new AsyncTask<Void, Void, List<Route>>() {
 	            @Override
 	            protected List<Route> doInBackground(Void... params) {
@@ -2997,7 +3005,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	                    	RouteFetchRequest request = new RouteFetchRequest(User.getCurrentUser(LandingActivity2.this), 
 	                    	        route.getFirstNode().getGeoPoint(), route.getLastNode().getGeoPoint(), 
 	                    	        reserv.getDepartureTimeUtc(), 0, 0, reserv.getOriginAddress(), reserv.getDestinationAddress(), 
-	                    	        MapDisplayActivity.isIncludeTollRoadsEnabled(LandingActivity2.this), versionNumber);
+	                    	        reservInfo.isIncludeToll(), versionNumber, reservInfo.isHov());
 	                    	routes = request.execute(LandingActivity2.this);
 	                    }
 	                }
@@ -4547,6 +4555,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         
         String versionNumber = "";
         
+        ReservationTollHovInfo reservInfo;
+        
         Callback callback = new Callback() {
             @Override
             public void run(Reservation reserv) {
@@ -4560,7 +4570,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         long id;
         
         RescheduleTripTask(LandingActivity2 ctx, GeoPoint origin, String originAddress, String destAddress, 
-        		long rescheduleId, String versionNumber, ExceptionHandlingService ehs){
+        		long rescheduleId, String versionNumber, ExceptionHandlingService ehs, ReservationTollHovInfo info){
             this.ehs = ehs;
             this.ctx = ctx;
             this.activity = ctx;
@@ -4570,6 +4580,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             this.id = rescheduleId;
             dialog = new CancelableProgressDialog(ctx, "Loading...");
             this.versionNumber = versionNumber;
+            this.reservInfo = info;
         }
         
         @Override
@@ -4659,7 +4670,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                             if(_route == null){
                                 RouteFetchRequest routeReq = new RouteFetchRequest(user, 
                                     origin, dest, departureTime.initTime().toMillis(false),
-                                    0, 0, originAddress, address, MapDisplayActivity.isIncludeTollRoadsEnabled(ctx), versionNumber);
+                                    0, 0, originAddress, address, reservInfo.isIncludeToll(), versionNumber, reservInfo.isHov());
                                 route = routeReq.execute(ctx).get(0);
                                 route.setAddresses(originAddress, address);
                                 route.setUserId(user.getId());

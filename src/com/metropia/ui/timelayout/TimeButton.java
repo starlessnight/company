@@ -13,9 +13,10 @@ import android.view.Display;
 import android.view.Gravity;
 import android.widget.TextView;
 
+import com.metropia.activities.R;
+import com.metropia.activities.RouteActivity;
 import com.metropia.utils.Dimension;
 import com.metropia.utils.Font;
-import com.metropia.activities.R;
 
 public final class TimeButton extends TextView {
 	
@@ -155,9 +156,9 @@ public final class TimeButton extends TextView {
 	
 	//caculate by default ratio
 	public static void initButtonDimension(DisplayMetrics dm, Display display) {
-		int timeLayoutHeight = Double.valueOf(Math.floor(display.getHeight() / 2.618)).intValue() - Dimension.dpToPx(56, dm);
+		int timeLayoutHeight = Double.valueOf(Math.floor((display.getHeight() - Dimension.dpToPx(RouteActivity.TOLL_PANEL_HEIGHT, dm)) / 2.618)).intValue() - Dimension.dpToPx(56, dm);
     	int ticketHeight = timeLayoutHeight - Dimension.dpToPx(5, dm);
-    	FIRST_ROW_HEIGHT = 35 * ticketHeight /128;
+    	FIRST_ROW_HEIGHT = 35 * ticketHeight / 128;
     	HEIGHT = 31 * ticketHeight / 128;
     	WIDTH = (display.getWidth() - Dimension.dpToPx(70, dm)) / 3;
 	}
