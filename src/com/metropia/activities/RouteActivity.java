@@ -426,6 +426,88 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         //        
         timeLayout = (TimeLayout) findViewById(R.id.timelayout);
         scrollableTimeLayout = (ScrollableTimeLayout) findViewById(R.id.scrollTime);
+        scrollableTimeLayout.setTimeLayout(timeLayout);
+        
+        rescheduleReservId = extras.getLong(RESCHEDULE_RESERVATION_ID);
+        
+        ReservationTollHovInfo info = MapDisplayActivity.getReservationTollHovInfo(RouteActivity.this, rescheduleReservId);
+        int hovResourceId;
+        hovButton = (ImageView) findViewById(R.id.hov_button);
+        if(rescheduleReservId > 0) {
+        	currentHov.set(info.isHov());
+        	hovResourceId = info.isHov() ? R.drawable.hov_active : R.drawable.hov_inactive;
+        }
+        else {
+        	currentHov.set(false);
+        	hovResourceId = R.drawable.hov_inactive;
+        }
+        hovButton.setImageBitmap(Misc.getBitmap(RouteActivity.this, hovResourceId, 1));
+        
+        hovButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(final View v) {
+				v.setClickable(false);
+				ClickAnimation clickAnimation = new ClickAnimation(RouteActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						boolean newValue = !currentHov.get();
+						currentHov.set(newValue);
+						hovButton.setImageBitmap(Misc.getBitmap(RouteActivity.this, (newValue ? R.drawable.hov_active : R.drawable.hov_inactive), 1));
+						cancelAllTask();
+						timeLayout.refreshAllColumns();
+						scrollableTimeLayout.notifyScrollChanged();
+						v.setClickable(true);
+					}
+				});
+			}
+		});
+        
+        boolean includeToll = rescheduleReservId > 0 ? info.isIncludeToll() : MapDisplayActivity.isIncludeTollRoadsEnabled(RouteActivity.this);
+        updateTollRoadView(includeToll);
+        TextView includeTollButton = (TextView) findViewById(R.id.include_toll);
+        includeTollButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(final View v) {
+				if(!currentIncludeToll.get()) {
+					v.setClickable(false);
+					ClickAnimation clickAnimation = new ClickAnimation(RouteActivity.this, v);
+					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+						@Override
+						public void onAnimationEnd() {
+							MapDisplayActivity.setIncludeTollRoadsEnabled(RouteActivity.this, true);
+							updateTollRoadView(true);
+							cancelAllTask();
+							timeLayout.refreshAllColumns();
+							scrollableTimeLayout.notifyScrollChanged();
+							v.setClickable(true);
+						}
+					});
+				}
+			}
+        });
+        
+        TextView noTollButton = (TextView) findViewById(R.id.no_toll);
+        noTollButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(final View v) {
+				if(currentIncludeToll.get()) {
+					v.setClickable(false);
+					ClickAnimation clickAnimation = new ClickAnimation(RouteActivity.this, v);
+					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+						@Override
+						public void onAnimationEnd() {
+							MapDisplayActivity.setIncludeTollRoadsEnabled(RouteActivity.this, false);
+							updateTollRoadView(false);
+							cancelAllTask();
+							timeLayout.refreshAllColumns();
+							scrollableTimeLayout.notifyScrollChanged();
+							v.setClickable(true);
+						}
+					});
+				}
+			}
+        });
         
         final String imComingMsg = extras.getString(MSG);
         final boolean hasImComingMsg = StringUtils.isNotBlank(imComingMsg);
@@ -612,7 +694,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
                             timeLayout.setColumnState(column, State.InProgress);
                             long departureTime = timeLayout.getDepartureTime(column);
                             
-                            RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime, column, false, versionNumber, getIncludeToll(), getHov());
+                            RouteTask routeTask = new RouteTask(originCoord, destCoord, departureTime, column, timeLayout.getSelectedColumn() == column, versionNumber, getIncludeToll(), getHov());
                             routeTasks.add(routeTask);
                             loadingTasks.put(column, routeTask);
                             routeTask.execute();
@@ -772,7 +854,6 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         lightFont = Font.getLight(assets);
         mediumFont = Font.getMedium(assets);
         
-        rescheduleReservId = extras.getLong(RESCHEDULE_RESERVATION_ID);
         rescheduleDepartureTime = extras.getLong(RESCHEDULE_DEPARTURE_TIME);
         final TextView reserveView = (TextView) findViewById(R.id.reserve);
         if(rescheduleReservId > 0) {
@@ -998,86 +1079,6 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 				});
 			}
         });
-        
-        ReservationTollHovInfo info = MapDisplayActivity.getReservationTollHovInfo(RouteActivity.this, rescheduleReservId);
-        int hovResourceId;
-        hovButton = (ImageView) findViewById(R.id.hov_button);
-        if(rescheduleReservId > 0) {
-        	currentHov.set(info.isHov());
-        	hovResourceId = info.isHov() ? R.drawable.hov_active : R.drawable.hov_inactive;
-        }
-        else {
-        	currentHov.set(false);
-        	hovResourceId = R.drawable.hov_inactive;
-        }
-        hovButton.setImageBitmap(Misc.getBitmap(RouteActivity.this, hovResourceId, 1));
-        
-        hovButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(final View v) {
-				v.setClickable(false);
-				ClickAnimation clickAnimation = new ClickAnimation(RouteActivity.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						boolean newValue = !currentHov.get();
-						currentHov.set(newValue);
-						hovButton.setImageBitmap(Misc.getBitmap(RouteActivity.this, (newValue ? R.drawable.hov_active : R.drawable.hov_inactive), 1));
-						cancelAllTask();
-						timeLayout.refreshAllColumns();
-						scrollableTimeLayout.notifyScrollChanged();
-						v.setClickable(true);
-					}
-				});
-			}
-		});
-        
-        boolean includeToll = rescheduleReservId > 0 ? info.isIncludeToll() : MapDisplayActivity.isIncludeTollRoadsEnabled(RouteActivity.this);
-        updateTollRoadView(includeToll);
-        TextView includeTollButton = (TextView) findViewById(R.id.include_toll);
-        includeTollButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(final View v) {
-				if(!currentIncludeToll.get()) {
-					v.setClickable(false);
-					ClickAnimation clickAnimation = new ClickAnimation(RouteActivity.this, v);
-					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-						@Override
-						public void onAnimationEnd() {
-							MapDisplayActivity.setIncludeTollRoadsEnabled(RouteActivity.this, true);
-							updateTollRoadView(true);
-							cancelAllTask();
-							timeLayout.refreshAllColumns();
-							scrollableTimeLayout.notifyScrollChanged();
-							v.setClickable(true);
-						}
-					});
-				}
-			}
-        });
-        
-        TextView noTollButton = (TextView) findViewById(R.id.no_toll);
-        noTollButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(final View v) {
-				if(currentIncludeToll.get()) {
-					v.setClickable(false);
-					ClickAnimation clickAnimation = new ClickAnimation(RouteActivity.this, v);
-					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-						@Override
-						public void onAnimationEnd() {
-							MapDisplayActivity.setIncludeTollRoadsEnabled(RouteActivity.this, false);
-							updateTollRoadView(false);
-							cancelAllTask();
-							timeLayout.refreshAllColumns();
-							scrollableTimeLayout.notifyScrollChanged();
-							v.setClickable(true);
-						}
-					});
-				}
-			}
-        });
-        
         
         Font.setTypeface(mediumFont, skipTutorial, durationRow, onMyWayView, letsGoView, reserveView, includeTollButton, noTollButton, 
         		(TextView)findViewById(R.id.arrive_row),

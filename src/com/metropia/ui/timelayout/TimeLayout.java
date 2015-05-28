@@ -257,7 +257,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
 		for(int idx = 0 ; idx < getColumnCount() ; idx++) {
 			TimeColumn timeColumn = (TimeColumn) getChildAt(idx);
 			if(timeColumn != null) {
-				timeColumn.setState((idx == selectedColumn ? State.Selected : State.Unknown), idx == selectedColumn);
+				timeColumn.setState(State.Unknown, idx == selectedColumn);
 			}
 		}
 	}
