@@ -771,7 +771,7 @@
                         android:paddingRight="10dp"
                         android:paddingTop="15dp"
                         android:singleLine="true"
-                        android:text="Inbox"
+                        android:text="Messages"
                         android:textColor="@android:color/white"
                         android:textSize="@dimen/medium_font"
                         android:visibility="gone" />

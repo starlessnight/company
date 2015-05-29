@@ -1129,7 +1129,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 							Intent inboxIntent = new Intent(LandingActivity2.this, InBoxActivity.class);
 							inboxIntent.putExtra(InBoxActivity.CITY_NAME, inboxCityName);
 							startActivity(inboxIntent);
-							v.setClickable(false);
+							v.setClickable(true);
 						}
 					});
 				}

@@ -25,7 +25,7 @@
 		            android:layout_gravity="center_vertical"
 		            android:textColor="#6d6e70"
 		            android:textSize="@dimen/smaller_font"
-		            android:text="Message"
+		            android:text="Messages"
 				/>
 		        
 		        <TextView 
