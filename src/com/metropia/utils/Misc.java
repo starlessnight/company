@@ -54,6 +54,8 @@ public class Misc {
     public static final String LOG_TAG = "Misc";
     
     private static final String addGoogleAccount = "addGoogleAccount";
+    
+    public static final Integer ANNOTATION_MINIMUM_SIZE = Integer.valueOf(128);
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static void disableHardwareAcceleration(View v){

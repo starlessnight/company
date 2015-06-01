@@ -11,9 +11,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Queue;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -176,6 +178,8 @@ import com.skobbler.ngx.map.SKPOICluster;
 import com.skobbler.ngx.map.SKPolyline;
 import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
+import com.skobbler.ngx.routing.SKRouteInfo;
+import com.skobbler.ngx.routing.SKRouteJsonAnswer;
 import com.skobbler.ngx.routing.SKRouteListener;
 import com.skobbler.ngx.routing.SKRouteManager;
 import com.skobbler.ngx.routing.SKRouteSettings;
@@ -187,10 +191,8 @@ import edu.cmu.pocketsphinx.Hypothesis;
 import edu.cmu.pocketsphinx.RecognitionListener;
 import edu.cmu.pocketsphinx.SpeechRecognizer;
 
-public class ValidationActivity extends FragmentActivity implements
-		OnInitListener, OnAudioFocusChangeListener, SKMapSurfaceListener,
-		SKRouteListener, RecognitionListener, ConnectionCallbacks,
-		OnConnectionFailedListener, ResultCallback<LocationSettingsResult> {
+public class ValidationActivity extends FragmentActivity implements OnInitListener, OnAudioFocusChangeListener, SKMapSurfaceListener,
+		SKRouteListener, RecognitionListener, ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<LocationSettingsResult> {
 	public static final int DEFAULT_ZOOM_LEVEL = 18;
 
 	public static final int NAVIGATION_ZOOM_LEVEL = 17;
@@ -310,6 +312,8 @@ public class ValidationActivity extends FragmentActivity implements
 	private static final Long RESTORE_TIME = Long.valueOf(30000);
 
 	private ReservationTollHovInfo reservationInfo;
+	
+	private Queue<Runnable> mapActionQueue = new LinkedList<Runnable>();
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -318,7 +322,10 @@ public class ValidationActivity extends FragmentActivity implements
 		SkobblerUtils.initializeLibrary(ValidationActivity.this);
 		setContentView(R.layout.post_reservation_map);
 		Localytics.integrate(this);
-		initSKMaps();
+
+		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
+//		mapViewHolder.hideAllAttributionTextViews();
+		mapViewHolder.setMapSurfaceListener(this);
 
 		Reservation.cancelNotification(this);
 		registerReceiver(tripValidator, new IntentFilter(TRIP_VALIDATOR));
@@ -527,15 +534,35 @@ public class ValidationActivity extends FragmentActivity implements
 
 		if (gpsMode == DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
 			locationRefreshed.set(true);
-			Location location = new Location("");
+			final Location location = new Location("");
 			location.setTime(System.currentTimeMillis());
-			locationChanged(location);
+			if(mapView != null) {
+				locationChanged(location);
+			}
+			else {
+				mapActionQueue.add(new Runnable() {
+					@Override
+					public void run() {
+						locationChanged(location);
+					}
+				});
+			}
 		} else if (curLoc != null) {
-			Location location = new Location("");
+			final Location location = new Location("");
 			location.setTime(System.currentTimeMillis());
 			location.setLatitude(curLoc.getLatitude());
 			location.setLongitude(curLoc.getLongitude());
-			locationChanged(location);
+			if(mapView != null) {
+				locationChanged(location);
+			}
+			else {
+				mapActionQueue.add(new Runnable() {
+					@Override
+					public void run() {
+						locationChanged(location);
+					}
+				});
+			}
 		}
 
 		if (isOnRecreate.get()) {
@@ -725,8 +752,7 @@ public class ValidationActivity extends FragmentActivity implements
 				&& (isDebugging || reservation.getNavLink() != null);
 	}
 
-	private static void centerMap(SKMapSurfaceView mapView,
-			boolean isOnRecreate, GeoPoint lastCenter, Route route) {
+	private static void centerMap(SKMapSurfaceView mapView,	boolean isOnRecreate, GeoPoint lastCenter, Route route) {
 		mapView.setZoom(DEFAULT_ZOOM_LEVEL);
 		GeoPoint center = null;
 		if (isOnRecreate) {
@@ -805,33 +831,7 @@ public class ValidationActivity extends FragmentActivity implements
 		Localytics.setInAppMessageDisplayActivity(this);
 		Localytics.handleTestMode(getIntent());
 		Localytics.handlePushNotificationOpened(getIntent());
-		mapView.onResume();
-
-		SharedPreferences debugPrefs = getSharedPreferences(
-				DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
-
-		// Register the listener with the Location Manager to receive location
-		// updates
-		int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE,
-				DebugOptionsActivity.GPS_MODE_DEFAULT);
-		if (StringUtils.isNotBlank(trajectoryData)) {
-			int interval = DebugOptionsActivity.getGpsUpdateInterval(this);
-			if (fakeLocationService == null) {
-				fakeLocationService = new FakeLocationService(locationListener,
-						interval, trajectoryData);
-			} else {
-				fakeLocationService = fakeLocationService.setInterval(interval);
-			}
-			if (savedPollCnt > 0) {
-				fakeLocationService.skip(savedPollCnt);
-				savedPollCnt = 0;
-			}
-		} else if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL
-				&& !turnOffGPS.get()) {
-			prepareGPS();
-		} else {
-
-		}
+		mapViewHolder.onResume();
 
 		registerReceiver(timeInfoCycler, new IntentFilter(TIME_INFO_CYCLE));
 		navigationView.stopNotification();
@@ -844,7 +844,7 @@ public class ValidationActivity extends FragmentActivity implements
 		Localytics.closeSession();
 		Localytics.upload();
 		super.onPause();
-		mapView.onPause();
+		mapViewHolder.onPause();
 		unregisterReceiver(timeInfoCycler);
 		if (!cancelTrip && !arrived.get()) {
 			navigationView.startNotification();
@@ -896,14 +896,13 @@ public class ValidationActivity extends FragmentActivity implements
 	/**
 	 * init skmap parameter
 	 */
-	private void initSKMaps() {
+	private void initSKMaps(SKMapViewHolder mapViewHolder) {
 		initial.set(true);
 		SKLogging.enableLogs(true);
-		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
-		mapViewHolder.hideAllAttributionTextViews();
+
 		mapView = mapViewHolder.getMapSurfaceView();
 
-		mapView.setMapSurfaceListener(this);
+//		mapView.setMapSurfaceListener(this);
 		mapView.clearAllOverlays();
 		mapView.deleteAllAnnotationsAndCustomPOIs();
 		mapView.getMapSettings().setCurrentPositionShown(false);
@@ -1493,16 +1492,11 @@ public class ValidationActivity extends FragmentActivity implements
 				onPreDrawListener = new ViewTreeObserver.OnPreDrawListener() {
 					@Override
 					public boolean onPreDraw() {
-						int alertHeight = findViewById(R.id.alert_content)
-								.getMeasuredHeight();
-						int alertWidth = findViewById(R.id.alert_content)
-								.getMeasuredWidth();
-						RelativeLayout.LayoutParams mapViewLp = (LayoutParams) mapView
-								.getLayoutParams();
-						mapViewLp.bottomMargin = navigationView
-								.isPortraitMode() ? alertHeight : 0;
-						mapViewLp.rightMargin = navigationView.isPortraitMode() ? 0
-								: alertWidth;
+						int alertHeight = findViewById(R.id.alert_content).getMeasuredHeight();
+						int alertWidth = findViewById(R.id.alert_content).getMeasuredWidth();
+						RelativeLayout.LayoutParams mapViewLp = (LayoutParams) mapView.getLayoutParams();
+						mapViewLp.bottomMargin = navigationView.isPortraitMode() ? alertHeight : 0;
+						mapViewLp.rightMargin = navigationView.isPortraitMode() ? 0	: alertWidth;
 						mapView.setLayoutParams(mapViewLp);
 						mapView.fitBoundingBox(boundingBox, 100, offsetHeight);
 						return true;
@@ -1543,13 +1537,10 @@ public class ValidationActivity extends FragmentActivity implements
 			double latitude = lastKnownLocation.getLatitude();
 			double longitude = lastKnownLocation.getLongitude();
 			SKCoordinate coordinate = new SKCoordinate(longitude, latitude);
-			mapView.getMapSettings()
-					.setMapDisplayMode(SKMapDisplayMode.MODE_3D);
-			mapView.setZoom(isNearOD_or_Intersection(latitude, longitude) ? DEFAULT_ZOOM_LEVEL
-					: NAVIGATION_ZOOM_LEVEL);
+			mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
+			mapView.setZoom(isNearOD_or_Intersection(latitude, longitude) ? DEFAULT_ZOOM_LEVEL : NAVIGATION_ZOOM_LEVEL);
 			mapView.centerMapOnPosition(coordinate);
-			mapView.getMapSettings().setFollowerMode(
-					SKMapFollowerMode.NAVIGATION);
+			mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
 			mapView.getMapSettings().setMapRotationEnabled(true);
 		}
 	}
@@ -1558,12 +1549,10 @@ public class ValidationActivity extends FragmentActivity implements
 		TextView timeInfo = (TextView) findViewById(R.id.remain_times);
 		Boolean isRemainingTime = (Boolean) timeInfo.getTag();
 		if (isRemainingTime == null || !isRemainingTime) {
-			timeInfo.setText(formatRemainTime(timeInfo.getTag(
-					R.id.remaining_travel_time).toString()));
+			timeInfo.setText(formatRemainTime(timeInfo.getTag(R.id.remaining_travel_time).toString()));
 			isRemainingTime = true;
 		} else {
-			timeInfo.setText(formatArrivalTime(timeInfo.getTag(
-					R.id.estimated_arrival_time).toString()));
+			timeInfo.setText(formatArrivalTime(timeInfo.getTag(R.id.estimated_arrival_time).toString()));
 			isRemainingTime = false;
 		}
 		timeInfo.setTag(isRemainingTime);
@@ -1573,12 +1562,10 @@ public class ValidationActivity extends FragmentActivity implements
 		TextView timeInfo = (TextView) findViewById(R.id.remain_times_direc_list);
 		Boolean isRemainingTime = (Boolean) timeInfo.getTag();
 		if (isRemainingTime == null || !isRemainingTime) {
-			timeInfo.setText(timeInfo.getTag(R.id.remaining_travel_time)
-					.toString());
+			timeInfo.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
 			isRemainingTime = true;
 		} else {
-			timeInfo.setText(timeInfo.getTag(R.id.estimated_arrival_time)
-					.toString());
+			timeInfo.setText(timeInfo.getTag(R.id.estimated_arrival_time).toString());
 			isRemainingTime = false;
 		}
 		timeInfo.setTag(isRemainingTime);
@@ -1859,10 +1846,7 @@ public class ValidationActivity extends FragmentActivity implements
 				routeManager.clearCurrentRoute();
 				routeManager.clearRouteAlternatives();
 				routeManager.clearAllRoutesFromCache();
-				routeManager.createRouteFromTrackElement(
-						routeGpx.getRootTrackElement(),
-						SKRouteSettings.SKROUTE_CAR_FASTEST, false, false,
-						false);
+				routeManager.createRouteFromTrackElement(routeGpx.getRootTrackElement(), SKRouteSettings.SKRouteMode.CAR_FASTEST, false, false,	false);
 				drawDestinationAnnotation(reservation.getEndlat(),
 						reservation.getEndlon());
 			}
@@ -1893,8 +1877,8 @@ public class ValidationActivity extends FragmentActivity implements
 	}
 
 	private void drawDestinationAnnotation(double lat, double lon) {
-		SKAnnotation destAnn = new SKAnnotation();
-		destAnn.setUniqueID(DEST_ANNOTATION_ID);
+		SKAnnotation destAnn = new SKAnnotation(DEST_ANNOTATION_ID);
+//		destAnn.setUniqueID(DEST_ANNOTATION_ID);
 		destAnn.setLocation(new SKCoordinate(lon, lat));
 		destAnn.setMininumZoomLevel(5);
 		SKAnnotationView destAnnView = new SKAnnotationView();
@@ -3167,23 +3151,20 @@ public class ValidationActivity extends FragmentActivity implements
 	private AtomicInteger sizeRatio = new AtomicInteger(1);
 
 	private void updateIncidentAnnotationSize(int ratio) {
-		if (DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this)
-				&& sizeRatio.get() != ratio) {
+		if (DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this)	&& sizeRatio.get() != ratio) {
 			sizeRatio.set(ratio);
 			List<Incident> incs = getIncidentsOfTime();
 			for (Incident inc : incs) {
 				if (inc != null) {
-					SKAnnotation incAnn = new SKAnnotation();
-					incAnn.setUniqueID(SkobblerUtils.getUniqueId(inc.lat,
-							inc.lon));
+					SKAnnotation incAnn = new SKAnnotation(SkobblerUtils.getUniqueId(inc.lat, inc.lon));
+//					incAnn.setUniqueID();
 					incAnn.setLocation(new SKCoordinate(inc.lon, inc.lat));
 					incAnn.setMininumZoomLevel(inc.getMinimalDisplayZoomLevel());
 					SKAnnotationView iconView = new SKAnnotationView();
 					ImageView incImage = new ImageView(ValidationActivity.this);
-					incImage.setImageBitmap(Misc.getBitmap(
-							ValidationActivity.this,
-							IncidentIcon.fromType(inc.type).getResourceId(
-									ValidationActivity.this), ratio));
+					incImage.setMinimumHeight(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
+					incImage.setMinimumWidth(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
+					incImage.setImageBitmap(Misc.getBitmap(ValidationActivity.this,	IncidentIcon.fromType(inc.type).getResourceId(ValidationActivity.this), ratio));
 					iconView.setView(incImage);
 					incAnn.setAnnotationView(iconView);
 					mapView.addAnnotation(incAnn,
@@ -3761,7 +3742,7 @@ public class ValidationActivity extends FragmentActivity implements
 		Incident selectedInc = incidents.get(selectedAnnotationId);
 		if (selectedInc != null) {
 			DisplayMetrics dm = getResources().getDisplayMetrics();
-			SKAnnotation fromAnnotation = new SKAnnotation();
+			SKAnnotation fromAnnotation = new SKAnnotation(INCIDENT_BALLOON_ID);
 			fromAnnotation.setUniqueID(INCIDENT_BALLOON_ID);
 			SKAnnotationView fromView = new SKAnnotationView();
 			fromAnnotation.setLocation(annotation.getLocation());
@@ -3837,10 +3818,8 @@ public class ValidationActivity extends FragmentActivity implements
 
 	@Override
 	public void onLongPress(SKScreenPoint point) {
-		SharedPreferences debugPrefs = getSharedPreferences(
-				DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
-		int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE,
-				DebugOptionsActivity.GPS_MODE_DEFAULT);
+		SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
+		int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
 		if (gpsMode == DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
 			SKCoordinate coordinate = mapView.pointToCoordinate(point);
 			Location location = new Location("");
@@ -3850,7 +3829,6 @@ public class ValidationActivity extends FragmentActivity implements
 			location.setTime(System.currentTimeMillis());
 			locationChanged(location);
 		}
-
 	}
 
 	@Override
@@ -3886,9 +3864,9 @@ public class ValidationActivity extends FragmentActivity implements
 	public void onRotateMap() {
 	}
 
-	@Override
-	public void onScreenOrientationChanged() {
-	}
+//	@Override
+//	public void onScreenOrientationChanged() {
+//	}
 
 	@Override
 	public void onSingleTap(SKScreenPoint arg0) {
@@ -3898,14 +3876,13 @@ public class ValidationActivity extends FragmentActivity implements
 		restoreHandler.postDelayed(followModeRestore, RESTORE_TIME);
 	}
 
-	@Override
-	public void onSurfaceCreated() {
-		if (lastKnownLocation != null) {
-			mapView.getMapSettings().setFollowerMode(
-					SKMapFollowerMode.NAVIGATION);
-			mapView.centerMapOnCurrentPosition();
-		}
-	}
+//	@Override
+//	public void onSurfaceCreated() {
+//		if (lastKnownLocation != null) {
+//			mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
+//			mapView.centerMapOnCurrentPosition();
+//		}
+//	}
 
 	@Override
 	public void onCurrentPositionSelected() {
@@ -3957,6 +3934,7 @@ public class ValidationActivity extends FragmentActivity implements
 	public void onEndOfSpeech() {
 	}
 
+	/*
 	@Override
 	public void onRouteCalculationCompleted(int statusMessage,
 			int routeDistance, int routeEta, boolean thisRouteIsComplete, int id) {
@@ -3974,18 +3952,19 @@ public class ValidationActivity extends FragmentActivity implements
 			}
 		}
 	}
+	*/
 
-	@Override
-	public void onServerLikeRouteCalculationCompleted(int arg0) {
-	}
-
-	@Override
-	public void onDebugInfo(double arg0, float arg1, double arg2) {
-	}
-
-	@Override
-	public void onOffportRequestCompleted(int arg0) {
-	}
+//	@Override
+//	public void onServerLikeRouteCalculationCompleted(int arg0) {
+//	}
+//
+//	@Override
+//	public void onDebugInfo(double arg0, float arg1, double arg2) {
+//	}
+//
+//	@Override
+//	public void onOffportRequestCompleted(int arg0) {
+//	}
 
 	@Override
 	public void onResult(LocationSettingsResult locationSettingsResult) {
@@ -4032,6 +4011,69 @@ public class ValidationActivity extends FragmentActivity implements
 
 	@Override
 	public void onConnectionSuspended(int arg0) {
+	}
+
+	@Override
+	public void onRouteCalculationCompleted(SKRouteInfo arg0) {
+		if (drawEnRoute.get()) {
+			drawEnRoute.set(false);
+			showEnRouteAlert();
+		} else {
+			if ((Boolean) buttonFollow.getTag()) {
+				mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
+			}
+		}
+	}
+
+	@Override
+	public void onRouteCalculationFailed(SKRoutingErrorCode errorCode) {
+		if (SKRoutingErrorCode.INTERNAL_ERROR == errorCode) {
+			drawRoute(mapView, getRouteOrReroute());
+		} 
+	}
+
+	@Override
+	public void onServerLikeRouteCalculationCompleted(SKRouteJsonAnswer arg0) {}
+
+	@Override
+	public void onBoundingBoxImageRendered(int arg0) {}
+
+	@Override
+	public void onGLInitializationError(String arg0) {}
+
+	@Override
+	public void onSurfaceCreated(SKMapViewHolder mapViewHolder) {
+		initSKMaps(mapViewHolder);
+		if (lastKnownLocation != null) {
+			mapViewHolder.getMapSurfaceView().getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
+			mapViewHolder.getMapSurfaceView().centerMapOnCurrentPosition();
+		}
+		
+		SharedPreferences debugPrefs = getSharedPreferences(
+				DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
+
+		// Register the listener with the Location Manager to receive location
+		// updates
+		int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE,
+				DebugOptionsActivity.GPS_MODE_DEFAULT);
+		if (StringUtils.isNotBlank(trajectoryData)) {
+			int interval = DebugOptionsActivity.getGpsUpdateInterval(this);
+			if (fakeLocationService == null) {
+				fakeLocationService = new FakeLocationService(locationListener,
+						interval, trajectoryData);
+			} else {
+				fakeLocationService = fakeLocationService.setInterval(interval);
+			}
+			if (savedPollCnt > 0) {
+				fakeLocationService.skip(savedPollCnt);
+				savedPollCnt = 0;
+			}
+		} else if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL
+				&& !turnOffGPS.get()) {
+			prepareGPS();
+		} else {
+
+		}
 	}
 
 }

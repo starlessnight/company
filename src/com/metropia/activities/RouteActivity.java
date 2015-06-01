@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -31,6 +33,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -221,6 +224,8 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     
     private ImageView hovButton;
     
+    private Queue<Runnable> mapActionQueue = new LinkedList<Runnable>();
+    
     private Runnable goBackToWhereTo = new Runnable() {
         @Override
         public void run() {
@@ -281,7 +286,9 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 			}else{
 			    RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true, versionNumber, getIncludeToll(), getHov());
 	            routeTasks.add(routeTask);
-	            routeTask.execute();
+	            if(mapView != null) {
+	            	routeTask.execute();
+	            }
 			}
 		}
 		
@@ -340,7 +347,9 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 							public void run() {
 								RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true, versionNumber, getIncludeToll(), getHov());
 						        routeTasks.add(routeTask);
-						        routeTask.execute();
+						        if(mapView != null) {
+						        	routeTask.execute();
+						        }
 							}
 						});
 					}
@@ -359,12 +368,14 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
    
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	// init skmap
+    	SkobblerUtils.initializeLibrary(RouteActivity.this);
         super.onCreate(savedInstanceState);
-        // init skmap
-        SkobblerUtils.initializeLibrary(RouteActivity.this);
-        setContentView(R.layout.pre_reservation_map); 
+        setContentView(R.layout.pre_reservation_map);
         
-        initSKMaps();
+        mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
+//		mapViewHolder.hideAllAttributionTextViews();
+		mapViewHolder.setMapSurfaceListener(this);
         
         Localytics.integrate(this);
         
@@ -411,7 +422,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 //        Font.setTypeface(lightFont, osmCredit);
         
         /* Set the map view for a view of North America before zooming in on route */
-        setViewToNorthAmerica(mapView);
+//        setViewToNorthAmerica(mapView);
         
         dialog = new ProgressDialog(RouteActivity.this) {
             @Override
@@ -1132,14 +1143,11 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	private SKMapViewHolder mapViewHolder;
 	private SKMapSurfaceView mapView;
     
-    private void initSKMaps() {
+    private void initSKMaps(SKMapViewHolder mapViewHolder) {
 		SKLogging.enableLogs(true);
-		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
-		mapViewHolder.hideAllAttributionTextViews();
-		mapView = mapViewHolder.getMapSurfaceView();
-//		CloudmadeUtil.retrieveCloudmadeKey(this);
 		
-		mapView.setMapSurfaceListener(this);
+		mapView = mapViewHolder.getMapSurfaceView();
+		
 		mapView.clearAllOverlays();
 		mapView.deleteAllAnnotationsAndCustomPOIs();
 		mapView.getMapSettings().setCurrentPositionShown(false);
@@ -1162,8 +1170,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     		callback.run();
     	}
     	if(DebugOptionsActivity.isIncidentEnabled(RouteActivity.this)) {
-	    	AsyncTask<Void, Void, Void> getIncidentTask = new AsyncTask<Void, Void, Void>() {
-	    		
+	    	final AsyncTask<Void, Void, Void> getIncidentTask = new AsyncTask<Void, Void, Void>() {
 	    		@Override
 				protected Void doInBackground(Void... params) {
 	    			if(originCoord != null) {
@@ -1181,12 +1188,28 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    		
 				@Override
 		        protected void onPostExecute(Void result) {
-					if(timeLayout.getSelectedTimeButton() != null) {
-						showIncidentOverlays(timeLayout.getSelectedDepartureTime());
-					}
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							if(timeLayout.getSelectedTimeButton() != null) {
+								showIncidentOverlays(timeLayout.getSelectedDepartureTime());
+							}
+						}
+					});
 				}
 	    	};
-	    	Misc.parallelExecute(getIncidentTask);
+	    	
+	    	if(mapView != null) {
+	    		Misc.parallelExecute(getIncidentTask);
+	    	}
+	    	else {
+	    		mapActionQueue.add(new Runnable() {
+					@Override
+					public void run() {
+						Misc.parallelExecute(getIncidentTask);
+					}
+	    		});
+	    	}
     	}
     }
     
@@ -1215,12 +1238,14 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    sizeRatio.set(0); // init for zoom action
 	    List<Incident> incidentOfDepTime = getIncidentOfDepartureTime(depTimeInMillis);
     	for(Incident incident : incidentOfDepTime) {
-    		SKAnnotation incAnn = new SKAnnotation();
-    		incAnn.setUniqueID(SkobblerUtils.getUniqueId(incident.lat, incident.lon));
+    		SKAnnotation incAnn = new SKAnnotation(SkobblerUtils.getUniqueId(incident.lat, incident.lon));
+//    		incAnn.setUniqueID(SkobblerUtils.getUniqueId(incident.lat, incident.lon));
 			incAnn.setLocation(new SKCoordinate(incident.lon, incident.lat));
 			incAnn.setMininumZoomLevel(incident.getMinimalDisplayZoomLevel());
 			SKAnnotationView iconView = new SKAnnotationView();
 			ImageView incImage = new ImageView(RouteActivity.this);
+			incImage.setMinimumHeight(Misc.ANNOTATION_MINIMUM_SIZE / getSizeRatioByZoomLevel());
+			incImage.setMinimumWidth(Misc.ANNOTATION_MINIMUM_SIZE / getSizeRatioByZoomLevel());
 			incImage.setImageBitmap(Misc.getBitmap(RouteActivity.this, IncidentIcon.fromType(incident.type).getResourceId(RouteActivity.this), getSizeRatioByZoomLevel()));
 			iconView.setView(incImage);
 			incAnn.setAnnotationView(iconView);
@@ -1294,7 +1319,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    	double destLat = (destOverlayInfo != null && destOverlayInfo.geopoint != null) ? destOverlayInfo.geopoint.getLatitude() : routeLastNode.getLatitude();
 	    	double destLon = (destOverlayInfo != null && destOverlayInfo.geopoint != null) ? destOverlayInfo.geopoint.getLongitude() : routeLastNode.getLongitude();
 	    	
-	    	toBalloonAnn = new SKAnnotation();
+	    	toBalloonAnn = new SKAnnotation(TO_BALLOON_ID);
 	    	toBalloonAnn.setUniqueID(TO_BALLOON_ID);
 	    	
 	    	toBalloonAnn.setLocation(new SKCoordinate(destLon, destLat));
@@ -1307,7 +1332,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	        toBalloonAnn.setAnnotationView(toBalloonView);
 	        mapView.addAnnotation(toBalloonAnn, SKAnimationSettings.ANIMATION_POP_OUT);
 	        
-	        toDetailBalloonAnn = new SKAnnotation();
+	        toDetailBalloonAnn = new SKAnnotation(TO_DETAIL_BALLOON_ID);
 	        toDetailBalloonAnn.setUniqueID(TO_DETAIL_BALLOON_ID);
 	        toDetailBalloonAnn.setLocation(new SKCoordinate(destLon, destLat));
 	        toDetailBalloonAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(toOffset, getResources().getDisplayMetrics())));
@@ -1317,7 +1342,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	        toDetailBalloonView.setView(toDetailBalloonImage);
 	        toDetailBalloonAnn.setAnnotationView(toDetailBalloonView);
 	        
-	        fromBalloonAnn = new SKAnnotation();
+	        fromBalloonAnn = new SKAnnotation(FROM_BALLOON_ID);
 	        fromBalloonAnn.setUniqueID(FROM_BALLOON_ID);
 	        fromBalloonAnn.setLocation(new SKCoordinate(originLon, originLat));
 	        fromBalloonAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(36, getResources().getDisplayMetrics())));
@@ -1328,7 +1353,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	        fromBalloonAnn.setAnnotationView(fromBalloonView);
 	        mapView.addAnnotation(fromBalloonAnn, SKAnimationSettings.ANIMATION_POP_OUT);
 	        
-	        fromDetailBalloonAnn = new SKAnnotation();
+	        fromDetailBalloonAnn = new SKAnnotation(FROM_DETAIL_BALLOON_ID);
 	        fromDetailBalloonAnn.setUniqueID(FROM_DETAIL_BALLOON_ID);
 	        fromDetailBalloonAnn.setLocation(new SKCoordinate(originLon, originLat));
 	        fromDetailBalloonAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(36, getResources().getDisplayMetrics())));
@@ -1432,7 +1457,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     private static final Integer DEST_ANNOTATION_ID = Integer.valueOf(1010);
     
     private void drawDestinationAnnotation(double lat, double lon) {
-    	SKAnnotation destAnn = new SKAnnotation();
+    	SKAnnotation destAnn = new SKAnnotation(DEST_ANNOTATION_ID);
 		destAnn.setUniqueID(DEST_ANNOTATION_ID);
 		destAnn.setLocation(new SKCoordinate(lon, lat));
 		destAnn.setMininumZoomLevel(5);
@@ -1471,7 +1496,9 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 						public void run() {
 							RouteTask routeTask = new RouteTask(originCoord, destCoord, timeLayout.getDepartureTime(0), 0, true, versionNumber, getIncludeToll(), getHov());
 				            routeTasks.add(routeTask);
-				            routeTask.execute();
+				            if(mapView != null) {
+				            	routeTask.execute();
+				            }
 						}
 		        	});
     			}
@@ -1488,14 +1515,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    Localytics.setInAppMessageDisplayActivity(this);
 	    Localytics.handleTestMode(getIntent());
 	    Localytics.handlePushNotificationOpened(getIntent());
-	    mapView.onResume();
-	    // refresh incident
-	    MainActivity.initApiLinksIfNecessary(RouteActivity.this, new Runnable() {
-			@Override
-			public void run() {
-				retriveIncident(null);
-			}
-	    });
+	    mapViewHolder.onResume();
     }
     
 	@Override
@@ -1524,7 +1544,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    Localytics.closeSession();
 	    Localytics.upload();
 	    super.onPause();
-	    mapView.onPause();
+	    mapViewHolder.onPause();
     } 
     
     @Override
@@ -1754,12 +1774,14 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		    		}
 		    	}
 		    	for(Incident incident : incidentOfDepTime) {
-		    		SKAnnotation incAnn = new SKAnnotation();
-		    		incAnn.setUniqueID(SkobblerUtils.getUniqueId(incident.lat, incident.lon));
+		    		SKAnnotation incAnn = new SKAnnotation(SkobblerUtils.getUniqueId(incident.lat, incident.lon));
+//		    		incAnn.setUniqueID();
 					incAnn.setLocation(new SKCoordinate(incident.lon, incident.lat));
 					incAnn.setMininumZoomLevel(incident.getMinimalDisplayZoomLevel());
 					SKAnnotationView iconView = new SKAnnotationView();
 					ImageView incImage = new ImageView(RouteActivity.this);
+					incImage.setMinimumHeight(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
+					incImage.setMinimumWidth(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
 					incImage.setImageBitmap(Misc.getBitmap(RouteActivity.this, IncidentIcon.fromType(incident.type).getResourceId(RouteActivity.this), ratio));
 					iconView.setView(incImage);
 					incAnn.setAnnotationView(iconView);
@@ -1775,7 +1797,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     	if(odSizeRatio.get() != ratio) {
     		odSizeRatio.set(ratio);
 	    	if(routeFirstNode != null && originOverlayInfo != null) {
-		    	SKAnnotation fromOverlay = new SKAnnotation();
+		    	SKAnnotation fromOverlay = new SKAnnotation(FROM_OVERLAY_ID);
 		    	fromOverlay.setUniqueID(FROM_OVERLAY_ID);
 		    	fromOverlay.setMininumZoomLevel(MINIAL_ZOOM_LEVEL + 1);
 		    	double originLat = originOverlayInfo.geopoint != null ? originOverlayInfo.geopoint.getLatitude() : routeFirstNode.getLatitude();
@@ -1783,6 +1805,8 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		    	fromOverlay.setLocation(new SKCoordinate(originLon, originLat));
 		    	SKAnnotationView fromOverlayView = new SKAnnotationView();
 		    	ImageView fromOverlayImageView = new ImageView(RouteActivity.this);
+		    	fromOverlayImageView.setMinimumHeight(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
+		    	fromOverlayImageView.setMinimumWidth(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
 		    	fromOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, originOverlayInfo.markerWithShadow, ratio));
 		    	fromOverlayView.setView(fromOverlayImageView);
 		    	fromOverlay.setAnnotationView(fromOverlayView);
@@ -1790,7 +1814,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    	}
 	    	
 	    	if(routeLastNode != null && destOverlayInfo != null) {
-	    		SKAnnotation toOverlay = new SKAnnotation();
+	    		SKAnnotation toOverlay = new SKAnnotation(TO_OVERLAY_ID);
 	    		toOverlay.setUniqueID(TO_OVERLAY_ID);
 	    		toOverlay.setMininumZoomLevel(MINIAL_ZOOM_LEVEL + 1);
 	    		double destLat = destOverlayInfo.geopoint != null ? destOverlayInfo.geopoint.getLatitude() : routeLastNode.getLatitude();
@@ -1800,6 +1824,10 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    		ImageView toOverlayImageView = new ImageView(RouteActivity.this);
 	    		int destResourceId = destOverlayInfo != null ? (destOverlayInfo.markerWithShadow == R.drawable.poi_pin_with_shadow ? R.drawable.pin_destination : destOverlayInfo.markerWithShadow) : R.drawable.pin_destination;
 	    		boolean isFlag = destResourceId == R.drawable.pin_destination;
+	    		if(!isFlag) {
+	    			toOverlayImageView.setMinimumHeight(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
+	    			toOverlayImageView.setMinimumWidth(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
+	    		}
 	    		toOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, destResourceId, ratio));
 	    		toOverlayView.setView(toOverlayImageView);
 	    		toOverlay.setAnnotationView(toOverlayView);
@@ -2087,11 +2115,12 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
             }
             
             setHighlightedRoutePathOverlays(true);
-            mapView.postInvalidate();
             
             if (ehs.hasExceptions() && selectedColumn == 0) {
-            	mapView.clearAllOverlays();
-            	mapView.deleteAllAnnotationsAndCustomPOIs();
+            	if(mapView != null) {
+	            	mapView.clearAllOverlays();
+	            	mapView.deleteAllAnnotationsAndCustomPOIs();
+            	}
                 ehs.reportExceptions(goBackToWhereTo);
             }
             else {
@@ -2182,7 +2211,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		Incident selectedInc = getIncident(selectedAnnotationId);
 		if(selectedInc != null && mapView.getZoomLevel() >= selectedInc.getMinimalDisplayZoomLevel()) {
 			DisplayMetrics dm = getResources().getDisplayMetrics();
-            SKAnnotation fromAnnotation = new SKAnnotation();
+            SKAnnotation fromAnnotation = new SKAnnotation(INCIDENT_BALLOON_ID);
             fromAnnotation.setUniqueID(INCIDENT_BALLOON_ID);
             SKAnnotationView fromView = new SKAnnotationView();
             fromAnnotation.setLocation(annotation.getLocation());
@@ -2353,29 +2382,48 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	public void onRotateMap() {}
 
 	@Override
-	public void onScreenOrientationChanged() {}
-
-	@Override
 	public void onSingleTap(SKScreenPoint arg0) {
 		mapView.deleteAnnotation(INCIDENT_BALLOON_ID);
 	}
 	
 	@Override
-	public void onSurfaceCreated() {
+	public void onBoundingBoxImageRendered(int arg0) {}
+
+	@Override
+	public void onGLInitializationError(String arg0) {}
+
+	@Override
+	public void onSurfaceCreated(SKMapViewHolder mapViewHolder) {
+		initSKMaps(mapViewHolder);
 		Route route = (Route) findViewById(R.id.reserve).getTag();
 		if(route != null) {
 			List<Route> possibleRoutes = new ArrayList<Route>();
 			possibleRoutes.add(route);
 			updateMap(possibleRoutes, timeLayout.getSelectedColumn() == 0);
 		}
+		
+		// refresh incident
+	    MainActivity.initApiLinksIfNecessary(RouteActivity.this, new Runnable() {
+			@Override
+			public void run() {
+				retriveIncident(null);
+			}
+	    });
+		
 		odSizeRatio.set(0);
 		updateODAnnotationSize(getSizeRatioByZoomLevel());
+		
+		for(RouteTask task : routeTasks) {
+			if(task.getStatus() != Status.RUNNING && task.getStatus() != Status.FINISHED && task.getStatus() != Status.RUNNING) {
+				task.execute();
+			}
+		}
+		
+		Runnable action = mapActionQueue.poll();
+		while(action != null) {
+			action.run();
+			action = mapActionQueue.poll();
+		}
 	}
-
-	@Override
-	public void onDebugInfo(double arg0, float arg1, double arg2) {}
-
-	@Override
-	public void onOffportRequestCompleted(int arg0) {}
 
 }

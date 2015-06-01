@@ -16,16 +16,23 @@ import com.skobbler.ngx.SKMaps;
 import com.skobbler.ngx.SKMapsInitSettings;
 import com.skobbler.ngx.SKPrepareMapTextureListener;
 import com.skobbler.ngx.SKPrepareMapTextureThread;
+import com.skobbler.ngx.map.SKMapSurfaceView;
 import com.skobbler.ngx.map.SKMapViewStyle;
 import com.skobbler.ngx.navigation.SKAdvisorSettings;
+import com.skobbler.ngx.navigation.SKAdvisorSettings.SKAdvisorLanguage;
+import com.skobbler.ngx.util.SKLogging;
 
 public class SkobblerUtils {
 	
 	private static final String API_KEY = "18dc78a75415e2e1f4260fd7e5990fd0f9a1ad42160171997d823bf79eb09d63";
 	
-	public static final String SDK_VERSION = "2.3";
+	public static final String SDK_VERSION = "2.5";
 	
 	public static void initSkobbler(Context ctx, SKPrepareMapTextureListener listener, Runnable checkLogin) {
+		SKLogging.enableLogs(true);
+		// enable multiple map instance
+		SKMapSurfaceView.preserveGLContext = false;
+		
         String mapResourcesDirPath = getMapResourceDirPath(ctx);
         File skmapDir = new File(mapResourcesDirPath);
         if (skmapDir.exists() && DebugOptionsActivity.isSkobblerPatched(ctx)) {
@@ -44,17 +51,21 @@ public class SkobblerUtils {
 	}
 	
 	public static void initializeLibrary(Context ctx) {
+		SKLogging.enableLogs(true);
         // get object holding map initialization settings
         SKMapsInitSettings initMapSettings = new SKMapsInitSettings();
         // set path to map resources and initial map style
         initMapSettings.setMapResourcesPaths(getMapResourceDirPath(ctx), getMapViewStyle(ctx, true));
         
         SKAdvisorSettings advisorSettings = initMapSettings.getAdvisorSettings();
-        advisorSettings.setLanguage("en");
+        advisorSettings.setAdvisorConfigPath(getMapResourceDirPath(ctx) +"/Advisor");
+        advisorSettings.setResourcePath(getMapResourceDirPath(ctx) +"/Advisor/Languages");
+        advisorSettings.setLanguage(SKAdvisorLanguage.LANGUAGE_EN);
         advisorSettings.setAdvisorVoice("en");
         initMapSettings.setAdvisorSettings(advisorSettings);
        
-        SKMaps.getInstance().initializeSKMaps(ctx, initMapSettings, API_KEY);
+        SKMaps.getInstance().setApiKey(API_KEY);
+        SKMaps.getInstance().initializeSKMaps(ctx, initMapSettings);
     }
 	
 	
