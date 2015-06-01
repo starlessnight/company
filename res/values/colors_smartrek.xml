@@ -26,6 +26,7 @@
     <color name="metropia_orange">#F16021</color>
     <color name="metropia_green">#96C93C</color>
     <color name="metropia_blue">#0197CD</color>
+    <color name="metropia_light_blue">#7AC4E1</color>
     <color name="metropia_transparent_green">#7F96C93C</color>
     <color name="metropia_transparent_blue">#2F0197CD</color>
 </resources>

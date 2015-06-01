@@ -1128,7 +1128,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     	includeTollLp.width = LayoutParams.MATCH_PARENT;
     	includeTollLp.height = includeToll ? LayoutParams.MATCH_PARENT : (Double.valueOf(0.8 * Dimension.dpToPx(TOLL_PANEL_HEIGHT, getResources().getDisplayMetrics())).intValue());
     	includeTollButton.setLayoutParams(includeTollLp);
-    	includeTollButton.setBackgroundColor(getResources().getColor(includeToll ? R.color.metropia_blue : R.color.light_gray));
+    	includeTollButton.setBackgroundColor(getResources().getColor(includeToll ? R.color.metropia_blue : R.color.metropia_light_blue));
     	includeTollButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, includeToll ? 18 : 14);
     	
     	TextView noTollButton = (TextView) findViewById(R.id.no_toll);
@@ -1136,7 +1136,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     	noTollLp.width = LayoutParams.MATCH_PARENT;
     	noTollLp.height = includeToll ? (Double.valueOf(0.8 * Dimension.dpToPx(TOLL_PANEL_HEIGHT, getResources().getDisplayMetrics())).intValue()) : LayoutParams.MATCH_PARENT;
     	noTollButton.setLayoutParams(noTollLp);
-    	noTollButton.setBackgroundColor(getResources().getColor(includeToll ? R.color.light_gray : R.color.metropia_blue));
+    	noTollButton.setBackgroundColor(getResources().getColor(includeToll ? R.color.metropia_light_blue : R.color.metropia_blue));
     	noTollButton.setTextSize(TypedValue.COMPLEX_UNIT_DIP, includeToll ? 14 : 18);
     }
     
