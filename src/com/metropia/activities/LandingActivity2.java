@@ -1481,8 +1481,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     
     private void initSKMaps(SKMapViewHolder holder) {
 		mapView = holder.getMapSurfaceView();
-//		mapView.clearAllOverlays();
-//		mapView.deleteAllAnnotationsAndCustomPOIs();
+		mapView.clearAllOverlays();
+		mapView.deleteAllAnnotationsAndCustomPOIs();
 		mapView.getMapSettings().setCurrentPositionShown(true);
 		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
 		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
@@ -2619,7 +2619,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    unregisterReceiver(tripInfoUpdater);
 	    unregisterReceiver(onTheWayNotifier);
 	    super.onPause();
-	    mapView.clearAllOverlays();
+	    if(mapView != null) {
+	    	mapView.clearAllOverlays();
+	    }
 	    enableDrawRoute.set(false);
 	    mapViewHolder.onPause();
 	    mSensorManager.unregisterListener(this, accelerometer);
