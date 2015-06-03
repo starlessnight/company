@@ -1883,13 +1883,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		destAnn.setMininumZoomLevel(5);
 		SKAnnotationView destAnnView = new SKAnnotationView();
 		ImageView destImage = new ImageView(ValidationActivity.this);
-		destImage.setImageBitmap(Misc.getBitmap(ValidationActivity.this,
-				R.drawable.pin_destination, 1));
+		destImage.setImageBitmap(Misc.getBitmap(ValidationActivity.this, R.drawable.pin_destination, 1));
 		destAnnView.setView(destImage);
 		destAnn.setAnnotationView(destAnnView);
-		destAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20,
-				getResources().getDisplayMetrics())));
-		mapView.addAnnotation(destAnn, SKAnimationSettings.ANIMATION_NONE);
+		destAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
+		mapView.addAnnotation(destAnn, SKAnimationSettings.ANIMATION_POP_OUT);
 	}
 
 	private int seq = 1;
