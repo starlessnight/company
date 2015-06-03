@@ -3875,6 +3875,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     
     private void resizeMap(boolean collapsed){
         mapViewHolder.setTag(collapsed);
+        searchBox.setFocusableInTouchMode(collapsed);
+        searchBox.setFocusable(collapsed);
+        fromSearchBox.setFocusableInTouchMode(collapsed);
+        fromSearchBox.setFocusable(collapsed);
         View landingPanelView = findViewById(R.id.landing_panel_content);
         int landingPanelHeight = landingPanelView.getHeight();
         List<Animator> allAnimators = new ArrayList<Animator>();
