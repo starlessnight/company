@@ -164,9 +164,9 @@
                         android:background="@color/metropia_blue"
                         android:orientation="horizontal" >
 
-                        <FrameLayout
+                        <RelativeLayout
                             android:id="@+id/drawer_menu_icon_panel"
-                            android:layout_width="53dp"
+                            android:layout_width="60dp"
                             android:layout_height="match_parent"
                             android:layout_gravity="left|center"
                         	android:paddingTop="4dp"
@@ -178,9 +178,23 @@
                                 android:layout_height="match_parent"
                                 android:layout_gravity="left|center"
                                 android:paddingLeft="8dp"
-                                android:paddingRight="20dp"
+                                android:paddingRight="5dp"
                                 android:src="@drawable/drawer_menu_icon_1" />
-                        </FrameLayout>
+                            
+                            <TextView 
+		                        android:id="@+id/menu_notification"
+		                        android:layout_width="17dp"
+		                        android:layout_height="17dp"
+		                        android:layout_alignParentTop="true"
+		                        android:layout_toRightOf="@+id/drawer_menu_icon"
+		                        android:background="@drawable/notification_circle"
+		                        android:text="N"
+		                        android:textColor="@android:color/white"
+		                        android:textSize="10dp"
+		                        android:gravity="center"
+		                        android:visibility="gone"/>
+                            
+                        </RelativeLayout>
 
                         <TextView
                             android:id="@+id/head"
@@ -761,20 +775,41 @@
                         android:textColor="@android:color/white"
                         android:textSize="@dimen/medium_font" />
                     
-                    <TextView
-                        android:id="@+id/message_inbox"
+                    <RelativeLayout 
+                        android:id="@+id/message_menu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:drawableLeft="@drawable/menu_inbox"
-                        android:drawablePadding="20dp"
-                        android:paddingLeft="20dp"
-                        android:paddingRight="10dp"
-                        android:paddingTop="15dp"
-                        android:singleLine="true"
-                        android:text="Messages"
-                        android:textColor="@android:color/white"
-                        android:textSize="@dimen/medium_font"
-                        android:visibility="gone" />
+                        android:visibility="gone">
+                        
+	                    <TextView
+	                        android:id="@+id/message_inbox"
+	                        android:layout_width="wrap_content"
+	                        android:layout_height="wrap_content"
+	                        android:layout_alignParentLeft="true"
+	                        android:drawableLeft="@drawable/menu_inbox"
+	                        android:drawablePadding="20dp"
+	                        android:paddingLeft="20dp"
+	                        android:paddingRight="5dp"
+	                        android:paddingTop="15dp"
+	                        android:singleLine="true"
+	                        android:text="Messages"
+	                        android:textColor="@android:color/white"
+	                        android:textSize="@dimen/medium_font" />
+	                    
+	                    <TextView 
+	                        android:id="@+id/inbox_notification"
+	                        android:layout_width="17dp"
+	                        android:layout_height="17dp"
+	                        android:layout_alignParentTop="true"
+	                        android:layout_marginTop="15dp"
+	                        android:layout_toRightOf="@+id/message_inbox"
+	                        android:background="@drawable/notification_circle"
+	                        android:text="N"
+	                        android:textColor="@android:color/white"
+	                        android:textSize="10dp"
+	                        android:gravity="center"/>
+	                    
+                    </RelativeLayout>
                     
                     <TextView
                         android:id="@+id/my_trips"

@@ -4,6 +4,8 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -296,5 +298,33 @@ public class Misc {
 			i++;
 		}
 	}
+    
+    public static Integer getNewInboxMessageCount(String messageContent, Long recordLastFeed) {
+    	Pattern messagePostedPattern = Pattern.compile("<div\\s+class=\"messagePosted\"\\s+style=\"display:none;\"\\s*>\\s*(\\d+)\\s*</div>");
+        Matcher messagePostMatcher = messagePostedPattern.matcher(messageContent);
+        Integer count = Integer.valueOf(0);
+        while(messagePostMatcher.find()) {
+        	try {
+	        	if(Long.valueOf(messagePostMatcher.group(1)) > recordLastFeed) {
+	        		count++;
+	        	}
+        	}
+        	catch(Exception ignore){}
+        }
+        return count;
+    }
+    
+    public static Long getCurrentLastFeed(String messageContent) {
+    	Long currentLastFeed = Long.valueOf(0);
+    	Pattern lastFeedPattern = Pattern.compile("<div\\s+class=\"lastFeed\"\\sstyle=\"display:none;\"\\s*>\\s*(\\d+)\\s*</div>");
+        Matcher lastFeedMatcher = lastFeedPattern.matcher(messageContent);
+        if(lastFeedMatcher.find()) {
+        	try {
+        		currentLastFeed = Long.valueOf(lastFeedMatcher.group(1));
+        	}
+        	catch(Exception e) {}
+        }
+        return currentLastFeed;
+    }
     
 }

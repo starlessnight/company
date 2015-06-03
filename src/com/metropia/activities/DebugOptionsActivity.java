@@ -1365,6 +1365,84 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
             .commit();
     }
     
+    private static final String INBOX_LAST_VISIT_FEED = "INBOX_LAST_VISIT_FEED";
+    
+    public static Long getInboxLastVisitFeedTime(Context ctx, String cityName) {
+    	Long lastFeed = Long.valueOf(0);
+        try{
+        	JSONObject record = getInboxLastVisitFeedTimeRecord(ctx);
+        	lastFeed = record.optLong(cityName, 0);
+        }catch(Throwable ignore){}
+        return lastFeed;
+    }
+    
+    public static void setInboxLastVisitFeedTime(Context ctx, String cityName, Long lastFeed){
+    	JSONObject feedTimed = getInboxLastVisitFeedTimeRecord(ctx);
+    	try {
+			feedTimed.put(cityName, lastFeed);
+		} catch (JSONException ignore) {}
+        getPrefs(ctx).edit().putString(INBOX_LAST_VISIT_FEED, feedTimed.toString()).commit();
+    }
+    
+    private static JSONObject getInboxLastVisitFeedTimeRecord(Context ctx) {
+    	String existedRecord = null;
+    	try {
+    		existedRecord = getPrefs(ctx).getString(INBOX_LAST_VISIT_FEED, "");
+    	}
+    	catch(Exception ignore){}
+    	JSONObject feedTimed;
+    	if(StringUtils.isBlank(existedRecord)) {
+    		feedTimed = new JSONObject();
+    	}
+    	else {
+    		try {
+				feedTimed = new JSONObject(existedRecord);
+			} catch (JSONException e) {
+				feedTimed = new JSONObject();
+			}
+    	}
+    	return feedTimed;
+    }
+    
+    private static final String MENU_NOTIFICATION_DISMISS_TIME = "MENU_NOTIFICATION_DISMISS_TIME";
+    
+    public enum NotificationType {
+    	inbox;
+    }
+    
+    public static Long getInboxMenuDismissRecord(Context ctx, String cityName) {
+    	JSONObject allRecord = getMenuDismissRecord(ctx);
+    	return allRecord.optLong(NotificationType.inbox.name() + "_" + cityName, -1);
+    }
+    
+    public static void setInboxMenuDismissRecord(Context ctx, String cityName, Long record) {
+    	JSONObject allRecord = getMenuDismissRecord(ctx);
+    	try {
+			allRecord.put(NotificationType.inbox.name() + "_" + cityName, record);
+		} catch (JSONException ignore) {}
+    	getPrefs(ctx).edit().putString(MENU_NOTIFICATION_DISMISS_TIME, allRecord.toString()).commit();
+    }
+    
+    private static JSONObject getMenuDismissRecord(Context ctx) {
+    	String existedRecord = null;
+    	try {
+    		existedRecord = getPrefs(ctx).getString(MENU_NOTIFICATION_DISMISS_TIME, "");
+    	}
+    	catch(Exception ignore){}
+    	JSONObject feedTimed;
+    	if(StringUtils.isBlank(existedRecord)) {
+    		feedTimed = new JSONObject();
+    	}
+    	else {
+    		try {
+				feedTimed = new JSONObject(existedRecord);
+			} catch (JSONException e) {
+				feedTimed = new JSONObject();
+			}
+    	}
+    	return feedTimed;
+    }
+    
     private void initRecognizer() {
 		new AsyncTask<Void, Void, Void>() {
             @Override

@@ -117,6 +117,7 @@ import com.metropia.ResumeNavigationUtils;
 import com.metropia.SkobblerUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
+import com.metropia.activities.DebugOptionsActivity.NotificationType;
 import com.metropia.dialogs.CancelableProgressDialog;
 import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.dialogs.NotificationDialog2.ActionListener;
@@ -946,7 +947,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         drawerIconPanel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mDrawerLayout.openDrawer(findViewById(R.id.left_drawer));
+                openMenu(mDrawerLayout);
             }
         });
         
@@ -1115,6 +1116,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             }
         });
         
+        final TextView inboxNotification = (TextView) findViewById(R.id.inbox_notification);
         TextView inBoxMenu = (TextView) findViewById(R.id.message_inbox);
         inBoxMenu.setOnClickListener(new OnClickListener() {
 			@Override
@@ -1125,6 +1127,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 						@Override
 						public void onAnimationEnd() {
+							DebugOptionsActivity.setInboxLastVisitFeedTime(LandingActivity2.this, inboxCityName, realLastFeed);
+							findViewById(R.id.menu_notification).setVisibility(View.GONE);
+							inboxNotification.setVisibility(View.GONE);
 							Intent inboxIntent = new Intent(LandingActivity2.this, InBoxActivity.class);
 							inboxIntent.putExtra(InBoxActivity.CITY_NAME, inboxCityName);
 							startActivity(inboxIntent);
@@ -1398,7 +1403,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getLight(assets), searchBox, fromSearchBox, myMetropiaMenu, 
-            reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu, favoriteListMenu, inBoxMenu);
+            reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu,
+            favoriteListMenu, inBoxMenu, inboxNotification, (TextView) findViewById(R.id.menu_notification));
         Font.setTypeface(Font.getMedium(assets), upointView, saveTimeView, co2View, (TextView) findViewById(R.id.head));
         Font.setTypeface(Font.getRobotoBold(assets), getRouteView);
         //init Tracker
@@ -1474,7 +1480,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     private void initSKMaps(SKMapViewHolder holder) {
-    	Log.d("LandingActivity2", "Map init!!!!!!!!!!!!!!!!!!!!!!");
 		mapView = holder.getMapSurfaceView();
 //		mapView.clearAllOverlays();
 //		mapView.deleteAllAnnotationsAndCustomPOIs();
@@ -1611,7 +1616,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						mDrawerLayout.openDrawer(findViewById(R.id.left_drawer));
+						openMenu(mDrawerLayout);
 					}
 				});
 			}
@@ -3499,6 +3504,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     private String inboxCityName;
+    private Long realLastFeed = Long.valueOf(0);
     
     private void checkInboxUrlAndUpdateMenu(final String cityName) {
     	if(StringUtils.isNotBlank(Request.getPageUrl(Page.bulletinboard))) {
@@ -3511,11 +3517,20 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 						http.connect();
 						int responseCode = http.getResponseCode();
 						if(responseCode == 200) {
+							String responseBody = http.getResponseBody();
+							final Long visitedTime = DebugOptionsActivity.getInboxLastVisitFeedTime(LandingActivity2.this, cityName);
+							final Integer newMessageCount = Misc.getNewInboxMessageCount(responseBody, visitedTime);
+							realLastFeed = Misc.getCurrentLastFeed(responseBody);
 							inboxCityName = cityName;
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									findViewById(R.id.message_inbox).setVisibility(View.VISIBLE);
+									findViewById(R.id.message_menu).setVisibility(View.VISIBLE);
+									TextView newFeed = (TextView) findViewById(R.id.inbox_notification);
+									newFeed.setText(newMessageCount + "");
+									newFeed.setVisibility(newMessageCount > 0 ? View.VISIBLE : View.GONE);
+									boolean isMenuNotificationDismissed = DebugOptionsActivity.getInboxMenuDismissRecord(LandingActivity2.this, cityName).equals(visitedTime);
+									findViewById(R.id.menu_notification).setVisibility((!isMenuNotificationDismissed && newMessageCount > 0) ? View.VISIBLE : View.GONE);
 								}
 							});
 						}
@@ -3524,7 +3539,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									findViewById(R.id.message_inbox).setVisibility(View.GONE);
+									findViewById(R.id.message_menu).setVisibility(View.GONE);
 								}
 							});
 						}
@@ -3533,7 +3548,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								findViewById(R.id.message_inbox).setVisibility(View.GONE);
+								findViewById(R.id.message_menu).setVisibility(View.GONE);
 							}
 						});
 						Log.d("LandingActivity2", "no inbox url");
@@ -4406,6 +4421,17 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }
     }
     
+    public void openMenu(DrawerLayout drawer) {
+    	View menuNotification = findViewById(R.id.menu_notification);
+    	if(menuNotification.getVisibility() == View.VISIBLE) {
+    		if(StringUtils.isNotBlank(inboxCityName)) {
+    			DebugOptionsActivity.setInboxMenuDismissRecord(this, inboxCityName, DebugOptionsActivity.getInboxLastVisitFeedTime(this, inboxCityName));
+    		}
+    		menuNotification.setVisibility(View.GONE);
+    	}
+    	drawer.openDrawer(findViewById(R.id.left_drawer));
+    }
+    
     @Override
     public boolean onKeyDown(int keycode, KeyEvent e) {
         switch(keycode) {
@@ -4416,7 +4442,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	                if(mDrawerLayout.isDrawerOpen(drawer)){
 	                    mDrawerLayout.closeDrawer(drawer);
 	                }else{
-	                    mDrawerLayout.openDrawer(drawer);
+	                    openMenu(mDrawerLayout);
 	                }
                 }
                 return true;
@@ -4904,7 +4930,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	@Override
 	public void onSurfaceCreated(SKMapViewHolder mapViewHolder) {
 		initSKMaps(mapViewHolder);
-		Log.d("LandingActivity2", "OnSurfaceCreated ++++++++++++++");
 		prepareGPS();
 		mapRefresh.set(true);
 		enableDrawRoute.set(true);
