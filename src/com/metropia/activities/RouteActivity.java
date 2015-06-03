@@ -1148,8 +1148,8 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		
 		mapView = mapViewHolder.getMapSurfaceView();
 		
-		mapView.clearAllOverlays();
-		mapView.deleteAllAnnotationsAndCustomPOIs();
+//		mapView.clearAllOverlays();
+//		mapView.deleteAllAnnotationsAndCustomPOIs();
 		mapView.getMapSettings().setCurrentPositionShown(false);
 		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
 		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
@@ -1312,6 +1312,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 //	    	mapView.addAnnotation(toOverlay, SKAnimationSettings.ANIMATION_POP_OUT);
 	    	routeFirstNode = _route.getFirstNode();
 	    	routeLastNode = _route.getLastNode();
+	    	odSizeRatio.set(0);
 	    	updateODAnnotationSize(getSizeRatioByZoomLevel());
 	    	
 	    	double originLat = (originOverlayInfo != null && originOverlayInfo.geopoint != null) ? originOverlayInfo.geopoint.getLatitude() : routeFirstNode.getLatitude();
@@ -2409,9 +2410,6 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 				retriveIncident(null);
 			}
 	    });
-		
-		odSizeRatio.set(0);
-		updateODAnnotationSize(getSizeRatioByZoomLevel());
 		
 		for(RouteTask task : routeTasks) {
 			if(task.getStatus() != Status.RUNNING && task.getStatus() != Status.FINISHED && task.getStatus() != Status.RUNNING) {
