@@ -1244,8 +1244,8 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 			incAnn.setMininumZoomLevel(incident.getMinimalDisplayZoomLevel());
 			SKAnnotationView iconView = new SKAnnotationView();
 			ImageView incImage = new ImageView(RouteActivity.this);
-			incImage.setMinimumHeight(Misc.ANNOTATION_MINIMUM_SIZE / getSizeRatioByZoomLevel());
-			incImage.setMinimumWidth(Misc.ANNOTATION_MINIMUM_SIZE / getSizeRatioByZoomLevel());
+			incImage.setMinimumHeight(annSize.get() / getSizeRatioByZoomLevel());
+			incImage.setMinimumWidth(annSize.get() / getSizeRatioByZoomLevel());
 			incImage.setImageBitmap(Misc.getBitmap(RouteActivity.this, IncidentIcon.fromType(incident.type).getResourceId(RouteActivity.this), getSizeRatioByZoomLevel()));
 			iconView.setView(incImage);
 			incAnn.setAnnotationView(iconView);
@@ -1516,6 +1516,9 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    Localytics.setInAppMessageDisplayActivity(this);
 	    Localytics.handleTestMode(getIntent());
 	    Localytics.handlePushNotificationOpened(getIntent());
+	    
+	    annSize.set(Dimension.dpToPx(Misc.ANNOTATION_MINIMUM_SIZE_IN_DP, getResources().getDisplayMetrics()));
+	    
 	    mapViewHolder.onResume();
     }
     
@@ -1781,8 +1784,8 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 					incAnn.setMininumZoomLevel(incident.getMinimalDisplayZoomLevel());
 					SKAnnotationView iconView = new SKAnnotationView();
 					ImageView incImage = new ImageView(RouteActivity.this);
-					incImage.setMinimumHeight(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
-					incImage.setMinimumWidth(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
+					incImage.setMinimumHeight(annSize.get() / ratio);
+					incImage.setMinimumWidth(annSize.get() / ratio);
 					incImage.setImageBitmap(Misc.getBitmap(RouteActivity.this, IncidentIcon.fromType(incident.type).getResourceId(RouteActivity.this), ratio));
 					iconView.setView(incImage);
 					incAnn.setAnnotationView(iconView);
@@ -1793,6 +1796,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     }
     
     private AtomicInteger odSizeRatio = new AtomicInteger(0);
+    private AtomicInteger annSize = new AtomicInteger(0);
     
     private void updateODAnnotationSize(int ratio) {
     	if(odSizeRatio.get() != ratio) {
@@ -1806,8 +1810,8 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		    	fromOverlay.setLocation(new SKCoordinate(originLon, originLat));
 		    	SKAnnotationView fromOverlayView = new SKAnnotationView();
 		    	ImageView fromOverlayImageView = new ImageView(RouteActivity.this);
-		    	fromOverlayImageView.setMinimumHeight(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
-		    	fromOverlayImageView.setMinimumWidth(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
+		    	fromOverlayImageView.setMinimumHeight(annSize.get() / ratio);
+		    	fromOverlayImageView.setMinimumWidth(annSize.get() / ratio);
 		    	fromOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, originOverlayInfo.markerWithShadow, ratio));
 		    	fromOverlayView.setView(fromOverlayImageView);
 		    	fromOverlay.setAnnotationView(fromOverlayView);
@@ -1826,8 +1830,8 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    		int destResourceId = destOverlayInfo != null ? (destOverlayInfo.markerWithShadow == R.drawable.poi_pin_with_shadow ? R.drawable.pin_destination : destOverlayInfo.markerWithShadow) : R.drawable.pin_destination;
 	    		boolean isFlag = destResourceId == R.drawable.pin_destination;
 	    		if(!isFlag) {
-	    			toOverlayImageView.setMinimumHeight(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
-	    			toOverlayImageView.setMinimumWidth(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
+	    			toOverlayImageView.setMinimumHeight(annSize.get() / ratio);
+	    			toOverlayImageView.setMinimumWidth(annSize.get() / ratio);
 	    		}
 	    		toOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, destResourceId, ratio));
 	    		toOverlayView.setView(toOverlayImageView);

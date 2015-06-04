@@ -57,7 +57,7 @@ public class Misc {
     
     private static final String addGoogleAccount = "addGoogleAccount";
     
-    public static final Integer ANNOTATION_MINIMUM_SIZE = Integer.valueOf(128);
+    public static final Integer ANNOTATION_MINIMUM_SIZE_IN_DP = Integer.valueOf(42);
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static void disableHardwareAcceleration(View v){

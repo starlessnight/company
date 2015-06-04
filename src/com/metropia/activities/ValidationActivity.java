@@ -831,6 +831,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		Localytics.setInAppMessageDisplayActivity(this);
 		Localytics.handleTestMode(getIntent());
 		Localytics.handlePushNotificationOpened(getIntent());
+		
+		annSize.set(Dimension.dpToPx(Misc.ANNOTATION_MINIMUM_SIZE_IN_DP, getResources().getDisplayMetrics()));
+		
 		mapViewHolder.onResume();
 
 		registerReceiver(timeInfoCycler, new IntentFilter(TIME_INFO_CYCLE));
@@ -3147,6 +3150,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 
 	private AtomicInteger sizeRatio = new AtomicInteger(1);
+	private AtomicInteger annSize = new AtomicInteger();
 
 	private void updateIncidentAnnotationSize(int ratio) {
 		if (DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this)	&& sizeRatio.get() != ratio) {
@@ -3160,8 +3164,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					incAnn.setMininumZoomLevel(inc.getMinimalDisplayZoomLevel());
 					SKAnnotationView iconView = new SKAnnotationView();
 					ImageView incImage = new ImageView(ValidationActivity.this);
-					incImage.setMinimumHeight(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
-					incImage.setMinimumWidth(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
+					incImage.setMinimumHeight(annSize.get() / ratio);
+					incImage.setMinimumWidth(annSize.get() / ratio);
 					incImage.setImageBitmap(Misc.getBitmap(ValidationActivity.this,	IncidentIcon.fromType(inc.type).getResourceId(ValidationActivity.this), ratio));
 					iconView.setView(incImage);
 					incAnn.setAnnotationView(iconView);

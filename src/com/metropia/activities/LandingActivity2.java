@@ -117,7 +117,6 @@ import com.metropia.ResumeNavigationUtils;
 import com.metropia.SkobblerUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
-import com.metropia.activities.DebugOptionsActivity.NotificationType;
 import com.metropia.dialogs.CancelableProgressDialog;
 import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.dialogs.NotificationDialog2.ActionListener;
@@ -2576,6 +2575,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    Localytics.setInAppMessageDisplayActivity(this);
 	    Localytics.handleTestMode(getIntent());
 	    Localytics.handlePushNotificationOpened(getIntent());
+	    
+	    annSize.set(Dimension.dpToPx(Misc.ANNOTATION_MINIMUM_SIZE_IN_DP, getResources().getDisplayMetrics()));
+	    
 	    //SKobbler 
 	    mapViewHolder.onResume();
 //	    mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(LandingActivity2.this, true));
@@ -3509,7 +3511,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private Long realLastFeed = Long.valueOf(0);
     
     private void checkInboxUrlAndUpdateMenu(final String cityName) {
-    	if(StringUtils.isNotBlank(Request.getPageUrl(Page.bulletinboard))) {
+    	if(StringUtils.isNotBlank(cityName) && StringUtils.isNotBlank(Request.getPageUrl(Page.bulletinboard))) {
     		Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
 				@Override
 				protected Void doInBackground(Void... params) {
@@ -4091,8 +4093,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
     		SKAnnotationView iconView = new SKAnnotationView();
     		ImageView incImage = new ImageView(LandingActivity2.this);
-    		incImage.setMinimumHeight(Misc.ANNOTATION_MINIMUM_SIZE / sizeRatio.get());
-    		incImage.setMinimumWidth(Misc.ANNOTATION_MINIMUM_SIZE / sizeRatio.get());
+    		incImage.setMinimumHeight(annSize.get() / sizeRatio.get());
+    		incImage.setMinimumWidth(annSize.get() / sizeRatio.get());
     		incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, markerInfo.markerWithShadow, sizeRatio.get()));
     		iconView.setView(incImage);
     		incAnn.setAnnotationView(iconView);
@@ -4107,8 +4109,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
    		incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
    		SKAnnotationView iconView = new SKAnnotationView();
    		ImageView incImage = new ImageView(LandingActivity2.this);
-   		incImage.setMinimumHeight(Misc.ANNOTATION_MINIMUM_SIZE / sizeRatio.get());
-		incImage.setMinimumWidth(Misc.ANNOTATION_MINIMUM_SIZE / sizeRatio.get());
+   		incImage.setMinimumHeight(annSize.get() / sizeRatio.get());
+		incImage.setMinimumWidth(annSize.get() / sizeRatio.get());
 //		incImage.setImageResource(poiInfo.markerWithShadow);
    		incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, sizeRatio.get()));
    		iconView.setView(incImage);
@@ -4117,6 +4119,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     private AtomicInteger sizeRatio = new AtomicInteger(1);
+    private AtomicInteger annSize = new AtomicInteger();
     
     private void updateAnnotationSize(int ratio) {
     	if(sizeRatio.get() != ratio) {
@@ -4131,8 +4134,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    			incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
 	    			SKAnnotationView iconView = new SKAnnotationView();
 	    			ImageView incImage = new ImageView(LandingActivity2.this);
-	    			incImage.setMinimumHeight(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
-	    			incImage.setMinimumWidth(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
+	    			incImage.setMinimumHeight(annSize.get() / ratio);
+	    			incImage.setMinimumWidth(annSize.get() / ratio);
+	    			incImage.setMaxHeight(annSize.get() / ratio);
+	    			incImage.setMaxWidth(annSize.get() / ratio);
 //	    			incImage.setImageResource(poiInfo.markerWithShadow);
 	    			incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, ratio));
 	    			iconView.setView(incImage);
@@ -4151,8 +4156,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    			incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
 	    			SKAnnotationView iconView = new SKAnnotationView();
 	    			ImageView incImage = new ImageView(LandingActivity2.this);
-	    			incImage.setMinimumHeight(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
-	    			incImage.setMinimumWidth(Misc.ANNOTATION_MINIMUM_SIZE / ratio);
+	    			incImage.setMinimumHeight(annSize.get() / ratio);
+	    			incImage.setMinimumWidth(annSize.get() / ratio);
+	    			incImage.setMaxHeight(annSize.get() / ratio);
+	    			incImage.setMaxWidth(annSize.get() / ratio);
 //	    			incImage.setImageResource(poiInfo.markerWithShadow);
 	    			incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, ratio));
 	    			iconView.setView(incImage);
