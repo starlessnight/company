@@ -50,13 +50,13 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1">
-                
+            
 	            <TextView 
-	                android:id="@+id/include_toll"
+	                android:id="@+id/no_toll"
 	                android:layout_width="match_parent"
 	                android:layout_height="match_parent"
-	                android:background="@color/metropia_blue"
-	                android:text="Include Toll Road"
+	                android:background="@color/transparent_metropia_blue"
+	                android:text="No Toll Roads"
 	                android:textColor="@android:color/white"
 	                android:textSize="@dimen/smaller_font"
 	                android:gravity="center"
@@ -68,13 +68,13 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1">
-            
+                
 	            <TextView 
-	                android:id="@+id/no_toll"
+	                android:id="@+id/include_toll"
 	                android:layout_width="match_parent"
 	                android:layout_height="match_parent"
-	                android:background="@color/metropia_blue"
-	                android:text="No Toll Road"
+	                android:background="@color/transparent_metropia_blue"
+	                android:text="Toll Roads"
 	                android:textColor="@android:color/white"
 	                android:textSize="@dimen/smaller_font"
 	                android:gravity="center"
