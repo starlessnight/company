@@ -1216,6 +1216,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //        DebugOptionsActivity.cleanMapTileCacheIfNessary(LandingActivity2.this);
         
         scheduleNextTripInfoUpdates();
+        scheduleInboxNotifier();
         
         upointView = (TextView) findViewById(R.id.upoint);
         upointView.setText(formatMyMetropiaInfo("000Pts"));
@@ -2395,6 +2396,21 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }
     };
     
+    public static final String IN_BOX_NOTICE = "IN_BOX_NOTICE";
+    
+    private void scheduleInboxNotifier(){
+        AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
+        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), 600000, 
+            PendingIntent.getBroadcast(this, 0, new Intent(IN_BOX_NOTICE), PendingIntent.FLAG_UPDATE_CURRENT));
+    }
+    
+    private BroadcastReceiver inboxNotifier = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+        	checkInboxUrlAndUpdateMenu(inboxCityName);
+        }
+    };
+    
     public static final String UPDATE_MY_LOCATION = "UPDATE_MY_LOCATION";
     
     private BroadcastReceiver updateMyLocation = new BroadcastReceiver() {
@@ -2588,6 +2604,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    //
         registerReceiver(tripInfoUpdater, new IntentFilter(TRIP_INFO_UPDATES));
         registerReceiver(onTheWayNotifier, new IntentFilter(ON_THE_WAY_NOTICE));
+        registerReceiver(inboxNotifier, new IntentFilter(IN_BOX_NOTICE));
 //        prepareGPS();
         
         mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
@@ -2620,6 +2637,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    Localytics.upload();
 	    unregisterReceiver(tripInfoUpdater);
 	    unregisterReceiver(onTheWayNotifier);
+	    unregisterReceiver(inboxNotifier);
 	    super.onPause();
 	    if(mapView != null) {
 	    	mapView.clearAllOverlays();
