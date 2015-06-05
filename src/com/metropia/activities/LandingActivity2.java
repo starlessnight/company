@@ -324,7 +324,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	SkobblerUtils.initializeLibrary(LandingActivity2.this);
+//    	SkobblerUtils.initializeLibrary(LandingActivity2.this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.landing2);
         
@@ -1495,12 +1495,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         mapView.getMapSettings().setInertiaZoomingEnabled(true);
         mapView.getMapSettings().setInertiaPanningEnabled(true);
         mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(LandingActivity2.this, true));
-        
-//        SKMapInternationalizationSettings mapInternationalizationSettings = new SKMapInternationalizationSettings();
-//        mapInternationalizationSettings.setPrimaryLanguage(SKLanguage.LANGUAGE_EN);
-//        mapInternationalizationSettings.setFirstLabelOption(SKMapInternationalizationOption.MAP_INTERNATIONALIZATION_OPTION_INTL);
-//        mapInternationalizationSettings.setShowBothLabels(false);
-//        mapView.getMapSettings().setMapInternationalizationSettings(mapInternationalizationSettings);
 	}
     
     private void handleCalendarNotification(int eventId) {

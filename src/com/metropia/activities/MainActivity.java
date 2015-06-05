@@ -405,6 +405,7 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 		SkobblerUtils.initSkobbler(MainActivity.this, MainActivity.this, new Runnable() {
 			@Override
 			public void run() {
+				SkobblerUtils.initializeLibrary(MainActivity.this);
 				checkLoginStatus();
 			}
 		});
@@ -480,6 +481,7 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 	@Override
 	public void onMapTexturesPrepared(boolean success) {
 		DebugOptionsActivity.setSkobblerPatched(MainActivity.this, success);
+		SkobblerUtils.initializeLibrary(MainActivity.this);
 		checkLoginStatus();
 	}
     

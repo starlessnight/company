@@ -109,7 +109,6 @@ import com.metropia.utils.RouteNode;
 import com.metropia.utils.RouteRect;
 import com.metropia.utils.SystemService;
 import com.skobbler.ngx.SKCoordinate;
-import com.skobbler.ngx.SKMaps;
 import com.skobbler.ngx.map.SKAnimationSettings;
 import com.skobbler.ngx.map.SKAnnotation;
 import com.skobbler.ngx.map.SKAnnotationView;
@@ -369,7 +368,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	// init skmap
-    	SkobblerUtils.initializeLibrary(RouteActivity.this);
+//    	SkobblerUtils.initializeLibrary(RouteActivity.this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pre_reservation_map);
         
@@ -1980,7 +1979,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        SKMaps.getInstance().destroySKMaps();
+//        SKMaps.getInstance().destroySKMaps();
         for(GeocodingTask t:geocodingTasks){
             t.cancel(true);
         }

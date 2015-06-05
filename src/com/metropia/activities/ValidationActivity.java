@@ -161,7 +161,6 @@ import com.metropia.utils.SystemService;
 import com.metropia.utils.UnitConversion;
 import com.metropia.utils.ValidationParameters;
 import com.skobbler.ngx.SKCoordinate;
-import com.skobbler.ngx.SKMaps;
 import com.skobbler.ngx.map.SKAnimationSettings;
 import com.skobbler.ngx.map.SKAnnotation;
 import com.skobbler.ngx.map.SKAnnotationView;
@@ -319,7 +318,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		// init skmap
-		SkobblerUtils.initializeLibrary(ValidationActivity.this);
+//		SkobblerUtils.initializeLibrary(ValidationActivity.this);
 		setContentView(R.layout.post_reservation_map);
 		Localytics.integrate(this);
 
@@ -2556,10 +2555,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 							rerouteSameDirLinks, lat, lng);
 
 					if (DebugOptionsActivity.isReroutingDebugMsgEnabled(this)
-							|| DebugOptionsActivity
-									.isVoiceDebugMsgEnabled(this)
-							|| DebugOptionsActivity
-									.isGpsAccuracyDebugMsgEnabled(this)) {
+							|| DebugOptionsActivity.isVoiceDebugMsgEnabled(this) || DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(this)) {
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
@@ -2567,17 +2563,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 								if (DebugOptionsActivity
 										.isReroutingDebugMsgEnabled(ValidationActivity.this)) {
 									msg += "distance from route: "
-											+ Double.valueOf(
-													NavigationView
-															.metersToFeet(rerouteNearestLink
-																	.distanceTo(
-																			lat,
-																			lng)))
-													.intValue()
+											+ Double.valueOf(NavigationView.metersToFeet(rerouteNearestLink.distanceTo(lat,	lng))) .intValue()
 											+ " ft"
 											+ ", speed: "
-											+ Double.valueOf(speedInMph)
-													.intValue()
+											+ Double.valueOf(speedInMph).intValue()
 											+ " mph"
 											+ "\nconsecutive out of route count: "
 											+ routeOfRouteCnt.get()
@@ -3381,7 +3370,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 
 		super.onDestroy();
-		SKMaps.getInstance().destroySKMaps();
+//		SKMaps.getInstance().destroySKMaps();
 	}
 
 	@Override
