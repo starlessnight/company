@@ -1774,7 +1774,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						}
 					});
 		} else if (locationManager != null) {
-			locationManager.removeUpdates(locationListener);
+			try {
+				locationManager.removeUpdates(locationListener);
+			}
+			catch(Throwable t) {}
 		}
 	}
 
@@ -2865,10 +2868,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				}
 			});
 			dialog.show();
-			navigationView
-					.notifyIfNecessary(
-							"There's a temporary connection issue, but we'll update your trip results shortly. Thanks for your patience!",
-							false);
+			navigationView.notifyIfNecessary("There's a temporary connection issue, but we'll update your trip results shortly. Thanks for your patience!",	false);
+			closeGPS();
 		}
 	}
 
@@ -2957,6 +2958,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			if (StringUtils.isNotBlank(voice)) {
 				speakIfTtsEnabled(voice, true);
 			}
+			
+			closeGPS();
 		}
 	}
 
