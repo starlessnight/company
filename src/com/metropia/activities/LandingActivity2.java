@@ -1483,6 +1483,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		mapView = holder.getMapSurfaceView();
 		mapView.clearAllOverlays();
 		mapView.deleteAllAnnotationsAndCustomPOIs();
+		mapView.rotateTheMapToNorth();
 		mapView.getMapSettings().setCurrentPositionShown(true);
 		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
 		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
