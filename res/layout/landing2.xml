@@ -127,10 +127,10 @@
 	                        android:textSize="@dimen/smallest_font"
 	                        android:layout_marginTop="10dp"
 	                        android:layout_marginRight="10dp"
-	                        android:paddingLeft="5dp"
-	                        android:paddingRight="5dp"
+	                        android:paddingLeft="15dp"
+	                        android:paddingRight="15dp"
 	                        android:paddingBottom="5dp"
-	                        android:paddingTop="15dp"
+	                        android:paddingTop="5dp"
 	                        android:gravity="center"
 	                        android:background="@drawable/predictive_destination_tutorial_background"/>
 	                    
