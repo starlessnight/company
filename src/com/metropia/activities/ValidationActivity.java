@@ -624,11 +624,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		initRecognizer();
 
 		// init Tracker
-		((SmarTrekApplication) getApplication())
-				.getTracker(TrackerName.APP_TRACKER);
+		((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 
-		if (GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
-				ValidationActivity.this) == ConnectionResult.SUCCESS) {
+		if (GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(ValidationActivity.this) == ConnectionResult.SUCCESS) {
 			requestingLocationUpdates = true;
 			createGoogleApiClient();
 			createLocationRequest();
@@ -918,9 +916,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		mapView.getMapSettings().setInertiaZoomingEnabled(true);
 		mapView.getMapSettings().setInertiaPanningEnabled(true);
 		dayMode.set(SkobblerUtils.isDayMode());
-		mapView.getMapSettings().setMapStyle(
-				SkobblerUtils.getMapViewStyle(ValidationActivity.this,
-						dayMode.get()));
+		mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(ValidationActivity.this,	dayMode.get()));
 		mapView.getMapSettings().setStreetNamePopupsShown(!dayMode.get());
 		SKRouteManager.getInstance().setRouteListener(this);
 	}
@@ -1674,18 +1670,18 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	public static SpannableString formatCongrMessage(Context ctx, String message) {
 		int indexOfNewline = message.indexOf("\n");
 		SpannableString congrSpan = SpannableString.valueOf(message);
-		congrSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
-				.getDimensionPixelSize(R.dimen.medium_font)), indexOfNewline,
-				message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		congrSpan.setSpan(
-				new ForegroundColorSpan(ctx.getResources().getColor(
-						R.color.transparent_light_gray)), indexOfNewline + 1,
-				message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		if(indexOfNewline > -1) {
+			congrSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
+					.getDimensionPixelSize(R.dimen.medium_font)), indexOfNewline,
+					message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			congrSpan.setSpan(new ForegroundColorSpan(ctx.getResources().getColor(
+							R.color.transparent_light_gray)), indexOfNewline + 1,
+					message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		}
 		return congrSpan;
 	}
 
-	public static SpannableString formatCongrValueDesc(Context ctx,
-			String valueDesc) {
+	public static SpannableString formatCongrValueDesc(Context ctx,	String valueDesc) {
 		int indexOfNewline = valueDesc.indexOf("\n");
 		SpannableString congrValueSpan = SpannableString.valueOf(valueDesc);
 		congrValueSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
@@ -1852,8 +1848,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				routeManager.clearRouteAlternatives();
 				routeManager.clearAllRoutesFromCache();
 				routeManager.createRouteFromTrackElement(routeGpx.getRootTrackElement(), SKRouteSettings.SKRouteMode.CAR_FASTEST, false, false,	false);
-				drawDestinationAnnotation(reservation.getEndlat(),
-						reservation.getEndlon());
+				drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
 			}
 			
 			if(DebugOptionsActivity.isPolylineRouteEnabled(ValidationActivity.this)) {
@@ -2026,35 +2021,25 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			@Override
 			public void run() {
 				try {
-					final File tFile = TripService.getFile(
-							ValidationActivity.this, reservation.getRid());
+					final File tFile = TripService.getFile(ValidationActivity.this, reservation.getRid());
 					Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
 						@Override
 						protected Void doInBackground(Void... params) {
 							try {
 								JSONObject reservDetail = new JSONObject();
 								try {
-									reservDetail
-											.put(CongratulationActivity.DESTINATION,
-													reservation
-															.getDestinationAddress());
-									reservDetail
-											.put(CongratulationActivity.DEPARTURE_TIME,
-													reservation
-															.getDepartureTime());
-								} catch (JSONException e) {
-								}
+									reservDetail.put(CongratulationActivity.DESTINATION, reservation.getDestinationAddress());
+									reservDetail.put(CongratulationActivity.DEPARTURE_TIME,	reservation.getDepartureTime());
+								} catch (JSONException e) {}
 								FileUtils.write(tFile, reservDetail.toString());
-							} catch (IOException e) {
-							}
+							} catch (IOException e) {}
 							if (callback != null) {
 								callback.run();
 							}
 							return null;
 						}
 					});
-				} catch (Throwable t) {
-				}
+				} catch (Throwable t) {}
 			}
 		});
 	}
@@ -2764,10 +2749,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						saveTrip(new Runnable() {
 							@Override
 							public void run() {
-								TripService
-										.runImd(ValidationActivity.this,
-												User.getCurrentUser(ValidationActivity.this),
-												reservation.getRid());
+								TripService.runImd(ValidationActivity.this,	User.getCurrentUser(ValidationActivity.this), reservation.getRid(), TRIP_VALIDATOR);
 							}
 						});
 					}
@@ -2778,17 +2760,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			if (currentPosition != null) {
 				Intent updateMyLocation = new Intent(
 						LandingActivity2.UPDATE_MY_LOCATION);
-				updateMyLocation.putExtra("lat", currentPosition.getLatitude());
-				updateMyLocation
-						.putExtra("lon", currentPosition.getLongitude());
+				updateMyLocation.putExtra("lat", currentPosition.getCoordinate().getLatitude());
+				updateMyLocation.putExtra("lon", currentPosition.getCoordinate().getLongitude());
 				sendBroadcast(updateMyLocation);
 			}
 
 			turnOffGPS.set(true);
-			// turn off GPS
-			if (locationManager != null) {
-				locationManager.removeUpdates(locationListener);
-			}
 
 			findViewById(R.id.loading).setVisibility(View.VISIBLE);
 
@@ -3036,8 +3013,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 
 	private void removeTripFromLandingPage() {
-		DebugOptionsActivity.addTerminatedReservIds(ValidationActivity.this,
-				reservation.getRid());
+		DebugOptionsActivity.addTerminatedReservIds(ValidationActivity.this, reservation.getRid());
 		sendBroadcast(new Intent(LandingActivity2.TRIP_INFO_CACHED_UPDATES));
 	}
 
@@ -4062,8 +4038,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				fakeLocationService.skip(savedPollCnt);
 				savedPollCnt = 0;
 			}
-		} else if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL
-				&& !turnOffGPS.get()) {
+		} else if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL && !turnOffGPS.get()) {
 			prepareGPS();
 		} else {
 

@@ -78,10 +78,10 @@ public class TripValidationRequest extends Request {
         }
 	}
 	
-	public void executeImd(Context ctx) throws Exception {
+	public void executeImd(Context ctx, String reciverName) throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("reservation_id", String.valueOf(rid));
-        Intent intent = new Intent(ValidationActivity.TRIP_VALIDATOR);
+        Intent intent = new Intent(reciverName);
         intent.putExtra(ValidationActivity.ID, String.valueOf(rid));
         timeout = fifteenSecsTimeout;
         try{

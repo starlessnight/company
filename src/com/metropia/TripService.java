@@ -81,7 +81,7 @@ public class TripService extends IntentService {
     
     private static final String IMD_PREFIX = "[";
     
-    public static void runImd(Context ctx, User user, final long rId) {
+    public static void runImd(Context ctx, User user, final long rId, String reciverName) {
         File toSendFile = null;
         File imdSendFile = getFile(ctx, rId);
         if(imdSendFile.exists()) {
@@ -99,7 +99,7 @@ public class TripService extends IntentService {
             try{
                 if(!SendTrajectoryService.isSending(ctx, rId)
                         && SendTrajectoryService.sendImd(ctx, rId)){
-                    new TripValidationRequest(user, rId).executeImd(ctx);
+                    new TripValidationRequest(user, rId).executeImd(ctx, reciverName);
                     FileUtils.deleteQuietly(toSendFile);
                 }
             }catch(SmarTrekException ex){

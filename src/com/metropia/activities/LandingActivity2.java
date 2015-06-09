@@ -1401,6 +1401,22 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	});
         */
         
+        passengerIcon = findViewById(R.id.passenger_mode_icon);
+        passengerIcon.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(final View v) {
+				v.setClickable(false);
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						startActivity(new Intent(LandingActivity2.this, PassengerActivity.class));
+						v.setClickable(true);
+					}
+				});
+			}
+        });
+        
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getLight(assets), searchBox, fromSearchBox, myMetropiaMenu, 
             reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu,
@@ -1944,6 +1960,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         if(isFirst) {
 	        tripNotifyIcon.setImageResource(lessThanOneMinite?R.drawable.upcoming_trip_green:R.drawable.upcoming_trip_orange);
 	        tripNotifyIcon.setVisibility(View.VISIBLE);
+	        passengerIcon.setVisibility(View.GONE);
         }
         
         return reservInfo;
@@ -2663,6 +2680,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		                mapView.deleteAnnotation(ROUTE_DESTINATION_ID);
 	            	}
 	                tripNotifyIcon.setVisibility(View.GONE);
+	                passengerIcon.setVisibility(View.VISIBLE);
 	                refreshReservationList(new ArrayList<Reservation>());
 	                unlockMenu();
 	            } 
@@ -2746,6 +2764,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private List<Long> removedReservIds = new ArrayList<Long>();
     
     private AtomicBoolean closeIfEmpty = new AtomicBoolean(true);
+    private View passengerIcon;
     
     private void refreshReservationList(List<Reservation> reservations) {
     	reservationListPanel.removeAllViews();
@@ -2764,6 +2783,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	if(notifyReserv != null) {
 	        tripNotifyIcon.setImageResource(notifyReserv.isEligibleTrip()?R.drawable.upcoming_trip_green:R.drawable.upcoming_trip_orange);
 	        tripNotifyIcon.setVisibility(View.VISIBLE);
+	        passengerIcon.setVisibility(View.GONE);
     	}
     	
     	initFontsIfNecessary();
@@ -3955,6 +3975,18 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         getRouteAnimator.setDuration(500);
         getRouteAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         allAnimators.add(getRouteAnimator);
+        
+        View passengerIcon = findViewById(R.id.passenger_mode_icon);
+        ObjectAnimator passengerIconAnimator;
+        if(collapsed) {
+        	passengerIconAnimator = ObjectAnimator.ofFloat(passengerIcon, "translationY", myMetropiaPanelHeight, 0);
+        }
+        else {
+        	passengerIconAnimator = ObjectAnimator.ofFloat(passengerIcon, "translationY", 0, myMetropiaPanelHeight);
+        }
+        passengerIconAnimator.setDuration(500);
+        passengerIconAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        allAnimators.add(passengerIconAnimator);
         
         View scoreNotifyPanel = findViewById(R.id.score_notify);
         ObjectAnimator scoreNotifyAnimator;

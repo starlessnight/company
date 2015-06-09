@@ -2,6 +2,8 @@ package com.metropia.activities;
 
 import java.text.DecimalFormat;
 
+import org.apache.commons.lang3.StringUtils;
+
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -98,8 +100,7 @@ public class CongratulationActivity extends FragmentActivity {
 		String message = extras.getString(ValidationActivity.MESSAGE, "");
 		String dest = extras.getString(DESTINATION);
 		
-        String msg = message + "\n" + 
-            dest.substring(0, dest.indexOf(",")>-1?dest.indexOf(","):dest.length());
+        String msg = message + (StringUtils.isNotBlank(dest) ? ("\n" + dest.substring(0, dest.indexOf(",")>-1?dest.indexOf(","):dest.length())) : "");
         TextView congratsMsg = (TextView) findViewById(R.id.congrats_msg);
         congratsMsg.setText(ValidationActivity.formatCongrMessage(CongratulationActivity.this, msg));
         congratsMsg.setVisibility(View.VISIBLE);
