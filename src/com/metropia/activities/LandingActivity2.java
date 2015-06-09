@@ -5,12 +5,15 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -3306,8 +3309,11 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         Misc.parallelExecute(task);
     }
     
-    private synchronized void initFavoriteDropdownIfNessary(Set<com.metropia.models.Address> favorites, boolean forceUpdate) {
+    private Map<Integer, com.metropia.models.Address> afterUpdateUse = new HashMap<Integer, com.metropia.models.Address>();
+    
+    private synchronized void initFavoriteDropdownIfNessary(Collection<com.metropia.models.Address> favorites, boolean forceUpdate) {
     	if(forceUpdate || favoriteAddresses.size() != favorites.size()) {
+    		afterUpdateUse.clear();
     		List<Address> newFavorites = new ArrayList<Address>();
     		List<Address> homeFavorite = new ArrayList<Address>();
     		List<Address> workFavorite = new ArrayList<Address>();
@@ -3329,6 +3335,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     				otherFavorite.add(Address.fromModelAddress(addr, lastLocation));
     				otherModelFavs.add(addr);
     			}
+    			afterUpdateUse.put(Integer.valueOf(addr.getId()), addr);
     		}
     		Collections.sort(homeFavorite, DebugOptionsActivity.distanceComparator);
     		Collections.sort(workFavorite, DebugOptionsActivity.distanceComparator);
@@ -4465,6 +4472,22 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         		mapView.deleteAnnotation(deleteUniqueId);
         	}
         	else {
+        		if(FavoriteOperationActivity.FAVORITE_UPDATE.equals(optType)) {
+        			PoiOverlayInfo updatePoi = extras.getParcelable(FavoriteOperationActivity.FAVORITE_POI_INFO);
+        			com.metropia.models.Address oldInfo = afterUpdateUse.get(updatePoi.id);
+        			if(oldInfo != null) {
+	        			oldInfo.setAddress(updatePoi.address);
+	        			oldInfo.setLatitude(updatePoi.lat);
+	        			oldInfo.setLongitude(updatePoi.lon);
+	        			oldInfo.setName(updatePoi.label);
+	        			oldInfo.setIconName(updatePoi.iconName);
+	        			afterUpdateUse.put(updatePoi.id, oldInfo);
+	        			Collection<com.metropia.models.Address> temp = new ArrayList<com.metropia.models.Address>();
+	        			temp.addAll(afterUpdateUse.values());
+	        			initFavoriteDropdownIfNessary(temp, true);
+        			}
+        			poiContainer.updateExistedPOIByPoiId(updatePoi.id, updatePoi);
+        		}
         		removePOIMarker();
         	}
         }
