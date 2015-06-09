@@ -373,7 +373,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         setContentView(R.layout.pre_reservation_map);
         
         mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
-//		mapViewHolder.hideAllAttributionTextViews();
+		mapViewHolder.hideAllAttributionTextViews();
 		mapViewHolder.setMapSurfaceListener(this);
         
         Localytics.integrate(this);
@@ -2426,5 +2426,8 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 			action = mapActionQueue.poll();
 		}
 	}
+
+	@Override
+	public void onDebugInfo(double arg0, float arg1, double arg2) {}
 
 }

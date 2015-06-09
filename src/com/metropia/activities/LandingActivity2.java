@@ -332,6 +332,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         setContentView(R.layout.landing2);
         
         mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
+        mapViewHolder.hideAllAttributionTextViews();
 		mapViewHolder.setMapSurfaceListener(this);
         
         Localytics.integrate(this);
@@ -5045,6 +5046,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         	locationChanged(loc);
         }
 	}
+
+	@Override
+	public void onDebugInfo(double arg0, float arg1, double arg2) {}
 
 }
 

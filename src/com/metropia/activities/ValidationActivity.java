@@ -323,7 +323,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		Localytics.integrate(this);
 
 		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
-//		mapViewHolder.hideAllAttributionTextViews();
+		mapViewHolder.hideAllAttributionTextViews();
 		mapViewHolder.setMapSurfaceListener(this);
 
 		Reservation.cancelNotification(this);
@@ -4044,5 +4044,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		}
 	}
+
+	@Override
+	public void onDebugInfo(double arg0, float arg1, double arg2) {}
 
 }

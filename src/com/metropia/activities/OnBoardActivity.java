@@ -129,12 +129,14 @@ public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceLis
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		SkobblerUtils.initializeLibrary(OnBoardActivity.this);
+//		SkobblerUtils.initializeLibrary(OnBoardActivity.this);
 		setContentView(R.layout.on_board);
 		
-		Localytics.integrate(this);
+		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
+		mapViewHolder.setMapSurfaceListener(this);
+		mapViewHolder.hideAllAttributionTextViews();
 		
-		initSKMaps();
+		Localytics.integrate(this);
 		
 		contentPanel = findViewById(R.id.content_panel);
 		contentPanel.setTag(Integer.valueOf(1));
@@ -499,14 +501,10 @@ public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceLis
 		}
 	}
 	
-	private void initSKMaps() {
+	private void initSKMaps(SKMapViewHolder mapViewHolder) {
 		SKLogging.enableLogs(true);
-		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
-		mapViewHolder.setMapSurfaceListener(this);
-//		mapViewHolder.hideAllAttributionTextViews();
 		mapView = mapViewHolder.getMapSurfaceView();
 		
-//		mapView.setMapSurfaceListener(this);
 		mapView.clearAllOverlays();
 		mapView.deleteAllAnnotationsAndCustomPOIs();
 		mapView.getMapSettings().setCurrentPositionShown(true);
@@ -1187,7 +1185,12 @@ public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceLis
 	public void onGLInitializationError(String arg0) {}
 
 	@Override
-	public void onSurfaceCreated(SKMapViewHolder arg0) {}
+	public void onSurfaceCreated(SKMapViewHolder mapViewHolder) {
+		initSKMaps(mapViewHolder);
+	}
+
+	@Override
+	public void onDebugInfo(double arg0, float arg1, double arg2) {}
 
 }
 

@@ -97,7 +97,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		registerReceiver(tripValidator, new IntentFilter(PASSENGER_TRIP_VALIDATOR));
 		
 		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
-//		mapViewHolder.hideAllAttributionTextViews();
+		mapViewHolder.hideAllAttributionTextViews();
 		mapViewHolder.setMapSurfaceListener(this);
 		
 		Localytics.integrate(this);
@@ -720,5 +720,8 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
         loc.setBearing(cacheLoc.lastHeading);
         locationChanged(loc);
 	}
+
+	@Override
+	public void onDebugInfo(double arg0, float arg1, double arg2) {}
 
 }
