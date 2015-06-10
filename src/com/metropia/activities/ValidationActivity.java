@@ -649,10 +649,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				lastLocation = location;
 				locationChanged(location);
 				try {
-					PassiveLocationChangedReceiver.processLocation(
-							getApplicationContext(), location);
-				} catch (Exception ignore) {
-				}
+					PassiveLocationChangedReceiver.processLocation(getApplicationContext(), location);
+				} catch (Exception ignore) {}
 			}
 		} else {
 			locationRefreshed.set(true);
@@ -664,9 +662,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					mapView.getMapSettings().setMapStyle(
-							SkobblerUtils.getMapViewStyle(
-									ValidationActivity.this, currentMode));
+					mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(ValidationActivity.this, currentMode));
 					TextView timeInfo = (TextView) findViewById(R.id.remain_times);
 					if (currentMode) {
 						timeInfo.setTextColor(Color.parseColor("#ad000000"));
@@ -674,8 +670,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						timeInfo.setTextColor(Color.parseColor("#adffffff"));
 					}
 					dayMode.set(currentMode);
-					mapView.getMapSettings().setStreetNamePopupsShown(
-							!dayMode.get());
+					mapView.getMapSettings().setStreetNamePopupsShown(!dayMode.get());
 				}
 			});
 		}
@@ -1283,20 +1278,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		} else {
 			timeInfo.setTextColor(Color.parseColor("#adffffff"));
 		}
-		timeInfo.setTag(
-				R.id.estimated_arrival_time,
-				getFormatedEstimateArrivalTime(reservation.getArrivalTimeUtc(),
-						route.getTimezoneOffset()));
-		timeInfo.setTag(R.id.remaining_travel_time,
-				getFormatedRemainingTime(reservation.getDuration()));
+		timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(reservation.getArrivalTimeUtc(), route.getTimezoneOffset()));
+		timeInfo.setTag(R.id.remaining_travel_time,	getFormatedRemainingTime(reservation.getDuration()));
 		refreshTimeInfo();
 		final TextView directListTimeInfo = (TextView) findViewById(R.id.remain_times_direc_list);
-		directListTimeInfo.setTag(
-				R.id.estimated_arrival_time,
-				getFormatedEstimateArrivalTime(getETA(remainingTime.get()),
-						route.getTimezoneOffset()));
-		directListTimeInfo.setTag(R.id.remaining_travel_time,
-				getFormatedRemainingTime(remainingTime.get()));
+		directListTimeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(getETA(remainingTime.get()), route.getTimezoneOffset()));
+		directListTimeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(remainingTime.get()));
 		refreshDirectListTimeInfo();
 		timeInfo.setOnClickListener(new OnClickListener() {
 			@Override
@@ -1310,72 +1297,48 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			@Override
 			public void onClick(View v) {
 				Intent intent;
-				if (WebMyMetropiaActivity
-						.hasCo2SavingUrl(ValidationActivity.this)
-						|| WebMyMetropiaActivity
-								.hasMyMetropiaUrl(ValidationActivity.this)) {
-					intent = new Intent(ValidationActivity.this,
-							WebMyMetropiaActivity.class);
-					Integer pageNo = WebMyMetropiaActivity
-							.hasCo2SavingUrl(ValidationActivity.this) ? WebMyMetropiaActivity.CO2_SAVING_PAGE
-							: WebMyMetropiaActivity.MY_METROPIA_PAGE;
+				if (WebMyMetropiaActivity.hasCo2SavingUrl(ValidationActivity.this) || WebMyMetropiaActivity.hasMyMetropiaUrl(ValidationActivity.this)) {
+					intent = new Intent(ValidationActivity.this, WebMyMetropiaActivity.class);
+					Integer pageNo = WebMyMetropiaActivity.hasCo2SavingUrl(ValidationActivity.this) ? WebMyMetropiaActivity.CO2_SAVING_PAGE	: WebMyMetropiaActivity.MY_METROPIA_PAGE;
 					intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
 				} else {
-					intent = new Intent(ValidationActivity.this,
-							MyMetropiaActivity.class);
-					intent.putExtra(MyMetropiaActivity.OPEN_TAB,
-							MyMetropiaActivity.CO2_SAVING_TAB);
+					intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
+					intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.CO2_SAVING_TAB);
 				}
 				startActivity(intent);
 			}
 		});
 
-		findViewById(R.id.drive_score_circle).setOnClickListener(
-				new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						Intent intent;
-						if (WebMyMetropiaActivity
-								.hasTimeSavingUrl(ValidationActivity.this)
-								|| WebMyMetropiaActivity
-										.hasMyMetropiaUrl(ValidationActivity.this)) {
-							intent = new Intent(ValidationActivity.this,
-									WebMyMetropiaActivity.class);
-							Integer pageNo = WebMyMetropiaActivity
-									.hasTimeSavingUrl(ValidationActivity.this) ? WebMyMetropiaActivity.TIME_SAVING_PAGE
-									: WebMyMetropiaActivity.MY_METROPIA_PAGE;
-							intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE,
-									pageNo);
-						} else {
-							intent = new Intent(ValidationActivity.this,
-									MyMetropiaActivity.class);
-							intent.putExtra(MyMetropiaActivity.OPEN_TAB,
-									MyMetropiaActivity.DRIVE_SCORE_TAB);
-						}
-						startActivity(intent);
-					}
-				});
+		findViewById(R.id.drive_score_circle).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent;
+				if (WebMyMetropiaActivity.hasTimeSavingUrl(ValidationActivity.this)	|| WebMyMetropiaActivity.hasMyMetropiaUrl(ValidationActivity.this)) {
+					intent = new Intent(ValidationActivity.this, WebMyMetropiaActivity.class);
+					Integer pageNo = WebMyMetropiaActivity.hasTimeSavingUrl(ValidationActivity.this) ? WebMyMetropiaActivity.TIME_SAVING_PAGE : WebMyMetropiaActivity.MY_METROPIA_PAGE;
+					intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
+				} else {
+					intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
+					intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.DRIVE_SCORE_TAB);
+				}
+				startActivity(intent);
+			}
+		});
 
-		findViewById(R.id.mpoint_circle).setOnClickListener(
-				new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						Intent intent;
-						if (WebMyMetropiaActivity
-								.hasMyMetropiaUrl(ValidationActivity.this)) {
-							intent = new Intent(ValidationActivity.this,
-									WebMyMetropiaActivity.class);
-							intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE,
-									WebMyMetropiaActivity.MY_METROPIA_PAGE);
-						} else {
-							intent = new Intent(ValidationActivity.this,
-									MyMetropiaActivity.class);
-							intent.putExtra(MyMetropiaActivity.OPEN_TAB,
-									MyMetropiaActivity.CO2_SAVING_TAB);
-						}
-						startActivity(intent);
-					}
-				});
+		findViewById(R.id.mpoint_circle).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent;
+				if (WebMyMetropiaActivity.hasMyMetropiaUrl(ValidationActivity.this)) {
+					intent = new Intent(ValidationActivity.this, WebMyMetropiaActivity.class);
+					intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, WebMyMetropiaActivity.MY_METROPIA_PAGE);
+				} else {
+					intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
+					intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.CO2_SAVING_TAB);
+				}
+					startActivity(intent);
+			}
+		});
 
 		if (DebugOptionsActivity.isReroutingDebugMsgEnabled(this)
 				|| DebugOptionsActivity.isVoiceDebugMsgEnabled(this)
@@ -1383,11 +1346,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			findViewById(R.id.rerouting_debug_msg).setVisibility(View.VISIBLE);
 		}
 
-		findViewById(R.id.en_route_alert_panel).setOnClickListener(
-				new OnClickListener() {
+		findViewById(R.id.en_route_alert_panel).setOnClickListener(new OnClickListener() {
 					@Override
-					public void onClick(View v) {
-					}
+					public void onClick(View v) {}
 				});
 
 		ImageView yesButton = (ImageView) findViewById(R.id.yes_button);
@@ -2842,8 +2803,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private AtomicBoolean arrivalMsgDisplayed = new AtomicBoolean();
 	private NumberFormat nf = new DecimalFormat("#.#");
 
-	private void doDisplayArrivalMsg(int uPoints, double co2Value,
-			String message, String voice, double timeSavingInMinute) {
+	private void doDisplayArrivalMsg(int uPoints, double co2Value, String message, String voice, double timeSavingInMinute) {
 		if (!arrivalMsgDisplayed.get()) {
 			arrivalMsgDisplayed.set(true);
 			hideEnRouteAlert();
@@ -2853,17 +2813,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			String dest = reservation.getDestinationAddress();
 
 			if (StringUtils.isNotBlank(message)) {
-				String msg = message
-						+ "\n"
-						+ dest.substring(0,
-								dest.indexOf(",") > -1 ? dest.indexOf(",")
-										: dest.length());
+				String msg = message + "\n"	+ dest.substring(0,	dest.indexOf(",") > -1 ? dest.indexOf(",") : dest.length());
 				TextView congratsMsg = (TextView) findViewById(R.id.congrats_msg);
-				congratsMsg.setText(formatCongrMessage(ValidationActivity.this,
-						msg));
+				congratsMsg.setText(formatCongrMessage(ValidationActivity.this,	msg));
 				congratsMsg.setVisibility(View.VISIBLE);
-				findViewById(R.id.congrats_msg_shadow).setVisibility(
-						View.VISIBLE);
+				findViewById(R.id.congrats_msg_shadow).setVisibility(View.VISIBLE);
 				navigationView.notifyIfNecessary(message, false);
 			}
 
@@ -2871,45 +2825,30 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			if (co2Value != 0) {
 				String co2String = nf.format(co2Value) + "lbs\nCO2";
 				co2.setText(formatCO2Desc(ValidationActivity.this, co2String));
-				((ImageView) findViewById(R.id.co2_circle_background))
-						.setImageBitmap(BitmapFactory
-								.decodeStream(getResources().openRawResource(
-										R.drawable.blue_circle)));
+				((ImageView) findViewById(R.id.co2_circle_background)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.blue_circle)));
 				findViewById(R.id.co2_circle_panel).setVisibility(View.VISIBLE);
 			}
 
 			TextView mpoint = (TextView) findViewById(R.id.mpoint_circle);
 			if (uPoints > 0) {
 				LocalyticsUtils.tagTrip(LocalyticsUtils.COMPLETED_TRIP);
-				mpoint.setText(formatCongrValueDesc(ValidationActivity.this,
-						uPoints + "\nPoints"));
-				((ImageView) findViewById(R.id.mpoint_circle_background))
-						.setImageBitmap(BitmapFactory
-								.decodeStream(getResources().openRawResource(
-										R.drawable.green_circle)));
-				findViewById(R.id.mpoint_circle_panel).setVisibility(
-						View.VISIBLE);
+				mpoint.setText(formatCongrValueDesc(ValidationActivity.this, uPoints + "\nPoints"));
+				((ImageView) findViewById(R.id.mpoint_circle_background)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.green_circle)));
+				findViewById(R.id.mpoint_circle_panel).setVisibility(View.VISIBLE);
 			} else {
 				LocalyticsUtils.tagTrip(LocalyticsUtils.ABORTED_TRIP);
 			}
 
 			TextView driveScore = (TextView) findViewById(R.id.drive_score_circle);
 			if (timeSavingInMinute > 0) {
-				String scoreString = new DecimalFormat("0.#")
-						.format(timeSavingInMinute) + "\nminutes";
-				driveScore.setText(formatCongrValueDesc(
-						ValidationActivity.this, scoreString));
-				((ImageView) findViewById(R.id.drive_score_circle_background))
-						.setImageBitmap(BitmapFactory
-								.decodeStream(getResources().openRawResource(
-										R.drawable.red_circle)));
-				findViewById(R.id.drive_score_circle_panel).setVisibility(
-						View.VISIBLE);
+				String scoreString = new DecimalFormat("0.#").format(timeSavingInMinute) + "\nminutes";
+				driveScore.setText(formatCongrValueDesc(ValidationActivity.this, scoreString));
+				((ImageView) findViewById(R.id.drive_score_circle_background)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.red_circle)));
+				findViewById(R.id.drive_score_circle_panel).setVisibility(View.VISIBLE);
 			}
 
 			ImageView share = (ImageView) findViewById(R.id.share);
-			share.setImageBitmap(BitmapFactory.decodeStream(getResources()
-					.openRawResource(R.drawable.trip_share)));
+			share.setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.trip_share)));
 
 			Font.setTypeface(Font.getRobotoBold(getAssets()), co2, mpoint,
 					driveScore, (TextView) findViewById(R.id.congrats_msg),

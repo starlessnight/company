@@ -2,12 +2,8 @@ package com.metropia.activities;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -30,6 +26,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
+import android.text.Html;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -58,13 +56,16 @@ import com.metropia.SkobblerUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.TripService;
+import com.metropia.dialogs.CancelableProgressDialog;
 import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.dialogs.NotificationDialog2.ActionListener;
 import com.metropia.models.Trajectory;
 import com.metropia.models.User;
+import com.metropia.requests.PassengerReservationRequest;
 import com.metropia.requests.Request;
 import com.metropia.ui.ClickAnimation;
 import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
+import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
 import com.metropia.utils.Misc;
 import com.metropia.utils.SystemService;
@@ -80,8 +81,10 @@ import com.skobbler.ngx.map.SKMapViewHolder;
 import com.skobbler.ngx.map.SKPOICluster;
 import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
+import com.skobbler.ngx.routing.SKRouteManager;
 
-public class PassengerActivity extends FragmentActivity implements SKMapSurfaceListener, ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<LocationSettingsResult> {
+public class PassengerActivity extends FragmentActivity implements SKMapSurfaceListener, ConnectionCallbacks, 
+	OnConnectionFailedListener, ResultCallback<LocationSettingsResult> {
 	
 	private LocationManager locationManager;
 	private LocationListener locationListener;
@@ -166,7 +169,103 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			}
 		});
 		
-		Font.setTypeface(Font.getRegular(getAssets()), passengerMsg, startOrEndButton);
+		TextView finishButton = (TextView) findViewById(R.id.close);
+		finishButton.setText(Html.fromHtml("<u>Close</u>"));
+		finishButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ClickAnimation clickAnim = new ClickAnimation(PassengerActivity.this, v);
+				clickAnim.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						SKRouteManager.getInstance().clearCurrentRoute();
+						finish();
+					}
+				});
+			}
+		});
+
+		final View shareButton = findViewById(R.id.share);
+		shareButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ClickAnimation clickAnimation = new ClickAnimation(PassengerActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						Intent intent = new Intent(PassengerActivity.this, ShareActivity.class);
+						intent.putExtra(ShareActivity.TITLE, "More Metropians = Less Traffic");
+						intent.putExtra(ShareActivity.SHARE_TEXT, Misc.APP_DOWNLOAD_LINK);
+						startActivity(intent);
+					}
+				});
+			}
+		});
+
+		TextView feedBackButton = (TextView) findViewById(R.id.feedback);
+		feedBackButton.setText(Html.fromHtml("<u>Feedback</u>"));
+		feedBackButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				ClickAnimation clickAnimation = new ClickAnimation(PassengerActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						Intent intent = new Intent(PassengerActivity.this,	FeedbackActivity.class);
+						startActivity(intent);
+					}
+				});
+			}
+		});
+		
+		findViewById(R.id.co2_circle).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent;
+				if (WebMyMetropiaActivity.hasCo2SavingUrl(PassengerActivity.this) || WebMyMetropiaActivity.hasMyMetropiaUrl(PassengerActivity.this)) {
+					intent = new Intent(PassengerActivity.this, WebMyMetropiaActivity.class);
+					Integer pageNo = WebMyMetropiaActivity.hasCo2SavingUrl(PassengerActivity.this) ? WebMyMetropiaActivity.CO2_SAVING_PAGE	: WebMyMetropiaActivity.MY_METROPIA_PAGE;
+					intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
+				} else {
+					intent = new Intent(PassengerActivity.this, MyMetropiaActivity.class);
+					intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.CO2_SAVING_TAB);
+				}
+				startActivity(intent);
+			}
+		});
+
+		findViewById(R.id.drive_score_circle).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent;
+				if (WebMyMetropiaActivity.hasTimeSavingUrl(PassengerActivity.this)	|| WebMyMetropiaActivity.hasMyMetropiaUrl(PassengerActivity.this)) {
+					intent = new Intent(PassengerActivity.this, WebMyMetropiaActivity.class);
+					Integer pageNo = WebMyMetropiaActivity.hasTimeSavingUrl(PassengerActivity.this) ? WebMyMetropiaActivity.TIME_SAVING_PAGE : WebMyMetropiaActivity.MY_METROPIA_PAGE;
+					intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
+				} else {
+					intent = new Intent(PassengerActivity.this, MyMetropiaActivity.class);
+					intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.DRIVE_SCORE_TAB);
+				}
+				startActivity(intent);
+			}
+		});
+
+		findViewById(R.id.mpoint_circle).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent;
+				if (WebMyMetropiaActivity.hasMyMetropiaUrl(PassengerActivity.this)) {
+					intent = new Intent(PassengerActivity.this, WebMyMetropiaActivity.class);
+					intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, WebMyMetropiaActivity.MY_METROPIA_PAGE);
+				} else {
+					intent = new Intent(PassengerActivity.this, MyMetropiaActivity.class);
+					intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.CO2_SAVING_TAB);
+				}
+				startActivity(intent);
+			}
+		});
+		
+		Font.setTypeface(Font.getRegular(getAssets()), passengerMsg, startOrEndButton, finishButton, feedBackButton);
 		
 		// init Tracker
 		((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
@@ -180,17 +279,60 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	}
 	
 	private void startTrip() {
-		DateFormat df = new SimpleDateFormat("yyyyMMddHHmm");
-		df.setTimeZone(TimeZone.getTimeZone("GMT"));
-		reservId.set(Long.valueOf(df.format(new Date())));
-		TextView startOrEndTripButton = (TextView) findViewById(R.id.start_or_end_trip);
-		startOrEndTripButton.setTag(true);
-		startOrEndTripButton.setText("END MY TRIP");
-		startOrEndTripButton.setBackgroundColor(getResources().getColor(R.color.metropia_orange));
-		TextView passengerMsg = (TextView) findViewById(R.id.passenger_msg);
-		passengerMsg.setText(getResources().getString(R.string.passenger_start_ride));
-		findViewById(R.id.back_button).setVisibility(View.GONE);
-		prepareGPS();
+		AsyncTask<Void, Void, Long> reservTask = new AsyncTask<Void, Void, Long>() {
+			CancelableProgressDialog dialog;
+			ExceptionHandlingService es = new ExceptionHandlingService(PassengerActivity.this);
+			@Override
+			protected void onPreExecute() {
+				dialog = new CancelableProgressDialog(PassengerActivity.this, "Make a reservation...");
+	            dialog.setActionListener(new CancelableProgressDialog.ActionListener() {
+	                @Override
+	                public void onClickNegativeButton() {
+	                    finish();
+	                }
+	            });
+	            dialog.show();
+		    }
+
+			@Override
+			protected Long doInBackground(Void... params) {
+				try {
+					PassengerReservationRequest resvReq = new PassengerReservationRequest(User.getCurrentUser(PassengerActivity.this), getString(R.string.distribution_date));
+					return resvReq.execute(PassengerActivity.this);
+				}
+				catch(Exception e) {
+					es.registerException(e);
+				}
+				return null;
+			}
+			
+			@Override
+			protected void onPostExecute(final Long reserId) {
+				if(dialog.isShowing()) {
+					dialog.dismiss();
+				}
+				if(es.hasExceptions()) {
+					es.reportExceptions();
+				}
+				else {
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							reservId.set(reserId);
+							TextView startOrEndTripButton = (TextView) findViewById(R.id.start_or_end_trip);
+							startOrEndTripButton.setTag(true);
+							startOrEndTripButton.setText("END MY TRIP");
+							startOrEndTripButton.setBackgroundColor(getResources().getColor(R.color.metropia_orange));
+							TextView passengerMsg = (TextView) findViewById(R.id.passenger_msg);
+							passengerMsg.setText(getResources().getString(R.string.passenger_start_ride));
+							findViewById(R.id.back_button).setVisibility(View.GONE);
+							prepareGPS();
+						}
+					});
+				}
+		    }
+		};
+		Misc.parallelExecute(reservTask);
 	}
 	
 	private Location lastLocation;
@@ -247,13 +389,10 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 
 			TextView mpoint = (TextView) findViewById(R.id.mpoint_circle);
 			if (uPoints > 0) {
-				LocalyticsUtils.tagTrip(LocalyticsUtils.COMPLETED_TRIP);
 				mpoint.setText(ValidationActivity.formatCongrValueDesc(PassengerActivity.this, uPoints + "\nPoints"));
 				((ImageView) findViewById(R.id.mpoint_circle_background)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.green_circle)));
 				findViewById(R.id.mpoint_circle_panel).setVisibility(View.VISIBLE);
-			} else {
-				LocalyticsUtils.tagTrip(LocalyticsUtils.ABORTED_TRIP);
-			}
+			} 
 
 			TextView driveScore = (TextView) findViewById(R.id.drive_score_circle);
 			if (timeSavingInMinute > 0) {
@@ -434,10 +573,8 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		}
 	}
 
-	boolean cancelTrip = false;
 
 	private void doCancelValidation() {
-		cancelTrip = true;
 		reportValidation(null);
 	}
 	
@@ -473,9 +610,9 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		SKPosition currentPosition = mapView.getCurrentGPSPosition(true);
 		if (currentPosition != null) {
 			Intent updateMyLocation = new Intent(LandingActivity2.UPDATE_MY_LOCATION);
-				updateMyLocation.putExtra("lat", currentPosition.getCoordinate().getLatitude());
-				updateMyLocation.putExtra("lon", currentPosition.getCoordinate().getLongitude());
-				sendBroadcast(updateMyLocation);
+			updateMyLocation.putExtra("lat", currentPosition.getCoordinate().getLatitude());
+			updateMyLocation.putExtra("lon", currentPosition.getCoordinate().getLongitude());
+			sendBroadcast(updateMyLocation);
 		}
 
 		findViewById(R.id.loading).setVisibility(View.VISIBLE);
@@ -565,6 +702,22 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			});
 			dialog.show();
 			closeGPS();
+		}
+	}
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		// Handle the back button
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			if((Boolean)findViewById(R.id.start_or_end_trip).getTag()) {
+				cancelValidation();
+			}
+			else {
+				finish();
+			}
+			return true;
+		} else {
+			return super.onKeyDown(keyCode, event);
 		}
 	}
 	
