@@ -327,8 +327,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
-//    	SkobblerUtils.initializeLibrary(LandingActivity2.this);
         super.onCreate(savedInstanceState);
+    	SkobblerUtils.initializeLibrary(LandingActivity2.this);
         setContentView(R.layout.landing2);
         
         mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
