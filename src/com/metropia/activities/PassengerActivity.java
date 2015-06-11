@@ -129,7 +129,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		User user = User.getCurrentUser(PassengerActivity.this);
 		
 		TextView passengerMsg = (TextView) findViewById(R.id.passenger_msg);
-		passengerMsg.setText(String.format(getResources().getString(R.string.passenger_before_ride), user.getFirstname() + " " + user.getLastname()));
+		passengerMsg.setText(String.format(getResources().getString(R.string.passenger_before_ride), user.getFirstname()));
 		findViewById(R.id.back_button).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(final View v) {
