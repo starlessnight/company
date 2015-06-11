@@ -50,7 +50,6 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
 import com.littlefluffytoys.littlefluffylocationlibrary.PassiveLocationChangedReceiver;
 import com.localytics.android.Localytics;
-import com.metropia.LocalyticsUtils;
 import com.metropia.SendTrajectoryService;
 import com.metropia.SkobblerUtils;
 import com.metropia.SmarTrekApplication;
@@ -865,13 +864,15 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	public void onSurfaceCreated(SKMapViewHolder mapViewHolder) {
 		initSKMaps(mapViewHolder);
 		LocationInfo cacheLoc = new LocationInfo(PassengerActivity.this);
-        Location loc = new Location("");
-        loc.setLatitude(cacheLoc.lastLat);
-        loc.setLongitude(cacheLoc.lastLong);
-        loc.setTime(cacheLoc.lastLocationUpdateTimestamp - ValidationActivity.TWO_MINUTES);
-        loc.setAccuracy(cacheLoc.lastAccuracy);
-        loc.setBearing(cacheLoc.lastHeading);
-        locationChanged(loc);
+		if(System.currentTimeMillis() - cacheLoc.lastLocationUpdateTimestamp <= LandingActivity2.ONE_HOUR) {
+	        Location loc = new Location("");
+	        loc.setLatitude(cacheLoc.lastLat);
+	        loc.setLongitude(cacheLoc.lastLong);
+	        loc.setTime(cacheLoc.lastLocationUpdateTimestamp - ValidationActivity.TWO_MINUTES);
+	        loc.setAccuracy(cacheLoc.lastAccuracy);
+	        loc.setBearing(cacheLoc.lastHeading);
+	        locationChanged(loc);
+		}
 	}
 
 	@Override

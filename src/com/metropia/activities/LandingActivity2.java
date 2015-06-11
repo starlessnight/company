@@ -1439,7 +1439,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }
     }
     
-    private static final long ONE_HOUR = 60 * 60 * 1000L;
+    public static final long ONE_HOUR = 60 * 60 * 1000L;
     
     private synchronized void locationChanged(Location location) {
     	lastLocation = location;

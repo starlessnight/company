@@ -1868,8 +1868,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						protected Void doInBackground(Void... params) {
 							try {
 								FileUtils.write(tFile, tJson.toString());
-							} catch (IOException e) {
-							}
+							} catch (IOException e) {}
 							return null;
 						}
 
