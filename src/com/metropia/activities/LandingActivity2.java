@@ -1215,6 +1215,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 				}
 			}
         });
+        passengerIcon = findViewById(R.id.passenger_mode_icon);
+        
         toggleGetRouteButton(false);
         
 //        DebugOptionsActivity.cleanMapTileCacheIfNessary(LandingActivity2.this);
@@ -1405,7 +1407,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	});
         */
         
-        passengerIcon = findViewById(R.id.passenger_mode_icon);
         passengerIcon.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(final View v) {
@@ -4023,6 +4024,12 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //    	getRouteView.setPadding(padding, 0, padding, 0);
     	setGetRouteButtonState(!serviceArea.get() && !notifyOutOfService.get());
     	getRouteView.setVisibility(enabled?View.VISIBLE:View.GONE);
+    	if(enabled) {
+    		passengerIcon.setVisibility(View.GONE);
+    	}
+    	else if(tripNotifyIcon.getVisibility() == View.GONE) {
+    		passengerIcon.setVisibility(View.VISIBLE);
+    	}
     }
     
     private void setGetRouteButtonState(boolean greyOut) {
