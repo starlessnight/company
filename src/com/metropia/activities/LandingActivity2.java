@@ -29,9 +29,11 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
@@ -4559,8 +4561,28 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             		showTripInfoPanel(true, true);
             		return true;
             	}
+            	else {
+            		confirmExit();
+            		return true;
+            	}
         }
         return super.onKeyDown(keycode, e);
+    }
+    
+    private void confirmExit() {
+    	new AlertDialog.Builder(LandingActivity2.this).setCancelable(false).setTitle("Really quit?")
+    			.setMessage("Do you really want to exit the app?").setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// do nothing
+			}
+    	}).setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				finish();
+			}
+    	}).create().show();
+    	
     }
     
     static class LoadImageTask extends AsyncTask<Void, Void, Bitmap> {
