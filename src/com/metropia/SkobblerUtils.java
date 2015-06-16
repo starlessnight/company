@@ -26,7 +26,7 @@ public class SkobblerUtils {
 	
 	private static final String API_KEY = "18dc78a75415e2e1f4260fd7e5990fd0f9a1ad42160171997d823bf79eb09d63";
 	
-	public static final String SDK_VERSION = "2.5.2"; // .2 is modify style json file to increase route width
+	public static final String SDK_VERSION = "2.5.3"; // .2 is modify style json file to increase route width
 	
 	public static void initSkobbler(Context ctx, SKPrepareMapTextureListener listener, Runnable checkLogin) {
 		SKLogging.enableLogs(true);
