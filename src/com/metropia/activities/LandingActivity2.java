@@ -2628,6 +2628,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         
         mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
         mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_GAME);
+        
+        refreshHead();
     }
     
     @Override
@@ -4038,6 +4040,23 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	getRouteView.setBackgroundResource(greyOut ? R.drawable.get_route_grey_button : R.drawable.get_route_green_button);
     }
     
+    private static final String SANDBOX = "http://sandbox.metropia.com/";
+    
+    private void refreshHead() {
+    	String entrypoint = DebugOptionsActivity.getDebugEntrypoint(LandingActivity2.this);
+    	TextView head = (TextView)findViewById(R.id.head);
+    	if(StringUtils.startsWith(entrypoint, SANDBOX)) {
+    		int slashIdx = StringUtils.indexOf(entrypoint, "/", SANDBOX.length());
+    		if(slashIdx > 0 && slashIdx > SANDBOX.length()) {
+    			String sandboxEntryPoint = StringUtils.substring(entrypoint, SANDBOX.length() - 1, slashIdx);
+    			head.setText("Metropia     " + sandboxEntryPoint);
+    		}
+    	}
+    	else {
+    		head.setText("Metropia");
+    	}
+    }
+    
     protected static abstract class ReverseGeocodingTask extends AsyncTask<Void, Void, String> {
         
         double lat;
@@ -4628,9 +4647,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        
-    }
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
     float[] mGravity;
     float[] mGeomagnetic;
