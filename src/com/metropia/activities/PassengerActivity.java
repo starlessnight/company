@@ -91,6 +91,8 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	private SKMapViewHolder mapViewHolder;
 	private SKMapSurfaceView mapView;
 	
+	private static final Integer DEFAULT_ZOOM_LEVEL = 15;
+	
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -498,7 +500,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		mapView.clearAllOverlays();
 		mapView.deleteAllAnnotationsAndCustomPOIs();
 		mapView.rotateTheMapToNorth();
-		mapView.setZoom(ValidationActivity.NAVIGATION_ZOOM_LEVEL);
+		mapView.setZoom(DEFAULT_ZOOM_LEVEL);
 		mapView.getMapSettings().setCurrentPositionShown(false);
 		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
 		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
