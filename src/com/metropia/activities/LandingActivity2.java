@@ -2689,7 +2689,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		                mapView.deleteAnnotation(ROUTE_DESTINATION_ID);
 	            	}
 	                tripNotifyIcon.setVisibility(View.GONE);
-	                passengerIcon.setVisibility(View.VISIBLE);
+	                passengerIcon.setVisibility(getRouteView.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
 	                refreshReservationList(new ArrayList<Reservation>());
 	                unlockMenu();
 	            } 
