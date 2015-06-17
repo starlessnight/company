@@ -285,7 +285,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			ExceptionHandlingService es = new ExceptionHandlingService(PassengerActivity.this);
 			@Override
 			protected void onPreExecute() {
-				dialog = new CancelableProgressDialog(PassengerActivity.this, "Make a reservation...");
+				dialog = new CancelableProgressDialog(PassengerActivity.this, "Preparing...");
 	            dialog.setActionListener(new CancelableProgressDialog.ActionListener() {
 	                @Override
 	                public void onClickNegativeButton() {
