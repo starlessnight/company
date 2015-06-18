@@ -34,6 +34,10 @@ public final class CityRequest extends FetchRequest<City> {
         
         public String incidents;
         
+        public String signUp;
+        
+        public String link;
+        
     }
     
 	public CityRequest(double lat, double lon, int timeoutInMillis) {
@@ -64,8 +68,10 @@ public final class CityRequest extends FetchRequest<City> {
 		    city.minLon = data.getDouble("MinLon");
 		    city.timezone = data.getInt("timezone");
 		    city.incidents = data.optString("incidents");
+		    city.signUp = data.optString("sign_up", "");
 		}else{
 		    city.html = json.optString("html");
+		    city.link = json.optString("link", "");
 		}
         return city;
 	}

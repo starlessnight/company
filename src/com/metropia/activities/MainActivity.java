@@ -436,8 +436,8 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
        
     	if (resultCode == IntroActivity.INTRO_FINISH) {
     	    if(requestCode == IntroActivity.INTRO_ACTIVITY){
-    	    	Intent signUpIntent = new Intent(this, UserRegistrationActivity.class);
-                startActivity(signUpIntent);
+    	    	Intent loginIntent = new Intent(this, LoginActivity.class);
+                startActivity(loginIntent);
                 finish();
     	    }
     	}
