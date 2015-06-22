@@ -502,7 +502,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		mapView.rotateTheMapToNorth();
 		mapView.setZoom(DEFAULT_ZOOM_LEVEL);
 		mapView.getMapSettings().setCurrentPositionShown(false);
-		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
+		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.POSITION);
 		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
 		mapView.getMapSettings().setMapRotationEnabled(false);
 		mapView.getMapSettings().setMapZoomingEnabled(true);
