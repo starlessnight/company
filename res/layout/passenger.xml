@@ -35,7 +35,7 @@
                     android:paddingRight="10dp"
                     android:paddingTop="5dp"
                     android:paddingBottom="5dp"
-                    android:src="@drawable/passenger_mode_back"/>
+                    android:src="@drawable/setting_white_back_arrow"/>
 
 		        <TextView
 		            android:id="@+id/passenger_msg"
