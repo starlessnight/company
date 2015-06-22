@@ -1467,6 +1467,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             @Override
             public void run() {
                 if(refresh){
+                	SkobblerUtils.initSunriseSunsetTime(LandingActivity2.this, lat, lon);
                 	MainActivity.initApiLinksIfNecessary(LandingActivity2.this, new Runnable() {
 						@Override
 						public void run() {

@@ -2212,6 +2212,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private Map<Integer, Incident> incidents = new HashMap<Integer, Incident>();
 	private AtomicBoolean sendOnMyWayEmail = new AtomicBoolean(true);
 	private AtomicBoolean locationRefreshed = new AtomicBoolean(false);
+	private AtomicBoolean sunTimeInited = new AtomicBoolean(false);
 
 	private synchronized void locationChanged(final Location location) {
 		final double speedInMph = Trajectory.msToMph(location.getSpeed());
@@ -2219,6 +2220,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		final double lat = location.getLatitude();
 		final double lng = location.getLongitude();
 		final float accuracy = location.getAccuracy();
+		if(locationRefreshed.get() && !sunTimeInited.get()) {
+			SkobblerUtils.initSunriseSunsetTime(ValidationActivity.this, lat, lng);
+			sunTimeInited.set(true);
+		}
 		if (!routeLoaded.get() && isLoadRoute() && locationRefreshed.get()) {
 			routeLoaded.set(true);
 			runOnUiThread(new Runnable() {
