@@ -1742,8 +1742,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                             }
 
 							@Override
-							public void onDismissRight() {
-							}
+							public void onDismissRight() {}
 
                          });
     	reservationListPanel.setOnTouchListener(touchListener);
@@ -4224,8 +4223,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    			incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, ratio));
 	    			iconView.setView(incImage);
 	    			incAnn.setAnnotationView(iconView);
-	    			mapView.deleteAnnotation(uniqueId);
-	    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+//	    			mapView.deleteAnnotation(uniqueId);
+//	    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+	    			mapView.updateAnnotation(incAnn);
 	    		}
 	    	}
 	    	Set<Integer> bulbIds = poiContainer.getBulbUniqueIdSet();
@@ -4246,8 +4246,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    			incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, ratio));
 	    			iconView.setView(incImage);
 	    			incAnn.setAnnotationView(iconView);
-	    			mapView.deleteAnnotation(uniqueId);
-	    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+//	    			mapView.deleteAnnotation(uniqueId);
+//	    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+	    			mapView.updateAnnotation(incAnn);
 	    		}
 	    	}
     	}
@@ -5000,9 +5001,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             resizeMap(!isMapCollapsed());
         }
 	}
-
-//	@Override
-//	public void onSurfaceCreated() {}
 
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
