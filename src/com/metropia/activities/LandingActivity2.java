@@ -3940,6 +3940,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         searchBox.setFocusable(collapsed);
         fromSearchBox.setFocusableInTouchMode(collapsed);
         fromSearchBox.setFocusable(collapsed);
+        fromDropDownButton.setClickable(collapsed);
+        toDropDownButton.setClickable(collapsed);
         View landingPanelView = findViewById(R.id.landing_panel_content);
         int landingPanelHeight = landingPanelView.getHeight();
         List<Animator> allAnimators = new ArrayList<Animator>();
