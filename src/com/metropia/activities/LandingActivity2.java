@@ -314,6 +314,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
     
+    private AtomicBoolean disableShowPassengerMode = new AtomicBoolean(false);
+    
     private int calculateZoomLevel(double lat){
         long sideDistanceOfSquareArea = 10; //miles
         long earthCircumference = 24901;
@@ -1181,6 +1183,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 						@Override
 						public void onAnimationEnd() {
+							disableShowPassengerMode.set(true);
 							if(curFrom != null && StringUtils.isBlank(curFrom.address)) {
 								Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
 									
@@ -1205,6 +1208,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 										findViewById(R.id.loading_panel).setVisibility(View.GONE);
 										if(!cancelGetRoute.getAndSet(false)) {
 											startRouteActivity();
+										}
+										else {
+											disableShowPassengerMode.set(false);
 										}
 									}
 								});
@@ -2629,6 +2635,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
         mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_GAME);
         
+        disableShowPassengerMode.set(false);
         refreshHead();
     }
     
@@ -3231,6 +3238,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //                hideStarredBalloon();
                 removeAllOD();
                 startActivity(intent);
+            }
+            else {
+            	disableShowPassengerMode.set(false);
             }
         }
     }
@@ -4034,7 +4044,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	if(enabled) {
     		passengerIcon.setVisibility(View.GONE);
     	}
-    	else if(tripNotifyIcon.getVisibility() == View.GONE) {
+    	else if(tripNotifyIcon.getVisibility() == View.GONE && !disableShowPassengerMode.get()) {
     		passengerIcon.setVisibility(View.VISIBLE);
     	}
     }
