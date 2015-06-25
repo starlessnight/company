@@ -1753,7 +1753,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
      	if(routeRect == null && myPointOverlay != null) {
     		mapView.setZoom(calculateZoomLevel(myPointOverlay.getLocation().getLatitude()));
     		mapView.centerMapOnPosition(new SKCoordinate(myPointOverlay.getLocation().getLongitude(), myPointOverlay.getLocation().getLatitude()));
-    		mapView.postInvalidate();
+//    		mapView.postInvalidate();
     	}
     	else {
     		// simulate default view
@@ -3283,8 +3283,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 return addrs;
             }
             @Override
-            protected void onPostExecute(
-                    List<com.metropia.models.Address> result) {
+            protected void onPostExecute(List<com.metropia.models.Address> result) {
                 if(callback != null){
                     callback.run();
                 }
@@ -3308,6 +3307,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                         }
                     }
                     showODBalloon();
+                    //redraw poi
+                    sizeRatio.set(0);
+                    updateAnnotationSize(getSizeRatioByZoomLevel());
+                    //
                     initFavoriteDropdownIfNessary(addrList, forceUpdateFavorite);
                 }
             }
