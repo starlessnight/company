@@ -865,12 +865,13 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         mediumFont = Font.getMedium(assets);
         
         rescheduleDepartureTime = extras.getLong(RESCHEDULE_DEPARTURE_TIME);
-        final TextView reserveView = (TextView) findViewById(R.id.reserve);
+        final View reservePanelView = findViewById(R.id.reserve_panel);
+        final TextView reserveView = (TextView)findViewById(R.id.reserve);
         if(rescheduleReservId > 0) {
         	reserveView.setText("Reschedule Trip");
-        	findViewById(R.id.reserve_panel).setBackgroundColor(getResources().getColor(R.color.metropia_red));
+        	reservePanelView.setBackgroundColor(getResources().getColor(R.color.metropia_red));
         }
-        reserveView.setOnClickListener(new View.OnClickListener() {
+        reservePanelView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
             	v.setClickable(false);
@@ -957,7 +958,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 				});
             }
         });
-        final TextView letsGoView = (TextView) findViewById(R.id.lets_go);
+        final View letsGoView = findViewById(R.id.lets_go_panel);
         letsGoView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View v) {
@@ -1090,7 +1091,8 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 			}
         });
         
-        Font.setTypeface(mediumFont, skipTutorial, durationRow, onMyWayView, letsGoView, reserveView, includeTollButton, noTollButton, 
+        Font.setTypeface(mediumFont, skipTutorial, durationRow, onMyWayView, reserveView, includeTollButton, noTollButton,
+        		(TextView)findViewById(R.id.lets_go),
         		(TextView)findViewById(R.id.arrive_row),
                 (TextView)findViewById(R.id.mpoint_row), 
                 (TextView)findViewById(R.id.departure_row));
