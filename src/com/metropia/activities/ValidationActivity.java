@@ -914,6 +914,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(ValidationActivity.this,	dayMode.get()));
 		mapView.getMapSettings().setStreetNamePopupsShown(!dayMode.get());
 		SKRouteManager.getInstance().setRouteListener(this);
+		drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
 	}
 
 	private static final String EN_ROUTE_NOT_ACCEPT_TEXT_1 = "no";
@@ -2668,8 +2669,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private void removeAllIncident() {
 		if (DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this)) {
 			mapView.deleteAllAnnotationsAndCustomPOIs();
-			drawDestinationAnnotation(reservation.getEndlat(),
-					reservation.getEndlon());
+			drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
 		}
 	}
 
