@@ -150,6 +150,7 @@ import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.ui.DelayTextWatcher;
 import com.metropia.ui.DelayTextWatcher.TextChangeListener;
 import com.metropia.ui.EditAddress;
+import com.metropia.ui.SkobblerImageView;
 import com.metropia.ui.SwipeDeleteTouchListener;
 import com.metropia.ui.menu.MainMenu;
 import com.metropia.ui.timelayout.AdjustableTime;
@@ -3100,7 +3101,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     			destAnn.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
     			destAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
     			SKAnnotationView destAnnView = new SKAnnotationView();
-                ImageView destImage = new ImageView(LandingActivity2.this);
+                SkobblerImageView destImage = new SkobblerImageView(LandingActivity2.this, R.drawable.pin_destination, 1);
+                destImage.setLat(_route.getLastNode().getLatitude());
+                destImage.setLon(_route.getLastNode().getLongitude());
                 destImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, R.drawable.pin_destination, 1));
                 destAnnView.setView(destImage);
                 destAnn.setAnnotationView(destAnnView);
@@ -3438,7 +3441,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	balloonAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
     	balloonAnn.setLocation(new SKCoordinate(info.lon, info.lat));
     	SKAnnotationView balloonView = new SKAnnotationView();
-    	ImageView balloonImage = new ImageView(LandingActivity2.this);
+    	SkobblerImageView balloonImage = new SkobblerImageView(LandingActivity2.this, 0, 0);
+    	balloonImage.setLat(info.lat);
+    	balloonImage.setLon(info.lon);
+    	balloonImage.setDesc(from ? "FROM" : "TO");
     	balloonImage.setImageBitmap(loadBitmapOfFromToBalloon(LandingActivity2.this, from));
     	balloonView.setView(balloonImage);
     	balloonAnn.setAnnotationView(balloonView);
@@ -4188,7 +4194,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		incAnn.setLocation(new SKCoordinate(markerInfo.lon, markerInfo.lat));
     		incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
     		SKAnnotationView iconView = new SKAnnotationView();
-    		ImageView incImage = new ImageView(LandingActivity2.this);
+    		SkobblerImageView incImage = new SkobblerImageView(LandingActivity2.this, markerInfo.markerWithShadow, sizeRatio.get());
+    		incImage.setLat(markerInfo.lat);
+    		incImage.setLon(markerInfo.lon);
+    		incImage.setDesc(markerInfo.address);
     		incImage.setMinimumHeight(annSize.get() / sizeRatio.get());
     		incImage.setMinimumWidth(annSize.get() / sizeRatio.get());
     		incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, markerInfo.markerWithShadow, sizeRatio.get()));
@@ -4204,7 +4213,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
    		incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
    		incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
    		SKAnnotationView iconView = new SKAnnotationView();
-   		ImageView incImage = new ImageView(LandingActivity2.this);
+   		SkobblerImageView incImage = new SkobblerImageView(LandingActivity2.this, poiInfo.markerWithShadow, sizeRatio.get());
+   		incImage.setLat(poiInfo.lat);
+   		incImage.setLon(poiInfo.lon);
+   		incImage.setDesc(poiInfo.address);
    		incImage.setMinimumHeight(annSize.get() / sizeRatio.get());
 		incImage.setMinimumWidth(annSize.get() / sizeRatio.get());
 //		incImage.setImageResource(poiInfo.markerWithShadow);
@@ -4229,7 +4241,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    			incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
 	    			incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
 	    			SKAnnotationView iconView = new SKAnnotationView();
-	    			ImageView incImage = new ImageView(LandingActivity2.this);
+	    			SkobblerImageView incImage = new SkobblerImageView(LandingActivity2.this, poiInfo.markerWithShadow, ratio);
+	    			incImage.setLat(poiInfo.lat);
+	    			incImage.setLon(poiInfo.lon);
+	    			incImage.setDesc(poiInfo.address);
 	    			incImage.setMinimumHeight(annSize.get() / ratio);
 	    			incImage.setMinimumWidth(annSize.get() / ratio);
 	    			incImage.setMaxHeight(annSize.get() / ratio);
@@ -4238,9 +4253,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    			incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, ratio));
 	    			iconView.setView(incImage);
 	    			incAnn.setAnnotationView(iconView);
-//	    			mapView.deleteAnnotation(uniqueId);
-//	    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
-	    			mapView.updateAnnotation(incAnn);
+	    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+//	    			mapView.updateAnnotation(incAnn);
 	    		}
 	    	}
 	    	Set<Integer> bulbIds = poiContainer.getBulbUniqueIdSet();
@@ -4252,7 +4266,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    			incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
 	    			incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
 	    			SKAnnotationView iconView = new SKAnnotationView();
-	    			ImageView incImage = new ImageView(LandingActivity2.this);
+	    			SkobblerImageView incImage = new SkobblerImageView(LandingActivity2.this, poiInfo.markerWithShadow, ratio);
+	    			incImage.setLat(poiInfo.lat);
+	    			incImage.setLon(poiInfo.lon);
+	    			incImage.setDesc(poiInfo.address);
 	    			incImage.setMinimumHeight(annSize.get() / ratio);
 	    			incImage.setMinimumWidth(annSize.get() / ratio);
 	    			incImage.setMaxHeight(annSize.get() / ratio);
@@ -4261,9 +4278,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    			incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, ratio));
 	    			iconView.setView(incImage);
 	    			incAnn.setAnnotationView(iconView);
-//	    			mapView.deleteAnnotation(uniqueId);
-//	    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
-	    			mapView.updateAnnotation(incAnn);
+	    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+//	    			mapView.updateAnnotation(incAnn);
 	    		}
 	    	}
     	}

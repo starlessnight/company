@@ -145,6 +145,7 @@ import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.ui.NavigationView;
 import com.metropia.ui.NavigationView.CheckPointListener;
 import com.metropia.ui.NavigationView.DirectionItem;
+import com.metropia.ui.SkobblerImageView;
 import com.metropia.ui.menu.MainMenu;
 import com.metropia.ui.timelayout.TimeColumn;
 import com.metropia.utils.Dimension;
@@ -1844,7 +1845,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		destAnn.setLocation(new SKCoordinate(lon, lat));
 		destAnn.setMininumZoomLevel(5);
 		SKAnnotationView destAnnView = new SKAnnotationView();
-		ImageView destImage = new ImageView(ValidationActivity.this);
+		SkobblerImageView destImage = new SkobblerImageView(ValidationActivity.this, R.drawable.pin_destination, 1);
+		destImage.setLat(lat);
+		destImage.setLon(lon);
+		destImage.setDesc("DEST_ANNOTATION");
 		destImage.setImageBitmap(Misc.getBitmap(ValidationActivity.this, R.drawable.pin_destination, 1));
 		destAnnView.setView(destImage);
 		destAnn.setAnnotationView(destAnnView);
@@ -3074,14 +3078,15 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					incAnn.setLocation(new SKCoordinate(inc.lon, inc.lat));
 					incAnn.setMininumZoomLevel(inc.getMinimalDisplayZoomLevel());
 					SKAnnotationView iconView = new SKAnnotationView();
-					ImageView incImage = new ImageView(ValidationActivity.this);
+					SkobblerImageView incImage = new SkobblerImageView(ValidationActivity.this,	IncidentIcon.fromType(inc.type).getResourceId(ValidationActivity.this), ratio);
+					incImage.setLat(inc.lat);
+					incImage.setLon(inc.lon);
 					incImage.setMinimumHeight(annSize.get() / ratio);
 					incImage.setMinimumWidth(annSize.get() / ratio);
 					incImage.setImageBitmap(Misc.getBitmap(ValidationActivity.this,	IncidentIcon.fromType(inc.type).getResourceId(ValidationActivity.this), ratio));
 					iconView.setView(incImage);
 					incAnn.setAnnotationView(iconView);
-					mapView.addAnnotation(incAnn,
-							SKAnimationSettings.ANIMATION_NONE);
+					mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
 				}
 			}
 		}
@@ -3659,24 +3664,21 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			fromAnnotation.setUniqueID(INCIDENT_BALLOON_ID);
 			SKAnnotationView fromView = new SKAnnotationView();
 			fromAnnotation.setLocation(annotation.getLocation());
-			fromAnnotation.setOffset(new SKScreenPoint(0, Dimension.dpToPx(60,
-					dm)));
-			ImageView balloon = new ImageView(ValidationActivity.this);
-			balloon.setImageBitmap(loadBitmapFromView(ValidationActivity.this,
-					selectedInc));
+			fromAnnotation.setOffset(new SKScreenPoint(0, Dimension.dpToPx(60, dm)));
+			SkobblerImageView balloon = new SkobblerImageView(ValidationActivity.this, 0, 0);
+			balloon.setLat(annotation.getLocation().getLatitude());
+			balloon.setLon(annotation.getLocation().getLongitude());
+			balloon.setDesc(selectedInc.shortDesc);
+			balloon.setImageBitmap(loadBitmapFromView(ValidationActivity.this, selectedInc));
 			fromView.setView(balloon);
 			fromAnnotation.setAnnotationView(fromView);
-			mapView.addAnnotation(fromAnnotation,
-					SKAnimationSettings.ANIMATION_POP_OUT);
+			mapView.addAnnotation(fromAnnotation, SKAnimationSettings.ANIMATION_POP_OUT);
 			View roadPanel = findViewById(R.id.road_panel);
-			SKScreenPoint annotationPoint = mapView
-					.coordinateToPoint(annotation.getLocation());
+			SKScreenPoint annotationPoint = mapView.coordinateToPoint(annotation.getLocation());
 			SKScreenPoint centerPoint = new SKScreenPoint();
-			centerPoint.setY(annotationPoint.getY()
-					- roadPanel.getMeasuredHeight());
+			centerPoint.setY(annotationPoint.getY()	- roadPanel.getMeasuredHeight());
 			centerPoint.setX(annotationPoint.getX());
-			mapView.centerMapOnPositionSmooth(
-					mapView.pointToCoordinate(centerPoint), 500);
+			mapView.centerMapOnPositionSmooth(mapView.pointToCoordinate(centerPoint), 500);
 		}
 	}
 
