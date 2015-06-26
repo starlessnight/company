@@ -1316,9 +1316,9 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
     public static boolean isPolylineRouteEnabled(Context ctx){
         boolean enabled;
         try{
-            enabled = getPrefs(ctx).getBoolean(POLYLINE_ROUTE, false);
+            enabled = getPrefs(ctx).getBoolean(POLYLINE_ROUTE, true);
         }catch(Throwable t){
-            enabled = false;
+            enabled = true;
         }
         return enabled;
     }
