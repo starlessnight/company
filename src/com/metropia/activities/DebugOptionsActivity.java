@@ -401,7 +401,7 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
 			@Override
 			public void onTextChanging() {
 			}
-		}, 500);
+		}, 500, null);
         
         entrypointView.addTextChangedListener(entrypointTextWatcher);
         

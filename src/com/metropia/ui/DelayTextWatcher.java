@@ -1,5 +1,7 @@
 package com.metropia.ui;
 
+import org.apache.commons.lang3.StringUtils;
+
 import android.graphics.Color;
 import android.os.Handler;
 import android.text.Editable;
@@ -9,6 +11,8 @@ import android.text.style.BackgroundColorSpan;
 import android.widget.EditText;
 
 public class DelayTextWatcher implements TextWatcher {
+	
+	public static final String FORCE_NOTIFY_SPACE = " ";
 	
 	public interface TextChangeListener {
 		public void onTextChanged(CharSequence text);
@@ -20,18 +24,19 @@ public class DelayTextWatcher implements TextWatcher {
 	private long delay;
 	private NotificationRunnable currentTask;
 	private EditText mEditText;
+	private String forceNotifyText;
+	private String lastNotifyText;
 	
-	public DelayTextWatcher(EditText mEditText, TextChangeListener listener, long delay) {
+	public DelayTextWatcher(EditText mEditText, TextChangeListener listener, long delay, String forceNotifyText) {
 	    this.mEditText = mEditText;
 		this.listener = listener;
 		this.delay = delay;
 		this.delayHandler = new Handler();
+		this.forceNotifyText = forceNotifyText;
 	}
 
 	@Override
-	public void beforeTextChanged(CharSequence s, int start, int count,
-			int after) {
-	}
+	public void beforeTextChanged(CharSequence s, int start, int count,	int after) {}
 
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -42,10 +47,20 @@ public class DelayTextWatcher implements TextWatcher {
 	@Override
 	public void afterTextChanged(Editable s) {
 		delayHandler.removeCallbacks(currentTask);
-        currentTask = new NotificationRunnable(s);
-        delayHandler.postDelayed(currentTask, delay);
+		if(StringUtils.isEmpty(forceNotifyText) || !StringUtils.endsWith(s, forceNotifyText)) {
+	        currentTask = new NotificationRunnable(s);
+	        delayHandler.postDelayed(currentTask, delay);
+        }
         if(listener!=null){
-        	listener.onTextChanging();
+        	if(StringUtils.isEmpty(forceNotifyText) || !StringUtils.endsWith(s, forceNotifyText)) { 
+        		listener.onTextChanging();
+        	}
+        	else {
+        		if(!StringUtils.equalsIgnoreCase(StringUtils.trimToEmpty(s.toString()), lastNotifyText)) {
+        			listener.onTextChanged(s);
+        			lastNotifyText = StringUtils.trimToEmpty(s.toString());
+        		}
+        	}
         }
 	}
 	
@@ -58,8 +73,9 @@ public class DelayTextWatcher implements TextWatcher {
 
         @Override
         public void run() {
-          if (listener != null) {
-            listener.onTextChanged(message);
+          if (listener != null && !StringUtils.equalsIgnoreCase(StringUtils.trimToEmpty(message.toString()), lastNotifyText)) {
+        	  listener.onTextChanged(message);
+        	  lastNotifyText = StringUtils.trimToEmpty(message.toString());
           }
         }
     }

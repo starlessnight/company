@@ -310,7 +310,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private AtomicBoolean needTagAustinLaunch = new AtomicBoolean(true);
     private AtomicBoolean cancelGetRoute = new AtomicBoolean(false);
     
-    public static final Long TEXT_INPUT_DELAY = Long.valueOf(1000);
+    public static final Long TEXT_INPUT_DELAY = Long.valueOf(2000);
     
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
@@ -709,7 +709,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 				}
 				refreshSearchAutoCompleteData();
 			}
-		}, TEXT_INPUT_DELAY);
+		}, TEXT_INPUT_DELAY, DelayTextWatcher.FORCE_NOTIFY_SPACE);
         
         searchBox.addTextChangedListener(delayTextWatcher);
         
@@ -807,7 +807,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 				}
 				refreshFromSearchAutoCompleteData();
 			}
-        }, TEXT_INPUT_DELAY);
+        }, TEXT_INPUT_DELAY, DelayTextWatcher.FORCE_NOTIFY_SPACE);
         
         fromSearchBox.addTextChangedListener(fromDelayTextWatcher);
         fromSearchBoxClear.setOnClickListener(new OnClickListener() {
@@ -855,6 +855,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //                location.setLongitude(-110.883805);
 //	              location.setLatitude(22.980648); // Tainan
 //	              location.setLongitude(120.236046);
+//            	  location.setLatitude(30.18155); // Austin
+//            	  location.setLongitude(-97.62175);
                 if (ValidationActivity.isBetterLocation(location, lastLocation)) {
                 	setLocationRefreshStatus(true);
 					if(needTagAustinLaunch.getAndSet(false)) {
