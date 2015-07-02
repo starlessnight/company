@@ -2449,7 +2449,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					}
 				}
 
-				if (speedInMph <= speedOutOfRouteThreshold
+				if (location.getBearing() == 0f/*speedInMph <= speedOutOfRouteThreshold*/
 						&& lastKnownLocation != null) {
 					location.setBearing(lastKnownLocation.getBearing());
 				}
