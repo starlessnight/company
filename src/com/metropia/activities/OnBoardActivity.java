@@ -129,7 +129,7 @@ public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceLis
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-//		SkobblerUtils.initializeLibrary(OnBoardActivity.this);
+		SkobblerUtils.initializeLibrary(OnBoardActivity.this);
 		setContentView(R.layout.on_board);
 		
 		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
@@ -1034,7 +1034,7 @@ public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceLis
 	    Localytics.setInAppMessageDisplayActivity(this);
 	    Localytics.handleTestMode(getIntent());
 	    Localytics.handlePushNotificationOpened(getIntent());
-	    mapView.onResume();
+	    mapViewHolder.onResume();
     	prepareGPS();
     }
     
@@ -1044,7 +1044,7 @@ public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceLis
 	    Localytics.clearInAppMessageDisplayActivity();
 	    Localytics.closeSession();
 	    Localytics.upload();
-	    mapView.onPause();
+	    mapViewHolder.onPause();
     	super.onPause();
     	closeGPS();
     }
