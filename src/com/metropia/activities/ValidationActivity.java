@@ -498,12 +498,16 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			final Location location = new Location("");
 			location.setTime(System.currentTimeMillis());
 			if(mapView != null) {
+				mapView.reportNewGPSPosition(new SKPosition(location));
+				location.setSpeed(0);
 				locationChanged(location);
 			}
 			else {
 				mapActionQueue.add(new Runnable() {
 					@Override
 					public void run() {
+						mapView.reportNewGPSPosition(new SKPosition(location));
+						location.setSpeed(0);
 						locationChanged(location);
 					}
 				});
@@ -514,12 +518,16 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			location.setLatitude(curLoc.getLatitude());
 			location.setLongitude(curLoc.getLongitude());
 			if(mapView != null) {
+				mapView.reportNewGPSPosition(new SKPosition(location));
+				location.setSpeed(0);
 				locationChanged(location);
 			}
 			else {
 				mapActionQueue.add(new Runnable() {
 					@Override
 					public void run() {
+						mapView.reportNewGPSPosition(new SKPosition(location));
+						location.setSpeed(0);
 						locationChanged(location);
 					}
 				});
@@ -840,7 +848,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 //		mapView.setMapSurfaceListener(this);
 		mapView.clearAllOverlays();
 		mapView.deleteAllAnnotationsAndCustomPOIs();
-		mapView.getMapSettings().setCurrentPositionShown(false);
+		mapView.getMapSettings().setCurrentPositionShown(true);
 		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
 		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
 		mapView.getMapSettings().setMapRotationEnabled(true);
@@ -2189,7 +2197,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					}
 				}
 
-				if (speedInMph == 0 && lastKnownLocation != null) {
+				if (speedInMph <= speedOutOfRouteThreshold && lastKnownLocation != null) {
 					location.setBearing(lastKnownLocation.getBearing());
 				}
 
@@ -2201,7 +2209,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				SKPosition currentPosition = mapView.getCurrentGPSPosition(true);
 				GeoPoint oldLoc = new GeoPoint(currentPosition.getLatitude(), currentPosition.getLongitude());
 				if (oldLoc.isEmpty() || initial.getAndSet(false)) {
-					if (!position.isEmpty() && (speedInMph > 0 || sensorUpdated.get() || locationUpdated.get())) {
+					if (!position.isEmpty() && (speedInMph > 0 || locationUpdated.get())) {
 						locationUpdated.set(true);
 						stopOrientationSensor();
 						mapView.reportNewGPSPosition(new SKPosition(location));
@@ -2209,7 +2217,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					}
 				} else {
 					animator.removeCallbacksAndMessages(null);
-					if(speedInMph > 0 || sensorUpdated.get() || locationUpdated.get()) {
+					if(speedInMph > 0 || locationUpdated.get()) {
 						locationUpdated.set(true);
 						stopOrientationSensor();
 						mapView.reportNewGPSPosition(new SKPosition(location));
@@ -3542,9 +3550,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 		} else if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL && !turnOffGPS.get()) {
 			prepareGPS();
-		} else {
-
-		}
+			Runnable action = mapActionQueue.poll();
+			while(action != null) {
+				action.run();
+				action = mapActionQueue.poll();
+			}
+		} 
 		
 		if(!sensorUpdated.get() && !locationUpdated.get()) {
 			startOrientationSensor();
@@ -3583,7 +3594,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
         switch (event.sensor.getType()) {
 
             case Sensor.TYPE_ORIENTATION:
-                if (orientationValues != null && !sensorUpdated.get() && !locationUpdated.get()) {
+                if (orientationValues != null && !locationUpdated.get()) {
                     for (int i = 0; i < orientationValues.length; i++) {
                         orientationValues[i] = event.values[i];
                     }
