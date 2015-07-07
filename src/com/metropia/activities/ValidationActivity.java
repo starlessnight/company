@@ -2255,7 +2255,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			List<RouteLink> rerouteSameDirLinks = getRouteOrReroute().getSameDirectionLinks(rerouteNearbyLinks, speedInMph, bearing);
 
 			if (!Route.isPending(rerouteNearbyLinks, rerouteSameDirLinks)) {
-				if (Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)	&& speedInMph > speedOutOfRouteThreshold) {
+				if (Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)	&& speedInMph > speedOutOfRouteThreshold && !isCloseToOrigin1000Feet()) {
 					if (routeOfRouteCnt.incrementAndGet() == countOutOfRouteThreshold) {
 						reroute(lat, lng, speedInMph, bearing, passedNodeTime);
 					}
@@ -2608,6 +2608,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			return RouteNode.distanceBetween(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), firstNode.getLatitude(),
 					firstNode.getLongitude()) < ValidationParameters.getInstance().getArrivalDistanceThreshold()
 					&& speedInMph < ValidationParameters.getInstance().getStopSpeedThreshold();
+		}
+		return false;
+	}
+	
+	private boolean isCloseToOrigin1000Feet() {
+		if (lastKnownLocation != null && firstNode != null) {
+			return RouteNode.distanceBetween(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), firstNode.getLatitude(),
+					firstNode.getLongitude()) < ValidationParameters.getInstance().getDisableRerouteThreshold();
 		}
 		return false;
 	}
