@@ -319,6 +319,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private ReservationTollHovInfo reservationInfo;
 	
 	private Queue<Runnable> mapActionQueue = new LinkedList<Runnable>();
+	
+	private Location cacheLocation;
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -491,6 +493,15 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		LocationInfo cacheLoc = new LocationInfo(ValidationActivity.this);
 		if (!isReplay.get()	&& curLoc == null && System.currentTimeMillis()	- cacheLoc.lastLocationUpdateTimestamp < 5 * 60 * 1000) {
 			curLoc = new GeoPoint(cacheLoc.lastLat, cacheLoc.lastLong);
+			cacheLocation = new Location("");
+			cacheLocation.setLatitude(cacheLoc.lastLat);
+			cacheLocation.setLongitude(cacheLoc.lastLong);
+			cacheLocation.setBearing(cacheLoc.lastHeading);
+		}
+		else if(curLoc != null) {
+			cacheLocation = new Location("");
+			cacheLocation.setLatitude(curLoc.getLatitude());
+			cacheLocation.setLongitude(curLoc.getLongitude());
 		}
 
 		if (gpsMode == DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
@@ -2600,7 +2611,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 		return false;
 	}
-
+	
 	private void reportValidation(final Runnable callback) {
 		if (!reported.get()) {
 			reported.set(true);
@@ -3623,8 +3634,16 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                             // report to NG the new value
                             if (orientationValues[0] < 0) {
                                 mapView.reportNewHeading(-orientationValues[0]);
+                                if(cacheLocation != null) {
+                                	cacheLocation.setBearing(-orientationValues[0]);
+                                	mapView.reportNewGPSPosition(new SKPosition(cacheLocation));
+                                }
                             } else {
                                 mapView.reportNewHeading(orientationValues[0]);
+                                if(cacheLocation != null) {
+                                	cacheLocation.setBearing(orientationValues[0]);
+                                	mapView.reportNewGPSPosition(new SKPosition(cacheLocation));
+                                }
                             }
 
                             lastTimeWhenReceivedGpsSignal = System.currentTimeMillis();
@@ -3655,12 +3674,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
      * Deactivates the orientation sensor
      */
     private void stopOrientationSensor() {
-    	if(startSensor.get()) {
-	        orientationValues = null;
-	        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-	        sensorManager.unregisterListener(this);
-	        startSensor.set(false);
-    	}
+	    orientationValues = null;
+	    SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+	    sensorManager.unregisterListener(this);
+	    startSensor.set(false);
     }
 
 	@Override
