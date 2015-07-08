@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -375,14 +376,14 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
             }
         });
         
-        EditText entrypointView = (EditText) findViewById(R.id.entry_point);
+        final EditText entrypointView = (EditText) findViewById(R.id.entry_point);
         entrypointView.setText(String.valueOf(prefs.getString(ENTRYPOINT, "")));
+        final Drawable entrypointViewBackground = entrypointView.getBackground();
         
         DelayTextWatcher entrypointTextWatcher = new DelayTextWatcher(entrypointView, new TextChangeListener(){
 			@Override
 			public void onTextChanged(CharSequence text) {
-				String entrypoint = text.toString();
-                prefs.edit().putString(ENTRYPOINT, entrypoint).commit();
+				final String entrypoint = text.toString();
                 if(initApiLinksTask != null){
                     initApiLinksTask.cancel(true);
                 }
@@ -393,14 +394,20 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
     							Intent updateMenu = new Intent(LandingActivity2.UPDATE_MENU_MY_TRIPS);
     							updateMenu.putExtra("hasTrips", MyTripsActivity.hasUrl(DebugOptionsActivity.this));
     							sendBroadcast(updateMenu);
+    			                prefs.edit().putString(ENTRYPOINT, entrypoint).commit();
+    							entrypointView.setBackgroundDrawable(entrypointViewBackground);
     						}
                     	
-                    }, null);
+                    }, new Runnable() {
+						@Override
+						public void run() {
+							entrypointView.setBackgroundResource(R.drawable.edittext);
+						}
+                    });
 			}
 			
 			@Override
-			public void onTextChanging() {
-			}
+			public void onTextChanging() {}
 		}, 500);
         
         entrypointView.addTextChangedListener(entrypointTextWatcher);

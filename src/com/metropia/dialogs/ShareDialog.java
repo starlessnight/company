@@ -17,12 +17,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.FacebookRequestError;
+/*import com.facebook.FacebookRequestError;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
-import com.facebook.UiLifecycleHelper;
+import com.facebook.UiLifecycleHelper;*/
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.plus.PlusShare;
 import com.metropia.utils.Font;
@@ -43,7 +43,7 @@ public class ShareDialog extends DialogFragment {
     
 	private ViewGroup dialogView;
 	
-	private UiLifecycleHelper uiHelper;
+//	private UiLifecycleHelper uiHelper;
 	
 	private String title;
 	
@@ -53,12 +53,12 @@ public class ShareDialog extends DialogFragment {
 	
 	private boolean fbClicked;
 	
-	private Session.StatusCallback fbCallback = new Session.StatusCallback() {
+/*	private Session.StatusCallback fbCallback = new Session.StatusCallback() {
         @Override
         public void call(Session session, SessionState state, Exception exception) {
             onSessionStateChange(session, state, exception);
         }
-    };
+    };*/
 	
 	private TwitterApp mTwitter;
 	
@@ -96,13 +96,13 @@ public class ShareDialog extends DialogFragment {
             public void onClick(View v) {
                 fbClicked = true;
                 if(isNotLoading()){
-                    Session session = Session.getActiveSession();
+                    /*Session session = Session.getActiveSession();
                     if (session != null && session.isOpened()) {
                         publishFB();
                     }else{
                         fbPending = true;
                         fbLogin();
-                    }
+                    }*/
                 }
             }
         });
@@ -194,19 +194,19 @@ public class ShareDialog extends DialogFragment {
         Font.setTypeface(Font.getBold(assets), titleView, facebookButton, 
             twitterButton, googlePlusButton, smsButton, emailButton);
         
-        uiHelper = new UiLifecycleHelper(getActivity(), fbCallback);
-        uiHelper.onCreate(savedInstanceState);
+//        uiHelper = new UiLifecycleHelper(getActivity(), fbCallback);
+//        uiHelper.onCreate(savedInstanceState);
 	    
 	    return dialogView;
 	}
 	
 	private void fbLogin(){
 	    try{
-    	    Session.openActiveSession(getActivity(), ShareDialog.this, true, fbCallback);
+//    	    Session.openActiveSession(getActivity(), ShareDialog.this, true, fbCallback);
 	    } catch(Throwable t){}
 	}
 	
-	private void onSessionStateChange(Session session, SessionState state, Exception exception) {
+/*	private void onSessionStateChange(Session session, SessionState state, Exception exception) {
 	    if(fbClicked){
     	    if (state == SessionState.OPENED_TOKEN_UPDATED) {
     	        if(hasPublishPermission()){
@@ -225,18 +225,18 @@ public class ShareDialog extends DialogFragment {
                 fbLogin();
             }
 	    }
-	}
+	}*/
 	
 	@Override
 	public void onResume() {
 	    super.onResume();
-	    uiHelper.onResume();
+//	    uiHelper.onResume();
 	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 	    super.onActivityResult(requestCode, resultCode, data);
-	    uiHelper.onActivityResult(requestCode, resultCode, data);
+//	    uiHelper.onActivityResult(requestCode, resultCode, data);
 	    if(requestCode == GOOGLE_PLUS_REQ && resultCode == Activity.RESULT_OK){
 	        dismissQuietly();
 	    }
@@ -245,28 +245,28 @@ public class ShareDialog extends DialogFragment {
 	@Override
 	public void onPause() {
 	    super.onPause();
-	    uiHelper.onPause();
+//	    uiHelper.onPause();
 	}
 
 	@Override
 	public void onDestroy() {
 	    super.onDestroy();
-	    uiHelper.onDestroy();
+//	    uiHelper.onDestroy();
 	}
 
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 	    super.onSaveInstanceState(outState);
-	    uiHelper.onSaveInstanceState(outState);
+//	    uiHelper.onSaveInstanceState(outState);
 	}
 	
-	private boolean hasPublishPermission() {
+/*	private boolean hasPublishPermission() {
         Session session = Session.getActiveSession();
         return session != null && session.getPermissions().contains(FB_PERMISSIONS);
-    }
+    }*/
 
     private void publishFB() {
-        final Session session = Session.getActiveSession();
+        /*final Session session = Session.getActiveSession();
         if (session != null && getActivity() != null) {
             final View loading = getView().findViewById(R.id.loading);
             Request request = Request
@@ -286,7 +286,7 @@ public class ShareDialog extends DialogFragment {
                     });
             request.executeAsync();
             loading.setVisibility(View.VISIBLE);
-        }
+        }*/
     }
     
     private void displaySharedNotification(){

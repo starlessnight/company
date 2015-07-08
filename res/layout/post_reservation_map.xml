@@ -111,10 +111,10 @@
         android:id="@+id/directions_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/mapview_options"
         android:layout_alignParentTop="true"
         android:background="@color/light_gray_background"
         android:orientation="vertical"
+        android:clickable="true"
         android:visibility="invisible" >
 
         <FrameLayout

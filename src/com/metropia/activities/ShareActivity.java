@@ -20,12 +20,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.FacebookRequestError;
+import com.facebook.FacebookSdk;
 import com.facebook.HttpMethod;
-import com.facebook.Request;
+import com.facebook.share.model.ShareLinkContent;
+/*import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
-import com.facebook.UiLifecycleHelper;
+import com.facebook.UiLifecycleHelper;*/
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.plus.PlusShare;
@@ -58,7 +60,7 @@ public final class ShareActivity extends FragmentActivity {
 
 	private String title;
 	private String shareText;
-	private UiLifecycleHelper uiHelper;
+//	private UiLifecycleHelper uiHelper;
 	
 	private TextView facebookView;
 	private TextView googlePlusView;
@@ -71,13 +73,13 @@ public final class ShareActivity extends FragmentActivity {
 		googlePlus, twitter, facebook, textMessage, email;
 	}
 
-	private Session.StatusCallback fbCallback = new Session.StatusCallback() {
+	/*private Session.StatusCallback fbCallback = new Session.StatusCallback() {
 		@Override
 		public void call(Session session, SessionState state,
 				Exception exception) {
 			onSessionStateChange(session, state, exception);
 		}
-	};
+	};*/
 
 	private TwitterApp mTwitter;
 
@@ -135,7 +137,8 @@ public final class ShareActivity extends FragmentActivity {
 					@Override
 					public void onAnimationEnd() {
 						deselectAll();
-						facebookView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.share_fasebook_select, 0, 0);
+						//facebookView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.share_fasebook_select, 0, 0);
+						facebookView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.share_fasebook_select, 0, 0);
 						shareButtonView.setTag(ShareType.facebook);
 					}
 				});
@@ -170,7 +173,8 @@ public final class ShareActivity extends FragmentActivity {
 					@Override
 					public void onAnimationEnd() {
 						deselectAll();
-						twitterView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.share_twitter_select, 0, 0);
+						//twitterView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.share_twitter_select, 0, 0);
+						twitterView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.share_twitter_select, 0, 0);
 						shareButtonView.setTag(ShareType.twitter);
 					}
 				});
@@ -186,7 +190,8 @@ public final class ShareActivity extends FragmentActivity {
 					@Override
 					public void onAnimationEnd() {
 						deselectAll();
-						googlePlusView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.share_google_plus_select, 0, 0);
+						//googlePlusView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.share_google_plus_select, 0, 0);
+						googlePlusView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.share_google_plus_select, 0, 0);
 						shareButtonView.setTag(ShareType.googlePlus);
 					}
 				});
@@ -202,7 +207,8 @@ public final class ShareActivity extends FragmentActivity {
 					@Override
 					public void onAnimationEnd() {
 						deselectAll();
-						textMessageView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.share_sms_select, 0, 0);
+						//textMessageView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.share_sms_select, 0, 0);
+						textMessageView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.share_sms_select, 0, 0);
 						shareButtonView.setTag(ShareType.textMessage);
 					}
 				});
@@ -218,7 +224,8 @@ public final class ShareActivity extends FragmentActivity {
 					@Override
 					public void onAnimationEnd() {
 						deselectAll();
-						emailView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.share_email_select, 0, 0);
+						//emailView.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.share_email_select, 0, 0);
+						emailView.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.share_email_select, 0, 0);
 						shareButtonView.setTag(ShareType.email);
 					}
 				});
@@ -228,15 +235,16 @@ public final class ShareActivity extends FragmentActivity {
 		Font.setTypeface(lightFont, (TextView) findViewById(R.id.share_good_news),
 				    facebookView, twitterView, googlePlusView, textMessageView, emailView, shareButtonView);
 
-		uiHelper = new UiLifecycleHelper(ShareActivity.this, fbCallback);
-		uiHelper.onCreate(savedInstanceState);
+		/*uiHelper = new UiLifecycleHelper(ShareActivity.this, fbCallback);
+		uiHelper.onCreate(savedInstanceState);*/
+		FacebookSdk.sdkInitialize(this);
 		
 		//init Tracker
       	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 	}
 
 	private void publishFB() {
-		final Session session = Session.getActiveSession();
+		/*final Session session = Session.getActiveSession();
 		if (session != null && ShareActivity.this != null) {
 			final View loading = findViewById(R.id.loading);
 			Bundle params = new Bundle();
@@ -257,10 +265,10 @@ public final class ShareActivity extends FragmentActivity {
 			});
 			request.executeAsync();
 			loading.setVisibility(View.VISIBLE);
-		}
+		}*/
 	}
 
-	private void onSessionStateChange(Session session, SessionState state,
+	/*private void onSessionStateChange(Session session, SessionState state,
 			Exception exception) {
 		if (fbClicked) {
 			if (state == SessionState.OPENED_TOKEN_UPDATED) {
@@ -282,23 +290,23 @@ public final class ShareActivity extends FragmentActivity {
 				fbLogin();
 			}
 		}
-	}
+	}*/
 
-	private boolean hasPublishPermission() {
+/*	private boolean hasPublishPermission() {
 		Session session = Session.getActiveSession();
 		return session != null && session.getPermissions().contains(FB_PERMISSIONS);
-	}
+	}*/
 
 	private boolean isNotLoading() {
 		return findViewById(R.id.loading).getVisibility() != View.VISIBLE;
 	}
 
-	private void fbLogin() {
+/*	private void fbLogin() {
 		try {
 			Session.openActiveSession(ShareActivity.this, true, fbCallback);
 		} catch (Throwable t) {
 		}
-	}
+	}*/
 
 	private void updateTwitterStatus() {
 		if (mTwitter.hasAccessToken() == true) {
@@ -386,14 +394,19 @@ public final class ShareActivity extends FragmentActivity {
 				fbClicked = true;
 				if (isNotLoading()) {
 					LocalyticsUtils.tagSocialSharing(LocalyticsUtils.FACEBOOK);
-					Session session = Session.getActiveSession();
+					
+					Uri uri = Uri.parse("https://dl.dropboxusercontent.com/u/22414157/appLink.html");
+					ShareLinkContent linkContent = new ShareLinkContent.Builder().setContentTitle("test").setContentDescription("test").setContentUrl(uri).build();
+					com.facebook.share.widget.ShareDialog.show(this, linkContent);
+					
+/*					Session session = Session.getActiveSession();
 					if (session != null && session.isOpened()) {
 						publishFB();
 					} else {
 					    Misc.suppressTripInfoPanel(ShareActivity.this);
 						fbPending = true;
 						fbLogin();
-					}
+					}*/
 				}
 				break;
 			case textMessage:
@@ -424,7 +437,7 @@ public final class ShareActivity extends FragmentActivity {
    @Override
     public void onResume() {
         super.onResume();
-        uiHelper.onResume();
+//        uiHelper.onResume();
         Localytics.openSession();
         Localytics.tagScreen(this.getClass().getSimpleName());
 	    Localytics.upload();
@@ -436,7 +449,7 @@ public final class ShareActivity extends FragmentActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        uiHelper.onActivityResult(requestCode, resultCode, data);
+//        uiHelper.onActivityResult(requestCode, resultCode, data);
         if(requestCode == GOOGLE_PLUS_REQ && resultCode == Activity.RESULT_OK){
             //finish();
         }
@@ -449,19 +462,19 @@ public final class ShareActivity extends FragmentActivity {
 	    Localytics.closeSession();
 	    Localytics.upload();
         super.onPause();
-        uiHelper.onPause();
+//        uiHelper.onPause();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        uiHelper.onDestroy();
+//        uiHelper.onDestroy();
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        uiHelper.onSaveInstanceState(outState);
+//        uiHelper.onSaveInstanceState(outState);
     }
     
     @Override
