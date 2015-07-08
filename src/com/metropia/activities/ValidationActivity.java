@@ -69,6 +69,7 @@ import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.GestureDetectorCompat;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -77,11 +78,13 @@ import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.GestureDetector.OnGestureListener;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
@@ -995,23 +998,18 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				animator.setDuration(500);
 				animator.setInterpolator(new AccelerateDecelerateInterpolator());
 				animator.start();
-				animator.addListener(new AnimatorListener() {
+				/*animator.addListener(new AnimatorListener() {
 					@Override
 					public void onAnimationStart(Animator animation) {}
-
 					@Override
-					public void onAnimationEnd(Animator animation) {
-						for (View view : getMapViews()) {
-							view.setVisibility(View.GONE);
-						}
-					}
+					public void onAnimationEnd(Animator animation) {}
 
 					@Override
 					public void onAnimationCancel(Animator animation) {}
 
 					@Override
 					public void onAnimationRepeat(Animator animation) {}
-				});
+				});*/
 			}
 		});
 
@@ -1094,6 +1092,33 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		dirListView = (ListView) findViewById(R.id.directions_list);
 		dirListView.setAdapter(dirListadapter);
+		
+		final GestureDetectorCompat  gestureDetector = new GestureDetectorCompat (this, new OnGestureListener() {
+			@Override
+			public boolean onDown(MotionEvent e) {return false;}
+			@Override
+			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+				boolean listBottom = dirListView.getChildAt(dirListView.getChildCount()-1).getBottom()<=dirListView.getHeight();
+				if (velocityY<0 && listBottom) findViewById(R.id.done).performClick();
+				return false;
+			}
+			@Override
+			public void onLongPress(MotionEvent e) {}
+			@Override
+			public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {return false;}
+			@Override
+			public void onShowPress(MotionEvent e) {}
+			@Override
+			public boolean onSingleTapUp(MotionEvent e) {return false;}
+		});
+		dirListView = (ListView) findViewById(R.id.directions_list);
+		dirListView.setAdapter(dirListadapter);
+		dirListView.setOnTouchListener(new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				return gestureDetector.onTouchEvent(event);
+			}
+		});
 
 		TextView finishButton = (TextView) findViewById(R.id.close);
 		finishButton.setText(Html.fromHtml("<u>Close</u>"));
@@ -1168,14 +1193,15 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		doneButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v);
+				ClickAnimation clickAnimation = new ClickAnimation(
+						ValidationActivity.this, v);
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						for (View mView : getMapViews()) {
-							mView.setVisibility(View.VISIBLE);
-						}
-						findViewById(R.id.directions_view).setVisibility(View.INVISIBLE);
+						ObjectAnimator animator = ObjectAnimator.ofFloat(findViewById(R.id.directions_view), "translationY", 0,-findViewById(R.id.directions_view).getHeight());
+						animator.setDuration(500);
+						animator.setInterpolator(new AccelerateDecelerateInterpolator());
+						animator.start();
 					}
 				});
 			}
