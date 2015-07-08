@@ -104,6 +104,7 @@ public class WebMyMetropiaActivity extends FragmentActivity{
         settings.setLoadWithOverviewMode(true);
         settings.setUseWideViewPort(true);
         settings.setBuiltInZoomControls(true);
+        webviewContent.clearCache(true);
         webviewContent.loadUrl(getUrl(this, page));
         webviewContent.setVisibility(View.VISIBLE);
         webviewContent.requestFocus(View.FOCUS_DOWN);
