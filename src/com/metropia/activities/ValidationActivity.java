@@ -100,8 +100,6 @@ import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
-import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.AnimatorListener;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.GoogleAnalytics;
@@ -1943,6 +1941,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private static final double intersectZoomDistanceLimit = 1320; // feet
 
 	private AtomicInteger routeOfRouteCnt = new AtomicInteger();
+	
+	private AtomicInteger routeOfOriginRouteCnt = new AtomicInteger(0);
 
 	private String lastRerutingApiCallStatus = "none";
 
@@ -1976,6 +1976,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 							reroute.preprocessNodes();
 							routeRect = initRouteRect(reroute);
 							updateDirectionsList();
+							if(!inRouteTag.get()) {
+								originRerouteLinksInited.set(false);
+								routeOfOriginRouteCnt.set(0);
+								initOriginRerouteLink(lat, lon, result);
+							}
 							drawRoute(mapView, reroute);
 							lastRerutingApiCallStatus = "success";
 							navigationView.setHasVoice(reroute.hasVoice());
@@ -2052,6 +2057,21 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private AtomicBoolean sendOnMyWayEmail = new AtomicBoolean(true);
 	private AtomicBoolean locationRefreshed = new AtomicBoolean(false);
 	private AtomicBoolean sunTimeInited = new AtomicBoolean(false);
+	private AtomicBoolean originRerouteLinksInited = new AtomicBoolean(false);
+	private AtomicBoolean inRouteTag = new AtomicBoolean();
+	private List<RouteLink> originRerouteLinks = new ArrayList<RouteLink>();
+	
+	private void initOriginRerouteLink(final double lat, final double lon, final Route _route) {
+		Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... params) {
+				originRerouteLinks.addAll(_route.getOriginRerouteLinks(lat, lon));
+				originRerouteLinksInited.set(true);
+				return null;
+			}
+			
+		});
+	}
 
 	private synchronized void locationChanged(final Location location) {
 		final double speedInMph = Trajectory.msToMph(location.getSpeed());
@@ -2142,6 +2162,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 								route.preprocessNodes();
 								routeRect = initRouteRect(route);
 								updateDirectionsList();
+								initOriginRerouteLink(lat, lng, route);
 								centerMap(mapView, isOnRecreate.get(), lastCenter, route);
 								drawRoute(mapView, route);
 								navigationView.setHasVoice(route.hasVoice());
@@ -2276,71 +2297,85 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			getRouteOrReroute().getNearestNode(lat, lng).getMetadata().setPassed(true);
 
 			long passedNodeTime = passedNodeTimeOffset.get();
-
+			
 			List<RouteLink> rerouteNearbyLinks = getRouteOrReroute().getNearbyLinks(lat, lng, distanceOutOfRouteThreshold + accuracy);
 			List<RouteLink> rerouteSameDirLinks = getRouteOrReroute().getSameDirectionLinks(rerouteNearbyLinks, speedInMph, bearing);
-
-			if (!Route.isPending(rerouteNearbyLinks, rerouteSameDirLinks)) {
-				if (Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)	&& speedInMph > speedOutOfRouteThreshold && !isCloseToOrigin1000Feet()) {
-					if (routeOfRouteCnt.incrementAndGet() == countOutOfRouteThreshold) {
+			
+			inRouteTag.set(inRouteTag.get() || (speedInMph > speedOutOfRouteThreshold && !Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)));
+			
+			if(!inRouteTag.get()) {
+				if(isLeavingOriginLinks(lat, lng)) {
+					if(routeOfOriginRouteCnt.incrementAndGet() == countOutOfRouteThreshold) {
 						reroute(lat, lng, speedInMph, bearing, passedNodeTime);
 					}
-				} else {
-					routeOfRouteCnt.set(0);
 				}
-
-				if (rerouteSameDirLinks.size() > 0) {
-					final RouteLink rerouteNearestLink = Route.getClosestLink(rerouteSameDirLinks, lat, lng);
-
-					if (DebugOptionsActivity.isReroutingDebugMsgEnabled(this)
-							|| DebugOptionsActivity.isVoiceDebugMsgEnabled(this) || DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(this)) {
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								String msg = "";
-								if (DebugOptionsActivity.isReroutingDebugMsgEnabled(ValidationActivity.this)) {
-									msg += "distance from route: "
-											+ Double.valueOf(NavigationView.metersToFeet(rerouteNearestLink.distanceTo(lat,	lng))) .intValue()
-											+ " ft"
-											+ ", speed: "
-											+ Double.valueOf(speedInMph).intValue()
-											+ " mph"
-											+ "\nconsecutive out of route count: "
-											+ routeOfRouteCnt.get()
-											+ "\nlast API call status: "
-											+ lastRerutingApiCallStatus;
-								}
-								if (DebugOptionsActivity.isVoiceDebugMsgEnabled(ValidationActivity.this)) {
-									RouteNode endNodeForLink = rerouteNearestLink.getEndNode();
-									RouteNode endNode = endNodeForLink;
-									while (StringUtils.isBlank(endNode.getVoice()) && endNode.getNextNode() != null) {
-										endNode = endNode.getNextNode();
-									}
-									msg += (StringUtils.isBlank("") ? "" : "\n")
-											+ "node: "
-											+ endNode.getNodeNum()
-											+ ", voice radius: "
-											+ Double.valueOf(endNode.getVoiceRadius()).intValue()
-											+ " ft"
-											+ "\ndistance from node: "
-											+ Double.valueOf(NavigationView.metersToFeet(endNode.distanceTo(lat, lng))).intValue()
-											+ " ft"
-											+ "\nvoice:"
-											+ endNode.getVoice()
-											+ "\nvoice for link (nearest node): "
-											+ endNodeForLink.getVoiceForLink();
-								}
-								if (DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(ValidationActivity.this)) {
-									msg += (StringUtils.isBlank("") ? "" : "\n")
-											+ "gps accuracy: "
-											+ accuracy
-											+ " meters";
-								}
-								((TextView) findViewById(R.id.rerouting_debug_msg)).setText(msg);
-							}
-						});
+				else {
+					routeOfOriginRouteCnt.set(0);
+				}
+			}
+			else {
+				if (!Route.isPending(rerouteNearbyLinks, rerouteSameDirLinks)) {
+					if (Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)	&& speedInMph > speedOutOfRouteThreshold) {
+						if (routeOfRouteCnt.incrementAndGet() == countOutOfRouteThreshold) {
+							reroute(lat, lng, speedInMph, bearing, passedNodeTime);
+						}
+					} else {
+						routeOfRouteCnt.set(0);
 					}
-					linkId = rerouteNearestLink.getStartNode().getLinkId();
+	
+					if (rerouteSameDirLinks.size() > 0) {
+						final RouteLink rerouteNearestLink = Route.getClosestLink(rerouteSameDirLinks, lat, lng);
+	
+						if (DebugOptionsActivity.isReroutingDebugMsgEnabled(this)
+								|| DebugOptionsActivity.isVoiceDebugMsgEnabled(this) || DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(this)) {
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									String msg = "";
+									if (DebugOptionsActivity.isReroutingDebugMsgEnabled(ValidationActivity.this)) {
+										msg += "distance from route: "
+												+ Double.valueOf(NavigationView.metersToFeet(rerouteNearestLink.distanceTo(lat,	lng))) .intValue()
+												+ " ft"
+												+ ", speed: "
+												+ Double.valueOf(speedInMph).intValue()
+												+ " mph"
+												+ "\nconsecutive out of route count: "
+												+ routeOfRouteCnt.get()
+												+ "\nlast API call status: "
+												+ lastRerutingApiCallStatus;
+									}
+									if (DebugOptionsActivity.isVoiceDebugMsgEnabled(ValidationActivity.this)) {
+										RouteNode endNodeForLink = rerouteNearestLink.getEndNode();
+										RouteNode endNode = endNodeForLink;
+										while (StringUtils.isBlank(endNode.getVoice()) && endNode.getNextNode() != null) {
+											endNode = endNode.getNextNode();
+										}
+										msg += (StringUtils.isBlank("") ? "" : "\n")
+												+ "node: "
+												+ endNode.getNodeNum()
+												+ ", voice radius: "
+												+ Double.valueOf(endNode.getVoiceRadius()).intValue()
+												+ " ft"
+												+ "\ndistance from node: "
+												+ Double.valueOf(NavigationView.metersToFeet(endNode.distanceTo(lat, lng))).intValue()
+												+ " ft"
+												+ "\nvoice:"
+												+ endNode.getVoice()
+												+ "\nvoice for link (nearest node): "
+												+ endNodeForLink.getVoiceForLink();
+									}
+									if (DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(ValidationActivity.this)) {
+										msg += (StringUtils.isBlank("") ? "" : "\n")
+												+ "gps accuracy: "
+												+ accuracy
+												+ " meters";
+									}
+									((TextView) findViewById(R.id.rerouting_debug_msg)).setText(msg);
+								}
+							});
+						}
+						linkId = rerouteNearestLink.getStartNode().getLinkId();
+					}
 				}
 			}
 
@@ -2360,8 +2395,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 			remainingTime.set(remainingNodeTime);
 
-			etaDelay.set(currentTime.toMillis(false) - startTime
-					- passedNodeTime * 1000);
+			etaDelay.set(currentTime.toMillis(false) - startTime - passedNodeTime * 1000);
 			final TextView timeInfo = (TextView) findViewById(R.id.remain_times);
 			timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(getETA(remainingTime.get()), route.getTimezoneOffset()));
 			timeInfo.setTag(R.id.remaining_travel_time,	getFormatedRemainingTime(remainingTime.get()));
@@ -2422,6 +2456,24 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 		// show current location
 		mapView.getMapSettings().setCurrentPositionShown(true);
+	}
+
+	private Map<RouteLink, Double> oldRecord = new HashMap<RouteLink, Double>();
+	
+	private boolean isLeavingOriginLinks(double lat, double lng) {
+		boolean hasDecrease = false;
+		if(originRerouteLinksInited.get()) {
+			for (RouteLink link : originRerouteLinks) {
+				Double oldDist = oldRecord.get(link);
+				if(oldDist != null) {
+					hasDecrease = hasDecrease || (link.distanceTo(lat, lng) - oldDist <= 0);
+				}
+				else {
+					oldRecord.put(link, link.distanceTo(lat, lng));
+				}
+			}
+		}
+		return !hasDecrease;
 	}
 
 	private void removeAllIncident() {
@@ -2634,14 +2686,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			return RouteNode.distanceBetween(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), firstNode.getLatitude(),
 					firstNode.getLongitude()) < ValidationParameters.getInstance().getArrivalDistanceThreshold()
 					&& speedInMph < ValidationParameters.getInstance().getStopSpeedThreshold();
-		}
-		return false;
-	}
-	
-	private boolean isCloseToOrigin1000Feet() {
-		if (lastKnownLocation != null && firstNode != null) {
-			return RouteNode.distanceBetween(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), firstNode.getLatitude(),
-					firstNode.getLongitude()) < ValidationParameters.getInstance().getDisableRerouteThreshold();
 		}
 		return false;
 	}

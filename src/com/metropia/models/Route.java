@@ -3,6 +3,8 @@ package com.metropia.models;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -924,5 +926,51 @@ public final class Route implements Parcelable {
 	    	}
     	}
     	return remainNodes;
+    }
+    
+    private static final Integer ORIGIN_REROUTE_LINK_SIZE = Integer.valueOf(5);
+    
+    public List<RouteLink> getOriginRerouteLinks(double lat, double lon) {
+   	    List<RouteLinkWithDistance> links = new ArrayList<RouteLinkWithDistance>();
+        for (RouteNode node : routeNodes) {
+        	RouteNode prevNode = node.getPrevNode();
+            if(prevNode != null) {
+            	RouteLink link = new RouteLink(node.getPrevNode(), node);
+                links.add(new RouteLinkWithDistance(link, lat, lon));
+            }
+        }
+        
+        Collections.sort(links, new Comparator<RouteLinkWithDistance>() {
+			@Override
+			public int compare(RouteLinkWithDistance lhs, RouteLinkWithDistance rhs) {
+				return Double.valueOf(lhs.distance).compareTo(Double.valueOf(rhs.distance));
+			}
+		});
+        
+        List<RouteLink> result = new ArrayList<RouteLink>();
+        for(int i = 0 ; i < links.size() && result.size() < ORIGIN_REROUTE_LINK_SIZE ; i++) {
+        	result.add(links.get(i).getLink());
+        }
+        
+        return result;
+    }
+    
+    private static class RouteLinkWithDistance {
+    	private RouteLink link;
+    	private double distance;
+    	
+    	public RouteLinkWithDistance(RouteLink link, double lat, double lon) {
+    		this.link = link;
+    		this.distance = link.distanceTo(lat, lon);
+    	}
+    	
+    	public RouteLink getLink() {
+    		return link;
+    	}
+    	
+    	public double getDistance() {
+    		return distance;
+    	}
+    	
     }
 }
