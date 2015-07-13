@@ -928,7 +928,7 @@ public final class Route implements Parcelable {
     	return remainNodes;
     }
     
-    private static final Integer ORIGIN_REROUTE_LINK_SIZE = Integer.valueOf(5);
+    private static final Integer ORIGIN_REROUTE_LINK_SIZE = Integer.valueOf(3);
     
     public List<RouteLink> getOriginRerouteLinks(double lat, double lon) {
    	    List<RouteLinkWithDistance> links = new ArrayList<RouteLinkWithDistance>();
