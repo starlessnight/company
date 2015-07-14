@@ -368,9 +368,9 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
    
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	// init skmap
-//    	SkobblerUtils.initializeLibrary(RouteActivity.this);
         super.onCreate(savedInstanceState);
+        // init skmap
+    	SkobblerUtils.initializeLibrary(RouteActivity.this);
         setContentView(R.layout.pre_reservation_map);
         
         mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);

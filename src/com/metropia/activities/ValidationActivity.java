@@ -327,7 +327,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		// init skmap
-//		SkobblerUtils.initializeLibrary(ValidationActivity.this);
+		SkobblerUtils.initializeLibrary(ValidationActivity.this);
 		setContentView(R.layout.post_reservation_map);
 		Localytics.integrate(this);
 
