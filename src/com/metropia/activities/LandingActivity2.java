@@ -212,7 +212,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
-    SKAnnotation myPointOverlay;
+    private GeoPoint myPoint;
     
     private LocationManager locationManager;
 
@@ -942,8 +942,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		                    	}
 		                    }else{
 		                        mapView.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
-		                        if(myPointOverlay != null){
-		                            mapView.centerMapOnPosition(new SKCoordinate(myPointOverlay.getLocation().getLongitude(), myPointOverlay.getLocation().getLatitude()));
+		                        if(myPoint != null){
+		                            mapView.centerMapOnPosition(new SKCoordinate(myPoint.getLongitude(), myPoint.getLatitude()));
 		                        }
 		                    }
 		                }else{
@@ -1474,8 +1474,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         refreshMyLocation(location);
         popupResumeNavigationIfNeccessary();
         if(mapRecenter.getAndSet(false)){
-            if(myPointOverlay != null){
-                SKCoordinate loc = myPointOverlay.getLocation();
+            if(myPoint != null){
+                SKCoordinate loc = new SKCoordinate(myPoint.getLongitude(), myPoint.getLatitude());
                 int latE6 = (int) (loc.getLatitude() * 1E6);
                 int lonE6 = (int) (loc.getLongitude() * 1E6);
                 mapView.centerMapOnPosition(loc);
@@ -1770,9 +1770,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     private void centerMap() {
-     	if(routeRect == null && myPointOverlay != null) {
-    		mapView.setZoom(calculateZoomLevel(myPointOverlay.getLocation().getLatitude()));
-    		mapView.centerMapOnPosition(new SKCoordinate(myPointOverlay.getLocation().getLongitude(), myPointOverlay.getLocation().getLatitude()));
+     	if(routeRect == null && myPoint != null) {
+    		mapView.setZoom(calculateZoomLevel(myPoint.getLatitude()));
+    		mapView.centerMapOnPosition(new SKCoordinate(myPoint.getLongitude(), myPoint.getLatitude()));
 //    		mapView.postInvalidate();
     	}
     	else {
@@ -1879,8 +1879,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 									public void onClick() {
 									    GeoPoint origin = null;
 									    final ReservationTollHovInfo reservationInfo = MapDisplayActivity.getReservationTollHovInfo(LandingActivity2.this, reserv.getRid());
-									    if(myPointOverlay != null){
-									        origin = new GeoPoint(myPointOverlay.getLocation().getLatitude(), myPointOverlay.getLocation().getLongitude());
+									    if(myPoint != null){
+									        origin = new GeoPoint(myPoint.getLatitude(), myPoint.getLongitude());
 									    }
 										RescheduleTripTask rescheduleTask = new RescheduleTripTask(LandingActivity2.this, 
 										        origin, null, reserv.getDestinationAddress(), 
@@ -2335,11 +2335,11 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		return poiInfo;
     	}
     	
-    	public static PoiOverlayInfo fromCurrentLocation(SKAnnotation currentLoc) {
+    	public static PoiOverlayInfo fromCurrentLocation(GeoPoint currentLoc) {
     		PoiOverlayInfo poiInfo = new PoiOverlayInfo();
-    		poiInfo.lat = currentLoc.getLocation().getLatitude();
-    		poiInfo.lon = currentLoc.getLocation().getLongitude();
-    		poiInfo.geopoint = new GeoPoint(currentLoc.getLocation().getLatitude(), currentLoc.getLocation().getLongitude());
+    		poiInfo.lat = currentLoc.getLatitude();
+    		poiInfo.lon = currentLoc.getLongitude();
+    		poiInfo.geopoint = new GeoPoint(currentLoc.getLatitude(), currentLoc.getLongitude(), currentLoc.getHeading());
     		poiInfo.marker = R.drawable.landing_page_current_location;
     		poiInfo.markerWithShadow = R.drawable.landing_page_current_location;
     		return poiInfo;
@@ -2488,18 +2488,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     };
     
     private void refreshMyLocation(Location loc) {
-        if(myPointOverlay == null){
-            myPointOverlay = new SKAnnotation(CURRENT_LOCATION_ID);
-            myPointOverlay.setUniqueID(CURRENT_LOCATION_ID);
-            myPointOverlay.setLocation(new SKCoordinate(loc.getLongitude(), loc.getLatitude()));
-//            SKAnnotationView iconView = new SKAnnotationView();
-//    		ImageView incImage = new ImageView(LandingActivity2.this);
-//    		incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, R.drawable.landing_page_current_location, 1));
-//    		iconView.setView(incImage);
-//    		myPointOverlay.setAnnotationView(iconView);
-//            mapView.addAnnotation(myPointOverlay, SKAnimationSettings.ANIMATION_NONE);
+        if(myPoint == null){
+            myPoint = new GeoPoint(loc.getLatitude(), loc.getLongitude(), loc.getBearing());
         }
-        myPointOverlay.setLocation(new SKCoordinate(loc.getLongitude(), loc.getLatitude()));
+        myPoint.updateLocation(loc.getLatitude(), loc.getLongitude(), loc.getBearing());
         mapView.getMapSettings().setCurrentPositionShown(true);
         mapView.reportNewGPSPosition(new SKPosition(loc));
         
@@ -3239,9 +3231,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             if(curFrom != null){
                 extras.putParcelable(RouteActivity.ORIGIN_COORD, curFrom.geopoint);
                 extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, curFrom);
-            }else if(myPointOverlay != null){
-                extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(myPointOverlay.getLocation().getLatitude(), myPointOverlay.getLocation().getLongitude()));
-                extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, PoiOverlayInfo.fromCurrentLocation(myPointOverlay));
+            }else if(myPoint != null){
+                extras.putParcelable(RouteActivity.ORIGIN_COORD, myPoint);
+                extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, PoiOverlayInfo.fromCurrentLocation(myPoint));
             }
             extras.putString(RouteActivity.ORIGIN_COORD_PROVIDER, curFromProvider);
             extras.putLong(RouteActivity.ORIGIN_COORD_TIME, curFromTime);
@@ -3273,7 +3265,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		        intent.putExtra(ValidationActivity.PHONES, reservRecipients.optString("phones", ""));
 		        LocationInfo cacheLoc = new LocationInfo(LandingActivity2.this);
 		        if(System.currentTimeMillis() - cacheLoc.lastLocationUpdateTimestamp < 5 * 60 * 1000) {
-		        	intent.putExtra(ValidationActivity.CURRENT_LOCATION, (Parcelable)new GeoPoint(cacheLoc.lastLat, cacheLoc.lastLong));
+		        	GeoPoint curLoc = new GeoPoint(cacheLoc.lastLat, cacheLoc.lastLong);
+		        	curLoc.setHeading(cacheLoc.lastHeading);
+		        	intent.putExtra(ValidationActivity.CURRENT_LOCATION, (Parcelable)curLoc);
 		        }
 //		          hideBulbBalloon();
 //                hideStarredBalloon();
@@ -3431,8 +3425,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		curTo = poiInfo;
     		drawODBalloon(poiInfo, false);
     		setToInfo(poiInfo);
-    		if(curFrom == null && myPointOverlay != null) {
-    			PoiOverlayInfo currentLocationInfo = PoiOverlayInfo.fromCurrentLocation(myPointOverlay);
+    		if(curFrom == null && myPoint != null) {
+    			PoiOverlayInfo currentLocationInfo = PoiOverlayInfo.fromCurrentLocation(myPoint);
     			curFrom = currentLocationInfo;
     			drawODBalloon(currentLocationInfo, true);
     			setFromInfo(currentLocationInfo);
@@ -4713,7 +4707,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 float orientation[] = new float[3];
                 SensorManager.getOrientation(r, orientation);
 //                float azimut = Double.valueOf(Math.toDegrees(orientation[0])).floatValue();
-                if(myPointOverlay != null){
+                if(myPoint != null){
 //                    myPointOverlay.setDegrees(azimut);
 //                    MapView mapView = (MapView)findViewById(R.id.mapview);
 //                    mapView.postInvalidate();

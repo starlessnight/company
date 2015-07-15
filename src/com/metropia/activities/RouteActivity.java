@@ -794,7 +794,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	                                    	originCoord = curLoc;
                                             doRouteTask(originCoord);
 	                                    }else{
-	                                    	originCoord = new GeoPoint(location.getLatitude(), location.getLongitude());
+	                                    	originCoord = new GeoPoint(location.getLatitude(), location.getLongitude(), location.getBearing());
 	                                    	originCoordProvider = location.getProvider();
 	                                        originCoordTime = location.getTime();
 	                                        doRouteTask(originCoord);

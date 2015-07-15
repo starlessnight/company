@@ -25,12 +25,21 @@ public class GeoPoint implements Parcelable, Serializable {
 	private double longitude;
 	private int latitudeE6;
 	private int longitudeE6;
+	private float heading;
 	
 	public GeoPoint(double latitude, double longitude) {
 		this.latitude = latitude;
 		this.longitude = longitude;
 		this.latitudeE6 = (int)(latitude * 1E6);
 		this.longitudeE6 = (int)(longitude * 1E6);
+	}
+	
+	public GeoPoint(double latitude, double longitude, float heading) {
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.latitudeE6 = (int)(latitude * 1E6);
+		this.longitudeE6 = (int)(longitude * 1E6);
+		this.heading = heading;
 	}
 	
 	public GeoPoint(int latitudeE6, int longitudeE6) {
@@ -68,6 +77,7 @@ public class GeoPoint implements Parcelable, Serializable {
 		this.longitude = in.readDouble();
 		this.latitudeE6 = in.readInt();
 		this.longitudeE6 = in.readInt();
+		this.heading = in.readFloat();
 	}
 
 	@Override
@@ -81,6 +91,7 @@ public class GeoPoint implements Parcelable, Serializable {
 		out.writeDouble(longitude);
 		out.writeInt(latitudeE6);
 		out.writeInt(longitudeE6);
+		out.writeFloat(heading);
 	}
 
 	public static final Parcelable.Creator<GeoPoint> CREATOR = new Parcelable.Creator<GeoPoint>() {
@@ -94,4 +105,20 @@ public class GeoPoint implements Parcelable, Serializable {
 			return new GeoPoint[size];
 		}
 	};
+
+	public float getHeading() {
+		return heading;
+	}
+
+	public void setHeading(float heading) {
+		this.heading = heading;
+	}
+	
+	public void updateLocation(double lat, double lon, float heading) {
+		this.latitude = lat;
+		this.longitude = lon;
+		this.latitudeE6 = (int)(latitude * 1E6);
+		this.longitudeE6 = (int)(longitude * 1E6);
+		this.heading = heading;
+	}
 }

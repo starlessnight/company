@@ -503,6 +503,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			cacheLocation = new Location("");
 			cacheLocation.setLatitude(curLoc.getLatitude());
 			cacheLocation.setLongitude(curLoc.getLongitude());
+			cacheLocation.setBearing(curLoc.getHeading());
 		}
 
 		if (gpsMode == DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
@@ -529,6 +530,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			location.setTime(System.currentTimeMillis());
 			location.setLatitude(curLoc.getLatitude());
 			location.setLongitude(curLoc.getLongitude());
+			location.setBearing(curLoc.getHeading());
 			if(mapView != null) {
 				mapView.reportNewGPSPosition(new SKPosition(location));
 				location.setSpeed(0);
