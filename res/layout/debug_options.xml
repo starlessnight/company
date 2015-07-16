@@ -106,7 +106,7 @@
             android:text="@string/placeholder"
             android:textColor="@android:color/darker_gray"
             android:textSize="18dp" />
-
+<!-- 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -117,6 +117,26 @@
 
         <EditText
             android:id="@+id/current_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:singleLine="true"
+            android:text="@string/placeholder"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="18dp" />
+    -->
+        
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Current location Lat Lon (lat,lon):"
+            android:textColor="#FFFFFFFF"
+            android:textSize="18dp" />
+
+        <EditText
+            android:id="@+id/current_location_lat_lon"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"

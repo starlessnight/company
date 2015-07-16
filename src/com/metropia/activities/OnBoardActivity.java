@@ -132,9 +132,11 @@ public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceLis
 		SkobblerUtils.initializeLibrary(OnBoardActivity.this);
 		setContentView(R.layout.on_board);
 		
-		Localytics.integrate(this);
+		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
+		mapViewHolder.setMapSurfaceListener(this);
+		mapViewHolder.hideAllAttributionTextViews();
 		
-		initSKMaps();
+		Localytics.integrate(this);
 		
 		contentPanel = findViewById(R.id.content_panel);
 		contentPanel.setTag(Integer.valueOf(1));
@@ -323,7 +325,7 @@ public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceLis
 				}
 				refreshHomeSearchAutoCompleteData();
 			}
-		}, LandingActivity2.TEXT_INPUT_DELAY);
+		}, LandingActivity2.TEXT_INPUT_DELAY, DelayTextWatcher.FORCE_NOTIFY_SPACE);
         
         homeSearchBox.addTextChangedListener(homeDelayTextWatcher);
         homeSearchBoxClear.setOnClickListener(new OnClickListener() {
@@ -442,7 +444,7 @@ public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceLis
 				}
 				refreshWorkSearchAutoCompleteData();
 			}
-        }, LandingActivity2.TEXT_INPUT_DELAY);
+        }, LandingActivity2.TEXT_INPUT_DELAY, DelayTextWatcher.FORCE_NOTIFY_SPACE);
         
         workSearchBox.addTextChangedListener(workDelayTextWatcher);
         workSearchBoxClear.setOnClickListener(new OnClickListener() {
@@ -499,13 +501,10 @@ public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceLis
 		}
 	}
 	
-	private void initSKMaps() {
+	private void initSKMaps(SKMapViewHolder mapViewHolder) {
 		SKLogging.enableLogs(true);
-		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
-		mapViewHolder.hideAllAttributionTextViews();
 		mapView = mapViewHolder.getMapSurfaceView();
 		
-		mapView.setMapSurfaceListener(this);
 		mapView.clearAllOverlays();
 		mapView.deleteAllAnnotationsAndCustomPOIs();
 		mapView.getMapSettings().setCurrentPositionShown(true);
@@ -833,7 +832,7 @@ public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceLis
 		int marker = isHome ? R.drawable.home : R.drawable.work;
     	
 		SKCoordinate annCoor = new SKCoordinate(geo.getLongitude(), geo.getLatitude());
-		SKAnnotation ann = new SKAnnotation();
+		SKAnnotation ann = new SKAnnotation(annId);
 		ann.setUniqueID(annId);
 		ann.setLocation(annCoor);
    		SKAnnotationView iconView = new SKAnnotationView();
@@ -1035,7 +1034,7 @@ public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceLis
 	    Localytics.setInAppMessageDisplayActivity(this);
 	    Localytics.handleTestMode(getIntent());
 	    Localytics.handlePushNotificationOpened(getIntent());
-	    mapView.onResume();
+	    mapViewHolder.onResume();
     	prepareGPS();
     }
     
@@ -1045,7 +1044,7 @@ public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceLis
 	    Localytics.clearInAppMessageDisplayActivity();
 	    Localytics.closeSession();
 	    Localytics.upload();
-	    mapView.onPause();
+	    mapViewHolder.onPause();
     	super.onPause();
     	closeGPS();
     }
@@ -1087,8 +1086,8 @@ public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceLis
 	@Override
 	public void onCustomPOISelected(SKMapCustomPOI arg0) {}
 
-	@Override
-	public void onDebugInfo(double arg0, float arg1, double arg2) {}
+//	@Override
+//	public void onDebugInfo(double arg0, float arg1, double arg2) {}
 
 	@Override
 	public void onDoubleTap(SKScreenPoint arg0) {}
@@ -1123,8 +1122,8 @@ public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceLis
 	@Override
 	public void onObjectSelected(int arg0) {}
 
-	@Override
-	public void onOffportRequestCompleted(int arg0) {}
+//	@Override
+//	public void onOffportRequestCompleted(int arg0) {}
 
 	@Override
 	public void onPOIClusterSelected(SKPOICluster arg0) {}
@@ -1132,14 +1131,14 @@ public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceLis
 	@Override
 	public void onRotateMap() {}
 
-	@Override
-	public void onScreenOrientationChanged() {}
+//	@Override
+//	public void onScreenOrientationChanged() {}
 
 	@Override
 	public void onSingleTap(SKScreenPoint arg0) {}
 
-	@Override
-	public void onSurfaceCreated() {}
+//	@Override
+//	public void onSurfaceCreated() {}
 
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {}
@@ -1178,6 +1177,20 @@ public class OnBoardActivity extends FragmentActivity implements SKMapSurfaceLis
                 break;
         }
 	}
+
+	@Override
+	public void onBoundingBoxImageRendered(int arg0) {}
+
+	@Override
+	public void onGLInitializationError(String arg0) {}
+
+	@Override
+	public void onSurfaceCreated(SKMapViewHolder mapViewHolder) {
+		initSKMaps(mapViewHolder);
+	}
+
+	@Override
+	public void onDebugInfo(double arg0, float arg1, double arg2) {}
 
 }
 

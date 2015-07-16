@@ -103,7 +103,7 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
             SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
             final String username = loginPrefs.getString(User.USERNAME, "");
             final String password = loginPrefs.getString(User.PASSWORD, "");
-            if (!username.equals("") && !password.equals("")) {
+            if (!username.equals("") && !password.equals("") && DebugOptionsActivity.isSkobblerPatched(MainActivity.this)) {
                 loginTask = newLoginTask(username, password);
             }
 	        
@@ -405,6 +405,7 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 		SkobblerUtils.initSkobbler(MainActivity.this, MainActivity.this, new Runnable() {
 			@Override
 			public void run() {
+				SkobblerUtils.initializeLibrary(MainActivity.this);
 				checkLoginStatus();
 			}
 		});
@@ -423,14 +424,10 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 	}
 
 	@Override
-	public void onAnimationRepeat(Animation animation) {
-
-	}
+	public void onAnimationRepeat(Animation animation) {}
 
 	@Override
-	public void onAnimationStart(Animation animation) {
-
-	}
+	public void onAnimationStart(Animation animation) {}
 	
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -439,8 +436,8 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
        
     	if (resultCode == IntroActivity.INTRO_FINISH) {
     	    if(requestCode == IntroActivity.INTRO_ACTIVITY){
-    	    	Intent signUpIntent = new Intent(this, UserRegistrationActivity.class);
-                startActivity(signUpIntent);
+    	    	Intent loginIntent = new Intent(this, LoginActivity.class);
+                startActivity(loginIntent);
                 finish();
     	    }
     	}
@@ -476,10 +473,11 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 		    }
         }
     }
-
+    
 	@Override
 	public void onMapTexturesPrepared(boolean success) {
 		DebugOptionsActivity.setSkobblerPatched(MainActivity.this, success);
+		SkobblerUtils.initializeLibrary(MainActivity.this);
 		checkLoginStatus();
 	}
     

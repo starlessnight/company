@@ -90,7 +90,9 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
     
     public static final String GPS_UPDATE_INTERVAL = "GPS_UPDATE_INTERVAL";
     
-    private static final String CURRENT_LOCATION = "CURRENT_LOCATION";
+//    private static final String CURRENT_LOCATION = "CURRENT_LOCATION";
+    
+    private static final String CURRENT_LOCATION_LAT_LON = "CURRENT_LOCATION_LAT_LON";
     
     private static final String ENTRYPOINT = "ENTRYPOINT";
     
@@ -355,9 +357,29 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
             }
         });
         
-        EditText curLocView = (EditText) findViewById(R.id.current_location);
-        curLocView.setText(String.valueOf(prefs.getString(CURRENT_LOCATION, "")));
-        curLocView.addTextChangedListener(new TextWatcher() {
+//        EditText curLocView = (EditText) findViewById(R.id.current_location);
+//        curLocView.setText(String.valueOf(prefs.getString(CURRENT_LOCATION, "")));
+//        curLocView.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//            }
+//            
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count,
+//                    int after) {
+//            }
+//            
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                prefs.edit()
+//                    .putString(CURRENT_LOCATION, s.toString())
+//                    .commit();
+//            }
+//        });
+        
+        EditText curLocLatLonView = (EditText) findViewById(R.id.current_location_lat_lon);
+        curLocLatLonView.setText(String.valueOf(prefs.getString(CURRENT_LOCATION_LAT_LON, "")));
+        curLocLatLonView.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
@@ -370,7 +392,7 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
             @Override
             public void afterTextChanged(Editable s) {
                 prefs.edit()
-                    .putString(CURRENT_LOCATION, s.toString())
+                    .putString(CURRENT_LOCATION_LAT_LON, s.toString())
                     .commit();
             }
         });
@@ -401,7 +423,7 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
 			@Override
 			public void onTextChanging() {
 			}
-		}, 500);
+		}, 500, null);
         
         entrypointView.addTextChangedListener(entrypointTextWatcher);
         
@@ -587,8 +609,18 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
         return getPrefs(ctx).getLong(Setting.activity_distance_interval.name(), 100);
     }
     
-    public static String getCurrentLocation(Context ctx){
-        return getPrefs(ctx).getString(CURRENT_LOCATION, "");
+//    public static String getCurrentLocation(Context ctx){
+//        return getPrefs(ctx).getString(CURRENT_LOCATION, "");
+//    }
+    
+    public static GeoPoint getCurrentLocationLatLon(Context ctx){
+    	String latLon = getPrefs(ctx).getString(CURRENT_LOCATION_LAT_LON, "");
+    	GeoPoint curLoc = null;
+    	if(StringUtils.isNotBlank(latLon) && StringUtils.split(latLon, ",").length > 1) {
+    		String[] latLonArray = StringUtils.split(latLon, ",");
+    		curLoc = new GeoPoint(Double.valueOf(StringUtils.trim(latLonArray[0])), Double.valueOf(StringUtils.trim(latLonArray[1])));
+    	}
+        return curLoc;
     }
     
     public static String getDebugEntrypoint(Context ctx){
@@ -1316,9 +1348,9 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
     public static boolean isPolylineRouteEnabled(Context ctx){
         boolean enabled;
         try{
-            enabled = getPrefs(ctx).getBoolean(POLYLINE_ROUTE, false);
+            enabled = getPrefs(ctx).getBoolean(POLYLINE_ROUTE, true);
         }catch(Throwable t){
-            enabled = false;
+            enabled = true;
         }
         return enabled;
     }
@@ -1363,6 +1395,84 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
         getPrefs(ctx).edit()
             .putBoolean(PREDICTIVE_DESTINATION_TUTORIAL, true)
             .commit();
+    }
+    
+    private static final String INBOX_LAST_VISIT_FEED = "INBOX_LAST_VISIT_FEED";
+    
+    public static Long getInboxLastVisitFeedTime(Context ctx, String cityName) {
+    	Long lastFeed = Long.valueOf(0);
+        try{
+        	JSONObject record = getInboxLastVisitFeedTimeRecord(ctx);
+        	lastFeed = record.optLong(cityName, 0);
+        }catch(Throwable ignore){}
+        return lastFeed;
+    }
+    
+    public static void setInboxLastVisitFeedTime(Context ctx, String cityName, Long lastFeed){
+    	JSONObject feedTimed = getInboxLastVisitFeedTimeRecord(ctx);
+    	try {
+			feedTimed.put(cityName, lastFeed);
+		} catch (JSONException ignore) {}
+        getPrefs(ctx).edit().putString(INBOX_LAST_VISIT_FEED, feedTimed.toString()).commit();
+    }
+    
+    private static JSONObject getInboxLastVisitFeedTimeRecord(Context ctx) {
+    	String existedRecord = null;
+    	try {
+    		existedRecord = getPrefs(ctx).getString(INBOX_LAST_VISIT_FEED, "");
+    	}
+    	catch(Exception ignore){}
+    	JSONObject feedTimed;
+    	if(StringUtils.isBlank(existedRecord)) {
+    		feedTimed = new JSONObject();
+    	}
+    	else {
+    		try {
+				feedTimed = new JSONObject(existedRecord);
+			} catch (JSONException e) {
+				feedTimed = new JSONObject();
+			}
+    	}
+    	return feedTimed;
+    }
+    
+    private static final String MENU_NOTIFICATION_DISMISS_TIME = "MENU_NOTIFICATION_DISMISS_TIME";
+    
+    public enum NotificationType {
+    	inbox;
+    }
+    
+    public static Long getInboxMenuDismissRecord(Context ctx, String cityName) {
+    	JSONObject allRecord = getMenuDismissRecord(ctx);
+    	return allRecord.optLong(NotificationType.inbox.name() + "_" + cityName, -1);
+    }
+    
+    public static void setInboxMenuDismissRecord(Context ctx, String cityName, Long record) {
+    	JSONObject allRecord = getMenuDismissRecord(ctx);
+    	try {
+			allRecord.put(NotificationType.inbox.name() + "_" + cityName, record);
+		} catch (JSONException ignore) {}
+    	getPrefs(ctx).edit().putString(MENU_NOTIFICATION_DISMISS_TIME, allRecord.toString()).commit();
+    }
+    
+    private static JSONObject getMenuDismissRecord(Context ctx) {
+    	String existedRecord = null;
+    	try {
+    		existedRecord = getPrefs(ctx).getString(MENU_NOTIFICATION_DISMISS_TIME, "");
+    	}
+    	catch(Exception ignore){}
+    	JSONObject feedTimed;
+    	if(StringUtils.isBlank(existedRecord)) {
+    		feedTimed = new JSONObject();
+    	}
+    	else {
+    		try {
+				feedTimed = new JSONObject(existedRecord);
+			} catch (JSONException e) {
+				feedTimed = new JSONObject();
+			}
+    	}
+    	return feedTimed;
     }
     
     private void initRecognizer() {

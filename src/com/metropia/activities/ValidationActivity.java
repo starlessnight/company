@@ -11,9 +11,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Queue;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -39,6 +41,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
@@ -47,6 +50,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -62,6 +69,7 @@ import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.GestureDetectorCompat;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -70,11 +78,13 @@ import android.text.style.AbsoluteSizeSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.GestureDetector.OnGestureListener;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
@@ -90,8 +100,6 @@ import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
-import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.AnimatorListener;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ObjectAnimator;
 import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.GoogleAnalytics;
@@ -143,6 +151,7 @@ import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.ui.NavigationView;
 import com.metropia.ui.NavigationView.CheckPointListener;
 import com.metropia.ui.NavigationView.DirectionItem;
+import com.metropia.ui.SkobblerImageView;
 import com.metropia.ui.menu.MainMenu;
 import com.metropia.ui.timelayout.TimeColumn;
 import com.metropia.utils.Dimension;
@@ -159,7 +168,6 @@ import com.metropia.utils.SystemService;
 import com.metropia.utils.UnitConversion;
 import com.metropia.utils.ValidationParameters;
 import com.skobbler.ngx.SKCoordinate;
-import com.skobbler.ngx.SKMaps;
 import com.skobbler.ngx.map.SKAnimationSettings;
 import com.skobbler.ngx.map.SKAnnotation;
 import com.skobbler.ngx.map.SKAnnotationView;
@@ -176,6 +184,8 @@ import com.skobbler.ngx.map.SKPOICluster;
 import com.skobbler.ngx.map.SKPolyline;
 import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
+import com.skobbler.ngx.routing.SKRouteInfo;
+import com.skobbler.ngx.routing.SKRouteJsonAnswer;
 import com.skobbler.ngx.routing.SKRouteListener;
 import com.skobbler.ngx.routing.SKRouteManager;
 import com.skobbler.ngx.routing.SKRouteSettings;
@@ -187,10 +197,8 @@ import edu.cmu.pocketsphinx.Hypothesis;
 import edu.cmu.pocketsphinx.RecognitionListener;
 import edu.cmu.pocketsphinx.SpeechRecognizer;
 
-public class ValidationActivity extends FragmentActivity implements
-		OnInitListener, OnAudioFocusChangeListener, SKMapSurfaceListener,
-		SKRouteListener, RecognitionListener, ConnectionCallbacks,
-		OnConnectionFailedListener, ResultCallback<LocationSettingsResult> {
+public class ValidationActivity extends FragmentActivity implements OnInitListener, OnAudioFocusChangeListener, SKMapSurfaceListener,
+		SKRouteListener, RecognitionListener, ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<LocationSettingsResult>, SensorEventListener {
 	public static final int DEFAULT_ZOOM_LEVEL = 18;
 
 	public static final int NAVIGATION_ZOOM_LEVEL = 17;
@@ -310,6 +318,10 @@ public class ValidationActivity extends FragmentActivity implements
 	private static final Long RESTORE_TIME = Long.valueOf(30000);
 
 	private ReservationTollHovInfo reservationInfo;
+	
+	private Queue<Runnable> mapActionQueue = new LinkedList<Runnable>();
+	
+	private Location cacheLocation;
 
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
@@ -318,7 +330,10 @@ public class ValidationActivity extends FragmentActivity implements
 		SkobblerUtils.initializeLibrary(ValidationActivity.this);
 		setContentView(R.layout.post_reservation_map);
 		Localytics.integrate(this);
-		initSKMaps();
+
+		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
+		mapViewHolder.hideAllAttributionTextViews();
+		mapViewHolder.setMapSurfaceListener(this);
 
 		Reservation.cancelNotification(this);
 		registerReceiver(tripValidator, new IntentFilter(TRIP_VALIDATOR));
@@ -331,13 +346,11 @@ public class ValidationActivity extends FragmentActivity implements
 		Bundle extras = getIntent().getExtras();
 		reservation = extras.getParcelable(RESERVATION);
 		removeTripFromLandingPage();
-		route = (isOnRecreate.get() ? savedInstanceState : extras)
-				.getParcelable(ROUTE);
+		route = (isOnRecreate.get() ? savedInstanceState : extras).getParcelable(ROUTE);
 		route.setCredits(reservation.getCredits());
 		reservation.setRoute(route);
 
-		reservationInfo = MapDisplayActivity.getReservationTollHovInfo(
-				ValidationActivity.this, reservation.getRid());
+		reservationInfo = MapDisplayActivity.getReservationTollHovInfo(ValidationActivity.this, reservation.getRid());
 
 		// Define a listener that responds to location updates
 		locationListener = new LocationListener() {
@@ -348,19 +361,15 @@ public class ValidationActivity extends FragmentActivity implements
 
 			public void onStatusChanged(String provider, int status,
 					Bundle extras) {
-				Log.d(this.getClass().toString(), String
-						.format("onStatusChanged: %s, %d, %s", provider,
-								status, extras));
+				Log.d(this.getClass().toString(), String.format("onStatusChanged: %s, %d, %s", provider, status, extras));
 			}
 
 			public void onProviderEnabled(String provider) {
-				Log.d(this.getClass().toString(),
-						String.format("onProviderEnabled: %s", provider));
+				Log.d(this.getClass().toString(), String.format("onProviderEnabled: %s", provider));
 			}
 
 			public void onProviderDisabled(String provider) {
-				Log.d(this.getClass().toString(),
-						String.format("onProviderDisabled: %s", provider));
+				Log.d(this.getClass().toString(), String.format("onProviderDisabled: %s", provider));
 			}
 
 		};
@@ -378,12 +387,9 @@ public class ValidationActivity extends FragmentActivity implements
 			emails = savedInstanceState.getString(EMAILS);
 			phones = savedInstanceState.getString(PHONES);
 			trajectoryData = savedInstanceState.getString(TRAJECTORY_DATA);
-			isReplay.set(savedInstanceState
-					.getBoolean(DebugOptionsActivity.REPLAY));
-			lastEnRouteCheckTime.set(savedInstanceState
-					.getLong(LAST_ENROUTE_CHECK_TIME));
-			sendOnMyWayEmail.set(savedInstanceState
-					.getBoolean(SEND_ON_MY_WAY_EMAIL));
+			isReplay.set(savedInstanceState.getBoolean(DebugOptionsActivity.REPLAY));
+			lastEnRouteCheckTime.set(savedInstanceState.getLong(LAST_ENROUTE_CHECK_TIME));
+			sendOnMyWayEmail.set(savedInstanceState.getBoolean(SEND_ON_MY_WAY_EMAIL));
 		} else {
 			Time now = new Time();
 			now.setToNow();
@@ -405,9 +411,7 @@ public class ValidationActivity extends FragmentActivity implements
 			public void onReceive(Context context, Intent intent) {
 				stopValidation.set(true);
 				final boolean tripValidated = isTripValidated();
-				NotificationDialog2 dialog = new NotificationDialog2(
-						ValidationActivity.this,
-						"There might be a connection problem. Please try again later.");
+				NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "There might be a connection problem. Please try again later.");
 				dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
 					@Override
 					public void onClick() {
@@ -421,74 +425,50 @@ public class ValidationActivity extends FragmentActivity implements
 				dialog.show();
 			}
 		};
-		registerReceiver(timeoutReceiver,
-				new IntentFilter(getClass().getName()));
+		registerReceiver(timeoutReceiver, new IntentFilter(getClass().getName()));
 		Intent timeoutIntent = new Intent(getClass().getName());
-		PendingIntent pendingTimeout = PendingIntent.getBroadcast(
-				ValidationActivity.this, 0, timeoutIntent,
-				PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent pendingTimeout = PendingIntent.getBroadcast(ValidationActivity.this, 0, timeoutIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
-		am.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime()
-				+ (900 + reservation.getDuration() * 3) * 1000, pendingTimeout);
+		am.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime()	+ (900 + reservation.getDuration() * 3) * 1000, pendingTimeout);
 
 		remainDistDirecListView = (TextView) findViewById(R.id.remain_dist_direc_list);
 		remainTimesDirectListView = (TextView) findViewById(R.id.remain_times_direc_list);
 
 		try {
-			versionNumber = MapDisplayActivity.OS_NAME
-					+ getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+			versionNumber = MapDisplayActivity.OS_NAME + getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
 		} catch (NameNotFoundException ignore) {
 		}
 
-		dirListadapter = new ArrayAdapter<DirectionItem>(this,
-				R.layout.direction_list_item, R.id.text_view_road) {
+		dirListadapter = new ArrayAdapter<DirectionItem>(this, R.layout.direction_list_item, R.id.text_view_road) {
 			@Override
 			public View getView(int position, View convertView, ViewGroup parent) {
 				View view = super.getView(position, convertView, parent);
-				TextView vRoad = (TextView) view
-						.findViewById(R.id.text_view_road);
-				TextView vDistance = (TextView) view
-						.findViewById(R.id.text_view_distance);
+				TextView vRoad = (TextView) view.findViewById(R.id.text_view_road);
+				TextView vDistance = (TextView) view.findViewById(R.id.text_view_distance);
 				Font.setTypeface(boldFont, vRoad, vDistance);
-				view.findViewById(R.id.dir_list_item).setBackgroundResource(
-						position == 0 ? R.color.pink : 0);
+				view.findViewById(R.id.dir_list_item).setBackgroundResource(position == 0 ? R.color.pink : 0);
 				DirectionItem item = getItem(position);
-				ImageView vDirection = (ImageView) view
-						.findViewById(R.id.img_view_direction);
+				ImageView vDirection = (ImageView) view.findViewById(R.id.img_view_direction);
 				if (item.smallDrawableId == 0) {
 					vDirection.setVisibility(View.INVISIBLE);
 				} else {
 					vDirection.setImageResource(item.smallDrawableId);
 					vDirection.setVisibility(View.VISIBLE);
 				}
-				vDistance.setText(NavigationView.adjustDistanceFontSize(
-						ValidationActivity.this, StringUtil
-								.formatRoundingDistance(UnitConversion
-										.meterToMile(item.distance), true)));
+				vDistance.setText(NavigationView.adjustDistanceFontSize(ValidationActivity.this, StringUtil.formatRoundingDistance(UnitConversion.meterToMile(item.distance), true)));
 				vDistance.requestLayout();
-				StringBuffer roadName = new StringBuffer(
-						(StringUtils.isBlank(item.roadName) || StringUtils
-								.equalsIgnoreCase(item.roadName, "null")) ? ""
-								: (StringUtils.capitalize(item.roadName
-										.substring(0, 1)) + item.roadName
-										.substring(1)));
+				StringBuffer roadName = new StringBuffer((StringUtils.isBlank(item.roadName) || StringUtils.equalsIgnoreCase(item.roadName, "null")) ? ""
+								: (StringUtils.capitalize(item.roadName.substring(0, 1)) + item.roadName.substring(1)));
 				if ("Destination".equals(roadName.toString())
-						&& (StringUtils.isNotBlank(reservation
-								.getDestinationName()) || StringUtils
-								.isNotBlank(reservation.getDestinationAddress()))) {
-					roadName.append("\n").append(
-							StringUtils.isNotBlank(reservation
-									.getDestinationName()) ? reservation
-									.getDestinationName() : reservation
-									.getDestinationAddress());
+						&& (StringUtils.isNotBlank(reservation.getDestinationName()) || StringUtils.isNotBlank(reservation.getDestinationAddress()))) {
+					roadName.append("\n").append(StringUtils.isNotBlank(reservation.getDestinationName()) ? reservation.getDestinationName() : reservation.getDestinationAddress());
 				}
 				vRoad.setText(roadName.toString());
 				vRoad.requestLayout();
 				return view;
 			}
 		};
-		final FakeRoute fakeRoute = DebugOptionsActivity.getFakeRoute(
-				ValidationActivity.this, route.getId());
+		final FakeRoute fakeRoute = DebugOptionsActivity.getFakeRoute(ValidationActivity.this, route.getId());
 		isDebugging = fakeRoute != null;
 		boolean loadRoute = isLoadRoute();
 
@@ -503,39 +483,69 @@ public class ValidationActivity extends FragmentActivity implements
 		User.initializeIfNeccessary(ValidationActivity.this, new Runnable() {
 			@Override
 			public void run() {
-				countOutOfRouteThreshold = ((Number) Request
-						.getSetting(Setting.reroute_after_N_deviated_samples))
-						.intValue();
-				distanceOutOfRouteThreshold = ((Number) Request
-						.getSetting(Setting.reroute_trigger_distance_in_meter))
-						.doubleValue();
+				countOutOfRouteThreshold = ((Number) Request.getSetting(Setting.reroute_after_N_deviated_samples)).intValue();
+				distanceOutOfRouteThreshold = ((Number) Request.getSetting(Setting.reroute_trigger_distance_in_meter)).doubleValue();
 			}
 		});
 
-		SharedPreferences debugPrefs = getSharedPreferences(
-				DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
-		int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE,
-				DebugOptionsActivity.GPS_MODE_DEFAULT);
+		SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
+		int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
 		GeoPoint curLoc = extras.getParcelable(CURRENT_LOCATION);
 		LocationInfo cacheLoc = new LocationInfo(ValidationActivity.this);
-		if (!isReplay.get()
-				&& curLoc == null
-				&& System.currentTimeMillis()
-						- cacheLoc.lastLocationUpdateTimestamp < 5 * 60 * 1000) {
+		if (!isReplay.get()	&& curLoc == null && System.currentTimeMillis()	- cacheLoc.lastLocationUpdateTimestamp < 5 * 60 * 1000) {
 			curLoc = new GeoPoint(cacheLoc.lastLat, cacheLoc.lastLong);
+			cacheLocation = new Location("");
+			cacheLocation.setLatitude(cacheLoc.lastLat);
+			cacheLocation.setLongitude(cacheLoc.lastLong);
+			cacheLocation.setBearing(cacheLoc.lastHeading);
+		}
+		else if(curLoc != null) {
+			cacheLocation = new Location("");
+			cacheLocation.setLatitude(curLoc.getLatitude());
+			cacheLocation.setLongitude(curLoc.getLongitude());
+			cacheLocation.setBearing(curLoc.getHeading());
 		}
 
 		if (gpsMode == DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
 			locationRefreshed.set(true);
-			Location location = new Location("");
+			final Location location = new Location("");
 			location.setTime(System.currentTimeMillis());
-			locationChanged(location);
+			if(mapView != null) {
+				mapView.reportNewGPSPosition(new SKPosition(location));
+				location.setSpeed(0);
+				locationChanged(location);
+			}
+			else {
+				mapActionQueue.add(new Runnable() {
+					@Override
+					public void run() {
+						mapView.reportNewGPSPosition(new SKPosition(location));
+						location.setSpeed(0);
+						locationChanged(location);
+					}
+				});
+			}
 		} else if (curLoc != null) {
-			Location location = new Location("");
+			final Location location = new Location("");
 			location.setTime(System.currentTimeMillis());
 			location.setLatitude(curLoc.getLatitude());
 			location.setLongitude(curLoc.getLongitude());
-			locationChanged(location);
+			location.setBearing(curLoc.getHeading());
+			if(mapView != null) {
+				mapView.reportNewGPSPosition(new SKPosition(location));
+				location.setSpeed(0);
+				locationChanged(location);
+			}
+			else {
+				mapActionQueue.add(new Runnable() {
+					@Override
+					public void run() {
+						mapView.reportNewGPSPosition(new SKPosition(location));
+						location.setSpeed(0);
+						locationChanged(location);
+					}
+				});
+			}
 		}
 
 		if (isOnRecreate.get()) {
@@ -559,10 +569,8 @@ public class ValidationActivity extends FragmentActivity implements
 		if (!isOnRecreate.get()) {
 			if (reservation.hasExpired()) {
 				stopValidation.set(true);
-				NotificationDialog2 dialog = new NotificationDialog2(this,
-						getResources().getString(R.string.trip_has_expired));
+				NotificationDialog2 dialog = new NotificationDialog2(this, getResources().getString(R.string.trip_has_expired));
 				dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
-
 					@Override
 					public void onClick() {
 						if (!isFinishing()) {
@@ -573,13 +581,9 @@ public class ValidationActivity extends FragmentActivity implements
 				dialog.show();
 			} else if (reservation.isTooEarlyToStart()) {
 				stopValidation.set(true);
-				long minutes = (reservation.getDepartureTimeUtc() - System
-						.currentTimeMillis()) / 60000;
-				NotificationDialog2 dialog = new NotificationDialog2(this,
-						getResources().getString(
-								R.string.trip_too_early_to_start, minutes));
+				long minutes = (reservation.getDepartureTimeUtc() - System.currentTimeMillis()) / 60000;
+				NotificationDialog2 dialog = new NotificationDialog2(this, getResources().getString(R.string.trip_too_early_to_start, minutes));
 				dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
-
 					@Override
 					public void onClick() {
 						if (!isFinishing()) {
@@ -598,16 +602,15 @@ public class ValidationActivity extends FragmentActivity implements
 		initRecognizer();
 
 		// init Tracker
-		((SmarTrekApplication) getApplication())
-				.getTracker(TrackerName.APP_TRACKER);
+		((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 
-		if (GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
-				ValidationActivity.this) == ConnectionResult.SUCCESS) {
+		if (GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(ValidationActivity.this) == ConnectionResult.SUCCESS) {
 			requestingLocationUpdates = true;
 			createGoogleApiClient();
 			createLocationRequest();
 			buildLocationSettingsRequest();
 		}
+		
 	}
 
 	private Location lastLocation;
@@ -615,20 +618,16 @@ public class ValidationActivity extends FragmentActivity implements
 	private void preProcessLocation(Location location) {
 		// Log.d(this.getClass().toString(),
 		// String.format("onLocationChanged: %s", location));
-		SharedPreferences debugPrefs = getSharedPreferences(
-				DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
-		int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE,
-				DebugOptionsActivity.GPS_MODE_DEFAULT);
+		SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
+		int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
 		if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL) {
 			if (isBetterLocation(location, lastLocation)) {
 				locationRefreshed.set(true);
 				lastLocation = location;
 				locationChanged(location);
 				try {
-					PassiveLocationChangedReceiver.processLocation(
-							getApplicationContext(), location);
-				} catch (Exception ignore) {
-				}
+					PassiveLocationChangedReceiver.processLocation(getApplicationContext(), location);
+				} catch (Exception ignore) {}
 			}
 		} else {
 			locationRefreshed.set(true);
@@ -640,9 +639,7 @@ public class ValidationActivity extends FragmentActivity implements
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					mapView.getMapSettings().setMapStyle(
-							SkobblerUtils.getMapViewStyle(
-									ValidationActivity.this, currentMode));
+					mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(ValidationActivity.this, currentMode));
 					TextView timeInfo = (TextView) findViewById(R.id.remain_times);
 					if (currentMode) {
 						timeInfo.setTextColor(Color.parseColor("#ad000000"));
@@ -650,8 +647,7 @@ public class ValidationActivity extends FragmentActivity implements
 						timeInfo.setTextColor(Color.parseColor("#adffffff"));
 					}
 					dayMode.set(currentMode);
-					mapView.getMapSettings().setStreetNamePopupsShown(
-							!dayMode.get());
+					mapView.getMapSettings().setStreetNamePopupsShown(!dayMode.get());
 				}
 			});
 		}
@@ -663,10 +659,7 @@ public class ValidationActivity extends FragmentActivity implements
 			protected List<Route> doInBackground(Void... params) {
 				List<Route> routes = null;
 				try {
-					RouteFetchRequest request = new RouteFetchRequest(
-							reservation.getNavLink(),
-							reservation.getDepartureTime(),
-							reservation.getDuration(), 0, 0);
+					RouteFetchRequest request = new RouteFetchRequest(reservation.getNavLink(),	reservation.getDepartureTime(),	reservation.getDuration(), 0, 0);
 					routes = request.execute(ValidationActivity.this);
 				} catch (Exception e) {
 					ehs.registerException(e);
@@ -703,30 +696,21 @@ public class ValidationActivity extends FragmentActivity implements
 	private String getTextMessage(Route _route) {
 		StringBuffer msg = new StringBuffer();
 		User user = User.getCurrentUser(ValidationActivity.this);
-		String remainDist = StringUtils.isNotBlank(remainDistDirecListView
-				.getText()) ? String.valueOf(remainDistDirecListView.getText())
-				: StringUtil.formatImperialDistance(_route.getLength(), false);
+		String remainDist = StringUtils.isNotBlank(remainDistDirecListView.getText()) ? String.valueOf(remainDistDirecListView.getText()) : StringUtil.formatImperialDistance(_route.getLength(), false);
 		TextView timeInfo = (TextView) findViewById(R.id.remain_times);
-		String arriveTime = !"null".equalsIgnoreCase(String.valueOf(timeInfo
-				.getTag(R.id.estimated_arrival_time))) ? String
-				.valueOf(timeInfo.getTag(R.id.estimated_arrival_time))
-				: TimeColumn.formatTime(reservation.getArrivalTimeUtc(),
-						_route.getTimezoneOffset());
-		msg.append(user.getFirstname()).append(" ").append(user.getLastname())
-				.append(" is ").append(remainDist)
-				.append(" away, and will arrive at ")
-				.append(reservation.getDestinationAddress()).append(" at ");
+		String arriveTime = !"null".equalsIgnoreCase(String.valueOf(timeInfo.getTag(R.id.estimated_arrival_time))) ? String.valueOf(timeInfo.getTag(R.id.estimated_arrival_time))
+				: TimeColumn.formatTime(reservation.getArrivalTimeUtc(), _route.getTimezoneOffset());
+		msg.append(user.getFirstname()).append(" ").append(user.getLastname()).append(" is ").append(remainDist)
+				.append(" away, and will arrive at ").append(reservation.getDestinationAddress()).append(" at ");
 		msg.append(arriveTime).append(".");
 		return msg.toString();
 	}
 
 	private boolean isLoadRoute() {
-		return !isOnRecreate.get()
-				&& (isDebugging || reservation.getNavLink() != null);
+		return !isOnRecreate.get() && (isDebugging || reservation.getNavLink() != null);
 	}
 
-	private static void centerMap(SKMapSurfaceView mapView,
-			boolean isOnRecreate, GeoPoint lastCenter, Route route) {
+	private static void centerMap(SKMapSurfaceView mapView,	boolean isOnRecreate, GeoPoint lastCenter, Route route) {
 		mapView.setZoom(DEFAULT_ZOOM_LEVEL);
 		GeoPoint center = null;
 		if (isOnRecreate) {
@@ -735,8 +719,7 @@ public class ValidationActivity extends FragmentActivity implements
 			center = route.getFirstNode().getGeoPoint();
 		}
 		if (center != null) {
-			SKCoordinate centerCorrdinate = new SKCoordinate(
-					center.getLongitude(), center.getLatitude());
+			SKCoordinate centerCorrdinate = new SKCoordinate(center.getLongitude(), center.getLatitude());
 			mapView.centerMapOnPosition(centerCorrdinate);
 		}
 	}
@@ -753,14 +736,12 @@ public class ValidationActivity extends FragmentActivity implements
 		super.onSaveInstanceState(outState);
 		outState.putParcelable(ROUTE, route);
 		outState.putLong(START_TIME, startTime);
-		outState.putInt(POLL_CNT, fakeLocationService == null ? 0
-				: fakeLocationService.pollCnt);
+		outState.putInt(POLL_CNT, fakeLocationService == null ? 0 : fakeLocationService.pollCnt);
 		GeoPoint geoPoint = null;
 		RouteNode firstNode = route.getFirstNode();
 		SKPosition currentPosition = mapView.getCurrentGPSPosition(true);
 		if (currentPosition != null) {
-			geoPoint = new GeoPoint(currentPosition.getLatitude(),
-					currentPosition.getLongitude());
+			geoPoint = new GeoPoint(currentPosition.getLatitude(), currentPosition.getLongitude());
 		} else if (firstNode != null) {
 			geoPoint = firstNode.getGeoPoint();
 		}
@@ -791,8 +772,7 @@ public class ValidationActivity extends FragmentActivity implements
 		if (rawLogDir != null && rawLogDir.exists()) {
 			try {
 				FileUtils.cleanDirectory(rawLogDir);
-			} catch (Exception ignore) {
-			}
+			} catch (Exception ignore) {}
 		}
 	}
 
@@ -805,33 +785,10 @@ public class ValidationActivity extends FragmentActivity implements
 		Localytics.setInAppMessageDisplayActivity(this);
 		Localytics.handleTestMode(getIntent());
 		Localytics.handlePushNotificationOpened(getIntent());
-		mapView.onResume();
-
-		SharedPreferences debugPrefs = getSharedPreferences(
-				DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
-
-		// Register the listener with the Location Manager to receive location
-		// updates
-		int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE,
-				DebugOptionsActivity.GPS_MODE_DEFAULT);
-		if (StringUtils.isNotBlank(trajectoryData)) {
-			int interval = DebugOptionsActivity.getGpsUpdateInterval(this);
-			if (fakeLocationService == null) {
-				fakeLocationService = new FakeLocationService(locationListener,
-						interval, trajectoryData);
-			} else {
-				fakeLocationService = fakeLocationService.setInterval(interval);
-			}
-			if (savedPollCnt > 0) {
-				fakeLocationService.skip(savedPollCnt);
-				savedPollCnt = 0;
-			}
-		} else if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL
-				&& !turnOffGPS.get()) {
-			prepareGPS();
-		} else {
-
-		}
+		
+		annSize.set(Dimension.dpToPx(Misc.ANNOTATION_MINIMUM_SIZE_IN_DP, getResources().getDisplayMetrics()));
+		
+		mapViewHolder.onResume();
 
 		registerReceiver(timeInfoCycler, new IntentFilter(TIME_INFO_CYCLE));
 		navigationView.stopNotification();
@@ -844,7 +801,7 @@ public class ValidationActivity extends FragmentActivity implements
 		Localytics.closeSession();
 		Localytics.upload();
 		super.onPause();
-		mapView.onPause();
+		mapViewHolder.onPause();
 		unregisterReceiver(timeInfoCycler);
 		if (!cancelTrip && !arrived.get()) {
 			navigationView.startNotification();
@@ -896,17 +853,16 @@ public class ValidationActivity extends FragmentActivity implements
 	/**
 	 * init skmap parameter
 	 */
-	private void initSKMaps() {
+	private void initSKMaps(SKMapViewHolder mapViewHolder) {
 		initial.set(true);
 		SKLogging.enableLogs(true);
-		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
-		mapViewHolder.hideAllAttributionTextViews();
+
 		mapView = mapViewHolder.getMapSurfaceView();
 
-		mapView.setMapSurfaceListener(this);
+//		mapView.setMapSurfaceListener(this);
 		mapView.clearAllOverlays();
 		mapView.deleteAllAnnotationsAndCustomPOIs();
-		mapView.getMapSettings().setCurrentPositionShown(false);
+		mapView.getMapSettings().setCurrentPositionShown(true);
 		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
 		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
 		mapView.getMapSettings().setMapRotationEnabled(true);
@@ -917,9 +873,7 @@ public class ValidationActivity extends FragmentActivity implements
 		mapView.getMapSettings().setInertiaZoomingEnabled(true);
 		mapView.getMapSettings().setInertiaPanningEnabled(true);
 		dayMode.set(SkobblerUtils.isDayMode());
-		mapView.getMapSettings().setMapStyle(
-				SkobblerUtils.getMapViewStyle(ValidationActivity.this,
-						dayMode.get()));
+		mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(ValidationActivity.this,	dayMode.get()));
 		mapView.getMapSettings().setStreetNamePopupsShown(!dayMode.get());
 		SKRouteManager.getInstance().setRouteListener(this);
 	}
@@ -944,11 +898,7 @@ public class ValidationActivity extends FragmentActivity implements
 
 		}.execute();
 
-		findViewById(R.id.voice_input_debug_msg)
-				.setVisibility(
-						DebugOptionsActivity
-								.isEnrouteVoiceInputDebugMsgEnabled(ValidationActivity.this) ? View.VISIBLE
-								: View.GONE);
+		findViewById(R.id.voice_input_debug_msg).setVisibility(DebugOptionsActivity.isEnrouteVoiceInputDebugMsgEnabled(ValidationActivity.this) ? View.VISIBLE : View.GONE);
 	}
 
 	private static final String KWS_SEARCH = "wakeup";
@@ -961,10 +911,8 @@ public class ValidationActivity extends FragmentActivity implements
 		if (!rawLogDir.exists()) {
 			rawLogDir.mkdir();
 		}
-		recognizer = defaultSetup()
-				.setAcousticModel(new File(modelsDir, "hmm/en-us-semi"))
-				.setDictionary(new File(modelsDir, "dict/cmu07a.dic"))
-				.setRawLogDir(rawLogDir).setKeywordThreshold(1e-1f)
+		recognizer = defaultSetup().setAcousticModel(new File(modelsDir, "hmm/en-us-semi"))
+				.setDictionary(new File(modelsDir, "dict/cmu07a.dic")).setRawLogDir(rawLogDir).setKeywordThreshold(1e-1f)
 				.getRecognizer();
 		recognizer.addListener(this);
 
@@ -1007,32 +955,22 @@ public class ValidationActivity extends FragmentActivity implements
 		buttonFollow.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(
-						ValidationActivity.this, v);
+				ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v);
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						Boolean tagAfterClick = !((Boolean) buttonFollow
-								.getTag());
+						Boolean tagAfterClick = !((Boolean) buttonFollow.getTag());
 						buttonFollow.setTag(tagAfterClick);
 						if (tagAfterClick) {
 							restoreHandler.removeCallbacks(followModeRestore);
 							to3DMap();
 						} else {
 							if (lastKnownLocation != null) {
-								to2DMap(new RouteRect(
-										getRouteOrReroute()
-												.getRemainNodes(
-														lastKnownLocation
-																.getLatitude(),
-														lastKnownLocation
-																.getLongitude())),
-										true);
+								to2DMap(new RouteRect(getRouteOrReroute().getRemainNodes(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude())), true);
 							} else {
 								to2DMap(routeRect, true);
 							}
-							restoreHandler.postDelayed(followModeRestore,
-									RESTORE_TIME);
+							restoreHandler.postDelayed(followModeRestore, RESTORE_TIME);
 						}
 						navigationView.setToCurrentDireciton();
 					}
@@ -1041,8 +979,7 @@ public class ValidationActivity extends FragmentActivity implements
 		});
 
 		navigationView = (NavigationView) findViewById(R.id.navigation_view);
-		navigationView.setDestinationAddress(reservation
-				.getDestinationAddress());
+		navigationView.setDestinationAddress(reservation.getDestinationAddress());
 		navigationView.setTypeface(boldFont);
 
 		Configuration conf = getResources().getConfiguration();
@@ -1057,32 +994,22 @@ public class ValidationActivity extends FragmentActivity implements
 				Log.d("ValidationActivity", "OpenDriectionListView");
 				View directionsView = findViewById(R.id.directions_view);
 				directionsView.setVisibility(View.VISIBLE);
-				ObjectAnimator animator = ObjectAnimator.ofFloat(
-						directionsView, "translationY",
-						-directionsView.getHeight(), 0);
+				ObjectAnimator animator = ObjectAnimator.ofFloat(directionsView, "translationY", -directionsView.getHeight(), 0);
 				animator.setDuration(500);
 				animator.setInterpolator(new AccelerateDecelerateInterpolator());
 				animator.start();
-				animator.addListener(new AnimatorListener() {
+				/*animator.addListener(new AnimatorListener() {
 					@Override
-					public void onAnimationStart(Animator animation) {
-					}
+					public void onAnimationStart(Animator animation) {}
+					@Override
+					public void onAnimationEnd(Animator animation) {}
 
 					@Override
-					public void onAnimationEnd(Animator animation) {
-						for (View view : getMapViews()) {
-							view.setVisibility(View.GONE);
-						}
-					}
+					public void onAnimationCancel(Animator animation) {}
 
 					@Override
-					public void onAnimationCancel(Animator animation) {
-					}
-
-					@Override
-					public void onAnimationRepeat(Animator animation) {
-					}
-				});
+					public void onAnimationRepeat(Animator animation) {}
+				});*/
 			}
 		});
 
@@ -1090,21 +1017,18 @@ public class ValidationActivity extends FragmentActivity implements
 		mapViewEndTripBtn.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(
-						ValidationActivity.this, v);
+				ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v);
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
 						cancelValidation();
 					}
-
 				});
 			}
 		});
 
 		volumnControl = (ImageView) findViewById(R.id.volumn_control);
-		int imageSrc = MapDisplayActivity.isNavigationTtsEnabled(this) ? R.drawable.volumn_btn_open
-				: R.drawable.volumn_btn_close;
+		int imageSrc = MapDisplayActivity.isNavigationTtsEnabled(this) ? R.drawable.volumn_btn_open	: R.drawable.volumn_btn_close;
 		volumnControl.setTag(MapDisplayActivity.isNavigationTtsEnabled(this));
 		volumnControl.setImageResource(imageSrc);
 		volumnControl.setOnClickListener(new OnClickListener() {
@@ -1115,12 +1039,9 @@ public class ValidationActivity extends FragmentActivity implements
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						boolean tagAfterClick = !((Boolean) volumnControl
-								.getTag());
-						int imageSrc = tagAfterClick ? R.drawable.volumn_btn_open
-								: R.drawable.volumn_btn_close;
-						MapDisplayActivity.setNavigationTts(
-								ValidationActivity.this, tagAfterClick);
+						boolean tagAfterClick = !((Boolean) volumnControl.getTag());
+						int imageSrc = tagAfterClick ? R.drawable.volumn_btn_open : R.drawable.volumn_btn_close;
+						MapDisplayActivity.setNavigationTts(ValidationActivity.this, tagAfterClick);
 						volumnControl.setTag(tagAfterClick);
 						volumnControl.setImageResource(imageSrc);
 						if (!tagAfterClick) {
@@ -1138,14 +1059,11 @@ public class ValidationActivity extends FragmentActivity implements
 		onMyWayBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(
-						ValidationActivity.this, v);
+				ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v);
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						NotificationDialog2 dialog = new NotificationDialog2(
-								ValidationActivity.this,
-								"On my Way is currently available for passengers only.");
+						NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "On my Way is currently available for passengers only.");
 						dialog.setVerticalOrientation(false);
 						dialog.setTitle("Are you the passenger?");
 						dialog.setPositiveButtonText("No");
@@ -1159,15 +1077,9 @@ public class ValidationActivity extends FragmentActivity implements
 						dialog.setNegativeActionListener(new ActionListener() {
 							@Override
 							public void onClick() {
-								Intent contactSelect = new Intent(
-										ValidationActivity.this,
-										ContactsSelectActivity.class);
-								contactSelect.putExtra(
-										ContactsSelectActivity.SELECTED_EMAILS,
-										emails);
-								contactSelect.putExtra(
-										ContactsSelectActivity.SELECTED_PHONES,
-										"");
+								Intent contactSelect = new Intent(ValidationActivity.this, ContactsSelectActivity.class);
+								contactSelect.putExtra(ContactsSelectActivity.SELECTED_EMAILS, emails);
+								contactSelect.putExtra(ContactsSelectActivity.SELECTED_PHONES, "");
 								startActivityForResult(contactSelect, ON_MY_WAY);
 								onMyWayBtn.setTag(new Object());
 							}
@@ -1180,14 +1092,40 @@ public class ValidationActivity extends FragmentActivity implements
 
 		dirListView = (ListView) findViewById(R.id.directions_list);
 		dirListView.setAdapter(dirListadapter);
+		
+		final GestureDetectorCompat  gestureDetector = new GestureDetectorCompat (this, new OnGestureListener() {
+			@Override
+			public boolean onDown(MotionEvent e) {return false;}
+			@Override
+			public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+				boolean listBottom = dirListView.getChildAt(dirListView.getChildCount()-1).getBottom()<=dirListView.getHeight();
+				if (velocityY<0 && listBottom) findViewById(R.id.done).performClick();
+				return false;
+			}
+			@Override
+			public void onLongPress(MotionEvent e) {}
+			@Override
+			public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {return false;}
+			@Override
+			public void onShowPress(MotionEvent e) {}
+			@Override
+			public boolean onSingleTapUp(MotionEvent e) {return false;}
+		});
+		dirListView = (ListView) findViewById(R.id.directions_list);
+		dirListView.setAdapter(dirListadapter);
+		dirListView.setOnTouchListener(new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				return gestureDetector.onTouchEvent(event);
+			}
+		});
 
 		TextView finishButton = (TextView) findViewById(R.id.close);
 		finishButton.setText(Html.fromHtml("<u>Close</u>"));
 		finishButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ClickAnimation clickAnim = new ClickAnimation(
-						ValidationActivity.this, v);
+				ClickAnimation clickAnim = new ClickAnimation(ValidationActivity.this, v);
 				clickAnim.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
@@ -1202,23 +1140,18 @@ public class ValidationActivity extends FragmentActivity implements
 		shareButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(
-						ValidationActivity.this, v);
+				ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v);
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 
 					@Override
 					public void onAnimationEnd() {
-						Intent intent = new Intent(ValidationActivity.this,
-								ShareActivity.class);
-						intent.putExtra(ShareActivity.TITLE,
-								"More Metropians = Less Traffic");
-						intent.putExtra(
-								ShareActivity.SHARE_TEXT,
+						Intent intent = new Intent(ValidationActivity.this,	ShareActivity.class);
+						intent.putExtra(ShareActivity.TITLE, "More Metropians = Less Traffic");
+						intent.putExtra(ShareActivity.SHARE_TEXT,
 								"I earned "
 										+ reservation.getMpoint()
 										+ " points for traveling at "
-										+ Reservation.formatTime(
-												route.getDepartureTime(), true)
+										+ Reservation.formatTime(route.getDepartureTime(), true)
 										+ " to help solve traffic congestion "
 										+ "using Metropia!" + "\n\n"
 										+ Misc.APP_DOWNLOAD_LINK);
@@ -1245,13 +1178,11 @@ public class ValidationActivity extends FragmentActivity implements
 		feedBackButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(
-						ValidationActivity.this, v);
+				ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v);
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						Intent intent = new Intent(ValidationActivity.this,
-								FeedbackActivity.class);
+						Intent intent = new Intent(ValidationActivity.this,	FeedbackActivity.class);
 						startActivity(intent);
 					}
 				});
@@ -1267,11 +1198,10 @@ public class ValidationActivity extends FragmentActivity implements
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						for (View mView : getMapViews()) {
-							mView.setVisibility(View.VISIBLE);
-						}
-						findViewById(R.id.directions_view).setVisibility(
-								View.INVISIBLE);
+						ObjectAnimator animator = ObjectAnimator.ofFloat(findViewById(R.id.directions_view), "translationY", 0,-findViewById(R.id.directions_view).getHeight());
+						animator.setDuration(500);
+						animator.setInterpolator(new AccelerateDecelerateInterpolator());
+						animator.start();
 					}
 				});
 			}
@@ -1286,20 +1216,12 @@ public class ValidationActivity extends FragmentActivity implements
 		} else {
 			timeInfo.setTextColor(Color.parseColor("#adffffff"));
 		}
-		timeInfo.setTag(
-				R.id.estimated_arrival_time,
-				getFormatedEstimateArrivalTime(reservation.getArrivalTimeUtc(),
-						route.getTimezoneOffset()));
-		timeInfo.setTag(R.id.remaining_travel_time,
-				getFormatedRemainingTime(reservation.getDuration()));
+		timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(reservation.getArrivalTimeUtc(), route.getTimezoneOffset()));
+		timeInfo.setTag(R.id.remaining_travel_time,	getFormatedRemainingTime(reservation.getDuration()));
 		refreshTimeInfo();
 		final TextView directListTimeInfo = (TextView) findViewById(R.id.remain_times_direc_list);
-		directListTimeInfo.setTag(
-				R.id.estimated_arrival_time,
-				getFormatedEstimateArrivalTime(getETA(remainingTime.get()),
-						route.getTimezoneOffset()));
-		directListTimeInfo.setTag(R.id.remaining_travel_time,
-				getFormatedRemainingTime(remainingTime.get()));
+		directListTimeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(getETA(remainingTime.get()), route.getTimezoneOffset()));
+		directListTimeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(remainingTime.get()));
 		refreshDirectListTimeInfo();
 		timeInfo.setOnClickListener(new OnClickListener() {
 			@Override
@@ -1313,72 +1235,48 @@ public class ValidationActivity extends FragmentActivity implements
 			@Override
 			public void onClick(View v) {
 				Intent intent;
-				if (WebMyMetropiaActivity
-						.hasCo2SavingUrl(ValidationActivity.this)
-						|| WebMyMetropiaActivity
-								.hasMyMetropiaUrl(ValidationActivity.this)) {
-					intent = new Intent(ValidationActivity.this,
-							WebMyMetropiaActivity.class);
-					Integer pageNo = WebMyMetropiaActivity
-							.hasCo2SavingUrl(ValidationActivity.this) ? WebMyMetropiaActivity.CO2_SAVING_PAGE
-							: WebMyMetropiaActivity.MY_METROPIA_PAGE;
+				if (WebMyMetropiaActivity.hasCo2SavingUrl(ValidationActivity.this) || WebMyMetropiaActivity.hasMyMetropiaUrl(ValidationActivity.this)) {
+					intent = new Intent(ValidationActivity.this, WebMyMetropiaActivity.class);
+					Integer pageNo = WebMyMetropiaActivity.hasCo2SavingUrl(ValidationActivity.this) ? WebMyMetropiaActivity.CO2_SAVING_PAGE	: WebMyMetropiaActivity.MY_METROPIA_PAGE;
 					intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
 				} else {
-					intent = new Intent(ValidationActivity.this,
-							MyMetropiaActivity.class);
-					intent.putExtra(MyMetropiaActivity.OPEN_TAB,
-							MyMetropiaActivity.CO2_SAVING_TAB);
+					intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
+					intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.CO2_SAVING_TAB);
 				}
 				startActivity(intent);
 			}
 		});
 
-		findViewById(R.id.drive_score_circle).setOnClickListener(
-				new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						Intent intent;
-						if (WebMyMetropiaActivity
-								.hasTimeSavingUrl(ValidationActivity.this)
-								|| WebMyMetropiaActivity
-										.hasMyMetropiaUrl(ValidationActivity.this)) {
-							intent = new Intent(ValidationActivity.this,
-									WebMyMetropiaActivity.class);
-							Integer pageNo = WebMyMetropiaActivity
-									.hasTimeSavingUrl(ValidationActivity.this) ? WebMyMetropiaActivity.TIME_SAVING_PAGE
-									: WebMyMetropiaActivity.MY_METROPIA_PAGE;
-							intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE,
-									pageNo);
-						} else {
-							intent = new Intent(ValidationActivity.this,
-									MyMetropiaActivity.class);
-							intent.putExtra(MyMetropiaActivity.OPEN_TAB,
-									MyMetropiaActivity.DRIVE_SCORE_TAB);
-						}
-						startActivity(intent);
-					}
-				});
+		findViewById(R.id.drive_score_circle).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent;
+				if (WebMyMetropiaActivity.hasTimeSavingUrl(ValidationActivity.this)	|| WebMyMetropiaActivity.hasMyMetropiaUrl(ValidationActivity.this)) {
+					intent = new Intent(ValidationActivity.this, WebMyMetropiaActivity.class);
+					Integer pageNo = WebMyMetropiaActivity.hasTimeSavingUrl(ValidationActivity.this) ? WebMyMetropiaActivity.TIME_SAVING_PAGE : WebMyMetropiaActivity.MY_METROPIA_PAGE;
+					intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
+				} else {
+					intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
+					intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.DRIVE_SCORE_TAB);
+				}
+				startActivity(intent);
+			}
+		});
 
-		findViewById(R.id.mpoint_circle).setOnClickListener(
-				new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						Intent intent;
-						if (WebMyMetropiaActivity
-								.hasMyMetropiaUrl(ValidationActivity.this)) {
-							intent = new Intent(ValidationActivity.this,
-									WebMyMetropiaActivity.class);
-							intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE,
-									WebMyMetropiaActivity.MY_METROPIA_PAGE);
-						} else {
-							intent = new Intent(ValidationActivity.this,
-									MyMetropiaActivity.class);
-							intent.putExtra(MyMetropiaActivity.OPEN_TAB,
-									MyMetropiaActivity.CO2_SAVING_TAB);
-						}
-						startActivity(intent);
-					}
-				});
+		findViewById(R.id.mpoint_circle).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent;
+				if (WebMyMetropiaActivity.hasMyMetropiaUrl(ValidationActivity.this)) {
+					intent = new Intent(ValidationActivity.this, WebMyMetropiaActivity.class);
+					intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, WebMyMetropiaActivity.MY_METROPIA_PAGE);
+				} else {
+					intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
+					intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.CO2_SAVING_TAB);
+				}
+				startActivity(intent);
+			}
+		});
 
 		if (DebugOptionsActivity.isReroutingDebugMsgEnabled(this)
 				|| DebugOptionsActivity.isVoiceDebugMsgEnabled(this)
@@ -1386,22 +1284,18 @@ public class ValidationActivity extends FragmentActivity implements
 			findViewById(R.id.rerouting_debug_msg).setVisibility(View.VISIBLE);
 		}
 
-		findViewById(R.id.en_route_alert_panel).setOnClickListener(
-				new OnClickListener() {
+		findViewById(R.id.en_route_alert_panel).setOnClickListener(new OnClickListener() {
 					@Override
-					public void onClick(View v) {
-					}
+					public void onClick(View v) {}
 				});
 
 		ImageView yesButton = (ImageView) findViewById(R.id.yes_button);
-		yesButton.setImageBitmap(Misc.getBitmap(ValidationActivity.this,
-				R.drawable.en_route_yes, 1));
+		yesButton.setImageBitmap(Misc.getBitmap(ValidationActivity.this, R.drawable.en_route_yes, 1));
 		yesButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(final View v) {
 				v.setClickable(false);
-				ClickAnimation click = new ClickAnimation(
-						ValidationActivity.this, v);
+				ClickAnimation click = new ClickAnimation(ValidationActivity.this, v);
 				click.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
@@ -1427,14 +1321,12 @@ public class ValidationActivity extends FragmentActivity implements
 		});
 
 		ImageView noButton = (ImageView) findViewById(R.id.no_button);
-		noButton.setImageBitmap(Misc.getBitmap(ValidationActivity.this,
-				R.drawable.en_route_no, 1));
+		noButton.setImageBitmap(Misc.getBitmap(ValidationActivity.this,	R.drawable.en_route_no, 1));
 		noButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(final View v) {
 				v.setClickable(false);
-				ClickAnimation click = new ClickAnimation(
-						ValidationActivity.this, v);
+				ClickAnimation click = new ClickAnimation(ValidationActivity.this, v);
 				click.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
@@ -1442,9 +1334,7 @@ public class ValidationActivity extends FragmentActivity implements
 						// if(realTravelRemainTimeInSec > 0) {
 						// sendImComingMsg(realTravelRemainTimeInSec);
 						// }
-						drawRoute(mapView, getRouteOrReroute()); // draw route
-																	// before
-																	// en-route
+						drawRoute(mapView, getRouteOrReroute()); // draw route before en-route
 						hideEnRouteAlert();
 						v.setClickable(true);
 						Misc.doQuietly(new Runnable() {
@@ -1461,12 +1351,9 @@ public class ValidationActivity extends FragmentActivity implements
 		// scheduleNextEnRouteCheck();
 		scheduleTimeInfoCycle();
 
-		Font.setTypeface(boldFont, remainDistDirecListView, timeInfo,
-				finishButton, feedBackButton);
-		Font.setTypeface(Font.getRegular(getResources().getAssets()),
-				(TextView) findViewById(R.id.en_route_yes_desc1),
-				(TextView) findViewById(R.id.en_route_yes_desc1),
-				(TextView) findViewById(R.id.en_route_auto_accept_desc));
+		Font.setTypeface(boldFont, remainDistDirecListView, timeInfo, finishButton, feedBackButton);
+		Font.setTypeface(Font.getRegular(getResources().getAssets()), (TextView) findViewById(R.id.en_route_yes_desc1),
+				(TextView) findViewById(R.id.en_route_yes_desc1), (TextView) findViewById(R.id.en_route_auto_accept_desc));
 		Font.setTypeface(lightFont/* , osmCredit */, remainTimesDirectListView);
 	}
 
@@ -1477,32 +1364,22 @@ public class ValidationActivity extends FragmentActivity implements
 		if (_rect != null) {
 			/* Get a midpoint to center the view of the routes */
 			changeEnRoutePanelMode(!navigationView.isPortraitMode());
-			mapView.getMapSettings()
-					.setMapDisplayMode(SKMapDisplayMode.MODE_2D);
+			mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
 			mapView.rotateTheMapToNorth();
-			final int offsetHeight = hasNavigationHeader ? navigationView
-					.getMeasuredHeight() : 0;
+			final int offsetHeight = hasNavigationHeader ? navigationView.getMeasuredHeight() : 0;
 			GeoPoint topLeft = _rect.getTopLeftPoint();
 			GeoPoint bottomRight = _rect.getBottomRightPoint();
-			final SKBoundingBox boundingBox = new SKBoundingBox(
-					topLeft.getLatitude(), topLeft.getLongitude(),
-					bottomRight.getLatitude(), bottomRight.getLongitude());
+			final SKBoundingBox boundingBox = new SKBoundingBox(topLeft.getLatitude(), topLeft.getLongitude(), bottomRight.getLatitude(), bottomRight.getLongitude());
 			if (!hasNavigationHeader) {
-				ViewTreeObserver vto = findViewById(R.id.alert_content)
-						.getViewTreeObserver();
+				ViewTreeObserver vto = findViewById(R.id.alert_content).getViewTreeObserver();
 				onPreDrawListener = new ViewTreeObserver.OnPreDrawListener() {
 					@Override
 					public boolean onPreDraw() {
-						int alertHeight = findViewById(R.id.alert_content)
-								.getMeasuredHeight();
-						int alertWidth = findViewById(R.id.alert_content)
-								.getMeasuredWidth();
-						RelativeLayout.LayoutParams mapViewLp = (LayoutParams) mapView
-								.getLayoutParams();
-						mapViewLp.bottomMargin = navigationView
-								.isPortraitMode() ? alertHeight : 0;
-						mapViewLp.rightMargin = navigationView.isPortraitMode() ? 0
-								: alertWidth;
+						int alertHeight = findViewById(R.id.alert_content).getMeasuredHeight();
+						int alertWidth = findViewById(R.id.alert_content).getMeasuredWidth();
+						RelativeLayout.LayoutParams mapViewLp = (LayoutParams) mapView.getLayoutParams();
+						mapViewLp.bottomMargin = navigationView.isPortraitMode() ? alertHeight : 0;
+						mapViewLp.rightMargin = navigationView.isPortraitMode() ? 0	: alertWidth;
 						mapView.setLayoutParams(mapViewLp);
 						mapView.fitBoundingBox(boundingBox, 100, offsetHeight);
 						return true;
@@ -1513,8 +1390,7 @@ public class ValidationActivity extends FragmentActivity implements
 				mapView.fitBoundingBox(boundingBox, 100, offsetHeight);
 			}
 			GeoPoint mid = _rect.getMidPoint();
-			SKCoordinate coordinate = new SKCoordinate(mid.getLongitude(),
-					mid.getLatitude());
+			SKCoordinate coordinate = new SKCoordinate(mid.getLongitude(), mid.getLatitude());
 			mapView.centerMapOnPosition(coordinate);
 			mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
 			mapView.getMapSettings().setMapRotationEnabled(false);
@@ -1526,8 +1402,7 @@ public class ValidationActivity extends FragmentActivity implements
 		Misc.doQuietly(new Runnable() {
 			@Override
 			public void run() {
-				ViewTreeObserver vto = findViewById(R.id.alert_content)
-						.getViewTreeObserver();
+				ViewTreeObserver vto = findViewById(R.id.alert_content).getViewTreeObserver();
 				vto.removeOnPreDrawListener(onPreDrawListener);
 			}
 		});
@@ -1543,13 +1418,10 @@ public class ValidationActivity extends FragmentActivity implements
 			double latitude = lastKnownLocation.getLatitude();
 			double longitude = lastKnownLocation.getLongitude();
 			SKCoordinate coordinate = new SKCoordinate(longitude, latitude);
-			mapView.getMapSettings()
-					.setMapDisplayMode(SKMapDisplayMode.MODE_3D);
-			mapView.setZoom(isNearOD_or_Intersection(latitude, longitude) ? DEFAULT_ZOOM_LEVEL
-					: NAVIGATION_ZOOM_LEVEL);
+			mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
+			mapView.setZoom(isNearOD_or_Intersection(latitude, longitude) ? DEFAULT_ZOOM_LEVEL : NAVIGATION_ZOOM_LEVEL);
 			mapView.centerMapOnPosition(coordinate);
-			mapView.getMapSettings().setFollowerMode(
-					SKMapFollowerMode.NAVIGATION);
+			mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
 			mapView.getMapSettings().setMapRotationEnabled(true);
 		}
 	}
@@ -1558,12 +1430,10 @@ public class ValidationActivity extends FragmentActivity implements
 		TextView timeInfo = (TextView) findViewById(R.id.remain_times);
 		Boolean isRemainingTime = (Boolean) timeInfo.getTag();
 		if (isRemainingTime == null || !isRemainingTime) {
-			timeInfo.setText(formatRemainTime(timeInfo.getTag(
-					R.id.remaining_travel_time).toString()));
+			timeInfo.setText(formatRemainTime(timeInfo.getTag(R.id.remaining_travel_time).toString()));
 			isRemainingTime = true;
 		} else {
-			timeInfo.setText(formatArrivalTime(timeInfo.getTag(
-					R.id.estimated_arrival_time).toString()));
+			timeInfo.setText(formatArrivalTime(timeInfo.getTag(R.id.estimated_arrival_time).toString()));
 			isRemainingTime = false;
 		}
 		timeInfo.setTag(isRemainingTime);
@@ -1573,12 +1443,10 @@ public class ValidationActivity extends FragmentActivity implements
 		TextView timeInfo = (TextView) findViewById(R.id.remain_times_direc_list);
 		Boolean isRemainingTime = (Boolean) timeInfo.getTag();
 		if (isRemainingTime == null || !isRemainingTime) {
-			timeInfo.setText(timeInfo.getTag(R.id.remaining_travel_time)
-					.toString());
+			timeInfo.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
 			isRemainingTime = true;
 		} else {
-			timeInfo.setText(timeInfo.getTag(R.id.estimated_arrival_time)
-					.toString());
+			timeInfo.setText(timeInfo.getTag(R.id.estimated_arrival_time).toString());
 			isRemainingTime = false;
 		}
 		timeInfo.setTag(isRemainingTime);
@@ -1587,28 +1455,22 @@ public class ValidationActivity extends FragmentActivity implements
 	private SpannableString formatRemainTime(String remainTime) {
 		String remainDesc = "Arrive in\n" + remainTime;
 		SpannableString remainTimeSpan = SpannableString.valueOf(remainDesc);
-		remainTimeSpan.setSpan(new AbsoluteSizeSpan(ValidationActivity.this
-				.getResources().getDimensionPixelSize(R.dimen.smaller_font)),
+		remainTimeSpan.setSpan(new AbsoluteSizeSpan(ValidationActivity.this.getResources().getDimensionPixelSize(R.dimen.smaller_font)),
 				0, "Arrival in".length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		int indexOfSpace = remainDesc.lastIndexOf(" ");
-		remainTimeSpan.setSpan(new AbsoluteSizeSpan(ValidationActivity.this
-				.getResources().getDimensionPixelSize(R.dimen.smaller_font)),
-				indexOfSpace, remainDesc.length(),
-				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		remainTimeSpan.setSpan(new AbsoluteSizeSpan(ValidationActivity.this.getResources().getDimensionPixelSize(R.dimen.smaller_font)),
+				indexOfSpace, remainDesc.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		return remainTimeSpan;
 	}
 
 	private SpannableString formatArrivalTime(String arrivalTime) {
 		String arrivalDesc = "Arrive at\n" + arrivalTime;
 		SpannableString arrivalTimeSpan = SpannableString.valueOf(arrivalDesc);
-		arrivalTimeSpan.setSpan(new AbsoluteSizeSpan(ValidationActivity.this
-				.getResources().getDimensionPixelSize(R.dimen.smaller_font)),
+		arrivalTimeSpan.setSpan(new AbsoluteSizeSpan(ValidationActivity.this.getResources().getDimensionPixelSize(R.dimen.smaller_font)),
 				0, "Arrival at".length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		int secondSpaceIndex = arrivalDesc.lastIndexOf(" ");
-		arrivalTimeSpan.setSpan(new AbsoluteSizeSpan(ValidationActivity.this
-				.getResources().getDimensionPixelSize(R.dimen.smaller_font)),
-				secondSpaceIndex, arrivalDesc.length(),
-				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		arrivalTimeSpan.setSpan(new AbsoluteSizeSpan(ValidationActivity.this.getResources().getDimensionPixelSize(R.dimen.smaller_font)),
+				secondSpaceIndex, arrivalDesc.length(),	Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		return arrivalTimeSpan;
 	}
 
@@ -1619,14 +1481,11 @@ public class ValidationActivity extends FragmentActivity implements
 				final TextView timeInfo = (TextView) findViewById(R.id.remain_times);
 				Boolean isRemainingTime = (Boolean) timeInfo.getTag();
 				if (isRemainingTime == null || !isRemainingTime) {
-					timeInfo.setText(formatArrivalTime(timeInfo.getTag(
-							R.id.estimated_arrival_time).toString()));
+					timeInfo.setText(formatArrivalTime(timeInfo.getTag(R.id.estimated_arrival_time).toString()));
 				} else {
-					timeInfo.setText(formatRemainTime(timeInfo.getTag(
-							R.id.remaining_travel_time).toString()));
+					timeInfo.setText(formatRemainTime(timeInfo.getTag(R.id.remaining_travel_time).toString()));
 				}
-				remainTimesDirectListView.setText(timeInfo.getTag(
-						R.id.remaining_travel_time).toString());
+				remainTimesDirectListView.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
 			}
 		});
 	}
@@ -1638,11 +1497,9 @@ public class ValidationActivity extends FragmentActivity implements
 				final TextView timeInfo = (TextView) findViewById(R.id.remain_times_direc_list);
 				Boolean isRemainingTime = (Boolean) timeInfo.getTag();
 				if (isRemainingTime == null || !isRemainingTime) {
-					timeInfo.setText(timeInfo.getTag(
-							R.id.estimated_arrival_time).toString());
+					timeInfo.setText(timeInfo.getTag(R.id.estimated_arrival_time).toString());
 				} else {
-					timeInfo.setText(timeInfo
-							.getTag(R.id.remaining_travel_time).toString());
+					timeInfo.setText(timeInfo.getTag(R.id.remaining_travel_time).toString());
 				}
 			}
 		});
@@ -1653,8 +1510,7 @@ public class ValidationActivity extends FragmentActivity implements
 	private static String getFormatedEstimateArrivalTime(long time,
 			int timzoneOffset) {
 		SimpleDateFormat dateFormat = new SimpleDateFormat(timeFormat);
-		dateFormat.setTimeZone(TimeZone.getTimeZone(Request
-				.getTimeZone(timzoneOffset)));
+		dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone(timzoneOffset)));
 		return dateFormat.format(new Date(time));
 	}
 
@@ -1666,17 +1522,14 @@ public class ValidationActivity extends FragmentActivity implements
 	public static SpannableString formatCO2Desc(Context ctx, String co2Desc) {
 		int lbsIndex = co2Desc.indexOf("lbs");
 		SpannableString co2DescSpan = SpannableString.valueOf(co2Desc);
-		co2DescSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
-				.getDimensionPixelSize(R.dimen.micro_font)), lbsIndex, lbsIndex
+		co2DescSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources().getDimensionPixelSize(R.dimen.micro_font)), lbsIndex, lbsIndex
 				+ "lbs".length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		int co2Index = co2Desc.indexOf("CO2");
-		co2DescSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
-				.getDimensionPixelSize(R.dimen.smaller_font)), co2Index,
+		co2DescSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources().getDimensionPixelSize(R.dimen.smaller_font)), co2Index,
 				co2Index + "CO".length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
 		int twoIndex = co2Index + "CO".length();
-		co2DescSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
-				.getDimensionPixelSize(R.dimen.micro_font)), twoIndex, twoIndex
+		co2DescSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources().getDimensionPixelSize(R.dimen.micro_font)), twoIndex, twoIndex
 				+ "2".length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
 		return co2DescSpan;
@@ -1685,30 +1538,25 @@ public class ValidationActivity extends FragmentActivity implements
 	public static SpannableString formatCongrMessage(Context ctx, String message) {
 		int indexOfNewline = message.indexOf("\n");
 		SpannableString congrSpan = SpannableString.valueOf(message);
-		congrSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
-				.getDimensionPixelSize(R.dimen.medium_font)), indexOfNewline,
-				message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		congrSpan.setSpan(
-				new ForegroundColorSpan(ctx.getResources().getColor(
-						R.color.transparent_light_gray)), indexOfNewline + 1,
-				message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		if(indexOfNewline > -1) {
+			congrSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources().getDimensionPixelSize(R.dimen.medium_font)), indexOfNewline,
+					message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			congrSpan.setSpan(new ForegroundColorSpan(ctx.getResources().getColor(R.color.transparent_light_gray)), indexOfNewline + 1,
+					message.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		}
 		return congrSpan;
 	}
 
-	public static SpannableString formatCongrValueDesc(Context ctx,
-			String valueDesc) {
+	public static SpannableString formatCongrValueDesc(Context ctx,	String valueDesc) {
 		int indexOfNewline = valueDesc.indexOf("\n");
 		SpannableString congrValueSpan = SpannableString.valueOf(valueDesc);
-		congrValueSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources()
-				.getDimensionPixelSize(R.dimen.smaller_font)), indexOfNewline,
+		congrValueSpan.setSpan(new AbsoluteSizeSpan(ctx.getResources().getDimensionPixelSize(R.dimen.smaller_font)), indexOfNewline,
 				valueDesc.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		return congrValueSpan;
 	}
 
 	private View[] getMapViews() {
-		return new View[] { findViewById(R.id.mapview_holder),
-				findViewById(R.id.navigation_view),
-				findViewById(R.id.mapview_options) };
+		return new View[] { findViewById(R.id.mapview_holder), findViewById(R.id.navigation_view), findViewById(R.id.mapview_options) };
 	}
 
 	private GoogleApiClient googleApiClient;
@@ -1727,32 +1575,26 @@ public class ValidationActivity extends FragmentActivity implements
 
 	private void createLocationRequest() {
 		highAccuracyLocationRequest = new LocationRequest();
-		highAccuracyLocationRequest.setInterval(DebugOptionsActivity
-				.getGpsUpdateInterval(this));
+		highAccuracyLocationRequest.setInterval(DebugOptionsActivity.getGpsUpdateInterval(this));
 		highAccuracyLocationRequest.setFastestInterval(1000);
 		highAccuracyLocationRequest.setSmallestDisplacement(0);
-		highAccuracyLocationRequest
-				.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+		highAccuracyLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 	}
 
 	protected void buildLocationSettingsRequest() {
 		LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-		builder.addLocationRequest(highAccuracyLocationRequest).setAlwaysShow(
-				true);
+		builder.addLocationRequest(highAccuracyLocationRequest).setAlwaysShow(true);
 		locationSettingsRequest = builder.build();
 	}
 
 	protected void checkLocationSettings() {
-		PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi
-				.checkLocationSettings(googleApiClient, locationSettingsRequest);
+		PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(googleApiClient, locationSettingsRequest);
 		result.setResultCallback(ValidationActivity.this);
 
 	}
 
 	protected void startLocationUpdates() {
-		LocationServices.FusedLocationApi.requestLocationUpdates(
-				googleApiClient, highAccuracyLocationRequest,
-				gpsLocationListener);
+		LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, highAccuracyLocationRequest, gpsLocationListener);
 	}
 
 	private void prepareGPS() {
@@ -1761,15 +1603,12 @@ public class ValidationActivity extends FragmentActivity implements
 		} else if (googleApiClient == null) {
 			closeGPS();
 			locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-			if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-					&& locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-				locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, DebugOptionsActivity.getGpsUpdateInterval(this), 5,
-						locationListener);
+			if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)	&& locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+				locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, DebugOptionsActivity.getGpsUpdateInterval(this), 5, locationListener);
 			} else {
 				SystemService.alertNoGPS(this, true);
 			}
-			locationManager.requestLocationUpdates(
-					LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+			locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
 		}
 	}
 
@@ -1784,7 +1623,10 @@ public class ValidationActivity extends FragmentActivity implements
 						}
 					});
 		} else if (locationManager != null) {
-			locationManager.removeUpdates(locationListener);
+			try {
+				locationManager.removeUpdates(locationListener);
+			}
+			catch(Throwable t) {}
 		}
 	}
 
@@ -1812,19 +1654,13 @@ public class ValidationActivity extends FragmentActivity implements
 		try {
 			List<RecordedGeoPoint> routeGeoPoints = new ArrayList<RecordedGeoPoint>();
 			if (lastKnownLocation != null) {
-				routeGeoPoints.add(new RecordedGeoPoint(Double.valueOf(
-						lastKnownLocation.getLatitude() * 1E6).intValue(),
-						Double.valueOf(lastKnownLocation.getLongitude() * 1E6)
-								.intValue()));
+				routeGeoPoints.add(new RecordedGeoPoint(Double.valueOf(lastKnownLocation.getLatitude() * 1E6).intValue(), Double.valueOf(lastKnownLocation.getLongitude() * 1E6).intValue()));
 			}
 			for (RouteNode routeNode : _route.getNodes()) {
-				RecordedGeoPoint geoPoint = new RecordedGeoPoint(routeNode
-						.getGeoPoint().getLatitudeE6(), routeNode.getGeoPoint()
-						.getLongitudeE6());
+				RecordedGeoPoint geoPoint = new RecordedGeoPoint(routeNode.getGeoPoint().getLatitudeE6(), routeNode.getGeoPoint().getLongitudeE6());
 				routeGeoPoints.add(geoPoint);
 			}
-			String gpxContent = RecordedRouteGPXFormatter
-					.create(routeGeoPoints);
+			String gpxContent = RecordedRouteGPXFormatter.create(routeGeoPoints);
 			File gpxFile = getFile(ValidationActivity.this, _route.getId());
 			FileUtils.writeStringToFile(gpxFile, gpxContent);
 			return gpxFile;
@@ -1854,17 +1690,12 @@ public class ValidationActivity extends FragmentActivity implements
 			SKRouteManager routeManager = SKRouteManager.getInstance();
 			File gpxFile = saveGPXFile(_route);
 			if (gpxFile != null) {
-				SKTracksFile routeGpx = SKTracksFile.loadAtPath(gpxFile
-						.getAbsolutePath());
+				SKTracksFile routeGpx = SKTracksFile.loadAtPath(gpxFile.getAbsolutePath());
 				routeManager.clearCurrentRoute();
 				routeManager.clearRouteAlternatives();
 				routeManager.clearAllRoutesFromCache();
-				routeManager.createRouteFromTrackElement(
-						routeGpx.getRootTrackElement(),
-						SKRouteSettings.SKROUTE_CAR_FASTEST, false, false,
-						false);
-				drawDestinationAnnotation(reservation.getEndlat(),
-						reservation.getEndlon());
+				routeManager.createRouteFromTrackElement(routeGpx.getRootTrackElement(), SKRouteSettings.SKRouteMode.CAR_FASTEST, false, false,	false);
+				drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
 			}
 			
 			if(DebugOptionsActivity.isPolylineRouteEnabled(ValidationActivity.this)) {
@@ -1893,19 +1724,19 @@ public class ValidationActivity extends FragmentActivity implements
 	}
 
 	private void drawDestinationAnnotation(double lat, double lon) {
-		SKAnnotation destAnn = new SKAnnotation();
-		destAnn.setUniqueID(DEST_ANNOTATION_ID);
+		SKAnnotation destAnn = new SKAnnotation(DEST_ANNOTATION_ID);
+//		destAnn.setUniqueID(DEST_ANNOTATION_ID);
 		destAnn.setLocation(new SKCoordinate(lon, lat));
 		destAnn.setMininumZoomLevel(5);
 		SKAnnotationView destAnnView = new SKAnnotationView();
-		ImageView destImage = new ImageView(ValidationActivity.this);
-		destImage.setImageBitmap(Misc.getBitmap(ValidationActivity.this,
-				R.drawable.pin_destination, 1));
+		SkobblerImageView destImage = new SkobblerImageView(ValidationActivity.this, R.drawable.pin_destination, 1);
+		destImage.setLat(lat);
+		destImage.setLon(lon);
+		destImage.setImageBitmap(Misc.getBitmap(ValidationActivity.this, R.drawable.pin_destination, 1));
 		destAnnView.setView(destImage);
 		destAnn.setAnnotationView(destAnnView);
-		destAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20,
-				getResources().getDisplayMetrics())));
-		mapView.addAnnotation(destAnn, SKAnimationSettings.ANIMATION_NONE);
+		destAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
+		mapView.addAnnotation(destAnn, SKAnimationSettings.ANIMATION_POP_OUT);
 	}
 
 	private int seq = 1;
@@ -1915,9 +1746,7 @@ public class ValidationActivity extends FragmentActivity implements
 			@Override
 			public void run() {
 				try {
-					final File tFile = SendTrajectoryService.getInFile(
-							ValidationActivity.this, reservation.getRid(),
-							seq++);
+					final File tFile = SendTrajectoryService.getInFile(ValidationActivity.this, reservation.getRid(), seq++);
 					final JSONArray tJson = trajectory.toJSON();
 					trajectory.clear();
 					Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
@@ -1925,8 +1754,7 @@ public class ValidationActivity extends FragmentActivity implements
 						protected Void doInBackground(Void... params) {
 							try {
 								FileUtils.write(tFile, tJson.toString());
-							} catch (IOException e) {
-							}
+							} catch (IOException e) {}
 							return null;
 						}
 
@@ -1937,8 +1765,7 @@ public class ValidationActivity extends FragmentActivity implements
 							}
 						}
 					});
-				} catch (Throwable t) {
-				}
+				} catch (Throwable t) {}
 			}
 		});
 	}
@@ -1967,19 +1794,16 @@ public class ValidationActivity extends FragmentActivity implements
 					for (int i = 0; i < dirListadapter.getCount(); i++) {
 						distance += dirListadapter.getItem(i).distance;
 					}
-					// double percentage = distance * 100 /
-					// getRouteOrReroute().getLength();
+					// double percentage = distance * 100 / getRouteOrReroute().getLength();
 					// boolean toSent = false;
 					// for(int i=0; i<omwPercentages.length(); i++){
-					// try {
-					// if(!omwSent[i] && percentage <=
-					// omwPercentages.getDouble(i)){
-					// omwSent[i] = true;
-					// toSent = true;
-					// }
-					// }
-					// catch (JSONException e) {
-					// }
+					//     try {
+					//         if(!omwSent[i] && percentage <= omwPercentages.getDouble(i)) {
+					// 	           omwSent[i] = true;
+					//             toSent = true;
+					//         }
+					//     }
+					//     catch (JSONException e) {}
 					// }
 					// if(toSent){
 					final double _distance = distance;
@@ -1989,25 +1813,14 @@ public class ValidationActivity extends FragmentActivity implements
 							protected Boolean doInBackground(Void... params) {
 								boolean success = false;
 								try {
-									SKPosition currentPosition = mapView
-											.getCurrentGPSPosition(true);
-									GeoPoint loc = new GeoPoint(currentPosition
-											.getLatitude(), currentPosition
-											.getLongitude());
-									ImComingRequest req = new ImComingRequest(
-											User.getCurrentUser(ValidationActivity.this),
-											emails,
-											loc.getLatitude(),
-											loc.getLongitude(),
-											getETA(remainTimeInSec),
-											NavigationView
-													.metersToMiles(_distance),
-											reservation.getDestinationAddress(),
-											route.getTimezoneOffset());
+									SKPosition currentPosition = mapView.getCurrentGPSPosition(true);
+									GeoPoint loc = new GeoPoint(currentPosition.getLatitude(), currentPosition.getLongitude());
+									ImComingRequest req = new ImComingRequest(User.getCurrentUser(ValidationActivity.this),	emails,
+											loc.getLatitude(), loc.getLongitude(), getETA(remainTimeInSec),	NavigationView.metersToMiles(_distance),
+											reservation.getDestinationAddress(), route.getTimezoneOffset());
 									req.execute(ValidationActivity.this);
 									success = true;
-								} catch (Exception e) {
-								}
+								} catch (Exception e) {}
 								return success;
 							}
 
@@ -2022,12 +1835,10 @@ public class ValidationActivity extends FragmentActivity implements
 									LocalyticsUtils.tagSendOnMyWay();
 									Misc.playOnMyWaySound(ValidationActivity.this);
 								}
-								Toast.makeText(ValidationActivity.this, msg,
-										Toast.LENGTH_LONG).show();
+								Toast.makeText(ValidationActivity.this, msg, Toast.LENGTH_LONG).show();
 							}
 						});
-					} catch (Throwable t) {
-					}
+					} catch (Throwable t) {}
 					// }
 				}
 			}
@@ -2039,35 +1850,25 @@ public class ValidationActivity extends FragmentActivity implements
 			@Override
 			public void run() {
 				try {
-					final File tFile = TripService.getFile(
-							ValidationActivity.this, reservation.getRid());
+					final File tFile = TripService.getFile(ValidationActivity.this, reservation.getRid());
 					Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
 						@Override
 						protected Void doInBackground(Void... params) {
 							try {
 								JSONObject reservDetail = new JSONObject();
 								try {
-									reservDetail
-											.put(CongratulationActivity.DESTINATION,
-													reservation
-															.getDestinationAddress());
-									reservDetail
-											.put(CongratulationActivity.DEPARTURE_TIME,
-													reservation
-															.getDepartureTime());
-								} catch (JSONException e) {
-								}
+									reservDetail.put(CongratulationActivity.DESTINATION, reservation.getDestinationAddress());
+									reservDetail.put(CongratulationActivity.DEPARTURE_TIME,	reservation.getDepartureTime());
+								} catch (JSONException e) {}
 								FileUtils.write(tFile, reservDetail.toString());
-							} catch (IOException e) {
-							}
+							} catch (IOException e) {}
 							if (callback != null) {
 								callback.run();
 							}
 							return null;
 						}
 					});
-				} catch (Throwable t) {
-				}
+				} catch (Throwable t) {}
 			}
 		});
 	}
@@ -2082,8 +1883,7 @@ public class ValidationActivity extends FragmentActivity implements
 		runOnUiThread(new Runnable() {
 			public void run() {
 				List<DirectionItem> items = updateDirectionsList(node, location);
-				navigationView.update(getRouteOrReroute(), location, node,
-						items);
+				navigationView.update(getRouteOrReroute(), location, node, items);
 			}
 		});
 	}
@@ -2105,13 +1905,9 @@ public class ValidationActivity extends FragmentActivity implements
 			do {
 				if (nextNode.getFlag() != 0) {
 					if (nextNode == node && location != null) {
-						distance = getRouteOrReroute()
-								.getDistanceToNextTurn(location.getLatitude(),
-										location.getLongitude());
+						distance = getRouteOrReroute().getDistanceToNextTurn(location.getLatitude(), location.getLongitude());
 					}
-					DirectionItem item = new DirectionItem(
-							nextNode.getDirection(), distance,
-							nextNode.getRoadName());
+					DirectionItem item = new DirectionItem(nextNode.getDirection(), distance, nextNode.getRoadName());
 					dirListadapter.add(item);
 					items.add(item);
 					distance = 0;
@@ -2129,16 +1925,10 @@ public class ValidationActivity extends FragmentActivity implements
 		double distance = 0;
 		for (DirectionItem item : items) {
 			try {
-				distance = distance
-						+ nf.parse(
-								nf.format(UnitConversion
-										.meterToMile(item.distance)))
-								.doubleValue();
-			} catch (ParseException ignore) {
-			}
+				distance = distance	+ nf.parse(nf.format(UnitConversion.meterToMile(item.distance))).doubleValue();
+			} catch (ParseException ignore) {}
 		}
-		remainDistDirecListView.setText(StringUtil.formatRoundingDistance(
-				distance, false));
+		remainDistDirecListView.setText(StringUtil.formatRoundingDistance(distance, false));
 	}
 
 	// init at onCreate()
@@ -2153,6 +1943,8 @@ public class ValidationActivity extends FragmentActivity implements
 	private static final double intersectZoomDistanceLimit = 1320; // feet
 
 	private AtomicInteger routeOfRouteCnt = new AtomicInteger();
+	
+	private AtomicInteger routeOfOriginRouteCnt = new AtomicInteger(0);
 
 	private String lastRerutingApiCallStatus = "none";
 
@@ -2167,13 +1959,8 @@ public class ValidationActivity extends FragmentActivity implements
 						navigationView.setRerouting(true);
 						lastRerutingApiCallStatus = "waiting";
 						RouteNode lastNode = getRouteOrReroute().getLastNode();
-						navigationView
-								.setRestrictVoiceGuidance(RouteNode
-										.distanceBetween(lat, lon,
-												lastNode.getLatitude(),
-												lastNode.getLongitude()) < ValidationParameters
-										.getInstance()
-										.getDisableRerouteThreshold());
+						navigationView.setRestrictVoiceGuidance(RouteNode.distanceBetween(lat, lon,	lastNode.getLatitude(),	lastNode.getLongitude()) < 
+								ValidationParameters.getInstance().getDisableRerouteThreshold());
 					}
 
 					@Override
@@ -2191,6 +1978,11 @@ public class ValidationActivity extends FragmentActivity implements
 							reroute.preprocessNodes();
 							routeRect = initRouteRect(reroute);
 							updateDirectionsList();
+							if(!inRouteTag.get()) {
+								originRerouteLinksInited.set(false);
+								routeOfOriginRouteCnt.set(0);
+								initOriginRerouteLink(lat, lon, result);
+							}
 							drawRoute(mapView, reroute);
 							lastRerutingApiCallStatus = "success";
 							navigationView.setHasVoice(reroute.hasVoice());
@@ -2207,20 +1999,14 @@ public class ValidationActivity extends FragmentActivity implements
 	private Route getNewRoute(double lat, double lon, double speedInMph,
 			float bearing) {
 		Route navRoute = null;
-		RouteFetchRequest routeReq = new RouteFetchRequest(
-				User.getCurrentUser(ValidationActivity.this), new GeoPoint(lat,
-						lon), new GeoPoint(reservation.getEndlat(),
-						reservation.getEndlon()), System.currentTimeMillis(),
-				speedInMph, bearing, null, reservation.getDestinationAddress(),
-				reservationInfo.isIncludeToll(), versionNumber,
-				reservationInfo.isHov());
+		RouteFetchRequest routeReq = new RouteFetchRequest(User.getCurrentUser(ValidationActivity.this), new GeoPoint(lat, lon), 
+				new GeoPoint(reservation.getEndlat(),	reservation.getEndlon()), System.currentTimeMillis(),
+				speedInMph, bearing, null, reservation.getDestinationAddress(),	reservationInfo.isIncludeToll(), versionNumber,	reservationInfo.isHov());
 		try {
 			List<Route> list = routeReq.execute(ValidationActivity.this);
 			if (list != null && !list.isEmpty()) {
 				Route resRoute = list.get(0);
-				RouteFetchRequest navReq = new RouteFetchRequest(
-						resRoute.getLink().url, System.currentTimeMillis(), 0,
-						speedInMph, bearing);
+				RouteFetchRequest navReq = new RouteFetchRequest(resRoute.getLink().url, System.currentTimeMillis(), 0,	speedInMph, bearing);
 				List<Route> routes = navReq.execute(ValidationActivity.this);
 				if (routes != null && routes.size() > 0) {
 					navRoute = routes.get(0);
@@ -2255,23 +2041,15 @@ public class ValidationActivity extends FragmentActivity implements
 		boolean hasNodes = !getRouteOrReroute().getNodes().isEmpty();
 		RouteNode intersectNode = null;
 		if (hasNodes) {
-			final RouteLink rerouteNearestLink = getRouteOrReroute()
-					.getNearestLink(lat, lng);
+			final RouteLink rerouteNearestLink = getRouteOrReroute().getNearestLink(lat, lng);
 			intersectNode = rerouteNearestLink.getEndNode();
-			while (intersectNode.getFlag() == 0
-					&& intersectNode.getNextNode() != null) {
+			while (intersectNode.getFlag() == 0	&& intersectNode.getNextNode() != null) {
 				intersectNode = intersectNode.getNextNode();
 			}
 		}
-		return !route.getNodes().isEmpty()
-				&& NavigationView.metersToFeet(route.getFirstNode().distanceTo(
-						lat, lng)) <= odZoomDistanceLimit
-				|| hasNodes
-				&& NavigationView.metersToFeet(getRouteOrReroute()
-						.getLastNode().distanceTo(lat, lng)) <= odZoomDistanceLimit
-				|| intersectNode != null
-				&& NavigationView.metersToFeet(intersectNode.distanceTo(lat,
-						lng)) <= intersectZoomDistanceLimit;
+		return !route.getNodes().isEmpty() && NavigationView.metersToFeet(route.getFirstNode().distanceTo(lat, lng)) <= odZoomDistanceLimit	|| hasNodes
+				&& NavigationView.metersToFeet(getRouteOrReroute().getLastNode().distanceTo(lat, lng)) <= odZoomDistanceLimit || intersectNode != null
+				&& NavigationView.metersToFeet(intersectNode.distanceTo(lat, lng)) <= intersectZoomDistanceLimit;
 	}
 
 	private Long startCountDownTime = Long.MAX_VALUE;
@@ -2280,6 +2058,22 @@ public class ValidationActivity extends FragmentActivity implements
 	private Map<Integer, Incident> incidents = new HashMap<Integer, Incident>();
 	private AtomicBoolean sendOnMyWayEmail = new AtomicBoolean(true);
 	private AtomicBoolean locationRefreshed = new AtomicBoolean(false);
+	private AtomicBoolean sunTimeInited = new AtomicBoolean(false);
+	private AtomicBoolean originRerouteLinksInited = new AtomicBoolean(false);
+	private AtomicBoolean inRouteTag = new AtomicBoolean();
+	private List<RouteLink> originRerouteLinks = new ArrayList<RouteLink>();
+	
+	private void initOriginRerouteLink(final double lat, final double lon, final Route _route) {
+		Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... params) {
+				originRerouteLinks.addAll(_route.getOriginRerouteLinks(lat, lon));
+				originRerouteLinksInited.set(true);
+				return null;
+			}
+			
+		});
+	}
 
 	private synchronized void locationChanged(final Location location) {
 		final double speedInMph = Trajectory.msToMph(location.getSpeed());
@@ -2287,6 +2081,10 @@ public class ValidationActivity extends FragmentActivity implements
 		final double lat = location.getLatitude();
 		final double lng = location.getLongitude();
 		final float accuracy = location.getAccuracy();
+		if(locationRefreshed.get() && !sunTimeInited.get()) {
+			SkobblerUtils.initSunriseSunsetTime(ValidationActivity.this, lat, lng);
+			sunTimeInited.set(true);
+		}
 		if (!routeLoaded.get() && isLoadRoute() && locationRefreshed.get()) {
 			routeLoaded.set(true);
 			runOnUiThread(new Runnable() {
@@ -2298,60 +2096,40 @@ public class ValidationActivity extends FragmentActivity implements
 							List<Route> navRoutes = null;
 							try {
 								GeoPoint curPosi = new GeoPoint(lat, lng);
-								Reservation reser = new ReservationFetchRequest(
-										User.getCurrentUser(ValidationActivity.this),
-										reservation.getRid())
-										.execute(ValidationActivity.this);
+								Reservation reser = new ReservationFetchRequest(User.getCurrentUser(ValidationActivity.this),
+										reservation.getRid()).execute(ValidationActivity.this);
 								reservation.setEndlat(reser.getEndlat());
 								reservation.setEndlon(reser.getEndlon());
 
 								RouteFetchRequest request;
 								if (isDebugging) {
-									request = new RouteFetchRequest(
-											route.getDepartureTime());
+									request = new RouteFetchRequest(route.getDepartureTime());
 								} else {
 									// re-query route
 									if (curPosi.isEmpty()) {
-										RouteNode firstNode = reser.getRoute()
-												.getFirstNode();
-										curPosi = new GeoPoint(
-												firstNode.getLatitude(),
-												firstNode.getLongitude());
+										RouteNode firstNode = reser.getRoute().getFirstNode();
+										curPosi = new GeoPoint(firstNode.getLatitude(), firstNode.getLongitude());
 									}
-									request = new RouteFetchRequest(
-											User.getCurrentUser(ValidationActivity.this),
-											curPosi, new GeoPoint(reser
-													.getEndlat(), reser
-													.getEndlon()), System
-													.currentTimeMillis(),
-											speedInMph, bearing, null, reser
-													.getDestinationAddress(),
-											reservationInfo.isIncludeToll(),
-											versionNumber, reservationInfo
-													.isHov());
+									request = new RouteFetchRequest(User.getCurrentUser(ValidationActivity.this),
+											curPosi, new GeoPoint(reser.getEndlat(), reser.getEndlon()), System.currentTimeMillis(),
+											speedInMph, bearing, null, reser.getDestinationAddress(), reservationInfo.isIncludeToll(),
+											versionNumber, reservationInfo.isHov());
 								}
-								List<Route> routes = request
-										.execute(ValidationActivity.this);
+								List<Route> routes = request.execute(ValidationActivity.this);
 								if (routes != null && routes.size() > 0) {
 									Route resRoute = routes.get(0);
-									RouteFetchRequest navReq = new RouteFetchRequest(
-											resRoute.getLink().url,
-											System.currentTimeMillis(), 0,
+									RouteFetchRequest navReq = new RouteFetchRequest(resRoute.getLink().url, System.currentTimeMillis(), 0,
 											speedInMph, bearing);
-									navRoutes = navReq
-											.execute(ValidationActivity.this);
-									if (navRoutes != null
-											&& navRoutes.size() > 0) {
+									navRoutes = navReq.execute(ValidationActivity.this);
+									if (navRoutes != null && navRoutes.size() > 0) {
 										Route navRoute = navRoutes.get(0);
 										navRoute.setLink(resRoute.getLink());
 										Map<Integer, Integer> nodeTimes = new HashMap<Integer, Integer>();
 										for (RouteNode n : resRoute.getNodes()) {
-											nodeTimes.put(n.getNodeNum(),
-													n.getTime());
+											nodeTimes.put(n.getNodeNum(), n.getTime());
 										}
 										for (RouteNode n : navRoute.getNodes()) {
-											Integer time = nodeTimes.get(n
-													.getNodeNum());
+											Integer time = nodeTimes.get(n.getNodeNum());
 											if (time != null) {
 												n.setTime(time);
 											}
@@ -2376,37 +2154,27 @@ public class ValidationActivity extends FragmentActivity implements
 									}
 								});
 							} else if (routes != null && routes.size() > 0) {
-								final FakeRoute fakeRoute = DebugOptionsActivity
-										.getFakeRoute(ValidationActivity.this,
-												route.getId());
+								final FakeRoute fakeRoute = DebugOptionsActivity.getFakeRoute(ValidationActivity.this, route.getId());
 								Route oldRoute = route;
-								route = routes.get(isDebugging ? fakeRoute.seq
-										: 0);
+								route = routes.get(isDebugging ? fakeRoute.seq : 0);
 								route.setId(oldRoute.getId());
-								route.setTimezoneOffset(oldRoute
-										.getTimezoneOffset());
+								route.setTimezoneOffset(oldRoute.getTimezoneOffset());
 								reservation.setRoute(route);
 								route.setCredits(reservation.getCredits());
 								route.preprocessNodes();
 								routeRect = initRouteRect(route);
 								updateDirectionsList();
-								centerMap(mapView, isOnRecreate.get(),
-										lastCenter, route);
+								initOriginRerouteLink(lat, lng, route);
+								centerMap(mapView, isOnRecreate.get(), lastCenter, route);
 								drawRoute(mapView, route);
 								navigationView.setHasVoice(route.hasVoice());
-								SharedPreferences debugPrefs = getSharedPreferences(
-										DebugOptionsActivity.DEBUG_PREFS,
-										MODE_PRIVATE);
-								int gpsMode = debugPrefs.getInt(
-										DebugOptionsActivity.GPS_MODE,
-										DebugOptionsActivity.GPS_MODE_DEFAULT);
-								if (lastKnownLocation != null
-										&& gpsMode != DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
+								SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
+								int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
+								if (lastKnownLocation != null && gpsMode != DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
 									locationChanged(lastKnownLocation);
 								}
 								firstNode = route.getFirstNode();
 							}
-
 						}
 					};
 					Misc.parallelExecute(task);
@@ -2414,8 +2182,7 @@ public class ValidationActivity extends FragmentActivity implements
 			});
 		}
 
-		if (DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this)
-				&& StringUtils.isBlank(incidentUrl)) {
+		if (DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this)	&& StringUtils.isBlank(incidentUrl)) {
 			MainActivity.initApiLinksIfNecessary(ValidationActivity.this,
 					new Runnable() {
 						@Override
@@ -2423,18 +2190,13 @@ public class ValidationActivity extends FragmentActivity implements
 							AsyncTask<Void, Void, Void> getIncidentTask = new AsyncTask<Void, Void, Void>() {
 								@Override
 								protected Void doInBackground(Void... params) {
-									CityRequest cityReq = new CityRequest(lat,
-											lng, HTTP.defaultTimeout);
+									CityRequest cityReq = new CityRequest(lat, lng, HTTP.defaultTimeout);
 									try {
-										City city = cityReq
-												.execute(ValidationActivity.this);
-										if (city != null
-												&& StringUtils
-														.isBlank(city.html)) {
+										City city = cityReq.execute(ValidationActivity.this);
+										if (city != null && StringUtils.isBlank(city.html)) {
 											incidentUrl = city.incidents;
 										}
-									} catch (Exception ignore) {
-									}
+									} catch (Exception ignore) {}
 									return null;
 								}
 
@@ -2444,23 +2206,17 @@ public class ValidationActivity extends FragmentActivity implements
 					});
 		}
 
-		if (DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this)
-				&& incidentInitTime < 0 && StringUtils.isNotBlank(incidentUrl)) {
+		if (DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this)	&& incidentInitTime < 0 && StringUtils.isNotBlank(incidentUrl)) {
 			AsyncTask<Void, Void, Boolean> retriveIncidentTask = new AsyncTask<Void, Void, Boolean>() {
 				@Override
 				protected Boolean doInBackground(Void... params) {
 					incidents.clear();
-					IncidentRequest incidentReq = new IncidentRequest(
-							User.getCurrentUser(ValidationActivity.this),
-							incidentUrl, HTTP.defaultTimeout);
+					IncidentRequest incidentReq = new IncidentRequest(User.getCurrentUser(ValidationActivity.this),	incidentUrl, HTTP.defaultTimeout);
 					incidentReq.invalidateCache(ValidationActivity.this);
 					try {
-						List<Incident> allIncident = incidentReq
-								.execute(ValidationActivity.this);
+						List<Incident> allIncident = incidentReq.execute(ValidationActivity.this);
 						for (Incident inc : allIncident) {
-							incidents
-									.put(SkobblerUtils.getUniqueId(inc.lat,
-											inc.lon), inc);
+							incidents.put(SkobblerUtils.getUniqueId(inc.lat, inc.lon), inc);
 						}
 					} catch (Exception ignore) {
 						return false;
@@ -2483,10 +2239,8 @@ public class ValidationActivity extends FragmentActivity implements
 			lastEnRouteCheckTime.set(System.currentTimeMillis());
 		}
 
-		if (lastEnRouteCheckTime.get() > 0
-				&& System.currentTimeMillis() - lastEnRouteCheckTime.get() >= 5 * 60 * 1000
-				&& getRouteOrReroute().getDistanceToNextTurn(lat, lng) >= 20 * location
-						.getSpeed()) {
+		if (lastEnRouteCheckTime.get() > 0 && System.currentTimeMillis() - lastEnRouteCheckTime.get() >= 5 * 60 * 1000
+				&& getRouteOrReroute().getDistanceToNextTurn(lat, lng) >= 20 * location.getSpeed()) {
 			lastEnRouteCheckTime.set(System.currentTimeMillis());
 			enrouteCheck();
 		}
@@ -2496,44 +2250,45 @@ public class ValidationActivity extends FragmentActivity implements
 			public void run() {
 				final GeoPoint position = new GeoPoint(lat, lng);
 				if (position.isEmpty()) {
-					SharedPreferences debugPrefs = getSharedPreferences(
-							DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
-					int gpsMode = debugPrefs.getInt(
-							DebugOptionsActivity.GPS_MODE,
-							DebugOptionsActivity.GPS_MODE_DEFAULT);
+					SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
+					int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
 					if (gpsMode != DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
-						navigationView
-								.setTextViewWaiting("Waiting for the route...");
+						navigationView.setTextViewWaiting("Waiting for the route...");
 					}
 				}
 
-				if (speedInMph <= speedOutOfRouteThreshold
-						&& lastKnownLocation != null) {
+				if (speedInMph <= speedOutOfRouteThreshold && lastKnownLocation != null) {
 					location.setBearing(lastKnownLocation.getBearing());
 				}
 
 				if ((Boolean) buttonFollow.getTag()) {
-					mapView.setZoom(isNearOD_or_Intersection(lat, lng) ? DEFAULT_ZOOM_LEVEL
-							: NAVIGATION_ZOOM_LEVEL);
+					mapView.setZoom(isNearOD_or_Intersection(lat, lng) ? DEFAULT_ZOOM_LEVEL : NAVIGATION_ZOOM_LEVEL);
 				}
 
 				long now = SystemClock.elapsedRealtime();
-				SKPosition currentPosition = mapView
-						.getCurrentGPSPosition(true);
-				GeoPoint oldLoc = new GeoPoint(currentPosition.getLatitude(),
-						currentPosition.getLongitude());
+				SKPosition currentPosition = mapView.getCurrentGPSPosition(true);
+				GeoPoint oldLoc = new GeoPoint(currentPosition.getLatitude(), currentPosition.getLongitude());
 				if (oldLoc.isEmpty() || initial.getAndSet(false)) {
-					if (!position.isEmpty()) {
+					if (!position.isEmpty() && (speedInMph > 0 || locationUpdated.get())) {
+						locationUpdated.set(true);
+						stopOrientationSensor();
 						mapView.reportNewGPSPosition(new SKPosition(location));
+						mapView.reportNewHeading(location.getBearing());
 					}
 				} else {
 					animator.removeCallbacksAndMessages(null);
-					mapView.reportNewGPSPosition(new SKPosition(location));
+					if(speedInMph > 0 || locationUpdated.get()) {
+						locationUpdated.set(true);
+						stopOrientationSensor();
+						mapView.reportNewGPSPosition(new SKPosition(location));
+						mapView.reportNewHeading(location.getBearing());
+					}
 				}
 				lastLocChanged = now;
 				lastKnownLocation = location;
 			}
 		});
+		
 		if (!routeLoaded.get()) {
 			return;
 		}
@@ -2541,112 +2296,92 @@ public class ValidationActivity extends FragmentActivity implements
 		long linkId = Trajectory.DEFAULT_LINK_ID;
 
 		if (!route.getNodes().isEmpty()) {
-			getRouteOrReroute().getNearestNode(lat, lng).getMetadata()
-					.setPassed(true);
+			getRouteOrReroute().getNearestNode(lat, lng).getMetadata().setPassed(true);
 
 			long passedNodeTime = passedNodeTimeOffset.get();
-
-			List<RouteLink> rerouteNearbyLinks = getRouteOrReroute()
-					.getNearbyLinks(lat, lng,
-							distanceOutOfRouteThreshold + accuracy);
-			List<RouteLink> rerouteSameDirLinks = getRouteOrReroute()
-					.getSameDirectionLinks(rerouteNearbyLinks, speedInMph,
-							bearing);
-
-			if (!Route.isPending(rerouteNearbyLinks, rerouteSameDirLinks)) {
-				if (Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)
-						&& speedInMph > speedOutOfRouteThreshold) {
-					if (routeOfRouteCnt.incrementAndGet() == countOutOfRouteThreshold) {
+			
+			List<RouteLink> rerouteNearbyLinks = getRouteOrReroute().getNearbyLinks(lat, lng, distanceOutOfRouteThreshold + accuracy);
+			List<RouteLink> rerouteSameDirLinks = getRouteOrReroute().getSameDirectionLinks(rerouteNearbyLinks, speedInMph, bearing);
+			
+			inRouteTag.set(inRouteTag.get() || (speedInMph > speedOutOfRouteThreshold && !Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)));
+			
+			if(!inRouteTag.get()) {
+				if(isLeavingOriginLinks(lat, lng)) {
+					if(routeOfOriginRouteCnt.incrementAndGet() == countOutOfRouteThreshold) {
 						reroute(lat, lng, speedInMph, bearing, passedNodeTime);
 					}
-				} else {
-					routeOfRouteCnt.set(0);
 				}
-
-				if (rerouteSameDirLinks.size() > 0) {
-					final RouteLink rerouteNearestLink = Route.getClosestLink(
-							rerouteSameDirLinks, lat, lng);
-
-					if (DebugOptionsActivity.isReroutingDebugMsgEnabled(this)
-							|| DebugOptionsActivity
-									.isVoiceDebugMsgEnabled(this)
-							|| DebugOptionsActivity
-									.isGpsAccuracyDebugMsgEnabled(this)) {
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								String msg = "";
-								if (DebugOptionsActivity
-										.isReroutingDebugMsgEnabled(ValidationActivity.this)) {
-									msg += "distance from route: "
-											+ Double.valueOf(
-													NavigationView
-															.metersToFeet(rerouteNearestLink
-																	.distanceTo(
-																			lat,
-																			lng)))
-													.intValue()
-											+ " ft"
-											+ ", speed: "
-											+ Double.valueOf(speedInMph)
-													.intValue()
-											+ " mph"
-											+ "\nconsecutive out of route count: "
-											+ routeOfRouteCnt.get()
-											+ "\nlast API call status: "
-											+ lastRerutingApiCallStatus;
-								}
-								if (DebugOptionsActivity
-										.isVoiceDebugMsgEnabled(ValidationActivity.this)) {
-									RouteNode endNodeForLink = rerouteNearestLink
-											.getEndNode();
-									RouteNode endNode = endNodeForLink;
-									while (StringUtils.isBlank(endNode
-											.getVoice())
-											&& endNode.getNextNode() != null) {
-										endNode = endNode.getNextNode();
-									}
-									msg += (StringUtils.isBlank("") ? "" : "\n")
-											+ "node: "
-											+ endNode.getNodeNum()
-											+ ", voice radius: "
-											+ Double.valueOf(
-													endNode.getVoiceRadius())
-													.intValue()
-											+ " ft"
-											+ "\ndistance from node: "
-											+ Double.valueOf(
-													NavigationView
-															.metersToFeet(endNode
-																	.distanceTo(
-																			lat,
-																			lng)))
-													.intValue()
-											+ " ft"
-											+ "\nvoice:"
-											+ endNode.getVoice()
-											+ "\nvoice for link (nearest node): "
-											+ endNodeForLink.getVoiceForLink();
-								}
-								if (DebugOptionsActivity
-										.isGpsAccuracyDebugMsgEnabled(ValidationActivity.this)) {
-									msg += (StringUtils.isBlank("") ? "" : "\n")
-											+ "gps accuracy: "
-											+ accuracy
-											+ " meters";
-								}
-								((TextView) findViewById(R.id.rerouting_debug_msg))
-										.setText(msg);
-							}
-						});
+				else {
+					routeOfOriginRouteCnt.set(0);
+				}
+			}
+			else {
+				if (!Route.isPending(rerouteNearbyLinks, rerouteSameDirLinks)) {
+					if (Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)	&& speedInMph > speedOutOfRouteThreshold) {
+						if (routeOfRouteCnt.incrementAndGet() == countOutOfRouteThreshold) {
+							reroute(lat, lng, speedInMph, bearing, passedNodeTime);
+						}
+					} else {
+						routeOfRouteCnt.set(0);
 					}
-
-					linkId = rerouteNearestLink.getStartNode().getLinkId();
+	
+					if (rerouteSameDirLinks.size() > 0) {
+						final RouteLink rerouteNearestLink = Route.getClosestLink(rerouteSameDirLinks, lat, lng);
+	
+						if (DebugOptionsActivity.isReroutingDebugMsgEnabled(this)
+								|| DebugOptionsActivity.isVoiceDebugMsgEnabled(this) || DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(this)) {
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									String msg = "";
+									if (DebugOptionsActivity.isReroutingDebugMsgEnabled(ValidationActivity.this)) {
+										msg += "distance from route: "
+												+ Double.valueOf(NavigationView.metersToFeet(rerouteNearestLink.distanceTo(lat,	lng))) .intValue()
+												+ " ft"
+												+ ", speed: "
+												+ Double.valueOf(speedInMph).intValue()
+												+ " mph"
+												+ "\nconsecutive out of route count: "
+												+ routeOfRouteCnt.get()
+												+ "\nlast API call status: "
+												+ lastRerutingApiCallStatus;
+									}
+									if (DebugOptionsActivity.isVoiceDebugMsgEnabled(ValidationActivity.this)) {
+										RouteNode endNodeForLink = rerouteNearestLink.getEndNode();
+										RouteNode endNode = endNodeForLink;
+										while (StringUtils.isBlank(endNode.getVoice()) && endNode.getNextNode() != null) {
+											endNode = endNode.getNextNode();
+										}
+										msg += (StringUtils.isBlank("") ? "" : "\n")
+												+ "node: "
+												+ endNode.getNodeNum()
+												+ ", voice radius: "
+												+ Double.valueOf(endNode.getVoiceRadius()).intValue()
+												+ " ft"
+												+ "\ndistance from node: "
+												+ Double.valueOf(NavigationView.metersToFeet(endNode.distanceTo(lat, lng))).intValue()
+												+ " ft"
+												+ "\nvoice:"
+												+ endNode.getVoice()
+												+ "\nvoice for link (nearest node): "
+												+ endNodeForLink.getVoiceForLink();
+									}
+									if (DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(ValidationActivity.this)) {
+										msg += (StringUtils.isBlank("") ? "" : "\n")
+												+ "gps accuracy: "
+												+ accuracy
+												+ " meters";
+									}
+									((TextView) findViewById(R.id.rerouting_debug_msg)).setText(msg);
+								}
+							});
+						}
+						linkId = rerouteNearestLink.getStartNode().getLinkId();
+					}
 				}
 			}
 
-			nearestNode = getRouteOrReroute().getNearestLink(lat, lng)
-					.getEndNode();
+			nearestNode = getRouteOrReroute().getNearestLink(lat, lng).getEndNode();
 
 			long remainingNodeTime = 0;
 			for (RouteNode node : getRouteOrReroute().getNodes()) {
@@ -2662,23 +2397,14 @@ public class ValidationActivity extends FragmentActivity implements
 
 			remainingTime.set(remainingNodeTime);
 
-			etaDelay.set(currentTime.toMillis(false) - startTime
-					- passedNodeTime * 1000);
+			etaDelay.set(currentTime.toMillis(false) - startTime - passedNodeTime * 1000);
 			final TextView timeInfo = (TextView) findViewById(R.id.remain_times);
-			timeInfo.setTag(
-					R.id.estimated_arrival_time,
-					getFormatedEstimateArrivalTime(getETA(remainingTime.get()),
-							route.getTimezoneOffset()));
-			timeInfo.setTag(R.id.remaining_travel_time,
-					getFormatedRemainingTime(remainingTime.get()));
+			timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(getETA(remainingTime.get()), route.getTimezoneOffset()));
+			timeInfo.setTag(R.id.remaining_travel_time,	getFormatedRemainingTime(remainingTime.get()));
 			refreshTimeInfo();
 			final TextView directListTimeInfo = (TextView) findViewById(R.id.remain_times_direc_list);
-			directListTimeInfo.setTag(
-					R.id.estimated_arrival_time,
-					getFormatedEstimateArrivalTime(getETA(remainingTime.get()),
-							route.getTimezoneOffset()));
-			directListTimeInfo.setTag(R.id.remaining_travel_time,
-					getFormatedRemainingTime(remainingTime.get()));
+			directListTimeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(getETA(remainingTime.get()), route.getTimezoneOffset()));
+			directListTimeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(remainingTime.get()));
 			refreshDirectListTimeInfo();
 			if (nearestNode.getFlag() != 0) {
 				showNavigationInformation(location, nearestNode);
@@ -2703,7 +2429,6 @@ public class ValidationActivity extends FragmentActivity implements
 
 		if (!isReplay.get()) {
 			trajectory.accumulate(location, linkId);
-
 			if (!arrived.get() && trajectory.size() >= 8) {
 				saveTrajectory();
 			}
@@ -2714,17 +2439,14 @@ public class ValidationActivity extends FragmentActivity implements
 		}
 
 		if (!arrived.get() && !getRouteOrReroute().getNodes().isEmpty()) {
-			startCountDownTime = reservation.getStartCountDownTime(lat, lng,
-					speedInMph, startCountDownTime);
-			if (reservation.hasArrivedAtDestination(lat, lng,
-					startCountDownTime)) {
+			startCountDownTime = reservation.getStartCountDownTime(lat, lng, speedInMph, startCountDownTime);
+			if (reservation.hasArrivedAtDestination(lat, lng, startCountDownTime)) {
 				arrived.set(true);
 				arriveAtDestination();
 				Log.d("ValidationActivity", "Arriving at destination");
 
 				try {
-					Log.d("ValidationActivity", "trajectory = "
-							+ trajectory.toJSON().toString());
+					Log.d("ValidationActivity", "trajectory = "	+ trajectory.toJSON().toString());
 				} catch (JSONException e) {
 					ehs.registerException(e);
 				}
@@ -2738,11 +2460,28 @@ public class ValidationActivity extends FragmentActivity implements
 		mapView.getMapSettings().setCurrentPositionShown(true);
 	}
 
+	private Map<RouteLink, Double> oldRecord = new HashMap<RouteLink, Double>();
+	
+	private boolean isLeavingOriginLinks(double lat, double lng) {
+		boolean hasDecrease = false;
+		if(originRerouteLinksInited.get()) {
+			for (RouteLink link : originRerouteLinks) {
+				Double oldDist = oldRecord.get(link);
+				if(oldDist != null) {
+					hasDecrease = hasDecrease || (link.distanceTo(lat, lng) - oldDist <= 0);
+				}
+				else {
+					oldRecord.put(link, link.distanceTo(lat, lng));
+				}
+			}
+		}
+		return !hasDecrease;
+	}
+
 	private void removeAllIncident() {
 		if (DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this)) {
 			mapView.deleteAllAnnotationsAndCustomPOIs();
-			drawDestinationAnnotation(reservation.getEndlat(),
-					reservation.getEndlon());
+			drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
 		}
 	}
 
@@ -2750,9 +2489,7 @@ public class ValidationActivity extends FragmentActivity implements
 		List<Incident> incidentOfDepTime = new ArrayList<Incident>();
 		if (incidents != null && incidents.size() > 0) {
 			for (Incident incident : incidents.values()) {
-				if (incident.severity > 0
-						&& incident.isInTimeRange(reservation
-								.getDepartureTimeUtc())) {
+				if (incident.severity > 0 && incident.isInTimeRange(reservation.getDepartureTimeUtc())) {
 					incidentOfDepTime.add(incident);
 				}
 			}
@@ -2787,10 +2524,7 @@ public class ValidationActivity extends FragmentActivity implements
 						saveTrip(new Runnable() {
 							@Override
 							public void run() {
-								TripService
-										.runImd(ValidationActivity.this,
-												User.getCurrentUser(ValidationActivity.this),
-												reservation.getRid());
+								TripService.runImd(ValidationActivity.this,	User.getCurrentUser(ValidationActivity.this), reservation.getRid(), TRIP_VALIDATOR);
 							}
 						});
 					}
@@ -2799,19 +2533,13 @@ public class ValidationActivity extends FragmentActivity implements
 
 			SKPosition currentPosition = mapView.getCurrentGPSPosition(true);
 			if (currentPosition != null) {
-				Intent updateMyLocation = new Intent(
-						LandingActivity2.UPDATE_MY_LOCATION);
-				updateMyLocation.putExtra("lat", currentPosition.getLatitude());
-				updateMyLocation
-						.putExtra("lon", currentPosition.getLongitude());
+				Intent updateMyLocation = new Intent(LandingActivity2.UPDATE_MY_LOCATION);
+				updateMyLocation.putExtra("lat", currentPosition.getCoordinate().getLatitude());
+				updateMyLocation.putExtra("lon", currentPosition.getCoordinate().getLongitude());
 				sendBroadcast(updateMyLocation);
 			}
 
 			turnOffGPS.set(true);
-			// turn off GPS
-			if (locationManager != null) {
-				locationManager.removeUpdates(locationListener);
-			}
 
 			findViewById(R.id.loading).setVisibility(View.VISIBLE);
 
@@ -2821,19 +2549,15 @@ public class ValidationActivity extends FragmentActivity implements
 				String message = "", voice = "";
 				if (StringUtils.isNotBlank(trajectoryData)) {
 					try {
-						JSONObject trajectoryJson = new JSONObject(
-								trajectoryData);
+						JSONObject trajectoryJson = new JSONObject(trajectoryData);
 						uPoints = trajectoryJson.optInt("credit", 0);
 						co2Value = trajectoryJson.optDouble("co2_saving", 0);
-						timeSavingInMinute = trajectoryJson.optDouble(
-								"time_saving_in_second", 0) / 60;
+						timeSavingInMinute = trajectoryJson.optDouble("time_saving_in_second", 0) / 60;
 						voice = trajectoryJson.optString("voice", "");
 						message = trajectoryJson.optString("message", "");
-					} catch (Exception ignore) {
-					}
+					} catch (Exception ignore) {}
 				}
-				doDisplayArrivalMsg(uPoints, co2Value, message, voice,
-						timeSavingInMinute);
+				doDisplayArrivalMsg(uPoints, co2Value, message, voice, timeSavingInMinute);
 			} else {
 				new Handler().postDelayed(new Runnable() {
 					@Override
@@ -2843,8 +2567,7 @@ public class ValidationActivity extends FragmentActivity implements
 								callback.run();
 							}
 							showNotifyLaterDialog();
-						} catch (Throwable t) {
-						}
+						} catch (Throwable t) {}
 					}
 				}, Request.fifteenSecsTimeout * 2);
 			}
@@ -2854,13 +2577,10 @@ public class ValidationActivity extends FragmentActivity implements
 	private void writeTripLog() {
 		try {
 			JSONObject tripLog = new JSONObject();
-			tripLog.put(ResumeNavigationUtils.DESTINATION_TIME,
-					reservation.getArrivalTimeUtc());
+			tripLog.put(ResumeNavigationUtils.DESTINATION_TIME, reservation.getArrivalTimeUtc());
 			tripLog.put(ResumeNavigationUtils.DEST_LAT, reservation.getEndlat());
 			tripLog.put(ResumeNavigationUtils.DEST_LON, reservation.getEndlon());
-			FileUtils.writeStringToFile(ResumeNavigationUtils.getFile(
-					ValidationActivity.this, reservation.getRid()), tripLog
-					.toString());
+			FileUtils.writeStringToFile(ResumeNavigationUtils.getFile(ValidationActivity.this, reservation.getRid()), tripLog.toString());
 		} catch (Exception ignore) {
 		}
 	}
@@ -2868,8 +2588,7 @@ public class ValidationActivity extends FragmentActivity implements
 	private void showNotifyLaterDialog() {
 		if (!arrivalMsgDisplayed.getAndSet(true)) {
 			findViewById(R.id.loading).setVisibility(View.GONE);
-			NotificationDialog2 dialog = new NotificationDialog2(
-					ValidationActivity.this,
+			NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this,
 					"There's a temporary connection issue, but we'll update your trip results shortly. Thanks for your patience!");
 			dialog.setTitle("Thanks for using Metropia");
 			dialog.setPositiveButtonText("OK");
@@ -2880,18 +2599,15 @@ public class ValidationActivity extends FragmentActivity implements
 				}
 			});
 			dialog.show();
-			navigationView
-					.notifyIfNecessary(
-							"There's a temporary connection issue, but we'll update your trip results shortly. Thanks for your patience!",
-							false);
+			navigationView.notifyIfNecessary("There's a temporary connection issue, but we'll update your trip results shortly. Thanks for your patience!",	false);
+			closeGPS();
 		}
 	}
 
 	private AtomicBoolean arrivalMsgDisplayed = new AtomicBoolean();
 	private NumberFormat nf = new DecimalFormat("#.#");
 
-	private void doDisplayArrivalMsg(int uPoints, double co2Value,
-			String message, String voice, double timeSavingInMinute) {
+	private void doDisplayArrivalMsg(int uPoints, double co2Value, String message, String voice, double timeSavingInMinute) {
 		if (!arrivalMsgDisplayed.get()) {
 			arrivalMsgDisplayed.set(true);
 			hideEnRouteAlert();
@@ -2901,17 +2617,11 @@ public class ValidationActivity extends FragmentActivity implements
 			String dest = reservation.getDestinationAddress();
 
 			if (StringUtils.isNotBlank(message)) {
-				String msg = message
-						+ "\n"
-						+ dest.substring(0,
-								dest.indexOf(",") > -1 ? dest.indexOf(",")
-										: dest.length());
+				String msg = message + "\n"	+ dest.substring(0,	dest.indexOf(",") > -1 ? dest.indexOf(",") : dest.length());
 				TextView congratsMsg = (TextView) findViewById(R.id.congrats_msg);
-				congratsMsg.setText(formatCongrMessage(ValidationActivity.this,
-						msg));
+				congratsMsg.setText(formatCongrMessage(ValidationActivity.this,	msg));
 				congratsMsg.setVisibility(View.VISIBLE);
-				findViewById(R.id.congrats_msg_shadow).setVisibility(
-						View.VISIBLE);
+				findViewById(R.id.congrats_msg_shadow).setVisibility(View.VISIBLE);
 				navigationView.notifyIfNecessary(message, false);
 			}
 
@@ -2919,50 +2629,33 @@ public class ValidationActivity extends FragmentActivity implements
 			if (co2Value != 0) {
 				String co2String = nf.format(co2Value) + "lbs\nCO2";
 				co2.setText(formatCO2Desc(ValidationActivity.this, co2String));
-				((ImageView) findViewById(R.id.co2_circle_background))
-						.setImageBitmap(BitmapFactory
-								.decodeStream(getResources().openRawResource(
-										R.drawable.blue_circle)));
+				((ImageView) findViewById(R.id.co2_circle_background)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.blue_circle)));
 				findViewById(R.id.co2_circle_panel).setVisibility(View.VISIBLE);
 			}
 
 			TextView mpoint = (TextView) findViewById(R.id.mpoint_circle);
 			if (uPoints > 0) {
 				LocalyticsUtils.tagTrip(LocalyticsUtils.COMPLETED_TRIP);
-				mpoint.setText(formatCongrValueDesc(ValidationActivity.this,
-						uPoints + "\nPoints"));
-				((ImageView) findViewById(R.id.mpoint_circle_background))
-						.setImageBitmap(BitmapFactory
-								.decodeStream(getResources().openRawResource(
-										R.drawable.green_circle)));
-				findViewById(R.id.mpoint_circle_panel).setVisibility(
-						View.VISIBLE);
+				mpoint.setText(formatCongrValueDesc(ValidationActivity.this, uPoints + "\nPoints"));
+				((ImageView) findViewById(R.id.mpoint_circle_background)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.green_circle)));
+				findViewById(R.id.mpoint_circle_panel).setVisibility(View.VISIBLE);
 			} else {
 				LocalyticsUtils.tagTrip(LocalyticsUtils.ABORTED_TRIP);
 			}
 
 			TextView driveScore = (TextView) findViewById(R.id.drive_score_circle);
 			if (timeSavingInMinute > 0) {
-				String scoreString = new DecimalFormat("0.#")
-						.format(timeSavingInMinute) + "\nminutes";
-				driveScore.setText(formatCongrValueDesc(
-						ValidationActivity.this, scoreString));
-				((ImageView) findViewById(R.id.drive_score_circle_background))
-						.setImageBitmap(BitmapFactory
-								.decodeStream(getResources().openRawResource(
-										R.drawable.red_circle)));
-				findViewById(R.id.drive_score_circle_panel).setVisibility(
-						View.VISIBLE);
+				String scoreString = new DecimalFormat("0.#").format(timeSavingInMinute) + "\nminutes";
+				driveScore.setText(formatCongrValueDesc(ValidationActivity.this, scoreString));
+				((ImageView) findViewById(R.id.drive_score_circle_background)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.red_circle)));
+				findViewById(R.id.drive_score_circle_panel).setVisibility(View.VISIBLE);
 			}
 
 			ImageView share = (ImageView) findViewById(R.id.share);
-			share.setImageBitmap(BitmapFactory.decodeStream(getResources()
-					.openRawResource(R.drawable.trip_share)));
+			share.setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.trip_share)));
 
-			Font.setTypeface(Font.getRobotoBold(getAssets()), co2, mpoint,
-					driveScore, (TextView) findViewById(R.id.congrats_msg),
-					(TextView) findViewById(R.id.close),
-					(TextView) findViewById(R.id.feedback));
+			Font.setTypeface(Font.getRobotoBold(getAssets()), co2, mpoint, driveScore, (TextView) findViewById(R.id.congrats_msg),
+					(TextView) findViewById(R.id.close), (TextView) findViewById(R.id.feedback));
 
 			// hide map view options
 			findViewById(R.id.mapview_options).setVisibility(View.GONE);
@@ -2972,6 +2665,8 @@ public class ValidationActivity extends FragmentActivity implements
 			if (StringUtils.isNotBlank(voice)) {
 				speakIfTtsEnabled(voice, true);
 			}
+			
+			closeGPS();
 		}
 	}
 
@@ -2989,18 +2684,14 @@ public class ValidationActivity extends FragmentActivity implements
 
 	private boolean isCloseToOrigin() {
 		if (lastKnownLocation != null && firstNode != null) {
-			double speedInMph = Trajectory
-					.msToMph(lastKnownLocation.getSpeed());
-			return RouteNode.distanceBetween(lastKnownLocation.getLatitude(),
-					lastKnownLocation.getLongitude(), firstNode.getLatitude(),
-					firstNode.getLongitude()) < ValidationParameters
-					.getInstance().getArrivalDistanceThreshold()
-					&& speedInMph < ValidationParameters.getInstance()
-							.getStopSpeedThreshold();
+			double speedInMph = Trajectory.msToMph(lastKnownLocation.getSpeed());
+			return RouteNode.distanceBetween(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(), firstNode.getLatitude(),
+					firstNode.getLongitude()) < ValidationParameters.getInstance().getArrivalDistanceThreshold()
+					&& speedInMph < ValidationParameters.getInstance().getStopSpeedThreshold();
 		}
 		return false;
 	}
-
+	
 	private void reportValidation(final Runnable callback) {
 		if (!reported.get()) {
 			reported.set(true);
@@ -3034,8 +2725,7 @@ public class ValidationActivity extends FragmentActivity implements
 			}
 		} else {
 			// Ask the user if they want to quit
-			NotificationDialog2 dialog = new NotificationDialog2(
-					ValidationActivity.this, "Are you sure?");
+			NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "Are you sure?");
 			dialog.setTitle("Exit Navigation");
 			dialog.setVerticalOrientation(false);
 			dialog.setPositiveButtonText("No");
@@ -3043,8 +2733,7 @@ public class ValidationActivity extends FragmentActivity implements
 			dialog.setNegativeActionListener(new NotificationDialog2.ActionListener() {
 				@Override
 				public void onClick() {
-					LocalyticsUtils
-							.tagTrip(LocalyticsUtils.TRIP_EXITED_MANUALLY);
+					LocalyticsUtils.tagTrip(LocalyticsUtils.TRIP_EXITED_MANUALLY);
 					doCancelValidation();
 				}
 			});
@@ -3059,8 +2748,7 @@ public class ValidationActivity extends FragmentActivity implements
 	}
 
 	private void removeTripFromLandingPage() {
-		DebugOptionsActivity.addTerminatedReservIds(ValidationActivity.this,
-				reservation.getRid());
+		DebugOptionsActivity.addTerminatedReservIds(ValidationActivity.this, reservation.getRid());
 		sendBroadcast(new Intent(LandingActivity2.TRIP_INFO_CACHED_UPDATES));
 	}
 
@@ -3133,15 +2821,13 @@ public class ValidationActivity extends FragmentActivity implements
 		}
 
 		// Check whether the new location fix is more or less accurate
-		int accuracyDelta = (int) (location.getAccuracy() - currentBestLocation
-				.getAccuracy());
+		int accuracyDelta = (int) (location.getAccuracy() - currentBestLocation.getAccuracy());
 		boolean isLessAccurate = accuracyDelta > 0;
 		boolean isMoreAccurate = accuracyDelta < 0;
 		boolean isSignificantlyLessAccurate = accuracyDelta > 200;
 
 		// Check if the old and new location are from the same provider
-		boolean isFromSameProvider = isSameProvider(location.getProvider(),
-				currentBestLocation.getProvider());
+		boolean isFromSameProvider = isSameProvider(location.getProvider(), currentBestLocation.getProvider());
 
 		// Determine location quality using a combination of timeliness and
 		// accuracy
@@ -3165,29 +2851,29 @@ public class ValidationActivity extends FragmentActivity implements
 	}
 
 	private AtomicInteger sizeRatio = new AtomicInteger(1);
+	private AtomicInteger annSize = new AtomicInteger();
 
 	private void updateIncidentAnnotationSize(int ratio) {
-		if (DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this)
-				&& sizeRatio.get() != ratio) {
+		if (DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this)	&& sizeRatio.get() != ratio) {
 			sizeRatio.set(ratio);
 			List<Incident> incs = getIncidentsOfTime();
 			for (Incident inc : incs) {
 				if (inc != null) {
-					SKAnnotation incAnn = new SKAnnotation();
-					incAnn.setUniqueID(SkobblerUtils.getUniqueId(inc.lat,
-							inc.lon));
+					SKAnnotation incAnn = new SKAnnotation(SkobblerUtils.getUniqueId(inc.lat, inc.lon));
+//					incAnn.setUniqueID();
 					incAnn.setLocation(new SKCoordinate(inc.lon, inc.lat));
 					incAnn.setMininumZoomLevel(inc.getMinimalDisplayZoomLevel());
 					SKAnnotationView iconView = new SKAnnotationView();
-					ImageView incImage = new ImageView(ValidationActivity.this);
-					incImage.setImageBitmap(Misc.getBitmap(
-							ValidationActivity.this,
-							IncidentIcon.fromType(inc.type).getResourceId(
-									ValidationActivity.this), ratio));
+					SkobblerImageView incImage = new SkobblerImageView(ValidationActivity.this, 0, 0);
+					incImage.setLat(inc.lat);
+					incImage.setLon(inc.lon);
+					incImage.setDesc(inc.shortDesc);
+					incImage.setMinimumHeight(annSize.get() / ratio);
+					incImage.setMinimumWidth(annSize.get() / ratio);
+					incImage.setImageBitmap(Misc.getBitmap(ValidationActivity.this,	IncidentIcon.fromType(inc.type).getResourceId(ValidationActivity.this), ratio));
 					iconView.setView(incImage);
 					incAnn.setAnnotationView(iconView);
-					mapView.addAnnotation(incAnn,
-							SKAnimationSettings.ANIMATION_NONE);
+					mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
 				}
 			}
 		}
@@ -3219,8 +2905,7 @@ public class ValidationActivity extends FragmentActivity implements
 
 		int pollCnt;
 
-		public FakeLocationService(LocationListener listener, int interva,
-				String trajectoryData) {
+		public FakeLocationService(LocationListener listener, int interva, String trajectoryData) {
 			this(listener, interva, null, trajectoryData);
 		}
 
@@ -3232,8 +2917,7 @@ public class ValidationActivity extends FragmentActivity implements
 
 			if (trajectory == null) {
 				try {
-					this.trajectory = Trajectory.from(new JSONObject(
-							trajectoryData).getJSONArray("trajectory"));
+					this.trajectory = Trajectory.from(new JSONObject(trajectoryData).getJSONArray("trajectory"));
 				} catch (Throwable e) {
 					Log.e("ValidationActivity", Log.getStackTraceString(e));
 				}
@@ -3249,8 +2933,7 @@ public class ValidationActivity extends FragmentActivity implements
 			FakeLocationService rtn;
 			if (interval != millisecond) {
 				cancel();
-				rtn = new FakeLocationService(listener, millisecond,
-						trajectory, trajectoryData);
+				rtn = new FakeLocationService(listener, millisecond, trajectory, trajectoryData);
 			} else {
 				rtn = this;
 			}
@@ -3293,16 +2976,14 @@ public class ValidationActivity extends FragmentActivity implements
 			mTts.setOnUtteranceCompletedListener(new TextToSpeech.OnUtteranceCompletedListener() {
 				@Override
 				public void onUtteranceCompleted(String utteranceId) {
-					if (String.valueOf(utteranceCompletedCnt.incrementAndGet())
-							.equals(String.valueOf(utteranceCnt.get()))) {
+					if (String.valueOf(utteranceCompletedCnt.incrementAndGet()).equals(String.valueOf(utteranceCnt.get()))) {
 						restoreMusic();
 					}
 				}
 			});
 			navigationView.setListener(new CheckPointListener() {
 				@Override
-				public void onCheckPoint(String navText, boolean flush,
-						boolean delayed) {
+				public void onCheckPoint(String navText, boolean flush,	boolean delayed) {
 					if (!arrived.get()) {
 						if (flush) {
 							speakIfTtsEnabled(navText, flush);
@@ -3319,8 +3000,7 @@ public class ValidationActivity extends FragmentActivity implements
 	}
 
 	private void speakIfTtsEnabled(String text, boolean flush) {
-		if (MapDisplayActivity.isNavigationTtsEnabled(this)
-				&& !isCloseToOrigin()) {
+		if (MapDisplayActivity.isNavigationTtsEnabled(this) && !isCloseToOrigin()) {
 			speak(text, flush);
 		}
 	}
@@ -3338,27 +3018,21 @@ public class ValidationActivity extends FragmentActivity implements
 		if (mTts != null) {
 			try {
 				HashMap<String, String> params = new HashMap<String, String>();
-				params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID,
-						String.valueOf(utteranceCnt.incrementAndGet()));
-				params.put(TextToSpeech.Engine.KEY_PARAM_STREAM,
-						String.valueOf(AudioManager.STREAM_MUSIC));
-				AudioManager am = (AudioManager) ValidationActivity.this
-						.getSystemService(Context.AUDIO_SERVICE);
-				am.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
-						AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
+				params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, String.valueOf(utteranceCnt.incrementAndGet()));
+				params.put(TextToSpeech.Engine.KEY_PARAM_STREAM, String.valueOf(AudioManager.STREAM_MUSIC));
+				AudioManager am = (AudioManager) ValidationActivity.this.getSystemService(Context.AUDIO_SERVICE);
+				am.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
 				if (flush) {
 					utteranceCompletedCnt.set(utteranceCnt.get() - 1);
 				}
-				mTts.speak(text, flush ? TextToSpeech.QUEUE_FLUSH
-						: TextToSpeech.QUEUE_ADD, params);
+				mTts.speak(text, flush ? TextToSpeech.QUEUE_FLUSH : TextToSpeech.QUEUE_ADD, params);
 			} catch (Throwable t) {
 			}
 		}
 	}
 
 	private void restoreMusic() {
-		AudioManager am = (AudioManager) ValidationActivity.this
-				.getSystemService(Context.AUDIO_SERVICE);
+		AudioManager am = (AudioManager) ValidationActivity.this.getSystemService(Context.AUDIO_SERVICE);
 		am.abandonAudioFocus(this);
 	}
 
@@ -3374,8 +3048,7 @@ public class ValidationActivity extends FragmentActivity implements
 		if (mTts != null) {
 			mTts.shutdown();
 		}
-		if (Request.NEW_API && !arrivalMsgTiggered.get() && isTripValidated()
-				&& !isReplay.get()) {
+		if (Request.NEW_API && !arrivalMsgTiggered.get() && isTripValidated() && !isReplay.get()) {
 			saveTrajectory(new Runnable() {
 				@Override
 				public void run() {
@@ -3395,20 +3068,16 @@ public class ValidationActivity extends FragmentActivity implements
 		}
 
 		super.onDestroy();
-		SKMaps.getInstance().destroySKMaps();
+//		SKMaps.getInstance().destroySKMaps();
 	}
 
 	@Override
-	public void onAudioFocusChange(int focusChange) {
-
-	}
+	public void onAudioFocusChange(int focusChange) {}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode,
-			Intent intent) {
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		super.onActivityResult(requestCode, resultCode, intent);
-		Log.d("ValidationActivity", "Request Code : " + requestCode
-				+ " result Code : " + resultCode);
+		Log.d("ValidationActivity", "Request Code : " + requestCode	+ " result Code : " + resultCode);
 		if (requestCode == REPORT_PROBLEM && resultCode == Activity.RESULT_OK) {
 			doCancelValidation();
 		} else if (requestCode == ON_MY_WAY && resultCode == Activity.RESULT_OK) {
@@ -3448,9 +3117,8 @@ public class ValidationActivity extends FragmentActivity implements
 
 	private void scheduleTimeInfoCycle() {
 		AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
-		alarm.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock
-				.elapsedRealtime(), 5000, PendingIntent.getBroadcast(this, 0,
-				new Intent(TIME_INFO_CYCLE), PendingIntent.FLAG_UPDATE_CURRENT));
+		alarm.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), 5000, 
+				PendingIntent.getBroadcast(this, 0, new Intent(TIME_INFO_CYCLE), PendingIntent.FLAG_UPDATE_CURRENT));
 	}
 
 	private BroadcastReceiver timeInfoCycler = new BroadcastReceiver() {
@@ -3484,20 +3152,15 @@ public class ValidationActivity extends FragmentActivity implements
 		public void onReceive(Context context, Intent intent) {
 			if (arrivalMsgTiggered.get()) {
 				String id = intent.getStringExtra(ID);
-				boolean success = intent
-						.getBooleanExtra(REQUEST_SUCCESS, false);
+				boolean success = intent.getBooleanExtra(REQUEST_SUCCESS, false);
 				if (String.valueOf(reservation.getRid()).equals(id) && success) {
 					String message = intent.getStringExtra(MESSAGE);
 					double co2Saving = intent.getDoubleExtra(CO2_SAVING, 0);
-					int credit = intent.getIntExtra(CREDIT,
-							reservation.getCredits());
+					int credit = intent.getIntExtra(CREDIT,	reservation.getCredits());
 					String voice = intent.getStringExtra(VOICE);
-					double timeSavingInMinute = intent.getDoubleExtra(
-							TIME_SAVING_IN_MINUTE, 0);
-					doDisplayArrivalMsg(credit, co2Saving, message, voice,
-							timeSavingInMinute);
-				} else if (String.valueOf(reservation.getRid()).equals(id)
-						&& !success) {
+					double timeSavingInMinute = intent.getDoubleExtra(TIME_SAVING_IN_MINUTE, 0);
+					doDisplayArrivalMsg(credit, co2Saving, message, voice, timeSavingInMinute);
+				} else if (String.valueOf(reservation.getRid()).equals(id) && !success) {
 					showNotifyLaterDialog();
 				}
 			}
@@ -3518,48 +3181,20 @@ public class ValidationActivity extends FragmentActivity implements
 					lastEnRouteCheckTime.set(System.currentTimeMillis());
 					Log.d("ValidationActivity", "En-Route Check");
 					try {
-						TravelTimeRequest travelTimeReq = new TravelTimeRequest(
-								User.getCurrentUser(ValidationActivity.this),
-								reservation.getCity(),
-								getRouteOrReroute().getRemainNodeIds(
-										lastKnownLocation.getLatitude(),
-										lastKnownLocation.getLongitude()));
-						realRemainTimeInMin = travelTimeReq
-								.execute(ValidationActivity.this); // min
-						realTravelRemainTimeInSec = Double.valueOf(
-								realRemainTimeInMin * 60).longValue(); // sec
-						if (realRemainTimeInMin > 0
-								&& (realTravelRemainTimeInSec - remainingTime
-										.get()) >= Math.max(5 * 60,
-										0.2 * getRouteOrReroute()
-												.getDurationFromNodes())) {
+						TravelTimeRequest travelTimeReq = new TravelTimeRequest(User.getCurrentUser(ValidationActivity.this),
+								reservation.getCity(), getRouteOrReroute().getRemainNodeIds(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude()));
+						realRemainTimeInMin = travelTimeReq.execute(ValidationActivity.this); // min
+						realTravelRemainTimeInSec = Double.valueOf(realRemainTimeInMin * 60).longValue(); // sec
+						if (realRemainTimeInMin > 0	&& 
+								(realTravelRemainTimeInSec - remainingTime.get()) >= Math.max(5 * 60, 0.2 * getRouteOrReroute().getDurationFromNodes())) {
 							sendImComingMsg(realTravelRemainTimeInSec);
-							enRoute = getNewRoute(
-									lastKnownLocation.getLatitude(),
-									lastKnownLocation.getLongitude(),
-									lastKnownLocation.getSpeed(),
-									lastKnownLocation.getBearing());
-							if (enRoute != null
-									&& (realTravelRemainTimeInSec - enRoute
-											.getDurationFromNodes()) > Math
-											.max(3 * 60,
-													0.15 * realTravelRemainTimeInSec)) {
-								((TextView) findViewById(R.id.en_route_debug_msg))
-										.setText(String
-												.format(getResources()
-														.getString(
-																R.string.en_route_debug_msg),
-														getFormatedEstimateArrivalTime(
-																getETA(remainingTime
-																		.get()),
-																route.getTimezoneOffset()),
-														getFormatedEstimateArrivalTime(
-																getETA(realTravelRemainTimeInSec),
-																route.getTimezoneOffset()),
-														getFormatedEstimateArrivalTime(
-																getETA(enRoute
-																		.getDurationFromNodes()),
-																route.getTimezoneOffset())));
+							enRoute = getNewRoute(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude(),
+									lastKnownLocation.getSpeed(), lastKnownLocation.getBearing());
+							if (enRoute != null	&& (realTravelRemainTimeInSec - enRoute.getDurationFromNodes()) > Math.max(3 * 60, 0.15 * realTravelRemainTimeInSec)) {
+								((TextView) findViewById(R.id.en_route_debug_msg)).setText(String.format(getResources().getString(R.string.en_route_debug_msg),
+														getFormatedEstimateArrivalTime(getETA(remainingTime.get()),	route.getTimezoneOffset()),
+														getFormatedEstimateArrivalTime(getETA(realTravelRemainTimeInSec), route.getTimezoneOffset()),
+														getFormatedEstimateArrivalTime(getETA(enRoute.getDurationFromNodes()), route.getTimezoneOffset())));
 								return enRoute;
 							}
 						}
@@ -3593,35 +3228,23 @@ public class ValidationActivity extends FragmentActivity implements
 			public void run() {
 				findViewById(R.id.loading).setVisibility(View.GONE);
 				navigationView.setVisibility(View.GONE);
-				findViewById(R.id.directions_view)
-						.setVisibility(View.INVISIBLE);
+				findViewById(R.id.directions_view).setVisibility(View.INVISIBLE);
 				findViewById(R.id.mapview_options).setVisibility(View.GONE);
-				findViewById(R.id.en_route_alert_panel).setVisibility(
-						View.VISIBLE);
-				if (DebugOptionsActivity
-						.isEnrouteDebugMsgEnabled(ValidationActivity.this)) {
-					findViewById(R.id.en_route_debug_msg).setVisibility(
-							View.VISIBLE);
+				findViewById(R.id.en_route_alert_panel).setVisibility(View.VISIBLE);
+				if (DebugOptionsActivity.isEnrouteDebugMsgEnabled(ValidationActivity.this)) {
+					findViewById(R.id.en_route_debug_msg).setVisibility(View.VISIBLE);
 				}
-				StringBuffer alertMessage = new StringBuffer(getResources()
-						.getText(R.string.en_route_desc1));
-				alertMessage.append("\n").append(
-						getResources().getText(R.string.en_route_desc2));
+				StringBuffer alertMessage = new StringBuffer(getResources().getText(R.string.en_route_desc1));
+				alertMessage.append("\n").append(getResources().getText(R.string.en_route_desc2));
 				enRouteCueSpeak(alertMessage.toString(), true);
-				final CharSequence autoAcceptDesc = getResources().getText(
-						R.string.en_route_auto_accept);
+				final CharSequence autoAcceptDesc = getResources().getText(R.string.en_route_auto_accept);
 				final NumberFormat nf = new DecimalFormat("#");
-				String message = String.format(autoAcceptDesc.toString(),
-						nf.format(5));
-				((TextView) findViewById(R.id.en_route_auto_accept_desc))
-						.setText(formatAutoAcceptDesc(message));
+				String message = String.format(autoAcceptDesc.toString(), nf.format(5));
+				((TextView) findViewById(R.id.en_route_auto_accept_desc)).setText(formatAutoAcceptDesc(message));
 				countDown = new CountDownTimer(6000, 1000) {
 					public void onTick(long millisUntilFinished) {
-						String message = String.format(
-								autoAcceptDesc.toString(),
-								nf.format(millisUntilFinished / 1000));
-						((TextView) findViewById(R.id.en_route_auto_accept_desc))
-								.setText(formatAutoAcceptDesc(message));
+						String message = String.format(autoAcceptDesc.toString(), nf.format(millisUntilFinished / 1000));
+						((TextView) findViewById(R.id.en_route_auto_accept_desc)).setText(formatAutoAcceptDesc(message));
 					}
 
 					public void onFinish() {
@@ -3634,8 +3257,7 @@ public class ValidationActivity extends FragmentActivity implements
 					public void run() {
 						countDown.start();
 						if (recognizer != null) {
-							((TextView) findViewById(R.id.voice_input_debug_msg))
-									.setText("");
+							((TextView) findViewById(R.id.voice_input_debug_msg)).setText("");
 							switchSearch(KWS_SEARCH);
 						}
 					}
@@ -3644,10 +3266,8 @@ public class ValidationActivity extends FragmentActivity implements
 				buttonFollow.setTag(Boolean.valueOf(false));
 				RouteRect enRouteRect = initRouteRect(enRoute);
 				to2DMap(enRouteRect, false);
-				if (DebugOptionsActivity
-						.isEnrouteVoiceInputDebugMsgEnabled(ValidationActivity.this)) {
-					findViewById(R.id.voice_input_debug_msg).setVisibility(
-							View.VISIBLE);
+				if (DebugOptionsActivity.isEnrouteVoiceInputDebugMsgEnabled(ValidationActivity.this)) {
+					findViewById(R.id.voice_input_debug_msg).setVisibility(View.VISIBLE);
 				}
 			}
 		});
@@ -3657,11 +3277,8 @@ public class ValidationActivity extends FragmentActivity implements
 		int firstNumIdx = getFirstNumberIndex(desc);
 		SpannableString autoAcceptDesc = SpannableString.valueOf(desc);
 		if (firstNumIdx > 0) {
-			autoAcceptDesc.setSpan(
-					new AbsoluteSizeSpan(ValidationActivity.this.getResources()
-							.getDimensionPixelSize(R.dimen.medium_font)),
-					firstNumIdx, firstNumIdx + 1,
-					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			autoAcceptDesc.setSpan(new AbsoluteSizeSpan(ValidationActivity.this.getResources().getDimensionPixelSize(R.dimen.medium_font)),
+					firstNumIdx, firstNumIdx + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
 		return autoAcceptDesc;
 	}
@@ -3684,13 +3301,10 @@ public class ValidationActivity extends FragmentActivity implements
 				for (View view : getMapViews()) {
 					view.setVisibility(View.VISIBLE);
 				}
-				findViewById(R.id.directions_view)
-						.setVisibility(View.INVISIBLE);
-				findViewById(R.id.en_route_alert_panel)
-						.setVisibility(View.GONE);
+				findViewById(R.id.directions_view).setVisibility(View.INVISIBLE);
+				findViewById(R.id.en_route_alert_panel).setVisibility(View.GONE);
 				findViewById(R.id.en_route_debug_msg).setVisibility(View.GONE);
-				((TextView) findViewById(R.id.en_route_auto_accept_desc))
-						.setText("");
+				((TextView) findViewById(R.id.en_route_auto_accept_desc)).setText("");
 				enRoute = null;
 				buttonFollow.setTag(Boolean.valueOf(true));
 				to3DMap();
@@ -3705,18 +3319,12 @@ public class ValidationActivity extends FragmentActivity implements
 	private void changeEnRoutePanelMode(boolean landscape) {
 		if (findViewById(R.id.en_route_alert_panel).getVisibility() == View.VISIBLE) {
 			View enRoutePanel = findViewById(R.id.alert_content);
-			RelativeLayout.LayoutParams enRoutePanelLp = (LayoutParams) enRoutePanel
-					.getLayoutParams();
-			enRoutePanelLp.width = landscape ? LayoutParams.WRAP_CONTENT
-					: LayoutParams.MATCH_PARENT;
-			enRoutePanelLp.height = landscape ? LayoutParams.MATCH_PARENT
-					: LayoutParams.WRAP_CONTENT;
+			RelativeLayout.LayoutParams enRoutePanelLp = (LayoutParams) enRoutePanel.getLayoutParams();
+			enRoutePanelLp.width = landscape ? LayoutParams.WRAP_CONTENT : LayoutParams.MATCH_PARENT;
+			enRoutePanelLp.height = landscape ? LayoutParams.MATCH_PARENT : LayoutParams.WRAP_CONTENT;
 			enRoutePanelLp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
 			enRoutePanelLp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, 0);
-			enRoutePanelLp.addRule(
-					landscape ? RelativeLayout.ALIGN_PARENT_RIGHT
-							: RelativeLayout.ALIGN_PARENT_BOTTOM,
-					RelativeLayout.TRUE);
+			enRoutePanelLp.addRule(landscape ? RelativeLayout.ALIGN_PARENT_RIGHT : RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
 			enRoutePanel.setLayoutParams(enRoutePanelLp);
 		}
 	}
@@ -3746,12 +3354,10 @@ public class ValidationActivity extends FragmentActivity implements
 	// };
 
 	@Override
-	public void onActionPan() {
-	}
+	public void onActionPan() {}
 
 	@Override
-	public void onActionZoom() {
-	}
+	public void onActionZoom() {}
 
 	private static final Integer INCIDENT_BALLOON_ID = Integer.valueOf(1234);
 
@@ -3761,28 +3367,25 @@ public class ValidationActivity extends FragmentActivity implements
 		Incident selectedInc = incidents.get(selectedAnnotationId);
 		if (selectedInc != null) {
 			DisplayMetrics dm = getResources().getDisplayMetrics();
-			SKAnnotation fromAnnotation = new SKAnnotation();
+			SKAnnotation fromAnnotation = new SKAnnotation(INCIDENT_BALLOON_ID);
 			fromAnnotation.setUniqueID(INCIDENT_BALLOON_ID);
 			SKAnnotationView fromView = new SKAnnotationView();
 			fromAnnotation.setLocation(annotation.getLocation());
-			fromAnnotation.setOffset(new SKScreenPoint(0, Dimension.dpToPx(60,
-					dm)));
-			ImageView balloon = new ImageView(ValidationActivity.this);
-			balloon.setImageBitmap(loadBitmapFromView(ValidationActivity.this,
-					selectedInc));
+			fromAnnotation.setOffset(new SKScreenPoint(0, Dimension.dpToPx(60, dm)));
+			SkobblerImageView balloon = new SkobblerImageView(ValidationActivity.this, 0, 0);
+			balloon.setLat(selectedInc.lat);
+			balloon.setLon(selectedInc.lon);
+			balloon.setDesc(selectedInc.shortDesc);
+			balloon.setImageBitmap(loadBitmapFromView(ValidationActivity.this, selectedInc));
 			fromView.setView(balloon);
 			fromAnnotation.setAnnotationView(fromView);
-			mapView.addAnnotation(fromAnnotation,
-					SKAnimationSettings.ANIMATION_POP_OUT);
+			mapView.addAnnotation(fromAnnotation, SKAnimationSettings.ANIMATION_POP_OUT);
 			View roadPanel = findViewById(R.id.road_panel);
-			SKScreenPoint annotationPoint = mapView
-					.coordinateToPoint(annotation.getLocation());
+			SKScreenPoint annotationPoint = mapView.coordinateToPoint(annotation.getLocation());
 			SKScreenPoint centerPoint = new SKScreenPoint();
-			centerPoint.setY(annotationPoint.getY()
-					- roadPanel.getMeasuredHeight());
+			centerPoint.setY(annotationPoint.getY()	- roadPanel.getMeasuredHeight());
 			centerPoint.setX(annotationPoint.getX());
-			mapView.centerMapOnPositionSmooth(
-					mapView.pointToCoordinate(centerPoint), 500);
+			mapView.centerMapOnPositionSmooth(mapView.pointToCoordinate(centerPoint), 500);
 		}
 	}
 
@@ -3791,36 +3394,27 @@ public class ValidationActivity extends FragmentActivity implements
 	public Bitmap loadBitmapFromView(Context ctx, Incident selectedInc) {
 		if (incidentBalloon == null) {
 			FrameLayout layout = new FrameLayout(ctx);
-			ViewGroup.LayoutParams layoutLp = new ViewGroup.LayoutParams(
-					LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			ViewGroup.LayoutParams layoutLp = new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 			layout.setLayoutParams(layoutLp);
-			LayoutInflater inflater = (LayoutInflater) ctx
-					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			incidentBalloon = inflater.inflate(R.layout.incident_balloon,
-					layout);
+			LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			incidentBalloon = inflater.inflate(R.layout.incident_balloon, layout);
 		}
 		TextView textView = (TextView) incidentBalloon.findViewById(R.id.text);
 		textView.setText(selectedInc.shortDesc);
 		Font.setTypeface(Font.getRegular(ctx.getAssets()), textView);
-		incidentBalloon.measure(
-				MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED),
-				MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-		incidentBalloon.layout(0, 0, incidentBalloon.getMeasuredWidth(),
-				incidentBalloon.getMeasuredHeight());
-		Bitmap bitmap = Bitmap.createBitmap(incidentBalloon.getMeasuredWidth(),
-				incidentBalloon.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+		incidentBalloon.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+		incidentBalloon.layout(0, 0, incidentBalloon.getMeasuredWidth(), incidentBalloon.getMeasuredHeight());
+		Bitmap bitmap = Bitmap.createBitmap(incidentBalloon.getMeasuredWidth(), incidentBalloon.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(bitmap);
 		incidentBalloon.draw(canvas);
 		return bitmap;
 	}
 
 	@Override
-	public void onCompassSelected() {
-	}
+	public void onCompassSelected() {}
 
 	@Override
-	public void onCustomPOISelected(SKMapCustomPOI arg0) {
-	}
+	public void onCustomPOISelected(SKMapCustomPOI arg0) {}
 
 	@Override
 	public void onDoubleTap(SKScreenPoint point) {
@@ -3828,19 +3422,15 @@ public class ValidationActivity extends FragmentActivity implements
 	}
 
 	@Override
-	public void onInternationalisationCalled(int arg0) {
-	}
+	public void onInternationalisationCalled(int arg0) {}
 
 	@Override
-	public void onInternetConnectionNeeded() {
-	}
+	public void onInternetConnectionNeeded() {}
 
 	@Override
 	public void onLongPress(SKScreenPoint point) {
-		SharedPreferences debugPrefs = getSharedPreferences(
-				DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
-		int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE,
-				DebugOptionsActivity.GPS_MODE_DEFAULT);
+		SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
+		int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
 		if (gpsMode == DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
 			SKCoordinate coordinate = mapView.pointToCoordinate(point);
 			Location location = new Location("");
@@ -3850,28 +3440,22 @@ public class ValidationActivity extends FragmentActivity implements
 			location.setTime(System.currentTimeMillis());
 			locationChanged(location);
 		}
-
 	}
 
 	@Override
-	public void onMapActionDown(SKScreenPoint arg0) {
-	}
+	public void onMapActionDown(SKScreenPoint arg0) {}
 
 	@Override
-	public void onMapActionUp(SKScreenPoint arg0) {
-	}
+	public void onMapActionUp(SKScreenPoint arg0) {}
 
 	@Override
-	public void onMapPOISelected(SKMapPOI arg0) {
-	}
+	public void onMapPOISelected(SKMapPOI arg0) {}
 
 	@Override
-	public void onMapRegionChangeEnded(SKCoordinateRegion arg0) {
-	}
+	public void onMapRegionChangeEnded(SKCoordinateRegion arg0) {}
 
 	@Override
-	public void onMapRegionChangeStarted(SKCoordinateRegion arg0) {
-	}
+	public void onMapRegionChangeStarted(SKCoordinateRegion arg0) {}
 
 	@Override
 	public void onMapRegionChanged(SKCoordinateRegion region) {
@@ -3879,16 +3463,14 @@ public class ValidationActivity extends FragmentActivity implements
 	}
 
 	@Override
-	public void onPOIClusterSelected(SKPOICluster arg0) {
-	}
+	public void onPOIClusterSelected(SKPOICluster arg0) {}
 
 	@Override
-	public void onRotateMap() {
-	}
+	public void onRotateMap() {}
 
-	@Override
-	public void onScreenOrientationChanged() {
-	}
+//	@Override
+//	public void onScreenOrientationChanged() {
+//	}
 
 	@Override
 	public void onSingleTap(SKScreenPoint arg0) {
@@ -3898,30 +3480,25 @@ public class ValidationActivity extends FragmentActivity implements
 		restoreHandler.postDelayed(followModeRestore, RESTORE_TIME);
 	}
 
-	@Override
-	public void onSurfaceCreated() {
-		if (lastKnownLocation != null) {
-			mapView.getMapSettings().setFollowerMode(
-					SKMapFollowerMode.NAVIGATION);
-			mapView.centerMapOnCurrentPosition();
-		}
-	}
+//	@Override
+//	public void onSurfaceCreated() {
+//		if (lastKnownLocation != null) {
+//			mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
+//			mapView.centerMapOnCurrentPosition();
+//		}
+//	}
 
 	@Override
-	public void onCurrentPositionSelected() {
-	}
+	public void onCurrentPositionSelected() {}
 
 	@Override
-	public void onObjectSelected(int arg0) {
-	}
+	public void onObjectSelected(int arg0) {}
 
 	@Override
-	public void onAllRoutesCompleted() {
-	}
+	public void onAllRoutesCompleted() {}
 
 	@Override
-	public void onOnlineRouteComputationHanging(int arg0) {
-	}
+	public void onOnlineRouteComputationHanging(int arg0) {}
 
 	private AtomicBoolean enRouteResultTriggered = new AtomicBoolean(false);
 
@@ -3932,31 +3509,26 @@ public class ValidationActivity extends FragmentActivity implements
 		if (!enRouteResultTriggered.get()) {
 			((TextView) findViewById(R.id.voice_input_debug_msg)).setText(text);
 		}
-		if (!enRouteResultTriggered.get()
-				&& (StringUtils.startsWithIgnoreCase(text,
-						EN_ROUTE_NOT_ACCEPT_TEXT_1) || StringUtils
-						.startsWithIgnoreCase(text, EN_ROUTE_NOT_ACCEPT_TEXT_2))) {
+		if (!enRouteResultTriggered.get() && 
+				(StringUtils.startsWithIgnoreCase(text, EN_ROUTE_NOT_ACCEPT_TEXT_1) || StringUtils.startsWithIgnoreCase(text, EN_ROUTE_NOT_ACCEPT_TEXT_2))) {
 			enRouteResultTriggered.set(true);
 			findViewById(R.id.no_button).performClick();
-		} else if (!enRouteResultTriggered.get()
-				&& StringUtils.startsWithIgnoreCase(text, EN_ROUTE_ACCEPT_TEXT)) {
+		} else if (!enRouteResultTriggered.get() && StringUtils.startsWithIgnoreCase(text, EN_ROUTE_ACCEPT_TEXT)) {
 			enRouteResultTriggered.set(true);
 			findViewById(R.id.yes_button).performClick();
 		}
 	}
 
 	@Override
-	public void onResult(Hypothesis hypothesis) {
-	}
+	public void onResult(Hypothesis hypothesis) {}
 
 	@Override
-	public void onBeginningOfSpeech() {
-	}
+	public void onBeginningOfSpeech() {}
 
 	@Override
-	public void onEndOfSpeech() {
-	}
+	public void onEndOfSpeech() {}
 
+	/*
 	@Override
 	public void onRouteCalculationCompleted(int statusMessage,
 			int routeDistance, int routeEta, boolean thisRouteIsComplete, int id) {
@@ -3974,18 +3546,19 @@ public class ValidationActivity extends FragmentActivity implements
 			}
 		}
 	}
+	*/
 
-	@Override
-	public void onServerLikeRouteCalculationCompleted(int arg0) {
-	}
-
-	@Override
-	public void onDebugInfo(double arg0, float arg1, double arg2) {
-	}
-
-	@Override
-	public void onOffportRequestCompleted(int arg0) {
-	}
+//	@Override
+//	public void onServerLikeRouteCalculationCompleted(int arg0) {
+//	}
+//
+//	@Override
+//	public void onDebugInfo(double arg0, float arg1, double arg2) {
+//	}
+//
+//	@Override
+//	public void onOffportRequestCompleted(int arg0) {
+//	}
 
 	@Override
 	public void onResult(LocationSettingsResult locationSettingsResult) {
@@ -3995,43 +3568,199 @@ public class ValidationActivity extends FragmentActivity implements
 			startLocationUpdates();
 			break;
 		case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-			Log.i("LandingActivity2",
-					"Location settings are not satisfied. Show the user a dialog to"
-							+ "upgrade location settings ");
-
 			try {
-				// Show the dialog by calling startResolutionForResult(), and
-				// check the result
-				// in onActivityResult().
-				status.startResolutionForResult(ValidationActivity.this,
-						REQUEST_CHECK_SETTINGS);
-			} catch (IntentSender.SendIntentException e) {
-			}
+				status.startResolutionForResult(ValidationActivity.this, REQUEST_CHECK_SETTINGS);
+			} catch (IntentSender.SendIntentException e) {}
 			break;
 		case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-			Log.i("LandingActivity2",
-					"Location settings are inadequate, and cannot be fixed here. Dialog "
-							+ "not created.");
-			// if(googleApiClient != null) {
-			// googleApiClient.disconnect();
-			// googleApiClient = null;
-			// }
-			// prepareGPS();
 			startLocationUpdates();
 			break;
 		}
 	}
 
 	@Override
-	public void onConnectionFailed(ConnectionResult arg0) {
+	public void onConnectionFailed(ConnectionResult arg0) {}
+
+	@Override
+	public void onConnected(Bundle arg0) {}
+
+	@Override
+	public void onConnectionSuspended(int arg0) {}
+
+	@Override
+	public void onRouteCalculationCompleted(SKRouteInfo arg0) {
+		if (drawEnRoute.get()) {
+			drawEnRoute.set(false);
+			showEnRouteAlert();
+		} else {
+			if ((Boolean) buttonFollow.getTag()) {
+				mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
+			}
+		}
 	}
 
 	@Override
-	public void onConnected(Bundle arg0) {
+	public void onRouteCalculationFailed(SKRoutingErrorCode errorCode) {
+		if (SKRoutingErrorCode.INTERNAL_ERROR == errorCode) {
+			drawRoute(mapView, getRouteOrReroute());
+		} 
 	}
 
 	@Override
-	public void onConnectionSuspended(int arg0) {
+	public void onServerLikeRouteCalculationCompleted(SKRouteJsonAnswer arg0) {}
+
+	@Override
+	public void onBoundingBoxImageRendered(int arg0) {}
+
+	@Override
+	public void onGLInitializationError(String arg0) {}
+
+	@Override
+	public void onSurfaceCreated(SKMapViewHolder mapViewHolder) {
+		initSKMaps(mapViewHolder);
+		if (lastKnownLocation != null) {
+			mapViewHolder.getMapSurfaceView().getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
+			mapViewHolder.getMapSurfaceView().centerMapOnCurrentPosition();
+		}
+		
+		SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
+
+		// Register the listener with the Location Manager to receive location
+		// updates
+		int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
+		if (StringUtils.isNotBlank(trajectoryData)) {
+			int interval = DebugOptionsActivity.getGpsUpdateInterval(this);
+			if (fakeLocationService == null) {
+				fakeLocationService = new FakeLocationService(locationListener,	interval, trajectoryData);
+			} else {
+				fakeLocationService = fakeLocationService.setInterval(interval);
+			}
+			if (savedPollCnt > 0) {
+				fakeLocationService.skip(savedPollCnt);
+				savedPollCnt = 0;
+			}
+		} else if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL && !turnOffGPS.get()) {
+			prepareGPS();
+			Runnable action = mapActionQueue.poll();
+			while(action != null) {
+				action.run();
+				action = mapActionQueue.poll();
+			}
+		} 
+		
+		if(!sensorUpdated.get() && !locationUpdated.get()) {
+			startOrientationSensor();
+		}
 	}
+
+	@Override
+	public void onDebugInfo(double arg0, float arg1, double arg2) {}
+
+	private float[] orientationValues;
+	private long lastTimeWhenReceivedGpsSignal;
+	private int lastExactScreenOrientation = -1;
+	private float currentCompassValue;
+	
+	private static final float SMOOTH_FACTOR_COMPASS = 0.1f;
+	private static final int MINIMUM_TIME_UNTILL_MAP_CAN_BE_UPDATED = 30;
+	
+	private void applySmoothAlgorithm(float newCompassValue) {
+        if (Math.abs(newCompassValue - currentCompassValue) < 180) {
+            currentCompassValue = currentCompassValue + SMOOTH_FACTOR_COMPASS * (newCompassValue - currentCompassValue);
+        } else {
+            if (currentCompassValue > newCompassValue) {
+                currentCompassValue = (currentCompassValue + SMOOTH_FACTOR_COMPASS * ((360 + newCompassValue - currentCompassValue) % 360) + 360) % 360;
+            } else {
+                currentCompassValue = (currentCompassValue - SMOOTH_FACTOR_COMPASS * ((360 - newCompassValue + currentCompassValue) % 360) + 360) % 360;
+            }
+        }
+    }
+	
+	private AtomicBoolean sensorUpdated = new AtomicBoolean(false);
+	private AtomicBoolean locationUpdated = new AtomicBoolean(false);
+	
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		 //mapView.reportNewHeading(t.values[0]);
+        switch (event.sensor.getType()) {
+
+            case Sensor.TYPE_ORIENTATION:
+                if (orientationValues != null && !locationUpdated.get()) {
+                    for (int i = 0; i < orientationValues.length; i++) {
+                        orientationValues[i] = event.values[i];
+                    }
+                    if (orientationValues[0] != 0) {
+                        if ((System.currentTimeMillis() - lastTimeWhenReceivedGpsSignal) > MINIMUM_TIME_UNTILL_MAP_CAN_BE_UPDATED) {
+                            applySmoothAlgorithm(orientationValues[0]);
+                            int currentExactScreenOrientation = Misc.getExactScreenOrientation(this);
+                            if (lastExactScreenOrientation != currentExactScreenOrientation) {
+                                lastExactScreenOrientation = currentExactScreenOrientation;
+                                switch (lastExactScreenOrientation) {
+                                    case ActivityInfo.SCREEN_ORIENTATION_PORTRAIT:
+                                        mapView.reportNewDeviceOrientation(SKMapSurfaceView.SKOrientationType.PORTRAIT);
+                                        break;
+                                    case ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT:
+                                        mapView.reportNewDeviceOrientation(SKMapSurfaceView.SKOrientationType.PORTRAIT_UPSIDEDOWN);
+                                        break;
+                                    case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
+                                        mapView.reportNewDeviceOrientation(SKMapSurfaceView.SKOrientationType.LANDSCAPE_RIGHT);
+                                        break;
+                                    case ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE:
+                                        mapView.reportNewDeviceOrientation(SKMapSurfaceView.SKOrientationType.LANDSCAPE_LEFT);
+                                        break;
+                                }
+                            }
+
+                            // report to NG the new value
+                            if (orientationValues[0] < 0) {
+                                mapView.reportNewHeading(-orientationValues[0]);
+                                if(cacheLocation != null) {
+                                	cacheLocation.setBearing(-orientationValues[0]);
+                                	mapView.reportNewGPSPosition(new SKPosition(cacheLocation));
+                                }
+                            } else {
+                                mapView.reportNewHeading(orientationValues[0]);
+                                if(cacheLocation != null) {
+                                	cacheLocation.setBearing(orientationValues[0]);
+                                	mapView.reportNewGPSPosition(new SKPosition(cacheLocation));
+                                }
+                            }
+
+                            lastTimeWhenReceivedGpsSignal = System.currentTimeMillis();
+                            sensorUpdated.set(true);
+                        }
+                    }
+                }
+                break;
+        }
+	}
+	
+	private AtomicBoolean startSensor = new AtomicBoolean(false);
+	
+	/**
+     * Activates the orientation sensor
+     */
+    private void startOrientationSensor() {
+    	if(!startSensor.get()) {
+    		startSensor.set(true);
+	        orientationValues = new float[3];
+	        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+	        Sensor orientationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+	        sensorManager.registerListener(this, orientationSensor, SensorManager.SENSOR_DELAY_UI);
+    	}
+    }
+
+    /**
+     * Deactivates the orientation sensor
+     */
+    private void stopOrientationSensor() {
+	    orientationValues = null;
+	    SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+	    sensorManager.unregisterListener(this);
+	    startSensor.set(false);
+    }
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
 }

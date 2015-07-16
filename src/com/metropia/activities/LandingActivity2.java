@@ -5,12 +5,15 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -26,9 +29,11 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
@@ -76,7 +81,6 @@ import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
@@ -146,6 +150,7 @@ import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.ui.DelayTextWatcher;
 import com.metropia.ui.DelayTextWatcher.TextChangeListener;
 import com.metropia.ui.EditAddress;
+import com.metropia.ui.SkobblerImageView;
 import com.metropia.ui.SwipeDeleteTouchListener;
 import com.metropia.ui.menu.MainMenu;
 import com.metropia.ui.timelayout.AdjustableTime;
@@ -181,8 +186,6 @@ import com.skobbler.ngx.map.SKPOICluster;
 import com.skobbler.ngx.map.SKPolyline;
 import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
-import com.skobbler.ngx.routing.SKRouteManager;
-import com.skobbler.ngx.util.SKLogging;
 
 public final class LandingActivity2 extends FragmentActivity implements SKMapSurfaceListener, SensorEventListener, ConnectionCallbacks, 
                                       OnConnectionFailedListener, ResultCallback<LocationSettingsResult> { 
@@ -209,7 +212,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	
-    SKAnnotation myPointOverlay;
+    private GeoPoint myPoint;
     
     private LocationManager locationManager;
 
@@ -303,14 +306,16 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private SKMapSurfaceView mapView;
     
     private String versionNumber = "";
-    private AtomicBoolean locationRefreshed = new AtomicBoolean(false);
+//    private AtomicBoolean locationRefreshed = new AtomicBoolean(false);
     private AtomicBoolean needTagAustinLaunch = new AtomicBoolean(true);
     private AtomicBoolean cancelGetRoute = new AtomicBoolean(false);
     
-    public static final Long TEXT_INPUT_DELAY = Long.valueOf(1000);
+    public static final Long TEXT_INPUT_DELAY = Long.valueOf(2000);
     
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
+    
+    private AtomicBoolean disableShowPassengerMode = new AtomicBoolean(false);
     
     private int calculateZoomLevel(double lat){
         long sideDistanceOfSquareArea = 10; //miles
@@ -328,10 +333,12 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SkobblerUtils.initializeLibrary(LandingActivity2.this);
+    	SkobblerUtils.initializeLibrary(LandingActivity2.this);
         setContentView(R.layout.landing2);
         
-        initSKMaps();
+        mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
+        mapViewHolder.hideAllAttributionTextViews();
+		mapViewHolder.setMapSurfaceListener(this);
         
         Localytics.integrate(this);
         
@@ -347,7 +354,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 			versionNumber = MapDisplayActivity.OS_NAME + getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
 		}catch(NameNotFoundException ignore) {}
         
-        RouteActivity.setViewToNorthAmerica(mapView);
+//        RouteActivity.setViewToNorthAmerica(mapView);
+        setLocationRefreshStatus(false);
         
         searchResultList = (ListView) findViewById(R.id.search_result_list);
         fromSearchResultList = (ListView) findViewById(R.id.from_search_result_list);
@@ -377,8 +385,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         View landingPanelView = findViewById(R.id.landing_panel_content);
         landingPanelView.setOnClickListener(noopClick);
         
-        refreshSearchAutoCompleteData();
-        refreshFromSearchAutoCompleteData();
+//        refreshSearchAutoCompleteData();
+//        refreshFromSearchAutoCompleteData();
         
         toDropDownButton = findViewById(R.id.to_drop_down_button);
         fromDropDownButton = findViewById(R.id.from_drop_down_button);
@@ -701,7 +709,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 				}
 				refreshSearchAutoCompleteData();
 			}
-		}, TEXT_INPUT_DELAY);
+		}, TEXT_INPUT_DELAY, DelayTextWatcher.FORCE_NOTIFY_SPACE);
         
         searchBox.addTextChangedListener(delayTextWatcher);
         
@@ -799,7 +807,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 				}
 				refreshFromSearchAutoCompleteData();
 			}
-        }, TEXT_INPUT_DELAY);
+        }, TEXT_INPUT_DELAY, DelayTextWatcher.FORCE_NOTIFY_SPACE);
         
         fromSearchBox.addTextChangedListener(fromDelayTextWatcher);
         fromSearchBoxClear.setOnClickListener(new OnClickListener() {
@@ -847,8 +855,16 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //                location.setLongitude(-110.883805);
 //	              location.setLatitude(22.980648); // Tainan
 //	              location.setLongitude(120.236046);
+//            	  location.setLatitude(30.18155); // Austin
+//            	  location.setLongitude(-97.62175);
+            	GeoPoint debugLoc = DebugOptionsActivity.getCurrentLocationLatLon(LandingActivity2.this);
+				if(debugLoc != null) {
+					location.setLatitude(debugLoc.getLatitude());
+					location.setLongitude(debugLoc.getLongitude());
+				}
+				
                 if (ValidationActivity.isBetterLocation(location, lastLocation)) {
-					locationRefreshed.set(true);
+                	setLocationRefreshStatus(true);
 					if(needTagAustinLaunch.getAndSet(false)) {
 						LocalyticsUtils.setAustinLaunchIfInBoundingBox(location.getLatitude(), location.getLongitude());
 					}
@@ -871,8 +887,13 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //              location.setLongitude(-110.883805);
 //	            location.setLatitude(22.980648); // Tainan
 //	            location.setLongitude(120.236046);
-              if (ValidationActivity.isBetterLocation(location, lastLocation)) {
-					locationRefreshed.set(true);
+				GeoPoint debugLoc = DebugOptionsActivity.getCurrentLocationLatLon(LandingActivity2.this);
+				if(debugLoc != null) {
+					location.setLatitude(debugLoc.getLatitude());
+					location.setLongitude(debugLoc.getLongitude());
+				}
+				setLocationRefreshStatus(true);
+				if (ValidationActivity.isBetterLocation(location, lastLocation)) {
 					if(needTagAustinLaunch.getAndSet(false)) {
 						LocalyticsUtils.setAustinLaunchIfInBoundingBox(location.getLatitude(), location.getLongitude());
 					}
@@ -921,8 +942,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		                    	}
 		                    }else{
 		                        mapView.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
-		                        if(myPointOverlay != null){
-		                            mapView.centerMapOnPosition(new SKCoordinate(myPointOverlay.getLocation().getLongitude(), myPointOverlay.getLocation().getLatitude()));
+		                        if(myPoint != null){
+		                            mapView.centerMapOnPosition(new SKCoordinate(myPoint.getLongitude(), myPoint.getLatitude()));
 		                        }
 		                    }
 		                }else{
@@ -947,7 +968,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         drawerIconPanel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mDrawerLayout.openDrawer(findViewById(R.id.left_drawer));
+                openMenu(mDrawerLayout);
             }
         });
         
@@ -1116,6 +1137,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             }
         });
         
+        final TextView inboxNotification = (TextView) findViewById(R.id.inbox_notification);
         TextView inBoxMenu = (TextView) findViewById(R.id.message_inbox);
         inBoxMenu.setOnClickListener(new OnClickListener() {
 			@Override
@@ -1126,6 +1148,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 						@Override
 						public void onAnimationEnd() {
+							DebugOptionsActivity.setInboxLastVisitFeedTime(LandingActivity2.this, inboxCityName, realLastFeed);
+							findViewById(R.id.menu_notification).setVisibility(View.GONE);
+							inboxNotification.setVisibility(View.GONE);
 							Intent inboxIntent = new Intent(LandingActivity2.this, InBoxActivity.class);
 							inboxIntent.putExtra(InBoxActivity.CITY_NAME, inboxCityName);
 							startActivity(inboxIntent);
@@ -1136,13 +1161,13 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 			}
         });
         
-        final View activityRootView = findViewById(android.R.id.content);
-        activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                mapView.postInvalidate();
-             }
-        });
+//        final View activityRootView = findViewById(android.R.id.content);
+//        activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+//            @Override
+//            public void onGlobalLayout() {
+//                mapView.postInvalidate();
+//             }
+//        });
         
         findViewById(R.id.left_drawer).setOnClickListener(noopClick);
         findViewById(R.id.loading_panel).setOnClickListener(noopClick);
@@ -1172,6 +1197,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 						@Override
 						public void onAnimationEnd() {
+							disableShowPassengerMode.set(true);
 							if(curFrom != null && StringUtils.isBlank(curFrom.address)) {
 								Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
 									
@@ -1183,7 +1209,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 									@Override
 									protected Void doInBackground(Void... params) {
 										try {
-											while(!locationRefreshed.get() && !cancelGetRoute.get()) {
+											while(!getLocationRefreshStatus() && !cancelGetRoute.get()) {
 												Thread.sleep(1000);
 											}
 										}
@@ -1197,6 +1223,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 										if(!cancelGetRoute.getAndSet(false)) {
 											startRouteActivity();
 										}
+										else {
+											disableShowPassengerMode.set(false);
+										}
 									}
 								});
 							}
@@ -1208,11 +1237,14 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 				}
 			}
         });
+        passengerIcon = findViewById(R.id.passenger_mode_icon);
+        
         toggleGetRouteButton(false);
         
-        DebugOptionsActivity.cleanMapTileCacheIfNessary(LandingActivity2.this);
+//        DebugOptionsActivity.cleanMapTileCacheIfNessary(LandingActivity2.this);
         
         scheduleNextTripInfoUpdates();
+        scheduleInboxNotifier();
         
         upointView = (TextView) findViewById(R.id.upoint);
         upointView.setText(formatMyMetropiaInfo("000Pts"));
@@ -1397,20 +1429,25 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	});
         */
         
-        LocationInfo cacheLoc = new LocationInfo(LandingActivity2.this);
-        if(System.currentTimeMillis() - cacheLoc.lastLocationUpdateTimestamp <= ONE_HOUR) {
-        	Location loc = new Location("");
-        	loc.setLatitude(cacheLoc.lastLat);
-        	loc.setLongitude(cacheLoc.lastLong);
-        	loc.setTime(cacheLoc.lastLocationUpdateTimestamp - ValidationActivity.TWO_MINUTES);
-        	loc.setAccuracy(cacheLoc.lastAccuracy);
-        	loc.setBearing(cacheLoc.lastHeading);
-        	locationChanged(loc);
-        }
+        passengerIcon.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(final View v) {
+				v.setClickable(false);
+				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					@Override
+					public void onAnimationEnd() {
+						startActivity(new Intent(LandingActivity2.this, PassengerActivity.class));
+						v.setClickable(true);
+					}
+				});
+			}
+        });
         
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getLight(assets), searchBox, fromSearchBox, myMetropiaMenu, 
-            reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu, favoriteListMenu, inBoxMenu);
+            reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu,
+            favoriteListMenu, inBoxMenu, inboxNotification, (TextView) findViewById(R.id.menu_notification));
         Font.setTypeface(Font.getMedium(assets), upointView, saveTimeView, co2View, (TextView) findViewById(R.id.head));
         Font.setTypeface(Font.getRobotoBold(assets), getRouteView);
         //init Tracker
@@ -1425,7 +1462,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }
     }
     
-    private static final long ONE_HOUR = 60 * 60 * 1000L;
+    public static final long ONE_HOUR = 60 * 60 * 1000L;
     
     private synchronized void locationChanged(Location location) {
     	lastLocation = location;
@@ -1437,8 +1474,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         refreshMyLocation(location);
         popupResumeNavigationIfNeccessary();
         if(mapRecenter.getAndSet(false)){
-            if(myPointOverlay != null){
-                SKCoordinate loc = myPointOverlay.getLocation();
+            if(myPoint != null){
+                SKCoordinate loc = new SKCoordinate(myPoint.getLongitude(), myPoint.getLatitude());
                 int latE6 = (int) (loc.getLatitude() * 1E6);
                 int lonE6 = (int) (loc.getLongitude() * 1E6);
                 mapView.centerMapOnPosition(loc);
@@ -1450,6 +1487,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             @Override
             public void run() {
                 if(refresh){
+                	SkobblerUtils.initSunriseSunsetTime(LandingActivity2.this, lat, lon);
                 	MainActivity.initApiLinksIfNecessary(LandingActivity2.this, new Runnable() {
 						@Override
 						public void run() {
@@ -1469,15 +1507,27 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         });
     }
     
-    private void initSKMaps() {
-		SKLogging.enableLogs(true);
-		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
-		mapViewHolder.hideAllAttributionTextViews();
-		mapView = mapViewHolder.getMapSurfaceView();
-		
-		mapView.setMapSurfaceListener(this);
+    private static final String LOCATION_REFRESH_STATUS = "locationRefreshStatus";
+    private static final String LANDING_PAGE = "landingPage";
+    
+    private void setLocationRefreshStatus(boolean status) {
+    	if(getLocationRefreshStatus() != status) {
+	    	SharedPreferences.Editor editor = getSharedPreferences(LANDING_PAGE, MODE_PRIVATE).edit();
+	        editor.putBoolean(LOCATION_REFRESH_STATUS, status);
+	        editor.commit();
+    	}
+    }
+    
+    private boolean getLocationRefreshStatus() {
+    	SharedPreferences perf = getSharedPreferences(LANDING_PAGE, MODE_PRIVATE);
+        return perf.getBoolean(LOCATION_REFRESH_STATUS, false);
+    }
+    
+    private void initSKMaps(SKMapViewHolder holder) {
+		mapView = holder.getMapSurfaceView();
 		mapView.clearAllOverlays();
 		mapView.deleteAllAnnotationsAndCustomPOIs();
+		mapView.rotateTheMapToNorth();
 		mapView.getMapSettings().setCurrentPositionShown(true);
 		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
 		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
@@ -1605,7 +1655,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						mDrawerLayout.openDrawer(findViewById(R.id.left_drawer));
+						openMenu(mDrawerLayout);
 					}
 				});
 			}
@@ -1712,8 +1762,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                             }
 
 							@Override
-							public void onDismissRight() {
-							}
+							public void onDismissRight() {}
 
                          });
     	reservationListPanel.setOnTouchListener(touchListener);
@@ -1721,14 +1770,14 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     private void centerMap() {
-     	if(routeRect == null && myPointOverlay != null) {
-    		mapView.setZoom(calculateZoomLevel(myPointOverlay.getLocation().getLatitude()));
-    		mapView.centerMapOnPosition(new SKCoordinate(myPointOverlay.getLocation().getLongitude(), myPointOverlay.getLocation().getLatitude()));
-    		mapView.postInvalidate();
+     	if(routeRect == null && myPoint != null) {
+    		mapView.setZoom(calculateZoomLevel(myPoint.getLatitude()));
+    		mapView.centerMapOnPosition(new SKCoordinate(myPoint.getLongitude(), myPoint.getLatitude()));
+//    		mapView.postInvalidate();
     	}
     	else {
     		// simulate default view
-    		RouteActivity.setViewToNorthAmerica(mapView);
+//    		RouteActivity.setViewToNorthAmerica(mapView);
     		zoomMapToFitBulbPOIs();
     	}
     }
@@ -1830,8 +1879,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 									public void onClick() {
 									    GeoPoint origin = null;
 									    final ReservationTollHovInfo reservationInfo = MapDisplayActivity.getReservationTollHovInfo(LandingActivity2.this, reserv.getRid());
-									    if(myPointOverlay != null){
-									        origin = new GeoPoint(myPointOverlay.getLocation().getLatitude(), myPointOverlay.getLocation().getLongitude());
+									    if(myPoint != null){
+									        origin = new GeoPoint(myPoint.getLatitude(), myPoint.getLongitude());
 									    }
 										RescheduleTripTask rescheduleTask = new RescheduleTripTask(LandingActivity2.this, 
 										        origin, null, reserv.getDestinationAddress(), 
@@ -1938,6 +1987,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         if(isFirst) {
 	        tripNotifyIcon.setImageResource(lessThanOneMinite?R.drawable.upcoming_trip_green:R.drawable.upcoming_trip_orange);
 	        tripNotifyIcon.setVisibility(View.VISIBLE);
+	        passengerIcon.setVisibility(View.GONE);
         }
         
         return reservInfo;
@@ -2285,11 +2335,11 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		return poiInfo;
     	}
     	
-    	public static PoiOverlayInfo fromCurrentLocation(SKAnnotation currentLoc) {
+    	public static PoiOverlayInfo fromCurrentLocation(GeoPoint currentLoc) {
     		PoiOverlayInfo poiInfo = new PoiOverlayInfo();
-    		poiInfo.lat = currentLoc.getLocation().getLatitude();
-    		poiInfo.lon = currentLoc.getLocation().getLongitude();
-    		poiInfo.geopoint = new GeoPoint(currentLoc.getLocation().getLatitude(), currentLoc.getLocation().getLongitude());
+    		poiInfo.lat = currentLoc.getLatitude();
+    		poiInfo.lon = currentLoc.getLongitude();
+    		poiInfo.geopoint = new GeoPoint(currentLoc.getLatitude(), currentLoc.getLongitude(), currentLoc.getHeading());
     		poiInfo.marker = R.drawable.landing_page_current_location;
     		poiInfo.markerWithShadow = R.drawable.landing_page_current_location;
     		return poiInfo;
@@ -2385,6 +2435,21 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }
     };
     
+    public static final String IN_BOX_NOTICE = "IN_BOX_NOTICE";
+    
+    private void scheduleInboxNotifier(){
+        AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
+        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), 600000, 
+            PendingIntent.getBroadcast(this, 0, new Intent(IN_BOX_NOTICE), PendingIntent.FLAG_UPDATE_CURRENT));
+    }
+    
+    private BroadcastReceiver inboxNotifier = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+        	checkInboxUrlAndUpdateMenu(inboxCityName);
+        }
+    };
+    
     public static final String UPDATE_MY_LOCATION = "UPDATE_MY_LOCATION";
     
     private BroadcastReceiver updateMyLocation = new BroadcastReceiver() {
@@ -2423,18 +2488,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     };
     
     private void refreshMyLocation(Location loc) {
-        if(myPointOverlay == null){
-            myPointOverlay = new SKAnnotation();
-            myPointOverlay.setUniqueID(CURRENT_LOCATION_ID);
-            myPointOverlay.setLocation(new SKCoordinate(loc.getLongitude(), loc.getLatitude()));
-            SKAnnotationView iconView = new SKAnnotationView();
-    		ImageView incImage = new ImageView(LandingActivity2.this);
-    		incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, R.drawable.landing_page_current_location, 1));
-    		iconView.setView(incImage);
-    		myPointOverlay.setAnnotationView(iconView);
-//            mapView.addAnnotation(myPointOverlay, SKAnimationSettings.ANIMATION_NONE);
+        if(myPoint == null){
+            myPoint = new GeoPoint(loc.getLatitude(), loc.getLongitude(), loc.getBearing());
         }
-        myPointOverlay.setLocation(new SKCoordinate(loc.getLongitude(), loc.getLatitude()));
+        myPoint.updateLocation(loc.getLatitude(), loc.getLongitude(), loc.getBearing());
         mapView.getMapSettings().setCurrentPositionShown(true);
         mapView.reportNewGPSPosition(new SKPosition(loc));
         
@@ -2565,41 +2622,27 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    Localytics.setInAppMessageDisplayActivity(this);
 	    Localytics.handleTestMode(getIntent());
 	    Localytics.handlePushNotificationOpened(getIntent());
+	    
+	    annSize.set(Dimension.dpToPx(Misc.ANNOTATION_MINIMUM_SIZE_IN_DP, getResources().getDisplayMetrics()));
+	    
 	    //SKobbler 
-	    mapView.onResume();
-	    enableDrawRoute.set(true);
-	    mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(LandingActivity2.this, true));
-	    mapView.getMapSettings().setCurrentPositionShown(true);
-	    SKRouteManager.getInstance().clearAllRoutesFromCache();
-	    SKRouteManager.getInstance().clearCurrentRoute();
-	    SKRouteManager.getInstance().clearRouteAlternatives();
+	    mapViewHolder.onResume();
+//	    mapView.getMapSettings().setMapStyle(SkobblerUtils.getMapViewStyle(LandingActivity2.this, true));
+//	    mapView.getMapSettings().setCurrentPositionShown(true);
+//	    SKRouteManager.getInstance().clearAllRoutesFromCache();
+//	    SKRouteManager.getInstance().clearCurrentRoute();
+//	    SKRouteManager.getInstance().clearRouteAlternatives();
 	    //
         registerReceiver(tripInfoUpdater, new IntentFilter(TRIP_INFO_UPDATES));
         registerReceiver(onTheWayNotifier, new IntentFilter(ON_THE_WAY_NOTICE));
-        mapRefresh.set(true);
-        prepareGPS();
-        
-        //redraw poi
-        sizeRatio.set(0);
-        updateAnnotationSize(getSizeRatioByZoomLevel());
-        //
-        User.initializeIfNeccessary(LandingActivity2.this, new Runnable() {
-			@Override
-			public void run() {
-				drawedReservId = Long.valueOf(-1);
-				if(!disableRefreshTripInfo.getAndSet(false)) {
-					dismissReservId = Long.valueOf(-1);
-					refreshTripsInfo();
-				}
-		        updateMyMetropiaInfo();
-		        if(!mapRecenter.get()) {
-		        	centerMap();
-		        }
-			}
-        });
+        registerReceiver(inboxNotifier, new IntentFilter(IN_BOX_NOTICE));
+//        prepareGPS();
         
         mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
         mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_GAME);
+        
+        disableShowPassengerMode.set(false);
+        refreshHead();
     }
     
     @Override
@@ -2628,10 +2671,13 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    Localytics.upload();
 	    unregisterReceiver(tripInfoUpdater);
 	    unregisterReceiver(onTheWayNotifier);
+	    unregisterReceiver(inboxNotifier);
 	    super.onPause();
-	    mapView.clearAllOverlays();
+	    if(mapView != null) {
+	    	mapView.clearAllOverlays();
+	    }
 	    enableDrawRoute.set(false);
-	    mapView.onPause();
+	    mapViewHolder.onPause();
 	    mSensorManager.unregisterListener(this, accelerometer);
 	    mSensorManager.unregisterListener(this, magnetometer);
 	    closeGPS();
@@ -2651,11 +2697,12 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	        @Override
 	        protected void onPostExecute(List<Reservation> reservations) {
 	            if (reservations == null || reservations.isEmpty()) {
-	                SKMapViewHolder mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
-	                SKMapSurfaceView mapView = mapViewHolder.getMapSurfaceView();
-	                mapView.clearAllOverlays();
-	                mapView.deleteAnnotation(ROUTE_DESTINATION_ID);
+	            	if(mapView != null) {
+		                mapView.clearAllOverlays();
+		                mapView.deleteAnnotation(ROUTE_DESTINATION_ID);
+	            	}
 	                tripNotifyIcon.setVisibility(View.GONE);
+	                passengerIcon.setVisibility(getRouteView.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
 	                refreshReservationList(new ArrayList<Reservation>());
 	                unlockMenu();
 	            } 
@@ -2739,6 +2786,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private List<Long> removedReservIds = new ArrayList<Long>();
     
     private AtomicBoolean closeIfEmpty = new AtomicBoolean(true);
+    private View passengerIcon;
     
     private void refreshReservationList(List<Reservation> reservations) {
     	reservationListPanel.removeAllViews();
@@ -2757,6 +2805,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	if(notifyReserv != null) {
 	        tripNotifyIcon.setImageResource(notifyReserv.isEligibleTrip()?R.drawable.upcoming_trip_green:R.drawable.upcoming_trip_orange);
 	        tripNotifyIcon.setVisibility(View.VISIBLE);
+	        passengerIcon.setVisibility(View.GONE);
     	}
     	
     	initFontsIfNecessary();
@@ -3052,12 +3101,14 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		
     		PoiOverlayInfo poiInfo = poiContainer.getExistedPOIByAddress(address);
     		if(poiInfo == null) {
-    			SKAnnotation destAnn = new SKAnnotation();
+    			SKAnnotation destAnn = new SKAnnotation(ROUTE_DESTINATION_ID);
     			destAnn.setUniqueID(ROUTE_DESTINATION_ID);
     			destAnn.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
     			destAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
     			SKAnnotationView destAnnView = new SKAnnotationView();
-                ImageView destImage = new ImageView(LandingActivity2.this);
+                SkobblerImageView destImage = new SkobblerImageView(LandingActivity2.this, R.drawable.pin_destination, 1);
+                destImage.setLat(_route.getLastNode().getLatitude());
+                destImage.setLon(_route.getLastNode().getLongitude());
                 destImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, R.drawable.pin_destination, 1));
                 destAnnView.setView(destImage);
                 destAnn.setAnnotationView(destAnnView);
@@ -3180,9 +3231,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             if(curFrom != null){
                 extras.putParcelable(RouteActivity.ORIGIN_COORD, curFrom.geopoint);
                 extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, curFrom);
-            }else if(myPointOverlay != null){
-                extras.putParcelable(RouteActivity.ORIGIN_COORD, new GeoPoint(myPointOverlay.getLocation().getLatitude(), myPointOverlay.getLocation().getLongitude()));
-                extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, PoiOverlayInfo.fromCurrentLocation(myPointOverlay));
+            }else if(myPoint != null){
+                extras.putParcelable(RouteActivity.ORIGIN_COORD, myPoint);
+                extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, PoiOverlayInfo.fromCurrentLocation(myPoint));
             }
             extras.putString(RouteActivity.ORIGIN_COORD_PROVIDER, curFromProvider);
             extras.putLong(RouteActivity.ORIGIN_COORD_TIME, curFromTime);
@@ -3195,6 +3246,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //                hideStarredBalloon();
                 removeAllOD();
                 startActivity(intent);
+            }
+            else {
+            	disableShowPassengerMode.set(false);
             }
         }
     }
@@ -3211,7 +3265,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		        intent.putExtra(ValidationActivity.PHONES, reservRecipients.optString("phones", ""));
 		        LocationInfo cacheLoc = new LocationInfo(LandingActivity2.this);
 		        if(System.currentTimeMillis() - cacheLoc.lastLocationUpdateTimestamp < 5 * 60 * 1000) {
-		        	intent.putExtra(ValidationActivity.CURRENT_LOCATION, (Parcelable)new GeoPoint(cacheLoc.lastLat, cacheLoc.lastLong));
+		        	GeoPoint curLoc = new GeoPoint(cacheLoc.lastLat, cacheLoc.lastLong);
+		        	curLoc.setHeading(cacheLoc.lastHeading);
+		        	intent.putExtra(ValidationActivity.CURRENT_LOCATION, (Parcelable)curLoc);
 		        }
 //		          hideBulbBalloon();
 //                hideStarredBalloon();
@@ -3247,8 +3303,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 return addrs;
             }
             @Override
-            protected void onPostExecute(
-                    List<com.metropia.models.Address> result) {
+            protected void onPostExecute(List<com.metropia.models.Address> result) {
                 if(callback != null){
                     callback.run();
                 }
@@ -3272,6 +3327,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                         }
                     }
                     showODBalloon();
+                    //redraw poi
+                    sizeRatio.set(0);
+                    updateAnnotationSize(getSizeRatioByZoomLevel());
+                    //
                     initFavoriteDropdownIfNessary(addrList, forceUpdateFavorite);
                 }
             }
@@ -3279,8 +3338,11 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         Misc.parallelExecute(task);
     }
     
-    private synchronized void initFavoriteDropdownIfNessary(Set<com.metropia.models.Address> favorites, boolean forceUpdate) {
+    private Map<Integer, com.metropia.models.Address> afterUpdateUse = new HashMap<Integer, com.metropia.models.Address>();
+    
+    private synchronized void initFavoriteDropdownIfNessary(Collection<com.metropia.models.Address> favorites, boolean forceUpdate) {
     	if(forceUpdate || favoriteAddresses.size() != favorites.size()) {
+    		afterUpdateUse.clear();
     		List<Address> newFavorites = new ArrayList<Address>();
     		List<Address> homeFavorite = new ArrayList<Address>();
     		List<Address> workFavorite = new ArrayList<Address>();
@@ -3302,6 +3364,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     				otherFavorite.add(Address.fromModelAddress(addr, lastLocation));
     				otherModelFavs.add(addr);
     			}
+    			afterUpdateUse.put(Integer.valueOf(addr.getId()), addr);
     		}
     		Collections.sort(homeFavorite, DebugOptionsActivity.distanceComparator);
     		Collections.sort(workFavorite, DebugOptionsActivity.distanceComparator);
@@ -3362,8 +3425,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		curTo = poiInfo;
     		drawODBalloon(poiInfo, false);
     		setToInfo(poiInfo);
-    		if(curFrom == null && myPointOverlay != null) {
-    			PoiOverlayInfo currentLocationInfo = PoiOverlayInfo.fromCurrentLocation(myPointOverlay);
+    		if(curFrom == null && myPoint != null) {
+    			PoiOverlayInfo currentLocationInfo = PoiOverlayInfo.fromCurrentLocation(myPoint);
     			curFrom = currentLocationInfo;
     			drawODBalloon(currentLocationInfo, true);
     			setFromInfo(currentLocationInfo);
@@ -3380,12 +3443,15 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     private void drawODBalloon(PoiOverlayInfo info, boolean from) {
-    	SKAnnotation balloonAnn = new SKAnnotation();
+    	SKAnnotation balloonAnn = new SKAnnotation(from ? FROM_BALLOON_ID : TO_BALLOON_ID);
     	balloonAnn.setUniqueID(from ? FROM_BALLOON_ID : TO_BALLOON_ID);
     	balloonAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
     	balloonAnn.setLocation(new SKCoordinate(info.lon, info.lat));
     	SKAnnotationView balloonView = new SKAnnotationView();
-    	ImageView balloonImage = new ImageView(LandingActivity2.this);
+    	SkobblerImageView balloonImage = new SkobblerImageView(LandingActivity2.this, 0, 0);
+    	balloonImage.setLat(info.lat);
+    	balloonImage.setLon(info.lon);
+    	balloonImage.setDesc(from ? "FROM" : "TO");
     	balloonImage.setImageBitmap(loadBitmapOfFromToBalloon(LandingActivity2.this, from));
     	balloonView.setView(balloonImage);
     	balloonAnn.setAnnotationView(balloonView);
@@ -3514,9 +3580,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     private String inboxCityName;
+    private Long realLastFeed = Long.valueOf(0);
     
     private void checkInboxUrlAndUpdateMenu(final String cityName) {
-    	if(StringUtils.isNotBlank(Request.getPageUrl(Page.bulletinboard))) {
+    	if(StringUtils.isNotBlank(cityName) && StringUtils.isNotBlank(Request.getPageUrl(Page.bulletinboard))) {
     		Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
 				@Override
 				protected Void doInBackground(Void... params) {
@@ -3526,11 +3593,20 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 						http.connect();
 						int responseCode = http.getResponseCode();
 						if(responseCode == 200) {
+							String responseBody = http.getResponseBody();
+							final Long visitedTime = DebugOptionsActivity.getInboxLastVisitFeedTime(LandingActivity2.this, cityName);
+							final Integer newMessageCount = Misc.getNewInboxMessageCount(responseBody, visitedTime);
+							realLastFeed = Misc.getCurrentLastFeed(responseBody);
 							inboxCityName = cityName;
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									findViewById(R.id.message_inbox).setVisibility(View.VISIBLE);
+									findViewById(R.id.message_menu).setVisibility(View.VISIBLE);
+									TextView newFeed = (TextView) findViewById(R.id.inbox_notification);
+									newFeed.setText(newMessageCount + "");
+									newFeed.setVisibility(newMessageCount > 0 ? View.VISIBLE : View.GONE);
+									boolean isMenuNotificationDismissed = DebugOptionsActivity.getInboxMenuDismissRecord(LandingActivity2.this, cityName).equals(visitedTime);
+									findViewById(R.id.menu_notification).setVisibility((!isMenuNotificationDismissed && newMessageCount > 0) ? View.VISIBLE : View.GONE);
 								}
 							});
 						}
@@ -3539,7 +3615,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									findViewById(R.id.message_inbox).setVisibility(View.GONE);
+									findViewById(R.id.message_menu).setVisibility(View.GONE);
 								}
 							});
 						}
@@ -3548,7 +3624,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								findViewById(R.id.message_inbox).setVisibility(View.GONE);
+								findViewById(R.id.message_menu).setVisibility(View.GONE);
 							}
 						});
 						Log.d("LandingActivity2", "no inbox url");
@@ -3873,6 +3949,12 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     
     private void resizeMap(boolean collapsed){
         mapViewHolder.setTag(collapsed);
+        searchBox.setFocusableInTouchMode(collapsed);
+        searchBox.setFocusable(collapsed);
+        fromSearchBox.setFocusableInTouchMode(collapsed);
+        fromSearchBox.setFocusable(collapsed);
+        fromDropDownButton.setClickable(collapsed);
+        toDropDownButton.setClickable(collapsed);
         View landingPanelView = findViewById(R.id.landing_panel_content);
         int landingPanelHeight = landingPanelView.getHeight();
         List<Animator> allAnimators = new ArrayList<Animator>();
@@ -3935,6 +4017,18 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         getRouteAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         allAnimators.add(getRouteAnimator);
         
+        View passengerIcon = findViewById(R.id.passenger_mode_icon);
+        ObjectAnimator passengerIconAnimator;
+        if(collapsed) {
+        	passengerIconAnimator = ObjectAnimator.ofFloat(passengerIcon, "translationY", myMetropiaPanelHeight, 0);
+        }
+        else {
+        	passengerIconAnimator = ObjectAnimator.ofFloat(passengerIcon, "translationY", 0, myMetropiaPanelHeight);
+        }
+        passengerIconAnimator.setDuration(500);
+        passengerIconAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        allAnimators.add(passengerIconAnimator);
+        
         View scoreNotifyPanel = findViewById(R.id.score_notify);
         ObjectAnimator scoreNotifyAnimator;
         if(scoreNotifyPanel.getVisibility() == View.VISIBLE) {
@@ -3962,10 +4056,33 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //    	getRouteView.setPadding(padding, 0, padding, 0);
     	setGetRouteButtonState(!serviceArea.get() && !notifyOutOfService.get());
     	getRouteView.setVisibility(enabled?View.VISIBLE:View.GONE);
+    	if(enabled) {
+    		passengerIcon.setVisibility(View.GONE);
+    	}
+    	else if(tripNotifyIcon.getVisibility() == View.GONE && !disableShowPassengerMode.get()) {
+    		passengerIcon.setVisibility(View.VISIBLE);
+    	}
     }
     
     private void setGetRouteButtonState(boolean greyOut) {
     	getRouteView.setBackgroundResource(greyOut ? R.drawable.get_route_grey_button : R.drawable.get_route_green_button);
+    }
+    
+    private static final String SANDBOX = "http://sandbox.metropia.com/";
+    
+    private void refreshHead() {
+    	String entrypoint = DebugOptionsActivity.getDebugEntrypoint(LandingActivity2.this);
+    	TextView head = (TextView)findViewById(R.id.head);
+    	if(StringUtils.startsWith(entrypoint, SANDBOX)) {
+    		int slashIdx = StringUtils.indexOf(entrypoint, "/", SANDBOX.length());
+    		if(slashIdx > 0 && slashIdx > SANDBOX.length()) {
+    			String sandboxEntryPoint = StringUtils.substring(entrypoint, SANDBOX.length() - 1, slashIdx);
+    			head.setText("Metropia     " + sandboxEntryPoint);
+    		}
+    	}
+    	else {
+    		head.setText("Metropia");
+    	}
     }
     
     protected static abstract class ReverseGeocodingTask extends AsyncTask<Void, Void, String> {
@@ -4033,12 +4150,12 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     private static final Integer FROM_BALLOON_ID = 0;
-    private static final Integer TO_BALLOON_ID = FROM_BALLOON_ID + 100;
-    private static final Integer ROUTE_DESTINATION_ID = TO_BALLOON_ID + 1;
-    private static final Integer POI_MARKER_ONE = ROUTE_DESTINATION_ID + 1;
-    private static final Integer POI_MARKER_TWO = POI_MARKER_ONE + 1;
-    private static final Integer POI_MARKER_THREE = POI_MARKER_TWO + 1;
-    private static final Integer CURRENT_LOCATION_ID = POI_MARKER_THREE + 1;
+    private static final Integer TO_BALLOON_ID = FROM_BALLOON_ID + 100;  //100
+    private static final Integer ROUTE_DESTINATION_ID = TO_BALLOON_ID + 1; // 101
+    private static final Integer POI_MARKER_ONE = ROUTE_DESTINATION_ID + 1; // 102
+    private static final Integer POI_MARKER_TWO = POI_MARKER_ONE + 1; // 103
+    private static final Integer POI_MARKER_THREE = POI_MARKER_TWO + 1; // 104
+    private static final Integer CURRENT_LOCATION_ID = POI_MARKER_THREE + 1; // 105
     
     private void removeOldOD(boolean from) {
     	Integer[] poiMarkerIds = {POI_MARKER_ONE, POI_MARKER_TWO, POI_MARKER_THREE};
@@ -4079,12 +4196,17 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	if(poiMarkerIds.length > 0) {
     		Integer uniqueId = poiMarkerIds[0];
     		markerInfo.uniqueId = uniqueId;
-    		SKAnnotation incAnn = new SKAnnotation();
+    		SKAnnotation incAnn = new SKAnnotation(uniqueId);
     		incAnn.setUniqueID(uniqueId);
     		incAnn.setLocation(new SKCoordinate(markerInfo.lon, markerInfo.lat));
     		incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
     		SKAnnotationView iconView = new SKAnnotationView();
-    		ImageView incImage = new ImageView(LandingActivity2.this);
+    		SkobblerImageView incImage = new SkobblerImageView(LandingActivity2.this, markerInfo.markerWithShadow, sizeRatio.get());
+    		incImage.setLat(markerInfo.lat);
+    		incImage.setLon(markerInfo.lon);
+    		incImage.setDesc(markerInfo.address);
+    		incImage.setMinimumHeight(annSize.get() / sizeRatio.get());
+    		incImage.setMinimumWidth(annSize.get() / sizeRatio.get());
     		incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, markerInfo.markerWithShadow, sizeRatio.get()));
     		iconView.setView(incImage);
     		incAnn.setAnnotationView(iconView);
@@ -4093,12 +4215,18 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     private void addAnnotationFromPoiInfo(PoiOverlayInfo poiInfo) {
-   		SKAnnotation incAnn = new SKAnnotation();
-   		incAnn.setUniqueID(poiContainer.addPOIToMap(poiInfo));
+   		SKAnnotation incAnn = new SKAnnotation(poiContainer.addPOIToMap(poiInfo));
+//   		incAnn.setUniqueID();
    		incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
    		incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
    		SKAnnotationView iconView = new SKAnnotationView();
-   		ImageView incImage = new ImageView(LandingActivity2.this);
+   		SkobblerImageView incImage = new SkobblerImageView(LandingActivity2.this, poiInfo.markerWithShadow, sizeRatio.get());
+   		incImage.setLat(poiInfo.lat);
+   		incImage.setLon(poiInfo.lon);
+   		incImage.setDesc(poiInfo.address);
+   		incImage.setMinimumHeight(annSize.get() / sizeRatio.get());
+		incImage.setMinimumWidth(annSize.get() / sizeRatio.get());
+//		incImage.setImageResource(poiInfo.markerWithShadow);
    		incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, sizeRatio.get()));
    		iconView.setView(incImage);
    		incAnn.setAnnotationView(iconView);
@@ -4106,6 +4234,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     private AtomicInteger sizeRatio = new AtomicInteger(1);
+    private AtomicInteger annSize = new AtomicInteger();
     
     private void updateAnnotationSize(int ratio) {
     	if(sizeRatio.get() != ratio) {
@@ -4114,34 +4243,50 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    	for(Integer uniqueId : starIds) {
 	    		PoiOverlayInfo poiInfo = poiContainer.getExistedPOIByUniqueId(uniqueId);
 	    		if(poiInfo != null) {
-	    			SKAnnotation incAnn = new SKAnnotation();
+	    			SKAnnotation incAnn = new SKAnnotation(uniqueId);
 	    			incAnn.setUniqueID(uniqueId);
 	    			incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
 	    			incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
 	    			SKAnnotationView iconView = new SKAnnotationView();
-	    			ImageView incImage = new ImageView(LandingActivity2.this);
+	    			SkobblerImageView incImage = new SkobblerImageView(LandingActivity2.this, poiInfo.markerWithShadow, ratio);
+	    			incImage.setLat(poiInfo.lat);
+	    			incImage.setLon(poiInfo.lon);
+	    			incImage.setDesc(poiInfo.address);
+	    			incImage.setMinimumHeight(annSize.get() / ratio);
+	    			incImage.setMinimumWidth(annSize.get() / ratio);
+	    			incImage.setMaxHeight(annSize.get() / ratio);
+	    			incImage.setMaxWidth(annSize.get() / ratio);
+//	    			incImage.setImageResource(poiInfo.markerWithShadow);
 	    			incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, ratio));
 	    			iconView.setView(incImage);
 	    			incAnn.setAnnotationView(iconView);
-	    			mapView.deleteAnnotation(uniqueId);
 	    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+//	    			mapView.updateAnnotation(incAnn);
 	    		}
 	    	}
 	    	Set<Integer> bulbIds = poiContainer.getBulbUniqueIdSet();
 	    	for(Integer uniqueId : bulbIds) {
 	    		PoiOverlayInfo poiInfo = poiContainer.getExistedPOIByUniqueId(uniqueId);
 	    		if(poiInfo != null) {
-	    			SKAnnotation incAnn = new SKAnnotation();
+	    			SKAnnotation incAnn = new SKAnnotation(uniqueId);
 	    			incAnn.setUniqueID(uniqueId);
 	    			incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
 	    			incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
 	    			SKAnnotationView iconView = new SKAnnotationView();
-	    			ImageView incImage = new ImageView(LandingActivity2.this);
+	    			SkobblerImageView incImage = new SkobblerImageView(LandingActivity2.this, poiInfo.markerWithShadow, ratio);
+	    			incImage.setLat(poiInfo.lat);
+	    			incImage.setLon(poiInfo.lon);
+	    			incImage.setDesc(poiInfo.address);
+	    			incImage.setMinimumHeight(annSize.get() / ratio);
+	    			incImage.setMinimumWidth(annSize.get() / ratio);
+	    			incImage.setMaxHeight(annSize.get() / ratio);
+	    			incImage.setMaxWidth(annSize.get() / ratio);
+//	    			incImage.setImageResource(poiInfo.markerWithShadow);
 	    			incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, ratio));
 	    			iconView.setView(incImage);
 	    			incAnn.setAnnotationView(iconView);
-	    			mapView.deleteAnnotation(uniqueId);
 	    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
+//	    			mapView.updateAnnotation(incAnn);
 	    		}
 	    	}
     	}
@@ -4396,6 +4541,22 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         		mapView.deleteAnnotation(deleteUniqueId);
         	}
         	else {
+        		if(FavoriteOperationActivity.FAVORITE_UPDATE.equals(optType)) {
+        			PoiOverlayInfo updatePoi = extras.getParcelable(FavoriteOperationActivity.FAVORITE_POI_INFO);
+        			com.metropia.models.Address oldInfo = afterUpdateUse.get(updatePoi.id);
+        			if(oldInfo != null) {
+	        			oldInfo.setAddress(updatePoi.address);
+	        			oldInfo.setLatitude(updatePoi.lat);
+	        			oldInfo.setLongitude(updatePoi.lon);
+	        			oldInfo.setName(updatePoi.label);
+	        			oldInfo.setIconName(updatePoi.iconName);
+	        			afterUpdateUse.put(updatePoi.id, oldInfo);
+	        			Collection<com.metropia.models.Address> temp = new ArrayList<com.metropia.models.Address>();
+	        			temp.addAll(afterUpdateUse.values());
+	        			initFavoriteDropdownIfNessary(temp, true);
+        			}
+        			poiContainer.updateExistedPOIByPoiId(updatePoi.id, updatePoi);
+        		}
         		removePOIMarker();
         	}
         }
@@ -4410,6 +4571,17 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }
     }
     
+    public void openMenu(DrawerLayout drawer) {
+    	View menuNotification = findViewById(R.id.menu_notification);
+    	if(menuNotification.getVisibility() == View.VISIBLE) {
+    		if(StringUtils.isNotBlank(inboxCityName)) {
+    			DebugOptionsActivity.setInboxMenuDismissRecord(this, inboxCityName, DebugOptionsActivity.getInboxLastVisitFeedTime(this, inboxCityName));
+    		}
+    		menuNotification.setVisibility(View.GONE);
+    	}
+    	drawer.openDrawer(findViewById(R.id.left_drawer));
+    }
+    
     @Override
     public boolean onKeyDown(int keycode, KeyEvent e) {
         switch(keycode) {
@@ -4420,7 +4592,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	                if(mDrawerLayout.isDrawerOpen(drawer)){
 	                    mDrawerLayout.closeDrawer(drawer);
 	                }else{
-	                    mDrawerLayout.openDrawer(drawer);
+	                    openMenu(mDrawerLayout);
 	                }
                 }
                 return true;
@@ -4448,8 +4620,28 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             		showTripInfoPanel(true, true);
             		return true;
             	}
+            	else {
+            		confirmExit();
+            		return true;
+            	}
         }
         return super.onKeyDown(keycode, e);
+    }
+    
+    private void confirmExit() {
+    	new AlertDialog.Builder(LandingActivity2.this).setCancelable(false).setTitle("Really quit?")
+    			.setMessage("Do you really want to exit the app?").setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// do nothing
+			}
+    	}).setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				finish();
+			}
+    	}).create().show();
+    	
     }
     
     static class LoadImageTask extends AsyncTask<Void, Void, Bitmap> {
@@ -4495,13 +4687,12 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        
-    }
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
     float[] mGravity;
     float[] mGeomagnetic;
     
+    @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
             mGravity = event.values;
@@ -4516,7 +4707,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 float orientation[] = new float[3];
                 SensorManager.getOrientation(r, orientation);
 //                float azimut = Double.valueOf(Math.toDegrees(orientation[0])).floatValue();
-                if(myPointOverlay != null){
+                if(myPoint != null){
 //                    myPointOverlay.setDegrees(azimut);
 //                    MapView mapView = (MapView)findViewById(R.id.mapview);
 //                    mapView.postInvalidate();
@@ -4624,9 +4815,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             if(this._route == null && dest == null){
                 try {
                 	dest = Geocoding.lookup(ctx, address, origin.getLatitude(), origin.getLongitude()).get(0).getGeoPoint();
-                    String curLoc = DebugOptionsActivity.getCurrentLocation(ctx);
-                    if(StringUtils.isNotBlank(curLoc)){ 
-                        origin = Geocoding.lookup(ctx, curLoc).get(0).getGeoPoint();
+                    GeoPoint curLoc = DebugOptionsActivity.getCurrentLocationLatLon(ctx);
+                    if(curLoc != null){
+                        origin = curLoc;
                     }
                 }
                 catch (Exception e) {
@@ -4733,9 +4924,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 				poiInfo = poiContainer.getExistedPOIByUniqueId(annotation.getUniqueID());
 			}
 			if(poiInfo != null) {
-				mapView.centerMapOnPositionSmooth(getCenterGeoPointByMapSize(poiInfo.lat, poiInfo.lon), MAP_ANIMATION_DURATION);
 	        	Screen xy = getPopupFavIconPosition();
 	            showPopupMenu(xy, poiInfo);
+	            mapView.centerMapOnPositionSmooth(getCenterGeoPointByMapSize(poiInfo.lat, poiInfo.lon), MAP_ANIMATION_DURATION);
 			}
 		}
 	}
@@ -4759,8 +4950,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	@Override
 	public void onCustomPOISelected(SKMapCustomPOI arg0) {}
 
-	@Override
-	public void onDebugInfo(double arg0, float arg1, double arg2) {}
+//	@Override
+//	public void onDebugInfo(double arg0, float arg1, double arg2) {}
 
 	@Override
 	public void onDoubleTap(SKScreenPoint arg0) {}
@@ -4776,10 +4967,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	@Override
 	public void onLongPress(SKScreenPoint screenPoint) {
 		SKCoordinate coordinate = mapView.pointToCoordinate(screenPoint);
-		mapView.centerMapOnPositionSmooth(getCenterGeoPointByMapSize(coordinate.getLatitude(), coordinate.getLongitude()), MAP_ANIMATION_DURATION);
     	Screen xy = getPopupFavIconPosition();
         PoiOverlayInfo marker = refreshPOIMarker(coordinate.getLatitude(), coordinate.getLongitude(), LOADING_ADDRESS, "");
         showPopupMenu(xy, marker);
+        mapView.centerMapOnPositionSmooth(getCenterGeoPointByMapSize(coordinate.getLatitude(), coordinate.getLongitude()), MAP_ANIMATION_DURATION);
         ReverseGeocodingTask task = new ReverseGeocodingTask(LandingActivity2.this, coordinate.getLatitude(), coordinate.getLongitude()){
             @Override
             protected void onPostExecute(String result) {
@@ -4806,14 +4997,16 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 
 	@Override
 	public void onMapRegionChanged(SKCoordinateRegion arg0) {
-		updateAnnotationSize(getSizeRatioByZoomLevel());
+		if(mapView != null) {
+			updateAnnotationSize(getSizeRatioByZoomLevel());
+		}
 	}
 
 	@Override
 	public void onObjectSelected(int arg0) {}
 
-	@Override
-	public void onOffportRequestCompleted(int arg0) {}
+//	@Override
+//	public void onOffportRequestCompleted(int arg0) {}
 
 	@Override
 	public void onPOIClusterSelected(SKPOICluster arg0) {}
@@ -4821,8 +5014,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	@Override
 	public void onRotateMap() {}
 
-	@Override
-	public void onScreenOrientationChanged() {}
+//	@Override
+//	public void onScreenOrientationChanged() {}
 
 	@Override
 	public void onSingleTap(SKScreenPoint arg0) {
@@ -4846,9 +5039,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             resizeMap(!isMapCollapsed());
         }
 	}
-
-	@Override
-	public void onSurfaceCreated() {}
 
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
@@ -4895,6 +5085,62 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 break;
         }
 	}
-    
+
+	@Override
+	public void onBoundingBoxImageRendered(int arg0) {}
+
+	@Override
+	public void onGLInitializationError(String arg0) {}
+
+	@Override
+	public void onSurfaceCreated(SKMapViewHolder mapViewHolder) {
+		initSKMaps(mapViewHolder);
+		prepareGPS();
+		mapRefresh.set(true);
+		enableDrawRoute.set(true);
+        
+        //redraw poi
+        sizeRatio.set(0);
+        updateAnnotationSize(getSizeRatioByZoomLevel());
+        //
+        User.initializeIfNeccessary(LandingActivity2.this, new Runnable() {
+			@Override
+			public void run() {
+				drawedReservId = Long.valueOf(-1);
+				if(!disableRefreshTripInfo.getAndSet(false)) {
+					dismissReservId = Long.valueOf(-1);
+					refreshTripsInfo();
+				}
+		        updateMyMetropiaInfo();
+		        if(!mapRecenter.get()) {
+		        	centerMap();
+		        }
+			}
+        });
+		GeoPoint debugLoc = DebugOptionsActivity.getCurrentLocationLatLon(LandingActivity2.this);
+        if(debugLoc != null) {
+        	Location loc = new Location("");
+        	loc.setLatitude(debugLoc.getLatitude());
+        	loc.setLongitude(debugLoc.getLongitude());
+        	loc.setTime(System.currentTimeMillis() - ValidationActivity.TWO_MINUTES);
+        	locationChanged(loc);
+        }
+        else {
+			LocationInfo cacheLoc = new LocationInfo(LandingActivity2.this);
+	        if(System.currentTimeMillis() - cacheLoc.lastLocationUpdateTimestamp <= ONE_HOUR) {
+	        	Location loc = new Location("");
+	        	loc.setLatitude(cacheLoc.lastLat);
+	        	loc.setLongitude(cacheLoc.lastLong);
+	        	loc.setTime(cacheLoc.lastLocationUpdateTimestamp - ValidationActivity.TWO_MINUTES);
+	        	loc.setAccuracy(cacheLoc.lastAccuracy);
+	        	loc.setBearing(cacheLoc.lastHeading);
+	        	locationChanged(loc);
+	        }
+        }
+	}
+
+	@Override
+	public void onDebugInfo(double arg0, float arg1, double arg2) {}
+
 }
 

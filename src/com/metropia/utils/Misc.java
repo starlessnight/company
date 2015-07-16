@@ -4,6 +4,8 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -14,6 +16,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Ringtone;
@@ -28,6 +31,7 @@ import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
+import android.view.Surface;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -54,6 +58,8 @@ public class Misc {
     public static final String LOG_TAG = "Misc";
     
     private static final String addGoogleAccount = "addGoogleAccount";
+    
+    public static final Integer ANNOTATION_MINIMUM_SIZE_IN_DP = Integer.valueOf(42);
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 	public static void disableHardwareAcceleration(View v){
@@ -294,5 +300,88 @@ public class Misc {
 			i++;
 		}
 	}
+    
+    public static Integer getNewInboxMessageCount(String messageContent, Long recordLastFeed) {
+    	Pattern messagePostedPattern = Pattern.compile("<div\\s+class=\"messagePosted\"\\s+style=\"display:none;\"\\s*>\\s*(\\d+)\\s*</div>");
+        Matcher messagePostMatcher = messagePostedPattern.matcher(messageContent);
+        Integer count = Integer.valueOf(0);
+        while(messagePostMatcher.find()) {
+        	try {
+	        	if(Long.valueOf(messagePostMatcher.group(1)) > recordLastFeed) {
+	        		count++;
+	        	}
+        	}
+        	catch(Exception ignore){}
+        }
+        return count;
+    }
+    
+    public static Long getCurrentLastFeed(String messageContent) {
+    	Long currentLastFeed = Long.valueOf(0);
+    	Pattern lastFeedPattern = Pattern.compile("<div\\s+class=\"lastFeed\"\\sstyle=\"display:none;\"\\s*>\\s*(\\d+)\\s*</div>");
+        Matcher lastFeedMatcher = lastFeedPattern.matcher(messageContent);
+        if(lastFeedMatcher.find()) {
+        	try {
+        		currentLastFeed = Long.valueOf(lastFeedMatcher.group(1));
+        	}
+        	catch(Exception e) {}
+        }
+        return currentLastFeed;
+    }
+    
+    public static int getExactScreenOrientation(Activity activity) {
+        Display defaultDisplay = activity.getWindowManager().getDefaultDisplay();
+        int rotation = defaultDisplay.getRotation();
+        DisplayMetrics dm = new DisplayMetrics();
+        defaultDisplay.getMetrics(dm);
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+        int orientation;
+        // if the device's natural orientation is portrait:
+        if ((rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) && height > width || (rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270) &&
+                width > height) {
+            switch (rotation) {
+                case Surface.ROTATION_0:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                    break;
+                case Surface.ROTATION_90:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                    break;
+                case Surface.ROTATION_180:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+                    break;
+                case Surface.ROTATION_270:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+                    break;
+                default:
+                   // Logging.writeLog(TAG, "Unknown screen orientation. Defaulting to " + "portrait.", Logging.LOG_DEBUG);
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                    break;
+            }
+        }
+        // if the device's natural orientation is landscape or if the device
+        // is square:
+        else {
+            switch (rotation) {
+                case Surface.ROTATION_0:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                    break;
+                case Surface.ROTATION_90:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                    break;
+                case Surface.ROTATION_180:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+                    break;
+                case Surface.ROTATION_270:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT;
+                    break;
+                default:
+                    orientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                    break;
+            }
+        }
+
+        return orientation;
+    }
     
 }

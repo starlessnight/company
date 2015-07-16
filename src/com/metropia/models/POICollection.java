@@ -16,6 +16,7 @@ public class POICollection {
 	private Map<Integer, PoiOverlayInfo> idPoiMap = new HashMap<Integer, PoiOverlayInfo>();
 	private Map<String, PoiOverlayInfo> addressPoiMap = new HashMap<String, PoiOverlayInfo>();
 	private Map<Integer, Integer> locationIdMap = new HashMap<Integer, Integer>();
+	private Map<Integer, PoiOverlayInfo> poiIdPoiMap = new HashMap<Integer, PoiOverlayInfo>();
 
 	public POICollection(Integer idStartWith, Integer idEndWith) {
 		this.idStartWith = idStartWith;
@@ -36,6 +37,10 @@ public class POICollection {
 	public PoiOverlayInfo getExistedPOIByAddress(String addr) {
 		return addressPoiMap.get(addr);
 	}
+	
+	public PoiOverlayInfo getExistedPOIByPoiId(Integer poiId) {
+		return poiIdPoiMap.get(poiId);
+	}
 
 	public Integer addPOIToMap(PoiOverlayInfo info) {
 		Integer uniqueId = getRandomUniqueId();
@@ -43,6 +48,9 @@ public class POICollection {
 		info.uniqueId = uniqueId;
 		idPoiMap.put(uniqueId, info);
 		addressPoiMap.put(info.address, info);
+		if(info.id > 0) {
+			poiIdPoiMap.put(info.id, info);
+		}
 		return uniqueId;
 	}
 
@@ -53,12 +61,32 @@ public class POICollection {
 		}
 		locationIdMap.remove(SkobblerUtils.getUniqueId(info.lat, info.lon));
 		addressPoiMap.remove(info.address);
+		poiIdPoiMap.remove(info.id);
+	}
+	
+	public void updateExistedPOIByPoiId(Integer poiId, PoiOverlayInfo newInfo) {
+		PoiOverlayInfo oldPoi = getExistedPOIByPoiId(poiId);
+		if(oldPoi != null) {
+			try {
+				Integer oldLocationId = SkobblerUtils.getUniqueId(oldPoi.lat, oldPoi.lon);
+				Integer uniqueId = Integer.valueOf(locationIdMap.get(oldLocationId));
+				newInfo.uniqueId = uniqueId;
+				locationIdMap.remove(oldLocationId);
+				addressPoiMap.remove(oldPoi.address);
+				idPoiMap.put(uniqueId, newInfo);
+				addressPoiMap.put(newInfo.address, newInfo);
+				locationIdMap.put(SkobblerUtils.getUniqueId(newInfo.lat, newInfo.lon), uniqueId);
+				poiIdPoiMap.put(poiId, newInfo);
+			}
+			catch(Throwable ignore){}
+		}
 	}
 
 	public void removeAll() {
 		locationIdMap.clear();
 		idPoiMap.clear();
 		addressPoiMap.clear();
+		poiIdPoiMap.clear();
 	}
 	
 	public Set<Integer> getUniqueIdSet() {

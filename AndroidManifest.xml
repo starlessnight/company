@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.metropia.activities"
     android:versionCode="22"
-    android:versionName="0.15.42.0" >
+    android:versionName="0.15.61.0" >
 
     <!-- http://stackoverflow.com/questions/9629125/regarding-version-code-and-version-name-android-manifest -->
 
@@ -256,6 +256,15 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".InBoxActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
+            android:theme="@android:style/Theme.NoTitleBar" />
+        <activity
+            android:name=".PassengerActivity"
+            android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".WebViewRegistrationActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
             android:theme="@android:style/Theme.NoTitleBar" />
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/fb_app_id" />

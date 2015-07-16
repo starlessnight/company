@@ -157,9 +157,9 @@ public class ShortcutNavigationTask extends AsyncTask<Void, Void, Void> {
         if(this._route == null && dest == null){
             try {
                 dest = Geocoding.lookup(ctx, address).get(0).getGeoPoint();
-                String curLoc = DebugOptionsActivity.getCurrentLocation(ctx);
-                if(StringUtils.isNotBlank(curLoc)){ 
-                    origin = Geocoding.lookup(ctx, curLoc).get(0).getGeoPoint();
+                GeoPoint curLoc = DebugOptionsActivity.getCurrentLocationLatLon(ctx);
+                if(curLoc != null){
+                    origin = curLoc;
                 }
             }
             catch (Exception e) {

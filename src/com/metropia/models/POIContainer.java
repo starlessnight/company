@@ -22,6 +22,7 @@ public class POIContainer {
 	private POICollection homePois = new POICollection(HOME_POI_START_ID, WORK_POI_START_ID - 1);
 	
 	private POICollection[] poiCollections = {homePois, workPois, otherPois, bulbPois};
+	private POICollection[] hasIdPoiCollections = {homePois, workPois, otherPois};
 	
 	public POIContainer() {}
 	
@@ -52,6 +53,24 @@ public class POIContainer {
 	    		result = poiCollections[i].getExistedPOIByAddress(addr);
 	    	}
 	    	return result;
+    	}
+    }
+    
+    public PoiOverlayInfo getExistedPOIByPoiId(Integer poiId) {
+    	synchronized(mutex) {
+    		PoiOverlayInfo result = null;
+	    	for(int i = 0 ; i < hasIdPoiCollections.length && result == null ; i++) {
+	    		result = hasIdPoiCollections[i].getExistedPOIByPoiId(poiId);
+	    	}
+	    	return result;
+    	}
+    }
+    
+    public void updateExistedPOIByPoiId(Integer poiId, PoiOverlayInfo info) {
+    	synchronized(mutex) {
+	    	for(int i = 0 ; i < hasIdPoiCollections.length ; i++) {
+	    		hasIdPoiCollections[i].updateExistedPOIByPoiId(poiId, info);
+	    	}
     	}
     }
     
