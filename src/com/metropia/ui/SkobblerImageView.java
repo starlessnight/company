@@ -39,10 +39,10 @@ public class SkobblerImageView extends ImageView {
 		if(resourceId > 0) {
 			hashCodeBuilder.append(resourceId);
 		}
-		if(lat > 0) {
+		if(lat != 0) {
 			hashCodeBuilder.append(lat);
 		}
-		if(lon > 0) {
+		if(lon != 0) {
 			hashCodeBuilder.append(lon);
 		}
 		if(StringUtils.isNotBlank(desc)) {

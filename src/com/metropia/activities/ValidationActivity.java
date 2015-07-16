@@ -859,7 +859,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		mapView = mapViewHolder.getMapSurfaceView();
 
-//		mapView.setMapSurfaceListener(this);
 		mapView.clearAllOverlays();
 		mapView.deleteAllAnnotationsAndCustomPOIs();
 		mapView.getMapSettings().setCurrentPositionShown(true);
@@ -2864,7 +2863,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					incAnn.setLocation(new SKCoordinate(inc.lon, inc.lat));
 					incAnn.setMininumZoomLevel(inc.getMinimalDisplayZoomLevel());
 					SKAnnotationView iconView = new SKAnnotationView();
-					SkobblerImageView incImage = new SkobblerImageView(ValidationActivity.this, 0, 0);
+					SkobblerImageView incImage = new SkobblerImageView(ValidationActivity.this, IncidentIcon.fromType(inc.type).getResourceId(ValidationActivity.this), ratio);
 					incImage.setLat(inc.lat);
 					incImage.setLon(inc.lon);
 					incImage.setDesc(inc.shortDesc);
