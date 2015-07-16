@@ -859,8 +859,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		mapView = mapViewHolder.getMapSurfaceView();
 
-		mapView.clearAllOverlays();
-		mapView.deleteAllAnnotationsAndCustomPOIs();
+//		mapView.clearAllOverlays();
+//		mapView.deleteAllAnnotationsAndCustomPOIs();
 		mapView.getMapSettings().setCurrentPositionShown(true);
 		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NAVIGATION);
 		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_3D);
