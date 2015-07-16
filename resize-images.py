@@ -22,7 +22,7 @@ if __name__ == "__main__":
     files = os.listdir("res/drawable-xhdpi/")
 
     # Filter out non-desired files
-    files = filter(lambda x: re.match(r"menu_trip.png", x) != None, files)
+    files = filter(lambda x: re.match(r"^\w+(.jpg|.png)$", x) != None, files)
 
     for filename in files:
         with Image(filename="res/drawable-xhdpi/%s" % filename) as img:
