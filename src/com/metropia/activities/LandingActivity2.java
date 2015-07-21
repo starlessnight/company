@@ -27,6 +27,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
@@ -37,6 +38,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
+import android.content.IntentSender.SendIntentException;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
@@ -186,6 +188,7 @@ import com.skobbler.ngx.map.SKPOICluster;
 import com.skobbler.ngx.map.SKPolyline;
 import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
+
 
 public final class LandingActivity2 extends FragmentActivity implements SKMapSurfaceListener, SensorEventListener, ConnectionCallbacks, 
                                       OnConnectionFailedListener, ResultCallback<LocationSettingsResult> { 
@@ -1199,6 +1202,17 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 						public void onAnimationEnd() {
 							disableShowPassengerMode.set(true);
 							if(curFrom != null && StringUtils.isBlank(curFrom.address)) {
+								
+								PendingResult<LocationSettingsResult> result =LocationServices.SettingsApi.checkLocationSettings(googleApiClient, locationSettingsRequest);
+								result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+									public void onResult(LocationSettingsResult result) {
+										try {
+											if (result.getStatus().getStatusCode()==LocationSettingsStatusCodes.RESOLUTION_REQUIRED)
+												result.getStatus().startResolutionForResult(LandingActivity2.this, REQUEST_CHECK_SETTINGS);
+										} catch (SendIntentException e) {}
+									}
+								});
+								
 								Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
 									
 									@Override
@@ -2685,7 +2699,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //	    dismissReservId = Long.valueOf(-1);
 //	    refreshTripsInfo(true, true);
 	    hidePopupMenu();
-	    findViewById(R.id.loading_panel).setVisibility(View.GONE);
+	    //findViewById(R.id.loading_panel).setVisibility(View.GONE);
     } 
     
     private void refreshTripsInfo(){
@@ -4561,13 +4575,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         	}
         }
         else if(requestCode == REQUEST_CHECK_SETTINGS) {
-        	if(resultCode == Activity.RESULT_OK) {
-        		startLocationUpdates();
-        	}
-        	else {
-        		requestingLocationUpdates = false;
-        		startLocationUpdates();
-        	}
+        	if(resultCode != Activity.RESULT_OK) requestingLocationUpdates = false;
+        	startLocationUpdates();
         }
     }
     
