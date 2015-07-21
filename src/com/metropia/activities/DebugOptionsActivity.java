@@ -508,6 +508,15 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
             }
         });
         
+        CheckBox navigationHeadingInfo = (CheckBox) findViewById(R.id.navigation_heading_info);
+        navigationHeadingInfo.setChecked(isNavigationHeadingInfoEnabled(this));
+        navigationHeadingInfo.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                setNavigationHeadingInfoEnabled(DebugOptionsActivity.this, isChecked);
+            }
+        });
+        
         CheckBox voiceInputDebugMsg = (CheckBox) findViewById(R.id.voice_input_debug_msg);
         voiceInputDebugMsg.setChecked(isEnrouteVoiceInputDebugMsgEnabled(this));
         voiceInputDebugMsg.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -1358,6 +1367,24 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
     public static void setPolylineRouteEnabled(Context ctx, boolean enabled){
         getPrefs(ctx).edit()
             .putBoolean(POLYLINE_ROUTE, enabled)
+            .commit();
+    }
+    
+    private static final String NAV_HEADING_INFO = "NAVIGATION_HEADING_INFO";
+    
+    public static boolean isNavigationHeadingInfoEnabled(Context ctx){
+        boolean enabled;
+        try{
+            enabled = getPrefs(ctx).getBoolean(NAV_HEADING_INFO, false);
+        }catch(Throwable t){
+            enabled = false;
+        }
+        return enabled;
+    }
+    
+    public static void setNavigationHeadingInfoEnabled(Context ctx, boolean enabled){
+        getPrefs(ctx).edit()
+            .putBoolean(NAV_HEADING_INFO, enabled)
             .commit();
     }
     

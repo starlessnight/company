@@ -1282,6 +1282,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				|| DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(this)) {
 			findViewById(R.id.rerouting_debug_msg).setVisibility(View.VISIBLE);
 		}
+		
+		if(DebugOptionsActivity.isNavigationHeadingInfoEnabled(this)) {
+			findViewById(R.id.heading_debug_msg).setVisibility(View.VISIBLE);
+		}
 
 		findViewById(R.id.en_route_alert_panel).setOnClickListener(new OnClickListener() {
 					@Override
@@ -2418,6 +2422,15 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					}
 				}
 			}
+		}
+		
+		if(DebugOptionsActivity.isNavigationHeadingInfoEnabled(ValidationActivity.this)) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					((TextView)findViewById(R.id.heading_debug_msg)).setText(String.format("Heading : %f", location.getBearing()));
+				}
+			});
 		}
 
 		if (ttsBuffer.isEmpty()) {

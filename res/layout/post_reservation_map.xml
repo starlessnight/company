@@ -27,6 +27,17 @@
         android:visibility="gone" />
     
     <TextView
+        android:id="@+id/heading_debug_msg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/navigation_view"
+        android:background="@color/dark_blue"
+        android:gravity="center"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/smaller_font"
+        android:visibility="gone" />
+    
+    <TextView
         android:id="@+id/en_route_debug_msg"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
