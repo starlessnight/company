@@ -147,6 +147,19 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			}
 		});
 		
+		View compass = findViewById(R.id.center_map_icon);
+		compass.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				ClickAnimation clickAnimation = new ClickAnimation(PassengerActivity.this, v);
+				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+					public void onAnimationEnd() {
+						mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.POSITION);
+						handler.removeCallbacks(restoreRunnable);
+					}
+				});
+			}
+		});
+		
 		final TextView startOrEndButton = (TextView) findViewById(R.id.start_or_end_trip);
 		startOrEndButton.setTag(false);
 		startOrEndButton.setOnClickListener(new OnClickListener() {
@@ -798,8 +811,19 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	@Override
 	public void onConnectionSuspended(int arg0) {}
 
+	private Handler handler = new Handler();
+	private Runnable restoreRunnable = new Runnable() {
+		public void run() {
+			mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.POSITION);
+		}
+	};
+	
 	@Override
-	public void onActionPan() {}
+	public void onActionPan() {
+		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
+		handler.removeCallbacks(restoreRunnable);
+		handler.postDelayed(restoreRunnable, 30000);
+	}
 
 	@Override
 	public void onActionZoom() {}

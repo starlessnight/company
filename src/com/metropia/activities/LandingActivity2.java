@@ -1203,15 +1203,18 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 							disableShowPassengerMode.set(true);
 							if(curFrom != null && StringUtils.isBlank(curFrom.address)) {
 								
-								PendingResult<LocationSettingsResult> result =LocationServices.SettingsApi.checkLocationSettings(googleApiClient, locationSettingsRequest);
-								result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+								ResultCallback<LocationSettingsResult> callback = new ResultCallback<LocationSettingsResult>() {
 									public void onResult(LocationSettingsResult result) {
 										try {
 											if (result.getStatus().getStatusCode()==LocationSettingsStatusCodes.RESOLUTION_REQUIRED)
 												result.getStatus().startResolutionForResult(LandingActivity2.this, REQUEST_CHECK_SETTINGS);
 										} catch (SendIntentException e) {}
 									}
-								});
+								};
+								if (googleApiClient!=null) {
+									PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(googleApiClient, locationSettingsRequest);
+									result.setResultCallback(callback);
+								}
 								
 								Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
 									

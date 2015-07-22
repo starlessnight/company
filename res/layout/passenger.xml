@@ -70,6 +70,16 @@
         
         </LinearLayout>
         
+	    <ImageView
+                android:id="@+id/center_map_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="60dp"
+                android:layout_marginRight="20dp"
+                android:src="@drawable/compass" />
+	    
 	    <TextView 
 	        android:id="@+id/start_or_end_trip"
 	        android:layout_width="match_parent"
