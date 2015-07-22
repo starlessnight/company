@@ -801,6 +801,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		Localytics.closeSession();
 		Localytics.upload();
 		super.onPause();
+		stopOrientationSensor();
 		mapViewHolder.onPause();
 		unregisterReceiver(timeInfoCycler);
 		if (!cancelTrip && !arrived.get()) {
@@ -3690,12 +3691,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private AtomicBoolean sensorUpdated = new AtomicBoolean(false);
 	private AtomicBoolean locationUpdated = new AtomicBoolean(false);
+	private float deviceOrientation = 0;
 	
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		 //mapView.reportNewHeading(t.values[0]);
         switch (event.sensor.getType()) {
-
             case Sensor.TYPE_ORIENTATION:
                 if (orientationValues != null && !locationUpdated.get()) {
                     for (int i = 0; i < orientationValues.length; i++) {
@@ -3709,31 +3710,35 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
                                 lastExactScreenOrientation = currentExactScreenOrientation;
                                 switch (lastExactScreenOrientation) {
                                     case ActivityInfo.SCREEN_ORIENTATION_PORTRAIT:
-                                        mapView.reportNewDeviceOrientation(SKMapSurfaceView.SKOrientationType.PORTRAIT);
+//                                        mapView.reportNewDeviceOrientation(SKMapSurfaceView.SKOrientationType.PORTRAIT);
+                                    	deviceOrientation = 0;
                                         break;
                                     case ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT:
-                                        mapView.reportNewDeviceOrientation(SKMapSurfaceView.SKOrientationType.PORTRAIT_UPSIDEDOWN);
+//                                        mapView.reportNewDeviceOrientation(SKMapSurfaceView.SKOrientationType.PORTRAIT_UPSIDEDOWN);
+                                        deviceOrientation = 180;
                                         break;
                                     case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
-                                        mapView.reportNewDeviceOrientation(SKMapSurfaceView.SKOrientationType.LANDSCAPE_RIGHT);
+//                                        mapView.reportNewDeviceOrientation(SKMapSurfaceView.SKOrientationType.LANDSCAPE_RIGHT);
+                                    	deviceOrientation = 0;
                                         break;
                                     case ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE:
-                                        mapView.reportNewDeviceOrientation(SKMapSurfaceView.SKOrientationType.LANDSCAPE_LEFT);
+//                                        mapView.reportNewDeviceOrientation(SKMapSurfaceView.SKOrientationType.LANDSCAPE_LEFT);
+                                    	deviceOrientation = 270;
                                         break;
                                 }
                             }
-
+                            
                             // report to NG the new value
                             if (orientationValues[0] < 0) {
-                                mapView.reportNewHeading(-orientationValues[0]);
+                                mapView.reportNewHeading((-orientationValues[0] + deviceOrientation) % 360);
                                 if(cacheLocation != null) {
-                                	cacheLocation.setBearing(-orientationValues[0]);
+                                	cacheLocation.setBearing((-orientationValues[0] + deviceOrientation) % 360);
                                 	mapView.reportNewGPSPosition(new SKPosition(cacheLocation));
                                 }
                             } else {
-                                mapView.reportNewHeading(orientationValues[0]);
+                                mapView.reportNewHeading((orientationValues[0] + deviceOrientation) % 360);
                                 if(cacheLocation != null) {
-                                	cacheLocation.setBearing(orientationValues[0]);
+                                	cacheLocation.setBearing((orientationValues[0] + deviceOrientation) % 360);
                                 	mapView.reportNewGPSPosition(new SKPosition(cacheLocation));
                                 }
                             }
