@@ -376,8 +376,9 @@ public final class UserRegistrationActivity extends FragmentActivity
     				    		dialog.dismiss();
     				    	}
     				    	
-    				    	NotificationDialog2 manualOpenDialog = new NotificationDialog2(UserRegistrationActivity.this, "No default email app. Please launch email app manually.");
-    				    	manualOpenDialog.setPositiveButtonText("Dismiss");
+    				    	NotificationDialog2 manualOpenDialog = new NotificationDialog2(UserRegistrationActivity.this, "Please check your email to confirm your Metropia account");
+    				    	manualOpenDialog.setTitle("Message");
+    				    	manualOpenDialog.setPositiveButtonText("OK");
     				    	manualOpenDialog.setPositiveActionListener(new ActionListener() {
 								@Override
 								public void onClick() {
