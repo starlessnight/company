@@ -111,10 +111,10 @@ public final class ScrollableTimeLayout extends ObservableScrollView implements 
 	
 	public void notifyScrollChanged(){
 	    if(timeLayout != null) {
-	        int loadingOffset = screenWidth / 2;
+	        int loadingOffset = 0/*screenWidth / 2*/;
             int columnWidth = timeLayout.getColumnWidth();
             int lowerBound = Math.max(scrollX - loadingOffset, 0) / columnWidth;
-            int columnsInScreen = Double.valueOf(Math.ceil((1.0 * screenWidth + loadingOffset) / columnWidth)).intValue();
+            int columnsInScreen = 3/*Double.valueOf(Math.ceil((1.0 * screenWidth + loadingOffset) / columnWidth)).intValue()*/;
             int upperBound = Math.min(lowerBound + columnsInScreen, timeLayout.getColumnCount());
             int[] columns = new int[Math.max(upperBound - lowerBound + 1, 0)];
             for(int i=0; i < columns.length; i++){
