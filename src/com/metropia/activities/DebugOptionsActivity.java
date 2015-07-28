@@ -427,6 +427,54 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
         
         entrypointView.addTextChangedListener(entrypointTextWatcher);
         
+        EditText arrivalLogicCoefficientA = (EditText)findViewById(R.id.arrival_logic_coefficient_a);
+        arrivalLogicCoefficientA.setText(getArrivalLogicCoefficientA(this).toString());
+        arrivalLogicCoefficientA.addTextChangedListener(new TextWatcher() {
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,	int after) {}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				setArrivalLogicCoefficientA(DebugOptionsActivity.this, s);
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {}
+		});
+        
+        EditText arrivalLogicCoefficientB = (EditText)findViewById(R.id.arrival_logic_coefficient_b);
+        arrivalLogicCoefficientB.setText(getArrivalLogicCoefficientB(this).toString());
+        arrivalLogicCoefficientB.addTextChangedListener(new TextWatcher() {
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,	int after) {}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				setArrivalLogicCoefficientB(DebugOptionsActivity.this, s);
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {}
+		});
+        
+        EditText arrivalLogicCoefficientC = (EditText)findViewById(R.id.arrival_logic_coefficient_c);
+        arrivalLogicCoefficientC.setText(getArrivalLogicCoefficientC(this).toString());
+        arrivalLogicCoefficientC.addTextChangedListener(new TextWatcher() {
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,	int after) {}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				setArrivalLogicCoefficientC(DebugOptionsActivity.this, s);
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {}
+		});
+        
         CheckBox reroutingNotificationSound = (CheckBox) findViewById(R.id.rerouting_notification_sound);
         reroutingNotificationSound.setChecked(isReroutingNotificationSoundEnabled(this));
         reroutingNotificationSound.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -555,7 +603,7 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
         });
     }
     
-    private CountDownTimer countDown;
+	private CountDownTimer countDown;
     
     @Override
     protected void onResume() {
@@ -1500,6 +1548,58 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
 			}
     	}
     	return feedTimed;
+    }
+    
+    private static final String ARRIVAL_LOGIC_COEFFICIENT_A = "ARRIVAL_LOGIC_COEFFICIENT_A";
+    private static final String ARRIVAL_LOGIC_COEFFICIENT_B = "ARRIVAL_LOGIC_COEFFICIENT_B";
+    private static final String ARRIVAL_LOGIC_COEFFICIENT_C = "ARRIVAL_LOGIC_COEFFICIENT_C";
+    
+    public static Float getArrivalLogicCoefficientA(Context ctx) {
+    	Float coefficientA = Float.valueOf(-0.0000003f);
+    	try {
+    		coefficientA = getPrefs(ctx).getFloat(ARRIVAL_LOGIC_COEFFICIENT_A, -0.0000003f);
+    	}
+    	catch(Exception ignore){}
+    	return coefficientA;
+    }
+    
+    private static void setArrivalLogicCoefficientA(Context ctx, CharSequence coefficientA) {
+    	try {
+    		getPrefs(ctx).edit().putFloat(ARRIVAL_LOGIC_COEFFICIENT_A, Float.valueOf(coefficientA.toString()));
+    	}
+    	catch(Exception ignore){}
+    }
+    
+    public static Float getArrivalLogicCoefficientB(Context ctx) {
+    	Float coefficientB = Float.valueOf(0.0005f);
+    	try {
+    		coefficientB = getPrefs(ctx).getFloat(ARRIVAL_LOGIC_COEFFICIENT_B, 0.0005f);
+    	}
+    	catch(Exception ignore){}
+    	return coefficientB;
+    }
+    
+    private static void setArrivalLogicCoefficientB(Context ctx, CharSequence coefficientB) {
+    	try {
+    		getPrefs(ctx).edit().putFloat(ARRIVAL_LOGIC_COEFFICIENT_B, Float.valueOf(coefficientB.toString()));
+    	}
+    	catch(Exception ignore){}
+    }
+    
+    public static Float getArrivalLogicCoefficientC(Context ctx) {
+    	Float coefficientC = Float.valueOf(0.0623f);
+    	try {
+    		coefficientC = getPrefs(ctx).getFloat(ARRIVAL_LOGIC_COEFFICIENT_C, 0.0623f);
+    	}
+    	catch(Exception ignore){}
+    	return coefficientC;
+    }
+    
+    private static void setArrivalLogicCoefficientC(Context ctx, CharSequence coefficientC) {
+    	try {
+    		getPrefs(ctx).edit().putFloat(ARRIVAL_LOGIC_COEFFICIENT_C, Float.valueOf(coefficientC.toString()));
+    	}
+    	catch(Exception ignore){}
     }
     
     private void initRecognizer() {

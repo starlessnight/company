@@ -24,8 +24,10 @@ import android.content.Intent;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.metropia.activities.DebugOptionsActivity;
 import com.metropia.receivers.ReservationReceiver;
 import com.metropia.requests.Request;
+import com.metropia.ui.NavigationView;
 import com.metropia.utils.GeoPoint;
 import com.metropia.utils.Misc;
 import com.metropia.utils.RouteNode;
@@ -435,8 +437,6 @@ public final class Reservation implements Parcelable {
     	return null;
     }
     
-    private static AtomicLong delayTime = new AtomicLong(30 * 1000); //30 secs
-	
 	/**
 	 * Determines whether a geocoordinate is close enough to the destination of the route
 	 * 
@@ -444,12 +444,12 @@ public final class Reservation implements Parcelable {
 	 * @param lng
 	 * @return
 	 */
-	public boolean hasArrivedAtDestination(double lat, double lng, long startCountDownTime) {
+	public boolean hasArrivedAtDestination(Context ctx, double lat, double lng, long startCountDownTime) {
 		ValidationParameters params = ValidationParameters.getInstance();
 		boolean arrived = false;
-		double distanceToDest = RouteNode.distanceBetween(lat, lng, endlat, endlon);
-		if(distanceToDest <= params.getArrivalDistanceThreshold()){
-			arrived = (System.currentTimeMillis() - startCountDownTime) >= delayTime.get();
+		double distanceToDestInMeter = RouteNode.distanceBetween(lat, lng, endlat, endlon);
+		if(distanceToDestInMeter <= params.getArrivalDistanceThreshold()){
+			arrived = (System.currentTimeMillis() - startCountDownTime) >= getDelayTime(ctx, distanceToDestInMeter);
 		}
 		return arrived;
 	}
@@ -467,6 +467,12 @@ public final class Reservation implements Parcelable {
 			}
 		}
 		return startCountDownTime;
+	}
+	
+	private long getDelayTime(Context ctx, double distanceInMeter) {
+		return 1000 * Double.valueOf(DebugOptionsActivity.getArrivalLogicCoefficientA(ctx) * Math.pow(NavigationView.metersToFeet(distanceInMeter), 3) + 
+				DebugOptionsActivity.getArrivalLogicCoefficientB(ctx) * Math.pow(NavigationView.metersToFeet(distanceInMeter), 2) + 
+				DebugOptionsActivity.getArrivalLogicCoefficientC(ctx) * NavigationView.metersToFeet(distanceInMeter)).longValue(); 
 	}
 	
 	/**
