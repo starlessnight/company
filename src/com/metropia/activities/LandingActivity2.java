@@ -2514,9 +2514,16 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         
        	updateCurrentLocationOrigin(loc);
         
-        try {
-        	PassiveLocationChangedReceiver.processLocation(getApplicationContext(), loc);
-        }catch(Exception ignore){}
+       	final Location _loc = loc;
+       	Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... params) {
+				try {
+		        	PassiveLocationChangedReceiver.processLocation(getApplicationContext(), _loc);
+		        }catch(Exception ignore){}
+				return null;
+			}
+       	});
     }
     
     private void updateCurrentLocationOrigin(Location loc) {

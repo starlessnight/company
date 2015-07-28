@@ -196,9 +196,17 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
 					location.setLatitude(curLoc.getLatitude());
 					location.setLongitude(curLoc.getLongitude());
 				}
-            	try {
-                	PassiveLocationChangedReceiver.processLocation(getApplicationContext(), location);
-                }catch(Exception ignore){}
+				
+				final Location _loc = location; 
+				Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
+					@Override
+					protected Void doInBackground(Void... params) {
+						try {
+				        	PassiveLocationChangedReceiver.processLocation(getApplicationContext(), _loc);
+				        }catch(Exception ignore){}
+						return null;
+					}
+		       	});
                 checkCity(location.getLatitude(), location.getLongitude());
                 closeGPS();
             }
@@ -213,9 +221,17 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
 					location.setLatitude(curLoc.getLatitude());
 					location.setLongitude(curLoc.getLongitude());
 				}
-				try {
-                	PassiveLocationChangedReceiver.processLocation(getApplicationContext(), location);
-                }catch(Exception ignore){}
+				
+				final Location _loc = location; 
+				Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
+					@Override
+					protected Void doInBackground(Void... params) {
+						try {
+				        	PassiveLocationChangedReceiver.processLocation(getApplicationContext(), _loc);
+				        }catch(Exception ignore){}
+						return null;
+					}
+		       	});
 				checkCity(location.getLatitude(), location.getLongitude());
 				closeGPS();
 			}

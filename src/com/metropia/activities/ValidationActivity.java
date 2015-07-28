@@ -625,9 +625,17 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				locationRefreshed.set(true);
 				lastLocation = location;
 				locationChanged(location);
-				try {
-					PassiveLocationChangedReceiver.processLocation(getApplicationContext(), location);
-				} catch (Exception ignore) {}
+				
+				final Location _loc = location;
+				Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
+					@Override
+					protected Void doInBackground(Void... params) {
+						try {
+				        	PassiveLocationChangedReceiver.processLocation(getApplicationContext(), _loc);
+				        }catch(Exception ignore){}
+						return null;
+					}
+		       	});
 			}
 		} else {
 			locationRefreshed.set(true);
