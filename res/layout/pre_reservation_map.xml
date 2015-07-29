@@ -6,11 +6,9 @@
     android:background="@android:color/white" >
     
     <RelativeLayout 
-        android:layout_weight="1"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
-	    android:layout_marginBottom="56dp"
-	    android:layout_alignParentTop="true">
+	    android:layout_above="@+id/buttonLayout">
 	    
         <com.skobbler.ngx.map.SKMapViewHolder
 		    android:id="@+id/mapview_holder"
@@ -39,6 +37,7 @@
             android:tag="false" />
         
         <LinearLayout 
+            android:id="@+id/tollLayout"
             android:layout_height="30dp"
             android:layout_width="match_parent"
             android:layout_above="@+id/time_layout"
@@ -91,72 +90,42 @@
             android:layout_alignParentBottom="true" />
     </RelativeLayout>
     
-    <LinearLayout
-          	android:id="@+id/lets_go_panel"
-	       	android:layout_width="match_parent"
-	       	android:layout_height="56dp"
-	       	android:orientation="horizontal"
-	       	android:layout_alignParentBottom="true">
-      	<FrameLayout
-      	    	android:layout_width="0dp"
-	        	android:layout_height="match_parent"
-      	    	android:background="#0098ce"
-      	    	android:layout_weight="1"
-      	    	android:visibility="gone">
-	       	<TextView
-	       	    android:id="@+id/on_my_way"
-	       	    android:layout_width="wrap_content"
-	        	android:layout_height="wrap_content"
-	        	android:text="On My Way"
-	        	android:layout_gravity="center"
-	        	android:textSize="25dp"
-       			android:textColor="@android:color/white"
-       			android:paddingLeft="8dp"
-       			android:paddingRight="8dp"
-	        	android:singleLine="true"
-			/>
-      	</FrameLayout>
-      	<FrameLayout
-      	    	android:layout_width="0dp"
-        		android:layout_height="match_parent"
-      	    	android:background="#95d600"
-      	    	android:layout_weight="1">
-	       	<TextView 
-	       	    android:id="@+id/lets_go"
-	       	    android:layout_width="wrap_content"
-	        	android:layout_height="wrap_content"
-	        	android:text="Let's Go"
-	        	android:layout_gravity="center"
-	        	android:textSize="25dp"
-	  			android:textColor="@android:color/white"
-	  			android:paddingLeft="8dp"
-	  			android:paddingRight="8dp"
-	        	android:singleLine="true"
-			/>
-   		</FrameLayout>
-	</LinearLayout>
-	
-    <FrameLayout
-	       	android:id="@+id/reserve_panel"
-	      	android:layout_width="match_parent"
-	      	android:layout_height="56dp"
-	      	android:orientation="horizontal"
-	      	android:background="#ff5f00"
-	      	android:layout_alignParentBottom="true"
-	      	android:visibility="gone">
-      	<TextView 
+    
+    <RelativeLayout
+        android:id="@id/buttonLayout"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true">
+        
+        <TextView 
+	        android:id="@+id/lets_go"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:text="Let's Go"
+      	    android:background="#0098ce"
+	      	android:gravity="center"
+	        android:textSize="25dp"
+	  		android:textColor="@android:color/white"
+	  		android:paddingLeft="8dp"
+	  		android:paddingRight="8dp"
+	        android:singleLine="true"/>
+        
+        <TextView 
        	    android:id="@+id/reserve"
-       	    android:layout_width="wrap_content"
-        	android:layout_height="wrap_content"
+       	    android:layout_width="match_parent"
+        	android:layout_height="match_parent"
         	android:text="Reserve Trip"
-        	android:layout_gravity="center"
+	      	android:background="#ff5f00"
+	      	android:gravity="center"
         	android:textSize="25dp"
   			android:textColor="@android:color/white"
   			android:paddingLeft="8dp"
   			android:paddingRight="8dp"
         	android:singleLine="true"
-		/>
-	</FrameLayout>
+        	android:visibility="gone"/>
+        
+    </RelativeLayout>
+   
 	
     <RelativeLayout 
         android:id="@+id/tutorial"

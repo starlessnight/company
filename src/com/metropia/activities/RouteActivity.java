@@ -373,6 +373,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     	SkobblerUtils.initializeLibrary(RouteActivity.this);
         setContentView(R.layout.pre_reservation_map);
         
+        restrictedMode(restrictedMode);
         mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
 		mapViewHolder.hideAllAttributionTextViews();
 		mapViewHolder.setMapSurfaceListener(this);
@@ -850,7 +851,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         mediumFont = Font.getMedium(assets);
         
         rescheduleDepartureTime = extras.getLong(RESCHEDULE_DEPARTURE_TIME);
-        final View reservePanelView = findViewById(R.id.reserve_panel);
+        final View reservePanelView = findViewById(R.id.reserve);
         final TextView reserveView = (TextView)findViewById(R.id.reserve);
         if(rescheduleReservId > 0) {
         	reserveView.setText("Reschedule Trip");
@@ -927,23 +928,8 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 				});
             }
         });
-        
-        TextView onMyWayView = (TextView) findViewById(R.id.on_my_way);
-        onMyWayView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            	ClickAnimation clickAnimation = new ClickAnimation(RouteActivity.this, v);
-            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-					    Misc.suppressTripInfoPanel(RouteActivity.this);
-						Intent contactSelect = new Intent(RouteActivity.this, ContactsSelectActivity.class);
-		            	startActivityForResult(contactSelect, ON_MY_WAY);
-					}
-				});
-            }
-        });
-        final View letsGoView = findViewById(R.id.lets_go_panel);
+     
+        final View letsGoView = findViewById(R.id.lets_go);
         letsGoView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(final View v) {
@@ -1076,7 +1062,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 			}
         });
         
-        Font.setTypeface(mediumFont, skipTutorial, durationRow, onMyWayView, reserveView, includeTollButton, noTollButton,
+        Font.setTypeface(mediumFont, skipTutorial, durationRow, reserveView, includeTollButton, noTollButton,
         		(TextView)findViewById(R.id.lets_go),
         		(TextView)findViewById(R.id.arrive_row),
                 (TextView)findViewById(R.id.mpoint_row), 
@@ -1446,7 +1432,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     
     private void handleImComing(String msg, final double lat, final double lon){
         findViewById(R.id.time_layout).setVisibility(View.GONE);
-        findViewById(R.id.lets_go_panel).setVisibility(View.GONE);
+        findViewById(R.id.lets_go).setVisibility(View.GONE);
         SKMapViewHolder mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
         SKMapSurfaceView mapView = mapViewHolder.getMapSurfaceView();
         mapView.deleteAllAnnotationsAndCustomPOIs();
@@ -1711,8 +1697,8 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
             reservePanelVis = View.GONE;
         }
         
-        findViewById(R.id.lets_go_panel).setVisibility(letsGoPanelVis);
-        findViewById(R.id.reserve_panel).setVisibility(reservePanelVis);
+        findViewById(R.id.lets_go).setVisibility(letsGoPanelVis);
+        findViewById(R.id.reserve).setVisibility(reservePanelVis);
     }
 
 //    private List<Overlay> mapOverlays;
@@ -2445,5 +2431,13 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 
 	@Override
 	public void onDebugInfo(double arg0, float arg1, double arg2) {}
+	
+	public static boolean restrictedMode = false;
+	public void restrictedMode(boolean mode) {
+		if (!mode) return;
+		findViewById(R.id.buttonLayout).setVisibility(View.GONE);
+		findViewById(R.id.tollLayout).setVisibility(View.GONE);
+		findViewById(R.id.hov_button).setVisibility(View.GONE);
+	}
 
 }

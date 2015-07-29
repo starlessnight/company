@@ -95,6 +95,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
@@ -2726,7 +2727,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		                mapView.deleteAnnotation(ROUTE_DESTINATION_ID);
 	            	}
 	                tripNotifyIcon.setVisibility(View.GONE);
-	                passengerIcon.setVisibility(getRouteView.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+	                passengerIcon.setVisibility((getRouteView.getVisibility() == View.GONE && !restrictedMode) ? View.VISIBLE : View.GONE);
 	                refreshReservationList(new ArrayList<Reservation>());
 	                unlockMenu();
 	            } 
@@ -3403,9 +3404,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		favoriteAddresses.addAll(newModelFavs);
 
     		fromFavoriteAutoCompleteAdapter.clear();
-    		fromFavoriteAutoCompleteAdapter.addAll(newFavorites);
+    		for (Address adress:newFavorites) fromFavoriteAutoCompleteAdapter.add(adress);
     		toFavoriteAutoCompleteAdapter.clear();
-    		toFavoriteAutoCompleteAdapter.addAll(newFavorites);
+    		for (Address adress:newFavorites) toFavoriteAutoCompleteAdapter.add(adress);
     	}
     }
     
@@ -3562,7 +3563,11 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 return result;
             }
             @Override
-            protected void onPostExecute(City result) {
+            protected void onPostExecute(City result) {result.link = null;
+            	if (result!=null && StringUtils.equals(result.link, "http://www.metropia.com/elpaso1")) {
+            		LandingActivity2.restrictedMode = RouteActivity.restrictedMode = true;
+            		restrictedMode(restrictedMode);
+            	}
                 if(result != null && StringUtils.isNotBlank(result.html)){
 //                	serviceArea.set(false);
                 	outOfServiceHtml = result.html;
@@ -3789,7 +3794,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		predictiveDesttutorial.setVisibility(View.GONE);
     	}
     	
-    	editMenu.setVisibility(View.VISIBLE);
+    	editMenu.setVisibility(!restrictedMode? View.VISIBLE:View.GONE);
     	Integer[] imageResourceIds;
     	if(info.id == 0) {
     		editMenu.setImageResource(R.drawable.save_menu);
@@ -4985,6 +4990,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 
 	@Override
 	public void onLongPress(SKScreenPoint screenPoint) {
+		if (restrictedMode) return;
 		SKCoordinate coordinate = mapView.pointToCoordinate(screenPoint);
     	Screen xy = getPopupFavIconPosition();
         PoiOverlayInfo marker = refreshPOIMarker(coordinate.getLatitude(), coordinate.getLongitude(), LOADING_ADDRESS, "");
@@ -5038,6 +5044,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 
 	@Override
 	public void onSingleTap(SKScreenPoint arg0) {
+		if (restrictedMode) return;
 		boolean hasFocus = searchBox.isFocused() || fromSearchBox.isFocused();
         boolean hasFavoriteDropDown = DROP_STATE.equals(fromDropDownButton.getTag()) || 
          		DROP_STATE.equals(toDropDownButton.getTag());
@@ -5160,6 +5167,15 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 
 	@Override
 	public void onDebugInfo(double arg0, float arg1, double arg2) {}
+	
+	public static boolean restrictedMode = false;
+	public void restrictedMode(boolean mode) {
+		if (!mode) return;
+		findViewById(R.id.passenger_mode_icon).setVisibility(View.GONE);
+		findViewById(R.id.landing_panel).setVisibility(View.GONE);
+		findViewById(R.id.my_metropia_panel).setVisibility(View.GONE);
+		((RelativeLayout.LayoutParams)findViewById(R.id.center_map_icon).getLayoutParams()).setMargins(0, 0, Dimension.pxToDp(20, getResources().getDisplayMetrics()), Dimension.pxToDp(5, getResources().getDisplayMetrics()));
+	}
 
 }
 
