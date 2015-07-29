@@ -4187,6 +4187,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private static final Integer CURRENT_LOCATION_ID = POI_MARKER_THREE + 1; // 105
     
     private void removeOldOD(boolean from) {
+    	if (mapView==null) return;
     	Integer[] poiMarkerIds = {POI_MARKER_ONE, POI_MARKER_TWO, POI_MARKER_THREE};
     	if(from) {
     		fromIcon.setVisibility(View.INVISIBLE);

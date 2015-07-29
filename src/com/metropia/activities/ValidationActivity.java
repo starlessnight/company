@@ -552,7 +552,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			lastCenter = savedInstanceState.getParcelable(GEO_POINT);
 		}
 
-		if (!loadRoute) {
+		if (!loadRoute && mapView!=null) {
 			centerMap(mapView, isOnRecreate.get(), lastCenter, route);
 			drawRoute(mapView, route);
 		}
