@@ -2579,15 +2579,15 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	else if(googleApiClient == null){
     		closeGPS();
             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && 
-            		locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                    10000, 5, systemLocationListener);
+            boolean gps_location_provided = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            boolean network_location_provided = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            
+            if (gps_location_provided && network_location_provided) {
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 5, systemLocationListener);
             }else{
                 SystemService.alertNoGPS(this, true);
             }
-            locationManager.requestLocationUpdates(
-                    LocationManager.NETWORK_PROVIDER, 0, 0, systemLocationListener);
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, systemLocationListener);
     	}
     }
     

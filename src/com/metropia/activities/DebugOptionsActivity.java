@@ -427,6 +427,15 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
         
         entrypointView.addTextChangedListener(entrypointTextWatcher);
         
+        CheckBox arrivalLogicLog = (CheckBox) findViewById(R.id.arrival_logic_log);
+        arrivalLogicLog.setChecked(isArrivalLogicLogEnabled(this));
+        arrivalLogicLog.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            	setArrivalLogicLogEnabled(DebugOptionsActivity.this, isChecked);
+            }
+        });
+        
         EditText arrivalLogicCoefficientA = (EditText)findViewById(R.id.arrival_logic_coefficient_a);
         arrivalLogicCoefficientA.setText(getArrivalLogicCoefficientA(this).toString());
         arrivalLogicCoefficientA.addTextChangedListener(new TextWatcher() {
@@ -1550,9 +1559,25 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
     	return feedTimed;
     }
     
+    private static final String ARRIVAL_LOGIC_LOG = "ARRIVAL_LOGIC_LOG";
     private static final String ARRIVAL_LOGIC_COEFFICIENT_A = "ARRIVAL_LOGIC_COEFFICIENT_A";
     private static final String ARRIVAL_LOGIC_COEFFICIENT_B = "ARRIVAL_LOGIC_COEFFICIENT_B";
     private static final String ARRIVAL_LOGIC_COEFFICIENT_C = "ARRIVAL_LOGIC_COEFFICIENT_C";
+    
+    public static boolean isArrivalLogicLogEnabled(Context ctx) {
+    	boolean enabled;
+    	try{
+    		enabled = getPrefs(ctx).getBoolean(ARRIVAL_LOGIC_LOG, false);
+    	}catch(Throwable t){
+    		enabled = false;
+    	}
+    	return enabled;
+    }
+    public static void setArrivalLogicLogEnabled(Context ctx, boolean enabled) {
+    	getPrefs(ctx).edit()
+        .putBoolean(ARRIVAL_LOGIC_LOG, enabled)
+        .commit();
+    }
     
     public static Float getArrivalLogicCoefficientA(Context ctx) {
     	Float coefficientA = Float.valueOf(-0.0000003f);

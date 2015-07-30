@@ -1295,6 +1295,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		if(DebugOptionsActivity.isNavigationHeadingInfoEnabled(this)) {
 			findViewById(R.id.heading_debug_msg).setVisibility(View.VISIBLE);
 		}
+		if (DebugOptionsActivity.isArrivalLogicLogEnabled(this)) {
+			findViewById(R.id.arrival_logic_log).setVisibility(View.VISIBLE);
+		}
 
 		findViewById(R.id.en_route_alert_panel).setOnClickListener(new OnClickListener() {
 					@Override
@@ -2472,6 +2475,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					ehs.registerException(e);
 				}
 			}
+			
+			this.runOnUiThread(new Runnable() {
+				public void run() {
+					String msg = "Arrival Logic   d:"+(int)reservation.distanceToDestInMeter+"  h:"+(int)reservation.arrivalThreshold/1000+"  tally:"+(int)reservation.tally/1000;
+					((TextView)findViewById(R.id.arrival_logic_log)).setText(msg);
+				}
+			});
+			
 		}
 		// for resume interrupt trip
 		if (!isReplay.get()) {

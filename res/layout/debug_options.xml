@@ -172,6 +172,14 @@
             android:text="Arrival Logic function coefficients:"
             android:textColor="#FFFFFFFF"
             android:textSize="18dp" />
+        <CheckBox
+            android:id="@+id/arrival_logic_log"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="show log:"
+            android:button="@null"
+			android:drawableRight="?android:attr/listChoiceIndicatorMultiple" />
         
         <LinearLayout 
             android:layout_width="match_parent"
