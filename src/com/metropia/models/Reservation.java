@@ -445,7 +445,8 @@ public final class Reservation implements Parcelable {
 	 * @return
 	 */
     
-    public double distanceToDestInMeter=-1, arrivalThreshold=0, tally=0;
+    public double distanceToDestInMeter=-1, arrivalThreshold=0, tally=0, minArrivalThreshold = Double.MAX_VALUE;
+    
     
 	public boolean hasArrivedAtDestination(Context ctx, double lat, double lng, long startCountDownTime) {
 		ValidationParameters params = ValidationParameters.getInstance();
@@ -453,8 +454,9 @@ public final class Reservation implements Parcelable {
 		distanceToDestInMeter = RouteNode.distanceBetween(lat, lng, endlat, endlon);
 		if(distanceToDestInMeter <= params.getArrivalDistanceThreshold()){
 			arrivalThreshold = getDelayTime(ctx, distanceToDestInMeter);
+			minArrivalThreshold = Math.min(arrivalThreshold, minArrivalThreshold);
 			tally = System.currentTimeMillis() - startCountDownTime;
-			arrived = tally >= arrivalThreshold;
+			arrived = tally >= minArrivalThreshold;
 		}
 		return arrived;
 	}

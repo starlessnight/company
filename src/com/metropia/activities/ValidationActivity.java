@@ -2463,25 +2463,29 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 
 		if (!arrived.get() && !getRouteOrReroute().getNodes().isEmpty()) {
-			startCountDownTime = reservation.getStartCountDownTime(lat, lng, speedInMph, startCountDownTime);
-			if (reservation.hasArrivedAtDestination(ValidationActivity.this, lat, lng, startCountDownTime)) {
-				arrived.set(true);
-				arriveAtDestination();
-				Log.d("ValidationActivity", "Arriving at destination");
-
-				try {
-					Log.d("ValidationActivity", "trajectory = "	+ trajectory.toJSON().toString());
-				} catch (JSONException e) {
-					ehs.registerException(e);
+			if(firstNode != null && remainingTime.get() / 60 <= 5) {
+				startCountDownTime = reservation.getStartCountDownTime(lat, lng, speedInMph, startCountDownTime);
+				if (reservation.hasArrivedAtDestination(ValidationActivity.this, lat, lng, startCountDownTime)) {
+					arrived.set(true);
+					arriveAtDestination();
+					Log.d("ValidationActivity", "Arriving at destination");
+	
+					try {
+						Log.d("ValidationActivity", "trajectory = "	+ trajectory.toJSON().toString());
+					} catch (JSONException e) {
+						ehs.registerException(e);
+					}
 				}
+				
+				this.runOnUiThread(new Runnable() {
+					public void run() {
+						String msg = "Arrival Logic   d:" + (int)reservation.distanceToDestInMeter + "  h:" + 
+								(int)reservation.arrivalThreshold/1000 + "   minH: " + (int)reservation.minArrivalThreshold / 1000 +  
+								"  tally:"+(int)reservation.tally/1000;
+						((TextView)findViewById(R.id.arrival_logic_log)).setText(msg);
+					}
+				});
 			}
-			
-			this.runOnUiThread(new Runnable() {
-				public void run() {
-					String msg = "Arrival Logic   d:"+(int)reservation.distanceToDestInMeter+"  h:"+(int)reservation.arrivalThreshold/1000+"  tally:"+(int)reservation.tally/1000;
-					((TextView)findViewById(R.id.arrival_logic_log)).setText(msg);
-				}
-			});
 			
 		}
 		// for resume interrupt trip

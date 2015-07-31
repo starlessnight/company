@@ -35,7 +35,7 @@ public class ValidationParameters {
 	/**
 	 * Unit is in meters.
 	 */
-	private float arrivalDistanceThreshold = 152.4f; // 500 fts
+	private float arrivalDistanceThreshold = 304.8f; // 1000 fts
 	
 	/**
 	 * Unit is in meters.
