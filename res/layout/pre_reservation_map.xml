@@ -102,7 +102,7 @@
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent"
 	        android:text="Let's Go"
-      	    android:background="#0098ce"
+      	    android:background="#95d600"
 	      	android:gravity="center"
 	        android:textSize="25dp"
 	  		android:textColor="@android:color/white"
