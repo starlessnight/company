@@ -108,7 +108,8 @@
 	  		android:textColor="@android:color/white"
 	  		android:paddingLeft="8dp"
 	  		android:paddingRight="8dp"
-	        android:singleLine="true"/>
+	        android:singleLine="true"
+	        android:enabled="false"/>
         
         <TextView 
        	    android:id="@+id/reserve"

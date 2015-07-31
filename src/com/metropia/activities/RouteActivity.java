@@ -2145,6 +2145,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
                 //timeLayout.setColumnState(selectedColumn, State.None);
 
                 if (selectedColumn == 0) {
+            		RouteActivity.this.findViewById(R.id.lets_go).setEnabled(true);
                     scrollableTimeLayout.notifyScrollChanged();
                     scrollableTimeLayout.updateVisibleColumns();
                     scrollToRescheduleDepartureTime();
