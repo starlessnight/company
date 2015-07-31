@@ -3564,7 +3564,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             }
             @Override
             protected void onPostExecute(City result) {result.link = null;
-            	if (result!=null && StringUtils.equals(result.link, "http://www.metropia.com/elpaso1")) {
+            	if (result!=null && StringUtils.equals(result.link, "http://www.metropia.com/elpasolite")) {
             		LandingActivity2.restrictedMode = RouteActivity.restrictedMode = true;
             		restrictedMode(restrictedMode);
             	}
