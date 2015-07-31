@@ -27,11 +27,11 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.json.JSONObject;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -1470,7 +1470,16 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         Font.setTypeface(Font.getRobotoBold(assets), getRouteView);
         //init Tracker
         ((SmarTrekApplication)getApplication()).getTracker(TrackerName.APP_TRACKER);
-        showTutorialIfNessary();
+        boolean showTutorial = showTutorialIfNessary();
+        
+        if(!showTutorial) {
+        	preparingDialog = new ProgressDialog(LandingActivity2.this);
+        	preparingDialog.setTitle("Metropia");
+        	preparingDialog.setMessage("Preparing...");
+        	preparingDialog.setCanceledOnTouchOutside(false);
+        	preparingDialog.setCancelable(false);
+        	preparingDialog.show();
+        }
     
         if(GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(LandingActivity2.this) == ConnectionResult.SUCCESS) {
 	        requestingLocationUpdates = true;
@@ -1478,7 +1487,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	        createLocationRequest();
 	        buildLocationSettingsRequest();
         }
+        
     }
+    
+    private ProgressDialog preparingDialog;
     
     public static final long ONE_HOUR = 60 * 60 * 1000L;
     
@@ -1501,6 +1513,17 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 mapCenterLon.set(lonE6);
             }
         }
+        
+        if(preparingDialog != null && preparingDialog.isShowing()) {
+        	Misc.doQuietly(new Runnable() {
+				@Override
+				public void run() {
+					preparingDialog.dismiss();
+					preparingDialog = null;
+				}
+        	});
+        }
+        
         User.initializeIfNeccessary(LandingActivity2.this, new Runnable() {
             @Override
             public void run() {
@@ -1574,7 +1597,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	}
     }
     
-    private void showTutorialIfNessary() {
+    private boolean showTutorialIfNessary() {
     	SharedPreferences prefs = Preferences.getGlobalPreferences(this);
     	int tutorialFinish = prefs.getInt(Preferences.Global.TUTORIAL_FINISH, 0);
     	// hide tutorial page
@@ -1582,7 +1605,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		Intent intent = new Intent(this, TutorialActivity.class);
     		intent.putExtra(TutorialActivity.FROM_LANDING_PAGE, true);
             startActivity(intent);
+            return true;
     	}
+    	return false;
     }
     
     private void popupResumeNavigationIfNeccessary() {
@@ -5145,6 +5170,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 			}
         });
 		GeoPoint debugLoc = DebugOptionsActivity.getCurrentLocationLatLon(LandingActivity2.this);
+		mapRecenter.set(true);
         if(debugLoc != null) {
         	Location loc = new Location("");
         	loc.setLatitude(debugLoc.getLatitude());
