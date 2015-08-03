@@ -1580,9 +1580,9 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
     }
     
     public static Float getArrivalLogicCoefficientA(Context ctx) {
-    	Float coefficientA = Float.valueOf(-0.0000003f);
+    	Float coefficientA = Float.valueOf(-0.0000005f);
     	try {
-    		coefficientA = getPrefs(ctx).getFloat(ARRIVAL_LOGIC_COEFFICIENT_A, -0.0000003f);
+    		coefficientA = getPrefs(ctx).getFloat(ARRIVAL_LOGIC_COEFFICIENT_A, coefficientA);
     	}
     	catch(Exception ignore){}
     	return coefficientA;
@@ -1596,9 +1596,9 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
     }
     
     public static Float getArrivalLogicCoefficientB(Context ctx) {
-    	Float coefficientB = Float.valueOf(0.0005f);
+    	Float coefficientB = Float.valueOf(0.0007f);
     	try {
-    		coefficientB = getPrefs(ctx).getFloat(ARRIVAL_LOGIC_COEFFICIENT_B, 0.0005f);
+    		coefficientB = getPrefs(ctx).getFloat(ARRIVAL_LOGIC_COEFFICIENT_B, coefficientB);
     	}
     	catch(Exception ignore){}
     	return coefficientB;
@@ -1612,9 +1612,9 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
     }
     
     public static Float getArrivalLogicCoefficientC(Context ctx) {
-    	Float coefficientC = Float.valueOf(0.0623f);
+    	Float coefficientC = Float.valueOf(0.0097f);
     	try {
-    		coefficientC = getPrefs(ctx).getFloat(ARRIVAL_LOGIC_COEFFICIENT_C, 0.0623f);
+    		coefficientC = getPrefs(ctx).getFloat(ARRIVAL_LOGIC_COEFFICIENT_C, coefficientC);
     	}
     	catch(Exception ignore){}
     	return coefficientC;
