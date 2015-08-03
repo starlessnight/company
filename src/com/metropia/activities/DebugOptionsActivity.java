@@ -1590,7 +1590,7 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
     
     private static void setArrivalLogicCoefficientA(Context ctx, CharSequence coefficientA) {
     	try {
-    		getPrefs(ctx).edit().putFloat(ARRIVAL_LOGIC_COEFFICIENT_A, Float.valueOf(coefficientA.toString()));
+    		getPrefs(ctx).edit().putFloat(ARRIVAL_LOGIC_COEFFICIENT_A, Float.valueOf(coefficientA.toString())).commit();
     	}
     	catch(Exception ignore){}
     }
@@ -1606,7 +1606,7 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
     
     private static void setArrivalLogicCoefficientB(Context ctx, CharSequence coefficientB) {
     	try {
-    		getPrefs(ctx).edit().putFloat(ARRIVAL_LOGIC_COEFFICIENT_B, Float.valueOf(coefficientB.toString()));
+    		getPrefs(ctx).edit().putFloat(ARRIVAL_LOGIC_COEFFICIENT_B, Float.valueOf(coefficientB.toString())).commit();
     	}
     	catch(Exception ignore){}
     }
@@ -1622,7 +1622,7 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
     
     private static void setArrivalLogicCoefficientC(Context ctx, CharSequence coefficientC) {
     	try {
-    		getPrefs(ctx).edit().putFloat(ARRIVAL_LOGIC_COEFFICIENT_C, Float.valueOf(coefficientC.toString()));
+    		getPrefs(ctx).edit().putFloat(ARRIVAL_LOGIC_COEFFICIENT_C, Float.valueOf(coefficientC.toString())).commit();
     	}
     	catch(Exception ignore){}
     }
