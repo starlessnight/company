@@ -2479,9 +2479,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				
 				this.runOnUiThread(new Runnable() {
 					public void run() {
-						String msg = "Arrival Logic   d:" + (int)reservation.distanceToDestInMeter + "  h:" + 
-								(int)reservation.arrivalThreshold/1000 + "   minH: " + (int)reservation.minArrivalThreshold / 1000 +  
-								"  tally:"+(int)reservation.tally/1000;
+						String msg = "Arrival Logic "
+								 + "  d:" + (int)NavigationView.metersToFeet(reservation.distanceToDestInMeter)
+								 + "  h:" + (int)reservation.arrivalThreshold/1000
+								 + "  minH: " + (reservation.minArrivalThreshold==Double.MAX_VALUE? "∞":(int)reservation.minArrivalThreshold/1000)
+								 + "  tally:"+(int)reservation.tally/1000;
 						((TextView)findViewById(R.id.arrival_logic_log)).setText(msg);
 					}
 				});
