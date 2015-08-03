@@ -47,7 +47,8 @@
 	    android:layout_alignParentBottom="true"
 	    android:paddingBottom="80dp"
 	    android:gravity="center"
-	    android:orientation="vertical">
+	    android:orientation="vertical"
+	    android:visibility="invisible">
 	    
 	    <TextView 
 	        android:id="@+id/support_cities"
