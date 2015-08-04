@@ -3,6 +3,7 @@ package com.metropia.activities;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +35,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -61,6 +69,7 @@ import com.metropia.requests.CityRequest;
 import com.metropia.requests.CityRequest.City;
 import com.metropia.requests.Request;
 import com.metropia.requests.UserIdRequest;
+import com.metropia.tasks.LoginFBTask;
 import com.metropia.tasks.LoginTask;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
@@ -74,6 +83,7 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
         TextWatcher, ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<LocationSettingsResult> {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
+	private CallbackManager callbackManager;
     
 	private EditText editTextUsername;
 	private EditText editTextPassword;
@@ -94,6 +104,9 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
         
         TextView login = (TextView) findViewById(R.id.login_button);
         login.setOnClickListener(this);
+        TextView fb_login = (TextView) findViewById(R.id.fb_login_button);
+        fb_login.setOnClickListener(this);
+        
         
         TextView forgetPwd = (TextView) findViewById(R.id.forget_pwd);
         forgetPwd.setText(Html.fromHtml("<u>Forgot Password?</u>"));
@@ -247,6 +260,9 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
         	
         };
         
+        FacebookSdk.sdkInitialize(this);
+        callbackManager = CallbackManager.Factory.create();
+        
         AssetManager assets = getAssets();
         //Font.setTypeface(Font.getBold(assets));
         Font.setTypeface(Font.getLight(assets), editTextUsername, 
@@ -348,6 +364,86 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
 
 	@Override
 	public void onClick(View v) {
+		
+		class onPostLogin implements Runnable {
+			User user;
+			public Runnable setUser(User user) {this.user = user;return this;}
+			public void run() {
+				if(user != null && user.getId() != -1) {
+                    Log.d("Login_Activity","Successful Login");
+                    Log.d("Login_Activity", "Saving Login Info to Shared Preferences");
+
+                    User.setCurrentUser(LoginActivity.this, user);
+                    
+                    CrashlyticsUtils.initUserInfo(user);
+                    
+                    SharedPreferences loginPrefs = Preferences.getAuthPreferences(LoginActivity.this);
+                    SharedPreferences.Editor loginPrefsEditor = loginPrefs.edit();
+                    loginPrefsEditor.putString(User.USERNAME, user.getUsername());
+                    loginPrefsEditor.putString(User.PASSWORD, user.getPassword());
+                    loginPrefsEditor.putString(User.TYPE, user.getType());
+                    boolean toOnBoard =  StringUtils.equalsIgnoreCase(user.getUsername(), loginPrefs.getString(User.NEW_USER, ""));
+                    if(toOnBoard) {
+                    	loginPrefsEditor.remove(User.NEW_USER);
+                    	loginPrefsEditor.putString(User.PLAY_SCORE_ANIMATION, user.getUsername());
+                    }
+                    loginPrefsEditor.commit();
+                    
+                    Intent intent = new Intent(LoginActivity.this, toOnBoard? OnBoardActivity.class : LandingActivity2.class);
+                    LoginActivity.this.startActivity(intent);
+                    finish();
+                }
+                else {
+                    
+                    editTextPassword.setText("");
+                 
+                    CharSequence msg;
+                    Exception exc = ehs.hasExceptions()?ehs.popException().getException():null;
+                    if(exc instanceof ConnectException || exc instanceof UnknownHostException){
+                        msg = getString(R.string.no_connection);
+                    }else if(exc instanceof SocketTimeoutException){
+                        msg = getString(R.string.connection_timeout);
+                    }
+                    else if(exc instanceof HttpResponseException && ((HttpResponseException)exc).getStatusCode() == 500){
+                        msg = "The server encountered an unexpected condition which prevented it from fulfilling the request.";
+                    }else{
+                        msg = Html.fromHtml(getAccountPwdErrorMsg());
+                    }
+                    NotificationDialog2 notificationDialog = new NotificationDialog2(LoginActivity.this, msg);
+                    notificationDialog.show();
+                }
+			}
+		};
+		
+		
+		
+		
+		if (v.getId()==R.id.fb_login_button) {
+			
+			final Runnable fbLogin = new Runnable() {
+				public void run() {
+					new LoginFBTask(LoginActivity.this) {
+						@Override
+						protected void onPostLogin(User user) {
+							new onPostLogin().setUser(user).run();
+						}
+					}.execute();
+				}
+			};
+			
+			if (AccessToken.getCurrentAccessToken()==null || AccessToken.getCurrentAccessToken().isExpired()) {
+				LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email"));
+				LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+					@Override
+					public void onSuccess(LoginResult result) {fbLogin.run();}
+					public void onCancel() {}
+					public void onError(FacebookException error) {}
+				});
+			}
+			else {fbLogin.run();}
+			return;
+		}
+		
 	    if(Misc.isAddGoogleAccount(this)){
             Misc.showGoogleAccountDialog(this);
         }else{
@@ -360,50 +456,10 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
     		final LoginTask loginTask = new LoginTask(this, username, password, gcmRegistrationId){
                 @Override
                 protected void onPostLogin(User user) {
-                    if(user != null && user.getId() != -1) {
-                        Log.d("Login_Activity","Successful Login");
-                        Log.d("Login_Activity", "Saving Login Info to Shared Preferences");
-    
-                        User.setCurrentUser(LoginActivity.this, user);
-                        
-                        CrashlyticsUtils.initUserInfo(user);
-                        
-                        SharedPreferences loginPrefs = Preferences.getAuthPreferences(LoginActivity.this);
-                        SharedPreferences.Editor loginPrefsEditor = loginPrefs.edit();
-                        loginPrefsEditor.putString(User.USERNAME, username);
-                        loginPrefsEditor.putString(User.PASSWORD, password);
-                        boolean toOnBoard =  StringUtils.equalsIgnoreCase(username, loginPrefs.getString(User.NEW_USER, ""));
-                        if(toOnBoard) {
-                        	loginPrefsEditor.remove(User.NEW_USER);
-                        	loginPrefsEditor.putString(User.PLAY_SCORE_ANIMATION, username);
-                        }
-                        loginPrefsEditor.commit();
-                        
-                        Intent intent = new Intent(LoginActivity.this, toOnBoard? OnBoardActivity.class : LandingActivity2.class);
-                        LoginActivity.this.startActivity(intent);
-                        finish();
-                    }
-                    else {
-                        
-                        editTextPassword.setText("");
-                     
-                        CharSequence msg;
-                        Exception exc = ehs.hasExceptions()?ehs.popException().getException():null;
-                        if(exc instanceof ConnectException || exc instanceof UnknownHostException){
-                            msg = getString(R.string.no_connection);
-                        }else if(exc instanceof SocketTimeoutException){
-                            msg = getString(R.string.connection_timeout);
-                        }
-                        else if(exc instanceof HttpResponseException && ((HttpResponseException)exc).getStatusCode() == 500){
-                            msg = "The server encountered an unexpected condition which prevented it from fulfilling the request.";
-                        }else{
-                            msg = Html.fromHtml(getAccountPwdErrorMsg());
-                        }
-                        NotificationDialog2 notificationDialog = new NotificationDialog2(LoginActivity.this, msg);
-                        notificationDialog.show();
-                    }                
+                	new onPostLogin().setUser(user).run();
                 }
     		};
+    		
     		if(Request.NEW_API){
     		    new AsyncTask<Void, Void, Integer>() {
     		        protected void onPreExecute() {
@@ -429,8 +485,7 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
                                 Html.fromHtml(getAccountPwdErrorMsg()));
                             notificationDialog.show();
                         }else{
-                            loginTask.setUserId(userId)
-                                .execute();
+                            loginTask.setUserId(userId).execute();
                         }
                     }
                 }.execute();
@@ -475,9 +530,11 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
         closeGPS();
     }
     
+    
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
+        callbackManager.onActivityResult(requestCode, resultCode, intent);
         if(requestCode == REQUEST_CHECK_SETTINGS) {
         	if(resultCode == Activity.RESULT_OK) {
         		startLocationUpdates();

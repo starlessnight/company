@@ -20,6 +20,7 @@ import com.metropia.tasks.LoginTask;
 import com.metropia.utils.Preferences;
 import com.metropia.utils.Preferences.Global;
 
+@Deprecated
 public class CheckLoginActivity extends FragmentActivity {
 
 	private ImageView logo;

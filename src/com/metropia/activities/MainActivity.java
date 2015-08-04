@@ -32,6 +32,7 @@ import com.metropia.requests.Request;
 import com.metropia.requests.ServiceDiscoveryRequest;
 import com.metropia.requests.ServiceDiscoveryRequest.Result;
 import com.metropia.requests.UserIdRequest;
+import com.metropia.tasks.LoginFBTask;
 import com.metropia.tasks.LoginTask;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Misc;
@@ -103,7 +104,11 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
             SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
             final String username = loginPrefs.getString(User.USERNAME, "");
             final String password = loginPrefs.getString(User.PASSWORD, "");
-            if (!username.equals("") && !password.equals("") && DebugOptionsActivity.isSkobblerPatched(MainActivity.this)) {
+            final String type = loginPrefs.getString(User.TYPE, "");
+            if (type.equals(User.FACEBOOK)) {
+            	loginTask = newLoginFBTask(username, password);
+            }
+            else if (!username.equals("") && !password.equals("") && DebugOptionsActivity.isSkobblerPatched(MainActivity.this)) {
                 loginTask = newLoginTask(username, password);
             }
 	        
@@ -142,7 +147,10 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
                     	
                     	findViewById(R.id.progress).setVisibility(View.GONE);
                     	
-                        if(loginTask != null){
+                    	if (type.equals(User.FACEBOOK)) {
+                    		loginTask.execute();
+                    	}
+                    	else if(loginTask != null){
                             loginTask.setDialogEnabled(splashEnded);
                             loginTask.showDialog();
                             Misc.parallelExecute(new AsyncTask<Void, Void, Integer>() {
@@ -328,8 +336,7 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 	}
 	
 	private LoginTask newLoginTask(String username, String password){
-	    final String gcmRegistrationId = Preferences.getGlobalPreferences(this)
-            .getString(Preferences.Global.GCM_REG_ID, "");
+	    final String gcmRegistrationId = Preferences.getGlobalPreferences(this).getString(Preferences.Global.GCM_REG_ID, "");
 	    return new LoginTask(this, username, password, gcmRegistrationId) {
             @Override
             protected void onPostLogin(final User user) {
@@ -345,6 +352,24 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
                 }
            }
         }.setDialogEnabled(false);
+	}
+	private LoginTask newLoginFBTask(String username, String password) {
+		
+		return new LoginFBTask(this, username, password) {
+			@Override
+			protected void onPostLogin(User user) {
+				loggedIn = user != null && user.getId() != -1;
+                if(loggedIn){
+                    User.setCurrentUser(MainActivity.this, user);
+                    Log.d(LOG_TAG,"Successful Login");
+                    Log.d(LOG_TAG, "Saving Login Info to Shared Preferences");
+                }
+                loginTaskEnded = true;
+                if(splashEnded){
+                    proceedToNextScreen();
+                }
+			}
+		};
 	}
 	
 	private void startLandingActivity(){

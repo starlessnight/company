@@ -34,6 +34,8 @@ public final class User implements JSONModel, Parcelable {
 	public static final String NEW_USER = "NEW_USER";
 	public static final String APP_VERSION = "app_version";
 	public static final String PLAY_SCORE_ANIMATION = "play_score_animation";
+	public static final String TYPE = "TYPE";
+	public static final String FACEBOOK = "FACEBOOK";
 	
 	private static User currentUser;
 
@@ -48,6 +50,7 @@ public final class User implements JSONModel, Parcelable {
 	private int trip;
 	private String zipCode;
 	private String appVersion;
+	private String type;
 	
 	public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {
 		public User createFromParcel(Parcel in) {
@@ -72,6 +75,7 @@ public final class User implements JSONModel, Parcelable {
 		trip = in.readInt();
 		zipCode = in.readString();
 		appVersion = in.readString();
+		type = in.readString();
 	}
 	
 	public User(int id, String username) {
@@ -140,6 +144,7 @@ public final class User implements JSONModel, Parcelable {
 		obj.put(TRIP, getTrip());
 		obj.put(ZIP_CODE, getZipCode());
 		obj.put(APP_VERSION, getAppVersion());
+		obj.put(TYPE, getType());
 		
 		return obj.toString();
 	}
@@ -160,6 +165,7 @@ public final class User implements JSONModel, Parcelable {
 		if (object.has(TRIP)) user.trip = object.getInt(TRIP);
 		if (object.has(ZIP_CODE)) user.zipCode = object.getString(ZIP_CODE);
 		if(object.has(APP_VERSION)) user.appVersion = object.getString(APP_VERSION);
+		if(object.has(TYPE)) user.type = object.getString(TYPE);
 		
 		return user;
 	}
@@ -217,6 +223,7 @@ public final class User implements JSONModel, Parcelable {
 		SharedPreferences.Editor editor = prefs.edit();
 //		editor.remove(USERNAME);
 		editor.remove(PASSWORD);
+		editor.remove(TYPE);
 		editor.putString("CurrentUser", "");
 		editor.commit();
 		MapDisplayActivity.setProfileSelection(context, null);
@@ -240,6 +247,7 @@ public final class User implements JSONModel, Parcelable {
 		dest.writeInt(trip);
 		dest.writeString(zipCode);
 		dest.writeString(appVersion);
+		dest.writeString(type);
 	}
 
     public void setId(int id) {
@@ -284,6 +292,13 @@ public final class User implements JSONModel, Parcelable {
     
     public void setAppVersion(String appVersion) {
     	this.appVersion = appVersion;
+    }
+    
+    public void setType(String type) {
+    	this.type = type;
+    }
+    public String getType() {
+    	return type;
     }
     
     public static void initializeIfNeccessary(final Context ctx, final Runnable callback){

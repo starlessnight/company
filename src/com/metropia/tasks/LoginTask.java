@@ -14,16 +14,16 @@ import com.metropia.utils.Misc;
  */
 public abstract class LoginTask extends AsyncTask<String, Object, User> {
 	
-	private ProgressDialog dialog;
+	protected ProgressDialog dialog;
 	
-	private String username;
-	private String password;
+	protected String username;
+	protected String password;
 	private String gcmRegistrationId;
 	private boolean dialogEnabled = true;
 	protected ExceptionHandlingService ehs;
 	private Integer userId;
 	
-	private Context ctx;
+	protected Context ctx;
 	
 	public LoginTask(Context ctx, String username, String password, String gcmRegistrationId) {
 		super();

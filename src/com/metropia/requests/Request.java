@@ -47,7 +47,7 @@ public abstract class Request {
 	
 	public static final String REDEEM_URL = "http://www.smartrekmobile.com/dashboard/rewards";
 	
-	public static final String ENTRYPOINT_URL = "https://api.metropia.com";
+	public static final String ENTRYPOINT_URL = "http://sandbox.metropia.com/dev_v1/rest/index.json";//"https://api.metropia.com";
 	
 	public static final String SECONDARY_ENTRYPOINT_URL = "https://production.smartrek.webfactional.com/v1/rest/index.json";
 	
@@ -83,6 +83,7 @@ public abstract class Request {
 	    where_to_go,
 	    route, 
 	    search, 
+	    fb_login,
 	    reverse_geocoding, 
 	    issue, 
 	    travel_time
