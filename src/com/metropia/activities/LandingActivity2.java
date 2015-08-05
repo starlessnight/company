@@ -3588,12 +3588,13 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 return result;
             }
             @Override
-            protected void onPostExecute(City result) {result.link = null;
-            	if (result!=null && StringUtils.equals(result.link, "http://www.metropia.com/elpasolite")) {
+            protected void onPostExecute(City result) {
+            	if (result==null) return;
+            	if (StringUtils.equals(result.link, "http://www.metropia.com/elpasolite")) {
             		LandingActivity2.restrictedMode = RouteActivity.restrictedMode = true;
             		restrictedMode(restrictedMode);
             	}
-                if(result != null && StringUtils.isNotBlank(result.html)){
+                if(StringUtils.isNotBlank(result.html)){
 //                	serviceArea.set(false);
                 	outOfServiceHtml = result.html;
                     if(alertAvailability){
