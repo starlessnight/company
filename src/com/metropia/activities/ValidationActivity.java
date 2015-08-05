@@ -2332,7 +2332,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 			else {
 				if (!Route.isPending(rerouteNearbyLinks, rerouteSameDirLinks)) {
-					if (Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)	&& speedInMph > speedOutOfRouteThreshold) {
+					if (!isDisableReroute(lat, lng) && Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)	&& speedInMph > speedOutOfRouteThreshold) {
 						if (routeOfRouteCnt.incrementAndGet() == countOutOfRouteThreshold) {
 							reroute(lat, lng, speedInMph, bearing, passedNodeTime);
 						}
@@ -2496,6 +2496,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 		// show current location
 		mapView.getMapSettings().setCurrentPositionShown(true);
+	}
+	
+	private static final float disableRerouteThreshold = 60.95f; // 200 feet  
+	
+	public boolean isDisableReroute(double lat, double lon) {
+		return RouteNode.distanceBetween(lat, lon, reservation.getEndlat(), reservation.getEndlon()) <= disableRerouteThreshold;
 	}
 
 	private Map<RouteLink, Double> oldRecord = new HashMap<RouteLink, Double>();
