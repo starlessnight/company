@@ -1187,21 +1187,21 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     private Object mutex = new Object();
     
     private void refreshIncident() {
-    	synchronized(mutex) {
-    		if(StringUtils.isNotBlank(incidentUrl)) {
-        		idIncidentMap.clear();
-    			IncidentRequest incidentReq = new IncidentRequest(User.getCurrentUser(RouteActivity.this), incidentUrl, 10000); // timeout 10 secs.
-    			incidentReq.invalidateCache(RouteActivity.this);
-    			try {
-    				List<Incident> allIncident = incidentReq.execute(RouteActivity.this);
-    				for(Incident inc : allIncident) {
-    					idIncidentMap.put(SkobblerUtils.getUniqueId(inc.lat, inc.lon), inc);
-    				}
-    			} catch (Exception ignore) {
-    				Log.d("RouteActivity", Log.getStackTraceString(ignore));
-    			}
-    		}
-    	}
+        if(StringUtils.isNotBlank(incidentUrl)) {
+            IncidentRequest incidentReq = new IncidentRequest(User.getCurrentUser(RouteActivity.this), incidentUrl, 10000); // timeout 10 secs.
+            incidentReq.invalidateCache(RouteActivity.this);
+            try {
+                List<Incident> allIncident = incidentReq.execute(RouteActivity.this);
+                synchronized(mutex) {
+                    idIncidentMap.clear();
+                     for(Incident inc : allIncident) {
+                         idIncidentMap.put(SkobblerUtils.getUniqueId(inc.lat, inc.lon), inc);
+                     }
+                }
+            } catch (Exception ignore) {
+                Log.d("RouteActivity", Log.getStackTraceString(ignore));
+            }
+        }
     }
     
     private void showIncidentOverlays(long depTimeInMillis) {
