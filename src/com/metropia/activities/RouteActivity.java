@@ -647,8 +647,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
                 }
             }
         }else if(hasImComingMsg){
-            handleImComing(imComingMsg, extras.getDouble(LAT, 0), 
-                extras.getDouble(LON, 0));
+            handleImComing(imComingMsg, extras.getDouble(LAT, 0), extras.getDouble(LON, 0));
         }else{
             // What happens when user selects a specific time
             timeLayout.setOnSelectListener(new TimeLayoutOnSelectListener() {
@@ -1433,12 +1432,23 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     private void handleImComing(String msg, final double lat, final double lon){
         findViewById(R.id.time_layout).setVisibility(View.GONE);
         findViewById(R.id.lets_go).setVisibility(View.GONE);
-        SKMapViewHolder mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
-        SKMapSurfaceView mapView = mapViewHolder.getMapSurfaceView();
-        mapView.deleteAllAnnotationsAndCustomPOIs();
-        drawDestinationAnnotation(lat, lon);
-        mapView.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
-        mapView.centerMapOnPosition(new SKCoordinate(lon, lat));
+        if(mapView == null) {
+        	mapActionQueue.add(new Runnable() {
+				@Override
+				public void run() {
+					mapView.deleteAllAnnotationsAndCustomPOIs();
+			        drawDestinationAnnotation(lat, lon);
+			        mapView.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+			        mapView.centerMapOnPosition(new SKCoordinate(lon, lat));
+				}
+        	});
+        }
+        else {
+	        mapView.deleteAllAnnotationsAndCustomPOIs();
+	        drawDestinationAnnotation(lat, lon);
+	        mapView.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+	        mapView.centerMapOnPosition(new SKCoordinate(lon, lat));
+        }
     }
     
     private static final Integer DEST_ANNOTATION_ID = Integer.valueOf(1010);
