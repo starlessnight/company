@@ -223,7 +223,7 @@ public final class User implements JSONModel, Parcelable {
 		SharedPreferences.Editor editor = prefs.edit();
 //		editor.remove(USERNAME);
 		editor.remove(PASSWORD);
-		editor.remove(TYPE);
+		//editor.remove(TYPE);
 		editor.putString("CurrentUser", "");
 		editor.commit();
 		MapDisplayActivity.setProfileSelection(context, null);

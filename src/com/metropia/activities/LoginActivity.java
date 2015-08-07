@@ -197,7 +197,8 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
         editTextPassword.addTextChangedListener(this);
         SharedPreferences loginPrefs = Preferences.getAuthPreferences(this);
         String username = loginPrefs.getString(User.USERNAME, "");
-        if(StringUtils.isNotBlank(username)) {
+        String type = loginPrefs.getString(User.TYPE, "");
+        if(StringUtils.isNotBlank(username) && StringUtils.equals(type, "")) {
         	editTextUsername.setText(username);
         }
         
