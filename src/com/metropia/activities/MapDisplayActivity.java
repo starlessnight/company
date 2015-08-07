@@ -121,7 +121,7 @@ public final class MapDisplayActivity extends FragmentActivity {
 		User user = User.getCurrentUser(MapDisplayActivity.this);
 
 		TextView userNameView = (TextView) findViewById(R.id.user_name);
-		userNameView.setText(user.getUsername());
+		userNameView.setText(StringUtils.equals(user.getType(), User.FACEBOOK)? user.getName():user.getUsername());
 
 		/*
 		TextView emailView = (TextView) findViewById(R.id.user_email);
