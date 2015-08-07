@@ -11,9 +11,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -215,6 +217,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     public static final String LOGOUT = "logout";
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
+    private Queue<Runnable> mapActionQueue = new LinkedList<Runnable>();
 	
     private GeoPoint myPoint;
     
@@ -2225,8 +2228,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         Misc.parallelExecute(task);
     }
     
-    private void dropPinForAddress(Address addr, boolean zoomIn, boolean isFrom) {
-    	GeoPoint gp = addr.getGeoPoint();
+    private void dropPinForAddress(Address addr, final boolean zoomIn, boolean isFrom) {
+    	final GeoPoint gp = addr.getGeoPoint();
         DebugOptionsActivity.addRecentAddress(LandingActivity2.this, addr.getAddress());
         PoiOverlayInfo poiOverlayInfo = poiContainer.getExistedPOIByAddress(addr.getAddress());
         if(poiOverlayInfo != null) {
@@ -2238,10 +2241,16 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }
         // record input address
         addInputAddress(addr);
-        if(zoomIn){
-            mapView.setZoom(SEARCH_ZOOM_LEVEL);
-        }
-        mapView.centerMapOnPositionSmooth(new SKCoordinate(gp.getLongitude(), gp.getLatitude()), MAP_ANIMATION_DURATION);
+        
+        Runnable centerMap = new Runnable() {
+			public void run() {
+				if(zoomIn) mapView.setZoom(SEARCH_ZOOM_LEVEL);
+		        mapView.centerMapOnPositionSmooth(new SKCoordinate(gp.getLongitude(), gp.getLatitude()), MAP_ANIMATION_DURATION);
+			}
+		};
+		if (mapView!=null) centerMap.run();
+		else mapActionQueue.add(centerMap);
+        
     }
     
     private void refreshAutoCompleteData(ListView searchList, ArrayAdapter<Address> adapter, List<Address> searchedAddresses, EditText _searchBox) {
@@ -5151,6 +5160,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		prepareGPS();
 		mapRefresh.set(true);
 		enableDrawRoute.set(true);
+		
+		Runnable r;
+		while((r = mapActionQueue.poll()) != null) r.run();
         
         //redraw poi
         sizeRatio.set(0);
