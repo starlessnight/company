@@ -1374,11 +1374,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	private ViewTreeObserver.OnPreDrawListener onPreDrawListener;
 
-	private void to2DMap(final RouteRect _rect,
-			final boolean hasNavigationHeader) {
+	private void to2DMap(final RouteRect _rect, final boolean hasNavigationHeader) {
 		if (_rect != null) {
 			/* Get a midpoint to center the view of the routes */
-			changeEnRoutePanelMode(!navigationView.isPortraitMode());
+			boolean isLanscapeMode = !navigationView.isPortraitMode();
+			changeEnRoutePanelMode(isLanscapeMode);
 			mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
 			mapView.rotateTheMapToNorth();
 			final int offsetHeight = hasNavigationHeader ? navigationView.getMeasuredHeight() : 0;
@@ -1402,7 +1402,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				};
 				vto.addOnPreDrawListener(onPreDrawListener);
 			} else {
-				mapView.fitBoundingBox(boundingBox, 100, offsetHeight);
+				mapView.fitBoundingBox(boundingBox, 100, offsetHeight - (isLanscapeMode ? 50 : 0));
 			}
 			GeoPoint mid = _rect.getMidPoint();
 			SKCoordinate coordinate = new SKCoordinate(mid.getLongitude(), mid.getLatitude());
