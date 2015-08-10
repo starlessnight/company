@@ -1740,17 +1740,18 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	private void drawDestinationAnnotation(double lat, double lon) {
 		SKAnnotation destAnn = new SKAnnotation(DEST_ANNOTATION_ID);
+		destAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_DESTINATION_FLAG);
 //		destAnn.setUniqueID(DEST_ANNOTATION_ID);
 		destAnn.setLocation(new SKCoordinate(lon, lat));
 		destAnn.setMininumZoomLevel(5);
-		SKAnnotationView destAnnView = new SKAnnotationView();
+		/*SKAnnotationView destAnnView = new SKAnnotationView();
 		SkobblerImageView destImage = new SkobblerImageView(ValidationActivity.this, R.drawable.pin_destination, 1);
 		destImage.setLat(lat);
 		destImage.setLon(lon);
 		destImage.setImageBitmap(Misc.getBitmap(ValidationActivity.this, R.drawable.pin_destination, 1));
 		destAnnView.setView(destImage);
 		destAnn.setAnnotationView(destAnnView);
-		destAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
+		destAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));*/
 		mapView.addAnnotation(destAnn, SKAnimationSettings.ANIMATION_POP_OUT);
 	}
 
