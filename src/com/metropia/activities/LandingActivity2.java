@@ -833,6 +833,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         mapRezoom.set(!hasIntentAddr);
         if(hasIntentAddr){
         	searchIntentAddress(intentAddress);
+        	disableRefreshTripInfo.set(true);
         }
         
         if(isToSignInPage(getIntent())) {
@@ -2208,9 +2209,13 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 return addr;
             }
             @Override
-            protected void onPostExecute(Address addr) {
+            protected void onPostExecute(final Address addr) {
                 if(addr != null){
-                    dropPinForAddress(addr, zoomIn, isFrom);
+                	Runnable r = new Runnable() {
+						public void run() {dropPinForAddress(addr, zoomIn, isFrom);}
+                	};
+                	if (mapView!=null) r.run();
+                	else mapActionQueue.add(r);
                 }
                 else {
                 	final NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, "No results");
@@ -2241,16 +2246,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }
         // record input address
         addInputAddress(addr);
-        
-        Runnable centerMap = new Runnable() {
-			public void run() {
-				if(zoomIn) mapView.setZoom(SEARCH_ZOOM_LEVEL);
-		        mapView.centerMapOnPositionSmooth(new SKCoordinate(gp.getLongitude(), gp.getLatitude()), MAP_ANIMATION_DURATION);
-			}
-		};
-		if (mapView!=null) centerMap.run();
-		else mapActionQueue.add(centerMap);
-        
+		if(zoomIn) mapView.setZoom(SEARCH_ZOOM_LEVEL);
+		mapView.centerMapOnPositionSmooth(new SKCoordinate(gp.getLongitude(), gp.getLatitude()), MAP_ANIMATION_DURATION);
     }
     
     private void refreshAutoCompleteData(ListView searchList, ArrayAdapter<Address> adapter, List<Address> searchedAddresses, EditText _searchBox) {
@@ -2911,7 +2908,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     			}
     		}
     		
-    		showTripInfoPanel(false, false);
+    		if (!disableRefreshTripInfo.get()) showTripInfoPanel(false, false);
     	}
     	else {
     		dismissReservId = -1L;
@@ -3191,6 +3188,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             return;
         }else if(StringUtils.isNotBlank(intentAddress)){
         	searchIntentAddress(intentAddress);
+        	disableRefreshTripInfo.set(true);
         }
     }
     
@@ -4211,6 +4209,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		fromSearchBox.setText("");
 		fromIcon.setVisibility(View.INVISIBLE);
 		clearFromSearchResult();
+		disableRefreshTripInfo.set(true);
     }
     
     private static final Integer FROM_BALLOON_ID = 0;
@@ -5172,7 +5171,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 			@Override
 			public void run() {
 				drawedReservId = Long.valueOf(-1);
-				if(!disableRefreshTripInfo.getAndSet(false)) {
+				if(!disableRefreshTripInfo.get()) {
 					dismissReservId = Long.valueOf(-1);
 					refreshTripsInfo();
 				}
