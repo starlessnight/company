@@ -3519,6 +3519,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	public void onSingleTap(SKScreenPoint arg0) {
+		if (mapView==null) return;
 		buttonFollow.setTag(Boolean.valueOf(false));
 		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
 		mapView.deleteAnnotation(INCIDENT_BALLOON_ID);

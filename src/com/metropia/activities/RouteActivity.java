@@ -2399,6 +2399,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 
 	@Override
 	public void onSingleTap(SKScreenPoint arg0) {
+		if (mapView==null) return;
 		mapView.deleteAnnotation(INCIDENT_BALLOON_ID);
 		incBalloonAnn = null;
 	}
