@@ -9,10 +9,12 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gcm.GCMBaseIntentService;
 import com.google.android.gcm.GCMConstants;
+import com.localytics.android.Localytics;
 import com.metropia.LocalyticsUtils;
 import com.metropia.utils.Misc;
 import com.metropia.utils.Preferences;
@@ -40,6 +42,7 @@ public class GCMIntentService extends GCMBaseIntentService {
 	    try {
     		Log.i(LOG_TAG, "GCMIntentService onMessage called");
     		String type = intent.getStringExtra("type");
+    		Localytics.integrate(this);
     		LocalyticsUtils.tagAppStartFromPush();
     		if("pretrip".equalsIgnoreCase(type)){
     		    String msg = intent.getStringExtra("message");
@@ -49,7 +52,24 @@ public class GCMIntentService extends GCMBaseIntentService {
                 alertIntent.putExtra(PreTripAlertActivity.MSG, msg);
                 alertIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(alertIntent);
-            }else{ 
+            }
+    		else {
+    			String body = intent.getStringExtra("body");
+    			if (body==null) return;
+    			
+    			PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, new Intent(context, LandingActivity2.class), PendingIntent.FLAG_UPDATE_CURRENT);
+    			NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+    			builder.setSmallIcon(R.drawable.icon_small).setContentTitle("Metropia").setContentText(body);
+    			builder.setContentIntent(pendingIntent);
+    			
+    			
+    			NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                notificationManager.notify(0, builder.build());
+    		}
+    		
+    		/*
+    		 * deprecated on_my_way notification
+    		else{
                 Log.i(LOG_TAG, "Origin: " + intent.getStringExtra("origin"));
                 Log.i(LOG_TAG, "Destination: " + intent.getStringExtra("destination"));
                 Log.i(LOG_TAG, "Time: " + intent.getStringExtra("time"));
@@ -96,7 +116,7 @@ public class GCMIntentService extends GCMBaseIntentService {
                 
                 notification.flags = Notification.FLAG_AUTO_CANCEL;
                 notificationManager.notify(0, notification);
-            }
+            }*/
             
             Misc.playDefaultNotificationSound(context);
             Misc.wakeUpScreen(context, GCMIntentService.class.getSimpleName());

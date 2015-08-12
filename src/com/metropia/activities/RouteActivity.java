@@ -1432,23 +1432,17 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     private void handleImComing(String msg, final double lat, final double lon){
         findViewById(R.id.time_layout).setVisibility(View.GONE);
         findViewById(R.id.lets_go).setVisibility(View.GONE);
-        if(mapView == null) {
-        	mapActionQueue.add(new Runnable() {
-				@Override
-				public void run() {
-					mapView.deleteAllAnnotationsAndCustomPOIs();
-			        drawDestinationAnnotation(lat, lon);
-			        mapView.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
-			        mapView.centerMapOnPosition(new SKCoordinate(lon, lat));
-				}
-        	});
-        }
-        else {
-	        mapView.deleteAllAnnotationsAndCustomPOIs();
-	        drawDestinationAnnotation(lat, lon);
-	        mapView.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
-	        mapView.centerMapOnPosition(new SKCoordinate(lon, lat));
-        }
+        
+        Runnable r = new Runnable() {
+			public void run() {
+				mapView.deleteAllAnnotationsAndCustomPOIs();
+		        drawDestinationAnnotation(lat, lon);
+		        mapView.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+		        mapView.centerMapOnPosition(new SKCoordinate(lon, lat));
+			}
+    	};
+        if(mapView == null) mapActionQueue.add(r);
+        else r.run();
     }
     
     private static final Integer DEST_ANNOTATION_ID = Integer.valueOf(1010);
