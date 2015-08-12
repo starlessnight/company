@@ -940,7 +940,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //		                int lastLonE6 = mapCenterLon.get();
 //		                int threshold = 100 + 2300 * (Math.max(Double.valueOf(18 - mapView.getZoomLevel()).intValue(), 0));
 //		                if(Math.abs(latE6 - lastLatE6) < threshold && Math.abs(lonE6 - lastLonE6) < threshold){
-						if(lastLocation != null) {
+						if (restrictedMode) zoomMapToFitBulbPOIs();
+						else if(lastLocation != null) {
 		                    if(mapView.getZoomLevel() == ValidationActivity.DEFAULT_ZOOM_LEVEL){
 		                    	if(routeRect != null) {
 		                    		zoomMapToFitBulbPOIs();
@@ -2541,7 +2542,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             myPoint = new GeoPoint(loc.getLatitude(), loc.getLongitude(), loc.getBearing());
         }
         myPoint.updateLocation(loc.getLatitude(), loc.getLongitude(), loc.getBearing());
-        mapView.getMapSettings().setCurrentPositionShown(true);
+        mapView.getMapSettings().setCurrentPositionShown(!restrictedMode);
         mapView.reportNewGPSPosition(new SKPosition(loc));
         
        	updateCurrentLocationOrigin(loc);
@@ -2760,7 +2761,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	                tripNotifyIcon.setVisibility(View.GONE);
 	                passengerIcon.setVisibility((getRouteView.getVisibility() == View.GONE && !restrictedMode) ? View.VISIBLE : View.GONE);
 	                refreshReservationList(new ArrayList<Reservation>());
-	                unlockMenu();
+	                //unlockMenu();
 	            } 
 	            else{
                     Reservation reserv = reservations.get(0);
@@ -3015,7 +3016,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     
     private void hideReservationInfoPanel() {
     	hideTripInfoPanel();
-    	unlockMenu();
+    	//unlockMenu();
     }
     
     private void unlockMenu() {
@@ -3383,6 +3384,14 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                             addrList.add(a);
                         }
                     }
+                    if (routeRect==null && restrictedMode) {
+                        List<GeoPoint> points = new ArrayList<GeoPoint>();
+                        for(com.metropia.models.Address a : addrList){
+                            points.add(new GeoPoint(a.getLatitude(), a.getLongitude()));
+                        }
+                        routeRect = new RouteRect(points, mapZoomVerticalOffset);
+                        zoomMapToFitBulbPOIs();
+                    }
                     showODBalloon();
                     //redraw poi
                     sizeRatio.set(0);
@@ -3597,10 +3606,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             @Override
             protected void onPostExecute(City result) {
             	if (result==null) return;
-            	if (StringUtils.equals(result.link, "http://www.metropia.com/elpasolite")) {
-            		LandingActivity2.restrictedMode = RouteActivity.restrictedMode = true;
-            		restrictedMode(restrictedMode);
-            	}
+            	LandingActivity2.restrictedMode = RouteActivity.restrictedMode = StringUtils.equals(result.signUp, "http://www.metropia.com/elpasolite");
+            	restrictedMode(restrictedMode);
+            	
                 if(StringUtils.isNotBlank(result.html)){
 //                	serviceArea.set(false);
                 	outOfServiceHtml = result.html;
@@ -5208,12 +5216,25 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	public void onDebugInfo(double arg0, float arg1, double arg2) {}
 	
 	public static boolean restrictedMode = false;
-	public void restrictedMode(boolean mode) {
-		if (!mode) return;
-		findViewById(R.id.passenger_mode_icon).setVisibility(View.GONE);
-		findViewById(R.id.landing_panel).setVisibility(View.GONE);
-		findViewById(R.id.my_metropia_panel).setVisibility(View.GONE);
-		((RelativeLayout.LayoutParams)findViewById(R.id.center_map_icon).getLayoutParams()).setMargins(0, 0, Dimension.pxToDp(20, getResources().getDisplayMetrics()), Dimension.pxToDp(5, getResources().getDisplayMetrics()));
+	public void restrictedMode(final boolean mode) {
+		int visibility = mode? View.GONE:View.VISIBLE;
+		int padding = mode? 5:60;
+		int drawerLock = mode? DrawerLayout.LOCK_MODE_LOCKED_CLOSED:DrawerLayout.LOCK_MODE_UNLOCKED;
+		
+		findViewById(R.id.passenger_mode_icon).setVisibility(visibility);
+		findViewById(R.id.landing_panel).setVisibility(visibility);
+		findViewById(R.id.my_metropia_panel).setVisibility(visibility);
+		((RelativeLayout.LayoutParams)findViewById(R.id.center_map_icon).getLayoutParams()).setMargins(0, 0, Dimension.pxToDp(20, getResources().getDisplayMetrics()), Dimension.pxToDp(padding, getResources().getDisplayMetrics()));
+		((DrawerLayout) findViewById(R.id.drawer_layout)).setDrawerLockMode(drawerLock);
+		
+		Runnable r = new Runnable() {
+			public void run() {
+				mapView.getMapSettings().setCurrentPositionShown(!mode);
+			}
+		};
+		if (mapView!=null) r.run();
+		else mapActionQueue.add(r);
+		
 	}
 
 }

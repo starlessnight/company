@@ -2445,10 +2445,10 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	
 	public static boolean restrictedMode = false;
 	public void restrictedMode(boolean mode) {
-		if (!mode) return;
-		findViewById(R.id.buttonLayout).setVisibility(View.GONE);
-		findViewById(R.id.tollLayout).setVisibility(View.GONE);
-		findViewById(R.id.hov_button).setVisibility(View.GONE);
+		int visibility = mode? View.GONE:View.VISIBLE;
+		findViewById(R.id.buttonLayout).setVisibility(visibility);
+		findViewById(R.id.tollLayout).setVisibility(visibility);
+		findViewById(R.id.hov_button).setVisibility(visibility);
 	}
 
 }

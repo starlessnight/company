@@ -287,6 +287,7 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
     private String registerUrl;
     
     
+    boolean restrictedMode = false;
     private void checkCity(final double lat, final double lon) {
     	AsyncTask<Void, Void, City> checkCityAvailability = new AsyncTask<Void, Void, City>(){
             @Override
@@ -304,7 +305,8 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
             }
             @Override
             protected void onPostExecute(City result) {
-                if(result != null && StringUtils.isNotBlank(result.html)){
+            	if (result!=null && StringUtils.equals(result.signUp, "http://www.metropia.com/elpasolite")) restrictedMode = true;
+                if (result != null && StringUtils.isNotBlank(result.html)) {
                 	serviceArea.set(false);
                 	registerUrl = result.link;
                 }else{
@@ -384,10 +386,10 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
                     loginPrefsEditor.putString(User.PASSWORD, user.getPassword());
                     loginPrefsEditor.putString(User.TYPE, user.getType());
                     boolean toOnBoard =  StringUtils.equalsIgnoreCase(user.getUsername(), loginPrefs.getString(User.NEW_USER, ""));
-                    if(toOnBoard) {
-                    	loginPrefsEditor.remove(User.NEW_USER);
-                    	loginPrefsEditor.putString(User.PLAY_SCORE_ANIMATION, user.getUsername());
-                    }
+                    
+                    toOnBoard&=!restrictedMode;
+                    if (toOnBoard) loginPrefsEditor.putString(User.PLAY_SCORE_ANIMATION, user.getUsername());
+                    loginPrefsEditor.remove(User.NEW_USER);
                     loginPrefsEditor.commit();
                     
                     Intent intent = new Intent(LoginActivity.this, toOnBoard? OnBoardActivity.class : LandingActivity2.class);
