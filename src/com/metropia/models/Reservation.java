@@ -446,15 +446,17 @@ public final class Reservation implements Parcelable {
 	 */
     
     public double distanceToDestInMeter=-1, arrivalThreshold=0, tally=0, minArrivalThreshold = Double.MAX_VALUE;
+    private boolean beClose = false;
     
     
 	public boolean hasArrivedAtDestination(Context ctx, double lat, double lng, long startCountDownTime) {
 		ValidationParameters params = ValidationParameters.getInstance();
 		boolean arrived = false;
 		distanceToDestInMeter = RouteNode.distanceBetween(lat, lng, endlat, endlon);
-		if(distanceToDestInMeter <= params.getArrivalDistanceThreshold()){
+		beClose |= (distanceToDestInMeter <= params.getArrivalDistanceThreshold());
+		if(beClose){
 			arrivalThreshold = getDelayTime(ctx, distanceToDestInMeter);
-			minArrivalThreshold = Math.min(arrivalThreshold, minArrivalThreshold);
+			minArrivalThreshold = Math.max(Math.min(arrivalThreshold, minArrivalThreshold), 2);
 			tally = System.currentTimeMillis() - startCountDownTime;
 			arrived = tally >= minArrivalThreshold;
 		}
@@ -465,7 +467,8 @@ public final class Reservation implements Parcelable {
 		Long startCountDownTime = Long.valueOf(oldStartCountDownTime);
 		ValidationParameters params = ValidationParameters.getInstance();
 		double distanceToDest = RouteNode.distanceBetween(lat, lon, endlat, endlon);
-		if(distanceToDest <= params.getArrivalDistanceThreshold()) {
+		beClose |= (distanceToDest <= params.getArrivalDistanceThreshold());
+		if(beClose) {
 			if(speedMph <= params.getStopSpeedThreshold()) {
 				startCountDownTime = Math.min(startCountDownTime, Long.valueOf(System.currentTimeMillis()));
 			}
