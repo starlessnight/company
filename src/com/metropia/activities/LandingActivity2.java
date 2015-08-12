@@ -4209,7 +4209,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		fromSearchBox.setText("");
 		fromIcon.setVisibility(View.INVISIBLE);
 		clearFromSearchResult();
-		disableRefreshTripInfo.set(true);
+		disableRefreshTripInfo.set(false);
     }
     
     private static final Integer FROM_BALLOON_ID = 0;
