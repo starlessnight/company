@@ -256,7 +256,7 @@
                                 android:paddingRight="67dp"
                                 android:singleLine="true"
                                 android:textColor="@color/gray"
-                                android:textColorHint="@color/transparent_light_gray"
+                                android:textColorHint="#d6d6d6"
                                 android:textSize="19dp" />
 
                             <View
@@ -349,7 +349,7 @@
                                 android:paddingRight="67dp"
                                 android:singleLine="true"
                                 android:textColor="@color/gray"
-                                android:textColorHint="@color/transparent_light_gray"
+                                android:textColorHint="#d6d6d6"
                                 android:textSize="19dp" />
 
                             <View
