@@ -26,7 +26,7 @@
     <string name="create_account_link_text">Don\'t have an account?</string>
     <string name="osm_contributors">© OpenStreetMap contributors</string>
     <string name="signup">Sign Up</string>
-    <string name="sign_in">Sign In</string>
+    <string name="sign_in">Sign in with Metropia</string>
     <string name="get_started">Get Started!</string>
     <string name="origin">ORIGIN</string>
     <string name="destination">DESTINATION</string>

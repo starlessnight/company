@@ -34,6 +34,7 @@ import com.metropia.requests.ServiceDiscoveryRequest.Result;
 import com.metropia.requests.UserIdRequest;
 import com.metropia.tasks.LoginFBTask;
 import com.metropia.tasks.LoginTask;
+import com.metropia.tasks.LoginTaskNew;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Misc;
 import com.metropia.utils.Preferences;
@@ -52,7 +53,7 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 	
 	private boolean loggedIn;
 	
-	private LoginTask loginTask;
+	private LoginTaskNew loginTask;
 	
 	private ServiceDiscoveryTask sdTask;
 	
@@ -105,7 +106,7 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
             final String username = loginPrefs.getString(User.USERNAME, "");
             final String password = loginPrefs.getString(User.PASSWORD, "");
             final String type = loginPrefs.getString(User.TYPE, "");
-            if (type.equals(User.FACEBOOK)) {
+            if (type.equals(User.FACEBOOK) && !username.equals("") && !password.equals("")) {
             	loginTask = newLoginFBTask(username, password);
             }
             else if (!username.equals("") && !password.equals("") && DebugOptionsActivity.isSkobblerPatched(MainActivity.this)) {
@@ -147,13 +148,15 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
                     	
                     	findViewById(R.id.progress).setVisibility(View.GONE);
                     	
-                    	if (type.equals(User.FACEBOOK)) {
+                    	/*if (type.equals(User.FACEBOOK)) {
                     		loginTask.execute();
                     	}
-                    	else if(loginTask != null){
+                    	else */if(loginTask != null){
                             loginTask.setDialogEnabled(splashEnded);
                             loginTask.showDialog();
-                            Misc.parallelExecute(new AsyncTask<Void, Void, Integer>() {
+                            loginTask.execute();
+                            
+                            /*Misc.parallelExecute(new AsyncTask<Void, Void, Integer>() {
                                 @Override
                                 protected Integer doInBackground(Void... params) {
                                     Integer id = null;
@@ -177,7 +180,7 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
                                         Misc.parallelExecute(loginTask);
                                     }
                                 }
-                            });
+                            });*/
                         }
                         DebugOptionsActivity.setActivityDistanceInterval(MainActivity.this, Request.getActivityDistanceInterval());
                     }
@@ -335,25 +338,26 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
         }
 	}
 	
-	private LoginTask newLoginTask(String username, String password){
+	private LoginTaskNew newLoginTask(String username, String password){
 	    final String gcmRegistrationId = Preferences.getGlobalPreferences(this).getString(Preferences.Global.GCM_REG_ID, "");
-	    return new LoginTask(this, username, password, gcmRegistrationId) {
+	    return new LoginTaskNew(this, username, password, gcmRegistrationId) {
             @Override
             protected void onPostLogin(final User user) {
+                loginTaskEnded = true;
                 loggedIn = user != null && user.getId() != -1;
                 if(loggedIn){
                     User.setCurrentUser(MainActivity.this, user);
                     Log.d(LOG_TAG,"Successful Login");
                     Log.d(LOG_TAG, "Saving Login Info to Shared Preferences");
                 }
-                loginTaskEnded = true;
                 if(splashEnded){
-                    proceedToNextScreen();
+                    if (loggedIn) proceedToNextScreen();
+                    else startLoginActivity();
                 }
            }
         }.setDialogEnabled(false);
 	}
-	private LoginTask newLoginFBTask(String username, String password) {
+	private LoginTaskNew newLoginFBTask(String username, String password) {
 		
 		return new LoginFBTask(this, username, password) {
 			@Override

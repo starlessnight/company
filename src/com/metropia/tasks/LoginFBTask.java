@@ -7,7 +7,7 @@ import com.metropia.models.User;
 import com.metropia.requests.UserFBLoginRequest;
 import com.metropia.requests.UserIdRequest;
 
-public abstract class LoginFBTask extends LoginTask {
+public abstract class LoginFBTask extends LoginTaskNew {
 
 	public LoginFBTask(Context ctx) {
 		super(ctx, null, null, "");
@@ -32,10 +32,10 @@ public abstract class LoginFBTask extends LoginTask {
 				password = user.getPassword();
 			}
 			
-			UserIdRequest req = new UserIdRequest(username); 
+			/*UserIdRequest req = new UserIdRequest(username); 
             req.invalidateCache(ctx);
             Integer id = req.execute(ctx);
-            setUserId(id);
+            setUserId(id);*/
             
             user = super.doInBackground(params);
             user.setType(User.FACEBOOK);
