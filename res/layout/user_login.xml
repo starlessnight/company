@@ -9,28 +9,7 @@
 	    android:scaleType="centerCrop"
 	    android:src="@drawable/login_back" />
 	
-	<LinearLayout
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent"
-	    android:orientation="vertical"
-	    android:gravity="center"
-	    android:weightSum="10">
-	    
-	    <View
-	    	android:layout_width="match_parent"
-	    	android:layout_height="0dp"
-	    	android:layout_weight="1" />
-	<ImageView
-		android:layout_width="wrap_content"
-		android:layout_height="0dp"
-		android:src="@drawable/login_logo"
-	    	android:layout_weight="2" />
 	
-		<View
-	    	android:layout_width="match_parent"
-	    	android:layout_height="0dp"
-	    	android:layout_weight="7" />
-	</LinearLayout>
     
 	<view
 	    class="com.metropia.ui.LoginPager"
@@ -40,12 +19,35 @@
 		android:clipChildren="false" >
 	 	
 	    
-
 		<RelativeLayout
 			android:id="@+id/page1"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:padding="5dp">
+			
+			<LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:orientation="vertical"
+				android:gravity="center"
+				android:weightSum="10">
+				
+				<View
+					android:layout_width="match_parent"
+					android:layout_height="0dp"
+					android:layout_weight="1" />
+				
+				<ImageView
+					android:layout_width="wrap_content"
+					android:layout_height="0dp"
+					android:src="@drawable/login_logo"
+					android:layout_weight="2" />
+				
+				<View
+					android:layout_width="match_parent"
+					android:layout_height="0dp"
+					android:layout_weight="7" />
+			</LinearLayout>
 
 			<LinearLayout
 				android:layout_width="match_parent"
@@ -95,17 +97,21 @@
 				android:adjustViewBounds="true"
 				android:src="@drawable/settings_btn_back" />
 			
+			<LinearLayout
+				style="@style/loginBox"
+				android:layout_height="wrap_content"
+				android:layout_centerInParent="true"
+				android:paddingBottom="40dp">
             <LinearLayout
                     android:id="@+id/login_layout"
-                    style="@style/loginBox"
                 	android:layout_height="wrap_content"
+                	android:layout_width="match_parent"
                 	android:layout_marginLeft="35dp"
                 	android:layout_marginRight="35dp"
                 	android:paddingTop="10dp"
                 	android:paddingBottom="5dp"
                 	android:paddingLeft="10dp"
                 	android:paddingRight="10dp"
-					android:layout_centerInParent="true"
                 	android:orientation="vertical"
                 	android:background="#5590BF41">
                 
@@ -142,6 +148,7 @@
 						android:textSize="12sp"
 						android:text="SIGN IN" />
 					
+                </LinearLayout>
                 </LinearLayout>
             
         </RelativeLayout>
