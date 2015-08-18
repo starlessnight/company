@@ -197,7 +197,8 @@ public abstract class LocationService implements ConnectionCallbacks, OnConnecti
 	public void onConnectionFailed(ConnectionResult arg0) {}
 	
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-		if(requestCode==REQUEST_CHECK_SETTINGS && resultCode==Activity.RESULT_OK) requestingLocationUpdates = false;
+		if (requestCode==REQUEST_CHECK_SETTINGS && resultCode==Activity.RESULT_OK) requestingLocationUpdates = false;
+        if (requestCode==REQUEST_CHECK_SETTINGS) startLocationUpdates();
 	}
 
 }

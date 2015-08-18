@@ -440,7 +440,6 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
         super.onActivityResult(requestCode, resultCode, intent);
         callbackManager.onActivityResult(requestCode, resultCode, intent);
         locationService.onActivityResult(requestCode, resultCode, intent);
-        locationService.startLocationUpdates();
     }
     
     
