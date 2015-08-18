@@ -100,7 +100,7 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
         loginPager.setAdapter(R.id.page1, R.id.page2);
         
         /* If it hasn't set up the login screen */
-        TextView login = (TextView) findViewById(R.id.login_button);
+        //TextView login = (TextView) findViewById(R.id.login_button);
         for (int i=0 ; i<clickable.length; i++) findViewById(clickable[i]).setOnClickListener(this);
         
         
@@ -131,7 +131,7 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
         
         AssetManager assets = getAssets();
         Font.setTypeface(Font.getBold(assets));
-        Font.setTypeface(Font.getLight(assets), editTextUsername, editTextPassword, login, newUser, (TextView) findViewById(R.id.forget_pwd));
+        //Font.setTypeface(Font.getLight(assets), editTextUsername, editTextPassword, login, newUser, (TextView) findViewById(R.id.forget_pwd));
         
         //init Tracker
       	((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
@@ -192,6 +192,10 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
 			break;
 			case R.id.formTrigger:
 				loginPager.setCurrentItem(1);
+				TextView account = (TextView)findViewById(R.id.username_box);
+				hsowKeyboard(account);
+				if (!account.getText().toString().equals("")) findViewById(R.id.pwd_box).requestFocus();
+				
 				return;
 			case R.id.login_back:
 				onBackPressed();
@@ -372,6 +376,10 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
     public void afterTextChanged(Editable s) {}
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
     
+    private void hsowKeyboard(View view) {
+		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.showSoftInput(view, 0);
+    }
     private void hideKeyboard() {
     	View view = this.getCurrentFocus();
     	if (view != null) {

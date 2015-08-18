@@ -1,5 +1,6 @@
 package com.metropia.ui;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import android.annotation.SuppressLint;
@@ -12,6 +13,10 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
+import android.widget.Scroller;
 
 public class LoginPager extends ViewPager implements PageTransformer {
 
@@ -22,6 +27,14 @@ public class LoginPager extends ViewPager implements PageTransformer {
 		super(context, attrs);
 		this.context = context;
 		this.setPageTransformer(true, this);
+		
+		try {
+			Field mScroller;
+			mScroller = ViewPager.class.getDeclaredField("mScroller");
+			mScroller.setAccessible(true);
+			FixedSpeedScroller scroller = new FixedSpeedScroller(context, new LinearInterpolator());
+			mScroller.set(this, scroller);
+		} catch(Exception e) {}
 	}
 	
 	public void setAdapter(int... layouts) {
@@ -51,5 +64,38 @@ public class LoginPager extends ViewPager implements PageTransformer {
 	
     public boolean onInterceptTouchEvent(MotionEvent event) {return false;}
     public boolean onTouchEvent(MotionEvent event) {return false;}
+    
+    
+    
+    
+    
+    
+    public class FixedSpeedScroller extends Scroller {
+
+        private int mDuration = 300;
+
+        public FixedSpeedScroller(Context context) {
+            super(context);
+        }
+
+        public FixedSpeedScroller(Context context, Interpolator interpolator) {
+            super(context, interpolator);
+        }
+
+        @SuppressLint("NewApi")
+		public FixedSpeedScroller(Context context, Interpolator interpolator, boolean flywheel) {
+            super(context, interpolator, flywheel);
+        }
+
+        @Override
+        public void startScroll(int startX, int startY, int dx, int dy, int duration) {
+            super.startScroll(startX, startY, dx, dy, mDuration);
+        }
+
+        @Override
+        public void startScroll(int startX, int startY, int dx, int dy) {
+            super.startScroll(startX, startY, dx, dy, mDuration);
+        }
+    }
 
 }
