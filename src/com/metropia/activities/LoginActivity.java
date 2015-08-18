@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpResponseException;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
@@ -33,6 +34,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -192,7 +194,7 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
 				loginPager.setCurrentItem(1);
 				return;
 			case R.id.login_back:
-				loginPager.setCurrentItem(0);
+				onBackPressed();
 				return;
 			case R.id.new_user:
 				
@@ -368,6 +370,14 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
 	
     public void afterTextChanged(Editable s) {}
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+    
+    private void hideKeyboard() {
+    	View view = this.getCurrentFocus();
+    	if (view != null) {
+    	    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+    	    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    	}
+    }
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -380,7 +390,10 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
     @Override
     public void onBackPressed(){
     	if (loginPager.getCurrentItem()==0) finish();
-    	else loginPager.setCurrentItem(0);
+    	else {
+    		hideKeyboard();
+    		loginPager.setCurrentItem(0);
+    	}
     }
     
     @Override
