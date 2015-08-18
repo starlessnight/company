@@ -369,9 +369,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         fromFavoriteDropdown = (ListView) findViewById(R.id.from_favorite_drop_down);
         toFavoriteDropdown = (ListView) findViewById(R.id.to_favorite_drop_down);
         searchBox = (EditText) findViewById(R.id.search_box);
-        searchBox.setHint(Html.fromHtml("<b>Enter Destination</b>"));
+        searchBox.setHint(Html.fromHtml("<b>Enter Name or Address</b>"));
         fromSearchBox = (EditText) findViewById(R.id.from_search_box);
-        fromSearchBox.setHint(Html.fromHtml("<b>Current Location</b>"));
+        fromSearchBox.setHint(Html.fromHtml("<b>Current or any Location</b>"));
         autoCompleteAdapter = createAutoCompleteAdapter(LandingActivity2.this, searchBox);
         fromAutoCompleteAdapter = createAutoCompleteAdapter(LandingActivity2.this, fromSearchBox);
         fromFavoriteAutoCompleteAdapter = createAutoCompleteAdapter(LandingActivity2.this, fromSearchBox);

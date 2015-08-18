@@ -250,14 +250,14 @@
                                 android:layout_height="44dp"
                                 android:layout_marginLeft="45dp"
                                 android:background="@android:color/white"
-                                android:hint="Current Location"
+                                android:hint="Current or any Location"
                                 android:inputType="textCapWords"
                                 android:paddingLeft="40dp"
                                 android:paddingRight="67dp"
                                 android:singleLine="true"
                                 android:textColor="@color/gray"
                                 android:textColorHint="#d6d6d6"
-                                android:textSize="19dp" />
+                                android:textSize="18dp" />
 
                             <View
                                 android:layout_width="1dp"
@@ -343,14 +343,14 @@
                                 android:layout_height="44dp"
                                 android:layout_marginLeft="45dp"
                                 android:background="@android:color/white"
-                                android:hint="Enter Destination"
+                                android:hint="Enter Name or Address"
                                 android:inputType="textCapWords"
                                 android:paddingLeft="40dp"
                                 android:paddingRight="67dp"
                                 android:singleLine="true"
                                 android:textColor="@color/gray"
                                 android:textColorHint="#d6d6d6"
-                                android:textSize="19dp" />
+                                android:textSize="18dp" />
 
                             <View
                                 android:layout_width="1dp"
