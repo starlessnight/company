@@ -31,11 +31,6 @@ public abstract class LoginFBTask extends LoginTaskNew {
 				username = user.getUsername();
 				password = user.getPassword();
 			}
-			
-			/*UserIdRequest req = new UserIdRequest(username); 
-            req.invalidateCache(ctx);
-            Integer id = req.execute(ctx);
-            setUserId(id);*/
             
             user = super.doInBackground(params);
             user.setType(User.FACEBOOK);

@@ -281,7 +281,8 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
                     loginPrefsEditor.putString(User.USERNAME, user.getUsername());
                     loginPrefsEditor.putString(User.PASSWORD, user.getPassword());
                     loginPrefsEditor.putString(User.TYPE, user.getType());
-                    boolean toOnBoard =  StringUtils.equalsIgnoreCase(user.getUsername(), loginPrefs.getString(User.NEW_USER, ""));
+                    //boolean toOnBoard =  StringUtils.equalsIgnoreCase(user.getUsername(), loginPrefs.getString(User.NEW_USER, ""));
+                    boolean toOnBoard = StringUtils.isBlank(user.getDeviceId());
                     
                     toOnBoard&=!restrictedMode;
                     if (toOnBoard) loginPrefsEditor.putString(User.PLAY_SCORE_ANIMATION, user.getUsername());
