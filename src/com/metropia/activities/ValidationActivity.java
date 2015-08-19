@@ -762,7 +762,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		outState.putBoolean(DebugOptionsActivity.REPLAY, isReplay.get());
 		outState.putLong(LAST_ENROUTE_CHECK_TIME, lastEnRouteCheckTime.get());
 		outState.putBoolean(SEND_ON_MY_WAY_EMAIL, sendOnMyWayEmail.get());
+		outState.putBoolean("routeLoaded", routeLoaded.get());
 	}
+	@Override
+    public void onRestoreInstanceState(Bundle savedInstanceState){
+        super.onRestoreInstanceState(savedInstanceState);
+        routeLoaded.set(savedInstanceState.getBoolean("routeLoaded"));
+    }
 
 	@Override
 	protected void onStart() {
