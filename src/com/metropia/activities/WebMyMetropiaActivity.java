@@ -1,5 +1,7 @@
 package com.metropia.activities;
 
+import java.net.URLEncoder;
+
 import org.apache.commons.lang3.StringUtils;
 
 import android.content.Context;
@@ -167,7 +169,7 @@ public class WebMyMetropiaActivity extends FragmentActivity{
         		url = StringUtils.defaultString(Request.getPageUrl(Page.my_metropia));
         }
         return url.replaceAll("\\{username\\}", user.getUsername())
-            .replaceAll("\\{password\\}", user.getPassword());
+            .replaceAll("\\{password\\}", URLEncoder.encode(user.getPassword()));
     }
 	
 	@Override
