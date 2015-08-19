@@ -2416,6 +2416,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         final String gcmRegistrationId = globalPrefs.getString(Preferences.Global.GCM_REG_ID, "");
         final User currentUser = User.getCurrentUser(this);
         final String appVersion = StringUtils.defaultString(currentUser.getAppVersion(), "");
+        if (StringUtils.isBlank(gcmRegistrationId)) return;
         if(!gcmRegistrationId.equals(currentUser.getDeviceId()) || !appVersion.equals(versionNumber)){
             currentUser.setDeviceId(gcmRegistrationId);
             currentUser.setAppVersion(versionNumber);
