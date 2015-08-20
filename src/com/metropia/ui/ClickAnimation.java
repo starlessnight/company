@@ -4,6 +4,7 @@ import com.metropia.activities.R;
 
 import android.content.Context;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
@@ -52,4 +53,24 @@ public class ClickAnimation {
 		this.animationId = animationId;
 	}
 
+	
+	public static class OnClickListener implements View.OnClickListener {
+		
+		View.OnClickListener clickListener;
+		public OnClickListener(View.OnClickListener clickListener) {
+			this.clickListener = clickListener;
+		}
+		
+		@Override
+		public void onClick(final View v) {
+			ClickAnimation clickAnimation = new ClickAnimation(v.getContext(), v);
+			clickAnimation.startAnimation(new ClickAnimationEndCallback() {
+
+				@Override
+				public void onAnimationEnd() {
+					clickListener.onClick(v);
+				}
+			});
+		}
+	}
 }

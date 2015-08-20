@@ -33,7 +33,6 @@ import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -64,6 +63,7 @@ import com.metropia.requests.UserIdRequest;
 import com.metropia.tasks.LoginFBTask;
 import com.metropia.tasks.LoginTask;
 import com.metropia.tasks.LoginTaskNew;
+import com.metropia.ui.ClickAnimation;
 import com.metropia.ui.LoginPager;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
@@ -73,8 +73,7 @@ import com.metropia.utils.LocationService;
 import com.metropia.utils.Misc;
 import com.metropia.utils.Preferences;
 
-public final class LoginActivity extends FragmentActivity implements OnClickListener,
-        TextWatcher {
+public final class LoginActivity extends FragmentActivity implements OnClickListener, TextWatcher {
     
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
 	private CallbackManager callbackManager;
@@ -86,7 +85,8 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
 	private static final Integer TWENTY_SECONDS = 20 * 1000; 
 	private AtomicBoolean cancelWait = new AtomicBoolean(false);
 	
-	int[] clickable = {R.id.fb_login_button, R.id.login_button, R.id.formTrigger, R.id.new_user, R.id.forget_pwd, R.id.login_back};
+	int[] clickable = {R.id.new_user, R.id.forget_pwd};
+	int[] clickableAnimated = {R.id.fb_login_button, R.id.login_button, R.id.formTrigger, R.id.login_back};
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -101,6 +101,8 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
         
         /* If it hasn't set up the login screen */
         //TextView login = (TextView) findViewById(R.id.login_button);
+        ClickAnimation.OnClickListener onClickListener = new ClickAnimation.OnClickListener(this);
+        for (int i=0 ; i<clickableAnimated.length ; i++) findViewById(clickableAnimated[i]).setOnClickListener(onClickListener);
         for (int i=0 ; i<clickable.length; i++) findViewById(clickable[i]).setOnClickListener(this);
         
         
