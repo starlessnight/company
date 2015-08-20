@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.os.SystemClock;
 import android.util.Log;
 
+import com.metropia.activities.DebugOptionsActivity;
 import com.metropia.activities.MainActivity;
 import com.metropia.exceptions.SmarTrekException;
 import com.metropia.models.Trajectory;
@@ -169,11 +170,11 @@ public class SendTrajectoryService extends IntentService {
     }
     
     public static void schedule(Context ctx){
-        PendingIntent sendTrajServ = PendingIntent.getService(ctx, 0, new Intent(
-                ctx, SendTrajectoryService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+    	int interval = (Integer) DebugOptionsActivity.getDebugValue(ctx, DebugOptionsActivity.TRAJECTORY_SENDING_INTERVAL, 5) * 60 * 1000;
+    	
+        PendingIntent sendTrajServ = PendingIntent.getService(ctx, 0, new Intent(ctx, SendTrajectoryService.class), PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
-        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 
-            SystemClock.elapsedRealtime() + twoMins, fiveMins, sendTrajServ);
+        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + twoMins, interval, sendTrajServ);
     }
 
 }

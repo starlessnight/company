@@ -45,10 +45,13 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.localytics.android.Localytics;
+import com.metropia.SendTrajectoryService;
 import com.metropia.SkobblerUtils;
 import com.metropia.models.Reservation;
 import com.metropia.models.ReservationTollHovInfo;
@@ -426,6 +429,20 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
 		}, 500, null);
         
         entrypointView.addTextChangedListener(entrypointTextWatcher);
+        
+        SeekBar seekBarTrajectorySendingInterval = (SeekBar) findViewById(R.id.seekBarTrajectorySendingInterval);
+        seekBarTrajectorySendingInterval.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				setDebugValue(DebugOptionsActivity.this, TRAJECTORY_SENDING_INTERVAL, progress+1);
+				((TextView)findViewById(R.id.seekBarTrajectorySendingIntervalText)).setText("Trajectory Sending Interval: "+(progress+1)+" min");
+			}
+			public void onStartTrackingTouch(SeekBar seekBar) {}
+			public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+        seekBarTrajectorySendingInterval.setProgress((Integer) getDebugValue(this, TRAJECTORY_SENDING_INTERVAL, 4));
+        
         
         CheckBox arrivalLogicLog = (CheckBox) findViewById(R.id.arrival_logic_log);
         arrivalLogicLog.setChecked(isArrivalLogicLogEnabled(this));
@@ -1627,6 +1644,33 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
     	catch(Exception ignore){}
     }
     
+    
+    public static final String TRAJECTORY_SENDING_INTERVAL = "TRAJECTORY_SENDING_INTERVAL";
+    
+    public static Object getDebugValue(Context ctx, String key, Object defaultValue) {
+    	Object value = defaultValue;
+    	try {
+    		if (defaultValue instanceof Integer) value = getPrefs(ctx).getInt(key, (Integer) defaultValue);
+    		else if (defaultValue instanceof String) value = getPrefs(ctx).getString(key, (String) defaultValue);
+    	}
+    	catch(Exception ignore){}
+    	return value;
+    }
+    
+    private static void setDebugValue(Context ctx, String key, Object value) {
+    	try {
+    		SharedPreferences.Editor editer = getPrefs(ctx).edit();
+    		
+    		if (value instanceof Integer) editer.putInt(key, (Integer) value).commit();
+    		else if (value instanceof String) editer.putString(key, (String) value).commit();
+    			
+    	}
+    	catch(Exception ignore){}
+    }
+    
+    
+    
+    
     private void initRecognizer() {
 		new AsyncTask<Void, Void, Void>() {
             @Override
@@ -1697,6 +1741,7 @@ public final class DebugOptionsActivity extends FragmentActivity implements Reco
 			}
 			catch(Exception ignore) {}
 		}
+		SendTrajectoryService.schedule(this);
 	}
     
 }

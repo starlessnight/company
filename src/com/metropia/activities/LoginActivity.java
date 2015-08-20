@@ -183,8 +183,6 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
 	@Override
 	public void onClick(View v) {
 		
-		
-		
 		switch(v.getId()) {
 			case R.id.fb_login_button:
 				
