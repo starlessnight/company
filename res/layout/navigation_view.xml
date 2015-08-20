@@ -46,7 +46,7 @@
 	    	<LinearLayout
 	    	    android:id="@+id/direction_infos" 
 		        android:layout_width="100dp"
-		        android:layout_height="fill_parent"
+		        android:layout_height="wrap_content"
 		        android:background="@color/metropia_blue"
 		        android:padding="10dp"
 		        android:orientation="vertical">
@@ -55,8 +55,7 @@
 		            android:id="@+id/img_view_direction"
 		            android:layout_height="48dp"
 		            android:layout_width="48dp"
-		            android:layout_gravity="center" 
-				/>
+		            android:layout_gravity="center" />
 		        
 		        <TextView
 			        android:id="@+id/text_view_distance"
@@ -67,15 +66,14 @@
 			        android:text="100.1 mi"
 			        android:layout_gravity="center"
 			        android:gravity="center"
-			        style="@style/LargeBoldText"
-		    	/>
+			        style="@style/LargeBoldText" />
 		        
 	        </LinearLayout>
 	        
 	    	<LinearLayout
 	    	    android:id="@+id/road_panel"
 		        android:layout_width="match_parent"
-		        android:layout_height="wrap_content"
+		        android:layout_height="match_parent"
 		        android:orientation="horizontal"
 		        android:background="@color/metropia_blue">
 		        
@@ -97,7 +95,7 @@
 	    	    <com.metropia.ui.WrapContentHeightViewPager
 		        	android:id="@+id/text_view_road_pager"
 		        	android:layout_width="0dp"
-		        	android:layout_height="wrap_content"
+		        	android:layout_height="match_parent"
 		        	android:layout_weight="1"
 		        	android:layout_marginLeft="-10dp"
 		        	android:layout_marginRight="-10dp"/>	

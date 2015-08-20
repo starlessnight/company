@@ -22,7 +22,7 @@ public class WrapContentHeightViewPager extends ViewPager {
 	
 	private Integer MINIMUM_HEIGHT = 125; // dp
 
-	@Override
+	/*@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int height = 0;
 		for (int i = 0; i < getChildCount(); i++) {
@@ -41,7 +41,7 @@ public class WrapContentHeightViewPager extends ViewPager {
 				MeasureSpec.EXACTLY);
 
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-	}
+	}*/
 	
 	//dp
 	public void setMinimemHeight(Integer minimumHeight) {
