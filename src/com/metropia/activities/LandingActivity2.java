@@ -5222,7 +5222,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		int padding = mode? 5:60;
 		int drawerLock = mode? DrawerLayout.LOCK_MODE_LOCKED_CLOSED:DrawerLayout.LOCK_MODE_UNLOCKED;
 		
-		findViewById(R.id.passenger_mode_icon).setVisibility(visibility);
+		findViewById(R.id.passenger_mode_icon).setVisibility(getRouteView.getVisibility()==View.VISIBLE||mode? View.GONE:View.VISIBLE);
 		findViewById(R.id.landing_panel).setVisibility(visibility);
 		findViewById(R.id.my_metropia_panel).setVisibility(visibility);
 		((RelativeLayout.LayoutParams)findViewById(R.id.center_map_icon).getLayoutParams()).setMargins(0, 0, Dimension.pxToDp(20, getResources().getDisplayMetrics()), Dimension.pxToDp(padding, getResources().getDisplayMetrics()));
