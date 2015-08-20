@@ -326,6 +326,7 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
 			
 			final Runnable fbLogin = new Runnable() {
 				public void run() {
+					if (AccessToken.getCurrentAccessToken()!=null && !AccessToken.getCurrentAccessToken().isExpired())
 					new LoginFBTask(LoginActivity.this) {
 						@Override
 						protected void onPostLogin(User user) {
@@ -335,16 +336,14 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
 				}
 			};
 			
-			if (AccessToken.getCurrentAccessToken()==null || AccessToken.getCurrentAccessToken().isExpired()) {
-				LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email"));
-				LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-					@Override
-					public void onSuccess(LoginResult result) {fbLogin.run();}
-					public void onCancel() {}
-					public void onError(FacebookException error) {}
-				});
-			}
-			else {fbLogin.run();}
+			AccessToken.refreshCurrentAccessTokenAsync();
+			LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email"));
+			LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+				@Override
+				public void onSuccess(LoginResult result) {fbLogin.run();}
+				public void onCancel() {Log.e("fb log", "cancel");}
+				public void onError(FacebookException error) {Log.e("fb log", error.toString());}
+			});
 			return;
 		}
 		
