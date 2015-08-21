@@ -1206,7 +1206,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 						@Override
 						public void onAnimationEnd() {
-							disableShowPassengerMode.set(true);
+							//disableShowPassengerMode.set(true);
 							if(curFrom != null && StringUtils.isBlank(curFrom.address)) {
 								
 								ResultCallback<LocationSettingsResult> callback = new ResultCallback<LocationSettingsResult>() {
@@ -1247,7 +1247,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 											startRouteActivity();
 										}
 										else {
-											disableShowPassengerMode.set(false);
+											//disableShowPassengerMode.set(false);
 										}
 									}
 								});
@@ -2699,7 +2699,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
         mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_GAME);
         
-        disableShowPassengerMode.set(false);
+        //disableShowPassengerMode.set(false);
         refreshHead();
     }
     
@@ -2760,7 +2760,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		                mapView.deleteAnnotation(ROUTE_DESTINATION_ID);
 	            	}
 	                tripNotifyIcon.setVisibility(View.GONE);
-	                passengerIcon.setVisibility((getRouteView.getVisibility() == View.GONE && !restrictedMode) ? View.VISIBLE : View.GONE);
+	                passengerIcon.setVisibility((getRouteView.getVisibility() == View.GONE && !disableShowPassengerMode.get()) ? View.VISIBLE : View.GONE);
 	                refreshReservationList(new ArrayList<Reservation>());
 	                //unlockMenu();
 	            } 
@@ -3307,7 +3307,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 startActivity(intent);
             }
             else {
-            	disableShowPassengerMode.set(false);
+            	//disableShowPassengerMode.set(false);
             }
         }
     }
@@ -4127,10 +4127,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //    	getRouteView.setPadding(padding, 0, padding, 0);
     	setGetRouteButtonState(!serviceArea.get() && !notifyOutOfService.get());
     	getRouteView.setVisibility(enabled?View.VISIBLE:View.GONE);
-    	if(enabled) {
+    	if(enabled || disableShowPassengerMode.get()) {
     		passengerIcon.setVisibility(View.GONE);
     	}
-    	else if(tripNotifyIcon.getVisibility() == View.GONE && !disableShowPassengerMode.get()) {
+    	else if(tripNotifyIcon.getVisibility() == View.GONE) {
     		passengerIcon.setVisibility(View.VISIBLE);
     	}
     }
@@ -5221,8 +5221,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		int visibility = mode? View.GONE:View.VISIBLE;
 		int padding = mode? 5:60;
 		int drawerLock = mode? DrawerLayout.LOCK_MODE_LOCKED_CLOSED:DrawerLayout.LOCK_MODE_UNLOCKED;
+		disableShowPassengerMode.set(mode || disableShowPassengerMode.get());
 		
-		findViewById(R.id.passenger_mode_icon).setVisibility(getRouteView.getVisibility()==View.VISIBLE||mode? View.GONE:View.VISIBLE);
+		findViewById(R.id.passenger_mode_icon).setVisibility(getRouteView.getVisibility()==View.VISIBLE||disableShowPassengerMode.get()? View.GONE:View.VISIBLE);
 		findViewById(R.id.landing_panel).setVisibility(visibility);
 		findViewById(R.id.my_metropia_panel).setVisibility(visibility);
 		((RelativeLayout.LayoutParams)findViewById(R.id.center_map_icon).getLayoutParams()).setMargins(0, 0, Dimension.pxToDp(20, getResources().getDisplayMetrics()), Dimension.pxToDp(padding, getResources().getDisplayMetrics()));
