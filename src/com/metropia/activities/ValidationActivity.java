@@ -1,6 +1,6 @@
 package com.metropia.activities;
 
-import static edu.cmu.pocketsphinx.SpeechRecognizerSetup.defaultSetup;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -192,13 +192,9 @@ import com.skobbler.ngx.routing.SKRouteSettings;
 import com.skobbler.ngx.tracks.SKTracksFile;
 import com.skobbler.ngx.util.SKLogging;
 
-import edu.cmu.pocketsphinx.Assets;
-import edu.cmu.pocketsphinx.Hypothesis;
-import edu.cmu.pocketsphinx.RecognitionListener;
-import edu.cmu.pocketsphinx.SpeechRecognizer;
 
 public class ValidationActivity extends FragmentActivity implements OnInitListener, OnAudioFocusChangeListener, SKMapSurfaceListener,
-		SKRouteListener, RecognitionListener, ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<LocationSettingsResult>, SensorEventListener {
+		SKRouteListener, ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<LocationSettingsResult>, SensorEventListener {
 	public static final int DEFAULT_ZOOM_LEVEL = 18;
 
 	public static final int NAVIGATION_ZOOM_LEVEL = 17;
@@ -599,8 +595,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			sendOnMyWaySms();
 		}
 
-		initRecognizer();
-
 		// init Tracker
 		((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 
@@ -892,61 +886,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		SKRouteManager.getInstance().setRouteListener(this);
 	}
 
-	private static final String EN_ROUTE_NOT_ACCEPT_TEXT_1 = "no";
-	private static final String EN_ROUTE_NOT_ACCEPT_TEXT_2 = "cancel";
-	private static final String EN_ROUTE_ACCEPT_TEXT = "yes";
-
-	private void initRecognizer() {
-		new AsyncTask<Void, Void, Void>() {
-			@Override
-			protected Void doInBackground(Void... params) {
-				try {
-					Assets assets = new Assets(ValidationActivity.this);
-					File assetDir = assets.syncAssets();
-					setupRecognizer(assetDir);
-				} catch (IOException ignore) {
-					Log.d("ValidationActivity", "recognizer init fail!");
-				}
-				return null;
-			}
-
-		}.execute();
-
-		findViewById(R.id.voice_input_debug_msg).setVisibility(DebugOptionsActivity.isEnrouteVoiceInputDebugMsgEnabled(ValidationActivity.this) ? View.VISIBLE : View.GONE);
-	}
-
-	private static final String KWS_SEARCH = "wakeup";
-	private SpeechRecognizer recognizer;
 	private File rawLogDir;
 
-	private void setupRecognizer(File assetsDir) {
-		File modelsDir = new File(assetsDir, "models");
-		rawLogDir = new File(modelsDir, "raws");
-		if (!rawLogDir.exists()) {
-			rawLogDir.mkdir();
-		}
-		recognizer = defaultSetup().setAcousticModel(new File(modelsDir, "hmm/en-us-semi"))
-				.setDictionary(new File(modelsDir, "dict/cmu07a.dic")).setRawLogDir(rawLogDir).setKeywordThreshold(1e-1f)
-				.getRecognizer();
-		recognizer.addListener(this);
-
-		// Create grammar-based searches.
-		File decisionGrammar = new File(modelsDir, "grammar/decisiontwo.gram");
-		recognizer.addKeywordSearch(KWS_SEARCH, decisionGrammar);
-
-		// recognizer.addKeyphraseSearch(KWS_SEARCH, EN_ROUTE_NOT_ACCEPT_TEXT);
-		// recognizer.addKeyphraseSearch(KWS_SEARCH, EN_ROUTE_ACCEPT_TEXT);
-		// File digitsGrammar = new File(modelsDir, "grammar/digits.gram");
-		// recognizer.addGrammarSearch(DIGITS_SEARCH, digitsGrammar);
-		// // Create language model search.
-		// File languageModel = new File(modelsDir, "lm/weather.dmp");
-		// recognizer.addNgramSearch(FORECAST_SEARCH, languageModel);
-	}
-
-	private void switchSearch(String searchName) {
-		recognizer.stop();
-		recognizer.startListening(searchName);
-	}
 
 	private void initViews() {
 
@@ -3307,10 +3248,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					@Override
 					public void run() {
 						countDown.start();
-						if (recognizer != null) {
-							((TextView) findViewById(R.id.voice_input_debug_msg)).setText("");
-							switchSearch(KWS_SEARCH);
-						}
 					}
 				}, 2000);
 
@@ -3359,10 +3296,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				enRoute = null;
 				buttonFollow.setTag(Boolean.valueOf(true));
 				to3DMap();
-				if (recognizer != null) {
-					recognizer.stop();
-					enRouteResultTriggered.set(false);
-				}
 			}
 		});
 	}
@@ -3554,31 +3487,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	private AtomicBoolean enRouteResultTriggered = new AtomicBoolean(false);
 
-	@Override
-	public void onPartialResult(Hypothesis hypothesis) {
-		String text = hypothesis.getHypstr();
-		Log.d("ValidationActivity", "Voice : " + text);
-		if (!enRouteResultTriggered.get()) {
-			((TextView) findViewById(R.id.voice_input_debug_msg)).setText(text);
-		}
-		if (!enRouteResultTriggered.get() && 
-				(StringUtils.startsWithIgnoreCase(text, EN_ROUTE_NOT_ACCEPT_TEXT_1) || StringUtils.startsWithIgnoreCase(text, EN_ROUTE_NOT_ACCEPT_TEXT_2))) {
-			enRouteResultTriggered.set(true);
-			findViewById(R.id.no_button).performClick();
-		} else if (!enRouteResultTriggered.get() && StringUtils.startsWithIgnoreCase(text, EN_ROUTE_ACCEPT_TEXT)) {
-			enRouteResultTriggered.set(true);
-			findViewById(R.id.yes_button).performClick();
-		}
-	}
-
-	@Override
-	public void onResult(Hypothesis hypothesis) {}
-
-	@Override
-	public void onBeginningOfSpeech() {}
-
-	@Override
-	public void onEndOfSpeech() {}
 
 	/*
 	@Override
