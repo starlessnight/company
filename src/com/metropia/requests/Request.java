@@ -154,17 +154,21 @@ public abstract class Request {
 	}
 	
 	protected String executeHttpRequest(Method method, String url, Context ctx) throws IOException, InterruptedException {
-	    return executeHttpRequest(method, url, (Object) null, ctx);
+	    return executeHttpRequest(method, url, (Object) null, false, ctx);
 	}
 	
 	protected String executeHttpRequest(Method method, String url, 
             Map<String, String> params, Context ctx) throws IOException, InterruptedException {
-	    return executeHttpRequest(method, url, (Object) params, ctx);
+	    return executeHttpRequest(method, url, (Object) params, false, ctx);
     }
 	
 	protected String executeHttpRequest(Method method, String url, 
             JSONObject json, Context ctx) throws IOException, InterruptedException {
-        return executeHttpRequest(method, url, (Object) json, ctx);
+        return executeHttpRequest(method, url, (Object) json, false, ctx);
+    }
+	
+	protected String executeHttpRequest(Method method, String url, JSONObject json, boolean compress, Context ctx) throws IOException, InterruptedException {
+        return executeHttpRequest(method, url, (Object) json, compress, ctx);
     }
 	
 	public static final int fifteenSecsTimeout = 15 * 1000;
@@ -172,7 +176,7 @@ public abstract class Request {
 	protected int timeout = HTTP.defaultTimeout;
 	
 	private String executeHttpRequest(Method method, String url, 
-	        Object params, final Context ctx) throws IOException {
+	        Object params, boolean compress, final Context ctx) throws IOException {
 	    Log.d(LOG_TAG, "executeHttpRequest(): method=" + method + ", url="+url 
             + ", params=" + params);
         String responseBody = null;
@@ -187,7 +191,7 @@ public abstract class Request {
             if(params instanceof Map){
                 http.setFormData((Map)params);
             }else if(params instanceof JSONObject){
-                http.set((JSONObject)params);
+                http.set((JSONObject)params, compress);
             }
             http.connect();
             

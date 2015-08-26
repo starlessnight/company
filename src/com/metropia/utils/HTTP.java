@@ -1,5 +1,6 @@
 package com.metropia.utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +15,7 @@ import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.zip.GZIPOutputStream;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -57,6 +59,8 @@ public final class HTTP {
 	
 	private JSONObject json;
 	
+	private byte[] jsonCompressed;
+	
 	private String ifNoneMatch;
 	
 	private int timeout = defaultTimeout;
@@ -83,8 +87,19 @@ public final class HTTP {
 	    return this;
 	}
 	
-	public HTTP set(JSONObject json){
-	    this.json = json;
+	public HTTP set(JSONObject json, boolean compress){
+		if (!compress) this.json = json;
+		else {
+			String jsonString = json.toString();
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			
+		    try {
+		    	GZIPOutputStream gzos = new GZIPOutputStream(baos);
+			    gzos.write(jsonString.getBytes("UTF-8"));
+			    gzos.close();
+			} catch (IOException e) {}
+		    jsonCompressed = baos.toByteArray();
+		}
 	    return this;
 	}
 	
@@ -117,12 +132,17 @@ public final class HTTP {
 			    httpConn.setUseCaches (false);
 			}
 			boolean hasJSON = json != null;
-			if(hasJSON || formData != null && !formData.isEmpty()){
-			    String content;
+			if(hasJSON || jsonCompressed!=null || formData != null && !formData.isEmpty()){
+			    String content = null;
 			    String contentType;
 			    if(hasJSON){
 			        contentType = "application/json";
 			        content = json.toString();
+			    }
+			    else if (jsonCompressed!=null) {
+			    	contentType = "application/json";
+			    	httpConn.addRequestProperty("Accept-Encoding", "gzip");
+			    	
 			    }else{
 			        contentType = "application/x-www-form-urlencoded";
 			        content = "";
@@ -138,7 +158,10 @@ public final class HTTP {
                 DataOutputStream output = null;
                 try{
                     output = new DataOutputStream(httpConn.getOutputStream());
-                    output.writeBytes(content);
+                    if (content!=null) output.writeBytes(content);
+                    else {
+                    	output.write(jsonCompressed);
+                    }
                     output.flush();
                 }finally{
                     IOUtils.closeQuietly(output);

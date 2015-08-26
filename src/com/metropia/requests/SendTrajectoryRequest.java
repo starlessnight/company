@@ -18,6 +18,7 @@ import org.json.JSONObject;
 
 import android.content.Context;
 
+import com.metropia.activities.DebugOptionsActivity;
 import com.metropia.exceptions.SmarTrekException;
 import com.metropia.models.Trajectory;
 import com.metropia.models.User;
@@ -46,10 +47,11 @@ public class SendTrajectoryRequest extends Request {
         params.put("trajectory", trajectory.toJSON());
         this.username = user.getUsername();
         this.password = user.getPassword();
-        String link = Request.getLinkUrl(Link.trajectory)
-            .replaceAll("\\{reservation_id\\}", String.valueOf(rid));
+        String link = Request.getLinkUrl(Link.trajectory).replaceAll("\\{reservation_id\\}", String.valueOf(rid));
         try{
-            executeHttpRequest(Method.POST, link, params, ctx);
+        	String entryPoint = DebugOptionsActivity.getDebugEntrypoint(ctx);
+        	boolean compress = entryPoint.contains("dev4_v1");
+            String str = executeHttpRequest(Method.POST, link, params, compress, ctx);
         }catch(Exception e){
             if(responseCode >= 400 && responseCode <= 499){
                 throw new SmarTrekException(responseCode);
