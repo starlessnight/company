@@ -1667,11 +1667,11 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				}
 				SKPolyline routeLine = new SKPolyline();
 				routeLine.setNodes(routeCoors); 
-				routeLine.setColor(new float[] {0f, 0.6f, 0.8f, 0.5f}); //RGBA 
+				routeLine.setColor(new float[] {0f/255, 129f/255, 255f/255, 1f}); //RGBA 
 				routeLine.setLineSize(10);
 				  
 				//outline properties, otherwise map crash
-				routeLine.setOutlineColor(new float[] { 0f, 0.6f, 0.8f, 0.5f });
+				routeLine.setOutlineColor(new float[] {0f/255, 129f/255, 255f/255, 1f});
 				routeLine.setOutlineSize(10);
 				routeLine.setOutlineDottedPixelsSolid(0);
 				routeLine.setOutlineDottedPixelsSkip(0); //
