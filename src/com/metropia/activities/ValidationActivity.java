@@ -617,8 +617,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL) {
 			if (isBetterLocation(location, lastLocation)) {
 				locationRefreshed.set(true);
-				lastLocation = location;
 				locationChanged(location);
+				lastLocation = location;
 				
 				final Location _loc = location;
 				Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
@@ -1905,9 +1905,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	private static final double intersectZoomDistanceLimit = 1320; // feet
 
-	private AtomicInteger routeOfRouteCnt = new AtomicInteger();
+	private float routeOfRouteCnt = 0;
 	
-	private AtomicInteger routeOfOriginRouteCnt = new AtomicInteger(0);
+	private float routeOfOriginRouteCnt = 0;
 
 	private String lastRerutingApiCallStatus = "none";
 
@@ -1934,7 +1934,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					@Override
 					protected void onPostExecute(Route result) {
 						navigationView.setRerouting(false);
-						routeOfRouteCnt.set(0);
 						if (result != null) {
 							passedNodeTimeOffset.addAndGet(passedTime);
 							reroute = result;
@@ -1943,7 +1942,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 							updateDirectionsList();
 							if(!inRouteTag.get()) {
 								originRerouteLinksInited.set(false);
-								routeOfOriginRouteCnt.set(0);
+								routeOfOriginRouteCnt = 0;
 								initOriginRerouteLink(lat, lon, result);
 							}
 							drawRoute(mapView, reroute);
@@ -2266,33 +2265,46 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			List<RouteLink> rerouteNearbyLinks = getRouteOrReroute().getNearbyLinks(lat, lng, distanceOutOfRouteThreshold + accuracy);
 			List<RouteLink> rerouteSameDirLinks = getRouteOrReroute().getSameDirectionLinks(rerouteNearbyLinks, speedInMph, bearing);
 			
+			
+			float coe = (Float) DebugOptionsActivity.getDebugValue(this, DebugOptionsActivity.REROUTE_THRESHOLD_COE, 0.05f);
+			int max = (Integer) DebugOptionsActivity.getDebugValue(this, DebugOptionsActivity.REROUTE_THRESHOLD_MAX, 5);
+			int min = (Integer) DebugOptionsActivity.getDebugValue(this, DebugOptionsActivity.REROUTE_THRESHOLD_MIN, 2);
+			
+			countOutOfRouteThreshold = (int) Math.min(max, Math.max(min, coe*accuracy));
+			long interval = location.getTime() - lastLocation.getTime();
+			
+			Log.e(countOutOfRouteThreshold+"", coe+", "+max+", "+min);
 			inRouteTag.set(inRouteTag.get() || (speedInMph > speedOutOfRouteThreshold && !Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)));
 			
 			if(!inRouteTag.get()) {
 				if(isLeavingOriginLinks(lat, lng)) {
-					if(routeOfOriginRouteCnt.incrementAndGet() == countOutOfRouteThreshold) {
+					routeOfOriginRouteCnt += interval;
+					if(routeOfOriginRouteCnt == countOutOfRouteThreshold) {
 						reroute(lat, lng, speedInMph, bearing, passedNodeTime);
+						routeOfOriginRouteCnt = 0;
 					}
 				}
 				else {
-					routeOfOriginRouteCnt.set(0);
+					routeOfOriginRouteCnt = Math.max(0, routeOfOriginRouteCnt-interval);
 				}
 			}
 			else {
 				if (!Route.isPending(rerouteNearbyLinks, rerouteSameDirLinks)) {
 					if (!isDisableReroute(lat, lng) && Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)	&& speedInMph > speedOutOfRouteThreshold) {
-						if (routeOfRouteCnt.incrementAndGet() == countOutOfRouteThreshold) {
+						routeOfRouteCnt += interval;
+						if (routeOfRouteCnt == countOutOfRouteThreshold) {
 							reroute(lat, lng, speedInMph, bearing, passedNodeTime);
+							routeOfRouteCnt = 0;
 						}
 					} else {
-						routeOfRouteCnt.set(0);
+						routeOfRouteCnt = Math.max(0, routeOfRouteCnt-interval);
 					}
 	
 					if (rerouteSameDirLinks.size() > 0) {
 						final RouteLink rerouteNearestLink = Route.getClosestLink(rerouteSameDirLinks, lat, lng);
+						boolean showDebugMsg =  DebugOptionsActivity.isReroutingDebugMsgEnabled(this) || DebugOptionsActivity.isVoiceDebugMsgEnabled(this) || DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(this);
 	
-						if (DebugOptionsActivity.isReroutingDebugMsgEnabled(this)
-								|| DebugOptionsActivity.isVoiceDebugMsgEnabled(this) || DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(this)) {
+						if (showDebugMsg) {
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
@@ -2304,8 +2316,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 												+ ", speed: "
 												+ Double.valueOf(speedInMph).intValue()
 												+ " mph"
-												+ "\nconsecutive out of route count: "
-												+ routeOfRouteCnt.get()
+												+ "\nconsecutive out of route tally: "
+												+ routeOfRouteCnt
 												+ "\nlast API call status: "
 												+ lastRerutingApiCallStatus;
 									}
@@ -2788,8 +2800,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	 *            The current Location fix, to which you want to compare the new
 	 *            one
 	 */
-	public static boolean isBetterLocation(Location location,
-			Location currentBestLocation) {
+	public static boolean isBetterLocation(Location location, Location currentBestLocation) {
 		if (currentBestLocation == null) {
 			// A new location is always better than no location
 			return true;

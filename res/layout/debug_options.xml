@@ -287,40 +287,80 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="10dp"
             android:gravity="center_horizontal"
-            android:orientation="horizontal" >
-
+            android:orientation="vertical" >
+            
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Rerouting notification sound:"
-                android:textColor="#FFFFFFFF"
-                android:textSize="18dp" />
+            	android:layout_width="match_parent"
+            	android:layout_height="wrap_content"
+            	android:gravity="center"
+            	android:text="Reroute"
+            	android:textSize="20dp" />
+            
+            <LinearLayout
+            	android:layout_width="match_parent"
+            	android:layout_height="wrap_content"
+            	android:orientation="horizontal">
+            	
+                <TextView
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:layout_weight="1"
+                	android:text="coe:" />
+                <EditText
+                	android:id="@+id/reroute_threshod_coe"
+                	android:layout_width="0dp"
+                	android:layout_height="wrap_content"
+                	android:layout_weight="2"
+            		android:gravity="center" />
+                
+                <TextView
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:layout_weight="1"
+                	android:text="max:" />
+                <EditText
+                	android:id="@+id/reroute_threshod_max"
+                	android:layout_width="0dp"
+                	android:layout_height="wrap_content"
+                	android:layout_weight="2"
+            		android:gravity="center" />
+                
+                <TextView
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:layout_weight="1"
+                	android:text="min:" />
+                <EditText
+                	android:id="@+id/reroute_threshod_min"
+                	android:layout_width="0dp"
+                	android:layout_height="wrap_content"
+                	android:layout_weight="2"
+            		android:gravity="center" />
+                
+            </LinearLayout>
+
 
             <CheckBox
                 android:id="@+id/rerouting_notification_sound"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Rerouting log:"
-                android:textColor="#FFFFFFFF"
-                android:textSize="18dp" />
-
+                android:text="Rerouting notification sound:"
+                android:button="@null"
+				android:drawableRight="?android:attr/listChoiceIndicatorMultiple" />
+            
             <CheckBox
                 android:id="@+id/rerouting_debug_msg"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:text="Rerouting log:"
+                android:button="@null"
+				android:drawableRight="?android:attr/listChoiceIndicatorMultiple" />
+            
+            
         </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"

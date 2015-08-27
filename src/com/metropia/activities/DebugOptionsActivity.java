@@ -155,6 +155,11 @@ public final class DebugOptionsActivity extends FragmentActivity {
     private Button buttonClearCache;
     private Button buttonCrash;
     
+    
+    EditText rerouteThresholdCoe;
+    EditText rerouteThresholdMax;
+    EditText rerouteThresholdMin;
+    
     private AsyncTask<Void, Void, Result> initApiLinksTask;
     
     @Override
@@ -436,6 +441,16 @@ public final class DebugOptionsActivity extends FragmentActivity {
 			public void onStopTrackingTouch(SeekBar seekBar) {}
         });
         seekBarTrajectorySendingInterval.setProgress((Integer) getDebugValue(this, TRAJECTORY_SENDING_INTERVAL, 4));
+        
+        rerouteThresholdCoe = (EditText) findViewById(R.id.reroute_threshod_coe);
+        rerouteThresholdMax = (EditText) findViewById(R.id.reroute_threshod_max);
+        rerouteThresholdMin = (EditText) findViewById(R.id.reroute_threshod_min);
+        
+        rerouteThresholdCoe.setText(getDebugValue(this, REROUTE_THRESHOLD_COE, 0.05f).toString());
+        rerouteThresholdMax.setText(getDebugValue(this, REROUTE_THRESHOLD_MAX, 5).toString());
+        rerouteThresholdMin.setText(getDebugValue(this, REROUTE_THRESHOLD_MIN, 2).toString());
+        
+        
         
         
         CheckBox arrivalLogicLog = (CheckBox) findViewById(R.id.arrival_logic_log);
@@ -1633,10 +1648,15 @@ public final class DebugOptionsActivity extends FragmentActivity {
     
     public static final String TRAJECTORY_SENDING_INTERVAL = "TRAJECTORY_SENDING_INTERVAL";
     
+    public static final String REROUTE_THRESHOLD_COE = "REROUTE_THRESHOLD_COE";
+    public static final String REROUTE_THRESHOLD_MAX = "REROUTE_THRESHOLD_MAX";
+    public static final String REROUTE_THRESHOLD_MIN = "REROUTE_THRESHOLD_MIN";
+    
     public static Object getDebugValue(Context ctx, String key, Object defaultValue) {
     	Object value = defaultValue;
     	try {
     		if (defaultValue instanceof Integer) value = getPrefs(ctx).getInt(key, (Integer) defaultValue);
+    		else if (defaultValue instanceof Float) value = getPrefs(ctx).getFloat(key, (Float) defaultValue);
     		else if (defaultValue instanceof String) value = getPrefs(ctx).getString(key, (String) defaultValue);
     	}
     	catch(Exception ignore){}
@@ -1648,8 +1668,8 @@ public final class DebugOptionsActivity extends FragmentActivity {
     		SharedPreferences.Editor editer = getPrefs(ctx).edit();
     		
     		if (value instanceof Integer) editer.putInt(key, (Integer) value).commit();
+    		else if (value instanceof Float) editer.putFloat(key, (Float) value).commit();
     		else if (value instanceof String) editer.putString(key, (String) value).commit();
-    			
     	}
     	catch(Exception ignore){}
     }
@@ -1662,6 +1682,10 @@ public final class DebugOptionsActivity extends FragmentActivity {
 	public void onStop() {
 		super.onStop();
 		SendTrajectoryService.schedule(this);
+		
+		setDebugValue(this, REROUTE_THRESHOLD_COE, Float.parseFloat(rerouteThresholdCoe.getText().toString()));
+		setDebugValue(this, REROUTE_THRESHOLD_MAX, Integer.parseInt(rerouteThresholdMax.getText().toString()));
+		setDebugValue(this, REROUTE_THRESHOLD_MIN, Integer.parseInt(rerouteThresholdMin.getText().toString()));
 	}
     
 }
