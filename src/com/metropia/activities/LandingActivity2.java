@@ -317,7 +317,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private AtomicBoolean needTagAustinLaunch = new AtomicBoolean(true);
     private AtomicBoolean cancelGetRoute = new AtomicBoolean(false);
     
-    public static final Long TEXT_INPUT_DELAY = Long.valueOf(2000);
+    public static final Long TEXT_INPUT_DELAY = Long.valueOf(1000);
     
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
