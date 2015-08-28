@@ -1895,7 +1895,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	}
 
 	// init at onCreate()
-	private int countOutOfRouteThreshold = 2;
+	private double countOutOfRouteThreshold = 2;
 
 	private double distanceOutOfRouteThreshold = 40; // meter
 
@@ -1910,6 +1910,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private float routeOfOriginRouteCnt = 0;
 
 	private String lastRerutingApiCallStatus = "none";
+	
+	private RouteLink lastRerouteNearestLink;
 
 	private void reroute(final double lat, final double lon,
 			final double speedInMph, final float bearing, final long passedTime) {
@@ -2270,16 +2272,15 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			int max = (Integer) DebugOptionsActivity.getDebugValue(this, DebugOptionsActivity.REROUTE_THRESHOLD_MAX, 5);
 			int min = (Integer) DebugOptionsActivity.getDebugValue(this, DebugOptionsActivity.REROUTE_THRESHOLD_MIN, 2);
 			
-			countOutOfRouteThreshold = (int) Math.min(max, Math.max(min, coe*accuracy));
+			countOutOfRouteThreshold = Math.min(max, Math.max(min, coe*NavigationView.metersToFeet(accuracy)));
 			long interval = location.getTime() - lastLocation.getTime();
 			
-			Log.e(countOutOfRouteThreshold+"", coe+", "+max+", "+min);
 			inRouteTag.set(inRouteTag.get() || (speedInMph > speedOutOfRouteThreshold && !Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)));
 			
 			if(!inRouteTag.get()) {
 				if(isLeavingOriginLinks(lat, lng)) {
-					routeOfOriginRouteCnt += interval;
-					if(routeOfOriginRouteCnt == countOutOfRouteThreshold) {
+					routeOfOriginRouteCnt += interval/1000;
+					if(routeOfOriginRouteCnt >= countOutOfRouteThreshold) {
 						reroute(lat, lng, speedInMph, bearing, passedNodeTime);
 						routeOfOriginRouteCnt = 0;
 					}
@@ -2291,8 +2292,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			else {
 				if (!Route.isPending(rerouteNearbyLinks, rerouteSameDirLinks)) {
 					if (!isDisableReroute(lat, lng) && Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)	&& speedInMph > speedOutOfRouteThreshold) {
-						routeOfRouteCnt += interval;
-						if (routeOfRouteCnt == countOutOfRouteThreshold) {
+						routeOfRouteCnt += interval/1000;
+						if (routeOfRouteCnt >= countOutOfRouteThreshold) {
 							reroute(lat, lng, speedInMph, bearing, passedNodeTime);
 							routeOfRouteCnt = 0;
 						}
@@ -2300,29 +2301,29 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						routeOfRouteCnt = Math.max(0, routeOfRouteCnt-interval);
 					}
 	
-					if (rerouteSameDirLinks.size() > 0) {
-						final RouteLink rerouteNearestLink = Route.getClosestLink(rerouteSameDirLinks, lat, lng);
+					//if (rerouteSameDirLinks.size() > 0) {
+						RouteLink rerouteNearestLink = Route.getClosestLink(rerouteSameDirLinks, lat, lng);
+						lastRerouteNearestLink = rerouteNearestLink!=null? rerouteNearestLink:lastRerouteNearestLink;
 						boolean showDebugMsg =  DebugOptionsActivity.isReroutingDebugMsgEnabled(this) || DebugOptionsActivity.isVoiceDebugMsgEnabled(this) || DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(this);
 	
-						if (showDebugMsg) {
+						if (showDebugMsg && lastRerouteNearestLink!=null) {
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
 									String msg = "";
 									if (DebugOptionsActivity.isReroutingDebugMsgEnabled(ValidationActivity.this)) {
 										msg += "distance from route: "
-												+ Double.valueOf(NavigationView.metersToFeet(rerouteNearestLink.distanceTo(lat,	lng))) .intValue()
+												+ Double.valueOf(NavigationView.metersToFeet(lastRerouteNearestLink.distanceTo(lat,	lng))) .intValue()
 												+ " ft"
 												+ ", speed: "
 												+ Double.valueOf(speedInMph).intValue()
 												+ " mph"
-												+ "\nconsecutive out of route tally: "
-												+ routeOfRouteCnt
-												+ "\nlast API call status: "
-												+ lastRerutingApiCallStatus;
+												+ "\nconsecutive out of route tally: " + (!inRouteTag.get()? routeOfOriginRouteCnt:routeOfRouteCnt)
+												+ "\naccuracy:"+ (int)NavigationView.metersToFeet(accuracy) +"ft, threshold:" + countOutOfRouteThreshold
+												+ "\nlast API call status: " + lastRerutingApiCallStatus;
 									}
 									if (DebugOptionsActivity.isVoiceDebugMsgEnabled(ValidationActivity.this)) {
-										RouteNode endNodeForLink = rerouteNearestLink.getEndNode();
+										RouteNode endNodeForLink = lastRerouteNearestLink.getEndNode();
 										RouteNode endNode = endNodeForLink;
 										while (StringUtils.isBlank(endNode.getVoice()) && endNode.getNextNode() != null) {
 											endNode = endNode.getNextNode();
@@ -2351,8 +2352,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 								}
 							});
 						}
-						linkId = rerouteNearestLink.getStartNode().getLinkId();
-					}
+						linkId = lastRerouteNearestLink.getStartNode().getLinkId();
+					//}
 				}
 			}
 
