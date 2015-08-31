@@ -77,7 +77,9 @@ public class LocationLibrary {
             final Intent passiveIntent = new Intent(context, PassiveLocationChangedReceiver.class);
             final PendingIntent locationListenerPassivePendingIntent = PendingIntent.getBroadcast(context, 0, passiveIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, locationListenerPassivePendingIntent);
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListenerPassivePendingIntent);
+            try {
+            	locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListenerPassivePendingIntent);
+            } catch(Exception e) {}
         }
 
         if (showDebugOutput) Log.d(LocationLibraryConstants.TAG, TAG + ": startAlarmAndListener completed");

@@ -2617,10 +2617,13 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             
             if (gps_location_provided && network_location_provided) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 5, systemLocationListener);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, systemLocationListener);
+            }
+            else if (network_location_provided) {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, systemLocationListener);
             }else{
                 SystemService.alertNoGPS(this, true);
             }
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, systemLocationListener);
     	}
     }
     

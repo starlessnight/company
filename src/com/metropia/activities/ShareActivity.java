@@ -242,7 +242,7 @@ public final class ShareActivity extends FragmentActivity {
 	private void publishFB() {
 		Bundle parameters = new Bundle();
 		parameters.putString("link", "https://dl.dropboxusercontent.com/u/22414157/appLink.html");
-		parameters.putString("message", shareText);
+		//parameters.putString("message", shareText);
 		
 		GraphRequest request = GraphRequest.newPostRequest(AccessToken.getCurrentAccessToken(), "me/feed", new JSONObject(), new GraphRequest.Callback() {
 			public void onCompleted(GraphResponse response) {

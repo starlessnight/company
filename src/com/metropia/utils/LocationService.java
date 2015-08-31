@@ -171,10 +171,13 @@ public abstract class LocationService implements ConnectionCallbacks, OnConnecti
             boolean network_location_provided = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
             if (gps_location_provided && network_location_provided) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 2, this);
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+            }
+            else if (network_location_provided) {
+            	locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
             }else{
                 SystemService.alertNoGPS(context, true);
             }
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
     	}
 	}
 	
