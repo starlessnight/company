@@ -1666,12 +1666,14 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					routeCoors.add(new SKCoordinate(node.getLongitude(), node.getLatitude())); 
 				}
 				SKPolyline routeLine = new SKPolyline();
-				routeLine.setNodes(routeCoors); 
-				routeLine.setColor(new float[] {0f/255, 129f/255, 255f/255, 1f}); //RGBA 
+				routeLine.setNodes(routeCoors);
+				if (dayMode.get()) routeLine.setColor(new float[] {74f/255, 170f/255, 255f/255, 1f}); //RGBA
+				else routeLine.setColor(new float[] {0f/255, 129f/255, 255f/255, 1f});
 				routeLine.setLineSize(10);
 				  
 				//outline properties, otherwise map crash
-				routeLine.setOutlineColor(new float[] {0f/255, 129f/255, 255f/255, 1f});
+				if (dayMode.get()) routeLine.setOutlineColor(new float[] {74f/255, 170f/255, 255f/255, 1f}); //RGBA
+				else routeLine.setOutlineColor(new float[] {0f/255, 129f/255, 255f/255, 1f});
 				routeLine.setOutlineSize(10);
 				routeLine.setOutlineDottedPixelsSolid(0);
 				routeLine.setOutlineDottedPixelsSkip(0); //
