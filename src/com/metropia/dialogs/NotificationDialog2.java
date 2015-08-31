@@ -2,8 +2,10 @@ package com.metropia.dialogs;
 
 import org.apache.commons.lang3.StringUtils;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -44,6 +46,7 @@ public class NotificationDialog2 extends Dialog {
 	
 	private String detailMessage;
 	private boolean postiveClickDismiss = true;
+	AlertDialog dialog;
 
 	public NotificationDialog2(Context context, CharSequence message) {
 		super(context, R.style.PopUpDialog);
@@ -171,8 +174,7 @@ public class NotificationDialog2 extends Dialog {
 		this.buttonText = buttonText;
 	}
 
-	public void setReportProblemActionListener(
-			ActionListener reportProblemActionListener) {
+	public void setReportProblemActionListener(ActionListener reportProblemActionListener) {
 		this.reportProblemActionListener = reportProblemActionListener;
 	}
 	
@@ -211,6 +213,26 @@ public class NotificationDialog2 extends Dialog {
 
 	public void setPostiveClickDismiss(boolean postiveClickDismiss) {
 		this.postiveClickDismiss = postiveClickDismiss;
+	}
+	
+	@Override
+	public void show() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext()).setTitle(title).setMessage(message);
+		
+		builder.setPositiveButton(buttonText, new OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				if (positiveActionListener!=null) positiveActionListener.onClick();
+				if (postiveClickDismiss) dialog.dismiss();
+			}
+		});
+		
+		if (negativeActionListener!=null)
+		builder.setNegativeButton(negativeButtonText, new OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {negativeActionListener.onClick();}
+		});
+		
+		dialog = builder.create();
+		dialog.show();
 	}
 
 }
