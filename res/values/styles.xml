@@ -190,7 +190,8 @@
 		<item name="android:gravity">left</item>
 		<item name="android:includeFontPadding">false</item>
 	</style>
-	<style name="PopUpDialog">
+	<style name="pupUpDialogButton" parent="@style/Widget.Sherlock.Light.ActionButton"/>
+	<style name="PopUpDialog" parent="@style/Theme.Sherlock.Light.Dialog">
 	    <item name="android:windowBackground">@android:color/transparent</item>
 	    <item name="android:colorBackgroundCacheHint">@null</item>
 	    <item name="android:windowIsTranslucent">true</item>

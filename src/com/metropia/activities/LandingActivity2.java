@@ -72,6 +72,7 @@ import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -1478,7 +1479,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         boolean showTutorial = showTutorialIfNessary();
         
         if(!showTutorial) {
-        	preparingDialog = new ProgressDialog(LandingActivity2.this);
+        	preparingDialog = new ProgressDialog(LandingActivity2.this, R.style.PopUpDialog);
         	preparingDialog.setTitle("Metropia");
         	preparingDialog.setMessage("Preparing...");
         	preparingDialog.setCanceledOnTouchOutside(false);
@@ -4700,12 +4701,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     private void confirmExit() {
-    	new AlertDialog.Builder(LandingActivity2.this).setCancelable(false).setTitle("Really quit?")
+    	new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.PopUpDialog)).setCancelable(false).setTitle("Really quit?")
     			.setMessage("Do you really want to exit the app?").setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
 			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// do nothing
-			}
+			public void onClick(DialogInterface dialog, int which) {}
     	}).setNegativeButton("Yes", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {

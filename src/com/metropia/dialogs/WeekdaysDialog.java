@@ -26,7 +26,7 @@ public class WeekdaysDialog extends AlertDialog {
 	private byte weekdays;
 	
 	public WeekdaysDialog(Context context, byte weekdays) {
-		super(context);
+		super(context, R.style.PopUpDialog);
 		this.weekdays = weekdays;
 	}
 	

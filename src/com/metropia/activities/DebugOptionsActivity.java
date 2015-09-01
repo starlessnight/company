@@ -301,7 +301,7 @@ public final class DebugOptionsActivity extends FragmentActivity {
                     ProgressDialog dialog;
                     
                     protected void onPreExecute() {
-                        dialog = new ProgressDialog(DebugOptionsActivity.this);
+                        dialog = new ProgressDialog(DebugOptionsActivity.this, R.style.PopUpDialog);
                         dialog.setMessage("Clearing cache...");
                         dialog.setIndeterminate(true);
                         dialog.setCancelable(false);

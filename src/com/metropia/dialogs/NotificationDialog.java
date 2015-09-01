@@ -20,7 +20,7 @@ public class NotificationDialog extends AlertDialog {
 	private CharSequence message;
 
 	public NotificationDialog(Context context, CharSequence message) {
-		super(context);
+		super(context, R.style.PopUpDialog);
 		setCancelable(false);
 		setCanceledOnTouchOutside(false);
 		this.message = message;

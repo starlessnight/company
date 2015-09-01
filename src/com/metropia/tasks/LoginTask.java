@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
+import com.metropia.activities.R;
 import com.metropia.models.User;
 import com.metropia.requests.UserLoginRequest;
 import com.metropia.utils.ExceptionHandlingService;
@@ -34,7 +35,7 @@ public abstract class LoginTask extends AsyncTask<String, Object, User> {
 		this.ctx = ctx;
 		ehs = new ExceptionHandlingService(ctx);
 		
-		dialog = new ProgressDialog(ctx);
+		dialog = new ProgressDialog(ctx, R.style.PopUpDialog);
         dialog.setTitle("Metropia");
         dialog.setMessage(String.format("Logging in as '%s'...", username));
         dialog.setCanceledOnTouchOutside(false);

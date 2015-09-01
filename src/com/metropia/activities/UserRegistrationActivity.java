@@ -319,7 +319,7 @@ public final class UserRegistrationActivity extends FragmentActivity
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            dialog = new ProgressDialog(ctx);
+            dialog = new ProgressDialog(ctx, R.style.PopUpDialog);
             dialog.setTitle("Metropia");
             dialog.setMessage("Signing up ...");
             dialog.setCanceledOnTouchOutside(false);

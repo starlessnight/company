@@ -19,7 +19,7 @@ public class CancelableProgressDialog extends ProgressDialog {
 	private ActionListener actionListener;
 
 	public CancelableProgressDialog(Context context, String message) {
-		super(context);
+		super(context, R.style.PopUpDialog);
 		setMessage(message);
 		setCanceledOnTouchOutside(false);
 		setCancelable(false);

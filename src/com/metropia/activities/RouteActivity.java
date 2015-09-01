@@ -425,7 +425,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         /* Set the map view for a view of North America before zooming in on route */
 //        setViewToNorthAmerica(mapView);
         
-        dialog = new ProgressDialog(RouteActivity.this) {
+        dialog = new ProgressDialog(RouteActivity.this, R.style.PopUpDialog) {
             @Override
             public void onBackPressed() {
                 RouteActivity.this.onBackPressed();
