@@ -741,7 +741,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		outState.putInt(POLL_CNT, fakeLocationService == null ? 0 : fakeLocationService.pollCnt);
 		GeoPoint geoPoint = null;
 		RouteNode firstNode = route.getFirstNode();
-		SKPosition currentPosition = mapView.getCurrentGPSPosition(true);
+		
+		SKPosition currentPosition = null;
+		if (mapView!=null) currentPosition = mapView.getCurrentGPSPosition(true);
 		if (currentPosition != null) {
 			geoPoint = new GeoPoint(currentPosition.getLatitude(), currentPosition.getLongitude());
 		} else if (firstNode != null) {
