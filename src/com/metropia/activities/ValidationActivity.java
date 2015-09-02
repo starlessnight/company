@@ -2290,7 +2290,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					}
 				}
 				else {
-					routeOfOriginRouteCnt = Math.max(0, routeOfOriginRouteCnt-interval);
+					routeOfOriginRouteCnt = Math.max(0, routeOfOriginRouteCnt-interval/1000);
 				}
 			}
 			else {
@@ -2302,7 +2302,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 							routeOfRouteCnt = 0;
 						}
 					} else {
-						routeOfRouteCnt = Math.max(0, routeOfRouteCnt-interval);
+						routeOfRouteCnt = Math.max(0, routeOfRouteCnt-interval/1000);
 					}
 	
 					//if (rerouteSameDirLinks.size() > 0) {
@@ -2311,52 +2311,35 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						boolean showDebugMsg =  DebugOptionsActivity.isReroutingDebugMsgEnabled(this) || DebugOptionsActivity.isVoiceDebugMsgEnabled(this) || DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(this);
 	
 						if (showDebugMsg && lastRerouteNearestLink!=null) {
+							
+							String msg = "";
+							if (DebugOptionsActivity.isReroutingDebugMsgEnabled(ValidationActivity.this)) {
+								msg += "distance from route: "
+									+ Double.valueOf(NavigationView.metersToFeet(lastRerouteNearestLink.distanceTo(lat,	lng))) .intValue()
+									+ " ft"
+									+ ", speed: "
+									+ Double.valueOf(speedInMph).intValue()
+									+ " mph"
+									+ "\nconsecutive out of route tally: " + (!inRouteTag.get()? routeOfOriginRouteCnt:routeOfRouteCnt)
+									+ "\naccuracy:"+ (int)NavigationView.metersToFeet(accuracy) +"ft, threshold:" + countOutOfRouteThreshold
+									+ "\nlast API call status: " + lastRerutingApiCallStatus;
+							}
+							if (DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(ValidationActivity.this)) {
+								msg += (StringUtils.isBlank("") ? "" : "\n");
+								msg += "gps accuracy: " + accuracy + " meters";
+							}
+							
+							final String message = msg;
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									String msg = "";
-									if (DebugOptionsActivity.isReroutingDebugMsgEnabled(ValidationActivity.this)) {
-										msg += "distance from route: "
-												+ Double.valueOf(NavigationView.metersToFeet(lastRerouteNearestLink.distanceTo(lat,	lng))) .intValue()
-												+ " ft"
-												+ ", speed: "
-												+ Double.valueOf(speedInMph).intValue()
-												+ " mph"
-												+ "\nconsecutive out of route tally: " + (!inRouteTag.get()? routeOfOriginRouteCnt:routeOfRouteCnt)
-												+ "\naccuracy:"+ (int)NavigationView.metersToFeet(accuracy) +"ft, threshold:" + countOutOfRouteThreshold
-												+ "\nlast API call status: " + lastRerutingApiCallStatus;
-									}
-									if (DebugOptionsActivity.isVoiceDebugMsgEnabled(ValidationActivity.this)) {
-										RouteNode endNodeForLink = lastRerouteNearestLink.getEndNode();
-										RouteNode endNode = endNodeForLink;
-										while (StringUtils.isBlank(endNode.getVoice()) && endNode.getNextNode() != null) {
-											endNode = endNode.getNextNode();
-										}
-										msg += (StringUtils.isBlank("") ? "" : "\n")
-												+ "node: "
-												+ endNode.getNodeNum()
-												+ ", voice radius: "
-												+ Double.valueOf(endNode.getVoiceRadius()).intValue()
-												+ " ft"
-												+ "\ndistance from node: "
-												+ Double.valueOf(NavigationView.metersToFeet(endNode.distanceTo(lat, lng))).intValue()
-												+ " ft"
-												+ "\nvoice:"
-												+ endNode.getVoice()
-												+ "\nvoice for link (nearest node): "
-												+ endNodeForLink.getVoiceForLink();
-									}
-									if (DebugOptionsActivity.isGpsAccuracyDebugMsgEnabled(ValidationActivity.this)) {
-										msg += (StringUtils.isBlank("") ? "" : "\n")
-												+ "gps accuracy: "
-												+ accuracy
-												+ " meters";
-									}
-									((TextView) findViewById(R.id.rerouting_debug_msg)).setText(msg);
+									((TextView) findViewById(R.id.rerouting_debug_msg)).setText(message);
 								}
 							});
 						}
-						linkId = lastRerouteNearestLink.getStartNode().getLinkId();
+						
+						if (rerouteNearestLink!=null)
+						linkId = rerouteNearestLink.getStartNode().getLinkId();
 					//}
 				}
 			}
