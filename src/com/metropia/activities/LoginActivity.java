@@ -167,6 +167,7 @@ public final class LoginActivity extends FragmentActivity implements OnClickList
             @Override
             protected void onPostExecute(City result) {
             	if (result!=null && StringUtils.equals(result.signUp, "http://www.metropia.com/elpasolite")) restrictedMode = true;
+            	if (restrictedMode) LoginActivity.this.findViewById(R.id.fb_login_button).setVisibility(View.INVISIBLE);
                 if (result != null && StringUtils.isNotBlank(result.html)) {
                 	serviceArea.set(false);
                 	registerUrl = result.link;
