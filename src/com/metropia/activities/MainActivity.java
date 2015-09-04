@@ -228,7 +228,7 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 	}
 	
 	public static String getEntrypoint(Context ctx){
-	    String url = "http://sandbox.metropia.com/sandbox_v1/rest/index.json";//DebugOptionsActivity.getDebugEntrypoint(ctx);
+	    String url = "http://sandbox.metropia.com/dev4_v1/rest/index.json";//DebugOptionsActivity.getDebugEntrypoint(ctx);
         if(StringUtils.isBlank(url)){
             url = Request.ENTRYPOINT_URL;
         }

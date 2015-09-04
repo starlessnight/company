@@ -941,7 +941,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //		                int lastLonE6 = mapCenterLon.get();
 //		                int threshold = 100 + 2300 * (Math.max(Double.valueOf(18 - mapView.getZoomLevel()).intValue(), 0));
 //		                if(Math.abs(latE6 - lastLatE6) < threshold && Math.abs(lonE6 - lastLonE6) < threshold){
-						if (restrictedMode) zoomMapToFitBulbPOIs();
+						if (restrictedMode && routeRect!=null) zoomMapToFitBulbPOIs();
 						else if(lastLocation != null) {
 		                    if(mapView.getZoomLevel() == ValidationActivity.DEFAULT_ZOOM_LEVEL){
 		                    	if(routeRect != null) {
@@ -3394,7 +3394,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                         for(com.metropia.models.Address a : addrList){
                             points.add(new GeoPoint(a.getLatitude(), a.getLongitude()));
                         }
-                        routeRect = new RouteRect(points, mapZoomVerticalOffset);
+                        if (points.size()==0) routeRect=null;
+                        else routeRect = new RouteRect(points, mapZoomVerticalOffset);
                         zoomMapToFitBulbPOIs();
                     }
                     showODBalloon();
