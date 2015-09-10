@@ -1,4 +1,4 @@
-package com.metropia.ui;
+package com.metropia.ui.animation;
 
 import com.metropia.activities.R;
 
@@ -63,12 +63,14 @@ public class ClickAnimation {
 		
 		@Override
 		public void onClick(final View v) {
+			v.setClickable(false);
 			ClickAnimation clickAnimation = new ClickAnimation(v.getContext(), v);
 			clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 
 				@Override
 				public void onAnimationEnd() {
 					clickListener.onClick(v);
+					v.setClickable(true);
 				}
 			});
 		}

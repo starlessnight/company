@@ -36,6 +36,7 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -128,6 +129,7 @@ import com.metropia.ResumeNavigationUtils;
 import com.metropia.SkobblerUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
+import com.metropia.dialogs.BlurDialog;
 import com.metropia.dialogs.CancelableProgressDialog;
 import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.dialogs.NotificationDialog2.ActionListener;
@@ -151,13 +153,13 @@ import com.metropia.requests.ReservationRequest;
 import com.metropia.requests.RouteFetchRequest;
 import com.metropia.requests.UpdateDeviceIdRequest;
 import com.metropia.requests.WhereToGoRequest;
-import com.metropia.ui.ClickAnimation;
-import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.ui.DelayTextWatcher;
 import com.metropia.ui.DelayTextWatcher.TextChangeListener;
 import com.metropia.ui.EditAddress;
 import com.metropia.ui.SkobblerImageView;
 import com.metropia.ui.SwipeDeleteTouchListener;
+import com.metropia.ui.animation.ClickAnimation;
+import com.metropia.ui.animation.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.ui.menu.MainMenu;
 import com.metropia.ui.timelayout.AdjustableTime;
 import com.metropia.utils.Cache;
@@ -1461,7 +1463,14 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						startActivity(new Intent(LandingActivity2.this, PassengerActivity.class));
+						SharedPreferences prefs = Preferences.getGlobalPreferences(LandingActivity2.this);
+			            int duoTutorialFinish = prefs.getInt(Preferences.Global.DUO_TUTORIAL_FINISH, 0);
+			            
+						if (duoTutorialFinish==1) {
+			                Intent intent = new Intent(LandingActivity2.this, PassengerActivity.class);
+							startActivity(intent);
+						}
+						else new BlurDialog(LandingActivity2.this).show();
 						v.setClickable(true);
 					}
 				});

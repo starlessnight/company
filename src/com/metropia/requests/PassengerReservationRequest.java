@@ -32,7 +32,7 @@ public class PassengerReservationRequest extends Request {
 		departureTime = dateFormat.format(now); 
 		this.user = user;
 		this.version = version;
-		url = getLinkUrl(Link.reservation);
+		url = getLinkUrl(Link.passenger_reservation);
 	}
 	
 	public Long execute(Context ctx) throws Exception {

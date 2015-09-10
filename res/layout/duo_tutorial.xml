@@ -1,0 +1,134 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical"
+	android:background="#ffffff">
+	
+	<ImageView
+		android:id="@+id/duoTutorialHeader"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:adjustViewBounds="true"
+		android:src="@drawable/duo_tutorial_header"
+		android:background="#00A1E4" />
+	
+    <ImageView
+    	android:id="@+id/backgroundSwitcher"
+    	android:layout_width="match_parent"
+    	android:layout_height="match_parent"
+    	android:layout_below="@+id/duoTutorialHeader" />
+	
+	<android.support.v4.view.ViewPager
+		android:id="@+id/duoTutorialPager"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_below="@id/duoTutorialHeader"
+		android:background="@drawable/duo_pager_back">
+		
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:paddingTop="50dp"
+			android:paddingLeft="40dp"
+			android:paddingRight="40dp"
+			android:orientation="vertical">
+			
+			<TextView
+				android:id="@+id/duoTutorialDriverText"
+			    android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+				android:textColor="#000000" />
+		</LinearLayout>
+		
+		<RelativeLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:paddingTop="50dp"
+			android:paddingLeft="20dp"
+			android:paddingRight="20dp"
+			android:orientation="vertical">
+			
+			<TextView
+				android:id="@+id/duoTutorialPassengerText"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:paddingLeft="20dp"
+				android:paddingRight="20dp"
+				android:textColor="#000000" />
+			
+			<RelativeLayout
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:layout_alignParentBottom="true"
+				android:layout_marginBottom="20dp">
+				
+				<ImageView
+					android:id="@+id/duoTutorialDriverButton"
+					android:layout_width="140dp"
+					android:layout_height="wrap_content"
+					android:adjustViewBounds="true"
+					android:src="@drawable/duo_tutorial_button_driver_button" />
+				<TextView
+					android:layout_width="150dp"
+					android:layout_height="wrap_content"
+					android:layout_below="@id/duoTutorialDriverButton"
+					android:layout_alignLeft="@id/duoTutorialDriverButton"
+					android:layout_marginTop="5dp"
+					android:gravity="center"
+					android:text="(Take me back)"
+					android:textColor="#000000"
+					android:textSize="10sp" />
+				
+				<ImageView
+					android:id="@+id/duoTutorialPassengerButton"
+					android:layout_width="140dp"
+					android:layout_height="wrap_content"
+					android:layout_toRightOf="@id/duoTutorialDriverButton"
+					android:layout_marginLeft="30dp"
+					android:adjustViewBounds="true"
+					android:src="@drawable/duo_tutorial_button_passenger" />
+				<TextView
+					android:layout_width="150dp"
+					android:layout_height="wrap_content"
+					android:layout_below="@id/duoTutorialPassengerButton"
+					android:layout_alignLeft="@id/duoTutorialPassengerButton"
+					android:layout_marginTop="5dp"
+					android:gravity="center"
+					android:text="(Start DUO Mode)"
+					android:textColor="#000000"
+					android:textSize="10sp" />
+				
+			</RelativeLayout>
+		</RelativeLayout>
+		
+	</android.support.v4.view.ViewPager>
+	
+	<RadioGroup
+		android:id="@+id/duoTutorialRadios"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_centerHorizontal="true"
+		android:layout_below="@id/duoTutorialHeader"
+		android:orientation="horizontal"
+		android:checkedButton="@+id/radio1">
+
+		<RadioButton
+			android:id="@+id/radio1"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_margin="5dp"
+			android:button="@drawable/pager_indicator" />
+
+		<RadioButton
+			android:id="@+id/radio2"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_margin="5dp"
+			android:button="@drawable/pager_indicator" />
+
+		
+	</RadioGroup>
+    
+    
+</RelativeLayout>

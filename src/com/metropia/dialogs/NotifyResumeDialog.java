@@ -23,8 +23,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.RelativeLayout.LayoutParams;
 
-import com.metropia.ui.ClickAnimation;
-import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
+import com.metropia.ui.animation.ClickAnimation;
+import com.metropia.ui.animation.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.utils.Font;
 import com.metropia.activities.R;
 

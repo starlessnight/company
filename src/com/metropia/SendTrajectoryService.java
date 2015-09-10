@@ -22,7 +22,10 @@ import android.util.Log;
 
 import com.metropia.activities.DebugOptionsActivity;
 import com.metropia.activities.MainActivity;
+import com.metropia.activities.PassengerActivity;
+import com.metropia.activities.ValidationActivity;
 import com.metropia.exceptions.SmarTrekException;
+import com.metropia.models.Passenger;
 import com.metropia.models.Trajectory;
 import com.metropia.models.User;
 import com.metropia.requests.Request;
@@ -46,15 +49,20 @@ public class SendTrajectoryService extends IntentService {
         return new File(getInDir(ctx), "_" + rId).exists();
     }
     
-    public static boolean send(Context ctx, long rId){
-        return send(ctx, new File(getInDir(ctx), String.valueOf(rId)), false);
+    /**@param mode specify Driver or DUO**/
+    public static boolean send(Context ctx, long rId, String mode){
+    	File parentDir = mode.equals(PassengerActivity.PASSENGER_TRIP_VALIDATOR)? getDuoDir(ctx):getInDir(ctx);
+        return send(ctx, new File(parentDir, String.valueOf(rId)), false, mode);
     }
     
-    public static boolean sendImd(Context ctx, long rId){
-        return send(ctx, new File(getInDir(ctx), IMD_PREFIX + String.valueOf(rId)), true);
+    /**@param mode specify Driver or DUO**/
+    public static boolean sendImd(Context ctx, long rId, String mode){
+    	File parentDir = mode.equals(PassengerActivity.PASSENGER_TRIP_VALIDATOR)? getDuoDir(ctx):getInDir(ctx);
+        return send(ctx, new File(parentDir, IMD_PREFIX + String.valueOf(rId)), true, mode);
     }
     
-    private static boolean send(Context ctx, File routeDir, boolean imdSend){
+    /**@param mode specify Driver or DUO**/
+    private static boolean send(Context ctx, File routeDir, boolean imdSend, String mode){
     	synchronized (mutex) {
 	        boolean success = true;
 	        User user = User.getCurrentUser(ctx);
@@ -92,8 +100,9 @@ public class SendTrajectoryService extends IntentService {
 	                SendTrajectoryRequest request = new SendTrajectoryRequest(imdSend);
 	                if(Request.NEW_API){
 	                    try{
-	                        request.execute(user, routeId, traj, ctx);
-	                    }catch(SmarTrekException e){}
+	                    	PassengerActivity.remotePassengers = request.execute(user, routeId, traj, ctx, mode);
+	                    	/*for (int i=0 ; i<1 ; i++) PassengerActivity.remotePassengers.add(new Passenger("name", ""));*/
+	                    }catch(Exception e){}
 	                }else{
 	                    request.execute(seq, user.getId(), routeId, traj);
 	                }
@@ -124,15 +133,20 @@ public class SendTrajectoryService extends IntentService {
                 @Override
                 public void run() {
                     File inDir = getInDir(SendTrajectoryService.this);
+                    File duoDir = getDuoDir(SendTrajectoryService.this);
                     File[] routeDirs = inDir.listFiles();
-                    if(ArrayUtils.isNotEmpty(routeDirs)){
-                        for(File d:routeDirs){
+                    File[] duoDirs = duoDir.listFiles();
+                    
+                    File[] routes = ArrayUtils.addAll(routeDirs, duoDirs);
+                    if(ArrayUtils.isNotEmpty(routes)){
+                        for(File d:routes){
                             String[] files = d.list();
                             if(d.lastModified() < System.currentTimeMillis() - sevenDays){
                                 FileUtils.deleteQuietly(d);
-                            }else if(ArrayUtils.isNotEmpty(files) && d != null 
-                                    && (StringUtils.isNumeric(d.getName()) || StringUtils.startsWith(d.getName(), IMD_PREFIX))){
-                                send(SendTrajectoryService.this, d, false);
+                            }
+                            else if(ArrayUtils.isNotEmpty(files) && d != null && (StringUtils.isNumeric(d.getName()) || StringUtils.startsWith(d.getName(), IMD_PREFIX))){
+                            	String mode = d.getParentFile().equals(duoDir)? PassengerActivity.PASSENGER_TRIP_VALIDATOR:ValidationActivity.TRIP_VALIDATOR;
+                                send(SendTrajectoryService.this, d, false, mode);
                             }
                         }
                     }
@@ -152,7 +166,6 @@ public class SendTrajectoryService extends IntentService {
     private static File getOutDir(Context ctx){
         return new File(ctx.getExternalFilesDir(null), "trajectory/out");
     }
-    
     private static File getOutFile(Context ctx, long rId){
         return new File(getOutDir(ctx), String.valueOf(rId));
     }
@@ -162,11 +175,17 @@ public class SendTrajectoryService extends IntentService {
     private static File getInDir(Context ctx){
     	return new File(ctx.getExternalFilesDir(null), "trajectory/in");
     }
-    
     public static File getInFile(Context ctx, long rId, int seq){
     	synchronized (mutex) {
     		return new File(getInDir(ctx), IMD_PREFIX + rId + "/" + seq);
     	}
+    }
+    
+    public static File getDuoDir(Context ctx) {
+    	return new File(ctx.getExternalFilesDir(null), "trajectory/duo");
+    }
+    public static File getDuoFile(Context ctx, long rId, int seq) {
+    	return new File(getDuoDir(ctx), IMD_PREFIX + rId + "/" + seq);
     }
     
     public static void schedule(Context ctx){

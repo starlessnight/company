@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -13,12 +14,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
-import android.graphics.BitmapFactory;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -27,10 +30,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.text.Html;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
@@ -58,16 +66,22 @@ import com.metropia.TripService;
 import com.metropia.dialogs.CancelableProgressDialog;
 import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.dialogs.NotificationDialog2.ActionListener;
+import com.metropia.models.Passenger;
 import com.metropia.models.Trajectory;
 import com.metropia.models.User;
+import com.metropia.requests.DuoTripCheckRequest;
 import com.metropia.requests.PassengerReservationRequest;
 import com.metropia.requests.Request;
-import com.metropia.ui.ClickAnimation;
-import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
+import com.metropia.tasks.ImageLoader;
+import com.metropia.ui.Wheel;
+import com.metropia.ui.animation.CircularPopupAnimation;
+import com.metropia.ui.animation.ClickAnimation;
+import com.metropia.utils.Dimension;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
 import com.metropia.utils.Misc;
 import com.metropia.utils.SystemService;
+import com.skobbler.ngx.SKCoordinate;
 import com.skobbler.ngx.map.SKAnnotation;
 import com.skobbler.ngx.map.SKCoordinateRegion;
 import com.skobbler.ngx.map.SKMapCustomPOI;
@@ -83,13 +97,19 @@ import com.skobbler.ngx.positioner.SKPosition;
 import com.skobbler.ngx.routing.SKRouteManager;
 
 public class PassengerActivity extends FragmentActivity implements SKMapSurfaceListener, ConnectionCallbacks, 
-	OnConnectionFailedListener, ResultCallback<LocationSettingsResult> {
+	OnConnectionFailedListener, ResultCallback<LocationSettingsResult>, OnClickListener {
 	
 	private LocationManager locationManager;
 	private LocationListener locationListener;
 	
 	private SKMapViewHolder mapViewHolder;
 	private SKMapSurfaceView mapView;
+	private Wheel wheel;
+	
+	int[] clickable = {};
+	int[] clickableAnimated = {R.id.back_button, R.id.center_map_icon, R.id.startButton, R.id.close, R.id.share, R.id.feedback};
+	
+	
 	
 	private static final Integer DEFAULT_ZOOM_LEVEL = 15;
 	
@@ -99,6 +119,11 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		setContentView(R.layout.passenger);
 		
 		registerReceiver(tripValidator, new IntentFilter(PASSENGER_TRIP_VALIDATOR));
+		
+
+        ClickAnimation.OnClickListener onClickListener = new ClickAnimation.OnClickListener(this);
+        for (int i=0 ; i<clickableAnimated.length ; i++) findViewById(clickableAnimated[i]).setOnClickListener(onClickListener);
+        for (int i=0 ; i<clickable.length; i++) findViewById(clickable[i]).setOnClickListener(this);
 		
 		mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
 		mapViewHolder.hideAllAttributionTextViews();
@@ -112,13 +137,9 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			public void onLocationChanged(Location location) {
 				preProcessLocation(location);
 			}
-
 			public void onStatusChanged(String provider, int status, Bundle extras) {}
-
 			public void onProviderEnabled(String provider) {}
-
 			public void onProviderDisabled(String provider) {}
-
 		};
 
 		gpsLocationListener = new com.google.android.gms.location.LocationListener() {
@@ -132,154 +153,23 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		
 		TextView passengerMsg = (TextView) findViewById(R.id.passenger_msg);
 		passengerMsg.setText(String.format(getResources().getString(R.string.passenger_before_ride), user.getFirstname()));
-		findViewById(R.id.back_button).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(final View v) {
-				v.setClickable(false);
-				ClickAnimation clickAnimation = new ClickAnimation(PassengerActivity.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						v.setClickable(true);
-						finish();
-					}
-				});
-			}
-		});
 		
-		View compass = findViewById(R.id.center_map_icon);
-		compass.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(PassengerActivity.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					public void onAnimationEnd() {
-						mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.POSITION);
-						handler.removeCallbacks(restoreRunnable);
-					}
-				});
-			}
-		});
-		
-		final TextView startOrEndButton = (TextView) findViewById(R.id.start_or_end_trip);
-		startOrEndButton.setTag(false);
-		startOrEndButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(final View v) {
-				v.setClickable(false);
-				ClickAnimation clickAnimation = new ClickAnimation(PassengerActivity.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						boolean currentTag = (Boolean)startOrEndButton.getTag();
-						if(currentTag) {
-							cancelValidation();
-						}
-						else {
-							startTrip();
-						}
-						v.setClickable(true);
-					}
-				});
-			}
-		});
+		View startButton = findViewById(R.id.startButton);
+		TextView startButtonText = (TextView) findViewById(R.id.startButtonText);
+		startButton.setTag(false);
 		
 		TextView finishButton = (TextView) findViewById(R.id.close);
 		finishButton.setText(Html.fromHtml("<u>Close</u>"));
-		finishButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnim = new ClickAnimation(PassengerActivity.this, v);
-				clickAnim.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						SKRouteManager.getInstance().clearCurrentRoute();
-						finish();
-					}
-				});
-			}
-		});
-
-		final View shareButton = findViewById(R.id.share);
-		shareButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(PassengerActivity.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						Intent intent = new Intent(PassengerActivity.this, ShareActivity.class);
-						intent.putExtra(ShareActivity.TITLE, "More Metropians = Less Traffic");
-						intent.putExtra(ShareActivity.SHARE_TEXT, Misc.APP_DOWNLOAD_LINK);
-						startActivity(intent);
-					}
-				});
-			}
-		});
 
 		TextView feedBackButton = (TextView) findViewById(R.id.feedback);
 		feedBackButton.setText(Html.fromHtml("<u>Feedback</u>"));
-		feedBackButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(PassengerActivity.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						Intent intent = new Intent(PassengerActivity.this,	FeedbackActivity.class);
-						startActivity(intent);
-					}
-				});
-			}
-		});
 		
-		findViewById(R.id.co2_circle).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent intent;
-				if (WebMyMetropiaActivity.hasCo2SavingUrl(PassengerActivity.this) || WebMyMetropiaActivity.hasMyMetropiaUrl(PassengerActivity.this)) {
-					intent = new Intent(PassengerActivity.this, WebMyMetropiaActivity.class);
-					Integer pageNo = WebMyMetropiaActivity.hasCo2SavingUrl(PassengerActivity.this) ? WebMyMetropiaActivity.CO2_SAVING_PAGE	: WebMyMetropiaActivity.MY_METROPIA_PAGE;
-					intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
-				} else {
-					intent = new Intent(PassengerActivity.this, MyMetropiaActivity.class);
-					intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.CO2_SAVING_TAB);
-				}
-				startActivity(intent);
-			}
-		});
-
-		findViewById(R.id.drive_score_circle).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent intent;
-				if (WebMyMetropiaActivity.hasTimeSavingUrl(PassengerActivity.this)	|| WebMyMetropiaActivity.hasMyMetropiaUrl(PassengerActivity.this)) {
-					intent = new Intent(PassengerActivity.this, WebMyMetropiaActivity.class);
-					Integer pageNo = WebMyMetropiaActivity.hasTimeSavingUrl(PassengerActivity.this) ? WebMyMetropiaActivity.TIME_SAVING_PAGE : WebMyMetropiaActivity.MY_METROPIA_PAGE;
-					intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
-				} else {
-					intent = new Intent(PassengerActivity.this, MyMetropiaActivity.class);
-					intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.DRIVE_SCORE_TAB);
-				}
-				startActivity(intent);
-			}
-		});
-
-		findViewById(R.id.mpoint_circle).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent intent;
-				if (WebMyMetropiaActivity.hasMyMetropiaUrl(PassengerActivity.this)) {
-					intent = new Intent(PassengerActivity.this, WebMyMetropiaActivity.class);
-					intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, WebMyMetropiaActivity.MY_METROPIA_PAGE);
-				} else {
-					intent = new Intent(PassengerActivity.this, MyMetropiaActivity.class);
-					intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.CO2_SAVING_TAB);
-				}
-				startActivity(intent);
-			}
-		});
+		/*int[] styledFontTextView = {R.id.duoTotalPoints, R.id.duoPointText1};
+		ArrayList<TextView> textViews = new ArrayList<TextView>();
+		for (int i=0 ; i<styledFontTextView.length ; i++) textViews.add((TextView) findViewById(styledFontTextView[i]));
+		Font.setTypeface(Font.getRegular(getAssets()), textViews.toArray(new TextView[textViews.size()]));*/
 		
-		Font.setTypeface(Font.getRegular(getAssets()), passengerMsg, startOrEndButton, finishButton, feedBackButton);
+		Font.setTypeface(Font.getRegular(getAssets()), passengerMsg, startButtonText, finishButton, feedBackButton);
 		
 		// init Tracker
 		((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
@@ -290,6 +180,42 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			createLocationRequest();
 			buildLocationSettingsRequest();
 		}
+	}
+	
+	private void checkLastTrip(final Runnable cb) {
+		new AsyncTask<Void, Void, Integer>() {
+
+			@Override
+			protected void onPreExecute() {
+				findViewById(R.id.loading).setVisibility(View.VISIBLE);
+			}
+			
+			@Override
+			protected Integer doInBackground(Void... arg0) {
+				DuoTripCheckRequest request = new DuoTripCheckRequest(User.getCurrentUser(PassengerActivity.this));
+				try {
+					int timeToNext = request.execute(PassengerActivity.this);
+					return timeToNext;
+				} catch (Exception e) {
+					
+				}
+				return null;
+			}
+			
+			@Override
+			protected void onPostExecute(final Integer timeToNext) {
+				findViewById(R.id.loading).setVisibility(View.GONE);
+				NotificationDialog2 dialog = new NotificationDialog2(PassengerActivity.this, getString(R.string.duoTripIntervalCheckMsg));
+				dialog.setTitle(getString(R.string.duoTripIntervalCheckTile, 15-timeToNext));
+				dialog.setPositiveButtonText("OK");
+				dialog.setPositiveActionListener(new ActionListener() {
+					public void onClick() {if (cb!=null) cb.run();}
+				});
+				if (timeToNext.equals(0)) cb.run();
+				else dialog.show();
+			}
+			
+		}.execute();
 	}
 	
 	private void startTrip() {
@@ -311,6 +237,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			@Override
 			protected Long doInBackground(Void... params) {
 				try {
+					
 					PassengerReservationRequest resvReq = new PassengerReservationRequest(User.getCurrentUser(PassengerActivity.this), getString(R.string.distribution_date));
 					return resvReq.execute(PassengerActivity.this);
 				}
@@ -332,13 +259,18 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
+							User user = User.getCurrentUser(PassengerActivity.this);
 							reservId.set(reserId);
-							TextView startOrEndTripButton = (TextView) findViewById(R.id.start_or_end_trip);
-							startOrEndTripButton.setTag(true);
-							startOrEndTripButton.setText("END MY TRIP");
-							startOrEndTripButton.setBackgroundColor(getResources().getColor(R.color.metropia_orange));
+							View startButton = findViewById(R.id.startButton);
+							View startButtonIcon = findViewById(R.id.startButtonIcon);
+							final TextView startButtonText = (TextView) findViewById(R.id.startButtonText);
+							startButton.setTag(true);
+							startButtonText.setText("END MY TRIP");
+							startButtonText.setBackgroundColor(getResources().getColor(R.color.metropia_passenger_orange));
+							startButtonIcon.setBackgroundColor(getResources().getColor(R.color.metropia_passenger_blue));
 							TextView passengerMsg = (TextView) findViewById(R.id.passenger_msg);
-							passengerMsg.setText(getResources().getString(R.string.passenger_start_ride));
+							passengerMsg.setText(getResources().getString(R.string.passenger_start_ride, user.getFirstname()));
+							passengerMsg.setGravity(Gravity.CENTER);
 							findViewById(R.id.back_button).setVisibility(View.GONE);
 							prepareGPS();
 						}
@@ -348,6 +280,97 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		};
 		Misc.parallelExecute(reservTask);
 	}
+	
+
+	boolean refreshPassenger = false;
+	public static ArrayList<Passenger> remotePassengers = new ArrayList<Passenger>();
+	ArrayList<Passenger> localPassengers = new ArrayList<Passenger>();
+	
+	
+	private void updatePassengerPosotion(Location location) {
+		SKScreenPoint screenPoint = mapView.coordinateToPoint(new SKCoordinate(location.getLongitude(), location.getLatitude()));
+		RelativeLayout parent = (RelativeLayout) findViewById(R.id.passengers);
+		RelativeLayout.LayoutParams layoutParams = (LayoutParams) parent.getLayoutParams();
+		
+		layoutParams.leftMargin = (int)screenPoint.getX()-75;
+		layoutParams.topMargin = (int)screenPoint.getY()-75;
+		
+		if (mapView.getMapSettings().getFollowerMode()==SKMapFollowerMode.POSITION) {
+			layoutParams.leftMargin = (int)((View)parent.getParent()).getWidth()/2-75;
+			layoutParams.topMargin = (int)((View)parent.getParent()).getHeight()/2-75;
+		}
+		
+		parent.requestLayout();
+		
+	}
+	@SuppressLint("NewApi")
+	private void updatePassenger(Location location, boolean forceAnimated) {
+		updatePassengerPosotion(location);
+		
+		if (remotePassengers.containsAll(localPassengers) && localPassengers.containsAll(remotePassengers) && !forceAnimated) return;
+		localPassengers = remotePassengers;
+		
+
+		ViewGroup parent = (ViewGroup) findViewById(R.id.passengers);
+		parent.removeAllViews();
+		final ArrayList<View> views = new ArrayList<View>();
+		final ArrayList<ImageLoader> tasks = new ArrayList<ImageLoader>();
+		
+		Runnable cb = new Runnable() {
+			public void run() {
+				for (ImageLoader task:tasks) {
+					if (!task.finished) return;
+				}
+
+				new CircularPopupAnimation(views, 1);
+			}
+		};
+		
+		for (int i=0 ; i<localPassengers.size() ; i++) {
+			Passenger passenger = localPassengers.get(i);
+			
+			View view;
+			
+			if (StringUtils.isBlank(passenger.photoUrl)) {
+				view = new TextView(this);
+				TextView textView = (TextView) view;
+				
+				
+				textView.setText(passenger.userName);
+				textView.setGravity(Gravity.CENTER);
+				textView.setTextColor(Color.WHITE);
+			}
+			else {
+				view = new ImageView(this);
+				if (passenger.drawable!=null) view.setBackground(passenger.drawable);
+				else tasks.add(new ImageLoader(passenger, view, passenger.photoUrl, cb).execute());
+			}
+			
+			
+
+			int padding = Dimension.dpToPx(5, getResources().getDisplayMetrics());
+
+			view.setPadding(0, 0, padding, padding);
+			
+			views.add(view);
+			parent.addView(view, 0);
+			
+			view.setBackgroundResource(R.drawable.circular_button);
+			view.getLayoutParams().width = 150;
+			view.getLayoutParams().height = 150;
+			view.setAlpha(0);
+		}
+
+		if (tasks.size()==0) new CircularPopupAnimation(views, 1);
+
+	}
+	
+	@Override
+	 public void onWindowFocusChanged(boolean hasFocus) {
+	  super.onWindowFocusChanged(hasFocus);
+	  refreshPassenger = true;
+	 }
+	
 	
 	private Location lastLocation;
 	
@@ -365,7 +388,12 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	private AtomicBoolean arrived = new AtomicBoolean(false);
 	private AtomicLong reservId = new AtomicLong(-1);
 	
+	float counter = 0;
 	private void locationChanged(Location location) {
+
+		/*counter+=0.001;
+		location.setLatitude(location.getLatitude()+counter);*/
+		
 		if(reservId.get() > 0) {
 			trajectory.accumulate(location, Trajectory.DEFAULT_LINK_ID);
 			if (!arrived.get() && trajectory.size() >= 8) {
@@ -374,57 +402,97 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		}
 		mapView.reportNewGPSPosition(new SKPosition(location));
 		mapView.getMapSettings().setCurrentPositionShown(true);
+		updatePassenger(location, false);
 	}
+	
+
+	private final static double THRESHOLD_DURATION = 5;
+	private final static double THRESHOLD_DISTANCE = 1.5;
 	
 	private AtomicBoolean arrivalMsgDisplayed = new AtomicBoolean();
 	private NumberFormat nf = new DecimalFormat("#.#");
 	
-	private void doDisplayArrivalMsg(int uPoints, double co2Value, String message, double timeSavingInMinute) {
+	private void doDisplayArrivalMsg(final int uPoints, double duration, double distance, int driverId, String voice, String wheelUrl) {
 		if (!arrivalMsgDisplayed.get()) {
 			arrivalMsgDisplayed.set(true);
 			findViewById(R.id.opt_panel).setVisibility(View.GONE);
 			findViewById(R.id.loading).setVisibility(View.GONE);
 			final View panel = findViewById(R.id.congrats_panel);
-
-			if (StringUtils.isNotBlank(message)) {
-				TextView congratsMsg = (TextView) findViewById(R.id.congrats_msg);
-				congratsMsg.setText(ValidationActivity.formatCongrMessage(PassengerActivity.this, message));
-				congratsMsg.setVisibility(View.VISIBLE);
-				findViewById(R.id.congrats_msg_shadow).setVisibility(View.VISIBLE);
+			wheel = (Wheel) findViewById(R.id.wheel);
+			
+			String userName = User.getCurrentUser(this).getFirstname();
+			
+			if (uPoints==0) {
+				if (duration>=THRESHOLD_DURATION && distance>=THRESHOLD_DISTANCE) {
+					((TextView)findViewById(R.id.duoFailedDialogTitle)).setText(R.string.duoNoDriverTitle);
+					((TextView)findViewById(R.id.duoFailedDialogDurationText)).setText(R.string.duoNoDriverMsg);
+					findViewById(R.id.duoFailedDialogDurationIcon).setVisibility(View.GONE);
+					findViewById(R.id.duoFailedDialogDistanceIcon).setVisibility(View.GONE);
+				}
+				else {
+					int icon1 = duration>=THRESHOLD_DURATION? R.drawable.duo_succeed:R.drawable.duo_failed;
+					int icon2 = distance>=THRESHOLD_DISTANCE? R.drawable.duo_succeed:R.drawable.duo_failed;
+					
+		            ((TextView)findViewById(R.id.duoFailedPanelText)).setText(getString(R.string.duoFailHeadMsg, userName));
+					((TextView)findViewById(R.id.duoFailedDialogTitle)).setText(R.string.duoFailTitle);
+					((TextView)findViewById(R.id.duoFailedDialogDurationText)).setText(getString(R.string.duoFailDurationMsg, duration));
+					((TextView)findViewById(R.id.duoFailedDialogDistanceText)).setText(getString(R.string.duoFailDistanceMsg, distance));
+					((ImageView)findViewById(R.id.duoFailedDialogDurationIcon)).setImageResource(icon1);
+					((ImageView)findViewById(R.id.duoFailedDialogDistanceIcon)).setImageResource(icon2);
+				}
+				findViewById(R.id.duoFailedPanel).setVisibility(View.VISIBLE);
+			}
+			else {
+				String driverName = localPassengers.size()>1? localPassengers.get(1).userName:"";
+				wheel.setVisibility(View.VISIBLE);
+				((TextView)findViewById(R.id.duoPoint)).setText(Integer.toString(uPoints));
+				((TextView)findViewById(R.id.congrats_msg)).setText(getString(R.string.duoCongratulationMsg, driverName));
+				if (StringUtils.isNotBlank(voice)) {
+					//speak
+				}
+				
+				wheel.setDriverId(driverId);
+				wheel.setCallback(new Runnable() {
+					public void run() {
+						if (wheel.bonus!=null) {
+							((TextView)PassengerActivity.this.findViewById(R.id.duoTotalPoints)).setText(Integer.toString(uPoints+wheel.bonus));
+						}
+						else {
+							NotificationDialog2 dialog = new NotificationDialog2(PassengerActivity.this, "An error has occurred.");
+							dialog.setPositiveActionListener(new ActionListener() {
+								public void onClick() {finish();}
+							});
+							dialog.show();
+						}
+					}
+				});
+				
+				findViewById(R.id.duoSucceedPanel).setVisibility(View.VISIBLE);
 			}
 
-			TextView co2 = (TextView) findViewById(R.id.co2_circle);
-			if (co2Value != 0) {
-				String co2String = nf.format(co2Value) + "lbs\nCO2";
-				co2.setText(ValidationActivity.formatCO2Desc(PassengerActivity.this, co2String));
-				((ImageView) findViewById(R.id.co2_circle_background)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.blue_circle)));
-				findViewById(R.id.co2_circle_panel).setVisibility(View.VISIBLE);
-			}
+			TextView[] styledTexts = new TextView[] {
+					(TextView) findViewById(R.id.congrats_msg),
+					(TextView) findViewById(R.id.close),
+					(TextView) findViewById(R.id.feedback)
+			};
+			Font.setTypeface(Font.getRobotoBold(getAssets()), styledTexts);
 
-			TextView mpoint = (TextView) findViewById(R.id.mpoint_circle);
-			if (uPoints > 0) {
-				mpoint.setText(ValidationActivity.formatCongrValueDesc(PassengerActivity.this, uPoints + "\nPoints"));
-				((ImageView) findViewById(R.id.mpoint_circle_background)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.green_circle)));
-				findViewById(R.id.mpoint_circle_panel).setVisibility(View.VISIBLE);
-			} 
-
-			TextView driveScore = (TextView) findViewById(R.id.drive_score_circle);
-			if (timeSavingInMinute > 0) {
-				String scoreString = new DecimalFormat("0.#").format(timeSavingInMinute) + "\nminutes";
-				driveScore.setText(ValidationActivity.formatCongrValueDesc(PassengerActivity.this, scoreString));
-				((ImageView) findViewById(R.id.drive_score_circle_background)).setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.red_circle)));
-				findViewById(R.id.drive_score_circle_panel).setVisibility(View.VISIBLE);
-			}
-
-			ImageView share = (ImageView) findViewById(R.id.share);
-			share.setImageBitmap(BitmapFactory.decodeStream(getResources().openRawResource(R.drawable.trip_share)));
-
-			Font.setTypeface(Font.getRobotoBold(getAssets()), co2, mpoint, driveScore, (TextView) findViewById(R.id.congrats_msg),
-					(TextView) findViewById(R.id.close), (TextView) findViewById(R.id.feedback));
-
-			panel.setVisibility(View.VISIBLE);
-			Misc.fadeIn(PassengerActivity.this, panel);
-
+			
+			LandingActivity2.LoadImageTask wheelDownloader = new LandingActivity2.LoadImageTask(this, wheelUrl) {
+                protected void onPostExecute(final Bitmap rs) {
+                    if(rs != null){
+                    	wheel.setImage(rs);
+                    	
+                    	panel.setVisibility(View.VISIBLE);
+            			Misc.fadeIn(PassengerActivity.this, panel);
+                    }else{
+                    	
+                    }
+                }
+            };
+            Misc.parallelExecute(wheelDownloader);
+			
+			
 			closeGPS();
 		}
 	}
@@ -436,7 +504,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			@Override
 			public void run() {
 				try {
-					final File tFile = SendTrajectoryService.getInFile(PassengerActivity.this, reservId.get(), seq++);
+					final File tFile = SendTrajectoryService.getDuoFile(PassengerActivity.this, reservId.get(), seq++);
 					final JSONArray tJson = trajectory.toJSON();
 					trajectory.clear();
 					Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
@@ -665,6 +733,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 								JSONObject reservDetail = new JSONObject();
 								try {
 									reservDetail.put(CongratulationActivity.DEPARTURE_TIME,	reservId.get());
+									reservDetail.put("MODE", PASSENGER_TRIP_VALIDATOR);
 								} catch (JSONException e) {}
 								FileUtils.write(tFile, reservDetail.toString());
 							} catch (IOException e) {}
@@ -688,14 +757,15 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		public void onReceive(Context context, Intent intent) {
 			if (arrivalMsgTiggered.get()) {
 				String id = intent.getStringExtra(ValidationActivity.ID);
-				boolean success = intent
-						.getBooleanExtra(ValidationActivity.REQUEST_SUCCESS, false);
+				boolean success = intent.getBooleanExtra(ValidationActivity.REQUEST_SUCCESS, false);
 				if (String.valueOf(reservId.get()).equals(id) && success) {
-					String message = intent.getStringExtra(ValidationActivity.MESSAGE);
-					double co2Saving = intent.getDoubleExtra(ValidationActivity.CO2_SAVING, 0);
+					String voice = intent.getStringExtra(ValidationActivity.VOICE);
 					int credit = intent.getIntExtra(ValidationActivity.CREDIT, 0);
-					double timeSavingInMinute = intent.getDoubleExtra(ValidationActivity.TIME_SAVING_IN_MINUTE, 0);
-					doDisplayArrivalMsg(credit, co2Saving, message, timeSavingInMinute);
+					double duration = intent.getDoubleExtra("duration", 0);
+					double distance = intent.getDoubleExtra("distance", 0);
+					int driverId = intent.getIntExtra("driver_id", -1);
+					String wheelUrl = intent.getStringExtra("wheel_url");
+					doDisplayArrivalMsg(credit, duration, distance, driverId, voice, wheelUrl);
 				} else if (String.valueOf(reservId.get()).equals(id) && !success) {
 					showNotifyLaterDialog();
 				}
@@ -725,7 +795,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		// Handle the back button
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			if((Boolean)findViewById(R.id.start_or_end_trip).getTag()) {
+			if((Boolean)findViewById(R.id.startButton).getTag()) {
 				cancelValidation();
 			}
 			else {
@@ -778,6 +848,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	protected void onDestroy() {
 		unregisterReceiver(tripValidator);
 		closeGPS();
+		remotePassengers = new ArrayList<Passenger>();
 		if (googleApiClient != null) {
 			googleApiClient.disconnect();
 		}
@@ -804,11 +875,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {}
-
-	@Override
 	public void onConnected(Bundle arg0) {}
-
-	@Override
 	public void onConnectionSuspended(int arg0) {}
 
 	private Handler handler = new Handler();
@@ -874,7 +941,13 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	public void onMapRegionChangeStarted(SKCoordinateRegion arg0) {}
 
 	@Override
-	public void onMapRegionChanged(SKCoordinateRegion arg0) {}
+	public void onMapRegionChanged(SKCoordinateRegion arg0) {
+		SKPosition point = mapView.getCurrentGPSPosition(true);
+		Location location = new Location("");
+		location.setLongitude(point.getLongitude());
+		location.setLatitude(point.getLatitude());
+		updatePassengerPosotion(location);
+	}
 
 	@Override
 	public void onObjectSelected(int arg0) {}
@@ -905,5 +978,61 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 
 	@Override
 	public void onDebugInfo(double arg0, float arg1, double arg2) {}
+
+	@Override
+	public void onClick(View v) {
+		switch(v.getId()) {
+			case R.id.back_button:
+				finish();
+			break;
+			case R.id.center_map_icon:
+				mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.POSITION);
+				handler.removeCallbacks(restoreRunnable);
+				
+				SKPosition point = mapView.getCurrentGPSPosition(true);
+				Location location = new Location("");
+				location.setLongitude(point.getLongitude());
+				location.setLatitude(point.getLatitude());
+				updatePassenger(location, true);
+			break;
+			case R.id.startButton:
+				boolean currentTag = (Boolean)v.getTag();
+				if(currentTag) {
+					cancelValidation();
+				}
+				else {
+					checkLastTrip(new Runnable() {
+						public void run() {
+							startTrip();
+						}
+					});
+				}
+			break;
+			case R.id.close:
+				if (wheel.getVisibility()==View.VISIBLE && wheel.bonus==null) {
+					
+					NotificationDialog2 dialog = new NotificationDialog2(this, getString(R.string.duoExitWithoutSpin));
+					dialog.setTitle("Please Spin");
+					dialog.setPositiveButtonText("OK");
+					dialog.show();
+					
+					return;
+				}
+				SKRouteManager.getInstance().clearCurrentRoute();
+				finish();
+			break;
+			case R.id.share:
+				Intent intentShare = new Intent(this, ShareActivity.class);
+				intentShare.putExtra(ShareActivity.TITLE, "More Metropians = Less Traffic");
+				intentShare.putExtra(ShareActivity.SHARE_TEXT, Misc.APP_DOWNLOAD_LINK);
+				startActivity(intentShare);
+			break;
+			case R.id.feedback:
+				Intent intentFeedback = new Intent(PassengerActivity.this,	FeedbackActivity.class);
+				startActivity(intentFeedback);
+			break;
+		}
+		
+	}
 
 }

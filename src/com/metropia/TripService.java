@@ -60,9 +60,9 @@ public class TripService extends IntentService {
 					reservInfo = new JSONObject();
 				} 
                 try{
-                    if(!SendTrajectoryService.isSending(ctx, rId)
-                            && SendTrajectoryService.send(ctx, rId)){
-                        new TripValidationRequest(user, rId).execute(ctx, reservInfo);
+                	String mode = (String) reservInfo.get("MODE");
+                    if(!SendTrajectoryService.isSending(ctx, rId) && SendTrajectoryService.send(ctx, rId, mode)){
+                        new TripValidationRequest(user, rId, mode).execute(ctx, reservInfo);
                         FileUtils.deleteQuietly(f);
                     }
                 }catch(SmarTrekException ex){
@@ -97,9 +97,8 @@ public class TripService extends IntentService {
         if(toSendFile != null) {
             boolean deleted = false;
             try{
-                if(!SendTrajectoryService.isSending(ctx, rId)
-                        && SendTrajectoryService.sendImd(ctx, rId)){
-                    new TripValidationRequest(user, rId).executeImd(ctx, reciverName);
+                if(!SendTrajectoryService.isSending(ctx, rId) && SendTrajectoryService.sendImd(ctx, rId, reciverName)){
+                    new TripValidationRequest(user, rId, reciverName).executeImd(ctx, reciverName);
                     FileUtils.deleteQuietly(toSendFile);
                 }
             }catch(SmarTrekException ex){

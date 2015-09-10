@@ -146,12 +146,12 @@ import com.metropia.requests.Request.Setting;
 import com.metropia.requests.ReservationFetchRequest;
 import com.metropia.requests.RouteFetchRequest;
 import com.metropia.requests.TravelTimeRequest;
-import com.metropia.ui.ClickAnimation;
-import com.metropia.ui.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.ui.NavigationView;
 import com.metropia.ui.NavigationView.CheckPointListener;
 import com.metropia.ui.NavigationView.DirectionItem;
 import com.metropia.ui.SkobblerImageView;
+import com.metropia.ui.animation.ClickAnimation;
+import com.metropia.ui.animation.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.ui.menu.MainMenu;
 import com.metropia.ui.timelayout.TimeColumn;
 import com.metropia.utils.Dimension;
@@ -1826,6 +1826,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 								try {
 									reservDetail.put(CongratulationActivity.DESTINATION, reservation.getDestinationAddress());
 									reservDetail.put(CongratulationActivity.DEPARTURE_TIME,	reservation.getDepartureTime());
+									reservDetail.put("MODE", TRIP_VALIDATOR);
 								} catch (JSONException e) {}
 								FileUtils.write(tFile, reservDetail.toString());
 							} catch (IOException e) {}

@@ -13,13 +13,17 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.metropia.activities.DebugOptionsActivity;
+import com.metropia.activities.PassengerActivity;
 import com.metropia.exceptions.SmarTrekException;
+import com.metropia.models.Passenger;
 import com.metropia.models.Trajectory;
 import com.metropia.models.User;
 import com.metropia.utils.HTTP.Method;
@@ -42,16 +46,31 @@ public class SendTrajectoryRequest extends Request {
         executeHttpRequest(Method.POST, link, params, ctx);
     }
     
-    public void execute(User user, long rid, Trajectory trajectory, Context ctx) throws Exception {
+    public ArrayList<Passenger> execute(User user, long rid, Trajectory trajectory, Context ctx, String mode) throws Exception {
         JSONObject params = new JSONObject();
         params.put("trajectory", trajectory.toJSON());
         this.username = user.getUsername();
         this.password = user.getPassword();
-        String link = Request.getLinkUrl(Link.trajectory).replaceAll("\\{reservation_id\\}", String.valueOf(rid));
+        Link link = mode.equals(PassengerActivity.PASSENGER_TRIP_VALIDATOR)? Link.passenger_trajectory:Link.trajectory;
+        String url = Request.getLinkUrl(link).replaceAll("\\{reservation_id\\}", String.valueOf(rid));
+
+        ArrayList<Passenger> passengers = new ArrayList<Passenger>(); 
+        
         try{
         	String entryPoint = DebugOptionsActivity.getDebugEntrypoint(ctx);
         	boolean compress = entryPoint.contains("dev4_v1");
-            String str = executeHttpRequest(Method.POST, link, params, compress, ctx);
+            String str = executeHttpRequest(Method.POST, url, params, compress, ctx);
+
+            if (str==null) return passengers;
+            JSONObject json = new JSONObject(str);
+            JSONArray names = json.getJSONObject("data").getJSONArray("o_users_names");
+            JSONArray photos = json.getJSONObject("data").getJSONArray("o_users_pic");
+            for (int i=0 ; i<names.length() ; i++) {
+            	passengers.add(new Passenger(names.getString(i), photos.getString(i)));
+            }
+            
+            return passengers;
+            
         }catch(Exception e){
             if(responseCode >= 400 && responseCode <= 499){
                 throw new SmarTrekException(responseCode);
@@ -60,7 +79,7 @@ public class SendTrajectoryRequest extends Request {
             }
         }
     }
-    
+    @Deprecated
 	public void execute(int seq, int uid, long rid, Trajectory trajectory) throws JSONException, ClientProtocolException, IOException {
 		String url = String.format("%s/sendtrajectory/", HOST);
 		//String url = "http://192.168.0.21:7787/";

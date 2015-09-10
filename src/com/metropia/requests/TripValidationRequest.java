@@ -14,6 +14,7 @@ import android.os.Build;
 import android.util.Log;
 
 import com.metropia.activities.CongratulationActivity;
+import com.metropia.activities.PassengerActivity;
 import com.metropia.activities.ValidationActivity;
 import com.metropia.exceptions.SmarTrekException;
 import com.metropia.models.User;
@@ -25,8 +26,9 @@ public class TripValidationRequest extends Request {
 	
     private long rid;
     
-	public TripValidationRequest(User user, long rid) {
-        url = getLinkUrl(Link.trip).replaceAll("\\{user_id\\}", String.valueOf(user.getId()));
+	public TripValidationRequest(User user, long rid, String mode) {
+		Link apiLink = mode==PassengerActivity.PASSENGER_TRIP_VALIDATOR? Link.passenger_trip:Link.trip;
+        url = getLinkUrl(apiLink).replaceAll("\\{user_id\\}", String.valueOf(user.getId()));
         this.username = user.getUsername();
         this.password = user.getPassword();
         this.rid = rid;
@@ -113,6 +115,13 @@ public class TripValidationRequest extends Request {
 		intent.putExtra(ValidationActivity.VOICE, data.optString("voice"));
 		intent.putExtra(ValidationActivity.MESSAGE, data.optString("message"));
 		intent.putExtra(ValidationActivity.REQUEST_SUCCESS, true);
+		intent.putExtra("driver_id", data.optInt("driver_id", -1));
+		intent.putExtra("duration", data.optDouble("duration", 0));
+		intent.putExtra("distance", data.optDouble("distance", 0));
+		intent.putExtra("wheel_url", data.optString("wheel_url"));
+		intent.putExtra("wheel_name", data.optString("wheel_name"));
+		
+		
 	}
 	
 }

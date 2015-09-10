@@ -11,7 +11,15 @@
 	<RelativeLayout 
 	    android:id="@+id/opt_panel"
 	    android:layout_width="fill_parent"
-	    android:layout_height="fill_parent">
+	    android:layout_height="fill_parent"
+	    android:clipChildren="false">
+	    
+	    <RelativeLayout
+	    	android:id="@+id/passengers"
+	    	android:layout_width="wrap_content"
+	    	android:layout_height="wrap_content"
+	    	android:gravity="center"
+	    	android:clipChildren="false" />
 	    
 	    <LinearLayout 
             android:layout_width="match_parent"
@@ -21,50 +29,45 @@
             
             <include layout="@layout/metropia_color_bar"/>
             
-            <LinearLayout 
+            <RelativeLayout 
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="70dp"
                 android:orientation="horizontal"
                 android:background="@color/metropia_green">
+		        
+		        <ImageView 
+                    android:layout_height="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginTop="25dp"
+                    android:scaleType="fitEnd"
+                    android:src="@drawable/passenger_water_mark"
+                    android:alpha="0.2" />
                 
                 <ImageView 
                     android:id="@+id/back_button"
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"
-                    android:paddingTop="5dp"
-                    android:paddingBottom="5dp"
+                    android:layout_centerVertical="true"
+                    android:padding="15dp"
                     android:src="@drawable/setting_white_back_arrow"/>
 
 		        <TextView
 		            android:id="@+id/passenger_msg"
 		            android:layout_width="match_parent"
-		            android:layout_height="match_parent"
-		            android:layout_weight="1"
-		            android:gravity="center"
+		            android:layout_height="wrap_content"
+		            android:layout_toRightOf="@id/back_button"
+		            android:layout_centerVertical="true"
 		            android:text="@string/passenger_before_ride"
-		            android:textSize="16dp"
-		            android:textColor="@android:color/white"
-		            android:paddingTop="5dp"
-		            android:paddingBottom="5dp" />
-		        
-		        <ImageView 
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
-                    android:paddingTop="5dp"
-                    android:paddingBottom="5dp"
-                    android:src="@drawable/passenger_mode_avatar"/>
+		            android:textSize="18dp"
+		            android:textColor="@android:color/white" />
 	        
-	        </LinearLayout>
+	        </RelativeLayout>
 	
 	        <View
 	            android:id="@+id/passenger_msg_shadow"
 	            android:layout_width="match_parent"
 	            android:layout_height="3dp"
-	            android:layout_below="@+id/congrats_msg"
 	            android:background="@drawable/bottom_shadow" 
 	            android:visibility="invisible" />
         
@@ -75,25 +78,46 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginBottom="60dp"
+        		android:layout_above="@+id/startButton"
                 android:layout_marginRight="20dp"
+                android:layout_marginBottom="20dp"
                 android:src="@drawable/compass" />
 	    
-	    <TextView 
-	        android:id="@+id/start_or_end_trip"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:layout_alignParentBottom="true"
-	        android:background="@color/metropia_blue"
-	        android:gravity="center"
-	        android:padding="10dp"
-	        android:text="START MY TRIP"
-	        android:textColor="@android:color/white"
-	        android:textSize="@dimen/smaller_font"/>
+	    <LinearLayout
+	    	android:id="@id/startButton"
+	    	android:layout_width="match_parent"
+	    	android:layout_height="50dp"
+	        android:layout_alignParentBottom="true">
+	        
+	        <ImageView
+	    	    android:id="@+id/startButtonIcon"
+	        	android:layout_width="wrap_content"
+	        	android:layout_height="match_parent"
+	        	android:maxWidth="100dp"
+	        	android:padding="15dp"
+	        	android:adjustViewBounds="true"
+	        	android:src="@drawable/duo_icon"
+	        	android:background="@color/metropia_passenger_orange" />
+	        
+	    	<TextView 
+	    	    android:id="@+id/startButtonText"
+	    	    android:layout_width="match_parent"
+	    	    android:layout_height="match_parent"
+	        	android:background="@color/metropia_passenger_blue"
+	        	android:gravity="center"
+	        	android:padding="15dp"
+	        	android:text="START MY TRIP"
+	        	android:textColor="@android:color/white"
+	        	android:textSize="@dimen/smaller_font"/>
+	    	
+	    </LinearLayout>
 	    
 	</RelativeLayout>
-	    
+
+
+<!--
+//**Congratulations panel**********************************************************************
+-->
 
     <RelativeLayout
         android:id="@+id/congrats_panel"
@@ -102,179 +126,261 @@
         android:orientation="vertical"
         android:visibility="gone" >
         
-        <LinearLayout 
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:orientation="vertical">
-            
-            <include layout="@layout/metropia_color_bar"/>
-
-	        <TextView
-	            android:id="@+id/congrats_msg"
-	            android:layout_width="match_parent"
-	            android:layout_height="wrap_content"
-	            android:background="@color/metropia_green"
-	            android:gravity="center"
-	            android:text="@string/placeholder"
-	            android:textSize="24dp"
-	            android:textColor="@android:color/white"
-	            android:paddingTop="15dp"
-	            android:paddingBottom="5dp"
-	            android:visibility="invisible" />
-	
-	        <View
-	            android:id="@+id/congrats_msg_shadow"
-	            android:layout_width="match_parent"
-	            android:layout_height="3dp"
-	            android:layout_below="@+id/congrats_msg"
-	            android:background="@drawable/bottom_shadow" 
-	            android:visibility="invisible" />
         
-        </LinearLayout>
-
-        <LinearLayout
+        <RelativeLayout
+        	android:id="@+id/duoSucceedPanel"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:orientation="vertical" >
+            android:layout_height="match_parent"
+			android:layout_above="@+id/congrats_panel_buttons"
+			android:background="#C40099CC"
+			android:visibility="gone">
+	    	
+        	<RelativeLayout 
+        	    android:layout_width="match_parent"
+        	    android:layout_height="100dp"
+	    	    android:background="@color/metropia_green"
+        	    android:layout_alignParentTop="true">
+	    		
+            	<ImageView
+            	    android:layout_width="wrap_content"
+            	    android:layout_height="match_parent"
+            	    android:layout_alignParentLeft="true"
+            	    android:layout_marginTop="50dp"
+            	    android:scaleType="fitEnd"
+            	    android:src="@drawable/duo_icon"
+            	    android:alpha="0.2" />
+            	<ImageView
+            	    android:layout_width="wrap_content"
+            	    android:layout_height="match_parent"
+            	    android:layout_alignParentRight="true"
+            	    android:layout_marginTop="50dp"
+            	    android:scaleType="fitEnd"
+            	    android:src="@drawable/passenger_water_mark"
+            	    android:alpha="0.2" />
+            	
+            	<include android:id="@+id/colorBar" layout="@layout/metropia_color_bar"/>
+            	
+				<LinearLayout
+					android:id="@+id/duoPointTexts"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_below="@id/colorBar"
+					android:paddingTop="15dp"
+					android:orientation="horizontal"
+					android:gravity="center">
+					
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="You've already earned "
+						android:textColor="#fff" />
+					<TextView
+						android:id="@+id/duoPoint"
+						android:layout_width="25dp"
+						android:layout_height="25dp"
+						android:gravity="center"
+						android:text="10"
+						android:textColor="#fff"
+						android:background="@drawable/point_circle_blue" />
+					<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text=" points."
+						android:textColor="#fff" />
+					
+				</LinearLayout>
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="125dp" >
+				<TextView
+					android:id="@+id/congrats_msg"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginLeft="30dp"
+					android:layout_marginRight="30dp"
+					android:layout_below="@id/duoPointTexts"
+					android:gravity="center"
+					android:text="@string/duoCongratulationMsg"
+					android:textColor="@android:color/white" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" >
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:background="@color/transparent_black" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal" >
-                    
-                    <FrameLayout
-                        android:id="@+id/co2_circle_panel"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:visibility="invisible">
-                        
-                        <ImageView 
-                            android:id="@+id/co2_circle_background"
-                            android:layout_width="125dp"
-                            android:layout_height="125dp"
-                            android:layout_gravity="center"
-                            android:scaleType="fitCenter"/>
-
-	                    <TextView
-	                        android:id="@+id/co2_circle"
-	                        android:layout_width="wrap_content"
-	                        android:layout_height="wrap_content"
-	                        android:gravity="center"
-	                        android:layout_gravity="center"
-	                        android:text="@string/placeholder"
-	                        android:textColor="@android:color/white"
-	                        android:textSize="@dimen/large_font" />
-	                    
-                    </FrameLayout>
-                    
-                    <FrameLayout
-                        android:id="@+id/mpoint_circle_panel"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:visibility="invisible">
-	                    
-                        <ImageView 
-                            android:id="@+id/mpoint_circle_background"
-                            android:layout_width="125dp"
-                            android:layout_height="125dp"
-                            android:layout_gravity="center"
-                            android:scaleType="fitCenter"/>
-
-	                    <TextView
-	                        android:id="@+id/mpoint_circle"
-	                        android:layout_width="wrap_content"
-	                        android:layout_height="wrap_content"
-	                        android:gravity="center"
-	                        android:layout_gravity="center"
-	                        android:text="@string/placeholder"
-	                        android:textColor="@android:color/white"
-	                        android:textSize="@dimen/large_font" />
-                    </FrameLayout>
-
-                    <FrameLayout
-                        android:id="@+id/drive_score_circle_panel"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:visibility="invisible">
-	                    
-                        <ImageView 
-                            android:id="@+id/drive_score_circle_background"
-                            android:layout_width="125dp"
-                            android:layout_height="125dp"
-                            android:layout_gravity="center"
-                            android:scaleType="fitCenter"/>
-                        
-	                    <TextView
-	                        android:id="@+id/drive_score_circle"
-	                        android:layout_width="wrap_content"
-	                        android:layout_height="wrap_content"
-	                        android:gravity="center"
-	                        android:layout_gravity="center"
-	                        android:text="@string/placeholder"
-	                        android:textColor="@android:color/white"
-	                        android:textSize="@dimen/large_font"  />
-                    </FrameLayout>
-                </LinearLayout>
-            </FrameLayout>
-
+			</RelativeLayout>
+        
+			<view
+				class="com.metropia.ui.Wheel"
+				android:id="@+id/wheel"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:padding="30dp"
+				android:src="@drawable/wheels"
+				android:scaleType="fitCenter"
+				android:adjustViewBounds="true"
+				android:layout_centerInParent="true"
+				android:visibility="gone" />
+			
+			<LinearLayout
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_centerHorizontal="true"
+				android:layout_alignParentBottom="true"
+				android:layout_marginBottom="10dp"
+				android:orientation="horizontal">
+				
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="Total points this trip  "
+					android:textSize="24dp"
+					android:textColor="#ffffff" />
+				<TextView
+					android:id="@+id/duoTotalPoints"
+					android:layout_width="60dp"
+					android:layout_height="60dp"
+					android:background="@drawable/point_circle"
+					android:gravity="center"
+					android:text="\?"
+					android:textSize="26dp"
+					android:textColor="@color/metropia_passenger_blue" />
+			
+			</LinearLayout>
+        
+        </RelativeLayout><!-- end of succeedPanel -->
+        
+        <RelativeLayout
+        	android:id="@+id/duoFailedPanel"
+        	android:layout_width="match_parent"
+        	android:layout_height="match_parent"
+        	android:layout_above="@id/congrats_panel_buttons"
+        	android:visibility="gone">
+			
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="5dp"
-                android:background="@color/transparent_black"
-                android:orientation="horizontal" >
+            	android:layout_width="match_parent"
+            	android:layout_height="wrap_content"
+            	android:padding="20dp"
+            	android:orientation="vertical"
+            	android:background="#0099cc">
+				
+				<ImageView
+					android:layout_width="match_parent"
+					android:layout_height="40dp"
+					android:src="@drawable/duo_fail_head" />
+				<TextView
+					android:id="@+id/duoFailedPanelText"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_marginTop="10dp"
+					android:gravity="center"
+					android:text="@string/duoFailHeadMsg"
+					android:textColor="#fff"
+					android:textSize="12sp" />
+			</LinearLayout>
+			
+			<LinearLayout
+				android:id="@+id/duoFailedDialog"
+				android:layout_width="280dp"
+				android:layout_height="wrap_content"
+				android:layout_centerInParent="true"
+				android:clickable="true"
+				android:orientation="vertical"
+				android:background="#fff">
+				
+				<TextView
+					android:id="@+id/duoFailedDialogTitle"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:padding="10dp"
+					android:text="No river found"
+					android:textColor="#ffffff"
+					android:background="@color/metropia_blue" />
+				
+				<RelativeLayout
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:padding="10dp"
+					android:orientation="vertical">
+					
+				    <ImageView
+				    	android:id="@+id/duoFailedDialogDurationIcon"
+				    	android:layout_width="50dp"
+				    	android:layout_height="50dp"
+				    	android:layout_marginRight="10dp"
+				    	android:padding="10dp" />
+				    <ImageView
+						android:id="@+id/duoFailedDialogDistanceIcon"
+				    	android:layout_width="50dp"
+				    	android:layout_height="50dp"
+				    	android:layout_marginRight="10dp"
+				    	android:padding="10dp"
+				    	android:layout_below="@id/duoFailedDialogDurationIcon" />
+					<TextView
+						android:id="@+id/duoFailedDialogDurationText"
+						android:layout_width="match_parent"
+						android:layout_height="50dp"
+						android:layout_toRightOf="@id/duoFailedDialogDurationIcon"
+						android:gravity="left|center"
+						android:textColor="#000" />
+					<TextView
+						android:id="@+id/duoFailedDialogDistanceText"
+						android:layout_width="match_parent"
+						android:layout_height="50dp"
+				    	android:layout_below="@id/duoFailedDialogDurationIcon"
+						android:layout_toRightOf="@id/duoFailedDialogDurationIcon"
+						android:gravity="left|center"
+						android:textColor="#000" />
+					
+				</RelativeLayout>
+			
+			</LinearLayout>
+		</RelativeLayout><!-- end of failedPanel -->
 
-                <TextView
-                    android:id="@+id/close"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="Close"
-                    android:textColor="@android:color/white"
-                    android:textSize="@dimen/medium_font"
-                    android:includeFontPadding="false" />
+		
 
-                <ImageView
-                    android:id="@+id/share"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_gravity="center" />
+		<LinearLayout
+			android:id="@id/congrats_panel_buttons"
+			android:layout_width="match_parent"
+			android:layout_height="50dp"
+			android:layout_alignParentBottom="true"
+			android:orientation="horizontal">
+			
+	        
+	        <ImageView
+	        	android:layout_width="wrap_content"
+	        	android:layout_height="match_parent"
+	        	android:maxWidth="100dp"
+	        	android:padding="15dp"
+	        	android:adjustViewBounds="true"
+	        	android:src="@drawable/duo_icon"
+	        	android:background="@color/metropia_passenger_blue" />
+	        
+            <LinearLayout
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:background="@color/metropia_passenger_orange"
+				android:orientation="horizontal" >
 
                 <TextView
                     android:id="@+id/feedback"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.5"
                     android:gravity="center"
                     android:text="Feedback"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/medium_font"
+                    android:includeFontPadding="false" />
+                <ImageView
+                    android:id="@+id/share"
+                    android:layout_width="0dp"
+                    android:layout_height="30dp"
+                    android:layout_weight="1"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/trip_share" />
+                <TextView
+                    android:id="@+id/close"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Close"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/medium_font"
                     android:includeFontPadding="false" />

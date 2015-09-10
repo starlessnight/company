@@ -86,7 +86,12 @@ public abstract class Request {
 	    fb_login,
 	    reverse_geocoding, 
 	    issue, 
-	    travel_time
+	    travel_time,
+	    query_DUO,
+	    passenger_reservation,
+	    passenger_trajectory,
+	    passenger_trip,
+	    passenger_spin_wheel
 	}
 	
 	public enum Page { 
