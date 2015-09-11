@@ -25,8 +25,10 @@ import android.view.animation.Animation.AnimationListener;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.ImageView.ScaleType;
 
-public class Wheel extends ImageView implements OnGestureListener, OnTouchListener {
+public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchListener {
 	
 	GestureDetector gestureDetector;
 	Runnable callback;
@@ -36,17 +38,30 @@ public class Wheel extends ImageView implements OnGestureListener, OnTouchListen
 	int driverId;
 	int resultAngle;
 	public Integer bonus;
+	
+	ImageView spin;
+	ImageView wheel;
 
 	public Wheel(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		
 		gestureDetector = new GestureDetector(this);
-		this.setOnTouchListener(this);
-		//this.setImageResource(R.drawable.wheels);
+		
+		spin = new ImageView(context);
+		spin.setImageResource(R.drawable.spin);
+		wheel = new ImageView(context);
+		wheel.setScaleType(ScaleType.FIT_CENTER);
+		wheel.setAdjustViewBounds(true);
+		wheel.setOnTouchListener(this);
+		
+		addView(wheel, RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		addView(spin, 100, 100);
+		
+		((RelativeLayout.LayoutParams)spin.getLayoutParams()).addRule(RelativeLayout.CENTER_HORIZONTAL);
 	}
 	
 	public void setImage(Bitmap bitmap) {
-		this.setImageBitmap(bitmap);
+		wheel.setImageBitmap(bitmap);
 		center = new Point(getWidth()/2, getHeight()/2);
 	}
 	
@@ -85,7 +100,7 @@ public class Wheel extends ImageView implements OnGestureListener, OnTouchListen
 			public void onAnimationStart(Animation animation) {}
 		});
 		
-		startAnimation(an);
+		wheel.startAnimation(an);
 		spinning.set(true);
 	}
 
@@ -125,7 +140,7 @@ public class Wheel extends ImageView implements OnGestureListener, OnTouchListen
 		
 		if (!Double.isNaN(dAngle)) angle+=dAngle;
 		
-		this.setRotation((float) angle);
+		wheel.setRotation((float) angle);
 		return true;
 		
 	}

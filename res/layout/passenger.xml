@@ -209,12 +209,11 @@
 				android:id="@+id/wheel"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:padding="30dp"
+				android:paddingLeft="30dp"
+				android:paddingRight="30dp"
+				android:paddingTop="50dp"
 				android:src="@drawable/wheels"
-				android:scaleType="fitCenter"
-				android:adjustViewBounds="true"
-				android:layout_centerInParent="true"
-				android:visibility="gone" />
+				android:layout_centerInParent="true" />
 			
 			<LinearLayout
 				android:layout_width="wrap_content"
