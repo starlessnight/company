@@ -57,9 +57,7 @@ public class SendTrajectoryRequest extends Request {
         ArrayList<Passenger> passengers = new ArrayList<Passenger>(); 
         
         try{
-        	String entryPoint = DebugOptionsActivity.getDebugEntrypoint(ctx);
-        	boolean compress = entryPoint.contains("dev4_v1");
-            String str = executeHttpRequest(Method.POST, url, params, compress, ctx);
+            String str = executeHttpRequest(Method.POST, url, params, true, ctx);
 
             if (str==null) return passengers;
             JSONObject json = new JSONObject(str);
