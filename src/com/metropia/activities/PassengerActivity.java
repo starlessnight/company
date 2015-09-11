@@ -307,8 +307,10 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	private void updatePassenger(Location location, boolean forceAnimated) {
 		updatePassengerPosotion(location);
 		
-		if (remotePassengers.containsAll(localPassengers) && localPassengers.containsAll(remotePassengers) && !forceAnimated) return;
-		localPassengers = remotePassengers;
+		boolean equal = remotePassengers.containsAll(localPassengers) && localPassengers.containsAll(remotePassengers);
+		
+		if (equal && !forceAnimated) return;
+		if (!equal) localPassengers = remotePassengers;
 		
 
 		ViewGroup parent = (ViewGroup) findViewById(R.id.passengers);
@@ -342,7 +344,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			}
 			else {
 				view = new ImageView(this);
-				if (passenger.drawable!=null) view.setBackground(passenger.drawable);
+				if (passenger.drawable!=null) ((ImageView)view).setImageDrawable(passenger.drawable);
 				else tasks.add(new ImageLoader(passenger, view, passenger.photoUrl, cb).execute());
 			}
 			
