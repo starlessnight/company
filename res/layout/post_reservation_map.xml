@@ -418,12 +418,12 @@
                 android:orientation="horizontal" >
 
                 <TextView
-                    android:id="@+id/close"
+                    android:id="@+id/feedback"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="Close"
+                    android:text="Feedback"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/medium_font"
                     android:includeFontPadding="false" />
@@ -436,15 +436,16 @@
                     android:layout_gravity="center" />
 
                 <TextView
-                    android:id="@+id/feedback"
+                    android:id="@+id/close"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="Feedback"
+                    android:text="Close"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/medium_font"
                     android:includeFontPadding="false" />
+                
             </LinearLayout>
 
         </LinearLayout>
