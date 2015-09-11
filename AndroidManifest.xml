@@ -261,6 +261,7 @@
         <activity
             android:name=".PassengerActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
+            android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar"
             android:launchMode="singleTask" />
         <activity
