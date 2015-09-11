@@ -358,8 +358,8 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			parent.addView(view, 0);
 			
 			view.setBackgroundResource(R.drawable.circular_button);
-			view.getLayoutParams().width = 150;
-			view.getLayoutParams().height = 150;
+			view.getLayoutParams().width = Dimension.dpToPx(60, this.getResources().getDisplayMetrics());
+			view.getLayoutParams().height = Dimension.dpToPx(60, this.getResources().getDisplayMetrics());
 			view.setAlpha(0);
 		}
 

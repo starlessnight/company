@@ -3,6 +3,7 @@ package com.metropia.ui.animation;
 import java.util.ArrayList;
 
 import com.metropia.ui.animation.CircularPopupAnimation.EasingType.Type;
+import com.metropia.utils.Dimension;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -20,7 +21,7 @@ import android.widget.RelativeLayout;
 
 public class CircularPopupAnimation extends Animation {
 	
-	final static int[] angleOffset = new int[] {0, 0, 0, 90, 45, 54, 60, 0, 0};
+	final static int[] angleOffset = new int[] {0, 0, 0, 90, 45, 54, 60, 0, 0, 0};
 	
 	View view;
 	int position;
@@ -63,8 +64,9 @@ public class CircularPopupAnimation extends Animation {
 		
 		
 			int interval = 360/total;
-			int x = (int) (Math.cos(Math.toRadians(interval*position+angleOffset[total])) * interpolatedTime*200);
-			int y = (int) (Math.sin(Math.toRadians(interval*position+angleOffset[total])) * interpolatedTime*200);
+			int distance = Dimension.dpToPx(80, view.getContext().getResources().getDisplayMetrics());
+			int x = (int) (Math.cos(Math.toRadians(interval*position+angleOffset[total])) * interpolatedTime*distance);
+			int y = (int) (Math.sin(Math.toRadians(interval*position+angleOffset[total])) * interpolatedTime*distance);
 			//Log.e(x+"", y+"");
 			
 			int originX = ((int[])view.getTag(view.getId()))[0];

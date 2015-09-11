@@ -18,6 +18,8 @@
 	    	android:id="@+id/passengers"
 	    	android:layout_width="wrap_content"
 	    	android:layout_height="wrap_content"
+	    	android:layout_marginRight="-200dp"
+	    	android:layout_marginBottom="-200dp"
 	    	android:gravity="center"
 	    	android:clipChildren="false" />
 	    
@@ -213,7 +215,8 @@
 				android:paddingRight="30dp"
 				android:paddingTop="50dp"
 				android:src="@drawable/wheels"
-				android:layout_centerInParent="true" />
+				android:layout_centerInParent="true"
+				android:visibility="gone" />
 			
 			<LinearLayout
 				android:layout_width="wrap_content"
