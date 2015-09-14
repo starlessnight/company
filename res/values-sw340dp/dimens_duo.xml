@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <dimen name="duo_tutorial_text_size">14dp</dimen>
+    <dimen name="duo_tutorial_button_width">140dp</dimen>
+
+</resources>

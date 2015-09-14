@@ -2,7 +2,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical"
-	android:background="#ffffff">
+	android:background="#fff">
 	
 	<ImageView
 		android:id="@+id/duoTutorialHeader"
@@ -37,7 +37,8 @@
 				android:id="@+id/duoTutorialDriverText"
 			    android:layout_width="wrap_content"
 			    android:layout_height="wrap_content"
-				android:textColor="#000000" />
+			    android:textSize="@dimen/duo_tutorial_text_size"
+				android:textColor="#000" />
 		</LinearLayout>
 		
 		<RelativeLayout
@@ -61,16 +62,17 @@
 				android:layout_height="wrap_content"
 				android:layout_gravity="center"
 				android:layout_alignParentBottom="true"
+				android:layout_centerHorizontal="true"
 				android:layout_marginBottom="20dp">
 				
 				<ImageView
 					android:id="@+id/duoTutorialDriverButton"
-					android:layout_width="140dp"
+					android:layout_width="@dimen/duo_tutorial_button_width"
 					android:layout_height="wrap_content"
 					android:adjustViewBounds="true"
 					android:src="@drawable/duo_tutorial_button_driver_button" />
 				<TextView
-					android:layout_width="150dp"
+					android:layout_width="@dimen/duo_tutorial_button_width"
 					android:layout_height="wrap_content"
 					android:layout_below="@id/duoTutorialDriverButton"
 					android:layout_alignLeft="@id/duoTutorialDriverButton"
@@ -82,14 +84,14 @@
 				
 				<ImageView
 					android:id="@+id/duoTutorialPassengerButton"
-					android:layout_width="140dp"
+					android:layout_width="@dimen/duo_tutorial_button_width"
 					android:layout_height="wrap_content"
 					android:layout_toRightOf="@id/duoTutorialDriverButton"
 					android:layout_marginLeft="30dp"
 					android:adjustViewBounds="true"
 					android:src="@drawable/duo_tutorial_button_passenger" />
 				<TextView
-					android:layout_width="150dp"
+					android:layout_width="@dimen/duo_tutorial_button_width"
 					android:layout_height="wrap_content"
 					android:layout_below="@id/duoTutorialPassengerButton"
 					android:layout_alignLeft="@id/duoTutorialPassengerButton"
