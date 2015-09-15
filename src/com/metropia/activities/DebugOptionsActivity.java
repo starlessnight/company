@@ -440,7 +440,7 @@ public final class DebugOptionsActivity extends FragmentActivity {
 			public void onStartTrackingTouch(SeekBar seekBar) {}
 			public void onStopTrackingTouch(SeekBar seekBar) {}
         });
-        seekBarTrajectorySendingInterval.setProgress((Integer) getDebugValue(this, TRAJECTORY_SENDING_INTERVAL, 4));
+        seekBarTrajectorySendingInterval.setProgress((Integer) getDebugValue(this, TRAJECTORY_SENDING_INTERVAL, 5)-1);
         
         rerouteThresholdCoe = (EditText) findViewById(R.id.reroute_threshod_coe);
         rerouteThresholdMax = (EditText) findViewById(R.id.reroute_threshod_max);
