@@ -348,15 +348,12 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				else tasks.add(new ImageLoader(passenger, view, passenger.photoUrl, cb).execute());
 			}
 			
-			
-
-			int padding = Dimension.dpToPx(5, getResources().getDisplayMetrics());
-
-			view.setPadding(0, 0, padding, padding);
-			
 			views.add(view);
 			parent.addView(view, 0);
 			
+			int padding = Dimension.dpToPx(5, getResources().getDisplayMetrics());
+
+			view.setPadding(0, 0, padding, padding);
 			view.setBackgroundResource(R.drawable.circular_button);
 			view.getLayoutParams().width = Dimension.dpToPx(60, this.getResources().getDisplayMetrics());
 			view.getLayoutParams().height = Dimension.dpToPx(60, this.getResources().getDisplayMetrics());

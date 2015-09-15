@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.metropia.activities.R;
 import com.metropia.models.User;
 import com.metropia.requests.DuoSpinWheelRequest;
+import com.metropia.utils.Dimension;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -39,7 +40,7 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 	int resultAngle;
 	public Integer bonus;
 	
-	ImageView spin;
+	ImageView pin;
 	ImageView wheel;
 
 	public Wheel(Context context, AttributeSet attrs) {
@@ -47,17 +48,19 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 		
 		gestureDetector = new GestureDetector(this);
 		
-		spin = new ImageView(context);
-		spin.setImageResource(R.drawable.spin);
+		int pinSize = Dimension.dpToPx(30, context.getResources().getDisplayMetrics());
+		
+		pin = new ImageView(context);
+		pin.setImageResource(R.drawable.spin);
 		wheel = new ImageView(context);
 		wheel.setScaleType(ScaleType.FIT_CENTER);
 		wheel.setAdjustViewBounds(true);
 		wheel.setOnTouchListener(this);
 		
 		addView(wheel, RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-		addView(spin, 100, 100);
+		addView(pin, pinSize, pinSize);
 		
-		((RelativeLayout.LayoutParams)spin.getLayoutParams()).addRule(RelativeLayout.CENTER_HORIZONTAL);
+		((RelativeLayout.LayoutParams)pin.getLayoutParams()).addRule(RelativeLayout.CENTER_HORIZONTAL);
 	}
 	
 	public void setImage(Bitmap bitmap) {
