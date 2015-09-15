@@ -250,7 +250,6 @@
         	android:id="@+id/duoFailedPanel"
         	android:layout_width="match_parent"
         	android:layout_height="match_parent"
-        	android:layout_above="@id/congrats_panel_buttons"
         	android:visibility="gone">
 			
             <LinearLayout
@@ -282,16 +281,16 @@
 				android:layout_centerInParent="true"
 				android:clickable="true"
 				android:orientation="vertical"
-				android:background="#fff">
+				android:background="@drawable/frame">
 				
 				<TextView
 					android:id="@+id/duoFailedDialogTitle"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:padding="10dp"
+					android:gravity="center_vertical"
 					android:text="No river found"
 					android:textColor="#ffffff"
-					android:background="@color/metropia_blue" />
+					android:background="@drawable/frame_header" />
 				
 				<RelativeLayout
 					android:layout_width="match_parent"
