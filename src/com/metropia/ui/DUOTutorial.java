@@ -15,6 +15,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v4.view.ViewPager.PageTransformer;
 import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -55,6 +56,7 @@ public class DUOTutorial extends LinearLayout implements OnPageChangeListener, O
 		}
 		((TextView)pager.getChildAt(0).findViewById(R.id.duoTutorialDriverText)).setText(Html.fromHtml(getResources().getString(R.string.duoForDrivers)));
 		((TextView)pager.getChildAt(1).findViewById(R.id.duoTutorialPassengerText)).setText(Html.fromHtml(getResources().getString(R.string.duoForPassengers)));
+		((TextView)pager.getChildAt(1).findViewById(R.id.duoTutorialPassengerText)).setMovementMethod(LinkMovementMethod.getInstance());
 		
 		pager.setPageTransformer(true, this);
 		pager.addOnPageChangeListener(this);

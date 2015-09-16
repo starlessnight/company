@@ -18,7 +18,7 @@
 		As long as your driver is using Metropia to help you to your destination we’ll pair you automatically.<br><br>
 		When your reach your destination - you guessed it - tap <font color=#00A1E4>End my Trip</font>.<br><br>
 		Your driver gets bonus points and you get to spin our prize wheel.<br><br>
-		<small>Want to learn more? Check out our <u>DUO FAQ</u></small>.
+		<small>Want to learn more? Check out our <font color=#000><a href="http://www.metropia.com/duo-faq">DUO FAQ</a></font></small>.
 	]]></string>
 	
     <string name="passenger_before_ride">Welcome to DUO, %s.</string>
