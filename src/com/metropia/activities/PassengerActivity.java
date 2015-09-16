@@ -292,12 +292,18 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		RelativeLayout parent = (RelativeLayout) findViewById(R.id.passengers);
 		RelativeLayout.LayoutParams layoutParams = (LayoutParams) parent.getLayoutParams();
 		
-		layoutParams.leftMargin = (int)screenPoint.getX()-75;
-		layoutParams.topMargin = (int)screenPoint.getY()-75;
+		int bubbleHeadSize = Dimension.dpToPx(60, this.getResources().getDisplayMetrics());
+		int parentWidth = ((View) parent.getParent()).getWidth();
+		int parentHeight = ((View) parent.getParent()).getHeight();
+		
+		layoutParams.leftMargin = (int)screenPoint.getX()-bubbleHeadSize/2;
+		layoutParams.topMargin = (int)screenPoint.getY()-bubbleHeadSize/2;
+		layoutParams.rightMargin= (int) (parentWidth - (screenPoint.getX()-bubbleHeadSize/2 - bubbleHeadSize));
+		layoutParams.bottomMargin = (int) (parentHeight - (screenPoint.getY()-bubbleHeadSize/2 - bubbleHeadSize));
 		
 		if (mapView.getMapSettings().getFollowerMode()==SKMapFollowerMode.POSITION) {
-			layoutParams.leftMargin = (int)((View)parent.getParent()).getWidth()/2-75;
-			layoutParams.topMargin = (int)((View)parent.getParent()).getHeight()/2-75;
+			layoutParams.leftMargin = parentWidth/2-bubbleHeadSize/2;
+			layoutParams.topMargin = parentHeight/2-bubbleHeadSize/2;
 		}
 		
 		parent.requestLayout();
