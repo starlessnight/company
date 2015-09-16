@@ -1,6 +1,5 @@
 package com.metropia.requests;
 
-import org.apache.http.client.ClientProtocolException;
 import org.json.JSONObject;
 
 import android.content.Context;

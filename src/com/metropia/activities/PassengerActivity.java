@@ -192,8 +192,8 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			
 			@Override
 			protected Integer doInBackground(Void... arg0) {
-				DuoTripCheckRequest request = new DuoTripCheckRequest(User.getCurrentUser(PassengerActivity.this));
 				try {
+					DuoTripCheckRequest request = new DuoTripCheckRequest(User.getCurrentUser(PassengerActivity.this));
 					int timeToNext = request.execute(PassengerActivity.this);
 					return timeToNext;
 				} catch (Exception e) {
@@ -205,6 +205,13 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			@Override
 			protected void onPostExecute(final Integer timeToNext) {
 				findViewById(R.id.loading).setVisibility(View.GONE);
+				
+				if (timeToNext==null) {
+					NotificationDialog2 dialog = new NotificationDialog2(PassengerActivity.this, "An error has occurred.");
+					dialog.show();
+					return;
+				}
+				
 				NotificationDialog2 dialog = new NotificationDialog2(PassengerActivity.this, getString(R.string.duoTripIntervalCheckMsg));
 				dialog.setTitle(getString(R.string.duoTripIntervalCheckTile, 15-timeToNext));
 				dialog.setPositiveButtonText("OK");
