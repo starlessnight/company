@@ -100,8 +100,9 @@ public class SendTrajectoryService extends IntentService {
 	                SendTrajectoryRequest request = new SendTrajectoryRequest(imdSend);
 	                if(Request.NEW_API){
 	                    try{
-	                    	PassengerActivity.remotePassengers = request.execute(user, routeId, traj, ctx, mode);
-	                    	/*for (int i=0 ; i<1 ; i++) PassengerActivity.remotePassengers.add(new Passenger("name", ""));*/
+	                    	ArrayList<Passenger> passengers = request.execute(user, routeId, traj, ctx, mode);
+	                    	if (passengers.size()>0) PassengerActivity.remotePassengers = request.execute(user, routeId, traj, ctx, mode);
+	                    	//for (int i=0 ; i<3 ; i++) PassengerActivity.remotePassengers.add(new Passenger("name", ""));
 	                    }catch(Exception e){}
 	                }else{
 	                    request.execute(seq, user.getId(), routeId, traj);
@@ -193,7 +194,7 @@ public class SendTrajectoryService extends IntentService {
     	
         PendingIntent sendTrajServ = PendingIntent.getService(ctx, 0, new Intent(ctx, SendTrajectoryService.class), PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
-        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + twoMins, interval, sendTrajServ);
+        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 1000, 5000, sendTrajServ);
     }
 
 }

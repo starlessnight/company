@@ -285,6 +285,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	boolean refreshPassenger = false;
 	public static ArrayList<Passenger> remotePassengers = new ArrayList<Passenger>();
 	ArrayList<Passenger> localPassengers = new ArrayList<Passenger>();
+	String driverName = "no Driver";
 	
 	
 	private void updatePassengerPosotion(Location location) {
@@ -336,7 +337,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		
 		for (int i=0 ; i<localPassengers.size() ; i++) {
 			Passenger passenger = localPassengers.get(i);
-			
 			View view;
 			
 			if (StringUtils.isBlank(passenger.photoUrl)) {
@@ -365,7 +365,8 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			view.getLayoutParams().height = Dimension.dpToPx(60, this.getResources().getDisplayMetrics());
 			view.setAlpha(0);
 		}
-
+		
+		if (localPassengers.size()>1) driverName = localPassengers.get(1).userName;
 		if (tasks.size()==0) new CircularPopupAnimation(views, 1);
 
 	}
@@ -448,7 +449,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				findViewById(R.id.duoFailedPanel).setVisibility(View.VISIBLE);
 			}
 			else {
-				String driverName = localPassengers.size()>1? localPassengers.get(1).userName:"";
 				wheel.setVisibility(View.VISIBLE);
 				((TextView)findViewById(R.id.duoPoint)).setText(Integer.toString(uPoints));
 				((TextView)findViewById(R.id.congrats_msg)).setText(getString(R.string.duoCongratulationMsg, driverName));
