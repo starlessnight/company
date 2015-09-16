@@ -27,11 +27,11 @@
 	<string name="duoTripIntervalCheckTile">Your last trip was %s minutes ago.</string>
 	<string name="duoTripIntervalCheckMsg">DUO trips must be 15 minutes apart. Please try again shortly.</string>
 	<string name="duoCongratulationMsg">Now SPIN and win some more as a\n bonus for carpooling with %s</string>
-	<string name="duoExitWithoutSpin">Please spin the wheel so both you and your driver get rewarded for thi trip!</string>
+	<string name="duoExitWithoutSpin">Please spin the wheel so both you and your driver get rewarded for this trip!</string>
 	
 	<string name="duoFailHeadMsg">Sorry, %s. You didn\'t receive any reward for this trip.</string>
 	<string name="duoNoDriverTitle">No driver found</string>
-	<string name="duoNoDriverMsg">We could not varify your carpooling during this trip. Questions? Use the \'Feedback\' button below</string>
+	<string name="duoNoDriverMsg">We could not verify your carpooling during this trip. Questions? Use the \'Feedback\' button below</string>
 	<string name="duoFailTitle">To earn rewards, DUO must:</string>
 	<string name="duoFailDurationMsg">Last 5+ minutes \nYour trip: %s minutes</string>
 	<string name="duoFailDistanceMsg">Exeed 1.5 miles \nYour trip: %s miles</string>
