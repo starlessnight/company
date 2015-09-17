@@ -141,7 +141,7 @@ public final class HTTP {
 			    }
 			    else if (jsonCompressed!=null) {
 			    	contentType = "application/json";
-			    	httpConn.addRequestProperty("Accept-Encoding", "gzip");
+			    	httpConn.addRequestProperty("Accept-Encoding", "gz");
 			    	
 			    }else{
 			        contentType = "application/x-www-form-urlencoded";

@@ -46,32 +46,16 @@ public class SendTrajectoryRequest extends Request {
         executeHttpRequest(Method.POST, link, params, ctx);
     }
     
-    public ArrayList<Passenger> execute(User user, long rid, Trajectory trajectory, Context ctx, String mode) throws Exception {
+    public void execute(User user, long rid, Trajectory trajectory, Context ctx, String mode) throws Exception {
         JSONObject params = new JSONObject();
         params.put("trajectory", trajectory.toJSON());
         this.username = user.getUsername();
         this.password = user.getPassword();
         Link link = mode.equals(PassengerActivity.PASSENGER_TRIP_VALIDATOR)? Link.passenger_trajectory:Link.trajectory;
         String url = Request.getLinkUrl(link).replaceAll("\\{reservation_id\\}", String.valueOf(rid));
-
-        ArrayList<Passenger> passengers = new ArrayList<Passenger>(); 
         
         try{
-            String entryPoint = DebugOptionsActivity.getDebugEntrypoint(ctx);
-            boolean compress = !entryPoint.contains("dev3_v1");
-
-            String str = executeHttpRequest(Method.POST, url, params, compress, ctx);
-
-            if (str==null) return passengers;
-            JSONObject json = new JSONObject(str);
-            JSONArray names = json.getJSONObject("data").getJSONArray("o_users_names");
-            JSONArray photos = json.getJSONObject("data").getJSONArray("o_users_pic");
-            for (int i=0 ; i<names.length() ; i++) {
-            	passengers.add(new Passenger(names.getString(i), photos.getString(i)));
-            }
-            
-            return passengers;
-            
+            executeHttpRequest(Method.POST, url, params, true, ctx);
         }catch(Exception e){
             if(responseCode >= 400 && responseCode <= 499){
                 throw new SmarTrekException(responseCode);

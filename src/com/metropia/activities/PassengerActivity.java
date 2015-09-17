@@ -70,6 +70,7 @@ import com.metropia.models.Passenger;
 import com.metropia.models.Trajectory;
 import com.metropia.models.User;
 import com.metropia.requests.DuoTripCheckRequest;
+import com.metropia.requests.PassengerRequest;
 import com.metropia.requests.PassengerReservationRequest;
 import com.metropia.requests.Request;
 import com.metropia.tasks.ImageLoader;
@@ -282,11 +283,38 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 							prepareGPS();
 						}
 					});
+					
+					fetchPassengerPeriodly.run();
+					
 				}
 		    }
 		};
 		Misc.parallelExecute(reservTask);
 	}
+	
+	
+	Runnable fetchPassengerPeriodly = new Runnable() {
+
+		@Override
+		public void run() {
+
+			final AsyncTask<Void, Void, Void> fetchPassengerTask = new AsyncTask<Void, Void, Void>() {
+
+				@Override
+				protected Void doInBackground(Void... params) {
+					PassengerRequest request = new PassengerRequest();
+					try {
+						ArrayList<Passenger> passengers = request.execute(User.getCurrentUser(PassengerActivity.this), reservId.get(), PassengerActivity.this);
+						if (passengers.size()>0) remotePassengers = passengers;
+					} catch (Exception e) {}
+					return null;
+				}
+			};
+			
+			fetchPassengerTask.execute();
+			handler.postDelayed(fetchPassengerPeriodly, 10*1000);
+		}
+	};
 	
 
 	boolean refreshPassenger = false;
