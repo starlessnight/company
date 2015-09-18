@@ -40,6 +40,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.common.ConnectionResult;
@@ -310,9 +311,11 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					return null;
 				}
 			};
-			
+			Toast.makeText(PassengerActivity.this, "passenger requesting called", Toast.LENGTH_SHORT).show();
+
+			int interval = (Integer) DebugOptionsActivity.getDebugValue(PassengerActivity.this, DebugOptionsActivity.BUBBLE_HEAD_REQUESTING_INTERVAL, 1) * 60 * 1000;
 			fetchPassengerTask.execute();
-			handler.postDelayed(fetchPassengerPeriodly, 60*1000);
+			handler.postDelayed(fetchPassengerPeriodly, interval);
 		}
 	};
 	

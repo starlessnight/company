@@ -442,6 +442,19 @@ public final class DebugOptionsActivity extends FragmentActivity {
         });
         seekBarTrajectorySendingInterval.setProgress((Integer) getDebugValue(this, TRAJECTORY_SENDING_INTERVAL, 5)-1);
         
+        SeekBar seekBarBarBubbleHeadRequestingInterval = (SeekBar) findViewById(R.id.seekBarBubbleHeadRequestingInterval);
+        seekBarBarBubbleHeadRequestingInterval.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				setDebugValue(DebugOptionsActivity.this, BUBBLE_HEAD_REQUESTING_INTERVAL, progress+1);
+				((TextView)findViewById(R.id.seekBarBubbleHeadRequestingIntervalText)).setText("Bubble head requesting Interval: "+(progress+1)+" min");
+			}
+			public void onStartTrackingTouch(SeekBar seekBar) {}
+			public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+        seekBarBarBubbleHeadRequestingInterval.setProgress((Integer) getDebugValue(this, BUBBLE_HEAD_REQUESTING_INTERVAL, 1)-1);
+        
         rerouteThresholdCoe = (EditText) findViewById(R.id.reroute_threshod_coe);
         rerouteThresholdMax = (EditText) findViewById(R.id.reroute_threshod_max);
         rerouteThresholdMin = (EditText) findViewById(R.id.reroute_threshod_min);
@@ -1647,6 +1660,7 @@ public final class DebugOptionsActivity extends FragmentActivity {
     
     
     public static final String TRAJECTORY_SENDING_INTERVAL = "TRAJECTORY_SENDING_INTERVAL";
+    public static final String BUBBLE_HEAD_REQUESTING_INTERVAL = "BUBBLE_HEAD_REQUESTING_INTERVAL";
     
     public static final String REROUTE_THRESHOLD_COE = "REROUTE_THRESHOLD_COE";
     public static final String REROUTE_THRESHOLD_MAX = "REROUTE_THRESHOLD_MAX";

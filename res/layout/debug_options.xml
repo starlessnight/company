@@ -107,6 +107,21 @@
             	android:layout_margin="10dp"
             	android:max="19"
             	android:progress="4" />
+            
+            <TextView
+            	android:id="@+id/seekBarBubbleHeadRequestingIntervalText"
+            	android:layout_width="wrap_content"
+            	android:layout_height="wrap_content"
+            	android:text="Trajectory Sending Interval: 5 min"
+            	android:textColor="#FFFFFFFF"
+            	android:textSize="18dp" />
+            <SeekBar
+            	android:id="@+id/seekBarBubbleHeadRequestingInterval"
+            	android:layout_width="match_parent"
+            	android:layout_height="wrap_content"
+            	android:layout_margin="10dp"
+            	android:max="19"
+            	android:progress="4" />
         	
         </LinearLayout>
 
