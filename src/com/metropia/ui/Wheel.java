@@ -22,6 +22,7 @@ import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
+import android.view.animation.OvershootInterpolator;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.RotateAnimation;
@@ -46,7 +47,7 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 	public Wheel(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		
-		gestureDetector = new GestureDetector(this);
+		gestureDetector = new GestureDetector(context, this);
 		
 		int pinSize = Dimension.dpToPx(30, context.getResources().getDisplayMetrics());
 		
@@ -87,7 +88,7 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 		GetBonusTask task = new GetBonusTask(callback);
 		task.execute();
 		
-		RotateAnimation an = new RotateAnimation(0, 3600*direction + resultAngle-(int)angle, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+		RotateAnimation an = new RotateAnimation(0, 1800*direction + resultAngle-(int)angle, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 		an.setDuration(5000);
 		an.setInterpolator(new DecelerateInterpolator());
 		an.setFillEnabled(true);
@@ -106,9 +107,22 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 		wheel.startAnimation(an);
 		spinning.set(true);
 	}
+	
+	@SuppressLint("NewApi")
+	private void resetAnimated() {
+		RotateAnimation an = new RotateAnimation((float) angle, 0, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+		an.setDuration(300);
+		an.setInterpolator(new OvershootInterpolator(4));
+		wheel.startAnimation(an);
+		wheel.setRotation(0);
+		angle = 0;
+	}
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
+		if (event.getAction()==MotionEvent.ACTION_UP && !spinned.get()) {
+			resetAnimated();
+		}
 		return gestureDetector.onTouchEvent(event);
 	}
 	
@@ -116,7 +130,7 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 	public boolean onDown(MotionEvent e) {return true;}
 	@Override
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float vx, float vy) {
-		if (Math.abs(vx)<3000&&Math.abs(vy)<3000) return false;
+		if (Math.abs(vx)<3000 && Math.abs(vy)<3000) return false;
 		
 		float px = e1.getX() - center.x;
 		float py = e1.getY() - center.y;
@@ -130,6 +144,7 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 	
 	Point center;
 	double angle=0;
+	final double ANGLE_LIMIT = 30;
 	@SuppressLint("NewApi")
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
@@ -141,11 +156,11 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 		double dAngle = Math.toDegrees(Math.acos(((ax*bx) + (ay*by)) / (Math.pow((ax*ax+ay*ay), 0.5) * Math.pow((bx*bx+by*by), 0.5))));
 		if (by*ax<bx*ay) dAngle*=(-1);
 		
-		if (!Double.isNaN(dAngle)) angle+=dAngle;
+		double tension = angle*(Math.abs(angle)/ANGLE_LIMIT);
+		if (!Double.isNaN(dAngle) && Math.abs(angle+dAngle-tension)<=ANGLE_LIMIT-2) angle+=dAngle-tension;
 		
 		wheel.setRotation((float) angle);
 		return true;
-		
 	}
 	@Override
 	public void onShowPress(MotionEvent e) {}
