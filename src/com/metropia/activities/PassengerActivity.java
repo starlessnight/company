@@ -312,7 +312,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			};
 			
 			fetchPassengerTask.execute();
-			handler.postDelayed(fetchPassengerPeriodly, 10*1000);
+			handler.postDelayed(fetchPassengerPeriodly, 60*1000);
 		}
 	};
 	
@@ -718,6 +718,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	
 	private void displayArrivalMsg(final Runnable callback) {
 		arrivalMsgTiggered.set(true);
+		handler.removeCallbacks(fetchPassengerPeriodly);
 
 		saveTrajectory(new Runnable() {
 			@Override
