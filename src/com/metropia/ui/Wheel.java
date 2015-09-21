@@ -28,11 +28,12 @@ import android.view.animation.OvershootInterpolator;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.RotateAnimation;
+import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.ImageView.ScaleType;
 
-public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchListener {
+public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchListener, OnClickListener {
 	
 	GestureDetector gestureDetector;
 	Runnable callback;
@@ -45,6 +46,7 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 	
 	ImageView pin;
 	ImageView wheel;
+	ImageView spinButton;
 
 	public Wheel(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -53,6 +55,7 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 		
 		int pinSize = Dimension.dpToPx(30, context.getResources().getDisplayMetrics());
 		
+		spinButton = new ImageView(context);
 		pin = new ImageView(context);
 		pin.setImageResource(R.drawable.spin);
 		wheel = new ImageView(context);
@@ -60,9 +63,13 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 		wheel.setAdjustViewBounds(true);
 		wheel.setOnTouchListener(this);
 		
+
 		addView(wheel, RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		addView(spinButton, pinSize*2, pinSize*2);
 		addView(pin, pinSize, pinSize);
 		
+		spinButton.setOnClickListener(this);
+		((RelativeLayout.LayoutParams)spinButton.getLayoutParams()).addRule(RelativeLayout.CENTER_IN_PARENT);
 		((RelativeLayout.LayoutParams)pin.getLayoutParams()).addRule(RelativeLayout.CENTER_HORIZONTAL);
 		
 		
@@ -166,7 +173,7 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 		double dAngle = Math.toDegrees(Math.acos(((ax*bx) + (ay*by)) / (Math.pow((ax*ax+ay*ay), 0.5) * Math.pow((bx*bx+by*by), 0.5))));
 		if (by*ax<bx*ay) dAngle*=(-1);
 		
-		double tension = 1-(Math.pow((Math.abs(angle)/ANGLE_LIMIT), 0.2));Log.e(dAngle+"", tension+"");
+		double tension = 1-(Math.pow((Math.abs(angle)/ANGLE_LIMIT), 0.2));
 		if (!Double.isNaN(dAngle)) angle+=dAngle*tension;
 		
 		wheel.setRotation((float) angle);
@@ -197,6 +204,12 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 			if (cb!=null) Wheel.this.post(cb);
 			return null;
 		}
+	}
+
+
+	@Override
+	public void onClick(View v) {
+		spin(1);
 	};
 	
 	
