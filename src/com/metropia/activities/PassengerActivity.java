@@ -36,6 +36,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
@@ -311,8 +313,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					return null;
 				}
 			};
-			Toast.makeText(PassengerActivity.this, "passenger requesting called", Toast.LENGTH_SHORT).show();
-
+			
 			int interval = (Integer) DebugOptionsActivity.getDebugValue(PassengerActivity.this, DebugOptionsActivity.BUBBLE_HEAD_REQUESTING_INTERVAL, 1) * 60 * 1000;
 			fetchPassengerTask.execute();
 			handler.postDelayed(fetchPassengerPeriodly, interval);
@@ -326,23 +327,51 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	String driverName = "no Driver";
 	
 	
-	private void updatePassengerPosotion(Location location) {
+	Animation psAn;
+	private void updatePassengerPosotion(Location location, boolean animated) {
 		SKScreenPoint screenPoint = mapView.coordinateToPoint(new SKCoordinate(location.getLongitude(), location.getLatitude()));
-		RelativeLayout parent = (RelativeLayout) findViewById(R.id.passengers);
+		final RelativeLayout parent = (RelativeLayout) findViewById(R.id.passengers);
 		RelativeLayout.LayoutParams layoutParams = (LayoutParams) parent.getLayoutParams();
 		
 		int bubbleHeadSize = Dimension.dpToPx(60, this.getResources().getDisplayMetrics());
 		int parentWidth = ((View) parent.getParent()).getWidth();
 		int parentHeight = ((View) parent.getParent()).getHeight();
 		
-		layoutParams.leftMargin = (int)screenPoint.getX()-bubbleHeadSize/2;
-		layoutParams.topMargin = (int)screenPoint.getY()-bubbleHeadSize/2;
-		layoutParams.rightMargin= (int) (parentWidth - (screenPoint.getX()-bubbleHeadSize/2 - bubbleHeadSize));
-		layoutParams.bottomMargin = (int) (parentHeight - (screenPoint.getY()-bubbleHeadSize/2 - bubbleHeadSize));
+
+		if (psAn!=null) parent.clearAnimation();
 		
 		if (mapView.getMapSettings().getFollowerMode()==SKMapFollowerMode.POSITION) {
 			layoutParams.leftMargin = parentWidth/2-bubbleHeadSize/2;
 			layoutParams.topMargin = parentHeight/2-bubbleHeadSize/2;
+			layoutParams.rightMargin= 0;
+			layoutParams.bottomMargin = 0;
+		}
+		else {
+			if (!animated) {
+				layoutParams.leftMargin = (int)screenPoint.getX()-bubbleHeadSize/2;
+				layoutParams.topMargin = (int)screenPoint.getY()-bubbleHeadSize/2;
+				layoutParams.rightMargin= (int) (parentWidth - (screenPoint.getX()-bubbleHeadSize/2 - bubbleHeadSize));
+				layoutParams.bottomMargin = (int) (parentHeight - (screenPoint.getY()-bubbleHeadSize/2 - bubbleHeadSize));
+			}
+			
+			final int currentLeftMargin = ((RelativeLayout.LayoutParams)parent.getLayoutParams()).leftMargin;
+			final int currentTopMargin = ((RelativeLayout.LayoutParams)parent.getLayoutParams()).topMargin;
+			final int newLeftMargin = (int) (screenPoint.getX()-bubbleHeadSize/2);
+			final int newTopMargin = (int) (screenPoint.getY()-bubbleHeadSize/2);
+			psAn = new Animation() {
+
+			    @Override
+			    protected void applyTransformation(float interpolatedTime, android.view.animation.Transformation t) {
+			        LayoutParams params = (LayoutParams) parent.getLayoutParams();
+			        params.leftMargin = (int) ((int)currentLeftMargin+((newLeftMargin-currentLeftMargin) * interpolatedTime));
+			        params.topMargin = (int) ((int)currentTopMargin+((newTopMargin-currentTopMargin) * interpolatedTime));
+			        parent.setLayoutParams(params);
+			    }
+			};
+			psAn.setInterpolator(new DecelerateInterpolator());
+			psAn.setDuration(3000); // in ms
+			if (animated)
+			parent.startAnimation(psAn);
 		}
 		
 		parent.requestLayout();
@@ -350,7 +379,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	}
 	@SuppressLint("NewApi")
 	private void updatePassenger(Location location, boolean forceAnimated) {
-		updatePassengerPosotion(location);
+		updatePassengerPosotion(location, true);
 		
 		boolean equal = remotePassengers.containsAll(localPassengers) && localPassengers.containsAll(remotePassengers);
 		
@@ -987,7 +1016,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		Location location = new Location("");
 		location.setLongitude(point.getLongitude());
 		location.setLatitude(point.getLatitude());
-		updatePassengerPosotion(location);
+		updatePassengerPosotion(location, false);
 	}
 
 	@Override
