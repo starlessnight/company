@@ -20,6 +20,8 @@ import android.view.View.OnTouchListener;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
+import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.OvershootInterpolator;
@@ -62,11 +64,19 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 		addView(pin, pinSize, pinSize);
 		
 		((RelativeLayout.LayoutParams)pin.getLayoutParams()).addRule(RelativeLayout.CENTER_HORIZONTAL);
+		
+		
+		ViewTreeObserver vto2 = wheel.getViewTreeObserver();
+	    vto2.addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+	        @Override
+	        public void onGlobalLayout() {
+	    		center = new Point(wheel.getWidth()/2, wheel.getHeight()/2);
+	        }
+	    });
 	}
 	
 	public void setImage(Bitmap bitmap) {
 		wheel.setImageBitmap(bitmap);
-		center = new Point(getWidth()/2, getHeight()/2);
 	}
 	
 	public void setDriverId(int driverId) {
@@ -144,7 +154,7 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 	
 	Point center;
 	double angle=0;
-	final double ANGLE_LIMIT = 30;
+	final double ANGLE_LIMIT = 60;
 	@SuppressLint("NewApi")
 	@Override
 	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
@@ -156,8 +166,8 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 		double dAngle = Math.toDegrees(Math.acos(((ax*bx) + (ay*by)) / (Math.pow((ax*ax+ay*ay), 0.5) * Math.pow((bx*bx+by*by), 0.5))));
 		if (by*ax<bx*ay) dAngle*=(-1);
 		
-		double tension = angle*(Math.abs(angle)/ANGLE_LIMIT);
-		if (!Double.isNaN(dAngle) && Math.abs(angle+dAngle-tension)<=ANGLE_LIMIT-2) angle+=dAngle-tension;
+		double tension = 1-(Math.pow((Math.abs(angle)/ANGLE_LIMIT), 0.2));Log.e(dAngle+"", tension+"");
+		if (!Double.isNaN(dAngle)) angle+=dAngle*tension;
 		
 		wheel.setRotation((float) angle);
 		return true;
@@ -188,5 +198,8 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 			return null;
 		}
 	};
+	
+	
+	
 
 }
