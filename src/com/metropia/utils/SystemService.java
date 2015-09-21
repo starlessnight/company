@@ -47,8 +47,8 @@ public class SystemService {
     	NotificationDialog2 dialog = new NotificationDialog2(context, "Your location couldn't be found. Do you like to enable the location service?");
     	dialog.setVerticalOrientation(false);
     	dialog.setTitle("Notification");
-    	dialog.setPositiveButtonText("No");
-    	dialog.setPositiveActionListener(new ActionListener() {
+    	dialog.setNegativeButtonText("No");
+    	dialog.setNegativeActionListener(new ActionListener() {
 			@Override
 			public void onClick() {
 				if(callback != null) {
@@ -57,8 +57,8 @@ public class SystemService {
 			}
 		});
     	
-    	dialog.setNegativeButtonText("Yes");
-	    dialog.setNegativeActionListener(new ActionListener() {
+    	dialog.setPositiveButtonText("Yes");
+	    dialog.setPositiveActionListener(new ActionListener() {
 			@Override
 			public void onClick() {
 				context.startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));

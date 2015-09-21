@@ -1932,8 +1932,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 								NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, "Would you like to start your trip early?");
 								dialog.setVerticalOrientation(false);
 								dialog.setTitle("");
-								dialog.setNegativeButtonText("Yes");
-								dialog.setNegativeActionListener(new ActionListener() {
+								dialog.setPositiveButtonText("Yes");
+								dialog.setPositiveActionListener(new ActionListener() {
 									@Override
 									public void onClick() {
 									    GeoPoint origin = null;
@@ -1956,8 +1956,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 				                        Misc.parallelExecute(rescheduleTask);
 									}
 								});
-								dialog.setPositiveButtonText("No");
-								dialog.setPositiveActionListener(new ActionListener() {
+								dialog.setNegativeButtonText("No");
+								dialog.setNegativeActionListener(new ActionListener() {
 									@Override
 									public void onClick() {
 										//do nothing
@@ -4721,16 +4721,19 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     private void confirmExit() {
-    	new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.PopUpDialog)).setCancelable(false).setTitle("Really quit?")
-    			.setMessage("Do you really want to exit the app?").setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {}
-    	}).setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				finish();
-			}
-    	}).create().show();
+    	AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.PopUpDialog)).setCancelable(false).setTitle("Really quit?");
+    	builder.setMessage("Do you really want to exit the app?");
+    	builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+    		@Override
+    		public void onClick(DialogInterface dialog, int which) {
+    			finish();
+    		}
+    	});
+    	builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+    		@Override
+    		public void onClick(DialogInterface dialog, int which) {}
+    	});
+    	builder.create().show();
     	
     }
     

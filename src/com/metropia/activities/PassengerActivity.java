@@ -682,19 +682,16 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			NotificationDialog2 dialog = new NotificationDialog2(PassengerActivity.this, "Are you sure?");
 			dialog.setTitle("End Trip");
 			dialog.setVerticalOrientation(false);
-			dialog.setPositiveButtonText("No");
-			dialog.setNegativeButtonText("Yes");
-			dialog.setNegativeActionListener(new NotificationDialog2.ActionListener() {
+			dialog.setPositiveButtonText("Yes");
+			dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
 				@Override
 				public void onClick() {
 					doCancelValidation();
 				}
 			});
-			dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
-				@Override
-				public void onClick() {
-					// do nothing
-				}
+			dialog.setNegativeButtonText("No");
+			dialog.setNegativeActionListener(new ActionListener() {
+				public void onClick() {}
 			});
 			dialog.show();
 		}

@@ -1023,15 +1023,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "On my Way is currently available for passengers only.");
 						dialog.setVerticalOrientation(false);
 						dialog.setTitle("Are you the passenger?");
-						dialog.setPositiveButtonText("No");
-						dialog.setPositiveActionListener(new ActionListener() {
-							@Override
-							public void onClick() {
-								// do nothing
-							}
-						});
-						dialog.setNegativeButtonText("Yes");
+						dialog.setNegativeButtonText("No");
 						dialog.setNegativeActionListener(new ActionListener() {
+							public void onClick() {}
+						});
+						dialog.setPositiveButtonText("Yes");
+						dialog.setPositiveActionListener(new ActionListener() {
 							@Override
 							public void onClick() {
 								Intent contactSelect = new Intent(ValidationActivity.this, ContactsSelectActivity.class);
@@ -2721,20 +2718,17 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "Are you sure?");
 			dialog.setTitle("Exit Navigation");
 			dialog.setVerticalOrientation(false);
-			dialog.setPositiveButtonText("No");
-			dialog.setNegativeButtonText("Yes");
-			dialog.setNegativeActionListener(new NotificationDialog2.ActionListener() {
+			dialog.setNegativeButtonText("No");
+			dialog.setPositiveButtonText("Yes");
+			dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
 				@Override
 				public void onClick() {
 					LocalyticsUtils.tagTrip(LocalyticsUtils.TRIP_EXITED_MANUALLY);
 					doCancelValidation();
 				}
 			});
-			dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
-				@Override
-				public void onClick() {
-					// do nothing
-				}
+			dialog.setNegativeActionListener(new NotificationDialog2.ActionListener() {
+				public void onClick() {}
 			});
 			dialog.show();
 		}

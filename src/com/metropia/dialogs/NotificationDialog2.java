@@ -199,7 +199,7 @@ public class NotificationDialog2 extends Dialog {
 	}
 	
 	public void hideNegativeButtonAndShowDetail() {
-		TextView titleView = (TextView)dialogView.findViewById(R.id.title);
+		/*TextView titleView = (TextView)dialogView.findViewById(R.id.title);
 		titleView.setText("Error Message");
 		int seperator3Id = buttonVerticalOrientation?R.id.seperator3:R.id.h_seperator3;
 		int dismissId = buttonVerticalOrientation?R.id.dismiss:R.id.h_dismiss;
@@ -208,7 +208,11 @@ public class NotificationDialog2 extends Dialog {
 		dismissView.setVisibility(View.GONE);
 		TextView messageView = (TextView) dialogView.findViewById(R.id.message);
 		messageView.setText(detailMessage);
-		messageView.setGravity(Gravity.LEFT);
+		messageView.setGravity(Gravity.LEFT);*/
+		
+		NotificationDialog2 dialog = new NotificationDialog2(this.getContext(), detailMessage);
+		dialog.setTitle("Error Message");
+		dialog.show();
 	}
 
 	public void setPostiveClickDismiss(boolean postiveClickDismiss) {

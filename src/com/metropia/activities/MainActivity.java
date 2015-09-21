@@ -118,18 +118,18 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 	        	waitOrCancelDialog.setVerticalOrientation(false);
 	        	waitOrCancelDialog.setMessageTextSize(12);
 				waitOrCancelDialog.setTitle("Just a little bit longer...");
-				waitOrCancelDialog.setNegativeButtonText("I'll wait");
+				waitOrCancelDialog.setNegativeButtonText("Cancel");
 				waitOrCancelDialog.setNegativeActionListener(new ActionListener() {
 					@Override
 					public void onClick() {
-						waitOrCancelDialog.dismiss();
+						MainActivity.this.finish();
 					}
 				});
-				waitOrCancelDialog.setPositiveButtonText("Cancel");
+				waitOrCancelDialog.setPositiveButtonText("I'll wait");
 				waitOrCancelDialog.setPositiveActionListener(new ActionListener() {
 					@Override
 					public void onClick() {
-						MainActivity.this.finish();
+						waitOrCancelDialog.dismiss();
 					}
 				});
 	        	
@@ -148,39 +148,10 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
                     	
                     	findViewById(R.id.progress).setVisibility(View.GONE);
                     	
-                    	/*if (type.equals(User.FACEBOOK)) {
-                    		loginTask.execute();
-                    	}
-                    	else */if(loginTask != null){
+                    	if(loginTask != null){
                             loginTask.setDialogEnabled(splashEnded);
                             loginTask.showDialog();
                             loginTask.execute();
-                            
-                            /*Misc.parallelExecute(new AsyncTask<Void, Void, Integer>() {
-                                @Override
-                                protected Integer doInBackground(Void... params) {
-                                    Integer id = null;
-                                    try {
-                                        UserIdRequest req = new UserIdRequest(username); 
-                                        req.invalidateCache(MainActivity.this);
-                                        id = req.execute(MainActivity.this);
-                                    }
-                                    catch(Exception e) {}
-                                    return id;
-                                }
-                                protected void onPostExecute(Integer userId) {
-                                    if(userId == null){
-                                        loginTaskEnded = true;
-                                        loggedIn = false;
-                                        if(splashEnded){
-                                            startLoginActivity();
-                                        }
-                                    }else{
-                                        loginTask.setUserId(userId);
-                                        Misc.parallelExecute(loginTask);
-                                    }
-                                }
-                            });*/
                         }
                         DebugOptionsActivity.setActivityDistanceInterval(MainActivity.this, Request.getActivityDistanceInterval());
                     }

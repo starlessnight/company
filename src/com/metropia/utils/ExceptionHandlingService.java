@@ -149,13 +149,13 @@ public class ExceptionHandlingService {
             }; 
         	            
             if(DebugOptionsActivity.isPopupMessageMoreEnabled(context)) {
-            	dialog.setNegativeButtonText("OK");
-	            dialog.setNegativeActionListener(okActionListener);
+            	dialog.setPositiveButtonText("OK");
+	            dialog.setPositiveActionListener(okActionListener);
 	            
-	            dialog.setPositiveButtonText("More");
-	            dialog.setPostiveClickDismiss(false);
+	            dialog.setNegativeButtonText("More");
+	            //dialog.setPostiveClickDismiss(false);
 	            dialog.setDetailMessage(detailMessage);
-	            dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
+	            dialog.setNegativeActionListener(new NotificationDialog2.ActionListener() {
 					@Override
 					public void onClick() {
 						dialog.hideNegativeButtonAndShowDetail();
