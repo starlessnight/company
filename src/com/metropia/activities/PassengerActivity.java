@@ -214,11 +214,11 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					return;
 				}
 				
-				NotificationDialog2 dialog = new NotificationDialog2(PassengerActivity.this, getString(R.string.duoTripIntervalCheckMsg));
+				NotificationDialog2 dialog = new NotificationDialog2(PassengerActivity.this, getString(R.string.duoTripIntervalCheckMsg, timeToNext));
 				dialog.setTitle(getString(R.string.duoTripIntervalCheckTile, 15-timeToNext));
 				dialog.setPositiveButtonText("OK");
 				dialog.setPositiveActionListener(new ActionListener() {
-					public void onClick() {if (cb!=null) cb.run();}
+					public void onClick() {}
 				});
 				if (timeToNext.equals(0)) cb.run();
 				else dialog.show();
