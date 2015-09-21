@@ -151,6 +151,7 @@ import com.metropia.requests.ReservationDeleteRequest;
 import com.metropia.requests.ReservationListFetchRequest;
 import com.metropia.requests.ReservationRequest;
 import com.metropia.requests.RouteFetchRequest;
+import com.metropia.requests.SaveLocationRequest;
 import com.metropia.requests.UpdateDeviceIdRequest;
 import com.metropia.requests.WhereToGoRequest;
 import com.metropia.ui.DelayTextWatcher;
@@ -2426,23 +2427,32 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         final String gcmRegistrationId = globalPrefs.getString(Preferences.Global.GCM_REG_ID, "");
         final User currentUser = User.getCurrentUser(this);
         final String appVersion = StringUtils.defaultString(currentUser.getAppVersion(), "");
+        final String currentDeviceId = currentUser.getDeviceId();
         if (StringUtils.isBlank(gcmRegistrationId)) return;
-        if(!gcmRegistrationId.equals(currentUser.getDeviceId()) || !appVersion.equals(versionNumber)){
-            currentUser.setDeviceId(gcmRegistrationId);
-            currentUser.setAppVersion(versionNumber);
-            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
-                @Override
-                protected Void doInBackground(Void... params) {
-                    try {
-                        new UpdateDeviceIdRequest().execute(currentUser.getId(), gcmRegistrationId,
-                            currentUser.getUsername(), currentUser.getPassword(), LandingActivity2.this, versionNumber);
-                    }
-                    catch (Exception e) {}
-                    return null;
+        
+        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+
+                	if (StringUtils.isBlank(currentDeviceId)) {
+                		while (lastLocation==null) ;
+                		new SaveLocationRequest(currentUser).execute(LandingActivity2.this, lastLocation.getLatitude(), lastLocation.getLongitude());
+                	}
+                	
+                	if(!currentDeviceId.equals(gcmRegistrationId) || !appVersion.equals(versionNumber)){
+                        currentUser.setDeviceId(gcmRegistrationId);
+                        currentUser.setAppVersion(versionNumber);
+                        
+                        new UpdateDeviceIdRequest(currentUser).execute(LandingActivity2.this, gcmRegistrationId, versionNumber);
+                	}
+                	
                 }
-            };
-            Misc.parallelExecute(task);
-        }
+                catch (Exception e) {}
+                return null;
+            }
+        };
+        Misc.parallelExecute(task);
     }
     
     private static final String TRIP_INFO_UPDATES = "TRIP_INFO_UPDATES"; 
@@ -4875,8 +4885,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                         try{
                             locationManager.removeUpdates(this);
                             dialog.dismiss();
-                            origin = new GeoPoint(location.getLatitude(), 
-                                location.getLongitude());
+                            origin = new GeoPoint(location.getLatitude(), location.getLongitude());
                         }catch(Throwable t){}
                     }
                     @Override
