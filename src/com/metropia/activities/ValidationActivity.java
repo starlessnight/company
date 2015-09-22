@@ -2275,7 +2275,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			int min = (Integer) DebugOptionsActivity.getDebugValue(this, DebugOptionsActivity.REROUTE_THRESHOLD_MIN, 2);
 			
 			countOutOfRouteThreshold = Math.min(max, Math.max(min, coe*NavigationView.metersToFeet(accuracy)));
-			long interval = location.getTime() - lastLocation.getTime();
+			long interval = lastLocation!=null? location.getTime() - lastLocation.getTime():0;
 			
 			inRouteTag.set(inRouteTag.get() || (speedInMph > speedOutOfRouteThreshold && !Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)));
 			
