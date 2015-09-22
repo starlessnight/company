@@ -13,6 +13,7 @@ import android.content.Context;
 import com.metropia.exceptions.ServiceFailException;
 import com.metropia.exceptions.WrappedIOException;
 import com.metropia.models.User;
+import com.metropia.requests.CityRequest.City;
 import com.metropia.utils.HTTP.Method;
 
 public class PassengerReservationRequest extends Request {
@@ -35,7 +36,7 @@ public class PassengerReservationRequest extends Request {
 		url = getLinkUrl(Link.passenger_reservation);
 	}
 	
-	public Long execute(Context ctx) throws Exception {
+	public Long execute(Context ctx, City city) throws Exception {
 		this.username = user.getUsername();
         this.password = user.getPassword();
         JSONObject params = new JSONObject();
@@ -48,6 +49,7 @@ public class PassengerReservationRequest extends Request {
         params.put("app_version", version);
         params.put("validated", 0);
         params.put("navigation_url", "");
+        params.put("city", city!=null&&city.name!=null? city.name:"");
         params.put("trajectory_fields", "lat,lon,altitude,heading,timestamp,speed,link,accuracy");
         
         String res = null;

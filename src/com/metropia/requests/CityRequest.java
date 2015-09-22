@@ -3,8 +3,12 @@ package com.metropia.requests;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.os.AsyncTask;
 
+import com.metropia.activities.LandingActivity2;
 import com.metropia.requests.CityRequest.City;
+import com.metropia.tasks.ICallback;
+import com.metropia.utils.HTTP;
 
 public final class CityRequest extends FetchRequest<City> {
     
@@ -74,6 +78,30 @@ public final class CityRequest extends FetchRequest<City> {
 		    city.link = json.optString("link", "");
 		}
         return city;
+	}
+	
+	public void executeAsync(final Context context, final ICallback cb) {
+		new AsyncTask<Void, Void, City>(){
+
+			@Override
+			protected City doInBackground(Void... arg0) {
+				City result;
+                try{
+                    invalidateCache(context);
+                    result = CityRequest.this.execute(context);
+                }catch(Throwable t){
+                    result = null;
+                }
+                return result;
+			}
+			
+			@Override
+            protected void onPostExecute(City result) {
+				if (cb!=null) cb.run(result);
+			}
+		}.execute();
+		
+		
 	}
 
 }

@@ -72,10 +72,13 @@ import com.metropia.dialogs.NotificationDialog2.ActionListener;
 import com.metropia.models.Passenger;
 import com.metropia.models.Trajectory;
 import com.metropia.models.User;
+import com.metropia.requests.CityRequest;
+import com.metropia.requests.CityRequest.City;
 import com.metropia.requests.DuoTripCheckRequest;
 import com.metropia.requests.PassengerRequest;
 import com.metropia.requests.PassengerReservationRequest;
 import com.metropia.requests.Request;
+import com.metropia.tasks.ICallback;
 import com.metropia.tasks.ImageLoader;
 import com.metropia.ui.Wheel;
 import com.metropia.ui.animation.CircularPopupAnimation;
@@ -83,6 +86,7 @@ import com.metropia.ui.animation.ClickAnimation;
 import com.metropia.utils.Dimension;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
+import com.metropia.utils.HTTP;
 import com.metropia.utils.Misc;
 import com.metropia.utils.SystemService;
 import com.skobbler.ngx.SKCoordinate;
@@ -230,69 +234,87 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	}
 	
 	private void startTrip() {
-		AsyncTask<Void, Void, Long> reservTask = new AsyncTask<Void, Void, Long>() {
-			CancelableProgressDialog dialog;
-			ExceptionHandlingService es = new ExceptionHandlingService(PassengerActivity.this);
-			@Override
-			protected void onPreExecute() {
-				dialog = new CancelableProgressDialog(PassengerActivity.this, "Preparing...");
-	            dialog.setActionListener(new CancelableProgressDialog.ActionListener() {
-	                @Override
-	                public void onClickNegativeButton() {
-	                    finish();
-	                }
-	            });
-	            dialog.show();
-		    }
+		
+		final ICallback cityRequestCb = new ICallback() {
+			public void run(Object... obj) {
+				final City city = (City) obj[0];
+		
+				final AsyncTask<Void, Void, Long> reservTask = new AsyncTask<Void, Void, Long>() {
+					CancelableProgressDialog dialog;
+					ExceptionHandlingService es = new ExceptionHandlingService(PassengerActivity.this);
+					
+					@Override
+					protected void onPreExecute() {
+						dialog = new CancelableProgressDialog(PassengerActivity.this, "Preparing...");
+						dialog.setActionListener(new CancelableProgressDialog.ActionListener() {
+							@Override
+							public void onClickNegativeButton() {
+								finish();
+							}
+						});
+						dialog.show();
+					}
+
+					@Override
+					protected Long doInBackground(Void... params) {
+						try {
+					
+							PassengerReservationRequest resvReq = new PassengerReservationRequest(User.getCurrentUser(PassengerActivity.this), getString(R.string.distribution_date));
+							return resvReq.execute(PassengerActivity.this, city);
+						}
+						catch(Exception e) {
+							es.registerException(e);
+						}
+						return null;
+					}
+			
+					@Override
+					protected void onPostExecute(final Long reserId) {
+						if(dialog.isShowing()) {
+							dialog.dismiss();
+						}
+						if(es.hasExceptions()) {
+							es.reportExceptions();
+						}
+						else {
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									User user = User.getCurrentUser(PassengerActivity.this);
+									reservId.set(reserId);
+									View startButton = findViewById(R.id.startButton);
+									View startButtonIcon = findViewById(R.id.startButtonIcon);
+									final TextView startButtonText = (TextView) findViewById(R.id.startButtonText);
+									startButton.setTag(true);
+									startButtonText.setText("END MY TRIP");
+									startButtonText.setBackgroundColor(getResources().getColor(R.color.metropia_passenger_orange));
+									startButtonIcon.setBackgroundColor(getResources().getColor(R.color.metropia_passenger_blue));
+									TextView passengerMsg = (TextView) findViewById(R.id.passenger_msg);
+									passengerMsg.setText(getResources().getString(R.string.passenger_start_ride, user.getFirstname()));
+									passengerMsg.setGravity(Gravity.CENTER);
+									findViewById(R.id.back_button).setVisibility(View.GONE);
+								}
+							});
+					
+							fetchPassengerPeriodly.run();
+					
+						}
+					}
+				};
+				Misc.parallelExecute(reservTask);
+			}
+		};
+		
+		AsyncTask<Void, Void, Void> waitForGps = new AsyncTask<Void, Void, Void>() {
 
 			@Override
-			protected Long doInBackground(Void... params) {
-				try {
-					
-					PassengerReservationRequest resvReq = new PassengerReservationRequest(User.getCurrentUser(PassengerActivity.this), getString(R.string.distribution_date));
-					return resvReq.execute(PassengerActivity.this);
-				}
-				catch(Exception e) {
-					es.registerException(e);
-				}
+			protected Void doInBackground(Void... params) {
+				while(lastLocation==null) try {Thread.sleep(1000);} catch (InterruptedException e) {}
+				
+				new CityRequest(lastLocation.getLatitude(), lastLocation.getLongitude(), HTTP.defaultTimeout).executeAsync(PassengerActivity.this, cityRequestCb);
 				return null;
 			}
-			
-			@Override
-			protected void onPostExecute(final Long reserId) {
-				if(dialog.isShowing()) {
-					dialog.dismiss();
-				}
-				if(es.hasExceptions()) {
-					es.reportExceptions();
-				}
-				else {
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							User user = User.getCurrentUser(PassengerActivity.this);
-							reservId.set(reserId);
-							View startButton = findViewById(R.id.startButton);
-							View startButtonIcon = findViewById(R.id.startButtonIcon);
-							final TextView startButtonText = (TextView) findViewById(R.id.startButtonText);
-							startButton.setTag(true);
-							startButtonText.setText("END MY TRIP");
-							startButtonText.setBackgroundColor(getResources().getColor(R.color.metropia_passenger_orange));
-							startButtonIcon.setBackgroundColor(getResources().getColor(R.color.metropia_passenger_blue));
-							TextView passengerMsg = (TextView) findViewById(R.id.passenger_msg);
-							passengerMsg.setText(getResources().getString(R.string.passenger_start_ride, user.getFirstname()));
-							passengerMsg.setGravity(Gravity.CENTER);
-							findViewById(R.id.back_button).setVisibility(View.GONE);
-							prepareGPS();
-						}
-					});
-					
-					fetchPassengerPeriodly.run();
-					
-				}
-		    }
-		};
-		Misc.parallelExecute(reservTask);
+		}.execute();
 	}
 	
 	
@@ -634,8 +656,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	}
 
 	protected void checkLocationSettings() {
-		PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi
-				.checkLocationSettings(googleApiClient, locationSettingsRequest);
+		PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(googleApiClient, locationSettingsRequest);
 		result.setResultCallback(PassengerActivity.this);
 	}
 
@@ -1043,6 +1064,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	        loc.setAccuracy(cacheLoc.lastAccuracy);
 	        loc.setBearing(cacheLoc.lastHeading);
 	        locationChanged(loc);
+	        prepareGPS();
 		}
 	}
 
