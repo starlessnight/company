@@ -87,6 +87,7 @@ public abstract class Request {
 	    reverse_geocoding, 
 	    issue, 
 	    travel_time,
+	    savelocation,
 	    query_DUO,
 	    passenger_reservation,
 	    passenger_trajectory,
