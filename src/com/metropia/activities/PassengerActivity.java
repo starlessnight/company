@@ -505,7 +505,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	private AtomicBoolean arrivalMsgDisplayed = new AtomicBoolean();
 	private NumberFormat nf = new DecimalFormat("#.#");
 	
-	private void doDisplayArrivalMsg(final int uPoints, double duration, double distance, int driverId, String voice, String wheelUrl) {
+	private void doDisplayArrivalMsg(final int uPoints, double duration, double distance, String voice, String wheelUrl) {
 		if (!arrivalMsgDisplayed.get()) {
 			arrivalMsgDisplayed.set(true);
 			findViewById(R.id.opt_panel).setVisibility(View.GONE);
@@ -543,7 +543,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					//speak
 				}
 				
-				wheel.setDriverId(driverId);
+				wheel.setReservationId(reservId.get());
 				wheel.setCallback(new Runnable() {
 					public void run() {
 						if (wheel.bonus!=null) {
@@ -854,7 +854,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					double distance = intent.getDoubleExtra("distance", 0);
 					int driverId = intent.getIntExtra("driver_id", -1);
 					String wheelUrl = intent.getStringExtra("wheel_url");
-					doDisplayArrivalMsg(credit, duration, distance, driverId, voice, wheelUrl);
+					doDisplayArrivalMsg(credit, duration, distance, voice, wheelUrl);
 				} else if (String.valueOf(reservId.get()).equals(id) && !success) {
 					showNotifyLaterDialog();
 				}

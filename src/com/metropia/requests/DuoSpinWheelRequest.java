@@ -16,9 +16,9 @@ public class DuoSpinWheelRequest extends Request {
 		url = getLinkUrl(Link.passenger_spin_wheel).replaceAll("\\{user_id\\}", String.valueOf(user.getId()));
 	}
 	
-	public int execute(Context ctx, int driverId, int degree) throws Exception {
+	public int execute(Context ctx, long reservationId, int degree) throws Exception {
 		JSONObject params = new JSONObject();
-		params.put("driver_id", driverId);
+		params.put("reservation_id", reservationId);
 		params.put("degree", degree);
 		
         String str = executeHttpRequest(Method.POST, url, params, ctx);

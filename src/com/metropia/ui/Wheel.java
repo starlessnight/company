@@ -40,7 +40,7 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 	AtomicBoolean spinned = new AtomicBoolean(false);
 	AtomicBoolean spinning = new AtomicBoolean(false);
 	
-	int driverId;
+	long reservationId;
 	int resultAngle;
 	public Integer bonus;
 	
@@ -86,8 +86,8 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 		wheel.setImageBitmap(bitmap);
 	}
 	
-	public void setDriverId(int driverId) {
-		this.driverId = driverId;
+	public void setReservationId(long reservationId) {
+		this.reservationId = reservationId;
 	}
 	public void setCallback(Runnable callback) {
 		this.callback = callback;
@@ -197,7 +197,7 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 		protected Void doInBackground(Void... arg0) {
 			DuoSpinWheelRequest request = new DuoSpinWheelRequest(User.getCurrentUser(Wheel.this.getContext()));
 			try {
-				bonus = request.execute(Wheel.this.getContext(), driverId, resultAngle);
+				bonus = request.execute(Wheel.this.getContext(), reservationId, resultAngle);
 			} catch (Exception e) {}
 			
 			while (spinning.get()) ;
