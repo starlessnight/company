@@ -115,7 +115,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	private Wheel wheel;
 	
 	int[] clickable = {};
-	int[] clickableAnimated = {R.id.back_button, R.id.center_map_icon, R.id.startButton, R.id.close, R.id.share, R.id.feedback};
+	int[] clickableAnimated = {R.id.back_button, R.id.center_map_icon, R.id.startButtonText, R.id.close, R.id.share, R.id.feedback};
 	
 	
 	
@@ -162,9 +162,8 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		TextView passengerMsg = (TextView) findViewById(R.id.passenger_msg);
 		passengerMsg.setText(String.format(getResources().getString(R.string.passenger_before_ride), user.getFirstname()));
 		
-		View startButton = findViewById(R.id.startButton);
 		TextView startButtonText = (TextView) findViewById(R.id.startButtonText);
-		startButton.setTag(false);
+		startButtonText.setTag(false);
 		
 		TextView finishButton = (TextView) findViewById(R.id.close);
 		finishButton.setText(Html.fromHtml("<u>Close</u>"));
@@ -282,10 +281,9 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 								public void run() {
 									User user = User.getCurrentUser(PassengerActivity.this);
 									reservId.set(reserId);
-									View startButton = findViewById(R.id.startButton);
 									View startButtonIcon = findViewById(R.id.startButtonIcon);
-									final TextView startButtonText = (TextView) findViewById(R.id.startButtonText);
-									startButton.setTag(true);
+									TextView startButtonText = (TextView) findViewById(R.id.startButtonText);
+									startButtonText.setTag(true);
 									startButtonText.setText("END MY TRIP");
 									startButtonText.setBackgroundColor(getResources().getColor(R.color.metropia_passenger_orange));
 									startButtonIcon.setBackgroundColor(getResources().getColor(R.color.metropia_passenger_blue));
@@ -886,7 +884,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		// Handle the back button
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			if((Boolean)findViewById(R.id.startButton).getTag()) {
+			if((Boolean)findViewById(R.id.startButtonText).getTag()) {
 				cancelValidation();
 			}
 			else {
@@ -1087,7 +1085,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				location.setLatitude(point.getLatitude());
 				updatePassenger(location, true);
 			break;
-			case R.id.startButton:
+			case R.id.startButtonText:
 				boolean currentTag = (Boolean)v.getTag();
 				if(currentTag) {
 					cancelValidation();
