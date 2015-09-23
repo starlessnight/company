@@ -21,7 +21,7 @@ import android.widget.RelativeLayout;
 
 public class CircularPopupAnimation extends Animation {
 	
-	final static int[] angleOffset = new int[] {0, 0, 0, 90, 45, 54, 60, 0, 0, 0};
+	final static int[] angleOffset = new int[] {0, -90, 0, -90, -45, -18, 0, -51, 0, 0};
 	
 	View view;
 	int position;
@@ -65,8 +65,9 @@ public class CircularPopupAnimation extends Animation {
 		
 			int interval = 360/total;
 			int distance = Dimension.dpToPx(80, view.getContext().getResources().getDisplayMetrics());
-			int x = (int) (Math.cos(Math.toRadians(interval*position+angleOffset[total])) * interpolatedTime*distance);
-			int y = (int) (Math.sin(Math.toRadians(interval*position+angleOffset[total])) * interpolatedTime*distance);
+			int offset = total<=8? angleOffset[total]:0;
+			int x = (int) (Math.cos(Math.toRadians(interval*position+offset)) * interpolatedTime*distance);
+			int y = (int) (Math.sin(Math.toRadians(interval*position+offset)) * interpolatedTime*distance);
 			//Log.e(x+"", y+"");
 			
 			int originX = ((int[])view.getTag(view.getId()))[0];
