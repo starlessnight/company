@@ -134,6 +134,7 @@ import com.metropia.dialogs.CancelableProgressDialog;
 import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.dialogs.NotificationDialog2.ActionListener;
 import com.metropia.dialogs.NotifyResumeDialog;
+import com.metropia.dialogs.ReleaseDialog;
 import com.metropia.models.FavoriteIcon;
 import com.metropia.models.POIContainer;
 import com.metropia.models.Reservation;
@@ -3630,6 +3631,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             }
             @Override
             protected void onPostExecute(City result) {
+            	new ReleaseDialog(LandingActivity2.this).show();
+            	
             	if (result==null) return;
             	LandingActivity2.restrictedMode = RouteActivity.restrictedMode = StringUtils.equals(result.signUp, "http://www.metropia.com/elpasolite");
             	restrictedMode(restrictedMode);
