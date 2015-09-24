@@ -100,8 +100,6 @@ public final class CityRequest extends FetchRequest<City> {
 				if (cb!=null) cb.run(result);
 			}
 		}.execute();
-		
-		
 	}
 
 }

@@ -89,6 +89,7 @@ import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
 import com.metropia.utils.HTTP;
 import com.metropia.utils.Misc;
+import com.metropia.utils.Speaker;
 import com.metropia.utils.SystemService;
 import com.skobbler.ngx.SKCoordinate;
 import com.skobbler.ngx.map.SKAnnotation;
@@ -110,6 +111,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	
 	private LocationManager locationManager;
 	private LocationListener locationListener;
+	private Speaker speaker;
 	
 	private SKMapViewHolder mapViewHolder;
 	private SKMapSurfaceView mapView;
@@ -139,6 +141,9 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		mapViewHolder.setMapSurfaceListener(this);
 		
 		Localytics.integrate(this);
+		
+		speaker = new Speaker(this);
+		speaker.init();
 		
 		// Define a listener that responds to location updates
 		locationListener = new LocationListener() {
@@ -557,7 +562,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				((TextView)findViewById(R.id.duoPoint)).setText(Integer.toString(uPoints));
 				((TextView)findViewById(R.id.congrats_msg)).setText(getString(R.string.duoCongratulationMsg, driverName));
 				if (StringUtils.isNotBlank(voice)) {
-					//speak
+					speaker.speak(voice);
 				}
 				
 				wheel.setReservationId(reservId.get());
@@ -960,6 +965,12 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			googleApiClient.disconnect();
 		}
 		super.onDestroy();
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		super.onActivityResult(requestCode, resultCode, intent);
+		speaker.onActivityResult(requestCode, resultCode, intent);
 	}
 
 	@Override
