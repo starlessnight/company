@@ -80,6 +80,7 @@ import com.metropia.requests.PassengerReservationRequest;
 import com.metropia.requests.Request;
 import com.metropia.tasks.ICallback;
 import com.metropia.tasks.ImageLoader;
+import com.metropia.ui.NavigationView;
 import com.metropia.ui.Wheel;
 import com.metropia.ui.animation.CircularPopupAnimation;
 import com.metropia.ui.animation.ClickAnimation;
@@ -295,6 +296,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 							});
 					
 							fetchPassengerPeriodly.run();
+							checkLowSpeedTimer.run();
 					
 						}
 					}
@@ -482,7 +484,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	private AtomicBoolean arrived = new AtomicBoolean(false);
 	private AtomicLong reservId = new AtomicLong(-1);
 	
-	float counter = 0;
+	//float counter = 0;
 	private void locationChanged(Location location) {
 
 		/*counter+=0.001;
@@ -493,11 +495,25 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			if (!arrived.get() && trajectory.size() >= 8) {
 				saveTrajectory();
 			}
+			
+			double speed = NavigationView.metersToMiles(location.getSpeed());
+			if (speed>5) lowSpeedTimer = 0;
 		}
 		mapView.reportNewGPSPosition(new SKPosition(location));
 		mapView.getMapSettings().setCurrentPositionShown(true);
 		updatePassenger(location, false);
 	}
+	
+	int lowSpeedTimer = 0;
+	Runnable checkLowSpeedTimer = new Runnable() {
+
+		@Override
+		public void run() {
+			lowSpeedTimer++;
+			if (lowSpeedTimer>=15*60) doCancelValidation();
+			else handler.postDelayed(checkLowSpeedTimer, 1000);
+		}
+	};
 	
 
 	private final static double THRESHOLD_DURATION = 5;
@@ -768,6 +784,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	private void displayArrivalMsg(final Runnable callback) {
 		arrivalMsgTiggered.set(true);
 		handler.removeCallbacks(fetchPassengerPeriodly);
+		handler.removeCallbacks(checkLowSpeedTimer);
 
 		saveTrajectory(new Runnable() {
 			@Override
