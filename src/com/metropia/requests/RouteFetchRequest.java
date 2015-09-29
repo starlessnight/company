@@ -59,7 +59,9 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
                 versionNumberEncoded = URLEncoder.encode(versionNumberEncoded, "utf-8");
             }
             catch (UnsupportedEncodingException e) {}
-		    url = getLinkUrl(Link.route)
+            
+            String apiUrl = getLinkUrl(Link.route_compression)!=null? getLinkUrl(Link.route_compression):getLinkUrl(Link.route);
+		    url = apiUrl
                 .replaceAll("\\{startlat\\}", String.format("%.7f", startlat))
                 .replaceAll("\\{startlon\\}", String.format("%.7f", startlon))
                 .replaceAll("\\{endlat\\}", String.format("%.7f", endlat))

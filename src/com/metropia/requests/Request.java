@@ -81,7 +81,8 @@ public abstract class Request {
 	    activity,
 	    city,
 	    where_to_go,
-	    route, 
+	    route,
+	    route_compression,
 	    search, 
 	    fb_login,
 	    reverse_geocoding, 
@@ -180,7 +181,6 @@ public abstract class Request {
 	public static final int fifteenSecsTimeout = 15 * 1000;
 	
 	protected int timeout = HTTP.defaultTimeout;
-	
 	private String executeHttpRequest(Method method, String url, 
 	        Object params, boolean compress, final Context ctx) throws IOException {
 	    Log.d(LOG_TAG, "executeHttpRequest(): method=" + method + ", url="+url 

@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PushbackInputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -15,6 +16,7 @@ import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import javax.net.ssl.HostnameVerifier;
@@ -29,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 import android.util.Base64;
+import android.util.Log;
 
 /**
  * Handles HTTP connections
@@ -218,15 +221,21 @@ public final class HTTP {
 	 * @return
 	 * @throws IOException
 	 */
+	InputStream in = null;
 	public String getResponseBody() throws IOException {
 		if(httpConn != null) {
-			InputStream in = null;
+			
 			if(getResponseCode() >= 400) {
 				in = httpConn.getErrorStream();
 			}
 			else {
 				in = httpConn.getInputStream();
 			}
+
+			if (checkGziped(in)) {
+				in = new GZIPInputStream(in);
+			}
+			
 			InputStreamReader isr = new InputStreamReader(in);
 			
 			StringBuffer strBuf = new StringBuffer();
@@ -243,6 +252,17 @@ public final class HTTP {
 		else {
 			return null;
 		}
+	}
+	private boolean checkGziped(InputStream input) throws IOException {
+		PushbackInputStream pb = new PushbackInputStream( input, 2 );
+		byte [] signature = new byte[2];
+		pb.read( signature );
+		pb.unread( signature );
+		in = pb;
+		if(signature[ 0 ] == (byte) 0x1f && signature[ 1 ] == (byte) 0x8b )
+			return true;
+		else
+			return false;
 	}
 	
 	public InputStream getInputStream() throws IOException {
@@ -308,33 +328,4 @@ public final class HTTP {
     public void setReferer(String referer) {
         this.referer = referer;
     }
-	
-//    public static InputStream openHttpConnection(String urlString) throws IOException {
-//        InputStream in = null;
-//        int response = -1;
-//               
-//        URL url = new URL(urlString); 
-//        URLConnection conn = url.openConnection();
-//                 
-//        if (!(conn instanceof HttpURLConnection)) {
-//            throw new IOException("Not an HTTP connection");
-//        }
-//        
-//        try{
-//            HttpURLConnection httpConn = (HttpURLConnection) conn;
-//            httpConn.setAllowUserInteraction(false);
-//            httpConn.setInstanceFollowRedirects(true);
-//            httpConn.setRequestMethod("GET");
-//            httpConn.connect();
-//            response = httpConn.getResponseCode();                 
-//            if (response == HttpURLConnection.HTTP_OK) {
-//                in = httpConn.getInputStream();                                 
-//            }                     
-//        }
-//        catch (Exception ex)
-//        {
-//            throw new IOException("Error connecting");            
-//        }
-//        return in;     
-//    }
 }
