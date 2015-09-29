@@ -115,7 +115,7 @@ public class TripValidationRequest extends Request {
 		intent.putExtra(ValidationActivity.VOICE, data.optString("voice"));
 		intent.putExtra(ValidationActivity.MESSAGE, data.optString("message"));
 		intent.putExtra(ValidationActivity.REQUEST_SUCCESS, true);
-		intent.putExtra("driver_id", data.optInt("driver_id", -1));
+		intent.putExtra("driver_name", data.optString("driver_name"));
 		intent.putExtra("duration", data.optDouble("duration", 0));
 		intent.putExtra("distance", data.optDouble("distance", 0));
 		intent.putExtra("wheel_url", data.optString("wheel_url"));

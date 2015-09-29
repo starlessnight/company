@@ -352,7 +352,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	boolean refreshPassenger = false;
 	public static ArrayList<Passenger> remotePassengers = new ArrayList<Passenger>();
 	ArrayList<Passenger> localPassengers = new ArrayList<Passenger>();
-	String driverName = "no Driver";
 	
 	
 	Animation psAn;
@@ -462,7 +461,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			view.setAlpha(0);
 		}
 		
-		if (localPassengers.size()>1) driverName = localPassengers.get(1).userName;
 		if (tasks.size()==0) new CircularPopupAnimation(views, 1);
 
 	}
@@ -528,7 +526,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	private AtomicBoolean arrivalMsgDisplayed = new AtomicBoolean();
 	private NumberFormat nf = new DecimalFormat("#.#");
 	
-	private void doDisplayArrivalMsg(final int uPoints, double duration, double distance, String voice, String wheelUrl) {
+	private void doDisplayArrivalMsg(final int uPoints, double duration, double distance, String driverName, String voice, String wheelUrl) {
 		if (!arrivalMsgDisplayed.get()) {
 			arrivalMsgDisplayed.set(true);
 			findViewById(R.id.opt_panel).setVisibility(View.GONE);
@@ -876,9 +874,9 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					int credit = intent.getIntExtra(ValidationActivity.CREDIT, 0);
 					double duration = intent.getDoubleExtra("duration", 0);
 					double distance = intent.getDoubleExtra("distance", 0);
-					int driverId = intent.getIntExtra("driver_id", -1);
+					String driverName = intent.getStringExtra("driver_name");
 					String wheelUrl = intent.getStringExtra("wheel_url");
-					doDisplayArrivalMsg(credit, duration, distance, voice, wheelUrl);
+					doDisplayArrivalMsg(credit, duration, distance, driverName, voice, wheelUrl);
 				} else if (String.valueOf(reservId.get()).equals(id) && !success) {
 					showNotifyLaterDialog();
 				}
