@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.metropia.activities.R;
 
-public class NotificationDialog extends AlertDialog {
+public class NotificationDialog extends AlertDialog implements DialogInterface.OnCancelListener, DialogInterface.OnDismissListener {
     
     public interface ActionListener {
         void onClickDismiss();
@@ -21,28 +21,28 @@ public class NotificationDialog extends AlertDialog {
 
 	public NotificationDialog(Context context, CharSequence message) {
 		super(context, R.style.PopUpDialog);
-		setCancelable(false);
 		setCanceledOnTouchOutside(false);
 		this.message = message;
 	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		
 		setTitle("Notification");
 		setMessage(message);
+		setOnCancelListener(this);
+		setOnDismissListener(this);
 		
 		setButton(DialogInterface.BUTTON_NEGATIVE, getContext().getResources().getString(R.string.close), new OnClickListener() {
             
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if (actionListener != null) {
-                    actionListener.onClickDismiss();
-                }
+            	dismiss();
             }
         });
 		
+
 		super.onCreate(savedInstanceState);
-		
 		try{
 		    ((TextView)findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
 		}catch(Throwable t){}
@@ -51,4 +51,16 @@ public class NotificationDialog extends AlertDialog {
 	public void setActionListener(ActionListener listener) {
 	    this.actionListener = listener;
 	}
+
+	@Override
+	public void onCancel(DialogInterface dialog) {
+		dismiss();
+	}
+
+	@Override
+	public void onDismiss(DialogInterface dialog) {
+		if (actionListener != null) actionListener.onClickDismiss();
+	}
+	
+	
 }

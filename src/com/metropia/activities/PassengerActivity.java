@@ -67,6 +67,7 @@ import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.TripService;
 import com.metropia.dialogs.CancelableProgressDialog;
+import com.metropia.dialogs.NotificationDialog;
 import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.dialogs.NotificationDialog2.ActionListener;
 import com.metropia.models.Passenger;
@@ -572,9 +573,9 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 							((TextView)PassengerActivity.this.findViewById(R.id.duoTotalPoints)).setText(Integer.toString(uPoints+wheel.bonus));
 						}
 						else {
-							NotificationDialog2 dialog = new NotificationDialog2(PassengerActivity.this, "An error has occurred.");
-							dialog.setPositiveActionListener(new ActionListener() {
-								public void onClick() {finish();}
+							NotificationDialog dialog = new NotificationDialog(PassengerActivity.this, "An error has occurred.");
+							dialog.setActionListener(new NotificationDialog.ActionListener() {
+								public void onClickDismiss() {finish();}
 							});
 							dialog.show();
 						}
