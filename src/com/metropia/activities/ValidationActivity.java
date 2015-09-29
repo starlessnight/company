@@ -146,6 +146,7 @@ import com.metropia.requests.Request.Setting;
 import com.metropia.requests.ReservationFetchRequest;
 import com.metropia.requests.RouteFetchRequest;
 import com.metropia.requests.TravelTimeRequest;
+import com.metropia.tasks.ICallback;
 import com.metropia.ui.NavigationView;
 import com.metropia.ui.NavigationView.CheckPointListener;
 import com.metropia.ui.NavigationView.DirectionItem;
@@ -194,7 +195,7 @@ import com.skobbler.ngx.util.SKLogging;
 
 
 public class ValidationActivity extends FragmentActivity implements OnInitListener, OnAudioFocusChangeListener, SKMapSurfaceListener,
-		SKRouteListener, ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<LocationSettingsResult>, SensorEventListener {
+		SKRouteListener, ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<LocationSettingsResult>, SensorEventListener, OnClickListener {
 	public static final int DEFAULT_ZOOM_LEVEL = 18;
 
 	public static final int NAVIGATION_ZOOM_LEVEL = 17;
@@ -239,10 +240,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private Route reroute;
 
 	private Reservation reservation;
-
-	// private List<Overlay> mapOverlays;
-
-	// private CurrentLocationOverlay pointOverlay;
 
 	private long startTime;
 
@@ -319,6 +316,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	
 	private Location cacheLocation;
 
+	int[] clickable = {R.id.remain_times, R.id.co2_circle, R.id.drive_score_circle, R.id.mpoint_circle};
+	int[] clickableAnimated = {R.id.map_view_end_trip_btn, R.id.map_view_on_my_way_btn, R.id.volumn_control, R.id.center_map_icon, R.id.close, R.id.share, R.id.feedback, R.id.done};
+	
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -892,6 +892,10 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 
 	private void initViews() {
+		
+        ClickAnimation.OnClickListener onClickListener = new ClickAnimation.OnClickListener(this);
+        for (int i=0 ; i<clickableAnimated.length ; i++) findViewById(clickableAnimated[i]).setOnClickListener(onClickListener);
+        for (int i=0 ; i<clickable.length; i++) findViewById(clickable[i]).setOnClickListener(this);
 
 		restoreHandler = new Handler();
 		followModeRestore = new Runnable() {
@@ -908,32 +912,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		buttonFollow = (ImageView) findViewById(R.id.center_map_icon);
 		buttonFollow.setTag(true);
-
-		buttonFollow.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						Boolean tagAfterClick = !((Boolean) buttonFollow.getTag());
-						buttonFollow.setTag(tagAfterClick);
-						if (tagAfterClick) {
-							restoreHandler.removeCallbacks(followModeRestore);
-							to3DMap();
-						} else {
-							if (lastKnownLocation != null) {
-								to2DMap(new RouteRect(getRouteOrReroute().getRemainNodes(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude())), true);
-							} else {
-								to2DMap(routeRect, true);
-							}
-							restoreHandler.postDelayed(followModeRestore, RESTORE_TIME);
-						}
-						navigationView.setToCurrentDireciton();
-					}
-				});
-			}
-		});
 
 		navigationView = (NavigationView) findViewById(R.id.navigation_view);
 		navigationView.setDestinationAddress(reservation.getDestinationAddress());
@@ -955,94 +933,15 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				animator.setDuration(500);
 				animator.setInterpolator(new AccelerateDecelerateInterpolator());
 				animator.start();
-				/*animator.addListener(new AnimatorListener() {
-					@Override
-					public void onAnimationStart(Animator animation) {}
-					@Override
-					public void onAnimationEnd(Animator animation) {}
-
-					@Override
-					public void onAnimationCancel(Animator animation) {}
-
-					@Override
-					public void onAnimationRepeat(Animator animation) {}
-				});*/
 			}
 		});
-
-		final View mapViewEndTripBtn = findViewById(R.id.map_view_end_trip_btn);
-		mapViewEndTripBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						cancelValidation();
-					}
-				});
-			}
-		});
+		
 
 		volumnControl = (ImageView) findViewById(R.id.volumn_control);
 		int imageSrc = MapDisplayActivity.isNavigationTtsEnabled(this) ? R.drawable.volumn_btn_open	: R.drawable.volumn_btn_close;
 		volumnControl.setTag(MapDisplayActivity.isNavigationTtsEnabled(this));
 		volumnControl.setImageResource(imageSrc);
-		volumnControl.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(
-						ValidationActivity.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						boolean tagAfterClick = !((Boolean) volumnControl.getTag());
-						int imageSrc = tagAfterClick ? R.drawable.volumn_btn_open : R.drawable.volumn_btn_close;
-						MapDisplayActivity.setNavigationTts(ValidationActivity.this, tagAfterClick);
-						volumnControl.setTag(tagAfterClick);
-						volumnControl.setImageResource(imageSrc);
-						if (!tagAfterClick) {
-							speak("", true);
-						} else {
-							Misc.playUnmuteSound(ValidationActivity.this);
-							utteranceCompletedCnt.set(utteranceCnt.get());
-						}
-					}
-				});
-			}
-		});
 
-		onMyWayBtn = (ImageView) findViewById(R.id.map_view_on_my_way_btn);
-		onMyWayBtn.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						NotificationDialog2 dialog = new NotificationDialog2(ValidationActivity.this, "On my Way is currently available for passengers only.");
-						dialog.setVerticalOrientation(false);
-						dialog.setTitle("Are you the passenger?");
-						dialog.setNegativeButtonText("No");
-						dialog.setNegativeActionListener(new ActionListener() {
-							public void onClick() {}
-						});
-						dialog.setPositiveButtonText("Yes");
-						dialog.setPositiveActionListener(new ActionListener() {
-							@Override
-							public void onClick() {
-								Intent contactSelect = new Intent(ValidationActivity.this, ContactsSelectActivity.class);
-								contactSelect.putExtra(ContactsSelectActivity.SELECTED_EMAILS, emails);
-								contactSelect.putExtra(ContactsSelectActivity.SELECTED_PHONES, "");
-								startActivityForResult(contactSelect, ON_MY_WAY);
-								onMyWayBtn.setTag(new Object());
-							}
-						});
-						dialog.show();
-					}
-				});
-			}
-		});
 
 		dirListView = (ListView) findViewById(R.id.directions_list);
 		dirListView.setAdapter(dirListadapter);
@@ -1076,90 +975,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		TextView finishButton = (TextView) findViewById(R.id.close);
 		finishButton.setText(Html.fromHtml("<u>Close</u>"));
-		finishButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnim = new ClickAnimation(ValidationActivity.this, v);
-				clickAnim.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						SKRouteManager.getInstance().clearCurrentRoute();
-						finish();
-					}
-				});
-			}
-		});
-
-		final View shareButton = findViewById(R.id.share);
-		shareButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-
-					@Override
-					public void onAnimationEnd() {
-						Intent intent = new Intent(ValidationActivity.this,	ShareActivity.class);
-						intent.putExtra(ShareActivity.TITLE, "More Metropians = Less Traffic");
-						intent.putExtra(ShareActivity.SHARE_TEXT,
-								"I earned "
-										+ reservation.getMpoint()
-										+ " points for traveling at "
-										+ Reservation.formatTime(route.getDepartureTime(), true)
-										+ " to help solve traffic congestion "
-										+ "using Metropia!" + "\n\n"
-										+ Misc.APP_DOWNLOAD_LINK);
-						startActivity(intent);
-						// Intent intent = new Intent(Intent.ACTION_SEND);
-						// intent.setType("text/plain");
-						// intent.putExtra(Intent.EXTRA_SUBJECT,
-						// "More Metropians = Less Traffic");
-						// intent.putExtra(Intent.EXTRA_TEXT, "I earned " +
-						// reservation.getMpoint() + " points for traveling at "
-						// + Reservation.formatTime(route.getDepartureTime(),
-						// true) + " to help solve traffic congestion "
-						// + "using Metropia Mobile!"
-						// + "\n\n" + Misc.APP_DOWNLOAD_LINK);
-						// startActivity(Intent.createChooser(intent, "Share"));
-					}
-
-				});
-			}
-		});
 
 		TextView feedBackButton = (TextView) findViewById(R.id.feedback);
 		feedBackButton.setText(Html.fromHtml("<u>Feedback</u>"));
-		feedBackButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(ValidationActivity.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						Intent intent = new Intent(ValidationActivity.this,	FeedbackActivity.class);
-						startActivity(intent);
-					}
-				});
-			}
-		});
-
-		TextView doneButton = (TextView) findViewById(R.id.done);
-		doneButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(
-						ValidationActivity.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						ObjectAnimator animator = ObjectAnimator.ofFloat(findViewById(R.id.directions_view), "translationY", 0,-findViewById(R.id.directions_view).getHeight());
-						animator.setDuration(500);
-						animator.setInterpolator(new AccelerateDecelerateInterpolator());
-						animator.start();
-					}
-				});
-			}
-		});
 
 		TextView destAddr = (TextView) findViewById(R.id.dest_addr);
 		destAddr.setText(reservation.getDestinationAddress());
@@ -1173,64 +991,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(reservation.getArrivalTimeUtc(), route.getTimezoneOffset()));
 		timeInfo.setTag(R.id.remaining_travel_time,	getFormatedRemainingTime(reservation.getDuration()));
 		refreshTimeInfo();
+		
 		final TextView directListTimeInfo = (TextView) findViewById(R.id.remain_times_direc_list);
 		directListTimeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(getETA(remainingTime.get()), route.getTimezoneOffset()));
 		directListTimeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(remainingTime.get()));
 		refreshDirectListTimeInfo();
-		timeInfo.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				timeInfo.setTag(R.id.clicked, true);
-				toggleTimeInfo();
-			}
-		});
 
-		findViewById(R.id.co2_circle).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent intent;
-				if (WebMyMetropiaActivity.hasCo2SavingUrl(ValidationActivity.this) || WebMyMetropiaActivity.hasMyMetropiaUrl(ValidationActivity.this)) {
-					intent = new Intent(ValidationActivity.this, WebMyMetropiaActivity.class);
-					Integer pageNo = WebMyMetropiaActivity.hasCo2SavingUrl(ValidationActivity.this) ? WebMyMetropiaActivity.CO2_SAVING_PAGE	: WebMyMetropiaActivity.MY_METROPIA_PAGE;
-					intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
-				} else {
-					intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
-					intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.CO2_SAVING_TAB);
-				}
-				startActivity(intent);
-			}
-		});
-
-		findViewById(R.id.drive_score_circle).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent intent;
-				if (WebMyMetropiaActivity.hasTimeSavingUrl(ValidationActivity.this)	|| WebMyMetropiaActivity.hasMyMetropiaUrl(ValidationActivity.this)) {
-					intent = new Intent(ValidationActivity.this, WebMyMetropiaActivity.class);
-					Integer pageNo = WebMyMetropiaActivity.hasTimeSavingUrl(ValidationActivity.this) ? WebMyMetropiaActivity.TIME_SAVING_PAGE : WebMyMetropiaActivity.MY_METROPIA_PAGE;
-					intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
-				} else {
-					intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
-					intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.DRIVE_SCORE_TAB);
-				}
-				startActivity(intent);
-			}
-		});
-
-		findViewById(R.id.mpoint_circle).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent intent;
-				if (WebMyMetropiaActivity.hasMyMetropiaUrl(ValidationActivity.this)) {
-					intent = new Intent(ValidationActivity.this, WebMyMetropiaActivity.class);
-					intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, WebMyMetropiaActivity.MY_METROPIA_PAGE);
-				} else {
-					intent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
-					intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.CO2_SAVING_TAB);
-				}
-				startActivity(intent);
-			}
-		});
 
 		if (DebugOptionsActivity.isReroutingDebugMsgEnabled(this)
 				|| DebugOptionsActivity.isVoiceDebugMsgEnabled(this)
@@ -1591,25 +1357,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 	}
 
-	// private void prepareGPS() {
-	// // Acquire a reference to the system Location Manager
-	// if (locationManager != null) {
-	// locationManager.removeUpdates(locationListener);
-	// }
-	// locationManager = (LocationManager)
-	// getSystemService(Context.LOCATION_SERVICE);
-	// if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-	// SystemService.alertNoGPS(this, true);
-	// } else {
-	// // TODO: Turn on GSP early
-	// locationManager.requestLocationUpdates(
-	// LocationManager.GPS_PROVIDER,
-	// DebugOptionsActivity.getGpsUpdateInterval(this), 0,
-	// locationListener);
-	// }
-	// locationManager.requestLocationUpdates(
-	// LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-	// }
 
 	private File saveGPXFile(Route _route) {
 		try {
@@ -2051,7 +1798,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			SkobblerUtils.initSunriseSunsetTime(ValidationActivity.this, lat, lng);
 			sunTimeInited.set(true);
 		}
-		if (!routeLoaded.get() && isLoadRoute() && locationRefreshed.get()) {
+		if (!routeLoaded.get() && isLoadRoute()/* && locationRefreshed.get()*/) {
 			routeLoaded.set(true);
 			runOnUiThread(new Runnable() {
 				@Override
@@ -2062,8 +1809,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 							List<Route> navRoutes = null;
 							try {
 								GeoPoint curPosi = new GeoPoint(lat, lng);
-								Reservation reser = new ReservationFetchRequest(User.getCurrentUser(ValidationActivity.this),
-										reservation.getRid()).execute(ValidationActivity.this);
+								Reservation reser = new ReservationFetchRequest(User.getCurrentUser(ValidationActivity.this), reservation.getRid()).execute(ValidationActivity.this);
 								reservation.setEndlat(reser.getEndlat());
 								reservation.setEndlon(reser.getEndlon());
 
@@ -2084,8 +1830,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 								List<Route> routes = request.execute(ValidationActivity.this);
 								if (routes != null && routes.size() > 0) {
 									Route resRoute = routes.get(0);
-									RouteFetchRequest navReq = new RouteFetchRequest(resRoute.getLink().url, System.currentTimeMillis(), 0,
-											speedInMph, bearing);
+									RouteFetchRequest navReq = new RouteFetchRequest(resRoute.getLink().url, System.currentTimeMillis(), 0, speedInMph, bearing);
 									navRoutes = navReq.execute(ValidationActivity.this);
 									if (navRoutes != null && navRoutes.size() > 0) {
 										Route navRoute = navRoutes.get(0);
@@ -2108,8 +1853,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 							return navRoutes;
 						}
 
-						protected void onPostExecute(
-								java.util.List<Route> routes) {
+						protected void onPostExecute(java.util.List<Route> routes) {
 							if (ehs.hasExceptions()) {
 								ehs.reportExceptions(new Runnable() {
 									@Override
@@ -2136,7 +1880,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 								navigationView.setHasVoice(route.hasVoice());
 								SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
 								int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
-								if (lastKnownLocation != null && gpsMode != DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
+								if (/*lastKnownLocation != null && */gpsMode != DebugOptionsActivity.GPS_MODE_LONG_PRESS) {
 									locationChanged(lastKnownLocation);
 								}
 								firstNode = route.getFirstNode();
@@ -2149,27 +1893,24 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 		}
 
 		if (DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this)	&& StringUtils.isBlank(incidentUrl)) {
-			MainActivity.initApiLinksIfNecessary(ValidationActivity.this,
-					new Runnable() {
-						@Override
-						public void run() {
-							AsyncTask<Void, Void, Void> getIncidentTask = new AsyncTask<Void, Void, Void>() {
-								@Override
-								protected Void doInBackground(Void... params) {
-									CityRequest cityReq = new CityRequest(lat, lng, HTTP.defaultTimeout);
-									try {
-										City city = cityReq.execute(ValidationActivity.this);
-										if (city != null && StringUtils.isBlank(city.html)) {
-											incidentUrl = city.incidents;
-										}
-									} catch (Exception ignore) {}
-									return null;
-								}
+			
+			Runnable cb = new Runnable() {
+				@Override
+				public void run() {
+					CityRequest cityReq = new CityRequest(lat, lng, HTTP.defaultTimeout);
+					cityReq.executeAsync(ValidationActivity.this, new ICallback() {
 
-							};
-							Misc.parallelExecute(getIncidentTask);
+						@Override
+						public void run(Object... obj) {
+							City city = (City) obj[0];
+							if (city == null || StringUtils.isNotBlank(city.html)) return;
+							incidentUrl = city.incidents;
 						}
 					});
+				}
+			};
+			
+			MainActivity.initApiLinksIfNecessary(ValidationActivity.this, cb);
 		}
 
 		if (DebugOptionsActivity.isIncidentEnabled(ValidationActivity.this)	&& incidentInitTime < 0 && StringUtils.isNotBlank(incidentUrl)) {
@@ -2363,6 +2104,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			timeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(getETA(remainingTime.get()), route.getTimezoneOffset()));
 			timeInfo.setTag(R.id.remaining_travel_time,	getFormatedRemainingTime(remainingTime.get()));
 			refreshTimeInfo();
+			
 			final TextView directListTimeInfo = (TextView) findViewById(R.id.remain_times_direc_list);
 			directListTimeInfo.setTag(R.id.estimated_arrival_time, getFormatedEstimateArrivalTime(getETA(remainingTime.get()), route.getTimezoneOffset()));
 			directListTimeInfo.setTag(R.id.remaining_travel_time, getFormatedRemainingTime(remainingTime.get()));
@@ -3720,5 +3462,143 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+
+	@Override
+	public void onClick(View v) {
+		
+		switch(v.getId()) {
+			case R.id.center_map_icon:
+				Boolean centerTag = !((Boolean) buttonFollow.getTag());
+				buttonFollow.setTag(centerTag);
+				if (centerTag) {
+					restoreHandler.removeCallbacks(followModeRestore);
+					to3DMap();
+				} else {
+					if (lastKnownLocation != null) {
+						to2DMap(new RouteRect(getRouteOrReroute().getRemainNodes(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude())), true);
+					} else {
+						to2DMap(routeRect, true);
+					}
+					restoreHandler.postDelayed(followModeRestore, RESTORE_TIME);
+				}
+				navigationView.setToCurrentDireciton();
+			break;
+			
+			case R.id.map_view_end_trip_btn:
+				cancelValidation();
+			break;
+			
+			case R.id.map_view_on_my_way_btn:
+				NotificationDialog2 dialog = new NotificationDialog2(this, "On my Way is currently available for passengers only.");
+				dialog.setVerticalOrientation(false);
+				dialog.setTitle("Are you the passenger?");
+				dialog.setNegativeButtonText("No");
+				dialog.setNegativeActionListener(new ActionListener() {
+					public void onClick() {}
+				});
+				dialog.setPositiveButtonText("Yes");
+				dialog.setPositiveActionListener(new ActionListener() {
+					@Override
+					public void onClick() {
+						Intent contactSelect = new Intent(ValidationActivity.this, ContactsSelectActivity.class);
+						contactSelect.putExtra(ContactsSelectActivity.SELECTED_EMAILS, emails);
+						contactSelect.putExtra(ContactsSelectActivity.SELECTED_PHONES, "");
+						startActivityForResult(contactSelect, ON_MY_WAY);
+						onMyWayBtn.setTag(new Object());
+					}
+				});
+				dialog.show();
+			break;
+			
+			case R.id.volumn_control:
+				boolean volumnTag = !((Boolean) volumnControl.getTag());
+				int imageSrc = volumnTag ? R.drawable.volumn_btn_open : R.drawable.volumn_btn_close;
+				MapDisplayActivity.setNavigationTts(this, volumnTag);
+				volumnControl.setTag(volumnTag);
+				volumnControl.setImageResource(imageSrc);
+				if (!volumnTag) {
+					speak("", true);
+				} else {
+					Misc.playUnmuteSound(this);
+					utteranceCompletedCnt.set(utteranceCnt.get());
+				}
+			break;
+			
+			case R.id.close:
+				SKRouteManager.getInstance().clearCurrentRoute();
+				finish();
+			break;
+			
+			case R.id.share:
+				Intent shareIntent = new Intent(this, ShareActivity.class);
+				shareIntent.putExtra(ShareActivity.TITLE, "More Metropians = Less Traffic");
+				shareIntent.putExtra(ShareActivity.SHARE_TEXT,
+						"I earned "
+								+ reservation.getMpoint()
+								+ " points for traveling at "
+								+ Reservation.formatTime(route.getDepartureTime(), true)
+								+ " to help solve traffic congestion "
+								+ "using Metropia!" + "\n\n"
+								+ Misc.APP_DOWNLOAD_LINK);
+				startActivity(shareIntent);
+			break;
+			
+			case R.id.feedback:
+				Intent feedbackIntent = new Intent(this, FeedbackActivity.class);
+				startActivity(feedbackIntent);
+			break;
+			
+			case R.id.done:
+				ObjectAnimator animator = ObjectAnimator.ofFloat(findViewById(R.id.directions_view), "translationY", 0,-findViewById(R.id.directions_view).getHeight());
+				animator.setDuration(500);
+				animator.setInterpolator(new AccelerateDecelerateInterpolator());
+				animator.start();
+			break;
+			
+			case R.id.remain_times:
+				v.setTag(R.id.clicked, true);
+				toggleTimeInfo();
+			break;
+			
+			case R.id.co2_circle:
+				Intent co2Intent;
+				if (WebMyMetropiaActivity.hasCo2SavingUrl(this) || WebMyMetropiaActivity.hasMyMetropiaUrl(this)) {
+					co2Intent = new Intent(this, WebMyMetropiaActivity.class);
+					Integer pageNo = WebMyMetropiaActivity.hasCo2SavingUrl(this) ? WebMyMetropiaActivity.CO2_SAVING_PAGE	: WebMyMetropiaActivity.MY_METROPIA_PAGE;
+					co2Intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
+				} else {
+					co2Intent = new Intent(this, MyMetropiaActivity.class);
+					co2Intent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.CO2_SAVING_TAB);
+				}
+				startActivity(co2Intent);
+			break;
+			
+			case R.id.drive_score_circle:
+				Intent scoreIntent;
+				if (WebMyMetropiaActivity.hasTimeSavingUrl(this) || WebMyMetropiaActivity.hasMyMetropiaUrl(this)) {
+					scoreIntent = new Intent(this, WebMyMetropiaActivity.class);
+					Integer pageNo = WebMyMetropiaActivity.hasTimeSavingUrl(this) ? WebMyMetropiaActivity.TIME_SAVING_PAGE : WebMyMetropiaActivity.MY_METROPIA_PAGE;
+					scoreIntent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
+				} else {
+					scoreIntent = new Intent(this, MyMetropiaActivity.class);
+					scoreIntent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.DRIVE_SCORE_TAB);
+				}
+				startActivity(scoreIntent);
+			break;
+			
+			case R.id.mpoint_circle:
+				Intent pointIntent;
+				if (WebMyMetropiaActivity.hasMyMetropiaUrl(ValidationActivity.this)) {
+					pointIntent = new Intent(ValidationActivity.this, WebMyMetropiaActivity.class);
+					pointIntent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, WebMyMetropiaActivity.MY_METROPIA_PAGE);
+				} else {
+					pointIntent = new Intent(ValidationActivity.this, MyMetropiaActivity.class);
+					pointIntent.putExtra(MyMetropiaActivity.OPEN_TAB, MyMetropiaActivity.CO2_SAVING_TAB);
+				}
+				startActivity(pointIntent);
+			break;
+		}
+		
+	}
 
 }
