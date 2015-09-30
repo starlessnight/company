@@ -230,7 +230,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private NavigationView navigationView;
 	private ImageView volumnControl;
 	private ImageView buttonFollow;
-	private ImageView onMyWayBtn;
 
 	/**
 	 * @deprecated
@@ -3464,7 +3463,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
 	@Override
-	public void onClick(View v) {
+	public void onClick(final View v) {
 		
 		switch(v.getId()) {
 			case R.id.center_map_icon:
@@ -3504,7 +3503,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						contactSelect.putExtra(ContactsSelectActivity.SELECTED_EMAILS, emails);
 						contactSelect.putExtra(ContactsSelectActivity.SELECTED_PHONES, "");
 						startActivityForResult(contactSelect, ON_MY_WAY);
-						onMyWayBtn.setTag(new Object());
+						v.setTag(new Object());
 					}
 				});
 				dialog.show();
