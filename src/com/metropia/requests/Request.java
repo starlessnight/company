@@ -74,6 +74,7 @@ public abstract class Request {
 	    query_route,
 	    trip,
 	    trajectory,
+	    trajectory_serial,
 	    message,
 	    achievement,
 	    reward,

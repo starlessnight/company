@@ -35,9 +35,13 @@ public class SendTrajectoryService extends IntentService {
     
     private static long sevenDays = 7 * 24 * 60 * 60 * 1000;
     
+    private static long oneMins = 1 * 60 * 1000;
     private static long twoMins = 2 * 60 * 1000;
     private static long eightHours = 8 * 60 * 60 * 1000;
     private static long fiveMins = 5 * 60 * 1000;
+    
+    public static String ALL_FRAGMENT = "ALL_FRAGMENT";
+    public static String FRONT_FRAGMENT = "FRONT_FRAGMENT";
     
     private static final String IMD_PREFIX = "[";
     
@@ -52,17 +56,17 @@ public class SendTrajectoryService extends IntentService {
     /**@param mode specify Driver or DUO**/
     public static boolean send(Context ctx, long rId, String mode){
     	File parentDir = mode.equals(PassengerActivity.PASSENGER_TRIP_VALIDATOR)? getDuoDir(ctx):getInDir(ctx);
-        return send(ctx, new File(parentDir, String.valueOf(rId)), false, mode);
+        return send(ctx, new File(parentDir, String.valueOf(rId)), false, mode, ALL_FRAGMENT);
     }
     
     /**@param mode specify Driver or DUO**/
     public static boolean sendImd(Context ctx, long rId, String mode){
     	File parentDir = mode.equals(PassengerActivity.PASSENGER_TRIP_VALIDATOR)? getDuoDir(ctx):getInDir(ctx);
-        return send(ctx, new File(parentDir, IMD_PREFIX + String.valueOf(rId)), true, mode);
+        return send(ctx, new File(parentDir, IMD_PREFIX + String.valueOf(rId)), true, mode, ALL_FRAGMENT);
     }
     
     /**@param mode specify Driver or DUO**/
-    private static boolean send(Context ctx, File routeDir, boolean imdSend, String mode){
+    private static boolean send(Context ctx, File routeDir, boolean imdSend, String mode, String range){
     	synchronized (mutex) {
 	        boolean success = true;
 	        User user = User.getCurrentUser(ctx);
@@ -86,6 +90,7 @@ public class SendTrajectoryService extends IntentService {
 	                    catch (Exception e) {
 	                        Log.d("SendTrajectoryService", Log.getStackTraceString(e));
 	                    }
+	                    if (range.equals(FRONT_FRAGMENT)) break;
 	                }
 	                long routeId = Long.parseLong(StringUtils.startsWith(originalName, IMD_PREFIX) ? originalName.substring(1) : originalName);
 	                File outFile = getOutFile(ctx, routeId);
@@ -100,11 +105,19 @@ public class SendTrajectoryService extends IntentService {
 	                SendTrajectoryRequest request = new SendTrajectoryRequest(imdSend);
 	                if(Request.NEW_API){
 	                    try{
+	                    	isSending = true;
+	                    	request.setSerialNum(range.equals(FRONT_FRAGMENT)? seq:null);
 	                    	request.execute(user, routeId, traj, ctx, mode);
-	                    }catch(Exception e){}
+	                    	isSending = false;
+	                    	lastSendResult = true;
+	                    }catch(Exception e){
+	                    	isSending = false;
+	                    	lastSendResult = false;
+	                    }
 	                }else{
 	                    request.execute(seq, user.getId(), routeId, traj);
 	                }
+	                
 	                try{
 	                    FileUtils.write(outFile, String.valueOf(seq));
 	                }catch(Exception e){}
@@ -124,8 +137,15 @@ public class SendTrajectoryService extends IntentService {
     	}
     }
     
+    int timer = 0;
+    static boolean lastSendResult = true;
+    static boolean isSending = false;
     @Override
     protected void onHandleIntent(Intent intent) {
+    	timer+=1000;
+    	if (isSending || !lastSendResult && timer%60*1000!=0) return;
+    	
+    	
         User user = User.getCurrentUserWithoutCache(this);
         if(user != null){
             MainActivity.initApiLinksIfNecessary(this, new Runnable() {
@@ -143,9 +163,10 @@ public class SendTrajectoryService extends IntentService {
                             if(d.lastModified() < System.currentTimeMillis() - sevenDays){
                                 FileUtils.deleteQuietly(d);
                             }
-                            else if(ArrayUtils.isNotEmpty(files) && d != null && (StringUtils.isNumeric(d.getName()) || StringUtils.startsWith(d.getName(), IMD_PREFIX))){
+                            //else if (ArrayUtils.isEmpty(files)) lastSendResult = false;
+                            else if(d != null && (StringUtils.isNumeric(d.getName()) || StringUtils.startsWith(d.getName(), IMD_PREFIX))){
                             	String mode = d.getParentFile().equals(duoDir)? PassengerActivity.PASSENGER_TRIP_VALIDATOR:ValidationActivity.TRIP_VALIDATOR;
-                                send(SendTrajectoryService.this, d, false, mode);
+                                send(SendTrajectoryService.this, d, false, mode, FRONT_FRAGMENT);
                             }
                         }
                     }
@@ -187,12 +208,13 @@ public class SendTrajectoryService extends IntentService {
     	return new File(getDuoDir(ctx), IMD_PREFIX + rId + "/" + seq);
     }
     
+    static int interval;
     public static void schedule(Context ctx){
-    	int interval = (Integer) DebugOptionsActivity.getDebugValue(ctx, DebugOptionsActivity.TRAJECTORY_SENDING_INTERVAL, 5) * 60 * 1000;
+    	interval = (Integer) DebugOptionsActivity.getDebugValue(ctx, DebugOptionsActivity.TRAJECTORY_SENDING_INTERVAL, 5) * 60 * 1000;
     	
         PendingIntent sendTrajServ = PendingIntent.getService(ctx, 0, new Intent(ctx, SendTrajectoryService.class), PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
-        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + twoMins, interval, sendTrajServ);
+        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + twoMins, 1000, sendTrajServ);
     }
 
 }

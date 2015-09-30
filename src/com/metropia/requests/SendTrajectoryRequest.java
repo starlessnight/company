@@ -30,11 +30,19 @@ import com.metropia.utils.HTTP.Method;
 
 public class SendTrajectoryRequest extends Request {
 	
+	Integer serialNum = null;
+	Integer terminated = null;
+	
 	public SendTrajectoryRequest(boolean quickTimeout) {
 		super();
 		if(quickTimeout) {
 			timeout = fifteenSecsTimeout;
 		}
+	}
+	
+	public void setSerialNum(Integer serialNum) {
+		this.serialNum = serialNum;
+		this.terminated = serialNum==null? 2:1;
 	}
 	
     public void execute(User user, Trajectory trajectory, Context ctx) throws JSONException, ClientProtocolException, IOException, InterruptedException {
@@ -51,9 +59,11 @@ public class SendTrajectoryRequest extends Request {
         params.put("trajectory", trajectory.toJSON());
         this.username = user.getUsername();
         this.password = user.getPassword();
-        Link link = mode.equals(PassengerActivity.PASSENGER_TRIP_VALIDATOR)? Link.passenger_trajectory:Link.trajectory;
-        String url = Request.getLinkUrl(link).replaceAll("\\{reservation_id\\}", String.valueOf(rid));
         
+        
+        Link link = mode.equals(PassengerActivity.PASSENGER_TRIP_VALIDATOR)? Link.passenger_trajectory:(terminated==null? Link.trajectory:Link.trajectory_serial);
+        String url = Request.getLinkUrl(link).replaceAll("\\{reservation_id\\}", String.valueOf(rid));
+        if (serialNum!=null) url.replaceAll("\\{serialnum\\}", serialNum+"").replaceAll("\\{terminated\\}", terminated+"");
         try{
             executeHttpRequest(Method.POST, url, params, true, ctx);
         }catch(Exception e){
