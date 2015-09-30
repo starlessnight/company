@@ -6,6 +6,7 @@ import com.metropia.activities.PassengerActivity;
 import com.metropia.activities.R;
 import com.metropia.ui.animation.ClickAnimation;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -86,6 +87,7 @@ public class DUOTutorial extends LinearLayout implements OnPageChangeListener, O
 				setVisibility(View.GONE);
 				Intent intent = new Intent(getContext(), PassengerActivity.class);
 				getContext().startActivity(intent);
+				((Activity)getContext()).finish();
 			break;
 			default:
 				int position = radios.indexOfChild(v);

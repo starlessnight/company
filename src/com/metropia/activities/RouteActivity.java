@@ -1993,6 +1993,13 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
     }
     
     @Override
+    public void finish() {
+    	Intent i = new Intent(this, LandingActivity2.class);
+    	this.startActivity(i);
+    	super.finish();
+    }
+    
+    @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         MainMenu.onMenuItemSelected(this, featureId, item);
         

@@ -1471,6 +1471,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 						if (duoTutorialFinish==1) {
 			                Intent intent = new Intent(LandingActivity2.this, PassengerActivity.class);
 							startActivity(intent);
+			                finish();
 						}
 						else new BlurDialog(LandingActivity2.this).show();
 						v.setClickable(true);
@@ -3329,6 +3330,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //                hideStarredBalloon();
                 removeAllOD();
                 startActivity(intent);
+                finish();
             }
             else {
             	//disableShowPassengerMode.set(false);
