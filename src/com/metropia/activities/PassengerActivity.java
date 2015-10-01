@@ -538,6 +538,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			
 			if (uPoints==0) {
 				if (duration>=THRESHOLD_DURATION && distance>=THRESHOLD_DISTANCE) {
+		            ((TextView)findViewById(R.id.duoFailedPanelText)).setText(getString(R.string.duoFailHeadMsg, userName));
 					((TextView)findViewById(R.id.duoFailedDialogTitle)).setText(R.string.duoNoDriverTitle);
 					((TextView)findViewById(R.id.duoFailedDialogDurationText)).setText(R.string.duoNoDriverMsg);
 					findViewById(R.id.duoFailedDialogDurationIcon).setVisibility(View.GONE);
