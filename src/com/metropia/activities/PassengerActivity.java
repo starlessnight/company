@@ -221,7 +221,8 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				findViewById(R.id.loading).setVisibility(View.GONE);
 				
 				if (timeToNext==null) {
-					NotificationDialog2 dialog = new NotificationDialog2(PassengerActivity.this, "An error has occurred.");
+					NotificationDialog2 dialog = new NotificationDialog2(PassengerActivity.this, "Please check your internet setting or try again later.");
+					dialog.setTitle("No internet connection");
 					dialog.show();
 					return;
 				}
