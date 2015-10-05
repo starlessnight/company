@@ -351,6 +351,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
         mapViewHolder.hideAllAttributionTextViews();
 		mapViewHolder.setMapSurfaceListener(this);
+		mapViewHolder.invalidate();
         
         Localytics.integrate(this);
         
@@ -2756,9 +2757,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    unregisterReceiver(onTheWayNotifier);
 	    unregisterReceiver(inboxNotifier);
 	    super.onPause();
-	    if(mapView != null) {
-	    	mapView.clearAllOverlays();
-	    }
+	    if (mapView!=null) mapView.clearAllOverlays();
+	    if (mapView!=null) mapView.deleteAllAnnotationsAndCustomPOIs();
 	    enableDrawRoute.set(false);
 	    mapViewHolder.onPause();
 	    mSensorManager.unregisterListener(this, accelerometer);

@@ -110,6 +110,7 @@ import com.metropia.utils.RouteNode;
 import com.metropia.utils.RouteRect;
 import com.metropia.utils.SystemService;
 import com.skobbler.ngx.SKCoordinate;
+import com.skobbler.ngx.SKMaps;
 import com.skobbler.ngx.map.SKAnimationSettings;
 import com.skobbler.ngx.map.SKAnnotation;
 import com.skobbler.ngx.map.SKAnnotationView;
@@ -230,6 +231,8 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         @Override
         public void run() {
             if(!isFinishing()){
+            	Intent i = new Intent(RouteActivity.this, LandingActivity2.class);
+            	startActivity(i);
                 finish();
             }
         }
@@ -575,7 +578,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
                             ehs.reportExceptions(new Runnable() {
                                 @Override
                                 public void run() {
-                                    finish();
+                                	goBackToWhereTo.run();
                                 }
                             });
                         }else if(routes != null && routes.size() > 0) {
@@ -1024,6 +1027,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 					@Override
 					public void onAnimationEnd() {
 						mapView.clearAllOverlays();
+						mapView.deleteAllAnnotationsAndCustomPOIs();
 						onBackPressed();
 					}
 				});
@@ -1539,6 +1543,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    Localytics.clearInAppMessageDisplayActivity();
 	    Localytics.closeSession();
 	    Localytics.upload();
+	    if (mapView!=null) mapView.deleteAllAnnotationsAndCustomPOIs();
 	    super.onPause();
 	    mapViewHolder.onPause();
     } 
@@ -1884,7 +1889,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         super.onActivityResult(requestCode, resultCode, intent);
         
         if(requestCode == -1) {
-            finish();
+            goBackToWhereTo.run();
         }
         
         Bundle extras = intent == null?null:intent.getExtras();
@@ -1992,12 +1997,6 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
         }
     }
     
-    @Override
-    public void finish() {
-    	Intent i = new Intent(this, LandingActivity2.class);
-    	this.startActivity(i);
-    	super.finish();
-    }
     
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {

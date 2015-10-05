@@ -128,6 +128,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+    	SkobblerUtils.initializeLibrary(this);
 		setContentView(R.layout.passenger);
 		
 		registerReceiver(tripValidator, new IntentFilter(PASSENGER_TRIP_VALIDATOR));

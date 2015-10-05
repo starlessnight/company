@@ -728,7 +728,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
-		finish();
+		super.finish();
 		startActivity(intent);
 	}
 
@@ -2796,6 +2796,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		super.onDestroy();
 //		SKMaps.getInstance().destroySKMaps();
+	}
+	
+	@Override
+	public void finish() {
+		Intent i = new Intent(this, LandingActivity2.class);
+		startActivity(i);
+		super.finish();
 	}
 
 	@Override
