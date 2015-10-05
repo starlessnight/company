@@ -1473,6 +1473,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 							if (callback != null) {
 								callback.run();
 							}
+							if (!SendTrajectoryService.isRunning) SendTrajectoryService.schedule(ValidationActivity.this);
 						}
 					});
 				} catch (Throwable t) {}
@@ -2140,7 +2141,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		if (!isReplay.get()) {
 			trajectory.accumulate(location, linkId);
-			if (!arrived.get() && trajectory.size() >= 8) {
+			List<Record> records = trajectory.getRecords();
+			long interval = records.get(records.size()-1).getTime() - records.get(0).getTime();
+			if (!arrived.get() && interval>=60*1000) {
 				saveTrajectory();
 			}
 		}

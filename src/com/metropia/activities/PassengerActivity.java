@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -73,6 +74,7 @@ import com.metropia.dialogs.NotificationDialog2.ActionListener;
 import com.metropia.models.Passenger;
 import com.metropia.models.Trajectory;
 import com.metropia.models.User;
+import com.metropia.models.Trajectory.Record;
 import com.metropia.requests.CityRequest;
 import com.metropia.requests.CityRequest.City;
 import com.metropia.requests.DuoTripCheckRequest;
@@ -498,7 +500,9 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		
 		if(reservId.get() > 0) {
 			trajectory.accumulate(location, Trajectory.DEFAULT_LINK_ID);
-			if (!arrived.get() && trajectory.size() >= 8) {
+			List<Record> records = trajectory.getRecords();
+			long interval = records.get(records.size()-1).getTime() - records.get(0).getTime();
+			if (!arrived.get() && interval>=60*1000) {
 				saveTrajectory();
 			}
 			
@@ -637,6 +641,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 							if (callback != null) {
 								callback.run();
 							}
+							if (!SendTrajectoryService.isRunning) SendTrajectoryService.schedule(PassengerActivity.this);
 						}
 					});
 				} catch (Throwable t) {}

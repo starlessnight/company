@@ -63,7 +63,7 @@ public class SendTrajectoryRequest extends Request {
         
         Link link = mode.equals(PassengerActivity.PASSENGER_TRIP_VALIDATOR)? Link.passenger_trajectory:(terminated==null? Link.trajectory:Link.trajectory_serial);
         String url = Request.getLinkUrl(link).replaceAll("\\{reservation_id\\}", String.valueOf(rid));
-        if (serialNum!=null) url.replaceAll("\\{serialnum\\}", serialNum+"").replaceAll("\\{terminated\\}", terminated+"");
+        if (serialNum!=null) url = url.replaceAll("\\{serialnum\\}", serialNum+"").replaceAll("\\{terminated\\}", terminated+"");
         try{
             executeHttpRequest(Method.POST, url, params, true, ctx);
         }catch(Exception e){

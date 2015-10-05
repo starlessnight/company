@@ -24,8 +24,6 @@ import com.metropia.activities.DebugOptionsActivity;
 import com.metropia.activities.MainActivity;
 import com.metropia.activities.PassengerActivity;
 import com.metropia.activities.ValidationActivity;
-import com.metropia.exceptions.SmarTrekException;
-import com.metropia.models.Passenger;
 import com.metropia.models.Trajectory;
 import com.metropia.models.User;
 import com.metropia.requests.Request;
@@ -66,7 +64,7 @@ public class SendTrajectoryService extends IntentService {
     }
     
     /**@param mode specify Driver or DUO**/
-    private static boolean send(Context ctx, File routeDir, boolean imdSend, String mode, String range){
+    private static boolean send(final Context ctx, File routeDir, boolean imdSend, String mode, String range){
     	synchronized (mutex) {
 	        boolean success = true;
 	        User user = User.getCurrentUser(ctx);
@@ -105,13 +103,14 @@ public class SendTrajectoryService extends IntentService {
 	                SendTrajectoryRequest request = new SendTrajectoryRequest(imdSend);
 	                if(Request.NEW_API){
 	                    try{
-	                    	isSending = true;
+	                    	long interval = System.currentTimeMillis();
 	                    	request.setSerialNum(range.equals(FRONT_FRAGMENT)? seq:null);
 	                    	request.execute(user, routeId, traj, ctx, mode);
-	                    	isSending = false;
 	                    	lastSendResult = true;
+	                    	interval = System.currentTimeMillis() - interval;
+	                    	final long i = interval;
+	                    	final int seqF = seq;
 	                    }catch(Exception e){
-	                    	isSending = false;
 	                    	lastSendResult = false;
 	                    }
 	                }else{
@@ -137,14 +136,16 @@ public class SendTrajectoryService extends IntentService {
     	}
     }
     
-    int timer = 0;
+    static int timer = 0;
     static boolean lastSendResult = true;
-    static boolean isSending = false;
+    static boolean isExecuting = false;
+    static boolean empty = false;
+    static int emptyCounter = 0;
     @Override
     protected void onHandleIntent(Intent intent) {
     	timer+=1000;
-    	if (isSending || !lastSendResult && timer%60*1000!=0) return;
-    	
+    	if (isExecuting || ((empty || !lastSendResult) && timer%(20*1000)!=0)) return;
+    	isExecuting = true;
     	
         User user = User.getCurrentUserWithoutCache(this);
         if(user != null){
@@ -158,17 +159,22 @@ public class SendTrajectoryService extends IntentService {
                     
                     File[] routes = ArrayUtils.addAll(routeDirs, duoDirs);
                     if(ArrayUtils.isNotEmpty(routes)){
+                    	empty = true;
                         for(File d:routes){
                             String[] files = d.list();
                             if(d.lastModified() < System.currentTimeMillis() - sevenDays){
                                 FileUtils.deleteQuietly(d);
                             }
-                            //else if (ArrayUtils.isEmpty(files)) lastSendResult = false;
                             else if(d != null && (StringUtils.isNumeric(d.getName()) || StringUtils.startsWith(d.getName(), IMD_PREFIX))){
                             	String mode = d.getParentFile().equals(duoDir)? PassengerActivity.PASSENGER_TRIP_VALIDATOR:ValidationActivity.TRIP_VALIDATOR;
                                 send(SendTrajectoryService.this, d, false, mode, FRONT_FRAGMENT);
+                                if (ArrayUtils.isNotEmpty(files)) empty = false;
                             }
                         }
+                        if (empty) {
+                        	emptyCounter++;
+                        }
+                        else emptyCounter = 0;
                     }
                 }
             });
@@ -181,6 +187,11 @@ public class SendTrajectoryService extends IntentService {
                 }
             }
         }
+        if (empty && emptyCounter>=5) {
+        	stopSchedule(SendTrajectoryService.this);
+        	emptyCounter = 0;
+        }
+        isExecuting = false;
     }
     
     private static File getOutDir(Context ctx){
@@ -208,13 +219,22 @@ public class SendTrajectoryService extends IntentService {
     	return new File(getDuoDir(ctx), IMD_PREFIX + rId + "/" + seq);
     }
     
+    
+    public static boolean isRunning;
     static int interval;
-    public static void schedule(Context ctx){
+    public static void schedule(final Context ctx){
     	interval = (Integer) DebugOptionsActivity.getDebugValue(ctx, DebugOptionsActivity.TRAJECTORY_SENDING_INTERVAL, 5) * 60 * 1000;
     	
         PendingIntent sendTrajServ = PendingIntent.getService(ctx, 0, new Intent(ctx, SendTrajectoryService.class), PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
-        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + twoMins, 1000, sendTrajServ);
+        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime()+10000, 1000, sendTrajServ);
+        isRunning = true;
+    }
+    public static void stopSchedule(final Context ctx) {
+    	PendingIntent stopIntent = PendingIntent.getService(ctx, 0, new Intent(ctx, SendTrajectoryService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
+        alarm.cancel(stopIntent);
+        isRunning = false;
     }
 
 }
