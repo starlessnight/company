@@ -90,6 +90,7 @@ public abstract class Request {
 	    issue, 
 	    travel_time,
 	    savelocation,
+	    driver_head,
 	    query_DUO,
 	    passenger_reservation,
 	    passenger_trajectory,

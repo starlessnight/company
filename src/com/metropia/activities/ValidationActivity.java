@@ -130,6 +130,7 @@ import com.metropia.activities.DebugOptionsActivity.FakeRoute;
 import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.dialogs.NotificationDialog2.ActionListener;
 import com.metropia.models.IncidentIcon;
+import com.metropia.models.Passenger;
 import com.metropia.models.Reservation;
 import com.metropia.models.ReservationTollHovInfo;
 import com.metropia.models.Route;
@@ -141,6 +142,7 @@ import com.metropia.requests.CityRequest.City;
 import com.metropia.requests.ImComingRequest;
 import com.metropia.requests.IncidentRequest;
 import com.metropia.requests.IncidentRequest.Incident;
+import com.metropia.requests.PassengerOnBoardRequst;
 import com.metropia.requests.Request;
 import com.metropia.requests.Request.Setting;
 import com.metropia.requests.ReservationFetchRequest;
@@ -594,6 +596,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			sendOnMyWaySms();
 		}
 
+		checkPassenger.run();
 		// init Tracker
 		((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 
@@ -609,8 +612,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private Location lastLocation;
 
 	private void preProcessLocation(Location location) {
-		// Log.d(this.getClass().toString(),
-		// String.format("onLocationChanged: %s", location));
 		SharedPreferences debugPrefs = getSharedPreferences(DebugOptionsActivity.DEBUG_PREFS, MODE_PRIVATE);
 		int gpsMode = debugPrefs.getInt(DebugOptionsActivity.GPS_MODE, DebugOptionsActivity.GPS_MODE_DEFAULT);
 		if (gpsMode == DebugOptionsActivity.GPS_MODE_REAL) {
@@ -3471,6 +3472,33 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+	
+	
+	ArrayList<Passenger> passenger;
+	Runnable checkPassenger = new Runnable() {
+
+		@Override
+		public void run() {
+			
+			if (passenger==null) passenger = new ArrayList<Passenger>();
+			PassengerOnBoardRequst request = new PassengerOnBoardRequst(User.getCurrentUser(ValidationActivity.this), passenger);
+			request.executeAsync(ValidationActivity.this, new ICallback() {
+				public void run(Object... obj) {
+					if (obj[0]==null) return;
+					ArrayList<Passenger> remotePassenger = (ArrayList<Passenger>) obj[0];
+					
+					for (int i=0 ; i<remotePassenger.size() ; i++) {
+						if (!passenger.contains(remotePassenger.get(i)))
+							speakIfTtsEnabled(remotePassenger.get(i).onBoardVoice, false);
+					}
+				}
+			});
+			
+			if (!arrived.get()) new Handler().postDelayed(checkPassenger, 60*1000);
+		}
+	};
+	
+	
 
 	@Override
 	public void onClick(final View v) {
