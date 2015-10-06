@@ -2,8 +2,6 @@
 <resources>
 	<string name="releaseTitle">What\'s new in version %s</string>
 	<string name="releaseNote">
-		‧ #1155: DUO - Pass the city name for passenger PUT peruser API\n\n
-		‧ #1148: Repetitive crash during navigation when moved app to background
 	</string>
 	
 </resources>
