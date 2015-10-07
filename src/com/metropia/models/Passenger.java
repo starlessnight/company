@@ -34,7 +34,8 @@ public class Passenger implements ImageItem {
 	
 	@Override
 	public boolean equals(Object obj) {
-		return obj instanceof Passenger && (userName.equals(((Passenger)obj).userName) || id==((Passenger)obj).id);
+		if (id!=-1) return obj instanceof Passenger && id==((Passenger)obj).id;
+		else return obj instanceof Passenger && userName.equals(((Passenger)obj).userName);
 	}
 
 	@Override
