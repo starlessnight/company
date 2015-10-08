@@ -237,6 +237,14 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
             }
         }
     };
+    @Override
+    public void finish() {
+    	if (mapView!=null) {
+    		mapView.clearAllOverlays();
+    		mapView.deleteAllAnnotationsAndCustomPOIs();
+    	}
+		super.finish();
+    }
     
 	private GeocodingTaskCallback originGeocodingTaskCallback = new GeocodingTaskCallback() {
 		
@@ -1026,8 +1034,6 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
             	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
 					@Override
 					public void onAnimationEnd() {
-						mapView.clearAllOverlays();
-						mapView.deleteAllAnnotationsAndCustomPOIs();
 						onBackPressed();
 					}
 				});
@@ -1123,8 +1129,6 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		
 		mapView = mapViewHolder.getMapSurfaceView();
 		
-//		mapView.clearAllOverlays();
-//		mapView.deleteAllAnnotationsAndCustomPOIs();
 		mapView.getMapSettings().setCurrentPositionShown(false);
 		mapView.getMapSettings().setFollowerMode(SKMapFollowerMode.NONE);
 		mapView.getMapSettings().setMapDisplayMode(SKMapDisplayMode.MODE_2D);
@@ -1543,7 +1547,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    Localytics.clearInAppMessageDisplayActivity();
 	    Localytics.closeSession();
 	    Localytics.upload();
-	    if (mapView!=null) mapView.deleteAllAnnotationsAndCustomPOIs();
+	    //if (mapView!=null) mapView.deleteAllAnnotationsAndCustomPOIs();
 	    super.onPause();
 	    mapViewHolder.onPause();
     } 
@@ -1603,6 +1607,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
      * @param possibleRoutes
      */
     private void updateMap(List<Route> possibleRoutes, boolean zoomToSpan) {
+    	if (isFinishing()) return;
         if(possibleRoutes != null && possibleRoutes.size() > 0) {
             
             List<RouteNode> nodes = new ArrayList<RouteNode>(); 
@@ -2128,10 +2133,6 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
             setHighlightedRoutePathOverlays(true);
             
             if (ehs.hasExceptions() && selectedColumn == 0) {
-            	if(mapView != null) {
-	            	mapView.clearAllOverlays();
-	            	mapView.deleteAllAnnotationsAndCustomPOIs();
-            	}
                 ehs.reportExceptions(goBackToWhereTo);
             }
             else {

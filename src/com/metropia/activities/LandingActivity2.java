@@ -3362,13 +3362,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	});
     }
     
-//    private void refreshStarredPOIs(){
-//        refreshStarredPOIs(null, false);
-//    }
-//    
-//    private void refreshStarredPOIsAndUpdateFavoriteList() {
-//    	refreshStarredPOIs(null, true);
-//    }
     
     private void refreshStarredPOIs(final Runnable callback, final boolean forceUpdateFavorite){
         AsyncTask<Void, Void, List<com.metropia.models.Address>> task = new AsyncTask<Void, Void, List<com.metropia.models.Address>>(){
@@ -3389,6 +3382,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             }
             @Override
             protected void onPostExecute(List<com.metropia.models.Address> result) {
+            	if (isFinishing()) return;
                 if(callback != null){
                     callback.run();
                 }
