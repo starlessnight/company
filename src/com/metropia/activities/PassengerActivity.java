@@ -23,6 +23,7 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -90,8 +91,10 @@ import com.metropia.ui.animation.ClickAnimation;
 import com.metropia.utils.Dimension;
 import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
+import com.metropia.utils.GeoPoint;
 import com.metropia.utils.HTTP;
 import com.metropia.utils.Misc;
+import com.metropia.utils.RouteNode;
 import com.metropia.utils.Speaker;
 import com.metropia.utils.SystemService;
 import com.skobbler.ngx.SKCoordinate;
@@ -120,6 +123,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	private SKMapSurfaceView mapView;
 	private Wheel wheel;
 	
+	int status = 0;
 	int[] clickable = {};
 	int[] clickableAnimated = {R.id.back_button, R.id.center_map_icon, R.id.startButtonText, R.id.close, R.id.share, R.id.feedback};
 	
@@ -198,6 +202,19 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			buildLocationSettingsRequest();
 		}
 	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		
+	}
+	@Override
+    public void onRestoreInstanceState(Bundle savedInstanceState){
+        super.onRestoreInstanceState(savedInstanceState);
+        
+    }
+	
+	
 	
 	private void checkLastTrip(final Runnable cb) {
 		new AsyncTask<Void, Void, Integer>() {
@@ -423,18 +440,10 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		final ArrayList<View> views = new ArrayList<View>();
 		final ArrayList<ImageLoader> tasks = new ArrayList<ImageLoader>();
 		
-		Runnable cb = new Runnable() {
-			public void run() {
-				for (ImageLoader task:tasks) {
-					if (!task.finished) return;
-				}
-
-				new CircularPopupAnimation(views, 1);
-			}
-		};
+		
 		
 		for (int i=0 ; i<localPassengers.size() ; i++) {
-			Passenger passenger = localPassengers.get(i);
+			final Passenger passenger = localPassengers.get(i);
 			View view;
 			
 			if (StringUtils.isBlank(passenger.photoUrl)) {
@@ -448,8 +457,22 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			}
 			else {
 				view = new ImageView(this);
+				final ImageView fView = (ImageView) view;
+				
 				if (passenger.drawable!=null) ((ImageView)view).setImageDrawable(passenger.drawable);
-				else tasks.add(new ImageLoader(passenger, view, passenger.photoUrl, cb).execute());
+				else tasks.add(new ImageLoader(this, passenger.photoUrl, new ICallback() {
+					public void run(Object... obj) {
+						if (obj[0]==null) return;
+						Drawable drawable = Dimension.getRoundedShape((Drawable) obj[0]);
+						passenger.setDrawable(drawable);
+						fView.setImageDrawable(drawable);
+						for (ImageLoader task:tasks) {
+							if (!task.finished) return;
+						}
+
+						new CircularPopupAnimation(views, 1);
+					}
+				}).execute(false));
 			}
 			
 			views.add(view);
@@ -597,21 +620,21 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			};
 			Font.setTypeface(Font.getRobotoBold(getAssets()), styledTexts);
 
-			
-			LandingActivity2.LoadImageTask wheelDownloader = new LandingActivity2.LoadImageTask(this, wheelUrl) {
-                protected void onPostExecute(final Bitmap rs) {
-                    if(rs != null){
-                    	wheel.setImage(rs);
-                    	
-                    	panel.setVisibility(View.VISIBLE);
-            			Misc.fadeIn(PassengerActivity.this, panel);
-                    }else{
-                    	
-                    }
-                }
-            };
-            Misc.parallelExecute(wheelDownloader);
-			
+			if (uPoints==0) {
+				panel.setVisibility(View.VISIBLE);
+    			Misc.fadeIn(PassengerActivity.this, panel);
+			}
+			else {
+				new ImageLoader(this, wheelUrl, new ICallback() {
+					public void run(Object... obj) {
+						if(obj[0]==null) return;
+	                    wheel.setImage((Drawable)obj[0]);
+	                    	
+	                    panel.setVisibility(View.VISIBLE);
+	            		Misc.fadeIn(PassengerActivity.this, panel);
+					}
+				}).execute(true);
+			}
 			
 			closeGPS();
 		}

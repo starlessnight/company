@@ -12,6 +12,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -82,8 +83,8 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 	    });
 	}
 	
-	public void setImage(Bitmap bitmap) {
-		wheel.setImageBitmap(bitmap);
+	public void setImage(Drawable drawable) {
+		wheel.setImageDrawable(drawable);
 	}
 	
 	public void setReservationId(long reservationId) {

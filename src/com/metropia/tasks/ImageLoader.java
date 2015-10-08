@@ -1,47 +1,46 @@
 package com.metropia.tasks;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 
-import com.metropia.activities.PassengerActivity;
-import com.metropia.utils.Dimension;
-
-import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
 
-public class ImageLoader extends AsyncTask<String, Void, Drawable> {
+public class ImageLoader extends AsyncTask<Boolean, Void, Drawable> {
 	
 	public boolean finished = false;
-	ImageItem obj;
+	Context context;
 	String url;
-	View view;
-	Runnable cb;
+	ICallback cb;
 	
-	public ImageLoader(ImageItem obj, View view, String url, Runnable cb) {
+	public ImageLoader(Context context, String url, ICallback cb) {
 		super();
-		this.obj = obj;
+		this.context= context;
 		this.url = url;
-		this.view = view;
 		this.cb = cb;
 	}
 
 	@Override
-	protected Drawable doInBackground(String... params) {
-		Drawable drawable = null;
+	protected Drawable doInBackground(Boolean... params) {
+		Drawable drawable = getCachedImage(context, this.url);
+		if (drawable!=null) return drawable;
 		
 		try {
 			URL url = new URL(this.url);
 			Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-			drawable = Dimension.getRoundedShape(bmp);
+			if (params[0]) cacheImage(context, this.url, bmp);
+			drawable = new BitmapDrawable(bmp);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.e("fetch image fail", e.toString());
 		}
 		
 		return drawable;
@@ -49,34 +48,15 @@ public class ImageLoader extends AsyncTask<String, Void, Drawable> {
 	
 	@Override
 	protected void onPostExecute(final Drawable drawable) {
-		((Activity) view.getContext()).runOnUiThread(new Runnable() {
-
-			@Override
-			public void run() {
-				obj.setDrawable(drawable);
-				((ImageView)view).setImageDrawable(drawable);
-				finished = true;
-				if (cb!=null) cb.run();
-			}
-		});
+		
+		finished = true;
+		if (cb!=null) cb.run(drawable);
 	}
 	
-	public ImageLoader execute() {
-		this.execute("");
+	public ImageLoader execute(Boolean cache) {
+		super.execute(cache);
 		return this;
 	}
-	
-	/*private Bitmap combine(Bitmap bitmap1, Bitmap bitmap2) {
-		
-		Bitmap result = Bitmap.createBitmap(bitmap2.getWidth(), bitmap2.getHeight(), Bitmap.Config.ARGB_8888);
-		Canvas comboImage = new Canvas(result);
-		
-		comboImage.drawBitmap(bitmap1, 0, 0, null);
-		comboImage.drawBitmap(bitmap2, 0, 0, null);
-		
-		return bitmap2;
-		
-	}*/
 	
 	
 	
@@ -84,5 +64,42 @@ public class ImageLoader extends AsyncTask<String, Void, Drawable> {
 		public void setDrawable(Drawable drawable);
 	}
 	
+	public static Drawable getCachedImage(Context context, String url) {
+		String fileName = null;
+		try {
+			fileName = url.substring( url.lastIndexOf('/')+1, url.length() );
+		} catch(Exception e) {return null;}
+		
+		File file = new File(context.getExternalFilesDir(null), "imageCache/"+fileName);
+		if (file.exists()) {
+			try {
+				Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
+				return new BitmapDrawable(bitmap);
+			} catch (FileNotFoundException e) {}
+		}
+		return null;
+	}
+	public static void cacheImage(Context context, String url, Bitmap bitmap) {
+		String fileName = null;
+		try {
+			fileName = url.substring( url.lastIndexOf('/')+1, url.length() );
+		} catch(Exception e) {return;}
+		
+		File dir = new File(context.getExternalFilesDir(null), "imageCache");
+		if (!dir.exists()) dir.mkdir();
+		FileOutputStream out = null;
+		try {
+		    out = new FileOutputStream(dir+"/"+fileName);
+		    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+		} catch (Exception e) {
+			Log.e("save image to file error", e.toString());
+		} finally {
+		    try {
+		        if (out != null) {
+		            out.close();
+		        }
+		    } catch (IOException e) {}
+		}
+	}
 
 }
