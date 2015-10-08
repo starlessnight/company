@@ -95,7 +95,9 @@ public abstract class Request {
 	    passenger_reservation,
 	    passenger_trajectory,
 	    passenger_trip,
-	    passenger_spin_wheel
+	    passenger_spin_wheel,
+	    passenger_bubble_head,
+	    optin_sunrideshare
 	}
 	
 	public enum Page { 

@@ -25,7 +25,7 @@
     <string name="passenger_start_ride">Sit back and relax, %s.\n Thanks for catching a ride.</string>
 	
 	<string name="duoTripIntervalCheckTile">Your last trip was %s minutes ago.</string>
-	<string name="duoTripIntervalCheckMsg">DUO trips must be 15 minutes apart. Please try again in %s.</string>
+	<string name="duoTripIntervalCheckMsg">DUO trips must be 15 minutes apart. Please try again in %s minute(s).</string>
 	<string name="duoCongratulationMsg">Now SPIN and win some more as a\n bonus for carpooling with %s</string>
 	<string name="duoExitWithoutSpin">Please spin the wheel so both you and your driver get rewarded for this trip!</string>
 	

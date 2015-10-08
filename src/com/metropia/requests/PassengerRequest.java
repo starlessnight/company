@@ -18,7 +18,7 @@ public class PassengerRequest extends Request {
     public ArrayList<Passenger> execute(User user, long rid, Context ctx) throws Exception {
         this.username = user.getUsername();
         this.password = user.getPassword();
-        String apiUrl = "http://sandbox.metropia.com/dev3_v1/duo_rest_storage/bb_head.json/{reservation_id}";
+        String apiUrl = getLinkUrl(Link.passenger_bubble_head);
         String url = apiUrl.replaceAll("\\{reservation_id\\}", String.valueOf(rid));
         
         try{
