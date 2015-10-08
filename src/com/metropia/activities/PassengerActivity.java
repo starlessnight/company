@@ -449,9 +449,10 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			if (StringUtils.isBlank(passenger.photoUrl)) {
 				view = new TextView(this);
 				TextView textView = (TextView) view;
+				String name = passenger.userName;
+				if (name.length()>6) name = name.substring(0, 1).toUpperCase();
 				
-				
-				textView.setText(passenger.userName);
+				textView.setText(name);
 				textView.setGravity(Gravity.CENTER);
 				textView.setTextColor(Color.WHITE);
 			}
