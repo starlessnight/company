@@ -93,6 +93,7 @@ import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.Font;
 import com.metropia.utils.GeoPoint;
 import com.metropia.utils.HTTP;
+import com.metropia.utils.ImageUtil;
 import com.metropia.utils.Misc;
 import com.metropia.utils.RouteNode;
 import com.metropia.utils.Speaker;
@@ -442,35 +443,37 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		
 		
 		
+		int[] colors = {R.color.metropia_red, R.color.metropia_orange, R.color.metropia_blue, R.color.metropia_green};
 		for (int i=0 ; i<localPassengers.size() ; i++) {
 			final Passenger passenger = localPassengers.get(i);
-			View view;
+			final boolean halo = i==1;
+			final TextView view = new TextView(this);
 			
 			if (StringUtils.isBlank(passenger.photoUrl)) {
-				view = new TextView(this);
-				TextView textView = (TextView) view;
 				String name = passenger.userName;
 				if (name.length()>6) name = name.substring(0, 1).toUpperCase();
+				int padding = Dimension.dpToPx(5, getResources().getDisplayMetrics());
 				
-				textView.setText(name);
-				textView.setGravity(Gravity.CENTER);
-				textView.setTextColor(Color.WHITE);
+				view.setText(name);
+				view.setGravity(Gravity.CENTER);
+				view.setTextColor(Color.WHITE);
+				view.setPadding(0, 0, padding, padding);
+				view.setBackgroundDrawable(ImageUtil.getRoundedShape(this, colors[i%4], halo));
 			}
 			else {
-				view = new ImageView(this);
-				final ImageView fView = (ImageView) view;
 				
-				if (passenger.drawable!=null) ((ImageView)view).setImageDrawable(passenger.drawable);
+				if (passenger.drawable!=null) view.setBackgroundDrawable(passenger.drawable);
 				else tasks.add(new ImageLoader(this, passenger.photoUrl, new ICallback() {
 					public void run(Object... obj) {
 						if (obj[0]==null) return;
-						Drawable drawable = Dimension.getRoundedShape((Drawable) obj[0]);
-						passenger.setDrawable(drawable);
-						fView.setImageDrawable(drawable);
+						
+						Drawable drawable = ImageUtil.getRoundedShape((Drawable) obj[0]);
+						passenger.setDrawable(ImageUtil.addShadow(PassengerActivity.this, drawable, halo));
+						view.setBackgroundDrawable(ImageUtil.addShadow(PassengerActivity.this, drawable, halo));
+						
 						for (ImageLoader task:tasks) {
 							if (!task.finished) return;
 						}
-
 						new CircularPopupAnimation(views, 1);
 					}
 				}).execute(false));
@@ -479,11 +482,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			views.add(view);
 			parent.addView(view, 0);
 			
-			int padding = Dimension.dpToPx(5, getResources().getDisplayMetrics());
-			int border = i==1? Dimension.dpToPx(4, getResources().getDisplayMetrics()):0;
-
-			view.setPadding(border, border, border+padding, border+padding);
-			view.setBackgroundResource(i==1? R.drawable.duo_bubble_driver:R.drawable.duo_bubble);
 			view.getLayoutParams().width = Dimension.dpToPx(60, this.getResources().getDisplayMetrics());
 			view.getLayoutParams().height = Dimension.dpToPx(60, this.getResources().getDisplayMetrics());
 			view.setAlpha(0);
