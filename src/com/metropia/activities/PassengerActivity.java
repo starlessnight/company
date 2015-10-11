@@ -238,7 +238,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			}
 			
 			@Override
-			protected void onPostExecute(final Integer timeToNext) {
+			protected void onPostExecute(Integer timeToNext) {
 				findViewById(R.id.loading).setVisibility(View.GONE);
 				
 				if (timeToNext==null) {
@@ -248,8 +248,10 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					return;
 				}
 				
-				NotificationDialog2 dialog = new NotificationDialog2(PassengerActivity.this, getString(R.string.duoTripIntervalCheckMsg, timeToNext));
-				dialog.setTitle(getString(R.string.duoTripIntervalCheckTile, 15-timeToNext));
+				String timeToNextStr = getResources().getQuantityString(R.plurals.minute, timeToNext, timeToNext);
+				String timeStr = getResources().getQuantityString(R.plurals.minute, 15-timeToNext, 15-timeToNext);
+				NotificationDialog2 dialog = new NotificationDialog2(PassengerActivity.this, getString(R.string.duoTripIntervalCheckMsg, timeToNextStr));
+				dialog.setTitle(getString(R.string.duoTripIntervalCheckTile, timeStr));
 				dialog.setPositiveButtonText("OK");
 				dialog.setPositiveActionListener(new ActionListener() {
 					public void onClick() {}
@@ -575,10 +577,11 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				else {
 					int icon1 = duration>=THRESHOLD_DURATION? R.drawable.duo_succeed:R.drawable.duo_failed;
 					int icon2 = distance>=THRESHOLD_DISTANCE? R.drawable.duo_succeed:R.drawable.duo_failed;
+					String durationStr = getResources().getQuantityString(R.plurals.minute, (int)duration, (int)duration);
 					
 		            ((TextView)findViewById(R.id.duoFailedPanelText)).setText(getString(R.string.duoFailHeadMsg, userName));
 					((TextView)findViewById(R.id.duoFailedDialogTitle)).setText(R.string.duoFailTitle);
-					((TextView)findViewById(R.id.duoFailedDialogDurationText)).setText(getString(R.string.duoFailDurationMsg, duration));
+					((TextView)findViewById(R.id.duoFailedDialogDurationText)).setText(getString(R.string.duoFailDurationMsg, durationStr));
 					((TextView)findViewById(R.id.duoFailedDialogDistanceText)).setText(getString(R.string.duoFailDistanceMsg, distance));
 					((ImageView)findViewById(R.id.duoFailedDialogDurationIcon)).setImageResource(icon1);
 					((ImageView)findViewById(R.id.duoFailedDialogDistanceIcon)).setImageResource(icon2);
