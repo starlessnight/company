@@ -32,7 +32,7 @@
 	<string name="duoFailHeadMsg">Sorry, %s. You didn\'t receive any rewards for this trip.</string>
 	<string name="duoNoDriverTitle">No driver found</string>
 	<string name="duoNoDriverMsg">We could not verify your carpooling during this trip. Questions? Use the \'Feedback\' button below</string>
-	<string name="duoFailTitle">To earn rewards, DUO must:</string>
+	<string name="duoFailTitle">To earn rewards, DUO trips must:</string>
 	<string name="duoFailDurationMsg">Last 5+ minutes \nYour trip: %s minutes</string>
 	<string name="duoFailDistanceMsg">Exceed 1.5 miles \nYour trip: %s miles</string>
 	
