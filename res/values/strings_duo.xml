@@ -29,7 +29,7 @@
 	<string name="duoCongratulationMsg">Now SPIN and win some more as a\n bonus for carpooling with %s</string>
 	<string name="duoExitWithoutSpin">Please spin the wheel so both you and your driver get rewarded for this trip!</string>
 	
-	<string name="duoFailHeadMsg">Sorry, %s. You didn\'t receive any reward for this trip.</string>
+	<string name="duoFailHeadMsg">Sorry, %s. You didn\'t receive any rewards for this trip.</string>
 	<string name="duoNoDriverTitle">No driver found</string>
 	<string name="duoNoDriverMsg">We could not verify your carpooling during this trip. Questions? Use the \'Feedback\' button below</string>
 	<string name="duoFailTitle">To earn rewards, DUO must:</string>
