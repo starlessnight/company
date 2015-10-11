@@ -571,6 +571,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		            ((TextView)findViewById(R.id.duoFailedPanelText)).setText(getString(R.string.duoFailHeadMsg, userName));
 					((TextView)findViewById(R.id.duoFailedDialogTitle)).setText(R.string.duoNoDriverTitle);
 					((TextView)findViewById(R.id.duoFailedDialogDurationText)).setText(R.string.duoNoDriverMsg);
+					((TextView)findViewById(R.id.duoFailedDialogDurationText)).getLayoutParams().height = -2;
 					findViewById(R.id.duoFailedDialogDurationIcon).setVisibility(View.GONE);
 					findViewById(R.id.duoFailedDialogDistanceIcon).setVisibility(View.GONE);
 				}
