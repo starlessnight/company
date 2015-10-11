@@ -460,7 +460,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				view.setGravity(Gravity.CENTER);
 				view.setTextColor(Color.WHITE);
 				view.setPadding(0, 0, padding, padding);
-				view.setBackgroundDrawable(ImageUtil.getRoundedShape(this, colors[i%4], halo));
+				view.setBackgroundDrawable(ImageUtil.getRoundedShape(this, colors[1], halo));
 			}
 			else {
 				
