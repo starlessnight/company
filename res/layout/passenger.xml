@@ -179,10 +179,10 @@
 						android:id="@+id/duoPoint"
 						android:layout_width="32dp"
 						android:layout_height="32dp"
-						android:paddingRight="2dp"
 						android:gravity="center"
 						android:text="\?"
 						android:textColor="#fff"
+						android:textStyle="bold"
 						android:textSize="16dp"
 						android:background="@drawable/point_circle_blue" />
 					<TextView
