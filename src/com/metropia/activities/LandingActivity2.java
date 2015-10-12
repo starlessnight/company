@@ -198,8 +198,7 @@ import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
 
 
-public final class LandingActivity2 extends FragmentActivity implements SKMapSurfaceListener, SensorEventListener, ConnectionCallbacks, 
-                                      OnConnectionFailedListener, ResultCallback<LocationSettingsResult> { 
+public final class LandingActivity2 extends FragmentActivity implements SKMapSurfaceListener, SensorEventListener, ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<LocationSettingsResult>, OnClickListener { 
     
     private static final int DEFAULT_ZOOM_LEVEL = 12;
     
@@ -342,16 +341,26 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         return Math.log(x)/Math.log(2); 
     }
     
+    
+    int[] clickable = {R.id.score_notify};
+	int[] clickableAnimated = {};
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     	SkobblerUtils.initializeLibrary(LandingActivity2.this);
         setContentView(R.layout.landing2);
         
+        ClickAnimation.OnClickListener onClickListener = new ClickAnimation.OnClickListener(this);
+        for (int i=0 ; i<clickableAnimated.length ; i++) findViewById(clickableAnimated[i]).setOnClickListener(onClickListener);
+        for (int i=0 ; i<clickable.length; i++) findViewById(clickable[i]).setOnClickListener(this);
+        
         mapViewHolder = (SKMapViewHolder) findViewById(R.id.mapview_holder);
         mapViewHolder.hideAllAttributionTextViews();
 		mapViewHolder.setMapSurfaceListener(this);
 		mapViewHolder.invalidate();
+		
+		
         
         Localytics.integrate(this);
         
@@ -5259,6 +5268,17 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		};
 		if (mapView!=null) r.run();
 		else mapActionQueue.add(r);
+		
+	}
+
+	@Override
+	public void onClick(View v) {
+		
+		switch(v.getId()) {
+			case R.id.score_notify:
+				findViewById(R.id.score_notify_close).performClick();
+			break;
+		}
 		
 	}
 
