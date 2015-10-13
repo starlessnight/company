@@ -8,12 +8,18 @@ import java.util.TimeZone;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.AsyncTask;
 
+import com.metropia.activities.R;
+import com.metropia.dialogs.CancelableProgressDialog;
 import com.metropia.exceptions.ServiceFailException;
 import com.metropia.exceptions.WrappedIOException;
 import com.metropia.models.User;
 import com.metropia.requests.CityRequest.City;
+import com.metropia.tasks.ICallback;
+import com.metropia.utils.ExceptionHandlingService;
 import com.metropia.utils.HTTP.Method;
 
 public class PassengerReservationRequest extends Request {
@@ -82,5 +88,53 @@ public class PassengerReservationRequest extends Request {
             reservId = data.getLong("id");
         }
         return reservId;
+	}
+	
+	
+	public void executeAsync(final Context ctx, final City city, final ICallback cb) {
+		
+		new AsyncTask<Void, Void, Long>() {
+			
+			CancelableProgressDialog dialog;
+			ExceptionHandlingService es = new ExceptionHandlingService(ctx);
+			
+			@Override
+			protected void onPreExecute() {
+				dialog = new CancelableProgressDialog(ctx, "Preparing...");
+				dialog.setActionListener(new CancelableProgressDialog.ActionListener() {
+					@Override
+					public void onClickNegativeButton() {
+						((Activity)ctx).finish();
+					}
+				});
+				dialog.show();
+			}
+
+			@Override
+			protected Long doInBackground(Void... params) {
+				try {
+			
+					PassengerReservationRequest resvReq = new PassengerReservationRequest(User.getCurrentUser(ctx), ctx.getString(R.string.distribution_date));
+					return resvReq.execute(ctx, city);
+				}
+				catch(Exception e) {
+					es.registerException(e);
+				}
+				return -1L;
+			}
+	
+			@Override
+			protected void onPostExecute(final Long reserId) {
+				if(dialog.isShowing()) {
+					dialog.dismiss();
+				}
+				if(es.hasExceptions()) {
+					es.reportExceptions();
+				}
+				
+				if (cb!=null) cb.run(reserId);
+			}
+		}.execute();
+		
 	}
 }

@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -71,6 +72,7 @@ import com.metropia.TripService;
 import com.metropia.dialogs.CancelableProgressDialog;
 import com.metropia.dialogs.NotificationDialog;
 import com.metropia.dialogs.NotificationDialog2;
+import com.metropia.dialogs.SunRideshareActivityDialog;
 import com.metropia.dialogs.NotificationDialog2.ActionListener;
 import com.metropia.models.Passenger;
 import com.metropia.models.Trajectory;
@@ -95,6 +97,7 @@ import com.metropia.utils.GeoPoint;
 import com.metropia.utils.HTTP;
 import com.metropia.utils.ImageUtil;
 import com.metropia.utils.Misc;
+import com.metropia.utils.Preferences;
 import com.metropia.utils.RouteNode;
 import com.metropia.utils.Speaker;
 import com.metropia.utils.SystemService;
@@ -268,70 +271,41 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		final ICallback cityRequestCb = new ICallback() {
 			public void run(Object... obj) {
 				final City city = (City) obj[0];
-		
-				final AsyncTask<Void, Void, Long> reservTask = new AsyncTask<Void, Void, Long>() {
-					CancelableProgressDialog dialog;
-					ExceptionHandlingService es = new ExceptionHandlingService(PassengerActivity.this);
-					
-					@Override
-					protected void onPreExecute() {
-						dialog = new CancelableProgressDialog(PassengerActivity.this, "Preparing...");
-						dialog.setActionListener(new CancelableProgressDialog.ActionListener() {
-							@Override
-							public void onClickNegativeButton() {
-								finish();
-							}
-						});
-						dialog.show();
-					}
+				
+				SharedPreferences prefs = Preferences.getGlobalPreferences(PassengerActivity.this);
+				int sunRideshareCount = prefs.getInt("SunRideshareCount", 0);
+				if (sunRideshareCount>=5) new SunRideshareActivityDialog(PassengerActivity.this, city, "sunrideshare", null).showAsync();
+				
+				PassengerReservationRequest resvReq = new PassengerReservationRequest(User.getCurrentUser(PassengerActivity.this), getString(R.string.distribution_date));
+				resvReq.executeAsync(PassengerActivity.this, city, new ICallback() {
 
 					@Override
-					protected Long doInBackground(Void... params) {
-						try {
-					
-							PassengerReservationRequest resvReq = new PassengerReservationRequest(User.getCurrentUser(PassengerActivity.this), getString(R.string.distribution_date));
-							return resvReq.execute(PassengerActivity.this, city);
-						}
-						catch(Exception e) {
-							es.registerException(e);
-						}
-						return null;
+					public void run(Object... obj) {
+						final long reserId = (Long) obj[0];
+						if (reserId==-1) return;
+						
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								User user = User.getCurrentUser(PassengerActivity.this);
+								reservId.set(reserId);
+								View startButtonIcon = findViewById(R.id.startButtonIcon);
+								TextView startButtonText = (TextView) findViewById(R.id.startButtonText);
+								startButtonText.setTag(true);
+								startButtonText.setText("END MY TRIP");
+								startButtonText.setBackgroundColor(getResources().getColor(R.color.metropia_passenger_orange));
+								startButtonIcon.setBackgroundColor(getResources().getColor(R.color.metropia_passenger_blue));
+								TextView passengerMsg = (TextView) findViewById(R.id.passenger_msg);
+								passengerMsg.setText(getResources().getString(R.string.passenger_start_ride, user.getFirstname()));
+								passengerMsg.setGravity(Gravity.CENTER);
+								findViewById(R.id.back_button).setVisibility(View.GONE);
+							}
+						});
+				
+						fetchPassengerPeriodly.run();
+						checkLowSpeedTimer.run();
 					}
-			
-					@Override
-					protected void onPostExecute(final Long reserId) {
-						if(dialog.isShowing()) {
-							dialog.dismiss();
-						}
-						if(es.hasExceptions()) {
-							es.reportExceptions();
-						}
-						else {
-							runOnUiThread(new Runnable() {
-								@Override
-								public void run() {
-									User user = User.getCurrentUser(PassengerActivity.this);
-									reservId.set(reserId);
-									View startButtonIcon = findViewById(R.id.startButtonIcon);
-									TextView startButtonText = (TextView) findViewById(R.id.startButtonText);
-									startButtonText.setTag(true);
-									startButtonText.setText("END MY TRIP");
-									startButtonText.setBackgroundColor(getResources().getColor(R.color.metropia_passenger_orange));
-									startButtonIcon.setBackgroundColor(getResources().getColor(R.color.metropia_passenger_blue));
-									TextView passengerMsg = (TextView) findViewById(R.id.passenger_msg);
-									passengerMsg.setText(getResources().getString(R.string.passenger_start_ride, user.getFirstname()));
-									passengerMsg.setGravity(Gravity.CENTER);
-									findViewById(R.id.back_button).setVisibility(View.GONE);
-								}
-							});
-					
-							fetchPassengerPeriodly.run();
-							checkLowSpeedTimer.run();
-					
-						}
-					}
-				};
-				Misc.parallelExecute(reservTask);
+				});
 			}
 		};
 		
@@ -352,22 +326,18 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 
 		@Override
 		public void run() {
-
-			final AsyncTask<Void, Void, Void> fetchPassengerTask = new AsyncTask<Void, Void, Void>() {
+			
+			PassengerRequest request = new PassengerRequest(User.getCurrentUser(PassengerActivity.this));
+			request.executeAsync(PassengerActivity.this, reservId.get(), new ICallback() {
 
 				@Override
-				protected Void doInBackground(Void... params) {
-					PassengerRequest request = new PassengerRequest();
-					try {
-						ArrayList<Passenger> passengers = request.execute(User.getCurrentUser(PassengerActivity.this), reservId.get(), PassengerActivity.this);
-						if (passengers.size()>0) remotePassengers = passengers;
-					} catch (Exception e) {}
-					return null;
+				public void run(Object... obj) {
+					ArrayList<Passenger> passengers = (ArrayList<Passenger>) obj[0];
+					if (passengers!=null) remotePassengers = passengers;
 				}
-			};
+			});
 			
 			int interval = (Integer) DebugOptionsActivity.getDebugValue(PassengerActivity.this, DebugOptionsActivity.BUBBLE_HEAD_REQUESTING_INTERVAL, 1) * 60 * 1000;
-			fetchPassengerTask.execute();
 			handler.postDelayed(fetchPassengerPeriodly, interval);
 		}
 	};
@@ -616,6 +586,10 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				});
 				
 				findViewById(R.id.duoSucceedPanel).setVisibility(View.VISIBLE);
+				
+				SharedPreferences prefs = Preferences.getGlobalPreferences(this);
+				int sunRideshareCount = prefs.getInt("SunRideshareCount", 0);
+				prefs.edit().putInt("SunRideshareCount", ++sunRideshareCount).commit();
 			}
 
 			TextView[] styledTexts = new TextView[] {
@@ -1141,7 +1115,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	public void onDebugInfo(double arg0, float arg1, double arg2) {}
 
 	@Override
-	public void onClick(View v) {
+	public void onClick(final View v) {
 		switch(v.getId()) {
 			case R.id.back_button:
 				finish();
@@ -1162,11 +1136,14 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					cancelValidation();
 				}
 				else {
-					checkLastTrip(new Runnable() {
+					v.setEnabled(false);
+					Runnable startTrip = new Runnable() {
 						public void run() {
 							startTrip();
+							v.setEnabled(true);
 						}
-					});
+					};
+					checkLastTrip(startTrip);
 				}
 			break;
 			case R.id.close:

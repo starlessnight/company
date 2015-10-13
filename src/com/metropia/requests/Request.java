@@ -97,7 +97,8 @@ public abstract class Request {
 	    passenger_trip,
 	    passenger_spin_wheel,
 	    passenger_bubble_head,
-	    optin_sunrideshare
+	    optin_sunrideshare,
+	    send_user_email
 	}
 	
 	public enum Page { 
@@ -225,7 +226,7 @@ public abstract class Request {
             	LocalyticsUtils.tagAppError(LocalyticsUtils.BAD_RESULT);
                 throw new IOException(String.format("HTTP %d: %s", responseCode, responseBody));
             }
-	    }catch(Throwable t){
+	    }catch(Throwable t){Log.e("request error", t.toString());
 	    	if(!hasResponse) {
 	    		LocalyticsUtils.tagAppError(LocalyticsUtils.NETWORK_ERROR);
 	    	}
