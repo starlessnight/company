@@ -100,16 +100,12 @@ public class SendTrajectoryService extends IntentService {
 	                    catch (NumberFormatException e) {}
 	                    catch (IOException e) {}
 	                }
-	                SendTrajectoryRequest request = new SendTrajectoryRequest(imdSend);
+	                SendTrajectoryRequest request = new SendTrajectoryRequest(imdSend, files.length);
 	                if(Request.NEW_API){
 	                    try{
-	                    	long interval = System.currentTimeMillis();
 	                    	request.setSerialNum(range.equals(FRONT_FRAGMENT)? seq:null);
 	                    	request.execute(user, routeId, traj, ctx, mode);
 	                    	lastSendResult = true;
-	                    	interval = System.currentTimeMillis() - interval;
-	                    	final long i = interval;
-	                    	final int seqF = seq;
 	                    }catch(Exception e){
 	                    	lastSendResult = false;
 	                    }
@@ -117,9 +113,12 @@ public class SendTrajectoryService extends IntentService {
 	                    request.execute(seq, user.getId(), routeId, traj);
 	                }
 	                
+	                if (lastSendResult)
 	                try{
 	                    FileUtils.write(outFile, String.valueOf(seq));
 	                }catch(Exception e){}
+	                
+	                if (lastSendResult)
 	                for(File f:toSendFiles){
 	                    FileUtils.deleteQuietly(f);
 	                }
@@ -187,11 +186,11 @@ public class SendTrajectoryService extends IntentService {
                 }
             }
         }
+        isExecuting = false;
         if (empty && emptyCounter>=5) {
         	stopSchedule(SendTrajectoryService.this);
         	emptyCounter = 0;
         }
-        isExecuting = false;
     }
     
     private static File getOutDir(Context ctx){
