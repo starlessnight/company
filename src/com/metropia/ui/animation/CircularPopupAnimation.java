@@ -62,12 +62,13 @@ public class CircularPopupAnimation extends Animation {
 	@Override
 	protected void applyTransformation(float interpolatedTime, Transformation t) {
 		
-		
+
+    		int haloPadding = "halo".equals(view.getTag())? Dimension.dpToPx(5, view.getContext().getResources().getDisplayMetrics()):0;
 			int interval = 360/total;
 			int distance = Dimension.dpToPx(80, view.getContext().getResources().getDisplayMetrics());
 			int offset = total<=8? angleOffset[total]:0;
-			int x = (int) (Math.cos(Math.toRadians(interval*position+offset)) * interpolatedTime*distance);
-			int y = (int) (Math.sin(Math.toRadians(interval*position+offset)) * interpolatedTime*distance);
+			int x = (int) (Math.cos(Math.toRadians(interval*position+offset)) * interpolatedTime*distance) - haloPadding;
+			int y = (int) (Math.sin(Math.toRadians(interval*position+offset)) * interpolatedTime*distance) - haloPadding;
 			//Log.e(x+"", y+"");
 			
 			int originX = ((int[])view.getTag(view.getId()))[0];

@@ -44,23 +44,24 @@ public class ImageUtil {
     
     
     public static Drawable addShadow(Context context, Drawable drawable, boolean halo) {
-    	int padding = Dimension.dpToPx(5, context.getResources().getDisplayMetrics());
+    	int shadowPadding = Dimension.dpToPx(5, context.getResources().getDisplayMetrics());
+    	int haloPadding = halo? Dimension.dpToPx(5, context.getResources().getDisplayMetrics()):0;
     	
     	Bitmap origin = ((BitmapDrawable)drawable).getBitmap();
     	Bitmap shadow = BitmapFactory.decodeResource(context.getResources(), R.drawable.circle_shadow);
-    	Bitmap result = Bitmap.createBitmap(origin.getWidth() + padding, origin.getHeight() + padding, Bitmap.Config.ARGB_8888);
+    	Bitmap result = Bitmap.createBitmap(origin.getWidth() + haloPadding*2 + shadowPadding, origin.getHeight() + haloPadding*2 + shadowPadding, Bitmap.Config.ARGB_8888);
     	
     	Canvas canvas = new Canvas(result);
-    	canvas.drawBitmap(shadow, new Rect(0, 0, shadow.getWidth(), shadow.getHeight()), new Rect(0, 0, 200+padding, 200+padding), null);
-    	canvas.drawBitmap(origin, 0, 0, null);
+    	canvas.drawBitmap(shadow, new Rect(0, 0, shadow.getWidth(), shadow.getHeight()), new Rect(0, 0, 200 + haloPadding*2 + shadowPadding, 200 + haloPadding*2 + shadowPadding), null);
+    	canvas.drawBitmap(origin, haloPadding, haloPadding, null);
     	
     	if (halo) {
     		Paint p = new Paint();  
     		p.setColor(Color.parseColor("#FFCC22")); 
     		p.setStyle(Paint.Style.STROKE);
     		p.setAntiAlias(true);
-    		p.setStrokeWidth(11);
-    		canvas.drawCircle(origin.getWidth()/2, origin.getWidth()/2, origin.getWidth()/2-5, p);
+    		p.setStrokeWidth(haloPadding);
+    		canvas.drawCircle(origin.getWidth()/2+haloPadding, origin.getHeight()/2+haloPadding, origin.getWidth()/2+haloPadding/2, p);
     	}
     	
 		return new BitmapDrawable(result);

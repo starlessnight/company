@@ -6,18 +6,22 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.os.AsyncTask;
 
 import com.metropia.exceptions.SmarTrekException;
 import com.metropia.models.Passenger;
 import com.metropia.models.User;
+import com.metropia.tasks.ICallback;
 import com.metropia.utils.HTTP.Method;
 
 public class PassengerRequest extends Request {
 	
-    
-    public ArrayList<Passenger> execute(User user, long rid, Context ctx) throws Exception {
+	public PassengerRequest(User user) {
         this.username = user.getUsername();
         this.password = user.getPassword();
+	}
+    
+    public ArrayList<Passenger> execute(Context ctx, long rid) throws Exception {
         String apiUrl = getLinkUrl(Link.passenger_bubble_head);
         String url = apiUrl.replaceAll("\\{reservation_id\\}", String.valueOf(rid));
         
@@ -41,5 +45,23 @@ public class PassengerRequest extends Request {
                 throw e;
             }
         }
+    }
+    
+    public void executeAsync(final Context ctx, final long rid, final ICallback cb) {
+    	
+    	new AsyncTask<Void, Void, ArrayList<Passenger>>() {
+
+			@Override
+			protected ArrayList<Passenger> doInBackground(Void... params) {
+				ArrayList<Passenger> passengers = null;
+				try {
+					passengers = PassengerRequest.this.execute(ctx, rid);
+				} catch (Exception e) {}
+				
+				if (cb!=null) cb.run(passengers);
+				return null;
+			}
+		}.execute();
+		
     }
 }

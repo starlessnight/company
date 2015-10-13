@@ -484,9 +484,11 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			views.add(view);
 			parent.addView(view, 0);
 			
-			view.getLayoutParams().width = Dimension.dpToPx(60, this.getResources().getDisplayMetrics());
-			view.getLayoutParams().height = Dimension.dpToPx(60, this.getResources().getDisplayMetrics());
+	    	int haloPadding = halo? Dimension.dpToPx(5, getResources().getDisplayMetrics()):0;
+			view.getLayoutParams().width = Dimension.dpToPx(60, this.getResources().getDisplayMetrics()) + haloPadding*2;
+			view.getLayoutParams().height = Dimension.dpToPx(60, this.getResources().getDisplayMetrics()) + haloPadding*2;
 			view.setAlpha(0);
+			if (halo) view.setTag("halo");
 		}
 		
 		if (tasks.size()==0) new CircularPopupAnimation(views, 1);
