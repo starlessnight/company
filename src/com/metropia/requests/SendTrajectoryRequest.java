@@ -36,7 +36,7 @@ public class SendTrajectoryRequest extends Request {
 	public SendTrajectoryRequest(boolean quickTimeout, int count) {
 		super();
 		if(!quickTimeout) timeout = fifteenSecsTimeout;
-		else timeout = Math.max(15, Math.min(60, 15*1000*count));
+        else timeout = Math.max(15*1000, Math.min(60*1000, 15*1000*count));
 	}
 	
 	public void setSerialNum(Integer serialNum) {
