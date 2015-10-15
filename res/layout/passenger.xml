@@ -240,6 +240,7 @@
 					android:gravity="center"
 					android:text="\?"
 					android:textSize="26dp"
+					android:textStyle="bold"
 					android:textColor="@color/metropia_passenger_blue" />
 			
 			</LinearLayout>
