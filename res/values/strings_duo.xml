@@ -14,9 +14,9 @@
 	<string name="duoForPassengers"><![CDATA[
 		<b>DUO for Passengers</b><br><br>
 		Using DUO couldn’t be easier.<br><br>
-		When you leave with a driver, simply tap<br><font color=#00A1E4>Start My Trip</font>.<br><br>
+		When you leave with a driver, simply tap<br><b><font color=#00A1E4>Start My Trip</font></b>.<br><br>
 		As long as your driver is using Metropia<br>to help you to your destination we’ll pair<br>you automatically.<br><br>
-		When your reach your destination<br>- you guessed it - tap <font color=#00A1E4>End My Trip</font>.<br><br>
+		When your reach your destination<br>- <i>you guessed it</i> - tap <b><font color=#00A1E4>End My Trip</font></b>.<br><br>
 		Your driver gets bonus points and you<br>get to spin our prize wheel.<br><br>
 		<small>Want to learn more? Check out our <font color=#000><a href="http://www.metropia.com/duo-faq">DUO FAQ</a></font></small>.
 	]]></string>
