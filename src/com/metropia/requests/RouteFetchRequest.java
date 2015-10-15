@@ -146,7 +146,7 @@ public class RouteFetchRequest extends FetchRequest<List<Route>> {
 		        throw e;
 		    }else{
 		    	if(e instanceof WrappedIOException) {
-		    		throw new WrappedIOException(msg, ((WrappedIOException)e).getDetailMessage(), e.getCause());
+		    		throw new WrappedIOException(msg, ((WrappedIOException)e).getDetailMessage(), e.getCause(), responseCode);
 		    	}
 		        throw new IOException(msg);
 		    }

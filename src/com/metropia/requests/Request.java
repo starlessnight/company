@@ -239,7 +239,7 @@ public abstract class Request {
 					detailMessage = responseBody;
 				}
 	    	}
-	    	WrappedIOException e = new WrappedIOException(t.getMessage(), detailMessage, t);
+	    	WrappedIOException e = new WrappedIOException(t.getMessage(), detailMessage, t, responseCode);
 //	        e.initCause(t);
 	        throw e;
 	    }

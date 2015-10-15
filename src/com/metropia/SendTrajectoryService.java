@@ -24,11 +24,13 @@ import com.metropia.activities.DebugOptionsActivity;
 import com.metropia.activities.MainActivity;
 import com.metropia.activities.PassengerActivity;
 import com.metropia.activities.ValidationActivity;
+import com.metropia.exceptions.WrappedIOException;
 import com.metropia.models.Trajectory;
 import com.metropia.models.User;
 import com.metropia.requests.Request;
 import com.metropia.requests.SendTrajectoryRequest;
 
+@Deprecated
 public class SendTrajectoryService extends IntentService {
     
     private static long sevenDays = 7 * 24 * 60 * 60 * 1000;
@@ -107,10 +109,11 @@ public class SendTrajectoryService extends IntentService {
 	                    	request.execute(user, routeId, traj, ctx, mode);
 	                    	lastSendResult = true;
 	                    }catch(Exception e){
-	                    	lastSendResult = false;
+	                    	if (e instanceof WrappedIOException && ((WrappedIOException)e).getResponseCode()==404) lastSendResult = true;
+	                    	else lastSendResult = false;
 	                    }
 	                }else{
-	                    request.execute(seq, user.getId(), routeId, traj);
+	                    //request.execute(seq, user.getId(), routeId, traj);
 	                }
 	                
 	                if (lastSendResult)
@@ -222,7 +225,6 @@ public class SendTrajectoryService extends IntentService {
     public static boolean isRunning;
     static int interval;
     public static void schedule(final Context ctx){
-    	interval = (Integer) DebugOptionsActivity.getDebugValue(ctx, DebugOptionsActivity.TRAJECTORY_SENDING_INTERVAL, 5) * 60 * 1000;
     	
         PendingIntent sendTrajServ = PendingIntent.getService(ctx, 0, new Intent(ctx, SendTrajectoryService.class), PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);

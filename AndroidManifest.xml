@@ -300,6 +300,7 @@
 		</receiver>
 
         <service android:name=".GCMIntentService" />
+        <service android:name="com.metropia.TrajectorySendingService" />
         <service android:name="com.metropia.SendTrajectoryService" />
         <service android:name="com.metropia.CalendarService" />
         <service android:name="com.metropia.UserLocationService" />

@@ -67,6 +67,7 @@ import com.localytics.android.Localytics;
 import com.metropia.SendTrajectoryService;
 import com.metropia.SkobblerUtils;
 import com.metropia.SmarTrekApplication;
+import com.metropia.TrajectorySendingService;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.TripService;
 import com.metropia.dialogs.CancelableProgressDialog;
@@ -116,8 +117,10 @@ import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
 import com.skobbler.ngx.routing.SKRouteManager;
 
-public class PassengerActivity extends FragmentActivity implements SKMapSurfaceListener, ConnectionCallbacks, 
-	OnConnectionFailedListener, ResultCallback<LocationSettingsResult>, OnClickListener {
+public class PassengerActivity extends FragmentActivity implements SKMapSurfaceListener, ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<LocationSettingsResult>, OnClickListener {
+	
+	final static int INITIAL = 0;
+	final static int DURING_TRIP = 1;
 	
 	private LocationManager locationManager;
 	private LocationListener locationListener;
@@ -127,7 +130,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	private SKMapSurfaceView mapView;
 	private Wheel wheel;
 	
-	int status = 0;
+	int status = INITIAL;
 	int[] clickable = {};
 	int[] clickableAnimated = {R.id.back_button, R.id.center_map_icon, R.id.startButtonText, R.id.close, R.id.share, R.id.feedback};
 	
@@ -205,18 +208,41 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			createLocationRequest();
 			buildLocationSettingsRequest();
 		}
+		
+		
 	}
 	
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		
+		outState.putInt("status", DURING_TRIP);
+		outState.putLong("reservId", reservId.get());
 	}
 	@Override
     public void onRestoreInstanceState(Bundle savedInstanceState){
         super.onRestoreInstanceState(savedInstanceState);
-        
+        status = savedInstanceState.getInt("status");
+        reservId.set(savedInstanceState.getLong("reservId"));
+        toggleStatus(DURING_TRIP);
     }
+	
+	private void toggleStatus(int status) {
+		this.status = status;
+		
+		if (status==DURING_TRIP) {
+			User user = User.getCurrentUser(PassengerActivity.this);
+			View startButtonIcon = findViewById(R.id.startButtonIcon);
+			TextView startButtonText = (TextView) findViewById(R.id.startButtonText);
+			startButtonText.setTag(true);
+			startButtonText.setText("END MY TRIP");
+			startButtonText.setBackgroundColor(getResources().getColor(R.color.metropia_passenger_orange));
+			startButtonIcon.setBackgroundColor(getResources().getColor(R.color.metropia_passenger_blue));
+			TextView passengerMsg = (TextView) findViewById(R.id.passenger_msg);
+			passengerMsg.setText(getResources().getString(R.string.passenger_start_ride, user.getFirstname()));
+			passengerMsg.setGravity(Gravity.CENTER);
+			findViewById(R.id.back_button).setVisibility(View.GONE);
+		}
+	}
 	
 	
 	
@@ -235,7 +261,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					int timeToNext = request.execute(PassengerActivity.this);
 					return timeToNext;
 				} catch (Exception e) {
-					
+					Log.e("error", "fetch last info failed:"+e.toString());
 				}
 				return null;
 			}
@@ -287,21 +313,11 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								User user = User.getCurrentUser(PassengerActivity.this);
-								reservId.set(reserId);
-								View startButtonIcon = findViewById(R.id.startButtonIcon);
-								TextView startButtonText = (TextView) findViewById(R.id.startButtonText);
-								startButtonText.setTag(true);
-								startButtonText.setText("END MY TRIP");
-								startButtonText.setBackgroundColor(getResources().getColor(R.color.metropia_passenger_orange));
-								startButtonIcon.setBackgroundColor(getResources().getColor(R.color.metropia_passenger_blue));
-								TextView passengerMsg = (TextView) findViewById(R.id.passenger_msg);
-								passengerMsg.setText(getResources().getString(R.string.passenger_start_ride, user.getFirstname()));
-								passengerMsg.setGravity(Gravity.CENTER);
-								findViewById(R.id.back_button).setVisibility(View.GONE);
+								toggleStatus(DURING_TRIP);
 							}
 						});
-				
+
+						reservId.set(reserId);
 						fetchPassengerPeriodly.run();
 						checkLowSpeedTimer.run();
 					}
@@ -531,6 +547,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	private void doDisplayArrivalMsg(final int uPoints, double duration, double distance, String driverName, String voice, String wheelUrl) {
 		if (!arrivalMsgDisplayed.get()) {
 			arrivalMsgDisplayed.set(true);
+			arrived.set(true);
 			findViewById(R.id.opt_panel).setVisibility(View.GONE);
 			findViewById(R.id.loading).setVisibility(View.GONE);
 			final View panel = findViewById(R.id.congrats_panel);
@@ -643,7 +660,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 							if (callback != null) {
 								callback.run();
 							}
-							if (!SendTrajectoryService.isRunning) SendTrajectoryService.schedule(PassengerActivity.this);
+							if (!TrajectorySendingService.isRunning) startService(new Intent(PassengerActivity.this, TrajectorySendingService.class));
 						}
 					});
 				} catch (Throwable t) {}
@@ -973,6 +990,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		if (googleApiClient != null) {
 			googleApiClient.disconnect();
 		}
+		if (speaker!=null) speaker.shutdown();
 		super.onDestroy();
 	}
 	
@@ -1107,7 +1125,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	        loc.setAccuracy(cacheLoc.lastAccuracy);
 	        loc.setBearing(cacheLoc.lastHeading);
 	        locationChanged(loc);
-	        prepareGPS();
+	        if (!arrived.get()) prepareGPS();
 		}
 	}
 
@@ -1136,11 +1154,9 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					cancelValidation();
 				}
 				else {
-					v.setEnabled(false);
 					Runnable startTrip = new Runnable() {
 						public void run() {
 							startTrip();
-							v.setEnabled(true);
 						}
 					};
 					checkLastTrip(startTrip);

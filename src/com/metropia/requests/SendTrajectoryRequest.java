@@ -18,6 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.metropia.activities.DebugOptionsActivity;
@@ -44,14 +45,14 @@ public class SendTrajectoryRequest extends Request {
 		this.terminated = serialNum==null? 2:1;
 	}
 	
-    public void execute(User user, Trajectory trajectory, Context ctx) throws JSONException, ClientProtocolException, IOException, InterruptedException {
+    /*public void execute(User user, Trajectory trajectory, Context ctx) throws JSONException, ClientProtocolException, IOException, InterruptedException {
         JSONObject params = new JSONObject();
         params.put("trajectory", trajectory.toJSON());
         this.username = user.getUsername();
         this.password = user.getPassword();
         String link = Request.getLinkUrl(Link.activity);
         executeHttpRequest(Method.POST, link, params, ctx);
-    }
+    }*/
     
     public void execute(User user, long rid, Trajectory trajectory, Context ctx, String mode) throws Exception {
         JSONObject params = new JSONObject();
@@ -63,17 +64,25 @@ public class SendTrajectoryRequest extends Request {
         Link link = mode.equals(PassengerActivity.PASSENGER_TRIP_VALIDATOR)? Link.passenger_trajectory:(terminated==null? Link.trajectory:Link.trajectory_serial);
         String url = Request.getLinkUrl(link).replaceAll("\\{reservation_id\\}", String.valueOf(rid));
         if (serialNum!=null) url = url.replaceAll("\\{serialnum\\}", serialNum+"").replaceAll("\\{terminated\\}", terminated+"");
-        try{
-            executeHttpRequest(Method.POST, url, params, true, ctx);
-        }catch(Exception e){
-            if(responseCode >= 400 && responseCode <= 499){
-                throw new SmarTrekException(responseCode);
-            }else{
-                throw e;
-            }
-        }
+        
+        executeHttpRequest(Method.POST, url, params, true, ctx);
     }
-    @Deprecated
+    
+    public AsyncTask executeAsync(final User user, final long rid, final Trajectory trajectory, final Context ctx, final String mode) {
+    	return new AsyncTask<Void, Void, Exception>() {
+
+			@Override
+			protected Exception doInBackground(Void... params) {
+				try {
+					SendTrajectoryRequest.this.execute(user, rid, trajectory, ctx, mode);
+				} catch (Exception e) {
+					return e;
+				}
+				return null;
+			}
+		}.execute();
+    }
+    /*@Deprecated
 	public void execute(int seq, int uid, long rid, Trajectory trajectory) throws JSONException, ClientProtocolException, IOException {
 		String url = String.format("%s/sendtrajectory/", HOST);
 		//String url = "http://192.168.0.21:7787/";
@@ -100,6 +109,6 @@ public class SendTrajectoryRequest extends Request {
 		else {
 			throw new IOException(String.format("HTTP %d: %s", statusCode, responseLine.getReasonPhrase()));
 		}
-	}
+	}*/
 	
 }

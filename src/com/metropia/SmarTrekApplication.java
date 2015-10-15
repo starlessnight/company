@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
@@ -36,7 +37,8 @@ public final class SmarTrekApplication extends Application {
     }
     
     public static void startServices(Context context){
-        SendTrajectoryService.schedule(context);
+        //SendTrajectoryService.schedule(context);
+    	context.startService(new Intent(context, TrajectorySendingService.class));
         CalendarService.schedule(context);
         TripService.schedule(context);
         ContactListService.schedule(context);

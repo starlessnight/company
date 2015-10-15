@@ -30,12 +30,12 @@ public class ClickAnimation {
 		clickAnimation.setAnimationListener(new AnimationListener() {
 			@Override
 			public void onAnimationStart(Animation animation) {
-				clickedView.setClickable(false);
+				clickedView.setEnabled(false);
 			}
 
 			@Override
 			public void onAnimationEnd(Animation animation) {
-				clickedView.setClickable(true);
+				clickedView.setEnabled(true);
 				if(callback!=null) {
 					callback.onAnimationEnd();
 				}
