@@ -57,7 +57,7 @@ public class ImageUtil {
     	
     	if (halo) {
     		Paint p = new Paint();  
-    		p.setColor(Color.parseColor("#FFCC22")); 
+    		p.setColor(Color.parseColor("#0197CD"));
     		p.setStyle(Paint.Style.STROKE);
     		p.setAntiAlias(true);
     		p.setStrokeWidth(haloPadding);
