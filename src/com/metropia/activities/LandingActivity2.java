@@ -3710,6 +3710,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 									newFeed.setVisibility(newMessageCount > 0 ? View.VISIBLE : View.GONE);
 									boolean isMenuNotificationDismissed = DebugOptionsActivity.getInboxMenuDismissRecord(LandingActivity2.this, cityName).equals(visitedTime);
 									findViewById(R.id.menu_notification).setVisibility((!isMenuNotificationDismissed && newMessageCount > 0) ? View.VISIBLE : View.GONE);
+									((TextView)findViewById(R.id.menu_notification)).setText(newMessageCount+"");
+									
 								}
 							});
 						}
