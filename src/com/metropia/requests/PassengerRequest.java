@@ -33,8 +33,9 @@ public class PassengerRequest extends Request {
             JSONObject json = new JSONObject(str);
             JSONArray names = json.getJSONObject("data").getJSONArray("o_users_names");
             JSONArray photos = json.getJSONObject("data").getJSONArray("o_users_pic");
+            JSONArray ids = json.getJSONObject("data").getJSONArray("o_users_id");
             for (int i=0 ; i<names.length() ; i++) {
-            	passengers.add(new Passenger(names.getString(i), photos.getString(i)));
+            	passengers.add(new Passenger(ids.getInt(i), names.getString(i), photos.getString(i)));
             }
             
             return passengers;
