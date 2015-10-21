@@ -43,6 +43,9 @@ public final class Reservation implements Parcelable {
     private static final String TIME_FORMAT_SINGLE_LINE = "EEEE MMM dd, yyyy hh:mm a";
 
     public static final long GRACE_INTERVAL = 30*60*1000L;
+	
+	public static final String Driver = "driver";
+	public static final String DUO = "duo";
     
 	/**
 	 * Reservation ID
@@ -84,6 +87,7 @@ public final class Reservation implements Parcelable {
 	public static int VALIDATED = 0x0002;
 	
 	private String city;
+	private String mode;
 	
 	public static final Parcelable.Creator<Reservation> CREATOR = new Parcelable.Creator<Reservation>() {
 		public Reservation createFromParcel(Parcel in) {
@@ -207,6 +211,14 @@ public final class Reservation implements Parcelable {
 	
 	public void setCity(String city) {
 		this.city = city;
+	}
+	
+	public String getMode() {
+		return mode;
+	}
+	
+	public void setMode(String mode) {
+		this.mode = mode;
 	}
 	
 	public boolean isPast() {

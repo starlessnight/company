@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.util.Log;
 
+import com.metropia.models.Reservation;
 import com.metropia.utils.GeoPoint;
 import com.metropia.utils.RouteNode;
 
@@ -20,6 +21,7 @@ public class ResumeNavigationUtils {
 	public static final String DESTINATION_TIME = "destTime";
 	public static final String DEST_LAT = "destLat";
 	public static final String DEST_LON = "destLon";
+	public static final String LAST_UPDATE_TIME = "lastUpdateTime";
 
 	private static File getDir(Context ctx){
         return new File(ctx.getExternalFilesDir(null), "triplog");
@@ -27,7 +29,8 @@ public class ResumeNavigationUtils {
 
 	private static final Float threshold = 804.672f; // 0.5 mile
 	
-    public static String getInterruptRId(Context ctx, final GeoPoint loc){
+    public static Reservation getInterruptRId(Context ctx, final GeoPoint loc){
+    	final Reservation reservation = new Reservation();
     	File dir = getDir(ctx);
     	if(dir.exists()) {
     		File[] files = dir.listFiles(new FileFilter() {
@@ -38,9 +41,14 @@ public class ResumeNavigationUtils {
 						long destTime = content.optLong(DESTINATION_TIME, 0);
 						double destLat = content.optDouble(DEST_LAT, 0);
 						double destLon = content.optDouble(DEST_LON, 0);
+						long lastUpdateTime = content.optLong(LAST_UPDATE_TIME, 0);
 						Log.d("ResumeNavigationUtils", String.format("currentTime %s, destTime %s", String.valueOf(System.currentTimeMillis()), String.valueOf(destTime)));
-						if(System.currentTimeMillis() < destTime && 
-								RouteNode.distanceBetween(loc.getLatitude(), loc.getLongitude(), destLat, destLon) > threshold) {
+						if(System.currentTimeMillis() < destTime && RouteNode.distanceBetween(loc.getLatitude(), loc.getLongitude(), destLat, destLon) > threshold) {
+							reservation.setMode(Reservation.Driver);
+							return true;
+						}
+						else if (System.currentTimeMillis()-lastUpdateTime<60*60*1000) {
+							reservation.setMode(Reservation.DUO);
 							return true;
 						}
 					}
@@ -61,9 +69,13 @@ public class ResumeNavigationUtils {
     		
     		Log.d("ResumeNavigationUtils", String.format("Array is Empty %b", ArrayUtils.isEmpty(files)));
     		if(!ArrayUtils.isEmpty(files)) {
-    			String rId = files[0].getName();
-    			cleanTripLog(ctx);
-    			return rId;
+    			try {
+    				String fileName = files[0].getName();
+    				long reservationID = Long.parseLong(fileName);
+    				reservation.setRid(reservationID);
+    				cleanTripLog(ctx);
+    				return reservation;
+    			} catch(Exception e) {}
     		}
     	}
     	cleanTripLog(ctx);

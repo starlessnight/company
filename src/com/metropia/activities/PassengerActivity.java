@@ -64,6 +64,7 @@ import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
 import com.littlefluffytoys.littlefluffylocationlibrary.PassiveLocationChangedReceiver;
 import com.localytics.android.Localytics;
+import com.metropia.ResumeNavigationUtils;
 import com.metropia.SendTrajectoryService;
 import com.metropia.SkobblerUtils;
 import com.metropia.SmarTrekApplication;
@@ -209,7 +210,14 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			buildLocationSettingsRequest();
 		}
 		
+		Bundle extra = getIntent().getExtras();
+		if (extra==null) return;
 		
+		reservId.set((Long) extra.getLong("reservationID", -1));
+		if (reservId.get()!=-1) {
+			toggleStatus(DURING_TRIP);
+			startTrip();
+		}
 	}
 	
 	@Override
@@ -294,6 +302,26 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	
 	private void startTrip() {
 		
+		final ICallback start = new ICallback() {
+
+			@Override
+			public void run(Object... obj) {
+				final long reserId = (Long) obj[0];
+				if (reserId==-1) return;
+				
+				toggleStatus(DURING_TRIP);
+
+				reservId.set(reserId);
+				fetchPassengerPeriodly.run();
+				checkLowSpeedTimer.run();
+			}
+		};
+		
+		if (reservId.get()!=-1) {
+			start.run(reservId.get());
+			return;
+		}
+		
 		final ICallback cityRequestCb = new ICallback() {
 			public void run(Object... obj) {
 				final City city = (City) obj[0];
@@ -303,25 +331,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				if (sunRideshareCount>=5) new SunRideshareActivityDialog(PassengerActivity.this, city, "sunrideshare", null).showAsync();
 				
 				PassengerReservationRequest resvReq = new PassengerReservationRequest(User.getCurrentUser(PassengerActivity.this), getString(R.string.distribution_date));
-				resvReq.executeAsync(PassengerActivity.this, city, new ICallback() {
-
-					@Override
-					public void run(Object... obj) {
-						final long reserId = (Long) obj[0];
-						if (reserId==-1) return;
-						
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								toggleStatus(DURING_TRIP);
-							}
-						});
-
-						reservId.set(reserId);
-						fetchPassengerPeriodly.run();
-						checkLowSpeedTimer.run();
-					}
-				});
+				resvReq.executeAsync(PassengerActivity.this, city, start);
 			}
 		};
 		
@@ -518,7 +528,9 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				saveTrajectory();
 			}
 			
-			double speed = NavigationView.metersToMiles(location.getSpeed());
+			writeTripLog();
+			
+			double speed = NavigationView.metersToMiles(location.getSpeed())*(60*60);	//	miles/hour
 			if (speed>5) lowSpeedTimer = 0;
 		}
 		mapView.reportNewGPSPosition(new SKPosition(location));
@@ -526,11 +538,21 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		updatePassenger(location, false);
 	}
 	
+	private void writeTripLog() {
+		if (arrived.get()) return;
+		try {
+			JSONObject tripLog = new JSONObject();
+			tripLog.put(ResumeNavigationUtils.LAST_UPDATE_TIME, System.currentTimeMillis());
+			FileUtils.writeStringToFile(ResumeNavigationUtils.getFile(this, reservId.get()), tripLog.toString());
+		} catch (Exception ignore) {}
+	}
+	
 	int lowSpeedTimer = 0;
 	Runnable checkLowSpeedTimer = new Runnable() {
 
 		@Override
 		public void run() {
+			if (lastLocation==null) return;
 			lowSpeedTimer++;
 			if (lowSpeedTimer>=15*60) doCancelValidation();
 			else handler.postDelayed(checkLowSpeedTimer, 1000);
@@ -547,7 +569,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	private void doDisplayArrivalMsg(final int uPoints, double duration, double distance, String driverName, String voice, String wheelUrl) {
 		if (!arrivalMsgDisplayed.get()) {
 			arrivalMsgDisplayed.set(true);
-			arrived.set(true);
 			findViewById(R.id.opt_panel).setVisibility(View.GONE);
 			findViewById(R.id.loading).setVisibility(View.GONE);
 			final View panel = findViewById(R.id.congrats_panel);
@@ -814,8 +835,11 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	
 	private void displayArrivalMsg(final Runnable callback) {
 		arrivalMsgTiggered.set(true);
+		arrived.set(true);
 		handler.removeCallbacks(fetchPassengerPeriodly);
 		handler.removeCallbacks(checkLowSpeedTimer);
+		
+		ResumeNavigationUtils.cleanTripLog(this);
 
 		saveTrajectory(new Runnable() {
 			@Override

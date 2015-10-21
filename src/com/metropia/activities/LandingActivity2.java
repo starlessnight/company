@@ -1642,8 +1642,22 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	if(lastLocation != null && needCheckResume.get()) {
     		needCheckResume.set(false);
     		GeoPoint loc = new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude());
-    		final String resumeReservationId = ResumeNavigationUtils.getInterruptRId(LandingActivity2.this, loc);
-    		if(resumeReservationId != null) {
+    		final Reservation resumeReservation = ResumeNavigationUtils.getInterruptRId(LandingActivity2.this, loc);
+    		
+    		if (resumeReservation != null && Reservation.DUO.equals(resumeReservation.getMode())) {
+    			NotifyResumeDialog dialog = new NotifyResumeDialog(LandingActivity2.this);
+    			dialog.setYesListener(new NotifyResumeDialog.ActionListener() {
+    				
+					public void onClick() {
+		    			Intent i = new Intent(LandingActivity2.this, PassengerActivity.class);
+		    			i.putExtra("reservationID", resumeReservation.getRid());
+		    			startActivity(i);
+		    			finish();
+					};
+    			});
+    			dialog.show();
+    		}
+    		else if (resumeReservation != null && Reservation.Driver.equals(resumeReservation.getMode())) {
     			AsyncTask<Void, Void, Reservation> task = new AsyncTask<Void, Void, Reservation>() {
 					@Override
 					protected Reservation doInBackground(Void... params) {
@@ -1653,7 +1667,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 							List<Reservation> reservs = resReq.execute(LandingActivity2.this);
 							for(Reservation reservation : reservs) {
 								Log.d("NotifyResumeDialog", reservation.getRid() + "");
-								if(StringUtils.endsWithIgnoreCase(resumeReservationId, reservation.getRid()+"")) {
+								if(StringUtils.endsWithIgnoreCase(resumeReservation.getRid()+"", reservation.getRid()+"")) {
 									reser = reservation;
 								}
 							}
@@ -1671,7 +1685,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 								@Override
 								public void onClick() {
 									startValidationActivity(reser);
-									
 								};
 			    			});
 			    			dialog.show();
