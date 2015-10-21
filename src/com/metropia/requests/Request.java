@@ -94,6 +94,7 @@ public abstract class Request {
 	    query_DUO,
 	    passenger_reservation,
 	    passenger_trajectory,
+	    passenger_trajectory_serial,
 	    passenger_trip,
 	    passenger_spin_wheel,
 	    passenger_bubble_head,

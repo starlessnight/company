@@ -60,8 +60,10 @@ public class SendTrajectoryRequest extends Request {
         this.username = user.getUsername();
         this.password = user.getPassword();
         
+        Link linkForDriver = getLinkUrl(Link.trajectory_serial)!=null? Link.trajectory_serial:Link.trajectory;
+        Link linkForPassenger = getLinkUrl(Link.passenger_trajectory_serial)!=null? Link.passenger_trajectory_serial:Link.passenger_trajectory;
         
-        Link link = mode.equals(PassengerActivity.PASSENGER_TRIP_VALIDATOR)? Link.passenger_trajectory:(terminated==null? Link.trajectory:Link.trajectory_serial);
+        Link link = mode.equals(PassengerActivity.PASSENGER_TRIP_VALIDATOR)? linkForPassenger:linkForDriver;
         String url = Request.getLinkUrl(link).replaceAll("\\{reservation_id\\}", String.valueOf(rid));
         if (serialNum!=null) url = url.replaceAll("\\{serialnum\\}", serialNum+"").replaceAll("\\{terminated\\}", terminated+"");
         
