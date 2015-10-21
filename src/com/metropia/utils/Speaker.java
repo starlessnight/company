@@ -50,7 +50,7 @@ public class Speaker implements OnInitListener {
 	@Override
 	public void onInit(int initStatus) {
 		if (initStatus == TextToSpeech.SUCCESS) {
-			if(TTS.isLanguageAvailable(Locale.US)==TextToSpeech.LANG_AVAILABLE) TTS.setLanguage(Locale.US);
+			TTS.setLanguage(Locale.US);
 		}
 		else if (initStatus == TextToSpeech.ERROR) {
 			Toast.makeText(activity, "Sorry! Text To Speech failed...", Toast.LENGTH_SHORT).show();
