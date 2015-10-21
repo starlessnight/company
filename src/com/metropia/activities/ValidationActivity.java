@@ -2316,8 +2316,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			tripLog.put(ResumeNavigationUtils.DEST_LAT, reservation.getEndlat());
 			tripLog.put(ResumeNavigationUtils.DEST_LON, reservation.getEndlon());
 			FileUtils.writeStringToFile(ResumeNavigationUtils.getFile(ValidationActivity.this, reservation.getRid()), tripLog.toString());
-		} catch (Exception ignore) {
-		}
+		} catch (Exception ignore) {}
 	}
 
 	private void showNotifyLaterDialog() {
@@ -3491,6 +3490,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						if (!passenger.contains(remotePassenger.get(i)))
 							speakIfTtsEnabled(remotePassenger.get(i).onBoardVoice, false);
 					}
+					passenger = remotePassenger;
 				}
 			});
 			

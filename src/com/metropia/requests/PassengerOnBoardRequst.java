@@ -30,9 +30,6 @@ public class PassengerOnBoardRequst extends FetchRequest<ArrayList<Passenger>> {
 		ArrayList<Passenger> remotePassengers = new ArrayList<Passenger>();
 		String str = this.executeFetchRequest(url, ctx);
 		
-		if (counter++==3)
-		str = "{'status':'success', 'data':{'pax_id':[761], 'voice':['you are carpooling with Ali']}}";
-		
 		JSONObject jsonObject = new JSONObject(str);
 		
 		JSONArray ids = jsonObject.getJSONObject("data").getJSONArray("pax_id");
