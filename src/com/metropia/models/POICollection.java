@@ -7,7 +7,6 @@ import java.util.Random;
 import java.util.Set;
 
 import com.metropia.SkobblerUtils;
-import com.metropia.activities.LandingActivity2.PoiOverlayInfo;
 
 public class POICollection {
 

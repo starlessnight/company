@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.metropia.models.Address;
 import com.metropia.activities.R;
 
+@Deprecated
 public class FavoriteAddressAdapter extends ArrayAdapter<Address> {
 	
 	private LayoutInflater inflater;

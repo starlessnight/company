@@ -32,7 +32,7 @@ public class SkobblerImageView extends ImageView {
 		this.desc = desc;
 	}
 	
-	@Override
+	/*@Override
 	public int hashCode() {
 		HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
 		hashCodeBuilder.append(sizeRatio);
@@ -49,6 +49,6 @@ public class SkobblerImageView extends ImageView {
 			hashCodeBuilder.append(desc);
 		}
 		return hashCodeBuilder.toHashCode();
-	}
+	}*/
 
 }

@@ -6,12 +6,15 @@ import java.util.Comparator;
 import java.util.List;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.AbsoluteSizeSpan;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -27,11 +30,13 @@ import com.littlefluffytoys.littlefluffylocationlibrary.LocationInfo;
 import com.localytics.android.Localytics;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
-import com.metropia.activities.LandingActivity2.PoiOverlayInfo;
 import com.metropia.models.Address;
 import com.metropia.models.FavoriteIcon;
+import com.metropia.models.PoiOverlayInfo;
 import com.metropia.models.User;
 import com.metropia.requests.FavoriteAddressFetchRequest;
+import com.metropia.tasks.ICallback;
+import com.metropia.tasks.ImageLoader;
 import com.metropia.ui.animation.ClickAnimation;
 import com.metropia.ui.animation.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.utils.Dimension;
@@ -75,18 +80,31 @@ public class FavoriteListActivity extends FragmentActivity {
                 name.setTextColor(addNew ? getResources().getColor(R.color.metropia_blue) : getResources().getColor(android.R.color.black));
                 TextView address = (TextView) view.findViewById(R.id.address);
                 address.setText(item.getAddress());
-                ImageView favIcon = (ImageView) view.findViewById(R.id.fav_icon);
+                final ImageView favIcon = (ImageView) view.findViewById(R.id.fav_icon);
                 
                 FavoriteIcon icon = FavoriteIcon.fromName(item.getIconName(), null);
-                if(icon == null) {
-                	favIcon.setImageBitmap(Misc.getBitmap(FavoriteListActivity.this, R.drawable.poi_pin, 1));
-                	favIcon.setVisibility(View.VISIBLE);
-                }
-                else {
-                	favIcon.setImageBitmap(Misc.getBitmap(FavoriteListActivity.this, icon.getFavoritePageResourceId(FavoriteListActivity.this), 2));
-                	favIcon.setVisibility(View.VISIBLE);
-                }
                 
+
+                if (icon != null) {
+                	favIcon.setImageBitmap(Misc.getBitmap(FavoriteListActivity.this, icon.getFavoritePageResourceId(FavoriteListActivity.this), 2));
+                }
+                else if (item.getIconURL()!=null) {
+                	new ImageLoader(FavoriteListActivity.this, item.getIconURL(), new ICallback() {
+						@Override
+						public void run(Object... obj) {
+							if (obj[0]==null) {
+			                	favIcon.setImageBitmap(Misc.getBitmap(FavoriteListActivity.this, R.drawable.poi_pin, 1));
+								return;
+							}
+							Drawable drawable = (Drawable) obj[0];
+							
+							favIcon.setImageDrawable(drawable);
+						}
+					}).execute(false);
+                }
+                else favIcon.setImageBitmap(Misc.getBitmap(FavoriteListActivity.this, R.drawable.poi_pin, 1));
+
+            	favIcon.setVisibility(View.VISIBLE);
                 favIcon.setVisibility(addNew ? View.GONE : View.VISIBLE);
                 editView.setVisibility(addNew ? View.GONE : View.VISIBLE);
                 
@@ -150,6 +168,11 @@ public class FavoriteListActivity extends FragmentActivity {
 			if(favs != null) {
 				updateFavoriteListView(favs);
 			}
+			
+			Location location = (Location) extras.get("location");
+			Log.e(location.getLatitude()+"", location.getLongitude()+"");
+
+		    refreshFavorites(location);
 		}
 		
 		Font.setTypeface(Font.getRegular(getAssets()), backButton, (TextView) findViewById(R.id.header));
@@ -163,7 +186,7 @@ public class FavoriteListActivity extends FragmentActivity {
 		return addNewSpan;
     } 
 
-	private void refreshFavorites() {
+	private void refreshFavorites(final Location location) {
 		AsyncTask<Void, Void, List<Address>> task = new AsyncTask<Void, Void, List<Address>>() {
 			@Override
 			protected List<Address> doInBackground(Void... params) {
@@ -171,7 +194,7 @@ public class FavoriteListActivity extends FragmentActivity {
 				FavoriteAddressFetchRequest request = new FavoriteAddressFetchRequest(User.getCurrentUser(FavoriteListActivity.this));
 				try {
 					request.invalidateCache(FavoriteListActivity.this);
-					addrs = request.execute(FavoriteListActivity.this);
+					addrs = request.execute(FavoriteListActivity.this, location.getLatitude(), location.getLongitude());
 				} catch (Exception e) {
 					 ehs.registerException(e, "[" + request.getURL() + "]\n" + e.getMessage());
 				}
@@ -197,6 +220,7 @@ public class FavoriteListActivity extends FragmentActivity {
     		List<Address> workFavorite = new ArrayList<Address>();
     		List<Address> otherFavorite = new ArrayList<Address>();
     		for(Address addr : favorites) {
+    			if (addr.getPOITYPEID()!=-1) continue;
     			if(userLoc != null) {
     				addr.setDistance(RouteNode.distanceBetween(addr.getLatitude(), addr.getLongitude(), userLoc.lastLat, userLoc.lastLong));
     			}
@@ -244,7 +268,6 @@ public class FavoriteListActivity extends FragmentActivity {
 	    Localytics.setInAppMessageDisplayActivity(this);
 	    Localytics.handleTestMode(getIntent());
 	    Localytics.handlePushNotificationOpened(getIntent());
-	    refreshFavorites();
 	}
 	
 	@Override

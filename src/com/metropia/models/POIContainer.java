@@ -3,7 +3,6 @@ package com.metropia.models;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.metropia.activities.LandingActivity2.PoiOverlayInfo;
 import com.metropia.activities.R;
 
 public class POIContainer {

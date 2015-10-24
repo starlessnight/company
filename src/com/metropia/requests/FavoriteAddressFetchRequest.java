@@ -15,20 +15,18 @@ import com.metropia.models.User;
 public final class FavoriteAddressFetchRequest extends FetchRequest<List<Address>> {
 	
 	public FavoriteAddressFetchRequest(User user) {
-        super(NEW_API?
-            StringUtils.defaultString(getLinkUrl(Link.address))
-            :String.format("%s/V0.2/getfavadd/%d", HOST, user.getId()));
-        if(NEW_API){
-            if(user != null){
-                this.username = user.getUsername();
-                this.password = user.getPassword();
-            }
+        super(StringUtils.defaultString(getLinkUrl(Link.address)));
+        if(user != null){
+            this.username = user.getUsername();
+            this.password = user.getPassword();
         }
     }
 	
-	@Override
-	public List<Address> execute(Context ctx) throws Exception {
+	public List<Address> execute(Context ctx, Double latitude, Double longitude) throws Exception {
 		List<Address> addresses = new ArrayList<Address>();
+		
+		if (latitude!=null && longitude!=null)
+		url = url + "?lat=" + latitude + "&lon=" + longitude;
 		
 		String response = executeFetchRequest(getURL(), ctx);
 		if(NEW_API){
@@ -37,33 +35,25 @@ public final class FavoriteAddressFetchRequest extends FetchRequest<List<Address
                 JSONObject object = (JSONObject) array.get(i);
                 
                 Address address = new Address();
-                address.setId(object.getInt("id"));
-                address.setUid(object.getInt("user_id"));
+                address.setId(object.optInt("id"));
+                address.setUid(object.optInt("user_id"));
                 address.setName(object.getString("name"));
                 address.setAddress(object.getString("address"));
                 address.setLatitude(object.optDouble("lat", 0));
                 address.setLongitude(object.optDouble("lon", 0));
                 address.setIconName(object.optString("icon", ""));
+                address.setIconURL(object.optString("iconURL", ""));
+                address.setPOITYPEID(object.optInt("POITYPEID", -1));
                 addresses.add(address);
             }
-		}else{
-		    JSONArray array = new JSONArray(response);
-	        for(int i = 0; i < array.length(); i++) {
-	            JSONObject object = (JSONObject) array.get(i);
-	            
-	            Address address = new Address();
-                address.setId(object.getInt("FID"));
-                address.setUid(object.getInt("UID"));
-                address.setName(object.getString("NAME"));
-                address.setAddress(object.getString("ADDRESS"));
-                address.setLatitude(object.getDouble("LAT"));
-                address.setLongitude(object.getDouble("LON"));
-	            
-	            addresses.add(address);
-	        }
 		}
 		
 		return addresses;
+	}
+
+	@Override
+	public List<Address> execute(Context ctx) throws Exception {
+		return this.execute(ctx, null, null);
 	}
 
 }
