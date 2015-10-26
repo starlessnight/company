@@ -26,7 +26,7 @@ public class MapOperations {
 	
 	public static final Integer POIOVERLAY_HIDE_ZOOM_LEVEL = 9;
 	
-	public static AtomicInteger sizeRatio = new AtomicInteger(1);
+	public static AtomicInteger sizeRatio = new AtomicInteger(2);
     public static AtomicInteger annSize = new AtomicInteger();
 
 	public MapOperations() {
@@ -65,13 +65,23 @@ public class MapOperations {
 			   		incAnn.setAnnotationView(iconView);
 			   		mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
 				}
-			}).execute(false);
+			}).execute(true);
+		}
+		else {
+			incImage.setImageBitmap(Misc.getBitmap(context, poiInfo.markerWithShadow, sizeRatio.get()));
+	   		iconView.setView(incImage);
+	   		incAnn.setAnnotationView(iconView);
+	   		mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
 		}
 	}
 	
 	
-	
+	public static boolean firstUpdate = true;
 	public static void updateAnnotationSize(Context context, final SKMapSurfaceView mapView, POIContainer poiContainer, int newRatio) {
+		if (firstUpdate) {
+			newRatio = 2;
+			firstUpdate = false;
+		}
     	if(sizeRatio.get() != newRatio) {
     		sizeRatio.set(newRatio);
 	    	Set<Integer> starIds = poiContainer.getStarUniqueIdSet();

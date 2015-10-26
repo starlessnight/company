@@ -49,6 +49,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -137,6 +138,7 @@ import com.metropia.dialogs.NotifyResumeDialog;
 import com.metropia.dialogs.ReleaseDialog;
 import com.metropia.models.FavoriteIcon;
 import com.metropia.models.POIContainer;
+import com.metropia.models.PoiOverlayInfo;
 import com.metropia.models.Reservation;
 import com.metropia.models.ReservationTollHovInfo;
 import com.metropia.models.Route;
@@ -155,6 +157,8 @@ import com.metropia.requests.RouteFetchRequest;
 import com.metropia.requests.SaveLocationRequest;
 import com.metropia.requests.UpdateDeviceIdRequest;
 import com.metropia.requests.WhereToGoRequest;
+import com.metropia.tasks.ICallback;
+import com.metropia.tasks.ImageLoader;
 import com.metropia.ui.DelayTextWatcher;
 import com.metropia.ui.DelayTextWatcher.TextChangeListener;
 import com.metropia.ui.EditAddress;
@@ -173,6 +177,7 @@ import com.metropia.utils.GeoPoint;
 import com.metropia.utils.Geocoding;
 import com.metropia.utils.Geocoding.Address;
 import com.metropia.utils.HTTP;
+import com.metropia.utils.MapOperations;
 import com.metropia.utils.Misc;
 import com.metropia.utils.Preferences;
 import com.metropia.utils.RouteNode;
@@ -1136,6 +1141,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 					public void onAnimationEnd() {
 						Intent favListIntent = new Intent(LandingActivity2.this, FavoriteListActivity.class);
 						favListIntent.putParcelableArrayListExtra(FavoriteListActivity.FAVORITE_LIST, favoriteAddresses);
+						favListIntent.putExtra("location", lastLocation);
 						startActivity(favListIntent);
 					}
 				});
@@ -2328,124 +2334,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         
     }
     
-    public static class PoiOverlayInfo extends BalloonModel implements Parcelable {
-    	
-    	public int marker = R.drawable.transparent_poi;
-    	
-    	public int markerWithShadow = R.drawable.transparent_poi;
-    	
-    	public String iconName;
-    	
-    	public int uniqueId;
-    	
-    	public static final Parcelable.Creator<PoiOverlayInfo> CREATOR = new Parcelable.Creator<PoiOverlayInfo>() {
-            public PoiOverlayInfo createFromParcel(Parcel in) {
-                return new PoiOverlayInfo(in);
-            }
-
-            public PoiOverlayInfo[] newArray(int size) {
-                return new PoiOverlayInfo[size];
-            }
-        };
-        
-        public PoiOverlayInfo() {}
-    	
-    	public PoiOverlayInfo(Parcel in) {
-    		id = in.readInt();
-            lat = in.readDouble();
-            lon = in.readDouble();
-            address = in.readString();
-            label = in.readString();
-            marker = in.readInt();
-            markerWithShadow = in.readInt();
-            iconName = in.readString();
-            geopoint = new GeoPoint(lat, lon);
-            uniqueId = in.readInt();
-		}
-
-		@Override
-		public int describeContents() {
-			return 0;
-		}
-
-		@Override
-		public void writeToParcel(Parcel dest, int flags) {
-			dest.writeInt(id);
-			dest.writeDouble(lat);
-			dest.writeDouble(lon);
-			dest.writeString(address);
-			dest.writeString(label);
-			dest.writeInt(marker);
-			dest.writeInt(markerWithShadow);
-			dest.writeString(iconName);
-			dest.writeInt(uniqueId);
-		}
-    	
-    	public static PoiOverlayInfo fromAddress(Context ctx, com.metropia.models.Address address) {
-    		PoiOverlayInfo poiInfo = new PoiOverlayInfo();
-    		poiInfo.id = address.getId();
-    		poiInfo.label = address.getName();
-    		poiInfo.address = address.getAddress();
-    		poiInfo.lat = address.getLatitude();
-    		poiInfo.lon = address.getLongitude();
-    		poiInfo.geopoint = new GeoPoint(address.getLatitude(), address.getLongitude());
-    		poiInfo.iconName = address.getIconName();
-    		FavoriteIcon icon = FavoriteIcon.fromName(address.getIconName(), FavoriteIcon.star);
-    		poiInfo.marker = icon.getResourceId(ctx);
-    		poiInfo.markerWithShadow = icon.getShadowResourceId(ctx);
-    		return poiInfo;
-    	}
-    	
-    	public static PoiOverlayInfo fromLocation(com.metropia.requests.WhereToGoRequest.Location location) {
-    		PoiOverlayInfo poiInfo = new PoiOverlayInfo();
-    		poiInfo.label = "";
-    		poiInfo.address = location.addr;
-    		poiInfo.lat = location.lat;
-    		poiInfo.lon = location.lon;
-    		poiInfo.geopoint = new GeoPoint(location.lat, location.lon);
-    		poiInfo.marker = R.drawable.bulb_poi;
-    		poiInfo.markerWithShadow = R.drawable.bulb_poi_with_shadow;
-    		return poiInfo;
-    	}
-    	
-    	public static PoiOverlayInfo fromBalloonModel(BalloonModel model) {
-    		PoiOverlayInfo poiInfo = new PoiOverlayInfo();
-    		poiInfo.id = model.id;
-    		poiInfo.label = model.label;
-    		poiInfo.address = model.address;
-    		poiInfo.lat = model.lat;
-    		poiInfo.lon = model.lon;
-    		poiInfo.geopoint = model.geopoint;
-    		poiInfo.marker = R.drawable.poi_pin;
-    		poiInfo.markerWithShadow = R.drawable.poi_pin_with_shadow;
-    		return poiInfo;
-    	}
-    	
-    	public static PoiOverlayInfo fromCurrentLocation(GeoPoint currentLoc) {
-    		PoiOverlayInfo poiInfo = new PoiOverlayInfo();
-    		poiInfo.lat = currentLoc.getLatitude();
-    		poiInfo.lon = currentLoc.getLongitude();
-    		poiInfo.geopoint = new GeoPoint(currentLoc.getLatitude(), currentLoc.getLongitude(), currentLoc.getHeading());
-    		poiInfo.marker = R.drawable.landing_page_current_location;
-    		poiInfo.markerWithShadow = R.drawable.landing_page_current_location;
-    		return poiInfo;
-    	}
-    	
-    	@Override
-    	public boolean equals(Object other) {
-    		if(other instanceof PoiOverlayInfo) {
-    			PoiOverlayInfo that = (PoiOverlayInfo) other;
-    			return new EqualsBuilder().append(that.lat + "", this.lat + "").append(that.lon + "", that.lon + "").append(that.marker + "", this.marker + "").isEquals();
-    		}
-    		return false;
-    	}
-    	
-    	@Override
-    	public int hashCode() {
-    		return new HashCodeBuilder().append(this.lat + "").append(this.lon + "").append(this.marker + "").toHashCode();
-    	}
-
-    }
+    
     
     private void updateDeviceId(){
         SharedPreferences globalPrefs = Preferences.getGlobalPreferences(this);
@@ -2729,7 +2618,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    Localytics.handleTestMode(getIntent());
 	    Localytics.handlePushNotificationOpened(getIntent());
 	    
-	    annSize.set(Dimension.dpToPx(Misc.ANNOTATION_MINIMUM_SIZE_IN_DP, getResources().getDisplayMetrics()));
+	    MapOperations.annSize.set(Dimension.dpToPx(Misc.ANNOTATION_MINIMUM_SIZE_IN_DP, getResources().getDisplayMetrics()));
 	    
 	    //SKobbler 
 	    mapViewHolder.onResume();
@@ -3209,7 +3098,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     			SKAnnotation destAnn = new SKAnnotation(ROUTE_DESTINATION_ID);
     			destAnn.setUniqueID(ROUTE_DESTINATION_ID);
     			destAnn.setLocation(new SKCoordinate(_route.getLastNode().getLongitude(), _route.getLastNode().getLatitude()));
-    			destAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
+    			destAnn.setMininumZoomLevel(MapOperations.POIOVERLAY_HIDE_ZOOM_LEVEL);
     			SKAnnotationView destAnnView = new SKAnnotationView();
                 SkobblerImageView destImage = new SkobblerImageView(LandingActivity2.this, R.drawable.pin_destination, 1);
                 destImage.setLat(_route.getLastNode().getLatitude());
@@ -3385,17 +3274,16 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     
-    private void refreshStarredPOIs(final Runnable callback, final boolean forceUpdateFavorite){
+    private void refreshStarredPOIs(final double latitude, final double longitude, final Runnable callback, final boolean forceUpdateFavorite){
         AsyncTask<Void, Void, List<com.metropia.models.Address>> task = new AsyncTask<Void, Void, List<com.metropia.models.Address>>(){
             @Override
             protected List<com.metropia.models.Address> doInBackground(
                     Void... params) {
                 List<com.metropia.models.Address> addrs = Collections.emptyList();
-                FavoriteAddressFetchRequest request = new FavoriteAddressFetchRequest(
-                        User.getCurrentUser(LandingActivity2.this));
+                FavoriteAddressFetchRequest request = new FavoriteAddressFetchRequest(User.getCurrentUser(LandingActivity2.this));
                 try {
                     request.invalidateCache(LandingActivity2.this);
-                    addrs = request.execute(LandingActivity2.this);
+                    addrs = request.execute(LandingActivity2.this, latitude, longitude);
                 }
                 catch (Exception e) {
                     //ehs.registerException(e, "[" + request.getURL() + "]\n" + e.getMessage());
@@ -3423,7 +3311,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                         initFontsIfNecessary();
                         for(com.metropia.models.Address a : result){
                             PoiOverlayInfo poiInfo = PoiOverlayInfo.fromAddress(LandingActivity2.this, a);
-                            addAnnotationFromPoiInfo(poiInfo);
+                            MapOperations.addAnnotationFromPoiInfo(LandingActivity2.this, mapView, poiContainer, poiInfo);
                             addrList.add(a);
                         }
                     }
@@ -3438,8 +3326,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                     }
                     showODBalloon();
                     //redraw poi
-                    sizeRatio.set(0);
-                    updateAnnotationSize(getSizeRatioByZoomLevel());
+                    //MapOperations.sizeRatio.set(0);
+                    //MapOperations.updateAnnotationSize(LandingActivity2.this, mapView, poiContainer, getSizeRatioByZoomLevel());
                     //
                     initFavoriteDropdownIfNessary(addrList, forceUpdateFavorite);
                 }
@@ -3792,7 +3680,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                     }
                 }
                 else {
-                    refreshStarredPOIs(new Runnable() {
+                    refreshStarredPOIs(lat, lon,new Runnable() {
                         @Override
                         public void run() {
                             Set<Integer> bulbUniqueIdSet = poiContainer.getBulbUniqueIdSet();
@@ -3826,19 +3714,20 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                             refreshSearchAutoCompleteData();
                         }
                     }, true);
-                    updateAnnotationSize(getSizeRatioByZoomLevel());
+        			//MapOperations.updateAnnotationSize(LandingActivity2.this, mapView, poiContainer, getSizeRatioByZoomLevel());
                 }
             }
         };
         Misc.parallelExecute(task);
     }
     
-    private static final Integer POIOVERLAY_HIDE_ZOOM_LEVEL = 9;
+    
     private static final String LOADING_ADDRESS = "Loading Address...";
     
 	private void showPopupMenu(Screen xy, PoiOverlayInfo info) {
     	poiIcon.setVisibility(View.VISIBLE);
-    	poiIcon.setImageResource(info.markerWithShadow);
+    	if (info.drawable!=null) poiIcon.setImageDrawable(info.drawable);
+    	else poiIcon.setImageResource(info.markerWithShadow);
     	
     	BitmapFactory.Options dimensions = new BitmapFactory.Options(); 
     	dimensions.inJustDecodeBounds = false;
@@ -4319,98 +4208,25 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		SKAnnotation incAnn = new SKAnnotation(uniqueId);
     		incAnn.setUniqueID(uniqueId);
     		incAnn.setLocation(new SKCoordinate(markerInfo.lon, markerInfo.lat));
-    		incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
+    		incAnn.setMininumZoomLevel(MapOperations.POIOVERLAY_HIDE_ZOOM_LEVEL);
     		SKAnnotationView iconView = new SKAnnotationView();
-    		SkobblerImageView incImage = new SkobblerImageView(LandingActivity2.this, markerInfo.markerWithShadow, sizeRatio.get());
+    		SkobblerImageView incImage = new SkobblerImageView(LandingActivity2.this, markerInfo.markerWithShadow, MapOperations.sizeRatio.get());
     		incImage.setLat(markerInfo.lat);
     		incImage.setLon(markerInfo.lon);
     		incImage.setDesc(markerInfo.address);
-    		incImage.setMinimumHeight(annSize.get() / sizeRatio.get());
-    		incImage.setMinimumWidth(annSize.get() / sizeRatio.get());
-    		incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, markerInfo.markerWithShadow, sizeRatio.get()));
+    		incImage.setMinimumHeight(MapOperations.annSize.get() / MapOperations.sizeRatio.get());
+    		incImage.setMinimumWidth(MapOperations.annSize.get() / MapOperations.sizeRatio.get());
+    		incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, markerInfo.markerWithShadow, MapOperations.sizeRatio.get()));
     		iconView.setView(incImage);
     		incAnn.setAnnotationView(iconView);
     		mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
     	}
     }
     
-    private void addAnnotationFromPoiInfo(PoiOverlayInfo poiInfo) {
-   		SKAnnotation incAnn = new SKAnnotation(poiContainer.addPOIToMap(poiInfo));
-//   		incAnn.setUniqueID();
-   		incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
-   		incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
-   		SKAnnotationView iconView = new SKAnnotationView();
-   		SkobblerImageView incImage = new SkobblerImageView(LandingActivity2.this, poiInfo.markerWithShadow, sizeRatio.get());
-   		incImage.setLat(poiInfo.lat);
-   		incImage.setLon(poiInfo.lon);
-   		incImage.setDesc(poiInfo.address);
-   		incImage.setMinimumHeight(annSize.get() / sizeRatio.get());
-		incImage.setMinimumWidth(annSize.get() / sizeRatio.get());
-//		incImage.setImageResource(poiInfo.markerWithShadow);
-   		incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, sizeRatio.get()));
-   		iconView.setView(incImage);
-   		incAnn.setAnnotationView(iconView);
-   		mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
-    }
     
-    private AtomicInteger sizeRatio = new AtomicInteger(1);
-    private AtomicInteger annSize = new AtomicInteger();
     
-    private void updateAnnotationSize(int ratio) {
-    	if(sizeRatio.get() != ratio) {
-    		sizeRatio.set(ratio);
-	    	Set<Integer> starIds = poiContainer.getStarUniqueIdSet();
-	    	for(Integer uniqueId : starIds) {
-	    		PoiOverlayInfo poiInfo = poiContainer.getExistedPOIByUniqueId(uniqueId);
-	    		if(poiInfo != null) {
-	    			SKAnnotation incAnn = new SKAnnotation(uniqueId);
-	    			incAnn.setUniqueID(uniqueId);
-	    			incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
-	    			incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
-	    			SKAnnotationView iconView = new SKAnnotationView();
-	    			SkobblerImageView incImage = new SkobblerImageView(LandingActivity2.this, poiInfo.markerWithShadow, ratio);
-	    			incImage.setLat(poiInfo.lat);
-	    			incImage.setLon(poiInfo.lon);
-	    			incImage.setDesc(poiInfo.address);
-	    			incImage.setMinimumHeight(annSize.get() / ratio);
-	    			incImage.setMinimumWidth(annSize.get() / ratio);
-	    			incImage.setMaxHeight(annSize.get() / ratio);
-	    			incImage.setMaxWidth(annSize.get() / ratio);
-//	    			incImage.setImageResource(poiInfo.markerWithShadow);
-	    			incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, ratio));
-	    			iconView.setView(incImage);
-	    			incAnn.setAnnotationView(iconView);
-	    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
-//	    			mapView.updateAnnotation(incAnn);
-	    		}
-	    	}
-	    	Set<Integer> bulbIds = poiContainer.getBulbUniqueIdSet();
-	    	for(Integer uniqueId : bulbIds) {
-	    		PoiOverlayInfo poiInfo = poiContainer.getExistedPOIByUniqueId(uniqueId);
-	    		if(poiInfo != null) {
-	    			SKAnnotation incAnn = new SKAnnotation(uniqueId);
-	    			incAnn.setUniqueID(uniqueId);
-	    			incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
-	    			incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
-	    			SKAnnotationView iconView = new SKAnnotationView();
-	    			SkobblerImageView incImage = new SkobblerImageView(LandingActivity2.this, poiInfo.markerWithShadow, ratio);
-	    			incImage.setLat(poiInfo.lat);
-	    			incImage.setLon(poiInfo.lon);
-	    			incImage.setDesc(poiInfo.address);
-	    			incImage.setMinimumHeight(annSize.get() / ratio);
-	    			incImage.setMinimumWidth(annSize.get() / ratio);
-	    			incImage.setMaxHeight(annSize.get() / ratio);
-	    			incImage.setMaxWidth(annSize.get() / ratio);
-//	    			incImage.setImageResource(poiInfo.markerWithShadow);
-	    			incImage.setImageBitmap(Misc.getBitmap(LandingActivity2.this, poiInfo.markerWithShadow, ratio));
-	    			iconView.setView(incImage);
-	    			incAnn.setAnnotationView(iconView);
-	    			mapView.addAnnotation(incAnn, SKAnimationSettings.ANIMATION_NONE);
-//	    			mapView.updateAnnotation(incAnn);
-	    		}
-	    	}
-    	}
-    }
+    //private AtomicInteger sizeRatio = new AtomicInteger(1);
+    //private AtomicInteger annSize = new AtomicInteger();
     
     private int getSizeRatioByZoomLevel() {
     	float zoomLevel = mapView.getZoomLevel();
@@ -4555,7 +4371,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
    		initFontsIfNecessary();
    		for(final com.metropia.requests.WhereToGoRequest.Location l:locs){
    			PoiOverlayInfo poiInfo = PoiOverlayInfo.fromLocation(l);
-   			addAnnotationFromPoiInfo(poiInfo);
+   			MapOperations.addAnnotationFromPoiInfo(this, mapView, poiContainer, poiInfo);
    		}
    		showODBalloon();
     }
@@ -5023,10 +4839,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 
 	@Override
 	public void onAnnotationSelected(SKAnnotation annotation) {
-		if(mapView.getZoomLevel() >= POIOVERLAY_HIDE_ZOOM_LEVEL) {
+		if(mapView.getZoomLevel() >= MapOperations.POIOVERLAY_HIDE_ZOOM_LEVEL) {
 			PoiOverlayInfo poiInfo;
-			if(annotation.getUniqueID() == POI_MARKER_ONE || annotation.getUniqueID() == POI_MARKER_TWO || 
-					annotation.getUniqueID() == POI_MARKER_THREE) {
+			if(annotation.getUniqueID() == POI_MARKER_ONE || annotation.getUniqueID() == POI_MARKER_TWO || annotation.getUniqueID() == POI_MARKER_THREE) {
 				poiInfo = getPoiOverlayInfoFromCurrentOD(annotation.getUniqueID());
 			}
 			else if(annotation.getUniqueID() == FROM_BALLOON_ID && curFrom != null && StringUtils.isNotBlank(curFrom.address)) {
@@ -5114,7 +4929,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	@Override
 	public void onMapRegionChanged(SKCoordinateRegion arg0) {
 		if(mapView != null) {
-			updateAnnotationSize(getSizeRatioByZoomLevel());
+			MapOperations.updateAnnotationSize(this, mapView, poiContainer, getSizeRatioByZoomLevel());
 		}
 	}
 
@@ -5220,8 +5035,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		while((r = mapActionQueue.poll()) != null) r.run();
         
         //redraw poi
-        sizeRatio.set(0);
-        updateAnnotationSize(getSizeRatioByZoomLevel());
+		/*MapOperations.sizeRatio.set(0);
+		MapOperations.updateAnnotationSize(this, mapView, poiContainer, getSizeRatioByZoomLevel());
         //
         User.initializeIfNeccessary(LandingActivity2.this, new Runnable() {
 			@Override
@@ -5236,7 +5051,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		        	centerMap();
 		        }
 			}
-        });
+        });*/
 		GeoPoint debugLoc = DebugOptionsActivity.getCurrentLocationLatLon(LandingActivity2.this);
 		mapRecenter.set(true);
         if(debugLoc != null) {
