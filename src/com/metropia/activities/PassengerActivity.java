@@ -72,6 +72,7 @@ import com.metropia.TrajectorySendingService;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.TripService;
 import com.metropia.dialogs.CancelableProgressDialog;
+import com.metropia.dialogs.DuoStyledDialog;
 import com.metropia.dialogs.NotificationDialog;
 import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.dialogs.SunRideshareActivityDialog;
@@ -102,6 +103,7 @@ import com.metropia.utils.Misc;
 import com.metropia.utils.Preferences;
 import com.metropia.utils.RouteNode;
 import com.metropia.utils.Speaker;
+import com.metropia.utils.StringUtil;
 import com.metropia.utils.SystemService;
 import com.skobbler.ngx.SKCoordinate;
 import com.skobbler.ngx.map.SKAnnotation;
@@ -255,27 +257,14 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	
 	
 	private void checkLastTrip(final Runnable cb) {
-		new AsyncTask<Void, Void, Integer>() {
+		
+		findViewById(R.id.loading).setVisibility(View.VISIBLE);
+		new DuoTripCheckRequest(User.getCurrentUser(PassengerActivity.this)).executeAsync(this, new ICallback() {
 
 			@Override
-			protected void onPreExecute() {
-				findViewById(R.id.loading).setVisibility(View.VISIBLE);
-			}
-			
-			@Override
-			protected Integer doInBackground(Void... arg0) {
-				try {
-					DuoTripCheckRequest request = new DuoTripCheckRequest(User.getCurrentUser(PassengerActivity.this));
-					int timeToNext = request.execute(PassengerActivity.this);
-					return timeToNext;
-				} catch (Exception e) {
-					Log.e("error", "fetch last info failed:"+e.toString());
-				}
-				return null;
-			}
-			
-			@Override
-			protected void onPostExecute(Integer timeToNext) {
+			public void run(Object... obj) {
+				Integer timeToNext = (Integer) obj[0];
+				
 				findViewById(R.id.loading).setVisibility(View.GONE);
 				
 				if (timeToNext==null) {
@@ -287,17 +276,18 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				
 				String timeToNextStr = getResources().getQuantityString(R.plurals.minute, timeToNext, timeToNext);
 				String timeStr = getResources().getQuantityString(R.plurals.minute, 15-timeToNext, 15-timeToNext);
-				NotificationDialog2 dialog = new NotificationDialog2(PassengerActivity.this, getString(R.string.duoTripIntervalCheckMsg, timeToNextStr));
-				dialog.setTitle(getString(R.string.duoTripIntervalCheckTile, timeStr));
-				dialog.setPositiveButtonText("OK");
-				dialog.setPositiveActionListener(new ActionListener() {
-					public void onClick() {}
+				
+				final DuoStyledDialog dialog = new DuoStyledDialog(PassengerActivity.this);
+				dialog.setContent(getString(R.string.duoTripIntervalCheckTile, timeStr), getString(R.string.duoTripIntervalCheckMsg, timeToNextStr));
+				dialog.addButton("OK", new ICallback() {
+					public void run(Object... obj) {dialog.dismiss();}
 				});
+				
 				if (timeToNext.equals(0)) cb.run();
 				else dialog.show();
 			}
-			
-		}.execute();
+		});
+		
 	}
 	
 	private void startTrip() {
@@ -328,7 +318,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				
 				SharedPreferences prefs = Preferences.getGlobalPreferences(PassengerActivity.this);
 				int sunRideshareCount = prefs.getInt("SunRideshareCount", 0);
-				if (sunRideshareCount>=5) new SunRideshareActivityDialog(PassengerActivity.this, city, "sunrideshare", null).showAsync();
+				if (sunRideshareCount==5) new SunRideshareActivityDialog(PassengerActivity.this, city, "sunrideshare", null).showAsync();
 				
 				PassengerReservationRequest resvReq = new PassengerReservationRequest(User.getCurrentUser(PassengerActivity.this), getString(R.string.distribution_date));
 				resvReq.executeAsync(PassengerActivity.this, city, start);
@@ -589,11 +579,12 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					int icon1 = duration>=THRESHOLD_DURATION? R.drawable.duo_succeed:R.drawable.duo_failed;
 					int icon2 = distance>=THRESHOLD_DISTANCE? R.drawable.duo_succeed:R.drawable.duo_failed;
 					String durationStr = getResources().getQuantityString(R.plurals.minute, (int)duration, (int)duration);
+					String distanceStr = StringUtil.formatRoundingDistance(distance, false);
 					
 		            ((TextView)findViewById(R.id.duoFailedPanelText)).setText(getString(R.string.duoFailHeadMsg, userName));
 					((TextView)findViewById(R.id.duoFailedDialogTitle)).setText(R.string.duoFailTitle);
 					((TextView)findViewById(R.id.duoFailedDialogDurationText)).setText(getString(R.string.duoFailDurationMsg, durationStr));
-					((TextView)findViewById(R.id.duoFailedDialogDistanceText)).setText(getString(R.string.duoFailDistanceMsg, distance));
+					((TextView)findViewById(R.id.duoFailedDialogDistanceText)).setText(getString(R.string.duoFailDistanceMsg, distanceStr));
 					((ImageView)findViewById(R.id.duoFailedDialogDurationIcon)).setImageResource(icon1);
 					((ImageView)findViewById(R.id.duoFailedDialogDistanceIcon)).setImageResource(icon2);
 				}
@@ -629,13 +620,16 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				int sunRideshareCount = prefs.getInt("SunRideshareCount", 0);
 				prefs.edit().putInt("SunRideshareCount", ++sunRideshareCount).commit();
 			}
-
-			TextView[] styledTexts = new TextView[] {
-					(TextView) findViewById(R.id.congrats_msg),
-					(TextView) findViewById(R.id.close),
-					(TextView) findViewById(R.id.feedback)
-			};
-			Font.setTypeface(Font.getRobotoBold(getAssets()), styledTexts);
+			
+			int[] RobotLight = {R.id.duoFailedDialogTitle, R.id.duoFailedDialogDurationText, R.id.duoFailedDialogDistanceText};
+			int[] RobotRegular = {R.id.duoFailedPanelText};
+			int[] RobotMedium = {R.id.duoPointString1, R.id.duoPointString2};
+			int[] RobotBold = {R.id.duoPoint, R.id.congrats_msg, R.id.duoTotalPointsString, R.id.duoTotalPoints, R.id.close, R.id.feedback};
+			Font.setTypeface(this, Font.getRobotoLight(getAssets()), RobotLight);
+			Font.setTypeface(this, Font.getRegular(getAssets()), RobotRegular);
+			Font.setTypeface(this, Font.getMedium(getAssets()), RobotMedium);
+			Font.setTypeface(this, Font.getRobotoBold(getAssets()), RobotBold);
+			
 
 			if (uPoints==0) {
 				panel.setVisibility(View.VISIBLE);
@@ -795,20 +789,13 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				finish();
 			}
 		} else {
-			// Ask the user if they want to quit
-			NotificationDialog2 dialog = new NotificationDialog2(PassengerActivity.this, "Are you sure?");
-			dialog.setTitle("End Trip");
-			dialog.setVerticalOrientation(false);
-			dialog.setPositiveButtonText("Yes");
-			dialog.setPositiveActionListener(new NotificationDialog2.ActionListener() {
-				@Override
-				public void onClick() {
-					doCancelValidation();
-				}
+			
+			final DuoStyledDialog dialog = new DuoStyledDialog(this).setContent("End Trip?", "Are you sure?").centerContent();
+			dialog.addButton("NO", new ICallback() {
+				public void run(Object... obj) {dialog.dismiss();}
 			});
-			dialog.setNegativeButtonText("No");
-			dialog.setNegativeActionListener(new ActionListener() {
-				public void onClick() {}
+			dialog.addButton("YES", new ICallback() {
+				public void run(Object... obj) {doCancelValidation();dialog.dismiss();}
 			});
 			dialog.show();
 		}
@@ -938,8 +925,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	private void showNotifyLaterDialog() {
 		if (!arrivalMsgDisplayed.getAndSet(true)) {
 			findViewById(R.id.loading).setVisibility(View.GONE);
-			NotificationDialog2 dialog = new NotificationDialog2(PassengerActivity.this,
-					"There's a temporary connection issue, but we'll update your trip results shortly. Thanks for your patience!");
+			NotificationDialog2 dialog = new NotificationDialog2(PassengerActivity.this, "There's a temporary connection issue, but we'll update your trip results shortly. Thanks for your patience!");
 			dialog.setTitle("Thanks for using Metropia");
 			dialog.setPositiveButtonText("OK");
 			dialog.setPositiveActionListener(new ActionListener() {
@@ -1187,17 +1173,27 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				}
 			break;
 			case R.id.close:
-				if (wheel.getVisibility()==View.VISIBLE && wheel.bonus==null) {
+				if (wheel.spinning) ;
+				else if (wheel.getVisibility()==View.VISIBLE && wheel.bonus==null) {
 					
-					NotificationDialog2 dialog = new NotificationDialog2(this, getString(R.string.duoExitWithoutSpin));
-					dialog.setTitle("Please Spin");
-					dialog.setPositiveButtonText("OK");
+					final DuoStyledDialog dialog = new DuoStyledDialog(this);
+					dialog.setContent("Are you sure?", getString(R.string.duoExitWithoutSpin));
+					dialog.addButton("DON'T SPIN", new ICallback() {
+						public void run(Object... obj) {
+							wheel.spinWithoutAnimation();
+							finish();
+							dialog.dismiss();
+						}
+					});
+					dialog.addButton("SPIN", new ICallback() {
+						public void run(Object... obj) {
+							dialog.dismiss();
+						}
+					});
 					dialog.show();
-					
-					return;
 				}
-				SKRouteManager.getInstance().clearCurrentRoute();
-				finish();
+				else finish();
+				
 			break;
 			case R.id.share:
 				Intent intentShare = new Intent(this, ShareActivity.class);

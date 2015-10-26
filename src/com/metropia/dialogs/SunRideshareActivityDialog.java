@@ -18,6 +18,7 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.DialogInterface.OnDismissListener;
 import android.graphics.drawable.Drawable;
+import android.text.Html;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -73,7 +74,7 @@ public class SunRideshareActivityDialog extends BlurDialog implements OnDismissL
 				}).execute(true);
 				
 				((TextView)findViewById(R.id.title)).setText(title);
-				((TextView)findViewById(R.id.content)).setText(content);
+				((TextView)findViewById(R.id.content)).setText(Html.fromHtml(content));
 				((TextView)findViewById(R.id.leftButton)).setText(leftButton);
 				((TextView)findViewById(R.id.rightButton)).setText(rightButton);
 				

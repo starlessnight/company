@@ -9,6 +9,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -58,14 +59,17 @@ public class CircularPopupAnimation extends Animation {
 		
 	}
 	
+	int ti = 0;
 	@SuppressLint("NewApi")
 	@Override
 	protected void applyTransformation(float interpolatedTime, Transformation t) {
 		
+		DisplayMetrics displayMetrics = view.getContext().getResources().getDisplayMetrics();
 
-    		int haloPadding = "halo".equals(view.getTag())? Dimension.dpToPx(5, view.getContext().getResources().getDisplayMetrics()):0;
+    		int haloPadding = "halo".equals(view.getTag())? Dimension.dpToPx(5, displayMetrics):0;
 			int interval = 360/total;
-			int distance = Dimension.dpToPx(80, view.getContext().getResources().getDisplayMetrics());
+			int distance = (int)(2*Dimension.dpToPx(35, displayMetrics)*(0.575+(total/10f)));
+			
 			int offset = total<=8? angleOffset[total]:0;
 			int x = (int) (Math.cos(Math.toRadians(interval*position+offset)) * interpolatedTime*distance) - haloPadding;
 			int y = (int) (Math.sin(Math.toRadians(interval*position+offset)) * interpolatedTime*distance) - haloPadding;

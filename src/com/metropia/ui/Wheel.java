@@ -39,7 +39,7 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 	GestureDetector gestureDetector;
 	Runnable callback;
 	AtomicBoolean spinned = new AtomicBoolean(false);
-	AtomicBoolean spinning = new AtomicBoolean(false);
+	public boolean spinning = false;
 	
 	long reservationId;
 	int resultAngle;
@@ -98,7 +98,7 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 	
 	
 	@SuppressLint("NewApi")
-	private void spin(final int direction) {
+	public void spin(final int direction) {
 		if (spinned.getAndSet(true)) return;
 		
 		resultAngle = (int) (Math.random() * 360);
@@ -114,7 +114,7 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 		an.setAnimationListener(new AnimationListener() {
 			@Override
 			public void onAnimationEnd(Animation animation) {
-				spinning.set(false);
+				spinning = false;
 			}
 			@Override
 			public void onAnimationRepeat(Animation animation) {}
@@ -123,7 +123,13 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 		});
 		
 		wheel.startAnimation(an);
-		spinning.set(true);
+		spinning = true;
+	}
+	public void spinWithoutAnimation() {
+		resultAngle = -1;
+		
+		GetBonusTask task = new GetBonusTask(callback);
+		task.execute();
 	}
 	
 	@SuppressLint("NewApi")
@@ -201,7 +207,7 @@ public class Wheel extends RelativeLayout implements OnGestureListener, OnTouchL
 				bonus = request.execute(Wheel.this.getContext(), reservationId, resultAngle);
 			} catch (Exception e) {}
 			
-			while (spinning.get()) ;
+			while (spinning) ;
 			if (cb!=null) Wheel.this.post(cb);
 			return null;
 		}

@@ -1,5 +1,7 @@
 package com.metropia.utils;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.res.AssetManager;
 import android.graphics.Paint;
 import android.graphics.Typeface;
@@ -46,6 +48,22 @@ public class Font {
     
     public static void setTypeface(Typeface tf, TextView... views){
         for (TextView v : views) {
+            v.setTypeface(tf);
+            v.setPaintFlags(v.getPaintFlags() | Paint.SUBPIXEL_TEXT_FLAG);
+        }
+    }
+    
+    public static void setTypeface(Activity activity, Typeface tf, int... views){
+        for (int id : views) {
+        	TextView v = (TextView) activity.findViewById(id);
+            v.setTypeface(tf);
+            v.setPaintFlags(v.getPaintFlags() | Paint.SUBPIXEL_TEXT_FLAG);
+        }
+    }
+    
+    public static void setTypeface(Dialog dialog, Typeface tf, int... views){
+        for (int id : views) {
+        	TextView v = (TextView) dialog.findViewById(id);
             v.setTypeface(tf);
             v.setPaintFlags(v.getPaintFlags() | Paint.SUBPIXEL_TEXT_FLAG);
         }

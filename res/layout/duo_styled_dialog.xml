@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="280dp"
+		android:layout_height="wrap_content"
+		android:layout_centerInParent="true"
+		android:clickable="true"
+		android:orientation="vertical"
+		android:background="@drawable/frame">
+		
+		<TextView
+			android:id="@+id/title"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical"
+			android:text="No river found"
+			android:textColor="#ffffff"
+			android:fontFamily="sans-serif"
+			android:textSize="16dp"
+			android:background="@drawable/frame_header" />
+		
+		<RelativeLayout
+			android:id="@+id/contnet"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:padding="15dp">
+			
+			<TextView
+				android:id="@+id/contentText"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:textSize="14dp"
+				android:textColor="#000" />
+			
+		</RelativeLayout>
+		
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:background="#550197CD" />
+		
+		<LinearLayout
+			android:id="@+id/buttons"
+			android:layout_width="match_parent"
+			android:layout_height="40dp"
+			android:orientation="horizontal"
+			android:fontFamily="sans-serif-bold">
+			
+			
+		</LinearLayout>
+			
+</LinearLayout>

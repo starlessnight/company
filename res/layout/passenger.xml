@@ -126,11 +126,13 @@
         android:clickable="true"
         android:visibility="gone" >
         
+        <include android:id="@+id/colorBar" layout="@layout/metropia_color_bar"/>
         
         <RelativeLayout
         	android:id="@+id/duoSucceedPanel"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+			android:layout_below="@id/colorBar"
 			android:background="#C40099CC"
 			android:visibility="gone">
 	    	
@@ -157,18 +159,18 @@
             	    android:src="@drawable/passenger_water_mark"
             	    android:alpha="0.2" />
             	
-            	<include android:id="@+id/colorBar" layout="@layout/metropia_color_bar"/>
+            	
             	
 				<LinearLayout
 					android:id="@+id/duoPointTexts"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:layout_below="@id/colorBar"
 					android:paddingTop="15dp"
 					android:orientation="horizontal"
 					android:gravity="center">
 					
 					<TextView
+						android:id="@+id/duoPointString1"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:text="You've already earned "
@@ -185,6 +187,7 @@
 						android:textSize="16dp"
 						android:background="@drawable/point_circle_blue" />
 					<TextView
+						android:id="@+id/duoPointString2"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:text=" points."
@@ -214,7 +217,6 @@
 				android:layout_height="wrap_content"
 				android:paddingLeft="30dp"
 				android:paddingRight="30dp"
-				android:src="@drawable/wheels"
 				android:layout_centerInParent="true"
 				android:visibility="gone" />
 			
@@ -227,10 +229,12 @@
 				android:orientation="horizontal">
 				
 				<TextView
+					android:id="@+id/duoTotalPointsString"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:text="Total points this trip  "
 					android:textSize="24dp"
+					android:textStyle="bold"
 					android:textColor="#ffffff" />
 				<TextView
 					android:id="@+id/duoTotalPoints"
@@ -239,7 +243,7 @@
 					android:background="@drawable/point_circle"
 					android:gravity="center"
 					android:text="\?"
-					android:textSize="26dp"
+					android:textSize="28dp"
 					android:textStyle="bold"
 					android:textColor="@color/metropia_passenger_blue" />
 			
@@ -251,6 +255,7 @@
         	android:id="@+id/duoFailedPanel"
         	android:layout_width="match_parent"
         	android:layout_height="match_parent"
+			android:layout_below="@id/colorBar"
         	android:visibility="gone">
 			
             <LinearLayout
@@ -300,7 +305,7 @@
 				<RelativeLayout
 					android:layout_width="match_parent"
 					android:layout_height="match_parent"
-					android:padding="10dp"
+					android:padding="15dp"
 					android:orientation="vertical">
 					
 				    <ImageView
@@ -322,7 +327,8 @@
 						android:layout_height="50dp"
 						android:layout_toRightOf="@id/duoFailedDialogDurationIcon"
 						android:gravity="left|center"
-						android:textColor="#000" />
+						android:textColor="#000"
+						android:textSize="14dp" />
 					<TextView
 						android:id="@+id/duoFailedDialogDistanceText"
 						android:layout_width="match_parent"
@@ -330,7 +336,8 @@
 				    	android:layout_below="@id/duoFailedDialogDurationIcon"
 						android:layout_toRightOf="@id/duoFailedDialogDurationIcon"
 						android:gravity="left|center"
-						android:textColor="#000" />
+						android:textColor="#000"
+						android:textSize="14dp" />
 					
 				</RelativeLayout>
 			
