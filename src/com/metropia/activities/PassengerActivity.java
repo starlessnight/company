@@ -943,7 +943,10 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		// Handle the back button
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
-			if((Boolean)findViewById(R.id.startButtonText).getTag()) {
+			if (findViewById(R.id.congrats_panel).getVisibility()==View.VISIBLE) {
+				findViewById(R.id.close).performClick();
+			}
+			else if((Boolean)findViewById(R.id.startButtonText).getTag()) {
 				cancelValidation();
 			}
 			else {
