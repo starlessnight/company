@@ -9,6 +9,7 @@
 		    android:layout_height="match_parent"
 		    android:focusable="true"
 		    android:focusableInTouchMode="true"
+		    android:gravity="center"
 		    android:orientation="vertical">
 		    
 		    <FrameLayout 
@@ -53,7 +54,7 @@
 		    
 		    <WebView 
 			   android:id="@+id/webview_content"
-		       android:layout_width="match_parent"
+		       android:layout_width="wrap_content"
 		       android:layout_height="match_parent"
 		       android:visibility="gone"
 		    />

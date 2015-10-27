@@ -5036,7 +5036,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         
         //redraw poi
 		/*MapOperations.sizeRatio.set(0);
-		MapOperations.updateAnnotationSize(this, mapView, poiContainer, getSizeRatioByZoomLevel());
+		MapOperations.updateAnnotationSize(this, mapView, poiContainer, getSizeRatioByZoomLevel());*/
         //
         User.initializeIfNeccessary(LandingActivity2.this, new Runnable() {
 			@Override
@@ -5051,7 +5051,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		        	centerMap();
 		        }
 			}
-        });*/
+        });
 		GeoPoint debugLoc = DebugOptionsActivity.getCurrentLocationLatLon(LandingActivity2.this);
 		mapRecenter.set(true);
         if(debugLoc != null) {
