@@ -54,12 +54,11 @@ public class GCMIntentService extends GCMBaseIntentService {
                 context.startActivity(alertIntent);
             }
     		else {
-    			String body = intent.getStringExtra("body");
-    			if (body==null) return;
+    			String message = intent.getStringExtra("message");
     			
     			PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, new Intent(context, LandingActivity2.class), PendingIntent.FLAG_UPDATE_CURRENT);
     			NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-    			builder.setSmallIcon(R.drawable.icon_small).setContentTitle("Metropia").setContentText(body);
+    			builder.setSmallIcon(R.drawable.icon_small).setContentTitle("Metropia").setContentText(message);
     			builder.setContentIntent(pendingIntent);
     			
     			
