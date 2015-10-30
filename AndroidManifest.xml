@@ -268,6 +268,14 @@
             android:name=".WebViewRegistrationActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize"
             android:theme="@android:style/Theme.NoTitleBar" />
+        
+		<activity android:name="com.tapjoy.TJCOffersWebView" android:configChanges="orientation|keyboardHidden|screenSize" />
+		<activity android:name="com.tapjoy.TapjoyFullScreenAdWebView" android:configChanges="orientation|keyboardHidden|screenSize" />
+		<activity android:name="com.tapjoy.TapjoyVideoView" android:configChanges="orientation|keyboardHidden|screenSize" />
+		<activity android:name="com.tapjoy.TJAdUnitView" android:configChanges="orientation|keyboardHidden|screenSize" android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" android:hardwareAccelerated="true" />
+		<activity android:name="com.tapjoy.mraid.view.ActionHandler" android:configChanges="orientation|keyboardHidden|screenSize" />
+		<activity android:name="com.tapjoy.mraid.view.Browser" android:configChanges="orientation|keyboardHidden|screenSize" />
+		
 
         <receiver android:name="com.metropia.receivers.ReservationReceiver" />
         <receiver android:name="com.metropia.receivers.NotificationExpiry" />
