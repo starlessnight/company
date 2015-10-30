@@ -170,9 +170,8 @@ public class FavoriteListActivity extends FragmentActivity {
 			}
 			
 			Location location = (Location) extras.get("location");
-			Log.e(location.getLatitude()+"", location.getLongitude()+"");
 
-		    refreshFavorites(location);
+		    refreshFavorites(userLoc);
 		}
 		
 		Font.setTypeface(Font.getRegular(getAssets()), backButton, (TextView) findViewById(R.id.header));
@@ -186,7 +185,7 @@ public class FavoriteListActivity extends FragmentActivity {
 		return addNewSpan;
     } 
 
-	private void refreshFavorites(final Location location) {
+	private void refreshFavorites(final LocationInfo userLoc) {
 		AsyncTask<Void, Void, List<Address>> task = new AsyncTask<Void, Void, List<Address>>() {
 			@Override
 			protected List<Address> doInBackground(Void... params) {
@@ -194,7 +193,7 @@ public class FavoriteListActivity extends FragmentActivity {
 				FavoriteAddressFetchRequest request = new FavoriteAddressFetchRequest(User.getCurrentUser(FavoriteListActivity.this));
 				try {
 					request.invalidateCache(FavoriteListActivity.this);
-					addrs = request.execute(FavoriteListActivity.this, location.getLatitude(), location.getLongitude());
+					addrs = request.execute(FavoriteListActivity.this, (double)userLoc.lastLat, (double)userLoc.lastLong);
 				} catch (Exception e) {
 					 ehs.registerException(e, "[" + request.getURL() + "]\n" + e.getMessage());
 				}
@@ -268,6 +267,7 @@ public class FavoriteListActivity extends FragmentActivity {
 	    Localytics.setInAppMessageDisplayActivity(this);
 	    Localytics.handleTestMode(getIntent());
 	    Localytics.handlePushNotificationOpened(getIntent());
+	    refreshFavorites(userLoc);
 	}
 	
 	@Override
