@@ -237,6 +237,8 @@ public class NotificationDialog2 extends Dialog {
 		
 		dialog = builder.create();
 		dialog.show();
+		
+		((TextView)dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
 	}
 
 }
