@@ -1402,7 +1402,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				routeManager.clearCurrentRoute();
 				routeManager.clearRouteAlternatives();
 				routeManager.clearAllRoutesFromCache();
-				routeManager.createRouteFromTrackElement(routeGpx.getRootTrackElement(), SKRouteSettings.SKRouteMode.CAR_FASTEST, false, false,	false);
+				//routeManager.createRouteFromTrackElement(routeGpx.getRootTrackElement(), SKRouteSettings.SKRouteMode.CAR_FASTEST, false, false,	false);
 				drawDestinationAnnotation(reservation.getEndlat(), reservation.getEndlon());
 			}
 			
@@ -1413,12 +1413,12 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				}
 				SKPolyline routeLine = new SKPolyline();
 				routeLine.setNodes(routeCoors);
-				if (dayMode.get()) routeLine.setColor(new float[] {74f/255, 170f/255, 255f/255, 1f}); //RGBA
+				if (dayMode.get()) routeLine.setColor(new float[] {34f/255, 119f/255, 0f/255, 1f}); //RGBA
 				else routeLine.setColor(new float[] {0f/255, 129f/255, 255f/255, 1f});
 				routeLine.setLineSize(10);
 				  
 				//outline properties, otherwise map crash
-				if (dayMode.get()) routeLine.setOutlineColor(new float[] {74f/255, 170f/255, 255f/255, 1f}); //RGBA
+				if (dayMode.get()) routeLine.setOutlineColor(new float[] {34f/255, 119f/255, 0f/255, 1f}); //RGBA
 				else routeLine.setOutlineColor(new float[] {0f/255, 129f/255, 255f/255, 1f});
 				routeLine.setOutlineSize(10);
 				routeLine.setOutlineDottedPixelsSolid(0);
