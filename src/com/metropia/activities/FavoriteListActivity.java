@@ -190,10 +190,10 @@ public class FavoriteListActivity extends FragmentActivity {
 			@Override
 			protected List<Address> doInBackground(Void... params) {
 				List<Address> addrs = Collections.emptyList();
-				FavoriteAddressFetchRequest request = new FavoriteAddressFetchRequest(User.getCurrentUser(FavoriteListActivity.this));
+				FavoriteAddressFetchRequest request = new FavoriteAddressFetchRequest(User.getCurrentUser(FavoriteListActivity.this), (double)userLoc.lastLat, (double)userLoc.lastLong);
 				try {
 					request.invalidateCache(FavoriteListActivity.this);
-					addrs = request.execute(FavoriteListActivity.this, (double)userLoc.lastLat, (double)userLoc.lastLong);
+					addrs = request.execute(FavoriteListActivity.this);
 				} catch (Exception e) {
 					 ehs.registerException(e, "[" + request.getURL() + "]\n" + e.getMessage());
 				}

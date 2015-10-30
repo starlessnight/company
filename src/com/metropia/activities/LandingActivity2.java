@@ -2730,7 +2730,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             User user = User.getCurrentUser(ctx);
             List<Reservation> reservations= Collections.emptyList();
             ReservationListFetchRequest resReq = new ReservationListFetchRequest(user);
-            FavoriteAddressFetchRequest addReq = new FavoriteAddressFetchRequest(user);
+            FavoriteAddressFetchRequest addReq = new FavoriteAddressFetchRequest(user, null, null);
             if(!cached){
                 resReq.invalidateCache(ctx);
                 addReq.invalidateCache(ctx);
@@ -3280,10 +3280,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             protected List<com.metropia.models.Address> doInBackground(
                     Void... params) {
                 List<com.metropia.models.Address> addrs = Collections.emptyList();
-                FavoriteAddressFetchRequest request = new FavoriteAddressFetchRequest(User.getCurrentUser(LandingActivity2.this));
+                FavoriteAddressFetchRequest request = new FavoriteAddressFetchRequest(User.getCurrentUser(LandingActivity2.this), latitude, longitude);
                 try {
                     request.invalidateCache(LandingActivity2.this);
-                    addrs = request.execute(LandingActivity2.this, latitude, longitude);
+                    addrs = request.execute(LandingActivity2.this);
                 }
                 catch (Exception e) {
                     //ehs.registerException(e, "[" + request.getURL() + "]\n" + e.getMessage());

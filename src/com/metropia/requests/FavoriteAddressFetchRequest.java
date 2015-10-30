@@ -14,19 +14,22 @@ import com.metropia.models.User;
 
 public final class FavoriteAddressFetchRequest extends FetchRequest<List<Address>> {
 	
-	public FavoriteAddressFetchRequest(User user) {
+	public FavoriteAddressFetchRequest(User user, Double latitude, Double longitude) {
         super(StringUtils.defaultString(getLinkUrl(Link.address)));
+        
+        if (latitude!=null && longitude!=null)
+    		url = url + "?lat=" + latitude + "&lon=" + longitude;
+        
         if(user != null){
             this.username = user.getUsername();
             this.password = user.getPassword();
         }
     }
 	
-	public List<Address> execute(Context ctx, Double latitude, Double longitude) throws Exception {
+	public List<Address> execute(Context ctx) throws Exception {
 		List<Address> addresses = new ArrayList<Address>();
 		
-		if (latitude!=null && longitude!=null)
-		url = url + "?lat=" + latitude + "&lon=" + longitude;
+		
 		
 		String response = executeFetchRequest(getURL(), ctx);
 		if(NEW_API){
@@ -49,11 +52,6 @@ public final class FavoriteAddressFetchRequest extends FetchRequest<List<Address
 		}
 		
 		return addresses;
-	}
-
-	@Override
-	public List<Address> execute(Context ctx) throws Exception {
-		return this.execute(ctx, null, null);
 	}
 
 }

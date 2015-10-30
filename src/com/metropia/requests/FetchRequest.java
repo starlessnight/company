@@ -31,13 +31,12 @@ public abstract class FetchRequest<ReturnType> extends Request {
 	
 	protected String executeFetchRequest(String url, Context ctx) throws IOException, InterruptedException {
 		Cache cache = Cache.getInstance(ctx);
-		String urlWithoutParams = url.indexOf("?")!=-1? url.substring(0, url.indexOf("?")):url;
-		if (cache.has(urlWithoutParams)) {
-			return (String) cache.fetch(urlWithoutParams);
+		if (cache.has(url)) {
+			return (String) cache.fetch(url);
 		}
 		else {
 			String response = executeHttpGetRequest(url, ctx);
-			cache.put(urlWithoutParams, response);
+			cache.put(url, response);
 			
 			return response;
 		}
