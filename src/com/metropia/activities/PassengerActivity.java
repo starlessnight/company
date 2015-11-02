@@ -16,13 +16,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
@@ -45,7 +45,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.common.ConnectionResult;
@@ -118,7 +117,6 @@ import com.skobbler.ngx.map.SKMapViewHolder;
 import com.skobbler.ngx.map.SKPOICluster;
 import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
-import com.skobbler.ngx.routing.SKRouteManager;
 
 public class PassengerActivity extends FragmentActivity implements SKMapSurfaceListener, ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<LocationSettingsResult>, OnClickListener {
 	
@@ -129,6 +127,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	private LocationListener locationListener;
 	private Speaker speaker;
 	
+	private ProgressDialog preparingDialog;
 	private SKMapViewHolder mapViewHolder;
 	private SKMapSurfaceView mapView;
 	private Wheel wheel;
@@ -195,11 +194,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		TextView feedBackButton = (TextView) findViewById(R.id.feedback);
 		feedBackButton.setText(Html.fromHtml("<u>Feedback</u>"));
 		
-		/*int[] styledFontTextView = {R.id.duoTotalPoints, R.id.duoPointText1};
-		ArrayList<TextView> textViews = new ArrayList<TextView>();
-		for (int i=0 ; i<styledFontTextView.length ; i++) textViews.add((TextView) findViewById(styledFontTextView[i]));
-		Font.setTypeface(Font.getRegular(getAssets()), textViews.toArray(new TextView[textViews.size()]));*/
-		
 		Font.setTypeface(Font.getRegular(getAssets()), passengerMsg, startButtonText, finishButton, feedBackButton);
 		
 		// init Tracker
@@ -211,6 +205,13 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			createLocationRequest();
 			buildLocationSettingsRequest();
 		}
+		
+		preparingDialog = new ProgressDialog(this, R.style.PopUpDialog);
+    	preparingDialog.setTitle("Metropia");
+    	preparingDialog.setMessage("Preparing...");
+    	preparingDialog.setCanceledOnTouchOutside(false);
+    	preparingDialog.setCancelable(false);
+    	preparingDialog.show();
 		
 		Bundle extra = getIntent().getExtras();
 		if (extra==null) return;
@@ -1129,6 +1130,14 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	@Override
 	public void onSurfaceCreated(SKMapViewHolder mapViewHolder) {
 		initSKMaps(mapViewHolder);
+		mapView.postDelayed(new Runnable() {
+
+			@Override
+			public void run() {
+				preparingDialog.dismiss();
+			}
+		}, 2000);
+		
 		LocationInfo cacheLoc = new LocationInfo(PassengerActivity.this);
 		if(System.currentTimeMillis() - cacheLoc.lastLocationUpdateTimestamp <= LandingActivity2.ONE_HOUR) {
 	        Location loc = new Location("");
