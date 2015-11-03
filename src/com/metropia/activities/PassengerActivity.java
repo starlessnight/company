@@ -16,6 +16,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -122,6 +125,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	
 	final static int INITIAL = 0;
 	final static int DURING_TRIP = 1;
+	final static int END_TRIP = 2;
 	
 	private LocationManager locationManager;
 	private LocationListener locationListener;
@@ -226,7 +230,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putInt("status", DURING_TRIP);
+		outState.putInt("status", status);
 		outState.putLong("reservId", reservId.get());
 	}
 	@Override
@@ -234,7 +238,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
         super.onRestoreInstanceState(savedInstanceState);
         status = savedInstanceState.getInt("status");
         reservId.set(savedInstanceState.getLong("reservId"));
-        toggleStatus(DURING_TRIP);
+        toggleStatus(status);
     }
 	
 	private void toggleStatus(int status) {
@@ -824,6 +828,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	private void displayArrivalMsg(final Runnable callback) {
 		arrivalMsgTiggered.set(true);
 		arrived.set(true);
+		status = END_TRIP;
 		handler.removeCallbacks(fetchPassengerPeriodly);
 		handler.removeCallbacks(checkLowSpeedTimer);
 		
@@ -923,6 +928,21 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		}
 	};
 	
+	private static final Integer ID = 123451;
+	public void notifyIfNecessary(boolean force) {
+		if(force) {
+			Intent validationIntent = new Intent(this, MainActivity.class);
+			validationIntent.setAction(Intent.ACTION_MAIN);
+			validationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+	        PendingIntent sender = PendingIntent.getActivity(this, ID, validationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            Notification notification = new Notification(R.drawable.icon_small, "Metropia", System.currentTimeMillis());
+            notification.setLatestEventInfo(this, "Metropia", "", sender);
+            notification.flags = Notification.FLAG_NO_CLEAR | Notification.FLAG_ONLY_ALERT_ONCE | Notification.FLAG_AUTO_CANCEL;            
+            notificationManager.notify(ID, notification);
+		}
+	} 
+	
 	private void showNotifyLaterDialog() {
 		if (!arrivalMsgDisplayed.getAndSet(true)) {
 			findViewById(R.id.loading).setVisibility(View.GONE);
@@ -988,6 +1008,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		Localytics.upload();
 		super.onPause();
 		mapViewHolder.onPause();
+		if (status==DURING_TRIP) notifyIfNecessary(true);
 	}
 	
 	@Override
