@@ -8,6 +8,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.text.Html;
 import android.view.View;
 import android.widget.TextView;
 
@@ -28,6 +29,7 @@ public class ReleaseDialog extends Dialog implements android.view.View.OnClickLi
 			version = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0).versionName;
 		} catch (NameNotFoundException e) {}
 		((TextView)findViewById(R.id.dialogTitle)).setText(getContext().getString(R.string.releaseTitle, version));
+		((TextView)findViewById(R.id.dialogContent)).setText(Html.fromHtml(getContext().getString(R.string.releaseNote)));
 	}
 
 	@Override
