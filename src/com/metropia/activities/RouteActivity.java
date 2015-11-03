@@ -330,6 +330,9 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		public void callback(List<Geocoding.Address> addresses) {
 			if (addresses.size() == 1) {
 				destCoord = addresses.get(0).getGeoPoint();
+				
+            	destOverlayInfo = PoiOverlayInfo.fromCurrentLocation(destCoord);
+            	destOverlayInfo.markerWithShadow = R.drawable.pin_destination;
 			}
 			else {
 				// TODO: Popup a dialog to pick an address
@@ -803,13 +806,13 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	                                    GeoPoint curLoc = DebugOptionsActivity.getCurrentLocationLatLon(RouteActivity.this);
 	                                    if(curLoc != null){
 	                                    	originCoord = curLoc;
-                                            doRouteTask(originCoord);
 	                                    }else{
 	                                    	originCoord = new GeoPoint(location.getLatitude(), location.getLongitude(), location.getBearing());
 	                                    	originCoordProvider = location.getProvider();
 	                                        originCoordTime = location.getTime();
-	                                        doRouteTask(originCoord);
 	                                    }
+                                    	originOverlayInfo = PoiOverlayInfo.fromCurrentLocation(originCoord);
+                                        doRouteTask(originCoord);
 	                                }else{
 	                                    doRouteTask(new GeoPoint(location.getLatitude(), location.getLongitude()));
 	                                }
@@ -1839,15 +1842,13 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    		toOverlayImageView.setLat(destLat);
 	    		toOverlayImageView.setLon(destLon);
 	    		boolean isFlag = destResourceId == R.drawable.pin_destination;
-	    		if(!isFlag) {
-	    			toOverlayImageView.setMinimumHeight(annSize.get() / ratio);
-	    			toOverlayImageView.setMinimumWidth(annSize.get() / ratio);
-	    		}
+	    		toOverlayImageView.setMinimumHeight(annSize.get() / ratio);
+	    		toOverlayImageView.setMinimumWidth(annSize.get() / ratio);
 	    		toOverlayImageView.setImageBitmap(Misc.getBitmap(RouteActivity.this, destResourceId, ratio));
 	    		toOverlayView.setView(toOverlayImageView);
 	    		toOverlay.setAnnotationView(toOverlayView);
 	    		if(isFlag) {
-	    			toOverlay.setOffset(new SKScreenPoint(Dimension.dpToPx((ratio == 2 ? 1 : 0), getResources().getDisplayMetrics()), Dimension.dpToPx((ratio == 2 ? 11 : 20), getResources().getDisplayMetrics())));
+	    			toOverlay.setOffset(new SKScreenPoint(Dimension.dpToPx(1, getResources().getDisplayMetrics()), 0));
 	    		}
 	    		mapView.addAnnotation(toOverlay, SKAnimationSettings.ANIMATION_POP_OUT);
 	    	}
