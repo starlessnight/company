@@ -40,17 +40,21 @@ public class PassengerOnBoardRequst extends FetchRequest<ArrayList<Passenger>> {
 	}
 	
 	public void executeAsync(final Context ctx, final ICallback cb) {
-		new AsyncTask<Void, Void, Void>() {
+		new AsyncTask<Void, Void, ArrayList<Passenger>>() {
 
 			@Override
-			protected Void doInBackground(Void... params) {
+			protected ArrayList<Passenger> doInBackground(Void... params) {
 				ArrayList<Passenger> remotePassengers = null;
 				try {
 					remotePassengers = PassengerOnBoardRequst.this.execute(ctx);
 				} catch (Exception e) {}
-				if (cb!=null) cb.run(remotePassengers);
-				return null;
+				return remotePassengers;
 			}
+			@Override
+            protected void onPostExecute(ArrayList<Passenger> result) {
+				if (cb!=null) cb.run(result);
+			}
+			
 		}.execute();
 	}
 	

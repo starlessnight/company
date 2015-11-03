@@ -596,7 +596,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			sendOnMyWaySms();
 		}
 
-		checkPassenger.run();
+		new Handler().postDelayed(checkPassenger, 60*1000);
 		// init Tracker
 		((SmarTrekApplication) getApplication()).getTracker(TrackerName.APP_TRACKER);
 
@@ -1436,17 +1436,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private void drawDestinationAnnotation(double lat, double lon) {
 		SKAnnotation destAnn = new SKAnnotation(DEST_ANNOTATION_ID);
 		destAnn.setAnnotationType(SKAnnotation.SK_ANNOTATION_TYPE_DESTINATION_FLAG);
-//		destAnn.setUniqueID(DEST_ANNOTATION_ID);
 		destAnn.setLocation(new SKCoordinate(lon, lat));
 		destAnn.setMininumZoomLevel(5);
-		/*SKAnnotationView destAnnView = new SKAnnotationView();
-		SkobblerImageView destImage = new SkobblerImageView(ValidationActivity.this, R.drawable.pin_destination, 1);
-		destImage.setLat(lat);
-		destImage.setLon(lon);
-		destImage.setImageBitmap(Misc.getBitmap(ValidationActivity.this, R.drawable.pin_destination, 1));
-		destAnnView.setView(destImage);
-		destAnn.setAnnotationView(destAnnView);
-		destAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));*/
 		mapView.addAnnotation(destAnn, SKAnimationSettings.ANIMATION_POP_OUT);
 	}
 
@@ -3478,23 +3469,24 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 
 		@Override
 		public void run() {
-			
 			if (passenger==null) passenger = new ArrayList<Passenger>();
 			PassengerOnBoardRequst request = new PassengerOnBoardRequst(User.getCurrentUser(ValidationActivity.this), passenger);
+			request.invalidateCache(ValidationActivity.this);
 			request.executeAsync(ValidationActivity.this, new ICallback() {
 				public void run(Object... obj) {
 					if (obj[0]==null) return;
 					ArrayList<Passenger> remotePassenger = (ArrayList<Passenger>) obj[0];
 					
 					for (int i=0 ; i<remotePassenger.size() ; i++) {
-						if (!passenger.contains(remotePassenger.get(i)))
-							speakIfTtsEnabled(remotePassenger.get(i).onBoardVoice, false);
+						if (!passenger.contains(remotePassenger.get(i))) {
+							speak(remotePassenger.get(i).onBoardVoice, true);
+						}
 					}
 					passenger = remotePassenger;
 				}
 			});
 			
-			if (!arrived.get()) new Handler().postDelayed(checkPassenger, 60*1000);
+			if (!arrivalMsgTiggered.get()) new Handler().postDelayed(checkPassenger, 60*1000);
 		}
 	};
 	
