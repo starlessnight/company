@@ -929,7 +929,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	};
 	
 	private static final Integer ID = 123451;
-            notification.setLatestEventInfo(this, "Metropia", "", sender);
 	public void showNotification() {
 		Intent validationIntent = new Intent(this, MainActivity.class);
 		validationIntent.setAction(Intent.ACTION_MAIN);
@@ -937,6 +936,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		PendingIntent sender = PendingIntent.getActivity(this, ID, validationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 		Notification notification = new Notification(R.drawable.icon_small, "Metropia", System.currentTimeMillis());
+		notification.setLatestEventInfo(this, "Metropia", "DUO trip in progress.", sender);
 		notification.flags = Notification.FLAG_NO_CLEAR | Notification.FLAG_ONLY_ALERT_ONCE | Notification.FLAG_AUTO_CANCEL;            
 		notificationManager.notify(ID, notification);
 	}
