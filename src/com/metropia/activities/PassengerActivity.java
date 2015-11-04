@@ -929,19 +929,21 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	};
 	
 	private static final Integer ID = 123451;
-	public void notifyIfNecessary(boolean force) {
-		if(force) {
-			Intent validationIntent = new Intent(this, MainActivity.class);
-			validationIntent.setAction(Intent.ACTION_MAIN);
-			validationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-	        PendingIntent sender = PendingIntent.getActivity(this, ID, validationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            Notification notification = new Notification(R.drawable.icon_small, "Metropia", System.currentTimeMillis());
             notification.setLatestEventInfo(this, "Metropia", "", sender);
-            notification.flags = Notification.FLAG_NO_CLEAR | Notification.FLAG_ONLY_ALERT_ONCE | Notification.FLAG_AUTO_CANCEL;            
-            notificationManager.notify(ID, notification);
-		}
-	} 
+	public void showNotification() {
+		Intent validationIntent = new Intent(this, MainActivity.class);
+		validationIntent.setAction(Intent.ACTION_MAIN);
+		validationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+		PendingIntent sender = PendingIntent.getActivity(this, ID, validationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		Notification notification = new Notification(R.drawable.icon_small, "Metropia", System.currentTimeMillis());
+		notification.flags = Notification.FLAG_NO_CLEAR | Notification.FLAG_ONLY_ALERT_ONCE | Notification.FLAG_AUTO_CANCEL;            
+		notificationManager.notify(ID, notification);
+	}
+	public void hideNotification() {
+		NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		notificationManager.cancel(ID);
+	}
 	
 	private void showNotifyLaterDialog() {
 		if (!arrivalMsgDisplayed.getAndSet(true)) {
@@ -998,6 +1000,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		Localytics.handleTestMode(getIntent());
 		Localytics.handlePushNotificationOpened(getIntent());
 		mapViewHolder.onResume();
+		hideNotification();
 	}
 	
 	@Override
@@ -1008,13 +1011,13 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		Localytics.upload();
 		super.onPause();
 		mapViewHolder.onPause();
-		if (status==DURING_TRIP) notifyIfNecessary(true);
 	}
 	
 	@Override
 	public void onStop() {
 		super.onStop();
 		GoogleAnalytics.getInstance(this).reportActivityStop(this);
+		if (status==DURING_TRIP) showNotification();
 	}
 	
 	@Override
@@ -1026,6 +1029,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			googleApiClient.disconnect();
 		}
 		if (speaker!=null) speaker.shutdown();
+		hideNotification();
 		super.onDestroy();
 	}
 	
