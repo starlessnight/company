@@ -1662,6 +1662,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 					};
     			});
     			dialog.show();
+    			dialog.setContent("Resume Carpooling", "Your last DUO trip ended abruptly. Would you like to resume carpooling now?");
     		}
     		else if (resumeReservation != null && Reservation.Driver.equals(resumeReservation.getMode())) {
     			AsyncTask<Void, Void, Reservation> task = new AsyncTask<Void, Void, Reservation>() {

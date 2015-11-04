@@ -115,6 +115,11 @@ public class NotifyResumeDialog extends Dialog implements android.view.View.OnCl
 		super.onCreate(savedInstanceState);
 	}
 	
+	public void setContent(String title, String content) {
+		dialog.setTitle(title);
+		dialog.setMessage(content);
+	}
+	
 	public void setYesListener(ActionListener listener) {
 		this.listener = listener;
 	}
