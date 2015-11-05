@@ -1641,6 +1641,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private double distanceOutOfRouteThreshold = 40; // meter
 
 	public static final double speedOutOfRouteThreshold = 5;
+	
+	public static final double distanceRestrictReroute = 1609.344;  // 1 mile in meters
 
 	private static final double odZoomDistanceLimit = 1200; // feet
 
@@ -1653,20 +1655,21 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 	private String lastRerutingApiCallStatus = "none";
 	
 	private RouteLink lastRerouteNearestLink;
+	
+	private boolean isFetchingRoute = false;
 
-	private void reroute(final double lat, final double lon,
-			final double speedInMph, final float bearing, final long passedTime) {
+	private void reroute(final double lat, final double lon, final double speedInMph, final float bearing, final long passedTime) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				AsyncTask<Void, Void, Route> task = new AsyncTask<Void, Void, Route>() {
 					@Override
 					protected void onPreExecute() {
+						isFetchingRoute = true;
 						navigationView.setRerouting(true);
 						lastRerutingApiCallStatus = "waiting";
 						RouteNode lastNode = getRouteOrReroute().getLastNode();
-						navigationView.setRestrictVoiceGuidance(RouteNode.distanceBetween(lat, lon,	lastNode.getLatitude(),	lastNode.getLongitude()) < 
-								ValidationParameters.getInstance().getDisableRerouteThreshold());
+						navigationView.setRestrictVoiceGuidance(RouteNode.distanceBetween(lat, lon,	lastNode.getLatitude(),	lastNode.getLongitude()) < ValidationParameters.getInstance().getDisableRerouteThreshold());
 					}
 
 					@Override
@@ -1677,7 +1680,13 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					@Override
 					protected void onPostExecute(Route result) {
 						navigationView.setRerouting(false);
-						if (result != null) {
+						
+						RouteNode lastNode = getRouteOrReroute().getLastNode();
+						final double D = RouteNode.distanceBetween(lat, lon,	lastNode.getLatitude(),	lastNode.getLongitude());
+						final int stopCoe = (Integer) DebugOptionsActivity.getDebugValue(ValidationActivity.this, DebugOptionsActivity.REROUTE_THRESHOLD_STOP_COE, 1.5);
+						
+						
+						if (result != null && (D>=distanceRestrictReroute || stopCoe*D>=result.getLength())) {
 							passedNodeTimeOffset.addAndGet(passedTime);
 							reroute = result;
 							reroute.preprocessNodes();
@@ -1694,6 +1703,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						} else {
 							lastRerutingApiCallStatus = "failed";
 						}
+						isFetchingRoute = false;
 					}
 				};
 				Misc.parallelExecute(task);
@@ -2013,7 +2023,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			inRouteTag.set(inRouteTag.get() || (speedInMph > speedOutOfRouteThreshold && !Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)));
 			
 			if(!inRouteTag.get()) {
-				if(isLeavingOriginLinks(lat, lng)) {
+				if (isFetchingRoute) ;
+				else if(isLeavingOriginLinks(lat, lng)) {
 					routeOfOriginRouteCnt += interval/1000;
 					if(routeOfOriginRouteCnt >= countOutOfRouteThreshold) {
 						reroute(lat, lng, speedInMph, bearing, passedNodeTime);
@@ -2026,7 +2037,8 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			}
 			else {
 				if (!Route.isPending(rerouteNearbyLinks, rerouteSameDirLinks)) {
-					if (!isDisableReroute(lat, lng) && Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)	&& speedInMph > speedOutOfRouteThreshold) {
+					if (isFetchingRoute) ;
+					else if (!isDisableReroute(lat, lng) && Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)	&& speedInMph > speedOutOfRouteThreshold) {
 						routeOfRouteCnt += interval/1000;
 						if (routeOfRouteCnt >= countOutOfRouteThreshold) {
 							reroute(lat, lng, speedInMph, bearing, passedNodeTime);

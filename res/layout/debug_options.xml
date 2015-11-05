@@ -333,7 +333,6 @@
                 <TextView
                 	android:layout_width="wrap_content"
                 	android:layout_height="wrap_content"
-                	android:layout_weight="1"
                 	android:text="max:" />
                 <EditText
                 	android:id="@+id/reroute_threshod_max"
@@ -345,10 +344,20 @@
                 <TextView
                 	android:layout_width="wrap_content"
                 	android:layout_height="wrap_content"
-                	android:layout_weight="1"
                 	android:text="min:" />
                 <EditText
                 	android:id="@+id/reroute_threshod_min"
+                	android:layout_width="0dp"
+                	android:layout_height="wrap_content"
+                	android:layout_weight="2"
+            		android:gravity="center" />
+                
+                <TextView
+                	android:layout_width="wrap_content"
+                	android:layout_height="wrap_content"
+                	android:text="stopCoe:" />
+                <EditText
+                	android:id="@+id/reroute_threshod_stop_coe"
                 	android:layout_width="0dp"
                 	android:layout_height="wrap_content"
                 	android:layout_weight="2"

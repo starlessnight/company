@@ -159,6 +159,7 @@ public final class DebugOptionsActivity extends FragmentActivity {
     EditText rerouteThresholdCoe;
     EditText rerouteThresholdMax;
     EditText rerouteThresholdMin;
+    EditText rerouteThresholdStopCoe;
     
     private AsyncTask<Void, Void, Result> initApiLinksTask;
     
@@ -458,11 +459,12 @@ public final class DebugOptionsActivity extends FragmentActivity {
         rerouteThresholdCoe = (EditText) findViewById(R.id.reroute_threshod_coe);
         rerouteThresholdMax = (EditText) findViewById(R.id.reroute_threshod_max);
         rerouteThresholdMin = (EditText) findViewById(R.id.reroute_threshod_min);
+        rerouteThresholdStopCoe = (EditText) findViewById(R.id.reroute_threshod_stop_coe);
         
         rerouteThresholdCoe.setText(getDebugValue(this, REROUTE_THRESHOLD_COE, 0.05f).toString());
         rerouteThresholdMax.setText(getDebugValue(this, REROUTE_THRESHOLD_MAX, 5).toString());
         rerouteThresholdMin.setText(getDebugValue(this, REROUTE_THRESHOLD_MIN, 2).toString());
-        
+        rerouteThresholdStopCoe.setText(getDebugValue(this, REROUTE_THRESHOLD_STOP_COE, 1.5).toString());
         
         
         
@@ -1665,6 +1667,7 @@ public final class DebugOptionsActivity extends FragmentActivity {
     public static final String REROUTE_THRESHOLD_COE = "REROUTE_THRESHOLD_COE";
     public static final String REROUTE_THRESHOLD_MAX = "REROUTE_THRESHOLD_MAX";
     public static final String REROUTE_THRESHOLD_MIN = "REROUTE_THRESHOLD_MIN";
+    public static final String REROUTE_THRESHOLD_STOP_COE = "REROUTE_THRESHOLD_STOP_COE";
     
     public static Object getDebugValue(Context ctx, String key, Object defaultValue) {
     	Object value = defaultValue;
@@ -1697,9 +1700,14 @@ public final class DebugOptionsActivity extends FragmentActivity {
 		super.onStop();
 		SendTrajectoryService.schedule(this);
 		
+		writeValue();
+	}
+	
+	private void writeValue() {
 		setDebugValue(this, REROUTE_THRESHOLD_COE, Float.parseFloat(rerouteThresholdCoe.getText().toString()));
 		setDebugValue(this, REROUTE_THRESHOLD_MAX, Integer.parseInt(rerouteThresholdMax.getText().toString()));
 		setDebugValue(this, REROUTE_THRESHOLD_MIN, Integer.parseInt(rerouteThresholdMin.getText().toString()));
+		setDebugValue(this, REROUTE_THRESHOLD_STOP_COE, Double.parseDouble(rerouteThresholdStopCoe.getText().toString()));
 	}
     
 }
