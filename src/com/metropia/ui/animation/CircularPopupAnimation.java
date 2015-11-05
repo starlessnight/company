@@ -66,7 +66,7 @@ public class CircularPopupAnimation extends Animation {
 		
 		DisplayMetrics displayMetrics = view.getContext().getResources().getDisplayMetrics();
 
-    		int haloPadding = "halo".equals(view.getTag())? Dimension.dpToPx(5, displayMetrics):0;
+    		int haloPadding = "halo".equals(view.getTag())? Dimension.dpToPx(2, displayMetrics):0;
 			int interval = 360/total;
 			int distance = (int)(2*Dimension.dpToPx(35, displayMetrics)*(0.575+(total/10f)));
 			

@@ -45,7 +45,7 @@ public class ImageUtil {
     
     public static Drawable addShadow(Context context, Drawable drawable, boolean halo) {
     	int shadowPadding = Dimension.dpToPx(5, context.getResources().getDisplayMetrics());
-    	int haloPadding = halo? Dimension.dpToPx(5, context.getResources().getDisplayMetrics()):0;
+    	int haloPadding = halo? Dimension.dpToPx(2, context.getResources().getDisplayMetrics()):0;
     	
     	Bitmap origin = ((BitmapDrawable)drawable).getBitmap();
     	Bitmap shadow = BitmapFactory.decodeResource(context.getResources(), R.drawable.circle_shadow);

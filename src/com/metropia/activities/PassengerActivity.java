@@ -442,7 +442,6 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			final boolean halo = i==1;
 			final TextView view = new TextView(this);
 			
-			if (StringUtils.isBlank(passenger.photoUrl)) {
 				String name = passenger.userName;
 				if (name.length()>6) name = name.substring(0, 1).toUpperCase();
 				int padding = Dimension.dpToPx(5, getResources().getDisplayMetrics());
@@ -452,10 +451,13 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 				view.setTextColor(Color.WHITE);
 				view.setPadding(0, 0, padding, padding);
 				view.setBackgroundDrawable(ImageUtil.getRoundedShape(this, colors[1], halo));
-			}
-			else {
+			
+			if (!StringUtils.isBlank(passenger.photoUrl)) {
 				
-				if (passenger.drawable!=null) view.setBackgroundDrawable(passenger.drawable);
+				if (passenger.drawable!=null) {
+					view.setBackgroundDrawable(passenger.drawable);
+					view.setText("");
+				}
 				else tasks.add(new ImageLoader(this, passenger.photoUrl, new ICallback() {
 					public void run(Object... obj) {
 						if (obj[0]==null) return;
@@ -463,11 +465,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 						Drawable drawable = ImageUtil.getRoundedShape((Drawable) obj[0]);
 						passenger.setDrawable(ImageUtil.addShadow(PassengerActivity.this, drawable, halo));
 						view.setBackgroundDrawable(ImageUtil.addShadow(PassengerActivity.this, drawable, halo));
-						
-						for (ImageLoader task:tasks) {
-							if (!task.finished) return;
-						}
-						new CircularPopupAnimation(views, 1);
+						view.setText("");
 					}
 				}).execute(false));
 			}
@@ -475,14 +473,14 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			views.add(view);
 			parent.addView(view, 0);
 			
-	    	int haloPadding = halo? Dimension.dpToPx(5, getResources().getDisplayMetrics()):0;
+	    	int haloPadding = halo? Dimension.dpToPx(2, getResources().getDisplayMetrics()):0;
 			view.getLayoutParams().width = Dimension.dpToPx(60, this.getResources().getDisplayMetrics()) + haloPadding*2;
 			view.getLayoutParams().height = Dimension.dpToPx(60, this.getResources().getDisplayMetrics()) + haloPadding*2;
 			view.setAlpha(0);
 			if (halo) view.setTag("halo");
 		}
 		
-		if (tasks.size()==0) new CircularPopupAnimation(views, 1);
+		new CircularPopupAnimation(views, 1);
 
 	}
 	
