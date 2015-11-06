@@ -48,6 +48,7 @@ import com.metropia.LocalyticsUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.activities.FavoriteOperationActivity.FavoriteSlideFragment.ClickCallback;
+import com.metropia.adapters.FavoriteAddressAdapter;
 import com.metropia.models.FavoriteIcon;
 import com.metropia.models.PoiOverlayInfo;
 import com.metropia.models.User;
@@ -392,7 +393,7 @@ public class FavoriteOperationActivity extends FragmentActivity {
 		initFavoritePage();
 		
 		searchList = (ListView) findViewById(R.id.search_result_list);
-		searchAdapter = LandingActivity2.createAutoCompleteAdapter(FavoriteOperationActivity.this, favSearchBox);
+		searchAdapter = new FavoriteAddressAdapter(FavoriteOperationActivity.this, favSearchBox);
 		searchList.setAdapter(searchAdapter);
 		searchList.setOnItemClickListener(new OnItemClickListener() {
 			@Override
@@ -447,7 +448,7 @@ public class FavoriteOperationActivity extends FragmentActivity {
         					}
         					if(searchAddresses.isEmpty()) {
         						Address notFound = new Address();
-        						notFound.setName(LandingActivity2.NO_AUTOCOMPLETE_RESULT);
+        						notFound.setName(FavoriteAddressAdapter.NO_AUTOCOMPLETE_RESULT);
         						notFound.setAddress("");
         						searchAddresses.add(notFound);
         					}

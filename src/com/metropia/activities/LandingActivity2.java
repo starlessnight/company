@@ -25,8 +25,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.json.JSONObject;
 
 import android.app.Activity;
@@ -36,7 +34,6 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -49,7 +46,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -61,7 +57,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
@@ -95,7 +90,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.Filter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -130,6 +124,7 @@ import com.metropia.ResumeNavigationUtils;
 import com.metropia.SkobblerUtils;
 import com.metropia.SmarTrekApplication;
 import com.metropia.SmarTrekApplication.TrackerName;
+import com.metropia.adapters.FavoriteAddressAdapter;
 import com.metropia.dialogs.BlurDialog;
 import com.metropia.dialogs.CancelableProgressDialog;
 import com.metropia.dialogs.NotificationDialog2;
@@ -157,8 +152,6 @@ import com.metropia.requests.RouteFetchRequest;
 import com.metropia.requests.SaveLocationRequest;
 import com.metropia.requests.UpdateDeviceIdRequest;
 import com.metropia.requests.WhereToGoRequest;
-import com.metropia.tasks.ICallback;
-import com.metropia.tasks.ImageLoader;
 import com.metropia.ui.DelayTextWatcher;
 import com.metropia.ui.DelayTextWatcher.TextChangeListener;
 import com.metropia.ui.EditAddress;
@@ -265,8 +258,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private ArrayAdapter<Address> fromAutoCompleteAdapter;
     private ArrayAdapter<Address> fromFavoriteAutoCompleteAdapter;
     private ArrayAdapter<Address> toFavoriteAutoCompleteAdapter;
-    
-    public static final String NO_AUTOCOMPLETE_RESULT = "No results found.";
     
     public static final String SEARCHING = "Searching...";
     
@@ -392,10 +383,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         searchBox.setHint(Html.fromHtml("<b>Enter Name or Address</b>"));
         fromSearchBox = (EditText) findViewById(R.id.from_search_box);
         fromSearchBox.setHint(Html.fromHtml("<b>Current or any Location</b>"));
-        autoCompleteAdapter = createAutoCompleteAdapter(LandingActivity2.this, searchBox);
-        fromAutoCompleteAdapter = createAutoCompleteAdapter(LandingActivity2.this, fromSearchBox);
-        fromFavoriteAutoCompleteAdapter = createAutoCompleteAdapter(LandingActivity2.this, fromSearchBox);
-        toFavoriteAutoCompleteAdapter = createAutoCompleteAdapter(LandingActivity2.this, searchBox);
+        autoCompleteAdapter = new FavoriteAddressAdapter(LandingActivity2.this, searchBox);
+        fromAutoCompleteAdapter = new FavoriteAddressAdapter(LandingActivity2.this, fromSearchBox);
+        fromFavoriteAutoCompleteAdapter = new FavoriteAddressAdapter(LandingActivity2.this, fromSearchBox);
+        toFavoriteAutoCompleteAdapter = new FavoriteAddressAdapter(LandingActivity2.this, searchBox);
         searchResultList.setAdapter(autoCompleteAdapter);
         fromSearchResultList.setAdapter(fromAutoCompleteAdapter);
         fromFavoriteDropdown.setAdapter(fromFavoriteAutoCompleteAdapter);
@@ -691,7 +682,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         					}
         					if(searchAddresses.isEmpty()) {
         						Address notFound = new Address();
-        						notFound.setName(NO_AUTOCOMPLETE_RESULT);
+        						notFound.setName(FavoriteAddressAdapter.NO_AUTOCOMPLETE_RESULT);
         						notFound.setAddress("");
         						searchAddresses.add(notFound);
 //        						List<Address> emptyAddresses = getEmptyAddressesForUI();
@@ -789,7 +780,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                             }
                             if(fromSearchAddresses.isEmpty()) {
                                 Address notFound = new Address();
-                                notFound.setName(NO_AUTOCOMPLETE_RESULT);
+                                notFound.setName(FavoriteAddressAdapter.NO_AUTOCOMPLETE_RESULT);
                                 notFound.setAddress("");
                                 fromSearchAddresses.add(notFound);
 //                                List<Address> emptyAddresses = getEmptyAddressesForUI();
@@ -2121,106 +2112,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         refreshFromSearchAutoCompleteData();
     }
     
-    public static ArrayAdapter<Address> createAutoCompleteAdapter(final Context ctx, final EditText searchBox) {
-    	return new ArrayAdapter<Address>(ctx, R.layout.dropdown_select, R.id.name) {
-        	@Override
-        	public View getView(int position, View convertView, ViewGroup parent) {
-        		View view = super.getView(position, convertView, parent);
-                Address item = getItem(position);
-                View namePanel = view.findViewById(R.id.name_panel);
-                TextView name = (TextView) view.findViewById(R.id.name);
-                name.setText(item.getName());
-                TextView address = (TextView) view.findViewById(R.id.address);
-                address.setText(item.getAddress());
-                TextView distance = (TextView) view.findViewById(R.id.distance);
-                ImageView favIcon = (ImageView) view.findViewById(R.id.fav_icon);
-                if(item.getDistance() >= 0) {
-                	distance.setVisibility(View.VISIBLE);
-                	distance.setText("> " + item.getDistance() + "mi");
-                }
-                else {
-                	distance.setVisibility(View.GONE);
-                }
-                
-                FavoriteIcon icon = FavoriteIcon.fromName(item.getIconName(), null);
-                if(icon == null) {
-                	favIcon.setImageBitmap(Misc.getBitmap(ctx, R.drawable.poi_pin, 1));
-                	favIcon.setVisibility(View.VISIBLE);
-                }
-                else {
-                	favIcon.setImageBitmap(Misc.getBitmap(ctx, icon.getFavoritePageResourceId(ctx), 2));
-                	favIcon.setVisibility(View.VISIBLE);
-                }
-                
-                
-                Font.setTypeface(Font.getBold(ctx.getAssets()), name, distance);
-                Font.setTypeface(Font.getLight(ctx.getAssets()), address);
-                namePanel.requestLayout();
-                name.requestLayout();
-                distance.requestLayout();
-                address.requestLayout();
-                favIcon.requestLayout();
-                int leftRightPadding = Dimension.dpToPx(10, ctx.getResources().getDisplayMetrics());
-                int topBottomPadding = Dimension.dpToPx(2, ctx.getResources().getDisplayMetrics());
-                view.setPadding(leftRightPadding, topBottomPadding, leftRightPadding, position == getCount() - 1 ? 
-                		leftRightPadding : topBottomPadding);
-                return view;
-        	}
-        	
-        	@Override
-        	public Filter getFilter() {
-        		Filter filter = new Filter() {
-					@Override
-					protected FilterResults performFiltering(CharSequence constraint) {
-						List<Address> all = new ArrayList<Address>();
-						List<Address> result = new ArrayList<Address>();
-						for(int i = 0 ; i < getCount() ; i++) {
-							all.add(getItem(i));
-						}
-						if(constraint != null) {
-				            result.clear();
-				            for (Address addr : all) {
-				                if(addr.getName().toLowerCase().startsWith(constraint.toString().toLowerCase()) 
-				               		|| addr.getAddress().toLowerCase().startsWith(constraint.toString().toLowerCase())){
-				                    result.add(addr);
-				                }
-				            }
-				            FilterResults filterResults = new FilterResults();
-				            filterResults.values = result;
-				            filterResults.count = result.size();
-				            return filterResults;
-				        } else {
-				            return new FilterResults();
-				        }
-					}
-
-					@Override
-					protected void publishResults(CharSequence constraint,	FilterResults results) {
-						ArrayList<Address> filteredList = (ArrayList<Address>) results.values;
-			            if(results != null && results.count > 0) {
-			                clear();
-			                for (Address c : filteredList) {
-			                    add(c);
-			                }
-			                notifyDataSetChanged();
-			            }
-					}
-					
-					@Override
-					public CharSequence convertResultToString(Object selected) {
-						String selectedAddr = ((Address)selected).getAddress();
-						String selectedName = ((Address)selected).getName();
-						if(NO_AUTOCOMPLETE_RESULT.equals(selectedName) && StringUtils.isBlank(selectedAddr) && searchBox != null) {
-							return searchBox.getText();
-						}
-						return selectedAddr;
-					}
-        			
-        		};
-        		return filter;
-        	}
-        };
-    }
     
     private void searchFromAddress(String addrStr, boolean zoomIn) {
     	searchPOIAddress(addrStr, zoomIn, lastLocation, true);
@@ -2638,6 +2529,12 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_GAME);
         
         //disableShowPassengerMode.set(false);
+        
+        if (mapView!=null) {
+        	MapOperations.sizeRatio.set(0);
+        	MapOperations.updateAnnotationSize(this, mapView, poiContainer, getSizeRatioByZoomLevel());
+        }
+        
         refreshHead();
     }
     
@@ -3278,10 +3175,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private void refreshStarredPOIs(final double latitude, final double longitude, final Runnable callback, final boolean forceUpdateFavorite){
         AsyncTask<Void, Void, List<com.metropia.models.Address>> task = new AsyncTask<Void, Void, List<com.metropia.models.Address>>(){
             @Override
-            protected List<com.metropia.models.Address> doInBackground(
-                    Void... params) {
+            protected List<com.metropia.models.Address> doInBackground(Void... params) {
                 List<com.metropia.models.Address> addrs = Collections.emptyList();
                 FavoriteAddressFetchRequest request = new FavoriteAddressFetchRequest(User.getCurrentUser(LandingActivity2.this), latitude, longitude);
+                
                 try {
                     request.invalidateCache(LandingActivity2.this);
                     addrs = request.execute(LandingActivity2.this);
@@ -3302,39 +3199,42 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                     //ehs.reportExceptions();
                 }
                 else {
-                    Set<com.metropia.models.Address> addrList = new HashSet<com.metropia.models.Address>();
-                    Set<Integer> existedStarPoiUniqueIdSet = poiContainer.getStarUniqueIdSet();
-                    for (Integer uniqueId : existedStarPoiUniqueIdSet) {
-                        mapView.deleteAnnotation(uniqueId);
-                    }
-                    poiContainer.cleanStarPois();
-                    if (result != null && result.size() > 0) {
-                        initFontsIfNecessary();
-                        for(com.metropia.models.Address a : result){
-                            PoiOverlayInfo poiInfo = PoiOverlayInfo.fromAddress(LandingActivity2.this, a);
-                            MapOperations.addAnnotationFromPoiInfo(LandingActivity2.this, mapView, poiContainer, poiInfo);
-                            addrList.add(a);
-                        }
-                    }
-                    if (routeRect==null && restrictedMode) {
-                        List<GeoPoint> points = new ArrayList<GeoPoint>();
-                        for(com.metropia.models.Address a : addrList){
-                            points.add(new GeoPoint(a.getLatitude(), a.getLongitude()));
-                        }
-                        if (points.size()==0) routeRect=null;
-                        else routeRect = new RouteRect(points, mapZoomVerticalOffset);
-                        zoomMapToFitBulbPOIs();
-                    }
-                    showODBalloon();
-                    //redraw poi
-                    //MapOperations.sizeRatio.set(0);
-                    //MapOperations.updateAnnotationSize(LandingActivity2.this, mapView, poiContainer, getSizeRatioByZoomLevel());
-                    //
-                    initFavoriteDropdownIfNessary(addrList, forceUpdateFavorite);
+                	updateFavoriteList(result, forceUpdateFavorite);
                 }
             }
         };
         Misc.parallelExecute(task);
+    }
+    
+    private static List<com.metropia.models.Address> favoriteList;
+    private void updateFavoriteList(List<com.metropia.models.Address> result, boolean forceUpdateFavorite) {
+    	favoriteList = result;
+		Set<com.metropia.models.Address> addrList = new HashSet<com.metropia.models.Address>();
+		Set<Integer> existedStarPoiUniqueIdSet = poiContainer.getStarUniqueIdSet();
+		for (Integer uniqueId : existedStarPoiUniqueIdSet) {
+			mapView.deleteAnnotation(uniqueId);
+		}
+		poiContainer.cleanStarPois();
+		if (favoriteList != null && favoriteList.size() > 0) {
+			initFontsIfNecessary();
+			for(com.metropia.models.Address a : favoriteList){
+				PoiOverlayInfo poiInfo = PoiOverlayInfo.fromAddress(LandingActivity2.this, a);
+				MapOperations.addAnnotationFromPoiInfo(LandingActivity2.this, mapView, poiContainer, poiInfo);
+				addrList.add(a);
+			}
+		}
+		if (routeRect==null && restrictedMode) {
+			List<GeoPoint> points = new ArrayList<GeoPoint>();
+			for(com.metropia.models.Address a : addrList){
+				points.add(new GeoPoint(a.getLatitude(), a.getLongitude()));
+			}
+			if (points.size()==0) routeRect=null;
+			else routeRect = new RouteRect(points, mapZoomVerticalOffset);
+			zoomMapToFitBulbPOIs();
+		}
+		showODBalloon();
+		
+		initFavoriteDropdownIfNessary(addrList, forceUpdateFavorite);
     }
     
     private Map<Integer, com.metropia.models.Address> afterUpdateUse = new HashMap<Integer, com.metropia.models.Address>();
@@ -3990,7 +3890,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         myMetropiaPanelAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         allAnimators.add(myMetropiaPanelAnimator);
         
-        View compass = findViewById(R.id.center_map_icon);
+        /*View compass = findViewById(R.id.center_map_icon);
         ObjectAnimator compassAnimator;
         if(collapsed) {
         	compassAnimator = ObjectAnimator.ofFloat(compass, "translationY", myMetropiaPanelHeight, 0);
@@ -4012,9 +3912,23 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }
         notifyTripAnimator.setDuration(500);
         notifyTripAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        allAnimators.add(notifyTripAnimator);*/
+        
+        
+        View buttons = findViewById(R.id.buttons);
+        ObjectAnimator notifyTripAnimator;
+        if(collapsed) {
+        	notifyTripAnimator = ObjectAnimator.ofFloat(buttons, "translationY", myMetropiaPanelHeight, 0);
+        }
+        else {
+        	notifyTripAnimator = ObjectAnimator.ofFloat(buttons, "translationY", 0, myMetropiaPanelHeight);
+        }
+        notifyTripAnimator.setDuration(500);
+        notifyTripAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         allAnimators.add(notifyTripAnimator);
         
-        ObjectAnimator getRouteAnimator;
+        
+        /*ObjectAnimator getRouteAnimator;
         if(collapsed) {
         	getRouteAnimator = ObjectAnimator.ofFloat(getRouteView, "translationY", myMetropiaPanelHeight, 0);
         }
@@ -4023,9 +3937,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }
         getRouteAnimator.setDuration(500);
         getRouteAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-        allAnimators.add(getRouteAnimator);
+        allAnimators.add(getRouteAnimator);*/
         
-        View passengerIcon = findViewById(R.id.passenger_mode_icon);
+        /*View passengerIcon = findViewById(R.id.passenger_mode_icon);
         ObjectAnimator passengerIconAnimator;
         if(collapsed) {
         	passengerIconAnimator = ObjectAnimator.ofFloat(passengerIcon, "translationY", myMetropiaPanelHeight, 0);
@@ -4035,7 +3949,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }
         passengerIconAnimator.setDuration(500);
         passengerIconAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-        allAnimators.add(passengerIconAnimator);
+        allAnimators.add(passengerIconAnimator);*/
         
         View scoreNotifyPanel = findViewById(R.id.score_notify);
         ObjectAnimator scoreNotifyAnimator;
@@ -4057,11 +3971,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     private void toggleGetRouteButton(boolean enabled) {
-//    	getRouteView.setClickable(enabled);
-//    	getRouteView.setBackgroundResource(enabled ? R.drawable.get_route_button : R.drawable.disabled_get_route_button);
-//    	getRouteView.setTextColor(enabled ? getResources().getColor(android.R.color.white) : getResources().getColor(R.color.transparent_white));
-//    	int padding = Dimension.dpToPx(5, getResources().getDisplayMetrics());
-//    	getRouteView.setPadding(padding, 0, padding, 0);
     	setGetRouteButtonState(!serviceArea.get() && !notifyOutOfService.get());
     	getRouteView.setVisibility(enabled?View.VISIBLE:View.GONE);
     	if(enabled || disableShowPassengerMode.get()) {
@@ -4377,67 +4286,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
    		showODBalloon();
     }
     
-//    /**
-//     * insert overlay by the order, current location > home > work > fav
-//     * @param mapOverlays
-//     * @param overlay
-//     */
-//    private void insertOverlayByOrderOrSort(List<Overlay> mapOverlays, POIOverlay overlay) {
-//    	List<Overlay> homeOverlay = new ArrayList<Overlay>();
-//    	List<Overlay> workOverlay = new ArrayList<Overlay>();
-//    	List<Overlay> otherFavOverlay = new ArrayList<Overlay>();
-//    	List<Overlay> bulbOverlay = new ArrayList<Overlay>();
-//    	List<Overlay> otherOverlay = new ArrayList<Overlay>();
-//    	Overlay currentLocationOverlay = null;
-//    	if(overlay != null) {
-//	    	if(R.drawable.home == overlay.getMarker()) {
-//	    		homeOverlay.add(overlay);
-//	    	}
-//	    	else if(R.drawable.work == overlay.getMarker()){
-//	    		 workOverlay.add(overlay);
-//	    	}
-//	    	else if(R.drawable.bulb_poi == overlay.getMarker()) {
-//	    		overlay.setEnabled(MapDisplayActivity.isPredictDestEnabled(LandingActivity2.this));
-//	    		bulbOverlay.add(overlay);
-//	    	}
-//	    	else {
-//	    		otherFavOverlay.add(overlay);
-//	    	}
-//    	}
-//    	
-//    	for(Overlay cur : mapOverlays) {
-//    		if(cur instanceof POIOverlay) {
-//    			if(R.drawable.home == ((POIOverlay)cur).getMarker()) {
-//    				homeOverlay.add(cur);
-//    			}
-//    			else if(R.drawable.work == ((POIOverlay)cur).getMarker()) {
-//    				workOverlay.add(cur);
-//    			}
-//    			else if(R.drawable.bulb_poi == ((POIOverlay)cur).getMarker()) {
-//    	    		bulbOverlay.add(cur);
-//    	    	}
-//    			else {
-//    				otherFavOverlay.add(cur);
-//    			}
-//    		}
-//    		else if(cur instanceof CurrentLocationOverlay) {
-//    			currentLocationOverlay = cur;
-//    		}
-//    		else {
-//    			otherOverlay.add(cur);
-//    		}
-//    	}
-//    	
-//    	mapOverlays.clear();
-//    	mapOverlays.addAll(otherOverlay);
-//    	mapOverlays.addAll(bulbOverlay);
-//    	if(currentLocationOverlay != null) {
-//    		mapOverlays.add(currentLocationOverlay);
-//    	}
-//    	mapOverlays.addAll(otherFavOverlay);
-//    	mapOverlays.addAll(workOverlay);
-//    	mapOverlays.addAll(homeOverlay);
-//    }
     
     @Override
     protected void onDestroy() {
@@ -5035,10 +4883,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		Runnable r;
 		while((r = mapActionQueue.poll()) != null) r.run();
         
-        //redraw poi
-		/*MapOperations.sizeRatio.set(0);
-		MapOperations.updateAnnotationSize(this, mapView, poiContainer, getSizeRatioByZoomLevel());*/
-        //
         User.initializeIfNeccessary(LandingActivity2.this, new Runnable() {
 			@Override
 			public void run() {
@@ -5074,6 +4918,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	        	locationChanged(loc);
 	        }
         }
+        
+        updateFavoriteList(favoriteList, true);
 	}
 
 	@Override
@@ -5082,14 +4928,14 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	public static boolean restrictedMode = false;
 	public void restrictedMode(final boolean mode) {
 		int visibility = mode? View.GONE:View.VISIBLE;
-		int padding = mode? 5:60;
+		//int padding = mode? 5:60;
 		int drawerLock = mode? DrawerLayout.LOCK_MODE_LOCKED_CLOSED:DrawerLayout.LOCK_MODE_UNLOCKED;
 		disableShowPassengerMode.set(mode || disableShowPassengerMode.get());
 		
 		findViewById(R.id.passenger_mode_icon).setVisibility(getRouteView.getVisibility()==View.VISIBLE||disableShowPassengerMode.get()? View.GONE:View.VISIBLE);
 		findViewById(R.id.landing_panel).setVisibility(visibility);
 		findViewById(R.id.my_metropia_panel).setVisibility(visibility);
-		((RelativeLayout.LayoutParams)findViewById(R.id.center_map_icon).getLayoutParams()).setMargins(0, 0, Dimension.pxToDp(20, getResources().getDisplayMetrics()), Dimension.pxToDp(padding, getResources().getDisplayMetrics()));
+		//((RelativeLayout.LayoutParams)findViewById(R.id.center_map_icon).getLayoutParams()).setMargins(0, 0, Dimension.pxToDp(20, getResources().getDisplayMetrics()), Dimension.pxToDp(padding, getResources().getDisplayMetrics()));
 		((DrawerLayout) findViewById(R.id.drawer_layout)).setDrawerLockMode(drawerLock);
 		
 		Runnable r = new Runnable() {

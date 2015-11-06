@@ -56,6 +56,8 @@ public final class Geocoding {
 		
 		private String iconName;
 		
+		private String iconUrl;
+		
 		// for DebugOptionsActivity
 		private Long inputTime = 0L;
 		
@@ -67,6 +69,7 @@ public final class Geocoding {
 			address.setLatitude(addr.getLatitude());
 			address.setLongitude(addr.getLongitude());
 			address.setName(addr.getName());
+			address.setIconUrl(addr.getIconURL());
 			address.setDistance(-1);
 			if(userLoc != null) {
 				NumberFormat nf = new DecimalFormat("#.#");
@@ -102,6 +105,13 @@ public final class Geocoding {
 
 		public void setName(String name) {
 			this.name = name;
+		}
+		
+		public void setIconUrl(String iconUrl) {
+			this.iconUrl = iconUrl;
+		}
+		public String getIconUrl() {
+			return iconUrl;
 		}
 
 		public String getClass_() {
