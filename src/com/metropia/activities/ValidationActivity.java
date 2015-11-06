@@ -1678,13 +1678,17 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 					}
 
 					@Override
-					protected void onPostExecute(Route result) {
+					protected void onPostExecute(final Route result) {
 						navigationView.setRerouting(false);
 						
 						RouteNode lastNode = getRouteOrReroute().getLastNode();
 						final double D = RouteNode.distanceBetween(lat, lon,	lastNode.getLatitude(),	lastNode.getLongitude());
-						final int stopCoe = (Integer) DebugOptionsActivity.getDebugValue(ValidationActivity.this, DebugOptionsActivity.REROUTE_THRESHOLD_STOP_COE, 1.5);
+						final double stopCoe = (Double) DebugOptionsActivity.getDebugValue(ValidationActivity.this, DebugOptionsActivity.REROUTE_THRESHOLD_STOP_COE, 1.5);
 						
+						NumberFormat nf = NumberFormat.getInstance();
+						nf.setMaximumFractionDigits( 2 );
+						String msg = "EuclideanD:" + nf.format(D) + "\n"+ stopCoe + "*" + nf.format(D) + ":" + nf.format(stopCoe*D) + "\nroute length:" + nf.format(result.getLength()) + "\ndraw route:" + (result != null && (D>=distanceRestrictReroute || stopCoe*D>=result.getLength()));
+						new NotificationDialog2(ValidationActivity.this, msg).show();
 						
 						if (result != null && (D>=distanceRestrictReroute || stopCoe*D>=result.getLength())) {
 							passedNodeTimeOffset.addAndGet(passedTime);
@@ -2036,9 +2040,9 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 				}
 			}
 			else {
-				if (!Route.isPending(rerouteNearbyLinks, rerouteSameDirLinks)) {
-					if (isFetchingRoute) ;
-					else if (!isDisableReroute(lat, lng) && Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)	&& speedInMph > speedOutOfRouteThreshold) {
+				if (isFetchingRoute) ;
+				else if (!Route.isPending(rerouteNearbyLinks, rerouteSameDirLinks)) {
+					if (!isDisableReroute(lat, lng) && Route.isOutOfRoute(rerouteNearbyLinks, rerouteSameDirLinks)	&& speedInMph > speedOutOfRouteThreshold) {
 						routeOfRouteCnt += interval/1000;
 						if (routeOfRouteCnt >= countOutOfRouteThreshold) {
 							reroute(lat, lng, speedInMph, bearing, passedNodeTime);
