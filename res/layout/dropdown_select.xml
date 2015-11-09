@@ -7,7 +7,8 @@
     android:paddingBottom="2dp"
     android:paddingLeft="10dp"
     android:paddingRight="10dp"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:descendantFocusability="blocksDescendants">
     
     <LinearLayout
         android:id="@+id/name_panel"
@@ -25,19 +26,26 @@
 	        android:layout_gravity="center"
 	        android:visibility="gone"/>
     
-		<TextView  
-		    android:id="@+id/name"
-		    android:singleLine="true"
-		    android:layout_width="0dp"
-		    android:layout_height="match_parent"
+        <HorizontalScrollView
+        	android:id="@+id/nameWrapper"
+        	android:layout_width="0dp"
+        	android:layout_height="match_parent"
 		    android:layout_weight="1"
 		    android:paddingLeft="5dp"
 		    android:paddingTop="1dp"
-		    android:textSize="16dp"
-		    android:textColor="@android:color/black"
-		    android:gravity="center|left"
-		    android:ellipsize="marquee"
-		    android:includeFontPadding="false" />
+		    android:scrollbars="none">
+		    
+			<TextView  
+			    android:id="@+id/name"
+			    android:singleLine="true"
+			    android:layout_width="match_parent"
+			    android:layout_height="match_parent"
+			    android:textSize="16dp"
+			    android:textColor="@android:color/black"
+			    android:gravity="center|left"
+			    android:includeFontPadding="false" />
+			
+		</HorizontalScrollView>
 		
 		<TextView  
 		    android:id="@+id/distance"

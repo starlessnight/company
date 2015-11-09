@@ -7,12 +7,18 @@ import org.apache.commons.lang3.StringUtils;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver.OnScrollChangedListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Filter;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.metropia.activities.R;
@@ -24,11 +30,12 @@ import com.metropia.utils.Font;
 import com.metropia.utils.Misc;
 import com.metropia.utils.Geocoding.Address;
 
-public class FavoriteAddressAdapter extends ArrayAdapter<Address> {
+public class FavoriteAddressAdapter extends ArrayAdapter<Address> implements OnTouchListener, OnScrollChangedListener {
 	
 	public static final String NO_AUTOCOMPLETE_RESULT = "No results found.";
 	
 	EditText searchBox;
+	ListView listView;
 	
 	public FavoriteAddressAdapter(Context context, final EditText searchBox) {
 		super(context, R.layout.dropdown_select, R.id.name);
@@ -38,15 +45,25 @@ public class FavoriteAddressAdapter extends ArrayAdapter<Address> {
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View view = super.getView(position, convertView, parent);
+		listView = (ListView) parent;
 		Address item = getItem(position);
 		View namePanel = view.findViewById(R.id.name_panel);
+		
+		HorizontalScrollView nameWrapper = (HorizontalScrollView) view.findViewById(R.id.nameWrapper);
+		nameWrapper.setTag(position);
+		nameWrapper.setOnTouchListener(this);
+		nameWrapper.getViewTreeObserver().addOnScrollChangedListener(this);
+		
 		TextView name = (TextView) view.findViewById(R.id.name);
 		name.setText(item.getName());
 		name.setEllipsize(null);
+		
 		TextView address = (TextView) view.findViewById(R.id.address);
 		address.setText(item.getAddress());
+		
 		TextView distance = (TextView) view.findViewById(R.id.distance);
 		final ImageView favIcon = (ImageView) view.findViewById(R.id.fav_icon);
+		
 		if(item.getDistance() >= 0) {
 			distance.setVisibility(View.VISIBLE);
 			distance.setText("> " + item.getDistance() + "mi");
@@ -141,5 +158,24 @@ public class FavoriteAddressAdapter extends ArrayAdapter<Address> {
 			
 		};
 		return filter;
+	}
+
+	private boolean scrolled = false;
+	
+	@Override
+	public boolean onTouch(View view, MotionEvent event) {
+		
+		if (event.getAction()==MotionEvent.ACTION_DOWN) {
+			scrolled = false;
+		}
+		else if (event.getAction()==MotionEvent.ACTION_UP && !scrolled) {
+			listView.performItemClick(view, (Integer) view.getTag(), view.getId());
+		}
+		return false;
+	}
+
+	@Override
+	public void onScrollChanged() {
+		scrolled = true;
 	}
 }
