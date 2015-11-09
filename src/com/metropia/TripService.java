@@ -2,6 +2,7 @@ package com.metropia;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -10,18 +11,32 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningTaskInfo;
 import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.SystemClock;
 import android.util.Log;
 
+import com.metropia.activities.CongratulationActivity;
+import com.metropia.activities.LandingActivity2;
 import com.metropia.activities.MainActivity;
+import com.metropia.activities.PassengerActivity;
+import com.metropia.activities.R;
+import com.metropia.activities.ValidationActivity;
 import com.metropia.exceptions.SmarTrekException;
 import com.metropia.models.User;
 import com.metropia.requests.TripValidationRequest;
+import com.metropia.utils.Misc;
+import com.metropia.utils.HTTP.Method;
 
 public class TripService extends IntentService {
     
@@ -60,10 +75,31 @@ public class TripService extends IntentService {
 					reservInfo = new JSONObject();
 				} 
                 try{
+                	if (reservInfo.optJSONObject("result")!=null) continue;
                 	String mode = (String) reservInfo.get("MODE");
                     if(!SendTrajectoryService.isSending(ctx, rId) && SendTrajectoryService.send(ctx, rId, mode)){
-                        new TripValidationRequest(user, rId, mode).execute(ctx, reservInfo);
-                        FileUtils.deleteQuietly(f);
+                        JSONObject obj = new TripValidationRequest(user, rId, mode).execute(ctx);
+                        
+                        if (ValidationActivity.TRIP_VALIDATOR.equals(mode)) {
+                        	FileUtils.deleteQuietly(f);
+                        }
+                        else {
+                            reservInfo.put("result", obj.getJSONObject("data"));
+                            FileUtils.write(f, reservInfo.toString());
+                        }
+
+                    	TripService.notifyValidation(ctx, mode, reservInfo, obj);
+                    	
+                    	ActivityManager am = (ActivityManager) ctx.getSystemService(ACTIVITY_SERVICE);
+                    	List<RunningTaskInfo> taskInfo = am.getRunningTasks(1);
+                    	if (taskInfo.get(0).topActivity.getClassName().equals(LandingActivity2.class.getName())) {
+                    		LandingActivity2.getInstance().runOnUiThread(new Runnable() {
+								public void run() {
+		                    		LandingActivity2.getInstance().checkBackgroundValidation();
+								}
+							});
+                    	}
+                        
                     }
                 }catch(SmarTrekException ex){
                     deleted = true;
@@ -98,7 +134,8 @@ public class TripService extends IntentService {
             boolean deleted = false;
             try{
                 if(!SendTrajectoryService.isSending(ctx, rId) && SendTrajectoryService.sendImd(ctx, rId, reciverName)){
-                    new TripValidationRequest(user, rId, reciverName).executeImd(ctx, reciverName);
+                    JSONObject obj = new TripValidationRequest(user, rId, reciverName).executeImd(ctx);
+                    notifyValidationImd(ctx, reciverName, obj);
                     FileUtils.deleteQuietly(toSendFile);
                 }
             }catch(SmarTrekException ex){
@@ -113,6 +150,91 @@ public class TripService extends IntentService {
             }
         }
     }
+    
+
+    private static void notifyValidationImd(Context context, String receiverName, JSONObject obj) {
+    	Intent intent = new Intent(receiverName);
+    	try{
+            JSONObject data = obj.getJSONObject("data");
+           	putInfo(intent, data);
+        }catch(Exception e){
+        	intent.putExtra(ValidationActivity.REQUEST_SUCCESS, false);
+        }
+        finally {
+        	context.sendBroadcast(intent);
+        }
+    }
+    
+
+	public static final Integer DIRVER_NOTI_ID = Integer.valueOf(123451);
+	public static final Integer DUO_NOTI_ID = Integer.valueOf(123452);
+	
+    @SuppressLint("NewApi")
+	private static void notifyValidation(Context context, String receiverName, JSONObject reservInfo, JSONObject obj) {
+    	JSONObject data = null;
+    	try {
+    		data = obj.getJSONObject("data");
+    	} catch(Exception e) {Log.e("fetch data attribute failed", e.toString());}
+    	
+    	Class<?> target = ValidationActivity.TRIP_VALIDATOR.equals(receiverName)? CongratulationActivity.class:PassengerActivity.class;
+    	int notiID = ValidationActivity.TRIP_VALIDATOR.equals(receiverName)? DIRVER_NOTI_ID:DUO_NOTI_ID;
+    	
+        Intent congraIntent = new Intent(context, target);
+		putInfo(congraIntent, data);
+		congraIntent.putExtra(CongratulationActivity.DESTINATION, reservInfo.optString(CongratulationActivity.DESTINATION, ""));
+		congraIntent.putExtra(CongratulationActivity.DEPARTURE_TIME, reservInfo.optLong(CongratulationActivity.DEPARTURE_TIME, 0));
+		PendingIntent sender = PendingIntent.getActivity(context, 0, congraIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        StringBuffer notiInfo = new StringBuffer();
+        notiInfo.append(data.optString("message", "")).append("\n");
+        notiInfo.append(reservInfo.optString(CongratulationActivity.DESTINATION, ""));
+        Notification notification;
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
+            notification = new Notification.BigTextStyle(
+                    new Notification.Builder(context)
+                       .setContentTitle("Metropia")
+                       .setContentText(notiInfo.toString())
+                       .setContentIntent(sender)
+                       .setWhen(System.currentTimeMillis())
+                       .setSmallIcon(R.drawable.icon_small)
+                    )
+                .bigText(notiInfo.toString())
+                .build();
+        }else{
+        	notification = new Notification(R.drawable.icon_small, "Metropia", System.currentTimeMillis());
+            notification.setLatestEventInfo(context, "Metropia", notiInfo.toString(), sender);
+        }
+        notification.flags = Notification.FLAG_AUTO_CANCEL;
+        notificationManager.notify(notiID, notification);
+        Misc.playDefaultNotificationSound(context);
+        Misc.wakeUpScreen(context, TripValidationRequest.class.getSimpleName());
+    }
+    
+	
+	public static void putInfo(Intent intent, JSONObject data) {
+		intent.putExtra(ValidationActivity.ID, data.optString("id"));
+		intent.putExtra(ValidationActivity.CREDIT, data.optInt("credit", 0));
+		intent.putExtra(ValidationActivity.CO2_SAVING, data.optDouble("co2_saving", 0));
+		intent.putExtra(ValidationActivity.TIME_SAVING_IN_MINUTE, data.optDouble("time_saving_in_minute", 0));
+		intent.putExtra(ValidationActivity.VOICE, data.optString("voice"));
+		intent.putExtra(ValidationActivity.MESSAGE, data.optString("message"));
+		intent.putExtra(ValidationActivity.REQUEST_SUCCESS, true);
+		intent.putExtra("driver_name", data.optString("driver_name"));
+		intent.putExtra("duration", data.optDouble("duration", 0));
+		intent.putExtra("distance", data.optDouble("distance", 0));
+		intent.putExtra("wheel_url", data.optString("wheel_url"));
+		intent.putExtra("wheel_name", data.optString("wheel_name"));
+		
+		
+	}
+    
+    private static File getDir(Context ctx){
+        return new File(ctx.getExternalFilesDir(null), "trip");
+    }
+    public static File getFile(Context ctx, long rId){
+        return new File(getDir(ctx), IMD_PREFIX + String.valueOf(rId));
+    }
+    
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -127,20 +249,10 @@ public class TripService extends IntentService {
         }
     }
     
-    private static File getDir(Context ctx){
-        return new File(ctx.getExternalFilesDir(null), "trip");
-    }
-    
-    public static File getFile(Context ctx, long rId){
-        return new File(getDir(ctx), IMD_PREFIX + String.valueOf(rId));
-    }
-    
     public static void schedule(Context ctx){
-        PendingIntent sendTrajServ = PendingIntent.getService(ctx, 0, new Intent(
-                ctx, TripService.class), PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent sendTrajServ = PendingIntent.getService(ctx, 0, new Intent(ctx, TripService.class), PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) ctx.getSystemService(ALARM_SERVICE);
-        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 
-            SystemClock.elapsedRealtime() + threeMins, eightHours, sendTrajServ);
+        alarm.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + 10*1000, 60*1000, sendTrajServ);
     }
 
 }

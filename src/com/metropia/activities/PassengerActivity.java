@@ -131,6 +131,8 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	private LocationListener locationListener;
 	private Speaker speaker;
 	
+	private Intent validationResultIntent;
+	
 	private ProgressDialog preparingDialog;
 	private SKMapViewHolder mapViewHolder;
 	private SKMapSurfaceView mapView;
@@ -220,10 +222,28 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		Bundle extra = getIntent().getExtras();
 		if (extra==null) return;
 		
+		
+		//resume process
 		reservId.set((Long) extra.getLong("reservationID", -1));
 		if (reservId.get()!=-1) {
 			toggleStatus(DURING_TRIP);
 			startTrip();
+		} else if (extra.getString("result") != null || extra.getString("ID")!=null) {
+			validationResultIntent = new Intent(PassengerActivity.PASSENGER_TRIP_VALIDATOR);
+			arrivalMsgTiggered.set(true);
+			
+			try {
+				if (extra.getString("ID")!=null) {
+					validationResultIntent.putExtras(getIntent().getExtras());
+				}
+				else {
+					JSONObject result = new JSONObject(extra.getString("result"));
+					TripService.putInfo(validationResultIntent, result);
+				}
+			} catch (JSONException e) {
+				Log.e("parse validation result failed", e.toString());
+			}
+			
 		}
 	}
 	
@@ -510,8 +530,8 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	//float counter = 0;
 	private void locationChanged(Location location) {
 
-		/*counter+=0.001;
-		location.setLatitude(location.getLatitude()+counter);*/
+		//counter+=0.001;
+		//location.setLatitude(location.getLatitude()+counter);
 		
 		if(reservId.get() > 0) {
 			trajectory.accumulate(location, Trajectory.DEFAULT_LINK_ID);
@@ -911,7 +931,8 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			if (arrivalMsgTiggered.get()) {
 				String id = intent.getStringExtra(ValidationActivity.ID);
 				boolean success = intent.getBooleanExtra(ValidationActivity.REQUEST_SUCCESS, false);
-				if (String.valueOf(reservId.get()).equals(id) && success) {
+				
+				if (/*String.valueOf(reservId.get()).equals(id) && */success) {
 					String voice = intent.getStringExtra(ValidationActivity.VOICE);
 					int credit = intent.getIntExtra(ValidationActivity.CREDIT, 0);
 					double duration = intent.getDoubleExtra("duration", 0);
@@ -1158,6 +1179,17 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			@Override
 			public void run() {
 				preparingDialog.dismiss();
+				if (validationResultIntent==null) return;
+				
+				sendBroadcast(validationResultIntent);
+				
+				NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+				notificationManager.cancel(TripService.DUO_NOTI_ID);
+
+				File[] files = new File(getExternalFilesDir(null), "trip").listFiles();
+				for (File f : files) {
+					if (f.getName().equals(validationResultIntent.getStringExtra("ID"))) FileUtils.deleteQuietly(f);
+				}
 			}
 		}, 2000);
 		

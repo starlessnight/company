@@ -1,5 +1,6 @@
 package com.metropia.activities;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
@@ -21,6 +22,7 @@ import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.CharUtils;
@@ -123,6 +125,7 @@ import com.metropia.LocalyticsUtils;
 import com.metropia.ResumeNavigationUtils;
 import com.metropia.SkobblerUtils;
 import com.metropia.SmarTrekApplication;
+import com.metropia.TripService;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.adapters.FavoriteAddressAdapter;
 import com.metropia.dialogs.BlurDialog;
@@ -218,6 +221,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     
     public static final String LOGOUT = "logout";
     
+    private static LandingActivity2 _this;
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     private Queue<Runnable> mapActionQueue = new LinkedList<Runnable>();
 	
@@ -346,6 +350,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         super.onCreate(savedInstanceState);
     	SkobblerUtils.initializeLibrary(LandingActivity2.this);
         setContentView(R.layout.landing2);
+        _this = this;
         
         ClickAnimation.OnClickListener onClickListener = new ClickAnimation.OnClickListener(this);
         for (int i=0 ; i<clickableAnimated.length ; i++) findViewById(clickableAnimated[i]).setOnClickListener(onClickListener);
@@ -1477,6 +1482,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 			            
 						if (duoTutorialFinish==1) {
 			                Intent intent = new Intent(LandingActivity2.this, PassengerActivity.class);
+			                JSONObject validationResult = (JSONObject) passengerIcon.getTag();
+			                if (validationResult!=null) intent.putExtra("result", validationResult.toString());
 							startActivity(intent);
 			                finish();
 						}
@@ -1512,8 +1519,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	        createLocationRequest();
 	        buildLocationSettingsRequest();
         }
-        
     }
+    
+    public static LandingActivity2 getInstance() {return _this;}
     
     private ProgressDialog preparingDialog;
     
@@ -2536,6 +2544,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }
         
         refreshHead();
+        checkBackgroundValidation();
     }
     
     @Override
@@ -3542,6 +3551,21 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	}
     }
     
+    public void checkBackgroundValidation() {
+    	File[] files = new File(getExternalFilesDir(null), "trip").listFiles();
+    	for (File f : files) {
+    		try {
+        		String str = FileUtils.readFileToString(f);
+        		JSONObject json = new JSONObject(str);
+        		JSONObject result = json.optJSONObject("result");
+        		if (result==null) continue;
+        		
+        		passengerIcon.setTag(result);
+        		findViewById(R.id.duo_noti).setVisibility(View.VISIBLE);
+    		} catch(Exception e) {Log.e("check background validation failed", e.toString());}
+    	}
+    }
+    
     private RouteRect routeRect;
     
     private void zoomMapToFitBulbPOIs(){
@@ -3760,7 +3784,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		return popupPanel.getVisibility() == View.VISIBLE;
 	}
 	
-	private void simulateTouch(View popupPanel, Screen xy) {
+	/*private void simulateTouch(View popupPanel, Screen xy) {
 		// Obtain MotionEvent object
 		long downTime = System.currentTimeMillis();
 		long eventTime = downTime + 100;
@@ -3777,7 +3801,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 
 		// Dispatch touch event to view
 		popupPanel.dispatchTouchEvent(motionEvent);
-	}
+	}*/
     
 	// temporarily always show center
     public Screen getScreenXY(double lat, double lon) {
@@ -3890,30 +3914,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         myMetropiaPanelAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         allAnimators.add(myMetropiaPanelAnimator);
         
-        /*View compass = findViewById(R.id.center_map_icon);
-        ObjectAnimator compassAnimator;
-        if(collapsed) {
-        	compassAnimator = ObjectAnimator.ofFloat(compass, "translationY", myMetropiaPanelHeight, 0);
-        }
-        else {
-        	compassAnimator = ObjectAnimator.ofFloat(compass, "translationY", 0, myMetropiaPanelHeight);
-        }
-        compassAnimator.setDuration(500);
-        compassAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-        allAnimators.add(compassAnimator);
-        
-        View notifyTrip = findViewById(R.id.trip_notify_icon);
-        ObjectAnimator notifyTripAnimator;
-        if(collapsed) {
-        	notifyTripAnimator = ObjectAnimator.ofFloat(notifyTrip, "translationY", myMetropiaPanelHeight, 0);
-        }
-        else {
-        	notifyTripAnimator = ObjectAnimator.ofFloat(notifyTrip, "translationY", 0, myMetropiaPanelHeight);
-        }
-        notifyTripAnimator.setDuration(500);
-        notifyTripAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-        allAnimators.add(notifyTripAnimator);*/
-        
         
         View buttons = findViewById(R.id.buttons);
         ObjectAnimator notifyTripAnimator;
@@ -3927,29 +3927,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         notifyTripAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
         allAnimators.add(notifyTripAnimator);
         
-        
-        /*ObjectAnimator getRouteAnimator;
-        if(collapsed) {
-        	getRouteAnimator = ObjectAnimator.ofFloat(getRouteView, "translationY", myMetropiaPanelHeight, 0);
-        }
-        else {
-        	getRouteAnimator = ObjectAnimator.ofFloat(getRouteView, "translationY", 0, myMetropiaPanelHeight);
-        }
-        getRouteAnimator.setDuration(500);
-        getRouteAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-        allAnimators.add(getRouteAnimator);*/
-        
-        /*View passengerIcon = findViewById(R.id.passenger_mode_icon);
-        ObjectAnimator passengerIconAnimator;
-        if(collapsed) {
-        	passengerIconAnimator = ObjectAnimator.ofFloat(passengerIcon, "translationY", myMetropiaPanelHeight, 0);
-        }
-        else {
-        	passengerIconAnimator = ObjectAnimator.ofFloat(passengerIcon, "translationY", 0, myMetropiaPanelHeight);
-        }
-        passengerIconAnimator.setDuration(500);
-        passengerIconAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-        allAnimators.add(passengerIconAnimator);*/
         
         View scoreNotifyPanel = findViewById(R.id.score_notify);
         ObjectAnimator scoreNotifyAnimator;
