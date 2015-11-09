@@ -446,6 +446,13 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 		boolean equal = remotePassengers.containsAll(localPassengers) && localPassengers.containsAll(remotePassengers);
 		
 		if (equal && !forceAnimated) return;
+		
+		for (int i=0 ; i<remotePassengers.size() ; i++) {
+			if (!localPassengers.contains(remotePassengers.get(i))) {
+				Misc.playCustomSound(this, R.raw.duo_onboard);
+				break;
+			}
+		}
 		if (!equal) localPassengers = remotePassengers;
 		
 

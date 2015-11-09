@@ -190,7 +190,7 @@ public class Misc {
     	playCustomSound(ctx, R.raw.omw);
     }
     
-    private static void playCustomSound(Context ctx, int rawResourceId) {
+    public static void playCustomSound(Context ctx, int rawResourceId) {
     	try {
 	    	Uri ding = Uri.parse("android.resource://" + ctx.getPackageName() + "/" + rawResourceId);
 	    	Ringtone r = RingtoneManager.getRingtone(ctx, ding);
