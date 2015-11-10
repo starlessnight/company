@@ -579,6 +579,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
                         return routes;
                     }
                     protected void onPostExecute(java.util.List<Route> routes) {
+                    	if (isFinishing()) return;
                         Misc.doQuietly(new Runnable() {
                             @Override
                             public void run() {
@@ -593,6 +594,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
                                 }
                             });
                         }else if(routes != null && routes.size() > 0) {
+                        	if (isFinishing()) return;
                             Route route = routes.get(0);
                             route.setCredits(reservation.getCredits());
                             route.preprocessNodes();
@@ -633,6 +635,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
                                 }
                                 @Override
                                 protected void onPostExecute(List<Reservation> reservations) {
+                                	if (isFinishing()) return;
                                     if (ehs.hasExceptions()) {
                                         Misc.doQuietly(new Runnable() {
                                             @Override
@@ -898,6 +901,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 		                    
 		                    @Override
 		                    protected void onPostExecute(Long result) {
+		                    	if (isFinishing()) return;
 		                    	mapView.clearAllOverlays();
 		                        if (ehs.hasExceptions()) {
 		                            ehs.reportExceptions();
@@ -1170,6 +1174,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
 	    		
 				@Override
 		        protected void onPostExecute(Void result) {
+					if (isFinishing()) return;
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
@@ -2122,6 +2127,7 @@ public final class RouteActivity extends FragmentActivity implements SKMapSurfac
          */
         @Override
         protected void onPostExecute(List<Route> routes) {
+        	if (isFinishing()) return;
             if (dialog.isShowing()) {
                 Misc.doQuietly(new Runnable() {
                     @Override

@@ -679,6 +679,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         				
         				@Override
         				protected void onPostExecute(List<Address> addresses) {
+        					if (isFinishing()) return;
         					searchAddresses.clear();
         					for(Address a:addresses){
         					    if(StringUtils.isNotBlank(a.getAddress())){
@@ -777,6 +778,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                         
                         @Override
                         protected void onPostExecute(List<Address> addresses) {
+                        	if (isFinishing()) return;
                             fromSearchAddresses.clear();
                             for(Address a:addresses){
                                 if(StringUtils.isNotBlank(a.getAddress())){
@@ -1262,9 +1264,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 										findViewById(R.id.loading_panel).setVisibility(View.GONE);
 										if(!cancelGetRoute.getAndSet(false)) {
 											startRouteActivity();
-										}
-										else {
-											//disableShowPassengerMode.set(false);
 										}
 									}
 								});
@@ -2153,6 +2152,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             }
             @Override
             protected void onPostExecute(final Address addr) {
+            	if (isFinishing()) return;
                 if(addr != null){
                 	Runnable r = new Runnable() {
 						public void run() {dropPinForAddress(addr, zoomIn, isFrom);}
@@ -2597,6 +2597,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         ReservationListTask task = new ReservationListTask(this, cached){
 	        @Override
 	        protected void onPostExecute(List<Reservation> reservations) {
+	        	if (isFinishing()) return;
 	            if (reservations == null || reservations.isEmpty()) {
 	            	if(mapView != null) {
 		                mapView.clearAllOverlays();
@@ -2965,12 +2966,13 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	                return routes;
 	            }
 	            protected void onPostExecute(java.util.List<Route> routes) {
+	            	if (isFinishing()) return;
 	                if(routes != null && routes.size() > 0) {
 	                    Route route = routes.get(0);
 	                    route.setCredits(reserv.getCredits());
 	                    route.preprocessNodes();
 	                    updateMap(route, reserv.getDestinationAddress());
-	                } 
+	                }
 	            }
 	        };
 	        Misc.parallelExecute(routeTask);
@@ -2978,6 +2980,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	}
     
     private void updateMap(Route _route, String address) {
+    	if (isFinishing()) return;
     	if(_route != null) {
     		// remove previous drew route
     		mapView.clearAllOverlays();
@@ -3228,7 +3231,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 			initFontsIfNecessary();
 			for(com.metropia.models.Address a : favoriteList){
 				PoiOverlayInfo poiInfo = PoiOverlayInfo.fromAddress(LandingActivity2.this, a);
-				MapOperations.addAnnotationFromPoiInfo(LandingActivity2.this, mapView, poiContainer, poiInfo);
+				MapOperations.addAnnotationFromPoiInfo(this, mapView, poiContainer, poiInfo);
 				addrList.add(a);
 			}
 		}
@@ -3429,8 +3432,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private AtomicBoolean notifyOutOfService = new AtomicBoolean(true);
     private String outOfServiceHtml = "";
     
-    private void refreshCobranding(final double lat, final double lon, 
-            final boolean alertAvailability, final Runnable callback){
+    private void refreshCobranding(final double lat, final double lon, final boolean alertAvailability, final Runnable callback){
     	final ImageView logoView = (ImageView) findViewById(R.id.logo);
         AsyncTask<Void, Void, City> checkCityAvailability = new AsyncTask<Void, Void, City>(){
             @Override
@@ -3447,6 +3449,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             }
             @Override
             protected void onPostExecute(City result) {
+            	if (isFinishing()) return;
             	new ReleaseDialog(LandingActivity2.this).show();
             	
             	if (result==null) return;
@@ -3474,6 +3477,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                         cityName = result.name;
                         LoadImageTask logoTask = new LoadImageTask(LandingActivity2.this, result.logo) {
                             protected void onPostExecute(final Bitmap rs) {
+                            	if (isFinishing()) return;
                                 if(rs != null){
                                     logoView.setVisibility(View.VISIBLE);
                                     logoView.setImageBitmap(rs);
@@ -3552,7 +3556,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     public void checkBackgroundValidation() {
-    	File[] files = new File(getExternalFilesDir(null), "trip").listFiles();
+    	File dir = new File(getExternalFilesDir(null), "trip");
+    	if (!dir.exists()) return;
+    	
+    	File[] files = dir.listFiles();
     	for (File f : files) {
     		try {
         		String str = FileUtils.readFileToString(f);
@@ -3596,6 +3603,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             }
             @Override
             protected void onPostExecute(final List<com.metropia.requests.WhereToGoRequest.Location> locs) {
+            	if (isFinishing()) return;
                 if (ehs.hasExceptions()) {
                     //ehs.reportExceptions();
                     routeRect = null;
@@ -4143,6 +4151,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 			}
 			
 			protected void onPostExecute(MyMetropia info) {
+				if (isFinishing()) return;
 				if(!ehs.hasExceptions()) {
 					SharedPreferences loginPrefs = Preferences.getAuthPreferences(LandingActivity2.this);
                     SharedPreferences.Editor loginPrefsEditor = loginPrefs.edit();
@@ -4518,8 +4527,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         
         long id;
         
-        RescheduleTripTask(LandingActivity2 ctx, GeoPoint origin, String originAddress, String destAddress, 
-        		long rescheduleId, String versionNumber, ExceptionHandlingService ehs, ReservationTollHovInfo info){
+        RescheduleTripTask(LandingActivity2 ctx, GeoPoint origin, String originAddress, String destAddress, long rescheduleId, String versionNumber, ExceptionHandlingService ehs, ReservationTollHovInfo info){
             this.ehs = ehs;
             this.ctx = ctx;
             this.activity = ctx;
@@ -4586,6 +4594,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         
         @Override
         protected void onPostExecute(Void result) {
+        	if (((Activity)ctx).isFinishing()) return;
             if (ehs.hasExceptions()) {
                 if (dialog.isShowing()) {
                     dialog.cancel();
@@ -4643,6 +4652,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                         return reserv;
                     }
                     protected void onPostExecute(Reservation reserv) {
+                    	if (((Activity)ctx).isFinishing()) return;
                         if (dialog.isShowing()) {
                             dialog.cancel();
                         }
@@ -4731,6 +4741,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         ReverseGeocodingTask task = new ReverseGeocodingTask(LandingActivity2.this, coordinate.getLatitude(), coordinate.getLongitude()){
             @Override
             protected void onPostExecute(String result) {
+            	if (isFinishing()) return;
             	updatePopupMenu(result);
             }
         };

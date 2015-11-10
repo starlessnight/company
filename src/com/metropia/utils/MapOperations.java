@@ -3,6 +3,7 @@ package com.metropia.utils;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ScaleDrawable;
@@ -37,6 +38,7 @@ public class MapOperations {
 	
 	
 	public static void addAnnotationFromPoiInfo(Context context, final SKMapSurfaceView mapView, POIContainer poiContainer, final PoiOverlayInfo poiInfo) {
+		if (((Activity)context).isFinishing()) return;
    		final SKAnnotation incAnn = new SKAnnotation(poiContainer.addPOIToMap(poiInfo));
 //   		incAnn.setUniqueID();
    		incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
@@ -78,6 +80,7 @@ public class MapOperations {
 	
 	public static boolean firstUpdate = true;
 	public static void updateAnnotationSize(Context context, final SKMapSurfaceView mapView, POIContainer poiContainer, int newRatio) {
+		if (((Activity)context).isFinishing()) return;
 		if (firstUpdate) {
 			newRatio = 2;
 			firstUpdate = false;
