@@ -1,7 +1,6 @@
 package com.metropia;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +9,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.HttpResponseException;
 import org.json.JSONArray;
 
 import com.metropia.activities.MainActivity;
@@ -19,14 +17,15 @@ import com.metropia.activities.ValidationActivity;
 import com.metropia.exceptions.WrappedIOException;
 import com.metropia.models.Trajectory;
 import com.metropia.models.User;
-import com.metropia.requests.Request;
 import com.metropia.requests.SendTrajectoryRequest;
 
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 
 public class TrajectorySendingService extends Service {
 	
@@ -79,58 +78,70 @@ public class TrajectorySendingService extends Service {
 
 		@Override
 		public void run() {
-			handler.postDelayed(checkFiles, 20000);
+			if (isRunning) handler.postDelayed(checkFiles, 20000);
 			
 	    	if (isExecuting) return;
-	    	isExecuting = true;
-	    	lastSendResult = true;
-        	empty = true;
+	    	new AsyncTask<Void, Void, Void>() {
+
+				@Override
+				protected Void doInBackground(Void... params) {
+					
+					
+					isExecuting = true;
+			    	lastSendResult = true;
+		        	empty = true;
+			    	
+			        User user = User.getCurrentUserWithoutCache(TrajectorySendingService.this);
+			        if(user != null){
+			            MainActivity.initApiLinksIfNecessary(TrajectorySendingService.this, new Runnable() {
+			                @Override
+			                public void run() {
+			                    File inDir = getInDir(TrajectorySendingService.this);
+			                    File duoDir = getDuoDir(TrajectorySendingService.this);
+			                    File[] routeDirs = inDir.listFiles();
+			                    File[] duoDirs = duoDir.listFiles();
+			                    
+			                    File[] routes = ArrayUtils.addAll(routeDirs, duoDirs);
+			                    if(ArrayUtils.isNotEmpty(routes)){
+			                        for(File d:routes){
+			                            String[] files = d.list();
+			                            if(d.lastModified() < System.currentTimeMillis() - sevenDays){
+			                                FileUtils.deleteQuietly(d);
+			                            }
+			                            else if(d != null && (StringUtils.isNumeric(d.getName()) || StringUtils.startsWith(d.getName(), IMD_PREFIX))){
+			                                if (ArrayUtils.isEmpty(files)) continue;
+			                                empty = false;
+			                                
+			                            	String mode = d.getParentFile().equals(duoDir)? PassengerActivity.PASSENGER_TRIP_VALIDATOR:ValidationActivity.TRIP_VALIDATOR;
+			                                while (d.list().length>0 && lastSendResult) send(TrajectorySendingService.this, d, false, mode, FRONT_FRAGMENT);
+			                            }
+			                        }
+			                    }
+			                    else empty = true;
+			                }
+			            });
+			        }
+			        File[] oFiles = getOutDir(TrajectorySendingService.this).listFiles();
+			        if(ArrayUtils.isNotEmpty(oFiles)){
+			            for (File f : oFiles) {
+			                if(f.lastModified() < System.currentTimeMillis() - sevenDays){
+			                    FileUtils.deleteQuietly(f);
+			                }
+			            }
+			        }
+			        isExecuting = false;
+			        if (!empty) emptyCounter = 0;
+			        else if (++emptyCounter>5) {
+			        	isRunning = false;
+			        	emptyCounter = 0;
+			        	TrajectorySendingService.this.stopSelf();
+			        }
+					
+					return null;
+				}
+			}.execute();
 	    	
-	        User user = User.getCurrentUserWithoutCache(TrajectorySendingService.this);
-	        if(user != null){
-	            MainActivity.initApiLinksIfNecessary(TrajectorySendingService.this, new Runnable() {
-	                @Override
-	                public void run() {
-	                    File inDir = getInDir(TrajectorySendingService.this);
-	                    File duoDir = getDuoDir(TrajectorySendingService.this);
-	                    File[] routeDirs = inDir.listFiles();
-	                    File[] duoDirs = duoDir.listFiles();
-	                    
-	                    File[] routes = ArrayUtils.addAll(routeDirs, duoDirs);
-	                    if(ArrayUtils.isNotEmpty(routes)){
-	                        for(File d:routes){
-	                            String[] files = d.list();
-	                            if(d.lastModified() < System.currentTimeMillis() - sevenDays){
-	                                FileUtils.deleteQuietly(d);
-	                            }
-	                            else if(d != null && (StringUtils.isNumeric(d.getName()) || StringUtils.startsWith(d.getName(), IMD_PREFIX))){
-	                                if (ArrayUtils.isEmpty(files)) continue;
-	                                empty = false;
-	                                
-	                            	String mode = d.getParentFile().equals(duoDir)? PassengerActivity.PASSENGER_TRIP_VALIDATOR:ValidationActivity.TRIP_VALIDATOR;
-	                                while (d.list().length>0 && lastSendResult) send(TrajectorySendingService.this, d, false, mode, FRONT_FRAGMENT);
-	                            }
-	                        }
-	                    }
-	                    else empty = true;
-	                }
-	            });
-	        }
-	        File[] oFiles = getOutDir(TrajectorySendingService.this).listFiles();
-	        if(ArrayUtils.isNotEmpty(oFiles)){
-	            for (File f : oFiles) {
-	                if(f.lastModified() < System.currentTimeMillis() - sevenDays){
-	                    FileUtils.deleteQuietly(f);
-	                }
-	            }
-	        }
-	        isExecuting = false;
-	        if (!empty) emptyCounter = 0;
-	        else if (++emptyCounter>5) {
-	        	isRunning = false;
-	        	emptyCounter = 0;
-	        	TrajectorySendingService.this.stopSelf();
-	        }
+	    	
 		}
 	};
 	
@@ -167,10 +178,10 @@ public class TrajectorySendingService extends Service {
     }
     
     /**@param mode specify Driver or DUO**/
-    public static boolean send(Context ctx, long rId, String mode){
+    /*public static boolean send(Context ctx, long rId, String mode){
     	File parentDir = mode.equals(PassengerActivity.PASSENGER_TRIP_VALIDATOR)? getDuoDir(ctx):getInDir(ctx);
         return send(ctx, new File(parentDir, String.valueOf(rId)), false, mode, ALL_FRAGMENT);
-    }
+    }*/
     
     /**@param mode specify Driver or DUO**/
     public static boolean sendImd(Context ctx, long rId, String mode){
@@ -181,7 +192,6 @@ public class TrajectorySendingService extends Service {
     /**@param mode specify Driver or DUO**/
     private static boolean send(final Context ctx, File routeDir, boolean imdSend, String mode, String range){
     	
-    	synchronized (mutex) {
 	        boolean success = true;
 	        User user = User.getCurrentUser(ctx);
 	        if(user != null && ArrayUtils.isNotEmpty(routeDir.list())){
@@ -219,20 +229,17 @@ public class TrajectorySendingService extends Service {
 	                }
 	                
 	                SendTrajectoryRequest request = new SendTrajectoryRequest(imdSend, files.length);
-	                if(Request.NEW_API){
-	                    try{
-	                    	request.setSerialNum(range.equals(FRONT_FRAGMENT)? seq:null);
-	                    	Exception e = (Exception) request.executeAsync(user, routeId, traj, ctx, mode).get();
-	                    	if (e!=null) throw e;
-	                    	
-	                    	lastSendResult = true;
-	                    }catch(Exception e){
-	                    	if (e instanceof WrappedIOException && ((WrappedIOException)e).getResponseCode()==404) lastSendResult = true;
-	                    	else lastSendResult = false;
-	                    }
-	                }else{
-	                    //request.execute(seq, user.getId(), routeId, traj);
+	                
+	                try{
+	                	request.setSerialNum(range.equals(FRONT_FRAGMENT)? seq:null);
+	                	request.execute(user, routeId, traj, ctx, mode);
+	                    
+	                	lastSendResult = true;
+	                }catch(final Exception e){
+	                	if (e instanceof WrappedIOException && ((WrappedIOException)e).getResponseCode()==404) lastSendResult = true;
+	                	else lastSendResult = false;
 	                }
+	                
 	                
 	                if (lastSendResult)
 	                try{
@@ -253,5 +260,4 @@ public class TrajectorySendingService extends Service {
 	        }
 	        return success;
     	}
-    }
 }
