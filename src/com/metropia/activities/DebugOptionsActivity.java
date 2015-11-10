@@ -464,7 +464,7 @@ public final class DebugOptionsActivity extends FragmentActivity {
         rerouteThresholdCoe.setText(getDebugValue(this, REROUTE_THRESHOLD_COE, 0.05f).toString());
         rerouteThresholdMax.setText(getDebugValue(this, REROUTE_THRESHOLD_MAX, 5).toString());
         rerouteThresholdMin.setText(getDebugValue(this, REROUTE_THRESHOLD_MIN, 2).toString());
-        rerouteThresholdStopCoe.setText(getDebugValue(this, REROUTE_THRESHOLD_STOP_COE, 1.5).toString());
+        rerouteThresholdStopCoe.setText(getDebugValue(this, REROUTE_THRESHOLD_STOP_COE, 1.8).toString());
         
         
         
