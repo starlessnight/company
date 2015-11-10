@@ -580,13 +580,12 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 	};
 	
 
-	private final static double THRESHOLD_DURATION = 5;
-	private final static double THRESHOLD_DISTANCE = 1.5;
+	
 	
 	private AtomicBoolean arrivalMsgDisplayed = new AtomicBoolean();
 	private NumberFormat nf = new DecimalFormat("#.#");
 	
-	private void doDisplayArrivalMsg(final int uPoints, double duration, double distance, String driverName, String voice, String wheelUrl) {
+	private void doDisplayArrivalMsg(final int uPoints, double duration, double distance, double THRESHOLD_DURATION, double THRESHOLD_DISTANCE, String driverName, String voice, String wheelUrl) {
 		if (!arrivalMsgDisplayed.get()) {
 			arrivalMsgDisplayed.set(true);
 			findViewById(R.id.opt_panel).setVisibility(View.GONE);
@@ -613,8 +612,8 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					
 		            ((TextView)findViewById(R.id.duoFailedPanelText)).setText(getString(R.string.duoFailHeadMsg, userName));
 					((TextView)findViewById(R.id.duoFailedDialogTitle)).setText(R.string.duoFailTitle);
-					((TextView)findViewById(R.id.duoFailedDialogDurationText)).setText(getString(R.string.duoFailDurationMsg, durationStr));
-					((TextView)findViewById(R.id.duoFailedDialogDistanceText)).setText(getString(R.string.duoFailDistanceMsg, distanceStr));
+					((TextView)findViewById(R.id.duoFailedDialogDurationText)).setText(getString(R.string.duoFailDurationMsg, nf.format(THRESHOLD_DURATION), durationStr));
+					((TextView)findViewById(R.id.duoFailedDialogDistanceText)).setText(getString(R.string.duoFailDistanceMsg, nf.format(THRESHOLD_DISTANCE), distanceStr));
 					((ImageView)findViewById(R.id.duoFailedDialogDurationIcon)).setImageResource(icon1);
 					((ImageView)findViewById(R.id.duoFailedDialogDistanceIcon)).setImageResource(icon2);
 				}
@@ -944,9 +943,11 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 					int credit = intent.getIntExtra(ValidationActivity.CREDIT, 0);
 					double duration = intent.getDoubleExtra("duration", 0);
 					double distance = intent.getDoubleExtra("distance", 0);
+					double DUO_duration = intent.getDoubleExtra("DUO_duration", 10);
+					double DUO_distance = intent.getDoubleExtra("DUO_distance", 3);
 					String driverName = intent.getStringExtra("driver_name");
 					String wheelUrl = intent.getStringExtra("wheel_url");
-					doDisplayArrivalMsg(credit, duration, distance, driverName, voice, wheelUrl);
+					doDisplayArrivalMsg(credit, duration, distance, DUO_duration, DUO_distance, driverName, voice, wheelUrl);
 				} else if (String.valueOf(reservId.get()).equals(id) && !success) {
 					showNotifyLaterDialog();
 				}

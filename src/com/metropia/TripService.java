@@ -222,6 +222,8 @@ public class TripService extends IntentService {
 		intent.putExtra("driver_name", data.optString("driver_name"));
 		intent.putExtra("duration", data.optDouble("duration", 0));
 		intent.putExtra("distance", data.optDouble("distance", 0));
+		intent.putExtra("DUO_duration", data.optDouble("DUO_duration", 10));
+		intent.putExtra("DUO_distance", data.optDouble("DUO_distance", 3));
 		intent.putExtra("wheel_url", data.optString("wheel_url"));
 		intent.putExtra("wheel_name", data.optString("wheel_name"));
 		
