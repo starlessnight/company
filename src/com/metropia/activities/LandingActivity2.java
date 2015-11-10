@@ -1518,6 +1518,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	        createLocationRequest();
 	        buildLocationSettingsRequest();
         }
+        
+        updateMyMetropiaInfo();
     }
     
     public static LandingActivity2 getInstance() {return _this;}
@@ -4879,7 +4881,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 					dismissReservId = Long.valueOf(-1);
 					refreshTripsInfo();
 				}
-		        updateMyMetropiaInfo();
+		        
 		        if(!mapRecenter.get()) {
 		        	centerMap();
 		        }
