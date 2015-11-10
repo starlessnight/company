@@ -124,6 +124,7 @@ import com.metropia.ResumeNavigationUtils;
 import com.metropia.SendTrajectoryService;
 import com.metropia.SkobblerUtils;
 import com.metropia.SmarTrekApplication;
+import com.metropia.TrajectorySendingService;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.TripService;
 import com.metropia.activities.DebugOptionsActivity.FakeRoute;
@@ -1465,7 +1466,7 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 							if (callback != null) {
 								callback.run();
 							}
-							if (!SendTrajectoryService.isRunning) SendTrajectoryService.schedule(ValidationActivity.this);
+							if (!TrajectorySendingService.isRunning) startService(new Intent(ValidationActivity.this, TrajectorySendingService.class));
 						}
 					});
 				} catch (Throwable t) {}
