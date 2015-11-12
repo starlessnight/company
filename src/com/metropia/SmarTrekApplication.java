@@ -65,6 +65,7 @@ public final class SmarTrekApplication extends Application {
     		GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
     	    Tracker t = (trackerId == TrackerName.APP_TRACKER) ? analytics.newTracker(R.xml.app_tracker) : analytics.newTracker(PROPERTY_ID);
     	    t.enableAdvertisingIdCollection(true);
+    	    t.enableExceptionReporting(false);	//exceptionReporting make no response while exception happened
     	    mTrackers.put(trackerId, t);
     	}
     	return mTrackers.get(trackerId);

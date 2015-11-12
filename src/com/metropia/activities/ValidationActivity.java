@@ -1687,11 +1687,6 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 						final double D = RouteNode.distanceBetween(lat, lon,	lastNode.getLatitude(),	lastNode.getLongitude());
 						final double stopCoe = (Double) DebugOptionsActivity.getDebugValue(ValidationActivity.this, DebugOptionsActivity.REROUTE_THRESHOLD_STOP_COE, 1.8);
 						
-						NumberFormat nf = NumberFormat.getInstance();
-						nf.setMaximumFractionDigits( 2 );
-						String msg = "EuclideanD:" + nf.format(D) + "\n"+ stopCoe + "*" + nf.format(D) + ":" + nf.format(stopCoe*D) + "\nroute length:" + nf.format(result.getLength()) + "\ndraw route:" + (result != null && (D>=distanceRestrictReroute || stopCoe*D>=result.getLength()));
-						new NotificationDialog2(ValidationActivity.this, msg).show();
-						
 						if (result != null && (D>=distanceRestrictReroute || Math.max(minDistanceThreshold, stopCoe*D)>=result.getLength())) {
 							passedNodeTimeOffset.addAndGet(passedTime);
 							reroute = result;
