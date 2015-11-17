@@ -7,10 +7,6 @@
 
 	<application android:icon="@drawable/t_icon" android:label="@string/app_name">
 		<activity android:name=".TwitterForUActivity" android:label="@string/app_name">
-			<intent-filter>
-				<action android:name="android.intent.action.MAIN" />
-				<category android:name="android.intent.category.LAUNCHER" />
-			</intent-filter>
 		</activity>
 
 	</application>
