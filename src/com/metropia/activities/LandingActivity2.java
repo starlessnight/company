@@ -2251,10 +2251,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             protected Void doInBackground(Void... params) {
                 try {
 
-                	if (StringUtils.isBlank(currentDeviceId)) {
-                		while (lastLocation==null) ;
-                		new SaveLocationRequest(currentUser).execute(LandingActivity2.this, lastLocation.getLatitude(), lastLocation.getLongitude());
-                	}
+                	
+                	while (lastLocation==null) ;
+                	new SaveLocationRequest(currentUser).execute(LandingActivity2.this, lastLocation.getLatitude(), lastLocation.getLongitude(), StringUtils.isBlank(currentDeviceId));
+                	
                 	
                 	if(!currentDeviceId.equals(gcmRegistrationId) || !appVersion.equals(versionNumber)){
                         currentUser.setDeviceId(gcmRegistrationId);

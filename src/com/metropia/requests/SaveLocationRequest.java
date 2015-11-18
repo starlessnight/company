@@ -12,9 +12,9 @@ public class SaveLocationRequest extends Request {
 		this.password = user.getPassword();
 	}
 	
-	public void execute(Context ctx, double lat, double lon) throws Exception {
+	public void execute(Context ctx, double lat, double lon, boolean firstLogin) throws Exception {
 		String apiUrl = getLinkUrl(Link.savelocation);
-		url = apiUrl.replaceAll("\\{lat\\}", Double.toString(lat)).replaceAll("\\{lon\\}", Double.toString(lon));
+		url = apiUrl.replaceAll("\\{lat\\}", Double.toString(lat)).replaceAll("\\{lon\\}", Double.toString(lon)).replaceAll("\\{lon\\}", firstLogin? "1":"2");
 		
         executeHttpRequest(Method.GET, url, ctx);
     }
