@@ -2,7 +2,7 @@ package com.metropia.activities;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -12,7 +12,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-
 import com.google.android.gcm.GCMBaseIntentService;
 import com.google.android.gcm.GCMConstants;
 import com.localytics.android.Localytics;
@@ -40,7 +39,8 @@ public class GCMIntentService extends GCMBaseIntentService {
 	}
 
 	
-	private static final Integer ID = 123451;
+	private static Integer ID = 123451;
+	@SuppressLint("NewApi")
 	@Override
 	protected void onMessage(Context context, Intent intent) {
 	    try {
@@ -89,7 +89,7 @@ public class GCMIntentService extends GCMBaseIntentService {
                 NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                 notification.setLatestEventInfo(this, "Metropia", message, sender);
                 notification.flags = Notification.FLAG_ONLY_ALERT_ONCE | Notification.FLAG_AUTO_CANCEL;            
-                notificationManager.notify(ID, notification);
+                notificationManager.notify(ID++, notification);
     			
     			
     			
