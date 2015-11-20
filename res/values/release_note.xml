@@ -2,6 +2,7 @@
 <resources>
 	<string name="releaseTitle">What\'s new in version %s</string>
 	<string name="releaseNote">
+	    We’ve made further improvements to battery life, routes, and the general user experience.
 	</string>
 	
 </resources>

@@ -326,7 +326,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
     
-    private AtomicBoolean disableShowPassengerMode = new AtomicBoolean(false);
+    private AtomicBoolean disableShowPassengerMode = new AtomicBoolean(true);
     
     private int calculateZoomLevel(double lat){
         long sideDistanceOfSquareArea = 10; //miles
