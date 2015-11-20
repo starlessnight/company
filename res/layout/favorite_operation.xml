@@ -97,7 +97,7 @@
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_gravity="center"
-                    android:layout_marginLeft="-10dp"
+                    android:paddingRight="2dp"
                     android:src="@drawable/search_box_clear2"
                     android:visibility="gone" />
             </RelativeLayout>
