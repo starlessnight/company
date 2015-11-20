@@ -1,5 +1,7 @@
 package com.metropia.activities;
 
+import com.crashlytics.android.Crashlytics;
+import io.fabric.sdk.android.Fabric;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang3.StringUtils;
@@ -63,6 +65,7 @@ public class MainActivity extends FragmentActivity implements AnimationListener,
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Fabric.with(this, new Crashlytics());
 		
 		// Integrate Localytics
 		Localytics.integrate(this);
