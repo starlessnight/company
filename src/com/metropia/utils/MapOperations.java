@@ -5,9 +5,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ScaleDrawable;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.View.MeasureSpec;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import com.google.android.maps.MapView;
 import com.metropia.activities.LandingActivity2;
@@ -22,6 +31,7 @@ import com.skobbler.ngx.map.SKAnimationSettings;
 import com.skobbler.ngx.map.SKAnnotation;
 import com.skobbler.ngx.map.SKAnnotationView;
 import com.skobbler.ngx.map.SKMapSurfaceView;
+import com.skobbler.ngx.map.SKScreenPoint;
 
 public class MapOperations {
 	
@@ -40,7 +50,6 @@ public class MapOperations {
 	public static void addAnnotationFromPoiInfo(Context context, final SKMapSurfaceView mapView, POIContainer poiContainer, final PoiOverlayInfo poiInfo) {
 		if (((Activity)context).isFinishing()) return;
    		final SKAnnotation incAnn = new SKAnnotation(poiContainer.addPOIToMap(poiInfo));
-//   		incAnn.setUniqueID();
    		incAnn.setLocation(new SKCoordinate(poiInfo.lon, poiInfo.lat));
    		incAnn.setMininumZoomLevel(POIOVERLAY_HIDE_ZOOM_LEVEL);
    		final SKAnnotationView iconView = new SKAnnotationView();
@@ -141,4 +150,43 @@ public class MapOperations {
 	    	}
     	}
     }
+	
+	public static final Integer FROM_BALLOON_ID = 0;
+	public static final Integer TO_BALLOON_ID = FROM_BALLOON_ID + 100;  //100
+	
+	public static void drawODBalloon(Context context, SKMapSurfaceView mapView, PoiOverlayInfo info, boolean from) {
+    	SKAnnotation balloonAnn = new SKAnnotation(from ? FROM_BALLOON_ID : TO_BALLOON_ID);
+    	balloonAnn.setUniqueID(from ? FROM_BALLOON_ID : TO_BALLOON_ID);
+    	balloonAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, context.getResources().getDisplayMetrics())));
+    	balloonAnn.setLocation(new SKCoordinate(info.lon, info.lat));
+    	SKAnnotationView balloonView = new SKAnnotationView();
+    	SkobblerImageView balloonImage = new SkobblerImageView(context, 0, 0);
+    	balloonImage.setLat(info.lat);
+    	balloonImage.setLon(info.lon);
+    	balloonImage.setDesc(from ? "FROM" : "TO");
+    	balloonImage.setImageBitmap(loadBitmapOfFromToBalloon(context, fromToBalloon, from));
+    	balloonView.setView(balloonImage);
+    	balloonAnn.setAnnotationView(balloonView);
+    	mapView.addAnnotation(balloonAnn, SKAnimationSettings.ANIMATION_POP_OUT);
+    }
+	
+	private static View fromToBalloon;
+	public static Bitmap loadBitmapOfFromToBalloon(Context context, View fromToBalloon, boolean from) {
+		if(fromToBalloon == null) {
+			FrameLayout layout = new FrameLayout(context);
+			ViewGroup.LayoutParams layoutLp = new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			layout.setLayoutParams(layoutLp);
+			LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+			fromToBalloon = inflater.inflate(R.layout.from_to_balloon, layout);
+		}
+        TextView textView = (TextView) fromToBalloon.findViewById(R.id.poi_mini_title);
+        textView.setText(from ? "FROM" : "TO");
+        Font.setTypeface(Font.getRegular(context.getAssets()), textView);
+        fromToBalloon.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+        fromToBalloon.layout(0, 0, fromToBalloon.getMeasuredWidth(), fromToBalloon.getMeasuredHeight());
+        Bitmap bitmap = Bitmap.createBitmap(fromToBalloon.getMeasuredWidth(), fromToBalloon.getMeasuredHeight(), Bitmap.Config.ARGB_8888);                
+        Canvas canvas = new Canvas(bitmap);
+        fromToBalloon.draw(canvas);
+        return bitmap;
+	}
 }

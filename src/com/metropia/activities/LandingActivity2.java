@@ -2401,7 +2401,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    	curFrom.lat = loc.getLatitude();
 	    	curFrom.lon = loc.getLongitude();
 	    	curFrom.geopoint = new GeoPoint(loc.getLatitude(), loc.getLongitude());
-	    	drawODBalloon(curFrom, true);
+	    	MapOperations.drawODBalloon(this, mapView, curFrom, true);
     	}
     }
     
@@ -2478,35 +2478,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     private void showODBalloon() {
-    	if(curFrom != null) {
-    		drawODBalloon(curFrom, true);
-    	}
-    	
-    	if(curTo != null) {
-    		drawODBalloon(curTo, false);
-    	}
+    	if(curFrom != null) MapOperations.drawODBalloon(this, mapView, curFrom, true);
+    	if(curTo != null) MapOperations.drawODBalloon(this, mapView, curTo, false);
     }
-    
-    private View fromToBalloon;
-    
-    private Bitmap loadBitmapOfFromToBalloon(Context ctx, boolean from) {
-		if(fromToBalloon == null) {
-			FrameLayout layout = new FrameLayout(ctx);
-			ViewGroup.LayoutParams layoutLp = new ViewGroup.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-			layout.setLayoutParams(layoutLp);
-			LayoutInflater inflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			fromToBalloon = inflater.inflate(R.layout.from_to_balloon, layout);
-		}
-        TextView textView = (TextView) fromToBalloon.findViewById(R.id.poi_mini_title);
-        textView.setText(from ? "FROM" : "TO");
-        Font.setTypeface(Font.getRegular(ctx.getAssets()), textView);
-        fromToBalloon.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-        fromToBalloon.layout(0, 0, fromToBalloon.getMeasuredWidth(), fromToBalloon.getMeasuredHeight());
-        Bitmap bitmap = Bitmap.createBitmap(fromToBalloon.getMeasuredWidth(), fromToBalloon.getMeasuredHeight(), Bitmap.Config.ARGB_8888);                
-        Canvas canvas = new Canvas(bitmap);
-        fromToBalloon.draw(canvas);
-        return bitmap;
-	}
     
     private AtomicBoolean enableDrawRoute = new AtomicBoolean(true);
     
@@ -3329,19 +3303,19 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	removeOldOD(isFrom);
     	if(isFrom) {
     		curFrom = poiInfo;
-    		drawODBalloon(poiInfo, true);
+    		MapOperations.drawODBalloon(this, mapView, poiInfo, true);
     		curFromProvider = null;
     		curFromTime = 0;
     		setFromInfo(poiInfo);
     	}
     	else {
     		curTo = poiInfo;
-    		drawODBalloon(poiInfo, false);
+    		MapOperations.drawODBalloon(this, mapView, poiInfo, false);
     		setToInfo(poiInfo);
     		if(curFrom == null && myPoint != null) {
     			PoiOverlayInfo currentLocationInfo = PoiOverlayInfo.fromCurrentLocation(myPoint);
     			curFrom = currentLocationInfo;
-    			drawODBalloon(currentLocationInfo, true);
+    			MapOperations.drawODBalloon(this, mapView, currentLocationInfo, true);
     			setFromInfo(currentLocationInfo);
     			if(lastLocation != null){
         			curFromProvider = lastLocation.getProvider();
@@ -3353,22 +3327,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	if(!isMapCollapsed()) {
     		resizeMap(true);
     	}
-    }
-    
-    private void drawODBalloon(PoiOverlayInfo info, boolean from) {
-    	SKAnnotation balloonAnn = new SKAnnotation(from ? FROM_BALLOON_ID : TO_BALLOON_ID);
-    	balloonAnn.setUniqueID(from ? FROM_BALLOON_ID : TO_BALLOON_ID);
-    	balloonAnn.setOffset(new SKScreenPoint(0, Dimension.dpToPx(20, getResources().getDisplayMetrics())));
-    	balloonAnn.setLocation(new SKCoordinate(info.lon, info.lat));
-    	SKAnnotationView balloonView = new SKAnnotationView();
-    	SkobblerImageView balloonImage = new SkobblerImageView(LandingActivity2.this, 0, 0);
-    	balloonImage.setLat(info.lat);
-    	balloonImage.setLon(info.lon);
-    	balloonImage.setDesc(from ? "FROM" : "TO");
-    	balloonImage.setImageBitmap(loadBitmapOfFromToBalloon(LandingActivity2.this, from));
-    	balloonView.setView(balloonImage);
-    	balloonAnn.setAnnotationView(balloonView);
-    	mapView.addAnnotation(balloonAnn, SKAnimationSettings.ANIMATION_POP_OUT);
     }
     
     private AtomicBoolean removeOD = new AtomicBoolean(true);
@@ -4054,9 +4012,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		disableRefreshTripInfo.set(false);
     }
     
-    private static final Integer FROM_BALLOON_ID = 0;
-    private static final Integer TO_BALLOON_ID = FROM_BALLOON_ID + 100;  //100
-    private static final Integer ROUTE_DESTINATION_ID = TO_BALLOON_ID + 1; // 101
+    
+    
+    private static final Integer ROUTE_DESTINATION_ID = 100 + 1; // 101
     private static final Integer POI_MARKER_ONE = ROUTE_DESTINATION_ID + 1; // 102
     private static final Integer POI_MARKER_TWO = POI_MARKER_ONE + 1; // 103
     private static final Integer POI_MARKER_THREE = POI_MARKER_TWO + 1; // 104
@@ -4070,7 +4028,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		if(curFrom != null && curFrom.uniqueId > 0 && ArrayUtils.contains(poiMarkerIds, curFrom.uniqueId)) {
     			mapView.deleteAnnotation(curFrom.uniqueId);
     		}
-    		mapView.deleteAnnotation(FROM_BALLOON_ID);
+    		mapView.deleteAnnotation(MapOperations.FROM_BALLOON_ID);
     		curFrom = null;
     	}
     	else {
@@ -4078,7 +4036,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		if(curTo != null && curTo.uniqueId > 0 && ArrayUtils.contains(poiMarkerIds, curTo.uniqueId)) {
     			mapView.deleteAnnotation(curTo.uniqueId);
     		}
-    		mapView.deleteAnnotation(TO_BALLOON_ID);
+    		mapView.deleteAnnotation(MapOperations.TO_BALLOON_ID);
     		curTo = null;
     		toggleGetRouteButton(false);
     	}
@@ -4121,10 +4079,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     
-    
-    //private AtomicInteger sizeRatio = new AtomicInteger(1);
-    //private AtomicInteger annSize = new AtomicInteger();
-    
     private int getSizeRatioByZoomLevel() {
     	float zoomLevel = mapView.getZoomLevel();
     	if(zoomLevel >= 13) {
@@ -4133,7 +4087,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	else if(zoomLevel >= 9) {
     		return 2;
     	}
-    	return 1;
+    	return 2;
     }
     
     private void updateMyMetropiaInfo() {
@@ -4682,10 +4636,10 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 			if(annotation.getUniqueID() == POI_MARKER_ONE || annotation.getUniqueID() == POI_MARKER_TWO || annotation.getUniqueID() == POI_MARKER_THREE) {
 				poiInfo = getPoiOverlayInfoFromCurrentOD(annotation.getUniqueID());
 			}
-			else if(annotation.getUniqueID() == FROM_BALLOON_ID && curFrom != null && StringUtils.isNotBlank(curFrom.address)) {
+			else if(annotation.getUniqueID() == MapOperations.FROM_BALLOON_ID && curFrom != null && StringUtils.isNotBlank(curFrom.address)) {
 				poiInfo = curFrom;
 			}
-			else if(annotation.getUniqueID() == TO_BALLOON_ID) {
+			else if(annotation.getUniqueID() == MapOperations.TO_BALLOON_ID) {
 				poiInfo = curTo;
 			}
 			else {
@@ -4717,9 +4671,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 
 	@Override
 	public void onCustomPOISelected(SKMapCustomPOI arg0) {}
-
-//	@Override
-//	public void onDebugInfo(double arg0, float arg1, double arg2) {}
 
 	@Override
 	public void onDoubleTap(SKScreenPoint arg0) {}
@@ -4775,17 +4726,11 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	@Override
 	public void onObjectSelected(int arg0) {}
 
-//	@Override
-//	public void onOffportRequestCompleted(int arg0) {}
-
 	@Override
 	public void onPOIClusterSelected(SKPOICluster arg0) {}
 
 	@Override
 	public void onRotateMap() {}
-
-//	@Override
-//	public void onScreenOrientationChanged() {}
 
 	@Override
 	public void onSingleTap(SKScreenPoint arg0) {
