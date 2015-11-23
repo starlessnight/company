@@ -2054,6 +2054,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //			                hideStarredBalloon();
 			                removeAllOD();
 			                startActivity(intent);
+			                finish();
 						}
 						catch(Exception e) {
 							ehs.reportException(e);
@@ -3155,6 +3156,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //                hideStarredBalloon();
 		        removeAllOD();
 		        startActivity(intent);
+		        finish();
 			}
     	});
     }
