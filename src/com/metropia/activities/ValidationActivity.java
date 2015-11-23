@@ -3572,16 +3572,17 @@ public class ValidationActivity extends FragmentActivity implements OnInitListen
 			break;
 			
 			case R.id.share:
+				String msg = "I helped solve traffic congestion for traveling at " + Reservation.formatTime(route.getDepartureTime(), true) + " by using Metropia Mobile!";
+				msg = reservation.getMpoint()==0? msg:"I earned "
+						+ reservation.getMpoint()
+						+ " points for traveling at "
+						+ Reservation.formatTime(route.getDepartureTime(), true)
+						+ " to help solve traffic congestion using Metropia!" + "\n\n"
+						+ Misc.APP_DOWNLOAD_LINK;
+				
 				Intent shareIntent = new Intent(this, ShareActivity.class);
 				shareIntent.putExtra(ShareActivity.TITLE, "More Metropians = Less Traffic");
-				shareIntent.putExtra(ShareActivity.SHARE_TEXT,
-						"I earned "
-								+ reservation.getMpoint()
-								+ " points for traveling at "
-								+ Reservation.formatTime(route.getDepartureTime(), true)
-								+ " to help solve traffic congestion "
-								+ "using Metropia!" + "\n\n"
-								+ Misc.APP_DOWNLOAD_LINK);
+				shareIntent.putExtra(ShareActivity.SHARE_TEXT, msg);
 				startActivity(shareIntent);
 			break;
 			
