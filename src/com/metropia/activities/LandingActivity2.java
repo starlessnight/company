@@ -153,7 +153,7 @@ import com.metropia.requests.ReservationListFetchRequest;
 import com.metropia.requests.ReservationRequest;
 import com.metropia.requests.RouteFetchRequest;
 import com.metropia.requests.SaveLocationRequest;
-import com.metropia.requests.UpdateDeviceIdRequest;
+import com.metropia.requests.UpdateDeviceInfoRequest;
 import com.metropia.requests.WhereToGoRequest;
 import com.metropia.ui.DelayTextWatcher;
 import com.metropia.ui.DelayTextWatcher.TextChangeListener;
@@ -2243,7 +2243,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         SharedPreferences globalPrefs = Preferences.getGlobalPreferences(this);
         final String gcmRegistrationId = globalPrefs.getString(Preferences.Global.GCM_REG_ID, "");
         final User currentUser = User.getCurrentUser(this);
-        final String appVersion = StringUtils.defaultString(currentUser.getAppVersion(), "");
         final String currentDeviceId = currentUser.getDeviceId();
         if (StringUtils.isBlank(gcmRegistrationId)) return;
         
@@ -2251,19 +2250,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             @Override
             protected Void doInBackground(Void... params) {
                 try {
-
-                	
                 	while (lastLocation==null) ;
                 	new SaveLocationRequest(currentUser).execute(LandingActivity2.this, lastLocation.getLatitude(), lastLocation.getLongitude(), StringUtils.isBlank(currentDeviceId));
-                	
-                	
-                	if(!currentDeviceId.equals(gcmRegistrationId) || !appVersion.equals(versionNumber)){
-                        currentUser.setDeviceId(gcmRegistrationId);
-                        currentUser.setAppVersion(versionNumber);
-                        
-                        new UpdateDeviceIdRequest(currentUser).execute(LandingActivity2.this, gcmRegistrationId, versionNumber);
-                	}
-                	
+                    new UpdateDeviceInfoRequest(currentUser).execute(LandingActivity2.this, gcmRegistrationId);
                 }
                 catch (Exception e) {}
                 return null;

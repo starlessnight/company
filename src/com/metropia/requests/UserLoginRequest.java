@@ -55,7 +55,7 @@ public class UserLoginRequest extends FetchRequest<User> {
 	        user.setFirstname(data.getString("first_name"));
 	        user.setLastname(data.getString("last_name"));
 	        user.setDeviceId(data.isNull("device_id")? null:data.getString("device_id"));
-	        user.setAppVersion(data.optString("app_version", ""));
+	        user.setAppVersion(data.optString("metropia_version", ""));
 	        String balance = data.optString("balance");
 	        if(StringUtils.isNotBlank(balance)){
 	            JSONObject balanceJson = new JSONObject(balance);
