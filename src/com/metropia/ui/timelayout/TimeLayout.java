@@ -10,8 +10,10 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.metropia.activities.R;
 import com.metropia.models.Route;
 import com.metropia.ui.timelayout.TimeButton.DisplayMode;
 import com.metropia.ui.timelayout.TimeButton.State;
@@ -100,6 +102,8 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
              adjustableTime.incrementBy(15);
              addView(timeColumn, i);
         }
+        
+        setTerminalColumn();
     }
     
     public DisplayMode getDisplayMode() {
@@ -110,6 +114,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     	this.displayMode = displayMode;
     	
     	for (int i = 0; i < getChildCount(); i++) {
+    		if (!(getChildAt(i) instanceof TimeColumn)) continue;
     		TimeColumn timeColumn = (TimeColumn) getChildAt(i);
     		timeColumn.setDisplayMode(displayMode);
     	}
@@ -128,6 +133,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     }
     
     public State getColumnState(int column) {
+    	if (!(getChildAt(column) instanceof TimeColumn)) return null;
         State s = null;
     	TimeColumn col = (TimeColumn) getChildAt(column);
     	if(col != null){
@@ -137,6 +143,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     }
     
     public void setColumnState(int column, State state) {
+    	if (!(getChildAt(column) instanceof TimeColumn)) return;
     	TimeColumn col = (TimeColumn) getChildAt(column);
     	if(col != null){
     		if(state == State.Selected) {
@@ -266,6 +273,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
 		if(loadedColumn == preSelectedColumnIndex && 
 				State.None.equals(getColumnState(preSelectedColumnIndex))) {
     	    for (int i = 0; i < getChildCount(); i++) {
+    	    	if (!(getChildAt(i) instanceof TimeColumn)) continue;
     	      	TimeColumn timeColumn = (TimeColumn) getChildAt(i);
     	       	if (timeColumn.getState().equals(State.Selected)) {
     	       		timeColumn.setState(State.None, Arrays.asList(ArrayUtils.toObject(currentVisibleColumns)).contains(i));
@@ -289,6 +297,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
 	
 	private synchronized void unSelectOthers() {
 		for (int i = 0; i < this.getChildCount(); i++) {
+			if (!(getChildAt(i) instanceof TimeColumn)) continue;
         	TimeColumn timeColumn = (TimeColumn) getChildAt(i);
         	if (timeColumn.getState().equals(State.Selected)) {
         		timeColumn.setState(State.None, Arrays.asList(ArrayUtils.toObject(currentVisibleColumns)).contains(i));
@@ -299,6 +308,7 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
 	public int getColumnIndexFromDepartureTime(long departureTime) {
 		int columnIdx = -1;
 		for (int i = 0; i < getChildCount() && columnIdx < 0; i++) {
+			if (!(getChildAt(i) instanceof TimeColumn)) continue;
     		TimeColumn timeColumn = (TimeColumn) getChildAt(i);
     		if(timeColumn.getDepartureTime() == departureTime) {
     			columnIdx = i;
@@ -306,6 +316,17 @@ public final class TimeLayout extends LinearLayout implements OnClickListener {
     	}
 		return columnIdx;
 	}
+	
+
+    public void setTerminalColumn() {
+    	
+    	ImageView v = new ImageView(getContext());
+        v.setBackgroundColor(getContext().getResources().getColor(R.color.metropia_green));
+        v.setImageResource(R.drawable.letsgo_icon_unpredictable);
+        v.setPadding(TimeButton.WIDTH/4, 0, TimeButton.WIDTH/4, 0);
+        addView(v);
+        v.getLayoutParams().width = TimeButton.WIDTH*2;
+    }
 	
 //	public void cancelOtherRouteTask() {
 //		if(timeLayoutListener != null) {

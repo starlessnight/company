@@ -67,7 +67,7 @@ public final class ScrollableTimeLayout extends ObservableScrollView implements 
 	            	initialPosition = newPosition;
 	            	int mod = newPosition%TimeButton.WIDTH;
 	            	int columnIndex = newPosition/TimeButton.WIDTH + ((mod>=TimeButton.WIDTH/2) ? 1 : 0);
-	            	columnIndex = columnIndex >= timeLayout.getColumnCount()-3?timeLayout.getColumnCount()-3 : columnIndex;
+	            	//columnIndex = columnIndex >= timeLayout.getColumnCount()-3?timeLayout.getColumnCount()-3 : columnIndex;
 	            	smoothScrollTo(columnIndex*TimeButton.WIDTH, 0);
 	            	if(currentStartColumnIndex != columnIndex) {
 	            		currentStartColumnIndex = columnIndex;
