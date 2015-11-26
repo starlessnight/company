@@ -322,7 +322,7 @@ public class PassengerActivity extends FragmentActivity implements SKMapSurfaceL
 			@Override
 			public void run(Object... obj) {
 				final long reserId = (Long) obj[0];
-				if (reserId==-1) return;
+				if (isFinishing() || reserId==-1) return;
 				
 				toggleStatus(DURING_TRIP);
 
