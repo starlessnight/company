@@ -2428,6 +2428,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     protected void startLocationUpdates() {
+    	if (googleApiClient.isConnected())
         LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, highAccuracyLocationRequest, locationListener);
     }
     
