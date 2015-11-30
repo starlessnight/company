@@ -23,6 +23,7 @@ import com.metropia.requests.Request.Page;
 import com.metropia.utils.Font;
 import com.metropia.utils.Misc;
 
+@Deprecated
 public class RewardsActivity extends FragmentActivity{
 	
     private WebView webviewContent;

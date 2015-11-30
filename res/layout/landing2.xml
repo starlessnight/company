@@ -185,6 +185,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:background="@color/metropia_blue"
+                    android:clickable="true"
                     android:orientation="vertical" >
 
                     <FrameLayout
@@ -657,7 +658,11 @@
                 
             </RelativeLayout>
 
-            <include layout="@layout/reservations_list" />
+            <view class="com.metropia.ui.ReservationListView"
+            	android:id="@+id/reservationList"
+            	android:layout_width="match_parent"
+            	android:layout_height="match_parent"
+            	android:visibility="gone" />
             
             <view class="com.metropia.ui.DUOTutorial"
 				android:id="@+id/duoTutorial"
@@ -670,6 +675,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@color/transparent_black"
+                android:clickable="true"
                 android:visibility="gone">
                 
                 <ProgressBar
@@ -690,6 +696,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start"
+        android:clickable="true"
         android:orientation="horizontal" >
 
         <LinearLayout

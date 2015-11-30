@@ -4,28 +4,23 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
@@ -46,7 +41,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -62,28 +56,23 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.AbsoluteSizeSpan;
-import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.Display;
-import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.MeasureSpec;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.View.OnLongClickListener;
 import android.view.View.OnTouchListener;
-import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AnimationUtils;
@@ -94,9 +83,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
@@ -125,11 +112,9 @@ import com.metropia.LocalyticsUtils;
 import com.metropia.ResumeNavigationUtils;
 import com.metropia.SkobblerUtils;
 import com.metropia.SmarTrekApplication;
-import com.metropia.TripService;
 import com.metropia.SmarTrekApplication.TrackerName;
 import com.metropia.adapters.FavoriteAddressAdapter;
 import com.metropia.dialogs.BlurDialog;
-import com.metropia.dialogs.CancelableProgressDialog;
 import com.metropia.dialogs.NotificationDialog2;
 import com.metropia.dialogs.NotificationDialog2.ActionListener;
 import com.metropia.dialogs.NotifyResumeDialog;
@@ -148,22 +133,20 @@ import com.metropia.requests.MyMetropiaRequest;
 import com.metropia.requests.MyMetropiaRequest.MyMetropia;
 import com.metropia.requests.Request;
 import com.metropia.requests.Request.Page;
-import com.metropia.requests.ReservationDeleteRequest;
 import com.metropia.requests.ReservationListFetchRequest;
-import com.metropia.requests.ReservationRequest;
 import com.metropia.requests.RouteFetchRequest;
 import com.metropia.requests.SaveLocationRequest;
 import com.metropia.requests.UpdateDeviceInfoRequest;
 import com.metropia.requests.WhereToGoRequest;
+import com.metropia.tasks.ICallback;
 import com.metropia.ui.DelayTextWatcher;
 import com.metropia.ui.DelayTextWatcher.TextChangeListener;
 import com.metropia.ui.EditAddress;
+import com.metropia.ui.ReservationListView;
 import com.metropia.ui.SkobblerImageView;
-import com.metropia.ui.SwipeDeleteTouchListener;
 import com.metropia.ui.animation.ClickAnimation;
 import com.metropia.ui.animation.ClickAnimation.ClickAnimationEndCallback;
 import com.metropia.ui.menu.MainMenu;
-import com.metropia.ui.timelayout.AdjustableTime;
 import com.metropia.utils.Cache;
 import com.metropia.utils.CalendarContract.Instances;
 import com.metropia.utils.Dimension;
@@ -199,7 +182,7 @@ import com.skobbler.ngx.map.SKScreenPoint;
 import com.skobbler.ngx.positioner.SKPosition;
 
 
-public final class LandingActivity2 extends FragmentActivity implements SKMapSurfaceListener, SensorEventListener, ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<LocationSettingsResult>, OnClickListener { 
+public final class LandingActivity2 extends FragmentActivity implements SKMapSurfaceListener, SensorEventListener, ConnectionCallbacks, OnConnectionFailedListener, ResultCallback<LocationSettingsResult>, OnClickListener, OnItemClickListener { 
     
     private static final int DEFAULT_ZOOM_LEVEL = 12;
     
@@ -217,15 +200,13 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     
     public static final String NO_TRIPS = "No Upcoming Trip";
     
-    public static final int ON_MY_WAY = Integer.valueOf(100);
-    
     public static final String LOGOUT = "logout";
     
     private static LandingActivity2 _this;
     private ExceptionHandlingService ehs = new ExceptionHandlingService(this);
     private Queue<Runnable> mapActionQueue = new LinkedList<Runnable>();
 	
-    private GeoPoint myPoint;
+    public GeoPoint myPoint;
     
     private LocationManager locationManager;
 
@@ -290,6 +271,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     
     private AtomicBoolean needCheckResume = new AtomicBoolean(true);
     
+    private ReservationListView reservationListView;
     private FrameLayout popupPanel;
     private ImageView fromMenu;
     private ImageView toMenu;
@@ -302,7 +284,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     private View fromMask;
     private View toMask;
     
-    private View newUserTipView;
     
     View toDropDownButton;
     View fromDropDownButton;
@@ -311,7 +292,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     
     private AtomicBoolean checkCalendarEvent = new AtomicBoolean(true);
     
-    private POIContainer poiContainer = new POIContainer();
+    public POIContainer poiContainer = new POIContainer();
     
     private SKMapViewHolder mapViewHolder;
     private SKMapSurfaceView mapView;
@@ -326,7 +307,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     //debug
 //    private GeoPoint debugOrigin = new GeoPoint(33.8689924, -117.9220526);
     
-    private AtomicBoolean disableShowPassengerMode = new AtomicBoolean(true);
+    private AtomicBoolean disableShowPassengerMode = new AtomicBoolean(false);
     
     private int calculateZoomLevel(double lat){
         long sideDistanceOfSquareArea = 10; //miles
@@ -342,8 +323,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     
-    int[] clickable = {R.id.score_notify};
-	int[] clickableAnimated = {};
+    int[] clickable = {R.id.drawer_menu_icon_panel, R.id.score_notify};
+	int[] clickableAnimated = {R.id.center_map_icon, R.id.passenger_mode_icon, R.id.trip_notify_icon, R.id.get_route, R.id.dashboard, R.id.my_trips, R.id.reservations, R.id.favorite_list, R.id.feedback_menu, R.id.share_menu, R.id.map_display_options, R.id.upoint_panel, R.id.save_time_panel, R.id.co2_panel};
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -400,13 +381,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         fromMask = findViewById(R.id.from_mask);
         toMask = findViewById(R.id.to_mask);
         
-        OnClickListener noopClick = new OnClickListener() {
-            @Override
-            public void onClick(View v) {}
-        };
+        tripNotifyIcon = (ImageView) findViewById(R.id.trip_notify_icon);
         
-        View landingPanelView = findViewById(R.id.landing_panel_content);
-        landingPanelView.setOnClickListener(noopClick);
         
 //        refreshSearchAutoCompleteData();
 //        refreshFromSearchAutoCompleteData();
@@ -476,8 +452,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 boolean handled = StringUtils.isNotBlank(addrInput);
                 if(handled){
                     searchToAddress(addrInput, true);
-                    InputMethodManager imm = (InputMethodManager)getSystemService(
-                            Context.INPUT_METHOD_SERVICE);
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     clearSearchResult();
                 }
@@ -492,8 +467,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 boolean handled = StringUtils.isNotBlank(addrInput);
                 if(handled){
                 	searchFromAddress(addrInput, true);
-                    InputMethodManager imm = (InputMethodManager)getSystemService(
-                            Context.INPUT_METHOD_SERVICE);
+                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     clearFromSearchResult();
                 }
@@ -553,89 +527,15 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             }
         });
         
-        searchResultList.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            	Address selected = (Address)parent.getItemAtPosition(position);
-            	if(StringUtils.isNotBlank(selected.getAddress())) {
-            		dropPinForAddress(selected, true, false);
-	                InputMethodManager imm = (InputMethodManager)getSystemService(
-	                        Context.INPUT_METHOD_SERVICE);
-	                imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
-	                showAutoComplete.set(false);
-	                clearSearchResult();
-            	}
-//            	else if(TAP_TO_ADD_FAVORITE.equals(selected.getName())) {
-//            		clearSearchResult();
-//            		removePOIMarker(mapView);
-//            		hideBulbBalloon();
-//            		hideStarredBalloon();
-//            		showFavoriteOptPanel(null);
-//            	}
-            }
-        });
-        
-        fromSearchResultList.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Address selected = (Address)parent.getItemAtPosition(position);
-                if(StringUtils.isNotBlank(selected.getAddress())) {
-                	dropPinForAddress(selected, true, true);
-                    InputMethodManager imm = (InputMethodManager)getSystemService(
-                            Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(fromSearchBox.getWindowToken(), 0);
-                    showAutoComplete.set(false);
-                    clearFromSearchResult();
-                }
-//                else if(TAP_TO_ADD_FAVORITE.equals(selected.getName())) {
-//                    clearFromSearchResult();
-//                    removePOIMarker(mapView);
-//                    hideBulbBalloon();
-//                    hideStarredBalloon();
-//                    showFavoriteOptPanel(null);
-//                }
-            }
-        });
-        
-        fromFavoriteDropdown.setOnItemClickListener(new OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				Address selected = (Address)parent.getItemAtPosition(position);
-                if(StringUtils.isNotBlank(selected.getAddress())) {
-                	dropPinForAddress(selected, true, true);
-                    InputMethodManager imm = (InputMethodManager)getSystemService(
-                            Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(fromSearchBox.getWindowToken(), 0);
-                    showAutoComplete.set(false);
-                    clearFromSearchResult();
-                    fromDropDownButton.performClick();
-                }
-			}
-        });
-        
-        toFavoriteDropdown.setOnItemClickListener(new OnItemClickListener() {
-        	@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				Address selected = (Address)parent.getItemAtPosition(position);
-                if(StringUtils.isNotBlank(selected.getAddress())) {
-                	dropPinForAddress(selected, true, false);
-                    InputMethodManager imm = (InputMethodManager)getSystemService(
-                            Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
-                    showAutoComplete.set(false);
-                    clearFromSearchResult();
-                    toDropDownButton.performClick();
-                }
-			}
-        });
+        searchResultList.setOnItemClickListener(this);
+        fromSearchResultList.setOnItemClickListener(this);
+        fromFavoriteDropdown.setOnItemClickListener(this);
+        toFavoriteDropdown.setOnItemClickListener(this);
         
         searchResultList.setOnTouchListener(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
-				InputMethodManager imm = (InputMethodManager)getSystemService(
-                        Context.INPUT_METHOD_SERVICE);
+				InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
                 return false;
 			}
@@ -644,8 +544,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         fromSearchResultList.setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                InputMethodManager imm = (InputMethodManager)getSystemService(
-                        Context.INPUT_METHOD_SERVICE);
+                InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(fromSearchBox.getWindowToken(), 0);
                 return false;
             }
@@ -790,8 +689,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                                 notFound.setName(FavoriteAddressAdapter.NO_AUTOCOMPLETE_RESULT);
                                 notFound.setAddress("");
                                 fromSearchAddresses.add(notFound);
-//                                List<Address> emptyAddresses = getEmptyAddressesForUI();
-//                                fromSearchAddresses.addAll(emptyAddresses);
                             }
                             refreshFromSearchAutoCompleteData();
                         }
@@ -851,7 +748,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         mapRezoom.set(!hasIntentAddr);
         if(hasIntentAddr){
         	searchIntentAddress(intentAddress);
-        	disableRefreshTripInfo.set(true);
+        	reservationListView.disableRefreshTripInfo.set(true);
         }
         
         if(isToSignInPage(getIntent())) {
@@ -867,22 +764,11 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         	}
        	});
         
-        initReservationListView();
-        
         final Bundle extras = getIntent().getExtras();
         
         locationListener = new LocationListener(){
             @Override
             public void onLocationChanged(Location location) {
-//                fake lat-lon
-//                location.setLatitude(34.0291747); // LA
-//                location.setLongitude(-118.2734106);
-//                location.setLatitude(32.1559094); // Tucson
-//                location.setLongitude(-110.883805);
-//	              location.setLatitude(22.980648); // Tainan
-//	              location.setLongitude(120.236046);
-//            	  location.setLatitude(30.18155); // Austin
-//            	  location.setLongitude(-97.62175);
             	GeoPoint debugLoc = DebugOptionsActivity.getCurrentLocationLatLon(LandingActivity2.this);
 				if(debugLoc != null) {
 					location.setLatitude(debugLoc.getLatitude());
@@ -906,13 +792,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 
 			@Override
 			public void onLocationChanged(Location location) {
-//              fake lat-lon
-//              location.setLatitude(34.0291747); // LA
-//              location.setLongitude(-118.2734106);
-//              location.setLatitude(32.1559094); // Tucson
-//              location.setLongitude(-110.883805);
-//	            location.setLatitude(22.980648); // Tainan
-//	            location.setLongitude(120.236046);
 				GeoPoint debugLoc = DebugOptionsActivity.getCurrentLocationLatLon(LandingActivity2.this);
 				if(debugLoc != null) {
 					location.setLatitude(debugLoc.getLatitude());
@@ -923,65 +802,18 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 					if(needTagAustinLaunch.getAndSet(false)) {
 						LocalyticsUtils.setAustinLaunchIfInBoundingBox(location.getLatitude(), location.getLongitude());
 					}
-                  locationChanged(location);
-                  if(checkCalendarEvent.getAndSet(false) && extras != null) {
-                  	handleCalendarNotification(extras.getInt(RouteActivity.EVENT_ID));
-                  }
-              }
+					locationChanged(location);
+					if(checkCalendarEvent.getAndSet(false) && extras != null) {
+						handleCalendarNotification(extras.getInt(RouteActivity.EVENT_ID));
+					}
+				}
 			}
-
-			@Override
-			public void onStatusChanged(String provider, int status,
-					Bundle extras) {}
-
-			@Override
+			
+			public void onStatusChanged(String provider, int status, Bundle extras) {}
 			public void onProviderEnabled(String provider) {}
-
-			@Override
 			public void onProviderDisabled(String provider) {}
         	
         };
-        
-        View centerMapIcon = findViewById(R.id.center_map_icon);
-        centerMapIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            	ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-//						SKCoordinateRegion mapRegion = mapView.getCurrentMapRegion();
-//						SKCoordinate centerPoint = mapRegion.getCenter();
-//		                int latE6 = Double.valueOf(centerPoint.getLatitude() * 1E6).intValue();
-//		                int lonE6 = Double.valueOf(centerPoint.getLongitude() * 1E6).intValue();
-//		                int lastLatE6 = mapCenterLat.get();
-//		                int lastLonE6 = mapCenterLon.get();
-//		                int threshold = 100 + 2300 * (Math.max(Double.valueOf(18 - mapView.getZoomLevel()).intValue(), 0));
-//		                if(Math.abs(latE6 - lastLatE6) < threshold && Math.abs(lonE6 - lastLonE6) < threshold){
-						if (restrictedMode && routeRect!=null) zoomMapToFitBulbPOIs();
-						else if(lastLocation != null) {
-		                    if(mapView.getZoomLevel() == ValidationActivity.DEFAULT_ZOOM_LEVEL){
-		                    	if(routeRect != null) {
-		                    		zoomMapToFitBulbPOIs();
-		                    	}
-		                    	else {
-		                    	    mapView.setZoom(calculateZoomLevel(lastLocation.getLatitude()));
-		                    	}
-		                    }else{
-		                        mapView.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
-		                        if(myPoint != null){
-		                            mapView.centerMapOnPosition(new SKCoordinate(myPoint.getLongitude(), myPoint.getLatitude()));
-		                        }
-		                    }
-		                }else{
-		                    lastLocation = null;
-		                    mapRecenter.set(true);
-		                    prepareGPS();
-		                }
-					}
-				});
-            }
-        });
         
         Display display = getWindowManager().getDefaultDisplay();
         DrawerLayout.LayoutParams leftDrawerLp = (DrawerLayout.LayoutParams) findViewById(R.id.left_drawer).getLayoutParams();
@@ -990,162 +822,13 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         LayoutParams menuPanelLp = menuPanel.getLayoutParams();
         menuPanelLp.width=display.getWidth()*3/4;
         
-        final DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        View drawerIconPanel = findViewById(R.id.drawer_menu_icon_panel);
-        drawerIconPanel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openMenu(mDrawerLayout);
-            }
-        });
-        
-        /*
-        TextView newTripMenu = (TextView) findViewById(R.id.new_trip);
-        newTripMenu.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
-					}
-				});
-			}
-		});
-		*/
         
         TextView myMetropiaMenu = (TextView) findViewById(R.id.dashboard);
-        myMetropiaMenu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            	final int viewId = v.getId();
-            	ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						MainMenu.onMenuItemSelected(LandingActivity2.this, 0, viewId);
-					}
-				});
-            }
-        });
-        
-        TextView myTripsMenu = (TextView) findViewById(R.id.my_trips);
-        myTripsMenu.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				final int viewId = v.getId();
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						MainMenu.onMenuItemSelected(LandingActivity2.this, 0, viewId);
-					}
-				});
-			}
-        });
-        
-        if(MyTripsActivity.hasUrl(LandingActivity2.this)) {
-        	myTripsMenu.setVisibility(View.VISIBLE);
-        }
-        
         TextView reservationsMenu = (TextView) findViewById(R.id.reservations);
-        reservationsMenu.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						mDrawerLayout.closeDrawer(findViewById(R.id.left_drawer));
-						closeIfEmpty.set(false);
-						findViewById(R.id.reservations_list_view).setVisibility(View.VISIBLE);
-					}
-				});
-			}
-        });
-        
-        TextView shareMenu = (TextView) findViewById(R.id.share_menu);
-        shareMenu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            	final int viewId = v.getId();
-            	ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						MainMenu.onMenuItemSelected(LandingActivity2.this, 0, viewId);
-					}
-				});
-            }
-        });
-        
-        TextView feedbackMenu = (TextView) findViewById(R.id.feedback_menu);
-        feedbackMenu.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            	ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						Intent intent = new Intent(LandingActivity2.this, FeedbackActivity.class);
-						startActivity(intent);
-					}
-				});
-            }
-        });
-        
-        TextView rewardsMenu = (TextView) findViewById(R.id.rewards_menu);
-        rewardsMenu.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-                clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-                    @Override
-                    public void onAnimationEnd() {
-                        Intent intent = new Intent(LandingActivity2.this, RewardsActivity.class);
-                        startActivity(intent);
-                    }
-                });
-            }
-        });
-        
-        if(RewardsActivity.hasUrl(this)){
-            findViewById(R.id.rewards_menu_panel).setVisibility(View.VISIBLE);
-        }
-        
-        TextView settingsMenu = (TextView) findViewById(R.id.map_display_options);
-        settingsMenu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            	final int viewId = v.getId();
-            	ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						MainMenu.onMenuItemSelected(LandingActivity2.this, 0, viewId);
-					}
-				});
-            }
-        });
-        
         TextView favoriteListMenu = (TextView) findViewById(R.id.favorite_list);
-        favoriteListMenu.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-            	clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						Intent favListIntent = new Intent(LandingActivity2.this, FavoriteListActivity.class);
-						favListIntent.putParcelableArrayListExtra(FavoriteListActivity.FAVORITE_LIST, favoriteAddresses);
-						favListIntent.putExtra("location", lastLocation);
-						startActivity(favListIntent);
-					}
-				});
-			}
-        });
-        
+        TextView feedbackMenu = (TextView) findViewById(R.id.feedback_menu);
+        TextView shareMenu = (TextView) findViewById(R.id.share_menu);
+        TextView settingsMenu = (TextView) findViewById(R.id.map_display_options);
         settingsMenu.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -1197,85 +880,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 //             }
 //        });
         
-        findViewById(R.id.left_drawer).setOnClickListener(noopClick);
-        findViewById(R.id.loading_panel).setOnClickListener(noopClick);
         
         getRouteView = (TextView) findViewById(R.id.get_route);
-        getRouteView.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(!serviceArea.get()) {
-					if(notifyOutOfService.getAndSet(false)) {
-						CharSequence msg = Html.fromHtml(outOfServiceHtml);
-                        NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, msg);
-                        dialog.setTitle("Notification");
-                        dialog.setPositiveActionListener(new ActionListener() {
-							@Override
-							public void onClick() {
-								setGetRouteButtonState(true);
-							}
-                        });
-                        try{
-                            dialog.show();
-                        }catch(Throwable t){}
-					}
-				}
-				else {
-					ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-						@Override
-						public void onAnimationEnd() {
-							//disableShowPassengerMode.set(true);
-							if(curFrom != null && StringUtils.isBlank(curFrom.address)) {
-								
-								ResultCallback<LocationSettingsResult> callback = new ResultCallback<LocationSettingsResult>() {
-									public void onResult(LocationSettingsResult result) {
-										try {
-											if (result.getStatus().getStatusCode()==LocationSettingsStatusCodes.RESOLUTION_REQUIRED)
-												result.getStatus().startResolutionForResult(LandingActivity2.this, REQUEST_CHECK_SETTINGS);
-										} catch (SendIntentException e) {}
-									}
-								};
-								if (googleApiClient!=null) {
-									PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(googleApiClient, locationSettingsRequest);
-									result.setResultCallback(callback);
-								}
-								
-								Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
-									
-									@Override
-									protected void onPreExecute() {
-										findViewById(R.id.loading_panel).setVisibility(View.VISIBLE);
-									}
-									
-									@Override
-									protected Void doInBackground(Void... params) {
-										try {
-											while(!getLocationRefreshStatus() && !cancelGetRoute.get()) {
-												Thread.sleep(1000);
-											}
-										}
-										catch(Exception ignore) {}
-										return null;
-									}
-									
-									@Override
-			        				protected void onPostExecute(Void result) {
-										findViewById(R.id.loading_panel).setVisibility(View.GONE);
-										if(!cancelGetRoute.getAndSet(false)) {
-											startRouteActivity();
-										}
-									}
-								});
-							}
-							else {
-								startRouteActivity();
-							}
-						}
-					});
-				}
-			}
-        });
         passengerIcon = findViewById(R.id.passenger_mode_icon);
         
         toggleGetRouteButton(false);
@@ -1292,74 +898,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         co2View = (TextView) findViewById(R.id.co2);
         co2View.setText(formatMyMetropiaInfo("000lbs"));
         
-        findViewById(R.id.upoint_panel).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						if(WebMyMetropiaActivity.hasMyMetropiaUrl(LandingActivity2.this)){
-				           Intent intent = new Intent(LandingActivity2.this, WebMyMetropiaActivity.class);
-				           intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				           intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, WebMyMetropiaActivity.MY_METROPIA_PAGE);
-				           startActivity(intent);
-				        }else{
-				           Intent intent = new Intent(LandingActivity2.this, MyMetropiaActivity.class);
-				           intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				           startActivity(intent);
-				        }
-					}
-				});
-			}
-        });
-        
-        findViewById(R.id.save_time_panel).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						if(WebMyMetropiaActivity.hasTimeSavingUrl(LandingActivity2.this) || WebMyMetropiaActivity.hasMyMetropiaUrl(LandingActivity2.this)){
-				           Intent intent = new Intent(LandingActivity2.this, WebMyMetropiaActivity.class);
-				           intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				           Integer pageNo = WebMyMetropiaActivity.hasTimeSavingUrl(LandingActivity2.this) ? WebMyMetropiaActivity.TIME_SAVING_PAGE : WebMyMetropiaActivity.MY_METROPIA_PAGE;
-				           intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
-				           startActivity(intent);
-				        }
-						else{
-				           Intent intent = new Intent(LandingActivity2.this, MyMetropiaActivity.class);
-				           intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				           startActivity(intent);
-				        }
-					}
-				});
-			}
-        });
-        
-        findViewById(R.id.co2_panel).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						if(WebMyMetropiaActivity.hasCo2SavingUrl(LandingActivity2.this) || WebMyMetropiaActivity.hasMyMetropiaUrl(LandingActivity2.this)){
-				           Intent intent = new Intent(LandingActivity2.this, WebMyMetropiaActivity.class);
-				           intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				           Integer pageNo = WebMyMetropiaActivity.hasCo2SavingUrl(LandingActivity2.this) ? WebMyMetropiaActivity.CO2_SAVING_PAGE : WebMyMetropiaActivity.MY_METROPIA_PAGE; 
-				           intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
-				           startActivity(intent);
-				        }else{
-				           Intent intent = new Intent(LandingActivity2.this, MyMetropiaActivity.class);
-				           intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				           startActivity(intent);
-				        }
-					}
-				});
-			}
-        });
         
         addressInfo = (TextView) findViewById(R.id.address_info);
         poiIcon = (ImageView) findViewById(R.id.poi_icon);
@@ -1373,7 +911,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		        	final Integer[] resourceIds = (Integer[]) editMenu.getTag();
 		        	editMenu.setImageResource(resourceIds[0]);
 		        	ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
-		//        	clickAni.setAnimationId(R.anim.menu_click_animation);
 		        	clickAni.startAnimation(new ClickAnimationEndCallback() {
 						@Override
 						public void onAnimationEnd() {
@@ -1396,7 +933,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 					v.setClickable(false);
 					toMenu.setImageResource(R.drawable.selected_to_menu);
 					ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
-		//			clickAni.setAnimationId(R.anim.menu_click_animation);
 					clickAni.startAnimation(new ClickAnimationEndCallback() {
 						@Override
 						public void onAnimationEnd() {
@@ -1418,7 +954,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 					v.setClickable(false);
 					fromMenu.setImageResource(R.drawable.selected_from_menu);
 					ClickAnimation clickAni = new ClickAnimation(LandingActivity2.this, v);
-		//			clickAni.setAnimationId(R.anim.menu_click_animation);
 					clickAni.startAnimation(new ClickAnimationEndCallback() {
 						@Override
 						public void onAnimationEnd() {
@@ -1436,67 +971,26 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         toIcon = (ImageView) findViewById(R.id.to_icon);
         
         popupPanel = (FrameLayout)findViewById(R.id.popup_panel);
-        /*
-        popupPanel.setOnTouchListener(new OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				if(event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-					mapView.dispatchTouchEvent(event);
-				}
-				else if(event.getActionMasked() == MotionEvent.ACTION_MOVE) {
-					for(int i = 0 ; i < popupPanel.getChildCount() && selectedMenu == null ; i++) {
-						View icon = popupPanel.getChildAt(i);
-						Rect iconRect = new Rect(icon.getLeft(), icon.getTop(), icon.getRight(), icon.getBottom());
-						if(icon.getVisibility() == View.VISIBLE && iconRect.contains((int)event.getX(), (int)event.getY())) {
-							selectedMenu = icon;
-						}
-					}
-					fromMenu.setImageResource(R.drawable.home);
-					if(selectedMenu != null && selectedMenu instanceof ImageView) {
-						((ImageView)selectedMenu).setImageResource(R.drawable.work);
-					}
-					mapView.dispatchTouchEvent(event);
-				}
-				else if(event.getActionMasked() == MotionEvent.ACTION_UP) {
-					fromMenu.setImageResource(R.drawable.home);
-					popupPanel.setBackgroundColor(android.R.color.transparent);
-					fromMenu.setVisibility(View.INVISIBLE);
-					mapView.dispatchTouchEvent(event);
-				}
-				return true;
+        reservationListView = (ReservationListView) findViewById(R.id.reservationList);
+        reservationListView.setRefreshCallback(new ICallback() {
+			public void run(Object... obj) {
+				
+                Reservation notifyReserv = (Reservation) obj[0];
+            	if(notifyReserv != null) {
+        	        tripNotifyIcon.setImageResource(notifyReserv.isEligibleTrip()?R.drawable.upcoming_trip_green:R.drawable.upcoming_trip_orange);
+        	        tripNotifyIcon.setVisibility(View.VISIBLE);
+        	        passengerIcon.setVisibility(View.GONE);
+            	}
+            	else {
+            		tripNotifyIcon.setVisibility(View.GONE);
+        	        passengerIcon.setVisibility(View.VISIBLE);
+        	    }
 			}
-    	});
-        */
+		});
         
-        passengerIcon.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(final View v) {
-				v.setClickable(false);
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						SharedPreferences prefs = Preferences.getGlobalPreferences(LandingActivity2.this);
-			            int duoTutorialFinish = prefs.getInt(Preferences.Global.DUO_TUTORIAL_FINISH, 0);
-			            
-						if (duoTutorialFinish==1) {
-			                Intent intent = new Intent(LandingActivity2.this, PassengerActivity.class);
-			                JSONObject validationResult = (JSONObject) passengerIcon.getTag();
-			                if (validationResult!=null) intent.putExtra("result", validationResult.toString());
-							startActivity(intent);
-			                finish();
-						}
-						else new BlurDialog(LandingActivity2.this).show();
-						v.setClickable(true);
-					}
-				});
-			}
-        });
         
         AssetManager assets = getAssets();
-        Font.setTypeface(Font.getLight(assets), searchBox, fromSearchBox, myMetropiaMenu, 
-            reservationsMenu, shareMenu, feedbackMenu, rewardsMenu, settingsMenu, userInfoView, myTripsMenu,
-            favoriteListMenu, inBoxMenu, inboxNotification, (TextView) findViewById(R.id.menu_notification));
+        Font.setTypeface(Font.getLight(assets), searchBox, fromSearchBox, myMetropiaMenu, reservationsMenu, shareMenu, feedbackMenu, settingsMenu, userInfoView, favoriteListMenu, inBoxMenu, inboxNotification, (TextView) findViewById(R.id.menu_notification));
         Font.setTypeface(Font.getMedium(assets), upointView, saveTimeView, co2View, (TextView) findViewById(R.id.head));
         Font.setTypeface(Font.getRobotoBold(assets), getRouteView);
         //init Tracker
@@ -1632,10 +1126,11 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     private boolean showTutorialIfNessary() {
+    	if (true) return false;
     	SharedPreferences prefs = Preferences.getGlobalPreferences(this);
     	int tutorialFinish = prefs.getInt(Preferences.Global.TUTORIAL_FINISH, 0);
     	// hide tutorial page
-    	if(false && tutorialFinish != TutorialActivity.TUTORIAL_FINISH) {
+    	if(tutorialFinish != TutorialActivity.TUTORIAL_FINISH) {
     		Intent intent = new Intent(this, TutorialActivity.class);
     		intent.putExtra(TutorialActivity.FROM_LANDING_PAGE, true);
             startActivity(intent);
@@ -1703,164 +1198,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	}
     }
     
-//    private Integer EMPTY_ITEM_SIZE = 5;
     
-//    private List<Address> getEmptyAddressesForUI() {
-//    	List<Address> emptyAddresses = new ArrayList<Address>();
-//    	for(int i = 0 ; i < EMPTY_ITEM_SIZE ; i++) {
-//    		Address empty = new Address();
-//    		empty.setAddress("");
-//    		empty.setDistance(-1);
-//    		empty.setName("");
-//    		emptyAddresses.add(empty);
-//    	}
-//    	return emptyAddresses;
-//    }
     
-    private Long dismissReservId = Long.valueOf(-1);
-    private Boolean swipeRight = Boolean.FALSE;
-    
-    private LinearLayout reservationListPanel;
-    
-    private void initReservationListView() {
-    	reservationListPanel = (LinearLayout) findViewById(R.id.reservation_list);
-    	tripNotifyIcon = (ImageView) findViewById(R.id.trip_notify_icon);
-    	tripNotifyIcon.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						showTripInfoPanel(true, true);
-					}
-				});
-			}
-		});
-    	
-    	final DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-    	findViewById(R.id.reservation_list_menu).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						openMenu(mDrawerLayout);
-					}
-				});
-			}
-    	});
-    	
-    	findViewById(R.id.reservation_head_add).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						dismissReservId = getFirstReservation() != null ? getFirstReservation().getRid() : -1;
-						closeIfEmpty.set(true);
-						hideTripInfoPanel();
-						centerMap();
-					}
-				});
-			}
-    	});
-    	
-    	findViewById(R.id.add_new_reservation_panel).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						dismissReservId = getFirstReservation() != null ? getFirstReservation().getRid() : -1;
-						closeIfEmpty.set(true);
-						hideTripInfoPanel();
-						centerMap();
-					}
-				});
-			}
-    	});
-    	
-    	newUserTipView = findViewById(R.id.new_user_tip);
-    	newUserTipView.setVisibility(DebugOptionsActivity.isUserCloseTip(LandingActivity2.this)?View.GONE:View.VISIBLE);
-    	
-    	ImageView tipCloseView = (ImageView) findViewById(R.id.tip_close);
-    	if(!DebugOptionsActivity.isUserCloseTip(LandingActivity2.this)) {
-    		tipCloseView.setImageBitmap(Misc.getBitmap(LandingActivity2.this, R.drawable.tip_close, 1));
-    	}
-    	
-    	tipCloseView.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				newUserTipView.setVisibility(View.GONE);
-				DebugOptionsActivity.userCloseTip(LandingActivity2.this);
-				int reservCount = 0;
-				for(int i = 0 ; i < reservationListPanel.getChildCount() ; i++) {
-					View child = reservationListPanel.getChildAt(i);
-					if(child.getTag() != null && child.getTag() instanceof Reservation) {
-						reservCount++;
-					}
-				}
-				
-				if(reservCount < 2) {
-					findViewById(R.id.add_new_trip_background).setVisibility(View.VISIBLE);
-				}
-			}
-    	});
-    	
-    	SwipeDeleteTouchListener touchListener =
-                new SwipeDeleteTouchListener(reservationListPanel, 
-                        new SwipeDeleteTouchListener.OnDismissCallback() {
-                            @Override
-                            public void onDismiss(View tripInfoView, final List<Reservation> reservs) {
-                                final Reservation reserv = (Reservation) tripInfoView.getTag();
-                                final Long removeReservId = reserv.getRid();
-                                AsyncTask<Void, Void, Boolean> delTask = new AsyncTask<Void, Void, Boolean>(){
-                                	@Override
-                                	protected void onPreExecute() {
-                                		removedReservIds.add(removeReservId);
-                                		closeIfEmpty.set(true);
-                                		refreshReservationList(reservs);
-                                	}
-                                	
-            		                @Override
-            		                protected Boolean doInBackground(Void... params) {
-            		                    ReservationDeleteRequest request = new ReservationDeleteRequest(
-            		                        User.getCurrentUser(LandingActivity2.this), reserv.getRid());
-            		                    Boolean success = Boolean.TRUE;
-            		                    try {
-            		                        request.execute(LandingActivity2.this);
-            		                    }
-            		                    catch (Exception e) {
-            		                      	success = Boolean.FALSE;
-            		                    }
-            		                    return success;
-            		                }
-            		                    
-            		                @Override
-            		                protected void onPostExecute(Boolean success) {
-            		                 	if(success) {
-            		                   		DebugOptionsActivity.removeReservRecipients(LandingActivity2.this, reserv.getRid());
-            		                   		refreshTripsInfo(false, false);
-            		                   		removedReservIds.remove(removeReservId);
-            		                   	}
-            		                }
-            		            };
-            		            Misc.parallelExecute(delTask);
-                            }
-
-							@Override
-							public void onDismissRight() {}
-
-                         });
-    	reservationListPanel.setOnTouchListener(touchListener);
-//        Font.setTypeface(boldFont, (TextView) findViewById(R.id.no_reserved_trips));
-    }
-    
-    private void centerMap() {
+    public void centerMap() {
      	if(routeRect == null && myPoint != null) {
     		mapView.setZoom(calculateZoomLevel(myPoint.getLatitude()));
     		mapView.centerMapOnPosition(new SKCoordinate(myPoint.getLongitude(), myPoint.getLatitude()));
@@ -1873,242 +1213,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	}
     }
     
-    private View createReservationInfoView(final Reservation reserv, boolean isFirst) {
-    	View reservInfo = getLayoutInflater().inflate(R.layout.reservation_trip_info, reservationListPanel, false);
-    	
-    	String arrivalTime = StringUtils.replace(formatTime(reserv.getArrivalTimeUtc(), reserv.getRoute().getTimezoneOffset(), false), " ", "");
-    	String durationTimeDesc = "";
-    	String arrivalTimeDesc = "";
-    	int backgroundColor = R.color.metropia_orange;
-    	int startTimeVisible = View.VISIBLE;
-    	int durationTimeVisible = View.VISIBLE;
-    	int startButtonResourceId = R.drawable.reservation_start_trip_transparent;
-    	long departureTimeUtc = reserv.getDepartureTimeUtc();
-    	String nextTripStartTime = "";
-        long timeUntilDepart = departureTimeUtc - System.currentTimeMillis();
-        long durationTime = reserv.getDuration();  //sec
-        String originDesc = StringUtils.isNotBlank(reserv.getOriginName()) ? reserv.getOriginName() : reserv.getOriginAddress();
-        String destDesc = StringUtils.isNotBlank(reserv.getDestinationName()) ? reserv.getDestinationName() : reserv.getDestinationAddress();
-        final boolean lessThanOneMinite = timeUntilDepart < 1 * 60 * 1000;
-        if(reserv.isEligibleTrip()){
-        	startTimeVisible = lessThanOneMinite && isFirst ? View.GONE : View.VISIBLE;
-        	durationTimeVisible = lessThanOneMinite ? View.VISIBLE : View.GONE;
-            backgroundColor = isFirst ? (lessThanOneMinite ? R.color.metropia_green : R.color.metropia_orange) : R.color.metropia_blue;
-            if(isFirst && !lessThanOneMinite) {
-            	int countDownMins = Double.valueOf(Math.ceil(Double.valueOf(timeUntilDepart)/Double.valueOf(60*1000))).intValue();
-            	nextTripStartTime = String.format("%d\nMINS", countDownMins);
-            }
-            else {
-            	nextTripStartTime = StringUtils.replace(formatTime(departureTimeUtc, reserv.getRoute().getTimezoneOffset(), !isFirst), " ", "\n");
-            }
-            arrivalTime = lessThanOneMinite ? formatTime(System.currentTimeMillis() + durationTime*1000, reserv.getRoute().getTimezoneOffset(), false) : arrivalTime;
-            arrivalTimeDesc = "Arrival: " + arrivalTime;
-            durationTimeDesc = "Duration: " + getFormattedDuration(Long.valueOf(durationTime).intValue());
-            startButtonResourceId = isFirst ? (lessThanOneMinite ? R.drawable.reservation_start_trip : R.drawable.reservation_start_trip_transparent) : R.drawable.reservation_start_trip_disable;
-        }else {
-        	startTimeVisible = View.VISIBLE;
-        	durationTimeVisible = View.GONE;
-            nextTripStartTime = StringUtils.replace(formatTime(departureTimeUtc, reserv.getRoute().getTimezoneOffset(), !isFirst), " ", "\n");
-            backgroundColor = isFirst ? R.color.metropia_orange : R.color.metropia_blue;
-            arrivalTimeDesc = "Arrival: " + arrivalTime;
-            durationTimeDesc = "Duration: " + getFormattedDuration(Long.valueOf(durationTime).intValue());
-            startButtonResourceId = isFirst ? R.drawable.reservation_start_trip_transparent : R.drawable.reservation_start_trip_disable;
-        }
-        
-        reservInfo.findViewById(R.id.trip_info_desc).setVisibility(isFirst?View.VISIBLE:View.GONE);
-        
-        TextView tripInfoFromAddressView =  (TextView) reservInfo.findViewById(R.id.trip_info_from_address);
-    	tripInfoFromAddressView.setText(originDesc);
-    	TextView tripInfoToAddressView =  (TextView) reservInfo.findViewById(R.id.trip_info_to_address);
-    	tripInfoToAddressView.setText(destDesc);
-    	TextView timeToGo = (TextView) reservInfo.findViewById(R.id.time_to_go_desc);
-    	timeToGo.setText(startTimeVisible == View.GONE ? "It's Time to Go!" : (reserv.isEligibleTrip() ? "WILL START IN:" : ""));
-    	timeToGo.setVisibility(isFirst?View.VISIBLE:View.GONE);
-        reservInfo.setBackgroundColor(getResources().getColor(backgroundColor));
-        reservInfo.setTag(reserv);
-        TextView tripDurationTimeView = (TextView) reservInfo.findViewById(R.id.reservation_duration_time);
-        tripDurationTimeView.setVisibility(durationTimeVisible);
-        tripDurationTimeView.setText(formatTripTime(durationTimeDesc));
-        TextView tripArrivalTimeView = (TextView) reservInfo.findViewById(R.id.reservation_arrive_time);
-        tripArrivalTimeView.setVisibility(View.VISIBLE);
-        tripArrivalTimeView.setText(formatTripTime(arrivalTimeDesc));
-        TextView tripStartTimeView = (TextView) reservInfo.findViewById(R.id.reservation_start_time);
-        tripStartTimeView.setVisibility(startTimeVisible);
-        if(isFirst && reserv.isEligibleTrip()) {
-        	tripStartTimeView.setText(formatCountDownTime(nextTripStartTime));
-        	tripStartTimeView.setPadding(0, Dimension.dpToPx(8, getResources().getDisplayMetrics()), 0, 0);
-        }
-        else {
-        	tripStartTimeView.setText(formatStartTripTime(nextTripStartTime));
-        	tripStartTimeView.setPadding(0, 0, 0, 0);
-        }
-        ImageView startButton = (ImageView) reservInfo.findViewById(R.id.reservation_start_button);
-        startButton.setImageBitmap(Misc.getBitmap(LandingActivity2.this, startButtonResourceId, 1));
-//        startButton.setImageResource(startButtonResourceId);
-        reservInfo.findViewById(R.id.reservation_trip_times).setVisibility(isFirst?View.VISIBLE:View.GONE);
-//        reservInfo.findViewById(R.id.leave_label).setVisibility((isFirst && !reserv.isEligibleTrip())?View.VISIBLE:View.GONE);
-        reservInfo.findViewById(R.id.center_line).setVisibility(isFirst? View.GONE : View.VISIBLE);
-        
-        if(isFirst) {
-        	startButton.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(final View v) {
-					ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-					clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-						@Override
-						public void onAnimationEnd() {
-							if(reserv.isEligibleTrip()) {
-								startValidationActivity(reserv);
-							}
-							else {
-								NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, "Would you like to start your trip early?");
-								dialog.setVerticalOrientation(false);
-								dialog.setTitle("");
-								dialog.setPositiveButtonText("Yes");
-								dialog.setPositiveActionListener(new ActionListener() {
-									@Override
-									public void onClick() {
-									    GeoPoint origin = null;
-									    final ReservationTollHovInfo reservationInfo = MapDisplayActivity.getReservationTollHovInfo(LandingActivity2.this, reserv.getRid());
-									    if(myPoint != null){
-									        origin = new GeoPoint(myPoint.getLatitude(), myPoint.getLongitude());
-									    }
-										RescheduleTripTask rescheduleTask = new RescheduleTripTask(LandingActivity2.this, 
-										        origin, null, reserv.getDestinationAddress(), 
-								        		reserv.getRid(), versionNumber, ehs, reservationInfo);
-										rescheduleTask.callback = new RescheduleTripTask.Callback() {
-				                            @Override
-				                            public void run(Reservation reservation) {
-				                            	Log.d("LandingActivity2", "Reschedule trip start");
-				                            	reservationInfo.setReservationId(reservation.getRid());
-				                            	MapDisplayActivity.addReservationTollHovInfo(LandingActivity2.this, reservationInfo);
-				                            	startValidationActivity(reservation);
-				                            }
-				                        };
-				                        Misc.parallelExecute(rescheduleTask);
-									}
-								});
-								dialog.setNegativeButtonText("No");
-								dialog.setNegativeActionListener(new ActionListener() {
-									@Override
-									public void onClick() {
-										//do nothing
-									}
-								});
-								dialog.show();
-							}
-						}
-					});
-				}
-        	});
-        }
-        
-        TextView reservationOnMyWay = (TextView) reservInfo.findViewById(R.id.reservation_on_my_way);
-        reservationOnMyWay.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(final View v) {
-				v.setClickable(false);
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						v.setClickable(true);
-						Intent contactSelect = new Intent(LandingActivity2.this, ContactsSelectActivity.class);
-					    JSONObject reservRecipients = DebugOptionsActivity.getReservRecipients(LandingActivity2.this, reserv.getRid());
-					    if(reservRecipients != null) {
-						    contactSelect.putExtra(ContactsSelectActivity.SELECTED_EMAILS, reservRecipients.optString(ValidationActivity.EMAILS, ""));
-						    contactSelect.putExtra(ContactsSelectActivity.SELECTED_PHONES, reservRecipients.optString(ValidationActivity.PHONES, ""));
-					    }
-						startActivityForResult(contactSelect, ON_MY_WAY);
-					}
-				});
-			}
-        });
-        
-        View reservReschedule = reservInfo.findViewById(R.id.reschedule_panel);
-        reservReschedule.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(final View v) {
-				v.setClickable(false);
-				mapView.deleteAllAnnotationsAndCustomPOIs();
-				mapView.clearAllOverlays();
-				ClickAnimation clickAnimation = new ClickAnimation(LandingActivity2.this, v);
-				clickAnimation.startAnimation(new ClickAnimationEndCallback() {
-					@Override
-					public void onAnimationEnd() {
-						try {
-			                Intent intent = new Intent(LandingActivity2.this, RouteActivity.class);
-			                Bundle extras = new Bundle();
-			                extras.putLong(RouteActivity.RESCHEDULE_RESERVATION_ID, reserv.getRid());
-			                extras.putString("originAddr", reserv.getOriginAddress());
-			                extras.putParcelable(RouteActivity.ORIGIN_COORD, reserv.getStartGpFromNavLink());
-			                extras.putString(RouteActivity.ORIGIN_COORD_PROVIDER, null);
-			                extras.putLong(RouteActivity.ORIGIN_COORD_TIME, 0);
-			                extras.putParcelable(RouteActivity.ORIGIN_OVERLAY_INFO, poiContainer.getExistedPOIByLocation(reserv.getStartGpFromNavLink().getLatitude(), reserv.getStartGpFromNavLink().getLongitude()));
-			                extras.putString("destAddr", reserv.getDestinationAddress());
-			                extras.putParcelable(RouteActivity.DEST_COORD, reserv.getEndGpFromNavLink());
-			                extras.putLong(RouteActivity.RESCHEDULE_DEPARTURE_TIME, reserv.getDepartureTimeUtc());
-			                extras.putParcelable(RouteActivity.DEST_OVERLAY_INFO, poiContainer.getExistedPOIByLocation(reserv.getEndGpFromNavLink().getLatitude(), reserv.getEndGpFromNavLink().getLongitude()));
-			                intent.putExtras(extras);
-//			                hideBulbBalloon();
-//			                hideStarredBalloon();
-			                removeAllOD();
-			                startActivity(intent);
-			                finish();
-						}
-						catch(Exception e) {
-							ehs.reportException(e);
-						}
-						v.setClickable(true);
-					}
-				});
-			}
-        });
-        
-        reservInfo.findViewById(R.id.trip_od_detail).setVisibility(isFirst?View.GONE:View.VISIBLE);
-        reservInfo.findViewById(R.id.reservation_on_my_way).setVisibility(isFirst?View.VISIBLE:View.GONE);
-        
-        TextView fromAddressView = (TextView) reservInfo.findViewById(R.id.od_from_address);
-        fromAddressView.setText(originDesc);
-        TextView toAddressView = (TextView) reservInfo.findViewById(R.id.od_to_address);
-        toAddressView.setText(destDesc);
-        
-        Font.setTypeface(robotoBoldFont, timeToGo, tripDurationTimeView, tripArrivalTimeView, tripStartTimeView, tripInfoFromAddressView, tripInfoToAddressView);
-        Font.setTypeface(robotoLightFont, reservationOnMyWay, (TextView) reservInfo.findViewById(R.id.reschedule_desc));
-        
-        if(isFirst) {
-	        tripNotifyIcon.setImageResource(lessThanOneMinite?R.drawable.upcoming_trip_green:R.drawable.upcoming_trip_orange);
-	        tripNotifyIcon.setVisibility(View.VISIBLE);
-	        passengerIcon.setVisibility(View.GONE);
-        }
-        
-        return reservInfo;
-    }
     
-    private View createEmptyReservationInfoView() {
-    	FrameLayout emptyReservInfo = (FrameLayout) getLayoutInflater().inflate(R.layout.reservation_trip_info, reservationListPanel, false);
-    	int startButtonResourceId = R.drawable.reservation_start_trip_transparent;
-        emptyReservInfo.findViewById(R.id.trip_info_desc).setVisibility(View.GONE);
-    	TextView timeToGo = (TextView) emptyReservInfo.findViewById(R.id.time_to_go_desc);
-    	timeToGo.setVisibility(View.GONE);
-        TextView tripDurationTimeView = (TextView) emptyReservInfo.findViewById(R.id.reservation_duration_time);
-        tripDurationTimeView.setVisibility(View.GONE);
-        TextView tripArrivalTimeView = (TextView) emptyReservInfo.findViewById(R.id.reservation_arrive_time);
-        tripArrivalTimeView.setVisibility(View.INVISIBLE);
-        TextView tripStartTimeView = (TextView) emptyReservInfo.findViewById(R.id.reservation_start_time);
-        tripStartTimeView.setVisibility(View.INVISIBLE);
-        ImageView startButton = (ImageView) emptyReservInfo.findViewById(R.id.reservation_start_button);
-        startButton.setImageBitmap(Misc.getBitmap(LandingActivity2.this, startButtonResourceId, 1));
-//        startButton.setImageResource(startButtonResourceId);
-        startButton.setVisibility(View.INVISIBLE);
-        emptyReservInfo.findViewById(R.id.reservation_trip_times).setVisibility(View.GONE);
-//        emptyReservInfo.findViewById(R.id.leave_label).setVisibility(View.GONE);
-        emptyReservInfo.findViewById(R.id.center_line).setVisibility(View.INVISIBLE);
-        emptyReservInfo.findViewById(R.id.reservation_on_my_way).setVisibility(View.INVISIBLE);
-        emptyReservInfo.findViewById(R.id.reschedule_panel).setVisibility(View.INVISIBLE);
-        emptyReservInfo.findViewById(R.id.center_line).setVisibility(View.VISIBLE);;
-        return emptyReservInfo;
-    }
     
     private void clearSearchResult() {
     	searchAddresses.clear();
@@ -2290,7 +1395,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 @Override
                 public void run() {
                     drawedReservId = Long.valueOf(-1);
-                    dismissReservId = Long.valueOf(-1);
+                    reservationListView.dismissReservId = Long.valueOf(-1);
                     refreshTripsInfo(true, true);
                 }
             });
@@ -2421,8 +1526,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     protected void checkLocationSettings() {
-        PendingResult<LocationSettingsResult> result =
-                LocationServices.SettingsApi.checkLocationSettings(googleApiClient, locationSettingsRequest);
+        PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(googleApiClient, locationSettingsRequest);
         result.setResultCallback(LandingActivity2.this);
         
     }
@@ -2498,7 +1602,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         registerReceiver(tripInfoUpdater, new IntentFilter(TRIP_INFO_UPDATES));
         registerReceiver(onTheWayNotifier, new IntentFilter(ON_THE_WAY_NOTICE));
         registerReceiver(inboxNotifier, new IntentFilter(IN_BOX_NOTICE));
-//        prepareGPS();
+//		prepareGPS();
         
         mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
         mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_GAME);
@@ -2544,6 +1648,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	    super.onPause();
 	    if (mapView!=null) mapView.clearAllOverlays();
 	    if (mapView!=null) mapView.deleteAllAnnotationsAndCustomPOIs();
+	    if (mapView!=null) removeAllOD();
 	    enableDrawRoute.set(false);
 	    mapViewHolder.onPause();
 	    mSensorManager.unregisterListener(this, accelerometer);
@@ -2572,13 +1677,13 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	            	}
 	                tripNotifyIcon.setVisibility(View.GONE);
 	                passengerIcon.setVisibility((getRouteView.getVisibility() == View.GONE && !disableShowPassengerMode.get()) ? View.VISIBLE : View.GONE);
-	                refreshReservationList(new ArrayList<Reservation>());
+	                reservationListView.refreshReservationList(new ArrayList<Reservation>());
 	                //unlockMenu();
 	            } 
 	            else{
                     Reservation reserv = reservations.get(0);
 	                drawRoute(reserv);
-                    refreshReservationList(reservations);
+	                reservationListView.refreshReservationList(reservations);
 	            }
 	        }
 	    };
@@ -2634,9 +1739,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 removeTerminatedReservs(ctx, reservations);
                 Collections.sort(reservations, Reservation.orderByDepartureTime());
             }
-            catch (NullPointerException e){}
-            catch (Exception e) {
-            }
+            catch (Exception e) {}
             return reservations;
         }
     }
@@ -2652,147 +1755,9 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }
     }
     
-    private List<Long> removedReservIds = new ArrayList<Long>();
     
-    private AtomicBoolean closeIfEmpty = new AtomicBoolean(true);
     private View passengerIcon;
     
-    private void refreshReservationList(List<Reservation> reservations) {
-    	reservationListPanel.removeAllViews();
-    	Reservation notifyReserv = null;
-    	int curReservIdx = -1;
-    	boolean cont = true;
-    	while(curReservIdx < (reservations.size()-1) && cont) {
-    		curReservIdx++;
-    		Reservation tempReserv = reservations.get(curReservIdx);
-    		if(!tempReserv.hasExpired()) {
-    			notifyReserv = tempReserv;
-    			cont = false;
-    		}
-    	}
-    	
-    	if(notifyReserv != null) {
-	        tripNotifyIcon.setImageResource(notifyReserv.isEligibleTrip()?R.drawable.upcoming_trip_green:R.drawable.upcoming_trip_orange);
-	        tripNotifyIcon.setVisibility(View.VISIBLE);
-	        passengerIcon.setVisibility(View.GONE);
-    	}
-    	
-    	initFontsIfNecessary();
-    	
-    	if(!cont) {
-    		TextView nextDesc = new TextView(LandingActivity2.this);
-    		LinearLayout.LayoutParams nextDescLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-    		nextDesc.setLayoutParams(nextDescLp);
-    		nextDesc.setGravity(Gravity.CENTER);
-    		nextDesc.setText("NEXT");
-    		nextDesc.setTextColor(getResources().getColor(android.R.color.white));
-    		nextDesc.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
-    		nextDesc.setBackgroundColor(getResources().getColor(android.R.color.black));
-    		reservationListPanel.addView(nextDesc);
-    		
-    		for(int i = curReservIdx ; i < reservations.size() ; i++) {
-    			Reservation reserv = reservations.get(i);
-    			if(!removedReservIds.contains(reserv.getRid())) {
-    				boolean isFirst = i == curReservIdx;
-    				View reservInfoView = createReservationInfoView(reserv, isFirst);
-    				if(isFirst) {
-    					MapDisplayActivity.cleanReservationTollHovInfoBeforeId(LandingActivity2.this, reserv.getRid());
-    				}
-    				reservationListPanel.addView(reservInfoView);
-    				if(isFirst) {
-    					TextView scheduledDesc = new TextView(LandingActivity2.this);
-    		    		LinearLayout.LayoutParams scheduledDescLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-    		    		scheduledDesc.setLayoutParams(scheduledDescLp);
-    		    		scheduledDesc.setGravity(Gravity.CENTER);
-    		    		scheduledDesc.setText("SCHEDULED");
-    		    		scheduledDesc.setTextColor(getResources().getColor(android.R.color.white));
-    		    		scheduledDesc.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
-    		    		scheduledDesc.setBackgroundColor(getResources().getColor(android.R.color.black));
-    		    		reservationListPanel.addView(scheduledDesc);
-    				}
-    				else if(i != reservations.size() - 1) {
-    					View spliter = new View(LandingActivity2.this);
-    					LinearLayout.LayoutParams spliterLp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, Dimension.dpToPx(1, getResources().getDisplayMetrics()));
-    					spliter.setLayoutParams(spliterLp);
-    					spliter.setBackgroundColor(getResources().getColor(R.color.light_gray));
-    					reservationListPanel.addView(spliter);
-    				}
-    				
-    			}
-    		}
-    		
-    		if (!disableRefreshTripInfo.get()) showTripInfoPanel(false, false);
-    	}
-    	else {
-    		dismissReservId = -1L;
-    		tripNotifyIcon.setVisibility(View.GONE);
-    		if(closeIfEmpty.get()) {
-    			hideReservationInfoPanel();
-    		}
-    	}
- 
-    	int reservCount = curReservIdx == -1 ? 0 : reservations.size() - curReservIdx;
-    	if((reservCount == 1 && !DebugOptionsActivity.isUserCloseTip(LandingActivity2.this)) || reservCount > 1) {
-			findViewById(R.id.add_new_trip_background).setVisibility(View.GONE);
-			if(reservCount > 1) {
-				newUserTipView.setVisibility(View.GONE);
-				if(reservCount == 2) {
-					View emptyView = createEmptyReservationInfoView();
-					reservationListPanel.addView(emptyView);
-				}
-			}
-			else {
-				newUserTipView.setVisibility(DebugOptionsActivity.isUserCloseTip(LandingActivity2.this)?View.GONE:View.VISIBLE);
-			}
-		}
-		else {
-			findViewById(R.id.add_new_trip_background).setVisibility(View.VISIBLE);
-			newUserTipView.setVisibility(DebugOptionsActivity.isUserCloseTip(LandingActivity2.this)?View.GONE:View.VISIBLE);
-		}
-    }
-    
-    private SpannableString formatCountDownTime(String countDownDesc) {
-    	int indexOfChange = countDownDesc.indexOf("\n");
-    	SpannableString countDownSpan = SpannableString.valueOf(countDownDesc);
-		countDownSpan.setSpan(new AbsoluteSizeSpan(Dimension.dpToPx(50, getResources().getDisplayMetrics())), 0, indexOfChange,
-				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		countDownSpan.setSpan(new AbsoluteSizeSpan(getResources()
-					.getDimensionPixelSize(R.dimen.smallest_font)), indexOfChange + 1, countDownDesc.length(), 
-					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		countDownSpan.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.transparent_black)), indexOfChange + 1, countDownDesc.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		return countDownSpan;
-    }
-    
-    private String formatTime(long time, int timzoneOffset, boolean showDate){
-    	String format = showDate ? "EEEE h:mm a" : "h:mm a";
-	    SimpleDateFormat dateFormat = new SimpleDateFormat(format, Locale.US);
-        dateFormat.setTimeZone(TimeZone.getTimeZone(Request.getTimeZone(timzoneOffset)));
-        return dateFormat.format(new Date(time));
-	}
-    
-    private String getFormattedDuration(int duration){
-	    return String.format("%dmin", duration/60);
-	}
-    
-    private void showTripInfoPanel(boolean force, boolean animation) {
-    	View tripInfoPanel = findViewById(R.id.reservations_list_view);
-    	if((force && hasReservTrip()) || 
-    			(tripInfoPanel.getVisibility() != View.VISIBLE && hasReservTrip() && !dismissReservId.equals(getFirstReservation().getRid()))) {
-    		tripInfoPanel.setVisibility(View.VISIBLE);
-    		if(animation) {
-    			float fromX = swipeRight?tripInfoPanel.getWidth():-1*tripInfoPanel.getWidth();
-	    		ObjectAnimator slideAnimator = ObjectAnimator.ofFloat(tripInfoPanel, "translationX", fromX, 0f);
-	    		slideAnimator.setDuration(500);
-	    		slideAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-	    		ObjectAnimator alphaAnimator = ObjectAnimator.ofFloat(tripInfoPanel, "alpha", 0f, 1f);
-	    		alphaAnimator.setDuration(500);
-	    		alphaAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
-	    		AnimatorSet animatorSet = new AnimatorSet();
-	    		animatorSet.play(slideAnimator).with(alphaAnimator);
-	    		animatorSet.start();
-    		}
-    	}
-    }
     
     private void showFavoriteOptPanel(PoiOverlayInfo info) {
     	Intent favOpt = new Intent(LandingActivity2.this, FavoriteOperationActivity.class);
@@ -2800,36 +1765,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     	startActivityForResult(favOpt, FavoriteOperationActivity.FAVORITE_OPT);
     }
     
-    private boolean hasReservTrip() {
-    	int childCount = reservationListPanel.getChildCount();
-    	for(int i = 0 ; i < childCount ; i++) {
-    		View child = reservationListPanel.getChildAt(i);
-    		if(child.getTag() != null && child.getTag() instanceof Reservation) {
-    			return true;
-    		}
-    	}
-    	return false;
-    }
-    
-    private Reservation getFirstReservation() {
-    	int childCount = reservationListPanel.getChildCount();
-    	for(int i = 0 ; i < childCount ; i++) {
-    		View child = reservationListPanel.getChildAt(i);
-    		if(child.getTag() != null && child.getTag() instanceof Reservation && child.findViewById(R.id.reservation_on_my_way).getVisibility() == View.VISIBLE) {
-    			return (Reservation) child.getTag();
-    		}
-    	}
-    	return null;
-    }
-    
-    private void hideTripInfoPanel() {
-    	findViewById(R.id.reservations_list_view).setVisibility(View.GONE);
-    }
-    
-    private void hideReservationInfoPanel() {
-    	hideTripInfoPanel();
-    	//unlockMenu();
-    }
     
     private void unlockMenu() {
     	DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -2837,65 +1772,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     }
     
     private boolean isReservationInfoShown() {
-    	return findViewById(R.id.reservations_list_view).getVisibility() == View.VISIBLE;
-    }
-    
-    private SpannableString formatTripTime(String startTime) {
-    	int firstNumberIdx = getFirstNumberIndex(startTime);
-		SpannableString startTimeSpan = SpannableString.valueOf(startTime);
-		if(firstNumberIdx != -1) {
-			startTimeSpan.setSpan(new AbsoluteSizeSpan(getResources()
-					.getDimensionPixelSize(R.dimen.smaller_font)), 0, firstNumberIdx,
-					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			startTimeSpan.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.transparent_white)), 0 , firstNumberIdx, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		}
-		int lastNumberIdx = getLastNumberIndex(startTime);
-		if(lastNumberIdx != -1) {
-			startTimeSpan.setSpan(new AbsoluteSizeSpan(getResources()
-					.getDimensionPixelSize(R.dimen.smaller_font)), lastNumberIdx + 1, startTime.length(), 
-					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		}
-		return startTimeSpan;
-    }
-    
-    private SpannableString formatStartTripTime(String startTripTime) {
-    	int firstNumberIdx = getFirstNumberIndex(startTripTime);
-		SpannableString startTimeSpan = SpannableString.valueOf(startTripTime);
-		if(firstNumberIdx != -1) {
-			startTimeSpan.setSpan(new AbsoluteSizeSpan(getResources()
-					.getDimensionPixelSize(R.dimen.micro_font)), 0, firstNumberIdx,
-					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		}
-		int lastNumberIdx = getLastNumberIndex(startTripTime);
-		if(lastNumberIdx != -1) {
-			startTimeSpan.setSpan(new AbsoluteSizeSpan(getResources()
-					.getDimensionPixelSize(R.dimen.smaller_font)), lastNumberIdx + 1, startTripTime.length(), 
-					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			startTimeSpan.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.transparent_black)), lastNumberIdx + 1, startTripTime.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-		}
-		return startTimeSpan;
-    }
-    
-    private int getFirstNumberIndex(String str) {
-    	char[] strChars = str.toCharArray();
-    	for(int i = 0 ; i < strChars.length ; i++) {
-    		char c = strChars[i];
-    		if(CharUtils.isAsciiNumeric(c)) {
-    			return i;
-    		}
-    	}
-    	return -1;
-    }
-    
-    private int getLastNumberIndex(String str) {
-    	char[] strChars = str.toCharArray();
-    	for(int i = strChars.length - 1 ; i >= 0 ; i--) {
-    		char c = strChars[i];
-    		if(CharUtils.isAsciiNumeric(c)) {
-    			return i;
-    		}
-    	}
-    	return -1;
+    	return findViewById(R.id.reservationList).getVisibility() == View.VISIBLE;
     }
     
     private Long drawedReservId = Long.valueOf(-1);
@@ -2909,12 +1786,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	            protected List<Route> doInBackground(Void... params) {
 	                List<Route> routes = null;
 	                try {
-	                    RouteFetchRequest reservRequest = new RouteFetchRequest(
-	                    		reserv.getNavLink(),
-	                    		reserv.getDepartureTime(), 
-	                    		reserv.getDuration(),
-	                        0,
-	                        0);
+	                    RouteFetchRequest reservRequest = new RouteFetchRequest(reserv.getNavLink(), reserv.getDepartureTime(), reserv.getDuration(), 0, 0);
 	                    List<Route> tempRoutes = reservRequest.execute(LandingActivity2.this);
 	                    if(tempRoutes !=null && tempRoutes.size() > 0) {
 	                    	Route route = tempRoutes.get(0);
@@ -3003,7 +1875,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             return;
         }else if(StringUtils.isNotBlank(intentAddress)){
         	searchIntentAddress(intentAddress);
-        	disableRefreshTripInfo.set(true);
+        	reservationListView.disableRefreshTripInfo.set(true);
         }
     }
     
@@ -3114,9 +1986,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 extras.putParcelable(RouteActivity.DEST_COORD, curTo.geopoint);
                 extras.putParcelable(RouteActivity.DEST_OVERLAY_INFO, curTo);
                 intent.putExtras(extras);
-//                hideBulbBalloon();
-//                hideStarredBalloon();
-                removeAllOD();
                 startActivity(intent);
                 finish();
             }
@@ -3126,7 +1995,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }
     }
     
-    private void startValidationActivity(final Reservation reserv) {
+    public void startValidationActivity(final Reservation reserv) {
     	MainActivity.initSettingsIfNecessary(LandingActivity2.this, new Runnable() {
 			@Override
 			public void run() {
@@ -3142,9 +2011,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		        	curLoc.setHeading(cacheLoc.lastHeading);
 		        	intent.putExtra(ValidationActivity.CURRENT_LOCATION, (Parcelable)curLoc);
 		        }
-//		          hideBulbBalloon();
-//                hideStarredBalloon();
-		        removeAllOD();
 		        startActivity(intent);
 		        finish();
 			}
@@ -3423,9 +2289,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
                 	serviceArea.set(true);
                 	checkInboxUrlAndUpdateMenu(result.name);
                     try{
-                        cityRange = new RouteRect(Double.valueOf(result.maxLat * 1E6).intValue(), 
-                    		Double.valueOf(result.maxLon * 1E6).intValue(), Double.valueOf(result.minLat * 1E6).intValue(), 
-                    		Double.valueOf(result.minLon * 1E6).intValue());
+                        cityRange = new RouteRect(Double.valueOf(result.maxLat * 1E6).intValue(), Double.valueOf(result.maxLon * 1E6).intValue(), Double.valueOf(result.minLat * 1E6).intValue(), Double.valueOf(result.minLon * 1E6).intValue());
                         cityName = result.name;
                         LoadImageTask logoTask = new LoadImageTask(LandingActivity2.this, result.logo) {
                             protected void onPostExecute(final Bitmap rs) {
@@ -3743,25 +2607,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	private boolean isPopupMenuShown() {
 		return popupPanel.getVisibility() == View.VISIBLE;
 	}
-	
-	/*private void simulateTouch(View popupPanel, Screen xy) {
-		// Obtain MotionEvent object
-		long downTime = System.currentTimeMillis();
-		long eventTime = downTime + 100;
-		// List of meta states found here: developer.android.com/reference/android/view/KeyEvent.html#getMetaState()
-		int metaState = 0;
-		MotionEvent motionEvent = MotionEvent.obtain(
-		    downTime, 
-		    eventTime, 
-		    MotionEvent.ACTION_DOWN, 
-		    xy.x, 
-		    xy.y, 
-		    metaState
-		);
-
-		// Dispatch touch event to view
-		popupPanel.dispatchTouchEvent(motionEvent);
-	}*/
     
 	// temporarily always show center
     public Screen getScreenXY(double lat, double lon) {
@@ -4001,7 +2846,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 		fromSearchBox.setText("");
 		fromIcon.setVisibility(View.INVISIBLE);
 		clearFromSearchResult();
-		disableRefreshTripInfo.set(false);
+		reservationListView.disableRefreshTripInfo.set(false);
     }
     
     
@@ -4231,7 +3076,6 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         SKMaps.getInstance().destroySKMaps();
     }
     
-    private AtomicBoolean disableRefreshTripInfo = new AtomicBoolean(false);
     
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
@@ -4243,17 +3087,17 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         
         Bundle extras = intent == null ? null : intent.getExtras();
         
-        if(requestCode == ON_MY_WAY && resultCode == Activity.RESULT_OK) {
+        if(requestCode == ReservationListView.ON_MY_WAY && resultCode == Activity.RESULT_OK) {
         	final String emails = extras.getString(ValidationActivity.EMAILS);
         	final String phones = extras.getString(ValidationActivity.PHONES);
-        	Reservation reserv = getFirstReservation();
+        	Reservation reserv = reservationListView.getFirstReservation();
         	if(reserv != null) {
         		DebugOptionsActivity.addRecipientsOfReserv(LandingActivity2.this, reserv.getRid(), emails, phones);
         	}
         }
         else if(requestCode == FavoriteOperationActivity.FAVORITE_OPT && resultCode == Activity.RESULT_OK) {
-        	hideTripInfoPanel();
-        	disableRefreshTripInfo.set(true);
+        	reservationListView.hideTripInfoPanel();
+        	reservationListView.disableRefreshTripInfo.set(true);
         	String optType = extras.getString(FavoriteOperationActivity.FAVORITE_OPT_TYPE);
         	if(FavoriteOperationActivity.FAVORITE_DELETE.equals(optType)) {
         		Integer deleteUniqueId = extras.getInt(FavoriteOperationActivity.FAVORITE_POI_UNIQUE_ID);
@@ -4285,7 +3129,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }
     }
     
-    public void openMenu(DrawerLayout drawer) {
+    public void toggleMenu() {
     	View menuNotification = findViewById(R.id.menu_notification);
     	if(menuNotification.getVisibility() == View.VISIBLE) {
     		if(StringUtils.isNotBlank(inboxCityName)) {
@@ -4293,21 +3137,18 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
     		}
     		menuNotification.setVisibility(View.GONE);
     	}
-    	drawer.openDrawer(findViewById(R.id.left_drawer));
+    	DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        View drawer = findViewById(R.id.left_drawer);
+    	if (drawerLayout.isDrawerOpen(GravityCompat.START)) drawerLayout.closeDrawer(drawer);
+    	else drawerLayout.openDrawer(drawer);
     }
     
     @Override
     public boolean onKeyDown(int keycode, KeyEvent e) {
         switch(keycode) {
             case KeyEvent.KEYCODE_MENU:
-            	if(findViewById(R.id.reservations_list_view).getVisibility()!=View.VISIBLE) {
-	                final DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-	                View drawer = findViewById(R.id.left_drawer);
-	                if(mDrawerLayout.isDrawerOpen(drawer)){
-	                    mDrawerLayout.closeDrawer(drawer);
-	                }else{
-	                    openMenu(mDrawerLayout);
-	                }
+            	if(findViewById(R.id.reservationList).getVisibility()!=View.VISIBLE) {
+	                toggleMenu();
                 }
                 return true;
             case KeyEvent.KEYCODE_BACK:
@@ -4330,8 +3171,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             		removeAllOD();
             		return true;
             	}
-            	else if(!isReservationInfoShown() && hasReservTrip()) {
-            		showTripInfoPanel(true, true);
+            	else if(!isReservationInfoShown() && reservationListView.hasReservTrip()) {
+            		reservationListView.showTripInfoPanel(true, true);
             		return true;
             	}
             	else {
@@ -4431,189 +3272,7 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
         }
     }
     
-    static class RescheduleTripTask extends AsyncTask<Void, Void, Void> {
-        
-        interface Callback {
-            
-            void run(Reservation reserv);
-            
-        }
-        
-        CancelableProgressDialog dialog;
-        
-        String originAddress;
-        
-        String address;
-        
-        LandingActivity2 activity;
-        
-        Context ctx;
-        
-        GeoPoint origin;
-        
-        GeoPoint dest;
-        
-        ExceptionHandlingService ehs;
-        
-        Route _route;
-        
-        boolean startedMakingReserv;
-        
-        String versionNumber = "";
-        
-        ReservationTollHovInfo reservInfo;
-        
-        Callback callback = new Callback() {
-            @Override
-            public void run(Reservation reserv) {
-                Intent intent = new Intent(activity, ValidationActivity.class);
-                intent.putExtra("route", reserv.getRoute());
-                intent.putExtra("reservation", reserv);
-                activity.startActivity(intent);
-            }
-        };
-        
-        long id;
-        
-        RescheduleTripTask(LandingActivity2 ctx, GeoPoint origin, String originAddress, String destAddress, long rescheduleId, String versionNumber, ExceptionHandlingService ehs, ReservationTollHovInfo info){
-            this.ehs = ehs;
-            this.ctx = ctx;
-            this.activity = ctx;
-            this.origin = origin;
-            this.originAddress = originAddress;
-            this.address = destAddress;
-            this.id = rescheduleId;
-            dialog = new CancelableProgressDialog(ctx, "Loading...");
-            this.versionNumber = versionNumber;
-            this.reservInfo = info;
-        }
-        
-        @Override
-        protected void onPreExecute() {
-            dialog.show();
-            if(this._route == null && origin == null){
-                final LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
-                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    SystemService.alertNoGPS(activity, true, new SystemService.Callback() {
-                        @Override
-                        public void onNo() {
-                            if (dialog.isShowing()) {
-                                dialog.cancel();
-                            }
-                        }
-                    });
-                }
-                android.location.LocationListener locationListener = new android.location.LocationListener() {
-                    @Override
-                    public void onLocationChanged(Location location) {
-                        try{
-                            locationManager.removeUpdates(this);
-                            dialog.dismiss();
-                            origin = new GeoPoint(location.getLatitude(), location.getLongitude());
-                        }catch(Throwable t){}
-                    }
-                    @Override
-                    public void onStatusChanged(String provider, int status, Bundle extras) {}
-                    @Override
-                    public void onProviderEnabled(String provider) {}
-                    @Override
-                    public void onProviderDisabled(String provider) {}
-                };
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-            }
-        }
-        
-        @Override
-        protected Void doInBackground(Void... params) {
-            if(this._route == null && dest == null){
-                try {
-                	dest = Geocoding.lookup(ctx, address, origin.getLatitude(), origin.getLongitude()).get(0).getGeoPoint();
-                    GeoPoint curLoc = DebugOptionsActivity.getCurrentLocationLatLon(ctx);
-                    if(curLoc != null){
-                        origin = curLoc;
-                    }
-                }
-                catch (Exception e) {
-                    ehs.registerException(e);
-                }
-            }
-            return null;
-        }
-        
-        @Override
-        protected void onPostExecute(Void result) {
-        	if (((Activity)ctx).isFinishing()) return;
-            if (ehs.hasExceptions()) {
-                if (dialog.isShowing()) {
-                    dialog.cancel();
-                }
-                ehs.reportExceptions();
-            }else{
-                makeReservation();
-            }
-        }
-        
-        void cancelTask(){
-            if (dialog.isShowing()) {
-                dialog.cancel();
-            }
-            cancel(true);
-        }
-        
-        void makeReservation(){
-            if(!startedMakingReserv && ((origin != null && dest != null) || _route != null)){
-                startedMakingReserv = true;
-                Misc.parallelExecute(new AsyncTask<Void, Void, Reservation>(){
-                    @Override
-                    protected Reservation doInBackground(Void... params) {
-                        Reservation reserv = null;
-                        AdjustableTime departureTime = new AdjustableTime();
-                        departureTime.setToNow();
-                        User user = User.getCurrentUser(ctx);
-                        try {
-                            Route route;
-                            if(_route == null){
-                                RouteFetchRequest routeReq = new RouteFetchRequest(user, 
-                                    origin, dest, departureTime.initTime().toMillis(false),
-                                    0, 0, originAddress, address, reservInfo.isIncludeToll(), versionNumber, reservInfo.isHov());
-                                route = routeReq.execute(ctx).get(0);
-                                route.setAddresses(originAddress, address);
-                                route.setUserId(user.getId());
-                            }else{
-                               route = _route; 
-                            }
-                            ReservationRequest reservReq = new ReservationRequest(user, 
-                                route, ctx.getString(R.string.distribution_date), id);
-                            reservReq.execute(ctx);
-                            ReservationListFetchRequest reservListReq = new ReservationListFetchRequest(user);
-                            reservListReq.invalidateCache(ctx);
-                            List<Reservation> reservs = reservListReq.execute(ctx);
-                            for (Reservation r : reservs) {
-                                if(((Long)r.getRid()).equals(route.getId())){
-                                    reserv = r;
-                                }
-                            }
-                        }
-                        catch(Exception e) {
-                            ehs.registerException(e);
-                        }
-                        return reserv;
-                    }
-                    protected void onPostExecute(Reservation reserv) {
-                    	if (((Activity)ctx).isFinishing()) return;
-                        if (dialog.isShowing()) {
-                            dialog.cancel();
-                        }
-                        if (ehs.hasExceptions()) {
-                            ehs.reportExceptions();
-                        }else if(reserv != null && callback != null){
-                            callback.run(reserv);
-                        }
-                    }
-                });
-            }
-        }
-    }
+    
 
 	@Override
 	public void onActionPan() {}
@@ -4771,24 +3430,16 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
             	startLocationUpdates();
                 break;
             case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                Log.i("LandingActivity2", "Location settings are not satisfied. Show the user a dialog to" +
-                        "upgrade location settings ");
+                Log.i("LandingActivity2", "Location settings are not satisfied. Show the user a dialog to upgrade location settings ");
 
                 try {
-                    // Show the dialog by calling startResolutionForResult(), and check the result
-                    // in onActivityResult().
+                    // Show the dialog by calling startResolutionForResult(), and check the result in onActivityResult().
                     status.startResolutionForResult(LandingActivity2.this, REQUEST_CHECK_SETTINGS);
                 } catch (IntentSender.SendIntentException e) {
                 }
                 break;
             case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                Log.i("LandingActivity2", "Location settings are inadequate, and cannot be fixed here. Dialog " +
-                        "not created.");
-//                if(googleApiClient != null) {
-//                	googleApiClient.disconnect();
-//                	googleApiClient = null;
-//                }
-//                prepareGPS();
+                Log.i("LandingActivity2", "Location settings are inadequate, and cannot be fixed here. Dialog not created.");
                 startLocationUpdates();
                 break;
         }
@@ -4814,8 +3465,8 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 			@Override
 			public void run() {
 				drawedReservId = Long.valueOf(-1);
-				if(!disableRefreshTripInfo.get()) {
-					dismissReservId = Long.valueOf(-1);
+				if(!reservationListView.disableRefreshTripInfo.get()) {
+					reservationListView.dismissReservId = Long.valueOf(-1);
 					refreshTripsInfo();
 				}
 		        
@@ -4879,12 +3530,206 @@ public final class LandingActivity2 extends FragmentActivity implements SKMapSur
 	public void onClick(View v) {
 		
 		switch(v.getId()) {
+			case R.id.drawer_menu_icon_panel:
+				toggleMenu();
+			break;
+			case R.id.center_map_icon:
+				if (restrictedMode && routeRect!=null) zoomMapToFitBulbPOIs();
+				else if(lastLocation != null) {
+                    if(mapView.getZoomLevel() == ValidationActivity.DEFAULT_ZOOM_LEVEL){
+                    	if(routeRect != null) {
+                    		zoomMapToFitBulbPOIs();
+                    	}
+                    	else {
+                    	    mapView.setZoom(calculateZoomLevel(lastLocation.getLatitude()));
+                    	}
+                    }else{
+                        mapView.setZoom(ValidationActivity.DEFAULT_ZOOM_LEVEL);
+                        if(myPoint != null){
+                            mapView.centerMapOnPosition(new SKCoordinate(myPoint.getLongitude(), myPoint.getLatitude()));
+                        }
+                    }
+                }else{
+                    lastLocation = null;
+                    mapRecenter.set(true);
+                    prepareGPS();
+                }
+			break;
+			case R.id.passenger_mode_icon:
+				SharedPreferences prefs = Preferences.getGlobalPreferences(this);
+	            int duoTutorialFinish = prefs.getInt(Preferences.Global.DUO_TUTORIAL_FINISH, 0);
+	            
+				if (duoTutorialFinish==1) {
+	                Intent intent = new Intent(this, PassengerActivity.class);
+	                JSONObject validationResult = (JSONObject) passengerIcon.getTag();
+	                if (validationResult!=null) intent.putExtra("result", validationResult.toString());
+					startActivity(intent);
+	                finish();
+				}
+				else new BlurDialog(this).show();
+			break;
+			case R.id.trip_notify_icon:
+				reservationListView.showTripInfoPanel(true, true);
+			break;
+			case R.id.get_route:
+
+				if(!serviceArea.get()) {
+					if(notifyOutOfService.getAndSet(false)) {
+						CharSequence msg = Html.fromHtml(outOfServiceHtml);
+                        NotificationDialog2 dialog = new NotificationDialog2(LandingActivity2.this, msg);
+                        dialog.setTitle("Notification");
+                        dialog.setPositiveActionListener(new ActionListener() {
+							@Override
+							public void onClick() {
+								setGetRouteButtonState(true);
+							}
+                        });
+                        dialog.show();
+					}
+				}
+				else if(curFrom != null && StringUtils.isBlank(curFrom.address)) {
+						
+					ResultCallback<LocationSettingsResult> callback = new ResultCallback<LocationSettingsResult>() {
+						public void onResult(LocationSettingsResult result) {
+							try {
+								if (result.getStatus().getStatusCode()==LocationSettingsStatusCodes.RESOLUTION_REQUIRED)
+									result.getStatus().startResolutionForResult(LandingActivity2.this, REQUEST_CHECK_SETTINGS);
+							} catch (SendIntentException e) {}
+						}
+					};
+					if (googleApiClient!=null) {
+						PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(googleApiClient, locationSettingsRequest);
+						result.setResultCallback(callback);
+					}
+					
+					Misc.parallelExecute(new AsyncTask<Void, Void, Void>() {
+						
+						@Override
+						protected void onPreExecute() {
+							findViewById(R.id.loading_panel).setVisibility(View.VISIBLE);
+						}
+						
+						@Override
+						protected Void doInBackground(Void... params) {
+							try {
+								while(!getLocationRefreshStatus() && !cancelGetRoute.get()) {
+									Thread.sleep(1000);
+								}
+							}
+							catch(Exception ignore) {}
+							return null;
+						}
+								
+						@Override
+			        	protected void onPostExecute(Void result) {
+							findViewById(R.id.loading_panel).setVisibility(View.GONE);
+							if(!cancelGetRoute.getAndSet(false)) {
+								startRouteActivity();
+							}
+						}
+					});
+				}
+				else {
+					startRouteActivity();
+				}
+			break;
 			case R.id.score_notify:
 				findViewById(R.id.score_notify_close).performClick();
+			break;
+			case R.id.dashboard:
+			case R.id.my_trips:
+			case R.id.feedback_menu:
+			case R.id.share_menu:
+			case R.id.map_display_options:
+				MainMenu.onMenuItemSelected(this, 0, v.getId());
+			break;
+			case R.id.reservations:
+				toggleMenu();
+				reservationListView.closeIfEmpty.set(false);
+				findViewById(R.id.reservationList).setVisibility(View.VISIBLE);
+			break;
+			case R.id.favorite_list:
+				Intent favListIntent = new Intent(this, FavoriteListActivity.class);
+				favListIntent.putParcelableArrayListExtra(FavoriteListActivity.FAVORITE_LIST, favoriteAddresses);
+				favListIntent.putExtra("location", lastLocation);
+				startActivity(favListIntent);
+			break;
+			
+			
+			
+			case R.id.upoint_panel:
+				if(WebMyMetropiaActivity.hasMyMetropiaUrl(this)){
+			           Intent pointIntent = new Intent(this, WebMyMetropiaActivity.class);
+			           pointIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			           pointIntent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, WebMyMetropiaActivity.MY_METROPIA_PAGE);
+			           startActivity(pointIntent);
+			        }else{
+			           Intent pointIntent = new Intent(this, MyMetropiaActivity.class);
+			           pointIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			           startActivity(pointIntent);
+			        }
+			break;
+			case R.id.save_time_panel:
+				if(WebMyMetropiaActivity.hasTimeSavingUrl(this) || WebMyMetropiaActivity.hasMyMetropiaUrl(this)){
+			           Intent timeIntent = new Intent(this, WebMyMetropiaActivity.class);
+			           timeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			           Integer pageNo = WebMyMetropiaActivity.hasTimeSavingUrl(this) ? WebMyMetropiaActivity.TIME_SAVING_PAGE : WebMyMetropiaActivity.MY_METROPIA_PAGE;
+			           timeIntent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
+			           startActivity(timeIntent);
+			        }
+					else{
+			           Intent timeIntent = new Intent(this, MyMetropiaActivity.class);
+			           timeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			           startActivity(timeIntent);
+			        }
+			break;
+			case R.id.co2_panel:
+				if(WebMyMetropiaActivity.hasCo2SavingUrl(this) || WebMyMetropiaActivity.hasMyMetropiaUrl(this)){
+			           Intent co2Intent = new Intent(this, WebMyMetropiaActivity.class);
+			           co2Intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			           Integer pageNo = WebMyMetropiaActivity.hasCo2SavingUrl(this) ? WebMyMetropiaActivity.CO2_SAVING_PAGE : WebMyMetropiaActivity.MY_METROPIA_PAGE; 
+			           co2Intent.putExtra(WebMyMetropiaActivity.WHICH_PAGE, pageNo);
+			           startActivity(co2Intent);
+			        }else{
+			           Intent co2Intent = new Intent(this, MyMetropiaActivity.class);
+			           co2Intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			           startActivity(co2Intent);
+			        }
 			break;
 		}
 		
 	}
 
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		
+		Address selected = (Address)parent.getItemAtPosition(position);
+		if (StringUtils.isBlank(selected.getAddress())) return;
+		
+		InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        showAutoComplete.set(false);
+		
+		switch(parent.getId()) {
+			case R.id.search_result_list:
+				dropPinForAddress(selected, true, false);
+				clearSearchResult();
+			break;
+			case R.id.from_search_result_list:
+				dropPinForAddress(selected, true, true);
+				clearFromSearchResult();
+			break;
+			case R.id.from_favorite_drop_down:
+                dropPinForAddress(selected, true, true);
+                clearFromSearchResult();
+                fromDropDownButton.performClick();
+			break;
+			case R.id.to_favorite_drop_down:
+                dropPinForAddress(selected, true, false);
+                clearFromSearchResult();
+                toDropDownButton.performClick();
+			break;
+		}
+	}
 }
 

@@ -225,7 +225,7 @@ public abstract class Request {
             	LocalyticsUtils.tagAppError(LocalyticsUtils.BAD_RESULT);
                 throw new IOException(String.format("HTTP %d: %s", responseCode, responseBody));
             }
-	    }catch(Throwable t){Log.e("request error", t.toString());
+	    }catch(Throwable t){Log.e("request error:"+url, t.toString());
 	    	if(!hasResponse) {
 	    		LocalyticsUtils.tagAppError(LocalyticsUtils.NETWORK_ERROR);
 	    	}
@@ -250,9 +250,8 @@ public abstract class Request {
 			@Override
 			protected Void doInBackground(Void... params) {
 				try {
-					IssueReportRequest issue = new IssueReportRequest(User.getCurrentUser(ctx), 
-							message, url, reqParams, responseCode+"", responseBody);
-					issue.execute(ctx);
+					IssueReportRequest issue = new IssueReportRequest(User.getCurrentUser(ctx), message, url, reqParams, responseCode+"", responseBody);
+					//issue.execute(ctx);
 				}
 				catch(Exception ignore) {}
 				return null;
