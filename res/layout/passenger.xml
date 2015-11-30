@@ -165,7 +165,7 @@
 					android:id="@+id/duoPointTexts"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
-					android:paddingTop="15dp"
+					android:paddingTop="20dp"
 					android:orientation="horizontal"
 					android:gravity="center">
 					
@@ -173,25 +173,25 @@
 						android:id="@+id/duoPointString1"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
-						android:text="You've already earned "
-						android:textSize="16dp"
+						android:text="You've earned "
+						android:textSize="18dp"
 						android:textColor="#fff" />
 					<TextView
 						android:id="@+id/duoPoint"
-						android:layout_width="32dp"
-						android:layout_height="32dp"
+						android:layout_width="36dp"
+						android:layout_height="36dp"
 						android:gravity="center"
 						android:text="\?"
 						android:textColor="#fff"
 						android:textStyle="bold"
-						android:textSize="16dp"
+						android:textSize="18dp"
 						android:background="@drawable/point_circle_blue" />
 					<TextView
 						android:id="@+id/duoPointString2"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
 						android:text=" points."
-						android:textSize="16dp"
+						android:textSize="18dp"
 						android:textColor="#fff" />
 					
 				</LinearLayout>
@@ -205,7 +205,7 @@
 					android:layout_below="@id/duoPointTexts"
 					android:gravity="center"
 					android:text="@string/duoCongratulationMsg"
-					android:textSize="16dp"
+					android:textSize="18dp"
 					android:textColor="@android:color/white" />
 
 			</RelativeLayout>

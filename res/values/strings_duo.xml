@@ -26,7 +26,7 @@
 	
 	<string name="duoTripIntervalCheckTile">Your last trip was %s ago.</string>
 	<string name="duoTripIntervalCheckMsg">DUO trips must be 15 minutes apart. Please try again in %s.\n</string>
-	<string name="duoCongratulationMsg">Now SPIN and win some more as a\n bonus for carpooling with %s.</string>
+	<string name="duoCongratulationMsg"> for carpooling with %s.</string>
 	<string name="duoExitWithoutSpin">If you close without spinning the prize wheel, you will not be rewarded for this trip.</string>
 	
 	<string name="duoFailHeadMsg">Sorry, %s. You didn\'t receive any rewards for this trip.</string>
